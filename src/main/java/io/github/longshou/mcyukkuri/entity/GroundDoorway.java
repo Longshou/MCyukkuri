@@ -35,11 +35,15 @@ record GroundDoorway(boolean acrossX, DoorGap gap, double entry, double exit) {
         return null;
     }
 
+    /** The next step, or null once the body has reached the far side (or a route ending in the gap). */
     Vec3 aim(Vec3 from, Vec3 node, Vec3 next) {
         double along = acrossX ? node.z : node.x, after = acrossX ? next.z : next.x;
         double target = after > along ? Math.max(along, exit) : after < along ? Math.min(along, entry) : along;
-        double steer = gap.aimAlong(acrossX ? from.x : from.z, acrossX ? from.z : from.x, entry, exit, target);
-        double lane = gap.lane(acrossX ? node.x : node.z);
+        double fromAlong = acrossX ? from.z : from.x, lateral = acrossX ? from.x : from.z;
+        double nodeLateral = acrossX ? node.x : node.z;
+        if (gap.reached(lateral, fromAlong, nodeLateral, target, after - along)) return null;
+        double lane = gap.lane(nodeLateral);
+        double steer = gap.aimAlong(lateral, fromAlong, entry, exit, target);
         return acrossX ? new Vec3(lane, node.y, steer) : new Vec3(steer, node.y, lane);
     }
 }

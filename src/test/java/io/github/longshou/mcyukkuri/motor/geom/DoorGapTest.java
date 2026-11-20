@@ -30,6 +30,20 @@ class DoorGapTest {
         assertEquals(.5, framed(.5, false).lane(.5));
     }
 
+    @Test void nearJambIsAnAlignmentStepEvenWhenLessThanAMillimetreRemains() {
+        double radius = 13/32., entry = -radius, exit = 1 + radius;
+        var gap = framed(2 * radius, false);
+        double lane = gap.lane(.5);
+        assertEquals(entry, gap.aimAlong(lane + .0005, entry, entry, exit, exit));
+        assertFalse(gap.reached(lane + .0005, entry, .5, exit, 1));
+        assertEquals(exit, gap.aimAlong(Math.nextUp(lane), entry, entry, exit, exit));
+        assertTrue(gap.reached(lane, exit + .01, .5, exit, 1));
+        assertFalse(gap.reached(lane, exit, .5, entry, -1));
+        assertTrue(gap.reached(lane, entry - .01, .5, entry, -1));
+        assertFalse(gap.reached(lane + .0005, .5, .5, .5, 0));
+        assertTrue(gap.reached(lane, .5, .5, .5, 0));
+    }
+
     @Test void doubleDoorUsesTheFullOpeningBetweenBothLeaves() {
         var leaves = List.of(new DoorGap.Span(0, 3/16.), new DoorGap.Span(2 - 3/16., 2));
         assertEquals(1, DoorGap.fit(1, .8, new ArrayList<>(leaves)).lane(1));

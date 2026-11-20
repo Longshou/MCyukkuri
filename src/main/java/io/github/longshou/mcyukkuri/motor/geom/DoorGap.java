@@ -5,6 +5,8 @@ import java.util.List;
 
 /** Lateral positions the centre of a walking body can occupy between a door leaf and its jamb. */
 public record DoorGap(double low, double high) {
+    // Vanilla collision shapes treat faces this close as touching.
+    private static final double CONTACT_EPSILON = 1e-7;
     public record Span(double min, double max) {}
 
     /** Pick a clear lane within half a grid step of the node, accounting for both sides of the footprint. */
@@ -29,9 +31,16 @@ public record DoorGap(double low, double high) {
         return node >= low && node <= high ? node : (low + high) * .5;
     }
 
+    /** A through route clears the trailing edge. A route ending in the door stops at its lane. */
+    public boolean reached(double lateral, double along, double node, double target, double direction) {
+        if (direction > 0) return along >= target - CONTACT_EPSILON;
+        if (direction < 0) return along <= target + CONTACT_EPSILON;
+        return Math.abs(along - target) <= CONTACT_EPSILON && Math.abs(lateral - lane(node)) <= CONTACT_EPSILON;
+    }
+
     /** Approach diagonally up to the jamb, then maintain the lane until the trailing edge clears it. */
     public double aimAlong(double lateral, double along, double entry, double exit, double target) {
-        if (lateral < low || lateral > high) {
+        if (lateral < low - CONTACT_EPSILON || lateral > high + CONTACT_EPSILON) {
             if (along <= entry) return Math.min(entry, target);
             if (along >= exit) return Math.max(exit, target);
         }

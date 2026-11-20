@@ -286,9 +286,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             if (door == null) { stop(); return; }
             var node = path.getNextEntityPos(mob);
             int next = path.getNextNodeIndex() + 1;
-            var aim = door.aim(mob.position(), node, next < path.getNodeCount() ? path.getEntityPosAtNode(mob, next) : node);
-            if (mob.position().subtract(aim).horizontalDistanceSqr() > 1e-6) doorStep = aim;
-            else path.advance();
+            doorStep = door.aim(mob.position(), node, next < path.getNodeCount() ? path.getEntityPosAtNode(mob, next) : node);
+            if (doorStep == null) path.advance();
             doStuckDetection(getTempMobPos());
             return;
         }
