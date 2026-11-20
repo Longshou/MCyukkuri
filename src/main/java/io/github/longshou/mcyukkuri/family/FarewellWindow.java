@@ -10,4 +10,8 @@ enum FarewellWindow {
         if (this == EXCHANGE) return this; // The approaching child can still come into sight.
         return visible && inRange(distanceSquared) && (this != ONWARD || walkingAway) ? this : CLOSED;
     }
+
+    boolean canListen(int beat, boolean visible) {
+        return this == EXCHANGE ? beat >= 0 && visible : this == DEPARTURE || this == ONWARD;
+    }
 }

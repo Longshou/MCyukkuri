@@ -11,6 +11,14 @@ class FarewellWindowTest {
         assertFalse(inRange(24 * 24));
     }
 
+    @Test void theParentStopsItsErrandAtTheFirstVisibleWord() {
+        assertFalse(EXCHANGE.canListen(-1, true));
+        assertFalse(EXCHANGE.canListen(1, false));
+        assertTrue(EXCHANGE.canListen(1, true));
+        assertFalse(HANDOFF.canListen(-2, true));
+        assertTrue(ONWARD.canListen(-2, true));
+    }
+
     @Test void aDepartureKeepsItsReplyThroughTheHandoffToOrdinaryTravel() {
         assertEquals(DEPARTURE, DEPARTURE.observed(256, true, false)); // A look back.
         assertEquals(HANDOFF, HANDOFF.observed(256, true, false)); // The old selector still owns MOVE.

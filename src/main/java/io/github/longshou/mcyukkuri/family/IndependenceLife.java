@@ -505,8 +505,7 @@ public final class IndependenceLife extends Goal {
         return !navigation.isDone() && target != null && (target.getX() + .5 - child.getX()) * x + (target.getZ() + .5 - child.getZ()) * z > 0;
     }
     private boolean coolCanAnswer(YukkuriEntity child, FarewellWindow window) {
-        return window == FarewellWindow.EXCHANGE ? child.independence().beat() >= ANSWER && entity.hasLineOfSight(child)
-                : window == FarewellWindow.DEPARTURE || window == FarewellWindow.ONWARD;
+        return window.canListen(child.independence().beat(), window != FarewellWindow.EXCHANGE || entity.hasLineOfSight(child));
     }
     private void seeOff() {
         var child = seen();
@@ -516,7 +515,8 @@ public final class IndependenceLife extends Goal {
         int beat = child.independence().beat();
         SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(child, 30, 30);
-        if (attached ? beat < ANSWER : contact == 0 && !facePartner(child)) return;
+        if (!attached && contact == 0 && !facePartner(child)) return;
+        if (!late && beat < ANSWER) return;
         if (contact == 0) {
             // Its answer, once, by its own attachment: a glad blessing, or a sob and "come back sometimes".
             if (!attached && !entity.showReaction("happy", "farewell_bless", 60)) return;
