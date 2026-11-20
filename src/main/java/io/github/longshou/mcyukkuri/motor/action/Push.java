@@ -77,8 +77,10 @@ public final class Push implements Action {
             Motor.face(body, SurfaceApproach.yaw(body.position(), target.position()));
         }
         if (++t > length) return new Outcome.Done("pushed ticks=" + length);
-        if (target instanceof RemainsEntity && (!target.onGround() || !ContactGeometry.inMouthReach(body, target)))
-            return new Running(length - t, TravelMode.PASS);
+        if (target instanceof RemainsEntity) {
+            if (!body.onGround()) return Outcome.of(Reason.NO_SUPPORT, 0, "pusher_lost_support");
+            if (!target.onGround() || !ContactGeometry.inMouthReach(body, target)) return new Running(length - t, TravelMode.PASS);
+        }
         Vec3 away = target.position().subtract(body.position()).multiply(1, 0, 1);
         Vec3 push = away.lengthSqr() < 1E-8 ? Vec3.ZERO : away.normalize().scale(gain);
         if (target instanceof YukkuriEntity other) Motor.velocity(other, other.getDeltaMovement().add(push), "pushed");

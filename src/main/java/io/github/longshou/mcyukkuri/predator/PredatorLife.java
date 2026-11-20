@@ -909,7 +909,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 double contact = (animal.getBbWidth() + body.getBbWidth()) / 2;
                 var feet = SurfaceApproach.restingFloor(animal, body.position().relative(outward.getOpposite(), contact + .05));
                 if (feet == null || !freeStand(feet) || !ContactGeometry.inMouthReach(animal, feet, body)
-                        || !clearDrop(pad, body, feet) || !canDepart(feet) || !canFlyToFeet(feet)) continue;
+                        || !clearDrop(pad, body, feet) || !canDepart(feet) || shelfApproach(feet) == null) continue;
                 corpse = body;
                 destination = feet;
                 task = Task.CLEAR_PAD;
@@ -928,8 +928,10 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         var step = away.scale(travel + SurfaceApproach.ARRIVAL);
         var box = body.getBoundingBox();
         var swept = box.expandTowards(step);
+        var drop = BlockPos.containing(body.position().add(step));
+        int ground = CanopySite.groundY(level(), drop);
         return Entity.collideBoundingBox(body, step, box, level(), List.of()).distanceToSqr(step) < 1e-8
-                && level().noCollision(body, box.move(step).expandTowards(0, -1, 0))
+                && level().noCollision(body, box.move(step).expandTowards(0, ground - body.getY(), 0))
                 && level().getEntities(body, swept, other -> other != animal
                         && (other instanceof LivingEntity || other instanceof RemainsEntity)).isEmpty();
     }
@@ -950,7 +952,13 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             stop(); return;
         }
         if (landingState(true, SurfaceApproach.at(animal, destination)) != ShelfApproach.Landing.TOUCHDOWN) {
-            flyToFeet(destination, true); return;
+            if (shelfApproach(destination) != null) flyToFeet(destination, true);
+            else {
+                GameplayLog.limited(animal, "predator", "pad_drop_route", 200,
+                        "leftovers refused reason=no_clear_shelf_route pad={} stand={}", pad, destination);
+                stop();
+            }
+            return;
         }
         animal.setPredatorFlying(false);
         SurfaceApproach.halt(animal);
@@ -1004,6 +1012,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         var target = territoryTarget;
         if (pad == null || !animal.onGround() || !territoryIntruder(pad, target)) { stop(); return; }
         SurfaceApproach.halt(animal);
+        SurfaceApproach.face(animal, SurfaceApproach.yaw(animal.position(), target.position()));
         animal.getLookControl().setLookAt(target, 30, 30);
         if (ticks < YukkuriAction.PUFF.durationTicks()) return;
         if (Task.THREAT_APPROACH.needsLanding(animal.life().energy()) || !hasAirExit()
@@ -1011,6 +1020,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             stop(); return;
         }
         phase(Task.THREAT_APPROACH);
+        ticks = 0;
         destination = target.position();
         beginFlight();
     }
@@ -1595,7 +1605,10 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (task == Task.PERCH) { perch(); return; }
         if (task == Task.WARN) { warnIntruder(); return; }
         if (task == Task.YIELD_TERRITORY) {
-            if (!animal.onGround() || ticks >= YukkuriAction.PUFF.durationTicks()) leaveTerritory();
+            if (!animal.onGround() || ticks >= YukkuriAction.PUFF.durationTicks()) {
+                ticks = 0;
+                leaveTerritory();
+            } else SurfaceApproach.face(animal, SurfaceApproach.yaw(animal.position(), territoryTarget.position()));
             return;
         }
         if (task == Task.THREAT_APPROACH || task == Task.THREAT_DIVE) { threatPass(); return; }
