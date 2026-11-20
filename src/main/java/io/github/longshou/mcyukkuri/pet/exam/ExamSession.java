@@ -134,11 +134,7 @@ public final class ExamSession {
             if (amount == 0) return;
         }
     }
-    public static boolean giveTo(Player p, ItemStack stack) {
-        if (p.getInventory().add(stack)) return true;
-        p.drop(stack, false);
-        return false;
-    }
+    public static void giveTo(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
 
     public static Need firstMissing(BadgeGrade target, YukkuriEntity y) {
         var s = y.skills();

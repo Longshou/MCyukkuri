@@ -386,18 +386,22 @@ def badge_hall_checks(piece):
         return ['badge hall needs exactly one counter clerk and one hall marker']
     clerk, marker = clerks[0], markers[0]
     post, podium, view = (6, 3, 26), (8, 3, 23), (10, 3, 22)
-    if (tuple(clerk['blockPos']) != post or clerk['nbt']['id'] != 'mcyukkuri:caretaker_sister'
+    if (tuple(clerk['blockPos']) != post or tuple(clerk['pos']) != add(post, (.5, 0, .5))
+            or clerk['nbt']['id'] != 'mcyukkuri:caretaker_sister'
             or clerk['nbt']['HumanJob'] != 0 or clerk['nbt']['HumanAttitude'] != 2):
         return ['counter post must have a neutral resident sister']
     if (marker['nbt']['id'] != 'minecraft:marker' or tuple(marker['blockPos']) != (18, 1, 11)
+            or tuple(marker['pos']) != (18.5, 1, 11.5)
             or marker['nbt']['Rotation'][0] != 180):
         return ['badge hall marker must face north on its plaza cell']
-    for key, at in (('Clerk', post), ('Podium', podium), ('View', view)):
+    for key, at in (('Clerk', post), ('View', view)):
         offset = marker['nbt'].get('data', {}).get(key, ())
         if len(offset) != 3 or add(marker['blockPos'], offset) != at:
             return [f'badge hall marker {key} must resolve to {at}']
-    if piece.state(podium)[:2] != ('mcyukkuri:exam_podium', {'facing': 'south'}):
-        return ['badge hall podium missing or facing away from the counter']
+    if 'Podium' in marker['nbt']['data'] or not clear(piece.state(podium)):
+        return ['counter-only hall must leave the future podium site clear and unassigned']
+    if not sturdy(piece.state(add(post, (0, 0, -1)))):
+        return ['counter desk is missing from the public side of the post']
 
     def ray(start, end):
         for step in range(129):

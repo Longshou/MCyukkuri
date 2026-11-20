@@ -204,7 +204,7 @@ public final class HumanNpc extends PathfinderMob {
         return home != null && onGround() && distanceToSqr(Vec3.atBottomCenterOf(home)) < .64;
     }
     public boolean counterWorking() {
-        return atBadgeCounter() && !isNoAi() && !avoidingStreet() && !walking()
+        return atBadgeCounter() && !isNoAi() && !avoidingStreet() && !walking() && attention == null
                 && getNavigation().isDone() && !street.helping() && !street.shooingCrop();
     }
     boolean avoidingStreet() { return routineDelay < 0; }
@@ -334,7 +334,7 @@ public final class HumanNpc extends PathfinderMob {
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
-            else if (examAuthority()) ExamMenu.open(player, this);
+            else if (job() == Job.EXAMINER || badgeCounter() && atBadgeCounter()) ExamMenu.open(player, this);
             else HumanFolk.interact(player, this);
         }
         return InteractionResult.sidedSuccess(level().isClientSide);
@@ -648,7 +648,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** A free-roaming resident feeds and pets wild yukkuri and its own pet; other people's pets and shop stock are not its business (staff tend their site's animals). */
     boolean mayTend(YukkuriEntity y) {
-        if (!siteRole.isEmpty()) return true;
+        if (!siteRole.isEmpty() && !badgeCounter()) return true;
         if (y.getLeashHolder() == this) return false; // the pet on the lead is walked, not fussed over
         return (Custody.view(y).owner() == null) || HumanCommerce.ownedBy(y, getUUID());
     }

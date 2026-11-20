@@ -147,7 +147,9 @@ public final class Discovery {
     }
 
     /** Called on each actual LOOK tick, with the booking owner available for immediate advancement delivery. */
-    public void inspect(YukkuriEntity parent, HumanNpc examiner, Player owner) { witness(parent, examiner, true, owner); }
+    public void inspect(YukkuriEntity parent, HumanNpc examiner, Player owner) {
+        if (examiner.badgeStaff()) witness(parent, examiner, true, owner);
+    }
 
     private void witness(YukkuriEntity parent, LivingEntity judge, boolean exam, Player attendee) {
         if (open.isEmpty() || !HumanSight.sees(judge, parent)) return;

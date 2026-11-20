@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
+import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -40,6 +41,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.phys.Vec3;
 
 /** Everything an owner-registered individual carries: grade, real skills, records and owner state. Qualification belongs to the individual. */
 public final class PetLife {
@@ -127,9 +129,11 @@ public final class PetLife {
     // token
     public ItemStack token() {
         if (grade == BadgeGrade.NONE) return ItemStack.EMPTY;
-        var stack = new ItemStack(item(grade));
         if (serial == null) serial = ModRandom.identity(animal.getRandom());
-        final var id = serial;
+        return token(serial);
+    }
+    private ItemStack token(UUID id) {
+        var stack = new ItemStack(item(grade));
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putUUID("BadgeAnimal", animal.getUUID()); tag.putUUID("BadgeSerial", id); tag.putInt("BadgeTier", grade.id());
         });
@@ -146,7 +150,8 @@ public final class PetLife {
     }
     public boolean detach(Player p) {
         if (!near(p) || !owned(p) || busy() || ExamSession.running(animal) || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
-        var stack = token(); worn = false; give(p, stack); PetScenes.taken(animal, p);
+        if (giveToken(p, token()) == Delivery.REFUSED) return false;
+        worn = false; PetScenes.taken(animal, p);
         GameplayLog.event(animal, "badge", "detached player={} grade={} serial={}", p.getUUID(), grade, serial);
         return true;
     }
@@ -159,11 +164,26 @@ public final class PetLife {
         GameplayLog.event(animal, "badge", "attached player={} grade={} serial={} remaining={}", p.getUUID(), grade, serial, stack.getCount());
         return true;
     }
-    /** New serial, old tokens die; the caller charges the fee and hands the stack over. */
     /** A sold animal's badge: new serial (every earlier token dies, detached or not) and the badge is worn again. */
     public void rotateSerial() { if (grade == BadgeGrade.NONE || disqualified()) return; serial = ModRandom.identity(animal.getRandom()); worn = true; }
-    public ItemStack reissueToken() { if (grade == BadgeGrade.NONE) return ItemStack.EMPTY; serial = ModRandom.identity(animal.getRandom()); worn = false; return token(); }
-    private static void give(Player p, ItemStack stack) { if (!p.getInventory().add(stack)) p.drop(stack, false); }
+    public enum Delivery { INVENTORY, GROUND, REFUSED }
+    public Delivery reissueToken(Player player) {
+        var nextSerial = ModRandom.identity(animal.getRandom());
+        var delivery = giveToken(player, token(nextSerial));
+        if (delivery != Delivery.REFUSED) {
+            serial = nextSerial;
+            worn = false;
+        }
+        return delivery;
+    }
+    private static Delivery giveToken(Player player, ItemStack token) {
+        int slot = player.getInventory().getFreeSlot();
+        if (slot >= 0) {
+            player.getInventory().setItem(slot, token);
+            return Delivery.INVENTORY;
+        }
+        return ItemContact.release(player, token, player.position(), Vec3.ZERO) != null ? Delivery.GROUND : Delivery.REFUSED;
+    }
     public void markAccessory(ItemStack accessory) {
         CustomData.update(DataComponents.CUSTOM_DATA, accessory, tag -> {
             tag.putInt("BadgeTier", worn ? grade.id() : 0);

@@ -7897,6 +7897,8 @@
   "exam.mcyukkuri.interrupt.owner_far": "the owner walked away",
   "exam.mcyukkuri.log_title": "Latest certification for %s",
   "exam.mcyukkuri.reissued": "A new badge was issued for %s. The old one is void; pin the new one on.",
+  "exam.mcyukkuri.reissued_ground": "Your inventory is full. The new badge for %s is at your feet.",
+  "exam.mcyukkuri.refuse.no_room": "Make room for the new badge in your inventory.",
   "exam.mcyukkuri.outcome.0": "Passed: %s",
   "exam.mcyukkuri.outcome.1": "Kept: %s",
   "exam.mcyukkuri.outcome.2": "Failed",

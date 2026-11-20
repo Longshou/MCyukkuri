@@ -7895,6 +7895,8 @@
   "exam.mcyukkuri.interrupt.owner_far": "主人走远了",
   "exam.mcyukkuri.log_title": "%s 的最近一次认证",
   "exam.mcyukkuri.reissued": "已为 %s 补发徽章，旧徽章作废，请给它别上新徽章。",
+  "exam.mcyukkuri.reissued_ground": "物品栏已满，给 %s 的新徽章放在你脚边了。",
+  "exam.mcyukkuri.refuse.no_room": "请在物品栏为新徽章腾出一格。",
   "exam.mcyukkuri.outcome.0": "合格：%s",
   "exam.mcyukkuri.outcome.1": "维持：%s",
   "exam.mcyukkuri.outcome.2": "不合格",

@@ -16,7 +16,7 @@ public final class BadgeItem extends Item {
         if (!(target instanceof YukkuriEntity y)) return InteractionResult.PASS;
         if (!p.level().isClientSide) {
             if (handbook) BadgeMenu.open(p, y);
-            else if (!y.pet().attach(p, stack)) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
+            else if (!y.pet().attach(p, p.getItemInHand(hand))) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
         }
         return InteractionResult.sidedSuccess(p.level().isClientSide);
     }

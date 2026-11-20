@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -334,8 +335,8 @@ public final class ScenarioCommands {
                                     target.pet().issue(grade, 3, holder.getUUID());
                                     if (holder instanceof Player player && detached) {
                                         // The domain API creates the token from this individual's current UUID and serial; never handcraft its data.
-                                        var token = target.pet().reissueToken();
-                                        if (!player.getInventory().add(token)) player.drop(token, false);
+                                        if (target.pet().reissueToken(player) == PetLife.Delivery.REFUSED)
+                                            return refused(c.getSource(), target, "签发徽章", "请腾出一个物品栏空位。");
                                     }
                                     return done(c.getSource(), detached ? "已签发该个体的真实徽章令牌。" : "已签发并佩戴真实徽章。");
                                 })))))

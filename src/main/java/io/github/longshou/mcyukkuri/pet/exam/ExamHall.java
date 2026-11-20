@@ -35,7 +35,7 @@ public final class ExamHall {
     }
 
     static boolean hasPodium(ServerLevel level, TownMarkers.BadgeCounter counter) {
-        return counter.present(level) && level.hasChunkAt(counter.podium())
+        return counter.podium() != null && counter.present(level) && level.hasChunkAt(counter.podium())
                 && level.getBlockState(counter.podium()).is(HumanWorld.EXAM_PODIUM.get());
     }
 

@@ -146,8 +146,9 @@ public final class TownMarkers {
                         .thenComparing(Marker::getUUID))
                 .map(marker -> {
                     var data = data(marker);
-                    if (Stream.of("Clerk", "Podium", "View").anyMatch(key -> data.getList(key, Tag.TAG_INT).size() != 3)) return null;
-                    return new BadgeCounter(marker, offset(marker, data, "Clerk"), offset(marker, data, "Podium"),
+                    if (Stream.of("Clerk", "View").anyMatch(key -> data.getList(key, Tag.TAG_INT).size() != 3)) return null;
+                    var podium = data.getList("Podium", Tag.TAG_INT).size() == 3 ? offset(marker, data, "Podium") : null;
+                    return new BadgeCounter(marker, offset(marker, data, "Clerk"), podium,
                             offset(marker, data, "View"), rotation(marker).rotate(Direction.NORTH));
                 })
                 .filter(site -> site != null && site.post().equals(post)).findFirst().orElse(null);

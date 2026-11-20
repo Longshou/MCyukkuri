@@ -3288,18 +3288,25 @@ def counter_action(tick, action, result, check=''):
 
 
 def counter_reissue_smoke():
+    dropped = f'@e[type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}"}}}},distance=..8]'
+    ground_serial = f'entity {dropped[:-1]},limit=1] Item.components."minecraft:custom_data".BadgeSerial'
     return dict(ticks=180, commands=[
         *counter_owner_setup(),
         (3, f'execute as {_COUNTER_OWNER} run yukkuri scenario badge {_COUNTER_PET} bronze true'),
-        (4, 'setblock ~-2 ~2 ~ minecraft:air'),
+        (4, f'data modify storage mcylab:counter serial set from entity {_COUNTER_PET} YukkuriPet.Serial'),
         (4, block(19, 0, 0, 'mcyukkuri:exam_podium[facing=east]')),
         (4, human('caretaker_brother', 20, 0, 'decoy_judge', 3)),
         *counter_action(6, 'open', 1),
         *counter_action(8, 'certify', 0),
         *counter_action(10, 'reissue', 0),
+        (11, f'execute store success score #counter_changed museum run data modify storage mcylab:counter serial '
+             f'set from entity {_COUNTER_PET} YukkuriPet.Serial'),
+        (12, f'execute if score #counter_changed museum matches 0 if items entity {_COUNTER_OWNER} hotbar.0 {_COUNTER_BRONZE} '
+             'run say COUNTER_UNFUNDED_INTACT'),
         (12, f'item replace entity {_COUNTER_OWNER} hotbar.1 with minecraft:emerald'),
         *counter_action(14, 'reissue', 1, f'if items entity {_COUNTER_OWNER} hotbar.1 {_COUNTER_BRONZE} '),
         *counter_action(16, 'close', 1),
+        (17, f'gamemode creative {_COUNTER_OWNER}'),
         (18, f'yukkuri scenario shop_stock_click {_COUNTER_PET}'),
         (19, f'execute if items entity {_COUNTER_OWNER} hotbar.0 {_COUNTER_BRONZE} '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:0b}} run say COUNTER_STALE_REFUSED'),
@@ -3312,14 +3319,18 @@ def counter_reissue_smoke():
           for slot in [*(f'hotbar.{i}' for i in range(2, 9)), *(f'inventory.{i}' for i in range(27))]),
         *counter_action(30, 'open', 1),
         *counter_action(32, 'reissue', 1),
-        (34, f'execute if entity @e[type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}",count:1}}}},distance=..8] '
+        (33, f'execute store result score #counter_drops museum if entity {dropped}'),
+        (33, f'data modify storage mcylab:counter serial set from entity {_COUNTER_PET} YukkuriPet.Serial'),
+        (33, f'execute store success score #counter_changed museum run data modify storage mcylab:counter serial set from {ground_serial}'),
+        (34, f'execute if score #counter_drops museum matches 1 if entity @e[type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}",count:1}}}},distance=..8] '
+             f'if score #counter_changed museum matches 0 if data {ground_serial} if entity @p[name=MuseumOperator,gamemode=creative] '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:0b}} '
              f'if data entity {_COUNTER_OWNER} Inventory[{{Slot:1b,id:"minecraft:emerald",count:1}}] run say COUNTER_GROUND_DROP'),
         (34, 'execute if data block ~-1 ~3 ~2 Items[{id:"mcyukkuri:bronze_yukkuri_badge",count:1}] run say COUNTER_TRAY_INTACT'),
         *counter_action(36, 'close', 1),
         (38, 'yukkuri scenario tool_operator leave')],
         expect=[*(f'COUNTER_OK_{tick}' for tick in (6, 8, 10, 14, 16, 30, 32, 36)),
-                'COUNTER_STALE_REFUSED', 'COUNTER_PINNED', 'COUNTER_GROUND_DROP', 'COUNTER_TRAY_INTACT',
+                'COUNTER_UNFUNDED_INTACT', 'COUNTER_STALE_REFUSED', 'COUNTER_PINNED', 'COUNTER_GROUND_DROP', 'COUNTER_TRAY_INTACT',
                 r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_hall\b',
                 r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_fee\b',
                 r'\[badge\][^\n]*reissued [^\n]*fee=1 [^\n]*grade=BRONZE destination=inventory remaining=0',
@@ -3334,30 +3345,6 @@ add(_counter_reissue, 'town', '在会馆柜台补发徽章，再给它别上', '
                 f'execute if entity @s[type=minecraft:player] run yukkuri scenario badge {_COUNTER_PET} bronze true'],
     env=DAY, vantage=(-4, 0, 0, 0, 2), give=['minecraft:emerald'],
     reads=_CERTIFY_VIEW['reads'], smoke=counter_reissue_smoke())
-
-
-_counter_certify = 'badge_counter_certify'
-add(_counter_certify, 'town', '柜台报名，到讲台旁看考官给它别章', '会馆讲台银章认证',
-    '在柜台外侧找姐姐，选灵梦并点「认证」。去讲台东侧的过道，看姐姐从员工门走近、灵梦介绍自己、公布结果和别章。'
-    '灵梦走远后，给它穿好胴带，牵回讲台南侧的干燥地面再报名。',
-    '约 15 秒', [_COUNTER_HALL, counter_subject(_counter_certify, 5), *own('pet'),
-                 f'execute if entity @s[type=minecraft:player] run yukkuri scenario badge {_COUNTER_PET} bronze false'],
-    env=DAY, vantage=(-4, 0, 0, 0, 2), give=['minecraft:emerald 4', 'mcyukkuri:pet_harness', 'minecraft:lead'],
-    reads=_CERTIFY_VIEW['reads'],
-    smoke=dict(ticks=440, commands=[*counter_owner_setup(),
-                                  (3, f'execute as {_COUNTER_OWNER} run yukkuri scenario badge {_COUNTER_PET} bronze false'),
-                                  (4, f'item replace entity {_COUNTER_OWNER} hotbar.1 with minecraft:emerald 4'),
-                                  *counter_action(6, 'open', 1), *counter_action(8, 'certify', 1),
-                                  (10, 'execute positioned ~.5 ~2 ~-.5 run yukkuri scenario tool_operator move'),
-                                  (439, 'yukkuri scenario tool_operator leave')],
-               expect=['COUNTER_OK_6', 'COUNTER_OK_8', r'\[exam\][^\n]*action=counter_depart ',
-                       r'\[exam\][^\n]*action=counter_contact ',
-                       r'\[exam\][^\n]*action=introduce voice=true name_card=[0-9a-f-]{36}\b',
-                       r'\[exam\][^\n]*action=result [^\n]*grade=BRONZE->SILVER emeralds_used=4\b'
-                       r'[^\n]*old_token=[0-9a-f-]{36} old_token_inventory_delta=1\b',
-                       r'\[exam\][^\n]*action=end target=SILVER reason=result\b',
-                       r'\[exam\][^\n]*action=counter_return result=arrived '],
-               forbid=[r'\[exam\][^\n]*action=interrupt']))
 
 
 add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章：报名后焦急等结果',
@@ -7413,7 +7400,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
-    'badge_counter_reissue': 'M5', 'badge_counter_certify': 'M5',
+    'badge_counter_reissue': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',

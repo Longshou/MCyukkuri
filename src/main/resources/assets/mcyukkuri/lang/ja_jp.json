@@ -7783,6 +7783,8 @@
   "exam.mcyukkuri.interrupt.owner_far": "飼い主が離れました",
   "exam.mcyukkuri.log_title": "%s の前回の認定",
   "exam.mcyukkuri.reissued": "%s のバッジを再発行しました。古いバッジは無効です。新しいバッジを付けてあげてください。",
+  "exam.mcyukkuri.reissued_ground": "持ち物がいっぱいです。%s の新しいバッジを足元に置きました。",
+  "exam.mcyukkuri.refuse.no_room": "新しいバッジを受け取るために持ち物を一枠空けてください。",
   "exam.mcyukkuri.outcome.0": "合格：%s",
   "exam.mcyukkuri.outcome.1": "維持：%s",
   "exam.mcyukkuri.outcome.2": "不合格",

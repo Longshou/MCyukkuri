@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.human.TownMarkers;
+import io.github.longshou.mcyukkuri.pet.PetLife.Delivery;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** The server owns the subject list, previews the verdict and rechecks each submitted service. */
 public final class ExamMenu extends AbstractContainerMenu {
@@ -58,7 +60,7 @@ public final class ExamMenu extends AbstractContainerMenu {
         if (!(p instanceof ServerPlayer server) || !npc.examAuthority() || !HumanNpc.canServe(p, npc)) return;
         var counter = npc.badgeCounter() ? ExamHall.counter(npc) : null;
         String reason = npc.badgeCounter() && !npc.level().isDay() ? "night"
-                : ExamSession.active(npc) ? "busy"
+                : npc.badgeCounter() && ExamSession.active(npc) ? "busy"
                 : npc.badgeCounter() && !ExamHall.servesAtCounter(npc, p, counter) ? "counter" : null;
         if (reason == null) {
             if (p.containerMenu instanceof ExamMenu menu && menu.target() == npc) p.closeContainer();
@@ -157,13 +159,18 @@ public final class ExamMenu extends AbstractContainerMenu {
         var reason = ExamSession.refusal(target, p, y, true, counter);
         if (reason != null) return refuse(p, reason);
         var oldSerial = y.pet().serial();
-        var token = y.pet().reissueToken();
         ExamSession.debit(p, ExamSession.REISSUE_FEE);
-        boolean deposited = ExamSession.giveTo(p, token);
+        var delivery = y.pet().reissueToken(p);
+        if (delivery == Delivery.REFUSED) {
+            // A ground handoff was needed, so paying one emerald left its stack in the full inventory.
+            p.getInventory().items.stream().filter(s -> s.is(Items.EMERALD)).findFirst().orElseThrow().grow(ExamSession.REISSUE_FEE);
+            return refuse(p, "no_room");
+        }
         GameplayLog.event(y, "badge", "reissued examiner={} owner={} serial={} fee={} old_serial={} grade={} destination={} remaining={}",
                 target.getUUID(), p.getUUID(), y.pet().serial(), ExamSession.REISSUE_FEE, oldSerial, y.pet().grade(),
-                deposited ? "inventory" : "ground", ExamSession.emeralds(p));
-        p.displayClientMessage(Component.translatable("exam.mcyukkuri.reissued", y.getDisplayName()), true);
+                delivery == Delivery.INVENTORY ? "inventory" : "ground", ExamSession.emeralds(p));
+        p.displayClientMessage(Component.translatable(delivery == Delivery.INVENTORY ? "exam.mcyukkuri.reissued"
+                : "exam.mcyukkuri.reissued_ground", y.getDisplayName()), true);
         broadcastChanges();
         return true;
     }
