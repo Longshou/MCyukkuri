@@ -11,7 +11,6 @@
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | SP-13 家庭房只分到一只同窝的窝（main 上失败） | `.worktrees/wp-kin-nest` | life/LifeHome.java (shared nest assignment) |
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
-| FG-08 判定时机与代码决策不一致 | `.worktrees/wp-fg08-verifier` | scripts/museum_scenarios.py (stray_boxes verifier) |
 | 台词与实际反应、身份性格一致（DN-06、索食被打） | `.worktrees/wp-voice-consistency` | dialogue/reaction line selection (Reactions, StruckResponse, Contempt, begging) |
 | FG-14/15 普通纸可收集、篝火取暖、寒冷台词与掉帧 | `.worktrees/wp-paper-fire` | temperature layer, paper cover, client paper-fit |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
