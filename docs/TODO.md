@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 忙着的冷淡亲油也会回应离家的孩子（DN-02） | `.worktrees/wp-cool-farewell` | family/IndependenceLife.java (see-off request lifetime) |
+| 路过的个体让开正在蹭的一对，走过去的时间不占蹭的时间 | `.worktrees/wp-rub-session` | social/DailyLife.java (rub session phases, companion choice), shared Passage give-way, MD-02/MD-28 staging |
 
 ## 玩法待办
 
