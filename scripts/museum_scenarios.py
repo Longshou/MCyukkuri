@@ -2471,6 +2471,34 @@ _territory_resident, _territory_intruder, _territory_forager, _territory_mate = 
     uid(_territory, name) for name in ('resident', 'intruder', 'forager', 'mate'))
 _territory_x, _territory_z = BY_ID['grove'].spots['spawn']
 _territory_den, _ = den(_territory_x + 12, _territory_z + 18, half=1, length=4)
+
+
+def _verify_territory(window):
+    family = '|'.join(_uuid_text(_territory, slot) for slot in ('forager', 'mate'))
+    actor = rf'\[forage\] \w+ #\d+ uuid=(?:{family}) [^\n]*?'
+    xz = r'BlockPos\{x=(-?\d+), y=-?\d+, z=(-?\d+)\}'
+    sighting = None
+    gathered = False
+    for match in re.finditer(actor + rf'(?:forage skipped reason=threat_zone site=[^\n]*? sighting={xz}|'
+                             rf'gathered item=minecraft:short_grass count=\d+ source={xz})', window):
+        sx, sz, gx, gz = match.groups()
+        if sx is not None:
+            sighting = int(sx), int(sz)
+        elif sighting is not None and math.dist(sighting, (int(gx), int(gz))) > 10:
+            gathered = True
+    if not gathered:
+        return 'The family must gather grass outside the remembered zone after skipping a threatened site'
+    pushed = re.search(rf'\[predator\] remilia #\d+ uuid={_uuid_text(_territory, "resident")} [^\n]*?'
+                       r'leftovers pushed off pad=[^\n]*? remains=(\S+)', window)
+    if pushed:
+        for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window[pushed.end():]):
+            row = json.loads(match[1])
+            if (row['uuid'] == pushed[1] and 'scn_territory_leftovers' in row['tags']
+                    and row['supported'] and row['box'][1] == FEET):
+                return
+    return 'The same staged remains must reach supported ground below the nest after the push'
+
+
 add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：尖叫驱赶闯入的捕食种',
     '看蕾米莉亚张翅尖叫，在芙兰上方拉起。芙兰飞出巢树，林间觅食的一家绕开看到捕食种的地方。枝巢的空遗体会掉到树下',
     '约一至两分钟', [
@@ -2512,7 +2540,7 @@ add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：�
         r'\[predator\] flandre [^\n]* intruder left pad=',
         r'\[forage\] (?:reimu|marisa) [^\n]* forage skipped reason=threat_zone',
         r'\[predator\] remilia [^\n]* leftovers pushed off pad=',
-    ], forbid=[r'\[predator\] [^\n]* (?:combat strike|feeding bite) ']),
+    ], forbid=[r'\[predator\] [^\n]* (?:combat strike|feeding bite) '], verify=_verify_territory),
     capture=dict(shots=(60, 90, 120, 160, 240, 400), sequences=((55, 400, 5),),
                  views={'shelf': dict(position=(5, 10.5, 7), look_at=(1.5, 8.4, 1.5))}))
 
