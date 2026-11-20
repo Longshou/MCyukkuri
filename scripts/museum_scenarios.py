@@ -839,15 +839,19 @@ _stray_mother_family = ('Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nour
 
 
 def _stray_box_arrival(events, ready):
-    first_resident = mother_approach = None
+    first_resident = mouth = None
     beckon = None
     for row in events:
         actor, tick, msg = row['u'], row['t'], row['msg']
         if actor == _stray_mother_log:
-            target = re.fullmatch(r'found approach shelter=(.+) kind=CARDBOARD', msg)
-            if target:
-                mother_approach = (target[1], row['seq'])
+            if msg.startswith('found approach '):
+                # A new walk starts a new decision; an earlier mouth arrival or call is over.
+                mouth = None
                 beckon = None
+            sniff = re.fullmatch(r'found sniff shelter=(.+)', msg)
+            if sniff:
+                # FoundShelter decides beckon versus direct entry (beckonOrInspect) only after reaching the mouth.
+                mouth = (sniff[1], row['seq'])
             elif msg.startswith(f'found beckon child={_stray_child_log} '):
                 beckon = 'called'
             elif msg.startswith(f'found beckon answered child={_stray_child_log} ') and beckon == 'heard' and tick >= ready:
@@ -866,13 +870,12 @@ def _stray_box_arrival(events, ready):
         box, occupants = settled.groups()
         if occupants == '1':
             first_resident = (actor, box, row['seq']) if tick >= ready else None
-        elif occupants == '2' and first_resident and mother_approach:
+        elif occupants == '2' and first_resident and mouth:
             resident, first_box, arrived = first_resident
-            target_box, approached = mother_approach
-            child_first = resident == _stray_child_log and arrived < approached
-            if resident != actor and first_box == box == target_box and (beckon == 'answered' or child_first):
+            child_first = resident == _stray_child_log and first_box == mouth[0] and arrived < mouth[1]
+            if resident != actor and first_box == box == mouth[0] and (beckon == 'answered' or child_first):
                 return
-    return 'Both must settle in the same carton after an answered beckon or after the child settled before the mother approached'
+    return 'Both must settle in the same carton after an answered beckon or after the child settled before the mother reached the carton mouth'
 
 
 def _stray_child_flight(window, trace):

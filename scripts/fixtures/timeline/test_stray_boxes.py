@@ -10,6 +10,7 @@ from cases import log, record
 BOX = 'BlockPos{x=1, y=64, z=2}'
 OTHER_BOX = 'BlockPos{x=3, y=64, z=2}'
 APPROACH = f'found approach shelter={BOX} kind=CARDBOARD'
+SNIFF = f'found sniff shelter={BOX}'
 SETTLED = f'found settled shelter={BOX} kind=CARDBOARD occupants='
 CALL = f'found beckon child={CHILD} distance=3 patience=200'
 HEARD = f'child heard parent call parent={MOTHER} distance=3 beckon=true'
@@ -33,35 +34,38 @@ def verify(events, stance='FLEE'):
 
 class CartonArrivalTests(unittest.TestCase):
     def test_outside_child_must_hear_and_answer(self):
-        events = [(60, MOTHER, APPROACH), (62, MOTHER, CALL), (63, CHILD, HEARD), (64, MOTHER, ANSWER),
-                  (65, MOTHER, SETTLED + '1'), (70, CHILD, SETTLED + '2')]
+        events = [(60, MOTHER, APPROACH), (61, MOTHER, SNIFF), (62, MOTHER, CALL), (63, CHILD, HEARD),
+                  (64, MOTHER, ANSWER), (65, MOTHER, SETTLED + '1'), (70, CHILD, SETTLED + '2')]
         for stance in ('FLEE', 'FREEZE'):
             self.assertIsNone(verify(events, stance))
-        for missing in (1, 2, 3, 5):
+        for missing in (1, 2, 3, 4, 5):
             with self.subTest(missing=events[missing]):
                 self.assertIsNotNone(verify(events[:missing] + events[missing + 1:]))
-        self.assertIsNotNone(verify([*events[:3], (64, MOTHER, ANSWER.replace('answered', 'unanswered')), *events[4:]]))
+        self.assertIsNotNone(verify([*events[:4], (64, MOTHER, ANSWER.replace('answered', 'unanswered')), *events[5:]]))
 
-    def test_child_must_already_be_in_that_carton(self):
+    def test_child_must_have_settled_before_the_mother_reached_the_mouth(self):
         child = (60, CHILD, SETTLED + '1')
         approach = (65, MOTHER, APPROACH)
+        mouth = (66, MOTHER, SNIFF)
         together = (70, MOTHER, SETTLED + '2')
         for stance in ('FLEE', 'FREEZE'):
-            self.assertIsNone(verify([child, approach, together], stance))
-        self.assertIsNone(verify([(65, CHILD, SETTLED + '1'), approach, together]))
+            self.assertIsNone(verify([child, approach, mouth, together], stance))
+            # She may start walking before the child settles; only her arrival at the mouth decides direct entry.
+            self.assertIsNone(verify([(60, MOTHER, APPROACH), (62, CHILD, SETTLED + '1'), mouth, together], stance))
+        self.assertIsNone(verify([(65, CHILD, SETTLED + '1'), approach, mouth, together]))
         broken = {
-            'approach only': [(60, CHILD, APPROACH), approach, together],
-            'no mother approach': [child, together],
-            'mother already approaching': [approach, (66, CHILD, SETTLED + '1'), together],
-            'later in the approach tick': [approach, (65, CHILD, SETTLED + '1'), together],
-            'other carton': [child, (65, MOTHER, APPROACH.replace(BOX, OTHER_BOX)), together],
-            'child left': [child, (62, CHILD, f'found exited shelter={BOX}'), approach, together],
-            'other child': [(60, 'other', SETTLED + '1'), approach, together],
-            'other second occupant': [child, approach, (70, 'other', SETTLED + '2')],
-            'same settler twice': [child, approach, (70, CHILD, SETTLED + '2')],
-            'one occupant': [child, approach, (70, MOTHER, SETTLED + '1')],
+            'approach only': [(60, CHILD, APPROACH), approach, mouth, together],
+            'no mother mouth': [child, approach, together],
+            'mother already at the mouth': [approach, mouth, (67, CHILD, SETTLED + '1'), together],
+            'settled in the mouth tick': [approach, mouth, (66, CHILD, SETTLED + '1'), together],
+            'other carton': [child, approach, (66, MOTHER, SNIFF.replace(BOX, OTHER_BOX)), together],
+            'child left': [child, (62, CHILD, f'found exited shelter={BOX}'), approach, mouth, together],
+            'other child': [(60, 'other', SETTLED + '1'), approach, mouth, together],
+            'other second occupant': [child, approach, mouth, (70, 'other', SETTLED + '2')],
+            'same settler twice': [child, approach, mouth, (70, CHILD, SETTLED + '2')],
+            'one occupant': [child, approach, mouth, (70, MOTHER, SETTLED + '1')],
         }
         for name, events in broken.items():
             with self.subTest(name=name):
                 self.assertIsNotNone(verify(events))
-        self.assertIsNotNone(verify([(30, CHILD, SETTLED + '1'), approach, together], 'FREEZE'))
+        self.assertIsNotNone(verify([(30, CHILD, SETTLED + '1'), approach, mouth, together], 'FREEZE'))
