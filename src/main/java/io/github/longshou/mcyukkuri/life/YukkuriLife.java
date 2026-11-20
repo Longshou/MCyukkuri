@@ -609,6 +609,7 @@ public final class YukkuriLife {
     private String needWakeCause() {
         if (thirstUrgent()) return "thirst";
         if (toiletUrgent()) return "toilet";
+        if (nutrition < HungerDrive.wakeLevel(personality.boldness()) && canEat()) return "hunger";
         return entity.family().hasChildAwaitingFeed() ? "child_hungry" : null;
     }
     public boolean isSleeping() { return fatigueActive() || task == Task.SLEEP && sleepTicks >= 20 && wakeAt == 0 || entity.house().sleeping(); }
@@ -974,6 +975,11 @@ public final class YukkuriLife {
 
     /** Food was just seen by another goal: let the next plan run now instead of after its wait. */
     public void replanNow() { planWait = 0; }
+    /** Loose food the meal plan could not walk to; remembered for a while (and until the body moves on) so it is not fixated on. */
+    private final HungerDrive.Rejections rejectedFood = new HungerDrive.Rejections();
+    public boolean foodRejected(ItemEntity item) {
+        return rejectedFood.rejected(item.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
+    }
     public boolean canUseCareFacility(CareBlock.Kind kind) {
         return nearestCare(kind, kind == CareBlock.Kind.BOWL) != null;
     }
@@ -1093,6 +1099,7 @@ public final class YukkuriLife {
             for (var item : offered.stream().sorted(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                     .thenComparingDouble(entity::distanceToSqr)).toList()) {
                 if (!TravelRange.babyDestination(entity, item.blockPosition())) { outOfBabyRange++; continue; }
+                if (foodRejected(item)) { unreachable++; continue; }
                 if (canCollect && !item.hasPickUpDelay() && servingRouteAvailable(item.position())
                         && (entity.distanceToSqr(item) < .5 && entity.hasLineOfSight(item) || reachable(item.blockPosition(), false))) {
                     targetFood = item;
@@ -1103,7 +1110,11 @@ public final class YukkuriLife {
                     if (glassStand != null && !reachable(item.blockPosition(), false)) glassFood = item;
                 }
                 if (item.hasPickUpDelay()) delayed++;
-                else unreachable++;
+                else {
+                    unreachable++;
+                    // Seen and refused: the search goes on to other food and farther ground instead of re-asking this item every plan.
+                    if (canCollect) rejectedFood.reject(item.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
+                }
             }
             if (canCollect && targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
                     "loose food in reach but not planned items={} pickupDelay={} outOfBabyRange={} unreachable={} task={} nutrition={}",

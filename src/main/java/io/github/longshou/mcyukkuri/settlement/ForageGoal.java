@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -89,7 +90,7 @@ public final class ForageGoal extends Goal {
         if (now < scanAfter || !SearchBudget.take(level(), entity, Purpose.FORAGE)) return;
         scanAfter = now + Math.max(1, Math.round(40 / MyonLife.forageScale(entity)));
         int reach = (int)Math.round(TravelRange.search(entity, 6) * MyonLife.forageScale(entity)
-                * entity.life().personality().exploreMultiplier());
+                * entity.life().personality().exploreMultiplier() * HungerDrive.reachScale(entity.life().nutrition()));
         findFood(reach);
     }
     /**
@@ -120,7 +121,7 @@ public final class ForageGoal extends Goal {
             return true;
         }
         var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 8)),
-                item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().seeksFood(item.getItem()));
+                item -> item.isAlive() && !item.hasPickUpDelay() && entity.life().seeksFood(item.getItem()) && !entity.life().foodRejected(item));
         if (!items.isEmpty()) {
             entity.life().replanNow();
             GameplayLog.limited(entity, "forage", "item_food", 400, "search saw loose food item={} count={} handoff=life nutrition={}", () -> new Object[]{
@@ -153,7 +154,7 @@ public final class ForageGoal extends Goal {
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
                     || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;
-            if (++tests > MAX_PATH_TESTS) break;
+            if (++tests > HungerDrive.sweepAttempts(entity.life().nutrition()) - 3 + MAX_PATH_TESTS) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());
                 if (claim != null) { target = pos; break; }
@@ -205,8 +206,9 @@ public final class ForageGoal extends Goal {
                 searchSpot = null;
                 // A sweep reaches as far down as sideways: the walk itself is what carries a member above its food down
                 // to the meadow.
-                int reach = TravelRange.search(entity, 12);
-                for (int attempt = 0; attempt < 3; attempt++) {
+                // Hunger sends it farther and lets it try more destinations: ground beyond water or a rise is found by trying others.
+                int reach = (int)Math.round(TravelRange.search(entity, 12) * HungerDrive.reachScale(entity.life().nutrition()));
+                for (int attempt = 0, attempts = HungerDrive.sweepAttempts(entity.life().nutrition()); attempt < attempts; attempt++) {
                     var point = LandRandomPos.getPos(entity,reach,reach);
                     if (point == null || !TravelRange.babyDestination(entity,BlockPos.containing(point))
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))

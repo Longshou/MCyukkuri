@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -334,7 +335,10 @@ public final class HouseLife implements EcologyRoutine {
     private boolean wantsMaterials(HouseNestBlockEntity value) {
         return value == null ? den != null : !value.built() || value.food() < HouseNestBlockEntity.FOOD_GOAL;
     }
-    private boolean scoutAllowed() { return entity.tickCount >= scoutAt && entity.family().adult(); }
+    /** Hunger ends the scouting cooldown; the search then reaches as far as the hunger drives it. */
+    private boolean scoutAllowed() { return (entity.tickCount >= scoutAt || hungry()) && entity.family().adult(); }
+    private boolean hungry() { return entity.life().nutrition() < HungerDrive.URGENT && entity.life().canEat(); }
+    private int hungerReach(int radius) { return (int)Math.round(radius * HungerDrive.reachScale(entity.life().nutrition())); }
 
     // ------------------------------------------------------------------------------------------------ planning
     /** Called by the higher-priority life goal after executable thirst, toilet and thermal needs. */
@@ -364,6 +368,13 @@ public final class HouseLife implements EcologyRoutine {
             findSource(value);
             if (sourceAvailable()) return start(Phase.NONE);
             feeding = false;
+            // No food in the nest and none in reach: a hungry resident goes out and looks farther rather than lying in its nest.
+            if (outingAllowed() && scoutAllowed()) {
+                entity.showReaction("teary", "hungry", 60);
+                clearSource();
+                if (value != null && physicallyInside()) return start(Phase.LEAVE);
+                scoutTarget = null; return start(Phase.SCOUT);
+            }
         }
         if (value == null) return planWithoutNest(grief);
         // A recorded transfer remains recoverable while its source has a temporary roof or entrance problem.
@@ -435,7 +446,7 @@ public final class HouseLife implements EcologyRoutine {
         return false;
     }
     private record Source(SupplyPileBlockEntity pile, BlockPos pos, double distance) {}
-    private void findSource(HouseNestBlockEntity value) { locate(value, LOCATE_RADIUS); }
+    private void findSource(HouseNestBlockEntity value) { locate(value, hungerReach(LOCATE_RADIUS)); }
     private void locate(HouseNestBlockEntity value, int radius) {
         radius = TravelRange.search(entity, radius);
         clearSource(); var candidates = new ArrayList<Source>();
@@ -700,7 +711,7 @@ public final class HouseLife implements EcologyRoutine {
         var origin = nestPosition() != null ? nestPosition() : den != null ? den.site() : entity.blockPosition();
         if (!(entity.level() instanceof ServerLevel level)) return null;
         int tries = 0;
-        for (var cell : HouseholdEcology.patrolCells(level, origin, SCOUT_RADIUS)) {
+        for (var cell : HouseholdEcology.patrolCells(level, origin, hungerReach(SCOUT_RADIUS))) {
             if (tries++ >= 4) break;
             if (entity.life().reachable(cell, false)) return cell;
         }
@@ -711,7 +722,7 @@ public final class HouseLife implements EcologyRoutine {
         double heading = Math.toRadians(entity.getYRot()) + Math.sin(ticks * .12) * .9;
         entity.getLookControl().setLookAt(entity.getX() - Math.sin(heading) * 2, entity.getEyeY() - .05, entity.getZ() + Math.cos(heading) * 2, 25, 25);
         if (ticks == 24 && mayTransfer()) {
-            locate(value, LOCATE_RADIUS);
+            locate(value, hungerReach(LOCATE_RADIUS));
             if (sourceAvailable()) { scouts = 0; count(Stat.SCOUTED); entity.showReaction("happy", "house_pickup", 40); phase(Phase.NONE); return; }
         }
         if (ticks >= 50) {
