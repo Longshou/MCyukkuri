@@ -1,9 +1,11 @@
 """Shared kit for the vanilla-style world props: block-style voxel models and extruded item icons.
 
-Which style: small handheld or dropped items (bottles, cord, whistle, cloth) are extruded icons; anything placed as a
-block, larger than about 8 units, or standing on furniture is block style, and every rounded object gets an explicit
-stepped-round recipe (octagon() and inset() for flat vessels, Shape.ball() for spheres) plus painted detail, never a
-plain cuboid stack.
+Which style: things that are round by nature (the food bowl, balls, pebbles, plush dolls) are modelled round with
+care-props/shapes.py, not stepped. Medicine and small handheld tools need no world model: they are vanilla item/generated
+models of their icons (mold remover, wash cloth, whistle, cord, household guard); other small bottles and sacks are
+extruded icons. Other props placed as a block, larger than about 8 units or standing on furniture are block style, and
+any rounded part of them gets an explicit stepped-round recipe (octagon() and inset() for flat vessels, Shape.ball() for
+spheres) plus painted detail, never a plain cuboid stack.
 
 Block style: cells of one unit (1/16 block) filled with materials. Only faces between a
 filled cell and an empty one are drawn, merged into rectangles, so no two faces ever share a plane (no z-fighting) and no

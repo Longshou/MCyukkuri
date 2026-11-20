@@ -179,6 +179,8 @@ INPUT_LEDGERS = {key: 'art/props/'+folder+'/provenance.json' for key, folder in 
 # Exporters built on the block-prop kit: its ramps come from the item-icon source and extrusions read the icon snapshots.
 BLOCK_KIT_READERS = {'peripheral-assets', *['source:standards/yukkuri-library/drafts/'+p+'/build.py'
                                             for p in ('care-props', 'care-expansion', 'consumables')]}
+# Builders outside care-props that author with its round kit and designs (toys.py, shapes.py; small.py).
+CARE_PROP_READERS = {'source:standards/yukkuri-library/drafts/'+p+'/build.py' for p in ('care-expansion', 'consumables')}
 
 
 def table():
@@ -199,6 +201,8 @@ def table():
             row['sources'] += ['standards/yukkuri-library/drafts/block-props/', 'standards/yukkuri-library/drafts/item-icons/',
                                'art/props/item-icons/']
             row['after'].append('source:'+ITEM_ICONS)
+        if row['id'] in CARE_PROP_READERS:
+            row['sources'].append('standards/yukkuri-library/drafts/care-props/')
         if row['id'] == 'runtime-models':
             row['auto'] = False  # historical recipe refuses the selected rounded models
         if row['id'] == 'ecology-audio':

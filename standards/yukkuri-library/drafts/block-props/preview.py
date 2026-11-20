@@ -4,13 +4,14 @@ For each prop ID: its 16x16 inventory icon, the previous runtime meshes (from on
 the same camera, at 1x (fitted to a 16 px slot) and 4x (the same pixels enlarged); larger renders of each from two views; a turned
 fixed display (mouth hold, item frame) from the holder's front and side when the item model has one; and both
 beside an adult and a baby yukkuri at their real size. Meshes and textures are read from the runtime resources, so run the
-exporters first. Uses the care-prop software renderer.
+exporters first. An item with no prop mesh whose model is vanilla item/generated is drawn the way vanilla draws it: its
+icon as a one-pixel plate at the dropped size (half a block for the whole sprite). Uses the care-prop software renderer.
 
 Usage: preview.py <out dir> <prop id>... [--before [<label>=]<ref> ...] [--fill <prop>:<fill id>:<units>] [--levels <prop>:<fill id>]
        [--turn <prop>]
 Then publish with `scripts/preview.py collection <topic> --source <out dir> --decision ...`.
 """
-import argparse, io, json, os, subprocess, sys, tarfile, tempfile
+import argparse, importlib.util, io, json, os, subprocess, sys, tarfile, tempfile
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -22,6 +23,11 @@ from preview import SHARED, font
 # The ground plane uses the local vanilla texture copy of the main checkout unless MCYUKKURI_VANILLA names another.
 os.environ.setdefault('MCYUKKURI_VANILLA', str(SHARED / '.local/vanilla-ref/tex/assets/minecraft'))
 import render_preview as R
+if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-props also has a `kit`
+    _spec = importlib.util.spec_from_file_location('block_props_kit', HERE / 'kit.py')
+    sys.modules['block_props_kit'] = _module = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_module)
+kit = sys.modules['block_props_kit']
 
 ICONS = ROOT / 'art/props/item-icons'
 BG = (60, 64, 70, 255)
@@ -35,6 +41,28 @@ def before_tree(ref, workdir):
     with tarfile.open(fileobj=io.BytesIO(data)) as archive:
         archive.extractall(workdir, filter='data')
     return R.Source(workdir)
+
+
+def vanilla_item(name, work):
+    """A tree holding the vanilla look of an item that has no prop mesh and a vanilla item/generated model: its layer0
+    sprite as the plate vanilla builds, 16 px = 8 units (the dropped size); None for any other item."""
+    assets = ROOT / 'src/main/resources/assets/mcyukkuri'
+    path = assets / f'models/item/{name}.json'
+    if (assets / f'yukkuri_props/{name}.json').exists() or not path.exists():
+        return None
+    model = json.loads(path.read_text(encoding='utf-8'))
+    if model.get('parent') != 'minecraft:item/generated':
+        return None
+    icon = (assets / f"textures/{model['textures']['layer0'].split(':', 1)[1]}.png").read_bytes()
+    with Image.open(io.BytesIO(icon)) as opened:
+        box = opened.convert('RGBA').getchannel('A').getbbox()
+    mesh, _, png = kit.extrude(name, icon, (box[3] - box[1]) / 2)
+    root = Path(work) / 'vanilla' / name
+    for rel, data in ((f'yukkuri_props/{name}.json', json.dumps(mesh).encode()), (f'textures/props/{name}.png', png)):
+        target = root / 'src/main/resources/assets/mcyukkuri' / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(data)
+    return R.Source(root)
 
 
 def shot(source, items, size, az=225, el=28, lock=None):
@@ -177,7 +205,9 @@ def main():
         new = R.Source(ROOT)
         for name in args.props:
             path = out / f'{name}.png'
-            sheet(name, olds, new, fills, name in args.turn, levels.get(name), args.label).convert('RGB').save(path)
+            vanilla = vanilla_item(name, work)
+            sheet(name, olds, vanilla or new, fills, name in args.turn, levels.get(name),
+                  args.label + ('（原版物品）' if vanilla else '')).convert('RGB').save(path)
             print(path)
 
 

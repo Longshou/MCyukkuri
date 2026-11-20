@@ -84,8 +84,8 @@ def top_view(size, painter):
 class Sheet:
     """Regions packed in shelves with a one-texel gutter (wrapped bands repeat across it, others extend their edge)."""
 
-    def __init__(self, width=128):
-        self.width, self.regions, self.images = width, {}, {}
+    def __init__(self, width=128, square=False):
+        self.width, self.square, self.regions, self.images = width, square, {}, {}
         self.x = self.y = self.row = 0
 
     def add(self, key, img, wrap=False):
@@ -101,7 +101,7 @@ class Sheet:
         return self.regions[key]
 
     def image(self):
-        height = 16
+        height = self.width if self.square else 16      # square: for tools that take one texture size (preview strips)
         while height < self.y + self.row:
             height *= 2
         out = Image.new('RGBA', (self.width, height), (0, 0, 0, 0))
@@ -116,10 +116,10 @@ class Sheet:
 
 
 class Build:
-    def __init__(self, name, width=128):
+    def __init__(self, name, width=128, square=False):
         self.p = Prop(name, noise=False)
         self.p.parts = []
-        self.sheet = Sheet(width)
+        self.sheet = Sheet(width, square)
         self.parts = {}
 
     def part(self, name, unit_=0, **extra):
@@ -361,6 +361,118 @@ def sprite(b, part, corners, key, img, normal=None):
     if n[1] < 0:
         n = [-c for c in n]
     b.p.quad(part, corners, None, uvs=[(ox, oy), (ox + w, oy), (ox + w, oy + h), (ox, oy + h)], normal=n)
+
+
+# ---- round solids (balls, buns, strands) ----------------------------------------------------------------------------
+def turn(yaw=0.0, pitch=0.0, roll=0.0):
+    """Rotation (degrees) as a 3x3 matrix: roll about z, then pitch about x, then yaw about y."""
+    (sy, cy), (sp, cp), (sr, cr) = ((math.sin(math.radians(a)), math.cos(math.radians(a))) for a in (yaw, pitch, roll))
+    rz = [[cr, -sr, 0], [sr, cr, 0], [0, 0, 1]]
+    rx = [[1, 0, 0], [0, cp, -sp], [0, sp, cp]]
+    ry = [[cy, 0, sy], [0, 1, 0], [-sy, 0, cy]]
+    mul3 = lambda a, b: [[sum(a[i][k] * b[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+    return mul3(ry, mul3(rx, rz))
+
+
+def _apply(m, v):
+    return [sum(m[i][k] * v[k] for k in range(3)) for i in range(3)] if m else list(v)
+
+
+def sphere_direction(u, v, w, h):
+    """The unit direction an ellipsoid's painted region maps to texel (u, v) of a w x h image (see ellipsoid)."""
+    phi = 2 * math.pi * (u + .5) / w
+    theta = math.pi / 2 - math.pi * (v + .5) / h
+    return (math.sin(phi) * math.cos(theta), math.sin(theta), math.cos(phi) * math.cos(theta))
+
+
+def sphere_paint(w, h, painter):
+    """A region for ellipsoid(): painter(d) -> colour at each texel, d the texel's unit direction before the radii
+    (+y up, -z the front, +x the viewer's left when the front faces the viewer), so marks are placed by where they sit
+    on the ball."""
+    img = canvas(w, h)
+    for v in range(h):
+        for u in range(w):
+            c = painter(sphere_direction(u, v, w, h))
+            if c:
+                put(img, u, v, c, False)
+    return img
+
+
+def ellipsoid(b, part, centre, radii, key, img, segs=16, rows=8, rot=None, floor=None):
+    """A smooth ellipsoid with its own normals. The painted region wraps once round it: u from the back (+z) round to the
+    front (-z) at the middle column, the image's left on the viewer's left; v from the top (row 0) to the bottom
+    (sphere_paint paints it by direction). `floor` (a local height below the centre) cuts the bottom flat there, a disc
+    the shape rests on; `rot` (turn()) turns the shape about its centre."""
+    ox, oy = b.region(key, img, wrap=True)
+    W, H = img.size
+    rx, ry, rz = radii
+    lo = -math.pi / 2 if floor is None else math.asin(max(-1.0, floor / ry))
+    lats = [lo + (math.pi / 2 - lo) * i / rows for i in range(rows + 1)]
+
+    def vertex(phi, theta):
+        d = (math.sin(phi) * math.cos(theta), math.sin(theta), math.cos(phi) * math.cos(theta))
+        p = _apply(rot, [rx * d[0], ry * d[1], rz * d[2]])
+        n = unit(_apply(rot, [d[0] / rx, d[1] / ry, d[2] / rz]))
+        return add(p, centre), n, (ox + W * phi / (2 * math.pi), oy + H * (math.pi / 2 - theta) / math.pi)
+    for i in range(rows):
+        for j in range(segs):
+            p0, p1 = 2 * math.pi * j / segs, 2 * math.pi * (j + 1) / segs
+            quad = [vertex(p0, lats[i]), vertex(p1, lats[i]), vertex(p1, lats[i + 1]), vertex(p0, lats[i + 1])]
+            for a, c, d in ((0, 1, 2), (0, 2, 3)):
+                b.p.tri(part, [quad[a][0], quad[c][0], quad[d][0]], [quad[a][1], quad[c][1], quad[d][1]], None,
+                        uvs=[quad[a][2], quad[c][2], quad[d][2]])
+    if floor is not None:                            # the flat base, in the bottom row's colours
+        down = unit(_apply(rot, [0, -1, 0]))
+        base = add(_apply(rot, [0, floor, 0]), centre)
+        for j in range(segs):
+            p0, p1 = 2 * math.pi * j / segs, 2 * math.pi * (j + 1) / segs
+            a, c = vertex(p0, lo), vertex(p1, lo)
+            uv = (ox + W * (j + .5) / segs, oy + H - .5)
+            b.p.tri(part, [base, a[0], c[0]], [down] * 3, None, uvs=[uv] * 3)
+
+
+def tube(b, part, path, key, img, segs=6, closed=False):
+    """A round strand along path [(point, radius)]: u round it, v along it (the region's rows spread by length). A closed
+    path is a ring; an open one is capped at both ends with the end rows' colours."""
+    pts = [list(p) for p, _ in path]
+    radii = [r for _, r in path]
+    n = len(pts)
+    ox, oy = b.region(key, img, wrap=True)
+    W, H = img.size
+    ahead = lambda i: unit(sub(pts[(i + 1) % n], pts[i - 1]) if closed else sub(pts[min(i + 1, n - 1)], pts[max(i - 1, 0)]))
+    t = ahead(0)
+    side = unit(cross(t, [0, 1, 0] if abs(t[1]) < .9 else [1, 0, 0]))
+    frames = []
+    for i in range(n):                               # parallel transport: the ring turns as little as the path allows
+        t = ahead(i)
+        side = unit(sub(side, [c * dot(side, t) for c in t]))
+        frames.append((side, cross(t, side)))
+    run = [0.0]
+    for i in range(1, n + (1 if closed else 0)):
+        run.append(run[-1] + length(sub(pts[i % n], pts[i - 1])))
+    rings = []
+    for i in range(n + (1 if closed else 0)):
+        k = i % n
+        s, q = frames[k]
+        ring = []
+        for j in range(segs + 1):
+            a = 2 * math.pi * j / segs
+            nrm = unit([s[c] * math.cos(a) + q[c] * math.sin(a) for c in range(3)])
+            ring.append(([pts[k][c] + nrm[c] * radii[k] for c in range(3)], nrm, (ox + W * j / segs, oy + H * run[i] / run[-1])))
+        rings.append(ring)
+    for i in range(len(rings) - 1):
+        for j in range(segs):
+            quad = [rings[i][j], rings[i][j + 1], rings[i + 1][j + 1], rings[i + 1][j]]
+            for a, c, d in ((0, 1, 2), (0, 2, 3)):
+                b.p.tri(part, [quad[a][0], quad[c][0], quad[d][0]], [quad[a][1], quad[c][1], quad[d][1]], None,
+                        uvs=[quad[a][2], quad[c][2], quad[d][2]])
+    if not closed:
+        for end, toward in ((0, 1), (n - 1, n - 2)):
+            normal = unit(sub(pts[end], pts[toward]))
+            uv = (ox + W / 2, oy + (.5 if end == 0 else H - .5))
+            ring = rings[0 if end == 0 else -1]
+            for j in range(segs):
+                b.p.tri(part, [pts[end], ring[j][0], ring[j + 1][0]], [normal] * 3, None, uvs=[uv] * 3)
 
 
 # ---- collision ------------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 """Original single-portion care consumables. Parametric source, editable meshes and runtime export.
 
-Hand-held consumables and the spicy-grain pouch are their 16x16 inventory icons extruded into one-pixel-thick plates
+Medicine needs no world model: the mold remover is a vanilla item/generated model of its inventory icon. The other
+hand-held consumables and the spicy-grain pouch are their 16x16 inventory icons extruded into one-pixel-thick plates
 (block-props/kit.py extrude), and the oral *_serving doses are stepped voxel shapes built with block-props/kit.py and
 icon ramps from item-icons/draw.py. food_mash_serving remains authored by care-props/small.py."""
 import argparse,importlib.util,io,json,sys
@@ -17,7 +18,8 @@ if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-pro
 block_kit=sys.modules['block_props_kit']
 # Extruded icons (block-props/kit.py extrude): the 16x16 inventory icon as a one-pixel-thick plate of this height in units.
 ICONS=ROOT/'art/props/item-icons'
-EXTRUDED={'mold_remover':6.3,'yogurt_drink':6.0,'stimulant':5.0,'sitataran':4.8,'sleep_spray':6.7,'spicy_grain':11.5,'reproductive_filling':5.8,'wheat_flour':5.7}
+ITEMS=('mold_remover',)   # vanilla item models of their icons (textures/item/<id>.png), no prop mesh
+EXTRUDED={'yogurt_drink':6.0,'stimulant':5.0,'sitataran':4.8,'sleep_spray':6.7,'spicy_grain':11.5,'reproductive_filling':5.8,'wheat_flour':5.7}
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
 def mesh_number(value):
  value=round(value,6)
@@ -81,7 +83,9 @@ def outputs():
  previous=provenance(SELECTED/'manifest.json');result={};index={};icons={}
  def emit(path,data):result[path]=(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode()
  def emit_mesh(path,data):result[path]=preserve_negative_zero_mesh_json(path,(json.dumps(data,ensure_ascii=False,separators=(',',':'))+'\n').encode())
- emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'extruded_heights':EXTRUDED,'servings':list(SERVINGS),'recipes':INGREDIENTS,'kit_props':{k:'standards/yukkuri-library/drafts/care-props/'+v.__module__+'.py' for k,v in KIT.items()},'icon_source':'art/props/item-icons','ramps_source':'standards/yukkuri-library/drafts/item-icons/draw.py'})
+ emit(HERE/'recipe.json',{'status':'pending-review','units_per_block':16,'vanilla_items':list(ITEMS),'extruded_heights':EXTRUDED,'servings':list(SERVINGS),'recipes':INGREDIENTS,'kit_props':{k:'standards/yukkuri-library/drafts/care-props/'+v.__module__+'.py' for k,v in KIT.items()},'icon_source':'art/props/item-icons','ramps_source':'standards/yukkuri-library/drafts/item-icons/draw.py'})
+ for name in ITEMS:
+  emit(ASSETS/f'models/item/{name}.json',{'parent':'minecraft:item/generated','textures':{'layer0':f'mcyukkuri:item/{name}'}})
  for name,height in EXTRUDED.items():
   icons[ICONS/f'{name}.png']=icon=(ICONS/f'{name}.png').read_bytes()
   mesh,bb,png=block_kit.extrude(name,icon,height)
