@@ -33,6 +33,7 @@ import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
@@ -98,8 +99,10 @@ public final class Reactions {
         return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe()
                 : threat.seal.active() ? "den seal=" + threat.seal.describe() : "none";
     }
-    void scan() {
-        threat.scan();
+    void scanThreat() {
+        if (PerceptionScan.due(entity.level().getGameTime(), entity.getId())) threat.scan();
+    }
+    void scanWeatherAndNeeds() {
         weather.scan();
         long now = entity.level().getGameTime();
         int requested = switch (entity.pet().care().requests().pending()) {
@@ -170,6 +173,9 @@ public final class Reactions {
         private final DenSeal seal;
         private Stage stage = Stage.NONE;
         private LivingEntity seen;
+        private LivingEntity closest;
+        private double closestDistanceSq;
+        private final AbortableIterationConsumer<LivingEntity> consider = this::consider;
         private LivingEntity heard;
         private long heardUntil, alarmUntil, noticeUntil, cooldownUntil, lostSince;
         private int ticks;
@@ -225,7 +231,7 @@ public final class Reactions {
         }
 
         private boolean menacing(YukkuriEntity p) {
-            if (p == y || !p.isAlive() || !p.profile().dangerToYukkuri() || p.isPassenger()) return false;
+            if (!p.isAlive() || p.isPassenger()) return false;
             var owner = y.pet().owner();
             if (owner != null && owner.equals(p.pet().owner())) return false;
             if (p.predator().obedient() && HumanCommerce.protectedAnimal(y)) return false;   // an educated predator honours a protected pet
@@ -235,6 +241,19 @@ public final class Reactions {
         private boolean menacing(HumanNpc person) {
             return person.streetThreatTo(y);
         }
+        private AbortableIterationConsumer.Continuation consider(LivingEntity candidate) {
+            boolean predator = candidate instanceof YukkuriEntity;
+            if (predator ? menacing((YukkuriEntity) candidate) : menacing((HumanNpc) candidate)) {
+                double distanceSq = candidate.distanceToSqr(y);
+                // The separate queries visited predators first. Keep that priority on an equal distance.
+                if (distanceSq < closestDistanceSq
+                        || distanceSq == closestDistanceSq && predator && closest instanceof HumanNpc) {
+                    closest = candidate;
+                    closestDistanceSq = distanceSq;
+                }
+            }
+            return AbortableIterationConsumer.Continuation.CONTINUE;
+        }
         private double alarmRange() {
             var source = source();
             return y.life().personality().threatDistance(source == null ? 0 : y.life().personality().fear(source.getUUID()));
@@ -243,19 +262,14 @@ public final class Reactions {
         /** Every few ticks: look around, then alarm or notice. */
         void scan() {
             if (!prey(y) || y.life().isSleeping()) { seen = null; heard = null; return; }
-            long now = y.level().getGameTime();
-            LivingEntity best = null; double bestD = Double.MAX_VALUE;
-            for (var p : y.level().getEntitiesOfClass(YukkuriEntity.class, y.getBoundingBox().inflate(16, 6, 16), this::menacing)) {
-                double d = p.distanceToSqr(y);
-                if (d < bestD) { bestD = d; best = p; }
-            }
-            for (var person : y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(16, 6, 16), this::menacing)) {
-                double d = person.distanceToSqr(y);
-                if (d < bestD) { bestD = d; best = person; }
-            }
-            seen = best;
+            var level = (ServerLevel) y.level();
+            long now = level.getGameTime();
+            closestDistanceSq = Double.MAX_VALUE;
+            level.getEntities().get(ThreatCandidates.TYPE, y.getBoundingBox().inflate(16, 6, 16), consider);
+            LivingEntity best = seen = closest;
+            closest = null;
             if (best == null || holdingStance()) return;
-            double d = Math.sqrt(bestD);
+            double d = Math.sqrt(closestDistanceSq);
             // A known danger still in sight stays known: one that never leaves is announced once, not again and again.
             if (!fresh(best, now)) knownAt = now;
             boolean hunting = best instanceof YukkuriEntity predator && predator.predator().active();

@@ -20,6 +20,9 @@ config="mcyukkuri.village.mixins.json"
 [[mixins]]
 config="mcyukkuri.collision.mixins.json"
 
+[[mixins]]
+config="mcyukkuri.perception.mixins.json"
+
 [[dependencies.${mod_id}]]
 modId="neoforge"
 type="required"
