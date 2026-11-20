@@ -950,7 +950,8 @@ add('stray_rain', 'forage', '流浪：纸箱湿透，先离开再塌', '流浪�
     smoke=dict(ticks=1300, forbid=[r'\[habitat\][^\n]* found ejected .*reason=rain_collapse'],
                commands=[(1, block(-5, 0, -2, 'mcyukkuri:cardboard_shelter[facing=south,part=6]')),
                          (1, block(-3, 1, 0, 'mcyukkuri:cardboard_shelter[facing=south,part=43]')),
-                         (1, 'data merge block ~-4 ~ ~-1 {Condition:0,Lining:1,FoundBedding:[{id:"minecraft:wheat",count:1}]}'),
+                         # A live carton always saves LiningMaterials, so a merge must use that key; FoundBedding is only read from old chunks.
+                         (1, 'data merge block ~-4 ~ ~-1 {Condition:0,Lining:1,LiningMaterials:[{id:"minecraft:wheat",count:1}]}'),
                          (140, 'execute if block ~-5 ~ ~-2 minecraft:air if block ~-3 ~1 ~ minecraft:air '
                                'if data block ~-4 ~ ~-1 {Condition:100,Lining:1} run say CARTON_LEGACY_RETAINED'),
                          (1120, 'execute positioned ~-3.5 ~ ~-0.5 '
