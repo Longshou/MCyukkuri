@@ -396,10 +396,10 @@ def main():
                 head = line.split(' ', 1)[0]
                 if line and not line.startswith('#') and head not in KNOWN_HEADS:
                     findings.append(f'{where}: unknown command head {head!r}')
-                if line.startswith('place template mcyukkuri:'):
-                    template = line.split()[2].removeprefix('mcyukkuri:')
-                    if not (ROOT / f'src/main/resources/data/mcyukkuri/structure/{template}.nbt').is_file():
-                        findings.append(f'{where}: missing template {template}')
+                if head == 'place':
+                    template = re.fullmatch(r'place template mcyukkuri:([a-z0-9_/]+)(?: \S+){3}', line)
+                    if not template or not (ROOT / f'src/main/resources/data/mcyukkuri/structure/{template[1]}.nbt').is_file():
+                        findings.append(f'{where}: invalid or missing authored structure in {line!r}')
                 for cmd in (yukkuri_commands(line) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
                     words = split_words(cmd)
                     if words[1:2] == ['relay']:

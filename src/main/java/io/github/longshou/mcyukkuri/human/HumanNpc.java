@@ -775,7 +775,6 @@ public final class HumanNpc extends PathfinderMob {
             // Shop staff tend their stock as jobs (ShopStaff) through the staff doors; this routine only keeps their trading and rest.
             if (routineDelay > 0 || job() == Job.SHOPKEEPER) return false;
             if (streetResident()) {
-                if (attendingKiosk()) return false;
                 attention = street.pick();
                 return attention != null && !(stroll().canUse() && !stroll().readyPets().isEmpty());
             }

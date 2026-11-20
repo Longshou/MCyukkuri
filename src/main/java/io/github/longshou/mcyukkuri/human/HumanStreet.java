@@ -119,6 +119,8 @@ final class HumanStreet {
 
     YukkuriEntity pick() {
         if (!npc.streetActive() || !npc.onGround() || !observable()) return null;
+        var window = npc.kioskWindow();
+        if (window != null && (npc.kioskBusy() || kioskRequest(window) != null)) return null;
         if (actionDay != day()) { actionDay = day(); actions = 0; }
         warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
         return switch (npc.attitude()) {
@@ -794,7 +796,8 @@ final class HumanStreet {
         KioskCounter kioskWindow() {
             return kioskArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
                     && npc.onGround() && !npc.isOnFire() && npc.hurtTime == 0 && !npc.level().isRaining()
-                    && atDestination() && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
+                    && atDestination() && dryFooting(kiosk.stand())
+                    && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
                     && kiosk.valance(npc.level()) && kiosk.hasCrate(npc.level())
                     ? kiosk : null;
         }
@@ -1025,9 +1028,13 @@ final class HumanStreet {
         private boolean standable(BlockPos pos) {
             var level = npc.level();
             var stand = Vec3.atBottomCenterOf(pos);
-            return npc.isWithinRestriction(pos) && level.hasChunkAt(pos) && level.getFluidState(pos).isEmpty()
-                    && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)
+            return npc.isWithinRestriction(pos) && level.hasChunkAt(pos) && dryFooting(pos)
                     && level.noCollision(npc, npc.getBoundingBox().move(stand.subtract(npc.position())));
+        }
+
+        private boolean dryFooting(BlockPos pos) {
+            var level = npc.level();
+            return level.getFluidState(pos).isEmpty() && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
         }
 
         private boolean readyForHalf(YukkuriEntity pet) {

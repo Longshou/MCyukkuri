@@ -3863,6 +3863,8 @@ _kiosk_goods, _kiosk_paper = '~-1 ~1 ~', '~ ~1 ~'
 _kiosk_build = [
     box(-9, -1, -9, 9, -1, 9, 'minecraft:polished_andesite'),
     'place template mcyukkuri:village/plains/kiosk ~-4 ~-1 ~-3',
+    # Direct template placement leaves the entrance jigsaw intact. Its village final_state is air.
+    block(0, 0, -3, 'minecraft:air'),
     f'execute positioned ~0.5 ~ ~2.5 run tag @e[type=mcyukkuri:caretaker_sister,distance=..0.5,limit=1] add {tag("kiosk_keeper")}',
 ]
 _kiosk_rows = [('读粮箱存货和收款', f'data get block {_kiosk_goods} Items'),
@@ -3878,7 +3880,8 @@ add('kiosk_shoo', 'town', '流浪油在售货口讨食，店主挥手赶开', '�
     '看饥饿的流浪灵梦走到在岗的店主旁开口索食。店主挥手喝止，灵梦自己跑开；货箱里的食物还在。'
     '站在街边给灵梦让路，挥手结束就能继续买东西。', '约半分钟',
     _kiosk_build, give=['minecraft:emerald 2'], env={'time': 'noon', 'weather': 'clear'}, vantage=(5, -6, 40, 8),
-    late=[Retry(street_trial('kiosk_shoo', 'reimu', -2, -4, 'kiosk_stray', nutrition=42, social_wait=0,
+    # The first social search needs grounded candidates. Allow the spawned stray to land first.
+    late=[Retry(street_trial('kiosk_shoo', 'reimu', -2, -4, 'kiosk_stray', nutrition=42, social_wait=3,
                              boldness=75, friendliness=75, self_control=75, picky=10, yaw=-20, lead=True),
                 _kiosk_keeper, tries=1, first=370)],
     reads=_kiosk_rows + [('读流浪灵梦的状态', f'yukkuri status {_kiosk_stray} raw')])
@@ -8456,9 +8459,11 @@ _smoke('kiosk_shoo', 750, [
     r'MCYKIOSK_RETREATED',
 ], forbid=[rf'\[body\][^\n]* uuid={_kiosk_beggar}\b[^\n]* accepted damage',
            rf'\[forage\][^\n]* uuid={_kiosk_beggar}\b[^\n]* stall pickup'],
-    readout=[command for _, command in _kiosk_rows] + _street_health_reads('kiosk_stray'))
+    readout=[command for _, command in _kiosk_rows] + _street_health_reads('kiosk_stray') + [
+        f'data get entity {_kiosk_stray} YukkuriLife.AvoidedField', f'data get entity {_kiosk_stray} YukkuriLife.AvoidFieldUntil'])
 next(s for s in S if s.id == 'kiosk_shoo').smoke['commands'] = [
     (705, f'execute positioned ~0.5 ~ ~-0.5 if entity @e[tag={tag("kiosk_stray")},distance=3..,limit=1] '
+          f'if data entity {_kiosk_stray} {{YukkuriLife:{{AvoidedField:{_yard_pos(0, -1)}L}}}} '
           f'positioned ~-0.5 ~ ~0.5 if data block {_kiosk_goods} {{Items:[{{Slot:0b,id:"minecraft:bread",count:3}},'
           f'{{Slot:1b,id:"{_kiosk_grain}",count:2}}]}} unless data block {_kiosk_goods} Items[2] run say MCYKIOSK_RETREATED'),
 ]
