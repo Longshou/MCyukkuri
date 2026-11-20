@@ -18,14 +18,21 @@ import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.settlement.CommonStore;
 import io.github.longshou.mcyukkuri.settlement.ForagePileBlockEntity;
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.PileContact;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -35,12 +42,18 @@ public final class Kindness extends Goal {
     private static final int CUE = 20, RECEIVER_REST = 2400, GIVER_REST = 1200, ATTEMPT = 1200;
     private enum Act { BITE, COMPANY, ADOPT }
     private enum Decision { GIVE, IGNORE, REFUSE }
+    public record ShelterOffer(ShelterBlockEntity carton, YukkuriEntity local, boolean ready) {}
+    private record OfferEvidence(ShelterBlockEntity carton, double need, double bond) {}
     private final YukkuriEntity giver;
     private final PileContact pileContact;
+    private final Map<BlockPos, OfferEvidence> heardOffers = new HashMap<>();
     private YukkuriEntity guest;
     private Act act;
     private ForagePileBlockEntity pile;
     private Vec3 stand, guestAt, companyAt;
+    private ShelterBlockEntity carton;
+    private Vec3 gestureStand;
+    private int lookBackAt;
     private int ticks, contact, cooldown, received, nextScan;
     private UUID mealDonor;
     private boolean running, finished, mealSwallowed;
@@ -56,6 +69,7 @@ public final class Kindness extends Goal {
     private static Kindness of(YukkuriEntity entity) { return entity.kindness(); }
 
     void clock() {
+        if (!heardOffers.isEmpty() && !giver.pet().waitingAfterAbandonment()) heardOffers.clear();
         if (giver.life().isSleeping()) {
             if (act != null && !running) stop();
             return;
@@ -144,14 +158,25 @@ public final class Kindness extends Goal {
 
     /** An unshared ordinary mouthful can be offered in place before the first chew completes. */
     public void offerMeal() {
-        if (act != null || cooldown > 0 || !ready() || giver.status().identity() == Identity.WILD_SETTLEMENT) return;
+        offerMeal(target -> true, () -> true);
+    }
+
+    /** A local can present its bite before the hungry waiter asks. A close hungry relative keeps priority. */
+    public boolean offerMealToWaiter(BooleanSupplier kinClear) {
+        return giver.status().identity() == Identity.STRAY
+                && offerMeal(target -> target.status().identity() == Identity.STRAY && target.pet().waitingAfterAbandonment(), kinClear);
+    }
+
+    private boolean offerMeal(Predicate<YukkuriEntity> audience, BooleanSupplier kinClear) {
+        if (act != null || cooldown > 0 || !ready() || giver.status().identity() == Identity.WILD_SETTLEMENT) return false;
         var recipient = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(1.2),
-                target -> peer(target) && hungry(target)
+                target -> audience.test(target) && peer(target) && hungry(target)
                         && giver.distanceToSqr(target) <= 1.5 * 1.5)
                 .stream().min(Comparator.comparingDouble(giver::distanceToSqr)).orElse(null);
-        if (recipient != null && reserve(recipient, Act.BITE)) {
-            if (!giver.life().prepareKindnessFood()) stop();
-        }
+        if (recipient == null || !kinClear.getAsBoolean() || !reserve(recipient, Act.BITE)) return false;
+        if (giver.life().prepareKindnessFood()) return true;
+        stop();
+        return false;
     }
 
     private ForagePileBlockEntity source(YukkuriEntity target) {
@@ -245,6 +270,7 @@ public final class Kindness extends Goal {
 
     private void step() {
         ticks++;
+        if (carton != null) { gesture(); return; }
         if (pile != null) {
             if (!hasFood(pile, guest) || !giver.component(YukkuriComponents.MOUTH).freeForExternalWork()) { finished = true; return; }
             if (pileContact.tick(pile)) {
@@ -280,6 +306,7 @@ public final class Kindness extends Goal {
                     relations().interact(giver.getUUID(), guest.getUUID(), 1, 0);
                     guest.mind().add(-3, "kindness_company");
                     GameplayLog.event(giver, "kindness", "kept company peer={}", guest.getUUID());
+                    startShelterGesture();
                 }
                 finished = contact >= CUE + 600;
             }
@@ -289,6 +316,95 @@ public final class Kindness extends Goal {
                 finished = true;
             }
         }
+    }
+
+    private boolean shelterVisit() {
+        return guest.pet().waitingAfterAbandonment() && FoundShelter.invitationTraveler(guest)
+                && FoundShelter.invitationTraveler(giver) && FoundShelter.canTakeFoundShelter(guest);
+    }
+
+    private void startShelterGesture() {
+        if (!shelterVisit()) return;
+        var receiver = of(guest);
+        var home = FoundShelter.visibleVacantCarton(giver, guest, candidate -> receiver.fresh(receiver.evidence(candidate, giver)));
+        if (home == null) return;
+        var direction = FoundShelter.invitationOpening(home).subtract(giver.position()).multiply(1, 0, 1);
+        // One or two body lengths is enough to show the direction while staying outside the opening.
+        var destination = giver.position().add(direction.scale(Math.min(.5, 2 * giver.getBbWidth() / direction.length())));
+        gestureStand = SurfaceApproach.stand(giver, destination);
+        if (gestureStand != null) carton = home;
+    }
+
+    private void gesture() {
+        if (!FoundShelter.invitationTraveler(giver) || !FoundShelter.invitationTraveler(guest)
+                || !FoundShelter.visibleInvitation(giver, guest, carton)) { finished = true; return; }
+        if (gestureStand != null) {
+            // The glance only needs a visible step in the right direction, without lining up a contact pose.
+            double closeEnough = giver.getBbWidth() / 4;
+            if (giver.distanceToSqr(gestureStand) > closeEnough * closeEnough) {
+                var step = SurfaceApproach.walkResult(giver, gestureStand, guest, .85);
+                if (step == SurfaceApproach.Result.BLOCKED) finished = true;
+                if (step != SurfaceApproach.Result.ARRIVED) return;
+            }
+            SurfaceApproach.halt(giver);
+            gestureStand = null;
+        }
+        float yaw = SurfaceApproach.yaw(giver.position(), guest.position());
+        SurfaceApproach.face(giver, yaw);
+        if (lookBackAt == 0 && Math.abs(Mth.wrapDegrees(giver.getYRot() - yaw)) < 2) {
+            lookBackAt = ticks;
+            giver.showReaction(YukkuriAction.LOOK_AROUND, "closed_smile", "");
+            GameplayLog.event(giver, "kindness", "carton offered peer={} shelter={} clip={}",
+                    guest.getUUID(), carton.getBlockPos(), YukkuriAction.LOOK_AROUND.id());
+        }
+        finished = lookBackAt > 0 && ticks - lookBackAt >= ClipMarkers.of(YukkuriAction.LOOK_AROUND.id()).length();
+    }
+
+    /** The receiver samples a live company gesture while choosing its own next life task. */
+    public ShelterOffer liveShelterOffer() {
+        if (!giver.pet().waitingAfterAbandonment() || !FoundShelter.invitationTraveler(giver)
+                || giver.life().nutrition() < 30 || giver.life().mealTicks() != 0
+                || !giver.component(YukkuriComponents.MOUTH).freeForExternalWork()) return null;
+        var locals = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(8), local -> {
+            var visit = of(local);
+            return visit.guest == giver && !visit.finished && visit.carton != null && giver.hasLineOfSight(local)
+                    && visit.valid() && fresh(evidence(visit.carton, local));
+        });
+        var local = locals.stream().min(Comparator.comparingDouble(giver::distanceToSqr)).orElse(null);
+        return local == null ? null : new ShelterOffer(of(local).carton, local, of(local).lookBackAt > 0);
+    }
+
+    public boolean acceptsShelter(ShelterOffer offer) {
+        var home = offer.carton();
+        var evidence = evidence(home, offer.local());
+        heardOffers.put(home.getBlockPos(), evidence);
+        // Attachment shifts the age at which cover wins from the first to the last third of the vigil.
+        double age = giver.pet().vigilProgress();
+        double wait = (1 + giver.life().personality().temperament().attached()) / 3;
+        boolean willing = age + evidence.need() + evidence.bond() >= wait;
+        var look = Vec3.atCenterOf(giver.pet().abandonmentSite());
+        giver.getLookControl().setLookAt(look.x, look.y, look.z);
+        var action = willing ? YukkuriAction.LOOK_AROUND : YukkuriAction.DROOP;
+        giver.showReaction(action, willing ? "neutral" : "teary", "");
+        GameplayLog.event(giver, "kindness", "carton decision={} local={} shelter={} clip={}",
+                willing ? "follow" : "stay", offer.local().getUUID(), home.getBlockPos(), action.id());
+        return willing;
+    }
+
+    private OfferEvidence evidence(ShelterBlockEntity home, YukkuriEntity local) {
+        var life = giver.life();
+        // Fatigue rises from the leisure band to urgent rest. Wetness rises through the ordinary cover band.
+        double fatigue = Math.clamp((60 - life.energy()) / 35, 0, 1);
+        double need = .45 * Math.max(Math.max(fatigue, life.wetness() / 50), life.temperature().cold() ? 1 : 0);
+        double bond = Math.clamp(relations().affinity(giver.getUUID(), local.getUUID()) / 40.0, 0, .25);
+        return new OfferEvidence(home, need, bond);
+    }
+
+    private boolean fresh(OfferEvidence offer) {
+        var previous = heardOffers.get(offer.carton().getBlockPos());
+        // Roughly one need band or three earned closeness points can reopen the choice at a fresh visit.
+        return previous == null || previous.carton() != offer.carton()
+                || offer.need() >= previous.need() + .15 || offer.bond() >= previous.bond() + .075;
     }
 
     private void give() {
@@ -302,6 +418,11 @@ public final class Kindness extends Goal {
             receiver.mealSwallowed = false;
             if (giver.family().canAdopt(guest)) giver.social().noteContact(guest);
             GameplayLog.event(giver, "kindness", "bite handed peer={} clip={}", guest.getUUID(), giver.getAnimationId());
+            if (shelterVisit()) {
+                act = Act.COMPANY;
+                contact = 0;
+                return;
+            }
         } else {
             cooldown = GIVER_REST;
         }
@@ -320,6 +441,7 @@ public final class Kindness extends Goal {
         if (running) SurfaceApproach.halt(giver);
         running = finished = false;
         guest = null; pile = null; act = null; stand = null; guestAt = null; companyAt = null;
+        carton = null; gestureStand = null; lookBackAt = 0;
         ticks = contact = 0;
         pileContact.reset();
     }

@@ -7,12 +7,14 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -46,6 +48,7 @@ import net.minecraft.world.phys.Vec3;
 /** Everything an owner-registered individual carries: grade, real skills, records and owner state. Qualification belongs to the individual. */
 public final class PetLife {
     private static final int OWNER_SAMPLE = 10, OWNER_ABSENCE = 600, OWNER_WELCOME = 600;
+    private static final int VIGIL_TICKS = 24000;
     private static final double OWNER_SIGHT_SQ = 12 * 12;
     public interface Director { void tick(YukkuriEntity animal); default void stop(YukkuriEntity animal) {} }
     private final YukkuriEntity animal;
@@ -274,7 +277,13 @@ public final class PetLife {
     /** Former owner while the abandonment record stands; cleared by the next owner. */
     public UUID formerOwner() { return formerOwner; }
     public boolean abandoned() { return formerOwner != null && owner() == null; }
-    public boolean waitingAfterAbandonment() { return abandoned() && waits && now() - abandonedAt <= 24000; }
+    public boolean waitingAfterAbandonment() { return abandoned() && waits && now() - abandonedAt <= VIGIL_TICKS; }
+    public double vigilProgress() { return Math.clamp((now() - abandonedAt) / (double) VIGIL_TICKS, 0, 1); }
+    public BlockPos abandonmentSite() { return BlockPos.of(dropPos); }
+    public void settledAfterInvitation(BlockPos carton, UUID local) {
+        waits = false;
+        GameplayLog.event(animal, "pet", "vigil ended in invited cover shelter={} local={} former={}", carton, local, formerOwner);
+    }
     /** An unkept individual still tied to human-town life, including offspring raised in it. */
     public boolean townRoots() { return townRoots; }
     public void markTownRoots() { townRoots = true; }
@@ -445,12 +454,14 @@ public final class PetLife {
             abandonStage = 1;
             if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); return; }
         }
-        if (!waits || now() - abandonedAt > 24000) return;
+        if (!waitingAfterAbandonment() || animal.life().usingFoundCover() || !animal.level().isDay()
+                || animal.status().reactions().threat().responding() || Reactions.Weather.rainAt(animal, animal.blockPosition())) return;
         if (--searchClock > 0) return;
         searchClock = (animal.family().adult() ? 500 : 250) + animal.getRandom().nextInt(300);
-        var drop = BlockPos.of(dropPos);
-        if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop)) animal.life().navigate(drop, .6, false);
-        else { animal.playAction("droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("cry", "lost_parent", 100); }
+        var drop = abandonmentSite();
+        if (animal.blockPosition().distSqr(drop) > 36 && animal.life().dryStand(drop)
+                && !Reactions.Weather.rainAt(animal, drop)) animal.life().navigate(drop, .6, false);
+        else { animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction(YukkuriAction.DROOP, "cry", "lost_parent", 100); }
     }
 
     // sessions

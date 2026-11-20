@@ -55,6 +55,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -94,6 +95,7 @@ public final class FoundShelter implements MotorOwner {
     private final YukkuriEntity body;
     private final LinkedHashMap<BlockPos, Long> refused = new LinkedHashMap<>();
     private ShelterBlockEntity shelter;
+    private UUID inviter;
     private BlockPos gap;
     public enum StreetSpot { BENCH, BARREL, AWNING }
     private StreetSpot streetSpot;
@@ -336,13 +338,14 @@ public final class FoundShelter implements MotorOwner {
 
     /** An awake search or a light rest on the ground can give way to a better refuge in view. */
     public boolean tryBetterCover() {
-        if (now() < nextScan || !body.onGround() || !canTakeFoundShelter(body) || body.isOnFire()
+        // Keep a chosen carton through approach and rest, including one chosen in reply to an invitation.
+        if (shelter != null || now() < nextScan || !body.onGround() || !canTakeFoundShelter(body) || body.isOnFire()
                 || body.isPanicking() || body.isCommandPlaying()
                 || body.operations().active() || body.life().nutrition() < SEEK_HUNGRY
                 || body.family().stemFoodUrgent() || body.family().followsShelterLead() || ParentCarry.awaitsCarrier(body)
                 || familyDutyPreempts(false)
                 || !wantsCover() && !body.life().isSleeping()) return false;
-        if (active() && (shelter != null || phase != Phase.REST && phase != Phase.ENTER
+        if (active() && (phase != Phase.REST && phase != Phase.ENTER
                 || streetSpot != null && streetSpot != StreetSpot.AWNING || holdingPaper()
                 || body.life().hasPaperCover())) return false;
         nextScan = now() + UPGRADE_SCAN_TICKS;
@@ -354,6 +357,51 @@ public final class FoundShelter implements MotorOwner {
         stop();
         approachCarton(carton);
         return true;
+    }
+
+    public static boolean invitationTraveler(YukkuriEntity animal) {
+        return streetUser(animal) && animal.childhood().canLiveIndependently() && !animal.family().hasDependentYoung()
+                && !animal.family().carryingOrLifting() && !animal.status().reactions().threat().responding();
+    }
+
+    public static ShelterBlockEntity visibleVacantCarton(YukkuriEntity local, YukkuriEntity guest,
+                                                        Predicate<ShelterBlockEntity> fresh) {
+        var level = (ServerLevel) local.level();
+        var here = local.blockPosition();
+        return LoadedShelters.within(level, here.offset(-RADIUS, -2, -RADIUS), here.offset(RADIUS, 2, RADIUS)).stream()
+                .filter(home -> home.kind().found() && fresh.test(home) && visibleInvitation(local, guest, home))
+                .min(Comparator.comparingDouble(home -> local.distanceToSqr(invitationOpening(home)))).orElse(null);
+    }
+
+    public static boolean visibleInvitation(YukkuriEntity local, YukkuriEntity guest, ShelterBlockEntity home) {
+        var level = (ServerLevel) local.level();
+        return !home.isRemoved() && level.hasChunkAt(home.getBlockPos()) && home.foundUsable(guest)
+                && home.vacantForInvitation(guest) && level.clip(new ClipContext(local.getEyePosition(), invitationOpening(home),
+                        ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, local)).getType() == HitResult.Type.MISS;
+    }
+
+    public static Vec3 invitationOpening(ShelterBlockEntity home) {
+        return insideOpening(home).add(0, ShelterBlock.Kind.CARDBOARD.innerHeight / 2, 0);
+    }
+
+    public boolean planInvited(ShelterBlockEntity home, UUID local) {
+        var opening = Vec3.atBottomCenterOf(home.entrance());
+        String refusal = !canTakeFoundShelter(body) ? "ineligible"
+                : refusing(home.getBlockPos()) || !invitationAvailable(home) ? "unavailable"
+                : !SurfaceApproach.canApproach(body, opening) ? "opening_blocked"
+                : restPoint(home, home.foundBed(body), null) == null ? "no_rest_space" : null;
+        if (refusal != null) {
+            GameplayLog.event(body, "habitat", "invited cover refused shelter={} local={} reason={}", home.getBlockPos(), local, refusal);
+            return false;
+        }
+        inviter = local;
+        approachCarton(home);
+        return true;
+    }
+
+    private boolean invitationAvailable(ShelterBlockEntity home) {
+        return !home.isRemoved() && level().hasChunkAt(home.getBlockPos())
+                && home.foundUsable(body) && home.vacantForInvitation(body);
     }
 
     public boolean plan() {
@@ -1022,6 +1070,21 @@ public final class FoundShelter implements MotorOwner {
             }
             return Step.ACTIVE;
         }
+        if (inviter != null) {
+            boolean available = invitationAvailable(shelter);
+            if (!available || !body.pet().waitingAfterAbandonment() || !invitationTraveler(body)
+                    || body.life().nutrition() < SEEK_HUNGRY) {
+                GameplayLog.event(body, "habitat", "invited cover interrupted shelter={} local={} available={}", target(), inviter, available);
+                inviter = null;
+                if (!available) remember(target(), CONTEST_REST, "invitation_unavailable");
+                if (!shelter.isRemoved() && shelter.cartonTouches(body)) {
+                    leave("invitation_interrupted");
+                    return Step.ACTIVE;
+                }
+                stop();
+                return Step.ENDED;
+            }
+        }
         if (!canTakeFoundShelter(body) || body.life().nutrition() < LEAVE_HUNGRY
                 || shelter != null && body.family().followsShelterLead()
                 || (shelter != null ? shelter.isRemoved() || !shelter.foundUsable(body)
@@ -1253,14 +1316,18 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private Vec3 restPoint(BlockPos pos, Vec3 failed) {
+        return restPoint(shelter, pos, failed);
+    }
+
+    private Vec3 restPoint(ShelterBlockEntity home, BlockPos pos, Vec3 failed) {
         double reach = HeadTop.reach(body);
         double height = HeadTop.height(body);
         // Use the actual body's remaining width beside the wall. Leave room for the final walking tolerance.
         double across = 15/16. - reach - 2 * SurfaceApproach.ARRIVAL;
-        var stand = SurfaceApproach.stand(body, shelter.cartonRestSpot(pos, across));
-        if (stand == null || stand.equals(failed) || !shelter.contains(BlockPos.containing(stand)) || !availableStand(stand)) return null;
+        var stand = SurfaceApproach.stand(body, home.cartonRestSpot(pos, across));
+        if (stand == null || stand.equals(failed) || !home.contains(BlockPos.containing(stand)) || !availableStand(stand)) return null;
         double paddedReach = reach + SurfaceApproach.ARRIVAL;
-        return clearRestTurn(stand, paddedReach, height) && shelter.clearsResidents(body, stand, paddedReach) ? stand : null;
+        return clearRestTurn(stand, paddedReach, height) && home.clearsResidents(body, stand, paddedReach) ? stand : null;
     }
 
     private boolean clearRestTurn(Vec3 feet, double reach, double height) {
@@ -1333,6 +1400,10 @@ public final class FoundShelter implements MotorOwner {
             GameplayLog.event(body, "habitat", "street rest spot={} at={} stand={} energy={}", streetSpot, gap.toShortString(),
                     streetSpot == StreetSpot.BENCH ? atBenchSeat() ? "seat" : "foot" : "cover", body.life().energy());
         } else GameplayLog.event(body, "habitat", "wind cover settled at={} paper={}", gap, paperAt(gap));
+        if (inviter != null) {
+            body.pet().settledAfterInvitation(target(), inviter);
+            inviter = null;
+        }
     }
 
     private boolean streetSpotValid() {
@@ -1428,7 +1499,7 @@ public final class FoundShelter implements MotorOwner {
         paperStand = null; loosePaper = null; pullAction = null; placeAction = null; coverAction = null;
         drapeChild = null; drapeLayFallback = false; drapeAction = null; decidedSelfFirst = false; babyWaitTicks = 0;
         triedPaperFaces.clear(); triedGroundPaper.clear(); triedChildDrape.clear();
-        shelter = null; gap = null; aim = null; phase = null; streetSpot = null; yieldingRival = null; failures = 0; warnUntil = 0;
+        shelter = null; inviter = null; gap = null; aim = null; phase = null; streetSpot = null; yieldingRival = null; failures = 0; warnUntil = 0;
         benchLaunch = null; benchHop = null; benchStepBlocked = false;
         body.component(YukkuriComponents.MOUTH).releaseItems(MouthOccupancy.Purpose.PAPER, 20);
         SurfaceApproach.stopWalking(body);

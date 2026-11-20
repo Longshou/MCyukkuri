@@ -1074,6 +1074,21 @@ public final class YukkuriLife {
             boolean freeToShelter = !ParentCarry.awaitsCarrier(entity);
             boolean rainFirst = freeToShelter && foundCover.seekingStreetRoof();
             if (rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
+            if (freeToShelter && !rainFirst && !entity.family().active()) {
+                var invitation = entity.kindness().liveShelterOffer();
+                if (invitation != null) {
+                    if (!invitation.ready()) {
+                        var opening = FoundShelter.invitationOpening(invitation.carton());
+                        entity.getLookControl().setLookAt(opening.x, opening.y, opening.z);
+                        return false;
+                    }
+                    if (entity.kindness().acceptsShelter(invitation)
+                            && foundCover.planInvited(invitation.carton(), invitation.local().getUUID())) {
+                        task = Task.FOUND_COVER;
+                        return true;
+                    }
+                }
+            }
             if (!entity.forageTrip().provisioningFirst() && stallTheft.plan()) { task = Task.STALL; return true; }
             if (EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }

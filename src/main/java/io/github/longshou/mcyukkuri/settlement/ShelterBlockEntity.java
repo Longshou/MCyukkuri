@@ -482,6 +482,11 @@ public final class ShelterBlockEntity extends BlockEntity {
                 && FoundShelter.fits(entity);
     }
 
+    boolean vacantForInvitation(YukkuriEntity guest) {
+        return residents.isEmpty() && level.getEntitiesOfClass(LivingEntity.class, interior(),
+                other -> other != guest && other.isAlive() && !other.isSpectator() && cartonTouches(other)).isEmpty();
+    }
+
     public boolean feedResident(Player player, InteractionHand hand, ItemStack food) {
         if (!(level instanceof ServerLevel server)) return false;
         for (var id : residents.keySet()) {

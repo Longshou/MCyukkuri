@@ -482,13 +482,18 @@ final class LifeMeal {
         feeder = null; mealTicks = 0; mealVerdict = Verdict.PLAIN; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
     }
 
-    void tryShare() {
+    private YukkuriEntity nearbyHungryKin() {
         var donor = o.entity();
-        var peer = o.level().getEntitiesOfClass(YukkuriEntity.class, o.entity().getBoundingBox().inflate(1.5), other ->
+        return o.level().getEntitiesOfClass(YukkuriEntity.class, donor.getBoundingBox().inflate(1.5), other ->
                 other != o.entity() && other.isAlive() && other.life().canEat() && other.life().nutrition() < o.nutrition() - 15
                         && Bonds.careKin(donor, other) && o.canRecognize(other) && donor.hasLineOfSight(other)
                         && !ExamSession.running(other) && ItemContact.mouthsMeet(o.entity(), other)).stream()
                 .min(Comparator.comparingDouble(donor::distanceToSqr)).orElse(null);
+    }
+
+    void tryShare() {
+        var donor = o.entity();
+        var peer = nearbyHungryKin();
         if (peer == null) {
             if (canOfferMeal()) donor.kindness().offerMeal();
             return;
@@ -525,7 +530,8 @@ final class LifeMeal {
             }
             o.entity().getNavigation().stop();
             mealTicks++;
-            if (mealTicks % MEAL_SIGHT_INTERVAL == 0 && canOfferMeal() && BadgeSocial.mealSeen(o.entity())) return true;
+            if (mealTicks % MEAL_SIGHT_INTERVAL == 0 && canOfferMeal()
+                    && (o.entity().kindness().offerMealToWaiter(() -> nearbyHungryKin() == null) || BadgeSocial.mealSeen(o.entity()))) return true;
             if (mealVerdict != Verdict.REFUSE && mealTicks == 6 && !sharedMeal && o.nutrition() >= 35) tryShare();
             if (mealTicks == swallowAt && !mouthBodyFood().isEmpty()) {
                 swallowBodyFood();

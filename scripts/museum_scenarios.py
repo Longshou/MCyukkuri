@@ -3901,6 +3901,34 @@ add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公
            ('读魔理沙', f'yukkuri status {sel("picnic_pet")} raw'),
            ('读流浪橙', f'yukkuri status {sel("picnic_stray")} raw')])
 
+_park_aid = 'park_aid'
+_park_waiter = sel('park_waiter')
+_park_local = sel('park_local')
+_park_former = uuid_nbt(uid(_park_aid, 'former_owner'))
+_park_drop = _lot_pos(*_lot_spot('fountain', 7, -2))
+add(_park_aid, 'park', '流浪油递来一口，回头指向空纸箱', '流浪油递来一口，回头指向空纸箱',
+    '喷泉东侧，等主人的灵梦吃下一口苹果，看本地灵梦朝箱口走两步再回头。刚被留下、依恋强的会垂头留下，等得久又困的会自己进箱歇脚。重开可看另一种反应。',
+    '约半分钟', [
+        *carton_shell(10, -4),
+        yk('reimu', 7, -2, 'park_waiter', uuid=uid(_park_aid, 'park_waiter'), label='等主人的灵梦', lead=True,
+           adult_scale=.8, nutrition=27, attachment=(58, 100), yaw=-90, picky=0,
+           extra=f'YukkuriPet:{{FormerOwner:{_park_former},TownRoots:1b,Waits:1b,DropPos:{_park_drop}L,AbandonStage:1}}'),
+        yk('reimu', 7.52, -2, 'park_local', uuid=uid(_park_aid, 'park_local'), label='本地流浪灵梦',
+           adult_scale=.8, friendliness=100, attachment=100, yaw=90,
+           extra='YukkuriPet:{TownRoots:1b},YukkuriMouth:{Purpose:"MEAL",Items:[{id:"minecraft:apple",count:1}]}'),
+        f'data merge entity {_park_local} {{YukkuriLife:{{MealTicks:1}}}}',
+        f'execute store result score #park_aid_bond museum run data get entity {_park_waiter} YukkuriLife.Personality.Innate[3] 1',
+        f'execute store result score #park_aid_experience museum run data get entity {_park_waiter} YukkuriLife.Personality.Experience[3] 1',
+        'scoreboard players operation #park_aid_bond museum += #park_aid_experience museum',
+        'execute store result score #park_aid_release museum run time query gametime',
+        'execute if score #park_aid_bond museum matches 75.. run scoreboard players remove #park_aid_release museum 120',
+        'execute if score #park_aid_bond museum matches ..74 run scoreboard players remove #park_aid_release museum 16000',
+        f'execute if score #park_aid_bond museum matches ..74 run data modify entity {_park_waiter} YukkuriLife.Energy set value 32f',
+        f'execute store result entity {_park_waiter} YukkuriPet.AbandonedAt long 1 run scoreboard players get #park_aid_release museum',
+    ], env=DAY, spot='fountain', vantage=(12, 1, 132, 17),
+    reads=[('读等候状态', f'data get entity {_park_waiter} YukkuriPet.Waits'),
+           ('读纸箱住客', 'data get block ~10 ~ ~-4 Residents')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -7393,7 +7421,7 @@ TOPICS = {
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -7450,6 +7478,59 @@ _smoke('kindness_adoption', 720, [
     rf'\[meal\][^\n]*uuid={_uuid_text("kindness_adoption", "orphan")} [^\n]*swallowed item=[^\n]*feeder={_uuid_text("kindness_adoption", "foster")}\b',
     rf'\[family\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*foster accepted child={_uuid_text("kindness_adoption", "orphan")}\b',
 ])
+
+_park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
+_park_local_log = _uuid_text(_park_aid, 'park_local')
+_park_offer = rf'\[kindness\][^\n]*uuid={_park_local_log} [^\n]*carton offered peer={_park_waiter_log} shelter=(.+) clip=look_around\b'
+_park_bite = rf'\[kindness\][^\n]*uuid={_park_local_log} [^\n]*bite handed peer={_park_waiter_log} clip=offer_bite\b'
+_park_swallow = rf'\[meal\][^\n]*uuid={_park_waiter_log} [^\n]*swallowed item=minecraft:apple count=1 [^\n]*feeder={_park_local_log}\b'
+
+
+def _verify_park_aid(window, trace):
+    stage = re.search(rf'\[scenario\][^\n]*uuid={_park_waiter_log} [^\n]*rolled=\{{attachment=(\d+)\}}', window)
+    if not stage:
+        return 'Missing seeded waiter attachment'
+    staying = int(stage[1]) >= 75
+    bite, swallow, offer = (list(re.finditer(pattern, window)) for pattern in (_park_bite, _park_swallow, _park_offer))
+    if not (len(bite) == len(swallow) == len(offer) == 1 and bite[0].start() < swallow[0].start() < offer[0].start()):
+        return 'Expected one linked bite, swallow and carton gesture in order'
+    core = re.escape(offer[0][1])
+    outcome, clip = ('stay', 'droop') if staying else ('follow', 'look_around')
+    decision = re.search(rf'\[kindness\][^\n]*uuid={_park_waiter_log} t=(\d+)[^\n]*carton decision={outcome} local={_park_local_log} shelter={core} clip={clip}\b', window)
+    if not decision or decision.start() <= offer[0].start():
+        return f'The waiter did not choose {outcome} after the gesture to the same carton'
+    after = window[decision.end():]
+    settled = re.search(rf'\[habitat\][^\n]*uuid={_park_waiter_log} [^\n]*found settled shelter={core} kind=CARDBOARD occupants=1\b', after)
+    ended = re.search(rf'\[pet\][^\n]*uuid={_park_waiter_log} [^\n]*vigil ended in invited cover shelter={core} local={_park_local_log} former={_uuid_text(_park_aid, "former_owner")}\b', after)
+    if not staying and not (settled and ended and settled.start() < ended.start()):
+        return 'The waiter did not settle as the claimant at the offered core before ending the vigil'
+    if staying and (settled or ended):
+        return 'The waiter declined and then settled at the invited core'
+    frames = [json.loads(line.split('[trace] ', 1)[1]) for line in trace]
+    clips = [row['st']['animation'] for row in frames if row['k'] == 'st' and row['u'] == _park_waiter_log
+             and row['t'] >= int(decision[1]) and 'animation' in row['st']]
+    if staying:
+        if 'droop' not in clips or not any(clip != 'droop' for clip in clips[clips.index('droop') + 1:]):
+            return 'The waiter did not show the refusal and resume ordinary activity'
+
+
+def _park_aid_vigil_readout(readout):
+    values = re.findall(r'has the following entity data: (.+)', readout)
+    if len(values) != 4 or values[1].replace(' ', '') != _park_former:
+        return 'The surviving waiter needs its original former owner'
+    attachment = int(values[2]) + int(values[3])
+    if values[0] != ('1b' if attachment >= 75 else '0b'):
+        return 'The saved vigil must reflect the staged waiter’s choice and actual settlement'
+
+
+_smoke(_park_aid, 500, [_park_bite, _park_swallow, _park_offer], readout=[
+    f'data get entity {_park_waiter} YukkuriPet.Waits', f'data get entity {_park_waiter} YukkuriPet.FormerOwner',
+    f'data get entity {_park_waiter} YukkuriLife.Personality.Innate[3]',
+    f'data get entity {_park_waiter} YukkuriLife.Personality.Experience[3]', 'data get block ~10 ~ ~-4 Residents',
+])
+next(s for s in S if s.id == _park_aid).smoke.update(verify=_verify_park_aid, verify_trace=True,
+                                                    verify_readout=_park_aid_vigil_readout, gating_checks=['END'])
+
 next(s for s in S if s.id == 'hurt').smoke['verify'] = _two_lickers
 _smoke('birth_nest_safe', 3000, [r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
 _smoke('birth_nest_stem', 3000, [r'\[family\][^\n]* stem site facing ', r'\[family\][^\n]* birth landed [^\n]*outcome=CUSHION\b'])
@@ -9693,6 +9774,7 @@ _scene_end('den_mold_keep', [(n, _DRY) for n in ('mother', 'father', 'child', 'b
 
 _scene_end(_sweet_box, [(name, _DRY) for name, *_ in _sweet_cast])
 _scene_end('park_picnic', [('picnic_pet', _DRY), ('picnic_stray', _DRY)])
+_scene_end(_park_aid, [('park_waiter', _DRY), ('park_local', _DRY)])
 
 for _choice, _cast in (('choice_nest', ('nest_declare', 'nest_yield', 'nest_peer_west', 'nest_peer_east')),
                        ('choice_food', ('food_demand', 'food_ask')), ('choice_tool', ('tool_plead', 'tool_withdraw')),
