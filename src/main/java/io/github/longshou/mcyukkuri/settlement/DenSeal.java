@@ -232,8 +232,7 @@ public final class DenSeal {
     }
 
     private boolean mouthFree() {
-        return y.life().mealTicks() == 0 && y.component(YukkuriComponents.MOUTH).freeForExternalWork()
-                && y.forageTrip().load().isEmpty() && y.habitat().carrying().isEmpty();
+        return y.life().mealTicks() == 0 && y.component(YukkuriComponents.MOUTH).freeForExternalWork();
     }
 
     private boolean work(ServerLevel level, ShelterBlockEntity home, LivingEntity danger) {

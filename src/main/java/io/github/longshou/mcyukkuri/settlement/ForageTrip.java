@@ -1,11 +1,14 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import static io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose.FORAGE;
+
 import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
@@ -15,6 +18,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.family.FamilyProvision;
 import java.util.EnumSet;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -62,7 +66,6 @@ public final class ForageTrip extends Goal {
     private BlockPos home, dest;
     private int radius;
     private long startedAt, deadline, lastTrip = Long.MIN_VALUE / 2;
-    private ItemStack load = ItemStack.EMPTY;
     private int scanAfter, ticks, failures, barren, watchdog, far;
     private double pace;
     private double watchBest = Double.MAX_VALUE;
@@ -107,17 +110,16 @@ public final class ForageTrip extends Goal {
     /** Ticks since this trip started; 0 when at home. */
     public long away() { return outing() ? level().getGameTime() - startedAt : 0; }
     public int radius() { return radius; }
-    public ItemStack load() { return load; }
-    public ItemStack takeLegacyLoad() {
-        var stack = load;
-        load = ItemStack.EMPTY;
-        return stack;
-    }
+    private MouthOccupancy mouth() { return entity.component(YukkuriComponents.MOUTH); }
+    public ItemStack load() { return mouth().stack(FORAGE); }
+    private void carry(ItemStack stack) { mouth().set(FORAGE, stack); }
     public void saveLoad(CompoundTag tag) {
-        if (!load.isEmpty()) tag.put("YukkuriForageLoad", load.save(entity.registryAccess()));
+        var stack = load();
+        if (!stack.isEmpty()) tag.put("YukkuriForageLoad", stack.save(entity.registryAccess()));
     }
     public void loadCarried(CompoundTag tag) {
-        load = ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("YukkuriForageLoad"));
+        var stack = ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("YukkuriForageLoad"));
+        if (!stack.isEmpty()) mouth().restoreItems(FORAGE, List.of(stack));
     }
     public int trips() { return trips; }
     public int delivered() { return delivered; }
@@ -129,7 +131,7 @@ public final class ForageTrip extends Goal {
     public CompoundTag debug() {
         var tag = new CompoundTag();
         tag.putString("Phase", phase.name()); tag.putString("Role", role.name()); tag.putString("Reason", reason);
-        tag.putInt("Radius", radius); tag.putLong("Away", away()); tag.putInt("Load", load.getCount()); tag.putInt("Trips", trips);
+        tag.putInt("Radius", radius); tag.putLong("Away", away()); tag.putInt("Load", load().getCount()); tag.putInt("Trips", trips);
         tag.putInt("Delivered", delivered); tag.putInt("Farthest", far); tag.putBoolean("Hunting", hunting);
         if (dest != null) tag.putString("Dest", dest.toShortString());
         return tag;
@@ -137,7 +139,7 @@ public final class ForageTrip extends Goal {
     /** Sends the forager home now (rain, a predator, nightfall...). The load, if any, is still delivered. */
     public void recall(String why) {
         if (outing() && phase != Phase.BACK) {
-            GameplayLog.event(entity,"forage","phase={} -> BACK reason={} gathered={} carried={} home={}",phase,why,gathered,load.getCount(),home);
+            GameplayLog.event(entity,"forage","phase={} -> BACK reason={} gathered={} carried={} home={}",phase,why,gathered,load().getCount(),home);
             phase = Phase.BACK; reason = why; ticks = 0; failures = 0; plants.stop();
             if (hunting && role == Role.CHIEF) CommonHunt.chiefRecall(entity, why);
         }
@@ -164,7 +166,7 @@ public final class ForageTrip extends Goal {
         if (underway && entity.life().nutrition() < 30)
             GameplayLog.limited(entity, "forage", "migration.hungry", 1200,
                     "forage refused reason=migration_unsettled group={} nutrition={} phase={} carried={}",
-                    entity.settlement().groupId(), entity.life().nutrition(), phase, load.getCount());
+                    entity.settlement().groupId(), entity.life().nutrition(), phase, load().getCount());
         return !underway;
     }
     private record Household(YukkuriEntity provider, boolean covered, FamilyProvision provision) {}
@@ -179,7 +181,7 @@ public final class ForageTrip extends Goal {
 
     private boolean readyForHousehold(ShelterBlockEntity home, boolean covered) {
         return shelter() == home && body() && familyConditions() && !entity.bereaving()
-                && !entity.family().carry().mouthBusy() && entity.habitat().carrying().isEmpty() && due(home, covered);
+                && due(home, covered);
     }
 
     /** A missing mate may still come home. Only immediate pressure from the young displaces that search. */
@@ -233,14 +235,13 @@ public final class ForageTrip extends Goal {
     }
 
     private boolean canCarryForage() {
-        return entity.life().mealTicks() == 0 && entity.component(YukkuriComponents.MOUTH).freeForExternalWork();
+        return entity.life().mealTicks() == 0 && mouth().canHold(FORAGE);
     }
 
     /** The available provider puts the short store ahead of empty-handed work and moderate personal hunger. */
     public boolean provisioningFirst() {
         if (!(entity.level() instanceof ServerLevel) || hunting || entity.life().nutrition() < OWN_MEAL_NUTRITION
-                || !outing() && entity.tickCount < scanAfter || entity.bereaving() || !body() || !familyConditions()
-                || entity.family().carry().mouthBusy() || !entity.habitat().carrying().isEmpty()) return false;
+                || !outing() && entity.tickCount < scanAfter || entity.bereaving() || !body() || !familyConditions()) return false;
         var home = shelter();
         if (home == null || (outing() ? !shortStore(home, false) : !due(home, false))) return false;
         var household = household(home);
@@ -334,14 +335,13 @@ public final class ForageTrip extends Goal {
             var inside = shelter();
             if (inside == null || !inside.getBlockPos().equals(home)) { giveUp("home_lost"); return false; }
             // Sent home (rain, dusk) and already indoors with nothing to deliver: the trip is over; it must not hold the next one back.
-            if (phase == Phase.BACK && load.isEmpty() && inside.contains(entity.blockPosition())) { finish(false); return false; }
+            if (phase == Phase.BACK && load().isEmpty() && inside.contains(entity.blockPosition())) { finish(false); return false; }
             return true;
         }
-        if (!entity.habitat().carrying().isEmpty() || entity.family().carry().mouthBusy()) return false;
         var hunt = wild() ? CommonHunt.drafted(entity) : null;
         if (hunt != null) { beginHunt(hunt); return true; }
         if (entity.tickCount < scanAfter) return false;
-        if (!load.isEmpty()) { // a load left over from an interrupted trip (or a way home that failed): bring it home first, after the pause
+        if (!load().isEmpty()) { // a load left over from an interrupted trip (or a way home that failed): bring it home first, after the pause
             if (shelter() == null) { dropLoad(); return false; }
             begin(Role.FAMILY, entity.blockPosition(), 0, "leftover_load"); phase = Phase.BACK; return true;
         }
@@ -414,7 +414,7 @@ public final class ForageTrip extends Goal {
         ticks = 0;
         // Up to 45% faster for a hungry child, in the same range as the ordinary emergency pace.
         pace = hunting ? 1 : 1 + .45 * FamilyProvision.atHomeOf(entity).childFoodUrgency(entity);
-        GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={} pace={}", () -> new Object[]{phase,reason,load.getCount(),away(),pace});
+        GameplayLog.limited(entity,"forage","active",200,"goal active phase={} reason={} carried={} elapsed={} pace={}", () -> new Object[]{phase,reason,load().getCount(),away(),pace});
     }
     @Override public void stop() {
         SearchBudget.cancel(level(),entity,Purpose.FORAGE_TRIP,0);
@@ -423,12 +423,12 @@ public final class ForageTrip extends Goal {
         if (phase != Phase.NONE && level().getGameTime() > deadline + 2400) giveUp("lapsed");
         else if(phase!=Phase.NONE)GameplayLog.limited(entity,"forage","paused",200,
                 "goal paused phase={} reason={} carried={} nutrition={} energy={} mealTicks={} panic={}",
-                phase,reason,load.getCount(),entity.life().nutrition(),entity.life().energy(),entity.life().mealTicks(),entity.isPanicking());
+                phase,reason,load().getCount(),entity.life().nutrition(),entity.life().energy(),entity.life().mealTicks(),entity.isPanicking());
     }
 
     private void finish(boolean ok) {
         GameplayLog.event(entity,"forage","end ok={} phase={} reason={} role={} gathered={} carried={} elapsed={} farthest={}",
-                ok,phase,reason,role,gathered,load.getCount(),away(),far);
+                ok,phase,reason,role,gathered,load().getCount(),away(),far);
         if (hunting) { CommonHunt.done(entity, reason); hunting = false; }
         // A family trip reports to the community: food brought back, or an empty return from a barren or unreachable meadow.
         else if (role == Role.FAMILY) {
@@ -446,36 +446,36 @@ public final class ForageTrip extends Goal {
     /** A way home that fails keeps the family's load in the mouth (it is brought on after the pause); the other endings drop it. */
     private void giveUp(String why) { reason = why; if (!KEEPS_LOAD.contains(why)) dropLoad(); finish(false); }
     public void abortOnDanger(String why) {
-        if (!outing() && load.isEmpty()) return;
+        if (!outing() && load().isEmpty()) return;
         reason = why;
-        if (!load.isEmpty() && (why.equals("death") || ItemContact.hasReleaseSupport(entity, entity.getEyePosition()))) dropLoad();
+        if (!load().isEmpty() && (why.equals("death") || ItemContact.hasReleaseSupport(entity, entity.getEyePosition()))) dropLoad();
         if (outing()) finish(false);
     }
     ItemEntity putDownLoad() {
-        var drop = ItemContact.releaseSupported(entity, load, 0);
+        var drop = ItemContact.releaseSupported(entity, load(), 0);
         if (drop != null) {
-            GameplayLog.event(entity, "forage", "set down item={} count={} drop={}", load.getItem(), load.getCount(), drop.getUUID());
-            load = ItemStack.EMPTY;
+            GameplayLog.event(entity, "forage", "set down item={} count={} drop={}", load().getItem(), load().getCount(), drop.getUUID());
+            carry(ItemStack.EMPTY);
         }
         return drop;
     }
 
     void recoverLoad(ItemEntity drop) {
-        if (!drop.isAlive() || !canCarryForage() || !load.isEmpty()
+        if (!drop.isAlive() || !canCarryForage() || !load().isEmpty()
                 || !entity.getBoundingBox().inflate(.15).intersects(drop.getBoundingBox())) return;
-        load = drop.getItem();
-        entity.take(drop, load.getCount());
+        carry(drop.getItem());
+        entity.take(drop, load().getCount());
         drop.discard();
-        GameplayLog.event(entity, "forage", "recovered item={} count={} drop={}", load.getItem(), load.getCount(), drop.getUUID());
+        GameplayLog.event(entity, "forage", "recovered item={} count={} drop={}", load().getItem(), load().getCount(), drop.getUUID());
     }
 
     private void dropLoad() {
-        if (load.isEmpty() || entity.level().isClientSide) { load = ItemStack.EMPTY; return; }
-        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load.copy()), entity.getRandom()); drop.setPickUpDelay(100);
+        if (load().isEmpty()) return;
+        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load().copy()), entity.getRandom()); drop.setPickUpDelay(100);
         if (level().addFreshEntity(drop)) {
-            GameplayLog.event(entity,"forage","drop item={} count={} reason={} drop={}",load.getItem(),load.getCount(),reason,drop.getUUID());
-            load = ItemStack.EMPTY;
-        } else GameplayLog.limited(entity,"forage","drop_refused",200,"drop refused count={} reason={}",load.getCount(),reason);
+            GameplayLog.event(entity,"forage","drop item={} count={} reason={} drop={}",load().getItem(),load().getCount(),reason,drop.getUUID());
+            carry(ItemStack.EMPTY);
+        } else GameplayLog.limited(entity,"forage","drop_refused",200,"drop refused count={} reason={}",load().getCount(),reason);
     }
 
     // ---- the trip itself ----
@@ -489,7 +489,7 @@ public final class ForageTrip extends Goal {
         if (hunting) {
             var hunt = CommonHunt.of(entity);
             if (hunt == null || hunt.phase == Commons.HuntPhase.IDLE || !hunt.party.contains(entity.getUUID())) {
-                if (phase == Phase.MUSTER || load.isEmpty()) { finish(false); return; }
+                if (phase == Phase.MUSTER || load().isEmpty()) { finish(false); return; }
                 if (phase != Phase.BACK) recall("hunt_over");
             } else if (hunt.phase == Commons.HuntPhase.RETURN && phase != Phase.BACK) recall("chief_recall");
             if (phase == Phase.MUSTER) { muster(hunt); watchdog(); return; }
@@ -568,11 +568,11 @@ public final class ForageTrip extends Goal {
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
         int portions = role == Role.FAMILY ? 4 + Math.round(entity.life().personality().boldness() / 50f) : 6;
         int cap = portions + (entity.species().cheekCapacity() - 1) * 2;
-        if (load.getCount() >= cap) { recall("full"); return; }
+        if (load().getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;
             if (!plants.find(dest, 9, pos -> Grazing.edible(level().getBlockState(pos)))) {
-                if (!plants.refused() && ++barren >= 4) recall(load.isEmpty() ? "barren" : "enough");
+                if (!plants.refused() && ++barren >= 4) recall(load().isEmpty() ? "barren" : "enough");
                 else if (ticks > 40 && !plants.refused() && horizontal(dest) > 5) travel(dest);
                 return;
             }
@@ -581,18 +581,18 @@ public final class ForageTrip extends Goal {
         var portion = plants.tick();
         if (portion.isEmpty()) return;
         // Eats on the spot when hungry; the rest goes into the load. Either way the plant has fallen back one stage.
-        if (load.isEmpty() && entity.life().nutrition() < OWN_MEAL_NUTRITION && entity.life().beginMeal(portion, null, false)) return;
-        if (load.isEmpty()) load = portion.copy(); else load.grow(1);
+        if (load().isEmpty() && entity.life().nutrition() < OWN_MEAL_NUTRITION && entity.life().beginMeal(portion, null, false)) return;
+        if (load().isEmpty()) carry(portion); else load().grow(1);
         gathered++;
     }
     private void back(ShelterBlockEntity home) {
-        if (!load.isEmpty() && levy < 0) levy = Levy.portions(load.getCount(), Levy.rate(entity, false));
-        if (levy > 0 && !load.isEmpty() && payLevy(home)) return;
-        var pile = load.isEmpty() ? home.pile() : home.ensurePile();
-        if (load.isEmpty() || pile == null) {
+        if (!load().isEmpty() && levy < 0) levy = Levy.portions(load().getCount(), Levy.rate(entity, false));
+        if (levy > 0 && !load().isEmpty() && payLevy(home)) return;
+        var pile = load().isEmpty() ? home.pile() : home.ensurePile();
+        if (load().isEmpty() || pile == null) {
             BlockPos door = home.entrance();
             if (horizontal(door) < 3 || horizontal(this.home) < 3) {
-                if (load.isEmpty()) finish(false);
+                if (load().isEmpty()) finish(false);
                 else giveUp("no_pile");
                 return;
             }
@@ -603,12 +603,12 @@ public final class ForageTrip extends Goal {
         if (horizontal(pile.standCell()) > 6) { travel(pile.standCell()); return; }
         if (!contact.near(pile)) { contact.reset(); entity.life().navigate(pile.standCell(), pace, false); return; }
         if (!contact.tick(pile)) return;
-        int before = load.getCount();
-        load = home.returnFood(load);
-        int moved = before - load.getCount();
+        int before = load().getCount();
+        carry(home.returnFood(load()));
+        int moved = before - load().getCount();
         if (moved == 0) { giveUp("store_full"); return; }
         Levy.kept(entity, moved);
-        GameplayLog.event(entity,"forage","deposit home={} moved={} carried={} stock={}",home.getBlockPos(),moved,load.getCount(),home.food());
+        GameplayLog.event(entity,"forage","deposit home={} moved={} carried={} stock={}",home.getBlockPos(),moved,load().getCount(),home.food());
         entity.species().countStock(home.food());
         arrived();
     }
@@ -620,7 +620,7 @@ public final class ForageTrip extends Goal {
     private boolean payLevy(ShelterBlockEntity own) {
         var level = level();
         var group = entity.settlement().group();
-        var held = load;
+        var held = load();
         var pile = group == null ? null : CommonStore.nearest(level, group, entity.blockPosition(), p -> p.foodSpace(held) > 0);
         var ownPile = own == null ? null : own.pile();
         if (pile == null || ownPile != null && ownPile.getBlockPos().equals(pile.getBlockPos())) { levy = 0; storeAim = null; return false; }
@@ -633,27 +633,27 @@ public final class ForageTrip extends Goal {
             return true;
         }
         if (!contact.tick(pile)) return true;
-        int owed = Math.min(levy, load.getCount());
-        var rest = pile.returnFood(load.copyWithCount(owed));
+        int owed = Math.min(levy, load().getCount());
+        var rest = pile.returnFood(load().copyWithCount(owed));
         int paid = owed - rest.getCount();
-        load.shrink(paid);
+        carry(load().copyWithCount(load().getCount() - paid));
         if (hunting) CommonHunt.delivered(entity, paid);
         Levy.paid(entity, paid, hunting);
-        GameplayLog.event(entity,"forage","levy store={} requested={} paid={} carried={} hunting={}",pile.getBlockPos(),owed,paid,load.getCount(),hunting);
+        GameplayLog.event(entity,"forage","levy store={} requested={} paid={} carried={} hunting={}",pile.getBlockPos(),owed,paid,load().getCount(),hunting);
         levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
         return false;
     }
     private void skipLevy(String why) {
-        GameplayLog.event(entity,"forage","levy skipped reason={} owed={} store={} carried={}",why,levy,storeAim,load.getCount());
+        GameplayLog.event(entity,"forage","levy skipped reason={} owed={} store={} carried={}",why,levy,storeAim,load().getCount());
         levy = 0; storeAim = null; contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
         if (hunting) { var own = shelter(); if (own != null) toHome(own, why); else giveUp(why); }
     }
     /** A hunter that has paid its levy takes the rest of the load home like a family forager. */
     private void toHome(ShelterBlockEntity own, String why) {
-        CommonHunt.kept(entity, load.getCount());
+        CommonHunt.kept(entity, load().getCount());
         CommonHunt.done(entity, why);
         hunting = false; this.home = own.getBlockPos(); reason = why; storeAim = null; levy = 0;
-        GameplayLog.event(entity,"forage","hunt handoff home={} reason={} carried={}",home,why,load.getCount());
+        GameplayLog.event(entity,"forage","hunt handoff home={} reason={} carried={}",home,why,load().getCount());
         contact.reset(); watchBest = Double.MAX_VALUE; watchdog = 0;
     }
     /** At the gathering point until the leader sets off. */
@@ -670,20 +670,20 @@ public final class ForageTrip extends Goal {
      * rest home. A hunter without a home of its own gives everything to the commons.
      */
     private void backToStore() {
-        if (load.isEmpty()) { arrivedHunt(); return; }
+        if (load().isEmpty()) { arrivedHunt(); return; }
         var own = shelter();
-        if (levy < 0) levy = own == null ? load.getCount() : Levy.portions(load.getCount(), Levy.rate(entity, true));
+        if (levy < 0) levy = own == null ? load().getCount() : Levy.portions(load().getCount(), Levy.rate(entity, true));
         if (levy > 0) {
             if (payLevy(own)) return;
             if (!hunting) return; // the levy could not be paid and the hunter was sent home
         }
-        if (load.isEmpty()) { arrivedHunt(); return; }
+        if (load().isEmpty()) { arrivedHunt(); return; }
         if (own == null) { dropLoad(); arrivedHunt(); return; }
         toHome(own, "levy_paid");
     }
     private void arrivedHunt() {
         delivered++;
-        if (!load.isEmpty()) dropLoad();
+        if (!load().isEmpty()) dropLoad();
         if (role != Role.CHIEF) entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", 60);
         finish(true);
     }
@@ -696,7 +696,7 @@ public final class ForageTrip extends Goal {
     }
     private void arrived() {
         delivered++;
-        if (!load.isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
+        if (!load().isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
         entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", "gentle", 60);
         finish(true);
     }

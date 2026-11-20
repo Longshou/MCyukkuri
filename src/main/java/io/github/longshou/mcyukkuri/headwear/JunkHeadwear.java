@@ -107,7 +107,7 @@ public enum JunkHeadwear {
         var band = band(contact);
         if (band == Band.HESITANT && !slave(animal)) {
             var mouth = animal.component(YukkuriComponents.MOUTH);
-            if (!mouth.freeForExternalWork() || !animal.habitat().carrying().isEmpty() || !animal.forageTrip().load().isEmpty()) return false;
+            if (!mouth.freeForExternalWork()) return false;
             mouth.set(Purpose.JUNK_FIT, piece.copyWithCount(1));
             GameplayLog.event(animal, "headwear", "junk held for fitting source={} player={} esteem={} holder=mouth",
                     giver == null ? "ground" : "offer", giver == null ? null : giver.getUUID(), contact.esteem());

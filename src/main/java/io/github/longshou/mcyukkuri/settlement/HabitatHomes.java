@@ -466,9 +466,7 @@ final class HabitatHomes {
             refuseSurfaceNest("claim_refused");
             return;
         }
-        var material = o.carrying().getItem();
-        o.carrying().shrink(1);
-        if (o.carrying().isEmpty()) o.carry(ItemStack.EMPTY);
+        var material = o.useCarriedPortion().getItem();
         GameplayLog.event(o.entity(), "settlement", "surface nest built home={} consumed item={} count=1", pos, material);
         surfaceSearchAnchor = null;
         // assignHome releases HabitatLife and stops this errand.

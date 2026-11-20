@@ -212,7 +212,7 @@ public final class SettlementDuties {
         return null;
     }
     private boolean canUseMouth() {
-        return mouth().canHold(Purpose.DUTY) && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
+        return mouth().canHold(Purpose.DUTY);
     }
 
     public boolean canContinue() {

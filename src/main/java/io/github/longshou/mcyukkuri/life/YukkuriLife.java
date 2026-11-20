@@ -802,6 +802,7 @@ public final class YukkuriLife {
         }
     }
     public boolean beginCarriedMeal(MouthOccupancy.Purpose source) { return meal.beginCarriedMeal(source); }
+    public boolean canBeginCarriedMeal(ItemStack serving) { return meal.canBeginCarriedMeal(serving); }
     /** A player can offer an already prepared serving, but a dependent child still cannot pick it up alone. */
     public boolean beginPreparedMeal(ItemStack prepared, UUID fromPlayer){ return meal.beginPreparedMeal(prepared, fromPlayer); }
     public boolean beginStaffMeal(ItemStack portion, UUID staff){ return meal.beginStaffMeal(portion, staff); }

@@ -134,8 +134,7 @@ public final class TreasureLife extends Goal {
     }
 
     private boolean mouthFree() {
-        return entity.component(YukkuriComponents.MOUTH).freeForExternalWork()
-                && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
+        return entity.component(YukkuriComponents.MOUTH).freeForExternalWork();
     }
 
     private boolean wantsJunk() {

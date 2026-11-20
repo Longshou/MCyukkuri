@@ -226,8 +226,7 @@ public final class ForageGoal extends Goal {
             // One bite takes the plant back one growth stage (Grazing); it grows again on game time, so the meadow lasts.
             if (ForageClaims.owns(level(), target, claim) && Grazing.edible(level().getBlockState(target))
                     && entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS))
-                    && entity.life().beginMeal(new ItemStack(Items.SHORT_GRASS), null, false)) {
-                Grazing.graze(level(), target);
+                    && entity.life().beginCropMeal(new ItemStack(Items.SHORT_GRASS), () -> Grazing.graze(level(), target))) {
                 GameplayLog.event(entity, "forage", "gathered item={} count=1 source={} holder=mouth", Items.SHORT_GRASS, target);
             }
             stop();

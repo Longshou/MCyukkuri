@@ -292,7 +292,7 @@ public final class LeafSwaddle {
     private MouthOccupancy mouth() { return entity.component(YukkuriComponents.MOUTH); }
     private List<ItemStack> leaves() { return mouth().items(Purpose.SWADDLE); }
     private boolean canHoldLeaves() {
-        return mouth().canHold(Purpose.SWADDLE) && entity.habitat().carrying().isEmpty() && entity.forageTrip().load().isEmpty();
+        return mouth().canHold(Purpose.SWADDLE);
     }
     public ItemStack carried() { return mouth().stack(Purpose.SWADDLE); }
     /** Read-only observation of all carried leaves, before display priority selects one. */

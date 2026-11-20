@@ -135,20 +135,20 @@ final class FamilyFeeding {
         return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
                 &&!o.entity().life().isSleeping()&&mouthAvailable&&!carrying().is(ModItems.REMAINS.get())&&!o.entity().independence().leaving()
-                &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
+                &&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()
                 &&(carriedCheck||!o.carry().mouthBusy());
     }
 
     private boolean canHoldCarePortion() {
         boolean free = carriedCheck ? mouth().canHoldAfterPuttingDownYoung(Purpose.CARE) : mouth().canHold(Purpose.CARE);
-        return free && o.entity().life().mealTicks()==0 && o.entity().forageTrip().load().isEmpty();
+        return free && o.entity().life().mealTicks()==0;
     }
     /** Set only while asking whether a child on the carrier's own seat could be fed once it is put down. */
     private boolean carriedCheck;
     /** New care work needs a comfortable reserve; a started handoff uses the lower emergency boundary. */
     boolean careReady() {
-        return careReady(canHoldCarePortion());
+        return careReady(canHoldCarePortion() || o.entity().habitat().canUseMoveFood());
     }
 
     private boolean careReady(boolean mouthAvailable) {
@@ -228,6 +228,7 @@ final class FamilyFeeding {
         foodSource=null;foodStore=null;careOfferTicks=0;
         clearPlant();searchTicks=0;
         boolean ration=o.entity().habitat().hasMoveFoodFor(o.target());
+        if (!ration && !canHoldCarePortion()) { o.target(null); return false; }
         if(carrying().isEmpty()&&!ration)selectFoodSource();
         if (o.entity().getVariant().isPredator() && carrying().isEmpty() && preySource==null) { o.target(null); return false; }
         if(carrying().isEmpty()&&!ration&&!sourceChosen()&&FamilyProvision.home(o.entity())!=null
@@ -236,7 +237,9 @@ final class FamilyFeeding {
         }
         if(!acceptsCare(o.target())){clearPlant();o.target(null);return false;}
         if(carrying().isEmpty()&&ration){
-            store(o.entity().habitat().takeMoveFoodFor(o.target()));careChewTicks=careOfferTicks=0;
+            var portion=o.entity().habitat().takeMoveFoodFor(o.target());
+            if (portion.isEmpty()) { o.target(null); return false; }
+            store(portion);careChewTicks=careOfferTicks=0;
         }
         o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
         GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",
@@ -345,8 +348,9 @@ final class FamilyFeeding {
         if(child==null||!hungryOwnChild(child)||retryBlocked(child))return false;
         if(o.task()==Task.FEED_CHILD&&o.target()==child&&careContinuationReady()
                 &&(!carrying().isEmpty()||foodSource!=null&&foodSource.isAlive()||foodStore!=null||plantSource!=null))return true;
-        if(!careReady(mouthAvailable)||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
-        if(!carrying().isEmpty()||o.entity().habitat().hasMoveFoodFor(child))return true;
+        boolean ration=o.entity().habitat().hasMoveFoodFor(child);
+        if(!careReady(mouthAvailable||ration)||o.careDecisions().refused(child,CareDecisionLedger.Need.FEED))return false;
+        if(!carrying().isEmpty()||ration)return true;
         if(o.entity().getVariant().isPredator())return o.entity().predator().careSource(child)!=null;
         if(stockedShelter(child)!=null)return true;
         return EventHooks.canEntityGrief(o.level(),o.entity())&&o.level().getEntitiesOfClass(ItemEntity.class,

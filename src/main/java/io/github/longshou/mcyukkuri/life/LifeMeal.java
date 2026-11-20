@@ -221,12 +221,22 @@ final class LifeMeal {
         return !occupancy().kitInMouth() && !o.entity().family().carry().mouthBusy();
     }
 
-    boolean readyForFood() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
+    private boolean hasAppetite() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
 
-    boolean canEat() { return readyForFood() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid(); }
+    private boolean canEatSolid() { return hasAppetite() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid(); }
+
+    private boolean cargoAllowsMeal() {
+        var purpose = occupancy().purpose();
+        return purpose == null || !purpose.isFieldCargo() || occupancy().canSetDownForMeal(o.nutrition());
+    }
+
+    boolean readyForFood() { return hasAppetite() && cargoAllowsMeal(); }
+
+    boolean canEat() { return canEatSolid() && cargoAllowsMeal(); }
 
     boolean canTakeSweet(ItemStack food) {
-        return Sweets.is(food) && o.nutrition() <= Sweets.FULL && mouthForMeal() && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
+        return Sweets.is(food) && o.nutrition() <= Sweets.FULL && mouthForMeal() && cargoAllowsMeal()
+                && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
                 && !o.entity().isCommandPlaying() && o.entity().isAlive() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid();
     }
 
@@ -286,7 +296,7 @@ final class LifeMeal {
     /** A crop and its serving commit together. A refused world change leaves the mouth empty. */
     boolean beginHarvestMeal(ItemStack serving, BooleanSupplier harvest) {
         if (tuftMeal != null || !canEat() || !acceptsFood(serving) || refuseAtReach(serving, null)
-                || !occupancy().freeForExternalWork() || !occupancy().acquireMeal(serving)) return false;
+                || !makeRoom("harvest") || !occupancy().acquireMeal(serving)) return false;
         if (!harvest.getAsBoolean()) {
             occupancy().clear(Purpose.MEAL);
             return false;
@@ -389,9 +399,13 @@ final class LifeMeal {
         return beginCarriedMeal(source, null, false);
     }
 
+    boolean canBeginCarriedMeal(ItemStack serving) {
+        return tuftMeal == null && canEatSolid() && seeksFood(serving);
+    }
+
     boolean beginCarriedMeal(Purpose source, UUID giver, boolean shared) {
         var stack = occupancy().stack(source);
-        if (tuftMeal != null || !canEat() || stack.isEmpty() || !acceptsFood(stack) || refuseAtReach(stack, giver) || !occupancy().chewCarried(source)) return false;
+        if (tuftMeal != null || !canEatSolid() || stack.isEmpty() || !acceptsFood(stack) || refuseAtReach(stack, giver) || !occupancy().chewCarried(source)) return false;
         startItemMeal(stack, giver, shared, verdict(stack, giver));
         return true;
     }
@@ -423,6 +437,13 @@ final class LifeMeal {
         if (purpose == Purpose.CARE) return o.entity().family().releaseCareFood(cause);
         if (purpose == Purpose.DUTY) return o.entity().settlement().duties().putDownLoad();
         if (purpose == Purpose.SWADDLE) return o.entity().leafSwaddle().putDownLeaves();
+        if (purpose != null && purpose.isFieldCargo()) {
+            if (!occupancy().canSetDownForMeal(o.nutrition())) return false;
+            if (occupancy().releaseItems(purpose, 60)) return true;
+            GameplayLog.limited(o.entity(), "meal", "cargo_drop_refused", 200,
+                    "meal deferred reason=cargo_drop_refused purpose={}", purpose);
+            return false;
+        }
         return !refusesWhileCarryingStallFood() && occupancy().canHold(Purpose.MEAL);
     }
 

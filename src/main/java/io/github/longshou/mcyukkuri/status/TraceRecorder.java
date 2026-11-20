@@ -749,10 +749,6 @@ public final class TraceRecorder {
             value.addProperty("n", bite.portions());
             mouth.add(value);
         }
-        // MouthOccupancy includes found junk and offered food. Read other work loads at their owners.
-        for (ItemStack carried : List.of(entity.independence().carrying(), entity.habitat().carrying(), entity.forageTrip().load())) {
-            if (!carried.isEmpty()) mouth.add(item(carried));
-        }
         out.add("mouth", mouth);
         out.addProperty("mouthAuthority", "components");
         // Observe this holder's authority only; hatKit() also aliases a deployed hat's stack.

@@ -405,13 +405,11 @@ final class YukkuriSync {
     }
     void syncAppearance() {
         var oral = owner.component(YukkuriComponents.MOUTH);
-        // House work uses the authored hair grip. Forage and habitat keep their own carry presentation.
-        var carried = oral.stack(Purpose.HOUSE);
-        var mouth = carried.isEmpty() ? oral.displayStack() : ItemStack.EMPTY;
-        if (carried.isEmpty() && (mouth.isEmpty() || oral.purpose() == Purpose.MEAL)) {
-            carried = owner.forageTrip().load();
-            if (carried.isEmpty()) carried = owner.habitat().carrying();
-        }
+        // The carry renderer uses the authored grip for house work and field cargo.
+        var purpose = oral.purpose();
+        boolean carryPose = purpose != null && (purpose == Purpose.HOUSE || purpose.isFieldCargo());
+        var carried = carryPose ? oral.displayStack() : ItemStack.EMPTY;
+        var mouth = carryPose ? ItemStack.EMPTY : oral.displayStack();
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), mouth)) owner.getEntityData().set(MOUTH, mouth.copy());
         owner.getEntityData().set(FOOD_ON_BRAID, owner.life().braidHasFood());
         owner.getEntityData().set(BRAID_MEAL_BIN, Optional.ofNullable(owner.life().braidMealBin()));

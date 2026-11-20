@@ -199,8 +199,6 @@ public final class BlockPull {
 
         private static boolean mouthFree(YukkuriEntity body) {
             return body.component(YukkuriComponents.MOUTH).freeForExternalWork()
-                    && body.habitat().carrying().isEmpty()
-                    && body.forageTrip().load().isEmpty()
                     && body.independence().carrying().isEmpty();
         }
     }

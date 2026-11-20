@@ -22,7 +22,14 @@ import net.minecraft.world.phys.Vec3;
 
 /** Item and bite payloads share one oral purpose. Live holds and the kit retain their physical owners. */
 public final class MouthOccupancy {
-    public enum Purpose { MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND, KINDNESS, JUNK_FIT, PAPER, STALL_FOOD, NEST }
+    public enum Purpose {
+        MEAL, CARE, DUTY, SWADDLE, HOUSE, FIND, KINDNESS, JUNK_FIT, PAPER, STALL_FOOD, NEST, HABITAT, FORAGE;
+
+        public boolean isFieldCargo() { return this == HABITAT || this == FORAGE; }
+
+        /** The existing emergency hunger boundary for a loaded forager. */
+        public boolean yieldsToMeal(float nutrition) { return isFieldCargo() && nutrition < 15; }
+    }
 
     private record Load(Purpose purpose, List<ItemStack> items, BodyFood.Bite bite) {}
 
@@ -31,7 +38,6 @@ public final class MouthOccupancy {
     // Real excess from an older save. It is never presented or available for another mouth action.
     private final List<ItemStack> displaced = new ArrayList<>();
     private boolean importing;
-    private boolean reconcileExternal;
     private boolean reconcileOnTick;
     private BlockPos refusedAt;
     private BlockPos paperDropRefusedAt;
@@ -83,12 +89,18 @@ public final class MouthOccupancy {
 
     /** An existing tool can be cleared by Stow before a grab. The child capacity is checked by ParentCarry. */
     public boolean canCarryYoung() {
-        return held.isEmpty() && owner.habitat().carrying().isEmpty() && owner.forageTrip().load().isEmpty();
+        return held.isEmpty();
     }
 
     public boolean freeForKit() { return canCarryYoung() && !ParentCarry.mouthCarrying(owner); }
 
     public boolean freeForExternalWork() { return held.isEmpty() && !kitInMouth() && !ParentCarry.mouthCarrying(owner); }
+
+    public boolean canSetDownForMeal(float nutrition) {
+        var purpose = purpose();
+        return purpose != null && purpose.yieldsToMeal(nutrition)
+                && ItemContact.hasReleaseSupport(owner, MouthPlacement.position(owner));
+    }
 
     /** Preview the normal paper set-down before another action asks for this mouth. */
     public boolean canPutDownPaper() {
@@ -219,8 +231,14 @@ public final class MouthOccupancy {
     }
 
     public void importItems(Purpose purpose, List<ItemStack> items) {
-        if (!importing || items.isEmpty()) return;
+        if (importing) restoreItems(purpose, items);
+    }
+
+    /** Cargo retains its domain's NBT keys. Conflicting saved purposes cannot share the live slot. */
+    public void restoreItems(Purpose purpose, List<ItemStack> items) {
+        if (items.isEmpty()) return;
         if (held.isEmpty()) held.acquire(new Load(purpose, new ArrayList<>(items), BodyFood.Bite.EMPTY));
+        else if (purpose() == purpose) load().items().addAll(items);
         else displaced.addAll(items);
     }
 
@@ -243,13 +261,12 @@ public final class MouthOccupancy {
     public CompoundTag save() {
         var tag = new CompoundTag();
         var load = load();
-        if (load != null) {
+        if (load != null && !load.purpose().isFieldCargo()) {
             tag.putString("Purpose", load.purpose().name());
             tag.put("Items", saveItems(load.items()));
             if (!load.bite().isEmpty()) tag.put("Bite", load.bite().save());
         }
         if (!displaced.isEmpty()) tag.put("Displaced", saveItems(displaced));
-        if (reconcileExternal) tag.putBoolean("LegacyLoads", true);
         return tag;
     }
 
@@ -261,7 +278,6 @@ public final class MouthOccupancy {
         held.restore(null);
         displaced.clear();
         var tag = root.getCompound("YukkuriMouth");
-        reconcileExternal = importing || tag.getBoolean("LegacyLoads");
         displaced.addAll(readItems(tag, "Displaced"));
         if (tag.contains("Purpose", Tag.TAG_STRING)) {
             var purpose = Purpose.valueOf(tag.getString("Purpose"));
@@ -291,16 +307,9 @@ public final class MouthOccupancy {
         if ((!reconcileOnTick && displaced.isEmpty()) || owner.blockPosition().equals(refusedAt)) return;
         if (reconcileOnTick) {
             reconcileOnTick = false;
-            boolean legacy = reconcileExternal;
             importing = false;
-            reconcileExternal = false;
             boolean child = ParentCarry.mouthCarrying(owner);
             boolean kit = kitInMouth();
-            if (legacy && (child || kit || !held.isEmpty())) {
-                var trip = owner.forageTrip().takeLegacyLoad();
-                if (!trip.isEmpty()) displaced.add(trip);
-                displaced.addAll(owner.habitat().takeLegacyLoads());
-            }
             if ((child || kit) && !held.isEmpty()) {
                 boolean meal = purpose() == Purpose.MEAL;
                 displaced.addAll(load().items());
@@ -354,10 +363,6 @@ public final class MouthOccupancy {
         var tag = saveItems(displaced);
         var load = load();
         if (load != null) tag.addAll(saveItems(load.items()));
-        // Death drop attempts have already run. Only cargo still held after a refusal goes into the remains.
-        tag.addAll(saveItems(owner.habitat().carriedItems()));
-        var forage = owner.forageTrip().load();
-        if (!forage.isEmpty()) tag.add(forage.save(owner.registryAccess()));
         return tag;
     }
 
@@ -365,7 +370,5 @@ public final class MouthOccupancy {
         var load = load();
         if (load != null && !load.items().isEmpty()) held.consume();
         displaced.clear();
-        owner.habitat().takeLegacyLoads();
-        owner.forageTrip().takeLegacyLoad();
     }
 }

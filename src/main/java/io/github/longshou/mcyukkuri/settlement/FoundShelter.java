@@ -208,8 +208,6 @@ public final class FoundShelter implements MotorOwner {
     private static boolean canPullPaper(YukkuriEntity y) {
         return canPullPaperBody(y)
                 && y.component(YukkuriComponents.MOUTH).freeForExternalWork()
-                && y.habitat().carrying().isEmpty()
-                && y.forageTrip().load().isEmpty()
                 && y.independence().carrying().isEmpty();
     }
 
