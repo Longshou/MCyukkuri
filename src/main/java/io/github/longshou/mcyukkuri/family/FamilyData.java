@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile.BreedingPool;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
@@ -419,13 +420,13 @@ public final class FamilyData extends SavedData {
         return (int)people.values().stream().filter(p->p.status==Status.UNBORN&&p.mother!=null&&resident.test(p.mother)).count();
     }
     /** A size-dependent distribution. The random seed is fixed until a conception actually commits. */
-    public static int offspringCount(float maternalScale, long seed, boolean aquatic) {
+    public static int offspringCount(float maternalScale, long seed, BreedingPool pool) {
         Random random=new Random(seed);
         double influence=FamilyConfig.OFFSPRING_SIZE_INFLUENCE.get();
         double size=Math.clamp((maternalScale-.8)/.4,0,1);
         // Keep the old default arithmetic exact; center other settings on p=.5 (mean three).
         double probability=Math.clamp(.15+influence*size+(FamilyConfig.DEFAULT_OFFSPRING_SIZE_INFLUENCE-influence)*.5,0,1);
-        return Litter.size(probability,aquatic,random);
+        return Litter.size(probability,pool,random);
     }
     private record PopulationBudget(BlockPos center, int limit) {}
     private PopulationBudget birthBudget(ServerLevel level, BlockPos position, UUID parentId) {
@@ -455,7 +456,9 @@ public final class FamilyData extends SavedData {
         if(kind==BirthKind.EGG != mother.profile().houseBody())return refused("kind");
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
-        int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic()):2+new Random(seed).nextInt(3);
+        var pool=mother.profile().pool();
+        if (pool == BreedingPool.PREDATOR && sizes.size() > pool.maxYoung) return refused("litter_size");
+        int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,pool):2+new Random(seed).nextInt(3);
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
         if(joinMother) {
@@ -534,7 +537,7 @@ public final class FamilyData extends SavedData {
         if(!victim.family().canReceiveAftermath())return "受影响者必须是存活成体，不能处于濒死、核心损伤、已有胎次、恢复期、未落定或不育状态";
         if(!victim.family().compatibleWith(source))return "双方种类或生理状态不兼容，或存在亲缘关系";
         if(busyParent(victim.getUUID())||busyParent(source.getUUID()))return "已有未完成胎次，不能叠加或覆盖";
-        int count=startingCount==0?offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().aquatic()):startingCount;
+        int count=startingCount==0?offspringCount(victim.family().adultScale(),aftermathSeed(victim,source),victim.profile().pool()):startingCount;
         var shelter=victim.habitat().shelter();
         if(shelter!=null&&!shelter.suitableForYoung(count))return "当前住所的子代容量不足";
         if(shelter==null&&!Homes.petBedFits(victim,count))return "当前宠物床的子代空间不足";
@@ -553,7 +556,7 @@ public final class FamilyData extends SavedData {
         if(aftermathRefusal(victim,source,startingCount)!=null)return null;
         var level=(ServerLevel)victim.level();
         long seed=aftermathSeed(victim,source);
-        int count=startingCount==0?offspringCount(victim.family().adultScale(),seed,victim.profile().aquatic()):startingCount;
+        int count=startingCount==0?offspringCount(victim.family().adultScale(),seed,victim.profile().pool()):startingCount;
         var brood=new Brood();brood.id=ModRandom.identity(victim.getRandom());brood.mother=victim.getUUID();brood.incidentSource=source.getUUID();
         brood.kind=BirthKind.STEM;brood.anchor=GlobalPos.of(level.dimension(),victim.blockPosition());
         var random=new Random(seed);brood.variation=.93f+random.nextFloat()*.14f;
@@ -587,7 +590,7 @@ public final class FamilyData extends SavedData {
                 ||custody.owner()!=null&&(custody.role()==Custody.Role.LOST
                 ||custody.ownerKind()==Custody.OwnerKind.NPC
                 ||custody.ownerKind()==Custody.OwnerKind.UNKNOWN&&level.getEntity(custody.owner()) instanceof HumanNpc))return false;
-        int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions(),mother.profile().aquatic());
+        int count=offspringCount(mother.family().adultScale(),mother.getUUID().getMostSignificantBits()^mother.family().conceptions(),mother.profile().pool());
         var shelter=mother.habitat().shelter();if(shelter!=null&&!shelter.suitableForYoung(count))return false;
         var budget=birthBudget(level,mother.life().homeStand(),mother.getUUID());
         return mother.life().nutrition()>=55+count*2&&population(level,budget.center())+count<=budget.limit();
@@ -596,7 +599,7 @@ public final class FamilyData extends SavedData {
         if(!canAssist(mother))return null;
         var level=(ServerLevel)mother.level();register(mother);
         long seed=mother.getUUID().getMostSignificantBits()^mother.family().conceptions();var random=new Random(seed);
-        int count=offspringCount(mother.family().adultScale(),seed,mother.profile().aquatic());
+        int count=offspringCount(mother.family().adultScale(),seed,mother.profile().pool());
         var brood=new Brood();brood.id=ModRandom.identity(mother.getRandom());brood.mother=mother.getUUID();brood.father=null;brood.kind=BirthKind.LIVE;
         brood.anchor=GlobalPos.of(level.dimension(),mother.life().homeStand());brood.duration=FamilyConfig.GESTATION.get();brood.variation=1;
         for(int i=0;i<count;i++){

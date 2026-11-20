@@ -17,7 +17,7 @@ public final class Overlays {
         float minimumY();
         Vector3f mouth();
     }
-    public static void care(Contact contact,float[][] pose,Matrix4f[] world,int root,boolean feeding,
+    public static void care(Contact contact,float[][] pose,Matrix4f[] world,int root,boolean feeding,boolean rim,
                             float careTargetMouthX,float careTargetMouthY,float careTargetMouthZ,float careBlend){
             float floor=contact.minimumY();float[] value=pose[root];
             float maximumPitch=feeding?10:12;
@@ -31,14 +31,32 @@ public final class Overlays {
                 if(contact.mouth().y+lifted>target)low=pitch;else high=pitch;
             }
             value[3]=basePitch-(baseMouth>target?high:0);contact.compose();
+            // A nestling on the raised pad offers its mouth above the adult's. Keep the same pitch budget and sole height.
+            if (rim && baseMouth < target) {
+                low=0; high=Math.max(0,maximumPitch-basePitch)*careBlend;
+                for (int i=0;i<7;i++) {
+                    float pitch=(low+high)*.5f; value[3]=basePitch+pitch; contact.compose();
+                    if (contact.mouth().y+floor-contact.minimumY()<target) low=pitch; else high=pitch;
+                }
+                value[3]=basePitch+high; contact.compose();
+            }
             // Pitch changes the mouth's depth. Align the composed anchor, rather than estimating
             // reach from the upright face mesh; keep the extra lean small and tied to real contact.
             var mouth=contact.mouth();
-            float lateral=feeding?.02f:.04f,forward=feeding?.03f:.18f;
+            float lateral=rim?.08f:feeding?.02f:.04f,forward=feeding?.03f:.18f;
             value[0]+=Math.clamp((careTargetMouthX-mouth.x)*careBlend,-lateral*16,lateral*16);
             value[2]+=Math.clamp((careTargetMouthZ+(feeding?0:.07f*16)-mouth.z)*careBlend,-forward*16,forward*16);
             contact.compose();float lowered=contact.minimumY();
-            if(lowered<floor)Compose.raise(world,floor-lowered);
+            if(rim || lowered<floor)Compose.raise(world,floor-lowered);
+            if (rim) {
+                // Stretch about the heel. The sole centre shifts at most .7 model pixels toward the rim.
+                float rear=2.5f, lip=contact.mouth().z;
+                float stretch=Math.clamp(1+(lip-careTargetMouthZ)*careBlend/(rear-lip),1,1.28f);
+                for (var bone:world) {
+                    bone.scaleLocal(1,1,stretch);
+                    bone.m32(bone.m32()+rear*(1-stretch));
+                }
+            }
     }
     /** Existing full pickup / put-down bow, degrees of forward pitch about the root (within the 12 degree body budget). */
     public static final float CARRY_LEAN_DEGREES=9;

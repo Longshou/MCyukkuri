@@ -145,7 +145,8 @@ final class RenderPose implements Overlays.Contact {
         if(request.has("care")){
             var care=request.getAsJsonObject("care");anchor=new Vector3f(Rig.floats(care.getAsJsonArray("anchor")));
             var target=Rig.floats(care.getAsJsonArray("target"));
-            Overlays.care(this,pose,world,root,!action.equals("first_toilet_assist"),target[0],target[1],target[2],care.get("blend").getAsFloat());updateFeatures();
+            Overlays.care(this,pose,world,root,!action.equals("first_toilet_assist"),care.has("rim")&&care.get("rim").getAsBoolean(),
+                    target[0],target[1],target[2],care.get("blend").getAsFloat());updateFeatures();
         }
         float scale=request.get("scale").getAsFloat();float[] output=new float[rest.length];
         // A wall beside the body: the entity's yaw turns the output, and with "yield" the loose parts give way as in the game.

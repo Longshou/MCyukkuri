@@ -55,7 +55,7 @@ public final class SurfaceApproach {
     /** One second for a completed ground path to settle after a step or knockback. */
     private static final int LANDING_TICKS = 20;
     private static final double SAME_STAND_SQR = .0025;
-    private static final double BODY_CLEARANCE = .015;
+    public static final double BODY_CLEARANCE = .015;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }

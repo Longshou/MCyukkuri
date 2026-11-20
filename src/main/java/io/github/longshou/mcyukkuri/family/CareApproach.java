@@ -39,7 +39,7 @@ public final class CareApproach {
     private List<Vec3> floorRoute;
     private Vec3 lastParent, lastChild;
     private int stalled, retries, bodyContacts;
-    private long lease;
+    private long lease, started;
 
     public CareApproach(YukkuriEntity owner) { this.owner = owner; }
     /** Observe the existing incoming agreement without validating or cancelling it. */
@@ -150,7 +150,7 @@ public final class CareApproach {
             return;
         }
         if (session.places==null || owner.life().mealTicks()>0) SurfaceApproach.halt(owner);
-        else if (SurfaceApproach.walkAround(owner, session.places.child(), session.owner, .65)) {
+        else if (session.walkToMeeting(owner, session.places.child(), session.owner, .65)==SurfaceApproach.Result.ARRIVED) {
             float yaw = SurfaceApproach.yaw(owner.position(), session.owner.position());
             SurfaceApproach.face(owner, session.kind==Kind.REAR ? yaw+180 : yaw);
         }
@@ -167,6 +167,7 @@ public final class CareApproach {
             }
             blocked.remove(target.getUUID());
             child=target; kind=requested; child.careApproach().incoming=this;
+            started=owner.level().getGameTime();
             GameplayLog.limited(owner,"care","reserved",200,
                     "agreement reserved child={} kind={}",child.getUUID(),kind);
         }
@@ -174,6 +175,8 @@ public final class CareApproach {
         String reason=invalidReason();
         if(reason!=null)return fail(reason);
         if(owner.getVehicle() instanceof SurfaceHost host&&sameFloor(owner,child))return aboard(host);
+        if (kind==Kind.FEED && FamilyFeedingContact.atCanopyRim(owner,child)
+                && owner.level().getGameTime()-started>=CanopyMeeting.APPROACH_TICKS) return fail("rim_meeting_timeout");
         boolean touching=kind==Kind.FEED ? FamilyFeedingContact.mouthsMeet(owner, child) : ChildhoodLife.toiletContact(owner, child);
         boolean supportedContact=touching && owner.onGround() && child.onGround()
                 && SurfaceApproach.supported(owner, owner.position()) && SurfaceApproach.supported(child, child.position());
@@ -213,7 +216,7 @@ public final class CareApproach {
         if (child.position().distanceToSqr(places.child())>16) return fail("child_left_meeting");
         boolean ready = SurfaceApproach.arrived(child, places.child());
         if (!ready) { SurfaceApproach.halt(owner); return Result.APPROACHING; }
-        var walking = SurfaceApproach.walkResult(owner, places.parent(), child, .9);
+        var walking = walkToMeeting(owner, places.parent(), child, .9);
         if (kind == Kind.FEED && walking == SurfaceApproach.Result.BLOCKED) {
             replan("route_blocked");
             if (++retries >= 3) return fail("route_retry_limit");
@@ -229,6 +232,13 @@ public final class CareApproach {
 
     private boolean touching() {
         return kind==Kind.FEED?FamilyFeedingContact.mouthsMeet(owner,child):ChildhoodLife.toiletContact(owner,child);
+    }
+
+    private SurfaceApproach.Result walkToMeeting(YukkuriEntity walker, Vec3 stand, YukkuriEntity peer, double speed) {
+        if (kind==Kind.FEED && FamilyFeedingContact.atCanopyRim(owner,child) && !SurfaceApproach.at(walker,stand)
+                && !SurfaceApproach.crossesBody(walker,walker.position(),stand,peer.getBoundingBox())
+                && SurfaceApproach.tryStraightStep(walker,stand,speed)) return SurfaceApproach.Result.MOVING;
+        return SurfaceApproach.walkResult(walker,stand,peer,speed);
     }
 
     /** Contact from the caregiver's existing place; only the receiver's goal moves or turns the young. */
@@ -262,7 +272,7 @@ public final class CareApproach {
     private Result fail(String reason) {
         if (child != null) {
             boolean groundMeetingFailed = kind == Kind.FEED && !owner.isPassenger() && !child.isPassenger()
-                    && (reason.equals("no_reachable_meeting") || reason.endsWith("_retry_limit"));
+                    && (reason.equals("no_reachable_meeting") || reason.equals("rim_meeting_timeout") || reason.endsWith("_retry_limit"));
             blocked.remove(child.getUUID());
             blocked.put(child.getUUID(), new Refusal(owner.level().getGameTime()+160,
                     groundMeetingFailed ? new Places(child.position(), owner.position()) : null));
@@ -287,6 +297,35 @@ public final class CareApproach {
     }
 
     private Places choosePlaces() {
+        if (kind == Kind.FEED && owner.getVariant().isPredator() && child.childhood().nestling()) {
+            var pad = child.childhood().padUnderfoot();
+            if (pad != null) {
+                var entrance = owner.life().homeEntrance(pad);
+                if (entrance == null) return null;
+                var centre = Vec3.atBottomCenterOf(pad);
+                var outward = entrance.subtract(centre).multiply(1,0,1).normalize();
+                var side = new Vec3(-outward.z,0,outward.x);
+                for (var meeting : CanopyMeeting.candidates(owner.getBbWidth(), SurfaceApproach.supportRadius(owner),
+                        SurfaceApproach.supportRadius(child), FamilyFeedingContact.rimSpacing(owner,child),
+                        SurfaceApproach.ARRIVAL, owner.position().subtract(centre).dot(side), child.position().subtract(centre).dot(side))) {
+                    var row = centre.add(side.scale(meeting.side()));
+                    var parentFeet = row.add(outward.scale(meeting.parent()));
+                    var childFeet = row.add(outward.scale(meeting.child())).add(0,
+                            child.level().getBlockState(pad).getCollisionShape(child.level(),pad).max(Direction.Axis.Y),0);
+                    if (rejected.stream().anyMatch(at -> at.distanceTo(parentFeet) <= SurfaceApproach.ARRIVAL)
+                            || !SurfaceApproach.supported(owner,parentFeet) || !SurfaceApproach.supported(child,childFeet)
+                            || !FamilyFeedingContact.standFits(owner,parentFeet,child,childFeet)) continue;
+                    // The chick walks first while the adult holds the shelf. Then the adult closes the remaining gap.
+                    var childBox = child.getBoundingBox().move(childFeet.subtract(child.position()));
+                    if ((SurfaceApproach.at(child,childFeet) || Double.isFinite(SurfaceApproach.routeLength(child,childFeet,owner.getBoundingBox())))
+                            && (SurfaceApproach.at(owner,parentFeet) || Double.isFinite(SurfaceApproach.routeLength(owner,parentFeet,childBox)))) {
+                        GameplayLog.event(owner,"care","rim meeting child={} parentStand={} childStand={}",child.getUUID(),parentFeet,childFeet);
+                        return new Places(childFeet,parentFeet);
+                    }
+                }
+                return null;
+            }
+        }
         // Prefer the child's current safe position. Relocate by walking only when no parent can stand beside it.
         var current = around(child.position());
         if (current!=null) return current;

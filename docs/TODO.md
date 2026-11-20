@@ -8,8 +8,8 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 | 两只接触动作同步开始结束，分开时身体不重叠 | `.worktrees/wp-pair-contact-sync` | shared pair contact clock (DailyLife/IndependenceLife/SocialContact), separation step |
+| 忙着的冷淡亲油也会回应离家的孩子（DN-02） | `.worktrees/wp-cool-farewell` | family/IndependenceLife.java (see-off request lifetime) |
 
 ## 玩法待办
 
@@ -58,7 +58,7 @@
 
 - 同屏性能：部分接入（复用碰撞几何、窝路径查询与姿态缓存后服务端每 tick 平均 1–2 毫秒、家庭场景峰值 21→9 毫秒）。完成标准：客户端如仍卡由用户试玩确认。「油库里同屏动作卡顿很明显」
 
-- 捕食种树冠住处：部分接入。完成标准：PT-02「无巢捕食种选树、衔枝筑巢」用原来的两个种子确认醒后续搭、第八枝落下后认巢，并看原搭建者死亡或长期离开后，另一只无巢捕食种能否从原枝数接续。
+- 捕食种树冠住处：部分接入。PT-04 共用枝巢、衔遗体回巢和两只赤油吞糜已接入待试玩。PT-05 巢边扑翅、跳枝和大胆子油首飞落稳已接入待试玩。完成标准：PT-02「无巢捕食种选树、衔枝筑巢」用原来的两个种子确认醒后续搭、第八枝落下后认巢，并看原搭建者死亡或长期离开后，另一只无巢捕食种能否从原枝数接续。PT-05 确认胆小子油跳枝后继续练习直至首飞，失足时观察亲油能否落到树下照料。
 
 - 加工所收活体：复测失败（收货亭当面开篮、按数值回嘴／求饶／僵住，空篮当场还，职员另装篮沿过道送进甜化箱，别人的宠物与受保护个体拒收；加工所 FA-09）。完成标准：收货、装篮送箱与职员半路死亡时篮子掉落都实际复现。
 

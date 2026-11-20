@@ -296,6 +296,7 @@ public final class YukkuriModel {
      * anchors to close the last visible gap without translating a parent below the ground.
      */
     private float careTargetMouthX,careTargetMouthY=Float.NaN,careTargetMouthZ,careBlend;
+    private boolean careAtRim;
     private final BraidPose braidPose=new BraidPose(this);
     private float boardingPitch=Float.NaN,boardingRoll,boardingSquash=1,boardingYaw;
     /** Bend a Marisa's braid to {@code tip} (model units) with this share of the clip's braid, for this render; null lets it go. */
@@ -361,9 +362,10 @@ public final class YukkuriModel {
     Matrix4f bonePose(int bone){return new Matrix4f(world[bone]);}
     /** The seat on one curled tail in the last render (model units), or null. */
     Matrix4f carryCradle(int side){return tailCurl==null?null:tailCurl.cradle(side);}
-    void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress){
+    void setCareContact(float targetMouthX,float targetMouthY,float targetMouthZ,float progress,boolean rim){
         careTargetMouthX=targetMouthX;careTargetMouthY=targetMouthY;careTargetMouthZ=targetMouthZ;
         careBlend=Math.clamp(progress,0,1);
+        careAtRim=rim;
     }
     private final Map<String, Clip> clips = new HashMap<>();
     /** The motion clips this model carries, for the menu's clip picker. */
@@ -1212,7 +1214,7 @@ public final class YukkuriModel {
         }
         composeWorld();
         if(careContact){
-            Overlays.care(contact,pose,world,rootBone(),!ToiletPresentation.rearCare(behavior),
+            Overlays.care(contact,pose,world,rootBone(),!ToiletPresentation.rearCare(behavior),careAtRim,
                     careTargetMouthX,careTargetMouthY,careTargetMouthZ,careBlend);
         }
         if(carryLean>0&&!careContact&&!Float.isFinite(boardingPitch)){
@@ -1575,7 +1577,7 @@ public final class YukkuriModel {
             PoseTap.model(entity, this, accessory, hairLoss, bridgeWeight, bridgeFrom);
             return contact;
         }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
-                Float.NaN,0,0);setBraidReach(null,0);
+                Float.NaN,0,0,false);setBraidReach(null,0);
                 pressingDish=false;dishTarget=null;
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
     }

@@ -1119,6 +1119,9 @@ public final class ParentCarry {
         return Math.clamp((carrier.life().energy() - 8) / 60.0, .2, 1)
                 * Math.clamp(carrier.species().traits().might(), .8, 1.5) * commitment;
     }
+    public static boolean fitsSingleMouth(YukkuriEntity carrier, double width, double height) {
+        return width * width * height <= HOLD_FRACTION * strength(carrier) * volume(carrier);
+    }
     private static double load(YukkuriEntity carrier, YukkuriEntity child, Hold hold, boolean ongoing) {
         double carriedVolume = volume(child);
         if (hold == Hold.BRIM || hold == Hold.MOUTH && multi(carrier)) {

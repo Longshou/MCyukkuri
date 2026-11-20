@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -132,7 +133,15 @@ final class LifeHome {
         if(previous!=null&&!previous.equals(selected))releaseHome(false);
         o.entity().habitat().release();
         home = selected; naturalHome = false; o.deferHomeMaintenance(); o.entity().setPersistenceRequired();
-        if(!selected.equals(previous))GameplayLog.event(o.entity(),"home","assigned kind=care old={} home={}",previous,home);
+        if (!selected.equals(previous)) {
+            GameplayLog.event(o.entity(),"home","assigned kind=care old={} home={}",previous,home);
+            if (care.canopyNest() && o.entity().family().adult()) {
+                var partner = o.entity().family().mutualPartner();
+                if (partner != null && o.level().getEntity(partner) instanceof YukkuriEntity mate
+                        && mate.isAlive() && mate.family().adult()
+                        && !selected.equals(mate.life().home())) mate.life().assignHome(selected);
+            }
+        }
         return true;
     }
 

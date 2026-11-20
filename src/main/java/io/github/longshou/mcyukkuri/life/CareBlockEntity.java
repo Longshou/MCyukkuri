@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import java.util.UUID;
 import net.minecraft.world.phys.Vec3;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Arrays;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -53,6 +55,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public boolean owns(UUID id){return residents.containsKey(id);}
     public List<UUID> residentIds(){return List.copyOf(residents.keySet());}
     public boolean largeNest(){return ((CareBlock)getBlockState().getBlock()).style().startsWith("large_");}
+    public boolean canopyNest(){return getBlockState().is(ModBlocks.PREDATOR_NEST.get());}
     /** Ground centre of the bed: this block's centre, or for a 2x2 nest the shared corner of its four cells. */
     public BlockPos northWest(){return largeNest()?LargeNestBlock.northWest(getBlockState(),worldPosition):worldPosition;}
     public Vec3 centre(){return largeNest()?Vec3.atLowerCornerOf(northWest()).add(1,0,1):Vec3.atBottomCenterOf(worldPosition);}
@@ -77,15 +80,28 @@ public final class CareBlockEntity extends BlockEntity implements Container {
             var shop = ShopRegistry.get(server).shopAt(server, worldPosition.getCenter());
             if (shop != null && shop.kind == ShopKind.PET) return shop.acceptsStock(server, this, entity);
         }
+        if (canopyNest()) {
+            var data = FamilyData.get((ServerLevel)level);
+            var id = entity.getUUID();
+            int stage = NestOccupancy.stage(entity);
+            Predicate<UUID> kin = stage == 2
+                    ? child -> data.children(id).contains(child) && data.acknowledgesChild(id, child)
+                    : parent -> Arrays.asList(entity.family().caregiverIds()).contains(parent) && data.acknowledgesChild(parent, id);
+            return entity.getVariant().isPredator() && NestOccupancy.acceptsCanopy(currentResidents(true), id, stage, entity.family().mutualPartner(), kin);
+        }
         return fits(entity.getUUID(), NestOccupancy.stage(entity), resident -> true);
     }
-    public boolean fits(UUID incoming, int stage, Predicate<UUID> mayShare) {
+    private Map<UUID,Integer> currentResidents(boolean recordedStages) {
         var current=new LinkedHashMap<UUID,Integer>();
         residents.forEach((id,savedStage)->{
             var person=level instanceof ServerLevel server?FamilyData.get(server).person(id):null;
             if(person==null||person.status==FamilyData.Status.ALIVE)
-                current.put(id,level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):savedStage);
+                current.put(id,!recordedStages&&level instanceof ServerLevel server&&server.getEntity(id) instanceof YukkuriEntity y?NestOccupancy.stage(y):savedStage);
         });
+        return current;
+    }
+    public boolean fits(UUID incoming, int stage, Predicate<UUID> mayShare) {
+        var current=currentResidents(false);
         return current.keySet().stream().allMatch(id -> id.equals(incoming) || mayShare.test(id))
                 && NestOccupancy.accepts(largeNest(),current,incoming,stage);
     }
@@ -116,7 +132,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         for(UUID member:List.copyOf(residents.keySet()))if(server.getEntity(member) instanceof YukkuriEntity actor){
             int stage=NestOccupancy.stage(actor);Integer previous=residents.get(member);
             if(previous==null||previous==stage)continue;
-            if(NestOccupancy.accepts(largeNest(),residents,actor)){residents.put(member,stage);changed();}
+            if(canopyNest()?canClaim(actor):NestOccupancy.accepts(largeNest(),residents,actor)){residents.put(member,stage);changed();}
             else {
                 release(member);
                 GameplayLog.event(actor,"home","growth released shared nest nest={} oldStage={} stage={}",worldPosition,previous,stage);
@@ -137,7 +153,8 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         residents.keySet().removeIf(member->{var person=FamilyData.get(server).person(member);return person!=null&&person.status!=FamilyData.Status.ALIVE;});
         resting.keySet().retainAll(residents.keySet());
         var container=BedContainer.of(entity,worldPosition);
-        var place=NestResting.choose(entity,bed(),resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
+        // Each canopy resident must fit the pad individually. The family roosts on real branches around it.
+        var place=NestResting.choose(entity,bed(),canopyNest()?Map.of():resting,p->container.standsInside(p.x(),p.z()),expecting(entity));
         if(place==null){GameplayLog.limited(entity,"home","nest_no_body_space",200,"nest claim refused reason=no_supported_body_space nest={} block={} bodyWidth={} occupants={}",
                 worldPosition,blockId(),entity.getBbWidth(),residents.size());return false;}
         if(!place.equals(resting.put(id,place)))changed();
@@ -255,7 +272,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         NestResting.load(tag.getList("RestingPlaces",Tag.TAG_COMPOUND),resting);
         String saved=tag.getString("Pattern");pattern=CareStyles.valid(blockId(),saved)?saved:"";
         residents.clear();if(tag.hasUUID("Resident"))residents.put(tag.getUUID("Resident"),tag.contains("ResidentStage")?Math.clamp(tag.getInt("ResidentStage"),0,2):2);
-        for(var raw:tag.getList("NestGuests",Tag.TAG_COMPOUND)){var guest=(CompoundTag)raw;if(guest.hasUUID("Id")&&residents.size()<6)residents.put(guest.getUUID("Id"),Math.clamp(guest.getInt("Stage"),0,2));}
+        for(var raw:tag.getList("NestGuests",Tag.TAG_COMPOUND)){var guest=(CompoundTag)raw;if(guest.hasUUID("Id")&&(canopyNest()||residents.size()<6))residents.put(guest.getUUID("Id"),Math.clamp(guest.getInt("Stage"),0,2));}
     }
     @Override public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // Inventory contents use the vanilla menu; only the visible fill level is broadcast.

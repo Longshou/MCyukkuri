@@ -62,7 +62,7 @@ final class NestBuild {
     private MouthOccupancy mouth() { return body.component(YukkuriComponents.MOUTH); }
 
     private boolean homeless() {
-        return !body.habitat().hasMemory() && (body.life().home() == null || body.life().naturalHome());
+        return !body.habitat().hasMemory() && (body.life().home() == null || body.life().naturalHome()) && flight.broodPad()==null;
     }
 
     private boolean eligible() {

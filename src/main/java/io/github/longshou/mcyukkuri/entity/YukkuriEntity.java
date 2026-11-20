@@ -490,7 +490,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             Motor.velocity(this, new Vec3(dx*fraction+crawlNudgeX, getDeltaMovement().y, dz*fraction+crawlNudgeZ), "crawl");
             crawlNudgeX*=.546;crawlNudgeZ*=.546;
             super.travel(Vec3.ZERO); // Vanilla move still resolves collision, gravity and steps.
-        } else super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
+        } else {
+            if (!level().isClientSide) Motor.brakeFledglingFall(this);
+            super.travel(!level().isClientSide && family.freeFalling() ? Vec3.ZERO : input);
+        }
     }
 
     /** While {@link Motor#dismount} runs the passenger stays where it actually stands; vanilla must not move it to the carrier centre. */
@@ -798,7 +801,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
     @Override public boolean causeFallDamage(float distance,float multiplier,DamageSource damage) {
         if (predator != null && predator.canCatchFall()) return false;
-        return family!=null&&family.awaitingLanding()?false:super.causeFallDamage(distance,multiplier*Facilities.landing(Facilities.floor(this)),damage);
+        return family!=null&&family.awaitingLanding()?false:super.causeFallDamage(childhood.fallingHeight(distance),multiplier*Facilities.landing(Facilities.floor(this)),damage);
     }
 
     @Override
