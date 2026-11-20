@@ -143,8 +143,8 @@ public final class BegBite {
                 if (stand != null && SurfaceApproach.arrived(pet, stand)) {
                     var radial = stray.position().subtract(pet.position()).multiply(1, 0, 1).normalize();
                     var side = pet.position().add(radial.yRot((float) (Math.PI / 3)).scale(distance));
-                    stray.showReaction("teary", "", ClipMarkers.of(LOOK_AROUND.id()).length());
-                    stray.speakCue("beg_plead_again");
+                    if (stray.showReaction("teary", "", ClipMarkers.of(LOOK_AROUND.id()).length()))
+                        stray.speakCue("beg_plead_again");
                     walk(scene, Beat.CIRCLE, SurfaceApproach.floor(stray, side));
                 } else walkDeadline(level, scene, pet, "withdrawal_unreached");
             }
@@ -174,8 +174,7 @@ public final class BegBite {
                         return;
                     }
                     commit(level, stray, pet);
-                    if (snatch) {
-                        pet.showReaction(STARTLE, "horrified", "");
+                    if (snatch && pet.showReaction(STARTLE, "horrified", "")) {
                         pet.speakCue("beg_robbed");
                     }
                 }
@@ -191,8 +190,9 @@ public final class BegBite {
                 }
                 if (arrived(stray, pet)) {
                     setBeat(scene, Beat.EAT);
-                    stray.showReaction(SocialDisposition.selfEsteem(stray) < 50 ? BOW : GREET, "happy", "");
-                    stray.speakCue("beg_thanks");
+                    look(stray, pet);
+                    if (stray.showReaction(SocialDisposition.selfEsteem(stray) < 50 ? BOW : GREET, "happy", ""))
+                        stray.speakCue("beg_thanks");
                 } else walkDeadline(level, scene, stray, "release_space_unreached");
             }
             case EAT -> {
@@ -217,11 +217,14 @@ public final class BegBite {
                     drivenOff = live instanceof HumanNpc owner && pet.pet().ownedBy(owner.getUUID()) && owner.helpPet(pet, stray);
                     result = "asked_help";
                     GameplayLog.event(pet, "badge", "beg help reached human={} stray={}", human, stray.getUUID());
-                    pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length());
-                    pet.speakCue("beg_help");
-                    if (!drivenOff && SocialDisposition.contact(stray, live).wariness() < .5) stray.speakCue("beg_curse");
+                    look(pet, live);
+                    if (pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length())) pet.speakCue("beg_help");
                     if (drivenOff) pose(scene, Beat.LOOK, stray, YukkuriAction.WALK_LOOK_BACK, departureFace(), "", 1);
-                    else lastLook(scene, stray, pet);
+                    else if (SocialDisposition.contact(stray, live).wariness() < .5
+                            && SocialDisposition.contact(stray, pet).response(false) == SocialDisposition.Response.DEFIANT) {
+                        look(stray, pet);
+                        pose(scene, Beat.LOOK, stray, PUFF, "angry", "beg_curse", 1);
+                    } else lastLook(scene, stray, pet);
                 } else walkDeadline(level, scene, pet, "helper_unreached");
             }
             case LOOK -> {
@@ -371,8 +374,7 @@ public final class BegBite {
             if (chase == null && gap(pet, stray) >= distance) {
                 chase = SurfaceApproach.floor(pet, stray.position().add(pet.position().subtract(stray.position())
                         .multiply(1, 0, 1).normalize().scale(distance)));
-                if (chase != null) {
-                    pet.showReaction("angry", "", ClipMarkers.of(DROOP.id()).length());
+                if (chase != null && pet.showReaction("angry", "", ClipMarkers.of(DROOP.id()).length())) {
                     pet.speakCue("beg_chase");
                 }
             }
