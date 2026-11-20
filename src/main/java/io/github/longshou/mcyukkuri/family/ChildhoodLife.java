@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -112,13 +113,22 @@ public final class ChildhoodLife {
     public BlockPos padUnderfoot() {
         return footingUnderfoot(false);
     }
+    public BlockPos adjacentPad(BlockPos stand) {
+        for (var side : Direction.Plane.HORIZONTAL) {
+            var at = stand.relative(side);
+            if (entity.level().getBlockState(at).is(ModBlocks.PREDATOR_NEST.get())) return at;
+        }
+        return null;
+    }
     public BlockPos footingUnderfoot(boolean branches) {
         var cell = entity.blockPosition();
         int depth=NestFooting.depth(i -> {
-            var state=entity.level().getBlockState(cell.below(i));
+            var at=cell.below(i);
+            var state=entity.level().getBlockState(at);
             if (state.isAir()) return NestFooting.Surface.AIR;
             if (state.is(ModBlocks.PREDATOR_NEST.get())) return NestFooting.Surface.PAD;
-            if (state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES)) return NestFooting.Surface.BRANCH;
+            if (branches && (state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES))
+                    && adjacentPad(at.above()) != null) return NestFooting.Surface.BRANCH;
             return NestFooting.Surface.OTHER;
         },branches);
         return depth<0 ? null : cell.below(depth);

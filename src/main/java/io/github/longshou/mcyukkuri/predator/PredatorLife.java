@@ -304,7 +304,7 @@ public final class PredatorLife implements EcologyRoutine {
         return true;
     }
     private boolean retaliationReady() {
-        return ready() && animal.family().adult() && CombatCourage.willing(animal)
+        return ready() && animal.family().adult() && !animal.childhood().nestling() && CombatCourage.willing(animal)
                 && animal.life().energy() >= 20 && order() != Order.PEACEFUL && order() != Order.RETURN;
     }
     /** Read-only status detail; StatusKey owns the command-facing key. */
@@ -602,10 +602,8 @@ public final class PredatorLife implements EcologyRoutine {
     private BlockPos familyPad() {
         var pad = animal.childhood().padUnderfoot();
         if (pad != null) return pad;
-        for (var side : Direction.Plane.HORIZONTAL) {
-            var beside = animal.blockPosition().relative(side);
-            if (level().getBlockState(beside).is(ModBlocks.PREDATOR_NEST.get())) return beside;
-        }
+        pad = animal.childhood().adjacentPad(animal.blockPosition());
+        if (pad != null) return pad;
         for (var id : animal.family().caregiverIds()) {
             if (id != null && level().getEntity(id) instanceof YukkuriEntity parent) {
                 var home = parent.life().homeStand();
@@ -1185,7 +1183,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
     /** Below its retreat ratio the beaten fighter leaves by air, not by dropping next to the one that beat it. */
     public boolean canWithdrawByAir() {
-        return EcologyRoutines.predator(animal) && wildAdult() && readyForLanding();
+        return EcologyRoutines.predator(animal) && wildAdult() && !animal.childhood().nestling() && readyForLanding();
     }
     public boolean hasAirExit() {
         return !animal.onGround() || canDepart(animal.position());
