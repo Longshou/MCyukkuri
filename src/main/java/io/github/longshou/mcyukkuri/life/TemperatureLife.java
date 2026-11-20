@@ -227,7 +227,7 @@ public final class TemperatureLife {
         var bodies = new ArrayList<ThermalSourceCache.Source>();
         for (var kotatsu : level().getEntitiesOfClass(YukkuriEntity.class, new AABB(center).inflate(radius),
                 other -> other != entity && RareForms.kotatsu(other)))
-            bodies.add(new ThermalSourceCache.Source(kotatsu.blockPosition(), KOTATSU_NEIGHBOUR_HEAT, false));
+            bodies.add(new ThermalSourceCache.Source(kotatsu.blockPosition(), KOTATSU_NEIGHBOUR_HEAT, false, ThermalComfort.HEAT_RADIUS));
         return new HeatSources(ThermalSourceCache.sources(level(), center, radius, height), bodies);
     }
     /** Warmth reaching this place from one group of heat sources; a wall blocks it like any other heat. */
@@ -244,7 +244,8 @@ public final class TemperatureLife {
     }
 
     private static double heatAt(BlockPos pos, ThermalSourceCache.Source source) {
-        return ThermalComfort.radiantWarmth(source.strength(), source.pos().distSqr(pos), source.pos().getY() - pos.getY());
+        return ThermalComfort.radiantWarmth(source.strength(), source.pos().distSqr(pos),
+                source.pos().getY() - pos.getY(), source.verticalReach());
     }
     /** Heat a kotatsu Marisa radiates to a body huddled against her: properly warm within three blocks, gone by four. */
     static final double KOTATSU_NEIGHBOUR_HEAT = 2.4;

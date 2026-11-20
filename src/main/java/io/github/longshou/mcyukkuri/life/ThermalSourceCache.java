@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * cell is discarded and never causes a chunk load.</p>
  */
 final class ThermalSourceCache {
-    record Source(BlockPos pos, double strength, boolean fire) {}
+    record Source(BlockPos pos, double strength, boolean fire, int verticalReach) {}
 
     private record Cell(int x, int y, int z) {}
     private static final class Entry {
@@ -115,9 +115,10 @@ final class ThermalSourceCache {
             entry.markKnown(index);
             var pos = new BlockPos(x, y, z);
             var state = level.getBlockState(pos);
-            if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) entry.sources.add(new Source(pos, .9, false));
+            if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH))
+                entry.sources.add(new Source(pos, .9, false, ThermalComfort.HEAT_HEIGHT));
             // A dry body can recover at either of the inner stands, including the diagonal at sqrt(5) blocks.
-            if (burning(state)) entry.sources.add(new Source(pos, 2.2, true));
+            if (burning(state)) entry.sources.add(new Source(pos, 2.2, true, ThermalComfort.HEAT_HEIGHT));
         }
     }
 

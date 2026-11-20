@@ -16,8 +16,8 @@ final class ThermalComfort {
         return there >= here + REFUGE_GAIN && there < hotLimit;
     }
 
-    static double radiantWarmth(double strength, double distanceSquared, int height) {
-        if (distanceSquared > HEAT_RADIUS * HEAT_RADIUS || Math.abs(height) > HEAT_HEIGHT) return 0;
+    static double radiantWarmth(double strength, double distanceSquared, int height, int verticalReach) {
+        if (distanceSquared > HEAT_RADIUS * HEAT_RADIUS || Math.abs(height) > verticalReach) return 0;
         return strength * (1 - Math.sqrt(distanceSquared) / 6);
     }
 

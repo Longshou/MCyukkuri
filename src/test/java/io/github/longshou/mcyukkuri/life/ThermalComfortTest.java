@@ -22,12 +22,13 @@ class ThermalComfortTest {
     }
 
     @Test void radiantHeatFallsOffAndSlowsColdExposureWithinReach() {
-        double near = ThermalComfort.radiantWarmth(2.2, 4, 0);
-        double far = ThermalComfort.radiantWarmth(2.2, 16, 2);
+        double near = ThermalComfort.radiantWarmth(2.2, 4, 0, ThermalComfort.HEAT_HEIGHT);
+        double far = ThermalComfort.radiantWarmth(2.2, 16, 2, ThermalComfort.HEAT_HEIGHT);
         assertEquals(2.2 * 2 / 3, near, 1e-9);
         assertEquals(2.2 / 3, far, 1e-9);
-        assertEquals(0, ThermalComfort.radiantWarmth(2.2, 17, 0));
-        assertEquals(0, ThermalComfort.radiantWarmth(2.2, 9, -3));
+        assertEquals(0, ThermalComfort.radiantWarmth(2.2, 17, 0, ThermalComfort.HEAT_HEIGHT));
+        assertEquals(0, ThermalComfort.radiantWarmth(2.2, 9, -3, ThermalComfort.HEAT_HEIGHT));
+        assertEquals(1.2, ThermalComfort.radiantWarmth(2.4, 9, -3, ThermalComfort.HEAT_RADIUS), 1e-9);
         assertTrue(ThermalComfort.exposureRate(-1.6 + near, .2, 2) < ThermalComfort.exposureRate(-1.6 + far, .2, 2));
         assertTrue(ThermalComfort.exposureRate(-1.6 + far, .2, 2) < ThermalComfort.exposureRate(-1.6, .2, 2));
     }
