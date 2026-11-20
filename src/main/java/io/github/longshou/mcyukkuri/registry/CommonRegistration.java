@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.registry;
 
 import io.github.longshou.mcyukkuri.aquatic.AquaticLife;
 import io.github.longshou.mcyukkuri.aquatic.HullAfloat;
+import io.github.longshou.mcyukkuri.badge.BadgeItem;
 import io.github.longshou.mcyukkuri.command.PlaygroundTools;
 import io.github.longshou.mcyukkuri.command.YukkuriCommands;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -72,6 +73,7 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -209,8 +211,9 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class, ShopRegistry::playerTick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerTickEvent.Post.class,
                 YukkuriGroundNavigation::playerPassage);
-        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Pre.class, ShopTrade::pickingUp);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
+        NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ItemEntityPickupEvent.Pre.class, ShopTrade::pickingUp);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, BadgeItem::pickingUp);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
 
 
 

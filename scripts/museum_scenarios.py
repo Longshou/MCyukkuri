@@ -3288,8 +3288,9 @@ def counter_action(tick, action, result, check=''):
 
 
 def counter_reissue_smoke():
-    dropped = f'@e[type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}"}}}},distance=..8]'
-    ground_serial = f'entity {dropped[:-1]},limit=1] Item.components."minecraft:custom_data".BadgeSerial'
+    dropped = f'type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}"}}}},distance=..8'
+    drop = f'@e[{dropped},limit=1]'
+    ground_serial = f'entity {drop} Item.components."minecraft:custom_data".BadgeSerial'
     return dict(ticks=180, commands=[
         *counter_owner_setup(),
         (3, f'execute as {_COUNTER_OWNER} run yukkuri scenario badge {_COUNTER_PET} bronze true'),
@@ -3319,18 +3320,25 @@ def counter_reissue_smoke():
           for slot in [*(f'hotbar.{i}' for i in range(2, 9)), *(f'inventory.{i}' for i in range(27))]),
         *counter_action(30, 'open', 1),
         *counter_action(32, 'reissue', 1),
-        (33, f'execute store result score #counter_drops museum if entity {dropped}'),
+        (33, f'execute store result score #counter_drops museum if entity @e[{dropped}]'),
         (33, f'data modify storage mcylab:counter serial set from entity {_COUNTER_PET} YukkuriPet.Serial'),
         (33, f'execute store success score #counter_changed museum run data modify storage mcylab:counter serial set from {ground_serial}'),
         (34, f'execute if score #counter_drops museum matches 1 if entity @e[type=item,nbt={{Item:{{id:"{_COUNTER_BRONZE}",count:1}}}},distance=..8] '
-             f'if score #counter_changed museum matches 0 if data {ground_serial} if entity @p[name=MuseumOperator,gamemode=creative] '
+             f'if score #counter_changed museum matches 0 if data {ground_serial} if entity @p[name=MuseumOperator,distance=..40,gamemode=creative] '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:0b}} '
              f'if data entity {_COUNTER_OWNER} Inventory[{{Slot:1b,id:"minecraft:emerald",count:1}}] run say COUNTER_GROUND_DROP'),
         (34, 'execute if data block ~-1 ~3 ~2 Items[{id:"mcyukkuri:bronze_yukkuri_badge",count:1}] run say COUNTER_TRAY_INTACT'),
         *counter_action(36, 'close', 1),
-        (38, 'yukkuri scenario tool_operator leave')],
+        (47, f'execute store result score #counter_pickup museum run yukkuri scenario tool_operator pick_up {drop}'),
+        (48, f'execute if score #counter_pickup museum matches 0 if entity {drop} run say COUNTER_FULL_PICKUP_REFUSED'),
+        (49, f'item replace entity {_COUNTER_OWNER} hotbar.2 with minecraft:air'),
+        (50, f'execute store result score #counter_pickup museum run yukkuri scenario tool_operator pick_up {drop}'),
+        (51, f'execute if score #counter_pickup museum matches 1 unless entity {drop} '
+             f'if items entity {_COUNTER_OWNER} hotbar.2 {_COUNTER_BRONZE} run say COUNTER_PICKED_UP'),
+        (52, 'yukkuri scenario tool_operator leave')],
         expect=[*(f'COUNTER_OK_{tick}' for tick in (6, 8, 10, 14, 16, 30, 32, 36)),
                 'COUNTER_UNFUNDED_INTACT', 'COUNTER_STALE_REFUSED', 'COUNTER_PINNED', 'COUNTER_GROUND_DROP', 'COUNTER_TRAY_INTACT',
+                'COUNTER_FULL_PICKUP_REFUSED', 'COUNTER_PICKED_UP',
                 r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_hall\b',
                 r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_fee\b',
                 r'\[badge\][^\n]*reissued [^\n]*fee=1 [^\n]*grade=BRONZE destination=inventory remaining=0',

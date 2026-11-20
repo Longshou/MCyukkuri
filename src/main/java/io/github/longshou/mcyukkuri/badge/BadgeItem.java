@@ -8,10 +8,18 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 public final class BadgeItem extends Item {
     private final boolean handbook;
     public BadgeItem(boolean handbook) { super(new Properties().stacksTo(1)); this.handbook = handbook; }
+    public static void pickingUp(ItemEntityPickupEvent.Pre event) {
+        var player = event.getPlayer();
+        if (event.getItemEntity().getItem().getItem() instanceof BadgeItem badge && !badge.handbook
+                && player.hasInfiniteMaterials() && player.getInventory().getFreeSlot() < 0)
+            event.setCanPickup(TriState.FALSE);
+    }
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player p, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity y)) return InteractionResult.PASS;
         if (!p.level().isClientSide) {
