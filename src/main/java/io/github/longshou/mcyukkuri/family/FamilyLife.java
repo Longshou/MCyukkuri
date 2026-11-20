@@ -1715,6 +1715,8 @@ public final class FamilyLife {
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
     }
     private boolean needsBedReturn(BlockPos home) {
+        // A canopy learner returns from its practice branch by hopping or flying.
+        if (entity.childhood().nestling() && level().getBlockState(home).is(ModBlocks.PREDATOR_NEST.get())) return false;
         var occupancy=FamilyNest.bedOccupancy(entity,home);
         return entity.life().mayReturnToBed(home)&&(occupancy==null
                 ? entity.distanceToSqr(Vec3.atBottomCenterOf(home))>4 : occupancy!=Occupancy.INSIDE_SUPPORTED);
