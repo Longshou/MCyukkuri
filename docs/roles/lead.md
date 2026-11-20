@@ -37,7 +37,7 @@
   | 代码审查、后端与玩法逻辑、多文件改动 | Sonnet | DeepSeek 4.1 Flash | high |
   | 困难：物理几何、公共基础设施、失败或回归过的链路的设计与修复 | Sonnet | Opus（仅特别难时） | high |
   | 新行为与复杂交互的设计 | Sonnet | Gemini neon-medium；Opus（仅特别难时） | high |
-  | 美术与动作制作 | Gemini neon-medium／Opus | Fable | medium |
+  | 美术与动作制作 | Opus | Gemini neon-medium | medium |
   | 视觉与动作审查 | Opus／Gemini neon-medium（与作者不同） | Sonnet | medium |
   | 大范围只读审计 | Sonnet | DeepSeek 4.1 Flash | high |
   | 批量看图、打标签、游戏内截图逐帧识图（截图迭代里的看帧） | Claude Haiku | Sonnet；`capture_review.py`（DeepSeek 视觉） | — |
