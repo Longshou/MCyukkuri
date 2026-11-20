@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 动作衔接：换片段时姿势过渡不跳变 | `.worktrees/wp-pose-bridge` | client/PoseBridge.java (new), client/YukkuriModel.java, client/YukkuriRenderer.java, client/capture/PoseTap.java, AgitationPresentation |
 | 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 | 加门的两格入口能斜着蹭出去（DN-06） | `.worktrees/wp-doorway-exit` | movement/path through doors (walker, path nodes) |
 | 演出放映室：手持道具、帽子与第二个演员 | `.worktrees/wp-player-effects-2` | preview/review, scripts/preview.py, pose/cli |
