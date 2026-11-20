@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
+import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 
 import io.github.longshou.mcyukkuri.client.capture.PoseTap;
@@ -383,12 +384,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         YukkuriView child;
         if (!(behavior.equals(Behaviors.FEED_CHILD) || firstToilet) || parent.carePartnerId() < 0
                 || (child=parent.yukkuriView(parent.carePartnerId()))==null) {
-            model.setCareContact(0,Float.NaN,0,0);
+            model.setCareContact(0,Float.NaN,0,0,false);
             return;
         }
         var parentPresentation=LivingPresentation.variants.get(parent.assetId());
         var childPresentation=LivingPresentation.variants.get(child.assetId());
-        if (parentPresentation == null || childPresentation == null) { model.setCareContact(0,Float.NaN,0,0); return; }
+        if (parentPresentation == null || childPresentation == null) { model.setCareContact(0,Float.NaN,0,0,false); return; }
         float parentScale=parent.getScale()*parent.growthScale();
         float childScale=child.getScale()*child.growthScale();
         var parentAt=parent.getPosition(partialTick); var childAt=child.getPosition(partialTick);
@@ -402,7 +403,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 .add((float)(childAt.x-parentAt.x),(float)(childAt.y-parentAt.y),(float)(childAt.z-parentAt.z))
                 .rotateY(-parentYaw).mul(16/Math.max(.001f,parentScale));
         float blend=.35f+.65f*Mth.clamp(parent.careContactProgress(),0,1);
-        model.setCareContact(target.x,target.y,target.z,blend);
+        boolean rim = !firstToilet && FamilyFeedingContact.atCanopyRim(parent,child);
+        model.setCareContact(target.x,target.y,target.z,blend,rim);
     }
 
     private static void dailyMotion(YukkuriView entity,float partialTick,PoseStack pose) {

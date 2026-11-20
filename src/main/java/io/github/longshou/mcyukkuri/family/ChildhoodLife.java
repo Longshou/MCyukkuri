@@ -14,12 +14,14 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
+import io.github.longshou.mcyukkuri.motor.geom.NestFooting;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.ToiletContact;
@@ -71,12 +73,13 @@ public final class ChildhoodLife {
     };
 
     public boolean nestling() {
-        return entity.getVariant().isPredator() && !entity.family().adult() && !entity.family().subadult() && !fledged;
+        return entity.getVariant().isPredator()
+                && FledgeMath.learning(!entity.family().adult() && !entity.family().subadult(),wingPractice,fledged);
     }
     public boolean readyToFly() {
         return !nestling() || practiceAge() && wingPractice >= FledgeMath.threshold(entity.life().personality().trait(Trait.BOLDNESS));
     }
-    private boolean practiceAge() { return entity.family().stage() == FamilyLife.Stage.JUVENILE && entity.growthScale() >= .35; }
+    private boolean practiceAge() { return entity.family().stage() != FamilyLife.Stage.BABY && entity.growthScale() >= .35; }
     public boolean practiceDue() {
         return practiceAge() && entity.level().getGameTime() >= nextPractice && entity.onGround()
                 && !entity.family().awaitingLanding() && !entity.life().hasUrgentNeed();
@@ -105,16 +108,20 @@ public final class ChildhoodLife {
     public double wingPractice() { return wingPractice; }
     public float fallingHeight(float height) { return nestling() ? FledgeMath.effectiveFall(height, wingPractice) : height; }
 
-    /** An airborne shove still belongs to the pad beneath the feet. Launch, practice and falling after losing support use real physics. */
+    /** The pad itself is the receiver for feeding and birth. */
     public BlockPos padUnderfoot() {
+        return footingUnderfoot(false);
+    }
+    public BlockPos footingUnderfoot(boolean branches) {
         var cell = entity.blockPosition();
-        for (int i = 0; i <= 2; i++) {
-            var at = cell.below(i);
-            var state = entity.level().getBlockState(at);
-            if (state.is(ModBlocks.PREDATOR_NEST.get())) return at;
-            if (!state.isAir()) break;
-        }
-        return null;
+        int depth=NestFooting.depth(i -> {
+            var state=entity.level().getBlockState(cell.below(i));
+            if (state.isAir()) return NestFooting.Surface.AIR;
+            if (state.is(ModBlocks.PREDATOR_NEST.get())) return NestFooting.Surface.PAD;
+            if (state.is(BlockTags.LOGS) || state.is(BlockTags.LEAVES)) return NestFooting.Surface.BRANCH;
+            return NestFooting.Surface.OTHER;
+        },branches);
+        return depth<0 ? null : cell.below(depth);
     }
 
     public ChildhoodLife(YukkuriEntity entity) { this.entity = entity; }

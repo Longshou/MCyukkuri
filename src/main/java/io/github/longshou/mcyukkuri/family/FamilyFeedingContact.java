@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -26,6 +27,14 @@ public final class FamilyFeedingContact {
     public static final double MIN_FACING_DOT = .70;
 
     private FamilyFeedingContact() {}
+
+    public static boolean atCanopyRim(YukkuriView caregiver, YukkuriView child) {
+        return caregiver.getVariant().isPredator() && child.level().getBlockState(child.blockPosition()).is(ModBlocks.PREDATOR_NEST.get());
+    }
+
+    static double rimSpacing(YukkuriView caregiver, YukkuriView child) {
+        return CanopyMeeting.spacing(caregiver.getBbWidth(),child.getBbWidth(),SurfaceApproach.BODY_CLEARANCE);
+    }
 
     /** Horizontal body-envelope distance at which the client should close the two mouth anchors. */
     public static double mouthDistance(YukkuriView caregiver, YukkuriView child) {
@@ -76,20 +85,10 @@ public final class FamilyFeedingContact {
      * body envelopes, and both faces directed at the other. Callers still own relationship and safety checks.
      */
     public static boolean mouthsMeet(YukkuriEntity caregiver, YukkuriEntity child) {
-        if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
-                || !caregiver.hasLineOfSight(child) || !child.hasLineOfSight(caregiver)) return false;
-        Vec3 towardChild = child.position().subtract(caregiver.position()).multiply(1, 0, 1);
-        double horizontal = towardChild.length();
-        if (horizontal < minimumMouthDistance(caregiver, child) || horizontal > mouthDistance(caregiver, child)) return false;
-        double caregiverMouth = caregiver.getY() + caregiver.getBbHeight() * .5;
-        double childMouth = child.getY() + child.getBbHeight() * .5;
-        if (Math.abs(caregiverMouth - childMouth) > MAX_MOUTH_HEIGHT_DELTA) return false;
-        Vec3 unit = towardChild.scale(1 / horizontal);
-        return horizontalForward(caregiver).dot(unit) >= MIN_FACING_DOT
-                && horizontalForward(child).dot(unit.scale(-1)) >= MIN_FACING_DOT;
+        return visibleMouthsMeet(caregiver,child);
     }
 
-    /** The original client contact query through synchronized geometry and read-only sight checks. */
+    /** Transfer and presentation share synchronized geometry and the two native sight checks. */
     public static boolean visibleMouthsMeet(YukkuriView caregiver, YukkuriView child) {
         if (caregiver == child || !caregiver.isAlive() || !child.isAlive() || caregiver.level() != child.level()
                 || !caregiver.hasSightTo(child) || !child.hasSightTo(caregiver)) return false;
@@ -100,6 +99,10 @@ public final class FamilyFeedingContact {
         double childMouth = child.getY() + child.getBbHeight() * .5;
         if (Math.abs(caregiverMouth - childMouth) > MAX_MOUTH_HEIGHT_DELTA) return false;
         Vec3 unit = towardChild.scale(1 / horizontal);
+        if (atCanopyRim(caregiver,child) && (Math.abs(caregiver.getY()-child.blockPosition().getY())>SurfaceApproach.ARRIVAL
+                || !CanopyMeeting.withinReach(horizontal,rimSpacing(caregiver,child),SurfaceApproach.ARRIVAL,
+                Vec3.directionFromRotation(0,caregiver.bodyYaw()).dot(unit),
+                Vec3.directionFromRotation(0,child.bodyYaw()).dot(unit.scale(-1))))) return false;
         return horizontalForward(caregiver).dot(unit) >= MIN_FACING_DOT
                 && horizontalForward(child).dot(unit.scale(-1)) >= MIN_FACING_DOT;
     }

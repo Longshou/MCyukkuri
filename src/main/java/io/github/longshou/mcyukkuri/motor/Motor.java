@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.motor;
+import io.github.longshou.mcyukkuri.motor.geom.NestFooting;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -77,16 +78,13 @@ public final class Motor {
     }
 
     static Vec3 nestStep(YukkuriEntity body, Vec3 delta) {
-        if (body.level().isClientSide || !body.childhood().nestling() || body.isPassenger()
-                || body.family().awaitingLanding() || body.childhood().hopping() || body.predatorFlying()) return delta;
-        var pad = body.childhood().padUnderfoot();
-        if (pad == null) return delta;
+        if (body.level().isClientSide || !NestFooting.confines(body.childhood().nestling(), body.isPassenger(),
+                body.family().awaitingLanding(), body.childhood().hopping(), body.predatorFlying())) return delta;
+        var footing = body.childhood().footingUnderfoot(true);
+        if (footing == null) return delta;
         double radius = SurfaceApproach.supportRadius(body);
-        double x = Mth.clamp(body.getX() + delta.x, pad.getX() + radius, pad.getX() + 1 - radius);
-        double z = Mth.clamp(body.getZ() + delta.z, pad.getZ() + radius, pad.getZ() + 1 - radius);
-        // A foot already on the rim may move inward under its own power.
-        return new Vec3(Math.clamp(x - body.getX(), Math.min(0, delta.x), Math.max(0, delta.x)), delta.y,
-                Math.clamp(z - body.getZ(), Math.min(0, delta.z), Math.max(0, delta.z)));
+        return new Vec3(NestFooting.step(body.getX(), delta.x, footing.getX(), radius), delta.y,
+                NestFooting.step(body.getZ(), delta.z, footing.getZ(), radius));
     }
 
     /** Path-node steering uses the same three-dimensional pace as a direct flight command. */

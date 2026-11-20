@@ -146,7 +146,7 @@ class PoseGoldenTest {
             if(name.equals("boarding"))Overlays.boarding(pose[root],17,-9,.85f,.6f);
             if(name.equals("pregnancy"))belly=.7f;
             compose();
-            if(name.equals("feed")||name.equals("rear"))Overlays.care(this,pose,world,root,name.equals("feed"),.3f,2,-7,.8f);
+            if(name.equals("feed")||name.equals("rear"))Overlays.care(this,pose,world,root,name.equals("feed"),false,.3f,2,-7,.8f);
             if(name.equals("braid")){
                 var chain=new ArrayList<Integer>();chain.add(bone("hand_right"));for(int k=1,b;(b=bone("hand_right_braid_"+k))>=0;k++)chain.add(b);chain.add(bone("hand_right_tip"));
                 float[] rest=new float[chain.size()*3+3];for(int i=0;i<chain.size();i++){var b=bones[chain.get(i)];rest[i*3]=b.x;rest[i*3+1]=b.y;rest[i*3+2]=b.z;}

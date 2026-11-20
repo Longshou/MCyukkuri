@@ -88,7 +88,7 @@ final class OfflineModel implements Overlays.Contact {
         if (care != null) {
             var target = Rig.floats(care);
             if (target.length != 3 || mouth == null) throw new IllegalArgumentException("care requires xyz and declared model mouth");
-            Overlays.care(this, pose, world, root, false, target[0], target[1], target[2], 1); updateFeatures();
+            Overlays.care(this, pose, world, root, false, false, target[0], target[1], target[2], 1); updateFeatures();
         }
     }
     public void compose() { compose.world(pose, world, -1, 1, null, null); }

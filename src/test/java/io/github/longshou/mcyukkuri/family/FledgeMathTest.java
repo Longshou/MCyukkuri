@@ -1,9 +1,18 @@
 package io.github.longshou.mcyukkuri.family;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class FledgeMathTest {
+    @Test void growingOlderOnTheBranchDoesNotCompleteAFirstFlight() {
+        double hop=FledgeMath.practise(0,true);
+        assertTrue(FledgeMath.learning(true,hop,false));
+        assertTrue(FledgeMath.learning(false,hop,false));
+        assertFalse(FledgeMath.learning(false,hop,true));
+        assertFalse(FledgeMath.learning(false,0,false));
+    }
     @Test void boldYoungAttemptFlightEarlier() {
         assertEquals(.75, FledgeMath.threshold(0), 1e-9);
         assertEquals(.495, FledgeMath.threshold(85), 1e-9);

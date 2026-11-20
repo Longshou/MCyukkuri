@@ -12,6 +12,16 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CanopyBirthGeometryTest {
+    @Test void aLostEntranceNeedsAnotherAlignedBranchOrGroundUnderTheWholeBrood() {
+        assertFalse(CanopyBirthGeometry.canRelease(true,false,true,false));
+        assertFalse(CanopyBirthGeometry.canRelease(false,false,true,false));
+        assertFalse(CanopyBirthGeometry.canRelease(true,true,false,false));
+        assertTrue(CanopyBirthGeometry.canRelease(true,true,true,false));
+        var cliff=CanopyBirthGeometry.groundUnderFruit(-.1,.5,.2,(x,z)->x<0);
+        assertFalse(CanopyBirthGeometry.canRelease(false,false,false,cliff));
+        var clearing=CanopyBirthGeometry.groundUnderFruit(-.1,.5,.2,(x,z)->x>=-1 && x<=0 && z==0);
+        assertTrue(CanopyBirthGeometry.canRelease(false,false,false,clearing));
+    }
     private final JsonObject family = JsonParser.parseReader(new InputStreamReader(getClass().getResourceAsStream(
             "/assets/mcyukkuri/yukkuri_presentation/family.json"), StandardCharsets.UTF_8)).getAsJsonObject();
     private final JsonObject stem = family.getAsJsonObject("stem");

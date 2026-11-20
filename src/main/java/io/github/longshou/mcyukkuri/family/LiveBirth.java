@@ -443,6 +443,7 @@ final class LiveBirth extends Choreography {
         BlockPos bed=care!=null?care.getBlockPos():shelter!=null?shelter.bed(m.getUUID()):null;
         var canopy = o.canopyBirth();
         if (canopy != null) return new GoTo("birth_site", m, canopy.stand(), now()+Math.max(NEST_GRACE,toTerm())).facing(canopy.yaw());
+        if (o.wildStemBrood() && care != null && care.canopyNest()) return null;
         if(!live&&receiver instanceof Nest){
             var centre=FamilyNest.largeCentre(m);var brood=brood();
             var support=BedContainer.of(m,bed);
@@ -552,7 +553,7 @@ final class LiveBirth extends Choreography {
     }
     /** How far sideways the strongest stem toss (BirthLaunch.STEM_MAX) carries a fruit while it falls {@code drop} blocks
      *  (vanilla air steps, Ballistic). */
-    private static double tossReach(double drop){
+    static double tossReach(double drop){
         double x=0,y=0,vx=BirthLaunch.STEM_MAX,vy=BirthLaunch.STEM_DROP;
         while(y>-drop){x+=vx;y+=vy;vx*=Ballistic.AIR_DRAG;vy=(vy-Ballistic.GRAVITY)*Ballistic.VERTICAL_DRAG;}
         return x;

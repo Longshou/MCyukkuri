@@ -57,6 +57,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -558,7 +559,7 @@ public final class FamilyLife {
     /** The birth role this body plays in the current beat (BirthGoal.canUse); when the goal yields, the beat's deadline decides the cost.
      *  Danger or a hunger emergency can displace a catcher. Ordinary comfort waits while the catch is under way. */
     public Conductor.Role birthRole() {
-        if (entity.getVariant().isPredator() && entity.predator().needsBroodFlight()) return null;
+        if (entity.getVariant().isPredator() && (entity.predator().needsBroodFlight() || entity.predator().recoveringFlight())) return null;
         var role=birthFree()?Conductor.roleOf(entity):null;
         if(role==null||!role.engaged(entity))return null;
         if(role.choreography().host()==entity&&shoreLanding())return null;
@@ -814,27 +815,73 @@ public final class FamilyLife {
         FamilyData.get(level()).setDirty();return "";
     }
     /** A ripe fruit still needs a physically available mother to drop from. */
-    public record CanopyBirth(Vec3 stand, float yaw) {}
-    public CanopyBirth canopyBirth() {
+    public record CanopyBirth(Vec3 stand, float yaw, BlockPos pad) {}
+    private CanopyBirth broodSite;
+    private long nextBroodSurvey;
+    public boolean wildStemBrood() {
         var brood = brood();
-        if (brood == null || brood.complete() || brood.cancelled || brood.kind != FamilyData.BirthKind.STEM
-                || !entity.getVariant().isPredator() || !entity.status().identity().wild()) return null;
+        return entity.getVariant().isPredator() && entity.status().identity().wild() && brood != null
+                && !brood.complete() && !brood.cancelled && brood.kind == FamilyData.BirthKind.STEM;
+    }
+    public CanopyBirth canopyBirth() {
+        if (!wildStemBrood()) return null;
+        if (level().getGameTime() >= nextBroodSurvey) {
+            nextBroodSurvey = level().getGameTime()+20;
+            broodSite = chooseBroodSite();
+        }
+        return broodSite;
+    }
+    private CanopyBirth chooseBroodSite() {
         var pad = nestStand();
-        if (pad == null || !level().getBlockState(pad).is(ModBlocks.PREDATOR_NEST.get())) return null;
-        var entrance = entity.life().homeEntrance(pad);
-        if (entrance == null) return null;
-        var centre = Vec3.atBottomCenterOf(pad);
-        double first = -LiveBirth.ripeFruit(entity, brood, 0).z * entity.getScale();
-        double last = -LiveBirth.ripeFruit(entity, brood, brood.children.size()-1).z * entity.getScale();
-        double depth = CanopyBirthGeometry.depth(first, last, entity.getBbWidth());
-        var stand = centre.add(entrance.subtract(centre).normalize().scale(depth));
-        return new CanopyBirth(stand, SurfaceApproach.yaw(stand, centre));
+        var brood = brood();
+        if (pad != null && level().getBlockState(pad).is(ModBlocks.PREDATOR_NEST.get())
+                && brood.children.size() <= entity.profile().pool().maxYoung) {
+            var centre = Vec3.atBottomCenterOf(pad);
+            var entrance = entity.life().homeEntrance(pad);
+            double first = -LiveBirth.ripeFruit(entity, brood, 0).z * entity.getScale();
+            double last = -LiveBirth.ripeFruit(entity, brood, brood.children.size()-1).z * entity.getScale();
+            double depth = CanopyBirthGeometry.depth(first, last, entity.getBbWidth());
+            var sides = new LinkedHashSet<Direction>();
+            if (entrance != null) sides.add(Direction.getNearest(entrance.x-centre.x, 0, entrance.z-centre.z));
+            for (var side : Direction.Plane.HORIZONTAL) sides.add(side);
+            for (var side : sides) {
+                var stand = centre.relative(side, depth);
+                if (entity.predator().reachableBroodStand(stand))
+                    return new CanopyBirth(stand, SurfaceApproach.yaw(stand, centre), pad);
+            }
+        }
+        if (entity.onGround() && groundBirthFits(entity.position(),entity.yBodyRot)) return null;
+        // Keep the chosen clearing and facing while descending. Losing its support triggers a new survey.
+        float yaw = broodSite != null && broodSite.pad()==null ? broodSite.yaw() : entity.yBodyRot;
+        if (broodSite != null && broodSite.pad()==null && groundBirthFits(broodSite.stand(),yaw)
+                && entity.predator().reachableBroodStand(broodSite.stand())) return broodSite;
+        var ground = entity.predator().broodGroundStand(at -> groundBirthFits(at,yaw));
+        return ground == null ? null : new CanopyBirth(ground,yaw,null);
+    }
+    private boolean groundBirthFits(Vec3 feet, float yaw) {
+        if (!entity.predator().birthGroundAt(feet.x,feet.y,feet.z)) return false;
+        var brood = brood();
+        for (int i=0; i<brood.children.size(); i++) {
+            var child = brood.children.get(i);
+            if (child.born) continue;
+            var fruit = FamilyGeometry.toWorld(feet,yaw,entity.getScale(),LiveBirth.ripeFruit(entity,brood,i));
+            double radius = LiveBirthGeometry.unbornDimensions(brood.kind,child).scale(entity.getScale()).width()/2
+                    + LiveBirth.tossReach(fruit.y-feet.y);
+            if (!CanopyBirthGeometry.groundUnderFruit(fruit.x,fruit.z,radius,
+                    (x,z) -> entity.predator().birthGroundAt(x+.5,feet.y,z+.5))) return false;
+        }
+        return true;
     }
 
     boolean readyForStemDrop(){
         var canopy = canopyBirth();
-        if (canopy != null && (!SurfaceApproach.at(entity, canopy.stand())
-                || Math.abs(Mth.wrapDegrees(entity.yBodyRot - canopy.yaw())) > Face.FACE_ARRIVED)) return false;
+        if (wildStemBrood()) {
+            boolean padPlan = canopy != null && canopy.pad()!=null;
+            if (!CanopyBirthGeometry.canRelease(padPlan,
+                    padPlan && level().getBlockState(canopy.pad()).is(ModBlocks.PREDATOR_NEST.get()) && entity.predator().freeStand(canopy.stand()),
+                    padPlan && SurfaceApproach.at(entity,canopy.stand()) && Math.abs(Mth.wrapDegrees(entity.yBodyRot-canopy.yaw())) <= Face.FACE_ARRIVED,
+                    !padPlan && entity.onGround() && groundBirthFits(entity.position(),entity.yBodyRot))) return false;
+        }
         return !entity.operations().active()&&!entity.isPanicking()&&!entity.isOnFire()&&!entity.isInWaterOrBubble()
                 &&!entity.isPassenger()&&supported()
                 &&!entity.isCommandPlaying()&&!entity.body().condition().blocksBreedingApproach()
@@ -1822,6 +1869,7 @@ public final class FamilyLife {
                 }
                 // Early pregnancy: home to the nest to tend the brood (the last APPROACH_LEAD ticks are LiveBirth's site beat).
                 BlockPos home=nestStand();
+                if (wildStemBrood() && home != null && level().getBlockState(home).is(ModBlocks.PREDATOR_NEST.get())) { stop(); return; }
                 var shelter=entity.habitat().shelter();
                 if(shelter!=null&&shelter.prepareLargeBed(entity)){SurfaceApproach.halt(entity);entity.showReaction("chewing_closed","",20);return;}
                 if(home==null){stop();return;}
