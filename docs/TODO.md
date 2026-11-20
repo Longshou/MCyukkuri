@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 捕食种领地、地面个体避开巢树、残骸，并补验搭巢接续（P12 CODE-4） | `.worktrees/wp-tree-pred-4` | predator/PredatorLife.java, predator/PerchSearch.java, settlement/ForageGoal.java, wiki conflicts.md |
 
 ## 玩法待办
 
