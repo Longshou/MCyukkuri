@@ -693,7 +693,7 @@ _absence_kin = f'Mother:{uuid_nbt(_absent)},Father:{uuid_nbt(_stayer)},{_departu
 add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采草的亲油迟迟不归',
     '开场时灵梦已在土坡后的草场采草，家人记得她离开的方向。她在家人看不到的地方死亡。'
     '看子油在洞口内向外守望，赤油留在窝里等。魔理沙先巡视，亲油迟归后朝记得的方向扇形寻找并呼唤，发现遗体后哀悼，再去采草、照料饥饿的赤油。',
-    '约 2–5 分钟（可倍速）', [
+    '约 3–6 分钟（可倍速）', [
         # The bank hides the meadow from the den; its south face leaves the search fan's west stand (about -2.4, 7.4) clear.
         box(-3, 0, 5, 2, 2, 5, 'minecraft:dirt'),
         box(-8, 0, 15, 8, 0, 23, 'minecraft:short_grass', 'keep'),
@@ -709,7 +709,8 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     late=[*(f'yukkuri scenario home {sel(n)} ~ ~ ~-1' for n in ('absent', 'stayer', 'older', 'baby')),
           f'yukkuri scenario forage_out {sel("absent")}',
           Retry(f'kill @e[tag={tag("absent")},limit=1]', sel('absent'), tries=1, first=60)],
-    env=DAY, spot='forage', vantage=(0, 10, 180, 12),
+    # West of the bank's end, on its north row: the mouth, the patrol, the first search stand and the meadow behind the bank.
+    env=DAY, spot='forage', vantage=(-10, 4, -80, 10),
     reads=[(label, f'yukkuri status {sel(n)} raw') for n, label in
            [('stayer', '读留守亲油'), ('older', '读子油寻亲'), ('baby', '读赤油等候')]])
 
@@ -7842,7 +7843,7 @@ _smoke('forage', 6000, [r'\[forage\][^\n]* begin role=FAMILY', r'\[forage\][^\n]
                        rf'\[family\][^\n]* feed handed to meal child={_uuid_text("forage", "child")}\b'])
 _absent_uuid = _uuid_text('family_absence', 'absent')
 _stayer_uuid, _older_uuid = (_uuid_text('family_absence', n) for n in ('stayer', 'older'))
-_smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uuid}\b',
+_smoke('family_absence', 7200, [rf'\[family\][^\n]* kin overdue kin={_absent_uuid}\b',
                                rf'\[family\][^\n]* missing kin call kin={_absent_uuid}\b',
                                rf'\[duty\][^\n]*uuid={_stayer_uuid} [^\n]* claimed kind=WATCH',
                                rf'\[duty\][^\n]*uuid={_stayer_uuid} [^\n]* released kind=WATCH end=REPLACED',
