@@ -5966,25 +5966,42 @@ def lane_at(dz, out):
     return f'~{bank_dx(0) + out + .5} ~-1 ~{dz + .5}'
 
 
+_CURRENT_HEAD = r'\[hat\][^\n]* uuid=(\S+) [^\n]* scenario place [^\n]*place=HEAD\b'
+_CURRENT_IMMERSION = r'\[water\][^\n]* damage cause=drown\b'
+
+
 def current_drift(log):
     points = [float(x) for x in re.findall(r'\[hat\][^\n]* travel at=\(([-\d.]+),', log)]
     if len(points) < 2 or max(points[:200]) - points[0] < 3:
         return 'hat must drift at least 3 blocks downstream in 200 ticks'
     # The young that cannot hop onto the brim rides the captain's head (it is its real place): at grounding it leaves the hat with
     # her, not by itself.
-    head = re.search(r'uuid=(\S+)[^\n]* scenario place [^\n]*place=HEAD\b', log)
+    head = re.search(_CURRENT_HEAD, log)
     if head is None:
         return 'the young must be seated on the head (it cannot hop there itself)'
     captain = re.search(r'\[hat\][^\n]* left rider=(\S+)[^\n]*', log)
-    if captain is None or not re.search(rf'\[body\][^\n]*uuid={captain[1]}[^\n]* dismount [^\n]*cause=grounded'
-                                         rf'[^\n]*passengers=\[{head[1]}', log):
+    grounding = captain and re.search(rf'\[body\][^\n]*uuid={captain[1]}[^\n]* dismount [^\n]*cause=grounded'
+                                        rf'[^\n]*passengers=\[{head[1]}', log)
+    if grounding is None:
         return 'the captain must leave the grounded hat still carrying her head young'
     # Her eyes go under in the shoal, so the young on her head falls in with her (rule); it must then get out alive.
     if re.search(rf'\[body\][^\n]*uuid={head[1]}[^\n]* death settled', log):
         return 'the head young must not die after falling in with the captain'
-    ashore = set(re.findall(r'\[water\][^\n]*uuid=(\S+)[^\n]* escape done [^\n]*support=stand=', log))
-    if captain[1] not in ashore:
+    ashore = r'\[water\][^\n]*uuid={}[^\n]* escape done [^\n]*support=stand='
+    after_grounding = log[grounding.end():]
+    if not re.search(ashore.format(captain[1]), after_grounding):
         return 'the captain must reach her own dry stand after grounding'
+    shed = re.search(rf'\[family\][^\n]*uuid={captain[1]}[^\n]* head rider shed child={head[1]} '
+                     r'cause=(?:carrier_eyes_under|carrier_fell_in)\b', after_grounding)
+    stand = shed and re.compile(ashore.format(head[1])).search(after_grounding, shed.end())
+    if shed and stand is None:
+        return 'the shed head young must reach its own dry stand'
+    hits = list(re.finditer(_CURRENT_IMMERSION, log))
+    if hits:
+        hit = hits[0]
+        if (len(hits) > 1 or f'uuid={head[1]} ' not in hit[0] or stand is None
+                or not grounding.end() + shed.end() <= hit.start() < grounding.end() + stand.start()):
+            return 'only the shed head young may take one immersion hit before its first dry stand'
     back = re.search(r'\[headwear\][^\n]* received loose accessory', log)
     if back and re.search(r'\[action\][^\n]* start id=pick\b', log[:back.start()]):
         return 'the owner went for loose items before taking her hat back'
@@ -6009,7 +6026,7 @@ pond('hat_current', '帽子顺缓流漂到浅滩搁浅', '帽子顺缓流漂到�
                         r'\[body\][^\n]* dismount [^\n]*cause=grounded',
                         r'\[hat\][^\n]* stores spilled [^\n]*cause=grounded', r'\[hat\][^\n]* kit dropped cause=grounded',
                         r'\[hat\][^\n]* pickup cause=grounded',
-                        r'\[headwear\][^\n]* received loose accessory'], verify=current_drift,
+                        r'\[headwear\][^\n]* received loose accessory'], verify=current_drift, gating_checks=['END'],
                 forbid=[r'\[hat\][^\n]* capsized\b', r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* cause=drown',
                         r'\[body\][^\n]* death settled into remains'],
                 readout=_HULL_READOUT + [f'yukkuri status {sel("child")} raw',
@@ -9362,6 +9379,8 @@ _FATES = {
     'sacrifice': [dict(kind='death', who=f'uuid={_uuid_text("sacrifice", "parent")} ', match=r'cause=mob\b',
                        why='the parent that draws the hunt may be killed by it')],
     'hat_push': [dict(kind='drown', who=_THROWN, why='the fast boat capsizes the far hat and throws its rider in')],
+    'hat_current': [dict(kind='drown', who=_CURRENT_HEAD, match=_CURRENT_IMMERSION + r'[^\n]* loss=1\.0\b',
+                         why='after the grounded captain goes under, the shed head young may take one hit before stepping onto a dry tread')],
     'hat_grounded_capsized': [dict(kind='drown', who=_THROWN, why='falling water and a hard rock throw the crews in')],
     'shake_capsize': [dict(kind='drown', who=_THROWN, why='three shakes capsize the hat and throw every rider in')],
     'self_rescue': [dict(kind='drown', who=r'scenario afloat prepared [^\n]*owner_aboard=false', why='the owner is pushed off the bank')],

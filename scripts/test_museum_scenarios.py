@@ -1,7 +1,8 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
 import unittest
 
-from museum_scenarios import S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
+from smoke_fate import fates
 
 
 PARENT = '11111111-1111-1111-1111-111111111111'
@@ -44,6 +45,27 @@ class PondCurrentBanks(unittest.TestCase):
             self.assertIn(f'setblock ~{bank} ~-1 ~{z} minecraft:water', scene.lines)
         for z, facing in ((-2, 'north'), (2, 'south')):
             self.assertIn(f'fill ~{bank + 2} ~-1 ~{z} ~{bank + 9} ~-1 ~{z} minecraft:cobblestone_stairs[facing={facing}]', scene.lines)
+
+    def test_only_one_hit_to_the_grounded_captains_shed_child_before_reaching_a_tread(self):
+        def entry(category, actor, tick, message):
+            return f'[{category}] marisa #1 uuid={actor} t={tick} dim=minecraft:overworld pos=0, 64, 0 {message}\n'
+
+        start = ('[hat] hat travel at=(0,0,0)\n[hat] hat travel at=(4,0,0)\n'
+                 + entry('hat', CHILD, 1, 'scenario place hat=hat place=HEAD')
+                 + f'[hat] hat left rider={PARENT}\n'
+                 + entry('body', PARENT, 2, f'dismount cause=grounded passengers=[{CHILD}]'))
+        shed = entry('family', PARENT, 3, f'head rider shed child={CHILD} cause=carrier_eyes_under')
+        hit = entry('water', CHILD, 4, 'damage cause=drown health=10.0 -> 9.0 loss=1.0')
+        captain_dry = entry('water', PARENT, 5, 'escape done at=(0,0,0) support=stand=(0,0,0)')
+        finish = captain_dry + captain_dry.replace(PARENT, CHILD)
+        self.assertIsNone(current_drift(start + shed + hit + finish))
+        self.assertIsNotNone(current_drift(start + shed + hit * 2 + finish))
+        self.assertIsNotNone(current_drift(start + hit + shed + finish))
+        self.assertIsNotNone(current_drift(start + shed + finish + hit))
+        self.assertIsNotNone(current_drift(start + shed + hit + captain_dry))
+        scene = next(s for s in S if s.id == 'hat_current')
+        self.assertEqual([], fates(start + shed + hit + finish, scene.smoke['allow_fate']))
+        self.assertTrue(fates(start + shed + hit.replace(CHILD, PARENT) + finish, scene.smoke['allow_fate']))
 
 
 def event(tick, message, parent=PARENT):
