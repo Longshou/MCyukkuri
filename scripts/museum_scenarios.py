@@ -7588,6 +7588,7 @@ def _resident_house_readings(readout):
     readings = re.split(r'MCYSMOKE_READOUT \d+ \d+\n', readout)[1:]
     if len(readings) != 6:
         return 'Expected six paired household readings'
+    companions = set()
     for index, reading in enumerate(readings):
         stock = re.findall(r'region piles=(\d+) units=([\d.]+); within 12 blocks lint=(\d+) crumbs=(\d+)', reading)
         activity = re.findall(r'activity dust=(\d+)/600 settle=(\d+)/1200 swept=false cooldown=(\d+) recent=(\w+) roofed=true', reading)
@@ -7595,6 +7596,8 @@ def _resident_house_readings(readout):
             return f'Missing paired roofed readings at snapshot {index}'
         if stock[1][:2] != ('0', '0.0') or activity[1] != ('0', '0', '0', 'false'):
             return f'The empty control accrued stock or activity at snapshot {index}'
+        if index == 0 and activity[0] != ('0', '0', '0', 'false'):
+            return 'The occupied cottage must start without activity'
         if index < 5 and (float(stock[0][1]) != index or stock[0][2:] != (str(index), '0')
                           or 'resident house_' in reading or 'materials=' in reading):
             return f'Expected {index} lint, zero crumbs and no lodger before arrival at snapshot {index}'
@@ -7603,11 +7606,13 @@ def _resident_house_readings(readout):
         spawning = 'true' if 0 < index < 5 else 'false'
         if f'doMobSpawning is currently set to: {spawning}' not in reading:
             return f'Unexpected world spawning rule at snapshot {index}'
-    if not re.search(r'identity:\{[^}]*kind:"npc_companion"', readings[-1]):
-        return 'The yard animal must remain the resident’s companion'
-    uuids = re.findall(r'has the following (?:block|entity) data: \[I;\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)\]', readings[-1])
-    if len(uuids) != 2 or uuids[0] != uuids[1]:
-        return 'The yard companion must hold the original yard nest'
+        pet = re.search(r'has the following entity data: (\[I;[^\]]+\])', reading)
+        owner = re.search(r'identity:\{[^}]*kind:"npc_companion"[^}]*owner:"([\da-f-]+)"', reading)
+        if not pet or not owner:
+            return f'Missing yard companion or custodian at snapshot {index}'
+        companions.add((pet[1], owner[1]))
+    if len(companions) != 1:
+        return 'The original yard companion must keep its custodian'
 
 
 _resident_house_scene = next(s for s in S if s.id == 'resident_house_lint')
