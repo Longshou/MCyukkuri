@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Reason;
+import io.github.longshou.mcyukkuri.predator.PredatorFlight.NestSurvey;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Result;
@@ -108,8 +109,8 @@ final class NestBuild {
     }
 
     /** Keep ordinary ground activities until the sliced search actually sees a tree worth surveying. */
-    boolean canSurvey() {
-        if (!wantsSurvey()) return false;
+    NestSurvey surveyAdmission() {
+        if (!wantsSurvey()) return NestSurvey.UNAVAILABLE;
         if (search != null && !search.current(level(), body)) cancelSearch();
         if (search == null) search = new PredatorNestSearch(level(), body, true);
         var result = scan();
@@ -117,7 +118,8 @@ final class NestBuild {
             surveyed = true;
             GameplayLog.limited(body, "predator", "nest_build_no_canopy_site", 200, "nest build refused reason=no_canopy_site");
         }
-        return result == Result.FOUND && site != null || search != null && search.seesCanopySite();
+        if (result == Result.FOUND) return site == null ? NestSurvey.CLAIMED_HOME : NestSurvey.FOUNDING_SITE;
+        return search != null && search.seesCanopySite() ? NestSurvey.FOUNDING_SITE : NestSurvey.UNAVAILABLE;
     }
 
     private Result scan() {

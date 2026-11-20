@@ -1,11 +1,23 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
+import io.github.longshou.mcyukkuri.predator.PredatorFlight.NestSurvey;
+import io.github.longshou.mcyukkuri.predator.PredatorFlight.Task;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PredatorFlightTest {
+    @Test void claimingAHomeChecksItsPadBeforeContinuingToPerchSelection() {
+        assertEquals(Task.CLEAR_PAD, NestSurvey.CLAIMED_HOME.chooseWork(() -> true));
+        assertEquals(Task.NONE, NestSurvey.CLAIMED_HOME.chooseWork(() -> false));
+    }
+
+    @Test void surveyingWithoutAClaimDoesNotCheckThePadAgain() {
+        assertEquals(Task.FOUND, NestSurvey.FOUNDING_SITE.chooseWork(() -> fail("no home claimed")));
+        assertEquals(Task.NONE, NestSurvey.UNAVAILABLE.chooseWork(() -> fail("no home claimed")));
+    }
+
     @Test void familyFlightsLandOnTheSameReserveAsPatrol() {
         for (var task : new PredatorFlight.Task[]{PredatorFlight.Task.DELIVER,PredatorFlight.Task.VISIT_YOUNG,
                 PredatorFlight.Task.BROOD_FLIGHT,PredatorFlight.Task.PATROL}) {

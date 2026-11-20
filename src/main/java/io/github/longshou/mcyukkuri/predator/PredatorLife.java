@@ -594,7 +594,11 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             return false;
         }
         if (seekFood && wantsHunt() && restrain()) { cooldown = 20; return false; }
-        if (pressure > 0 || animal.onGround() && nestBuild.canSurvey()) { task = Task.FOUND; return true; }
+        if (pressure > 0) { task = Task.FOUND; return true; }
+        if (animal.onGround()) {
+            var nestWork = nestBuild.surveyAdmission().chooseWork(this::chooseLeftovers);
+            if (nestWork != Task.NONE) { task = nestWork; return true; }
+        }
         if (wildAdult && !nestBuild.wantsSurvey() && !animal.life().hasUrgentNeed()
                 && (roost || animal.life().energy() >= 35 && !level().isNight() && !level().isRaining())
                 && level().getGameTime() >= nextPerchSearch) {

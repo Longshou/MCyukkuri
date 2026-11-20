@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 
 final class PredatorFlight {
     static final int OTHER_TASK_LIMIT = 800;
@@ -18,6 +19,17 @@ final class PredatorFlight {
         boolean pursuit() { return this==TAKEOFF || this==CHASE || this==DIVE; }
         boolean timedOut(int ticks) {
             return this!=LAND && this!=FOUND && this!=PERCH && ticks>(pursuit()?1200:OTHER_TASK_LIMIT);
+        }
+    }
+    enum NestSurvey {
+        UNAVAILABLE, CLAIMED_HOME, FOUNDING_SITE;
+
+        Task chooseWork(BooleanSupplier chooseLeftovers) {
+            return switch (this) {
+                case UNAVAILABLE -> Task.NONE;
+                case CLAIMED_HOME -> chooseLeftovers.getAsBoolean() ? Task.CLEAR_PAD : Task.NONE;
+                case FOUNDING_SITE -> Task.FOUND;
+            };
         }
     }
     record Visit(UUID child, long groundCell, long standCell) {}
