@@ -14,7 +14,6 @@
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
 | 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
-| 圆形物品保持圆形、玩具做放置模型、药品不做（重做 R0 与护理包） | `.worktrees/wp-art-round-redo` | care-props bowls/toys, item icons |
 | PD-13 亲油叼着孩子在船上一直不动（出船跳被拒后不换法） | `.worktrees/wp-boat-carry-stuck` | aquatic Ferry/Hop/Ashore carried exit |
 
 ## 玩法待办
