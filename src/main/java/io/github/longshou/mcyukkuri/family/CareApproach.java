@@ -287,6 +287,23 @@ public final class CareApproach {
     }
 
     private Places choosePlaces() {
+        if (kind == Kind.FEED && owner.getVariant().isPredator() && child.childhood().nestling()) {
+            var pad = child.childhood().padUnderfoot();
+            if (pad != null) {
+                var entrance = owner.life().homeEntrance(pad);
+                if (entrance == null) return null;
+                var centre = Vec3.atBottomCenterOf(pad);
+                var outward = entrance.subtract(centre).multiply(1,0,1).normalize();
+                var side = new Vec3(-outward.z,0,outward.x);
+                double lateral = Math.clamp(child.position().subtract(centre).dot(side),-.25,.25);
+                var parentFeet = centre.add(outward.scale(.5+owner.getBbWidth()/2+.01)).add(side.scale(lateral));
+                var childFeet = parentFeet.subtract(outward.scale(FamilyFeedingContact.standingDistance(owner,child)));
+                childFeet = new Vec3(childFeet.x,child.getY(),childFeet.z);
+                return SurfaceApproach.supported(owner,parentFeet) && SurfaceApproach.supported(child,childFeet)
+                        && FamilyFeedingContact.standFits(owner,parentFeet,child,childFeet)
+                        ? new Places(childFeet,parentFeet) : null;
+            }
+        }
         // Prefer the child's current safe position. Relocate by walking only when no parent can stand beside it.
         var current = around(child.position());
         if (current!=null) return current;

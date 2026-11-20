@@ -627,7 +627,10 @@ public final class PredatorLife implements EcologyRoutine {
             return true;
         }
         if (onBranch || onPad && animal.getRandom().nextBoolean()) {
-            for (var feet : onBranch ? List.of(padFeet(pad)) : branches) {
+            for (var centre : onBranch ? List.of(padFeet(pad)) : branches) {
+                double inset = .5 - animal.getBbWidth()/2 - SurfaceApproach.ARRIVAL;
+                var feet = new Vec3(Mth.clamp(animal.getX(),centre.x-inset,centre.x+inset),centre.y,
+                        Mth.clamp(animal.getZ(),centre.z-inset,centre.z+inset));
                 if (!SurfaceApproach.supported(animal, feet) || !CanopySite.clearBody(level(), animal, feet)
                         || !new Hop(feet).check(animal, Hop.Search.admission()).ok()) continue;
                 destination = feet;
@@ -680,19 +683,33 @@ public final class PredatorLife implements EcologyRoutine {
         }
         return false;
     }
+    BlockPos broodPad() {
+        if (!wildAdult()) return null;
+        var own = animal.life().homeStand();
+        if (own != null && level().getBlockState(own).is(ModBlocks.PREDATOR_NEST.get())) return own;
+        var partner = animal.family().partner();
+        if (partner != null && level().getEntity(partner) instanceof YukkuriEntity mate) {
+            var shared = mate.life().homeStand();
+            if (shared != null && level().getBlockState(shared).is(ModBlocks.PREDATOR_NEST.get())
+                    && !level().getEntitiesOfClass(YukkuriEntity.class,new AABB(shared).inflate(7,12,7),
+                    child -> child.isAlive() && !child.family().subadult() && animal.family().caresFor(child)).isEmpty()) return shared;
+        }
+        return null;
+    }
+
     private YukkuriEntity provisionChild() {
-        var home = animal.life().homeStand();
-        if (!wildAdult() || home == null || !level().getBlockState(home).is(ModBlocks.PREDATOR_NEST.get())) return null;
-        var fallen = groundChild();
+        var home = broodPad();
+        if (home == null) return null;
+        var fallen = groundChild(home);
         if (fallen != null) return fallen;
         return level().getEntitiesOfClass(YukkuriEntity.class, new AABB(home), child -> !child.family().subadult()
                 && !child.family().adult() && child.isAlive() && animal.family().caresFor(child)).stream()
                 .min(Comparator.comparingDouble(child -> child.life().nutrition())).orElse(null);
     }
 
-    private YukkuriEntity groundChild() {
-        var pad = animal.life().homeStand();
-        if (!wildAdult() || pad == null || !level().getBlockState(pad).is(ModBlocks.PREDATOR_NEST.get())) return null;
+    private YukkuriEntity groundChild() { return groundChild(broodPad()); }
+    private YukkuriEntity groundChild(BlockPos pad) {
+        if (pad == null) return null;
         return level().getEntitiesOfClass(YukkuriEntity.class, new AABB(pad).inflate(7,12,7), child ->
                 child.isAlive() && child.childhood().nestling() && child.onGround() && !child.isPassenger()
                 && !child.isInWaterOrBubble() && child.getY() < pad.getY()-2 && animal.family().caresFor(child)
@@ -732,7 +749,7 @@ public final class PredatorLife implements EcologyRoutine {
     private boolean carryingPrey() { return animal.family().carrying().is(ModItems.REMAINS.get()); }
 
     private boolean fetchable(RemainsEntity body) {
-        var home = animal.life().homeStand();
+        var home = broodPad();
         var stage = body.data().getString("Stage");
         var grounded = groundChild();
         return (grounded == null || body.distanceToSqr(grounded) > 1.5) && !body.blockPosition().equals(home) && edibleCorpse(body) && body.stage() == RemainsRot.FRESH
@@ -794,7 +811,7 @@ public final class PredatorLife implements EcologyRoutine {
             stop(); return;
         }
         if (child == groundChild()) { visitGroundChild(child); return; }
-        var pad = animal.life().homeStand();
+        var pad = broodPad();
         var entrance = animal.life().homeEntrance(pad);
         if (entrance == null) { stop(); return; }
         var centre = Vec3.atBottomCenterOf(pad);
@@ -1294,7 +1311,10 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if (task == Task.FLAP) {
             if (!animal.onGround() || !SurfaceApproach.supported(animal, destination)) { stop(); return; }
-            if (!SurfaceApproach.at(animal, destination)) {
+            var pad = animal.childhood().padUnderfoot();
+            var delta = pad == null ? Vec3.ZERO : animal.position().subtract(Vec3.atBottomCenterOf(pad));
+            if (pad != null && Math.max(Math.abs(delta.x),Math.abs(delta.z)) < .5 - SurfaceApproach.supportRadius(animal) - .12
+                    && !SurfaceApproach.at(animal,destination)) {
                 watchTicks = 0;
                 Motor.step(animal, destination, .75);
                 return;
@@ -1612,7 +1632,8 @@ public final class PredatorLife implements EcologyRoutine {
     public void stop() {
         if (task == Task.BRANCH_HOP && animal.childhood().hopping()) animal.childhood().stopHop();
         if (task == Task.FIRST_FLIGHT && animal.childhood().nestling()) {
-            GameplayLog.event(animal, "childhood", "first flight outcome=interrupted feet={} energy={}", animal.position(), animal.life().energy());
+            GameplayLog.event(animal, "childhood", "first flight outcome={} feet={} energy={}",
+                    animal.onGround() ? "interrupted" : "falling", animal.position(), animal.life().energy());
             animal.setPredatorFlying(false);
         }
         watchTicks = 0;

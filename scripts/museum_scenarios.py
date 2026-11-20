@@ -2368,11 +2368,11 @@ add('pred_perch_hunt', 'grove', '高枝守望，俯冲捕猎', '高枝守望，�
 def _tree_family(sid, height, feeding):
     mother, father = uid(sid, 'mother'), uid(sid, 'father')
     young_kin = kin_of(Mother=mother, Father=father)
-    shelf = [] if feeding else [box(-1, 7, -1, 1, 7, 1, 'minecraft:air'),
+    shelf = [] if feeding else [box(-1, 7, -1, 1, 8, 1, 'minecraft:air'),
                                 box(-1, 6, 0, 1, 6, 0, 'minecraft:oak_log[axis=x]')]
     actors = [*shelf, block(0, height, 0, 'mcyukkuri:predator_nest'),
               yk('remilia', 4 if feeding else -1, 4 if feeding else 0, 'mother', dy=0 if feeding else height,
-                 nutrition=65 if feeding else 98, energy=98, yaw=-90, uuid=mother, lead=True,
+                 nutrition=98, energy=98, yaw=-90, uuid=mother, lead=True,
                  friendliness=90, attachment=90, kin=kin_of(Partner=father)),
               f'yukkuri scenario home {sel("mother")} ~ ~{height} ~']
     if feeding:
@@ -2381,7 +2381,7 @@ def _tree_family(sid, height, feeding):
         actors.append(yk('remilia', offset, -.22 if feeding else .12, name, dy=height+.15,
                          stage='baby' if feeding else 'child', share=0 if feeding else .44,
                          uuid=uid(sid, name), kin=young_kin, boldness=boldness, nutrition=24 if feeding else 92,
-                         childhood=None if feeding else CHILDHOOD_CRAWLING_READY + ',WingPractice:0.45d'))
+                         childhood=None if feeding else 'WingPractice:0.45d'))
     return actors
 
 
@@ -2391,6 +2391,7 @@ add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小�
                    remains(4.41, 4, 'small_prey', age='juvenile', scale=.4, dimensions=(.30, .138), food=3, capacity=3),
                    yk('reimu', 9, 6, 'forager', stage='child', childhood=CHILDHOOD_CRAWLING_READY)],
     spot='spawn', vantage=(7, 8, 150, 4), env={'time': 'dawn'},
+    late=[Retry(set_status('mother', 'needs.nutrition', 65), sel('mother'), first=40, tries=1)],
     reads=[('读亲油口中猎物', f'yukkuri status {sel("mother")} raw'), ('读赤油进食', f'yukkuri status {sel("bold")} raw')],
     smoke=dict(ticks=2100, forbid=[], expect=[r'prey lifted remains=', r'prey carried to nest child=', r'feed portion from prey ',
                                   r'feed mash prepared child=', r'feed handed to meal child=',
@@ -2402,7 +2403,7 @@ add('pred_fledging', 'grove', '雏鸟学飞：扑翅、跳枝、首飞', '枝巢
     spot='spawn', vantage=(7, 8, 145, 2), env={'time': 'dawn'},
     reads=[('读大胆子油', f'yukkuri status {sel("bold")} raw'), ('读胆小子油', f'yukkuri status {sel("timid")} raw')],
     smoke=dict(ticks=2000, forbid=[], expect=[r'fledge flap progress=', r'fledge hop progress=',
-               rf'uuid={_uuid_text("pred_fledging","bold")} [^\n]*first flight outcome=(?:landed|interrupted)'],
+               rf'uuid={_uuid_text("pred_fledging","bold")} [^\n]*first flight outcome=(?:landed|falling)'],
                allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_fledging", slot)} ', match=r'cause=fall\b',
                                 why='a real fledgling fall from the branch') for slot in ('bold', 'timid')]))
 
