@@ -31,6 +31,11 @@ public final class Gait {
         return Math.sqrt(ease(pace, HUMAN_WALK * .58, HUMAN_WALK * .86) / GROUND_TRAVEL);
     }
 
+    /** Within the body's radius, finish a stand approach straight if the body cannot face it this tick. */
+    public static boolean needsStraightFinish(double distance, double width, double headingError, double turnRate) {
+        return distance <= width / 2 && Math.abs(Math.IEEEremainder(headingError, 360)) > turnRate;
+    }
+
     public static double walk(double pace, double temperament) {
         return ease(pace * temperament, .12, HUMAN_WALK * .82);
     }

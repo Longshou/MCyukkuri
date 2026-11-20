@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.motor.geom.ContactStandSearch;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -1077,8 +1078,17 @@ public final class SurfaceApproach {
         var aim=aim(actor,destination,true);
         if(aim==null||aim!=destination&&!clearLastStep(actor,aim))return false;
         if(retreat&&!safeRetreatPath(actor,null,aim))return false;
-        actor.getNavigation().stop();
-        double remaining=actor.position().distanceTo(destination);
+        var navigation = actor.getNavigation();
+        navigation.stop();
+        var from = actor.position();
+        double remaining = from.distanceTo(destination);
+        // Finish a clear stand approach without making the feet circle while the body turns.
+        if (aim == destination && navigation instanceof YukkuriGroundNavigation ground
+                && Gait.needsStraightFinish(remaining, actor.getBbWidth(), yaw(from, destination) - actor.yBodyRotO,
+                        BodyAbility.of(actor).turnRate())) {
+            ground.step(destination, speed);
+            return true;
+        }
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.
         double movement=actor.getAttributeValue(Attributes.MOVEMENT_SPEED);
         double modifier=Math.sqrt(Math.min(.02,remaining*.20))/Math.max(.0001,movement);

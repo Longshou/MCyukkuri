@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GaitTest {
@@ -35,5 +36,17 @@ class GaitTest {
         assertTrue(Gait.walk(10, 1) < Gait.HUMAN_WALK);
         assertTrue(Gait.hop(.45, 1) < Gait.hop(1, 1));
         assertTrue(Gait.hop(1.5, Gait.temperament(100)) < Gait.HUMAN_WALK);
+    }
+
+    @Test void closesAnExactStandWhenTheTurnCapWouldMakeTheWalkerCircle() {
+        // FG-02, seed 11202026, tick 2080: the mother is within her footprint but still turning toward the stand.
+        double dx = -747.6607333824422 - (-747.7381);
+        double dz = 308.4000000357628 - 308.4613;
+        double distance = Math.hypot(dx, dz);
+        double headingError = Math.toDegrees(Math.atan2(dz, dx)) - 90 - 186;
+        assertTrue(Gait.needsStraightFinish(distance, .8, headingError, 12));
+        assertTrue(Gait.needsStraightFinish(distance, .8, headingError - 720, 12));
+        assertFalse(Gait.needsStraightFinish(.5, .8, headingError, 12));
+        assertFalse(Gait.needsStraightFinish(distance, .8, 350, 12));
     }
 }
