@@ -30,6 +30,22 @@ class AbilityMathTest {
         assertEquals(.75, AbilityMath.scrambleRise(0, .75), EPS);
     }
 
+    @Test void aShallowStandKeepsTheFullBlockBankOutOfThePick() {
+        var adultV = adult(AbilityMath.Inputs.ADULT);
+        double hop = adultV.hopHeight(), climb = adultV.climbRise();
+        // PD-15: the bank is one block above the feet, above the plain climb but within the strained scramble.
+        assertTrue(1.0 > climb);
+        assertTrue(1.0 <= AbilityMath.scrambleRise(hop, climb));
+        // With a shallower stand to step onto, the pick stays within the plain climb and never takes that bank.
+        assertEquals(climb, AbilityMath.bankRise(hop, climb, true), EPS);
+        assertTrue(1.0 > AbilityMath.bankRise(hop, climb, true));
+        // Without one it may strain over the block.
+        assertEquals(AbilityMath.scrambleRise(hop, climb), AbilityMath.bankRise(hop, climb, false), EPS);
+        assertTrue(1.0 <= AbilityMath.bankRise(hop, climb, false));
+        // Never below the plain climb, even when it cannot hop.
+        assertEquals(.75, AbilityMath.bankRise(0, .75, false), EPS);
+    }
+
     private static final double EPS = 1e-9;
     private static final AbilityMath.Coefficients C = AbilityMath.Coefficients.DEFAULTS;
     private static final AbilityMath.Multipliers NONE = AbilityMath.Multipliers.IDENTITY;

@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ import net.minecraft.world.phys.Vec3;
  * Out of the water by one's own means, the ways in order: its own hat floating upright in reach (stride into it with a braid
  * stroke when it lies within a beckoning reach, swim to the brim otherwise, climb in); its own hat lying capsized (the same closing, right it, let it settle, climb in); its own hat still worn, for a
  * species that uses its hat as a boat (set it down on the open water beside it, climb in); the nearest bank edge it can climb
- * (rise within its climb rise, or a higher edge within its strained scramble rise for a body with the energy to spare; an open
- * landing, open water in front), approached head-on (swim out in front of the edge, then
+ * (rise within its climb rise, or, while no shallower stand it can step onto is in reach, a higher edge within its strained
+ * scramble rise for a body with the energy to spare; an open landing, open water in front), approached head-on (swim out in front of the edge, then
  * to it, climb); else pressing toward the nearest bank, aimed again every few seconds and given up for a better way as soon as
  * one applies. An edge whose climb slipped or found no room is avoided for a while ({@link #AVOID_TICKS}), so the next try uses
  * another. The three own-hat ways are only for a body that sails ({@code ChildhoodLife.canSail}: an adult, or a young whose first
@@ -295,15 +296,25 @@ public final class EscapeWater implements Intent {
     /** The nearest edge the body can climb now: within its climb or strained scramble rise, landing clear, not avoided, reached through the water. */
     private Edge climbable() {
         var ability = BodyAbility.of(body);
-        // An edge within the plain climb first; failing that, a higher one it can strain over (a hop and a hook of the braid, which
-        // costs energy), so a body fallen from a bank does not press against the wall it cannot pull up the plain way.
-        for (double rise : new double[]{ability.climbRise(), ability.scrambleRise()}) {
-            for (var land : stands()) {
-                var pos = pathCell(land);
-                if (land.y - body.getY() > rise || avoid.containsKey(pos)) continue;
-                Edge edge = edge(pos, land);
-                if (edge != null && route(pos)) return edge;
-            }
+        double climb = ability.climbRise();
+        Edge plain = bankEdge(climb);
+        if (plain != null) return plain;
+        // Failing that, a higher one it can strain over (a hop and a hook of the braid, which costs energy), so a body fallen from
+        // a bank does not press against the wall it cannot pull up the plain way — but only while no shallower stand it can step
+        // onto out of the water is in reach: that walk-out is the bank.
+        boolean plainWay = stands().stream().anyMatch(land -> !tried.contains(land)
+                && SurfaceApproach.clearLastStep(body, body.position(), land));
+        double rise = AbilityMath.bankRise(ability.hopHeight(), climb, plainWay);
+        return rise > climb ? bankEdge(rise) : null;
+    }
+
+    /** The nearest stand within {@code rise} of the feet, its face on the water, landing clear and reached through it, in the order {@link #stands} gives. */
+    private Edge bankEdge(double rise) {
+        for (var land : stands()) {
+            var pos = pathCell(land);
+            if (land.y - body.getY() > rise || avoid.containsKey(pos)) continue;
+            Edge edge = edge(pos, land);
+            if (edge != null && route(pos)) return edge;
         }
         return null;
     }

@@ -108,6 +108,12 @@ public final class AbilityMath {
         return Math.max(climbRise, SCRAMBLE_SHARE * (hopHeight + climbRise));
     }
 
+    /** The highest bank edge (blocks) it takes at once: only within the plain climb while a shallow stand it can step onto
+     *  out of the water is in reach, else the strained scramble over a higher one. */
+    public static double bankRise(double hopHeight, double climbRise, boolean plainWay) {
+        return plainWay ? climbRise : scrambleRise(hopHeight, climbRise);
+    }
+
     public static double fitness(double energy, double health, double maxHealth, double pain, boolean burned,
                                  Coefficients c, Multipliers m) {
         double stamina = Math.clamp(energy / (c.energyRef() * m.factor("energy_ref")), 0, 1);
