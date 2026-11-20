@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -203,8 +204,6 @@ public final class IndependenceLife extends Goal {
         return chance;
     }
     @Override public boolean canUse() {
-        // The parent's side comes first: a child it recognises is saying goodbye to it.
-        if (seeOffReady()) { task = Task.SEE_OFF; return true; }
         if (independent || loadGrace > 0 || wait > 0 || !ready() || !member()) return false;
         wait = armed ? 100 : CHECK_INTERVAL;
         if (!eligible()) return false;
@@ -436,14 +435,32 @@ public final class IndependenceLife extends Goal {
     private int looked;
 
     // ---- the parent's side -------------------------------------------------------------------------------------------------------
+    public Goal seeOffGoal() { return new SeeOffGoal(); }
+
+    private final class SeeOffGoal extends Goal {
+        SeeOffGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return task == Task.NONE && seeOffReady(); }
+        @Override public void start() { task = Task.SEE_OFF; IndependenceLife.this.start(); }
+        @Override public boolean canContinueToUse() { return task == Task.SEE_OFF && IndependenceLife.this.canContinueToUse(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { IndependenceLife.this.tick(); }
+        @Override public void stop() { if (task == Task.SEE_OFF) IndependenceLife.this.stop(); }
+        @Override public String toString() { return "SeeOffGoal"; }
+    }
+
     /** A child of this parent has begun its goodbye to it; the parent sees it off when it is free to. */
     void seeOff(YukkuriEntity child) { seeing = child.getUUID(); seeUntil = level().getGameTime() + SEE_OFF_LIMIT; }
     boolean seeingOff(YukkuriEntity child) { return task == Task.SEE_OFF && running && child.getUUID().equals(seeing); }
     private boolean attached() { return entity.life().personality().temperament().is(Gate.ATTACHED); }
     private boolean parentFree() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isPanicking() && !entity.isCommandPlaying()
-                && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
-                && !entity.isInWaterOrBubble() && !entity.isOnFire() && entity.life().mealTicks() == 0 && !entity.family().laboring();
+        return FarewellArbitration.canAnswer(steady() && !entity.life().protectsStep() && !BehaviorContinuity.emergency(entity), this::parentOnDuty);
+    }
+    private boolean parentOnDuty() {
+        var family = entity.family();
+        var settlement = entity.settlement();
+        return entity.duty().claimed() || family.active() || family.claimHomeWatch() || family.stockedChildMealDue()
+                || entity.forageTrip().outing() || settlement.underway() || settlement.duties().pit().penned()
+                || settlement.duties().workPending() || WildEvents.reserved(entity);
     }
     private boolean seeOffReady() {
         if (seeing == null) return false;
@@ -454,7 +471,7 @@ public final class IndependenceLife extends Goal {
                 : !coolWindow(child).open(entity.distanceToSqr(child)))) {
             seeing = null; return false;
         }
-        return parentFree() && FarewellWindow.inRange(entity.distanceToSqr(child)) && (attached || steady() && coolCanAnswer(child));
+        return FarewellWindow.inRange(entity.distanceToSqr(child)) && (attached || coolCanAnswer(child)) && parentFree();
     }
     private boolean seeOffValid() {
         var child = seen();

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.event.HomeClaimGoal;
 import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
 import io.github.longshou.mcyukkuri.event.WildEventGoal;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.FarewellArbitration;
 import io.github.longshou.mcyukkuri.family.LeaveHostGoal;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.intent.Conductor;
@@ -144,10 +145,12 @@ final class YukkuriGoals {
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.CANNIBALISM, owner.cannibalism()));
         owner.createOffering();
         goalSelector.addGoal(2, presentationGoals.bind(PresentationGoals.SELF_OFFERING, owner.offering()));
-        goalSelector.addGoal(4, basicBinding(PresentationGoals.HABITAT, new HabitatGoal()));
         owner.createIndependence();
+        // A reply may displace errands. Earlier priority-3 owners win ties, and the reply yields to active duties.
+        goalSelector.addGoal(FarewellArbitration.ANSWER_PRIORITY, landBinding(PresentationGoals.INDEPENDENCE, owner.independence().seeOffGoal()));
+        goalSelector.addGoal(4, basicBinding(PresentationGoals.HABITAT, new HabitatGoal()));
         // Priority 4: at 6 the (also priority 6) social goals kept the move flag whenever the child was seeking its parents' company, so the leave-taking never got its turn.
-        goalSelector.addGoal(4, landBinding(PresentationGoals.INDEPENDENCE, owner.independence()));
+        goalSelector.addGoal(FarewellArbitration.DEPARTURE_PRIORITY, landBinding(PresentationGoals.INDEPENDENCE, owner.independence()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.DUTIES, new SettlementDutyGoal()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.SETTLEMENT, new SettlementGoal()));
         // A migration (discussion, packing, march) outranks daily, social and family routines; the life needs (3) still come first.
