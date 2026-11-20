@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,6 +23,7 @@ public final class FlightPlanner {
     private static final double CLEARANCE = 3.8;
     private final YukkuriEntity body;
     private final FailedRetreat<Vec3> failed = new FailedRetreat<>();
+    private float failedWidth, failedHeight;
     private LivingEntity source;
     private Direction heading;
     private long plannedAt = Long.MIN_VALUE / 2;
@@ -99,7 +101,7 @@ public final class FlightPlanner {
     public void retreatToward(Vec3 danger, Vec3 anchor) {
         double distance = body.position().distanceTo(anchor);
         if (distance < 1.5) return;
-        if (failed.holds(null, body.position(), danger, anchor)) return;
+        if (holdsFailure(null, danger, anchor)) return;
         failed.clear();
         source = null;
         plannedAt = body.level().getGameTime();
@@ -161,7 +163,7 @@ public final class FlightPlanner {
     public void fleeWithoutSource() {
         var navigation = body.getNavigation();
         if (!navigation.isDone()) return;
-        if (failed.holds(null, body.position(), null, null)) return;
+        if (holdsFailure(null, null, null)) return;
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
         failed.clear();
         source = null;
@@ -173,9 +175,22 @@ public final class FlightPlanner {
     }
 
     public boolean cornered(LivingEntity danger) {
+        if (!sameFailedSize()) return false;
         return danger == null ? failed.cornered(null, body.position(), null)
                 : danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576
                     && failed.cornered(danger.getUUID(), body.position(), danger.position());
+    }
+
+    boolean fleeBlocked(LivingEntity danger) {
+        return holdsFailure(danger.getUUID(), danger.position(), null);
+    }
+
+    private boolean holdsFailure(UUID source, Vec3 danger, Vec3 destination) {
+        return sameFailedSize() && failed.holds(source, body.position(), danger, destination);
+    }
+
+    private boolean sameFailedSize() {
+        return body.getBbWidth() == failedWidth && body.getBbHeight() == failedHeight;
     }
 
     /** Vanilla notifies even idle navigations when a block's collision changes, including opening a door. */
@@ -192,7 +207,11 @@ public final class FlightPlanner {
         plannedAt = Long.MIN_VALUE / 2;
     }
 
+    void threatLost() { failed.clear(); }
+
     private void noExit(Vec3 danger, Vec3 destination) {
+        failedWidth = body.getBbWidth();
+        failedHeight = body.getBbHeight();
         failed.remember(source == null ? null : source.getUUID(), body.position(), danger, destination);
         route = null;
         SurfaceApproach.halt(body);
@@ -204,7 +223,7 @@ public final class FlightPlanner {
         var dangerAt = danger.position();
         var navigation = body.getNavigation();
         if (danger != shieldedFrom) { shieldedFrom = null; shielded = null; }
-        if (failed.holds(danger.getUUID(), body.position(), dangerAt, den)) return;
+        if (holdsFailure(danger.getUUID(), dangerAt, den)) return;
         boolean changed = source != danger;
         var away = away(den == null ? dangerAt : dangerAt.lerp(den, .5));
         if (!changed && now - plannedAt < 40 && route != null && !navigation.isDone() && route == navigation.getPath()) {

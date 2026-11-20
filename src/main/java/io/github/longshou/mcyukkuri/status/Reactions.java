@@ -454,10 +454,10 @@ public final class Reactions {
                 }
                 case HIDE -> {
                     if (s != null && seal.drive(s)) return;
-                    if (s != null && flight.cornered(s)) return;
+                    if (lostSince != 0 && now - lostSince > 80) { flight.threatLost(); end(100); return; }
+                    if (s != null && flight.fleeBlocked(s) && !safeAt(s)) return;
                     if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) { stage = Stage.RETREAT; ticks = 0; return; }
                     y.getNavigation().stop();
-                    if (lostSince != 0 && now - lostSince > 80) { end(100); return; }
                     if (ticks > 1200) end(600);
                 }
                 default -> { }
