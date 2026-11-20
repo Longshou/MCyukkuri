@@ -50,10 +50,14 @@ def wild_large_boxes(full=16.0, inner_r=14.75):
 
 
 def boxes_for(nest, src=AFTER):
-    if nest in ('yukkuri_nest', 'large_yukkuri_nest'):
-        return collision_of(src)['pet_nest_0' if nest == 'yukkuri_nest' else nest]['boxes']
+    if nest in ('yukkuri_nest', 'straw_nest', 'velvet_nest', 'large_yukkuri_nest'):
+        return collision_of(src)['large_yukkuri_nest' if nest == 'large_yukkuri_nest' else 'pet_nest_0']['boxes']
+    if nest.startswith('pet_nest_fit_'):
+        return collision_of(src)['pet_nest_' + nest.rsplit('_', 1)[1]]['boxes']
     if nest == 'large_wild_nest':
         return wild_large_boxes()
+    if nest == 'predator_nest':
+        return [[-8, -8, 8, 8, 2.4]]            # life/CareBlock: the twig ledge, a full cell 2.4 high
     return []                                   # wild leaf beds have no collision: bodies stand on the ground
 
 
@@ -244,6 +248,10 @@ def wild():
                   '野生大窝：成体 2 + 赤油 4', SZ, 9, az=30),
              tile([g(16), (W, 0, 0, 0, 0, 1), seat(W, REIMU, -7.55, 0, 1.1, 175), seat(W, MARISA, 7.55, 0, 1.1, 200)], '野生大窝：两只 1.1 倍成体', SZ, 9, az=30),
              section(W, 0, '野生大窝 + 两只成体 1.0／1.1', [(1.0, -7.1, RED), (1.1, 7.55, ORANGE)], half=18, size=SZ)]]
+    PN = 'predator_nest'
+    rows.append([tile([g(10), (PN, 0, 0, 0, 0, 1), seat(PN, 'yuk:remilia:neutral', 0, 0, 1.0, 20)], '捕食种枝巢 + 成体 1.0（垫面 2.4）', SZ, 15, el=26),
+                 section(PN, 0, '捕食种枝巢 + 成体 1.0', [(1.0, 0, RED)], size=SZ),
+                 section(PN, 0, '捕食种枝巢 + 成体 1.0', [(1.0, 0, RED)], diagonal=True, size=SZ)])
     # Burrow walls beside the bedding (client/ShelterRenderer.fitAgainstWalls): squeezed on each walled side to the block face.
     for name, units, label, walls in ((W, 0, '野生大窝', [(-1, 0), (-1, -1), (0, -1)]),):
         d = AFTER.load(name)[0]['bounds']
@@ -286,6 +294,80 @@ def lineup():
     print(out)
 
 
+# ---- collision cover --------------------------------------------------------------------------------------------------
+COVER = ['straw_nest', 'yukkuri_nest', 'velvet_nest', *[f'pet_nest_fit_{m}' for m in range(1, 16)],
+         'large_yukkuri_nest', 'large_wild_nest', 'predator_nest']
+COVER_TOL = 1.0                                   # units: within this the body rests on the visible surface
+
+
+def mesh_top(T, xs):
+    """Highest mesh point straight above each (x, z) sample of the square grid xs x xs ([z, x]); 0 where no mesh."""
+    X, Z = np.meshgrid(xs, xs)
+    top = np.zeros_like(X)
+    for a, b, c in T:
+        ix = np.nonzero((xs >= min(a[0], b[0], c[0])) & (xs <= max(a[0], b[0], c[0])))[0]
+        iz = np.nonzero((xs >= min(a[2], b[2], c[2])) & (xs <= max(a[2], b[2], c[2])))[0]
+        den = (b[2] - c[2]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[2] - c[2])
+        if not len(ix) or not len(iz) or abs(den) < 1e-9:
+            continue
+        px, pz = X[np.ix_(iz, ix)], Z[np.ix_(iz, ix)]
+        w0 = ((b[2] - c[2]) * (px - c[0]) + (c[0] - b[0]) * (pz - c[2])) / den
+        w1 = ((c[2] - a[2]) * (px - c[0]) + (a[0] - c[0]) * (pz - c[2])) / den
+        inside = (w0 >= -1e-6) & (w1 >= -1e-6) & (1 - w0 - w1 >= -1e-6)
+        y = w0 * a[1] + w1 * b[1] + (1 - w0 - w1) * c[1]
+        sub = top[np.ix_(iz, ix)]
+        top[np.ix_(iz, ix)] = np.where(inside, np.maximum(sub, y), sub)
+    return top
+
+
+def cover_of(nest, src=AFTER, step=.25):
+    """Visible top against the collision top over a grid: (xs, mesh top, collision top, numbers). `gap` is collision above
+    the mesh (a body floats, or meets an unseen wall), `over` the mesh above the collision (a body sinks into it), both
+    over the collision footprint; `bare` is mesh higher than COVER_TOL outside it (walked through)."""
+    data, _ = src.load(nest)
+    half = max(16.0, max(abs(v) for axis in (0, 2) for v in data['bounds'][axis]))
+    xs = np.arange(-half + step / 2, half, step)
+    mesh = mesh_top(tris(src, nest), xs)
+    boxes = boxes_for(nest, src)
+    coll = np.array([[top_at(boxes, x, z) for x in xs] for z in xs])
+    foot = coll > 0
+    gap, over = np.where(foot, coll - mesh, 0), np.where(foot, mesh - coll, 0)
+    area = foot.sum() or 1
+    return xs, mesh, coll, {'gap': float(gap.max()), 'gap_share': float((gap > COVER_TOL).sum() / area),
+                            'over': float(over.max()), 'over_share': float((over > COVER_TOL).sum() / area),
+                            'bare': float(np.where(foot, 0, mesh).max())}
+
+
+def cover():
+    """Top views of every nest: grey where collision and mesh agree within COVER_TOL, blue where the collision stands above
+    the visible surface, red where the mesh rises above the collision, pale where only the mesh is, dark where neither."""
+    SZ = (300, 330)
+    tiles, lines = [], []
+    for nest in COVER:
+        xs, mesh, coll, n = cover_of(nest)
+        d = coll - mesh
+        rgb = np.zeros(mesh.shape + (3,), np.uint8)                  # rows run along z from -half: -z at the top
+        rgb[:] = (70, 74, 80)
+        rgb[(coll == 0) & (mesh > .05)] = (200, 190, 160)
+        rgb[(coll > 0) & (abs(d) <= COVER_TOL)] = (170, 176, 170)
+        rgb[(coll > 0) & (d > COVER_TOL)] = (60, 90, 220)
+        rgb[(coll > 0) & (d < -COVER_TOL)] = (220, 60, 50)
+        im = Image.fromarray(rgb, 'RGB').resize((SZ[0] - 20, SZ[0] - 20), Image.NEAREST)
+        t = Image.new('RGBA', SZ, BG)
+        t.paste(im, (10, 46))
+        dr = ImageDraw.Draw(t)
+        dr.text((8, 4), nest, font=FS, fill=(0, 0, 0, 255))
+        dr.text((8, 22), f"碰撞高出 {n['gap']:.2f}（>{COVER_TOL:g} 占 {n['gap_share']:.1%}）  模型高出 {n['over']:.2f}（{n['over_share']:.1%}）",
+                font=FS, fill=(0, 0, 0, 255))
+        tiles.append(t)
+        lines.append(f"{nest}: gap {n['gap']:.2f} ({n['gap_share']:.1%} > {COVER_TOL:g}), over {n['over']:.2f} "
+                     f"({n['over_share']:.1%} > {COVER_TOL:g}), mesh outside collision up to {n['bare']:.2f}")
+    rows = [tiles[i:i + 6] for i in range(0, len(tiles), 6)]
+    sheet(rows, PREVIEWS / 'pet-goods/cover.png', f'碰撞覆盖（俯视，-z 在上）：灰＝模型顶面与碰撞顶面相差 ≤{COVER_TOL:g}，蓝＝碰撞高于模型，'
+          '红＝模型高于碰撞，浅黄＝只有模型、无碰撞', SZ)
+    print('\n'.join(lines))
+
+
 if __name__ == '__main__':
     for w in sys.argv[1:] or ['pet', 'wild', 'lineup']:
-        {'pet': pet, 'wild': wild, 'lineup': lineup}[w]()
+        {'pet': pet, 'wild': wild, 'lineup': lineup, 'cover': cover}[w]()

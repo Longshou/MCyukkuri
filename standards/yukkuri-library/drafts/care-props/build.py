@@ -3,14 +3,15 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: the three oil-grain bags, food scrap, waste and leaked filling on the low-poly kit; the block-style
-placed goods through vanilla_props.py (food bowl, its heap-only grain / wheat / forage fills, the three grades of pet bed
-and their fitted shapes, the sand toilet clean and dirty and every non-default dye style, including the 2x2 woven nest's),
-and the block-style forage pile and three carriers (block-props/nests.py, devices.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
+Props authored here: the three oil-grain bags, food scrap, waste and leaked filling on the low-poly kit; the placed goods
+through vanilla_props.py (the block-style food bowl, its heap-only grain / wheat / forage fills, waterer and sand toilet
+clean and dirty from block-props/devices.py; the rounded three grades of pet bed and their fitted shapes from placed.py;
+every non-default dye style, including the 2x2 woven nest's), and the block-style forage pile and three carriers
+(block-props/forage.py, devices.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
 Food mash is exported by its own package builder, which imports this folder. The self-built nests of wild yukkuri
 (forest_burrow, personal_leaf_nest, bedding_bundle) are authored by wild.py and exported by ecology/wild-shelters/build.py;
-the predator twig nest (block-props/nests.py) by art/props/predators/build.py.
+the predator twig nest and its frame stages (wild.py, vanilla texture references) by art/props/predators/build.py.
 Shared palette: art/props/palette.json. Every shape is new and awaiting user confirmation.
 """
 import argparse, io, json, sys
@@ -20,7 +21,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / 'scripts'))
-import kit, bags, small, goods, vanilla_props, placed, devices, nests
+import kit, bags, small, goods, vanilla_props, placed, devices, forage
 from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
@@ -32,7 +33,7 @@ COLLISION = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/car
 BUILD = {
     **vanilla_props.PROPS,
     **vanilla_props.VARIANTS,
-    'forage_pile': nests.forage_pile,
+    'forage_pile': forage.forage_pile,
     'oil_grain_budget': bags.oil_grain_budget,
     'oil_grain_regular': bags.oil_grain_regular,
     'oil_grain_premium': bags.oil_grain_premium,

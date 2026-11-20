@@ -79,7 +79,7 @@ def main():
     nest = ('predator_nest', 8, 0, 0, 0, 1)
     stage = lambda n, dx=0, dy=0, dz=0: ('m:predator_nest_frame_%d' % n, 8, dx, dy, dz, 1)
     row1 = [tile(src, [log, stage(n)], STAGES[n], size, 13) for n in range(1, 8)]
-    row1.append(tile(src, [log, nest], '第 8 根：完工的枝巢（现有模型，不改）', size, 13))
+    row1.append(tile(src, [log, nest], '第 8 根：完工的枝巢', size, 13))
     top = [tile(src, [log, stage(n)], f'俯视：{n} 根', size, 13, az=200, el=80) for n in (3, 5, 7)]
     top.append(tile(src, [log, nest], '俯视：完工', size, 13, az=200, el=80))
     canopy = [('leaves', 8, x, 0, z, 1) for x in (-16, 0, 16) for z in (-16, 0, 16)] + [('log', 8, 0, -16, 0, 1)]

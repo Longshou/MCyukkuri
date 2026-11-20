@@ -1,12 +1,12 @@
 """Old/new comparison sheets for redone world props (local preview only; nothing here is shipped).
 
-For each prop ID: its 16x16 inventory icon, the previous runtime mesh (from a Git ref) and the current one at the same
-camera, at 1x (fitted to a 16 px slot) and 4x (the same pixels enlarged); larger renders of both from two views; a turned
+For each prop ID: its 16x16 inventory icon, the previous runtime meshes (from one or more Git refs) and the current one at
+the same camera, at 1x (fitted to a 16 px slot) and 4x (the same pixels enlarged); larger renders of each from two views; a turned
 fixed display (mouth hold, item frame) from the holder's front and side when the item model has one; and both
 beside an adult and a baby yukkuri at their real size. Meshes and textures are read from the runtime resources, so run the
 exporters first. Uses the care-prop software renderer.
 
-Usage: preview.py <out dir> <prop id>... [--before origin/main] [--fill <prop>:<fill id>:<units>] [--levels <prop>:<fill id>]
+Usage: preview.py <out dir> <prop id>... [--before [<label>=]<ref> ...] [--fill <prop>:<fill id>:<units>] [--levels <prop>:<fill id>]
        [--turn <prop>]
 Then publish with `scripts/preview.py collection <topic> --source <out dir> --decision ...`.
 """
@@ -94,10 +94,11 @@ def icon_of(name):
     return ICONS / f'{stem}.png' if (ICONS / f'{stem}.png').exists() else ICONS / 'yukkuri_nest.png'
 
 
-def sheet(name, old, new, fills, turned=False, levels=None):
+def sheet(name, olds, new, fills, turned=False, levels=None, current='新'):
+    """`olds`: [(label, source)] of earlier revisions, drawn before the current tree (labelled `current`) where they hold
+    the prop."""
     icon = Image.open(icon_of(name)).convert('RGBA')
-    has_old = (old.assets / f'yukkuri_props/{name}.json').exists()
-    sources = [('旧', old)] * has_old + [('新', new)]
+    sources = [(tag, old) for tag, old in olds if (old.assets / f'yukkuri_props/{name}.json').exists()] + [(current, new)]
     extra = fills.get(name, [])
     def items(src):
         return [(name, 8, 0, 0, 0, 1)] + [(fill, units, 0, 0, 0, 1) for fill, units in extra]
@@ -122,16 +123,16 @@ def sheet(name, old, new, fills, turned=False, levels=None):
     turn = model.get('display', {}).get('fixed', {}).get('rotation', [0, 0, 0])[1]
     if turn:
         views.append(row([label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1, turn, new)], (320, 260), az, 8)[0]),
-                                f'新 · 固定展示转 {turn:g}° · {what}') for az, what in ((180, '持有者正面'), (270, '持有者侧面'))]))
+                                f'{current} · 固定展示转 {turn:g}° · {what}') for az, what in ((180, '持有者正面'), (270, '持有者侧面'))]))
     if turned:      # a pushed toy slides without turning, so the player sees it from every side: 1x and 4x each 45 degrees
         tiles = [on(BG, shot(new, [(name, 8, 0, 0, 0, 1, yaw, new)], (16, 16))[0]) for yaw in range(0, 360, 45)]
         views.append(label(row([row([pad(t, 24) for t in tiles], 2), row([t.resize((64, 64), Image.NEAREST) for t in tiles], 6)], 24),
-                           '新 · 每 45° 一面（1× 与 4×）'))
+                           f'{current} · 每 45° 一面（1× 与 4×）'))
     if levels:      # a fill drawn per portion (bowl heaps, waterer water): the prop with 0..8 units of it
         _, frame = shot(new, [(name, 8, 0, 0, 0, 1), (levels, 8, 0, 0, 0, 1)], (132, 150))
         tiles = [label(on(BG, shot(new, [(name, 8, 0, 0, 0, 1)] + [(levels, k, 0, 0, 0, 1)] * bool(k), (132, 150), lock=frame)[0]), str(k), 22)
                  for k in range(9)]
-        views.append(label(row(tiles, 4), f'新 · {levels} 每份一档（0–8）'))
+        views.append(label(row(tiles, 4), f'{current} · {levels} 每份一档（0–8）'))
     world = []
     frame = None
     def scene(src):
@@ -152,7 +153,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('out')
     parser.add_argument('props', nargs='+')
-    parser.add_argument('--before', default='origin/main', help='Git ref holding the previous runtime meshes')
+    parser.add_argument('--before', action='append', metavar='[LABEL=]REF',
+                        help='Git ref holding a previous runtime mesh (default origin/main, labelled 旧); repeat for several '
+                             'revisions in order, e.g. --before 改版前=2bd1e42e9^ --before 现在=origin/main')
+    parser.add_argument('--label', default='新', help='label of this tree (default 新)')
     parser.add_argument('--fill', action='append', default=[], metavar='PROP:FILL:UNITS',
                         help='also draw a fill mesh with the prop, e.g. food_bowl:food_bowl_regular:8')
     parser.add_argument('--levels', action='append', default=[], metavar='PROP:FILL',
@@ -166,11 +170,14 @@ def main():
     levels = dict(spec.split(':') for spec in args.levels)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
+    befores = [spec.split('=', 1) if '=' in spec else ['旧' if len(args.before or []) < 2 else spec, spec]
+               for spec in args.before or ['origin/main']]
     with tempfile.TemporaryDirectory() as work:
-        old, new = before_tree(args.before, work), R.Source(ROOT)
+        olds = [(tag, before_tree(ref, Path(work) / str(i))) for i, (tag, ref) in enumerate(befores)]
+        new = R.Source(ROOT)
         for name in args.props:
             path = out / f'{name}.png'
-            sheet(name, old, new, fills, name in args.turn, levels.get(name)).convert('RGB').save(path)
+            sheet(name, olds, new, fills, name in args.turn, levels.get(name), args.label).convert('RGB').save(path)
             print(path)
 
 
