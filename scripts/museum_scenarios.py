@@ -14,6 +14,7 @@ import json
 import math
 import sys
 import uuid
+from itertools import pairwise
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -7512,11 +7513,16 @@ def _verify_park_aid(window, trace):
         return 'The waiter declined and then settled at the invited core'
     frames = [json.loads(line.split('[trace] ', 1)[1]) for line in trace]
     offered_at = int(re.search(r'\bt=(\d+)', offer[0][0])[1])
-    if any(row['k'] == 'st' and row['u'] == _park_waiter_log and offered_at <= row['t'] < int(decision[1])
-           and 'ForageGoal@4' in row['st'].get('goals', ()) for row in frames):
+    answered_at = int(decision[1])
+    # A goal stays active between trace deltas, including when it started before the look-back.
+    goal_changes = [(row['t'], row['st']['goals']) for row in frames if row['k'] == 'st'
+                    and row['u'] == _park_waiter_log and row['t'] < answered_at and 'goals' in row['st']]
+    goal_changes.append((answered_at, ()))
+    if any(max(start, offered_at) < end and 'ForageGoal@4' in goals
+           for (start, goals), (end, _) in pairwise(goal_changes)):
         return 'Ordinary foraging took MOVE before the waiter answered the live gesture'
     clips = [row['st']['animation'] for row in frames if row['k'] == 'st' and row['u'] == _park_waiter_log
-             and row['t'] >= int(decision[1]) and 'animation' in row['st']]
+             and row['t'] >= answered_at and 'animation' in row['st']]
     if staying:
         if 'droop' not in clips or not any(clip != 'droop' for clip in clips[clips.index('droop') + 1:]):
             return 'The waiter did not show the refusal and resume ordinary activity'
@@ -7531,7 +7537,9 @@ def _park_aid_vigil_readout(readout):
     if values[0] != ('1b' if staying else '0b'):
         return 'The saved vigil must reflect the staged waiter’s choice and actual settlement'
     if staying:
-        if len(values) != 5 or not re.search(rf'\bPos: {_park_carton_core}L\b', values[4]) or '"minecraft:overworld"' not in values[4]:
+        if len(values) != 5 or not any('Dimension: "minecraft:overworld"' in entry
+                                      and re.search(rf'\bPos: {_park_carton_core}L\b', entry)
+                                      for entry in re.findall(r'\{[^{}]+\}', values[4])):
             return 'The active vigil must save the declined carton’s dimension and core'
     elif len(values) != 4:
         return 'A completed vigil must clear its carton answers'

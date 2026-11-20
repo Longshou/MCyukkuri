@@ -293,6 +293,8 @@ public final class Kindness extends Goal {
         var clip = ClipMarkers.of(YukkuriAction.OFFER_BITE.id());
         if (contact++ == 0 && act == Act.BITE)
             giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", clip.length());
+        if (act == Act.BITE && giver.reactionAction() == YukkuriAction.OFFER_BITE)
+            guest.forage().pauseForBite(giver.component(YukkuriComponents.MOUTH).stack(Purpose.KINDNESS));
         int cue = act == Act.BITE ? clip.ticks("contact", clip.length() / 2) : CUE;
         if (contact < cue) return;
         switch (act) {

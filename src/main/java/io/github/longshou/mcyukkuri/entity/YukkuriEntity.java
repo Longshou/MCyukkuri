@@ -81,6 +81,7 @@ import io.github.longshou.mcyukkuri.predator.PredatorLife;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.settlement.WinteringLife;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
+import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
@@ -532,6 +533,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public WoundComfort woundComfort() { return woundComfort; }
     public YukkuriSocial social() { return social; }
     public Kindness kindness() { return goals.kindness(); }
+    public ForageGoal forage() { return goals.forage(); }
     public HomeTerritoryGoal homeTerritory() { return goals.homeTerritory(); }
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}

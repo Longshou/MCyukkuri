@@ -59,9 +59,11 @@ final class YukkuriGoals {
     private PresentationGoals presentationGoals;
     private RoamingGoal roaming;
     private Kindness kindness;
+    private ForageGoal forage;
     private HomeTerritoryGoal homeTerritory;
     RoamingGoal roaming() { return roaming; }
     Kindness kindness() { return kindness; }
+    ForageGoal forage() { return forage; }
     HomeTerritoryGoal homeTerritory() { return homeTerritory; }
     YukkuriGoals(YukkuriEntity owner, GoalSelector goalSelector) {
         this.owner = owner;
@@ -138,7 +140,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(4, basicBinding(PresentationGoals.HOUSE, new HouseGoal()));
         owner.createForageTrip();
         goalSelector.addGoal(ForageTrip.GOAL_PRIORITY, basicBinding(PresentationGoals.FORAGE_TRIP, owner.forageTrip()));
-        goalSelector.addGoal(4, basicBinding(PresentationGoals.FORAGE, new ForageGoal(owner)));
+        forage = new ForageGoal(owner);
+        goalSelector.addGoal(4, basicBinding(PresentationGoals.FORAGE, forage));
         owner.createTreasure();
         goalSelector.addGoal(4, landBinding(PresentationGoals.TREASURE, owner.treasure()));
         owner.createCannibalism();

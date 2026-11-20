@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -52,6 +53,13 @@ public final class ForageGoal extends Goal {
     }
 
     private ServerLevel level() { return (ServerLevel)entity.level(); }
+    /** Stay at mouth contact for an edible serving while the donor presents it. */
+    public void pauseForBite(ItemStack serving) {
+        if (running && entity.life().acceptsFood(serving) && !entity.status().reactions().threat().responding()) {
+            SurfaceApproach.halt(entity);
+        }
+    }
+
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS)); }
     /** This goal searches the meadow grass: a diet whose own plants are other ones (the water plants of an aquatic Marisa) has no

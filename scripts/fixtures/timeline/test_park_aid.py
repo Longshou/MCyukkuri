@@ -26,6 +26,11 @@ class ParkAidTests(unittest.TestCase):
         self.assertIsNone(_verify_park_aid(REFUSAL, log(calm).splitlines()))
         interrupted = [record('st', 71, WAITER, st={'goals': ['ForageGoal@4']}), *calm]
         self.assertIn('took MOVE', _verify_park_aid(REFUSAL, log(interrupted).splitlines()))
+        inherited = [record('st', 67, WAITER, st={'goals': ['ForageGoal@4']}),
+                     record('st', 72, WAITER, st={'goals': ['LifeGoal@3']}), *calm]
+        self.assertIn('took MOVE', _verify_park_aid(REFUSAL, log(inherited).splitlines()))
+        inherited[1] = record('st', 69, WAITER, st={'goals': ['LifeGoal@3']})
+        self.assertIsNone(_verify_park_aid(REFUSAL, log(inherited).splitlines()))
 
     def test_refusal_readout_requires_active_vigil_and_exact_site(self):
         def readout(values):
@@ -37,4 +42,7 @@ class ParkAidTests(unittest.TestCase):
         self.assertIsNotNone(_park_aid_vigil_readout(readout(start)))
         self.assertIsNotNone(_park_aid_vigil_readout(readout([*start, answer.replace('overworld', 'the_nether')])))
         self.assertIsNotNone(_park_aid_vigil_readout(readout([*start, answer.replace(f'{_park_carton_core}L', '0L')])))
+        mismatched = (f'[{{Dimension: "minecraft:overworld", Pos: 0L}}, '
+                      f'{{Dimension: "minecraft:the_nether", Pos: {_park_carton_core}L}}]')
+        self.assertIsNotNone(_park_aid_vigil_readout(readout([*start, mismatched])))
         self.assertIsNone(_park_aid_vigil_readout(readout(['0b', _park_former, '59', '6'])))
