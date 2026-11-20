@@ -1138,8 +1138,7 @@ public final class YukkuriLife {
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
             if (mayPress && glassFood == null) {
-                // A visible serving in someone's hand is a nearby invitation. Hunger extends interest from four to eight blocks.
-                double range = Mth.lerp(1 - SocialDisposition.ramp(nutrition, 15, LifeMeal.FULL), 4, 8);
+                double range = FoodWindow.heldFoodRange(nutrition, personality.boldness());
                 for (var player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(range),
                         p -> entity.distanceToSqr(p) <= range * range && seesOfferedWindowFood(p)).stream()
                         .sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
@@ -1154,8 +1153,9 @@ public final class YukkuriLife {
                 pursuitTicks = 0;
                 int suppressed = GameplayLog.admit(entity, "meal", "glass_food_planned", 400);
                 if (suppressed >= 0) GameplayLog.limitedEvent(entity, "meal", suppressed,
-                        "food behind glass target={} kind={} stand={} nutrition={}",
-                        glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassStand), nutrition);
+                        "food behind glass target={} kind={} stand={} nutrition={} boldness={} distance={}",
+                        glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassStand),
+                        nutrition, personality.boldness(), entity.distanceTo(glassFood));
                 return true;
             }
         }
