@@ -3298,21 +3298,21 @@ def counter_reissue_smoke():
         (4, block(19, 0, 0, 'mcyukkuri:exam_podium[facing=east]')),
         (4, human('caretaker_brother', 20, 0, 'decoy_judge', 3)),
         *counter_action(6, 'open', 1),
-        *counter_action(8, 'certify', 0),
-        *counter_action(10, 'reissue', 0),
+        *counter_action(8, 'certify', 0, 'if score #counter_6 museum matches 1 '),
+        *counter_action(10, 'reissue', 0, 'if score #counter_6 museum matches 1 '),
         (11, f'execute store success score #counter_changed museum run data modify storage mcylab:counter serial '
              f'set from entity {_COUNTER_PET} YukkuriPet.Serial'),
-        (12, f'execute if score #counter_changed museum matches 0 if items entity {_COUNTER_OWNER} hotbar.0 {_COUNTER_BRONZE} '
+        (12, f'execute if score #counter_6 museum matches 1 if score #counter_changed museum matches 0 if items entity {_COUNTER_OWNER} hotbar.0 {_COUNTER_BRONZE} '
              'run say COUNTER_UNFUNDED_INTACT'),
         (12, f'item replace entity {_COUNTER_OWNER} hotbar.1 with minecraft:emerald'),
         *counter_action(14, 'reissue', 1, f'if items entity {_COUNTER_OWNER} hotbar.1 {_COUNTER_BRONZE} '),
         *counter_action(16, 'close', 1),
         (17, f'gamemode creative {_COUNTER_OWNER}'),
-        (18, f'yukkuri scenario shop_stock_click {_COUNTER_PET}'),
+        (18, f'execute if score #counter_14 museum matches 1 run yukkuri scenario shop_stock_click {_COUNTER_PET}'),
         (19, f'execute if items entity {_COUNTER_OWNER} hotbar.0 {_COUNTER_BRONZE} '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:0b}} run say COUNTER_STALE_REFUSED'),
         (20, 'yukkuri scenario tool_operator select 1'),
-        (21, f'yukkuri scenario shop_stock_click {_COUNTER_PET}'),
+        (21, f'execute if score #counter_14 museum matches 1 run yukkuri scenario shop_stock_click {_COUNTER_PET}'),
         (22, f'execute unless items entity {_COUNTER_OWNER} hotbar.1 {_COUNTER_BRONZE} '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:1b}} run say COUNTER_PINNED'),
         (24, f'item replace entity {_COUNTER_OWNER} hotbar.1 with minecraft:emerald 2'),

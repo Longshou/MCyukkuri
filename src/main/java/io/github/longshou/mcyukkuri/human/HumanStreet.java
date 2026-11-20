@@ -735,6 +735,7 @@ final class HumanStreet {
         }
 
         boolean outing() { return homeward || !companions.isEmpty(); }
+        void restBeforeNextStroll() { nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80); }
         boolean calling(YukkuriEntity pet) { return called == pet; }
         boolean escorts(YukkuriEntity pet) { return companions.contains(pet) && pet.pet().ownedBy(npc.getUUID()); }
         boolean parkLingering() { return parkOpened != 0; }
@@ -1537,7 +1538,7 @@ final class HumanStreet {
                 homeward = true;
             }
             npc.getNavigation().stop();
-            nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80);
+            restBeforeNextStroll();
             destination = null;
             strollSite = null;
         }

@@ -364,8 +364,10 @@ public final class HumanNpc extends PathfinderMob {
         @Override public boolean canContinueToUse() { return !isTrading() && !atBadgeCounter() && !getNavigation().isDone(); }
 
         @Override public void stop() {
-            if (atBadgeCounter()) GameplayLog.event(HumanNpc.this, "exam", "action=counter_return result=arrived post={}", home().toShortString());
-            else if (getNavigation().isDone()) failedFrom = blockPosition();
+            if (atBadgeCounter()) {
+                stroll().restBeforeNextStroll();
+                GameplayLog.event(HumanNpc.this, "exam", "action=counter_return result=arrived post={}", home().toShortString());
+            } else if (getNavigation().isDone()) failedFrom = blockPosition();
             getNavigation().stop();
         }
     }
@@ -513,7 +515,10 @@ public final class HumanNpc extends PathfinderMob {
             YukkuriGroundNavigation.noticePassage(this, before);
         if (tickCount == 1) returnUnusedDose();
         // The summon/structure loader applies its world position after reading NBT.
-        if (home == null) home = blockPosition();
+        if (home == null) {
+            home = blockPosition();
+            if (badgeCounter()) stroll().restBeforeNextStroll();
+        }
         if (!initialized) {
             initialized = true;
             if (getTags().contains("mcy_street_local")) street.assignVillageAttitude();
