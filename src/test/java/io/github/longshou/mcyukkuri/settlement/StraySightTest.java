@@ -30,6 +30,8 @@ class StraySightTest {
         assertEquals(128, entityRange);
         assertEquals(32, clientRange);
         assertEquals(48, StraySight.trackingRange(256, 3, 12));
+        assertEquals(32, StraySight.trackingRange(128, 1, 12));
+        assertEquals(512, StraySight.trackingRange(1024, 64, 48));
         assertTrue(StraySight.hidden(unqueried, entityRange, 4096, 64, 0, 0, 64, 0, .4, .4));
         assertTrue(StraySight.hidden(unqueried, clientRange, 32, 64, 1, 0, 64, 0, .4, .4));
         StraySight.Terrain open = (x,y,z) -> false;

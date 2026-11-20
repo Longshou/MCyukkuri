@@ -7,7 +7,8 @@ final class StraySight {
     }
 
     static int trackingRange(int scaledEntityRange, int serverViewChunks, int requestedViewChunks) {
-        return Math.min(scaledEntityRange, 16 * Math.clamp(requestedViewChunks, 2, serverViewChunks));
+        int effectiveServerView = Math.clamp(serverViewChunks, 2, 32);
+        return Math.min(scaledEntityRange, 16 * Math.clamp(requestedViewChunks, 2, effectiveServerView));
     }
 
     static boolean hidden(Terrain terrain, int trackingRange, double eyeX, double eyeY, double eyeZ,
