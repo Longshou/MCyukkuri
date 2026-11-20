@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -23,5 +24,8 @@ public final class ShelterIndexEvents {
         if (event.getLevel() instanceof ServerLevel level) LoadedShelters.clear(level);
     }
     public static void stopped(ServerStoppedEvent event) { LoadedShelters.clear(event.getServer()); }
+    public static void tagsUpdated(TagsUpdatedEvent event) {
+        if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) NaturalShelter.tagsReloaded();
+    }
     private ShelterIndexEvents() {}
 }

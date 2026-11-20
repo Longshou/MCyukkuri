@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.BiPredicate;
 
@@ -34,6 +35,13 @@ public final class LeaseTable<K, O> {
         var values = leases.get(key);
         if (values != null) values.forEach((owner, until) -> { if (live(until, now)) result.add(owner); });
         return Collections.unmodifiableSet(result);
+    }
+
+    /** Visit the same live owners as {@link #owners}, without materializing an owner set for each key. */
+    public void forEachLive(long now, BiConsumer<K, O> visitor) {
+        for (var entry : leases.entrySet())
+            for (var owner : entry.getValue().entrySet())
+                if (live(owner.getValue(), now)) visitor.accept(entry.getKey(), owner.getKey());
     }
 
     public boolean owns(K key, O owner, long now) { return owners(key, now).contains(owner); }

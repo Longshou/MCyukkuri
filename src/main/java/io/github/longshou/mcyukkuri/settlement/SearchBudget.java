@@ -30,6 +30,7 @@ public final class SearchBudget {
         io.github.longshou.mcyukkuri.world.SearchBudget.cancel(level, owner, purpose, generation);
     }
     static void probe(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.probe(level); }
+    static void probes(Level level, int count) { io.github.longshou.mcyukkuri.world.SearchBudget.probes(level, count); }
     static void survey(Level level) { io.github.longshou.mcyukkuri.world.SearchBudget.survey(level); }
     static void path(Entity owner) { io.github.longshou.mcyukkuri.world.SearchBudget.path(owner); }
     private SearchBudget() {}

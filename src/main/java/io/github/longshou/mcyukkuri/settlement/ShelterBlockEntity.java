@@ -121,6 +121,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     private boolean dismantling;
     /** Residential cells of a natural home, deepest first. The doorway cell (this core) and the store cell are not among them. */
     private List<BlockPos> naturalBeds=List.of();
+    private final EnclosureCache enclosure = new EnclosureCache();
     private BlockPos naturalEntrance;
     /** The cell inside the cavity where the forage pile goes, and the cell beside it the mouth touches it from; null in old or tiny homes. */
     private BlockPos naturalPile,naturalPileStand;
@@ -548,8 +549,11 @@ public final class ShelterBlockEntity extends BlockEntity {
     }
     public boolean sound() {
         return (kind()==ShelterBlock.Kind.BURROW||condition>0) && complete() && !beds().isEmpty() && !flooded()
-                && (kind()==ShelterBlock.Kind.CARDBOARD ? cartonHasFloor() : beds().stream().allMatch(pos->NaturalShelter.enclosed(level,pos)))
-                && (kind()!=ShelterBlock.Kind.BURROW||NaturalShelter.enclosed(level,worldPosition));
+                && switch (kind()) {
+                    case CARDBOARD -> cartonHasFloor();
+                    case BURROW -> NaturalShelter.burrowEnclosed(level, worldPosition, naturalBeds, enclosure);
+                    default -> beds().stream().allMatch(pos -> NaturalShelter.enclosed(level, pos));
+                };
     }
     public boolean usable(YukkuriEntity entity) {
         var bed=bed(entity.getUUID());

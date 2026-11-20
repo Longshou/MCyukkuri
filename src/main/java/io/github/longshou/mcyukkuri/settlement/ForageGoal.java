@@ -54,7 +54,6 @@ public final class ForageGoal extends Goal {
     private ServerLevel level() { return (ServerLevel)entity.level(); }
     private boolean grass(BlockPos pos) { return level().hasChunkAt(pos) && Grazing.edible(level().getBlockState(pos)); }
     private boolean edible(BlockPos pos) { return grass(pos) && entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS)); }
-    private boolean edible(BlockPos pos, boolean seeksGrass) { return grass(pos) && seeksGrass; }
     /** This goal searches the meadow grass: a diet whose own plants are other ones (the water plants of an aquatic Marisa) has no
      *  search and no sweep here, so hunger never walks it inland after food it does not pick. */
     private boolean grazes() { return entity.profile().diet().edible(Blocks.SHORT_GRASS.defaultBlockState()); }
@@ -126,15 +125,16 @@ public final class ForageGoal extends Goal {
         var found = new ArrayList<BlockPos>();
         boolean seeksGrass = entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS));
         var centre = entity.blockPosition();
+        var level = level();
+        var probe = new BlockPos.MutableBlockPos();
         // Food within reach is a plant on that column's own ground, whatever its height: a member standing on the burrow
         // hill top sees the meadow below it (a few layers around its own feet never showed it anything down there).
-        for (int dx = -reach; dx <= reach; dx++) for (int dz = -reach; dz <= reach; dz++) {
-            var column = centre.offset(dx, 0, dz);
-            if (!level().hasChunkAt(column)) continue;
-            int top = level().getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.getX(), column.getZ());
+        if (seeksGrass) for (int dx = -reach; dx <= reach; dx++) for (int dz = -reach; dz <= reach; dz++) {
+            int x = centre.getX() + dx, z = centre.getZ() + dz;
+            if (!level.hasChunkAt(x, z)) continue;
+            int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             for (int y = top; y <= top + 1; y++) {
-                var pos = new BlockPos(column.getX(), y, column.getZ());
-                if (edible(pos, seeksGrass)) found.add(pos);
+                if (Grazing.edible(level.getBlockState(probe.set(x, y, z)))) found.add(probe.immutable());
             }
         }
         // A claim from an earlier offer that the goal selector never started would otherwise linger.

@@ -183,7 +183,8 @@ public final class SearchBudget {
             frame.lease.actual = add(frame.lease.actual, units);
     }
     /** Logical probes: enclosed / stand entries and explicitly marked candidate or external dry-stand checks. */
-    public static void probe(Level level) { charge(level, null, 1); }
+    public static void probe(Level level) { probes(level, 1); }
+    public static void probes(Level level, int count) { charge(level, null, count); }
     public static void survey(Level level) { charge(level, null, SURVEY_UNITS); }
     /** A path-capable API attempt, including assignNaturalHome's possible early return; not an A* count. */
     public static void path(Entity owner) { charge(owner.level(), owner, PATH_UNITS); }

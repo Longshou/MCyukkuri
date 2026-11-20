@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.Set;
@@ -35,25 +36,47 @@ public final class ForageClaims {
     /** The group's latest sighting excludes plant and forage sites while the threat is remembered. */
     public static boolean threatZone(YukkuriEntity forager, BlockPos site) {
         var group = forager.settlement().group();
-        if (group == null || group.threatPos == null || !PlantSites.threatened(group.threat,
-                (double)site.getX() - group.threatPos.getX(), (double)site.getZ() - group.threatPos.getZ())) return false;
+        return group != null && threatZone(forager, site, group.threatPos, group.threat);
+    }
+
+    record Threat(BlockPos sighting, int strength) {
+        static final Threat NONE = new Threat(null, 0);
+        boolean excludes(YukkuriEntity forager, BlockPos site) { return threatZone(forager, site, sighting, strength); }
+    }
+
+    static Threat threat(YukkuriEntity forager) {
+        var group = forager.settlement().group();
+        return group == null || group.threatPos == null || group.threat <= 0
+                ? Threat.NONE : new Threat(group.threatPos, group.threat);
+    }
+
+    private static boolean threatZone(YukkuriEntity forager, BlockPos site, BlockPos sighting, int strength) {
+        if (sighting == null || !PlantSites.threatened(strength,
+                (double)site.getX() - sighting.getX(), (double)site.getZ() - sighting.getZ())) return false;
         int suppressed = GameplayLog.admit(forager, "forage", "threat_zone", 200);
         if (suppressed >= 0) GameplayLog.limitedEvent(forager, "forage", suppressed,
-                "forage skipped reason=threat_zone site={} sighting={} threat={}", site, group.threatPos, group.threat);
+                "forage skipped reason=threat_zone site={} sighting={} threat={}", site, sighting, strength);
         return true;
     }
 
     public static Stream<BlockPos> plantSites(YukkuriEntity forager, List<BlockPos> candidates) {
+        if (candidates.isEmpty()) return Stream.empty();
         var level = (ServerLevel)forager.level();
-        return PlantSites.nearest(candidates, pos -> forager.distanceToSqr(Vec3.atCenterOf(pos)),
-                pos -> !taken(level, pos, forager.getUUID()) && !threatZone(forager, pos));
+        var server = level.getServer();
+        var dimension = level.dimension();
+        var owner = forager.getUUID();
+        var taken = new LongOpenHashSet();
+        CLAIMS.forEachLive(level.getGameTime(), (key, claim) -> {
+            if (key.server == server && key.dimension.equals(dimension) && !claim.owner.equals(owner)) taken.add(key.pos);
+        });
+        var threat = threat(forager);
+        var from = forager.position();
+        // This stream is consumed within the search. Claim acquisition and in-transit threat checks stay live.
+        return PlantSites.nearest(candidates, pos -> from.distanceToSqr(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5),
+                pos -> !taken.contains(pos.asLong()) && !threat.excludes(forager, pos));
     }
 
     private static Key key(ServerLevel level, BlockPos pos) { return new Key(level.getServer(), level.dimension(), pos.asLong()); }
-    /** True when somebody other than {@code by} holds a live claim on this block. */
-    public static boolean taken(ServerLevel level, BlockPos pos, UUID by) {
-        return CLAIMS.owners(key(level, pos), level.getGameTime()).stream().anyMatch(claim -> !claim.owner.equals(by));
-    }
     public static Claim claim(ServerLevel level, BlockPos pos, UUID by) {
         long now = level.getGameTime();
         if (CLAIMS.size() > 512) CLAIMS.prune(now);

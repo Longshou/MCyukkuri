@@ -258,6 +258,7 @@ public final class ForageTrip extends Goal {
     /** A bounded sample of actual plants near home, taken only when a budgeted trip is about to begin. */
     @Nullable private BlockPos nearbyMeadow(ShelterBlockEntity home) {
         BlockPos exit = outside(home);
+        var threat = ForageClaims.threat(entity);
         int plants = 0;
         BlockPos nearest = null;
         for (int dx = -12; dx <= 12; dx += 3) for (int dz = -12; dz <= 12; dz += 3) {
@@ -272,7 +273,7 @@ public final class ForageTrip extends Goal {
             for (int dy = -1; dy <= 1; dy++) {
                 var pos = new BlockPos(column.getX(), y + dy, column.getZ());
                 if (level().getFluidState(pos).isEmpty() && Grazing.edible(level().getBlockState(pos))) {
-                    if (ForageClaims.threatZone(entity, stand)) break;
+                    if (threat.excludes(entity, stand)) break;
                     plants++;
                     if (nearest == null || stand.distSqr(exit) < nearest.distSqr(exit)) nearest = stand;
                 }
@@ -286,31 +287,31 @@ public final class ForageTrip extends Goal {
      * best of several random bearings. Only loaded chunks are considered; the trip itself walks there in legs.
      */
     private BlockPos chooseDestination(ShelterBlockEntity home, int r) {
+        var threat = ForageClaims.threat(entity);
         // Inside-out: the nearest ring that holds a meadow, so a trip is never longer than the food requires.
         for (int ring = Math.min(24, r); ; ring = Math.min(ring + 16, r)) {
-            var spot = destinationFrom(home.getBlockPos(), ring, false);
+            var spot = destinationFrom(home.getBlockPos(), ring, threat);
             if (spot != null || ring == r) return spot;
         }
     }
     /** A meadow {@code 0.5..1.0 x r} blocks from {@code origin}; used by the leader to pick the hunting ground. */
-    BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, true); }
-    private BlockPos destinationFrom(BlockPos origin, int r, boolean hunt) {
+    BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, ForageClaims.Threat.NONE); }
+    private BlockPos destinationFrom(BlockPos origin, int r, ForageClaims.Threat threat) {
         var level = level(); BlockPos best = null; int bestCount = 3;
         for (int attempt = 0; attempt < 6; attempt++) {
             double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (.5 + entity.getRandom().nextDouble() * .5);
             int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
-            var column = new BlockPos(x, origin.getY(), z);
-            if (!level.hasChunkAt(column)) continue;
+            if (!level.hasChunkAt(x, z)) continue;
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             var spot = new BlockPos(x, y, z);
             if (Math.abs(y - origin.getY()) > 12 || TownAware.inTown(level, spot)
                     || !level.getFluidState(spot.below()).isEmpty() || !level.getFluidState(spot).isEmpty()) continue;
-            if (!hunt && ForageClaims.threatZone(entity, spot)) continue;
+            if (threat.excludes(entity, spot)) continue;
             int count = 0;
             for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) for (int dy = -2; dy <= 2; dy++) {
                 var p = spot.offset(dx, dy, dz);
                 if (level.hasChunkAt(p) && Grazing.edible(level.getBlockState(p))
-                        && (hunt || !ForageClaims.threatZone(entity, p))) count++;
+                        && !threat.excludes(entity, p)) count++;
             }
             if (count > bestCount) { bestCount = count; best = spot; }
         }
