@@ -11,14 +11,21 @@ final class FailedRetreat<P> {
     private UUID source, keeper;
     private P feet, danger, destination, refuge;
 
+    /** A panic with no known source (fire, thorns) has nothing to wait for: it searches again after a second. */
+    static final int SOURCELESS_RETRY_TICKS = 20;
+
     void remember(UUID source, P feet, P danger, P destination, long now, UUID keeper, P refuge) {
+        remember(source, feet, danger, destination, now, keeper, refuge, RETRY_TICKS);
+    }
+
+    void remember(UUID source, P feet, P danger, P destination, long now, UUID keeper, P refuge, int retryTicks) {
         this.source = source;
         this.feet = feet;
         this.danger = danger;
         this.destination = destination;
         this.keeper = keeper;
         this.refuge = refuge;
-        retryAt = now + RETRY_TICKS;
+        retryAt = now + retryTicks;
     }
 
     boolean stillApplies(long now, UUID keeper, P refuge) {

@@ -39,6 +39,13 @@ class FailedRetreatTest {
         assertFalse(failure.stillApplies(142, null, 13));
     }
 
+    @Test void sourcelessPanicSearchesAgainAfterOneSecond() {
+        var failure = new FailedRetreat<Integer>();
+        failure.remember(null, 2, null, null, 100, null, null, FailedRetreat.SOURCELESS_RETRY_TICKS);
+        assertTrue(failure.stillApplies(119, null, null));
+        assertFalse(failure.stillApplies(120, null, null));
+    }
+
     @Test void evictionKeepsItsDangerAndAnchorSeparateFromSourcelessPanic() {
         var failure = new FailedRetreat<Integer>();
         failure.remember(null, 2, 1, 16, 100, null, null);

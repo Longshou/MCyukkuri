@@ -10,7 +10,9 @@ import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
@@ -194,7 +196,38 @@ public final class FlightPlanner {
                 return;
             }
         }
+        // Ten random stands can all miss in a tight yard; sweep the compass, away from a burning block when one is close.
+        var hot = hotSpot();
+        var origin = hot != null ? hot : body.position().add(body.getRandom().nextDouble() - .5, 0, body.getRandom().nextDouble() - .5);
+        var heading = away(origin);
+        for (double stride : STRIDES) {
+            for (int angle = 0; angle < 360; angle += 45) {
+                var ray = heading.rotate(angle == 0 ? 0 : angle > 180 ? angle - 360 : angle);
+                var stand = SurfaceApproach.retreatFloor(body, body.position().add(ray.x() * 6 * stride, 0, ray.z() * 6 * stride));
+                if (stand == null || BlockPos.containing(stand).equals(body.blockPosition())
+                        || hot != null && FlightCourse.passesNearThreat(body.getX(), body.getZ(), stand.x, stand.z, hot.x, hot.z, 1.5)) continue;
+                var path = navigation.createPath(BlockPos.containing(stand), 0);
+                if (path != null && path.canReach() && SurfaceApproach.startRetreat(body, path, 1.2)) {
+                    route = navigation.getPath();
+                    return;
+                }
+            }
+        }
         noExit(null, null);
+    }
+
+    /** The nearest fire or lava cell within three blocks, which a burnt body runs away from. */
+    private Vec3 hotSpot() {
+        Vec3 nearest = null;
+        double best = Double.MAX_VALUE;
+        for (var pos : BlockPos.betweenClosed(body.blockPosition().offset(-3, -1, -3), body.blockPosition().offset(3, 2, 3))) {
+            var state = body.level().getBlockState(pos);
+            if (!(state.getBlock() instanceof BaseFireBlock) && !state.getFluidState().is(FluidTags.LAVA)) continue;
+            var centre = Vec3.atCenterOf(pos);
+            double distance = centre.distanceToSqr(body.position());
+            if (distance < best) { best = distance; nearest = centre; }
+        }
+        return nearest;
     }
 
     public boolean cornered(LivingEntity danger) {
@@ -239,7 +272,8 @@ public final class FlightPlanner {
         failedHeight = body.getBbHeight();
         var keeper = source == null ? null : keeper(source);
         failed.remember(source == null ? null : source.getUUID(), body.position(), danger, destination,
-                body.level().getGameTime(), keeper == null ? null : keeper.getUUID(), source == null ? null : refugeStand());
+                body.level().getGameTime(), keeper == null ? null : keeper.getUUID(), source == null ? null : refugeStand(),
+                source == null && danger == null && destination == null ? FailedRetreat.SOURCELESS_RETRY_TICKS : 200);
         route = null;
         SurfaceApproach.halt(body);
         GameplayLog.limited(body, "threat", "flight.cornered", 100, "flight cornered danger={}", source == null ? null : source.getUUID());
