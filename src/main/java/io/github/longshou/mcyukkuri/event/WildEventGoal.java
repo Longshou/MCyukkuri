@@ -17,6 +17,10 @@ public final class WildEventGoal extends Goal {
     @Override public boolean canUse(){
         if (!WildEvents.reserved(entity) || entity.life().mealTicks()!=0
                 || entity.life().hasUrgentNeed() && !(badge && BadgeArcs.handlesFoodHunger(entity))) return false;
+        if (entity.outing().onEscortLead()) {
+            var scene = WildEventData.get((ServerLevel) entity.level()).controlling(entity.getUUID());
+            if (scene != null && WildEvents.optionalPerformance(scene.kind, scene.card)) return false;
+        }
         if (badge) return BadgeArcs.running(entity) && BadgeArcs.canMove(entity);
         return !BadgeArcs.running(entity) && WildEvents.safe(entity) && !entity.dailyLife().active() && !entity.social().active();
     }

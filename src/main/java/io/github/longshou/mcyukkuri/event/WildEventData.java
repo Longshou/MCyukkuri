@@ -117,6 +117,8 @@ public final class WildEventData extends SavedData {
         boolean opportunity = kind == Kind.BADGE_ARC;
         if (!canStart(origin, members, now, opportunity)) return null;
         var level = server.getLevel(origin.dimension());
+        if (WildEvents.optionalPerformance(kind, card) && members.stream().anyMatch(id ->
+                level.getEntity(id) instanceof YukkuriEntity pet && !pet.outing().permitsPerformance(true))) return null;
         if (opportunity && !membersFree(members))
             for (var current : scenes()) if (yieldsTo(current, members))
                 WildEvents.yieldForOpportunity(server, current);

@@ -94,6 +94,8 @@ public final class BadgeArcs {
     /** Null when the arc could start; otherwise a short machine reason (shown by the admin command). */
     public static String check(ServerLevel level, Arc arc, YukkuriEntity o, YukkuriEntity s, Player player, YukkuriEntity extra) {
         if (o == s || !o.isAlive() || !s.isAlive() || o.level() != level || s.level() != level) return "invalid_pair";
+        if (!o.outing().permitsPerformance(arc.optionalPerformance()) || !s.outing().permitsPerformance(arc.optionalPerformance()))
+            return "outing_lead";
         if (!usable(o) || !WildEvents.availableForOpportunity(o)) return "observer_unavailable";
         if (!subjectReady(s, arc == Arc.BEG_BITE)) return "subject_unavailable";
         if (!WildEventData.get(level).opportunitySlot(s.getUUID())) return "subject_in_scene";

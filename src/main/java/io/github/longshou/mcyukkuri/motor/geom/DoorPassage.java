@@ -1,5 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.geom;
 
+import java.util.function.Function;
+
 /** The frame occupies [0, 1] along the direction of travel. */
 public final class DoorPassage {
     public enum Escort { WAIT, CLEARED, LAGGING }
@@ -7,6 +9,18 @@ public final class DoorPassage {
 
     public static boolean cleared(double nearEdge, double farEdge, boolean positive) {
         return positive ? nearEdge >= 1 : farEdge <= 0;
+    }
+
+    public static boolean overlaps(double low, double high) { return low < 1 && high > 0; }
+
+    /** The saved crossing direction wins when a finished route is no longer available. */
+    public static boolean stopSide(Boolean routeSide, double target, double centre) {
+        return routeSide != null ? routeSide : (target == .5 ? centre : target) >= .5;
+    }
+
+    public static <T> T stopStand(boolean positive, Function<Boolean, T> available) {
+        T stand = available.apply(positive);
+        return stand != null ? stand : available.apply(!positive);
     }
 
     /** Wait on the second far-side cell so the first is available to the follower. */

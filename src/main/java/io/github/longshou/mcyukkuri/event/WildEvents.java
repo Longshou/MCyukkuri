@@ -76,6 +76,17 @@ public final class WildEvents {
                     && token.source()==EventReservations.Source.WILD && leisure(WildEventData.get(level).scene(token.id())));
     }
     private static boolean leisure(Scene scene) { return scene.kind==Kind.CARD && WildCards.leisure(scene.card); }
+    static boolean optionalPerformance(Kind kind, String card) {
+        return switch (kind) {
+            case CARD -> WildCards.leisure(card);
+            case BADGE_ARC -> {
+                var arc = Arc.byId(card);
+                yield arc != null && arc.optionalPerformance();
+            }
+            case CONCERT, EXPEDITION -> true;
+            default -> false;
+        };
+    }
     private static boolean availableBody(YukkuriEntity e) {
         return safe(e)
                 && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !HomeClaim.holds(e)
@@ -238,6 +249,10 @@ public final class WildEvents {
             supervise(level,s,EventWatchdog.Availability.PARTICIPANT_UNAVAILABLE); return;
         }
         if(!supervise(level,s,EventWatchdog.Availability.AVAILABLE))return;
+        if (optionalPerformance(s.kind, s.card) && loaded.stream().anyMatch(e -> !e.outing().permitsPerformance(true))) {
+            finish(level.getServer(), level, s, Phase.INTERRUPTED, "outing_lead", 0);
+            return;
+        }
         if (separated && s.kind == Kind.BADGE_ARC && Arc.byId(s.card) == Arc.BEG_BITE) {
             finish(level, s, Phase.INTERRUPTED, "participant_captured_or_dead");
             return;

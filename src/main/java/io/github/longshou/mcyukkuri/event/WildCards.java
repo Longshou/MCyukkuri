@@ -48,8 +48,6 @@ public final class WildCards {
             default -> false;
         };
     }
-    private static boolean onOutingLead(YukkuriEntity pet) { return pet.isLeashed() && pet.outing().escorted(); }
-
     static boolean ambient(Scene scene) {
         return scene.kind == Kind.CARD && (leisure(scene.card)
                 || switch (scene.card) {
@@ -126,7 +124,6 @@ public final class WildCards {
     public static Scene begin(String card,YukkuriEntity first,List<YukkuriEntity> peers,Player player) {
         if(!(first.level() instanceof ServerLevel level)||peers.isEmpty()||!WildEvents.available(first))return null;
         var second=peers.getFirst();List<YukkuriEntity> all=new ArrayList<>();all.add(first);all.addAll(peers);
-        if(leisure(card)&&all.stream().anyMatch(WildCards::onOutingLead))return null;
         if(all.stream().distinct().count()!=all.size()||all.size()>6||all.stream().anyMatch(p -> p.life().usingFoundCover())
                 ||peers.stream().anyMatch(p -> p.level()!=level
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
@@ -217,9 +214,6 @@ public final class WildCards {
         return e.level().noCollision(e,e.getBoundingBox().expandTowards(0,.6,0));
     }
     public static void advance(ServerLevel level,Scene s,List<YukkuriEntity> all) {
-        if(leisure(s.card)&&all.stream().anyMatch(WildCards::onOutingLead)) {
-            WildEvents.finish(level,s,Phase.INTERRUPTED,"outing_lead");return;
-        }
         if(GroupCards.handles(s.card)){GroupCards.advance(level,s,all);return;}
         var first=all.getFirst();var second=all.size()>1?all.get(1):first;
         if(all.stream().anyMatch(e -> !first.hasLineOfSight(e)||first.distanceToSqr(e)>64)) {

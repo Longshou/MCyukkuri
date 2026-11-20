@@ -17,6 +17,12 @@ public final class BadgeArcPolicy {
         public final int cost;
         Arc(String id, int cost) { this.id = id; this.cost = cost; }
         public static Arc byId(String id) { for (var a : values()) if (a.id.equals(id)) return a; return null; }
+        public boolean optionalPerformance() {
+            return switch (this) {
+                case GLANCE, ENVY, BOAST, PLEA, PITY, ELDER_WARN -> true;
+                case BEG_BITE, PROVOKE, HOME_CLAIM, SNATCH -> false;
+            };
+        }
     }
 
     /** Needs are 0..100; grade runs from 0 (none) to 4 (platinum). */

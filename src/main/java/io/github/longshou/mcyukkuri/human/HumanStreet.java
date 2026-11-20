@@ -991,8 +991,10 @@ final class HumanStreet {
                 GameplayLog.event(npc, "npc-care", "action=picnic_stow result=unreachable crate={}", npc.yardCrate());
             }
             var home = Vec3.atBottomCenterOf(npc.home());
-            if (npc.distanceToSqr(home) < .5) finishReturn("home");
-            else if (!route(home)) findReturnShelter();
+            if (npc.distanceToSqr(home) < .5) {
+                if (npc.clearBeforeStopping(home)) finishReturn("home");
+                else { destination = home; last = npc.position(); }
+            } else if (!route(home)) findReturnShelter();
         }
 
         private boolean collectForHome() {
@@ -1337,7 +1339,7 @@ final class HumanStreet {
                             linger();
                             return;
                         }
-                        if (parkLingering() && npc.getNavigation().isDone() && stalled == 0) {
+                        if (!npc.finishingDoorway() && parkLingering() && npc.getNavigation().isDone() && stalled == 0) {
                             GameplayLog.event(npc, "npc-care", "action=outing_park_recover stand={}", GameplayLog.at(watch));
                             if (!route(watch)) { returnHome("blocked"); return; }
                             stalled = 1;
@@ -1369,6 +1371,7 @@ final class HumanStreet {
                 }
                 return;
             }
+            if (npc.finishingDoorway()) return;
             if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
             if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) {
                 var toward = destination.subtract(npc.position()).multiply(1, 0, 1).normalize();
@@ -1390,7 +1393,7 @@ final class HumanStreet {
             else finished = true;
         }
 
-        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && !npc.crossingDoorway(); }
+        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && (leg == Leg.GATE || npc.clearBeforeStopping(destination)); }
 
         private boolean doorStep() {
             if (doorWait == null) {

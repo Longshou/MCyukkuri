@@ -39,4 +39,19 @@ class DoorPassageTest {
         assertFalse(DoorPassage.close(true, false, 40, 20));
         assertTrue(DoorPassage.close(false, true, 41, 20));
     }
+
+    @Test void stoppedKioskResidentStillOverlapsTheDoorWithHisTrailingEdge() {
+        double centre = 702.767 - 703;
+        assertTrue(DoorPassage.overlaps(centre - .3, centre + .3));
+        assertFalse(DoorPassage.stopSide(null, -1.5, centre));
+        assertFalse(DoorPassage.stopSide(false, 2.5, centre));
+        double exit = DoorPassage.stand(false, false);
+        assertFalse(DoorPassage.overlaps(exit - .3, exit + .3));
+    }
+
+    @Test void stopClearsInTravelDirectionOrBacksOutWhenBlocked() {
+        assertEquals(1.5, DoorPassage.stopStand(true, side -> DoorPassage.stand(side, false)));
+        assertEquals(-.5, DoorPassage.stopStand(true, side -> side ? null : DoorPassage.stand(false, false)));
+        assertNull(DoorPassage.stopStand(true, side -> null));
+    }
 }

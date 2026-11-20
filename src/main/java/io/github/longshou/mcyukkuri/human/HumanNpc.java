@@ -386,7 +386,8 @@ public final class HumanNpc extends PathfinderMob {
         return ((HumanNavigation) getNavigation()).shopPath(stands, blocker);
     }
 
-    boolean crossingDoorway() { return ((HumanNavigation) getNavigation()).crossingDoorway(); }
+    boolean clearBeforeStopping(Vec3 target) { return ((HumanNavigation) getNavigation()).clearBeforeStopping(target); }
+    boolean finishingDoorway() { return ((HumanNavigation) getNavigation()).stoppingExit != null; }
     DoorExit crossedDoorway() { return ((HumanNavigation) getNavigation()).crossedDoorway(); }
     boolean holdsDoor(BlockPos at) { return isAlive() && !isNoAi() && ((HumanNavigation) getNavigation()).holdsDoor(at); }
     boolean doorWaitingStand(DoorExit door) { return ((HumanNavigation) getNavigation()).doorWaitingStand(door); }
@@ -415,6 +416,7 @@ public final class HumanNpc extends PathfinderMob {
 
     private final class HumanNavigation extends GroundPathNavigation {
         private AABB shopBlocker;
+        private DoorExit lastExit, stoppingExit;
 
         private HumanNavigation(Level level) { super(HumanNpc.this, level); }
 
@@ -474,9 +476,15 @@ public final class HumanNpc extends PathfinderMob {
         }
 
         @Override public void tick() {
+            if (stoppingExit != null) {
+                stepClearBeforeStopping();
+                return;
+            }
             if (!isDone()) {
                 int index = path.getNextNodeIndex();
-                if (giveWayAtDoor()) return;
+                var exit = nearbyExit();
+                if (exit != null && HumanDoors.frame(exit.door()).intersects(mob.getBoundingBox())) lastExit = exit;
+                if (giveWayAtDoor(exit)) return;
                 openDoorAt(path.getNodePos(index));
                 if (index + 1 < path.getNodeCount()) openDoorAt(path.getNodePos(index + 1));
             }
@@ -498,8 +506,7 @@ public final class HumanNpc extends PathfinderMob {
             var axis = level.getBlockState(door).getValue(DoorBlock.FACING).getAxis();
             var after = path.getNodePos(index + 1).subtract(door);
             int offset = axis.choose(after.getX(), after.getY(), after.getZ());
-            return offset == 0 ? null : new DoorExit(door, Direction.fromAxisAndDirection(axis,
-                    offset > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE));
+            return offset == 0 ? null : new DoorExit(door, exitDirection(axis, offset > 0));
         }
 
         private DoorExit nearbyExit() {
@@ -516,9 +523,72 @@ public final class HumanNpc extends PathfinderMob {
             return clearingDoorway() ? doorExit(path.getNextNodeIndex() - 1) : null;
         }
 
-        private boolean crossingDoorway() {
-            var exit = nearbyExit();
-            return exit != null && HumanDoors.frame(exit.door()).intersects(mob.getBoundingBox());
+        private BlockPos overlappingDoorway() {
+            var body = mob.getBoundingBox();
+            var low = BlockPos.containing(body.minX, body.minY, body.minZ);
+            var high = BlockPos.containing(body.maxX, body.maxY, body.maxZ);
+            for (var pos : BlockPos.betweenClosed(low, high)) {
+                if (!level.hasChunkAt(pos)) continue;
+                var state = level.getBlockState(pos);
+                if (!(state.getBlock() instanceof DoorBlock)) continue;
+                var lower = state.getValue(DoorBlock.HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos.immutable();
+                if (!level.getBlockState(lower).is(state.getBlock())) continue;
+                var frame = HumanDoors.frame(lower);
+                if (body.minY < frame.maxY && body.maxY > frame.minY
+                        && DoorPassage.overlaps(body.minX - frame.minX, body.maxX - frame.minX)
+                        && DoorPassage.overlaps(body.minZ - frame.minZ, body.maxZ - frame.minZ)) return lower;
+            }
+            return null;
+        }
+
+        private boolean clearBeforeStopping(Vec3 target) {
+            if (stoppingExit != null) return false;
+            var door = overlappingDoorway();
+            if (door == null) return true;
+            var axis = level.getBlockState(door).getValue(DoorBlock.FACING).getAxis();
+            var planned = nearbyExit();
+            if (planned == null || !planned.door().equals(door)) planned = lastExit;
+            Boolean direction = planned != null && planned.door().equals(door) && planned.axis() == axis ? planned.positive() : null;
+            double origin = axis.choose(door.getX(), door.getY(), door.getZ());
+            stoppingExit = new DoorExit(door, exitDirection(axis,
+                    DoorPassage.stopSide(direction, target.get(axis) - origin, mob.position().get(axis) - origin)));
+            return false;
+        }
+
+        private Direction exitDirection(Direction.Axis axis, boolean positive) {
+            return Direction.fromAxisAndDirection(axis, positive ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE);
+        }
+
+        private void stepClearBeforeStopping() {
+            var door = overlappingDoorway();
+            if (door == null) {
+                var exited = stoppingExit.door();
+                stop();
+                Motor.waitOnFoot(mob);
+                GameplayLog.event(mob, "move", "action=door_clear_stop door={}", exited.toShortString());
+                return;
+            }
+            var axis = level.getBlockState(door).getValue(DoorBlock.FACING).getAxis();
+            boolean positive = stoppingExit.axis() == axis ? stoppingExit.positive() : mob.position().get(axis) >= door.getCenter().get(axis);
+            var stand = DoorPassage.stopStand(positive, side -> clearStopStand(new DoorExit(door, exitDirection(axis, side))));
+            if (stand == null) Motor.waitOnFoot(mob);
+            else {
+                stoppingExit = new DoorExit(door, exitDirection(axis, stand.get(axis) > door.getCenter().get(axis)));
+                mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, .8);
+            }
+        }
+
+        private Vec3 clearStopStand(DoorExit exit) {
+            var stand = freeFloor(exit.stand(false));
+            if (stand == null) return null;
+            var offset = stand.subtract(mob.position());
+            var sweep = mob.getBoundingBox().move(0, Math.max(0, offset.y), 0).expandTowards(offset.x, 0, offset.z);
+            return level.noCollision(mob, sweep) ? stand : null;
+        }
+
+        @Override public void stop() {
+            stoppingExit = null;
+            super.stop();
         }
 
         private boolean doorWaitingStand(DoorExit door) {
@@ -539,8 +609,7 @@ public final class HumanNpc extends PathfinderMob {
                     other -> other != mob && other.isAlive() && !other.isSpectator()).isEmpty() ? stand : null;
         }
 
-        private boolean giveWayAtDoor() {
-            var exit = nearbyExit();
+        private boolean giveWayAtDoor(DoorExit exit) {
             if (exit == null || mob.distanceToSqr(exit.stand(false)) > 9) return false;
             var frame = HumanDoors.frame(exit.door());
             for (var other : level.getEntitiesOfClass(HumanNpc.class, frame.inflate(1.25, 0, 1.25),
@@ -1050,8 +1119,10 @@ public final class HumanNpc extends PathfinderMob {
             }
             if (goingHome()) {
                 clearAttention();
-                if (distanceToSqr(Vec3.atBottomCenterOf(home())) <= 2 && !crossingDoorway()) getNavigation().stop();
-                else if (tickCount % 40 == 1) getNavigation().moveTo(home().getX() + .5, home().getY(), home().getZ() + .5, 0, .8);
+                var home = Vec3.atBottomCenterOf(home());
+                if (finishingDoorway() || distanceToSqr(home) <= 2) {
+                    if (clearBeforeStopping(home)) getNavigation().stop();
+                } else if (tickCount % 40 == 1) getNavigation().moveTo(home.x, home.y, home.z, 0, .8);
                 return;
             }
             if (attention == null) return;

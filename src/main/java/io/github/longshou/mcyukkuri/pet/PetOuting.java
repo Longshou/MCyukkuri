@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
+import io.github.longshou.mcyukkuri.pet.rules.OutingPerformance;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -72,7 +73,7 @@ public final class PetOuting extends Goal {
     public boolean tryParkPlay() {
         var resident = escort();
         var facility = resident == null ? null : resident.parkFacility();
-        if (facility == null || tired() || !wantsParkPlay() || wantsPicnic(resident)
+        if (facility == null || onEscortLead() || tired() || !wantsParkPlay() || wantsPicnic(resident)
                 || !nearFacility(facility)) return false;
         if (facility.occupiedByOther(pet)) {
             GameplayLog.limited(pet, "pet", "park_occupied", 600, "outing play waiting kind={} at={}",
@@ -115,6 +116,8 @@ public final class PetOuting extends Goal {
     public void forget() { home = null; escort = null; playAvailable = false; }
     public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
+    public boolean onEscortLead() { return pet.getLeashHolder() instanceof HumanNpc holder && holder == escort(); }
+    public boolean permitsPerformance(boolean optional) { return OutingPerformance.allowed(onEscortLead(), optional); }
     public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
 
     void releaseVacatedNest() {

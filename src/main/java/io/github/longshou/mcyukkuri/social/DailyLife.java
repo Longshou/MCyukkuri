@@ -236,7 +236,14 @@ public final class DailyLife {
                 && begin(Kind.SING, listener);
     }
     private boolean begin(Kind kind, Entity companion) { return begin(kind, companion, false); }
+    private static boolean permitsPerformance(YukkuriEntity leader, Entity companion, Kind kind) {
+        boolean optional = kind == Kind.SING || kind == Kind.EXERCISE && !leader.life().constipated();
+        return leader.outing().permitsPerformance(optional)
+                && (!(companion instanceof YukkuriEntity peer) || peer.outing().permitsPerformance(optional));
+    }
+
     private boolean canBegin(Kind kind, Entity companion) {
+        if (!permitsPerformance(entity, companion, kind)) return false;
         if (entity.level().isClientSide || !available(entity, false, kind == Kind.EXERCISE) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;
@@ -400,6 +407,7 @@ public final class DailyLife {
     public boolean valid() {
         if (!active()) return false;
         if (session.pair != null && session.pair.complete()) return !session.pair.finished();
+        if (!permitsPerformance(session.leader, session.companion, session.kind)) return false;
         if (!available(session.leader, true, session.kind == Kind.EXERCISE) || !session.hasTime()) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
