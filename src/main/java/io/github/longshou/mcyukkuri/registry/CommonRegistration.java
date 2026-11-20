@@ -44,6 +44,7 @@ import io.github.longshou.mcyukkuri.settlement.ForageClaims;
 import io.github.longshou.mcyukkuri.settlement.Grazing;
 import io.github.longshou.mcyukkuri.settlement.GroupMemberEvents;
 import io.github.longshou.mcyukkuri.settlement.SettlementTicker;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.settlement.ShelterIndexEvents;
 import io.github.longshou.mcyukkuri.settlement.FoundShelterCleanup;
 import io.github.longshou.mcyukkuri.settlement.SiteClaimer;
@@ -87,6 +88,7 @@ import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import net.neoforged.neoforge.event.level.ChunkDataEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.event.level.ModifyCustomSpawnersEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
@@ -130,6 +132,8 @@ public final class CommonRegistration {
         // Preserve the constructor prefix, including the settlement ticker's position.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, SiteClaimer::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, SettlementTicker::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ModifyCustomSpawnersEvent.class,
+                event -> event.addCustomSpawner(VillageStrays::tick));
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, RelationshipCleanup::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, HouseholdEcology::tick);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ServerTickEvent.Post.class, PlaygroundTools::tick);

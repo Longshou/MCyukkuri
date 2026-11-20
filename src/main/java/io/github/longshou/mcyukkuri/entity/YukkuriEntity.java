@@ -526,6 +526,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean isCommandPlaying() { return requestedAction != null; }
     public YukkuriLife life() { return life; }
     public PetLife pet() { return pet; }
+    @Override public boolean removeWhenFarAway(double distance) {
+        return !pet.townRoots() && super.removeWhenFarAway(distance);
+    }
     private PetOuting outing;
     public PetOuting outing() { if (outing == null) outing = new PetOuting(this); return outing; }
     public DailyLife dailyLife() { return dailyLife; }

@@ -37,9 +37,17 @@ public final class SettlementSpawner {
     public enum Preset { WANDERER, FAMILY, FOREST, FOREST_LED, BANDITS }
     public static final TagKey<Biome> FORESTS = TagKey.create(Registries.BIOME, MCYukkuri.id("forest_settlements"));
     private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.MYON};
+    static YukkuriEntity common(ServerLevel level) {
+        return ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+    }
     public static void discover(YukkuriEntity seed) {
         ServerLevel level = (ServerLevel)seed.level();
         if (!YukkuriConfig.NATURAL_SPAWNS.get() || !YukkuriConfig.COMMUNITIES.get() || seed.profile().houseBody()) return;
+        if (seed.pet().townRoots()) return;
+        if (TownAware.inTown(level, seed.blockPosition())) {
+            VillageStrays.discover(seed);
+            return;
+        }
         if (!SettlementData.get(level).discover(seed.blockPosition())) return;
         int roll = seed.getRandom().nextInt(100);
         Preset preset = Preset.WANDERER;
@@ -101,13 +109,11 @@ public final class SettlementSpawner {
         composition.households().forEach(h -> units.add(h.size()));
         if ((composition.leader() && !seedLeader) || preset == Preset.WANDERER) units.add(1);
         // Town strays look for cartons that are already on the street, placed by the village template or a player.
-        if (preset==Preset.WANDERER&&TownAware.inTown(level,origin)) {
-            var stray=seed!=null?seed:ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+        if (seed == null && preset == Preset.WANDERER && TownAware.inTown(level, origin)) {
+            var stray = common(level);
             if (stray==null) return List.of();
-            if (seed==null) {
-                Motor.relocate(stray,Vec3.atBottomCenterOf(origin),stray.getYRot(),"settlement_spawn");
-                if (!level.noCollision(stray)||!level.addFreshEntity(stray)) return List.of();
-            }
+            Motor.relocate(stray,Vec3.atBottomCenterOf(origin),stray.getYRot(),"settlement_spawn");
+            if (!level.noCollision(stray)||!level.addFreshEntity(stray)) return List.of();
             stray.pet().markTownRoots();
             return List.of(stray);
         }
