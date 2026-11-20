@@ -382,6 +382,8 @@ public final class HumanNpc extends PathfinderMob {
         return ((HumanNavigation) getNavigation()).shopPath(stands, blocker);
     }
 
+    boolean clearingDoorway() { return ((HumanNavigation) getNavigation()).clearingDoorway(); }
+
     private final class HumanNavigation extends GroundPathNavigation {
         private final Set<BlockPos> openedDoors = new HashSet<>();
         private AABB shopBlocker;
@@ -452,6 +454,18 @@ public final class HumanNpc extends PathfinderMob {
             }
             closeDoors(next, after);
             super.tick();
+        }
+
+        @Override protected void followThePath() {
+            // Reach the cell beyond the door before vanilla can cut the corner across the jamb.
+            if (clearingDoorway()) doStuckDetection(getTempMobPos());
+            else super.followThePath();
+        }
+
+        private boolean clearingDoorway() {
+            if (isDone() || path.getPreviousNode() == null) return false;
+            var door = handDoor(path.getPreviousNode().asBlockPos());
+            return door != null && new AABB(door).expandTowards(0, 1, 0).intersects(mob.getBoundingBox());
         }
 
         private BlockPos handDoor(BlockPos pos) {

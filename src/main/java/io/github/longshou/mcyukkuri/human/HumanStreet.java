@@ -1373,7 +1373,7 @@ final class HumanStreet {
             else finished = true;
         }
 
-        private boolean atDestination() { return npc.distanceToSqr(destination) < .5; }
+        private boolean atDestination() { return npc.distanceToSqr(destination) < .5 && !npc.clearingDoorway(); }
 
         private void nextPet(int first) {
             npc.getNavigation().stop();

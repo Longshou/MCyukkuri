@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** A companion follows outside its comfort distance. If separated, it remembers the way into its yard. */
@@ -147,7 +148,8 @@ public final class PetOuting extends Goal {
     private boolean shouldFollow(double comfortDistance) {
         if (owner.callingPet(pet) || wantsPicnic(owner)) return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
         var facility = owner.parkFacility();
-        return pet.distanceTo(owner) > comfortDistance && (facility == null || !nearFacility(facility));
+        return (pet.distanceTo(owner) > comfortDistance || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
+                && (facility == null || !nearFacility(facility));
     }
 
     private boolean wantsPicnic(HumanNpc resident) {
@@ -203,7 +205,9 @@ public final class PetOuting extends Goal {
             if (!owner.blockPosition().equals(escortAt) || close != closeApproach) {
                 escortAt = owner.blockPosition();
                 closeApproach = close;
-                stand = SurfaceApproach.beside(pet, owner, close ? 1.5 : innerDistance(), 1);
+                stand = SurfaceApproach.beside(pet, owner, close ? 1.5 : innerDistance(), 1, Double.POSITIVE_INFINITY,
+                        at -> pet.getLeashHolder() != owner || pet.level().clip(new ClipContext(at.add(0, pet.getEyeHeight(), 0),
+                                owner.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet)).getType() == HitResult.Type.MISS);
             }
             // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
             // must not invalidate its path between samples.
