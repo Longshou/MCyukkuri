@@ -37,12 +37,12 @@ ATTACHMENT_MOMENTS = {
     'held_kanroken': dict(title='叼着棍剑走动', model='myon', loop=True,
                          steps=[dict(clip='waddle', faces=[], tempo=1)],
                          held=dict(mesh='kanroken', joint='mouth')),
-    'worn_damaged_hat': dict(title='戴着破帽摇头', model='marisa', loop=True,
-                             steps=[dict(clip='hat_jostle', faces=[], tempo=1)],
+    'worn_damaged_hat': dict(title='戴着破帽摇头', model='marisa', moment='reaction_hat_jostle',
                              hat=dict(mesh='aquatic_basin_hat', form='aquatic_marisa', damage=2)),
+    # Face the juvenile's mouth toward the caregiver within the care overlay's grounded reach.
     'parent_child_contact': dict(title='亲子贴嘴', model='reimu', moment='behavior_feed_child',
-                                 partner=dict(model='reimu', clip='idle', scale=.65,
-                                              offset=[0, 0, -8.8], yaw=180, blend=1)),
+                                 partner=dict(model='reimu', clip='idle', scale=.73,
+                                              offset=[0, 0, -9.4], yaw=180, blend=1)),
 }
 
 

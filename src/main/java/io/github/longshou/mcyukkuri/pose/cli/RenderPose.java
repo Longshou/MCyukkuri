@@ -331,12 +331,28 @@ final class RenderPose implements Overlays.Contact {
         }
         String id=request.get("id").getAsString();
         if(request.get("op").getAsString().equals("release")){MODELS.remove(id);SOURCES.remove(id);return new JsonObject();}
+        var model = registered(id);
+        var partner = request.getAsJsonObject("partner");
+        if (partner == null) return model.frame(request);
+
+        if (request.has("vertexFormat")) partner.add("vertexFormat", request.get("vertexFormat"));
+        var peer = registered(partner.get("id").getAsString()).frame(partner);
+        var target = new Vector3f(Rig.floats(peer.getAsJsonArray("contactAnchor")))
+                .rotateY((float) Math.toRadians(partner.get("yaw").getAsFloat()))
+                .add(new Vector3f(Rig.floats(partner.getAsJsonArray("offset"))))
+                .div(request.get("scale").getAsFloat());
+        request.getAsJsonObject("care").add("target", OfflineModel.array(new float[]{target.x, target.y, target.z}));
+        var frame = model.frame(request);
+        frame.add("partnerVertices", peer.get("vertices"));
+        return frame;
+    }
+    private static RenderPose registered(String id) throws IOException {
         if(!SOURCES.containsKey(id))throw new IllegalArgumentException("Unknown registered pose: "+id);
         var model=MODELS.get(id);
         if(model==null){try(var zip=new GZIPInputStream(new ByteArrayInputStream(SOURCES.get(id)))){
             model=new RenderPose(JsonParser.parseReader(new InputStreamReader(zip,StandardCharsets.UTF_8)).getAsJsonObject());cache(id,model);
         }}
-        return model.frame(request);
+        return model;
     }
     private static void cache(String id,RenderPose model){
         // Two active actors cover ordinary strips; compressed inputs retain larger scenes without retaining every parsed rig.

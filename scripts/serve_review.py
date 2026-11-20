@@ -17,12 +17,12 @@ POSE_LOCK=Lock()
 
 ROOT=Path(__file__).resolve().parents[1]
 class Handler(SimpleHTTPRequestHandler):
-    def respond(self, body, status=200, content_type='application/json', emote=None):
+    def respond(self, body, status=200, content_type='application/json', headers=()):
         self.send_response(status)
         self.send_header('Content-Type', content_type)
         self.send_header('Content-Length', str(len(body)))
-        if emote is not None:
-            self.send_header('X-Pose-Emote', quote(emote, safe=''))
+        for name, value in headers:
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -62,7 +62,17 @@ class Handler(SimpleHTTPRequestHandler):
             self.respond_json({'error': str(error)}, 400)
             return
         if packed:
-            self.respond(b64decode(result['vertices']), content_type='application/octet-stream', emote=result.get('emote'))
+            vertices = b64decode(result['vertices'])
+            headers = []
+            if 'emote' in result:
+                headers.append(('X-Pose-Emote', quote(result['emote'], safe='')))
+            if 'partnerVertices' in result:
+                headers.append(('X-Pose-Partner-Offset', str(len(vertices))))
+                vertices += b64decode(result['partnerVertices'])
+            attachments = {key: result[key] for key in ('held', 'hat') if key in result}
+            if attachments:
+                headers.append(('X-Pose-Attachments', json.dumps(attachments, separators=(',', ':'))))
+            self.respond(vertices, content_type='application/octet-stream', headers=headers)
         else:
             self.respond_json(result)
 

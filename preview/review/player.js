@@ -1,5 +1,5 @@
 import {categories, entryURL, loadEntries} from './entries.js';
-import {buildTimeline, emoteFrame, leakSteps, placePoint, sampleTimeline, textureFace} from './timeline.mjs';
+import {buildTimeline, emoteFrame, leakSteps, sampleTimeline, textureFace} from './timeline.mjs';
 import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, updateMesh} from './effects.js';
 import {loadProp} from './props.js';
 import {loadSpeech} from './speech.js';
@@ -17,8 +17,12 @@ async function pose(payload, packed = false) {
     });
     if (!response.ok) throw new Error((await response.json()).error ?? 'HTTP ' + response.status);
     if (!packed) return response.json();
-    return {vertices: new Float32Array(await response.arrayBuffer()),
-            emote: decodeURIComponent(response.headers.get('X-Pose-Emote'))};
+    const bytes = await response.arrayBuffer();
+    const mainLength = payload.partner ? Number(response.headers.get('X-Pose-Partner-Offset')) : bytes.byteLength;
+    const attachments = payload.held || payload.hat ? JSON.parse(response.headers.get('X-Pose-Attachments')) : {};
+    return {vertices: new Float32Array(bytes, 0, mainLength / 4),
+            partnerVertices: payload.partner ? new Float32Array(bytes, mainLength) : undefined,
+            emote: decodeURIComponent(response.headers.get('X-Pose-Emote')), ...attachments};
 }
 
 function floatVertices(base64) {
@@ -69,16 +73,16 @@ async function createPartner(scene, data, spec) {
     const texture = actorTexture(model);
     return {
         group: placed,
-        async sample(seconds) {
+        sample(seconds) {
             const sample = sampleTimeline(track, clips, seconds, 'auto');
             const face = textureFace(data, model, sample.face, seconds);
-            const [frame, map] = await Promise.all([pose({op: 'render', id, action: sample.clip,
+            const payload = {id, action: sample.clip,
                 time: sample.time, intensity: sample.intensity, expression: face, scale,
-                contactAnchor: actor.mouth, vertexFormat: 'float32le'}), texture(face)]);
-            return {frame, map, target: placePoint(frame.contactAnchor, spec.offset, yaw)};
+                contactAnchor: actor.mouth, offset: spec.offset, yaw: spec.yaw};
+            return {payload, map: texture(face)};
         },
-        draw({frame, map}) {
-            updateMesh(mesh, floatVertices(frame.vertices));
+        draw(vertices, map) {
+            updateMesh(mesh, vertices);
             setMap(material, map);
         }
     };
@@ -197,7 +201,7 @@ async function playEntry(data, entry) {
     timeline.max = duration;
     const texture = actorTexture(actor);
 
-    let azimuth = .45, elevation = .15;
+    let azimuth = partner ? Math.PI / 2 : .45, elevation = .15;
     let expression = 'auto', time = 0, elapsed = 0, lastTime, previous = performance.now();
     let playing = false, pending = false, dirty = true, revision = 0;
     async function drawFrame(seconds, elapsed, version) {
@@ -218,17 +222,19 @@ async function playEntry(data, entry) {
         if (held) payload.held = {...entry.held, mouthBone: proportions.mouthBone};
         if (hat) payload.hat = {...hat.fit, accessories: proportions.paperAccessories,
             outline: covered ? hat.outline : undefined};
-        const peer = partner && await partner.sample(seconds);
-        if (peer) payload.care = {anchor: proportions.mouth,
-            target: peer.target.map(value => value / actor.scale), blend: entry.partner.blend};
-        const rich = streamVisible || covered || held || hat;
+        const peer = partner && partner.sample(seconds);
+        if (peer) {
+            payload.partner = peer.payload;
+            payload.care = {anchor: proportions.mouth, blend: entry.partner.blend};
+        }
+        const rich = streamVisible || covered;
         if (rich) payload.vertexFormat = 'float32le';
-        const [frame, map, sheets] = await Promise.all([pose(payload, !rich), texture(face), paper]);
+        const [frame, map, sheets, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, peer?.map]);
         if (version !== revision) return;
         updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame.vertices);
         if (held) held.set(frame.held);
         if (hat) hat.set(frame.hat);
-        if (partner) partner.draw(peer);
+        if (partner) partner.draw(rich ? floatVertices(frame.partnerVertices) : frame.partnerVertices, peerMap);
         if (sheets) {
             for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
                 const sheet = sheets[index];

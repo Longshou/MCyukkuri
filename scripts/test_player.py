@@ -100,11 +100,12 @@ class PlayerTests(unittest.TestCase):
             raise RuntimeError((cls.tmp/'server.log').read_text(encoding='utf-8'))
         print(f"Stopped review server PID {cls.server.pid}", flush=True)
 
+    def request_pose(self, value, accept):
+        headers = {'Content-Type': 'application/json', 'Accept': accept}
+        return urlopen(Request(self.base+'/pose', json.dumps(value).encode(), headers), timeout=60)
+
     def pose(self, value, packed=False):
-        headers = {'Content-Type': 'application/json'}
-        if packed:
-            headers['Accept'] = 'application/octet-stream'
-        with urlopen(Request(self.base+'/pose', json.dumps(value).encode(), headers), timeout=60) as response:
+        with self.request_pose(value, 'application/octet-stream' if packed else 'application/json') as response:
             if packed:
                 self.assertEqual(response.headers['Content-Type'], 'application/octet-stream')
                 return response.read()
@@ -323,6 +324,9 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             self.assertNotEqual(first, second)
             self.assertLess(first[2][3], -4)
             self.assertAlmostEqual(sum(row[0]**2 for row in first), 1, places=5)
+            with self.request_pose(payload, 'application/octet-stream') as response:
+                self.assertEqual(json.loads(response.headers['X-Pose-Attachments']), {'held': first})
+                self.assertEqual(response.read(), b64decode(self.pose(dict(payload, vertexFormat='float32le'))['vertices']))
 
         worn = entries['worn_damaged_hat']['hat']
         hat = self.pose(dict(op='prop', **worn))
@@ -350,20 +354,30 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             grip = self.pose(dict(payload, action='braid_item_hold', held=dict(joint='item')))['held']
             self.assertGreater(grip[0][3], 5)
 
-        spec = entries['parent_child_contact']['partner']
-        with self.actor('reimu') as parent, self.actor(spec['model']) as child:
-            mouth = child['actor']['mouth']
-            kid = self.pose(dict(op='render', id=child['id'], action=spec['clip'], time=.2, scale=spec['scale'],
-                                 expression='neutral', contactAnchor=mouth, vertexFormat='float32le'))
-            x, y, z = kid['contactAnchor']
-            target = [-x, y, spec['offset'][2] - z]
-            payload = dict(op='render', id=parent['id'], action='nuzzle', time=.2, scale=1, expression='satisfied',
-                           contactAnchor=parent['actor']['mouth'], vertexFormat='float32le')
-            free = self.pose(payload)
-            care = dict(anchor=parent['actor']['mouth'], target=target, blend=spec['blend'])
-            touching = self.pose(dict(payload, care=care))
-            self.assertLess(dist(touching['contactAnchor'], target), dist(free['contactAnchor'], target))
-            self.assertNotEqual(touching['vertices'], kid['vertices'])
+        entry = entries['parent_child_contact']
+        spec = entry['partner']
+        with self.actor(entry['model']) as parent, self.actor(spec['model']) as child:
+            for seconds in (.04, .23, .59):
+                mouth = child['actor']['mouth']
+                peer = dict(id=child['id'], action=spec['clip'], time=seconds, scale=spec['scale'],
+                            expression='neutral', contactAnchor=mouth, offset=spec['offset'], yaw=spec['yaw'])
+                kid = self.pose(dict(peer, op='render', vertexFormat='float32le'))
+                x, y, z = kid['contactAnchor']
+                target = [-x, y, spec['offset'][2] - z]
+                payload = dict(op='render', id=parent['id'], action=entry['steps'][0]['clip'], time=seconds,
+                               scale=1, expression='satisfied', contactAnchor=parent['actor']['mouth'],
+                               vertexFormat='float32le')
+                free = self.pose(payload)
+                care = dict(anchor=parent['actor']['mouth'], blend=spec['blend'])
+                pair = dict(payload, care=care, partner=peer)
+                touching = self.pose(pair)
+                self.assertLess(dist(touching['contactAnchor'], target), dist(free['contactAnchor'], target))
+                self.assertLess(dist(touching['contactAnchor'], target), .8)  # Less than .05 blocks.
+                self.assertEqual(touching['partnerVertices'], kid['vertices'])
+                with self.request_pose(pair, 'application/octet-stream') as response:
+                    vertices = b64decode(touching['vertices'])
+                    self.assertEqual(int(response.headers['X-Pose-Partner-Offset']), len(vertices))
+                    self.assertEqual(response.read(), vertices + b64decode(kid['vertices']))
 
     def verdict(self, data, content_type='application/json'):
         body = data if isinstance(data, bytes) else json.dumps(data, ensure_ascii=False).encode('utf-8')
