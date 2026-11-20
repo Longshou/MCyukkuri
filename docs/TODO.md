@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 | 两只接触动作同步开始结束，分开时身体不重叠 | `.worktrees/wp-pair-contact-sync` | shared pair contact clock (DailyLife/IndependenceLife/SocialContact), separation step |
+| 忙着的冷淡亲油也会回应离家的孩子（DN-02） | `.worktrees/wp-cool-farewell` | family/IndependenceLife.java (see-off request lifetime) |
 
 ## 玩法待办
 
