@@ -283,6 +283,7 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(2, new YardClaimGoal());
         goalSelector.addGoal(2, new YardBowlGoal());
         goalSelector.addGoal(2, new RoutineGoal());
+        goalSelector.addGoal(3, new ShelterCartons(this));
         goalSelector.addGoal(3, walk().goal());
         goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(3, new StaffDoorGoal());
@@ -372,10 +373,12 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
             dropPicnicFood("death");
+            ShelterCartons.dropHeld(this, "death");
             legacyOutput.collect(this);
             if (level() instanceof ServerLevel server) PlantReceiving.dropOnDeath(server, this);
             // Held doses and operation tools fall where the worker fell.
-            if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem)
+            if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem
+                    || ShelterCartons.holdsCarton(this))
                 setDropChance(EquipmentSlot.MAINHAND, 2.0f);
             // The loose piece it was carrying to a bin falls where the body fell, likewise.
             VillageBin.dropLitter(this);
@@ -399,8 +402,10 @@ public final class HumanNpc extends PathfinderMob {
         VillageBin.dropLitter(this);
     }
     @Override public void remove(RemovalReason reason) {
-        if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this)
+        if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this) {
             dropPicnicFood("removal");
+            ShelterCartons.dropHeld(this, "removal");
+        }
         if (reason.shouldDestroy() && streetResident() && level() instanceof ServerLevel server
                 && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID())) {
             if (leadingWalk()) walk().end();
@@ -413,6 +418,7 @@ public final class HumanNpc extends PathfinderMob {
         if (hurt && isAlive() && !level().isClientSide && streetResident() && source.getEntity() instanceof Player) {
             routineDelay = -HumanStreet.DAY;
             street.cancel();
+            ShelterCartons.dropHeldAtFeet(this, "player_hit");
             if (walk().walking()) walk().end();
             getNavigation().stop();
             GameplayLog.event(this, "npc-care", "action=street_go_home cause=player_hit ticks={}", -routineDelay);

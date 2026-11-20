@@ -326,7 +326,7 @@ def badge_hall(p):
 # ---------------------------------------------------------------------------------------------------------- shelter
 def shelter(p):
     """ゆっくりんピース (油库里保护站): a modest single-storey house behind an open low-fenced yard. In the yard a green-and-white canopy
-    covers three cartons, the free shelters for strays; under the house's front shelf runs a paper-lined wind gap; a standing bin by
+    covers two cartons and an empty refill bay, with one carton in the donation crate; under the house's front shelf runs a paper-lined wind gap; a standing bin by
     the door is stocked with food. Inside: an intake counter with a hatch onto the yard, a care table with orange juice and flour paste, the
     supply shelf, and the volunteers' room. Two caring volunteers live there and tend strays with the existing care routine."""
     W, H, D = 21, 10, 24
@@ -348,7 +348,14 @@ def shelter(p):
     for x in range(3, 18):
         for z in range(9, 15): b.block(x, 4, z, 'green_wool' if (x // 2) % 2 == 0 else 'white_wool')
     carton(b, 6, 1, 10, 'east'); carton(b, 6, 1, 13, 'east')
-    carton(b, 14, 1, 12, 'west')
+    # Keep the west-facing bay free. The stock crate sits on a plinth at the edge of the canopy, low side toward the path.
+    b.block(12, 0, 12, p.floor)
+    b.block(15, 1, 10, p.planks())
+    produce_crate(b, 15, 2, 10, 'west', [('mcyukkuri:cardboard_shelter', 1)])
+    marker(b, 14.5, 1, 12.5, 'mcy_shelter_supply', {
+        'Sister': sequence(3, [0, 0, 6]), 'Brother': sequence(3, [1, 0, 8]),
+        'Crate': sequence(3, [1, 1, -2]), 'Bay': sequence(3, [0, 0, 0]),
+    })
     b.block(10, 3, 12, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     for x, z in [(14, 9), (15, 9), (16, 10)]: b.block(x, 1, z, p.pot(x + z))
     # ---- The house (x2..18, z16..23): plinth course, plank walls, frame posts, a low gable roof; floor y0, people walk at y1.
@@ -387,11 +394,11 @@ def shelter(p):
     furniture(b, 'bench', 1, [(13, 22), (14, 22)]); furniture(b, 'bench', 1, [(16, 22), (17, 22)])
     for x, z in [(13, 21), (14, 21), (16, 21), (17, 21)]: b.block(x, 1, z, 'green_carpet')
     for x, z in [(6, 18), (14, 19)]: b.block(x, 3 if p.flat else 4, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
-    resident(b, 14, 18, 'caretaker_sister', 1)           # volunteer at the intake counter
-    resident(b, 15, 20, 'caretaker_brother', 1)          # volunteer
+    resident(b, 14, 18, 'caretaker_sister', 1, ['mcy_shelter_volunteer'])
+    resident(b, 15, 20, 'caretaker_brother', 1, ['mcy_shelter_volunteer'])
     b.strict = False
     street_ends(b, W)
-    return finish(b)
+    return finish(b, reserved={(14, y, z) for y in (1, 2) for z in (11, 12, 13)})
 
 
 # ---------------------------------------------------------------------------------------------------------- park

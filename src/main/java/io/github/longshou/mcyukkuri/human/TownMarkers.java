@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayItem;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
+import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -24,6 +26,7 @@ public final class TownMarkers {
     private static final String OWNER = "mcy_yard_owner", START = "mcy_yard_pet";
     private static final String NO_CARTON = "mcy_no_carton", SPAWNED = "mcy_yard_pet_spawned";
     private static final String PARK_PLAY = "mcy_park_play";
+    private static final String SHELTER_SUPPLY = "mcy_shelter_supply";
     // The owner home and start of either lot are within eight horizontal blocks of each other.
     private static final int HOME_TO_START = 8;
 
@@ -129,6 +132,20 @@ public final class TownMarkers {
             case WEST -> Rotation.COUNTERCLOCKWISE_90;
             default -> throw new IllegalStateException("Marker yaw must be horizontal");
         };
+    }
+
+    record ShelterSupply(Marker marker, BlockPos crate, ShelterPlacement.Plan bay) {}
+
+    static ShelterSupply shelterSupply(ServerLevel level, BlockPos home) {
+        for (var marker : level.getEntitiesOfClass(Marker.class, new AABB(home).inflate(10, 1, 10),
+                candidate -> candidate.getTags().contains(SHELTER_SUPPLY))) {
+            var data = data(marker);
+            if (!home.equals(offset(marker, data, "Sister")) && !home.equals(offset(marker, data, "Brother"))) continue;
+            var bay = new ShelterPlacement.Plan(offset(marker, data, "Bay"), ShelterBlock.Kind.CARDBOARD,
+                    rotation(marker).rotate(Direction.WEST));
+            return new ShelterSupply(marker, offset(marker, data, "Crate"), bay);
+        }
+        return null;
     }
 
     static boolean yardContains(ServerLevel level, BlockPos bowl, BlockPos site) {

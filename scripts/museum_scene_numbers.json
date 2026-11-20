@@ -307,6 +307,8 @@
     "elope": "TN-59",
     "elope_leave": "TN-60",
     "nuzzle_shapes": "MD-28",
-    "resident_house_lint": "HS-06"
+    "resident_house_lint": "HS-06",
+    "shelter_cartons": "TN-61",
+    "shelter_cartons_blocked": "TN-62"
   }
 }

@@ -3559,6 +3559,70 @@ add('street_stop', 'town', '爱派居民喝止虐派', '爱派居民喝止虐派
         street_trial('street_stop', 'reimu', 0, 0, 'street_intervened', yaw=90, lead=True),
     ], env=DAY, vantage=(-2, -4, -22, 16),
     reads=[('读灵梦血量', f'data get entity {sel("street_intervened")} Health')])
+
+_shelter_template = 'place template mcyukkuri:village/plains/shelter ~-14 ~-1 ~-12'
+_shelter_crate = '~1 ~1 ~-2'
+_shelter_bay = '~ ~ ~'
+_shelter_volunteer = '@e[tag=mcy_shelter_volunteer,distance=..24]'
+_shelter_holder = _shelter_volunteer[:-1] + ',nbt={HandItems:[{id:"mcyukkuri:cardboard_shelter",count:1}]}]'
+_shelter_pickup = r'\[shelter\][^\n]* uuid=(?P<volunteer>[0-9a-f-]+) [^\n]* carton picked up [^\n]* stock=1->0 hand=1'
+_shelter_reads = [
+    ('读捐赠箱库存', f'data get block {_shelter_crate} Items'),
+    ('读志愿者手持物', f'execute as {_shelter_volunteer} run data get entity @s HandItems'),
+    ('读箱位住客', f'data get block {_shelter_bay}'),
+]
+
+
+def _one_shelter_pickup(log):
+    if len(re.findall(_shelter_pickup, log)) != 1:
+        return 'Exactly one volunteer must take the single carton'
+
+
+_shelter_stray = _uuid_text('shelter_cartons', 'shelter_stray')
+_shelter_x, _shelter_z = BY_ID['town'].anchor
+_shelter_cell = re.escape(f'BlockPos{{x={_shelter_x}, y={FEET}, z={_shelter_z}}}')
+_shelter_parts = [(f'~ ~{dy} ~{dz}', 12 + 25 * dy + 5 * dz) for dy in range(2) for dz in (-1, 0, 1)]
+_shelter_shell = ' '.join(f'if block {pos} mcyukkuri:cardboard_shelter[facing=west,part={part}]'
+                          for pos, part in _shelter_parts)
+_shelter_placed = r'\[shelter\][^\n]* uuid=(?P=volunteer) [^\n]* carton placed [^\n]* facing=west hand=0'
+
+add('shelter_cartons', 'town', '志愿者从货箱取出纸箱，放到棚下', '志愿者从货箱取出纸箱，放到棚下',
+    '看志愿者出门去捐赠箱取出最后一个纸箱，拿到棚下朝着小路放好。再看困倦的灵梦自己走进这个箱子。',
+    '约半分钟', [
+        _shelter_template,
+        street_stray('shelter_cartons', 'reimu', -8, -2, 'shelter_rest_north', energy=25, rest_wait=0, adult_scale=.78),
+        street_stray('shelter_cartons', 'reimu', -8, 1, 'shelter_rest_south', energy=25, rest_wait=0, adult_scale=.78),
+        # A mobile baby can find the new bay from here. The old windbreak is beyond its ordinary three-block range.
+        street_stray('shelter_cartons', 'reimu', -1, 1, 'shelter_stray', stage='baby', energy=48, rest_wait=400,
+                     childhood=CHILDHOOD_HOPPING, lead=True),
+    ], env=DAY, vantage=(-4, -3, -53, 8), reads=_shelter_reads,
+    smoke=dict(ticks=650, verify=_one_shelter_pickup,
+               expect=[_shelter_pickup + r'[\s\S]*?' + _shelter_placed + r'[\s\S]*?'
+                       + rf'\[habitat\][^\n]* uuid={_shelter_stray} [^\n]* found settled shelter={_shelter_cell} kind=CARDBOARD',
+                       r'MCYSHELTER_PLACED'],
+               forbid=[r'\[shelter\][^\n]* carton (?:returned|dropped)\b'],
+               readout=[f'execute {_shelter_shell} '
+                        f'unless data block {_shelter_crate} Items[0] unless entity {_shelter_holder} run say MCYSHELTER_PLACED']))
+
+_shelter_blocker = 'minecraft:oak_planks'
+_shelter_obstructed, _ = _shelter_parts[-1]
+_shelter_empty_parts = ' '.join(f'if block {pos} minecraft:air' for pos, _ in _shelter_parts[:-1])
+add('shelter_cartons_blocked', 'town', '箱位被占，志愿者把纸箱送回', '箱位被占，志愿者把纸箱送回',
+    '等志愿者从捐赠箱拿起纸箱，把给你的木板放到空箱位中央，让出小路。看志愿者带着同一个纸箱走回捐赠箱。拆掉木板可再观察一次。',
+    '取箱后放下木板', [_shelter_template], give=[_shelter_blocker], env=DAY,
+    vantage=(-3, -2, -56, 8), reads=_shelter_reads,
+    smoke=dict(ticks=560, verify=_one_shelter_pickup,
+               commands=[(t, f'execute if entity {_shelter_holder} if block {_shelter_obstructed} minecraft:air '
+                             f'run setblock {_shelter_obstructed} {_shelter_blocker}') for t in range(40, 400, 5)],
+               expect=[_shelter_pickup + r'[\s\S]*?\[shelter\][^\n]* uuid=(?P=volunteer) [^\n]* '
+                       r'carton delivery interrupted [^\n]* reason=(?:bay_unavailable|route_ended) hand=1[\s\S]*?'
+                       r'\[shelter\][^\n]* uuid=(?P=volunteer) [^\n]* carton returned [^\n]* hand=0',
+                       r'MCYSHELTER_RETURNED'],
+               forbid=[r'\[shelter\][^\n]* carton (?:placed|dropped)\b'],
+               readout=[f'execute if block {_shelter_obstructed} {_shelter_blocker} {_shelter_empty_parts} '
+                        f'if data block {_shelter_crate} Items[{{id:"mcyukkuri:cardboard_shelter",count:1}}] '
+                        f'unless entity {_shelter_holder} run say MCYSHELTER_RETURNED']))
+
 add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '你打灵梦：看见的逃，墙后的不知',
     '徒手打一下中间的灵梦：右侧陌生油能看见现场，会受惊逃开；左侧被实墙遮住的陌生油不会隔墙感知。个体仍会自由移动', '靠近后直接操作', [
         yk('reimu', 0, 0, 'attack_victim', label='被攻击者', lead=True, **pair_ready()),
@@ -7201,6 +7265,7 @@ TOPICS = {
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5',
+    'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
