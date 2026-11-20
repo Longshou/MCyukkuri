@@ -169,7 +169,10 @@ public final class FlightPlanner {
 
     public void lead(LivingEntity danger, Vec3 den) { run(danger, den); }
 
-    public void flee(LivingEntity danger) { run(danger, null); }
+    public boolean flee(LivingEntity danger) {
+        run(danger, null);
+        return route != null && !route.isDone() && body.getNavigation().getPath() == route;
+    }
 
     public void fleeWithoutSource() {
         var navigation = body.getNavigation();

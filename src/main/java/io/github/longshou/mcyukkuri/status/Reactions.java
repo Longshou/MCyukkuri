@@ -456,7 +456,10 @@ public final class Reactions {
                     if (s != null && seal.drive(s)) return;
                     if (lostSince != 0 && now - lostSince > 80) { flight.threatLost(); end(100); return; }
                     if (s != null && flight.fleeBlocked(s) && !safeAt(s)) return;
-                    if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) { stage = Stage.RETREAT; ticks = 0; return; }
+                    if (s != null && s.distanceToSqr(y) <= 256 && !safeAt(s)) {
+                        if (flight.flee(s)) { stage = Stage.RETREAT; ticks = 0; }
+                        return;
+                    }
                     y.getNavigation().stop();
                     if (ticks > 1200) end(600);
                 }

@@ -909,7 +909,7 @@ public final class SurfaceApproach {
         if(navigation instanceof YukkuriGroundNavigation ground){
             // The open-door node advances only when the trailing edge clears. A direct bed step stops that path.
             if (current.target != null && current.target.equals(navigation.getTargetPos()) && !navigation.isDone()
-                    && navigation.getPath().getNextNode().type == PathType.DOOR_OPEN) {
+                    && navigation.getPath().canReach() && navigation.getPath().getNextNode().type == PathType.DOOR_OPEN) {
                 navigation.setSpeedModifier(speed);
                 return observed(actor, Result.MOVING);
             }
