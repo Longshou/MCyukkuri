@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 放映室：实时播放器成为首页，清理过时拼帧页面（P11d） | `.worktrees/wp-hub-purge` | preview/hub, preview/review, scripts/build_preview_hub.py, scripts/build_preview_library.py |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
-| 按文档审计修正功能说明、待办与脚本说明 | `.worktrees/wp-docs-fixes` | docs/FEATURES.md, docs/TODO.md, scripts/README.md, preview/README.md |
 | 性能：顶点提交与界面图集 | `.worktrees/wp-perf-vertex` | client/YukkuriModel.java, GUI atlas |
 | 性能：姿势接触与贴墙让位 | `.worktrees/wp-perf-contact` | client/PoseNeighbors.java, client/WallClearance.java, pose/WallYield.java |
 | 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
