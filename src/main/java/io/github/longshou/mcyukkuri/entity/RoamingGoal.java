@@ -127,13 +127,14 @@ public final class RoamingGoal extends Goal {
         boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
         BlockPos companion = companionSpot();
+        var allowed = animal.life().quietSites(origin, radius);
         for (int attempt = 0; attempt < 16; attempt++) {
             Vec3 point = outside ? LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(anchor))
                     : companion == null ? LandRandomPos.getPos(animal, radius, 3)
                     : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
             if (point == null) continue;
             BlockPos pos = BlockPos.containing(point);
-            if (origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) continue;
+            if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) continue;
             if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) continue;
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;
@@ -173,8 +174,13 @@ public final class RoamingGoal extends Goal {
     }
     @Override public void tick() {
         elapsed++;
+        var path = animal.getNavigation().getPath();
+        if (path != null && !path.isDone()
+                && !animal.life().quietSite(BlockPos.containing(path.getNextEntityPos(animal)))) {
+            stop();
+            return;
+        }
         if (yard != null) {
-            var path = animal.getNavigation().getPath();
             if (yardChoice == null && path != null && !path.isDone() && !insideYard(path.getNextEntityPos(animal))) chooseYard();
             if ((yardChoice == Choice.HOLD || yardChoice == Choice.WAIT) && path != null && !path.isDone() && !insideYard(path.getNextEntityPos(animal))) {
                 stop();

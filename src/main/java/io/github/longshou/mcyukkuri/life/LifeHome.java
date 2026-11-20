@@ -59,6 +59,7 @@ final class LifeHome {
     }
 
     boolean restable(BlockPos pos) {
+        if (!o.quietSite(pos)) return false;
         if(covered(pos))return true;
         if(o.level().getBlockState(pos).is(ModBlocks.LARGE_WILD_NEST.get()) && !o.level().isRainingAt(pos))return true;
         var home=o.entity().habitat().shelter();
@@ -152,6 +153,7 @@ final class LifeHome {
     }
 
     boolean canAssignNaturalHome(BlockPos selected) {
+        if (!o.quietSite(selected)) return false;
         var shelter=ShelterBlock.shelter(o.level(),selected);
         if(shelter!=null&&!shelter.owns(o.entity().getUUID()))return false;
         return o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) <= 64 * 64 && dryStand(selected)
@@ -184,7 +186,7 @@ final class LifeHome {
         if(provider.homeStand(o.entity())!=null)return provider.homeStand(o.entity());
         if (home == null || !home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return null;
         if (naturalHome) return ShelterBlock.shelter(o.level(),home.pos())==null
-                && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
+                && o.quietSite(home.pos()) && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
         if (o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.owns(o.entity().getUUID())) return home.pos();
         return null;
     }
@@ -211,8 +213,11 @@ final class LifeHome {
         // A wild individual without a recognised home is a vagrant: any dry roof is only a refuge for the night, never an address.
         if (o.entity().habitat().wildLiver()) return false;
         var found = new ArrayList<BlockPos>();
-        for (BlockPos scan : BlockPos.betweenClosed(o.entity().blockPosition().offset(-TravelRange.search(o.entity(),8),-2,-TravelRange.search(o.entity(),8)), o.entity().blockPosition().offset(TravelRange.search(o.entity(),8),2,TravelRange.search(o.entity(),8)))) {
-            if (!dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
+        var centre = o.entity().blockPosition();
+        int radius = TravelRange.search(o.entity(),8);
+        var allowed = o.quietSites(centre, radius);
+        for (BlockPos scan : BlockPos.betweenClosed(centre.offset(-radius,-2,-radius), centre.offset(radius,2,radius))) {
+            if (!allowed.test(scan) || !dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
             found.add(scan.immutable());
         }
         BlockPos best = nearestReachable(found);

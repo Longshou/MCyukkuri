@@ -2471,23 +2471,44 @@ _territory_resident, _territory_intruder, _territory_forager, _territory_mate = 
     uid(_territory, name) for name in ('resident', 'intruder', 'forager', 'mate'))
 _territory_x, _territory_z = BY_ID['grove'].spots['spawn']
 _territory_den, _ = den(_territory_x + 12, _territory_z + 18, half=1, length=4)
+_territory_unsafe = (8, 14)
+_territory_safe = (3, 15)
 
 
 def _verify_territory(window):
     family = '|'.join(_uuid_text(_territory, slot) for slot in ('forager', 'mate'))
-    actor = rf'\[forage\] \w+ #\d+ uuid=(?:{family}) [^\n]*?'
+    actor = rf'\[forage\] \w+ #\d+ uuid=({family}) [^\n]*?'
     xz = r'BlockPos\{x=(-?\d+), y=-?\d+, z=(-?\d+)\}'
-    sighting = None
+    unsafe = (_territory_x + _territory_unsafe[0], _territory_z + _territory_unsafe[1])
+    safe = (_territory_x + _territory_safe[0], _territory_z + _territory_safe[1])
+    sightings = {}
     gathered = False
-    for match in re.finditer(actor + rf'(?:forage skipped reason=threat_zone site=[^\n]*? sighting={xz}|'
+    for match in re.finditer(actor + rf'(?:forage skipped reason=threat_zone site={xz} sighting={xz}|'
                              rf'gathered item=minecraft:short_grass count=\d+ source={xz})', window):
-        sx, sz, gx, gz = match.groups()
+        who, ux, uz, sx, sz, gx, gz = match.groups()
         if sx is not None:
             sighting = int(sx), int(sz)
-        elif sighting is not None and math.dist(sighting, (int(gx), int(gz))) > 10:
+            if (int(ux), int(uz)) == unsafe and math.dist(sighting, unsafe) <= 10:
+                sightings[who] = sighting
+        elif who in sightings and (int(gx), int(gz)) == safe and math.dist(sightings[who], safe) > 10:
             gathered = True
     if not gathered:
-        return 'The family must gather grass outside the remembered zone after skipping a threatened site'
+        return 'The same family member must skip the threatened tuft and gather the staged alternative outside the remembered zone'
+    intruder = _uuid_text(_territory, 'intruder')
+    departure = re.search(rf'\[predator\] flandre #\d+ uuid={intruder} [^\n]*? intruder left pad={xz}', window)
+    if not departure:
+        return 'Flandre did not leave the nest territory'
+    pad_x, pad_z = map(int, departure.groups())
+    samples = []
+    for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window[departure.end():]):
+        row = json.loads(match[1])
+        if row['uuid'] == intruder:
+            x, _, z, x2, _, z2 = row['box']
+            if math.dist(((x+x2)/2, (z+z2)/2), (pad_x+.5, pad_z+.5)) <= 10:
+                return 'Flandre returned to the foreign territory after leaving'
+            samples.append(row['supported'])
+    if not samples or not samples[-1]:
+        return 'Flandre must finish supported outside the foreign territory'
     pushed = re.search(rf'\[predator\] remilia #\d+ uuid={_uuid_text(_territory, "resident")} [^\n]*?'
                        r'leftovers pushed off pad=[^\n]*? remains=(\S+)', window)
     if pushed:
@@ -2511,6 +2532,7 @@ add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：�
         block(4, 12, 3, 'minecraft:oak_leaves[persistent=true]'),
         block(0, 8, -1, 'minecraft:air'),
         box(0, 4, 1, 0, 9, 3, 'minecraft:air', 'replace minecraft:oak_leaves'),
+        box(13, 3, 4, 15, 3, 6, 'minecraft:oak_leaves[persistent=true]'),
         box(5, 0, 0, 18, 0, 12, 'minecraft:air', 'replace minecraft:short_grass'),
         box(6, 0, 4, 8, 0, 6, 'minecraft:short_grass', 'keep'),
         box(12, 0, 7, 16, 0, 10, 'minecraft:short_grass', 'keep'),
@@ -2529,6 +2551,14 @@ add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：�
                  boldness=25, uuid=_territory_intruder), sel('territory_resident'), first=1, tries=1),
         Retry(remains(0, -.4, 'territory_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
               sel('territory_resident'), first=240, tries=1),
+        # The archived sightings are around tick 300 from the start. Change the grass after that sighting,
+        # leaving the group's real memory and both animals' needs alone.
+        Retry(box(3, 0, 13, 18, 0, 18, 'minecraft:air', 'replace minecraft:short_grass'),
+              sel('territory_forager'), first=400, tries=1),
+        Retry(block(_territory_unsafe[0], 0, _territory_unsafe[1], 'minecraft:short_grass'),
+              sel('territory_forager'), first=401, tries=1),
+        Retry(block(_territory_safe[0], 0, _territory_safe[1], 'minecraft:short_grass'),
+              sel('territory_forager'), first=401, tries=1),
     ],
     spot='spawn', vantage=(6, 8, 145, -25), env={'time': 'dawn'},
     reads=[('读巢主', f'yukkuri status {sel("territory_resident")} raw'),

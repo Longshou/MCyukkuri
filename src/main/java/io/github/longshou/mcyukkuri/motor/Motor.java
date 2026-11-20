@@ -134,6 +134,7 @@ public final class Motor {
         Vec3 wanted = controlled;
         double distance = controlled.length();
         if (distance > Gait.HUMAN_WALK) controlled = controlled.scale(Gait.HUMAN_WALK / distance);
+        if (!body.level().isClientSide) controlled = body.predator().clearTerritoryFlightStep(controlled);
         velocity(body, controlled, "predator_flight");
         Vec3 moved = move(body, controlled, "predator_flight");
         body.motor().stride.resolved(body.tickCount, wanted.x, wanted.y, wanted.z, moved.x, moved.y, moved.z);

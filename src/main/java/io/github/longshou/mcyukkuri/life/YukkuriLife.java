@@ -1107,7 +1107,8 @@ public final class YukkuriLife {
                     && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
             boolean restShort = bedRefused && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
             if (targetBlock != null && !dependentAtHome && settleIntoBed()) return false;
-            boolean shelteredPerch = homeProvider() == HomeProvider.PREDATOR && home() == null && canFatigueRest();
+            boolean shelteredPerch = homeProvider() == HomeProvider.PREDATOR && targetBlock == null && canFatigueRest();
+            if (!quietSite(entity.blockPosition())) return false;
             if (targetBlock != null || energy <= 10 || penSleep || restShort || (shelteredPerch || entity.family().needsMash() && entity.childhood().landed())
                     && dryStand(entity.blockPosition()) && restable(entity.blockPosition())) { task = Task.SLEEP; resetSleep(); return true; }
         }
@@ -1375,6 +1376,7 @@ public final class YukkuriLife {
                 // Sampled once a second, not every tick, so a sleeping body costs no geometry work per tick.
                 var site = targetBlock != null ? targetBlock : entity.blockPosition();
                 boolean sampleBed = sleepTicks % 20 == 0;
+                if (sampleBed && !drugged && !quietSite(entity.blockPosition())) { stopGoal(); break; }
                 var nestOccupancy = sampleBed ? FamilyNest.bedOccupancy(entity, site) : null;
                 if (nestOccupancy != null && nestOccupancy != Occupancy.INSIDE_SUPPORTED) {
                     GameplayLog.limited(entity, "home", "nest_not_inside", 200,
@@ -1985,6 +1987,10 @@ public final class YukkuriLife {
     /** An individual without an address takes the nearest free nest its stage and body fit (also the shared nest's release of a grown child). */
     boolean claimNearestNest(){ return home.claimNearestNest(); }
     public BlockPos homeStand(){ return home.homeStand(); }
+    public Predicate<BlockPos> quietSites(BlockPos centre, int radius) {
+        return homeProvider().quietSites(entity, centre, radius);
+    }
+    public boolean quietSite(BlockPos site) { return quietSites(site, 0).test(site); }
     private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
     public boolean hasReachableDrink() { return home.nearestDrink(true) != null; }

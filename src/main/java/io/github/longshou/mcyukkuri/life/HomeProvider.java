@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 
 /** Stateless home and rest policies. Resolve from the current profile at each entry;
@@ -39,6 +40,10 @@ enum HomeProvider {
             return entity.predator().canFlyTo(stand);
         }
 
+        @Override Predicate<BlockPos> quietSites(YukkuriEntity entity, BlockPos centre, int radius) {
+            return entity.predator().quietSites(centre, radius);
+        }
+
         @Override SearchResult findHome(YukkuriEntity entity) {
             return switch (entity.predator().findNest()) {
                 case FOUND -> SearchResult.FOUND;
@@ -67,6 +72,7 @@ enum HomeProvider {
     boolean acceptsPredatorNest() { return false; }
     boolean standsOnLeaves(YukkuriEntity entity, BlockPos support) { return false; }
     boolean canFlyTo(YukkuriEntity entity, BlockPos stand) { return false; }
+    Predicate<BlockPos> quietSites(YukkuriEntity entity, BlockPos centre, int radius) { return pos -> true; }
     void lostHome(YukkuriEntity entity, BlockPos pos) {}
 
     SearchResult findHome(YukkuriEntity entity) {

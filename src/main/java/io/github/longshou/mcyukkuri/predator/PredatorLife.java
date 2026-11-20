@@ -82,6 +82,8 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.ShelfApproach;
+import io.github.longshou.mcyukkuri.motor.geom.SweptBody;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
@@ -1094,6 +1096,11 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         return zones.stream().noneMatch(pad -> inTerritory(pad, feet));
     }
 
+    public Predicate<BlockPos> quietSites(BlockPos centre, int radius) {
+        var zones = foreignTerritories(centre, radius);
+        return pos -> outsideTerritories(zones, Vec3.atBottomCenterOf(pos));
+    }
+
     private boolean needsRoost(BlockPos home) {
         return (level().isNight() || level().isRaining()) && (home == null || animal.life().naturalHome()
                 || !level().getEntitiesOfClass(YukkuriEntity.class, new AABB(home), animal.family()::caresFor).isEmpty());
@@ -1389,12 +1396,48 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private boolean flightSweepClear(Vec3 from, Vec3 to) {
         if (from.distanceToSqr(to) > 64) return false; // Longer trips belong to bounded path segments, never a remote body sweep.
         if (!blockSweepClear(from, to)) return false;
+        if (!flightBodiesClear(from, to)) return false;
         int count = Math.max(1, (int)Math.ceil(from.distanceTo(to) / .15));
         for (int i = 1; i <= count; i++) {
             Vec3 feet = from.lerp(to, (double)i / count);
             if (feet.y < flightFloor(feet)) return false;
         }
         return true;
+    }
+
+    private boolean flightBodiesClear(Vec3 from, Vec3 to) {
+        var box = bodyAt(from);
+        var step = to.subtract(from);
+        var moving = sweptBox(box);
+        var travel = Floor.vec(step);
+        Entity contact = switch (task) {
+            case DIVE -> prey;
+            case SCAVENGE -> corpse;
+            default -> null;
+        };
+        // Allow one block beyond the route for a running body to enter during the next tick.
+        for (var other : level().getEntities(animal, box.expandTowards(step).inflate(1),
+                body -> body != contact && !body.isSpectator() && body.isAlive()
+                        && (body instanceof LivingEntity || body instanceof RemainsEntity))) {
+            var obstacle = sweptBox(other.getBoundingBox());
+            if (!SweptBody.clear(moving, travel, obstacle, Vec.ZERO)
+                    || !SweptBody.clear(moving, travel, obstacle, Floor.vec(other.getDeltaMovement()))) return false;
+            // A player's accepted movement packets can move them even when their server velocity is zero.
+            if (other instanceof Player && !SweptBody.clear(moving, travel, obstacle,
+                    Floor.vec(other.position().subtract(other.getPosition(0))))) return false;
+        }
+        return true;
+    }
+
+    private static SweptBody.Box sweptBox(AABB box) {
+        return new SweptBody.Box(Floor.vec(box.getMinPosition()), Floor.vec(box.getMaxPosition()));
+    }
+
+    /** Path-node flight and direct flight both recheck the actual stroke as nearby bodies move. */
+    public Vec3 clearTerritoryFlightStep(Vec3 step) {
+        if ((takeoffExit != null || task == Task.THREAT_APPROACH || task == Task.THREAT_DIVE || drivenFrom != null)
+                && !flightBodiesClear(animal.position(), animal.position().add(step))) return Vec3.ZERO;
+        return step;
     }
     /** A chase can cross the acquisition radius without ever asking vanilla's local pathfinder for an overlong route. */
     private Vec3 flightPathGoal(Vec3 goal) {
