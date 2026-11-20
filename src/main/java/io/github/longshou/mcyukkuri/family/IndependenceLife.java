@@ -53,7 +53,7 @@ public final class IndependenceLife extends Goal {
     private static final int PARENT_CHECK_INTERVAL = 200, PARENT_WAIT_TICKS = 8 * PARENT_CHECK_INTERVAL;
     /** Beats of the exchange, in ticks from the first word: the parent's answer, then the nuzzle (or the bow). */
     private static final int ANSWER = 40, CLOSE = 80, BOW_TICKS = 24, GO_LINE = 30;
-    private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800, SEE_OFF_RANGE = 16;
+    private static final int DEPART_LIMIT = 500, DEPART_DISTANCE = 10, SEE_OFF_LIMIT = 1800;
     private final YukkuriEntity entity;
     /** The parents' home that was left; the leaver never moves back into it. */
     private GlobalPos origin;
@@ -186,6 +186,10 @@ public final class IndependenceLife extends Goal {
     /** Loaded-time clock only; a paused or captured individual never leaves offline. */
     public void clock() {
         if (entity.level().isClientSide || entity.isNoAi()) return;
+        if (seeing != null && task != Task.SEE_OFF && !attached()) {
+            var child = seen();
+            if (child == null || !child.isAlive() || !coolWindow(child).open(entity.distanceToSqr(child))) seeing = null;
+        }
         if (parentWait > 0) parentWait--;
         if (loadGrace > 0) { loadGrace--; return; }
         if (wait > 0) wait--;
@@ -271,7 +275,7 @@ public final class IndependenceLife extends Goal {
         if (!said) {
             double reach = (entity.getBbWidth() + parent.getBbWidth()) * .5 + .15;
             double distance = entity.distanceToSqr(parent);
-            boolean visible = distance <= SEE_OFF_RANGE * SEE_OFF_RANGE && parent.hasLineOfSight(entity);
+            boolean visible = FarewellWindow.inRange(distance) && parent.hasLineOfSight(entity);
             boolean close = visible && distance <= (reach + 1) * (reach + 1);
             boolean canWalk = !close && elapsed < FAREWELL_LIMIT;
             if (canWalk && target == null) {
@@ -285,7 +289,7 @@ public final class IndependenceLife extends Goal {
                 case CLOSE -> begin(parent, true);
                 case CALL -> {
                     SurfaceApproach.halt(entity);
-                    if (!faceParent(parent)) return;
+                    if (!facePartner(parent)) return;
                     begin(parent, false);
                 }
                 case WALK -> { approach(parent); return; }
@@ -322,12 +326,12 @@ public final class IndependenceLife extends Goal {
             if (target != null) approach(parent);
             else SurfaceApproach.halt(entity);
         } else SurfaceApproach.halt(entity);
-        if (!touching) faceParent(parent);
+        if (!touching) facePartner(parent);
         entity.getLookControl().setLookAt(parent, 25, 25);
         contact++;
         if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", ANSWER);
-        if (contact == ANSWER && !parent.independence().seeingOff(entity)) {
-            // A parent busy elsewhere still hears it: the old glad answer from where it is.
+        if (contact == ANSWER && parent.independence().attached() && !parent.independence().seeingOff(entity)) {
+            // A busy attached parent can still react from where it is.
             if (!parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
         }
         if (contact >= CLOSE && contact <= closeEnd() && nuzzling()) {
@@ -427,7 +431,7 @@ public final class IndependenceLife extends Goal {
         departTicks++;
         var result = SurfaceApproach.walkResult(entity, away, parent, .8);
         if (result == SurfaceApproach.Result.BLOCKED) reject(away, "blocked");
-        else if (result == SurfaceApproach.Result.ARRIVED) stop();
+        else if (result == SurfaceApproach.Result.ARRIVED) stop(true);
     }
     private int looked;
 
@@ -435,6 +439,7 @@ public final class IndependenceLife extends Goal {
     /** A child of this parent has begun its goodbye to it; the parent sees it off when it is free to. */
     void seeOff(YukkuriEntity child) { seeing = child.getUUID(); seeUntil = level().getGameTime() + SEE_OFF_LIMIT; }
     boolean seeingOff(YukkuriEntity child) { return task == Task.SEE_OFF && running && child.getUUID().equals(seeing); }
+    private boolean attached() { return entity.life().personality().temperament().is(Gate.ATTACHED); }
     private boolean parentFree() {
         return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
@@ -443,33 +448,55 @@ public final class IndependenceLife extends Goal {
     private boolean seeOffReady() {
         if (seeing == null) return false;
         var child = seen();
-        if (level().getGameTime() > seeUntil || child == null || !child.isAlive() || child.independence().beat() == -2) {
+        boolean attached = attached();
+        if (child == null || !child.isAlive() || (attached
+                ? level().getGameTime() > seeUntil || child.independence().beat() == -2
+                : !coolWindow(child).open(entity.distanceToSqr(child)))) {
             seeing = null; return false;
         }
-        return parentFree() && entity.distanceToSqr(child) <= SEE_OFF_RANGE * SEE_OFF_RANGE;
+        return parentFree() && FarewellWindow.inRange(entity.distanceToSqr(child)) && (attached || steady() && coolCanAnswer(child));
     }
     private boolean seeOffValid() {
         var child = seen();
-        return child != null && child.isAlive() && parentFree() && level().getGameTime() <= seeUntil && child.independence().beat() != -2
-                && entity.distanceToSqr(child) <= SEE_OFF_RANGE * SEE_OFF_RANGE;
+        if (child == null || !child.isAlive() || !parentFree() || !FarewellWindow.inRange(entity.distanceToSqr(child))) return false;
+        if (attached()) return level().getGameTime() <= seeUntil && child.independence().beat() != -2;
+        return coolWindow(child) == FarewellWindow.EXCHANGE || contact == 0 && coolCanAnswer(child);
+    }
+    private FarewellWindow coolWindow(YukkuriEntity child) {
+        var leaver = child.independence();
+        if (!entity.getUUID().equals(leaver.visitor)) return FarewellWindow.CLOSED;
+        return switch (leaver.task) {
+            case FAREWELL -> FarewellWindow.EXCHANGE;
+            case DEPART -> FarewellWindow.DEPARTURE;
+            case NONE -> !leaver.household ? FarewellWindow.ONWARD : FarewellWindow.CLOSED;
+            case SEE_OFF -> FarewellWindow.CLOSED;
+        };
+    }
+    private boolean coolCanAnswer(YukkuriEntity child) {
+        var window = coolWindow(child);
+        boolean walkingAway = (child.getX() - child.xo) * (child.getX() - entity.getX())
+                + (child.getZ() - child.zo) * (child.getZ() - entity.getZ()) > 0;
+        return window.canAnswer(entity.hasLineOfSight(child), walkingAway);
     }
     private void seeOff() {
         var child = seen();
+        var t = entity.life().personality().temperament();
+        boolean attached = t.is(Gate.ATTACHED);
+        boolean late = !attached && coolWindow(child) != FarewellWindow.EXCHANGE;
         int beat = child.independence().beat();
         SurfaceApproach.halt(entity);
         entity.getLookControl().setLookAt(child, 30, 30);
-        if (beat < ANSWER) return;
-        var t = entity.life().personality().temperament();
-        boolean attached = t.is(Gate.ATTACHED);
+        if (late ? !facePartner(child) : beat < ANSWER) return;
         if (contact == 0) {
             // Its answer, once, by its own attachment: a glad blessing, or a sob and "come back sometimes".
+            if (!attached && (!entity.hasLineOfSight(child) || !entity.showReaction("happy", "farewell_bless", 60))) return;
             contact = 1;
             entity.mind().felt(EmotionEvent.COMFORTED);
-            entity.showReaction(attached ? "teary" : "happy", attached ? "farewell_cry" : "farewell_bless", 60);
-            GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={} attachmentScore={}", seeing, attached,
-                    t.attachment(), String.format(Locale.ROOT, "%.2f", t.attached()));
+            if (attached) entity.showReaction("teary", "farewell_cry", 60);
+            GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={} attachmentScore={} late={} distance={}",
+                    seeing, attached, t.attachment(), String.format(Locale.ROOT, "%.2f", t.attached()), late, entity.distanceTo(child));
         }
-        // While the child walks away the attached one sobs where it stands; the cool one just watches it go.
+        // While the child walks away the attached one sobs where it stands.
         sobbing = attached && beat == Integer.MAX_VALUE;
         if (beat == Integer.MAX_VALUE && contact == 1 && attached) { contact = 2; entity.showReaction("cry", "", 80); }
     }
@@ -484,7 +511,7 @@ public final class IndependenceLife extends Goal {
         // An attached parent watches the road for a while; a cool one goes back to its day.
         if (gone && t.is(Gate.ATTACHED))
             entity.mind().feeling().begin(EmotionCourse.Kind.PARTING, .15f + .25f * (attachment - 55) / 45f, seeing, child.blockPosition());
-        seeing = null;
+        if (t.is(Gate.ATTACHED) || contact > 0) seeing = null;
     }
     private YukkuriEntity parentNearby() {
         var home = entity.habitat().shelter();
@@ -543,8 +570,8 @@ public final class IndependenceLife extends Goal {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, parent)).getType() == HitResult.Type.MISS;
     }
 
-    private boolean faceParent(YukkuriEntity parent) {
-        float yaw = SurfaceApproach.yaw(entity.position(), parent.position());
+    private boolean facePartner(YukkuriEntity partner) {
+        float yaw = SurfaceApproach.yaw(entity.position(), partner.position());
         SurfaceApproach.face(entity, yaw);
         return Math.abs(Mth.wrapDegrees(yaw - entity.getYRot())) <= Face.FACE_ARRIVED;
     }
@@ -568,7 +595,8 @@ public final class IndependenceLife extends Goal {
         target = progress = away = null;
         SurfaceApproach.halt(entity);
     }
-    @Override public void stop() {
+    @Override public void stop() { stop(false); }
+    private void stop(boolean reachedStand) {
         // The selector also stops a farewell that already ended itself during tick().
         if (task == Task.NONE) return;
         interruptContact();
@@ -577,7 +605,9 @@ public final class IndependenceLife extends Goal {
         if (task == Task.FAREWELL && said && contact >= ANSWER && !independent) leave();
         if (task == Task.FAREWELL || task == Task.DEPART) GameplayLog.limited(entity, "independence", "farewell.stop", 200,
                 "farewell stopped parent={} departed={} elapsed={} contact={} stalled={} walked={}", visitor, independent, elapsed, contact, stalled, departTicks);
-        task = Task.NONE; running = false; visitor = null; elapsed = contact = departTicks = lookBackTicks = 0; wait = 40; target = progress = null;
+        // Keep the farewell partner through the ordinary walk after a successful departure handoff.
+        if (!reachedStand) visitor = null;
+        task = Task.NONE; running = false; elapsed = contact = departTicks = lookBackTicks = 0; wait = 40; target = progress = null;
         stalled = 0; said = false; sobbing = false; away = null;
         stands.clear();
         SurfaceApproach.halt(entity);
