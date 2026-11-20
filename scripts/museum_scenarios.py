@@ -7378,19 +7378,28 @@ _smoke('family_absence', 6000, [rf'\[family\][^\n]* kin overdue kin={_absent_uui
 
 def _forage_watch(log):
     actor = rf'[^\n]* uuid={_forage_mother} [^\n]* '
-    claim = re.search(rf'\[duty\]{actor}claimed kind=WATCH\b', log)
-    if not claim:
-        return 'the mother never claimed a home watch'
-    rest = log[claim.end():]
-    release = re.search(rf'\[duty\]{actor}released kind=WATCH\b', rest)
-    if not release:
-        return 'the first home watch had no release'
-    watched = rest[:release.start()]
-    if re.search(rf'\[habitat\]{actor}gathered item=|\[forage\]{actor}(?:food search started|begin role=)', watched):
-        return 'the mother started foraging during her home watch'
-    stations = re.findall(rf'\[family\]{actor}home watch station [^\n]* mouthDistance=([\d.]+)', watched)
-    if len(stations) < 2 or any(float(distance) < 2 for distance in stations):
-        return f'the mother must visit at least two patrol stands two or more blocks from the mouth, saw {stations}'
+    father = rf'\[forage\][^\n]* uuid={_forage_father} [^\n]* '
+    outing = re.search(father + r'begin role=FAMILY phase=OUT\b', log)
+    deposit = re.compile(father + r'deposit home=[^\n]* moved=[1-9]').search(log, outing.end()) if outing else None
+    if not deposit:
+        return 'the father must leave on a family trip and bring food home'
+    release_pattern = re.compile(rf'\[duty\]{actor}released kind=WATCH\b[^\n]*')
+    for claim in re.finditer(rf'\[duty\]{actor}claimed kind=WATCH\b', log[:deposit.start()]):
+        release = release_pattern.search(log, claim.end())
+        if not release:
+            return 'the mother did not release her home watch'
+        watched = log[claim.end():release.start()]
+        if re.search(rf'\[habitat\]{actor}gathered item=|\[forage\]{actor}(?:food search started|begin role=)', watched):
+            return 'the mother started foraging during her home watch'
+        if release.start() < outing.start():
+            continue
+        if not re.search(rf'\[family\]{actor}home watch started kin={_forage_father} stance=PATROL\b', watched) or 'end=DONE why=kin_returned' not in release[0]:
+            return 'the mother must patrol for the foraging father and finish when he returns'
+        stations = re.findall(rf'\[family\]{actor}home watch station [^\n]* at=(\S+) mouthDistance=([\d.]+) result=ARRIVED', watched)
+        if len({at for at, _ in stations}) < 2 or any(float(distance) < 2 for _, distance in stations):
+            return f'the mother must visit at least two patrol stands two or more blocks from the mouth, saw {stations}'
+        return None
+    return "the mother never claimed a home watch during the father's first forage trip"
 
 
 def _absence_grief_timing(log):
