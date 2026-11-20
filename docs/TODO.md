@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 放映室：实时播放器成为首页，清理过时拼帧页面（P11d） | `.worktrees/wp-hub-purge` | preview/hub, preview/review, scripts/build_preview_hub.py, scripts/build_preview_library.py |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
+| 按文档审计修正功能说明、待办与脚本说明 | `.worktrees/wp-docs-fixes` | docs/FEATURES.md, docs/TODO.md, scripts/README.md, preview/README.md |
 
 ## 玩法待办
 
