@@ -3954,12 +3954,12 @@ add(_park_aid, 'park', '流浪油递来一口，回头指向空纸箱', '流浪�
            ('读纸箱住客', 'data get block ~10 ~ ~-4 Residents')])
 
 add('juice_bath', 'park', '受伤的灵梦爬进橙汁澡盆泡澡', '受伤的灵梦爬进橙汁澡盆泡澡',
-    '公园里橙汁澡盆旁，一只胸前有二级撕裂伤、血量只剩一半多的灵梦（营养体力充足、身上很脏）。澡盆起始有 3 份橙汁。看它自己经木凳、盆沿爬进盆，'
+    '公园里橙汁澡盆旁，一只胸前有二级撕裂伤、血量只剩不到一半的灵梦（营养体力充足、身上很脏）。澡盆起始有 3 份橙汁。看它自己经木凳、盆沿爬进盆，'
     '坐稳后闭眼泡着；约 12 秒里血量一格格回升、伤口一级一级缩小、身上变干净，盆里的橙汁少一份，泡完经原路爬出来。再用橙汁右键澡盆补一份，一瓶一份，空瓶还回。',
     '约 1 分钟', [
         'data merge block ~ ~ ~ {Juice:3}',
         yk('reimu', 0, -4, 'soaker', uuid=uid('juice_bath', 'soaker'), label='受伤的灵梦', lead=True, yaw=0, hygiene=20, nutrition=95, energy=95),
-        set_status('soaker', 'health.health', 11),
+        set_status('soaker', 'health.health', 4),
         set_status('soaker', 'health.wound_at', 'front:tear:2'),
     ], give=['mcyukkuri:orange_juice 2'], env=DAY, spot='pool', vantage=(2, -7, 20, 22),
     reads=[('读澡盆橙汁', 'data get block ~ ~ ~ Juice'), ('读灵梦', f'yukkuri status {sel("soaker")} raw')])
@@ -7552,7 +7552,7 @@ _smoke('kindness_adoption', 720, [
 _juice_log = _uuid_text('juice_bath', 'soaker')
 _smoke('juice_bath', 1800, [
     rf'uuid={_juice_log} [^\n]*tub soak started at=[^\n]* juice=3 ',
-    rf'uuid={_juice_log} [^\n]*tub soak ended at=[^\n]* used=true juice=3 -> 2 [^\n]* wounds=1 -> 0 ',
+    rf'uuid={_juice_log} [^\n]*tub soak ended at=[^\n]* used=true juice=3 -> 2 health=4\.0 -> (?!4\.0 )\S+ wounds=1 -> 0 hygiene=(?!20\.0\b)\S+',
 ], forbid=[r'tub soak ended [^\n]* used=false'])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
