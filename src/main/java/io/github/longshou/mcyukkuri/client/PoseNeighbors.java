@@ -1,9 +1,10 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.pose.ContactBounds;
-import io.github.longshou.mcyukkuri.pose.check.PoseGeometry;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -14,7 +15,10 @@ import org.joml.Matrix4f;
 /** Frame-local skinned bounds for the same neighborhood as the fitted partner contact check. */
 final class PoseNeighbors {
     private static final ArrayList<YukkuriEntity> actors = new ArrayList<>();
+    private static final IdentityHashMap<YukkuriView, PartnerProjection> projections = new IdentityHashMap<>();
     private static final ArrayList<ContactBounds> drawn = new ArrayList<>(0);
+    // Vanilla can supply two partial ticks in one pass when some entities are frozen.
+    private static PoseNeighborGrid first = new PoseNeighborGrid(), second = new PoseNeighborGrid();
     private static final Matrix4f inverse = new Matrix4f();
     static final Matrix4f basis = new Matrix4f();
     static long frame;
@@ -27,18 +31,54 @@ final class PoseNeighbors {
     static void join(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide() && event.getEntity() instanceof YukkuriEntity actor) {
             actors.add(actor);
+            projections.put(actor, new PartnerProjection());
             drawn.ensureCapacity(actors.size());
+            first.reserve(actors.size());
+            second.reserve(actors.size());
+            invalidate();
         }
     }
 
     static void leave(EntityLeaveLevelEvent event) {
-        if (event.getLevel().isClientSide() && event.getEntity() instanceof YukkuriEntity actor)
+        if (event.getLevel().isClientSide() && event.getEntity() instanceof YukkuriEntity actor) {
             actors.removeIf(peer -> peer == actor);
+            projections.remove(actor);
+            invalidate();
+        }
     }
 
     static void unload(LevelEvent.Unload event) {
         var level = event.getLevel();
-        if (level.isClientSide()) actors.removeIf(peer -> peer.level() == level);
+        if (level.isClientSide()) {
+            actors.removeIf(peer -> peer.level() == level);
+            projections.keySet().removeIf(peer -> peer.level() == level);
+            drawn.clear();
+            invalidate();
+        }
+    }
+
+    private static void invalidate() {
+        first.invalidate();
+        second.invalidate();
+    }
+
+    static PartnerProjection projection(YukkuriView actor) { return projections.get(actor); }
+
+    private static PoseNeighborGrid grid(float partial) {
+        if (first.matches(frame, partial)) return first;
+        // Keep the most recently used snapshot first, for the common case of one interpolation clock.
+        var previous = first;
+        first = second;
+        second = previous;
+        if (!first.matches(frame, partial)) {
+            first.begin(frame, partial);
+            for (int i = 0; i < actors.size(); i++) {
+                var actor = actors.get(i);
+                first.add(i, (float)Mth.lerp(partial, actor.xo, actor.getX()),
+                        (float)Mth.lerp(partial, actor.yo, actor.getY()), (float)Mth.lerp(partial, actor.zo, actor.getZ()));
+            }
+        }
+        return first;
     }
 
     static void collect(YukkuriEntity self, float partial, Matrix4f start, Matrix4f posed) {
@@ -47,17 +87,14 @@ final class PoseNeighbors {
         float x = (float)Mth.lerp(partial, self.xo, self.getX());
         float y = (float)Mth.lerp(partial, self.yo, self.getY());
         float z = (float)Mth.lerp(partial, self.zo, self.getZ());
-        for (int i = 0; i < actors.size(); i++) {
-            var peer = actors.get(i);
+        var grid = grid(partial);
+        int count = grid.find(x, y, z);
+        for (int i = 0; i < count; i++) {
+            var peer = actors.get(grid.actor(i));
             if (peer == self || peer.level() != self.level()) continue;
-            double dx = (double)(float)Mth.lerp(partial, peer.xo, peer.getX()) - x;
-            double dy = (double)(float)Mth.lerp(partial, peer.yo, peer.getY()) - y;
-            double dz = (double)(float)Mth.lerp(partial, peer.zo, peer.getZ()) - z;
-            if (dx * dx + dy * dy + dz * dz <= PoseGeometry.PARTNER_BLOCKS * PoseGeometry.PARTNER_BLOCKS) {
-                var state = PoseBridge.drawn(peer);
-                if (state == null || state.boundsFrame != frame) complete = false;
-                else drawn.add(state.bounds);
-            }
+            var state = PoseBridge.drawn(peer);
+            if (state == null || state.boundsFrame != frame) complete = false;
+            else drawn.add(state.bounds);
         }
         near = !complete || !drawn.isEmpty();
         // Match PoseTap's world-mu frame, including the precision of the captured coordinates.

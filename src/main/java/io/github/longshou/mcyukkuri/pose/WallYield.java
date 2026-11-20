@@ -176,6 +176,7 @@ public final class WallYield {
      */
     public void solve(Skinner skin, Matrix4f[] world, Matrix4f toWall, List<Face> faces, Predicate<String> busy) {
         clear();
+        if (faces.isEmpty()) return;
         for (int l = 0; l < limbs.size(); l++) {
             var limb = limbs.get(l);
             if (busy.test(limb.kind.id)) continue;
@@ -208,12 +209,12 @@ public final class WallYield {
 
     /** Find the least useful turn, then add the curl for the clearance gained. */
     private float angle(Limb limb, Matrix4f toWall, List<Face> faces, int from, int to) {
-        float rest = reach(limb, false, toWall, faces, from, to);
-        if (rest <= 0) return 0;
+        float rest = reach(limb, false, toWall, faces, from, to, Float.POSITIVE_INFINITY);
+        if (rest <= SLACK) return 0;
         float best = rest;
         for (int step = 1; step <= STEPS; step++) {
             turn(limb, limb.kind.limit * step / STEPS);
-            best = Math.min(best, reached[step] = reach(limb, true, toWall, faces, from, to));
+            best = Math.min(best, reached[step] = reach(limb, true, toWall, faces, from, to, Float.POSITIVE_INFINITY));
         }
         float allowed = Math.max(0, best) + SLACK;
         if (rest <= allowed) return 0;
@@ -223,7 +224,7 @@ public final class WallYield {
         for (int i = 0; i < 6; i++) {
             float middle = (low + high) / 2;
             turn(limb, middle);
-            if (reach(limb, true, toWall, faces, from, to) > allowed) low = middle; else high = middle;
+            if (reach(limb, true, toWall, faces, from, to, allowed) > allowed) low = middle; else high = middle;
         }
         float gained = rest - Math.max(0, best) - SLACK;
         return Math.max(Math.min(high, gained * GAIN), Math.min(limb.kind.limit, gained * limb.kind.curl));
@@ -238,7 +239,7 @@ public final class WallYield {
         }
     }
     /** Distance past the selected faces in blocks, at most zero when clear. */
-    private float reach(Limb limb, boolean turned, Matrix4f toWall, List<Face> faces, int from, int to) {
+    private float reach(Limb limb, boolean turned, Matrix4f toWall, List<Face> faces, int from, int to, float limit) {
         var posed = limb.samplePosed;
         float past = -Float.MAX_VALUE;
         for (int k = 0; k < posed.length; k++) for (var sample : posed[k]) {
@@ -247,7 +248,10 @@ public final class WallYield {
             toWall.transformPosition(point);
             for (int i = from; i < to; i++) {
                 var face = faces.get(i);
-                if (point.y >= face.low && point.y <= face.high) past = Math.max(past, face.x * point.x + face.z * point.z - face.distance);
+                if (point.y >= face.low && point.y <= face.high) {
+                    past = Math.max(past, face.x * point.x + face.z * point.z - face.distance);
+                    if (past > limit) return past;
+                }
             }
         }
         return past;

@@ -39,6 +39,8 @@ import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
 
 public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
+    private final WallClearance clearance = new WallClearance();
+
     public YukkuriRenderer(EntityRendererProvider.Context context) {
         super(context);
         shadowRadius = .32f;
@@ -259,7 +261,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             int wear=preview||!hatCarrier&&!carried?entity.visibleWear():0;
             model.setWear(wear);
             var wallOrigin = rubOffset == Vec3.ZERO ? start : new Matrix4f(start).translate((float)rubOffset.x, 0, (float)rubOffset.z);
-            var wallClearance=preview||operated?null:WallClearance.nearby(source,model,action,partialTick,rubMover,rubOffset,wallOrigin,
+            var wallClearance=preview||operated?null:clearance.nearby(source,model,action,partialTick,rubMover,rubOffset,wallOrigin,
                     (wear&CareWearRenderer.PAPER_COVER)!=0);
             boolean adultPose = AgitationPresentation.selected(entity);
             boolean braidTransfer = braidClip != null || action.equals(ParentCarry.BRIM_LIFT) || action.equals(ParentCarry.BRIM_LOWER);

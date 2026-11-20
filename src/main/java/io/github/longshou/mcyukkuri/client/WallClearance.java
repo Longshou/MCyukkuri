@@ -8,42 +8,37 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlock;
-import io.github.longshou.mcyukkuri.pose.WallYield;
 import io.github.longshou.mcyukkuri.pose.SnugglePose;
+import io.github.longshou.mcyukkuri.pose.WallYield;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.WeakHashMap;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import java.util.function.BiFunction;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockCollisions;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** The block collision faces beside a body, measured each frame: its headwear and loose parts are drawn on their free side
  *  ({@link WallYield}), while the body keeps its own collision box. */
 final class WallClearance {
-    // Render-thread scratch so crowded indoor scenes do not allocate box lists per colliding block.
-    private static double[] boxes = new double[48];
-    private static int boxCount;
-    private static final WeakHashMap<YukkuriView, Integer> lastPartners = new WeakHashMap<>();
-
-    private final List<WallYield.Face> faces;
-    private final double paperCeiling;
-    private final float originX, originY, originZ;
-    private VertexConsumer lastSource;
-    private Tuck lastTuck;
-
-    private WallClearance(List<WallYield.Face> faces, Matrix4f origin, double paperCeiling) {
-        this.faces = faces;
-        this.paperCeiling = paperCeiling;
-        originX = origin.m30();
-        originY = origin.m31();
-        originZ = origin.m32();
-    }
+    private double[] boxes = new double[48];
+    private int boxCount;
+    private AABB sweep;
+    private BlockPos reachedBin;
+    private final Shapes.DoubleLineConsumer collectBox = this::collectBox;
+    private final BiFunction<BlockPos.MutableBlockPos, VoxelShape, Boolean> collectShape = this::collectShape;
+    private final List<WallYield.Face> faces = new ArrayList<>();
+    private double paperCeiling;
+    private float originX, originY, originZ;
+    private float low, high;
+    private final Tuck tuck = new Tuck();
 
     private static WallYield.Bounds bounds(YukkuriView entity, YukkuriModel model) {
         double scale = entity.getScale() * entity.growthScale();
@@ -68,16 +63,17 @@ final class WallClearance {
         return new WallYield.Bounds(reach + motion, -motion, top + motion);
     }
 
-    static WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, YukkuriView mover, Vec3 rubOffset,
-                                Matrix4f origin, boolean paper) {
+    WallClearance nearby(YukkuriEntity source, YukkuriModel model, String action, float partial, YukkuriView mover, Vec3 rubOffset,
+                         Matrix4f origin, boolean paper) {
         YukkuriView entity = source;
         var bounds = bounds(entity, model);
         double reach = bounds.reach();
-        var feet = new Vec3(Mth.lerp(partial, source.xOld, source.getX()), Mth.lerp(partial, source.yOld, source.getY()),
-                Mth.lerp(partial, source.zOld, source.getZ())).add(rubOffset);
-        double paperCeiling = paper ? PaperCeiling.height(source, feet) : Double.POSITIVE_INFINITY;
-        var sweep = new AABB(-reach, 0, -reach, reach, bounds.high(), reach).move(feet);
-        double bodyTop = feet.y + source.getBbHeight();
+        double feetX = Mth.lerp(partial, source.xOld, source.getX()) + rubOffset.x;
+        double feetY = Mth.lerp(partial, source.yOld, source.getY()) + rubOffset.y;
+        double feetZ = Mth.lerp(partial, source.zOld, source.getZ()) + rubOffset.z;
+        paperCeiling = paper ? PaperCeiling.height(source, new Vec3(feetX, feetY, feetZ)) : Double.POSITIVE_INFINITY;
+        sweep = new AABB(feetX - reach, feetY, feetZ - reach, feetX + reach, feetY + bounds.high(), feetZ + reach);
+        double bodyTop = feetY + source.getBbHeight();
         boxCount = 0;
         // The bin's solid collision box spans its open mouth. A reaching tuft keeps the authored pose there.
         var bin = Behaviors.BRAID_EAT_BIN.equals(action) ? entity.braidMealBin() : null;
@@ -85,37 +81,51 @@ final class WallClearance {
             var state = entity.level().getBlockState(bin);
             if (!(state.getBlock() instanceof GarbageBinBlock) || !state.getValue(GarbageBinBlock.TIPPED)) bin = null;
         }
-        var reachedBin = bin;
-        var collisions = new BlockCollisions<>(entity.level(), source, sweep, false,
-                (pos, shape) -> pos.equals(reachedBin) ? Shapes.empty() : shape);
-        while (collisions.hasNext()) {
-            var shape = collisions.next();
-            shape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
-                if (maxX <= sweep.minX || minX >= sweep.maxX || maxY <= sweep.minY || minY >= sweep.maxY
-                        || maxZ <= sweep.minZ || minZ >= sweep.maxZ) return;
-                if (boxCount + 6 > boxes.length) boxes = Arrays.copyOf(boxes, boxes.length * 2);
-                boxes[boxCount++] = minX; boxes[boxCount++] = minY; boxes[boxCount++] = minZ;
-                boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
-            });
-        }
+        reachedBin = bin;
+        var collisions = new BlockCollisions<>(entity.level(), source, sweep, false, collectShape);
+        while (collisions.hasNext()) collisions.next();
         var partner = partnerFace(entity, mover, partial, bounds);
-        if (boxCount == 0 && partner == null && !Double.isFinite(paperCeiling)) return null;
-        var faces = new ArrayList<WallYield.Face>(boxCount / 6 + 1);
+        faces.clear();
+        low = Float.POSITIVE_INFINITY;
+        high = Float.NEGATIVE_INFINITY;
         for (int i = 0; i < boxCount; i += 6) {
             double minX = boxes[i], minY = boxes[i + 1], minZ = boxes[i + 2];
             double maxX = boxes[i + 3], maxY = boxes[i + 4], maxZ = boxes[i + 5];
-            double px = Mth.clamp(feet.x, minX, maxX), pz = Mth.clamp(feet.z, minZ, maxZ);
-            double x = px - feet.x, z = pz - feet.z;
-            double distance = Math.hypot(x, z);
+            double px = Mth.clamp(feetX, minX, maxX), pz = Mth.clamp(feetZ, minZ, maxZ);
             // A shape over the body axis is a floor or ceiling, and an overhead box (carton roof, burrow ceiling,
             // tabletop) only forms a side face where a wall below it actually blocks the body. Side faces use the nearest
             // point on the shape, giving a continuous separating plane around the outside of a corner.
-            if (distance >= reach || !WallYield.pressesSide(feet.x, feet.z, px, pz, minY, bodyTop, WallClearance::wallBelow)) continue;
-            faces.add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
-                    (float)(minY - feet.y), (float)(maxY - feet.y)));
+            if (feetX == px && feetZ == pz) continue;
+            double x = px - feetX, z = pz - feetZ;
+            double distance = Math.hypot(x, z);
+            if (distance >= reach || minY >= bodyTop && !wallBelow(px, pz, bodyTop)) continue;
+            add(new WallYield.Face((float)(x / distance), (float)(z / distance), (float)Math.max(0, distance - 1.0 / 1024),
+                    (float)(minY - feetY), (float)(maxY - feetY)));
         }
-        if (partner != null) faces.add(partner);
-        return faces.isEmpty() && !Double.isFinite(paperCeiling) ? null : new WallClearance(faces, origin, paperCeiling);
+        if (partner != null) add(partner);
+        originX = origin.m30();
+        originY = origin.m31();
+        originZ = origin.m32();
+        return faces.isEmpty() && !Double.isFinite(paperCeiling) ? null : this;
+    }
+
+    private Boolean collectShape(BlockPos pos, VoxelShape shape) {
+        if (!pos.equals(reachedBin)) shape.forAllBoxes(collectBox);
+        return Boolean.TRUE;
+    }
+
+    private void collectBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
+        if (maxX <= sweep.minX || minX >= sweep.maxX || maxY <= sweep.minY || minY >= sweep.maxY
+                || maxZ <= sweep.minZ || minZ >= sweep.maxZ) return;
+        if (boxCount + 6 > boxes.length) boxes = Arrays.copyOf(boxes, boxes.length * 2);
+        boxes[boxCount++] = minX; boxes[boxCount++] = minY; boxes[boxCount++] = minZ;
+        boxes[boxCount++] = maxX; boxes[boxCount++] = maxY; boxes[boxCount++] = maxZ;
+    }
+
+    private void add(WallYield.Face face) {
+        faces.add(face);
+        low = Math.min(low, face.low());
+        high = Math.max(high, face.high());
     }
 
     /** Both renders observe the same admission even if the anchor's animation packet is still in flight. */
@@ -138,13 +148,14 @@ final class WallClearance {
     /** Retain a former partner only while the two loose-part sweeps can still meet, even off camera. */
     static void observePartner(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof YukkuriView entity) || !entity.level().isClientSide) return;
+        var projection = PoseNeighbors.projection(entity);
         int id = entity.nuzzlePartnerId();
         if (id >= 0 && entity.yukkuriView(id) != null) {
-            lastPartners.put(entity, id);
+            projection.lastPartner = id;
             return;
         }
-        var last = lastPartners.get(entity);
-        if (last == null) return;
+        int last = projection.lastPartner;
+        if (last < 0) return;
         var peer = entity.yukkuriView(last);
         if (peer != null) {
             var own = bounds(entity, YukkuriModel.get(entity.assetId()));
@@ -153,12 +164,12 @@ final class WallClearance {
             var now = peer.position().subtract(entity.position());
             if (own.overlaps(theirs, before.x, before.y, before.z) || own.overlaps(theirs, now.x, now.y, now.z)) return;
         }
-        lastPartners.remove(entity);
+        projection.lastPartner = -1;
     }
 
     private static WallYield.Face partnerFace(YukkuriView entity, YukkuriView mover, float partial, WallYield.Bounds ownBounds) {
         int id = entity.nuzzlePartnerId();
-        if (id < 0) id = lastPartners.getOrDefault(entity, -1);
+        if (id < 0) id = PoseNeighbors.projection(entity).lastPartner;
         if (id < 0) return null;
         var peer = entity.yukkuriView(id);
         if (peer == null) return null;
@@ -169,9 +180,8 @@ final class WallClearance {
         if (mover == null) {
             if (!ownBounds.overlaps(peerBounds, delta.x, delta.y, delta.z)) return null;
             var toward = delta.multiply(1, 0, 1).normalize();
-            double now = entity.level().getGameTime() + (double)partial;
-            double own = YukkuriModel.get(entity.assetId()).contactReach(entity, now, partial, null, toward, true, false).body() * scale;
-            double theirs = peerModel.contactReach(peer, now, partial, null, toward.reverse(), true, false).body() * peerScale;
+            double own = bodyReach(entity, partial, toward.x, toward.z) * scale;
+            double theirs = bodyReach(peer, partial, -toward.x, -toward.z) * peerScale;
             return WallYield.passingFace(delta.x, delta.y, delta.z, own, theirs, ownBounds, peerBounds);
         }
         boolean right = entity == mover;
@@ -185,7 +195,16 @@ final class WallClearance {
                 (float)Math.min(ownBounds.low(), lift + peerBounds.low()), (float)Math.max(ownBounds.high(), lift + peerBounds.high()));
     }
 
-    private static boolean wallBelow(double x, double z, double bodyTop) {
+    private static double bodyReach(YukkuriView entity, float partial, double x, double z) {
+        var projection = PoseNeighbors.projection(entity);
+        long frame = PoseNeighbors.frame;
+        if (projection.matches(frame, partial, x, z)) return projection.reach();
+        double now = entity.level().getGameTime() + (double)partial;
+        double reach = YukkuriModel.get(entity.assetId()).bodyReach(entity, now, partial, x, z);
+        return projection.store(frame, partial, x, z, reach);
+    }
+
+    private boolean wallBelow(double x, double z, double bodyTop) {
         for (int i = 0; i < boxCount; i += 6)
             if (WallYield.supportsSide(x, z, bodyTop, boxes[i], boxes[i + 1], boxes[i + 2],
                     boxes[i + 3], boxes[i + 4], boxes[i + 5])) return true;
@@ -198,16 +217,20 @@ final class WallClearance {
     Matrix4f frame(Matrix4f pose, Matrix4f target) { return target.translation(-originX, -originY, -originZ).mul(pose).scale(1 / 16f); }
 
     VertexConsumer tuck(VertexConsumer source) {
-        if (source != lastSource) { lastSource = source; lastTuck = new Tuck(this, source); }
-        return lastTuck;
+        tuck.source = source;
+        return tuck;
     }
 
-    record Tuck(WallClearance clearance, VertexConsumer source) implements VertexConsumer {
+    void finishDraw() { tuck.source = null; }
+
+    final class Tuck implements VertexConsumer {
+        private VertexConsumer source;
+        VertexConsumer source() { return source; }
+
         @Override public VertexConsumer addVertex(float x, float y, float z) {
-            float side = x - clearance.originX;
-            float front = z - clearance.originZ;
-            float fraction = WallYield.press(clearance.faces, side, y - clearance.originY, front);
-            source.addVertex(clearance.originX + side * fraction, y, clearance.originZ + front * fraction);
+            float side = x - originX, front = z - originZ, height = y - originY;
+            float fraction = height < low || height > high ? 1 : WallYield.press(faces, side, height, front);
+            source.addVertex(originX + side * fraction, y, originZ + front * fraction);
             return this;
         }
 

@@ -639,10 +639,32 @@ public final class YukkuriModel {
     float bodyDepth(boolean rear) { return rear ? bodyRearDepth : bodyFrontDepth; }
 
     record ContactReach(double body,double accessory) {}
+    private final Vector3f contactPoint = new Vector3f(), contactSecond = new Vector3f();
+
+    double bodyReach(YukkuriView entity,double now,float partial,double x,double z) {
+        float yaw=(Mth.rotLerp(partial,entity.previousBodyYaw(),entity.bodyYaw())-180)*Mth.DEG_TO_RAD;
+        double cos=Mth.cos(yaw),sin=Mth.sin(yaw);
+        poseContact(entity,now);
+        return projectBody(x*cos+z*sin,z*cos-x*sin);
+    }
+
     /** Project the fitted body and worn mesh toward a partner in world space, including the clip's motion. */
     ContactReach contactReach(YukkuriView entity,double now,float partial,float[] cue,Vec3 toward,boolean body,boolean accessory) {
         float yaw=Mth.rotLerp(partial,entity.previousBodyYaw(),entity.bodyYaw());
         var bearing=toward.yRot((yaw-180)*Mth.DEG_TO_RAD);
+        poseContact(entity,now);
+        if(cue!=null) {
+            var outer=Overlays.presentation(cue);
+            for(var bone:world)bone.mulLocal(outer);
+        }
+        double bodyReach=body?projectBody(bearing.x,bearing.z):0,accessoryReach=0;
+        if(accessory)for(var part:parts)if(accessoryPart(part))
+            for(int index=part.start;index<part.start+part.count;index++)
+                accessoryReach=Math.max(accessoryReach,contactProjection(index,bearing.x,bearing.z));
+        return new ContactReach(bodyReach,accessoryReach/16);
+    }
+
+    private void poseContact(YukkuriView entity,double now) {
         float elapsed=(float)Math.max(0,now-entity.getAnimationStartTick())/20;
         float scale=HatScale.factor(entity.subspeciesFlags());
         // Runs before renderLiving, which initializes this model's pose again before drawing.
@@ -650,26 +672,19 @@ public final class YukkuriModel {
         clips.getOrDefault(entity.getAnimationId(),clips.get("idle")).sample(elapsed,pose);
         int hat=hatFollowBone();
         composer.world(pose,world,hat,scale,scale!=1&&hat>=0?HatGeometry.anchor():null,null);
-        if(cue!=null) {
-            var outer=Overlays.presentation(cue);
-            for(var bone:world)bone.mulLocal(outer);
-        }
-        var point=new Vector3f();
-        var second=new Vector3f();
-        double bodyReach=0,accessoryReach=0;
-        if(body)for(int index:bodyFloorVertices)
-            bodyReach=Math.max(bodyReach,contactProjection(index,point,second,bearing));
-        if(accessory)for(var part:parts)if(accessoryPart(part))
-            for(int index=part.start;index<part.start+part.count;index++)
-                accessoryReach=Math.max(accessoryReach,contactProjection(index,point,second,bearing));
-        return new ContactReach(bodyReach/16,accessoryReach/16);
     }
 
-    private double contactProjection(int index,Vector3f point,Vector3f second,Vec3 bearing) {
+    private double projectBody(double x,double z) {
+        double reach=0;
+        for(int index:bodyFloorVertices)reach=Math.max(reach,contactProjection(index,x,z));
+        return reach/16;
+    }
+
+    private double contactProjection(int index,double x,double z) {
         int v=index*8;
-        point.set(restVertices[v],restVertices[v+1],restVertices[v+2]);
-        Skin.blend(point,second,bindings[index],world);
-        return point.x*bearing.x+point.z*bearing.z;
+        contactPoint.set(restVertices[v],restVertices[v+1],restVertices[v+2]);
+        Skin.blend(contactPoint,contactSecond,bindings[index],world);
+        return contactPoint.x*x+contactPoint.z*z;
     }
     public static YukkuriModel get(String id) {
         YukkuriModel model = models.get(id);
@@ -1282,7 +1297,7 @@ public final class YukkuriModel {
                     // Working locks (house grip, braid reach/hold/use) and tails cradling a child keep their pose; they are only pressed.
                     boolean locks=gripping||braidPose.active()||holdingItem||hatInBraid>0||braidUse.contains(selected);
                     boolean tails=carryCurlLeft>0||carryCurlRight>0;
-                    wallYield.solve(this::skin,world,wallClearance.frame(stack.last().pose(),wallFrame),wallClearance.faces(),
+                    wallYield.solve(fittedSkin,world,wallClearance.frame(stack.last().pose(),wallFrame),wallClearance.faces(),
                             kind->kind.equals("lock")&&locks||kind.equals("tail")&&tails);
                     wallTurns=wallYield;
                 }
@@ -1582,7 +1597,7 @@ public final class YukkuriModel {
             else { paperFits.remove(entity); paperTentGrid = null; }
             PoseTap.model(entity, this, accessory, hairLoss, bridgeWeight, bridgeFrom);
             return contact;
-        }finally{wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
+        }finally{if(clearance!=null)clearance.finishDraw();wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
                 Float.NaN,0,0,false);setBraidReach(null,0);
                 pressingDish=false;dishTarget=null;
                 setBoardingPose(Float.NaN,0,1,0);setSelfHatPose(null);setExpression("");setReproductiveAnatomy(null);}
