@@ -6508,6 +6508,30 @@ pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水
                                    r'\[weather\][^\n]* shook the water off wetness='],
                 forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
 
+def _ledge_spit():
+    """A 3 x 5 sandstone spit out in the pond (stand y 64) and, hard against its east side, a broad bank one block higher (stand y 65):
+    water on three sides and a full-block ledge on the fourth, as the starving spit of the ordinary world."""
+    x0 = bank_dx(0) + 3
+    return [box(x0, -1, -2, x0 + 2, -1, 2, 'minecraft:sandstone'),
+            box(x0 + 3, -1, -5, x0 + 12, 0, 5, 'minecraft:sandstone'),
+            box(x0, 0, -2, x0 + 2, 3, 2, 'minecraft:air'),
+            box(x0 + 3, 1, -5, x0 + 12, 4, 5, 'minecraft:air'),
+            item('minecraft:apple', 1, x0 + 8, 0, 'food')]
+
+
+# The spit of the starving Patchouli: only a strained scramble (hop and braid hook, paid in energy) gets a hungry body over the ledge.
+pond('ledge_spit', '饿着的帕秋莉被困在沙洲上', '饿着的帕秋莉被困在沙洲上',
+     '饿着的帕秋莉站在水中一块 3×5 的沙洲上，三面是水，东面是比沙洲高整整一格的堤岸，跳不上去。看她走到堤脚、挂辫梢鼓劲翻上堤岸，再去吃堤上的苹果；翻堤花体力、播费力表情，营养越低、越胆大越早动身',
+     '约 30–60 秒',
+     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55)],
+     note=NEW, vantage=(bank_dx(0) - 3, 3, -90, 15),
+     reads=[('读营养与体力', f'yukkuri status {sel("a")} raw')],
+     smoke=dict(ticks=1800, expect=[r'\[move\][^\n]* stranded ledge rise=',
+                                   r'\[move\][^\n]* scramble strain rise=',
+                                   r'\[action\][^\n]* end id=climb outcome=DONE\b',
+                                   r'\[move\][^\n]* scramble done '],
+                forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
+
 def reclaim_facing_once(window):
     """The bank reclaim turns to the hat once: a turn Face has already completed is never issued again (the beckon that comes
     after it is the real proof, and a loop in front of it keeps it from starting)."""
@@ -7303,7 +7327,7 @@ POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo',
     'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
     'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
-    'self_rescue', 'shake_ashore', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
+    'self_rescue', 'shake_ashore', 'ledge_spit', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
     'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
     'hat_swap', 'shake_capsize', 'hat_push', 'hat_current',
     'hat_grounded_capsized')
@@ -7520,7 +7544,7 @@ TOPICS = {
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_crowd': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
-    'self_rescue': 'A5', 'shake_ashore': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
+    'self_rescue': 'A5', 'shake_ashore': 'A5', 'ledge_spit': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
     'hatless_monster': 'C2', 'puff_response': 'C2',
     'myon_stick': 'S1', 'myon_brave': 'S1', 'species_fatigue': 'S1', 'rare_forms': 'S2', 'kotatsu_winter': 'S2', 'kotatsu_summer': 'S2', 'sunbathe': 'S2',
     'alice_chores': 'S3', 'patchouli_vomit': 'S3', 'chen_speed': 'S3', 'marisa_sumo': 'S3',
