@@ -11,7 +11,6 @@
 | 放映室：实时播放器成为首页，清理过时拼帧页面（P11d） | `.worktrees/wp-hub-purge` | preview/hub, preview/review, scripts/build_preview_hub.py, scripts/build_preview_library.py |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
 | 性能：顶点提交与界面图集 | `.worktrees/wp-perf-vertex` | client/YukkuriModel.java, GUI atlas |
-| 性能：姿势接触与贴墙让位 | `.worktrees/wp-perf-contact` | client/PoseNeighbors.java, client/WallClearance.java, pose/WallYield.java |
 | 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
 | 性能：感知扫描错峰与共享候选 | `.worktrees/wp-perf-perception` | status/StatusLife.java, status/Reactions.java |
 | 池塘场景溺水与循环（PD-15、PD-26、PD-09、PD-13） | `.worktrees/wp-pond-gates` | aquatic/* (water exit, boarding, shore hop, hull admission) |
