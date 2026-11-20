@@ -208,19 +208,25 @@ public final class ForageGoal extends Goal {
                 // to the meadow.
                 // Hunger sends it farther and lets it try more destinations: ground beyond water or a rise is found by trying others.
                 int reach = (int)Math.round(TravelRange.search(entity, 12) * HungerDrive.reachScale(entity.life().nutrition()));
+                var refused = new int[4]; // no point, refused step, threat zone, no route
                 for (int attempt = 0, attempts = HungerDrive.sweepAttempts(entity.life().nutrition()); attempt < attempts; attempt++) {
-                    var point = LandRandomPos.getPos(entity,reach,reach);
-                    if (point == null || !TravelRange.babyDestination(entity,BlockPos.containing(point))
+                    // Every other try stays close: a body fenced in by water or a ledge it cannot climb still paces the ground it has.
+                    int span = attempt % 2 == 1 ? 6 : reach;
+                    var point = LandRandomPos.getPos(entity,span,span);
+                    if (point == null) { refused[0]++; continue; }
+                    if (!TravelRange.babyDestination(entity,BlockPos.containing(point))
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))
-                            || !entity.family().allowsForageWalk(point)) continue;
+                            || !entity.family().allowsForageWalk(point)) { refused[1]++; continue; }
                     var candidate = BlockPos.containing(point);
-                    if (!ForageClaims.threatZone(entity, candidate) && entity.life().navigate(candidate,searchSpeed(),false)) {
-                        searchSpot = candidate; break;
-                    }
+                    if (ForageClaims.threatZone(entity, candidate)) { refused[2]++; continue; }
+                    if (entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
+                    refused[3]++;
                 }
+                // Starving with nowhere to go is shown, not borne in silence.
+                if (searchSpot == null && entity.life().nutrition() < 20) entity.showReaction("teary", "hungry", 60);
                 GameplayLog.limited(entity,"forage","search_path",200,
-                        "search sweep destination={} moving={} nutrition={} rain={} elapsed={}", () -> new Object[]{searchSpot,
-                        !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed});
+                        "search sweep destination={} moving={} nutrition={} rain={} elapsed={} reach={} refused(noPoint,step,threat,route)={}", () -> new Object[]{searchSpot,
+                        !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed,reach,java.util.Arrays.toString(refused)});
             }
             return;
         }
