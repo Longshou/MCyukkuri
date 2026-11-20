@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | SP-13 家庭房只分到一只同窝的窝（main 上失败） | `.worktrees/wp-kin-nest` | life/LifeHome.java (shared nest assignment) |
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
