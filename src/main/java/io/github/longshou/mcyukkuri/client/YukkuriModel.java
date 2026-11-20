@@ -79,10 +79,14 @@ import org.slf4j.LoggerFactory;
 public final class YukkuriModel {
     public static final ResourceManagerReloadListener RELOAD = YukkuriModelLoader::reload;
     private static Map<String, YukkuriModel> models = Map.of();
+    private static YukkuriModel[] loadedModels = new YukkuriModel[0];
     private static Map<String, JsonObject> detachedBadges = Map.of();
     /** Null preserves that table, retaining the original staged reload publication points. */
     static void install(Map<String,YukkuriModel> loaded,Map<String,JsonObject> badges) {
-        if(loaded!=null)models=loaded;
+        if(loaded!=null){
+            models=loaded;
+            loadedModels=loaded.values().toArray(YukkuriModel[]::new);
+        }
         if(badges!=null)detachedBadges=badges;
     }
     void hatSampler(HatDamageFaces.Sampler sampler){hatDamageDraw.sampler(sampler);}
@@ -532,10 +536,10 @@ public final class YukkuriModel {
     private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
     static void clearPaperFits() {
-        for(var model:models.values()){model.paperFits.clear();model.paperTentGrid=null;}
+        for(var model:loadedModels){model.paperFits.clear();model.paperTentGrid=null;}
     }
     static void expirePaperFits(long frame) {
-        for(var model:models.values())model.paperFits.expireBefore(frame-1);
+        for(var model:loadedModels)model.paperFits.expireBefore(frame-1);
     }
     PaperTent.Grid takePaperTent() {
         var grid = paperTentGrid;

@@ -31,10 +31,8 @@ final class PaperFitSamples<K> {
 
     void expireBefore(long frame) {
         if (samples.isEmpty()) return;
-        for (var it = samples.values().iterator(); it.hasNext();) {
-            if (it.next().frame >= frame) break;
-            it.remove();
-        }
+        var byLastDraw = samples.sequencedValues();
+        while (!byLastDraw.isEmpty() && byLastDraw.getFirst().frame < frame) byLastDraw.removeFirst();
     }
 
     void remove(K wearer) {
