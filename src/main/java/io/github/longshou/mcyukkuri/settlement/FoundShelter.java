@@ -346,7 +346,8 @@ public final class FoundShelter implements MotorOwner {
                 || streetSpot != null && streetSpot != StreetSpot.AWNING || holdingPaper()
                 || body.life().hasPaperCover())) return false;
         nextScan = now() + UPGRADE_SCAN_TICKS;
-        if (active() && paperAt(gap)) return false;
+        // A fatigue nap can interrupt the cover goal while the carton still owns its occupant.
+        if (inside() != null || active() && paperAt(gap)) return false;
         var carton = findUsableShelter(body.blockPosition(), true);
         if (carton == null) return false;
         GameplayLog.event(body, "habitat", "found upgrading from={} shelter={}", target(), carton.getBlockPos());
