@@ -19,6 +19,7 @@
 | 性能：住所与觅食搜索 | `.worktrees/wp-perf-settlement` | settlement/ShelterBlockEntity.java, settlement/NaturalShelter.java, settlement/ForageGoal.java |
 | 低通过率试玩场景在当前 main 上复验（FG-07、TN-30、MD-02、MD-28） | `.worktrees/wp-scene-verify` | smoke checkers only |
 | 启动时巢的碰撞形状构建过慢 | `.worktrees/wp-perf-startup-shapes` | life/CareBlock.java (turn, authoredShape), LargeNestBlock, PetNestBlock |
+| 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 
 ## 玩法待办
 
