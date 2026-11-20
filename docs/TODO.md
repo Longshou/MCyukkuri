@@ -15,6 +15,7 @@
 
 | 饿了不找吃的：盯着够不到的食物、家里没粮就干等、饿着睡不醒 | `.worktrees/wp-starve-stuck` | settlement/ForageGoal.java, life/YukkuriLife.java (meal/sleep), house/HouseLife.java |
 | 窝恢复旧外观（用户：窝的改动撤回） | `.worktrees/wp-nest-revert` | care-props nests, large nests, predator nest art |
+| 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
 
 ## 玩法待办
 
