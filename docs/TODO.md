@@ -13,7 +13,6 @@
 
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
-| PD-13 亲油叼着孩子在船上一直不动（出船跳被拒后不换法） | `.worktrees/wp-boat-carry-stuck` | aquatic Ferry/Hop/Ashore carried exit |
 | 困在小沙嘴上出不去、落水后贴着岸边上不来 | `.worktrees/wp-ledge-trap` | movement/water-exit shared layer |
 
 ## 玩法待办
