@@ -27,6 +27,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 
 public final class ClientEvents {
 
@@ -78,6 +79,13 @@ public final class ClientEvents {
             WoundSurface.warm(body.assetId());
     }
 
+    static void clearWoundDisplays(LevelEvent.Unload event) {
+        if(event.getLevel().isClientSide()){
+            HairWoundRenderer.clear();
+            WoundRenderer.clearOwners();
+            YukkuriModel.clearPaperFits();
+        }
+    }
 
     public static void registerItemExtensions(RegisterClientExtensionsEvent event) {
         var extension=new IClientItemExtensions(){

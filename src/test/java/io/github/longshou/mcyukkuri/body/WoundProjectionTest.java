@@ -48,6 +48,23 @@ class WoundProjectionTest {
         assertTriangle(ink.getLast(), a, d, e);
     }
 
+    @Test void scratchProjectionKeepsOriginalFloatBits() {
+        float[] source = new float[32];
+        var a = new Vector3f(2.31f,-1.63f,-0f);
+        var b = new Vector3f(-6.57f,4.13f,-0f);
+        var c = new Vector3f(9.49f,-8.91f,-0f);
+        for (int i=0;i<3;i++) {
+            source[8+i]=a.get(i);
+            source[16+i]=b.get(i);
+            source[24+i]=c.get(i);
+        }
+        var out = new Vector3f();
+        for (var bary : List.of(WoundInk.A,WoundInk.B,WoundInk.C,new Bary(.31f,.27f,.42f))) {
+            var original = new Vector3f(a).mul(bary.a()).fma(bary.b(),b).fma(bary.c(),c);
+            assertEquals(original,bary.point(source,1,out));
+        }
+    }
+
     private static void assertTriangle(Bary[] actual, Bary... expected) {
         for (int i = 0; i < 3; i++) {
             var p = actual[i];

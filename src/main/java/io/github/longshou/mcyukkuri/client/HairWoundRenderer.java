@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,9 +60,7 @@ final class HairWoundRenderer {
      */
     private static final class Slot {
         final Prepared shared;
-        final Map<Object,Prepared> variants=new LinkedHashMap<>(MAX_VARIANTS,.75f,true){
-            @Override protected boolean removeEldestEntry(Map.Entry<Object,Prepared> eldest){return size()>MAX_VARIANTS;}
-        };
+        final Map<Object,Prepared> variants=new BoundedRenderCache<>(MAX_VARIANTS);
         Slot(Prepared shared,Object expression){this.shared=shared;variants.put(expression,shared);}
     }
     /** Full and simple detail are cached side by side so walking away and back never rebuilds the other one. */
@@ -73,9 +72,7 @@ final class HairWoundRenderer {
         Slot slot(boolean wantFull){return wantFull?full:simple;}
     }
     private static final int MAX_CACHED_BODIES=32,MAX_VARIANTS=8,MAX_DENT_STEPS=3;
-    private static final Map<Object,Entry> CACHE=new LinkedHashMap<>(MAX_CACHED_BODIES,.75f,true){
-        @Override protected boolean removeEldestEntry(Map.Entry<Object,Entry> eldest){return size()>MAX_CACHED_BODIES;}
-    };
+    private static final Map<Object,Entry> CACHE=new BoundedRenderCache<>(MAX_CACHED_BODIES);
     static void clear(){CACHE.clear();}
     static Prepared prepare(Object owner,YukkuriModel model,String asset,String expression,List<BodyWound> wounds,
                             int signs,float health,int hairLoss,boolean accessory,int headwear,boolean corePresent,float distanceSquared){
@@ -120,9 +117,21 @@ final class HairWoundRenderer {
     }
     /** Triangles one part contributed, kept per part so a new expression only redoes the parts it moves. */
     private static final class PartOut {
-        final Map<Integer,List<Triangle>> patches=new HashMap<>();
+        final Int2ObjectOpenHashMap<List<Triangle>> patches=new Int2ObjectOpenHashMap<>();
         final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
         final List<Triangle> lids=new ArrayList<>();
+    }
+    /** Shared part indices of the rest mesh. Expression patches keep the same triangle ranges. */
+    static final class Topology {
+        final Map<String,YukkuriModel.Part> parts=new HashMap<>();
+        final Int2ObjectOpenHashMap<String> triangleParts=new Int2ObjectOpenHashMap<>();
+        Topology(List<YukkuriModel.Part> modelParts){
+            triangleParts.defaultReturnValue("");
+            for(var part:modelParts){
+                parts.put(part.name(),part);
+                for(int first=part.start();first<part.start()+part.count();first+=3)triangleParts.put(first,part.name());
+            }
+        }
     }
     private static final class Corner {
         final int triangle;
@@ -210,15 +219,16 @@ final class HairWoundRenderer {
         }
     }
     static final class Prepared {
+        private static final List<Bary[]> ORIGINAL_TRIANGLE=List.<Bary[]>of(new Bary[]{A,B,C});
         final HairWoundAssets.Model info;
         final List<Cut> cuts;
-        final Map<Integer,List<Triangle>> patches=new HashMap<>();
+        final Int2ObjectOpenHashMap<List<Triangle>> patches=new Int2ObjectOpenHashMap<>();
         final Map<ResourceLocation,List<Triangle>> layers=new LinkedHashMap<>();
         /** Removed skin pieces, reversed and back-face culled: invisible from outside, solid to anything leaving through the hole. */
         final List<Triangle> lids=new ArrayList<>();
         final Map<String,Float> rigidOffsets;
         final Map<String,YukkuriModel.Part> parts;
-        final Map<Integer,String> triangleParts;
+        final Int2ObjectOpenHashMap<String> triangleParts;
         final YukkuriModel model;
         final WoundSurface mesh;
         /** The model's live vertices, read only while the constructor runs. */
@@ -244,6 +254,7 @@ final class HairWoundRenderer {
         private float pregnancyAmount;
         private final Vector3f tissuePoint=new Vector3f();
         final Vector3f a=new Vector3f(),b=new Vector3f(),c=new Vector3f(),normal=new Vector3f(),edge=new Vector3f(),smoothVertex=new Vector3f();
+        private final Vector3f transformedNormal=new Vector3f();
         final Vector3f[] smooth={new Vector3f(),new Vector3f(),new Vector3f()};
         final Vector3f skinPoint=new Vector3f();
         /** The display deformation of this body's wounds; allocation free per vertex, used only while the constructor runs. */
@@ -256,13 +267,15 @@ final class HairWoundRenderer {
             // The expression is already applied to the live vertices and the constructor never changes them.
             source=model.woundVertices();
             display=new Vector3f[source.length/8];
+            parts=model.woundTopology().parts;
+            triangleParts=model.woundTopology().triangleParts;
             boolean isolated=true;
             for(var part:model.woundParts())if(model.woundExpressionPart(part)&&!(part.name().startsWith("face_")&&!info.hair.contains(part.name())
                     &&!part.name().equals(info.body)&&!info.thermalHair.contains(part.name())&&!info.rigid.containsKey(part.name())))isolated=false;
             reusable=isolated;
             if(donor!=null&&!(donor.reusable&&isolated))donor=null;
             if(donor!=null){
-                this.wounds=donor.wounds;whole=donor.whole;sole=donor.sole;parts=donor.parts;triangleParts=donor.triangleParts;
+                this.wounds=donor.wounds;whole=donor.whole;sole=donor.sole;
                 cuts=donor.cuts;rigidOffsets=donor.rigidOffsets;outputs=donor.outputs;
                 cavity=donor.cavity;
             }else{
@@ -270,11 +283,7 @@ final class HairWoundRenderer {
                 int foot=(signs&BodySigns.FOOT_BURNED)!=0?3:0;
                 for(var wound:wounds)if(wound.kind()==WoundKind.SCORCH&&wound.shape()==WoundShape.SOLE_BURN)foot=Math.max(foot,info.house?3:wound.severity());
                 sole=foot;
-                parts=new HashMap<>();triangleParts=new HashMap<>();cuts=new ArrayList<>();rigidOffsets=new HashMap<>();outputs=new HashMap<>();
-                for(var part:model.woundParts()){
-                    parts.put(part.name(),part);
-                    for(int first=part.start();first<part.start()+part.count();first+=3)triangleParts.put(first,part.name());
-                }
+                cuts=new ArrayList<>();rigidOffsets=new HashMap<>();outputs=new HashMap<>();
                 BodyCavity.Opening opening=null;
                 for(var wound:wounds)if(!info.house&&mesh.valid(wound)){
                     var profile=HairWoundAssets.profile(wound);
@@ -291,11 +300,14 @@ final class HairWoundRenderer {
                 if(whole>0)rigidOffsets();
             }
             // Vertices no expression moves keep the donor's already deformed display point.
-            for(int i=0;i<display.length;i++)
-                display[i]=donor!=null&&!model.woundExpressionVertex(i)?donor.display[i]
-                        :deformRest(triangleParts.getOrDefault(i/3*3,""),new Vector3f(source[i*8],source[i*8+1],source[i*8+2]));
             moved=new boolean[display.length];
-            for(int i=0;i<display.length;i++){var d=display[i];moved[i]=d.x!=source[i*8]||d.y!=source[i*8+1]||d.z!=source[i*8+2];}
+            for(int i=0;i<display.length;i++){
+                int offset=i*8;
+                float x=source[offset],y=source[offset+1],z=source[offset+2];
+                var point=donor!=null&&!model.woundExpressionVertex(i)?donor.display[i]
+                        :deformRest(triangleParts.get(i/3*3),new Vector3f(x,y,z));
+                display[i]=point;moved[i]=point.x!=x||point.y!=y||point.z!=z;
+            }
             for(var part:model.woundParts()){
                 if(donor!=null&&!model.woundExpressionPart(part)){merge(donor.outputs.get(part.start()));continue;}
                 current=new PartOut();
@@ -322,12 +334,13 @@ final class HairWoundRenderer {
         private void buildPart(YukkuriModel.Part part,int hairLoss,boolean accessory){
             if(!model.woundVisible(part,hairLoss,accessory)||!part.anatomy().isEmpty()||part.name().contains("puff"))return;
             if(whole>0&&model.woundDamagedHat(part))return;
-            boolean receiver=receives(part.name());
+            boolean receiver=!cuts.isEmpty()&&receives(part.name());
+            if(!receiver&&sole<=whole)return;
             for(int first=part.start();first<part.start()+part.count();first+=3){
                 if(part.name().startsWith("face_")&&source[first*8+7]>=-.15f)continue;
-                var pa=point(first,A);var pb=point(first,B);var pc=point(first,C);
-                List<Bary[]> triangles=new ArrayList<>();triangles.add(new Bary[]{A,B,C});boolean changed=false;
+                List<Bary[]> triangles=ORIGINAL_TRIANGLE;boolean changed=false;
                 if(receiver){
+                    var pa=A.point(source,first,a);var pb=B.point(source,first,b);var pc=C.point(source,first,c);
                     // A dent cell must carry the same crossing vertices from both sides of every edge, so it never keeps the original triangle when a hole cuts it.
                     boolean conform=false;
                     for(var cut:cuts)if(cut.dent()&&cut.bounds(pa,pb,pc,1.2f,part.name())&&cut.dentTouches(pa,pb,pc)){
@@ -376,7 +389,7 @@ final class HairWoundRenderer {
             current.lids.add(new Triangle(lidCorner(first,tri[0]),lidCorner(first,tri[2]),lidCorner(first,tri[1]),palette[0],palette[1],palette[2]));
         }
         private Corner lidCorner(int first,Bary bary){
-            return new Corner(first,bary,deformRest(triangleParts.getOrDefault(first,""),point(first,bary)),.5f,.5f,1);
+            return new Corner(first,bary,deformRest(triangleParts.get(first),point(first,bary)),.5f,.5f,1);
         }
         private List<Triangle> layer(ResourceLocation texture){return current.layers.computeIfAbsent(texture,ignored->new ArrayList<>());}
         private Vector3f point(int first,Bary bary){return bary.point(source,first);}
@@ -386,7 +399,7 @@ final class HairWoundRenderer {
             var corner=new Corner(first,bary,point,decal==null?uv(first,bary,3):decal.u(point),
                     decal==null?uv(first,bary,4):decal.v(point),alpha);
             bindHair(corner);
-            corner.rest.set(deformRest(triangleParts.getOrDefault(first,""),new Vector3f(corner.rest)));
+            corner.rest.set(deformRest(triangleParts.get(first),new Vector3f(corner.rest)));
             return corner;
         }
         private void bindHair(Corner corner){
@@ -400,7 +413,7 @@ final class HairWoundRenderer {
             }
         }
         private Triangle triangle(int first,Bary[] bary,Cut decal,float alpha){
-            int tint=tint(triangleParts.getOrDefault(first,""));
+            int tint=tint(triangleParts.get(first));
             return new Triangle(corner(first,bary[0],decal,alpha),corner(first,bary[1],decal,alpha),corner(first,bary[2],decal,alpha),
                     tint>>16&255,tint>>8&255,tint&255);
         }
@@ -593,7 +606,7 @@ final class HairWoundRenderer {
             cut.skinZ=field;
         }
         private Corner derived(Sample sample,Vector3f point){return new Corner(sample.triangle,sample.bary,
-                deformRest(triangleParts.getOrDefault(sample.triangle,""),new Vector3f(point)),.5f,.5f,1);}
+                deformRest(triangleParts.get(sample.triangle),new Vector3f(point)),.5f,.5f,1);}
         private Corner hairDerived(Cut cut,Sample sample,Vector3f point){
             var corner=derived(sample,point);corner.skinBinding=sample(cut,cut.x(sample.point),cut.y(sample.point),false,0,true);
             if(corner.skinBinding!=null)corner.skinWeight=1;return corner;
@@ -632,7 +645,7 @@ final class HairWoundRenderer {
                 float[][] levels=core?BodyCavity.profile().levels():HairWoundAssets.cavityControls;
                 int rings=levels.length-1;
                 var apexRest=apexes.computeIfAbsent(cut,c->apexPoint(c,c.core!=null?null:sample(c,0,0,false,0,true),levels[rings]));
-                var apexLocal=core?new Vector3f(apexRest):deformRest(triangleParts.getOrDefault(edge.first,""),apexRest);
+                var apexLocal=core?new Vector3f(apexRest):deformRest(triangleParts.get(edge.first),apexRest);
                 var ra=new Corner[rings+1];var rb=new Corner[rings+1];
                 ra[0]=skinCorner(edge.first,edge.a);rb[0]=skinCorner(edge.first,edge.b);
                 for(int k=0;k<rings;k++){float t=fraction(levels,k);ra[k+1]=ring(cut,edge.first,edge.a,t,apexLocal);rb[k+1]=ring(cut,edge.first,edge.b,t,apexLocal);}
@@ -649,11 +662,11 @@ final class HairWoundRenderer {
             }
         }
         private Corner skinCorner(int first,Bary bary){
-            return new Corner(first,bary,deformRest(triangleParts.getOrDefault(first,""),point(first,bary)),.5f,.5f,1);
+            return new Corner(first,bary,deformRest(triangleParts.get(first),point(first,bary)),.5f,.5f,1);
         }
         /** Ring on the straight segment from the exact skin rim point to the apex, so it can never leave the body. */
         private Corner ring(Cut cut,int first,Bary bary,float t,Vector3f apex){
-            var rim=deformRest(triangleParts.getOrDefault(first,""),point(first,bary));
+            var rim=deformRest(triangleParts.get(first),point(first,bary));
             var corner=new Corner(first,bary,rim.lerp(apex,t),.5f,.5f,1);
             if(cut.core!=null)corner.deep=t;
             return corner;
@@ -774,7 +787,7 @@ final class HairWoundRenderer {
         }
         private void emit(Triangle tri,PoseStack stack,VertexConsumer buffer,int light,int overlay,boolean offset,boolean layer){
             if(WoundLod.measuring())WoundLod.triangle(layer);
-            String part=triangleParts.getOrDefault(tri.a.triangle,"");boolean pregnancy=!model.woundPregnancyFace(part);
+            String part=triangleParts.get(tri.a.triangle);boolean pregnancy=!model.woundPregnancyFace(part);
             buffer=model.evidenceBuffer(part,buffer);
             pose(tri.a,a,pregnancy);pose(tri.b,b,pregnancy);pose(tri.c,c,pregnancy);
             normal.set(b).sub(a).cross(edge.set(c).sub(a));if(normal.lengthSquared()<1e-12)return;normal.normalize();
@@ -787,11 +800,18 @@ final class HairWoundRenderer {
             triangleUv[0]=tri.a.u;triangleUv[1]=tri.a.v;triangleUv[2]=tri.b.u;triangleUv[3]=tri.b.v;triangleUv[4]=tri.c.u;triangleUv[5]=tri.c.v;
             if(model.woundPatch(part,posedTriangle,triangleUv,stack,buffer,light,overlay,
                     Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),tri.a.alpha,tri.b.alpha,tri.c.alpha))return;
-            var transform=stack.last();for(int i=0;i<4;i++){
-                var corner=i==0?tri.a:i==1?tri.b:tri.c;var point=i==0?a:i==1?b:c;var shade=perVertex?smooth[Math.min(i,2)]:normal;
+            var transform=stack.last();
+            if(!perVertex)transform.transformNormal(normal.x,normal.y,normal.z,transformedNormal);
+            for(int i=0;i<4;i++){
+                var corner=i==0?tri.a:i==1?tri.b:tri.c;var point=i==0?a:i==1?b:c;
+                if(perVertex&&i<3){
+                    var shade=smooth[i];
+                    transform.transformNormal(shade.x,shade.y,shade.z,transformedNormal);
+                }
                 buffer.addVertex(transform.pose(),point.x/16,point.y/16,point.z/16)
                         .setColor(Math.round(tri.red),Math.round(tri.green),Math.round(tri.blue),Math.round(Math.clamp(corner.alpha,0,1)*255))
-                        .setUv(corner.u,corner.v).setOverlay(overlay).setLight(light).setNormal(transform,shade.x,shade.y,shade.z);
+                        .setUv(corner.u,corner.v).setOverlay(overlay).setLight(light)
+                        .setNormal(transformedNormal.x,transformedNormal.y,transformedNormal.z);
             }
         }
     }

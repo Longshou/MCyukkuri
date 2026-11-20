@@ -192,6 +192,7 @@ public final class YukkuriModel {
     /** Angle-thresholded smooth skin normals of the body surface and of its puff mesh; null on house models. */
     private AngleNormals skinNormals,puffSkinNormals;
     private final SkinningCache skinningCache;
+    private final HairWoundRenderer.Topology woundTopology;
     private final int[] bodyFloorVertices;
     private final float bodyFrontDepth, bodyRearDepth;
     private final float[][] defaultPose;
@@ -532,6 +533,9 @@ public final class YukkuriModel {
     private final Map<YukkuriView, PaperFit> paperFits = new WeakHashMap<>();
     private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
+    static void clearPaperFits() {
+        for(var model:models.values()){model.paperFits.clear();model.paperTentGrid=null;}
+    }
     PaperTent.Grid takePaperTent() {
         var grid = paperTentGrid;
         paperTentGrid = null;
@@ -796,31 +800,25 @@ public final class YukkuriModel {
         boolean hasWall = toWall != null;
         Matrix4f fromWall = hasWall ? new Matrix4f(toWall).invert() : null;
         var pt = new Vector3f();
-        skinningCache.begin();
-        try {
-            if (showHat && hatDamageDraw.fit() < .999f) hatDamageDraw.poseHatSeat();
-            for (int partIndex = 0; partIndex < parts.size(); partIndex++) {
-                Part part = puffAmount > 0
-                        ? (puffPartIndex == partIndex ? puffSurface : puffAttachments.getOrDefault(partIndex, parts.get(partIndex)))
-                        : parts.get(partIndex);
-                if (!part.anatomy.isEmpty() || part.face || part.name.contains("puff") || hairHidden(part, hairLoss)) continue;
-                boolean isAcc = accessoryPart(part);
-                if (isAcc && (!showHat || hatProp != null)) continue;
-                boolean isBody = wornBody(part.name);
-                boolean isLoose = WallYield.loose(part.name);
-                boolean shrinkHat = isAcc && hatDamageDraw.fit() < .999f;
-                for (int v = part.start; v < part.start + part.count; v++) {
-                    skin(v, pt);
-                    if (shrinkHat) pt.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
-                    pt.mul(1 / 16f);
-                    if (hasWall && (isLoose || isAcc)) PaperTent.pressPoint(pt, toWall, fromWall, wallClearance.faces(), 0f);
-                    if (isBody) appendTentBody(pt);
-                    if (isAcc) appendTentHat(pt);
-                    else appendTentMesh(pt);
-                }
+        for (int partIndex = 0; partIndex < parts.size(); partIndex++) {
+            Part part = puffAmount > 0
+                    ? (puffPartIndex == partIndex ? puffSurface : puffAttachments.getOrDefault(partIndex, parts.get(partIndex)))
+                    : parts.get(partIndex);
+            if (!part.anatomy.isEmpty() || part.face || part.name.contains("puff") || hairHidden(part, hairLoss)) continue;
+            boolean isAcc = accessoryPart(part);
+            if (isAcc && (!showHat || hatProp != null)) continue;
+            boolean isBody = wornBody(part.name);
+            boolean isLoose = WallYield.loose(part.name);
+            boolean shrinkHat = isAcc && hatDamageDraw.fit() < .999f;
+            for (int v = part.start; v < part.start + part.count; v++) {
+                skin(v, pt);
+                if (shrinkHat) pt.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
+                pt.mul(1 / 16f);
+                if (hasWall && (isLoose || isAcc)) PaperTent.pressPoint(pt, toWall, fromWall, wallClearance.faces(), 0f);
+                if (isBody) appendTentBody(pt);
+                if (isAcc) appendTentHat(pt);
+                else appendTentMesh(pt);
             }
-        } finally {
-            skinningCache.end();
         }
         if (showHat && hatProp != null && hatFollowBone() >= 0) {
             var m = crownMatrix(hatFollowBone());
@@ -990,6 +988,7 @@ public final class YukkuriModel {
         for(var patches:expressionPatches.values())for(var patch:patches)
             Arrays.fill(expressionVertices,patch.start()/8,(patch.start()+patch.values().length)/8,true);
         woundExpressionVertices=expressionVertices;
+        woundTopology=new HairWoundRenderer.Topology(parts);
         skinningCache=new SkinningCache(bindings.length,index->{
             if(expressionVertices[index])return null;
             int offset=index*8;Binding binding=bindings[index];
@@ -1325,6 +1324,8 @@ public final class YukkuriModel {
                 }
             }
             renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss,observe);
+            if(entity!=null&&(wear&CareWearRenderer.PAPER_COVER)!=0)
+                paperTentGrid=paperTent(entity,stack,accessory,hairLoss,Headwear.visualJunk(entity.visibleHeadwear()));
             if (observe != null) observe.place(PoseNeighbors.basis);
             if (measure) bridge.boundsFrame = PoseNeighbors.frame;
         } finally {
@@ -1590,8 +1591,7 @@ public final class YukkuriModel {
             if(showHat)renderReplacementHat(stack,buffers,light,overlay);
             var junk=Headwear.visualJunk(headwear);
             renderJunkHat(junk,stack,buffers,light,overlay);
-            if ((wear & CareWearRenderer.PAPER_COVER) != 0) paperTentGrid = paperTent(entity, stack, showHat, hairLoss, junk);
-            else { paperFits.remove(entity); paperTentGrid = null; }
+            if ((wear & CareWearRenderer.PAPER_COVER) == 0) { paperFits.remove(entity); paperTentGrid = null; }
             PoseTap.model(entity, this, accessory, hairLoss, bridgeWeight, bridgeFrom);
             return contact;
         }finally{if(clearance!=null)clearance.finishDraw();wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,
@@ -1903,6 +1903,7 @@ public final class YukkuriModel {
     }
     float[] woundVertices(){return vertices;}
     List<Part> woundParts(){return parts;}
+    HairWoundRenderer.Topology woundTopology(){return woundTopology;}
     boolean woundVisible(Part part,int hairLoss,boolean accessory){return !hairHidden(part,hairLoss)&&((accessory&&hatProp==null)||!accessoryPart(part));}
     /** Reprojected fragment retains the original triangle's exact blended bone binding. */
     void woundSkin(int triangle,float a,float b,float c,Vector3f rest,Vector3f target){

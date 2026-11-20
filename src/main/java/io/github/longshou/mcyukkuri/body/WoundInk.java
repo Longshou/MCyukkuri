@@ -34,11 +34,14 @@ public final class WoundInk {
             box=new float[][]{{-radiusU,-radiusV},{radiusU,-radiusV},{radiusU,radiusV},{-radiusU,radiusV}};
         }
 
-        public float x(Vector3f point){return new Vector3f(point).sub(anchor).dot(u);}
-        public float y(Vector3f point){return new Vector3f(point).sub(anchor).dot(v);}
+        private static float project(Vector3f point,Vector3f origin,Vector3f axis){
+            return axis.dot(point.x-origin.x,point.y-origin.y,point.z-origin.z);
+        }
+        public float x(Vector3f point){return project(point,anchor,u);}
+        public float y(Vector3f point){return project(point,anchor,v);}
         public float u(Vector3f point){return .5f+x(point)/(2*radiusU);}
         public float v(Vector3f point){return .5f-y(point)/(2*radiusV);}
-        public boolean front(Vector3f point){return new Vector3f(point).sub(center).dot(n)>.15f*scale;}
+        public boolean front(Vector3f point){return project(point,center,n)>.15f*scale;}
         public boolean facing(Vector3f a,Vector3f b,Vector3f c){
             var normal=new Vector3f(b).sub(a).cross(new Vector3f(c).sub(a));
             return !(normal.lengthSquared()<1e-12||normal.normalize().dot(n)<.3f);
@@ -51,7 +54,7 @@ public final class WoundInk {
         }
         private boolean nearTriangle(Vector3f a,Vector3f b,Vector3f c){
             if(!(front(a)||front(b)||front(c)))return false;
-            float za=new Vector3f(a).sub(anchor).dot(n),zb=new Vector3f(b).sub(anchor).dot(n),zc=new Vector3f(c).sub(anchor).dot(n);
+            float za=project(a,anchor,n),zb=project(b,anchor,n),zc=project(c,anchor,n);
             return Math.min(za,Math.min(zb,zc))<2.5f*scale&&Math.max(za,Math.max(zb,zc))>-2.5f*scale;
         }
         public List<Bary[]> ink(List<Piece> polygon){
@@ -72,9 +75,14 @@ public final class WoundInk {
     public record Bary(float a,float b,float c) {
         Bary mix(Bary other,float t){return new Bary(a+(other.a-a)*t,b+(other.b-b)*t,c+(other.c-c)*t);}
         public Vector3f point(float[] source,int first){
-            return new Vector3f(source[first*8],source[first*8+1],source[first*8+2]).mul(a)
-                    .fma(b,new Vector3f(source[(first+1)*8],source[(first+1)*8+1],source[(first+1)*8+2]))
-                    .fma(c,new Vector3f(source[(first+2)*8],source[(first+2)*8+1],source[(first+2)*8+2]));
+            return point(source,first,new Vector3f());
+        }
+        public Vector3f point(float[] source,int first,Vector3f out){
+            int offset=first*8;
+            return out.set(coordinate(source,offset),coordinate(source,offset+1),coordinate(source,offset+2));
+        }
+        private float coordinate(float[] source,int offset){
+            return org.joml.Math.fma(c,source[offset+16],org.joml.Math.fma(b,source[offset+8],source[offset]*a));
         }
     }
     public record Piece(float x,float y,Bary bary) {

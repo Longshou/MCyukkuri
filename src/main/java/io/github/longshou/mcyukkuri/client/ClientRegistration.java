@@ -101,5 +101,6 @@ public final class ClientRegistration {
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, BodyEffectsRenderer::unload);
         NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, ClientEvents::warmWoundSurface);
+        NeoForge.EVENT_BUS.addListener(LevelEvent.Unload.class, ClientEvents::clearWoundDisplays);
     }
 }

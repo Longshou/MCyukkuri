@@ -200,7 +200,7 @@ final class CareWearRenderer {
         boolean paper = !cloth && !leaf && (wear & PAPER_COVER) != 0;
         // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
         // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
-        profile(pts, body, cx, cz, minY, h);
+        if (!paper || (wear & HARNESS) != 0) profile(pts, body, cx, cz, minY, h);
         if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);
