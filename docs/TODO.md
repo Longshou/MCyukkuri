@@ -13,6 +13,7 @@
 | 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
 | 公园：主人在长椅旁留下伴侣离开（PK 包 B） | `.worktrees/wp-park-bench` | human/HumanStreet.java (outings, bench), human/TownMarkers.java, pet/PetLife.java |
+| 徽章会馆：佩章者在广场相遇（包 C） | `.worktrees/wp-badge-plaza` | human/TownMarkers.java, headwear badge reactions |
 
 ## 玩法待办
 
