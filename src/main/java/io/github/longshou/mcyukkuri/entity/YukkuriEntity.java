@@ -408,6 +408,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public float peerRubSpacing() { return sync().peerRubSpacing(); }
     public int carePartnerId() { return sync().carePartnerId(); }
     public BlockPos occupiedBed() { return level().isClientSide ? sync().occupiedBed() : FamilyNest.occupiedBed(this); }
+    public float boardingDistance(BlockPos bed) { return level().isClientSide ? sync().boardingDistance() : life().boardingDistance(bed); }
     public float careContactProgress() { return sync().careContactProgress(); }
     public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }

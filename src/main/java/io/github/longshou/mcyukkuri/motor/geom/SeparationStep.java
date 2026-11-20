@@ -4,6 +4,13 @@ import java.util.function.Predicate;
 
 /** A swept ground step against a partner's horizontally expanded body box. */
 public final class SeparationStep {
+    public enum Turn {
+        ORDINARY, PASS, WAIT, YIELD, AROUND;
+
+        public double clearance(double width, boolean pressed) {
+            return this == WAIT || this == YIELD || this == ORDINARY && pressed ? width + RELEASE_GAP : width;
+        }
+    }
     // Lateral coordinate of the last closed flank of this pair. Recheck it before reversing into that pocket.
     private double blockedFlank = Double.NaN;
     private boolean acrossX;
@@ -20,11 +27,29 @@ public final class SeparationStep {
     /** Start at the real body face. Once pressed, finish opening a little daylight even at rest. */
     public Vec crowd(double x, double z, double width, boolean pressed, int order, double yield,
                             Vec wanted, Predicate<Vec> walkable) {
+        return step(Turn.ORDINARY, x, z, width, pressed, order, yield, wanted, walkable);
+    }
+
+    public Vec step(Turn turn, double x, double z, double width, boolean pressed, int order, double yield,
+                    Vec wanted, Predicate<Vec> walkable) {
         boolean faceX = Math.abs(x) >= Math.abs(z);
         if (!pressed || acrossX != faceX) blockedFlank = Double.NaN;
         acrossX = faceX;
-        if (clear(x, z, pressed ? width + RELEASE_GAP : width, wanted.x(), wanted.z())) return wanted;
+        if (clear(x, z, turn.clearance(width, pressed), wanted.x(), wanted.z())) return wanted;
         double gap = Math.max(Math.abs(x), Math.abs(z));
+        if (turn == Turn.PASS || turn == Turn.AROUND) {
+            // Approach the occupied face within the yield margin, leaving room for roundoff in world coordinates.
+            // The resident ahead can now step aside even when its own walking input is zero.
+            double room = gap - width;
+            if (room > RELEASE_GAP * .5) {
+                double inward = Math.abs(acrossX ? wanted.x() : wanted.z());
+                double scale = (room - RELEASE_GAP * .25) / inward;
+                var toFace = new Vec(wanted.x()*scale, wanted.y(), wanted.z()*scale);
+                if (walkable.test(toFace)) return toFace;
+            }
+            // Continue along a free face under the entrant's own power. A sleeper has no stride to redirect.
+            return away(x, z, Math.min(width, gap), wanted, walkable, this);
+        }
         double pace = Math.min(SHOVE * yield, width + RELEASE_GAP - gap);
         // Coincident feet choose opposite normals in the two calls.
         if (x == 0 && z == 0) x = Math.copySign(0.0, order);

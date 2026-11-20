@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
 import io.github.longshou.mcyukkuri.life.NestLayout;
+import io.github.longshou.mcyukkuri.motor.geom.SeparationStep.Turn;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
@@ -133,8 +134,11 @@ public interface YukkuriView {
     float peerRubSpacing();
     int carePartnerId();
     BlockPos occupiedBed();
-    default boolean sharesBedFootprint(YukkuriView peer) {
-        return NestLayout.ownsSpacing(occupiedBed(), peer.occupiedBed());
+    float boardingDistance(BlockPos bed);
+    default Turn bedTurn(BlockPos bed, float distance, YukkuriView peer) {
+        return bed != null && bed.equals(peer.occupiedBed())
+                ? NestLayout.turn(distance, peer.boardingDistance(bed), Integer.compare(getId(), peer.getId()))
+                : Turn.ORDINARY;
     }
     float careContactProgress();
     boolean isCrawling();

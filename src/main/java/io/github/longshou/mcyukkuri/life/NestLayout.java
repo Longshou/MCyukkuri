@@ -1,11 +1,12 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.motor.geom.SeparationStep.Turn;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Predicate;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /** A sleeper's square body and the circle swept by its headwear when turning. */
 public final class NestLayout {
@@ -32,8 +33,13 @@ public final class NestLayout {
         return true;
     }
 
-    public static <T> boolean ownsSpacing(T occupiedBed, T peerBed) {
-        return occupiedBed != null && occupiedBed.equals(peerBed);
+    /** Squared horizontal distance ranks active entrants. A sleeper already at its stand holds it. */
+    public static final float SETTLED = -1, INACTIVE = Float.POSITIVE_INFINITY;
+    public static Turn turn(float distance, float peerDistance, int order) {
+        if (distance == INACTIVE) return peerDistance == INACTIVE ? Turn.ORDINARY : Turn.YIELD;
+        if (distance == SETTLED || peerDistance == INACTIVE) return Turn.PASS;
+        if (peerDistance == SETTLED) return Turn.AROUND;
+        return distance < peerDistance || distance == peerDistance && order < 0 ? Turn.PASS : Turn.WAIT;
     }
 
     static Place choose(UUID id, Place body, double half, Map<UUID,Place> places, Predicate<Place> supported,

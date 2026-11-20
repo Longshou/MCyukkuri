@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.client;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.motor.geom.SeparationStep.Turn;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.pose.ContactBounds;
 import io.github.longshou.mcyukkuri.pose.WallYield;
@@ -87,10 +88,12 @@ final class PoseNeighbors {
         var at = self.getPosition(partial);
         var grid = grid(partial);
         int count = grid.findLoose((float)at.x, (float)at.y, (float)at.z, own.radius());
+        var bed = self.occupiedBed();
+        float distance = self.boardingDistance(bed);
         for (int i = 0; i < count; i++) {
             var peer = actors.get(grid.actor(i));
             if (peer == self || peer.level() != self.level() || peer.getId() == knownPartner
-                    || !peer.usesCrowdSpacing() || self.sharesBedFootprint(peer)) continue;
+                    || !peer.usesCrowdSpacing() || self.bedTurn(bed, distance, peer) == Turn.PASS) continue;
             var delta = peer.getPosition(partial).subtract(at);
             var theirs = projection(peer).bounds(peer);
             if (own.overlaps(theirs, delta.x, delta.y, delta.z))

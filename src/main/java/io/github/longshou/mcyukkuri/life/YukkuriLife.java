@@ -331,6 +331,24 @@ public final class YukkuriLife {
     }
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
+
+    /** Read the live final walk (or the sleep it handed off to) only on the resident's occupied bedding. */
+    public float boardingDistance(BlockPos bed) {
+        if (bed == null) return NestLayout.INACTIVE;
+        boolean settling = task == Task.SLEEP && wakeAt == 0 || isSleeping();
+        var ground = entity.getNavigation() instanceof YukkuriGroundNavigation nav ? nav : null;
+        boolean homeStep = task == Task.HOME && bed.equals(targetBlock) && ground != null && ground.walking();
+        var walk = approach.walkingStand(entity);
+        if (!settling && !homeStep && walk == null) return NestLayout.INACTIVE;
+        var stand = FamilyNest.restPosition(entity, bed);
+        if (stand == null) return NestLayout.INACTIVE;
+        if (settling) return SurfaceApproach.at(entity, stand) ? NestLayout.SETTLED : NestLayout.INACTIVE;
+        if (homeStep && Double.isFinite(ground.way(stand))
+                || walk != null && walk.distanceToSqr(stand) < SurfaceApproach.ARRIVAL * SurfaceApproach.ARRIVAL)
+            return (float)entity.distanceToSqr(stand.x, entity.getY(), stand.z);
+        return NestLayout.INACTIVE;
+    }
+
     public boolean mayReturnToBed(BlockPos bed) {
         if (refusedBed != null && !refusedBed.permits(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime(), () -> {
             var place = FamilyNest.restPosition(entity, bed);
@@ -353,7 +371,6 @@ public final class YukkuriLife {
 
     private boolean blocksBoarding(YukkuriEntity peer, Vec3 stand) {
         return peer != entity && peer.isAlive() && !peer.isPassenger() && !peer.noPhysics
-                && !entity.sharesBedFootprint(peer)
                 && SurfaceApproach.crossesBody(entity, entity.position(), stand, peer.getBoundingBox());
     }
 

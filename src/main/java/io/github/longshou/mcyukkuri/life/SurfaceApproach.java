@@ -97,6 +97,11 @@ public final class SurfaceApproach {
                 &&request.destination.distanceToSqr(destination)<.0025?request.result:null;
     }
 
+    Vec3 walkingStand(YukkuriEntity actor) {
+        return current != null && current.peer == null && lastResult(actor, current.destination) == Result.MOVING
+                && current.goal.distanceToSqr(current.destination) < ARRIVAL*ARRIVAL ? current.goal : null;
+    }
+
     /** Resolve the real sole height on a low nest or adjacent floor, retaining its collision shell. */
     public static Vec3 floor(YukkuriEntity actor, Vec3 near) {
         return floor(actor,near,false);
