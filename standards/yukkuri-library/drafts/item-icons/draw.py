@@ -62,8 +62,7 @@ WINE = ['#3a0d1f', '#5c1530', '#7e2042', '#a23458', '#c7577a']         # velvet 
 GOLDC = ['#6b4a12', '#9c7220', '#c99a32', '#e8c25a', '#f8e49a']        # velvet nest cord and buttons (placed.py GOLD)
 NAVYW = ['#273f5c', '#3d5f86', '#5a83ad', '#86abcf', '#b8d2ea']        # fine (blue) carrier wicker
 SAGEW = ['#2b4a33', '#41704b', '#5f9467', '#8bb98d', '#bfe0bd']        # large (green) carrier wicker
-WATER = ['#1d4a7a', '#2f6fa8', '#4b93cc', '#7cb9e6', '#bfe0f7']        # pool water
-TILE = ['#56747a', '#8aaab0', '#b5d0d3', '#d9ecec', '#ffffff']         # pool basin
+WATER = ['#1d4a7a', '#2f6fa8', '#4b93cc', '#7cb9e6', '#bfe0f7']        # waterer water
 WASH = ['#2f5677', '#4f7fa6', '#78a8cc', '#a6cde8', '#d6ecf9']         # wash cloth
 WHISTLE = ['#5a2e0f', '#8f501d', '#bf7a35', '#e0a55b', '#f5cd8b']      # wooden whistle
 ROPE = ['#3d2410', '#62401f', '#8a5e30', '#b08346', '#d4ab6e']         # companion cord
@@ -475,24 +474,25 @@ def yukkuri_trampoline():
 
 
 def yukkuri_pool():
-    """Paddling pool seen from the front and above: a pale tiled basin, blue water with white ripples, a tiled front wall."""
+    """Orange-juice tub seen from the front and above: a low white-enamel washtub with a navy rolled rim and lugs, full of
+    juice (shaded under the back rim, a sheen at the left), a navy foot ring."""
     i = Icon('yukkuri_pool')
-    i.rows(legend(o=(TILE, 0), W=(TILE, 4), w=(TILE, 3), t=(TILE, 2), T=(TILE, 1),
-                  a=(WATER, 1), b=(WATER, 2), c=(WATER, 3), r=(WATER, 4), A=(WATER, 0)), [
+    i.rows(legend(N=(SKY, 0), n=(SKY, 1), b=(SKY, 2), h=(SKY, 1), o=(WHITE, 0), W=(WHITE, 4), w=(WHITE, 3), s=(WHITE, 2),
+                  S=(WHITE, 1), K=(S.JUICE, 1), k=(S.JUICE, 2), j=(S.JUICE, 3), J=(S.JUICE, 4)), [
         "................",
         "................",
         "................",
-        "....oooooooo....",
-        "...oWwwwwwwwto..",
-        "..oWwAAAAAAwwto.",
-        ".oWwAbbrbbbAwto.",
-        ".oWAbbbbbrrbAto.",
-        ".oWAabbbbbbaATo.",
-        ".oWwAAAAAAAAwTo.",
-        ".oWwwwwwwwwwtTo.",
-        ".oTtTtTtTtTtTTo.",
-        ".oTTTTTTTTTTTTo.",
-        "..oooooooooooo..",
+        "................",
+        "....NNNNNNNN....",
+        "..NNnbbbbbbnNN..",
+        ".NnnKKKKKKKKnnN.",
+        "hNnjkJJkkkkkknNh",
+        "hNnjkkkkkkkkKnNh",
+        ".NnjjkkkkkkKKnN.",
+        "..NnnnnnnnnnnN..",
+        "..oWwwwwwwwsSo..",
+        "...oWwwwwwsSo...",
+        "....NnnnnnnN....",
         "................",
         "................",
     ])

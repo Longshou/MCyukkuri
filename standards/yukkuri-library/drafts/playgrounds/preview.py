@@ -1,13 +1,15 @@
 """In-use sheets for the playground equipment (local preview only; nothing here is shipped).
 
-For each facility, old (a Git ref) and current at the same camera: an adult and a baby yukkuri standing at the PlayLife
-route points (tunnel floor, slide deck and chute, trampoline bed, pool side step), from the entrance side and from
-the far side. The trampoline also gets its bed pressed down 2 units (unit 2 drawn lower, as the renderer will) beside
-the rest pose, so a gap or a spring would show. Pair with block-props/preview.py for the icon, 1x/4x and two-view rows.
+For each facility, old (a Git ref) and current at the same camera, with an adult and a young yukkuri where play puts
+them (tunnel floor, slide deck and chute, trampoline bed, tub seats), from the entrance side and from the far side.
+The trampoline adds its bed pressed 1 and 2 units (unit 2 drawn lower, as PlaygroundRenderer does) with the adult
+sunk with it, close up; the tub adds every juice level 0-4 (yukkuri_pool_juice units 1..k) with an adult on the
+floor and a young one on the bench, and two adults side by side. Pair with block-props/preview.py for the icon,
+1x/4x and two-view rows.
 
 Usage: preview.py <out dir> [--before origin/main]
 """
-import argparse, importlib.util, tempfile
+import argparse, importlib.util, json, tempfile
 from pathlib import Path
 from PIL import Image
 
@@ -17,14 +19,22 @@ P = importlib.util.module_from_spec(_spec)    # block-props/preview.py: sheet he
 _spec.loader.exec_module(P)
 
 R = P.R
-ADULT, BABY = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
-# (prop, [(x, y, z, scale, yaw)]) in model units: route points of PlayLife at the current heights.
+ADULT, YOUNG = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
+YOUNG_SCALE = .42
+# (x, y, z, scale, yaw) in model units at the current heights; the old models keep their own route heights.
 USE = {
-    'ceramic_tunnel': [(0, 2, -4, 1, 0), (0, 2, 12, .42, 180)],
-    'yukkuri_slide': [(0, 16, -1, 1, 0), (0, 9, 18, .42, 0)],
-    'yukkuri_trampoline': [(-4, 8, 0, 1, 20), (9, 8, 6, .42, -30)],
-    'yukkuri_pool': [(-15, 6, 0, 1, 90), (-15, 0, 16, .42, 0)],
+    'ceramic_tunnel': {'old': [(0, 2, -4, 1, 0), (0, 2, 12, YOUNG_SCALE, 180)], 'new': [(0, 3, -4, 1, 0), (0, 3, 12, YOUNG_SCALE, 180)]},
+    'yukkuri_slide': {'old': [(0, 16, -1, 1, 0), (0, 9, 18, YOUNG_SCALE, 0)], 'new': [(0, 16, -1, 1, 0), (0, 9, 18, YOUNG_SCALE, 0)]},
+    'yukkuri_trampoline': {'old': [(-4, 8, 0, 1, 20), (9, 8, 6, YOUNG_SCALE, -30)], 'new': [(-4, 8, 0, 1, 20), (9, 8, 6, YOUNG_SCALE, -30)]},
+    'yukkuri_pool': {'old': [(-15, 6, 0, 1, 90), (-15, 0, 16, YOUNG_SCALE, 0)], 'new': None},
 }
+
+
+def tub_seats(src):
+    """Seats of the tub from its exported data: (x, y, z, scale, yaw) for one adult and one young body."""
+    data = json.loads((src.root / 'src/main/resources/data/mcyukkuri/playgrounds/yukkuri_pool.json').read_text(encoding='utf-8'))['tub']
+    seats = {s['id']: s for s in data['seats']}
+    return seats, data
 
 
 class Split(R.Source):
@@ -41,46 +51,71 @@ class Split(R.Source):
         return super().tex_of(name.split('@')[0], part)
 
 
-def scene(src, name, pressed=0):
+def bodies(spots, src, dy=0):
+    return [(ADULT if s == 1 else YOUNG, 0, x, y + dy, z, s, yaw, src) for x, y, z, s, yaw in spots]
+
+
+def scene(src, name, spots, pressed=0, level=0):
     bounds = src.load(name)[0]['bounds']
-    top, reach = bounds[1][1], max(abs(v) for v in bounds[0] + bounds[2])
-    lift = 0 if name != 'yukkuri_trampoline' or top > 7 else -3        # bodies on the old bed (top 5) for the old model
+    reach = max(abs(v) for v in bounds[0] + bounds[2])
     rows = [(f'ground:{reach + 4:g}', 0, 0, 0, 0, 1, 0, src)]
     if pressed:
         rows += [(f'{name}@0', 99, 0, 0, 0, 1, 0, src), (f'{name}@2', 99, 0, -pressed, 0, 1, 0, src)]
     else:
         rows.append((name, 99, 0, 0, 0, 1, 0, src))
-    for x, y, z, s, yaw in USE[name]:
-        dy = lift - (pressed if name == 'yukkuri_trampoline' and y == 8 else 0)
-        rows.append((ADULT if s == 1 else BABY, 0, x, y + dy, z, s, yaw, src))
-    return rows
+    if level:
+        rows.append(('yukkuri_pool_juice', level, 0, 0, 0, 1, 0, src))
+    return rows + bodies(spots, src, -pressed)
 
 
 SIZE = (520, 380)
 
 
-def tile(sources, name, az, el, what, pressed=0):
+def frame_of(scenes, az, el):
     frame = None
-    for _, src in sources:
-        _, f = R.render(src, scene(src, name), az=az, el=el, ppu=8)
+    for rows in scenes:
+        _, f = R.render(rows[0][7], rows, az=az, el=el, ppu=8)
         frame = f if frame is None else (min(frame[0], f[0]), max(frame[1], f[1]), min(frame[2], f[2]), max(frame[3], f[3]))
-    out = []
-    for tag, src in sources:
-        image, _ = P.shot(src, scene(src, name), SIZE, az, el, lock=frame)
-        out.append(P.label(P.on(P.BG, image), f'{tag} · {what}'))
-    if pressed:
-        src = sources[-1][1]
-        image, _ = P.shot(src, scene(src, name, pressed), SIZE, az, el, lock=frame)
-        out.append(P.label(P.on(P.BG, image), f'新 · 床面压下 {pressed} 单位 · {what}'))
-    return P.row(out)
+    return frame
+
+
+def tiles(labelled, az, el, size=SIZE):
+    """[(label, scene rows)] rendered at one camera and one frame."""
+    frame = frame_of([rows for _, rows in labelled], az, el)
+    return P.row([P.label(P.on(P.BG, P.shot(rows[0][7], rows, size, az, el, lock=frame)[0]), text) for text, rows in labelled])
+
+
+def title(text):
+    image = Image.new('RGBA', (900, 30), P.BG)
+    P.ImageDraw.Draw(image).text((4, 4), text, fill=P.LABEL, font=P.font(20))
+    return image
 
 
 def sheet(name, old, new):
-    sources = [('旧', old), ('新', new)]
-    pressed = 2 if name == 'yukkuri_trampoline' else 0
-    title = Image.new('RGBA', (600, 30), P.BG)
-    P.ImageDraw.Draw(title).text((4, 4), f'{name} · 使用中', fill=P.LABEL, font=P.font(20))
-    return P.column([title, tile(sources, name, 210, 24, '入口侧', pressed), tile(sources, name, 30, 24, '对侧', pressed)])
+    spots = USE[name]
+    if name == 'yukkuri_pool':
+        seats, data = tub_seats(new)
+        adult, bench = seats['adult_alone'], seats['small_bench_right']
+        spots = {**spots, 'new': [(adult['x'], adult['y'], adult['z'], 1, 25), (bench['x'], bench['y'], bench['z'], YOUNG_SCALE, 10)]}
+    pairs = [('旧', old, spots['old']), ('新', new, spots['new'])]
+    rows = [title(f'{name} · 使用中')]
+    for az, el, what in ((210, 24, '入口侧'), (30, 24, '对侧')):
+        rows.append(tiles([(f'{tag} · {what}', scene(src, name, s)) for tag, src, s in pairs], az, el))
+    if name == 'yukkuri_trampoline':
+        centre = [(0, 8, 0, 1, 20)]
+        rows.append(tiles([(f'新 · 床面压下 {k} 单位' + (' · 成体随床面下沉（需代码）' if k else ' · 静止'), scene(new, name, centre, k))
+                           for k in (0, 1, 2)], 200, 32, (420, 300)))
+        rows.append(tiles([(f'新 · 床面压下 {k} 单位 · 无人', scene(new, name, [], k)) for k in (0, 1, 2)], 200, 40, (420, 260)))
+    if name == 'yukkuri_pool':
+        seats, data = tub_seats(new)
+        a, b, small = seats['adult_left'], seats['adult_right'], seats['small_bench_right']
+        pair = [(a['x'], a['y'], a['z'], 1, 25), (small['x'], small['y'], small['z'], YOUNG_SCALE, 15)]
+        rows.append(tiles([(f'新 · 橙汁 {k} 档' + (f'（液面 {data["levels"][k - 1]:g}）' if k else '（空）'), scene(new, name, pair, level=k))
+                           for k in range(5)], 200, 30, (330, 250)))
+        two = [(a['x'], a['y'], a['z'], 1, 20), (b['x'], b['y'], b['z'], 1, -15)]
+        rows.append(tiles([(f'新 · 两只成体 · 橙汁 {k} 档', scene(new, name, two, level=k)) for k in (2, 4)]
+                          + [('新 · 侧面 · 橙汁 4 档', scene(new, name, pair, level=4))], 160, 14, (420, 280)))
+    return P.column(rows)
 
 
 def main():
