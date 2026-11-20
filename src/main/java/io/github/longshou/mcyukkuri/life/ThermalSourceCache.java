@@ -7,9 +7,10 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
  * Short-lived, level-local cache of inspected heat-source positions.
@@ -20,7 +21,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
  * cell is discarded and never causes a chunk load.</p>
  */
 final class ThermalSourceCache {
-    record Source(BlockPos pos, double strength, boolean campfire) {}
+    record Source(BlockPos pos, double strength, boolean fire) {}
 
     private record Cell(int x, int y, int z) {}
     private static final class Entry {
@@ -55,13 +56,13 @@ final class ThermalSourceCache {
     }
 
     /** Returns cached candidates only; callers still apply their exact radius and sight rules. */
-    static List<Source> sources(ServerLevel level, BlockPos center, int radius) {
-        return of(level).find(level, center, radius);
+    static List<Source> sources(ServerLevel level, BlockPos center, int radius, int height) {
+        return of(level).find(level, center, radius, height);
     }
 
-    private List<Source> find(ServerLevel level, BlockPos center, int radius) {
+    private List<Source> find(ServerLevel level, BlockPos center, int radius, int height) {
         int lowX = center.getX() - radius, highX = center.getX() + radius;
-        int lowY = center.getY() - 2, highY = center.getY() + 2;
+        int lowY = center.getY() - height, highY = center.getY() + height;
         int lowZ = center.getZ() - radius, highZ = center.getZ() + radius;
         int minX = Math.floorDiv(lowX, CELL_XZ), maxX = Math.floorDiv(highX, CELL_XZ);
         int minY = Math.floorDiv(lowY, CELL_Y), maxY = Math.floorDiv(highY, CELL_Y);
@@ -116,12 +117,12 @@ final class ThermalSourceCache {
             var state = level.getBlockState(pos);
             if (state.is(Blocks.TORCH) || state.is(Blocks.WALL_TORCH)) entry.sources.add(new Source(pos, .9, false));
             // A dry body can recover at either of the inner stands, including the diagonal at sqrt(5) blocks.
-            if (litCampfire(state)) entry.sources.add(new Source(pos, 2.2, true));
+            if (burning(state)) entry.sources.add(new Source(pos, 2.2, true));
         }
     }
 
-    static boolean litCampfire(BlockState state) {
-        return (state.is(Blocks.CAMPFIRE) || state.is(Blocks.SOUL_CAMPFIRE)) && state.getValue(BlockStateProperties.LIT);
+    static boolean burning(BlockState state) {
+        return state.is(BlockTags.FIRE) || CampfireBlock.isLitCampfire(state);
     }
 
     private ThermalSourceCache() {}

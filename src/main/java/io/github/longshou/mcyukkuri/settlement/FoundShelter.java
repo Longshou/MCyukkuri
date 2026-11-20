@@ -584,7 +584,7 @@ public final class FoundShelter implements MotorOwner {
     private void discoverPaperCover() {
         var skills = body.skills();
         if (skills.assessed(Ability.PAPER_COVER) || skills.knows(Ability.PAPER_COVER)
-                || !needsSelfCover() || !holdingPaper() && (now() < nextPaperScan || broughtPaperAt(gap).isEmpty())
+                || !needsSelfCover() || !holdingPaper() && (now() < nextPaperScan || coverPaperAt(gap).isEmpty())
                 || !canPullPaperBody(body)) return;
         var personality = body.life().personality();
         int intelligence = personality.intelligence(), selfControl = personality.selfControl();
@@ -600,10 +600,10 @@ public final class FoundShelter implements MotorOwner {
         return body.life().temperature().cold() && !paperAt(gap);
     }
 
-    private List<ItemEntity> broughtPaperAt(BlockPos pos) {
+    private List<ItemEntity> coverPaperAt(BlockPos pos) {
         return level().getEntitiesOfClass(ItemEntity.class, new AABB(pos),
                 item -> item.isAlive() && item.blockPosition().equals(pos) && item.getItem().is(Items.PAPER)
-                        && item.getPersistentData().getBoolean(BROUGHT_PAPER)
+                        && (item.getPersistentData().getBoolean(BROUGHT_PAPER) || !item.hasPickUpDelay())
                         && groundPaperInReach(body, item.position(), item.getBoundingBox()));
     }
 
@@ -1050,7 +1050,7 @@ public final class FoundShelter implements MotorOwner {
                     return beginPlacePaper();
                 }
                 if (now() >= deadline) {
-                    if (canPullPaperBody(body) && wantsSelfCover() && enoughPaper(broughtPaperAt(gap))) {
+                    if (canPullPaperBody(body) && wantsSelfCover() && enoughPaper(coverPaperAt(gap))) {
                         coverAction = new CoverPaperAction(gap);
                         if (body.motor().run(this, coverAction)) return Step.RESTING;
                         coverAction = null;
@@ -1683,7 +1683,7 @@ public final class FoundShelter implements MotorOwner {
         @Override public Feasibility check(YukkuriEntity actor) {
             if (!inGapContact(actor) || !actor.life().canAcceptPaperCover())
                 return Feasibility.of(Reason.NO_CONTACT, 0, "cover_unavailable");
-            if (!enoughPaper(broughtPaperAt(targetGap)))
+            if (!enoughPaper(coverPaperAt(targetGap)))
                 return Feasibility.of(Reason.NO_CONTACT, 0, "no_paper");
             return Feasibility.pass();
         }
@@ -1700,7 +1700,7 @@ public final class FoundShelter implements MotorOwner {
                 return Outcome.of(Reason.NO_CONTACT, 0, "cover_unavailable");
             Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
             if (!draped && ticks >= drapeTick) {
-                var pile = broughtPaperAt(targetGap);
+                var pile = coverPaperAt(targetGap);
                 if (!enoughPaper(pile)) return Outcome.of(Reason.NO_CONTACT, 0, "paper_gone");
                 int needed = actor.life().paperCoverSheets();
                 var cover = pile.getFirst().getItem().copyWithCount(needed);

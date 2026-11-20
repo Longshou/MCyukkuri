@@ -188,6 +188,12 @@ final class CareWearRenderer {
     static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         // A retention swelling alone (bits 9-12, after the leaf is gone) is the body itself (YukkuriModel), nothing worn.
         if ((wear & (HARNESS | SWADDLE | LEAF_WORN | PAPER_COVER)) == 0) return;
+        boolean paper = (wear & (SWADDLE | LEAF_WORN | PAPER_COVER)) == PAPER_COVER;
+        if (paper && (wear & HARNESS) == 0) {
+            // The sampled fold already supplies all the geometry that paper uses.
+            paperTent(buffers, pose.last(), model.takePaperTent(), light, overlay);
+            return;
+        }
         float[] pts = model.posedWear(wear);
         int body = model.wearBodyLength();
         if (body < 9) return;
@@ -197,10 +203,9 @@ final class CareWearRenderer {
         var last = pose.last();
         float out = .035f * h;
         boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0, open = leaf && (wear & LEAF_OPEN) != 0;
-        boolean paper = !cloth && !leaf && (wear & PAPER_COVER) != 0;
         // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
         // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
-        if (!paper || (wear & HARNESS) != 0) profile(pts, body, cx, cz, minY, h);
+        profile(pts, body, cx, cz, minY, h);
         if ((cloth || leaf && !open) && !skinTable(SKIN)) return;
         if (cloth) swaddle(buffers, last, STYLES[wear >> 6 & 7], initial(model.id()), cx, cz, minY, h, light, overlay);
         if (open) groundLeaf(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, h, light, overlay);

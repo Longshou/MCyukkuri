@@ -1087,6 +1087,7 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
 
 _bold_paper = _uuid_text('stray_paper', 'bold_paper')
 _tired_paper = _uuid_text('stray_paper', 'tired_paper')
+_loose_paper_id = _uuid_text('stray_paper', 'loose_paper')
 def _no_sleep_before_stacks_empty(log):
     """Only after both stacks are empty may the bold paper marisa hand off to sleep; before that a sleep means its chain stalled."""
     marker = log.find('MCYPAPER_STACKS_EMPTY')
@@ -1106,7 +1107,7 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
         block(-6, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=2]'),
         block(6, 0, 2, 'mcyukkuri:newspaper_stack[bundles=1,facing=south,taken=3]'),
         item('minecraft:paper', 1, 7, 0, name='loose_paper').replace(
-            'count:1}', 'count:1,components:{"minecraft:custom_name":\'"散纸"\'}}'),
+            'PickupDelay:', f'UUID:{uuid_nbt(uid("stray_paper", "loose_paper"))},PickupDelay:'),
         block(9, 0, 2, 'minecraft:campfire[lit=false]'),
         street_stray('stray_paper', 'marisa', 6, 3, 'bold_paper', intelligence=90, boldness=75, energy=70,
                      rest_wait=0, yaw=180, label='垫纸魔理沙'),
@@ -1124,14 +1125,14 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                        r'\[body\][^\n]* (?:burn remembered|sole burned|accepted damage cause=(?:inFire|onFire|hotFloor|campfire))',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper cover draped'],
                expect=[rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* wind cover paper approach',
-                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* gathered item=minecraft:paper count=1 source=[0-9a-f-]{{36}} left=0',
+                       rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* gathered item=minecraft:paper count=1 source={_loose_paper_id} left=0',
                        rf'\[habitat\][^\n]* uuid={_bold_paper} [^\n]* paper bedding placed',
                        rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover fetch',
                        rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* paper cover draped source=bedding item=minecraft:paper count=2',
                        rf'\[habitat\][^\n]* uuid={_tired_paper} [^\n]* cold paper exhausted sleep',
                        rf'\[sleep\][^\n]* uuid={_tired_paper} [^\n]* begin source=life',
-                       r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\.',
-                       rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* campfire rest .*ring=2\..*rate=-',
+                       r'\[temperature\][^\n]* cold complaint .*line=dialogue\.mcyukkuri\.',
+                       rf'\[temperature\][^\n]* uuid={_bold_paper} [^\n]* fire rest .*ring=2\..*rate=-',
                        r'MCYPAPER_STACKS_EMPTY'],
                verify=_no_sleep_before_stacks_empty))
 
@@ -1141,12 +1142,19 @@ _devoted_parent_txt = _uuid_text('stray_paper_young', 'devoted_parent')
 _devoted_baby_txt = _uuid_text('stray_paper_young', 'devoted_baby')
 _self_parent_txt = _uuid_text('stray_paper_young', 'self_parent')
 _self_baby_txt = _uuid_text('stray_paper_young', 'self_baby')
-def _no_sleep_before_fire(log):
-    """The covered baby must not sleep while it is still cold in the gap; at the lit fire it warms, and a warm nap is its own."""
-    marker = re.search(rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* campfire rest', log)
-    if not marker:
-        return None
-    if re.search(rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin', log[:marker.start()]):
+def _paper_young_fire_phases(log):
+    """Check the covers at the lighting boundary and the baby's sleep only after reaching the fire."""
+    lighting = log.find('MCYPAPER_YOUNG_FIRE_LIT')
+    if lighting < 0:
+        return 'missing the fire lighting marker'
+    for wearer, sheets in ((_devoted_parent_txt, 3), (_devoted_baby_txt, 1), (_self_parent_txt, 3)):
+        drape = (rf'paper cover draped on child={wearer} ' if wearer == _devoted_baby_txt else
+                 rf'uuid={wearer} [^\n]* paper cover draped source=bedding ')
+        covers = list(re.finditer(drape + rf'item=minecraft:paper count={sheets}\b', log[:lighting]))
+        if not covers or re.search(rf'uuid={wearer} [^\n]* paper cover drop', log[covers[-1].end():lighting]):
+            return f'{wearer} lacked its {sheets}-sheet cover when the fire was lit'
+    marker = re.search(rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* fire rest', log)
+    if marker and re.search(rf'\[sleep\][^\n]* uuid={_devoted_baby_txt} [^\n]* begin', log[:marker.start()]):
         return 'devoted baby slept before it warmed at the fire'
     return None
 add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自利者先盖自身', '流浪：亲油叼纸盖赤油',
@@ -1178,7 +1186,8 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                  views={'side': dict(position=(-2.4, .75, 1.35), look_at=(-3.55, .28, -.5))}),
     smoke=dict(ticks=1620,
                commands=[(1050, 'execute if block ~ ~ ~ mcyukkuri:newspaper_stack[bundles=1,taken=3] run say MCYPAPER_YOUNG_ONE_LEFT'),
-                         (1250, block(-3, 0, 3, 'minecraft:campfire[lit=true]'))],
+                         (1250, block(-3, 0, 3, 'minecraft:campfire[lit=true]')),
+                         (1251, 'execute if block ~-3 ~ ~3 minecraft:campfire[lit=true] run say MCYPAPER_YOUNG_FIRE_LIT')],
                readout=[f'yukkuri status {sel("devoted_parent")} raw', f'yukkuri status {sel("devoted_baby")} raw',
                         f'yukkuri status {sel("self_parent")} raw', f'yukkuri status {sel("self_baby")} raw'],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
@@ -1190,11 +1199,11 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                        rf'\[habitat\][^\n]* uuid={_devoted_parent_txt} [^\n]* paper cover draped source=bedding item=minecraft:paper count=3',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover kept for self child={_self_baby_txt}',
                        rf'\[habitat\][^\n]* uuid={_self_parent_txt} [^\n]* paper cover draped source=bedding item=minecraft:paper count=3',
-                       r'\[temperature\][^\n]* cold onset .*line=dialogue\.mcyukkuri\..*\.baby\.s_cold parent=[0-9a-f-]+',
+                       rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* cold complaint .*line=dialogue\.mcyukkuri\..*\.baby\.s_cold parent={_devoted_parent_txt}',
                        rf'\[family\][^\n]* uuid={_devoted_parent_txt} [^\n]* heard cold cry child={_devoted_baby_txt}',
-                       rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* campfire rest .*ring=2\..*shield_parent={_devoted_parent_txt}',
+                       rf'\[temperature\][^\n]* uuid={_devoted_baby_txt} [^\n]* fire rest .*ring=2\..*rate=-.*shield_parent={_devoted_parent_txt}',
                        r'MCYPAPER_YOUNG_ONE_LEFT'],
-               verify=_no_sleep_before_fire))
+               verify=_paper_young_fire_phases))
 
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
@@ -9846,20 +9855,23 @@ _scene_end('stray_wind', [('wind_stray', _ASHORE), ('wind_plain', _ASHORE)],
             ('wind_stray', 'seen:habitat:paper cover drop item=minecraft:paper count=1')])
 _scene_end('stray_paper', [('bold_paper', _ASHORE),
                            ('tired_paper', _ASHORE + ' and hold.cover.item=minecraft:paper and hold.cover.n=2')],
-           [('bold_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=0'),
+           [('bold_paper', f'seen:habitat:gathered item=minecraft:paper count=1 source={_loose_paper_id} left=0'),
             ('bold_paper', 'seen:habitat:paper bedding placed')],
            [('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=1'),
             ('tired_paper', 'seen:habitat:paper bedding placed'),
             ('tired_paper', 'seen:habitat:gathered item=minecraft:paper count=1.*left=0'),
             ('tired_paper', 'seen:habitat:paper cover draped source=bedding.*count=2')])
 _scene_end('stray_paper_young',
-           [('devoted_parent', _ASHORE + ' and hold.cover.n=3'), ('devoted_baby', _ASHORE + ' and hold.cover.n=1'),
-            ('self_parent', _ASHORE + ' and hold.cover.n=3'), ('self_baby', _ASHORE)],
+           [(name, _ASHORE) for name in ('devoted_parent', 'devoted_baby', 'self_parent', 'self_baby')],
            [('devoted_parent', 'seen:habitat:wind cover paper approach'),
             ('devoted_parent', 'seen:habitat:baby paper cover approach'),
             ('devoted_parent', 'seen:habitat:paper cover draped on child='),
             ('devoted_parent', 'seen:habitat:gathered item=minecraft:paper count=1'),
-            ('devoted_parent', 'seen:habitat:paper cover draped source=bedding.*count=3')],
+            ('devoted_parent', 'seen:habitat:paper cover draped source=bedding.*count=3'),
+            ('devoted_parent', 'seen:habitat:paper cover drop item=minecraft:paper count=3'),
+            ('devoted_parent', 'seen:temperature:fire rest')],
+           [('devoted_baby', 'seen:habitat:paper cover drop item=minecraft:paper count=1'),
+            ('devoted_baby', f'seen:temperature:fire rest .*shield_parent={_devoted_parent_txt}')],
            [('self_parent', 'seen:habitat:wind cover paper approach'),
             ('self_parent', 'seen:habitat:paper cover kept for self'),
             ('self_parent', 'seen:habitat:paper cover draped source=bedding.*count=3')])
