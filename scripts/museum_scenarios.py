@@ -6510,7 +6510,7 @@ pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水
 
 def _ledge_spit():
     """A 3 x 5 sandstone spit out in the pond (stand y 64) and, hard against its east side, a broad bank one block higher (stand y 65):
-    water on three sides and a full-block ledge on the fourth, as the starving spit of the ordinary world."""
+    water on three sides and a full-block ledge on the fourth, with an apple on the bank."""
     x0 = bank_dx(0) + 3
     return [box(x0, -1, -2, x0 + 2, -1, 2, 'minecraft:sandstone'),
             box(x0 + 3, -1, -5, x0 + 12, 0, 5, 'minecraft:sandstone'),
@@ -6519,18 +6519,15 @@ def _ledge_spit():
             item('minecraft:apple', 1, x0 + 8, 0, 'food', dy=1.05)]
 
 
-# The spit of the starving Patchouli: only a strained scramble (hop and braid hook, paid in energy) gets a hungry body over the ledge.
-pond('ledge_spit', '饿着的帕秋莉被困在沙洲上', '饿着的帕秋莉被困在沙洲上',
-     '饿着的帕秋莉站在水中一块 3×5 的沙洲上，三面是水，东面是比沙洲高整整一格的堤岸，跳不上去。看她走到堤脚、挂辫梢鼓劲翻上堤岸，再去吃堤上的苹果；翻堤花体力、播费力表情，营养越低、越胆大越早动身',
-     '约 30–60 秒',
-     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55, adult_scale=.8)],
+# A hungry body on a spit, its food on the bank a full block above: the stand it walks to lies at the food's height, so it steps up.
+pond('ledge_spit', '沙洲上的饿帕秋莉够堤上的苹果', '沙洲上的饿帕秋莉够堤上的苹果',
+     '饿着的帕秋莉站在水中一块 3×5 的沙洲上，三面是水，东面是比沙洲高一格的堤岸，堤上有一个苹果。看她直接走到堤边、踏上堤岸去吃苹果，而不是在沙洲上原地"没有路"地发呆',
+     '约 10–20 秒',
+     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55)],
      note=NEW, vantage=(bank_dx(0) - 3, 3, -90, 15),
      reads=[('读营养与体力', f'yukkuri status {sel("a")} raw')],
-     smoke=dict(ticks=1800, expect=[r'\[move\][^\n]* stranded ledge rise=',
-                                   r'\[move\][^\n]* scramble strain rise=',
-                                   r'\[action\][^\n]* end id=climb outcome=DONE\b',
-                                   r'\[move\][^\n]* scramble done '],
-                forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
+     smoke=dict(ticks=1200, expect=[r'\[meal\][^\n]* swallowed item=minecraft:apple '],
+                forbid=_WATER_SMOKE_FORBID + [r'\[meal\][^\n]* food approach refused'], readout=_water_readouts('a')))
 
 def reclaim_facing_once(window):
     """The bank reclaim turns to the hat once: a turn Face has already completed is never issued again (the beckon that comes

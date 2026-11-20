@@ -63,7 +63,10 @@ public final class ItemContact {
         if(direction.lengthSqr()<1.0e-6)direction=MouthPlacement.outward(actor).multiply(1,0,1);
         double offset=MouthPlacement.position(actor).subtract(actor.position()).horizontalDistance();
         Vec3 stand=target.subtract(direction.normalize().scale(Math.max(.04,offset)));
-        return new Vec3(stand.x,actor.getY(),stand.z);
+        // The stand lies at the target's own height: food on a bank a block above the body is reached by stepping up to it, not by a
+        // stand sunk into that bank at the body's height (which no route reaches). Only a target with no ground under it keeps the body's level.
+        var ground=SurfaceApproach.floor(actor,new Vec3(stand.x,target.y,stand.z));
+        return ground!=null?ground:new Vec3(stand.x,actor.getY(),stand.z);
     }
 
     public record BowlStand(Vec3 feet, Vec3 contact) {
