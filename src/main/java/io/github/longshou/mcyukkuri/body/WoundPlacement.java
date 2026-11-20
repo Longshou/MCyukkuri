@@ -123,8 +123,16 @@ public final class WoundPlacement {
         transform(e).transformPosition(point);
         return e.position().add(new Vec3(point));
     }
-    public static Vec3 outward(YukkuriEntity e,BodyWound w){var mesh=WoundSurface.get(e.subspecies().assetId());var world=pose(e);var site=
-            mesh.displaySite(w);var a=mesh.posedDisplay(site.triangle(),world,e.body().wounds());var b=mesh.posedDisplay(site.triangle()+1,world,
-            e.body().wounds());var c=mesh.posedDisplay(site.triangle()+2,world,e.body().wounds());var n=b.sub(a).cross(c.sub(a));transform(e).transformDirection(n).normalize();return new Vec3(n);}
+    public static Vec3 outward(YukkuriEntity e, BodyWound wound) {
+        var mesh = WoundSurface.get(e.subspecies().assetId());
+        var pose = pose(e);
+        var wounds = e.body().wounds();
+        int triangle = mesh.displaySite(wound).triangle();
+        var a = mesh.posedDisplay(triangle, pose, wounds);
+        var b = mesh.posedDisplay(triangle + 1, pose, wounds);
+        var c = mesh.posedDisplay(triangle + 2, pose, wounds);
+        var normal = b.sub(a).cross(c.sub(a));
+        return new Vec3(transform(e).normal().transformDirection(normal).normalize());
+    }
     private WoundPlacement(){}
 }
