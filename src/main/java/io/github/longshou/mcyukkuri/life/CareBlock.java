@@ -73,9 +73,14 @@ public class CareBlock extends Block implements EntityBlock {
             var b = raw.getAsJsonArray();
             shapes.add(box(centre + b.get(0).getAsDouble(), 0, centre + b.get(1).getAsDouble(), centre + b.get(2).getAsDouble(), b.get(4).getAsDouble(), centre + b.get(3).getAsDouble()));
         }
+        return joinBalanced(shapes);
+    }
+    private static VoxelShape joinBalanced(List<VoxelShape> shapes) {
         while (shapes.size() > 1) {
             List<VoxelShape> next = new ArrayList<>();
-            for (int i = 0; i < shapes.size(); i += 2) next.add(i + 1 < shapes.size() ? Shapes.or(shapes.get(i), shapes.get(i + 1)) : shapes.get(i));
+            for (int i = 0; i < shapes.size(); i += 2) {
+                next.add(i + 1 < shapes.size() ? Shapes.or(shapes.get(i), shapes.get(i + 1)) : shapes.get(i));
+            }
             shapes = next;
         }
         return shapes.isEmpty() ? Shapes.empty() : shapes.getFirst().optimize();
@@ -83,13 +88,13 @@ public class CareBlock extends Block implements EntityBlock {
     /** {@code shape} turned {@code turns} clockwise quarter turns (seen from above: north to east) about the plane point
      *  ({@code cx}, {@code cz}) in blocks; the authored nests face their entrance one way and the block turns them. */
     static VoxelShape turn(VoxelShape shape, double cx, double cz, int turns) {
-        VoxelShape out = Shapes.empty();
+        List<VoxelShape> shapes = new ArrayList<>();
         for (var b : shape.toAabbs()) {
             double x0 = b.minX - cx, z0 = b.minZ - cz, x1 = b.maxX - cx, z1 = b.maxZ - cz;
             for (int k = 0; k < (turns & 3); k++) { double nx0 = -z1, nx1 = -z0; z0 = x0; z1 = x1; x0 = nx0; x1 = nx1; }
-            out = Shapes.or(out, Shapes.box(cx + x0, b.minY, cz + z0, cx + x1, b.maxY, cz + z1));
+            shapes.add(Shapes.box(cx + x0, b.minY, cz + z0, cx + x1, b.maxY, cz + z1));
         }
-        return out.optimize();
+        return joinBalanced(shapes);
     }
     /** Clockwise quarter turns from the authored entrance side to {@code facing}. */
     static int turns(Direction authored, Direction facing) { return (facing.get2DDataValue() - authored.get2DDataValue()) & 3; }
