@@ -2,7 +2,7 @@
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import quote,unquote,urlsplit
+from urllib.parse import parse_qsl, quote, unquote, urlencode, urlsplit
 import argparse
 from base64 import b64decode
 import json
@@ -111,6 +111,16 @@ class Handler(SimpleHTTPRequestHandler):
         aliases={'/':'/.local/previews/index.html','/preview':'/.local/previews/index.html',
                  '/preview/':'/.local/previews/index.html','/player.html':'/.local/previews/player.html',
                  '/preview/review/index.html':'/.local/previews/models/index.html'}
+        if requested in ('/player.html', aliases['/player.html']):
+            query = dict(parse_qsl(parsed.query))
+            if moment := query.pop('moment', None):
+                from build_player_entries import moment_entry_id
+
+                query['entry'] = moment_entry_id(moment)
+                self.send_response(302)
+                self.send_header('Location', aliases['/player.html'] + '?' + urlencode(query))
+                self.end_headers()
+                return
         if requested in aliases:
             target=aliases[requested]+('?' + parsed.query if parsed.query else '')
             self.send_response(302);self.send_header('Location',target);self.end_headers();return

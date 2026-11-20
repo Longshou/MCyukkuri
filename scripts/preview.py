@@ -836,7 +836,7 @@ def main():
                        look_only=args.command == 'viewer'))
         elif args.command == 'inbox':
             inbox(args)
-        if args.command == 'hub' or (args.command == 'kit' and not (OUT/'player.html').is_file()):
+        if args.command in ('hub', 'kit'):
             from build_preview_hub import build
 
             build(OUT)

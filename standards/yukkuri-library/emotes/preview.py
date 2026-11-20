@@ -75,7 +75,7 @@ def main():
                 + '<table><tr><th>ID</th><th>含义</th><th>建议用途</th></tr>'+rows+'</table>')
         (stage/'index.html').write_text(preview.page('头顶情绪符号', body), encoding='utf-8')
         preview.write_json(stage/'topic.json', dict(title='头顶情绪符号', command='emotes/preview.py', inputs={}))
-    print('http://127.0.0.1:8765/.local/previews/'+TOPIC+'/index.html')
+    print('http://127.0.0.1:8766/.local/previews/'+TOPIC+'/index.html')
 
 
 if __name__ == '__main__':

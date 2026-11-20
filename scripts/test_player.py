@@ -13,7 +13,7 @@ import sys
 import tempfile
 import time
 import unittest
-from urllib.parse import urljoin
+from urllib.parse import parse_qs, urljoin, urlsplit
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
@@ -160,6 +160,11 @@ class PlayerTests(unittest.TestCase):
             self.pose(dict(op='release', id=record['id']))
 
     def test_hub_and_player_html(self):
+        for path, moment, ident in [('/player.html', 'behavior_sunbathe', 'moment-behavior_sunbathe'),
+                                    ('/.local/previews/player.html', 'behavior_wake', 'wake_stretch')]:
+            with urlopen(self.base+path+'?moment='+moment+'&model=marisa&paper=1') as response:
+                self.assertEqual(parse_qs(urlsplit(response.url).query),
+                                 dict(entry=[ident], model=['marisa'], paper=['1']))
         player_controls = {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption', 'paper', 'mute', 'verdict'}
         pages = [('/', {'filters', 'catalog', 'status'}), ('/.local/previews/inbox/index.html', set())]
         pages.extend((f'/player.html?entry={ident}', player_controls)
