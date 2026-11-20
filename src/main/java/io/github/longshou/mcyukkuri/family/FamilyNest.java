@@ -50,7 +50,7 @@ public final class FamilyNest {
     }
     public static boolean shared(YukkuriEntity e, BlockPos bed) {
         var care=care(e);
-        if(care!=null)return care.getBlockPos().equals(bed)&&care.residentIds().size()>1;
+        if(care!=null)return !care.canopyNest()&&care.getBlockPos().equals(bed)&&care.residentIds().size()>1;
         var den=e.habitat().shelter();
         return den!=null&&bed.equals(den.bed(e.getUUID()))&&den.sharesBed(e.getUUID());
     }
@@ -181,7 +181,7 @@ public final class FamilyNest {
     }
     public static void tick(YukkuriEntity e){
         var c=care(e);
-        if(!e.life().isSleeping()&&e.family().brood()!=null&&!large(e)&&e.tickCount%200==0){
+        if(!e.life().isSleeping()&&e.family().brood()!=null&&(c==null||!c.canopyNest())&&!large(e)&&e.tickCount%200==0){
             for(var pos:BlockPos.betweenClosed(e.blockPosition().offset(-8,-1,-8),e.blockPosition().offset(8,1,8))){
                 if(e.level().hasChunkAt(pos)&&e.level().getBlockEntity(pos) instanceof CareBlockEntity nest&&nest.largeNest()&&nest.canClaim(e)
                         &&e.life().assignHome(GlobalPos.of(e.level().dimension(),pos.immutable()))){c=nest;break;}
@@ -189,7 +189,10 @@ public final class FamilyNest {
         }
         if(!e.life().isSleeping()&&e.family().adult()&&e.family().partner()!=null&&((ServerLevel)e.level()).getEntity(e.family().partner()) instanceof YukkuriEntity mate){
             var shared=care(mate);
-            if(shared!=null&&shared.largeNest()&&shared!=c&&e.distanceToSqr(mate)<64&&shared.canClaim(e)&&e.life().assignHome(mate.life().home()))c=shared;
+            if (shared != null && shared != c) {
+                boolean join = shared.canopyNest() || shared.largeNest() && (c == null || !c.canopyNest()) && e.distanceToSqr(mate) < 64;
+                if (join && shared.canClaim(e) && e.life().assignHome(mate.life().home())) c = shared;
+            }
         }
         if(c!=null&&!c.claim(e.getUUID())){
             // claim() may already have turned a grown child out and given it a new bed; only an address still on this nest is released here.
@@ -202,9 +205,15 @@ public final class FamilyNest {
         }
         var shelter=e.habitat().shelter();
         if(shelter!=null)shelter.enforceBedCapacity(e);
-        if(c==null&&e.family().stage()==FamilyLife.Stage.BABY&&!e.family().awaitingLanding()&&!e.isPassenger()){
-            for(var id:new UUID[]{e.family().mother(),e.family().father()})if(id!=null&&((ServerLevel)e.level()).getEntity(id) instanceof YukkuriEntity parent){
-                var nest=care(parent);if(nest!=null&&nest.largeNest()&&nest.canClaim(e)&&e.distanceToSqr(parent)<64){e.life().assignHome(parent.life().home());break;}
+        boolean canopyYoung = e.getVariant().isPredator() && !e.family().adult() && !e.family().subadult();
+        boolean needsBed = c == null && e.family().stage() == FamilyLife.Stage.BABY;
+        if ((canopyYoung || needsBed) && !e.family().awaitingLanding() && !e.isPassenger()) {
+            var parents = canopyYoung ? e.family().caregiverIds() : new UUID[]{e.family().mother(), e.family().father()};
+            for (var id : parents) if (id != null && ((ServerLevel)e.level()).getEntity(id) instanceof YukkuriEntity parent) {
+                var nest = care(parent);
+                if (nest == null || nest == c) continue;
+                boolean join = canopyYoung && nest.canopyNest() || needsBed && nest.largeNest() && e.distanceToSqr(parent) < 64;
+                if (join && nest.canClaim(e) && e.life().assignHome(parent.life().home())) break;
             }
         }
         if(!large(e)||!atAssignedNest(e))return;

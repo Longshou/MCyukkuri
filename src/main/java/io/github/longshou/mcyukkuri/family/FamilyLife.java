@@ -267,6 +267,14 @@ public final class FamilyLife {
         }
         return partner;
     }
+    /** Reciprocal household bond, including a partner whose chunk is unloaded. */
+    public UUID mutualPartner() {
+        var id = partner();
+        if (id == null) return null;
+        if (level().getEntity(id) instanceof YukkuriEntity mate) return Bonds.mutualMates(entity, mate) ? id : null;
+        var person = FamilyData.get(level()).person(id);
+        return person != null && entity.getUUID().equals(person.partner()) ? id : null;
+    }
     public int conceptions() { return conceptions; }
     public int recovery() { return recovery; }
     public int spentStemCount() { return spentStemCount; }

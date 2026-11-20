@@ -2373,23 +2373,35 @@ def _tree_family(sid, height, feeding):
     actors = [*shelf, block(0, height, 0, 'mcyukkuri:predator_nest'),
               yk('remilia', 4 if feeding else -1, 4 if feeding else 0, 'mother', dy=0 if feeding else height,
                  nutrition=98, energy=98, yaw=-90, uuid=mother, lead=True,
-                 friendliness=90, attachment=90, kin=kin_of(Partner=father)),
-              f'yukkuri scenario home {sel("mother")} ~ ~{height} ~']
+                 friendliness=90, attachment=90, kin=kin_of(Partner=father), also=('canopy_parent',))]
     if feeding:
-        actors.append(yk('flandre', -2, 0, 'father', dy=height, uuid=father, kin=kin_of(Partner=mother)))
-    resident = '@e[tag=scn_mother,distance=..48,limit=1,nbt={YukkuriLife:{NaturalHome:0b,HomeDimension:"minecraft:overworld"}}]'
+        actors.append(yk('flandre', -2, 0, 'father', dy=height, uuid=father, kin=kin_of(Partner=mother), also=('canopy_parent',)))
+    else:
+        actors.append(f'yukkuri scenario home {sel("mother")} ~ ~{height} ~')
+    x, z = BY_ID['grove'].spots['spawn']
+    pad = (x << 38) | ((z & 0x3ffffff) << 12) | (FEET + height)
+    resident = f'@e[tag=scn_canopy_parent,distance=..48,limit=1,nbt={{YukkuriLife:{{NaturalHome:0b,HomeDimension:"minecraft:overworld",HomePos:{pad}L}}}}]'
     young = []
     for name, offset, boldness in [('bold', -.22, 85), ('timid', .22, 25)]:
         child = yk('remilia', offset, -.22 if feeding else .12, name, dy=height+.15,
                    stage='baby' if feeding else 'child', share=0 if feeding else .44,
                    uuid=uid(sid, name), kin=young_kin, boldness=boldness, nutrition=24 if feeding else 92,
                    childhood=None if feeding else 'WingPractice:0.45d')
-        young.append(Retry(child, resident, first=5, tries=1))
+        young.append(Retry(child, resident, first=5, tries=16 if feeding else 1))
     return actors, young
 
 
 _feeding_parents, _feeding_young = _tree_family('pred_nest_feeding', 6, True)
 _fledge_parent, _fledge_young = _tree_family('pred_fledging', 7, False)
+
+
+def _verify_feeding_home(window):
+    x, z = BY_ID['grove'].spots['spawn']
+    pad = re.escape(f'BlockPos{{x={x}, y={FEET + 6}, z={z}}}')
+    for role in ('mother', 'father', 'bold', 'timid'):
+        actor = _uuid_text('pred_nest_feeding', role)
+        if not re.search(rf'\[home\] [^\n]*uuid={actor} [^\n]* assigned kind=care [^\n]* home=[^\n]*{pad}', window):
+            return f'{role} did not acquire the family canopy home'
 
 
 add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小猎物回枝巢，赤油在巢里吃糜',
@@ -2398,11 +2410,11 @@ add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小�
                    remains(4.41, 4, 'small_prey', age='juvenile', scale=.4, dimensions=(.30, .138), food=3, capacity=3),
                    yk('reimu', 9, 6, 'forager', stage='child', childhood=CHILDHOOD_CRAWLING_READY)],
     spot='spawn', vantage=(7, 8, 150, 4), env={'time': 'dawn'},
-    late=[*_feeding_young, Retry(set_status('mother', 'needs.nutrition', 65), sel('timid'), first=40, tries=1)],
+    late=[*_feeding_young, Retry(f'execute if entity {sel("bold")} run ' + set_status('mother', 'needs.nutrition', 65), sel('timid'), first=6)],
     reads=[('读亲油口中猎物', f'yukkuri status {sel("mother")} raw'), ('读赤油进食', f'yukkuri status {sel("bold")} raw')],
     smoke=dict(ticks=2100, forbid=[], expect=[r'prey lifted remains=', r'prey carried to nest child=', r'feed portion from prey ',
                                   r'feed mash prepared child=', r'feed handed to meal child=',
-                                  r'\[meal\] remilia [^\n]* swallowed item=[^\n]*prepared=true']))
+                                  r'\[meal\] remilia [^\n]* swallowed item=[^\n]*prepared=true'], verify=_verify_feeding_home))
 
 add('pred_fledging', 'grove', '雏鸟学飞：扑翅、跳枝、首飞', '枝巢里的两只子油试着起飞',
     '七格高的巢垫上，两只子油已有同样的练习进度。看大胆的一只何时离枝、胆小的一只还练多久；失足后观察亲油是否落到树下守护',

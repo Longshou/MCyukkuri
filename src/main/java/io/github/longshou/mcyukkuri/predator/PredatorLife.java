@@ -688,15 +688,7 @@ public final class PredatorLife implements EcologyRoutine {
     BlockPos broodPad() {
         if (!wildAdult()) return null;
         var own = animal.life().homeStand();
-        if (own != null && level().getBlockState(own).is(ModBlocks.PREDATOR_NEST.get())) return own;
-        var partner = animal.family().partner();
-        if (partner != null && level().getEntity(partner) instanceof YukkuriEntity mate) {
-            var shared = mate.life().homeStand();
-            if (shared != null && level().getBlockState(shared).is(ModBlocks.PREDATOR_NEST.get())
-                    && !level().getEntitiesOfClass(YukkuriEntity.class,new AABB(shared).inflate(7,12,7),
-                    child -> child.isAlive() && !child.family().subadult() && animal.family().caresFor(child)).isEmpty()) return shared;
-        }
-        return null;
+        return own != null && level().getBlockState(own).is(ModBlocks.PREDATOR_NEST.get()) ? own : null;
     }
 
     public boolean rearing() { return animal.getVariant().isPredator() && provisionChild()!=null; }
