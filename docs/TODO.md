@@ -19,6 +19,7 @@
 | 公园里等主人：本地流浪赠食并提供去处 | `.worktrees/wp-park-aid` | social/Kindness.java, pet/PetLife.java (waiting) |
 | 收容所志愿者给流浪放纸箱 | `.worktrees/wp-shelter-cartons` | human jobs, settlement/ShelterBlock.java |
 | 村会馆柜台：徽章登记、补发与讲台观看 | `.worktrees/wp-badge-counter` | human/HumanNpc.java (counter role), pet/exam/ExamMenu.java, pet/exam/ExamHall.java, author_civic.py |
+| 小卖亭买卖，流浪在售货口讨要被店主驱赶 | `.worktrees/wp-kiosk-trade` | human retail (ProduceCrateBlock, HumanFolk), street encounters |
 
 ## 玩法待办
 
