@@ -21,7 +21,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 
 /** Claims loaded complete nests first. Founders then rank the surveyed canopy, checking flight in score order. */
 final class PredatorNestSearch {
-    private static final int RADIUS = 24, SLICE = 2048, ROUTES = 8;
+    static final int RADIUS = 24;
+    private static final int SLICE = 2048, ROUTES = 8;
     private final ServerLevel level;
     private final BlockPos origin;
     private final long generation = SearchBudget.generation();

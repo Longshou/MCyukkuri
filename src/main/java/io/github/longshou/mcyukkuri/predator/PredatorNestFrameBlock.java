@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.predator;
 
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.NestSupport;
 import net.minecraft.core.Direction;
@@ -67,16 +68,16 @@ public final class PredatorNestFrameBlock extends Block implements EntityBlock {
 
         boolean available(ServerLevel level) {
             if (founder == null) return true;
-            for (var dimension : level.getServer().getAllLevels()) {
-                var owner = dimension.getEntity(founder);
-                if (owner != null) {
-                    founderPresent();
-                    return !owner.isAlive();
-                }
+            if (FamilyData.get(level).deadForCleanup(founder)) return true;
+            var owner = level.getEntity(founder);
+            if (owner != null && !owner.isAlive()) return true;
+            if (owner != null && getBlockPos().distSqr(owner.blockPosition()) <= PredatorNestSearch.RADIUS * PredatorNestSearch.RADIUS) {
+                founderPresent();
+                return false;
             }
-            // Give an unloaded founder one full game day from the first observed absence to return.
+            // A founder outside the survey area, or unloaded, has one day from the first observed absence to return.
             if (missingSince < 0) { missingSince = level.getGameTime(); setChanged(); }
-            return level.getGameTime() - missingSince >= 24000;
+            return FoundingFrame.abandoned(level.getGameTime(), missingSince);
         }
 
         @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {

@@ -2310,7 +2310,7 @@ add('pred_spawn_nest', 'grove', '捕食种自然生成，带着巢出现在树�
                  views={'canopy': dict(position=(-1.5, 7.1, -3.2), look_at=(.5, 6.45, .5))}))
 
 
-def _verify_predator_build(window):
+def _verify_predator_build(window, trace):
     twigs = re.findall(r'\[predator\] flandre [^\n]* nest frame twigs=(\d+) site=([^\r\n]+)', window)
     sources = re.findall(r'\[predator\] flandre [^\n]* nest twig taken source=(stick|leaf)\b', window)
     completed = re.findall(r'\[predator\] flandre [^\n]* nest built home=([^\n]+) twigs=8', window)
@@ -2318,18 +2318,54 @@ def _verify_predator_build(window):
         return f'Expected seven increasing stages and one completed nest at the same site, got {twigs}, {completed}'
     if sources != ['stick'] * 3 + ['leaf'] * 5:
         return f'Expected three loose sticks followed by five plucked twigs, got {sources}'
+    claim = re.findall(r'\[home\] flandre [^\n]* assigned kind=care [^\n]* home=[^\n]*' + re.escape(completed[0]), window)
+    finish = re.search(r'\[predator\] flandre [^\n]* uuid=(\S+) t=(\d+) [^\n]* nest built home=', window)
+    if len(claim) != 1:
+        return f'Expected one Flandre home claim at the finished pad, got {claim}'
+    founder, end_tick = finish.group(1), int(finish.group(2))
+    asleep, woke = False, None
+    for line in trace:
+        if f'"u":"{founder}"' not in line or '"k":"st"' not in line:
+            continue
+        state = json.loads(line.split('[trace] ', 1)[1])
+        if state['t'] >= end_tick:
+            break
+        if state['st']['sleeping']:
+            asleep = True
+        elif asleep:
+            woke = state['t']
+            break
+    work = re.findall(r'\[predator\] flandre [^\n]* t=(\d+) [^\n]* nest work chosen site=([^\n]+?) twigs=([1-7])', window)
+    if woke is None or not any(woke <= int(tick) < end_tick and site == completed[0] for tick, site, _ in work):
+        return 'Flandre did not wake and choose the same frame before finishing it'
+    adopted = re.findall(r'\[predator\] remilia [^\n]* nest frame adopted site=([^\n]+?) kept_twigs=4\b', window)
+    finished = re.findall(r'\[predator\] remilia [^\n]* nest built home=([^\n]+) twigs=8', window)
+    progress = re.findall(r'\[predator\] remilia [^\n]* nest frame twigs=(\d+) site=([^\r\n]+)', window)
+    if len(adopted) != 1 or finished != adopted or progress != [(str(i), adopted[0]) for i in (5, 6, 7)]:
+        return f'Expected Remilia to inherit four twigs, add stages 5–7 and finish that frame, got {adopted}, {progress}, {finished}'
+    if len(re.findall(r'\[home\] remilia [^\n]* assigned kind=care [^\n]* home=[^\n]*' + re.escape(adopted[0]), window)) != 1:
+        return 'Remilia did not claim the inherited frame on completion'
     return None
 
 
 add('pred_build_nest', 'grove', '无巢捕食种选树、衔枝筑巢', '无巢捕食种选树、衔枝筑巢',
-    '无巢芙兰先盘旋选树，再从树下捡三根木棍；用完后落到叶上啄细枝。看每趟衔一根、落在巢旁低头放下，巢架由散枝变成枝环，最后认领枝巢',
+    '无巢芙兰盘旋选树，捡完三根木棍后落到叶上啄细枝；困了休息，醒后回原架续搭，第八枝落下认巢。林地西南角的蕾米莉亚从弃置的四枝巢架继续搭',
     '约 1–2 分钟', [yk('flandre', 0, 0, 'build_pred', nutrition=100, energy=100, lead=True),
-                    item('minecraft:stick', 3, -1, 3, name='build_sticks')],
-    env=DAY, spot='build', vantage=(21, 33, 131, -7), reads=[('读筑巢活动与住所', f'yukkuri status {sel("build_pred")} raw')],
+                    item('minecraft:stick', 3, -1, 3, name='build_sticks'),
+                    box(-30, 5, 22, -27, 5, 22, 'minecraft:dark_oak_log[axis=x]'),
+                    box(-29, 6, 22, -27, 6, 22, 'minecraft:air'),
+                    box(-29, 7, 21, -27, 7, 23, 'minecraft:dark_oak_leaves[persistent=true]'),
+                    block(-28, 6, 22, 'mcyukkuri:predator_nest_frame[twigs=4]'),
+                    yk('remilia', -27, 26, 'adopt_pred', nutrition=100, energy=100, uuid=uid('pred_build_nest', 'adopter')),
+                    item('minecraft:stick', 4, -28, 25, name='adopt_sticks')],
+    env=DAY, spot='build', vantage=(21, 33, 131, -7), reads=[
+        ('读筑巢活动与住所', f'yukkuri status {sel("build_pred")} raw'),
+        ('读接手巢架的蕾米莉亚', f'yukkuri status {sel("adopt_pred", 100)} raw')],
     smoke=dict(ticks=3000, expect=[r'\[predator\] flandre [^\n]* nest survey begin',
                                    r'\[predator\] flandre [^\n]* nest built home=', r'\[home\] flandre [^\n]* assigned kind=care'],
                forbid=[r'\[predator\] flandre [^\n]* spawn nest placed'],
-               verify=_verify_predator_build, readout=[f'yukkuri status {sel("build_pred")} raw']))
+               verify=_verify_predator_build, verify_trace=True,
+               readout=[f'yukkuri status {sel("build_pred")} raw', f'yukkuri status {sel("adopt_pred", 100)} raw']))
 
 def _perch_resident(nutrition):
     # The western oak's roofed shelf, at the exact pad used by the natural-spawn scene.

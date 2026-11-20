@@ -38,7 +38,6 @@ import net.neoforged.neoforge.event.EventHooks;
 /** A founding errand. The frame is the work already done; the mouth is the twig in transit. */
 final class NestBuild {
     private enum Phase { SURVEY, SOURCE, GATHER, PLACE }
-    private static final int DAY = 24000;
     private static final int SURVEY_RADIUS = 4;
     private static final String LOOK = YukkuriAction.LOOK_AROUND.id();
     private final YukkuriEntity body;
@@ -76,7 +75,7 @@ final class NestBuild {
     }
 
     private Attempts sitesToday() {
-        long today = level().getGameTime() / DAY;
+        long today = level().getGameTime() / FoundingFrame.DAY;
         if (day != today) { day = today; sites = new Attempts(3); surveyed = false; }
         return sites;
     }
@@ -95,6 +94,7 @@ final class NestBuild {
             frame = null;
             return 0;
         }
+        if (pos.distSqr(body.blockPosition()) > PredatorNestSearch.RADIUS * PredatorNestSearch.RADIUS) return 0;
         block.founderPresent();
         frame = frame.observed(block.getBlockState().getValue(PredatorNestFrameBlock.TWIGS));
         boolean lacksNest = homeless();
@@ -304,6 +304,7 @@ final class NestBuild {
                 ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).setFounder(body.getUUID());
                 frame = new FoundingFrame(level().dimension().location().toString(), pos.asLong(), twigs + 1, level().getGameTime());
                 body.setPersistenceRequired();
+                if (twigs > 0) GameplayLog.event(body, "predator", "nest frame adopted site={} kept_twigs={}", pos, twigs);
             } else frame = frame.observed(twigs + 1);
             GameplayLog.event(body, "predator", "nest frame twigs={} site={}", twigs + 1, pos);
             return true;
@@ -315,6 +316,7 @@ final class NestBuild {
             ((PredatorNestFrameBlock.FrameEntity) level().getBlockEntity(pos)).restoreFounder(previous);
             return false;
         }
+        if (frame == null) GameplayLog.event(body, "predator", "nest frame adopted site={} kept_twigs={}", pos, twigs);
         frame = null;
         GameplayLog.event(body, "predator", "nest built home={} twigs={}", pos, twigs + 1);
         return true;

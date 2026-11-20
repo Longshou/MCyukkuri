@@ -2,6 +2,12 @@ package io.github.longshou.mcyukkuri.predator;
 
 /** The founder's last observation. The block owns the twig count and identifies its one builder. */
 record FoundingFrame(String dimension, long pos, int twigs, long since) {
+    static final int DAY = 24000;
+
+    static boolean abandoned(long now, long missingSince) {
+        return now - missingSince >= DAY;
+    }
+
     FoundingFrame observed(int count) {
         return count == twigs ? this : new FoundingFrame(dimension, pos, count, since);
     }

@@ -29,4 +29,9 @@ class FoundingFrameTest {
         assertEquals(frame.pressure(4021, true, false), restored.pressure(4021, true, false));
         assertTrue(FoundingFrame.chooseWork(restored.pressure(4021, true, false), 85, true));
     }
+
+    @Test void absenceMustLastOneGameDayFromTheFirstObservation() {
+        assertFalse(FoundingFrame.abandoned(26531, 2532));
+        assertTrue(FoundingFrame.abandoned(26532, 2532));
+    }
 }
