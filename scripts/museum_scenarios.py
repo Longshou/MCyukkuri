@@ -6055,6 +6055,16 @@ def _bank_pickup_retries(window):
                 refused.pop(carrier, None)
 
 
+def _carried_boarding(window, owner):
+    for attempt in re.finditer(r'\[aquatic\][^\n]*uuid=' + owner + r' [^\n]* boarding from bank child=(\S+) hat=(\S+)', window):
+        child, hat = map(re.escape, attempt.groups())
+        following = window[attempt.end():]
+        contact = re.search(r'\[body\][^\n]*uuid=' + owner + r' [^\n]* mount host=' + hat + r' cause=hop_contact\b', following)
+        release = re.search(r'\[body\][^\n]*uuid=' + child + r' [^\n]* dismount at=', following)
+        if contact is None or release and release.start() < contact.start():
+            return f'keeper failed to board {attempt[2]} with carried child {attempt[1]}'
+
+
 def _overload_family_choice(window):
     """Both kinds of parent on overload (FEATURES 载重, 超载断亲): the ordinary parent reads her hull's load warning and takes the
     family ashore to unload before it goes over (only a real overload capsize when she is too late dismisses her largest young);
@@ -6093,6 +6103,9 @@ def _overload_family_choice(window):
                 return 'exceptional parent did not keep all children after overload'
             if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy ', window):
                 return 'exceptional parent reacted to the load warning'
+            failure = _carried_boarding(window, owner)
+            if failure:
+                return failure
             continue
         if parent == 'early' and capsized is not None:
             return 'early: the hull capsized from overload though its young grow only into the warning'

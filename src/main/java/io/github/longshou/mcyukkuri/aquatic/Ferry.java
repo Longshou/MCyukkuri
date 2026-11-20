@@ -17,6 +17,8 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.geom.BankStand;
+import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
@@ -136,16 +138,15 @@ final class Ferry {
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
         if (AquaticLife.aboard(body, hat)) return hat.settled(body) ? null : List.of(() -> act(new Hop(hat)));
         Supplier<Hop> hop = () -> new Hop(hat);
-        return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"), () -> {
-                    if (hop.get().check(body).ok()) return null;
-                    var stand = boardingStand(body, hat, beckoning);
-                    if (stand != null) return SurfaceApproach.arrived(body, stand) ? null : act(new Walk(stand));
-                    GameplayLog.limited(body, "aquatic", "board.no_stand", 200,
-                            "board waiting reason=no_dry_hop_stand hat={}", hat.getUUID());
-                    return new Step.Wait(() -> hat.settled(body), ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL);
+        return List.of(() -> {
+                    for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
+                        GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
+                    return new Step.Wait(hat::steady, 60, "hat_settles");
                 },
+                () -> approachHull(body, hat, beckoning),
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
                 () -> beckoning == null || hop.get().check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
+                () -> beckoning != null && beckoning.tried != null ? approachHull(body, hat, null) : null,
                 () -> {
                     var action = hop.get();
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
@@ -153,19 +154,35 @@ final class Ferry {
                 () -> act(hop.get()));
     }
 
-    /** A dry walking destination admitted by the boarding arc, or by the owner's one braid stroke to draw her hat closer. */
-    private static Vec3 boardingStand(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
-        return boardingStand(body, hat, beckoning, new Hop.Search());
+    private static Step approachHull(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
+        var hop = new Hop(hat);
+        var search = Hop.Search.admission();
+        if (hop.check(body, search).ok()) return null;
+        var stand = boardingStand(body, hat, beckoning, search);
+        if (stand != null) return SurfaceApproach.at(body, stand) ? null : act(new Walk(stand));
+        GameplayLog.limited(body, "aquatic", "board.no_stand", 200,
+                "board waiting reason=no_dry_hop_stand hat={}", hat.getUUID());
+        return new Step.Wait(() -> hop.check(body, Hop.Search.admission()).ok(),
+                ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL);
     }
+
+    /** Prefer a reachable boarding arc anywhere on the bank before asking for a braid stroke. */
     private static Vec3 boardingStand(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, Hop.Search search) {
+        Vec3 strokeStand = null;
         for (var edge : Waters.edges(body, hat.position(), 4, false)) {
-            var stand = Waters.boardingStand(edge, body);
-            if (SurfaceApproach.supported(body, stand)
-                    && (new Hop(hat).checkFrom(body, stand, search).ok()
-                        || beckoning != null && beckoning.nearFrom(body, hat, stand, edge.yaw()))
-                    && SurfaceApproach.canApproach(body, stand)) return stand;
+            var centre = Waters.boardingStand(edge, body);
+            var aligned = Floor.point(BankStand.alongFace(Floor.vec(centre), Floor.vec(edge.normal()), Floor.vec(hat.position())));
+            for (var stand : aligned.equals(centre) ? List.of(centre) : List.of(aligned, centre)) {
+                if (!SurfaceApproach.supported(body, stand)) continue;
+                boolean reachable = new Hop(hat).checkFrom(body, stand, search).ok();
+                if (!reachable && (strokeStand != null || beckoning == null
+                        || !beckoning.nearFrom(body, hat, stand, SurfaceApproach.yaw(stand, hat.position())))) continue;
+                if (!SurfaceApproach.canApproach(body, stand)) continue;
+                if (reachable) return stand;
+                strokeStand = stand;
+            }
         }
-        return null;
+        return strokeStand;
     }
 
     /** Whether a boarding has a means where the young stands now: its own hop admitted, or a dry stand near the hull to walk to and

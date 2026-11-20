@@ -3,7 +3,7 @@ import json
 import re
 import unittest
 
-from museum_scenarios import BY_ID, FEET, S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import BY_ID, FEET, S, _bank_pickup_retries, _carried_boarding, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
 from smoke_fate import fates
 
 
@@ -51,6 +51,15 @@ class WindGapStart(unittest.TestCase):
 
 
 class PondBankPickup(unittest.TestCase):
+    def test_keeper_must_reach_her_hull_with_the_same_child_still_held(self):
+        approach = f'[aquatic] marisa uuid={PARENT} t=2 boarding from bank child={CHILD} hat=hat1\n'
+        contact = f'[body] marisa uuid={PARENT} t=3 mount host=hat1 cause=hop_contact\n'
+        release = f'[body] marisa uuid={CHILD} t=4 dismount at=bank\n'
+        self.assertIsNone(_carried_boarding(approach + contact + release, PARENT))
+        for missed in (contact + approach, approach + release + contact, approach + contact.replace('hat1', 'hat2'),
+                       approach + contact.replace(PARENT, OTHER_PARENT)):
+            self.assertIn(CHILD, _carried_boarding(missed, PARENT))
+
     def test_a_second_lift_needs_a_real_approach_to_the_hull(self):
         lift = f'[action] marisa uuid={PARENT} t=12616 end id=grab outcome=DONE detail=mounted target={CHILD}\n'
         blocked = f'[intent] marisa uuid={PARENT} t=12617 end id=set_out result=EXHAUSTED reasons=[TOO_FAR:0]\n'

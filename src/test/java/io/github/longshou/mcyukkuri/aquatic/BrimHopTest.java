@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
+import io.github.longshou.mcyukkuri.motor.geom.BankStand;
 import io.github.longshou.mcyukkuri.motor.geom.BodyFootprint;
 import io.github.longshou.mcyukkuri.motor.geom.HopPath;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
@@ -12,6 +13,27 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BrimHopTest {
+    @Test void shoreKeeperCanBoardFromDryFeetAlignedWithTheDrawnHull() {
+        // PD-13, before the refused hops at 5171 and 5421. The near-side seats are inset for the adult.
+        var oldStand = new Vec(-146.5, 64, 311.425);
+        var adjacent = new Vec(-147.5, 64, 311.425);
+        var waterward = new Vec(0, 0, -1);
+        var ability = AbilityMath.compute(new AbilityMath.Inputs(1, 60, 10, 10, 0, false, true, false, false, 0),
+                AbilityMath.Coefficients.DEFAULTS, AbilityMath.Multipliers.IDENTITY);
+        for (var hull : List.of(new Vec(-147.196, 63.915, 310.041), new Vec(-147.172, 63.913, 310.087))) {
+            var stand = BankStand.alongFace(adjacent, waterward, hull);
+            assertEquals(hull.x(), stand.x(), 1e-9);
+            assertTrue(stand.z() - .8 / 2 >= 311);
+            var stops = HullBounds.brimPlaces("marisa", .8, .6, HullBounds.SCALE, 0).stream()
+                    .map(p -> p.scale(HullBounds.UNIT).add(hull)).toList();
+            assertTrue(stops.stream().allMatch(p -> p.sub(oldStand).hlen() > ability.hopReach() + ArcSolver.REACH_SLACK));
+            assertTrue(stops.stream().anyMatch(p -> ArcSolver.lowest(stand, p, ability.hopHeight(), ability.hopReach(),
+                    ability.size(), points -> points.stream().map(stand::add).allMatch(feet ->
+                            (feet.z() + .8 / 2 <= 311 || feet.y() >= 64)
+                                    && feet.y() + .553 >= 64)) instanceof ArcSolver.Plan));
+        }
+    }
+
     @Test void clearBankBoardsAndLeavesThroughTheBrimWithinUnchangedHopAbility() {
         for (double size : List.of(1.0, .3)) {
             var body = BodyFootprint.of("marisa", .8 * size, .6 * size, 0);
