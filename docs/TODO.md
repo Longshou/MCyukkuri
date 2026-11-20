@@ -13,6 +13,7 @@
 | 按文档审计修正功能说明、待办与脚本说明 | `.worktrees/wp-docs-fixes` | docs/FEATURES.md, docs/TODO.md, scripts/README.md, preview/README.md |
 | 性能：顶点提交与界面图集 | `.worktrees/wp-perf-vertex` | client/YukkuriModel.java, GUI atlas |
 | 性能：姿势接触与贴墙让位 | `.worktrees/wp-perf-contact` | client/PoseNeighbors.java, client/WallClearance.java, pose/WallYield.java |
+| 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
 
 ## 玩法待办
 
