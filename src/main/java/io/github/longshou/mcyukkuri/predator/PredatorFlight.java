@@ -5,11 +5,12 @@ import java.util.UUID;
 final class PredatorFlight {
     static final int OTHER_TASK_LIMIT = 800;
     enum Task {
-        NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT, BROOD_FLIGHT, DELIVER, VISIT_YOUNG;
+        NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT, BROOD_FLIGHT, DELIVER, VISIT_YOUNG,
+        WARN, THREAT_APPROACH, THREAT_DIVE;
 
         boolean needsLanding(double energy) {
             return energy < 15 && switch (this) {
-                case TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, PATROL, BROOD_FLIGHT, DELIVER, VISIT_YOUNG -> true;
+                case TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, PATROL, BROOD_FLIGHT, DELIVER, VISIT_YOUNG, THREAT_APPROACH, THREAT_DIVE -> true;
                 default -> false;
             };
         }

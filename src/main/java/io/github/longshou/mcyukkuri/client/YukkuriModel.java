@@ -1121,6 +1121,12 @@ public final class YukkuriModel {
         Clip drawn = clips.get(sampledClip);
         drawn.sample(adultTime, pose);
         sampledTime = drawn.time(adultTime);
+        if (behavior.equals(Behaviors.PREDATOR_SCREECH) && sampledClip.equals(Behaviors.PREDATOR_FLAP)) {
+            // The puff's cheek and body tracks layer over the flap's wing tracks.
+            var puff = clips.get(YukkuriAction.PUFF.id());
+            for (var track : puff.tracks)
+                if (!bones[track.bone].name.startsWith("predator_wing_")) track.sample(puff.time(adultTime), pose[track.bone]);
+        }
         if (momentFrame != null && !adultStatePose && selected.equals(momentFrame.clip()))
             Intensity.apply(pose, defaultPose, rootBone(), momentFrame.intensity());
         if (selected.equals("house_carry") && action.equals("waddle")) {
