@@ -49,6 +49,7 @@ import io.github.longshou.mcyukkuri.shop.ShopDoors;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -170,7 +171,7 @@ public final class HumanNpc extends PathfinderMob {
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
         super(type, level); this.look = look;
         setAttitude(look == Look.ONIISAN ? Attitude.CRUEL : Attitude.CARING);
-        setPersistenceRequired(); ((GroundPathNavigation)getNavigation()).setCanOpenDoors(true);
+        setPersistenceRequired();
     }
     public static AttributeSupplier.Builder attributes() { return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 24)
             .add(Attributes.MOVEMENT_SPEED, .26).add(Attributes.FOLLOW_RANGE, 24); }
@@ -312,7 +313,6 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(2, new RoutineGoal());
         goalSelector.addGoal(3, new ShelterCartons(this));
         goalSelector.addGoal(3, walk().goal());
-        goalSelector.addGoal(3, new OpenDoorGoal(this, true));
         goalSelector.addGoal(3, new StaffDoorGoal());
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85) {
             @Override public boolean canUse() { return !stroll().outing() && super.canUse(); }
@@ -371,7 +371,7 @@ public final class HumanNpc extends PathfinderMob {
             getNavigation().stop();
         }
     }
-    /** Shop staff on a job may route through their own shop's iron staff doors (ShopStaff.opensDoor); every other door is vanilla. */
+
     @Override protected PathNavigation createNavigation(Level level) {
         return new HumanNavigation(level);
     }
@@ -383,13 +383,16 @@ public final class HumanNpc extends PathfinderMob {
     }
 
     private final class HumanNavigation extends GroundPathNavigation {
+        private final Set<BlockPos> openedDoors = new HashSet<>();
         private AABB shopBlocker;
 
         private HumanNavigation(Level level) { super(HumanNpc.this, level); }
 
         @Override public Path createPath(BlockPos target, int accuracy) {
-            return ShopStaff.active(HumanNpc.this) && accuracy == 0
-                    ? shopPath(Set.of(target), null) : super.createPath(target, accuracy);
+            if (ShopStaff.active(HumanNpc.this) && accuracy == 0) return shopPath(Set.of(target), null);
+            // GroundPathNavigation lifts solid targets above the lintel. A doorway can itself be the destination.
+            var door = handDoor(target);
+            return door == null ? super.createPath(target, accuracy) : createPath(Set.of(door), accuracy);
         }
 
         private Path shopPath(Set<BlockPos> stands, AABB blocker) {
@@ -403,10 +406,10 @@ public final class HumanNpc extends PathfinderMob {
 
         @Override public boolean shouldRecomputePath(BlockPos at) {
             // Opening or closing an authorized leaf leaves its path traversable.
-            if (!ShopStaff.active(HumanNpc.this)) return super.shouldRecomputePath(at);
+            if (!super.shouldRecomputePath(at)) return false;
             var state = level.getBlockState(at);
-            return !(state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand()
-                    && ShopStaff.opensDoor(HumanNpc.this, at)) && super.shouldRecomputePath(at);
+            return !(state.getBlock() instanceof DoorBlock door && (door.type().canOpenByHand()
+                    || ShopStaff.active(HumanNpc.this) && ShopStaff.opensDoor(HumanNpc.this, at)));
         }
 
         @Override protected PathFinder createPathFinder(int maxVisitedNodes) {
@@ -430,13 +433,74 @@ public final class HumanNpc extends PathfinderMob {
 
                 @Override public PathType getPathType(PathfindingContext context, int x, int y, int z) {
                     var pos = new BlockPos(x, y, z); var state = context.getBlockState(pos);
-                    if (state.getBlock() instanceof DoorBlock door && !door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)
-                            && ShopStaff.opensDoor(HumanNpc.this, pos)) return PathType.DOOR_WOOD_CLOSED;
+                    if (state.getBlock() instanceof DoorBlock door && (door.type().canOpenByHand()
+                            || !state.getValue(DoorBlock.OPEN) && ShopStaff.opensDoor(HumanNpc.this, pos))) return PathType.DOOR_WOOD_CLOSED;
                     return super.getPathType(context, x, y, z);
                 }
             };
             nodeEvaluator.setCanPassDoors(true);
+            nodeEvaluator.setCanOpenDoors(true);
             return new PathFinder(nodeEvaluator, maxVisitedNodes);
+        }
+
+        @Override public void tick() {
+            BlockPos next = null, after = null;
+            if (!isDone()) {
+                int index = path.getNextNodeIndex();
+                next = openDoorAt(path.getNodePos(index));
+                if (index + 1 < path.getNodeCount()) after = openDoorAt(path.getNodePos(index + 1));
+            }
+            closeDoors(next, after);
+            super.tick();
+        }
+
+        private BlockPos handDoor(BlockPos pos) {
+            if (!level.hasChunkAt(pos)) return null;
+            var state = level.getBlockState(pos);
+            if (!DoorBlock.isWoodenDoor(state)) return null;
+            return state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+        }
+
+        private BlockPos openDoorAt(BlockPos pos) {
+            // The next two nodes are within vanilla's door interaction reach only as we approach the doorway.
+            if (mob.distanceToSqr(Vec3.atBottomCenterOf(pos)) > 2.25) return null;
+            var at = handDoor(pos);
+            if (at == null) return null;
+            var state = level.getBlockState(at);
+            if (state.getBlock() instanceof DoorBlock door && door.type().canOpenByHand() && !state.getValue(DoorBlock.OPEN)) {
+                door.setOpen(mob, level, state, at, true);
+                openedDoors.add(at);
+                GameplayLog.event(mob, "npc-care", "action=walk_door result=opened door={}", at.toShortString());
+            }
+            return at;
+        }
+
+        private void closeDoors(BlockPos next, BlockPos after) {
+            for (var doors = openedDoors.iterator(); doors.hasNext();) {
+                var at = doors.next();
+                if (at.equals(next) || at.equals(after) || !level.hasChunkAt(at)) continue;
+                var state = level.getBlockState(at);
+                if (!(state.getBlock() instanceof DoorBlock door) || !door.type().canOpenByHand()
+                        || !state.getValue(DoorBlock.OPEN) || state.getValue(DoorBlock.POWERED)) {
+                    doors.remove();
+                    continue;
+                }
+                var doorway = new AABB(at).expandTowards(0, 1, 0);
+                if (!level.getEntitiesOfClass(LivingEntity.class, doorway, e -> e.isAlive() && !e.isSpectator()).isEmpty()) continue;
+                if (mob.isAlive() && leadThrough(doorway, state.getValue(DoorBlock.FACING).getAxis())) continue;
+                door.setOpen(mob, level, state, at, false);
+                GameplayLog.event(mob, "npc-care", "action=walk_door result=closed door={}", at.toShortString());
+                doors.remove();
+            }
+        }
+
+        private boolean leadThrough(AABB doorway, Direction.Axis axis) {
+            // A turn just outside can pull the lead sideways. Wait for the pet's body to clear the same side of the frame.
+            boolean towardHighSide = mob.position().get(axis) >= doorway.getCenter().get(axis);
+            return !level.getEntitiesOfClass(YukkuriEntity.class, doorway.inflate(Leashable.LEASH_TOO_FAR_DIST),
+                    pet -> pet.isAlive() && pet.getLeashHolder() == mob && (towardHighSide
+                            ? pet.getBoundingBox().min(axis) < doorway.max(axis)
+                            : pet.getBoundingBox().max(axis) > doorway.min(axis))).isEmpty();
         }
     }
 
@@ -458,6 +522,7 @@ public final class HumanNpc extends PathfinderMob {
             } else Custody.ownerDied(this);
         }
         super.die(source);
+        if (!level().isClientSide) ((HumanNavigation) getNavigation()).closeDoors(null, null);
     }
 
     @Override public void onAddedToLevel() {
@@ -470,6 +535,11 @@ public final class HumanNpc extends PathfinderMob {
         }
         VillageBin.dropLitter(this);
     }
+    @Override public void onRemovedFromLevel() {
+        super.onRemovedFromLevel();
+        if (!level().isClientSide) ((HumanNavigation) getNavigation()).closeDoors(null, null);
+    }
+
     @Override public void remove(RemovalReason reason) {
         if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this) {
             dropPicnicFood("removal");
@@ -507,6 +577,7 @@ public final class HumanNpc extends PathfinderMob {
         if (level().isClientSide || !isAlive()) return;
         if (tickCount % 100 == 1) legacyOutput.collect(this);
         if (isNoAi()) {
+            ((HumanNavigation) getNavigation()).closeDoors(null, null);
             if (job() == Job.SHOPKEEPER) ShopStaff.cancelWater(this, "no_ai");
             return;
         }
@@ -685,7 +756,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /**
      * On a job, shop staff open the iron staff door of their own shop that lies on their path and shut it once they are through
-     * (wooden doors stay with the vanilla goal).
+     * (the navigator handles hand-openable doors).
      */
     private final class StaffDoorGoal extends Goal {
         private BlockPos door;

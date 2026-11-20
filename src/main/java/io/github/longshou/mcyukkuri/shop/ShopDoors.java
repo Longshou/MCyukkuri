@@ -113,8 +113,11 @@ public final class ShopDoors {
         for (var leaf : door.leaves()) {
             if (!door.level().hasChunkAt(leaf)) continue;
             var state = door.level().getBlockState(leaf);
-            if (state.getBlock() instanceof DoorBlock block && !block.type().canOpenByHand())
+            if (state.getBlock() instanceof DoorBlock block && !block.type().canOpenByHand() && state.getValue(DoorBlock.OPEN) != open) {
                 block.setOpen(actor, door.level(), state, leaf, open);
+                if (actor instanceof HumanNpc staff)
+                    GameplayLog.event(staff, "shop", "action=staff_door result={} door={}", open ? "opened" : "closed", leaf.toShortString());
+            }
             if (!open) ShopRegistry.get(door.level()).closedDoor(door.level(), leaf);
         }
     }
