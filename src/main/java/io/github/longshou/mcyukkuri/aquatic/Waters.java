@@ -421,7 +421,10 @@ final class Waters {
     record ExitSearch(ExitPose berth, Tilt tilt, BrimStops stops, Exit exit, int bank, long tick) {
         static ExitSearch observe(ExitSearch last, ExitPose live, Tilt tilt, long now, ToIntFunction<ExitPose> bankBlocks,
                                   Supplier<BrimStops> brim, Function<BrimStops, Exit> search) {
-            boolean sameBerth = last != null && last.berth.sameBerth(live);
+            // A search that found no exit is not repeated for a berth that merely drifts on (a hull being paddled, riders shifting):
+            // within one KEEP the same answer stands, so a refusal is not re-derived every tick of a moving hull.
+            boolean sameBerth = last != null && (last.berth.sameBerth(live)
+                    || last.exit == null && last.berth.hat().equals(live.hat()) && now - last.tick < KEEP);
             var berth = sameBerth ? last.berth : live;
             boolean sampleBank = !sameBerth || now - last.tick >= KEEP;
             int bank = sampleBank ? bankBlocks.applyAsInt(berth) : last.bank;

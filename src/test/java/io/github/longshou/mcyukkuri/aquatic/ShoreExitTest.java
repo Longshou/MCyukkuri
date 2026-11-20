@@ -73,7 +73,9 @@ class ShoreExitTest {
         for (var changed : List.of(pose(BERTH.add(new Vec(.2, 0, 0)), YAW, RIDER, .29),
                 pose(BERTH, YAW + .2f, RIDER, .29), pose(BERTH, YAW, RIDER.add(new Vec(0, 0, .06)), .29),
                 pose(BERTH, YAW, RIDER, .35))) {
-            var next = Waters.ExitSearch.observe(last, changed, tilt, 1, p -> 0, () -> stops(FAR_BRIM), reopened);
+            assertSame(last, Waters.ExitSearch.observe(last, changed, tilt, 1, p -> 0,
+                    () -> fail("a drifting berth reopened the refused search within one keep"), stops -> fail("no stops remain")));
+            var next = Waters.ExitSearch.observe(last, changed, tilt, 20, p -> 0, () -> stops(FAR_BRIM), reopened);
             assertFalse(next.stops().remaining().isEmpty());
         }
         var edited = Waters.ExitSearch.observe(last, berth, tilt, 20, p -> 1, () -> stops(FAR_BRIM), reopened);
