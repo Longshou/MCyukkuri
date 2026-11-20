@@ -1,4 +1,5 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
+import re
 import unittest
 
 from museum_scenarios import S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
@@ -25,6 +26,27 @@ class PondShakeStart(unittest.TestCase):
         self.assertLess(feet_x + .75 / 2, bank - 6 + 1)
         self.assertEqual(summon.split()[3:5], ['~-1', '~0.5'])
         self.assertIn(f'yukkuri status set {sel("a")} needs.wetness 32', scene.lines)
+
+
+class WindGapStart(unittest.TestCase):
+    def test_control_gap_and_spawn_are_outside_the_collectors_paper_search(self):
+        scene = next(s for s in S if s.id == 'stray_wind')
+
+        def spawn_column(kind, name):
+            line = next(line for line in scene.lines if line.startswith(f'summon {kind} ') and f'scn_{name}"' in line)
+            return int(float(line.split()[2][1:]) // 1)
+
+        collector = spawn_column('mcyukkuri:reimu', 'wind_stray')
+        control = spawn_column('mcyukkuri:reimu', 'wind_plain')
+        paper = spawn_column('minecraft:item', 'wind_paper')
+        search = 16  # FoundShelter's eight-block search doubles for a post-baby child.
+        self.assertEqual(collector, paper)
+        self.assertGreater(abs(control - paper), search + 1)  # The drop's bounding box can cross a cell edge.
+        for column in (collector, control):
+            self.assertIn(f'setblock ~{column} ~1 ~-1 minecraft:spruce_planks', scene.lines)
+        self.assertIn((320, f'setblock ~{collector} ~ ~ minecraft:campfire[lit=true]'), scene.smoke['commands'])
+        line = f'[habitat] reimu uuid={_uuid_text(scene.id, "wind_plain")} t=1 wind cover paper approach'
+        self.assertTrue(any(re.search(pattern, line) for pattern in scene.smoke['forbid']))
 
 
 class PondBankPickup(unittest.TestCase):

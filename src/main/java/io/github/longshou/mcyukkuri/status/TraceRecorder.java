@@ -764,7 +764,12 @@ public final class TraceRecorder {
         hat.addProperty("placed", PlacedHatEntity.find(entity) != null);
         out.add("hat", hat);
         if (entity.life().custody().junk() != null) out.add("head", item(JunkHeadwear.item()));
-        if (!entity.life().paperCover().isEmpty()) out.add("cover", item(entity.life().paperCover()));
+        if (entity.life().holdingPaperCover()) {
+            var cover = new JsonObject();
+            cover.addProperty("item", "minecraft:paper");
+            cover.addProperty("n", entity.life().paperCoverCount());
+            out.add("cover", cover);
+        }
         var carry = new JsonArray();
         for (Entity passenger : entity.getPassengers()) if (passenger instanceof YukkuriEntity child) {
             JsonObject value = new JsonObject();

@@ -7,6 +7,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
+import io.github.longshou.mcyukkuri.motor.geom.SweptBody.Box;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.season.SeasonClimate;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -18,6 +20,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -296,7 +299,7 @@ public final class TemperatureLife {
             double distance = pos.distSqr(center);
             double score = seekingWarmth ? distance * .18 - 8 * (at.felt() - departureFelt) : distance;
             if (seekingWarmth && at.fire() != null) {
-                if (!fireStandFree(pos)) continue;
+                if (!fireStandFree(bodyAt(Vec3.atBottomCenterOf(pos)))) continue;
                 score += fireRingScore(pos, at.fire(), baby, parent);
             }
             candidates.add(new Refuge(pos.immutable(), score, at));
@@ -339,11 +342,20 @@ public final class TemperatureLife {
         return score + x * x + z * z;
     }
 
-    private boolean fireStandFree(BlockPos pos) {
-        var feet = Vec3.atBottomCenterOf(pos);
-        var box = entity.getBoundingBox().move(feet.subtract(entity.position())).deflate(.005);
+    private AABB bodyAt(Vec3 feet) {
+        return entity.getBoundingBox().move(feet.subtract(entity.position()));
+    }
+    private static Box volume(AABB box) {
+        return new Box(new Vec(box.minX, box.minY, box.minZ), new Vec(box.maxX, box.maxY, box.maxZ));
+    }
+    private boolean fireStandFree(AABB box) {
+        var footprint = volume(box);
         return level().getEntitiesOfClass(YukkuriEntity.class, box,
-                other -> other != entity && other.isAlive() && other.isPushable() && !other.isPassenger()).isEmpty();
+                other -> other != entity && other.isAlive() && other.isPushable() && !other.isPassenger()
+                        && RefugeSpace.blocksStand(footprint, volume(other.getBoundingBox()), other.life().temperature().resting())).isEmpty();
+    }
+    private boolean resting() {
+        return restTicks > 0 || temporarySleepSite != null || entity.life().isSleeping();
     }
 
     private YukkuriEntity shieldingParent(BlockPos fire) {
@@ -371,14 +383,21 @@ public final class TemperatureLife {
         return true;
     }
     private boolean safeStand(BlockPos pos) {
+        return safeStand(pos, bodyAt(Vec3.atBottomCenterOf(pos)));
+    }
+    private boolean safeStand(BlockPos pos, AABB body) {
         if (!entity.life().dryStand(pos)) return false;
         for (var near : BlockPos.betweenClosed(pos.offset(-1, -1, -1), pos.offset(1, 0, 1))) {
-            if (!level().hasChunkAt(near)) return false;
-            var state = level().getBlockState(near);
-            if (ThermalSourceCache.burning(state) || state.is(Blocks.LAVA)
-                    || state.is(Blocks.MAGMA_BLOCK) || state.is(Blocks.CACTUS)) return false;
+            if (unsafeCell(near)) return false;
         }
-        return true;
+        var cell = new BlockPos.MutableBlockPos();
+        return !RefugeSpace.touchesHazard(volume(body), (x, y, z) -> unsafeCell(cell.set(x, y, z)));
+    }
+    private boolean unsafeCell(BlockPos pos) {
+        if (!level().hasChunkAt(pos)) return true;
+        var state = level().getBlockState(pos);
+        return ThermalSourceCache.burning(state) || state.getFluidState().is(FluidTags.LAVA)
+                || state.is(Blocks.MAGMA_BLOCK) || state.is(Blocks.CACTUS);
     }
     private Path safePath(BlockPos pos) {
         var path = entity.getNavigation().createPath(pos, 0);
@@ -399,15 +418,15 @@ public final class TemperatureLife {
         if (!available()) return "unavailable";
         if (taskTicks >= 400) return "elapsed";
         if (restTicks >= (basking ? BASK_TICKS : 200)) return "rested";
-        if (!safeStand(target)) return "unsafe_stand";
+        boolean arrived = reached(target, FamilyNest.bedOccupancy(entity, target));
+        if (!safeStand(target, arrived ? entity.getBoundingBox() : bodyAt(Vec3.atBottomCenterOf(target)))) return "unsafe_stand";
         if (!mayUse(target)) return "not_ours";
+        // A moving body does not occupy a stand. A new arrival must clear the actual volume of every resting body.
+        if (targetFire != null && arrived && !fireStandFree(entity.getBoundingBox())) return "occupied_stand";
         if (taskTicks % 20 == 0) {
             if (waterTakesPriority()) return "lost_refuge";
             var at = sample(target, basking);
-            // The projected stand footprint is for approaching bodies. A body already resting there keeps its actual place
-            // while another walks past, including a child passing to the warm side of its parent.
-            if (!refuge(at) || targetFire != null
-                    && (!targetFire.equals(at.fire()) || restTicks == 0 && !fireStandFree(target))) return "lost_refuge";
+            if (!refuge(at) || targetFire != null && !targetFire.equals(at.fire())) return "lost_refuge";
         }
         return null;
     }
@@ -466,7 +485,7 @@ public final class TemperatureLife {
     /** Transfers only a physically reached safe place, never home ownership or elapsed sleep. */
     public boolean beginSleepAtRefuge() {
         if (!active() || restTicks < 20 || !available() || waterTakesPriority()
-                || !reached(target, FamilyNest.bedOccupancy(entity, target)) || !safeStand(target) || !mayUse(target)
+                || !reached(target, FamilyNest.bedOccupancy(entity, target)) || !safeStand(target, entity.getBoundingBox()) || !mayUse(target)
                 || level().isRainingAt(target)) return false;
         var at = sample(entity.blockPosition());
         if (!comfortable(at.felt()) || !refuge(at)) return false;
@@ -480,7 +499,7 @@ public final class TemperatureLife {
     public boolean canSleepAtRefuge() {
         return temporarySleepSite != null && available()
                 && reached(temporarySleepSite, FamilyNest.bedOccupancy(entity, temporarySleepSite))
-                && safeStand(temporarySleepSite) && mayUse(temporarySleepSite)
+                && safeStand(temporarySleepSite, entity.getBoundingBox()) && mayUse(temporarySleepSite)
                 && !level().isRainingAt(temporarySleepSite) && comfortable(current.felt())
                 && (sampleTicks != 0 || !waterTakesPriority());
     }

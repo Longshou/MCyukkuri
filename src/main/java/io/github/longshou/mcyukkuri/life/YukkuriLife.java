@@ -60,6 +60,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -69,6 +70,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
@@ -186,7 +188,7 @@ public final class YukkuriLife {
     private static final int DRINK_TICKS = 40;
     private static final float SEVERE_THIRST = 90;
     public static final int PAPER_COVER_WEAR_BIT = 1 << 13;
-    private ItemStack paperCover = ItemStack.EMPTY;
+    private final List<ItemStack> paperCover = new ArrayList<>(3);
     private int thirstTicks;
 
     public YukkuriLife(YukkuriEntity entity) {
@@ -612,30 +614,48 @@ public final class YukkuriLife {
     public boolean paperCoverFits() { return foundCover.paperCoverFits(); }
     public boolean usingPaperBedding(BlockPos pos) { return foundCover.usingPaperAt(pos); }
     boolean usingPaperCoverAt(BlockPos pos) { return hasPaperCover() && foundCover.restingInPlainGapAt(pos); }
-    public ItemStack paperCover() { return paperCover; }
+    public boolean holdingPaperCover() { return !paperCover.isEmpty(); }
+    public int paperCoverCount() {
+        int count = 0;
+        for (var stack : paperCover) count += stack.getCount();
+        return count;
+    }
     public int paperCoverSheets() { return entity.family().adult() ? 3 : entity.family().subadult() ? 2 : 1; }
-    public boolean hasPaperCover() { return !paperCover.isEmpty() && paperCover.getCount() >= paperCoverSheets(); }
+    public boolean hasPaperCover() { return !paperCover.isEmpty() && paperCoverCount() >= paperCoverSheets(); }
     public int paperCoverWearBits() { return hasPaperCover() ? PAPER_COVER_WEAR_BIT : 0; }
     public boolean canAcceptPaperCover() { return paperCover.isEmpty() && keepsPaperCover(); }
-    public boolean acceptPaperCover(ItemStack stack) {
-        if (stack.getCount() != paperCoverSheets() || !canAcceptPaperCover()) return false;
-        paperCover = stack;
+    public boolean acceptPaperCover(List<ItemStack> sheets) {
+        if (sheets.stream().mapToInt(ItemStack::getCount).sum() != paperCoverSheets() || !canAcceptPaperCover()) return false;
+        paperCover.addAll(sheets);
         entity.syncWear();
         return true;
     }
+    public ListTag paperCoverItems() {
+        var items = new ListTag();
+        for (var stack : paperCover) items.add(stack.save(entity.registryAccess()));
+        return items;
+    }
     public void clearPaperCoverForRemains() {
-        paperCover = ItemStack.EMPTY;
+        paperCover.clear();
         entity.syncWear();
     }
     public boolean releasePaperCover(String reason) {
         if (paperCover.isEmpty()) return true;
-        var drop = ItemContact.release(entity, paperCover, entity.position().add(0, .02, 0), Vec3.ZERO);
-        if (drop == null) return false;
-        GameplayLog.event(entity, "habitat", "paper cover drop item={} count={} reason={} drop={}",
-                paperCover.getItem(), paperCover.getCount(), reason, drop.getUUID());
-        paperCover = ItemStack.EMPTY;
-        entity.syncWear();
-        return true;
+        var at = entity.position().add(0, .02, 0);
+        var drops = new ArrayList<UUID>();
+        int before = paperCoverCount();
+        PaperSheets.release(paperCover, stack -> {
+            var drop = ItemContact.release(entity, stack, at, Vec3.ZERO);
+            if (drop == null) return false;
+            drops.add(drop.getUUID());
+            return true;
+        });
+        if (!drops.isEmpty()) {
+            entity.syncWear();
+            GameplayLog.event(entity, "habitat", "paper cover drop item={} count={} reason={} drop={}",
+                    Items.PAPER, before - paperCoverCount(), reason, drops.size() == 1 ? drops.getFirst() : drops);
+        }
+        return paperCover.isEmpty();
     }
     private boolean keepsPaperCover() {
         return entity.isAlive() && !entity.isRemoved()
@@ -2153,7 +2173,11 @@ public final class YukkuriLife {
         meal.save(tag);
         home.save(tag);
         accessory.save(tag);
-        if (!paperCover.isEmpty()) tag.put("PaperCover", paperCover.save(entity.registryAccess()));
+        if (!paperCover.isEmpty()) {
+            var cover = new CompoundTag();
+            cover.put("Items", paperCoverItems());
+            tag.put("PaperCover", cover);
+        }
         tag.putFloat("Pickiness", pickiness);
         tag.put("Personality", personality.save()); return tag;
     }
@@ -2182,8 +2206,18 @@ public final class YukkuriLife {
         avoidFieldUntil = tag.getLong("AvoidFieldUntil");
         meal.load(tag);
         home.load(tag); accessory.load(tag);
-        paperCover = tag.contains("PaperCover", Tag.TAG_COMPOUND)
-                ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("PaperCover")) : ItemStack.EMPTY;
+        paperCover.clear();
+        var cover = tag.getCompound("PaperCover");
+        if (cover.contains("Items", Tag.TAG_LIST)) {
+            for (var entry : cover.getList("Items", Tag.TAG_COMPOUND)) {
+                var stack = ItemStack.parseOptional(entity.registryAccess(), (CompoundTag) entry);
+                if (!stack.isEmpty()) paperCover.add(stack);
+            }
+        } else if (!cover.isEmpty()) {
+            // Older covers were saved as a single stack directly in this compound.
+            var stack = ItemStack.parseOptional(entity.registryAccess(), cover);
+            if (!stack.isEmpty()) paperCover.add(stack);
+        }
         entity.syncWear();
         pickiness=bounded(tag,"Pickiness",Taste.innate(entity.getUUID()));
         personality.load(tag.getCompound("Personality"));

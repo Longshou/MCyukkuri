@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.human.NewspaperStackBlock;
 import io.github.longshou.mcyukkuri.human.WoodenBenchBlock;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.BlockPull;
+import io.github.longshou.mcyukkuri.life.PaperSheets;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
@@ -578,7 +579,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private boolean needsSelfCover() {
-        return body.life().temperature().cold() && body.life().paperCover().isEmpty() && canWearPaperCoverNow();
+        return body.life().temperature().cold() && !body.life().holdingPaperCover() && canWearPaperCoverNow();
     }
 
     private void discoverPaperCover() {
@@ -705,7 +706,7 @@ public final class FoundShelter implements MotorOwner {
         var p = body.life().personality();
         double devotion = 0.55 * ramp(p.attachment(), 15, 85) + 0.45 * ramp(p.friendliness(), 15, 85);
         double coldSpan = Math.max(0.0, YukkuriConfig.COLD_THRESHOLD.get() - body.life().temperature().sample(body.blockPosition()).felt());
-        double selfCold = body.life().temperature().cold() && body.life().paperCover().isEmpty()
+        double selfCold = body.life().temperature().cold() && !body.life().holdingPaperCover()
                 ? 0.35 + 0.35 * ramp(coldSpan, 0.0, 1.2) : 0.0;
         return devotion >= selfCold;
     }
@@ -715,7 +716,7 @@ public final class FoundShelter implements MotorOwner {
                 && child != body && child.isAlive() && child.family().stage() == FamilyLife.Stage.BABY
                 && body.family().adult() && body.family().caresFor(child) && body.life().canRecognize(child)
                 && !triedChildDrape.contains(child.getUUID())
-                && child.life().temperature().cold() && child.life().paperCover().isEmpty()
+                && child.life().temperature().cold() && !child.life().holdingPaperCover()
                 && canWearPaperCoverNow(child)
                 && body.distanceToSqr(child) <= TravelRange.NURSE_RADIUS * TravelRange.NURSE_RADIUS;
     }
@@ -892,7 +893,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private SearchBudget.Result tryAdvancePaperFetch(BlockPos origin) {
-        if (now() < nextPaperScan || !body.life().paperCover().isEmpty() || !canPullPaper(body)
+        if (now() < nextPaperScan || body.life().holdingPaperCover() || !canPullPaper(body)
                 || !wantsSelfCover() && !wantsPaperBedding()
                         && !(prefersBabyCover() && coldUncoveredBabyEnteringSameGap() != null))
             return SearchBudget.Result.NOT_FOUND;
@@ -1704,18 +1705,17 @@ public final class FoundShelter implements MotorOwner {
                 var pile = coverPaperAt(targetGap);
                 if (!enoughPaper(pile)) return Outcome.of(Reason.NO_CONTACT, 0, "paper_gone");
                 int needed = actor.life().paperCoverSheets();
-                var cover = pile.getFirst().getItem().copyWithCount(needed);
+                var portions = PaperSheets.select(pile, needed, sheet -> sheet.getItem().getCount());
+                var cover = portions.stream().map(part -> part.source().getItem().copyWithCount(part.count())).toList();
                 if (!actor.life().acceptPaperCover(cover))
                     return Outcome.of(Reason.NO_CONTACT, 0, "cover_unavailable");
                 var used = new ArrayList<UUID>();
-                for (var sheet : pile) {
-                    int take = Math.min(needed, sheet.getItem().getCount());
-                    debitPaper(sheet, take);
-                    used.add(sheet.getUUID());
-                    if ((needed -= take) == 0) break;
+                for (var portion : portions) {
+                    debitPaper(portion.source(), portion.count());
+                    used.add(portion.source().getUUID());
                 }
                 GameplayLog.event(actor, "habitat", "paper cover draped source=bedding item={} count={} at={} from={}",
-                        cover.getItem(), cover.getCount(), targetGap, used);
+                        Items.PAPER, needed, targetGap, used);
                 draped = true;
             }
             if (++ticks >= length) return new Outcome.Done("gap=" + targetGap);
@@ -1783,7 +1783,7 @@ public final class FoundShelter implements MotorOwner {
                     var mouth = actor.component(YukkuriComponents.MOUTH);
                     BlockPos babyGap = baby.blockPosition();
                     if (!mouth.handOne(MouthOccupancy.Purpose.PAPER, one -> {
-                        if (!baby.life().acceptPaperCover(one)) return false;
+                        if (!baby.life().acceptPaperCover(List.of(one))) return false;
                         GameplayLog.event(actor, "habitat", "paper cover draped on child={} item={} count=1 at={} lip={} contact={} lip_gap={}",
                                 baby.getUUID(), one.getItem(), babyGap, GameplayLog.at(lip), GameplayLog.at(contact), lip.distanceTo(contact));
                         return true;

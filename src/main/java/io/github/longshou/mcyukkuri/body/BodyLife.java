@@ -691,8 +691,8 @@ public final class BodyLife {
         var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem);
         var mouth=entity.component(YukkuriComponents.MOUTH);
         var carried=mouth.itemsForRemains();
-        var paperCover=entity.life().paperCover();
-        if(!paperCover.isEmpty())carried.add(paperCover.save(entity.registryAccess()));
+        int paperSheets=entity.life().paperCoverCount();
+        carried.addAll(entity.life().paperCoverItems());
         RemainsEntity.retainCarriedItems(remains,carried);
         var found = entity.life().foundShelter();
         var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
@@ -712,9 +712,9 @@ public final class BodyLife {
         var find = mouth.stack(Purpose.FIND);
         if (!find.isEmpty()) GameplayLog.event(entity, "treasure", "find death transfer item={} count={}", find.getItem(), find.getCount());
         mouth.remainsAcceptedItems();
-        if (!paperCover.isEmpty()) {
+        if (paperSheets > 0) {
             entity.life().clearPaperCoverForRemains();
-            GameplayLog.event(entity, "habitat", "paper cover death transfer item={} count={}", paperCover.getItem(), paperCover.getCount());
+            GameplayLog.event(entity, "habitat", "paper cover death transfer item=minecraft:paper count={}", paperSheets);
         }
         if (found != null) found.release(entity.getUUID());
         settled=true;settledCause=internal;entity.syncBody();
