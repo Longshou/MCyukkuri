@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
-| 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | SP-13 家庭房只分到一只同窝的窝（main 上失败） | `.worktrees/wp-kin-nest` | life/LifeHome.java (shared nest assignment) |
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
 | FG-08 判定时机与代码决策不一致 | `.worktrees/wp-fg08-verifier` | scripts/museum_scenarios.py (stray_boxes verifier) |
