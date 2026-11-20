@@ -1,7 +1,7 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
 import unittest
 
-from museum_scenarios import S, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, elopement_result, sel, uid, uuid_nbt
 
 
 PARENT = '11111111-1111-1111-1111-111111111111'
@@ -24,6 +24,26 @@ class PondShakeStart(unittest.TestCase):
         self.assertLess(feet_x + .75 / 2, bank - 6 + 1)
         self.assertEqual(summon.split()[3:5], ['~-1', '~0.5'])
         self.assertIn(f'yukkuri status set {sel("a")} needs.wetness 32', scene.lines)
+
+
+class PondBankPickup(unittest.TestCase):
+    def test_a_second_lift_needs_a_real_approach_to_the_hull(self):
+        lift = f'[action] marisa uuid={PARENT} t=12616 end id=grab outcome=DONE detail=mounted target={CHILD}\n'
+        blocked = f'[intent] marisa uuid={PARENT} t=12617 end id=set_out result=EXHAUSTED reasons=[TOO_FAR:0]\n'
+        walk = f'[action] marisa uuid={PARENT} t=12700 start id=walk owner=drive:aquatic\n'
+        self.assertIsNone(_bank_pickup_retries(lift + blocked))
+        self.assertIn(CHILD, _bank_pickup_retries((lift + blocked) * 2))
+        self.assertIsNone(_bank_pickup_retries(lift + blocked + lift + walk + blocked))
+
+
+class PondCurrentBanks(unittest.TestCase):
+    def test_both_shoal_banks_rise_away_from_the_three_wide_current(self):
+        scene = next(s for s in S if s.id == 'hat_current')
+        bank = bank_dx(0)
+        for z in (-1, 0, 1):
+            self.assertIn(f'setblock ~{bank} ~-1 ~{z} minecraft:water', scene.lines)
+        for z, facing in ((-2, 'north'), (2, 'south')):
+            self.assertIn(f'fill ~{bank + 2} ~-1 ~{z} ~{bank + 9} ~-1 ~{z} minecraft:cobblestone_stairs[facing={facing}]', scene.lines)
 
 
 def event(tick, message, parent=PARENT):

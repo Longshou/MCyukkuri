@@ -27,6 +27,14 @@ public final class WaterDistress {
             return airborneDry || pendingPlunge > 0 || eyesUnder ? IMPACT : STRUGGLE;
         }
     }
+    enum BankFooting {
+        AIR, EDGE, STAND;
+
+        static BankFooting of(boolean onGround, boolean wholeFootprintDryAndSupported) {
+            if (!onGround) return AIR;
+            return wholeFootprintDryAndSupported ? STAND : EDGE;
+        }
+    }
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
@@ -45,6 +53,10 @@ public final class WaterDistress {
     /** Its water incident ended (the breath after it included) within the last {@code ticks}. */
     public boolean closedWithin(long ticks){return closedTick!=Long.MIN_VALUE&&entity.level().getGameTime()-closedTick<=ticks;}
     public boolean active(){return phase!=Phase.IDLE;}
+    BankFooting bankFooting() {
+        boolean grounded = entity.onGround();
+        return BankFooting.of(grounded, grounded && SurfaceApproach.stands(entity, entity.position()));
+    }
     /** Paid swimming effort: read from the body's running Swim. */
     public boolean effort(){return entity.isInWaterOrBubble()&&!entity.predatorFlying()&&!entity.family().flying()
             &&entity.motor().current() instanceof Swim swim&&swim.pushing();}
@@ -108,7 +120,7 @@ public final class WaterDistress {
         airborneDry=!entity.onGround()&&!entity.isPassenger();
         // An upward flight or airborne tumble is not a completed rescue; standing on dry ground or aboard (a dry hat, a carrier) is.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){
-            if(entity.predatorFlying()||entity.family().flying()||!entity.onGround()&&!entity.isPassenger()){drySupportTicks=0;return;}
+            if(entity.predatorFlying()||entity.family().flying()||!entity.isPassenger()&&bankFooting()!=BankFooting.STAND){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);
             // Out of the water for real, by its own climb or a rescuer's lift: the breath it held lets go.
@@ -153,10 +165,11 @@ public final class WaterDistress {
         if(entity.level().isClientSide||!(escaping()||climbing())||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
                 ||entity.operations().active()||entity.predatorFlying()||entity.family().flying())return false;
         tick();
-        return phase!=Phase.IMPACT;
+        return phase!=Phase.IMPACT||!entity.isInWaterOrBubble();
     }
-    /** Only actual water contact makes a body available to swimming or water rescue. */
-    public boolean escaping(){return entity.isInWaterOrBubble();}
+    /** A grounded body still over the bank lip has one land step left in the same escape. */
+    public boolean escaping(){return entity.isInWaterOrBubble()||!entity.isPassenger()
+            &&(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED)&&bankFooting()==BankFooting.EDGE;}
     /** Mid-climb out of the water: lifting the body clear of it does not end the escape, the climb does. */
     public boolean climbing(){return entity.motor().current() instanceof Climb;}
     private boolean realThreat(){

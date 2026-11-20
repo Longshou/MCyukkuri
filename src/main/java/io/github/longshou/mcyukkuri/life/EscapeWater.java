@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.PlaceProp;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
+import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.SurfaceHost;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public final class EscapeWater implements Intent {
     private long scanned = Long.MIN_VALUE, farScanned = Long.MIN_VALUE / 2;
     private List<BlockPos> farStands = List.of();
     private Edge climbing;
-    /** The hat ways and bank edges this run has already begun: a press gives way only to one not tried yet. */
+    /** Hat ways, bank edges and final dry steps already tried during this escape. */
     private final Set<Object> tried = new HashSet<>();
 
     public EscapeWater(YukkuriEntity body, Map<BlockPos, Long> avoid) {
@@ -109,8 +110,9 @@ public final class EscapeWater implements Intent {
         var vehicle = body.getVehicle();
         if (vehicle instanceof SurfaceHost host) return host.settled(body);
         if (vehicle instanceof YukkuriEntity) return true;
-        return !body.isInWaterOrBubble() && body.onGround()
-                && (body.waterDistress().phase() == WaterDistress.Phase.RECOVER || body.waterDistress().phase() == WaterDistress.Phase.IDLE);
+        return !body.isInWaterOrBubble()
+                && (body.waterDistress().phase() == WaterDistress.Phase.RECOVER || body.waterDistress().phase() == WaterDistress.Phase.IDLE)
+                && body.waterDistress().bankFooting() == WaterDistress.BankFooting.STAND;
     }
 
     /** One line per escape, with the stand it ended on (or none): the whole run's outcome in the water log. */
@@ -193,10 +195,22 @@ public final class EscapeWater implements Intent {
         @Override public Feasibility applicable() { return applicable; }
         @Override public Set<Reason> reduces() { return reduces; }
         @Override public Step next() {
+            // Vanilla can step up with just the front of the body on the bank. Finish that step on dry ground.
+            if (!body.isInWaterOrBubble() && !body.isPassenger()
+                    && body.waterDistress().bankFooting() == WaterDistress.BankFooting.EDGE) {
+                for (var pos : stands()) {
+                    Vec3 land = Vec3.atBottomCenterOf(pos);
+                    if (SurfaceApproach.clearLastStep(body, land) && tried.add(land))
+                        return new Step.Do(new Walk(land));
+                }
+                return null;
+            }
             Step step = steps.apply(next);
             // Swimming ends at water exit; keep the intent while the body falls back or reaches dry support.
             if (step instanceof Step.Do action && action.action() instanceof Swim && !body.isInWaterOrBubble())
-                return new Step.Do(new Await(() -> body.isInWaterOrBubble() || satisfied(), 20, "", "water_contact"));
+                return new Step.Do(new Await(() -> body.isInWaterOrBubble() || satisfied()
+                        || !body.isPassenger() && body.waterDistress().bankFooting() == WaterDistress.BankFooting.EDGE,
+                        20, "", "water_contact"));
             if (next == 0) {
                 boolean afloatHat = AFLOAT_HAT.contains(id);
                 if (afloatHat || id.equals("hat_boat")) body.showReaction("teary", null, 36);

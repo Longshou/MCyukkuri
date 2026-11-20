@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -97,7 +98,9 @@ final class Ferry {
         var grab = new Grab(child, hat);
         steps.add(new Plan.Approach<>(() -> grab.check(carrier), () -> grab.nextContactStand(carrier),
                 stand -> act(Walk.around(stand, child))));
-        steps.addAll(BraidFetch.steps(carrier, child, hat));
+        steps.add(() -> act(grab));
+        steps.addAll(hopAboard(carrier, hat, beckoning));
+        steps.add(() -> act(new Release(child, hat)));
         return steps;
     }
 

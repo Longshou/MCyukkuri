@@ -5768,6 +5768,27 @@ def _stray_rubbish_verify(log):
 next(s for s in S if s.id == 'stray_rubbish').smoke['verify'] = _stray_rubbish_verify
 
 
+def _bank_pickup_retries(window):
+    """A carrier twice takes the same child and fails immediately at hop range without approaching the hull."""
+    held, refused = {}, {}
+    events = r'\[(?:action|intent)\][^\n]*? uuid=(\S+) [^\n]*? (?:end id=grab outcome=DONE detail=mounted target=(\S+)|start id=(set_out|walk|beckon|hop)\b|end id=set_out result=(\S+) reasons=\[([^\]]*)\])'
+    for carrier, child, action, result, reasons in re.findall(events, window):
+        if child:
+            held[carrier] = child
+        elif action:
+            if action != 'set_out' and carrier in held:
+                refused.pop(carrier, None)
+            held.pop(carrier, None)
+        elif result:
+            child = held.pop(carrier, None)
+            if child and result == 'EXHAUSTED' and reasons == 'TOO_FAR:0':
+                if refused.get(carrier) == child:
+                    return f'{carrier} twice picked up {child} without approaching the hull'
+                refused[carrier] = child
+            else:
+                refused.pop(carrier, None)
+
+
 def _overload_family_choice(window):
     """Both kinds of parent on overload (FEATURES 载重, 超载断亲): the ordinary parent reads her hull's load warning and takes the
     family ashore to unload before it goes over (only a real overload capsize when she is too late dismisses her largest young);
@@ -5970,9 +5991,12 @@ def current_drift(log):
 
 
 pond('hat_current', '帽子顺缓流漂到浅滩搁浅', '帽子顺缓流漂到浅滩搁浅',
-     '浅溪上游一排水源形成同向水流，两侧低草岸可爬上；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
+     '浅溪上游一排水源形成同向水流，浅滩两侧的石阶通向草岸；船主乘帽随水流缓慢漂动，碰到岸边只停住。没有落水、流向冲突或猛撞时不会翻船',
      '约 30 秒',
-     [*flow_channel(0), captain(dx=bank_dx(0) - 1, social_wait=100),
+     [*flow_channel(0),
+      *(box(bank_dx(0) + 2, -1, z, bank_dx(0) + 9, -1, z, f'minecraft:cobblestone_stairs[facing={facing}]')
+        for z, facing in ((-2, 'north'), (2, 'south'))),
+      captain(dx=bank_dx(0) - 1, social_wait=100),
       yk('marisa', bank_dx(1) - 1, 1, 'child', stage='child', aquatic=True, fam=_seat_family(), childhood=CHILDHOOD_CRAWLING_READY,
          **pair_ready()),
       afloat('a', water_at(0, 1), True, sel('child'), food=4, stick=True)],
@@ -6291,7 +6315,7 @@ pond('hat_crowd', '孩子长大超载翻船，亲油取舍', '孩子长大超载
                         r'\[action\][^\n]* uuid=(?!' + _uuid_text('hat_crowd', 'early2') + r')\S+ [^\n]* refused id=hop [^\n]*detail=no_spot',
                         r'\[needs\][^\n]* starvation damage accepted=true',
                         r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
-                verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window),
+                verify=lambda window: _overload_family_choice(window) or _escape_needs_place(window) or _bank_pickup_retries(window),
                 readout=[f'yukkuri status {sel(who)} raw'
                          for who in ('early', 'normal', 'kind', 'early2', 'early3', 'normal2', 'normal3', 'kind1', 'kind2', 'kind3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
