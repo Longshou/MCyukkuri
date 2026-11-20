@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.BiPredicate;
 
@@ -30,6 +31,10 @@ public final class NestLayout {
             places.put(id, place);
         }
         return true;
+    }
+
+    public static boolean ownsSpacing(boolean sleeping, boolean peerSleeping, BooleanSupplier entering) {
+        return sleeping || peerSleeping && entering.getAsBoolean();
     }
 
     static Place choose(UUID id, Place body, double half, Map<UUID,Place> places, Predicate<Place> supported,

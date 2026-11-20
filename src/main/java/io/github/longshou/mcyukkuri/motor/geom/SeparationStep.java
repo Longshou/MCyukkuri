@@ -4,7 +4,9 @@ import java.util.function.Predicate;
 
 /** A swept ground step against a partner's horizontally expanded body box. */
 public final class SeparationStep {
-    private SeparationStep() {}
+    // Lateral coordinate of the last closed flank of this pair. Recheck it before reversing into that pocket.
+    private double blockedFlank = Double.NaN;
+    private boolean acrossX;
 
     // A quarter model unit of daylight before releasing a pair. Re-entry requires actual body contact.
     public static final double RELEASE_GAP = 1.0 / 64;
@@ -16,8 +18,11 @@ public final class SeparationStep {
     }
 
     /** Start at the real body face. Once pressed, finish opening a little daylight even at rest. */
-    public static Vec crowd(double x, double z, double width, boolean pressed, int order, double yield,
+    public Vec crowd(double x, double z, double width, boolean pressed, int order, double yield,
                             Vec wanted, Predicate<Vec> walkable) {
+        boolean faceX = Math.abs(x) >= Math.abs(z);
+        if (!pressed || acrossX != faceX) blockedFlank = Double.NaN;
+        acrossX = faceX;
         if (clear(x, z, pressed ? width + RELEASE_GAP : width, wanted.x(), wanted.z())) return wanted;
         double gap = Math.max(Math.abs(x), Math.abs(z));
         double pace = Math.min(SHOVE * yield, width + RELEASE_GAP - gap);
@@ -27,14 +32,14 @@ public final class SeparationStep {
             wanted = Math.abs(x) >= Math.abs(z) ? new Vec(Math.copySign(pace, x), wanted.y(), 0)
                     : new Vec(0, wanted.y(), Math.copySign(pace, z));
         }
-        return away(x, z, width + RELEASE_GAP, wanted, walkable, true);
+        return away(x, z, width + RELEASE_GAP, wanted, walkable, this);
     }
 
     public static Vec away(double x, double z, double clearance, Vec wanted, Predicate<Vec> walkable) {
-        return away(x, z, clearance, wanted, walkable, false);
+        return away(x, z, clearance, wanted, walkable, null);
     }
 
-    private static Vec away(double x, double z, double clearance, Vec wanted, Predicate<Vec> walkable, boolean crowd) {
+    private static Vec away(double x, double z, double clearance, Vec wanted, Predicate<Vec> walkable, SeparationStep crowd) {
         // One separating face for the entire step stays safe even if a wall clips either component.
         if (clear(x, z, clearance, wanted.x(), wanted.z())) return wanted;
         boolean acrossX = Math.abs(x) >= Math.abs(z);
@@ -52,14 +57,28 @@ public final class SeparationStep {
         }
         // Slide along the separating face when its outward side is a wall or brink.
         double slide = tangent == 0 ? (acrossX ? outward : -outward) * pace : Math.copySign(pace, tangent);
-        // Once a crowd step has cleared some of the flank, never undo it to follow inward steering.
         double side = acrossX ? z : x;
-        if (crowd && side != 0) slide = Math.copySign(pace, side);
-        var along = acrossX ? new Vec(0, wanted.y(), slide) : new Vec(slide, wanted.y(), 0);
-        if (walkable.test(along)) return along;
-        if (crowd && side != 0) return new Vec(0, wanted.y(), 0);
-        var opposite = new Vec(-along.x(), wanted.y(), -along.z());
-        return walkable.test(opposite) ? opposite : new Vec(0, wanted.y(), 0);
+        if (crowd != null) {
+            if (!Double.isNaN(crowd.blockedFlank)) slide = Math.copySign(pace, side - crowd.blockedFlank);
+            else if (side != 0) slide = Math.copySign(pace, side);
+        }
+        var along = lateral(acrossX, slide, wanted.y());
+        var opposite = lateral(acrossX, -slide, wanted.y());
+        if (walkable.test(along)) {
+            if (crowd != null && Double.isNaN(crowd.blockedFlank) && !walkable.test(opposite))
+                crowd.blockedFlank = side - slide;
+            return along;
+        }
+        if (walkable.test(opposite) && (crowd == null || Double.isNaN(crowd.blockedFlank)
+                || walkable.test(lateral(acrossX, crowd.blockedFlank - side, wanted.y())))) {
+            if (crowd != null) crowd.blockedFlank = side + slide;
+            return opposite;
+        }
+        return new Vec(0, wanted.y(), 0);
+    }
+
+    private static Vec lateral(boolean acrossX, double slide, double y) {
+        return acrossX ? new Vec(0, y, slide) : new Vec(slide, y, 0);
     }
 
     private static boolean clear(double offset, double step, double clearance) {

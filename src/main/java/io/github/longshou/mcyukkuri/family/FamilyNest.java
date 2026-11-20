@@ -62,7 +62,7 @@ public final class FamilyNest {
         return spot!=null&&SurfaceApproach.at(e,spot);
     }
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
-        return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
+        return SurfaceApproach.restingFloor(e,place(e,c.getBlockPos(),c));
     }
     /** The floor in the middle of this bed (its 2x2 corner or its block centre), even where the body would not fully stand. */
     public static Vec3 bedMiddle(YukkuriEntity e,BlockPos bed){
@@ -72,8 +72,17 @@ public final class FamilyNest {
     }
     public static Vec3 restPosition(YukkuriEntity e,BlockPos bed){
         var c=care(e);if(c!=null&&c.getBlockPos().equals(bed))return restPosition(e,c);
+        return place(e,bed,null);
+    }
+    private static Vec3 place(YukkuriEntity e,BlockPos bed,CareBlockEntity c){
+        if(c!=null)return c.centre().add(c.restOffset(e.getUUID()));
         var home=e.habitat().shelter();
         return home!=null&&bed.equals(home.bed(e.getUUID()))?Vec3.atBottomCenterOf(bed).add(home.restOffset(e.getUUID())):Vec3.atBottomCenterOf(bed);
+    }
+    /** Compare the actual walk target to the assigned offset without surveying the floor a second time. */
+    public static boolean aimsAtPlace(YukkuriEntity e,BlockPos assigned,Vec3 to){
+        var place=place(e,assigned,care(e));
+        return Math.floor(to.y)==Math.floor(place.y) && Math.hypot(to.x-place.x,to.z-place.z)<SurfaceApproach.ARRIVAL;
     }
     /** Feet fully inside the assigned large bed, not on its rim or entrance shoulders (one rule for every nest arrival). */
     public static boolean onLargeFloor(YukkuriEntity e){

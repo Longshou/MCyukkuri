@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.life.NestLayout;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Pin;
@@ -9,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.motor.geom.SeparationStep;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +21,8 @@ import net.minecraft.world.phys.Vec3;
 /** One body's response to its neighbours, at its actual travel step or, during recoil, as a checked impulse. */
 public final class BodyContact {
     private final YukkuriEntity body;
+    private final SeparationStep separation = new SeparationStep();
+    private final BooleanSupplier enteringNest;
     private final ContactScan<Entity> scan = new ContactScan<>(this::include, this::canStep);
     private final Predicate<Vec> groundFooting = step -> scan.test(step.x(), 0, step.z());
     private final FlightCourse.Shove shove = new FlightCourse.Shove(this::clearShove);
@@ -27,7 +31,10 @@ public final class BodyContact {
     private AABB lastBox, queryBox;
     private double lastReach, lastHeight;
 
-    BodyContact(YukkuriEntity body) { this.body = body; }
+    BodyContact(YukkuriEntity body) {
+        this.body = body;
+        enteringNest = () -> body.life().enteringBed(body.nearbyAssignedNest());
+    }
 
     private boolean grounded() {
         return body.onGround() && !body.isInLiquid() && body.hurtTime == 0 && body.usesCrowdSpacing();
@@ -47,7 +54,11 @@ public final class BodyContact {
                 || body.family().courting(peer) || peer.family().courting(body)
                 || peer.motor().current() instanceof Grab grip && grip.target() == body
                 || peer.woundComfort().helping(body) || body.woundComfort().helping(peer)
-                || body.life().isSleeping() && body.sharesNearbyNest(peer);
+                || sharesBedStand(peer);
+    }
+
+    private boolean sharesBedStand(YukkuriEntity peer) {
+        return body.sharesNearbyNest(peer) && NestLayout.ownsSpacing(body.life().isSleeping(), peer.life().isSleeping(), enteringNest);
     }
 
     private double share(YukkuriEntity peer) {
@@ -111,7 +122,7 @@ public final class BodyContact {
             pressed = -1;
             return motion;
         }
-        var step = SeparationStep.crowd(body.getX() - closest.getX(), body.getZ() - closest.getZ(),
+        var step = separation.crowd(body.getX() - closest.getX(), body.getZ() - closest.getZ(),
                 (body.getBbWidth() + closest.getBbWidth()) * .5, closest.getId() == pressed,
                 Integer.compare(body.getId(), closest.getId()), share(closest), new Vec(motion.x, motion.y, motion.z),
                 groundFooting);
@@ -146,6 +157,12 @@ public final class BodyContact {
     }
 
     private boolean canStep(double dx, double dy, double dz) {
+        double reach = Math.max(Math.abs(dx), Math.abs(dz));
+        if (reach > lastReach) {
+            // A remembered flank can be farther away than this tick's stride.
+            scan.neighbours.clear();
+            collect(reach, lastHeight);
+        }
         return clearStep(dx, dy, dz) && (body.isInLiquid() || Motor.safeContactStep(body, new Vec3(dx, dy, dz)));
     }
 
@@ -156,8 +173,11 @@ public final class BodyContact {
         for (int i = 0; i < scan.neighbours.size(); i++) {
             var neighbour = scan.neighbours.get(i);
             var box = neighbour.getBoundingBox();
-            if (next.intersects(box) && (body.canCollideWith(neighbour) || !FlightCourse.clearsNeighbour(here.intersects(box),
-                    body.getX() - neighbour.getX(), body.getZ() - neighbour.getZ(), dx, dz))) return false;
+            if (!next.intersects(box)) continue;
+            if (body.canCollideWith(neighbour)) return false;
+            if (neighbour instanceof YukkuriEntity peer && sharesBedStand(peer)) continue;
+            if (!FlightCourse.clearsNeighbour(here.intersects(box), body.getX() - neighbour.getX(),
+                    body.getZ() - neighbour.getZ(), dx, dz)) return false;
         }
         return true;
     }

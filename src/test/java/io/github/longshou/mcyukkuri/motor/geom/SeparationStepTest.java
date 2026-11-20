@@ -8,36 +8,39 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeparationStepTest {
+    private final SeparationStep body = new SeparationStep();
+
     @Test void stackedRestingBodiesPartByTheirOwnWidthsAndStop() {
+        var other = new SeparationStep();
         for (double width : new double[]{.16, (.16 + .8) / 2, .8, 1.6}) {
             double x = 0;
             for (int tick = 0; tick < 150; tick++) {
-                var first = SeparationStep.crowd(x, 0, width, tick > 0, -1, .6, Vec.ZERO, step -> true);
-                var second = SeparationStep.crowd(-x, 0, width, tick > 0, 1, 1, Vec.ZERO, step -> true);
+                var first = body.crowd(x, 0, width, tick > 0, -1, .6, Vec.ZERO, step -> true);
+                var second = other.crowd(-x, 0, width, tick > 0, 1, 1, Vec.ZERO, step -> true);
                 assertTrue(first.x() <= 0 && second.x() >= 0);
                 assertTrue(first.hlen() <= SeparationStep.SHOVE * .6 && second.hlen() <= SeparationStep.SHOVE);
                 x += first.x() - second.x();
             }
             assertTrue(-x >= width + SeparationStep.RELEASE_GAP);
-            assertSame(Vec.ZERO, SeparationStep.crowd(x, 0, width, false, -1, 1, Vec.ZERO, step -> true));
+            assertSame(Vec.ZERO, body.crowd(x, 0, width, false, -1, 1, Vec.ZERO, step -> true));
         }
     }
 
     @Test void aReleasedPairDoesNotStartMovingInsideTheDaylightBand() {
         double x = .8 + SeparationStep.RELEASE_GAP / 2;
-        assertSame(Vec.ZERO, SeparationStep.crowd(x, 0, .8, false, 1, 1, Vec.ZERO, step -> true));
-        var finishing = SeparationStep.crowd(x, 0, .8, true, 1, 1, Vec.ZERO, step -> true);
+        assertSame(Vec.ZERO, body.crowd(x, 0, .8, false, 1, 1, Vec.ZERO, step -> true));
+        var finishing = body.crowd(x, 0, .8, true, 1, 1, Vec.ZERO, step -> true);
         assertEquals(.8 + SeparationStep.RELEASE_GAP, x + finishing.x(), 1e-12);
     }
 
     @Test void roamingStepCannotEnterTheBodyAndAnIdleBodyOnlyStepsOntoOpenGround() {
         Vec inbound = new Vec(-.1, -.08, 0);
-        var pass = SeparationStep.crowd(.85, 0, .8, false, 1, 1, inbound, step -> true);
+        var pass = body.crowd(.85, 0, .8, false, 1, 1, inbound, step -> true);
         assertTrue(.85 + pass.x() >= .8 && pass.hlen() <= inbound.hlen());
         var resting = new Vec(0, -.08, 0);
-        var slide = SeparationStep.crowd(.1, .02, .8, false, 1, 1, resting, s -> s.x() == 0 && s.z() > 0);
+        var slide = body.crowd(.1, .02, .8, false, 1, 1, resting, s -> s.x() == 0 && s.z() > 0);
         assertEquals(new Vec(0, -.08, SeparationStep.SHOVE), slide);
-        assertEquals(resting, SeparationStep.crowd(.1, .02, .8, false, 1, 1, resting, s -> false));
+        assertEquals(resting, body.crowd(.1, .02, .8, false, 1, 1, resting, s -> false));
     }
 
     @Test void opensTheGapFromTheArchivedPeerRubStandWhenAStandTurnsInward() {
@@ -59,13 +62,13 @@ class SeparationStepTest {
             double z = 0;
             for (int tick = 0; tick < 100; tick++) {
                 double current = side * z;
-                var step = SeparationStep.crowd(.86, z, .8, tick > 0, 1, 1, new Vec(-.1, -.08, 0),
+                var step = body.crowd(.86, z, .8, tick > 0, 1, 1, new Vec(-.1, -.08, 0),
                         candidate -> current + side * candidate.z() >= 0 && current + side * candidate.z() <= .1);
                 assertEquals(0, step.x(), 1e-12);
                 assertEquals(tick == 0 ? side * .1 : 0, step.z(), 1e-12);
                 z += step.z();
             }
-            var open = SeparationStep.crowd(.86, z, .8, true, 1, 1, new Vec(-.1, -.08, 0), candidate -> true);
+            var open = body.crowd(.86, z, .8, true, 1, 1, new Vec(-.1, -.08, 0), candidate -> true);
             assertEquals(side * .1, open.z());
         }
     }
@@ -73,7 +76,7 @@ class SeparationStepTest {
     @Test void aSupportedDiagonalCannotCarryTheBodyOntoItsUnsupportedClippedAxis() {
         double sole = .16 * .42;
         var scan = new ContactScan<>(peer -> true, (x, y, z) -> y == 0 && (x + sole <= .09 || z - sole >= .01));
-        var step = SeparationStep.crowd(.10, .02, .16, false, 1, 1, new Vec(.11, -.08, .15),
+        var step = body.crowd(.10, .02, .16, false, 1, 1, new Vec(.11, -.08, .15),
                 candidate -> scan.test(candidate.x(), 0, candidate.z()));
         scan.guard();
         assertTrue(scan.permitsResolved(step.x(), 0, step.z()));
@@ -81,6 +84,29 @@ class SeparationStepTest {
         assertTrue(scan.permitsResolved(0, 0, step.z()));
         assertFalse(scan.permitsResolved(0, .5, step.z()));
         assertTrue(scan.permitsResolved(0, -.08, 0));
+    }
+
+    @Test void offCentreSteeringTakesTheOpenFlankUntilItPassesThePeer() {
+        for (int side : new int[]{-1, 1}) for (double offset : new double[]{.002, .31}) {
+            double z = side * offset;
+            for (int tick = 0; tick < 100; tick++) {
+                double start = z;
+                var step = body.crowd(.86, z, .8, tick > 0, 1, 1, new Vec(-.1, -.08, 0),
+                        candidate -> side * (start + candidate.z()) < offset + .001);
+                if (-side * z < .8 + SeparationStep.RELEASE_GAP) assertEquals(-side * .1, step.z());
+                else assertEquals(-.1, step.x());
+                z += step.z();
+            }
+            assertTrue(-side * z >= .8 + SeparationStep.RELEASE_GAP);
+        }
+    }
+
+    @Test void aBoxedBodyCanReverseWhenThePreviouslyClosedSideOpens() {
+        var inward = new Vec(-.1, 0, 0);
+        assertEquals(.1, body.crowd(.86, 0, .8, false, 1, 1, inward, s -> s.z() >= 0).z());
+        assertEquals(0, body.crowd(.86, .1, .8, true, 1, 1, inward, s -> .1 + s.z() >= 0 && s.z() <= 0).z());
+        assertEquals(-.1, body.crowd(.86, .1, .8, true, 1, 1, inward, s -> s.z() <= 0).z());
+        assertEquals(-.1, body.crowd(.86, 0, .8, true, 1, 1, inward, s -> true).z());
     }
 
     @Test void eachMoveReusesTheNeighbourBufferAndProbesEachConsecutiveFootingOnce() {

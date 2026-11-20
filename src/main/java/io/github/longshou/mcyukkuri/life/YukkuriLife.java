@@ -145,6 +145,8 @@ public final class YukkuriLife {
     private final Map<BlockPos, Vec3> refusedServings = new HashMap<>();
     private Vec3 refusedServingFrom;
     private BedRouteRefusal refusedBed;
+    private record FailedBoarding(BlockPos bed, Vec3 from, Vec3 stand, UUID blocker, boolean clearStep) {}
+    private FailedBoarding failedBoarding;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
     private boolean useBowlNicely;
     private boolean warnedAtDish;
@@ -329,11 +331,42 @@ public final class YukkuriLife {
     }
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
+    public boolean enteringBed(BlockPos assigned) {
+        if (task == Task.HOME && assigned.equals(targetBlock)) return true;
+        var destination = approach.walkingTo(entity.level().getGameTime());
+        return destination != null && FamilyNest.aimsAtPlace(entity, assigned, destination);
+    }
     public boolean mayReturnToBed(BlockPos bed) {
-        return refusedBed == null || refusedBed.permits(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime(), () -> {
+        if (refusedBed != null && !refusedBed.permits(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime(), () -> {
             var place = FamilyNest.restPosition(entity, bed);
             return place != null && SurfaceApproach.canApproach(entity, place);
-        });
+        })) return false;
+        var failed = failedBoarding;
+        if (failed == null || !bed.equals(failed.bed())) return true;
+        var stand = FamilyNest.restPosition(entity, bed);
+        if (stand == null) return false;
+        if (failed.stand() != null && stand.distanceToSqr(failed.stand()) < SurfaceApproach.ARRIVAL * SurfaceApproach.ARRIVAL) {
+            boolean hadBlocker = failed.blocker() != null;
+            boolean stillBlocks = hadBlocker && level().getEntity(failed.blocker()) instanceof YukkuriEntity peer && blocksBoarding(peer, bed, stand);
+            boolean newStart = entity.distanceToSqr(failed.from()) >= entity.getBbWidth() * entity.getBbWidth();
+            boolean stepOpened = !hadBlocker && !newStart && !failed.clearStep() && SurfaceApproach.clearLastStep(entity, stand);
+            if (!BedApproachMemory.retryBoarding(hadBlocker, stillBlocks, newStart, stepOpened)) return false;
+        }
+        failedBoarding = null;
+        return true;
+    }
+
+    private boolean blocksBoarding(YukkuriEntity peer, BlockPos bed, Vec3 stand) {
+        return peer != entity && peer.isAlive() && !peer.isPassenger() && !peer.noPhysics
+                && !(peer.life().isSleeping() && bed.equals(peer.nearbyAssignedNest()))
+                && SurfaceApproach.crossesBody(entity, entity.position(), stand, peer.getBoundingBox());
+    }
+
+    private void rememberBoarding(BlockPos bed, Vec3 stand) {
+        var blockers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(entity.getBbWidth()),
+                peer -> blocksBoarding(peer, bed, stand));
+        failedBoarding = new FailedBoarding(bed, entity.position(), stand, blockers.isEmpty() ? null : blockers.getFirst().getUUID(),
+                blockers.isEmpty() && SurfaceApproach.clearLastStep(entity, stand));
     }
 
     public boolean walkToBed(BlockPos bed, Vec3 position, double speed) {
@@ -1152,7 +1185,8 @@ public final class YukkuriLife {
             // time: dry ground is all it has.
             boolean penSleep = (penned || targetBlock == null && entity.status().identity() == Identity.STOCK)
                     && dryStand(entity.blockPosition()) && !level().isRainingAt(entity.blockPosition());
-            boolean restShort = bedRefused && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
+            boolean restShort = bedRefused && (!shared || nestOccupancy == Occupancy.OUTSIDE)
+                    && SurfaceApproach.supportedGround(entity, entity.position()) && !level().isRainingAt(entity.blockPosition());
             if (targetBlock != null && !dependentAtHome && settleIntoBed()) return false;
             boolean shelteredPerch = homeProvider() == HomeProvider.PREDATOR && targetBlock == null && canFatigueRest();
             if (!quietSite(entity.blockPosition())) return false;
@@ -1331,21 +1365,22 @@ public final class YukkuriLife {
                 boolean shared = nestOccupancy != null && FamilyNest.shared(entity,targetBlock);
                 boolean restingHere = !shared && nestOccupancy == Occupancy.INSIDE_SUPPORTED && entity.childhood().shouldStayWithParents();
                 if (!restingHere && !shared && !dryStand(targetBlock)) { stopGoal(); homeWait = 0; return; }
-                // The same pursuit budget ends a walk that never gets the whole footprint into the bed (no new wait).
-                if (pursuitTicks > 600) {
-                    if (!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
-                            "home walk stopped reason=nest_not_inside nest={} occupancy={} pursuitTicks={}", targetBlock, nestOccupancy, pursuitTicks);
-                    stopGoal(); homeWait = 0; return;
-                }
                 // Vanilla pathing ends up to ~0.55 block short of the last node, so the final step is steered
                 // on the supported surface; otherwise the 0.4-block arrival test below could never be met.
                 Vec3 bedCentre = restingHere ? entity.position() : FamilyNest.restPosition(entity,targetBlock);
                 if(bedCentre==null){
+                    if (shared) failedBoarding = new FailedBoarding(targetBlock, entity.position(), null, null, false);
                     if(!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
                             "home walk stopped reason=nest_not_inside nest={} occupancy={} cause=no_rest_place", targetBlock, nestOccupancy);
                     stopGoal();return;
                 }
                 boolean settled = inside && (shared ? SurfaceApproach.at(entity,bedCentre) : entity.distanceToSqr(bedCentre) < .16);
+                if (!settled && pursuitTicks > 600) {
+                    if (shared) rememberBoarding(targetBlock, bedCentre);
+                    if (!inside) GameplayLog.limited(entity, "home", "nest_not_inside", 200,
+                            "home walk stopped reason=nest_not_inside nest={} occupancy={} pursuitTicks={}", targetBlock, nestOccupancy, pursuitTicks);
+                    stopGoal(); homeWait = 0; return;
+                }
                 if(shared && inside && !settled && entity.getNavigation() instanceof YukkuriGroundNavigation ground) {
                     ground.step(bedCentre,1); return;
                 }
@@ -1364,7 +1399,10 @@ public final class YukkuriLife {
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
                 } else if (pursuitTicks > 60 && SurfaceApproach.lastResult(entity, bedCentre) == SurfaceApproach.Result.BLOCKED
-                        && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
+                        && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) {
+                    if (shared) rememberBoarding(targetBlock, bedCentre);
+                    stopGoal();
+                }
             }
             case CLAIM_BED -> approachUnclaimedBed();
             case TOILET -> {

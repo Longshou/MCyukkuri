@@ -4,6 +4,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BedApproachMemoryTest {
+    @Test void anotherHomeAttemptNeedsAChangedApproach() {
+        assertFalse(BedApproachMemory.retryBoarding(true, true, true, false)); // The baby still covers the destination.
+        assertTrue(BedApproachMemory.retryBoarding(true, false, false, false));
+        assertFalse(BedApproachMemory.retryBoarding(false, false, false, false));
+        assertTrue(BedApproachMemory.retryBoarding(false, false, true, false));
+        assertTrue(BedApproachMemory.retryBoarding(false, false, false, true));
+    }
+
     @Test void failuresAtTwoBedsPersistIndependentlyAndADifferentEntranceWorksImmediately() {
         var memory=new BedApproachMemory();
         var north=new BedApproachMemory.Opening("overworld",12,0);

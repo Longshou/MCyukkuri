@@ -195,7 +195,7 @@ public final class YukkuriSocial implements MotorOwner {
         return true;
     }
     public boolean canUse() {
-        if (task == Task.ANSWER && entity.level().getGameTime() > answerUntil) { stop(); return false; }
+        if (task == Task.ANSWER && !answerOpen()) { stop(); return false; }
         if (task != Task.NONE) return canContinue();
         if (entity.life().isSleeping()) wasSleeping = true;
         else if (wasSleeping) {
@@ -439,7 +439,7 @@ public final class YukkuriSocial implements MotorOwner {
                 && (!humanContact() || !entity.isPassenger() && !entity.life().hasUrgentNeed() && !entity.operations().active()
                         && !entity.waterDistress().active() && !(target instanceof Player player && player.isSpectator()))
                 && (task != Task.TOOL || holdingTool((LivingEntity) target) && availableForSocial())
-                && (task != Task.ANSWER || answerDelay > 0 || approachedBy(target));
+                && (task != Task.ANSWER || answerOpen() && (answerDelay > 0 || approachedBy(target)));
     }
     public void tickGoal() {
         if (!canContinue()) { stop(); return; }
@@ -631,8 +631,10 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean holdingPeerGreeting() {
         if (task != Task.PEER || !greeted || retreat || !(target instanceof YukkuriEntity peer)) return false;
         var answer = peer.social();
-        return greeting() || answer.task == Task.ANSWER && answer.target == entity && answer.answerDelay > 0;
+        return greeting() || answer.task == Task.ANSWER && answer.target == entity && answer.answerDelay > 0 && answer.answerOpen();
     }
+
+    private boolean answerOpen() { return ContactPhase.answerOpen(entity.level().getGameTime(), answerUntil, greeting()); }
 
     private ContactPhase contactPhase() {
         return task == Task.OWNER_RETURN && !retreat ? welcomePhase : ContactPhase.APPROACH;

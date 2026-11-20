@@ -12,6 +12,8 @@ enum ContactPhase {
         return (int) Math.ceil(Math.max(0, distance - reach) / pace);
     }
 
+    static boolean answerOpen(long now, long deadline, boolean playing) { return now <= deadline || playing; }
+
     boolean canTick(int elapsed, int budget) { return !usesApproachBudget || elapsed < budget; }
 
     int elapsedAfterTick(int elapsed) { return usesApproachBudget ? elapsed + 1 : elapsed; }

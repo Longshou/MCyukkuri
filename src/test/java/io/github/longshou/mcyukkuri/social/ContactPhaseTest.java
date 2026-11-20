@@ -7,6 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class ContactPhaseTest {
+    @Test void anUnscheduledReceiverCannotHoldTheGreeterPastItsReplyDeadline() {
+        long greeting = 2411, deadline = greeting + 200;
+        for (long now = greeting; now < greeting + 2200; now++)
+            assertEquals(now <= deadline, ContactPhase.answerOpen(now, deadline, false));
+        assertTrue(ContactPhase.answerOpen(deadline + 1, deadline, true));
+    }
+
     @Test void travelAllowanceUsesTheGapAndTheWalkingBody() {
         assertEquals(0, ContactPhase.walkTicks(.5, .75, .1));
         assertEquals(8, ContactPhase.walkTicks(1.5, .75, .1));
