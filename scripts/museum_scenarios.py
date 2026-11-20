@@ -2525,7 +2525,7 @@ add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：�
         *[f'yukkuri scenario home {sel(name)} ~12 ~ ~17' for name in ('territory_forager', 'territory_mate')],
     ],
     late=[
-        Retry(yk('flandre', 4, 3, 'territory_intruder', dy=8.25, nutrition=100, energy=32,
+        Retry(yk('flandre', 4, 3, 'territory_intruder', dy=8, nutrition=100, energy=32,
                  boldness=25, uuid=_territory_intruder), sel('territory_resident'), first=1, tries=1),
         Retry(remains(0, -.4, 'territory_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
               sel('territory_resident'), first=240, tries=1),
