@@ -16,7 +16,14 @@ import review_verdicts
 POSE_LOCK=Lock()
 
 ROOT=Path(__file__).resolve().parents[1]
+# The hub and player pages are copied into .local/previews by build_preview_hub.py; serve the tracked sources at those URLs so a
+# stale copy can never pair old markup with the current scripts.
+LIVE_PAGES={'/.local/previews/player.html':ROOT/'preview/review/player.html','/.local/previews/index.html':ROOT/'preview/hub/index.html'}
 class Handler(SimpleHTTPRequestHandler):
+    def translate_path(self, path):
+        live = LIVE_PAGES.get(unquote(urlsplit(path).path))
+        return str(live) if live else super().translate_path(path)
+
     def respond(self, body, status=200, content_type='application/json', headers=()):
         self.send_response(status)
         self.send_header('Content-Type', content_type)
