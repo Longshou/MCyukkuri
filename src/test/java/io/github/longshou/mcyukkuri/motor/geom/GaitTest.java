@@ -38,15 +38,20 @@ class GaitTest {
         assertTrue(Gait.hop(1.5, Gait.temperament(100)) < Gait.HUMAN_WALK);
     }
 
-    @Test void closesAnExactStandWhenTheTurnCapWouldMakeTheWalkerCircle() {
+    @Test void turnsInPlaceUntilTheWalkerCanFaceTheStand() {
         // FG-02, seed 11202026, tick 2080: the mother is within her footprint but still turning toward the stand.
         double dx = -747.6607333824422 - (-747.7381);
         double dz = 308.4000000357628 - 308.4613;
         double distance = Math.hypot(dx, dz);
         double headingError = Math.toDegrees(Math.atan2(dz, dx)) - 90 - 186;
-        assertTrue(Gait.needsStraightFinish(distance, .8, headingError, 12));
-        assertTrue(Gait.needsStraightFinish(distance, .8, headingError - 720, 12));
-        assertFalse(Gait.needsStraightFinish(.5, .8, headingError, 12));
-        assertFalse(Gait.needsStraightFinish(distance, .8, 350, 12));
+        assertTrue(Gait.needsStandingTurn(distance, .8, headingError, 12));
+        assertTrue(Gait.needsStandingTurn(distance, .8, headingError - 720, 12));
+        assertFalse(Gait.needsStandingTurn(.5, .8, headingError, 12));
+        for (int tick = 0; tick < 3; tick++) {
+            assertTrue(Gait.needsStandingTurn(distance, .8, headingError, 12));
+            headingError -= Effort.turn(0, headingError, 12);
+        }
+        assertFalse(Gait.needsStandingTurn(distance, .8, headingError, 12));
+        assertFalse(Gait.needsStandingTurn(distance, .8, 350, 12));
     }
 }
