@@ -18,6 +18,7 @@
 | 居民家里的住家油库里 | `.worktrees/wp-household-resident` | house/HouseholdEcology.java, human/HumanNpc.java |
 | 公园里等主人：本地流浪赠食并提供去处 | `.worktrees/wp-park-aid` | social/Kindness.java, pet/PetLife.java (waiting) |
 | 收容所志愿者给流浪放纸箱 | `.worktrees/wp-shelter-cartons` | human jobs, settlement/ShelterBlock.java |
+| 村会馆柜台：徽章登记、补发与讲台观看 | `.worktrees/wp-badge-counter` | human/HumanNpc.java (counter role), pet/exam/ExamMenu.java, pet/exam/ExamHall.java, author_civic.py |
 
 ## 玩法待办
 
