@@ -414,10 +414,16 @@ final class YukkuriGoals {
         private IntentRunner runner;
         private String incident;
         EscapeWaterGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.JUMP, Flag.LOOK)); }
-        @Override public boolean canUse() { return (owner.waterDistress().escaping() || owner.waterDistress().climbing() || owner.waterDistress().restingBreath()
-                || incident != null && out()
-                || runner != null && runner.result() == IntentRunner.Result.RUNNING)
-                && !bodyOwnedInWater() && !owner.predatorFlying(); }
+        @Override public boolean canUse() {
+            var water = owner.waterDistress();
+            // A failed last step on the dry lip must give other movement goals a turn.
+            boolean seekingBank = water.escaping() && (owner.isInWaterOrBubble() || runner == null);
+            return (seekingBank || water.climbing() || water.restingBreath() || incident != null && out()
+                    || runner != null && runner.active()) && !bodyOwnedInWater() && !owner.predatorFlying();
+        }
+        @Override public void start() {
+            if (owner.isInWaterOrBubble() && runner != null && !runner.active()) runner = null;
+        }
         private boolean bodyOwnedInWater() {
             var intent = Drive.running(owner, "aquatic");
             return intent != null && intent.ownsBodyInWater() || owner.social().ownsBodyInWater();
@@ -427,7 +433,7 @@ final class YukkuriGoals {
             boolean struggles = owner.waterDistress().struggles();
             // out (standing, aboard, held): the fall is over, and a fall during the breath is a new incident
             if (incident != null && out()) settle();
-            // past the plunge's impact (a wade through a puddle opens none)
+            // After the plunge's impact, or as soon as a wading body can work its way out.
             if (incident == null && struggles) incident = AskLedger.server().open(owner, "water",
                     "stage=" + owner.family().stage() + " landing=" + owner.family().landingOutcome() + " last=" + owner.motor().lastDetail());
             if (!struggles && (runner == null || owner.isInWaterOrBubble() || out())) {
