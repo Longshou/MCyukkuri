@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import net.minecraft.world.entity.EntityDimensions;
@@ -144,6 +145,8 @@ public final class PredatorLife implements EcologyRoutine {
     private int flightGoalTick = -1;
     private RemainsEntity eatRemains;
     private LivingEntity territoryTarget, warnedIntruder;
+    private BlockPos drivenFrom;
+    private long avoidTerritoryUntil;
     private YukkuriEntity bittenPrey;
     private long bittenAt;
     /** Prey with an owner that has already been reported to that owner (game time until which the alert is quiet). */
@@ -167,7 +170,7 @@ public final class PredatorLife implements EcologyRoutine {
             case PATROL -> Behaviors.PREDATOR_FLY;
             case PERCH -> watchTicks > 0 ? Behaviors.PREDATOR_PERCH : Behaviors.PREDATOR_FLY;
             case FLAP -> Behaviors.PREDATOR_FLAP;
-            case WARN -> Behaviors.PREDATOR_SCREECH;
+            case WARN, YIELD_TERRITORY -> Behaviors.PREDATOR_SCREECH;
             case THREAT_APPROACH -> Behaviors.PREDATOR_FLY;
             case THREAT_DIVE -> Behaviors.PREDATOR_DIVE;
             case BRANCH_HOP -> Behaviors.PREDATOR_PERCH;
@@ -177,7 +180,7 @@ public final class PredatorLife implements EcologyRoutine {
         };
     }
     public String animation() {
-        if (task == Task.WARN) return Behaviors.PREDATOR_FLAP;
+        if (task == Task.WARN || task == Task.YIELD_TERRITORY) return Behaviors.PREDATOR_FLAP;
         if (task == Task.FLAP && watchTicks > 0) return Behaviors.PREDATOR_FLAP;
         if (animal.fallDistance > 0 && animal.childhood().nestling() && animal.childhood().wingPractice() > 0
                 && !animal.family().awaitingLanding()) return Behaviors.PREDATOR_FLAP;
@@ -958,9 +961,53 @@ public final class PredatorLife implements EcologyRoutine {
         if (animal.distanceToSqr(pullUp) < .09) {
             GameplayLog.event(animal, "predator", "territory pull-up target={} feet={} target_top={}",
                     target.getUUID(), animal.position(), top);
+            if (target instanceof YukkuriEntity intruder) intruder.predator().yieldTerritory(animal, pad);
             land();
         } else if (ThreatPass.canDescend(animal.getY(), top)) directFlight(pullUp, 1);
         else land();
+    }
+
+    private void yieldTerritory(YukkuriEntity resident, BlockPos pad) {
+        if (!ready() || !canSustainFlight() || animal.childhood().nestling() || !hasAirExit()) return;
+        boolean alreadyActive = active();
+        interruptFounding();
+        drivenFrom = pad;
+        avoidTerritoryUntil = level().getGameTime() + 24000;
+        territoryTarget = resident;
+        task = Task.YIELD_TERRITORY;
+        if (alreadyActive) start();
+    }
+
+    private void leaveTerritory() {
+        land();
+        beginFlight();
+    }
+
+    /** Loaded claimed nests supply their zones. The deadline is the intruder's only lasting avoidance state. */
+    List<BlockPos> foreignTerritories(BlockPos centre, int radius) {
+        if (level().getGameTime() >= avoidTerritoryUntil) return List.of();
+        int reach = radius + ThreatPass.ZONE_RADIUS;
+        var ids = FamilyData.get(level());
+        var owner = animal.getUUID();
+        var mate = animal.family().partner();
+        var zones = new ArrayList<BlockPos>();
+        for (int z = (centre.getZ() - reach) >> 4; z <= (centre.getZ() + reach) >> 4; z++) {
+            for (int x = (centre.getX() - reach) >> 4; x <= (centre.getX() + reach) >> 4; x++) {
+                var chunk = level().getChunkSource().getChunkNow(x, z);
+                if (chunk == null) continue;
+                for (var cell : chunk.getBlockEntitiesPos()) {
+                    if (!chunk.getBlockState(cell).is(ModBlocks.PREDATOR_NEST.get())
+                            || !(chunk.getBlockEntity(cell) instanceof CareBlockEntity nest) || nest.owns(owner)) continue;
+                    if (nest.residentIds().stream().anyMatch(id -> !id.equals(mate)
+                            && !ids.related(owner, id) && !ids.socialKin(owner, id))) zones.add(cell);
+                }
+            }
+        }
+        return zones;
+    }
+
+    static boolean outsideTerritories(List<BlockPos> zones, Vec3 feet) {
+        return zones.stream().noneMatch(pad -> inTerritory(pad, feet));
     }
 
     private boolean needsRoost(BlockPos home) {
@@ -1044,6 +1091,14 @@ public final class PredatorLife implements EcologyRoutine {
             animal.getNavigation().stop();
             warnedIntruder = territoryTarget;
             screech(territoryTarget);
+            return;
+        }
+        if (task == Task.YIELD_TERRITORY) {
+            var resident = (YukkuriEntity) territoryTarget;
+            if (animal.onGround() && animal.life().personality().boldness() > resident.life().personality().boldness()) {
+                SurfaceApproach.halt(animal);
+                screech(resident);
+            } else leaveTerritory();
             return;
         }
         if (task == Task.BRANCH_HOP) {
@@ -1385,6 +1440,7 @@ public final class PredatorLife implements EcologyRoutine {
     }
 
     private Landing findDryLanding(BlockPos center, int radius, BlockPos occupiedStand, Predicate<Vec3> fits) {
+        var zones = foreignTerritories(center, radius);
         var candidates = new HashSet<BlockPos>();
         if (lastDryStand != null && level().hasChunkAt(lastDryStand) && animal.life().dryStand(lastDryStand)) candidates.add(lastDryStand);
         var home = animal.life().homeStand();
@@ -1413,7 +1469,7 @@ public final class PredatorLife implements EcologyRoutine {
         int routeChecks = 0;
         for (BlockPos stand : ordered) {
             Vec3 feet = landingFeet(stand);
-            if (feet == null || !fits.test(feet)) continue;
+            if (feet == null || !outsideTerritories(zones, feet) || !fits.test(feet)) continue;
             if (canDepart(feet) && canFlyToFeet(feet)) return new Landing(stand, feet);
             if (++routeChecks == 8) break;
         }
@@ -1431,6 +1487,11 @@ public final class PredatorLife implements EcologyRoutine {
     }
     private void tickGoal() {
         ticks++;
+        if (drivenFrom != null && !inTerritory(drivenFrom, animal.position())) {
+            GameplayLog.event(animal, "predator", "intruder left pad={} feet={} avoid_until={}",
+                    drivenFrom, animal.position(), avoidTerritoryUntil);
+            drivenFrom = null;
+        }
         boolean timedOut = task.timedOut(ticks);
         if (!runnable() || timedOut) {
             if (timedOut && task == Task.VISIT_YOUNG) rememberBlockedVisit("timeout");
@@ -1459,6 +1520,10 @@ public final class PredatorLife implements EcologyRoutine {
         }
         if (task == Task.PERCH) { perch(); return; }
         if (task == Task.WARN) { warnIntruder(); return; }
+        if (task == Task.YIELD_TERRITORY) {
+            if (!animal.onGround() || ticks >= YukkuriAction.PUFF.durationTicks()) leaveTerritory();
+            return;
+        }
         if (task == Task.THREAT_APPROACH || task == Task.THREAT_DIVE) { threatPass(); return; }
         if (task == Task.DELIVER) { deliver(); return; }
         if (task == Task.VISIT_YOUNG) {
@@ -1829,6 +1894,7 @@ public final class PredatorLife implements EcologyRoutine {
     public CompoundTag save() {
         var tag = new CompoundTag(); tag.putString("Order", order.name()); tag.putInt("Cooldown", cooldown);
         tag.putBoolean("NaturalSpawn", naturalSpawn); if (commander != null) tag.putUUID("Commander", commander);
+        if (animal.level().getGameTime() < avoidTerritoryUntil) tag.putLong("AvoidTerritoryUntil", avoidTerritoryUntil);
         nestBuild.save(tag);
         if (failedVisits.size() > 0) {
             long now = animal.level().getGameTime();
@@ -1858,6 +1924,7 @@ public final class PredatorLife implements EcologyRoutine {
         stop(); try { order = Order.valueOf(tag.getString("Order")); } catch (IllegalArgumentException ignored) { order = Order.NATURAL; }
         commander = tag.hasUUID("Commander") ? tag.getUUID("Commander") : null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 400); naturalSpawn = tag.getBoolean("NaturalSpawn");
+        avoidTerritoryUntil = tag.getLong("AvoidTerritoryUntil");
         nestBuild.load(tag);
         failedVisits.clear();
         for (var saved : tag.getList("FailedVisits", Tag.TAG_COMPOUND)) {

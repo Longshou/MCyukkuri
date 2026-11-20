@@ -6,7 +6,7 @@ final class PredatorFlight {
     static final int OTHER_TASK_LIMIT = 800;
     enum Task {
         NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT, BROOD_FLIGHT, DELIVER, VISIT_YOUNG,
-        WARN, THREAT_APPROACH, THREAT_DIVE;
+        WARN, THREAT_APPROACH, THREAT_DIVE, YIELD_TERRITORY;
 
         boolean needsLanding(double energy) {
             return energy < 15 && switch (this) {

@@ -17,6 +17,7 @@ final class PerchSearch {
 
     static Vec3 find(YukkuriEntity body, BlockPos centre, Long last, Long previous, boolean roost) {
         var level = (ServerLevel) body.level();
+        var zones = body.predator().foreignTerritories(centre, 24);
         boolean midday = PerchScore.midday(level.getDayTime(), !level.isRaining());
         var columns = new HashSet<BlockPos>();
         columns.add(centre);
@@ -45,7 +46,7 @@ final class PerchSearch {
                 boolean shaded = body.life().covered(pos);
                 if (roost && !shaded) continue;
                 var feet = body.predator().landingFeet(pos);
-                if (feet == null) continue;
+                if (feet == null || !PredatorLife.outsideTerritories(zones, feet)) continue;
                 int visible = view(level, body, pos, feet);
                 if (PerchScore.eligible(height, visible, pos.asLong(), last, previous))
                     branches.add(new Branch(feet, PerchScore.score(height, visible, midday, shaded)));
