@@ -310,11 +310,13 @@ public final class IndependenceLife extends Goal {
         }
         if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
         // Close the last gap while the parent answers. The waiting window ends even if the parent stays busy.
-        if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && parent.independence().seeingOff(entity)
-                && entity.distanceToSqr(parent) > touch * touch) {
-            // The parent may still be walking home. Retire a stand that can no longer bring the bodies into contact.
+        if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
+            // A moving parent can outwalk the old aim before the teen gets there.
             double reach = touch - SurfaceApproach.ARRIVAL;
-            if (target != null && target.distanceToSqr(parent.position()) > reach * reach) reject(target, "parent_moved");
+            if (target != null && target.distanceToSqr(parent.position()) > reach * reach) {
+                stands.retire(target);
+                target = progress = null;
+            }
             if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35
                     && at.distanceToSqr(parent.position()) <= reach * reach);
             if (target != null) approach(parent);

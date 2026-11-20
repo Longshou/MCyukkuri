@@ -35,4 +35,18 @@ class FarewellStandsTest {
         assertEquals(CALL, FarewellStands.exchange(false, false, true));
         assertEquals(UNREACHABLE, FarewellStands.exchange(false, false, false));
     }
+
+    @Test void aMovingParentCannotSendTheTeenBackToAnOldStandOrSpendItsRouteFailures() {
+        var stands = new FarewellStands<Integer>(Integer::equals);
+        for (int at : List.of(1, 2, 3, 4)) {
+            assertEquals(at, stands.next(List.of(1, 2, 3, 4), candidate -> true));
+            stands.retire(at);
+        }
+        assertNull(stands.next(List.of(2, 1), candidate -> true));
+        for (int at : List.of(5, 6, 7)) {
+            assertEquals(at, stands.next(List.of(at), candidate -> true));
+            stands.refuse(at);
+        }
+        assertNull(stands.next(List.of(8), candidate -> true));
+    }
 }
