@@ -2856,7 +2856,7 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     *own('identity_pet'),
     f'yukkuri status relate {sel("identity_pet")} @s 30',
     yk('marisa', -4, 4, 'identity_stray', label='魔理沙', nutrition=38, social_wait=0,
-       boldness=60, friendliness=40, self_control=40,
+       boldness=95, friendliness=40, self_control=40,
        extra='YukkuriPet:{TownRoots:1b}'),
     yk('patchouli', 4, -4, 'identity_settlement', label='帕秋莉', social_wait=0, boldness=40),
     f'yukkuri scenario community {sel("identity_settlement")} {sel("identity_settlement")}',
