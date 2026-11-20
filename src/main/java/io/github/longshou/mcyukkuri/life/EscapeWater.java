@@ -74,9 +74,9 @@ public final class EscapeWater implements Intent {
     private final Map<BlockPos, Long> avoid;
     /** Water routes already asked of the pathfinder in this run, and the stands scanned this tick. */
     private final Map<BlockPos, Boolean> routes = new HashMap<>();
-    private List<BlockPos> stands = List.of();
+    private List<Vec3> stands = List.of();
     private long scanned = Long.MIN_VALUE, farScanned = Long.MIN_VALUE / 2;
-    private List<BlockPos> farStands = List.of();
+    private List<Vec3> farStands = List.of();
     private Edge climbing;
     /** Hat ways, bank edges and final dry steps already tried during this escape. */
     private final Set<Object> tried = new HashSet<>();
@@ -196,14 +196,14 @@ public final class EscapeWater implements Intent {
         @Override public Set<Reason> reduces() { return reduces; }
         @Override public Step next() {
             // Vanilla can step up with just the front of the body on the bank. Finish that step on dry ground.
-            if (!body.isInWaterOrBubble() && !body.isPassenger()
-                    && body.waterDistress().bankFooting() == WaterDistress.BankFooting.EDGE) {
-                for (var pos : stands()) {
-                    Vec3 land = Vec3.atBottomCenterOf(pos);
-                    if (SurfaceApproach.clearLastStep(body, land) && tried.add(land))
-                        return new Step.Do(new Walk(land));
+            if (body.onGround() && !body.isPassenger() && (body.isInWaterOrBubble() ? id.equals("struggle") || id.equals("bank")
+                    : body.waterDistress().bankFooting() == WaterDistress.BankFooting.EDGE)) {
+                Vec3 land = bankStep(stands());
+                if (land != null) {
+                    tried.add(land);
+                    return new Step.Do(new Walk(land));
                 }
-                return null;
+                if (!body.isInWaterOrBubble()) return null;
             }
             Step step = steps.apply(next);
             // Swimming ends at water exit; keep the intent while the body falls back or reaches dry support.
@@ -294,9 +294,10 @@ public final class EscapeWater implements Intent {
     /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */
     private Edge climbable() {
         double rise = BodyAbility.of(body).climbRise();
-        for (var pos : stands()) {
-            if (pos.getY() - body.getY() > rise || avoid.containsKey(pos)) continue;
-            Edge edge = edge(pos);
+        for (var land : stands()) {
+            var pos = pathCell(land);
+            if (land.y - body.getY() > rise || avoid.containsKey(pos)) continue;
+            Edge edge = edge(pos, land);
             if (edge != null && route(pos)) return edge;
         }
         return null;
@@ -304,13 +305,18 @@ public final class EscapeWater implements Intent {
 
     /** Re-aim during the swim as help becomes available or leaves. */
     private Step press() {
-        BlockPos bank = nearest();
-        if (bank == null && rescueApproach() == null) return null;
-        Vec3 shore = bank == null ? null : Vec3.atBottomCenterOf(bank);
+        Vec3 shore = nearest();
+        if (shore == null && rescueApproach() == null) return null;
         return new Step.Do(Swim.toward(() -> {
             Vec3 help = rescueApproach();
             return help == null ? shore : help;
-        }, PRESS));
+        }, PRESS, () -> body.onGround() && bankStep(stands) != null));
+    }
+
+    private Vec3 bankStep(List<Vec3> candidates) {
+        for (var land : candidates)
+            if (!tried.contains(land) && SurfaceApproach.clearLastStep(body, land)) return land;
+        return null;
     }
 
     private Vec3 rescueApproach() {
@@ -324,29 +330,39 @@ public final class EscapeWater implements Intent {
     }
 
     /** Prefer a routed stand, an avoided one last; only without a route does a weak struggle press toward an unrouted stand. */
-    private BlockPos nearest() {
-        BlockPos routed = null, unrouted = null;
-        for (var pos : stands()) {
+    private Vec3 nearest() {
+        Vec3 routed = null, unrouted = null;
+        for (var land : stands()) {
+            var pos = pathCell(land);
             if (route(pos)) {
-                if (!avoid.containsKey(pos)) return pos;
-                if (routed == null) routed = pos;
-            } else if (unrouted == null || avoid.containsKey(unrouted) && !avoid.containsKey(pos)) unrouted = pos;
+                if (!avoid.containsKey(pos)) return land;
+                if (routed == null) routed = land;
+            } else if (unrouted == null || avoid.containsKey(pathCell(unrouted)) && !avoid.containsKey(pos)) unrouted = land;
         }
         return routed != null ? routed : unrouted;
     }
 
     private boolean route(BlockPos pos) { return routes.computeIfAbsent(pos, p -> body.life().reachable(p, true)); }
 
+    /** Navigation addresses the air cell above the supporting block; the motor uses the actual top. */
+    private static BlockPos pathCell(Vec3 land) { return BlockPos.containing(land.x, Math.ceil(land.y), land.z); }
+
     /** The stand's face toward open water nearest the body, with room to land behind it, or null. */
-    private Edge edge(BlockPos stand) {
+    private Edge edge(BlockPos stand, Vec3 land) {
         Edge best = null;
         var level = body.level();
+        var block = stand.below();
+        var shape = level.getBlockState(block).getCollisionShape(level, block);
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos out = stand.relative(d);
             if (!level.getFluidState(out.below()).is(FluidTags.WATER) || !level.getBlockState(out).getCollisionShape(level, out).isEmpty()) continue;
-            Vec3 n = new Vec3(d.getStepX(), 0, d.getStepZ()), edge = Vec3.atBottomCenterOf(stand).add(n.scale(.5));
-            Vec3 front = edge.add(n.scale(body.getBbWidth() / 2 + .2)), land = edge.subtract(n.scale(body.getBbWidth() / 2 + .05));
-            if (!level.noCollision(body, body.getBoundingBox().move(land.subtract(body.position()).add(0, CLEAR, 0)))) continue;
+            Vec3 n = new Vec3(d.getStepX(), 0, d.getStepZ());
+            double x = n.x == 0 ? land.x - block.getX() : .5 + n.x * .5;
+            double z = n.z == 0 ? land.z - block.getZ() : .5 + n.z * .5;
+            double lip = shape.max(Direction.Axis.Y, Math.nextAfter(z, .5), Math.nextAfter(x, .5));
+            if (!Double.isFinite(lip)) continue;
+            Vec3 edge = new Vec3(block.getX() + x, block.getY() + lip, block.getZ() + z);
+            Vec3 front = edge.add(n.scale(body.getBbWidth() / 2 + .2));
             if (best == null || front.distanceToSqr(body.position()) < best.front().distanceToSqr(body.position())) best = new Edge(stand, edge, front, land);
         }
         return best;
@@ -354,7 +370,7 @@ public final class EscapeWater implements Intent {
 
     /** Every dry stand of the search box, nearest first; scanned once a tick. With none close, the
      *  nearest few of a wide box, so a body in open water still swims for the nearest bank rather than having no way out. */
-    private List<BlockPos> stands() {
+    private List<Vec3> stands() {
         long now = body.level().getGameTime();
         if (scanned == now) return stands;
         scanned = now;
@@ -364,20 +380,20 @@ public final class EscapeWater implements Intent {
             if (now - farScanned >= PRESS / 4) {
                 farScanned = now;
                 var far = scan(FAR_OUT);
-                far.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+                far.sort(Comparator.comparingDouble(body::distanceToSqr));
                 farStands = far.size() > FAR_STANDS ? List.copyOf(far.subList(0, FAR_STANDS)) : far;
             }
             return stands = farStands;
         }
-        out.sort(Comparator.comparingDouble(pos -> body.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+        out.sort(Comparator.comparingDouble(body::distanceToSqr));
         return stands = out;
     }
 
-    private List<BlockPos> scan(int radius) {
-        var out = new ArrayList<BlockPos>();
-        var at = body.blockPosition();
+    private List<Vec3> scan(int radius) {
+        var out = new ArrayList<Vec3>();
+        var at = body.blockPosition().below();
         for (var pos : BlockPos.betweenClosed(at.offset(-radius, -DOWN, -radius), at.offset(radius, UP, radius)))
-            if (body.level().hasChunkAt(pos) && body.life().dryStand(pos)) out.add(pos.immutable());
+            if (body.level().hasChunkAt(pos)) SurfaceApproach.collectStands(body, pos, out);
         return out;
     }
 }

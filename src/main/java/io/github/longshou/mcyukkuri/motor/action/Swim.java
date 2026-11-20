@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Locale;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -30,6 +31,7 @@ public final class Swim implements Action {
     private final Supplier<Vec3> target;
     private final boolean grip;
     private final int maxTicks;
+    private final BooleanSupplier canWalk;
     private double speed, turnRate, paid;
     private int ticks;
     private boolean unpaid;
@@ -38,13 +40,15 @@ public final class Swim implements Action {
     private boolean stroking;
     private YukkuriAction strokeClip;
 
-    private Swim(Supplier<Vec3> target, boolean grip, int maxTicks) { this.target = target; this.grip = grip; this.maxTicks = maxTicks; }
+    private Swim(Supplier<Vec3> target, boolean grip, int maxTicks, BooleanSupplier canWalk) {
+        this.target = target; this.grip = grip; this.maxTicks = maxTicks; this.canWalk = canWalk;
+    }
 
     /** Until the (moving) target is in grip reach; past {@code maxTicks} (0: never) it is {@code TOO_FAR}. */
-    public static Swim to(Supplier<Vec3> target, int maxTicks) { return new Swim(target, true, maxTicks); }
+    public static Swim to(Supplier<Vec3> target, int maxTicks) { return new Swim(target, true, maxTicks, () -> false); }
 
     /** Pressing toward a point for {@code ticks}, then done (the caller may aim again). */
-    public static Swim toward(Supplier<Vec3> target, int ticks) { return new Swim(target, false, ticks); }
+    public static Swim toward(Supplier<Vec3> target, int ticks, BooleanSupplier canWalk) { return new Swim(target, false, ticks, canWalk); }
 
     /** Whether this tick's swimming effort was paid. */
     public boolean pushing() { return !unpaid; }
@@ -67,6 +71,7 @@ public final class Swim implements Action {
     @Override public Progress tick(YukkuriEntity body) {
         Vec3 at = target.get();
         if (at == null) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
+        if (canWalk.getAsBoolean()) return new Outcome.Done("bank_in_step at=" + GameplayLog.at(body.position()));
         // One stroke clock for the whole immersion: the phase the water distress started in, not this leg's own start.
         var distress = body.waterDistress();
         if (distress.phase() == WaterDistress.Phase.STRUGGLE) stroke = body.level().getGameTime() - distress.phaseTicks();

@@ -223,6 +223,29 @@ public final class SurfaceApproach {
     public static boolean stands(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,true);
     }
+    /** Dry stands on the actual collision tops of a block, including individual stair treads. */
+    static void collectStands(YukkuriEntity actor, BlockPos block, List<Vec3> out) {
+        var level = actor.level();
+        var shape = level.getBlockState(block).getCollisionShape(level, block);
+        if (shape.isEmpty()) return;
+        var above = block.above();
+        if (!level.getFluidState(above).isEmpty() || level.getBlockState(above).isCollisionShapeFullBlock(level, above)) return;
+        StandFace.Probe<Vec3> probe = (x, y, z) -> {
+            var feet = new Vec3(block.getX() + x, block.getY() + y, block.getZ() + z);
+            return stands(actor, feet) ? feet : null;
+        };
+        var xs = shape.getCoords(Direction.Axis.X);
+        var zs = shape.getCoords(Direction.Axis.Z);
+        for (int i = 1; i < xs.size(); i++) for (int j = 1; j < zs.size(); j++) {
+            double x0 = xs.getDouble(i - 1), x1 = xs.getDouble(i);
+            double z0 = zs.getDouble(j - 1), z1 = zs.getDouble(j);
+            // For the Y axis vanilla takes the horizontal coordinates in Z, X order.
+            double y = shape.max(Direction.Axis.Y, (z0 + z1) / 2, (x0 + x1) / 2);
+            if (!Double.isFinite(y)) continue;
+            Vec3 at = StandFace.stand(x0, x1, y, z0, z1, actor.getBbWidth() / 2, probe);
+            if (at != null) out.add(at);
+        }
+    }
     /** Terrain and weather only; carry planning checks occupants separately to report the actual blocker. */
     public static boolean supportedGround(YukkuriEntity actor, Vec3 feet) {
         return supported(actor,feet,true) && Reactions.Weather.allowsStep(actor,BlockPos.containing(feet));
@@ -236,15 +259,11 @@ public final class SurfaceApproach {
         return supported(actor.level(), actor, actor.getBbWidth(), body, feet, planning);
     }
     private static boolean supported(LevelReader level, Entity actor, double width, AABB body, Vec3 feet, boolean planning) {
-        if (!level.hasChunkAt(BlockPos.containing(feet)) || wetArea(level, body, feet) > 0) return false;
+        if (!level.hasChunkAt(BlockPos.containing(feet))) return false;
         AABB clearance = body.deflate(.005);
-        if (planning ? level.getBlockCollisions(actor,clearance).iterator().hasNext() : !level.noCollision(actor, clearance)) return false;
-        double radius = supportRadius(width);
-        for (int x : new int[]{-1, 1}) for (int z : new int[]{-1, 1}) {
-            double px = feet.x + x * radius, pz = feet.z + z * radius;
-            if (!soleSupported(level, actor, px, feet.y, pz)) return false;
-        }
-        return true;
+        return StandFace.supports(feet.x, feet.z, supportRadius(width), wetArea(level, body, feet),
+                () -> planning ? !level.getBlockCollisions(actor, clearance).iterator().hasNext() : level.noCollision(actor, clearance),
+                (x, z) -> soleSupported(level, actor, x, feet.y, z));
     }
 
     private static boolean soleSupported(LevelReader level, Entity actor, double x, double y, double z) {
@@ -357,9 +376,9 @@ public final class SurfaceApproach {
     private static double reach(YukkuriEntity actor){return Math.max(1.5,actor.getBbWidth()+.5);}
 
     public static boolean clearLastStep(YukkuriEntity actor,Vec3 start,Vec3 destination){
-        if(NestDoorway.blocksLine(actor,start,destination))return false;
         double reach=reach(actor),step=actor.maxUpStep();
         if (destination.y-start.y > step || start.y-destination.y > 1 || start.distanceToSqr(destination) > reach*reach) return false;
+        if(NestDoorway.blocksLine(actor,start,destination))return false;
         if (!supported(actor, destination)) return false;
         int samples = Math.max(1, (int)Math.ceil(start.distanceTo(destination)/Math.min(.05, actor.getBbWidth()*.25)));
         double wet = wetArea(actor, start, false);
