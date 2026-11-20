@@ -21,6 +21,7 @@
 | 性能：路线与支撑探测复用 | `.worktrees/wp-perf-navigation` | life/SurfaceApproach.java, entity/YukkuriGroundNavigation.java |
 | 低通过率试玩场景在当前 main 上复验（FG-07、TN-30、MD-02、MD-28） | `.worktrees/wp-scene-verify` | smoke checkers only |
 | MD-25、FG-08、FG-09 初态复查 | `.worktrees/wp-stager-2` | scripts/museum_scenarios.py (MD-25, FG-08, FG-09 blocks) |
+| 启动时巢的碰撞形状构建过慢 | `.worktrees/wp-perf-startup-shapes` | life/CareBlock.java (turn, authoredShape), LargeNestBlock, PetNestBlock |
 
 ## 玩法待办
 
