@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -27,6 +28,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.ContactStandSearch;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,7 +48,7 @@ public final class DailyLife {
         final YukkuriEntity leader;
         final Entity companion;
         final Kind kind;
-        int elapsed, contact, greetHold;
+        int elapsed, contact, greetHold, approachBudget;
         boolean ended, greeted;
         String greeting;
         UUID songRuleOwner;
@@ -54,10 +56,18 @@ public final class DailyLife {
         PairContact pair;
         Session(YukkuriEntity leader, Entity companion, Kind kind, boolean welcome) {
             this.leader = leader; this.companion = companion; this.kind = kind;
+            if (kind == Kind.NUZZLE)
+                approachBudget = approachBudget(leader, leader.distanceTo(companion), nuzzleReach(leader, companion));
             if (kind == Kind.NUZZLE && companion instanceof YukkuriEntity peer)
                 greeting = welcome ? "welcome" : leader.social().greetingDue(peer);
         }
         int contactTicks() { return pair == null ? contact : pair.ticks(); }
+        boolean hasTime() {
+            if (kind != Kind.NUZZLE) return elapsed < 320;
+            var phase = pair != null || contact > 0 ? ContactPhase.NUZZLE
+                    : greetHold > 0 ? ContactPhase.GREETING : ContactPhase.APPROACH;
+            return phase.canTick(elapsed, approachBudget);
+        }
     }
     private record PeerRub(PeerNuzzle mode, YukkuriEntity mover, YukkuriEntity anchor, Vec3 anchorAt,
                            SurfaceApproach.ContactRoute route) {
@@ -81,6 +91,9 @@ public final class DailyLife {
     private static final int INTERRUPTED_COOLDOWN = 200;
     private static final double LEAN = 1.1;
     private static final double PLAYER_LEAN_STEP = .35;
+    private static final double NUZZLE_WALK_SPEED = .8;
+    // As with owner greetings, allow turning and route settling on top of the body's predicted walk.
+    private static final int APPROACH_SLACK = 200;
     private int affection = 20, boredom = 20, clock, cooldown, scanWait;
     private int nuzzles, songs, exercises;
     private final Map<UUID, Integer> invitations = new HashMap<>();
@@ -271,6 +284,18 @@ public final class DailyLife {
             if (!entity.life().dryStand(pos.offset(x, 0, z))) return false;
         return true;
     }
+
+    private String companionRefusal(YukkuriEntity peer) {
+        if (!available(peer)) return peer.onGround() ? "unavailable" : "airborne";
+        if (peer.dailyLife().active()) return "in_session";
+        if (peer.dailyLife().cooldown > 0) return "cooldown";
+        if (invitations.containsKey(peer.getUUID())) return "recent_invitation";
+        if (!entity.hasLineOfSight(peer)) return "out_of_sight";
+        if (!closePeer(peer)) return "trust_or_recognition";
+        if (entity.distanceToSqr(peer) > 25 && !entity.life().reachable(peer.blockPosition(), false)) return "unreachable";
+        return null;
+    }
+
     public boolean plan() {
         if (active()) return valid();
         if (cooldown > 0 || entity.social().active()) return false;
@@ -284,28 +309,39 @@ public final class DailyLife {
                 && !entity.life().constipated()) return false;
         scanWait = 600;
         boolean lonely = affection >= entity.life().personality().affectionThreshold();
-        var peers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(lonely ? NUZZLE_SIGHT : 5),
-                peer -> peer != entity && available(peer) && !peer.dailyLife().active() && peer.dailyLife().cooldown == 0
-                        && !invitations.containsKey(peer.getUUID())
-                        && entity.hasLineOfSight(peer) && closePeer(peer)
-                        && (entity.distanceToSqr(peer) <= 25 || entity.life().reachable(peer.blockPosition(), false))).stream()
-                .sorted(Comparator.comparingInt((YukkuriEntity peer) -> entity.life().personality().trust(peer.getUUID())).reversed()
-                        .thenComparingDouble(entity::distanceToSqr)).toList();
+        var checked = new ArrayList<String>();
+        var peers = new ArrayList<YukkuriEntity>();
+        for (var peer : level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(lonely ? NUZZLE_SIGHT : 5),
+                peer -> peer != entity)) {
+            var refusal = companionRefusal(peer);
+            if (refusal == null) peers.add(peer);
+            if (checked.size() < 8) checked.add(peer.getUUID() + ":" + (refusal == null ? "eligible" : refusal));
+        }
+        peers.sort(Comparator.comparingInt((YukkuriEntity peer) -> entity.life().personality().trust(peer.getUUID())).reversed()
+                .thenComparingDouble(entity::distanceToSqr));
         // Loneliness decides the asking; the friend's own roll below still decides the answer.
         boolean together = !peers.isEmpty() && (lonely || entity.getRandom().nextFloat() < entity.life().personality().companionshipProbability());
+        YukkuriEntity candidate = together ? peers.getFirst() : null;
         YukkuriEntity companion = null;
+        Float roll = null, chance = null;
         if (together) {
-            var candidate = peers.getFirst();
             invitations.put(candidate.getUUID(), 600);
             candidate.dailyLife().invitations.put(entity.getUUID(), 600);
-            if (candidate.getRandom().nextFloat() < candidate.life().personality().companionshipProbability()) companion = candidate;
+            roll = candidate.getRandom().nextFloat();
+            chance = candidate.life().personality().companionshipProbability();
+            if (roll < chance) companion = candidate;
         }
-        if (entity.life().constipated() && entity.childhood().canExercise()) {
+        boolean exercise = entity.life().constipated() && entity.childhood().canExercise();
+        boolean nuzzling = !exercise && companion != null && lonely && nuzzle(companion);
+        GameplayLog.limited(entity, "daily", "companion_choice", 200,
+                "companion choice affectionNeed={} checked={} eligible={} asked={} willingnessRoll={} willingnessChance={} accepted={} nuzzleReserved={}",
+                affection, checked, peers.size(), together ? candidate.getUUID() : null, roll, chance, companion != null, nuzzling);
+        if (exercise) {
             if (companion != null && companion.family().adult()
                     && companion.getRandom().nextFloat() >= companion.life().personality().helpProbability(true, false)) companion = null;
             return begin(Kind.EXERCISE, inEarshot(companion));
         }
-        if (companion != null && lonely && nuzzle(companion)) return true;
+        if (nuzzling) return true;
         // Grief, fright or a fit of anger leave no heart for a song or a workout; seeking a nuzzle above still goes on.
         if (entity.mind().feeling().subdued()) return false;
         float song = 2 * entity.species().traits().song();
@@ -352,10 +388,20 @@ public final class DailyLife {
     /** Songs and exercise are shared only with a companion close by; a far friend is for the nuzzle walk. */
     private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 
+    private static double nuzzleReach(YukkuriEntity actor, Entity companion) {
+        return (actor.getBbWidth() + companion.getBbWidth()) * .5 + .10;
+    }
+
+    private static int approachBudget(YukkuriEntity mover, double distance, double reach) {
+        double pace = BodyAbility.of(mover).walkSpeed() * BodyAbility.carrying(mover) * NUZZLE_WALK_SPEED;
+        return APPROACH_SLACK + ContactPhase.walkTicks(distance, reach, pace);
+    }
+
     public boolean valid() {
         if (!active()) return false;
         if (session.pair != null && session.pair.complete()) return !session.pair.finished();
-        if (!available(session.leader, true, session.kind == Kind.EXERCISE) || session.elapsed >= 320) return false;
+        if (!available(session.leader, true, session.kind == Kind.EXERCISE) || !session.hasTime()) return false;
+        if (session.pair != null && BehaviorContinuity.emergency(entity)) return false;
         if (session.kind != Kind.SING && (session.leader.isPassenger()
                 || session.companion instanceof YukkuriEntity peer && peer.isPassenger())) return false;
         var other = session.companion;
@@ -417,7 +463,7 @@ public final class DailyLife {
 
     private void greetPeer(Session current, YukkuriEntity peer, String greeting, boolean onlyGreeting) {
         if (current.leader != entity) { SurfaceApproach.halt(entity); turnToFace(peer); return; }
-        var arrival = GreetingStance.approach(entity, peer, .8, LEAN);
+        var arrival = GreetingStance.approach(entity, peer, NUZZLE_WALK_SPEED, LEAN);
         if (arrival == SurfaceApproach.Result.BLOCKED) {
             if (onlyGreeting) stop();
             else current.greeting = null;
@@ -432,14 +478,11 @@ public final class DailyLife {
     }
 
     private void greetInstead(Session current, String reason) {
-        if (current.pair != null) {
-            current.pair.release();
-            current.pair = null;
-        }
         var peer = (YukkuriEntity)current.companion;
-        current.rub = new PeerRub(PeerNuzzle.GREET, current.leader, peer, null);
         GameplayLog.event(entity, "daily", "peer rub unavailable partner={} reason={} affectionNeed={}",
                 peer.getUUID(), reason, affection);
+        if (current.pair != null) stop();
+        else current.rub = new PeerRub(PeerNuzzle.GREET, current.leader, peer, null);
     }
 
     /** Both goals read the same stand. Its mover closes the pose's gap and advances their shared contact clock. */
@@ -457,7 +500,7 @@ public final class DailyLife {
             }
             return false;
         }
-        if (lead) current.elapsed++;
+        if (lead && current.pair == null) current.elapsed++;
         boolean grounded = entity.onGround() && other.onGround();
         boolean sameLevel = ContactStandSearch.sameLevel(entity.getY(), other.getY());
         boolean hopping = entity.motor().current() instanceof Hop || other.motor().current() instanceof Hop;
@@ -477,20 +520,24 @@ public final class DailyLife {
             if (current.pair != null) { stop(); return false; }
             SurfaceApproach.halt(entity);
             if (!lead || !grounded) return false;
+            boolean firstRoute = rub == null;
             rub = current.rub = peerRub(entity, peer, sameLevel);
             if (rub.mode == PeerNuzzle.GREET) {
                 greetInstead(current, "no_contact_stand");
                 return false;
             }
-            GameplayLog.event(entity, "daily", "peer rub approach partner={} mover={} mode={} origin={} stand={}",
-                    peer.getUUID(), rub.mover.getUUID(), rub.mode, rub.mover.position(), rub.route.feet());
+            if (firstRoute) current.approachBudget = Math.max(current.approachBudget,
+                    current.elapsed + approachBudget(rub.mover, rub.route.length(), 0));
+            GameplayLog.event(entity, "daily", "peer rub approach partner={} mover={} mode={} origin={} stand={} approachTicks={}/{}",
+                    peer.getUUID(), rub.mover.getUUID(), rub.mode, rub.mover.position(), rub.route.feet(),
+                    current.elapsed, current.approachBudget);
         }
         var feet = rub.route.feet();
         if (!grounded || hopping || !ContactStandSearch.sameLevel(rub.mover.getY(), feet.y)
                 || current.pair == null && !SurfaceApproach.at(rub.mover, feet)) {
             if (current.pair != null) { stop(); return false; }
             if (rub.mover != entity) SurfaceApproach.halt(entity);
-            else if (SurfaceApproach.moveToContact(entity, rub.route, other, .8, body) == SurfaceApproach.Result.BLOCKED)
+            else if (SurfaceApproach.moveToContact(entity, rub.route, other, NUZZLE_WALK_SPEED, body) == SurfaceApproach.Result.BLOCKED)
                 greetInstead(current, "contact_route_blocked");
             return false;
         }
@@ -512,7 +559,9 @@ public final class DailyLife {
             if (current.pair != null) stop();
             return false;
         }
-        if (!SurfaceApproach.settleContact(entity, contactFeet, other, current.pair != null)) {
+        var settlement = SurfaceApproach.settleContact(entity, contactFeet, other, current.pair != null);
+        if (settlement == SurfaceApproach.Result.WAITING && current.pair.waitsForClearance()) return false;
+        if (settlement != SurfaceApproach.Result.ARRIVED) {
             greetInstead(current, "contact_stand_blocked");
             return false;
         }
@@ -538,12 +587,14 @@ public final class DailyLife {
             entity.getLookControl().setLookAt(other, 30, 30);
         }
         if (current.kind == Kind.NUZZLE && other instanceof Player) {
-            double reach = (entity.getBbWidth() + other.getBbWidth()) * .5 + .10;
+            double reach = nuzzleReach(entity, other);
             double lift = Math.abs(entity.getY() - other.getY());
             if (lift > LEAN || entity.position().subtract(other.position()).horizontalDistance() > reach + (lift > PLAYER_LEAN_STEP ? LEAN : 0)) {
                 var stand = standBeside(other, reach - .04);
-                if (stand == null || SurfaceApproach.walkResult(entity, stand, other, .8) == SurfaceApproach.Result.BLOCKED) stop();
-                else { current.contact = 0; current.elapsed++; }
+                current.contact = 0;
+                if (!current.hasTime() || stand == null
+                        || SurfaceApproach.walkResult(entity, stand, other, NUZZLE_WALK_SPEED) == SurfaceApproach.Result.BLOCKED) stop();
+                else current.elapsed++;
                 return;
             }
             SurfaceApproach.halt(entity);
@@ -552,7 +603,7 @@ public final class DailyLife {
         if (current.kind == Kind.SING) EcologyMovement.halt(entity);
         else entity.getNavigation().stop();
         if (!peerNuzzle && current.leader != entity) return;
-        if (!peerNuzzle) current.elapsed++;
+        if (current.kind != Kind.NUZZLE) current.elapsed++;
         var leader = current.leader;
         if (!peerNuzzle) current.contact++;
         if (current.contactTicks() == 1) {

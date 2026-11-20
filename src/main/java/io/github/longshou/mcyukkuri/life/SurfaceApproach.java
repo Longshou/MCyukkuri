@@ -594,26 +594,34 @@ public final class SurfaceApproach {
                 && ContactStandSearch.insideMovementResolution(actor.position().subtract(feet).horizontalDistanceSqr());
     }
 
-    /** Settle at a stand solved by SideContact. During the rub that pose is the partner's clearance check. */
-    public static boolean settleContact(YukkuriEntity actor, Vec3 feet, Entity peer, boolean established) {
+    /** Settle at a stand solved by SideContact. A living obstruction can yield before an established pose takes its next step. */
+    public static Result settleContact(YukkuriEntity actor, Vec3 feet, YukkuriEntity peer, boolean established) {
         boolean at = atContact(actor, feet);
         if (established) {
-            if (!supportedGround(actor, feet) || !clearContactFootprints(actor, feet, peer)) return false;
-        } else if (!at && (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox()))) return false;
-        if (at) return true;
+            if (!supportedGround(actor, feet)) return Result.BLOCKED;
+            var clearance = contactClearance(actor, feet, peer);
+            if (clearance != Result.ARRIVED) return clearance;
+        } else if (!at && (!supported(actor, feet) || crossesBody(actor, actor.position(), feet, peer.getBoundingBox())))
+            return Result.BLOCKED;
+        if (at) return Result.ARRIVED;
         Motor.move(actor, feet.subtract(actor.position()).multiply(1, 0, 1), "side_contact");
         // The pre-step steering target is now behind the mover. Retire it before MoveControl ticks and turns toward it.
         haltInput(actor);
-        return atContact(actor, feet);
+        return atContact(actor, feet) ? Result.ARRIVED : Result.BLOCKED;
     }
 
-    private static boolean clearContactFootprints(YukkuriEntity actor, Vec3 feet, Entity posedPartner) {
+    private static Result contactClearance(YukkuriEntity actor, Vec3 feet, YukkuriEntity posedPartner) {
         var from = actor.position();
         var sweep = actor.getBoundingBox().expandTowards(feet.subtract(from)).inflate(BODY_CLEARANCE, 0, BODY_CLEARANCE);
         var bodies = actor.level().getEntities(actor, sweep,
                 other -> actor.canCollideWith(other) || other instanceof LivingEntity && other.isAlive() && !other.isSpectator());
-        return ContactStandSearch.clearFootprints(bodies, posedPartner,
+        var blocker = ContactStandSearch.blockingFootprint(bodies, posedPartner,
                 other -> crossesBody(actor, from, feet, other.getBoundingBox()));
+        if (blocker == null) return Result.ARRIVED;
+        if (!(blocker instanceof LivingEntity)) return Result.BLOCKED;
+        if (blocker instanceof YukkuriEntity intruder)
+            YukkuriGroundNavigation.giveWayForContact(intruder, posedPartner, actor, feet);
+        return Result.WAITING;
     }
 
     /**

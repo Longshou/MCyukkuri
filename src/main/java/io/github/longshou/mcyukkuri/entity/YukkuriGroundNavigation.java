@@ -720,7 +720,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
     private static final double YIELD_PACE = .16;
-    private static final int YIELD_LIMIT = 20;
+    public static final int YIELD_LIMIT = 20;
     private static final double STAFF_PASSAGE_RANGE = 1.75;
     // Keep at least .2 blocks beyond both hitboxes. An eager sidestep leaves up to .6 blocks of breathing room.
     private static final double YIELD_MARGIN = .2, PASSAGE_RANGE = 4;
@@ -795,7 +795,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private static boolean canGiveWay(YukkuriEntity body) {
         return body.isAlive() && !body.isNoAi() && !body.isCommandPlaying() && !body.operations().active()
                 && !body.life().isSleeping() && body.nudgeable() && !body.isPanicking() && !body.pet().busy()
-                && !body.life().protectsStep() && body.motor().current() == null;
+                && !body.life().protectsStep() && !body.pairedContact() && body.motor().current() == null;
     }
 
     private static double projectedHalfWidth(Entity entity, Vec3 axis) {
@@ -810,14 +810,27 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 && giveWay(blocker, walker, line.normalize(), 0, true);
     }
 
+    /** The pair keeps its line. A passer-by can take the same step aside from both bodies' contact space. */
+    public static void giveWayForContact(YukkuriEntity blocker, YukkuriEntity anchor, YukkuriEntity mover, Vec3 feet) {
+        var heading = feet.subtract(anchor.position()).multiply(1, 0, 1).normalize();
+        var side = right(heading);
+        double width = Math.max(projectedHalfWidth(anchor, side), projectedHalfWidth(mover, side));
+        giveWay(blocker, anchor, heading, 0, true, width);
+    }
+
     private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 heading, double walkerPace, boolean mayInterruptWalk) {
+        return giveWay(blocker, walker, heading, walkerPace, mayInterruptWalk, projectedHalfWidth(walker, right(heading)));
+    }
+
+    private static boolean giveWay(YukkuriEntity blocker, Entity walker, Vec3 heading, double walkerPace,
+                                   boolean mayInterruptWalk, double walkerHalfWidth) {
         if (!(blocker.directNavigation() instanceof YukkuriGroundNavigation nav) || !(blocker.level() instanceof ServerLevel)
                 || !canGiveWay(blocker)) return false;
         if (nav.passage != null) return !nav.passage.done && nav.passage.walker.equals(walker.getUUID());
         var side = right(heading);
         var offset = blocker.position().subtract(walker.position());
         if (offset.dot(side) < 0) side = side.reverse();
-        double width = projectedHalfWidth(blocker, side) + projectedHalfWidth(walker, side);
+        double width = projectedHalfWidth(blocker, side) + walkerHalfWidth;
         double lateral = offset.dot(side);
         if (lateral >= width + YIELD_MARGIN) return false;
         var temperament = blocker.life().personality();
@@ -900,7 +913,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** An idle, awake blocker moves out of the way; sleeping, busy or boarded ones keep their place. */
     private boolean yieldRequest(YukkuriEntity animal, YukkuriEntity blocker, Vec3 heading) {
         if (!blocker.getNavigation().isDone() || blocker.isCommandPlaying() || blocker.operations().active()
-                || blocker.life().isSleeping() || !blocker.nudgeable()) return false;
+                || blocker.life().isSleeping() || blocker.pairedContact() || !blocker.nudgeable()) return false;
         return stepAside(blocker, animal, heading);
     }
 }

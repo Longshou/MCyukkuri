@@ -31,4 +31,17 @@ class ContactPhaseTest {
         assertTrue(ContactPhase.CLOSE.canTick(elapsed, 10));
         assertEquals(10, ContactPhase.CLOSE.elapsedAfterTick(elapsed));
     }
+
+    @Test void aLongApproachLeavesAllLevelRubFramesAvailable() {
+        int approach = ContactPhase.walkTicks(12, 0, .04);
+        var rub = new PairContactClock(140);
+        assertTrue(ContactPhase.APPROACH.canTick(approach - 1, approach));
+        assertFalse(ContactPhase.APPROACH.canTick(approach, approach));
+        for (int frame = 0; frame < 140; frame++) {
+            assertTrue(ContactPhase.NUZZLE.canTick(approach, approach));
+            rub.publish(approach + frame, ignored -> {}, ignored -> {});
+        }
+        assertTrue(rub.finished(approach + 140));
+        assertEquals(140, rub.releasedTicks(approach + 140));
+    }
 }

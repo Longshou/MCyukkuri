@@ -56,8 +56,8 @@ class SideSurfaceTest {
         var partner = Detour.Box.aligned(1, -padded, -padded, padded, padded);
         var bystander = Detour.Box.aligned(2, -padded, -padded, padded, padded);
         Predicate<Detour.Box> crosses = box -> box.gap(x, z) < 0;
-        assertFalse(ContactStandSearch.clearFootprints(List.of(partner), null, crosses));
-        assertTrue(ContactStandSearch.clearFootprints(List.of(partner), partner, crosses));
-        assertFalse(ContactStandSearch.clearFootprints(List.of(partner, bystander), partner, crosses));
+        assertSame(partner, ContactStandSearch.blockingFootprint(List.of(partner), null, crosses));
+        assertNull(ContactStandSearch.blockingFootprint(List.of(partner), partner, crosses));
+        assertSame(bystander, ContactStandSearch.blockingFootprint(List.of(partner, bystander), partner, crosses));
     }
 }

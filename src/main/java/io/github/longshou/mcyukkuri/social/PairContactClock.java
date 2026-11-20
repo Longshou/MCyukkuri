@@ -7,6 +7,7 @@ final class PairContactClock {
     private final int length;
     private int ticks;
     private long publishedAt = Long.MIN_VALUE;
+    private long blockedAt = -1;
 
     PairContactClock(int length) { this.length = length; }
 
@@ -17,11 +18,18 @@ final class PairContactClock {
     /** The frame cleared in the tick that published it never reached either end-of-tick draw. */
     int releasedTicks(long now) { return now == publishedAt ? ticks - 1 : ticks; }
 
+    /** A continuous obstruction may use one passage window without taking time from the shared pose. */
+    boolean waitsForClearance(long now, int allowance) {
+        if (blockedAt < 0) blockedAt = now;
+        return now - blockedAt <= allowance;
+    }
+
     void publish(long now, IntConsumer first, IntConsumer second) {
         if (now == publishedAt || complete()) return;
         first.accept(ticks);
         second.accept(ticks);
         publishedAt = now;
+        blockedAt = -1;
         ticks++;
     }
 }

@@ -17,11 +17,11 @@ public final class ContactStandSearch {
     public static boolean insideMovementResolution(double distanceSquared) { return distanceSquared <= 1e-7; }
 
     /** The touching partner has already been checked with its posed surface. All other footprints still block the step. */
-    public static <B> boolean clearFootprints(Iterable<B> bodies, B posedPartner, Predicate<B> crosses) {
+    public static <B> B blockingFootprint(Iterable<B> bodies, B posedPartner, Predicate<B> crosses) {
         for (B body : bodies) {
-            if (body != posedPartner && crosses.test(body)) return false;
+            if (body != posedPartner && crosses.test(body)) return body;
         }
-        return true;
+        return null;
     }
 
     /** The candidates are ordered nearest first. Reject an unsupported or unreachable candidate and try the next bearing. */

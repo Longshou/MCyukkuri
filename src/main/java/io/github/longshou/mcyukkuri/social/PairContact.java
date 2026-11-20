@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.motor.Motor;
 
 /** A contact owner publishes each admitted frame to both bodies and releases them together. */
@@ -33,6 +34,9 @@ public final class PairContact {
     public int ticks() { return clock.ticks(); }
     public boolean complete() { return clock.complete(); }
     public boolean finished() { return clock.finished(first.level().getGameTime()); }
+    boolean waitsForClearance() {
+        return clock.waitsForClearance(first.level().getGameTime(), YukkuriGroundNavigation.YIELD_LIMIT);
+    }
 
     public void publish(float spacing) {
         long now = first.level().getGameTime();
