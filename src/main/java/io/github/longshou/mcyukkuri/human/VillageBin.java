@@ -76,10 +76,10 @@ public final class VillageBin {
 
     /** Origin lives on the loose entity, so picking it up and throwing it again makes it a player's drop. */
     public static void markLitter(Entity source, ItemEntity drop) {
-        if ((source instanceof YukkuriEntity || source instanceof RemainsEntity) && litter(drop.getItem())) markLitter(drop);
+        if (source instanceof YukkuriEntity || source instanceof RemainsEntity) markLitter(drop);
     }
 
-    public static void markLitter(ItemEntity drop) { drop.addTag(LITTER); }
+    public static void markLitter(ItemEntity drop) { if (litter(drop.getItem())) drop.addTag(LITTER); }
     public static boolean isLitter(ItemEntity item) { return item.getTags().contains(LITTER); }
 
     private static boolean litter(ItemStack stack) {
@@ -94,7 +94,7 @@ public final class VillageBin {
         if (!litter(held)) return;
         var drop = ItemContact.release(resident, held, resident.position(), Vec3.ZERO);
         if (drop == null) {
-            YukkuriWorldData.get(level).deferLitter(level, resident.position(), held);
+            YukkuriWorldData.get(level).deferDrop(level, resident.position(), held);
             GameplayLog.event(resident, "npc-care", "action=litter_drop_deferred item={}", held.getItem());
         } else {
             markLitter(drop);

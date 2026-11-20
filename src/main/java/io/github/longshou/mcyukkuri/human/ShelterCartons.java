@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import io.github.longshou.mcyukkuri.shop.ShopProtection;
@@ -158,7 +159,7 @@ final class ShelterCartons extends Goal {
 
     private void take(ProduceCrateBlockEntity crate) {
         if (!canFill()) { finished = true; return; }
-        int stock = crate.frontItem().getCount();
+        int stock = crate.countItem(ModItems.CARDBOARD_SHELTER.get());
         npc.setItemInHand(InteractionHand.MAIN_HAND, crate.takeOne());
         npc.swing(InteractionHand.MAIN_HAND);
         pickupBlocked = null;
@@ -233,14 +234,21 @@ final class ShelterCartons extends Goal {
         finished = true;
     }
 
-    static boolean holdsCarton(HumanNpc npc) { return npc.getMainHandItem().is(ModItems.CARDBOARD_SHELTER.get()); }
+    private static boolean holdsCarton(HumanNpc npc) { return npc.getMainHandItem().is(ModItems.CARDBOARD_SHELTER.get()); }
 
     static boolean dropHeldAtFeet(HumanNpc npc, String reason) {
         return holdsCarton(npc) && ItemContact.hasReleaseSupport(npc, npc.position().add(0, .2, 0)) && dropHeld(npc, reason);
     }
 
-    static boolean dropHeld(HumanNpc npc, String reason) {
-        if (!holdsCarton(npc)) return false;
+    static void releaseOnRemoval(HumanNpc npc, String reason) {
+        if (!holdsCarton(npc) || dropHeld(npc, reason)) return;
+        var level = (ServerLevel) npc.level();
+        YukkuriWorldData.get(level).deferDrop(level, npc.position(), npc.getMainHandItem());
+        npc.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        GameplayLog.event(npc, "shelter", "carton drop deferred reason={} hand=0", reason);
+    }
+
+    private static boolean dropHeld(HumanNpc npc, String reason) {
         var drop = ItemContact.release(npc, npc.getMainHandItem(), npc.position().add(0, .2, 0), Vec3.ZERO);
         if (drop == null) return false;
         npc.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);

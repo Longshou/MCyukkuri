@@ -373,12 +373,11 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void die(DamageSource source) {
         if (!level().isClientSide) {
             dropPicnicFood("death");
-            ShelterCartons.dropHeld(this, "death");
+            ShelterCartons.releaseOnRemoval(this, "death");
             legacyOutput.collect(this);
             if (level() instanceof ServerLevel server) PlantReceiving.dropOnDeath(server, this);
             // Held doses and operation tools fall where the worker fell.
-            if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem
-                    || ShelterCartons.holdsCarton(this))
+            if (getMainHandItem().getItem() instanceof TreatmentItem || getMainHandItem().getItem() instanceof OperationToolItem)
                 setDropChance(EquipmentSlot.MAINHAND, 2.0f);
             // The loose piece it was carrying to a bin falls where the body fell, likewise.
             VillageBin.dropLitter(this);
@@ -404,7 +403,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public void remove(RemovalReason reason) {
         if (reason.shouldDestroy() && level() instanceof ServerLevel server && server.getEntity(getUUID()) == this) {
             dropPicnicFood("removal");
-            ShelterCartons.dropHeld(this, "removal");
+            ShelterCartons.releaseOnRemoval(this, "removal");
         }
         if (reason.shouldDestroy() && streetResident() && level() instanceof ServerLevel server
                 && server.getEntity(getUUID()) == this && !CustodyData.get(server).deadNpc(getUUID())) {

@@ -527,7 +527,7 @@ public final class OperationLife {
                     GameplayLog.limited(entity,"interaction","pin_drop_refused",200,"pin release refused; wound={} reason=drop_refused",attachedWound);
                     return false;
                 }
-                YukkuriWorldData.get(level).deferLitter(level,at,inserted);
+                YukkuriWorldData.get(level).deferDrop(level,at,inserted);
                 GameplayLog.event(entity,"interaction","pin return deferred at death; wound={} item={}",attachedWound,inserted.getItem());
             }else{
                 GameplayLog.event(entity,"interaction","binding returned to world; drop={} item={} count={} contact={}",

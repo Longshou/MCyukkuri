@@ -157,8 +157,8 @@ public final class YukkuriWorldData extends SavedData {
         }
         return true;
     }
-    /** A refused world insertion transfers the piece from the resident's hand to the existing deferred drops. */
-    public void deferLitter(ServerLevel level, Vec3 at, ItemStack stack) {
+    /** Keep a refused item drop at its release point when its holder can no longer own it. */
+    public void deferDrop(ServerLevel level, Vec3 at, ItemStack stack) {
         pendingDeathHeadwear.put(UUID.randomUUID(), new PendingHeadwear(level.dimension(), at, stack.copy()));
         setDirty();
     }
