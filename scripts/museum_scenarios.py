@@ -9356,9 +9356,9 @@ def _verify_shop_kin_room(window, trace):
     if problem:
         return problem
     claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*x={BY_ID["shop"].anchor[0] + 10}, y={FEET + 2}, z={BY_ID["shop"].anchor[1] - 2}\}}', window))
-    # The round nest supports two juveniles. The third sibling shares the yard and the supplies.
-    if len(claims) != 2 or not claims <= {bold, timid, kind}:
-        return f'Expected the nest to be shared by two of the three juvenile littermates, got {claims}'
+    # At the staged juveniles' size, two worn Reimu ribbons need more clearance than the round cushion offers.
+    if len(claims) != 1 or not claims <= {bold, timid, kind}:
+        return f'Expected one juvenile littermate to claim the cushion, got {claims}'
     wait = re.search(rf'\[meal\][^\n]* supply guarded [^\n]* kind=water guard={bold} approacher={timid} reason=harsh', window)
     drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
     if not wait or not drink or wait.start() >= drink.start():

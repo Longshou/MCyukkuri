@@ -1,8 +1,9 @@
 """Deliberate-break log fixtures for museum scenario verifiers; no game."""
+import json
 import re
 import unittest
 
-from museum_scenarios import S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import BY_ID, FEET, S, _bank_pickup_retries, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
 from smoke_fate import fates
 
 
@@ -226,6 +227,30 @@ class ElopementScenes(unittest.TestCase):
                        log.replace(release, ''), log + '\n' + release, log.replace('disqualified cause=eloped', ''),
                        log.replace('token=BRONZE serial=token-12', 'token=BRONZE serial=token-13')):
             self.assertIsNotNone(elopement_result(broken, sid, 2))
+
+
+class ShopKinRoom(unittest.TestCase):
+    def test_requires_one_littermate_claim_and_timid_drink_after_waiting(self):
+        scene = next(s for s in S if s.id == 'shop_kin_room')
+        verify = scene.smoke['verify']
+        actors = dict(zip(('kin_bold', 'kin_timid', 'kin_kind'), (CHILD, OTHER_CHILD, PARENT)))
+        trace = ['[trace] ' + json.dumps(dict(k='geo', u=actor, tags=[f'scn_{name}']))
+                 for name, actor in actors.items()]
+        litter = ''.join(f'[family] reimu #1 uuid={actor} t=1 wholesale litter mother=m father=f\n'
+                         for actor in actors.values())
+        x, z = BY_ID['shop'].anchor
+        claim = (f'[home] reimu #1 uuid={CHILD} t=2 assigned kind=care old=null '
+                 f'home=ResourceKey[minecraft:dimension / minecraft:overworld] BlockPos{{x={x + 10}, y={FEET + 2}, z={z - 2}}}\n')
+        guard = (f'[meal] reimu #1 uuid={CHILD} t=3 supply guarded supply=waterer kind=water '
+                 f'guard={CHILD} approacher={OTHER_CHILD} reason=harsh\n')
+        drink = (f'[needs] reimu #2 uuid={OTHER_CHILD} t=4 drink source=waterer kind=waterer '
+                 'water=1 -> 0 dryness=55.0 -> 25.0\n')
+        self.assertIsNone(verify(litter + claim + guard + drink, trace))
+        for wrong_claim in ('', claim + claim.replace(CHILD, OTHER_CHILD), claim.replace(CHILD, OTHER_PARENT)):
+            self.assertIn('claim the cushion', verify(litter + wrong_claim + guard + drink, trace))
+        self.assertIn('one parent pair', verify(litter.replace('father=f', 'father=g', 1) + claim + guard + drink, trace))
+        for wrong_order in (guard, drink, drink + guard):
+            self.assertIn('wait for the bold one', verify(litter + claim + wrong_order, trace))
 
 
 if __name__ == '__main__':
