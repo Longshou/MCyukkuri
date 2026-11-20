@@ -7194,11 +7194,10 @@ def _oak_door_crossing(window, frames, actor, start, end, door_x, y, door_z, inw
         elif door_z - radius + 1e-7 < pz < door_z + 1 + radius - 1e-7:
             if px - radius < door_x - 1e-7 or px + radius > door_x + 13/16 + 1e-7 or abs(py - y) > 1e-6:
                 return 'The walker crossed outside the clear gap between the jamb and oak leaf'
-            crossing.append(t)
-    if inward and any(frames[t]['behavior'] != 'return_home' for t in crossing):
-        return 'The pet crossed the door without walking home'
-    zs = [frames[t]['p'][2] for t in crossing]
-    if not any(door_z <= pz < door_z + .5 for pz in zs) or not any(door_z + .5 <= pz < door_z + 1 for pz in zs):
+            if inward and frames[t]['behavior'] != 'return_home':
+                return 'The pet gave up walking home before its trailing edge cleared the door'
+            crossing.append(pz)
+    if not any(door_z <= pz < door_z + .5 for pz in crossing) or not any(door_z + .5 <= pz < door_z + 1 for pz in crossing):
         return 'The walker skipped part of the door cell'
 
 

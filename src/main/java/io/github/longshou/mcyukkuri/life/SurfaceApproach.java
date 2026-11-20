@@ -40,6 +40,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.Path;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -906,6 +907,12 @@ public final class SurfaceApproach {
         }
         destination=current.goal;
         if(navigation instanceof YukkuriGroundNavigation ground){
+            // The open-door node advances only when the trailing edge clears. A direct bed step stops that path.
+            if (current.target != null && current.target.equals(navigation.getTargetPos()) && !navigation.isDone()
+                    && navigation.getPath().getNextNode().type == PathType.DOOR_OPEN) {
+                navigation.setSpeedModifier(speed);
+                return observed(actor, Result.MOVING);
+            }
             var bed=NestDoorway.at(actor,destination);var here=NestDoorway.at(actor,actor.position());
             if((bed==null||here!=null&&here!=bed)&&ground.exitBed(speed))return observed(actor,Result.MOVING);
             if(bed!=null){

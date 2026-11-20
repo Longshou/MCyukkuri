@@ -5,14 +5,24 @@ import java.util.UUID;
 
 /** One unsuccessful flight search. Positions are immutable values in the level where it failed. */
 final class FailedRetreat<P> {
-    private UUID source;
-    private P feet, danger, destination;
+    // After ten seconds a cornered animal tries again, even if it could not sense what changed.
+    private static final int RETRY_TICKS = 200;
+    private long retryAt;
+    private UUID source, keeper;
+    private P feet, danger, destination, refuge;
 
-    void remember(UUID source, P feet, P danger, P destination) {
+    void remember(UUID source, P feet, P danger, P destination, long now, UUID keeper, P refuge) {
         this.source = source;
         this.feet = feet;
         this.danger = danger;
         this.destination = destination;
+        this.keeper = keeper;
+        this.refuge = refuge;
+        retryAt = now + RETRY_TICKS;
+    }
+
+    boolean stillApplies(long now, UUID keeper, P refuge) {
+        return feet != null && now < retryAt && Objects.equals(this.keeper, keeper) && Objects.equals(this.refuge, refuge);
     }
 
     boolean cornered(UUID source, P feet, P danger) {
