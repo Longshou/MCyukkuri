@@ -38,6 +38,7 @@ import io.github.longshou.mcyukkuri.cognition.Skills;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.family.KinProtection;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
@@ -406,7 +407,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void clearPairContact() { sync().clearPairContact(); }
     public float peerRubSpacing() { return sync().peerRubSpacing(); }
     public int carePartnerId() { return sync().carePartnerId(); }
-    public BlockPos nearbyAssignedNest() { return sync().nearbyAssignedNest(); }
+    public BlockPos occupiedBed() { return level().isClientSide ? sync().occupiedBed() : FamilyNest.occupiedBed(this); }
     public float careContactProgress() { return sync().careContactProgress(); }
     public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }

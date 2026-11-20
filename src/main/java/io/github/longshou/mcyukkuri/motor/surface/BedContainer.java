@@ -7,12 +7,14 @@ import io.github.longshou.mcyukkuri.life.LargeNestBlock;
 import io.github.longshou.mcyukkuri.life.NestResting;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
+import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.motor.geom.BedSpace;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import java.util.ArrayList;
 import java.util.List;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
+import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -53,17 +55,27 @@ public final class BedContainer implements Container {
         }
         var shelter=ShelterBlock.shelter(level,bed);
         if(shelter==null||!shelter.beds().contains(bed))return null;
+        return of(e,shelter,bed);
+    }
+
+    public static BedContainer of(YukkuriEntity e,ShelterBlockEntity shelter,BlockPos bed){
         // Bedding drawn on a burrow's real floor has no collision rim (NestResting marks it soft): its floor is its rim.
-        var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE:NestResting.LEAF_BED;
+        var hollow=shelter.largeBed(bed)?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
         double floorY=shelter.kind()==ShelterBlock.Kind.BURROW?centre.y:floorAt(e,centre,centre.y);
-        return new BedContainer(e,level,centre,hollow.floor(),floorY,floorY);
+        return new BedContainer(e,e.level(),centre,hollow.floor(),floorY,floorY);
     }
 
     /** Probe a proposed bed against its installed shell and surroundings before changing any world blocks. */
     public static BedContainer planned(YukkuriEntity body, CollisionGetter blocks, Vec3 centre, NestResting.Bed bed) {
         var floor = SurfaceApproach.collisionTop(blocks, body, body.getBbWidth(), centre.add(0, .1, 0));
         return new BedContainer(body, blocks, centre, bed.floor(), floor.y, floor.y);
+    }
+
+    /** Spacing applies across the floor and entry rim even where a whole body could not yet lie down. */
+    public boolean touchesBedding() {
+        return OccupancyMath.touchesBedding(body.getX()-centre.x, body.getZ()-centre.z, body.getY(),
+                Occupancy.foot(body.getBbWidth()), floor, floorY, rimY);
     }
 
     /** Test floor support, the body and overhead headwear clearance at the proposed feet. Side walls press the brim. */

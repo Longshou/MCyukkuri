@@ -90,7 +90,7 @@ final class PoseNeighbors {
         for (int i = 0; i < count; i++) {
             var peer = actors.get(grid.actor(i));
             if (peer == self || peer.level() != self.level() || peer.getId() == knownPartner
-                    || !peer.usesCrowdSpacing() || self.inNestSleepPose() && peer.inNestSleepPose() && self.sharesNearbyNest(peer)) continue;
+                    || !peer.usesCrowdSpacing() || self.sharesBedFootprint(peer)) continue;
             var delta = peer.getPosition(partial).subtract(at);
             var theirs = projection(peer).bounds(peer);
             if (own.overlaps(theirs, delta.x, delta.y, delta.z))

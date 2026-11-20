@@ -90,10 +90,6 @@ public final class SurfaceApproach {
 
     private static SurfaceApproach controller(YukkuriEntity actor){return actor.life().approach();}
 
-    Vec3 walkingTo(long tick) {
-        return current != null && current.touched == tick && current.result == Result.MOVING ? current.destination : null;
-    }
-
     /** Observe the most recent executed request only; never probe or start a route from a status read. */
     public static Result lastResult(YukkuriEntity actor,Vec3 destination){
         var request=controller(actor).current;

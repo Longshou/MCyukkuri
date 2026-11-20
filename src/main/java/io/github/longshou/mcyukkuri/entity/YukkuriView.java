@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
+import io.github.longshou.mcyukkuri.life.NestLayout;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.List;
@@ -131,16 +132,9 @@ public interface YukkuriView {
     int peerRubTick();
     float peerRubSpacing();
     int carePartnerId();
-    BlockPos nearbyAssignedNest();
-    default boolean inNestSleepPose() {
-        return switch (getBehaviorId()) {
-            case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.WAKE -> true;
-            default -> false;
-        };
-    }
-    default boolean sharesNearbyNest(YukkuriView peer) {
-        var nest = nearbyAssignedNest();
-        return nest != null && nest.equals(peer.nearbyAssignedNest());
+    BlockPos occupiedBed();
+    default boolean sharesBedFootprint(YukkuriView peer) {
+        return NestLayout.ownsSpacing(occupiedBed(), peer.occupiedBed());
     }
     float careContactProgress();
     boolean isCrawling();

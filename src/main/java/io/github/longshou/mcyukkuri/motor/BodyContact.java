@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.NestLayout;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Pin;
@@ -10,7 +9,6 @@ import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.motor.geom.SeparationStep;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -22,7 +20,6 @@ import net.minecraft.world.phys.Vec3;
 public final class BodyContact {
     private final YukkuriEntity body;
     private final SeparationStep separation = new SeparationStep();
-    private final BooleanSupplier enteringNest;
     private final ContactScan<Entity> scan = new ContactScan<>(this::include, this::canStep);
     private final Predicate<Vec> groundFooting = step -> scan.test(step.x(), 0, step.z());
     private final FlightCourse.Shove shove = new FlightCourse.Shove(this::clearShove);
@@ -33,7 +30,6 @@ public final class BodyContact {
 
     BodyContact(YukkuriEntity body) {
         this.body = body;
-        enteringNest = () -> body.life().enteringBed(body.nearbyAssignedNest());
     }
 
     private boolean grounded() {
@@ -54,11 +50,7 @@ public final class BodyContact {
                 || body.family().courting(peer) || peer.family().courting(body)
                 || peer.motor().current() instanceof Grab grip && grip.target() == body
                 || peer.woundComfort().helping(body) || body.woundComfort().helping(peer)
-                || sharesBedStand(peer);
-    }
-
-    private boolean sharesBedStand(YukkuriEntity peer) {
-        return body.sharesNearbyNest(peer) && NestLayout.ownsSpacing(body.life().isSleeping(), peer.life().isSleeping(), enteringNest);
+                || body.sharesBedFootprint(peer);
     }
 
     private double share(YukkuriEntity peer) {
@@ -175,7 +167,7 @@ public final class BodyContact {
             var box = neighbour.getBoundingBox();
             if (!next.intersects(box)) continue;
             if (body.canCollideWith(neighbour)) return false;
-            if (neighbour instanceof YukkuriEntity peer && sharesBedStand(peer)) continue;
+            if (neighbour instanceof YukkuriEntity peer && body.sharesBedFootprint(peer)) continue;
             if (!FlightCourse.clearsNeighbour(here.intersects(box), body.getX() - neighbour.getX(),
                     body.getZ() - neighbour.getZ(), dx, dz)) return false;
         }

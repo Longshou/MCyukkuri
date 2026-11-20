@@ -10,7 +10,6 @@ import io.github.longshou.mcyukkuri.family.ChildhoodLife;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
-import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.social.PairContact.Pose;
@@ -48,7 +47,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Integer> PAIR_POSE = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
     private static final EntityDataAccessor<Long> PAIR_START = YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> CARE_PARTNER = YukkuriEntity.defineSyncedValue( EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Optional<BlockPos>> NEARBY_ASSIGNED_NEST = YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_BLOCK_POS);
+    private static final EntityDataAccessor<Optional<BlockPos>> OCCUPIED_BED = YukkuriEntity.defineSyncedValue(EntityDataSerializers.OPTIONAL_BLOCK_POS);
     private static final EntityDataAccessor<Float> CARE_PROGRESS = YukkuriEntity.defineSyncedValue( EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> TOILET_VOLUME = YukkuriEntity.defineSyncedValue(EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Boolean> CRAWLING = YukkuriEntity.defineSyncedValue( EntityDataSerializers.BOOLEAN);
@@ -184,7 +183,7 @@ final class YukkuriSync {
     int peerRubTick() { return owner.getEntityData().get(PEER_RUB_TICK); }
     float peerRubSpacing() { return owner.getEntityData().get(PEER_RUB_SPACING); }
     int carePartnerId() { return owner.getEntityData().get(CARE_PARTNER); }
-    BlockPos nearbyAssignedNest() { return owner.getEntityData().get(NEARBY_ASSIGNED_NEST).orElse(null); }
+    BlockPos occupiedBed() { return owner.getEntityData().get(OCCUPIED_BED).orElse(null); }
     float careContactProgress() { return owner.getEntityData().get(CARE_PROGRESS); }
     float toiletVolume() { return owner.getEntityData().get(TOILET_VOLUME); }
     boolean isCrawling() { return owner.getEntityData().get(CRAWLING); }
@@ -404,7 +403,7 @@ final class YukkuriSync {
         }
         if (owner.woundComfort().licking()) { careTarget = owner.woundComfort().victimId(); careProgress = owner.woundComfort().contactProgress(); }
         owner.getEntityData().set(CARE_PARTNER, careTarget);
-        owner.getEntityData().set(NEARBY_ASSIGNED_NEST, Optional.ofNullable(FamilyNest.nearbyAssignedNest(owner)));
+        owner.getEntityData().set(OCCUPIED_BED, Optional.ofNullable(owner.occupiedBed()));
         owner.getEntityData().set(CARE_PROGRESS, Mth.clamp(careProgress, 0, 1));
     }
     void syncAppearance() {
@@ -463,7 +462,7 @@ final class YukkuriSync {
         builder.define(NUZZLE_PARTNER, -1); builder.define(PEER_RUB_TICK, -1); builder.define(PEER_RUB_SPACING, 0f);
         builder.define(PAIR_PEER, -1); builder.define(PAIR_POSE, Pose.NONE.ordinal()); builder.define(PAIR_START, -1L);
         builder.define(CARE_PARTNER, -1); builder.define(CARE_PROGRESS, 0f);
-        builder.define(NEARBY_ASSIGNED_NEST, Optional.empty());
+        builder.define(OCCUPIED_BED, Optional.empty());
         builder.define(TOILET_VOLUME,0f);
         builder.define(CRAWLING, false); builder.define(CRAWL_START, 0L);
         builder.define(PREDATOR_FLIGHT, false);

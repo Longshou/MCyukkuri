@@ -304,7 +304,8 @@ public final class ShelterBlockEntity extends BlockEntity {
         free.sort(Comparator.comparingDouble(cell->cluster.stream().mapToDouble(cell::distSqr).min().orElse(0)));
         return List.copyOf(free.subList(0,Math.min(want,free.size())));
     }
-    public boolean largeBed(UUID id){return largeBeds.contains(bed(id));}
+    public boolean largeBed(UUID id){return largeBed(bed(id));}
+    public boolean largeBed(BlockPos bed){return largeBeds.contains(bed);}
     public List<BlockPos> largeBeds(){return List.copyOf(largeBeds);}
     private boolean reservedByLargeBed(BlockPos at){return largeBeds.stream().anyMatch(pos->!pos.equals(at)&&pos.distSqr(at)<4);}
     private boolean acceptsAt(int slot,YukkuriEntity entity){

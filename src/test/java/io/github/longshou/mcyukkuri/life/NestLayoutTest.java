@@ -17,8 +17,7 @@ class NestLayoutTest {
     private NestLayout.Place admit(int member,double scale){
         var id=new UUID(0,member);
         var body=new NestLayout.Place(0,0,(float)(.8*scale),.6875*scale);
-        var spot=NestLayout.choose(id,body,HALF,occupants,p->OccupancyMath.classify(p.x(),p.z(),0,p.width()/2+ARRIVAL,
-                floor,0,.2,true)==OccupancyMath.Result.INSIDE_SUPPORTED,false,false,ARRIVAL);
+        var spot=NestLayout.choose(id,body,HALF,occupants,p->occupancy(p)==OccupancyMath.Result.INSIDE_SUPPORTED,false,false,ARRIVAL);
         if(spot!=null)occupants.put(id,spot);
         return spot;
     }
@@ -36,42 +35,70 @@ class NestLayoutTest {
         assertNull(admit(1,1.8));
     }
 
-    @Test void returningFatherCanBoardAfterTheBabyLeavesHisStand() {
-        // DN-12 night two: the father is pressed on the rim and the awake baby covers his assigned place.
-        var father = new NestLayout.Place(-931.26814, 304.11883, .704f, .605);
-        var destination = father.at(-931.020, 303.980);
-        var baby = new NestLayout.Place(-930.82847, 303.68853, .144f, .124);
-        var babyBed = baby.at(-930.855, 302.797);
-        var motherBed = father.at(-931.98044, 303.01956);
-        var childBed = baby.at(-932.20329, 304.14468);
-        assertFalse(NestLayout.ownsSpacing(false, false, () -> true));
-        assertFalse(NestLayout.ownsSpacing(false, true, () -> false));
-        assertTrue(destination.gap(baby) < 0);
-        var wanted = new Vec(.03, 0, -.017);
-        var separation = new SeparationStep();
-        double width = (father.width() + baby.width()) * .5;
-        var diverted = separation.crowd(father.x()-baby.x(), father.z()-baby.z(), width, true, 1, 1, wanted, s -> true);
-        assertNotEquals(wanted, diverted);
-        assertTrue(destination.gap(babyBed) > 2 * ARRIVAL);
-        assertTrue(NestLayout.ownsSpacing(true, false, () -> false)); // The baby holds its assigned stand.
-        assertTrue(NestLayout.ownsSpacing(false, true, () -> true));
+    private Integer bedAtFeet(Integer assigned, NestLayout.Place feet) {
+        return OccupancyMath.touchesBedding(feet.x(), feet.z(), 0, feet.width()/2+ARRIVAL, floor, 0, 0) ? assigned : null;
+    }
 
-        // Approach from either the recorded rim or directly alongside the sleeping baby.
-        for (var start : new NestLayout.Place[]{father, father.at(-931.25, 302.90)}) {
-            var feet = start;
-            for (int tick = 0; tick < 60; tick++) {
-                double x = destination.x()-feet.x(), z = destination.z()-feet.z();
-                if (Math.hypot(x, z) <= ARRIVAL) break;
-                double scale = Math.min(1, .03 / Math.hypot(x, z));
-                var step = new Vec(x * scale, 0, z * scale);
-                if (!NestLayout.ownsSpacing(false, true, () -> true))
-                    step = separation.crowd(feet.x()-babyBed.x(), feet.z()-babyBed.z(), width, true, 1, 1, step, s -> true);
-                feet = feet.at(feet.x()+step.x(), feet.z()+step.z());
-            }
-            assertTrue(Math.hypot(destination.x()-feet.x(), destination.z()-feet.z()) <= ARRIVAL);
-            for (var sleeper : new NestLayout.Place[]{motherBed, childBed, babyBed})
-                assertTrue(feet.gap(sleeper) > 2 * ARRIVAL);
+    private NestLayout.Place walk(NestLayout.Place feet, NestLayout.Place stand, Integer bed,
+                                  NestLayout.Place peer, Integer peerBed, SeparationStep separation) {
+        double x=stand.x()-feet.x(), z=stand.z()-feet.z(), distance=Math.hypot(x,z);
+        double scale=distance>.03 ? .03/distance : 1;
+        var step=new Vec(x*scale,0,z*scale);
+        if (!NestLayout.ownsSpacing(bedAtFeet(bed,feet),bedAtFeet(peerBed,peer)))
+            step=separation.crowd(feet.x()-peer.x(),feet.z()-peer.z(),(feet.width()+peer.width())/2,
+                    false,1,1,step,s->true);
+        return feet.at(feet.x()+step.x(),feet.z()+step.z());
+    }
+
+    @Test void bothAwakeResidentsCrossTheRimAndSleepAtTheirOwnStands() {
+        var motherStand=admit(0,.88);
+        var fatherStand=admit(1,.88);
+        // DN-12 at t=4908, relative to the bed centre. Both are on the rim and driving toward each other.
+        var mother=motherStand.at(.085087,.587615);
+        var father=fatherStand.at(-.630073,-.099507);
+        var motherStep=new SeparationStep();
+        var fatherStep=new SeparationStep();
+        assertEquals(OccupancyMath.Result.ON_RIM,occupancy(mother));
+        assertEquals(OccupancyMath.Result.ON_RIM,occupancy(father));
+        for (int tick=0;tick<60;tick++) {
+            var nextMother=walk(mother,motherStand,1,father,1,motherStep);
+            father=walk(father,fatherStand,1,mother,1,fatherStep);
+            mother=nextMother;
         }
+        assertEquals(motherStand,mother);
+        assertEquals(fatherStand,father);
+        assertEquals(OccupancyMath.Result.INSIDE_SUPPORTED,occupancy(mother));
+        assertEquals(OccupancyMath.Result.INSIDE_SUPPORTED,occupancy(father));
+        assertEquals(mother,NestLayout.choose(new UUID(0,0),mother,HALF,occupants,
+                p->occupancy(p)==OccupancyMath.Result.INSIDE_SUPPORTED,true,false,ARRIVAL));
+        assertEquals(father,NestLayout.choose(new UUID(0,1),father,HALF,occupants,
+                p->occupancy(p)==OccupancyMath.Result.INSIDE_SUPPORTED,true,false,ARRIVAL));
+        assertTrue(mother.gap(father)>=2*ARRIVAL);
+    }
+
+    private OccupancyMath.Result occupancy(NestLayout.Place feet) {
+        return OccupancyMath.classify(feet.x(),feet.z(),0,feet.width()/2+ARRIVAL,floor,0,0,true);
+    }
+
+    @Test void aStrangerOnTheSameRimStillYields() {
+        var stand=admit(0,.88);
+        var walker=stand.at(.085087,.587615);
+        var peer=stand.at(-.630073,-.099507);
+        var resident=walk(walker,stand,1,peer,1,new SeparationStep());
+        var stranger=walk(walker,stand,null,peer,1,new SeparationStep());
+        assertTrue(Math.abs(resident.x()-peer.x())<walker.width());
+        assertTrue(Math.abs(stranger.x()-peer.x())>=walker.width());
+        assertEquals(stranger,walk(walker,stand,2,peer,1,new SeparationStep()));
+        assertEquals(stranger,walk(walker,stand,1,peer,null,new SeparationStep()));
+        assertFalse(NestLayout.ownsSpacing(null,null));
+    }
+
+    @Test void theBedReleasesResidentsBeyondItsRimOrOnAnotherFloor() {
+        var baby=admit(0,.18);
+        assertNull(bedAtFeet(1,baby.at(1.4,0))); // Within the old proximity radius, clear of the bed.
+        assertFalse(NestLayout.ownsSpacing(bedAtFeet(1,baby),bedAtFeet(1,baby.at(1.4,0))));
+        assertFalse(OccupancyMath.touchesBedding(0,0,1,baby.width()/2+ARRIVAL,floor,0,.2));
+        assertFalse(OccupancyMath.touchesBedding(0,0,-1,baby.width()/2+ARRIVAL,floor,0,.2));
     }
 
     @Test void aNewcomerCannotMoveAnExistingResidentEvenIfRepackingWouldMakeRoom() {

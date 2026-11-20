@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.surface.BedContainer;
+import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
 import io.github.longshou.mcyukkuri.motor.surface.CollisionBoxes;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -40,12 +41,26 @@ public final class FamilyNest {
         return shelter!=null&&shelter==b.habitat().shelter()&&shelter.bed(a.getUUID())!=null&&shelter.bed(a.getUUID()).equals(shelter.bed(b.getUUID()));
     }
     public static boolean atAssignedNest(YukkuriEntity e){
-        return nearbyAssignedNest(e)!=null;
-    }
-    public static BlockPos nearbyAssignedNest(YukkuriEntity e){
         var c=care(e);var wild=c==null?e.habitat().shelter():null;
         BlockPos pos=c!=null?c.getBlockPos():wild!=null?wild.bed(e.getUUID()):null;
-        return pos!=null&&e.distanceToSqr(c!=null?c.centre():Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire()?pos:null;
+        return pos!=null&&e.distanceToSqr(c!=null?c.centre():Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire();
+    }
+    /** The resident's own bed, only while its feet overlap the bedding or its rim. Canopy residents roost separately. */
+    public static BlockPos occupiedBed(YukkuriEntity e) {
+        var care=care(e);
+        var den=care==null?e.habitat().shelter():null;
+        var bed=care!=null?care.getBlockPos():den!=null?den.bed(e.getUUID()):null;
+        if (bed==null || care!=null && care.canopyNest()) return null;
+        var centre=care!=null?care.centre():den.restSpot(bed);
+        // Cull distant claims before looking up the floor. The largest bed occupies two blocks across.
+        double reach=1+OccupancyMath.RIM_RING+Occupancy.foot(e.getBbWidth());
+        if (Math.abs(e.getX()-centre.x)>reach || Math.abs(e.getZ()-centre.z)>reach || Math.abs(e.getY()-centre.y)>1) return null;
+        if (care!=null) {
+            // The authored lip may be low or flattened against a wall. Only its real horizontal shell counts.
+            return e.getY()>=centre.y-OccupancyMath.FLOOR_SLACK && Double.isFinite(contactHeight(e,care,e.getBoundingBox(),null,
+                    e.getY()-OccupancyMath.RIM_SLACK,Double.POSITIVE_INFINITY)) ? bed : null;
+        }
+        return BedContainer.of(e,den,bed).touchesBedding()?bed:null;
     }
     public static boolean large(YukkuriEntity e){
         var c=care(e);if(c!=null)return c.largeNest();
@@ -62,7 +77,7 @@ public final class FamilyNest {
         return spot!=null&&SurfaceApproach.at(e,spot);
     }
     public static Vec3 restPosition(YukkuriEntity e,CareBlockEntity c){
-        return SurfaceApproach.restingFloor(e,place(e,c.getBlockPos(),c));
+        return SurfaceApproach.restingFloor(e,c.centre().add(c.restOffset(e.getUUID())));
     }
     /** The floor in the middle of this bed (its 2x2 corner or its block centre), even where the body would not fully stand. */
     public static Vec3 bedMiddle(YukkuriEntity e,BlockPos bed){
@@ -72,17 +87,8 @@ public final class FamilyNest {
     }
     public static Vec3 restPosition(YukkuriEntity e,BlockPos bed){
         var c=care(e);if(c!=null&&c.getBlockPos().equals(bed))return restPosition(e,c);
-        return place(e,bed,null);
-    }
-    private static Vec3 place(YukkuriEntity e,BlockPos bed,CareBlockEntity c){
-        if(c!=null)return c.centre().add(c.restOffset(e.getUUID()));
         var home=e.habitat().shelter();
         return home!=null&&bed.equals(home.bed(e.getUUID()))?Vec3.atBottomCenterOf(bed).add(home.restOffset(e.getUUID())):Vec3.atBottomCenterOf(bed);
-    }
-    /** Compare the actual walk target to the assigned offset without surveying the floor a second time. */
-    public static boolean aimsAtPlace(YukkuriEntity e,BlockPos assigned,Vec3 to){
-        var place=place(e,assigned,care(e));
-        return Math.floor(to.y)==Math.floor(place.y) && Math.hypot(to.x-place.x,to.z-place.z)<SurfaceApproach.ARRIVAL;
     }
     /** Feet fully inside the assigned large bed, not on its rim or entrance shoulders (one rule for every nest arrival). */
     public static boolean onLargeFloor(YukkuriEntity e){
@@ -119,18 +125,17 @@ public final class FamilyNest {
                     ||c.kind()!=CareBlock.Kind.NEST||c.getBlockState().is(ModBlocks.PREDATOR_NEST.get()))continue;
             // Vanilla resolves the downward move before its horizontal components. A newborn can hit the soft
             // wall and slide partly past its edge in that same tick; the final centre alone is not the impact point.
-            double contact=contactHeight(e,c,feet,impact);
+            double contact=contactHeight(e,c,feet,impact,e.getY()-.002,e.getY()+.002);
             if(Double.isFinite(contact))found.add(new Bed(c.centre(),contact,c));
         }
         return found;
     }
     /** A body centre may be beyond the rim while its real footprint is still resting on its edge. */
-    private static double contactHeight(YukkuriEntity e, CareBlockEntity nest, AABB feet, AABB impact) {
+    private static double contactHeight(YukkuriEntity e, CareBlockEntity nest, AABB feet, AABB impact, double minTop, double maxTop) {
         var origin = nest.getBlockPos();
         var level = e.level();
         var context = CollisionContext.of(e);
         boolean large = nest.largeNest();
-        double feetY = e.getY();
         double highest = Double.NEGATIVE_INFINITY;
         for (int part = 0; part < (large ? 4 : 1); part++) {
             var at = nest.northWest().offset(part & 1, 0, part >> 1);
@@ -143,7 +148,7 @@ public final class FamilyNest {
             var z = shape.getCoords(Direction.Axis.Z);
             for (var box : CollisionBoxes.of(shape)) {
                 double top = y.getDouble(box.maxY()) + at.getY();
-                if (!(Math.abs(top - feetY) <= .002)) continue;
+                if (top < minTop || top > maxTop) continue;
                 double minX = x.getDouble(box.minX()) + at.getX(), maxX = x.getDouble(box.maxX()) + at.getX();
                 double minZ = z.getDouble(box.minZ()) + at.getZ(), maxZ = z.getDouble(box.maxZ()) + at.getZ();
                 if (overlaps(feet, minX, maxX, minZ, maxZ) || impact != null && overlaps(impact, minX, maxX, minZ, maxZ))

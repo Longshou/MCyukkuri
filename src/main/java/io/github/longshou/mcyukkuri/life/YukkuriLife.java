@@ -331,11 +331,6 @@ public final class YukkuriLife {
     }
     void deferHomeMaintenance() { homeWait = 200; }
     public void seekHomeNow() { homeWait = 0; }
-    public boolean enteringBed(BlockPos assigned) {
-        if (task == Task.HOME && assigned.equals(targetBlock)) return true;
-        var destination = approach.walkingTo(entity.level().getGameTime());
-        return destination != null && FamilyNest.aimsAtPlace(entity, assigned, destination);
-    }
     public boolean mayReturnToBed(BlockPos bed) {
         if (refusedBed != null && !refusedBed.permits(entity.blockPosition().asLong(), bed.asLong(), level().getGameTime(), () -> {
             var place = FamilyNest.restPosition(entity, bed);
@@ -347,7 +342,7 @@ public final class YukkuriLife {
         if (stand == null) return false;
         if (failed.stand() != null && stand.distanceToSqr(failed.stand()) < SurfaceApproach.ARRIVAL * SurfaceApproach.ARRIVAL) {
             boolean hadBlocker = failed.blocker() != null;
-            boolean stillBlocks = hadBlocker && level().getEntity(failed.blocker()) instanceof YukkuriEntity peer && blocksBoarding(peer, bed, stand);
+            boolean stillBlocks = hadBlocker && level().getEntity(failed.blocker()) instanceof YukkuriEntity peer && blocksBoarding(peer, stand);
             boolean newStart = entity.distanceToSqr(failed.from()) >= entity.getBbWidth() * entity.getBbWidth();
             boolean stepOpened = !hadBlocker && !newStart && !failed.clearStep() && SurfaceApproach.clearLastStep(entity, stand);
             if (!BedApproachMemory.retryBoarding(hadBlocker, stillBlocks, newStart, stepOpened)) return false;
@@ -356,15 +351,15 @@ public final class YukkuriLife {
         return true;
     }
 
-    private boolean blocksBoarding(YukkuriEntity peer, BlockPos bed, Vec3 stand) {
+    private boolean blocksBoarding(YukkuriEntity peer, Vec3 stand) {
         return peer != entity && peer.isAlive() && !peer.isPassenger() && !peer.noPhysics
-                && !(peer.life().isSleeping() && bed.equals(peer.nearbyAssignedNest()))
+                && !entity.sharesBedFootprint(peer)
                 && SurfaceApproach.crossesBody(entity, entity.position(), stand, peer.getBoundingBox());
     }
 
     private void rememberBoarding(BlockPos bed, Vec3 stand) {
         var blockers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(entity.getBbWidth()),
-                peer -> blocksBoarding(peer, bed, stand));
+                peer -> blocksBoarding(peer, stand));
         failedBoarding = new FailedBoarding(bed, entity.position(), stand, blockers.isEmpty() ? null : blockers.getFirst().getUUID(),
                 blockers.isEmpty() && SurfaceApproach.clearLastStep(entity, stand));
     }

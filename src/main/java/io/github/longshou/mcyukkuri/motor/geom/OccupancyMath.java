@@ -12,6 +12,12 @@ public final class OccupancyMath {
 
     private OccupancyMath(){}
 
+    public static boolean touchesBedding(double x,double z,double y,double foot,FloorShape floor,double floorY,double rimY) {
+        // Project the feet onto the rim plane so the low entry lip and the raised shoulders use the same outline.
+        return y >= floorY-FLOOR_SLACK && y <= rimY+FLOOR_SLACK
+                && classify(x,z,rimY,foot,floor,floorY,rimY,true) != Result.OUTSIDE;
+    }
+
     /** Classifies a footprint of radius {@code r} centred at plane point (x,z) with its feet at {@code y}. */
     public static Result classify(double x,double z,double y,double r,FloorShape floor,double floorY,double rimY,boolean supported){
         boolean centre=floor.contains(x,z);
