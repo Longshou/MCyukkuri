@@ -2823,6 +2823,24 @@ add('pet_door_return', 'house', '困倦的院宠穿门回屋睡觉', '困倦的�
     ], late=[home('return_pet', 0, 4), set_status('return_pet', 'needs.energy', 30)],
     env=DAY, vantage=(-3, 11, -135, 15, 0), reads=[('读院宠归属与住所', f'yukkuri status {sel("return_pet")} raw')])
 
+# The plains template starts its caretaker on (5,1,9). Keep the cottage in the next activity
+# column east of the empty house, with the observer out on the lane.
+_occupied_house = 'execute positioned ~14 ~ ~6 run yukkuri household status'
+_empty_house = 'yukkuri household status'
+_cottage_x, _cottage_z = BY_ID['house'].anchor
+_cottage_x += 9
+_cottage_z -= 3
+_caretaker_home = ((_cottage_x + 5) << 38) | ((_cottage_z + 9) << 12) | FEET
+_yard_pet_selector = ('@e[type=#mcylab:yukkuri,type=!mcyukkuri:house_reimu,type=!mcyukkuri:house_marisa,'
+                     f'x={_cottage_x + 6},y={FEET},z={_cottage_z + 4},distance=..10,limit=1,sort=nearest]')
+add('resident_house_lint', 'house', '居民在家留下絮尘，家油叼絮筑窝', '居民在家留下絮尘，家油叼絮筑窝',
+    '地毯上的居民在家过夜。先在屋外等絮尘积起，再从窗外看家油叼起一份絮尘带回墙角铺窝。对照隔壁无人住的屋。'
+    '观察积尘时先留在起点，等搬入后再靠近。', '约三分钟，可用场内调速', [
+        box(9, 0, -3, 17, 8, 9, 'minecraft:air'),
+        'place template mcyukkuri:village/plains/home_yard ~9 ~-1 ~-3',
+    ], env={'time': 'night', 'spawn_window': (60, 4400)}, vantage=(16, -15, 0, 8, 0),
+    reads=[('读居民家的絮尘与窝', _occupied_house), ('读空屋的絮尘与活动', _empty_house)])
+
 # ====================================================================================================== town
 add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
     '四角分别是玩家的宠物、胆大的饥饿流浪油、胆小的聚落成员、胆大的独居野生油。空手站定，转身观察迎人、辱骂索食、退避与停看。',
@@ -7146,7 +7164,7 @@ TOPICS = {
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
     'pred_nest_feeding': 'R2', 'pred_fledging': 'R2', 'pred_tree_territory': 'R2',
     'pred_pad_cleanup': 'R2', 'pred_forage_avoidance': 'R2',
-    'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
+    'house_empty': 'H1', 'resident_house_lint': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
@@ -7542,6 +7560,66 @@ next(s for s in S if s.id == 'pet_door_return').smoke.update(verify=_pet_door_re
          'if block ~ ~1 ~7 minecraft:oak_door[facing=south,hinge=left,half=upper,open=true] '
          'if block ~-1 ~ ~7 minecraft:oak_planks if block ~1 ~ ~7 minecraft:oak_planks run say MCY_PET_RETURN_OPEN'),
 ])
+
+
+def _resident_house_chain(window):
+    window = '\n'.join(window.splitlines())
+    founders = list(re.finditer(
+        r'\[house\] house_\w+ #[0-9]+ uuid=([\w-]+) t=\d+ [^\n]* a house \w+ moved in at (\d+), (\d+), (\d+) \(entrance',
+        window))
+    if len(founders) != 1:
+        return f'Expected one first founder, saw {len(founders)}'
+    founder = founders[0]
+    site = tuple(map(int, founder.groups()[1:]))
+    if not (_cottage_x + 1 <= site[0] <= _cottage_x + 7 and site[1] == FEET
+            and _cottage_z + 8 <= site[2] <= _cottage_z + 11):
+        return f'Founder arrived outside the cottage interior at {site}'
+    pos = rf'BlockPos\{{x={site[0]}, y={site[1]}, z={site[2]}\}}'
+    actions = re.findall(rf'\[house\][^\n]*uuid={founder[1]} [^\n]*? ((?:pickup|nest founded|deposit) [^\n]*)',
+                         window[founder.end():])
+    expected = [r'pickup source=.* item=mcyukkuri:nest_lint count=1 feeding=false',
+                rf'nest founded home=ResourceKey\[minecraft:dimension / minecraft:overworld\] {pos} identity=.*',
+                rf'deposit home={pos} item=mcyukkuri:nest_lint count=1 food=0 lint=1']
+    if len(actions) < 3 or not all(re.fullmatch(pattern, line) for pattern, line in zip(expected, actions)):
+        return f'Founder {founder[1]} must lift one lint and commit it at the new nest at {site}'
+
+
+def _resident_house_readings(readout):
+    readings = re.split(r'MCYSMOKE_READOUT \d+ \d+\n', readout)[1:]
+    if len(readings) != 6:
+        return 'Expected six paired household readings'
+    for index, reading in enumerate(readings):
+        stock = re.findall(r'region piles=(\d+) units=([\d.]+); within 12 blocks lint=(\d+) crumbs=(\d+)', reading)
+        activity = re.findall(r'activity dust=(\d+)/600 settle=(\d+)/1200 swept=false cooldown=(\d+) recent=(\w+) roofed=true', reading)
+        if len(stock) != 2 or len(activity) != 2:
+            return f'Missing paired roofed readings at snapshot {index}'
+        if stock[1][:2] != ('0', '0.0') or activity[1] != ('0', '0', '0', 'false'):
+            return f'The empty control accrued stock or activity at snapshot {index}'
+        if index < 5 and (float(stock[0][1]) != index or stock[0][2:] != (str(index), '0')
+                          or 'resident house_' in reading or 'materials=' in reading):
+            return f'Expected {index} lint, zero crumbs and no lodger before arrival at snapshot {index}'
+        if f'has the following entity data: {_caretaker_home}L' not in reading:
+            return f'The live caretaker is missing from its authored rug at snapshot {index}'
+        spawning = 'true' if 0 < index < 5 else 'false'
+        if f'doMobSpawning is currently set to: {spawning}' not in reading:
+            return f'Unexpected world spawning rule at snapshot {index}'
+    if not re.search(r'identity:\{[^}]*kind:"npc_companion"', readings[-1]):
+        return 'The yard animal must remain the resident’s companion'
+    uuids = re.findall(r'has the following (?:block|entity) data: \[I;\s*(-?\d+),\s*(-?\d+),\s*(-?\d+),\s*(-?\d+)\]', readings[-1])
+    if len(uuids) != 2 or uuids[0] != uuids[1]:
+        return 'The yard companion must hold the original yard nest'
+
+
+_resident_house_scene = next(s for s in S if s.id == 'resident_house_lint')
+_resident_house_scene.smoke = dict(ticks=4700, readout_at=(20, 800, 1420, 2060, 2680),
+    readout=[_occupied_house, _empty_house,
+             'execute positioned ~14.5 ~ ~6.5 if block ~ ~ ~ minecraft:red_carpet run data get entity '
+             '@e[type=mcyukkuri:caretaker_sister,tag=mcy_yard_owner,distance=..0.75,limit=1] HumanHome',
+             'gamerule doMobSpawning', 'execute if block ~14 ~ ~3 mcyukkuri:yukkuri_nest run data get block ~14 ~ ~3 Resident',
+             f'data get entity {_yard_pet_selector} UUID', f'yukkuri status {_yard_pet_selector} raw'],
+    expect=[r'\[npc-care\][^\n]*action=yard_pet result=spawned owner='],
+    forbid=[r'\[body\][^\n]* invariant\b'],
+    verify=_resident_house_chain, verify_readout=_resident_house_readings)
 
 
 # In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.

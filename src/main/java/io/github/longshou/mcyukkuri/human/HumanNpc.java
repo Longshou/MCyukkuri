@@ -200,8 +200,15 @@ public final class HumanNpc extends PathfinderMob {
     boolean avoidingStreet() { return routineDelay < 0; }
     boolean streetObservable() { return street.observable(); }
     boolean streetActive() {
-        return streetResident() && !stroll().outing() && initialized && isAlive() && !isNoAi() && !avoidingStreet()
-                && level().isDay() && !isTrading();
+        return level().isDay() && residentAvailable();
+    }
+    private boolean residentAvailable() {
+        return streetResident() && initialized && isAlive() && !isNoAi() && !avoidingStreet()
+                && !stroll().outing() && !isTrading();
+    }
+    /** The resident's assigned stand, including at night. The caller checks physical presence. */
+    public BlockPos householdHome() {
+        return residentAvailable() && hurtTime == 0 ? home : null;
     }
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
     public static void witnessedStreetHurt(YukkuriEntity animal, Player player) { HumanStreet.witnessedHurt(animal, player); }

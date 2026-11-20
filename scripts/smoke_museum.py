@@ -115,7 +115,7 @@ def build_pack(builder, pack_root, layout=False):
         for path in (pack / 'data' / builder.NS / 'function/scn').glob('*.mcfunction'):
             lines = []
             for number, line in enumerate(path.read_text(encoding='utf-8').splitlines(), 1):
-                if re.search(r'(?:^|run )(?:summon |yukkuri settlement spawn |yukkuri scenario (?:spawn|summon|afloat) |yukkuri human build |yukkuri human walker )', line):
+                if re.search(r'(?:^|run )(?:summon |place template |yukkuri settlement spawn |yukkuri scenario (?:spawn|summon|afloat) |yukkuri human build |yukkuri human walker )', line):
                     # A guarded retry writes its own success score and returns it; replacing that line would leave the
                     # score unset and the retry would summon again every attempt, so only observe the score it writes.
                     if line.startswith('execute store success score '):
@@ -279,9 +279,16 @@ def run_scene(st, scene, builder, run_index, seed):
         if normalize(before) != normalize(after) or ('reload_paths' in scene.smoke and any('has the following entity data' not in row for row in before)):
             raise RuntimeError(f'{scene.id}: required saved entity data changed or was missing on reload ({", ".join(paths)})')
         print(f'PASS {scene.id}: saved entity data survived chunk reload ({", ".join(paths)})', flush=True)
-    server.sprint(st, scene.smoke['ticks'] - elapsed)
-    readout = '\n'.join(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
+    readings = []
+    for stop in (*scene.smoke.get('readout_at', ()), scene.smoke['ticks']):
+        server.sprint(st, stop - elapsed)
+        elapsed = stop
+        if 'readout_at' in scene.smoke:
+            tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
+            readings.append(f'MCYSMOKE_READOUT {stop} {tick}')
+        readings.extend(server.run_cmd(st, f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}')
                         for command in scene.smoke.get('readout', ()))
+    readout = '\n'.join(readings)
     (Path(st['rundir']).parent / f'{scene.id}-{run_index}.readout.txt').write_text(readout, encoding='utf-8')
     end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'

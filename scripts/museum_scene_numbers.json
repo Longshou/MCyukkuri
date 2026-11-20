@@ -306,6 +306,7 @@
     "pet_door_return": "HS-05",
     "elope": "TN-59",
     "elope_leave": "TN-60",
-    "nuzzle_shapes": "MD-28"
+    "nuzzle_shapes": "MD-28",
+    "resident_house_lint": "HS-06"
   }
 }

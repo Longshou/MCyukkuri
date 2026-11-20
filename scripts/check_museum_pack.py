@@ -26,7 +26,7 @@ import build_museum_full as museum  # noqa: E402
 JAVA = ROOT / 'src/main/java'
 KNOWN_HEADS = {'kill', 'tp', 'tellraw', 'title', 'give', 'item', 'summon', 'fill', 'clone', 'setblock', 'data', 'execute', 'function', 'schedule', 'scoreboard',
                'forceload', 'gamerule', 'difficulty', 'time', 'weather', 'setworldspawn', 'tag', 'gamemode', 'say', 'fillbiome', 'yukkuri',
-               'return', 'particle', 'tick', 'kill', 'damage'}
+               'return', 'particle', 'tick', 'kill', 'damage', 'place'}
 
 
 # ---------------------------------------------------------------------------- Brigadier tree from the Java sources
@@ -396,6 +396,10 @@ def main():
                 head = line.split(' ', 1)[0]
                 if line and not line.startswith('#') and head not in KNOWN_HEADS:
                     findings.append(f'{where}: unknown command head {head!r}')
+                if line.startswith('place template mcyukkuri:'):
+                    template = line.split()[2].removeprefix('mcyukkuri:')
+                    if not (ROOT / f'src/main/resources/data/mcyukkuri/structure/{template}.nbt').is_file():
+                        findings.append(f'{where}: missing template {template}')
                 for cmd in (yukkuri_commands(line) if head not in ('summon', 'tellraw', 'title', 'setblock', 'fill', 'give') else []):
                     words = split_words(cmd)
                     if words[1:2] == ['relay']:

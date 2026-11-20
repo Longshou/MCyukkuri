@@ -308,6 +308,9 @@ def build_pack(world):
     random_tick_windows = {s.id: s.env['random_tick_window'] for s in museum_scenarios.S if 'random_tick_window' in s.env}
     cancel_random_ticks = [f'schedule clear {NS}:scn/{sid}_random_ticks_{phase}'
                            for sid in random_tick_windows for phase in ('start', 'end')]
+    spawn_windows = {s.id: s.env['spawn_window'] for s in museum_scenarios.S if 'spawn_window' in s.env}
+    reset_spawning = ['gamerule doMobSpawning false', *(f'schedule clear {NS}:scn/{sid}_spawning_{phase}'
+                      for sid in spawn_windows for phase in ('start', 'end'))]
     for f in FIELDS:
         fn(f'field/{f.id}/terrain', f.terrain())
         bx1, by1, bz1, bx2, by2, bz2 = f.clear_box()
@@ -321,7 +324,7 @@ def build_pack(world):
                     cancel += [f'schedule clear {NS}:scn/{scenario.id}_retry{ri}_{k}' for k in range(retry.tries)]
         # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + cancel + [clear_entities,
+        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + reset_spawning + cancel + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         if f.id == 'village':
@@ -375,6 +378,13 @@ def build_pack(world):
             base = f'scn/{s.id}_random_ticks'
             fn(f'{base}_start', [f'gamerule randomTickSpeed {speed}', f'schedule function {NS}:{base}_end {duration}t replace'])
             fn(f'{base}_end', ['gamerule randomTickSpeed 3'])
+            start.append(f'schedule function {NS}:{base}_start {first}t replace')
+        if s.id in spawn_windows:
+            first, duration = spawn_windows[s.id]
+            base = f'scn/{s.id}_spawning'
+            fn(f'{base}_start', ['gamerule mobGriefing true', 'gamerule doMobSpawning true',
+                                 f'schedule function {NS}:{base}_end {duration}t replace'])
+            fn(f'{base}_end', ['gamerule doMobSpawning false'])
             start.append(f'schedule function {NS}:{base}_start {first}t replace')
         vdx, vdz = s.vantage[:2]
         # Two-value views stand north of the anchor and look south. Explicit views keep their signed offset.
@@ -480,6 +490,7 @@ def build_pack(world):
     loads = [f'forceload add {x} {z}' for f in FIELDS for x, z in sorted(f.chunks())]
     fn('util/clear_all', [
         f'execute if score #clearing {OBJ} matches 1 run return run tellraw @a ' + _text('全部清场正在进行。', 'yellow'),
+        *reset_spawning,
         f'scoreboard players set #clearing {OBJ} 1',
         f'execute if score #village_job {OBJ} matches 0..1 run function {NS}:village/cancel',
         # Clear-all takes over the force-loaded fields and releases them when it finishes.
@@ -492,7 +503,7 @@ def build_pack(world):
     fn('guide', [book_command()])
 
     # ---------------------------------------------------------------- teleports
-    fn('go/lobby', [f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0',
+    fn('go/lobby', [*reset_spawning, f'tp @s {SPAWN[0] + .5} {SPAWN[1]} {SPAWN[2] + .5} {SPAWN[3]} 0',
                     'tellraw @s ' + _text('大厅：按 M 打开场景菜单。', 'aqua')])
 
     # ---------------------------------------------------------------- welcome / waiting / alerts
@@ -518,7 +529,7 @@ def build_pack(world):
        ['tellraw @s ' + _text('更新 .local/experimental-map/museum-runtime.json 指向的运行产物（用含 command/Scenario*.java 的 CI 构建）。', 'yellow')])
 
     # ---------------------------------------------------------------- load / tick / prepare / build
-    fn('load', ['yukkuri status trace light', f'scoreboard objectives add {OBJ} dummy', f'scoreboard objectives add {JUMP_OBJ} dummy',
+    fn('load', [*reset_spawning, 'yukkuri status trace light', f'scoreboard objectives add {OBJ} dummy', f'scoreboard objectives add {JUMP_OBJ} dummy',
                 f'scoreboard players set #probe {OBJ} 0', f'function {NS}:probe',
                 f'execute unless score #probe {OBJ} matches 1 run scoreboard players set #ready {OBJ} 0',
                 f'execute if score #probe {OBJ} matches 1 unless score #built {OBJ} matches 1 run function {NS}:prepare',

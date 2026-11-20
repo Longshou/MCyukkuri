@@ -7,8 +7,10 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
@@ -63,7 +67,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
  * about and sleep, crumbs when they eat or prepare food. The traces settle as thin piles at the foot of walls and
  * furniture (finite, capped, slowly decaying) and nowhere else: nothing is ever handed to a player. When enough lint
  * and crumbs have gathered next to a hidden corner nobody is looking at, a house yukkuri moves in there and begins to
- * collect them ({@link HouseLife}). Everything is driven by loaded players and villagers; unloaded time is never simulated.
+ * collect them ({@link HouseLife}). Only loaded people contribute; unloaded time is never simulated.
  */
 public final class HouseholdEcology {
     public static final int SAMPLE_TICKS=200,DUST_TICKS=600,SETTLEMENT_TICKS=1200;
@@ -77,7 +81,7 @@ public final class HouseholdEcology {
     public static final int TRACE_BUDGET=4,TRACE_REFILL=200;
     /** A newcomer needs at least this much lint and in total this much debris within the room's reachable floor. */
     public static final int ARRIVAL_LINT=2,ARRIVAL_SUPPLY=5;
-    /** Humans closer than this to the new home site, or with a clear line of sight within {@link #WATCH_RANGE}, delay a move-in. */
+    /** Players with a clear line of sight within this distance delay a move-in. */
     public static final double WATCH_RANGE=12;
     private static final int SEARCH_RADIUS=4;
     private static final int[] HEIGHT_OFFSETS={0,-1,1};
@@ -89,7 +93,7 @@ public final class HouseholdEcology {
     }
     private static final class ActivitySources {
         final Set<UUID> loaded=new HashSet<>();
-        final ArrayDeque<UUID> villagers=new ArrayDeque<>();
+        final ArrayDeque<UUID> people=new ArrayDeque<>();
         int playerCursor;
     }
     public record Stock(int piles,double supplies,int lint,int crumbs) {}
@@ -111,38 +115,50 @@ public final class HouseholdEcology {
         DIMENSION_CURSORS.put(server,Math.floorMod(cursor+visited,levels.size()));
     }
     public static void joining(EntityJoinLevelEvent event){
-        if(event.getLevel() instanceof ServerLevel level&&event.getEntity() instanceof Villager villager){
+        var actor=event.getEntity();
+        if(event.getLevel() instanceof ServerLevel level&&(actor instanceof Villager||actor instanceof HumanNpc)){
             var sources=SOURCES.computeIfAbsent(level,key->new ActivitySources());
-            if(sources.loaded.add(villager.getUUID()))sources.villagers.addLast(villager.getUUID());
+            if(sources.loaded.add(actor.getUUID()))sources.people.addLast(actor.getUUID());
         }
     }
     public static void leaving(EntityLeaveLevelEvent event){
-        if(event.getLevel() instanceof ServerLevel level&&event.getEntity() instanceof Villager villager){
+        var actor=event.getEntity();
+        if(event.getLevel() instanceof ServerLevel level&&(actor instanceof Villager||actor instanceof HumanNpc)){
             var sources=SOURCES.get(level);if(sources==null)return;
-            sources.loaded.remove(villager.getUUID());sources.villagers.remove(villager.getUUID());
+            sources.loaded.remove(actor.getUUID());sources.people.remove(actor.getUUID());
         }
     }
-    /** Round-robin loaded actors only; leave at least sixteen slots for villagers and reuse any spare budget. */
+    /** Round-robin loaded actors only; reserve up to sixteen slots for NPCs and reuse any spare budget. */
     public static void sampleLoaded(ServerLevel level){sampleLoaded(level,MAX_ACTIVITY_SOURCES,new ScanBudget());}
     private static int sampleLoaded(ServerLevel level,int limit,ScanBudget budget){
         if(!enabled(level))return 0;
         var sources=SOURCES.computeIfAbsent(level,key->new ActivitySources());
         var activities=new ArrayList<BlockPos>();var villagers=new ArrayList<Villager>();var sampledPlayers=new HashSet<UUID>();
-        var sleepers=new HashSet<BlockPos>();
-        addPlayers(level,sources,activities,sleepers,sampledPlayers,sources.villagers.isEmpty()?limit:Math.max(0,limit-16),budget);
-        int inspect=sources.villagers.size();
-        while(inspect-->0&&activities.size()<limit&&budget.take()){
-            var id=sources.villagers.removeFirst();
-            if(!(level.getEntity(id) instanceof Villager villager)||!villager.isAlive()||villager.isRemoved()){
+        var sleepers=new HashSet<BlockPos>();var homes=new ArrayList<Set<BlockPos>>();
+        addPlayers(level,sources,activities,sleepers,sampledPlayers,sources.people.isEmpty()?limit:Math.max(0,limit-16),budget);
+        int inspect=sources.people.size();
+        while(inspect-->0&&activities.size()+homes.size()<limit&&budget.take()){
+            var id=sources.people.removeFirst();
+            if(!(level.getEntity(id) instanceof LivingEntity actor)||!actor.isAlive()||actor.isRemoved()){
                 sources.loaded.remove(id);continue;
             }
-            sources.villagers.addLast(id);
-            if(HouseholdProtection.protectedAt(level,villager.blockPosition()))continue;
-            activities.add(villager.blockPosition());villagers.add(villager);
-            if(villager.isSleeping())sleepers.add(villager.blockPosition());
+            sources.people.addLast(id);
+            var feet=actor.blockPosition();
+            if(HouseholdProtection.protectedAt(level,feet))continue;
+            if(actor instanceof Villager villager){
+                activities.add(feet);villagers.add(villager);
+                if(villager.isSleeping())sleepers.add(feet);
+            }else if(actor instanceof HumanNpc resident){
+                var home=resident.householdHome();
+                if(home==null||!feet.closerThan(home,SEARCH_RADIUS+1)||HouseholdProtection.protectedAt(level,home))continue;
+                Predicate<BlockPos> roofed=pos->activityFloor(level,pos)&&clear(level,pos.above())&&covered(level,pos.above());
+                if(!roofed.test(feet))continue;
+                var floors=reachable(level,feet,SEARCH_RADIUS,roofed);
+                if(floors.contains(home))homes.add(floors);
+            }
         }
-        addPlayers(level,sources,activities,sleepers,sampledPlayers,limit,budget);
-        sample(level,activities,sleepers);villagers(level,villagers);return activities.size();
+        addPlayers(level,sources,activities,sleepers,sampledPlayers,limit-homes.size(),budget);
+        sample(level,activities,sleepers,homes);villagers(level,villagers);return activities.size()+homes.size();
     }
     private static void addPlayers(ServerLevel level,ActivitySources sources,List<BlockPos> activities,Set<BlockPos> sleepers,Set<UUID> sampled,int limit,ScanBudget budget){
         var players=level.players();if(players.isEmpty())return;
@@ -169,7 +185,10 @@ public final class HouseholdEcology {
     public static void sample(ServerLevel level,Collection<BlockPos> activities){sample(level,activities,Set.of());}
     /** Somebody asleep in a bed sheds fibre twice as fast as somebody walking about. */
     public static void sample(ServerLevel level,Collection<BlockPos> activities,Set<BlockPos> sleepers){
-        if(!enabled(level)||activities.isEmpty())return;
+        sample(level,activities,sleepers,List.of());
+    }
+    private static void sample(ServerLevel level,Collection<BlockPos> activities,Set<BlockPos> sleepers,List<Set<BlockPos>> homes){
+        if(!enabled(level)||activities.isEmpty()&&homes.isEmpty())return;
         Map<HouseholdEcologyData.Region,Set<BlockPos>> regions=new HashMap<>();Set<HouseholdEcologyData.Region> sleeping=new HashSet<>();
         long now=level.getGameTime(),bucket=Math.floorDiv(now,SAMPLE_TICKS);var data=HouseholdEcologyData.get(level);
         var origins=new HashSet<BlockPos>();var view=new SupplyPileView(level);
@@ -178,10 +197,10 @@ public final class HouseholdEcology {
             if(sampled++>=MAX_ACTIVITY_SOURCES)break;
             if(!origins.add(activity))continue;
             if(HouseholdProtection.protectedAt(level,activity))continue;
-            for(var floor:reachable(level,activity,SEARCH_RADIUS))if(!HouseholdProtection.protectedAt(level,floor))
-                regions.computeIfAbsent(HouseholdEcologyData.Region.at(floor),key->new LinkedHashSet<>()).add(floor);
+            collectFloors(level,regions,reachable(level,activity,SEARCH_RADIUS,pos->activityFloor(level,pos)));
             if(sleepers.contains(activity))sleeping.add(HouseholdEcologyData.Region.at(activity));
         }
+        for(var floors:homes)collectFloors(level,regions,floors);
         for(var entry:regions.entrySet()){
             var floors=entry.getValue();
             if(floors.stream().noneMatch(pos->covered(level,pos)))continue;
@@ -200,6 +219,10 @@ public final class HouseholdEcology {
                 area.settlementTicks=0;area.nextSettlement=now+SETTLEMENT_COOLDOWN;
             }
         }
+    }
+    private static void collectFloors(ServerLevel level,Map<HouseholdEcologyData.Region,Set<BlockPos>> regions,Set<BlockPos> floors){
+        for(var floor:floors)if(walkable(level,floor)&&!HouseholdProtection.protectedAt(level,floor))
+            regions.computeIfAbsent(HouseholdEcologyData.Region.at(floor),key->new LinkedHashSet<>()).add(floor);
     }
 
     // ------------------------------------------------------------------------------------------------ traces of activity
@@ -381,7 +404,8 @@ public final class HouseholdEcology {
         entity.house().foundAt(den);
         if(!level.addFreshEntity(entity))return null;
         entity.showReaction("surprise","house_arrival",100);
-        MCYukkuri.LOGGER.info("[house] a {} moved in at {} (entrance {})",reimu?"house reimu":"house marisa",den.site().toShortString(),den.entrance());
+        GameplayLog.event(entity,"house","a {} moved in at {} (entrance {})",reimu?"house reimu":"house marisa",
+                den.site().toShortString(),den.entrance());
         return entity;
     }
     /** The hidden corner nearest the debris, found within 8 blocks of it (not only on the floor around the person who made it). */
@@ -434,7 +458,7 @@ public final class HouseholdEcology {
         }
         return blocked>=sides&&blocked<=3;
     }
-    /** Any person who can see the point (players or villagers within range, with a clear line). */
+    /** A nearby player with a clear sightline can see the point. */
     public static boolean watched(ServerLevel level,Vec3 point,double range){
         for(var player:level.players()){
             if(player.isSpectator()||player instanceof FakePlayer||player.distanceToSqr(point)>range*range)continue;
@@ -496,19 +520,26 @@ public final class HouseholdEcology {
     }
     /** A small local ground search keeps output on reachable floors rather than through adjacent room walls. */
     private static Set<BlockPos> reachable(ServerLevel level,BlockPos origin,int radius){
+        return reachable(level,origin,radius,pos->walkable(level,pos));
+    }
+    private static Set<BlockPos> reachable(ServerLevel level,BlockPos origin,int radius,Predicate<BlockPos> floor){
         var result=new LinkedHashSet<BlockPos>();var queue=new ArrayDeque<BlockPos>();var visited=new HashSet<BlockPos>();
-        for(int dy:HEIGHT_OFFSETS){var start=origin.offset(0,dy,0);if(walkable(level,start)){queue.add(start);visited.add(start);break;}}
+        for(int dy:HEIGHT_OFFSETS){var start=origin.offset(0,dy,0);if(floor.test(start)){queue.add(start);visited.add(start);break;}}
         while(!queue.isEmpty()){
             var pos=queue.removeFirst();result.add(pos);
             for(var direction:Direction.Plane.HORIZONTAL)for(int dy:HEIGHT_OFFSETS){
                 var next=pos.relative(direction).offset(0,dy,0);
                 int dx=next.getX()-origin.getX(),dz=next.getZ()-origin.getZ();
                 if(dx*dx+dz*dz>radius*radius||Math.abs(next.getY()-origin.getY())>1||visited.contains(next))continue;
-                if(!walkable(level,next)||dy>0&&!clear(level,pos.above())||dy<0&&!clear(level,next.above()))continue;
+                if(!floor.test(next)||dy>0&&!clear(level,pos.above())||dy<0&&!clear(level,next.above()))continue;
                 visited.add(next);queue.addLast(next);
             }
         }
         return result;
+    }
+    private static boolean activityFloor(ServerLevel level,BlockPos pos){
+        return walkable(level,pos)||level.isInWorldBounds(pos)&&SupplyPiles.supported(level,pos)
+                &&level.getBlockState(pos).is(BlockTags.WOOL_CARPETS)&&clear(level,pos.above());
     }
     private static boolean walkable(ServerLevel level,BlockPos pos){return clear(level,pos)&&SupplyPiles.supported(level,pos);}
     private static boolean clear(ServerLevel level,BlockPos pos){
