@@ -7837,7 +7837,7 @@ next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 def _struck_speech(window):
     events = {'FLEE': ('hurt_flee',), 'FREEZE': ('hurt_freeze',), 'PUFF_FIGHT': ('hurt_defy', 'puff'),
               'PLEAD': ('hurt_tame_plea',), 'ENDURE': ('hurt_endure',)}
-    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* identity=(\w+) dialogue=(\S*)', window)
+    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* identity=(\w+) [^\n]*?dialogue=(\S*)', window)
     if not strikes:
         return 'Missing struck stance and spoken line'
     for actor, tick, stance, identity, key in strikes:

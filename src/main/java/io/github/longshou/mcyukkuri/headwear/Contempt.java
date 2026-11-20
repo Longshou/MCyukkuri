@@ -152,7 +152,7 @@ public final class Contempt {
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
         if (!SettlementSociety.sparesHatlessBlame(observer, target)) target.groupInteraction().defense().provoke(observer);
-        suffer(target, observer, "teary", 80, SCORNED, "scorned", SettlementSociety.sameGroup(observer, target));
+        suffer(target, observer, "teary", 80, SCORNED, "scorned", true);
         GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
                 target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
         return AFTER_SCORN + observer.getRandom().nextInt(200);
@@ -181,11 +181,13 @@ public final class Contempt {
      * The face and line of the one being scorned or bullied, with exactly {@code unease} added: the line is only spoken, so
      * the reaction event's own unease (MindLife.felt) is not added on top.
      */
-    private static void suffer(YukkuriEntity target, YukkuriEntity source, String face, int ticks, float unease, String cause, boolean pitPressure) {
+    private static void suffer(YukkuriEntity target, YukkuriEntity source, String face, int ticks, float unease, String cause, boolean scorned) {
         if (!target.isAlive()) return;
+        boolean sameGroup = SettlementSociety.sameGroup(source, target);
+        boolean pitPressure = scorned && sameGroup;
         if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
         if (!target.groupInteraction().defense().active() && !target.isPanicking() && target.showReaction(face, "", ticks)) {
-            String line = ReactionSpeech.contempt(pitPressure && target.getRandom().nextInt(3) == 0);
+            String line = ReactionSpeech.contempt(sameGroup && (!scorned || target.getRandom().nextInt(3) == 0));
             if (!line.isEmpty()) {
                 target.getLookControl().setLookAt(source, 30, 30);
                 target.speak(line);

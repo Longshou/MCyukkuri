@@ -62,7 +62,7 @@ public final class Consumables {
         if(!entity.level().isClientSide){
             if(!InteractionDispatch.requireHarmContact(player,entity,3,"dose"))return InteractionResult.FAIL;
             if(!entity.life().beginDose(stack.copyWithCount(1),player.getUUID(),!player.getAbilities().instabuild&&bottled(stack))){
-                entity.showReaction("cheek_puff","",60);
+                entity.showReaction("cheek_puff","refuse",60);
                 InteractionDispatch.refuse(player,entity,"dose","condition");
                 return InteractionResult.FAIL;
             }

@@ -16204,7 +16204,9 @@
       "chinese": "篮子先生！不进去哟！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -16221,7 +16223,7 @@
       "chinese": "好可怕！不想进去哦！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -16442,7 +16444,9 @@
       "chinese": "篮子鲜笋！窝噗进去哟！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -16459,7 +16463,7 @@
       "chinese": "好怕惹哟！不想进去惹哟！",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -16680,7 +16684,9 @@
       "chinese": "篮子先生！不进去贼！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -16697,7 +16703,7 @@
       "chinese": "才、才不怕贼！但就是不进去贼！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -16918,7 +16924,9 @@
       "chinese": "篮子鲜笋！窝噗进去惹杰！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -16935,7 +16943,7 @@
       "chinese": "好怕惹杰！不想进去惹杰！",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -17156,7 +17164,9 @@
       "chinese": "篮子先生！不进去哇！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -17173,7 +17183,7 @@
       "chinese": "好怕哇……不想进去……",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -17394,7 +17404,9 @@
       "chinese": "篮子鲜笋！窝噗进去哇！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -17411,7 +17423,7 @@
       "chinese": "好怕哇……不想进去……",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -17632,7 +17644,9 @@
       "chinese": "篮子先生！不进去哟——！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -17649,7 +17663,7 @@
       "chinese": "好怕哟——！不想进去哟——！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -17870,7 +17884,9 @@
       "chinese": "篮子鲜笋！窝噗进去哟——！",
       "english": "Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -17887,7 +17903,7 @@
       "chinese": "好怕哟——！不想进去哟——！",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -18108,7 +18124,9 @@
       "chinese": "姆啾。篮子先生！不进去哇！",
       "english": "Mukyu. Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -18125,7 +18143,7 @@
       "chinese": "姆啾……好怕。不想进去……",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -18346,7 +18364,9 @@
       "chinese": "姆啾。篮子鲜笋！窝噗进去哇！",
       "english": "Mukyu. Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -18363,7 +18383,7 @@
       "chinese": "姆啾……好怕。不想进去……",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -18584,7 +18604,9 @@
       "chinese": "呜——篮子先生！不进去呀！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -18601,7 +18623,7 @@
       "chinese": "呜——，好怕呀！不进去呀！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -18873,7 +18895,9 @@
       "chinese": "呜——篮子鲜笋！窝噗进去呀！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -18890,7 +18914,7 @@
       "chinese": "呜——，好怕呀！不想进去呀！",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -19162,7 +19186,9 @@
       "chinese": "呜——篮子先生！不进去哦！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -19179,7 +19205,7 @@
       "chinese": "呜——，好怕！不想进去！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {
@@ -19451,7 +19477,9 @@
       "chinese": "呜——篮子鲜笋！窝噗进去哟！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse",
+        "basket_refuse_guarded",
+        "basket_refuse_defiant"
       ],
       "origin": "project-original",
       "source": {
@@ -19468,7 +19496,7 @@
       "chinese": "呜——，好怕！不想进去！",
       "english": "Scary! Don't wanna go in!",
       "events": [
-        "basket_refuse"
+        "basket_refuse_guarded"
       ],
       "origin": "project-original",
       "source": {

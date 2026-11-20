@@ -232,7 +232,7 @@ final class YukkuriGoals {
             if (HomeClaim.declaring(owner)) SurfaceApproach.halt(owner);
         }
         @Override public void stop() {
-            if (HomeClaim.declaring(owner) && !homeTerritory.active()) owner.cancelReaction();
+            if (!homeTerritory.active()) HomeClaim.interruptDeclaration(owner);
         }
     }
     private final class ShellGoal extends Goal {

@@ -11166,7 +11166,9 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 57,
     "sound": "voice.original.reimu.adult.o_basket_refuse"
@@ -11178,7 +11180,7 @@
     "species": "reimu",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 55,
     "sound": "voice.original.reimu.adult.o_basket_refuse2"
@@ -11334,7 +11336,9 @@
     "species": "reimu",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 49,
     "sound": "voice.original.reimu.young.o_basket_refuse"
@@ -11346,7 +11350,7 @@
     "species": "reimu",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 50,
     "sound": "voice.original.reimu.young.o_basket_refuse2"
@@ -11502,7 +11506,9 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 57,
     "sound": "voice.original.marisa.adult.o_basket_refuse"
@@ -11514,7 +11520,7 @@
     "species": "marisa",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_defiant"
     ],
     "ticks": 92,
     "sound": "voice.original.marisa.adult.o_basket_refuse2"
@@ -11670,7 +11676,9 @@
     "species": "marisa",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 49,
     "sound": "voice.original.marisa.young.o_basket_refuse"
@@ -11682,7 +11690,7 @@
     "species": "marisa",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 53,
     "sound": "voice.original.marisa.young.o_basket_refuse2"
@@ -11838,7 +11846,9 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 60,
     "sound": "voice.original.alice.adult.o_basket_refuse"
@@ -11850,7 +11860,7 @@
     "species": "alice",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 57,
     "sound": "voice.original.alice.adult.o_basket_refuse2"
@@ -12006,7 +12016,9 @@
     "species": "alice",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 52,
     "sound": "voice.original.alice.young.o_basket_refuse"
@@ -12018,7 +12030,7 @@
     "species": "alice",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 51,
     "sound": "voice.original.alice.young.o_basket_refuse2"
@@ -12174,7 +12186,9 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 48,
     "sound": "voice.original.chen.adult.o_basket_refuse"
@@ -12186,7 +12200,7 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 52,
     "sound": "voice.original.chen.adult.o_basket_refuse2"
@@ -12342,7 +12356,9 @@
     "species": "chen",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.young.o_basket_refuse"
@@ -12354,7 +12370,7 @@
     "species": "chen",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 45,
     "sound": "voice.original.chen.young.o_basket_refuse2"
@@ -12510,7 +12526,9 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 94,
     "sound": "voice.original.patchouli.adult.o_basket_refuse"
@@ -12522,7 +12540,7 @@
     "species": "patchouli",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 92,
     "sound": "voice.original.patchouli.adult.o_basket_refuse2"
@@ -12678,7 +12696,9 @@
     "species": "patchouli",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 80,
     "sound": "voice.original.patchouli.young.o_basket_refuse"
@@ -12690,7 +12710,7 @@
     "species": "patchouli",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 77,
     "sound": "voice.original.patchouli.young.o_basket_refuse2"
@@ -12846,7 +12866,9 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 83,
     "sound": "voice.original.remilia.adult.o_basket_refuse"
@@ -12858,7 +12880,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 81,
     "sound": "voice.original.remilia.adult.o_basket_refuse2"
@@ -13050,7 +13072,9 @@
     "species": "remilia",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 69,
     "sound": "voice.original.remilia.young.o_basket_refuse"
@@ -13062,7 +13086,7 @@
     "species": "remilia",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 72,
     "sound": "voice.original.remilia.young.o_basket_refuse2"
@@ -13254,7 +13278,9 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 61,
     "sound": "voice.original.flandre.adult.o_basket_refuse"
@@ -13266,7 +13292,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 56,
     "sound": "voice.original.flandre.adult.o_basket_refuse2"
@@ -13458,7 +13484,9 @@
     "species": "flandre",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 53,
     "sound": "voice.original.flandre.young.o_basket_refuse"
@@ -13470,7 +13498,7 @@
     "species": "flandre",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse_guarded"
     ],
     "ticks": 49,
     "sound": "voice.original.flandre.young.o_basket_refuse2"
@@ -62588,7 +62616,9 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 74,
     "sound": "voice.original.myon.miyo.adult.s_basket_refuse",
@@ -62601,7 +62631,9 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 62,
     "sound": "voice.original.myon.miyo.young.s_basket_refuse",
@@ -67272,7 +67304,9 @@
     "species": "myon",
     "age": "adult",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 79,
     "sound": "voice.original.myon.kinbao.adult.s_basket_refuse",
@@ -67285,7 +67319,9 @@
     "species": "myon",
     "age": "young",
     "events": [
-      "basket_refuse"
+      "basket_refuse",
+      "basket_refuse_guarded",
+      "basket_refuse_defiant"
     ],
     "ticks": 67,
     "sound": "voice.original.myon.kinbao.young.s_basket_refuse",

@@ -751,6 +751,8 @@ def main():
             for tier, frame in tiers.items():
                 ctx = {lang: dict(t=tic[i], c=cry[i]) for i, lang in enumerate(('jp', 'zh', 'en'))}
                 make(key, tier, event, frame, ctx, lines, MYON_BASIS)
+                if event == 'basket_refuse':
+                    lines[-1]['events'].extend(['basket_refuse_guarded', 'basket_refuse_defiant'])
     for event, tiers in KOTATSU.items():
         for tier, frame in tiers.items():
             make('marisa', tier, event, frame, {lang: {} for lang in ('jp', 'zh', 'en')}, lines, KOTATSU_BASIS)

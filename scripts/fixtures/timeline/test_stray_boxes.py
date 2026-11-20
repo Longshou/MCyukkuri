@@ -20,7 +20,7 @@ ANSWER = f'found beckon answered child={CHILD} after=2'
 
 def verify(events, stance='FLEE'):
     cry = 'wounded' if stance == 'FLEE' else 'hurt_freeze'
-    window = (f'[threat] reimu uuid={CHILD} t=5 dim=test struck stance={stance} exit=true duration=45 dialogue=cry\n'
+    window = (f'[threat] reimu uuid={CHILD} t=5 dim=test struck stance={stance} exit=true identity=stray duration=45 dialogue=cry\n'
               f'[speech] reimu uuid={CHILD} t=5 dim=test line event={cry} key=cry')
     if stance == 'FLEE':
         rows = [record('st', t, actor, st={'p': [x, 0, 0], 'behavior': 'flee'}) for t, child_x in ((6, 0), (7, 1))

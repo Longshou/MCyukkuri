@@ -386,7 +386,7 @@ public final class HomeClaim {
                 || action == YukkuriAction.PROUD && body.reactingTo("home_declare");
     }
 
-    static void interruptDeclaration(YukkuriEntity body) {
+    public static void interruptDeclaration(YukkuriEntity body) {
         if (declaring(body)) {
             body.cancelReaction();
             body.interruptSpeech();

@@ -42998,7 +42998,9 @@
    "age": "adult",
    "quirk": "miyo",
    "events": [
-    "basket_refuse"
+    "basket_refuse",
+    "basket_refuse_guarded",
+    "basket_refuse_defiant"
    ],
    "japanese": "みょん！ かごさん！ いや、いや！",
    "chinese": "咪呦！篮子先生！不要、不要！",
@@ -43012,7 +43014,9 @@
    "age": "young",
    "quirk": "miyo",
    "events": [
-    "basket_refuse"
+    "basket_refuse",
+    "basket_refuse_guarded",
+    "basket_refuse_defiant"
    ],
    "japanese": "みょん！ かごしゃん！ やー、やー！",
    "chinese": "咪呦！篮子鲜笋！噗要、噗要！",
@@ -48042,7 +48046,9 @@
    "age": "adult",
    "quirk": "kinbao",
    "events": [
-    "basket_refuse"
+    "basket_refuse",
+    "basket_refuse_guarded",
+    "basket_refuse_defiant"
    ],
    "japanese": "ちーんぽ！ かごさん！ いや、いや！",
    "chinese": "金寶！篮子先生！不要、不要！",
@@ -48056,7 +48062,9 @@
    "age": "young",
    "quirk": "kinbao",
    "events": [
-    "basket_refuse"
+    "basket_refuse",
+    "basket_refuse_guarded",
+    "basket_refuse_defiant"
    ],
    "japanese": "ちーんぽ！ かごしゃん！ やー、やー！",
    "chinese": "金寶！篮子鲜笋！噗要、噗要！",

@@ -103,9 +103,9 @@ final class StruckResponse implements MotorOwner {
                 }
             }
         }
-        GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} duration={} identity={} dialogue={}",
-                choice, danger.getUUID(), loss, inputs.exitOpen(), choice == StruckStance.FLEE ? body.newbornStage() ? 96 : 104 : until - start,
-                id.id(), body.getDialogueKey());
+        GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} identity={} duration={} dialogue={}",
+                choice, danger.getUUID(), loss, inputs.exitOpen(), id.id(),
+                choice == StruckStance.FLEE ? body.newbornStage() ? 96 : 104 : until - start, body.getDialogueKey());
         return choice;
     }
 
