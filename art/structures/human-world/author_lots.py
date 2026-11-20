@@ -160,7 +160,9 @@ def resident(b, x, y, z, kind, attitude, local=False, yard_owner=False):
     extra = {'HumanJob': integer(0), 'HumanAttitude': integer(attitude)}
     if local: extra['Tags'] = sequence(8, ['mcy_street_local'])
     if yard_owner: extra['Tags'] = sequence(8, ['mcy_yard_owner'])
-    b.entity(x + .5, y, z + .5, f'mcyukkuri:{kind}', extra)
+    # A wool carpet's collision top is one model unit above its block origin.
+    feet = y + 1 / 16 if name_at(b, x, y, z).endswith('_carpet') else y
+    b.entity(x + .5, feet, z + .5, f'mcyukkuri:{kind}', extra)
 
 
 def relative(origin, target):
