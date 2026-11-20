@@ -16,6 +16,7 @@
 | 徽章会馆：佩章者在广场相遇（包 C） | `.worktrees/wp-badge-plaza` | human/TownMarkers.java, headwear badge reactions |
 | 街道：居民把满的垃圾桶搬到街角（街头买卖包 3） | `.worktrees/wp-bin-corner` | human/VillageBin.java, human/GarbageBinBlock*, human/HumanNpc.java |
 | SP-13 家庭房只分到一只同窝的窝（main 上失败） | `.worktrees/wp-kin-nest` | life/LifeHome.java (shared nest assignment) |
+| PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
 
 ## 玩法待办
 
