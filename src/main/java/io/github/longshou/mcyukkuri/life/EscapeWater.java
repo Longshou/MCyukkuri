@@ -293,12 +293,16 @@ public final class EscapeWater implements Intent {
 
     /** The nearest edge the body can climb now: within its climb rise, landing clear, not avoided, reached through the water. */
     private Edge climbable() {
-        double rise = BodyAbility.of(body).climbRise();
-        for (var land : stands()) {
-            var pos = pathCell(land);
-            if (land.y - body.getY() > rise || avoid.containsKey(pos)) continue;
-            Edge edge = edge(pos, land);
-            if (edge != null && route(pos)) return edge;
+        var ability = BodyAbility.of(body);
+        // An edge within the plain climb first; failing that, a higher one it can strain over (a hop and a hook of the braid, which
+        // costs energy), so a body fallen from a bank does not press against the wall it cannot pull up the plain way.
+        for (double rise : new double[]{ability.climbRise(), ability.scrambleRise()}) {
+            for (var land : stands()) {
+                var pos = pathCell(land);
+                if (land.y - body.getY() > rise || avoid.containsKey(pos)) continue;
+                Edge edge = edge(pos, land);
+                if (edge != null && route(pos)) return edge;
+            }
         }
         return null;
     }

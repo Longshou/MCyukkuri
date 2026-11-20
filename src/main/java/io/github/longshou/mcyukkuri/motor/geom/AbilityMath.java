@@ -98,6 +98,16 @@ public final class AbilityMath {
                 in.adultOrCanJump() ? c.climbRise() * size * (c.climbFloor() + (1 - c.climbFloor()) * fitness) : 0, fitness);
     }
 
+    /** Share of a body's hop and its pull-up together that a strained scramble over a ledge can make good: a spring and a hook
+     *  of the braid, not a full spring and a full pull. For a reference adult (hop 0.8, climb 0.75) at ordinary fitness it just
+     *  clears one block; a small or worn body falls short. Never less than the plain climb. */
+    public static final double SCRAMBLE_SHARE = .8;
+
+    /** The highest ledge (blocks) a body can strain over from the foot or from the water: pure function of its hop and climb rises. */
+    public static double scrambleRise(double hopHeight, double climbRise) {
+        return Math.max(climbRise, SCRAMBLE_SHARE * (hopHeight + climbRise));
+    }
+
     public static double fitness(double energy, double health, double maxHealth, double pain, boolean burned,
                                  Coefficients c, Multipliers m) {
         double stamina = Math.clamp(energy / (c.energyRef() * m.factor("energy_ref")), 0, 1);

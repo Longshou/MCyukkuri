@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.intent.Drive;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.life.AgitationLife;
 import io.github.longshou.mcyukkuri.life.EscapeWater;
+import io.github.longshou.mcyukkuri.life.LedgeScramble;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -110,6 +111,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
+        // A hungry body shut in by water and a ledge above its hop strains over the ledge (life/LedgeScramble); above the forage errands.
+        goalSelector.addGoal(3, new LedgeScramble.ScrambleGoal(owner));
         goalSelector.addGoal(TrystGoal.PRIORITY, landBinding(PresentationGoals.TRYST, new TrystGoal(owner)));
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));

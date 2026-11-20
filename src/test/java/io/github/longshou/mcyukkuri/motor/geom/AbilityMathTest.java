@@ -19,6 +19,17 @@ class AbilityMathTest {
         }
     }
 
+    @Test void rested_adult_strains_over_a_full_block_but_a_small_or_worn_body_does_not() {
+        var adultV = adult(AbilityMath.Inputs.ADULT);
+        assertTrue(AbilityMath.scrambleRise(adultV.hopHeight(), adultV.climbRise()) >= 1.0);
+        var small = adult(adultWith(.25, 80, 20, 0, false, true, false, false, 0));
+        assertTrue(AbilityMath.scrambleRise(small.hopHeight(), small.climbRise()) < 1.0);
+        var worn = adult(adultWith(1, 10, 20, 0, false, true, false, false, 0));
+        assertTrue(AbilityMath.scrambleRise(worn.hopHeight(), worn.climbRise()) < 1.0);
+        // never below the plain climb, even when it cannot hop
+        assertEquals(.75, AbilityMath.scrambleRise(0, .75), EPS);
+    }
+
     private static final double EPS = 1e-9;
     private static final AbilityMath.Coefficients C = AbilityMath.Coefficients.DEFAULTS;
     private static final AbilityMath.Multipliers NONE = AbilityMath.Multipliers.IDENTITY;

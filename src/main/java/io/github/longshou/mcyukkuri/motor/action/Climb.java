@@ -26,6 +26,8 @@ public final class Climb implements Action {
     private static final String CLIP = "water_hat_climb";
     /** Blocks a tick a held host may move; degrees of tilt a full grip holds; blocks of clearance over the edge; blocks a pull may lag its path before it has lost the edge. */
     private static final double HOST_SPEED = .1, GRIP_ANGLE = 45, CLEAR = .05, HOLD = .3;
+    /** Energy a strained scramble over a bank edge above the plain climb rise costs (a stroke of Beckon costs 1; a hop 1): paid at the start. */
+    public static final float STRAIN_COST = 5;
 
     private final SurfaceHost host;
     private BodyAbility ability;
@@ -60,8 +62,12 @@ public final class Climb implements Action {
         String slip = slip();
         if (slip != null) return Feasibility.of(Reason.SLIPPED, 0, slip);
         rise = grip.y - body.getY();
-        if (rise > ability.climbRise())
-            return Feasibility.of(Reason.TOO_HIGH, rise - ability.climbRise(), String.format(Locale.ROOT, "rise=%.2f climbRise=%.2f", rise, ability.climbRise()));
+        // A bank edge between the plain climb and the strained scramble (hop and braid hook) costs energy a spent body lacks.
+        double reach = host == null ? ability.scrambleRise() : ability.climbRise();
+        if (rise > reach)
+            return Feasibility.of(Reason.TOO_HIGH, rise - reach, String.format(Locale.ROOT, "rise=%.2f climbRise=%.2f scrambleRise=%.2f", rise, ability.climbRise(), ability.scrambleRise()));
+        if (host == null && rise > ability.climbRise() && body.life().energy() < STRAIN_COST)
+            return Feasibility.of(Reason.EXHAUSTED, 0, String.format(Locale.ROOT, "energy=%.1f strain=%.1f", body.life().energy(), STRAIN_COST));
         if (host != null) {
             edge = host.frame().toLocal(grip);
             // A hull this body's own boarding would overload flips her straight back: it is no way out (the captain included).
@@ -90,6 +96,13 @@ public final class Climb implements Action {
         from = host == null ? body.position() : host.frame().toLocal(body.position());
         top = Math.max(edge.y, stand.y) + CLEAR / (host == null ? 1 : host.frame().unit());
         body.speakCue("self_rescue_grip");
+        if (host == null && rise > ability.climbRise()) {
+            body.life().spendEnergy(STRAIN_COST);
+            body.showReaction("puff_teary", null, pullEnd);
+            GameplayLog.event(body, "move", "scramble strain rise={} climbRise={} scrambleRise={} energy={}",
+                    String.format(Locale.ROOT, "%.2f", rise), String.format(Locale.ROOT, "%.2f", ability.climbRise()),
+                    String.format(Locale.ROOT, "%.2f", ability.scrambleRise()), String.format(Locale.ROOT, "%.1f", body.life().energy()));
+        }
     }
 
     @Override public Progress tick(YukkuriEntity body) {

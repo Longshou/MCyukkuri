@@ -68,6 +68,9 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
         return body.getDeltaMovement().multiply(1, 0, 1).scale(1 / (friction * Ballistic.AIR_DRAG));
     }
 
+    /** The highest bank or ledge it can strain over by a hop and a hook of the braid (see {@link AbilityMath#scrambleRise}). */
+    public double scrambleRise() { return AbilityMath.scrambleRise(hopHeight, climbRise); }
+
     public double runningReach(double groundSpeed, double rise) {
         return ArcSolver.runningReach(hopHeight, hopReach, groundSpeed, rise, hopSpeed);
     }
