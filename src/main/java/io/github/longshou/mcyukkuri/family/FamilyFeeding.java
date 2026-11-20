@@ -160,7 +160,7 @@ final class FamilyFeeding {
     }
 
     boolean hungryOwnChild(YukkuriEntity child) {
-        return (!o.entity().getVariant().isPredator() || child.family().needsMash()
+        return (!o.entity().getVariant().isPredator() || o.entity().status().identity().wild() && child.family().needsMash()
                 && (!carrying().isEmpty() || o.entity().predator().careSource(child) != null))
                 &&child!=o.entity()&&child.isAlive()&&!child.family().adult()&&!child.family().awaitingLanding()
                 &&o.caresFor(child)&&o.entity().life().canRecognize(child)&&child.life().canReceiveCareFood()

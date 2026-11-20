@@ -2377,21 +2377,28 @@ def _tree_family(sid, height, feeding):
               f'yukkuri scenario home {sel("mother")} ~ ~{height} ~']
     if feeding:
         actors.append(yk('flandre', -2, 0, 'father', dy=height, uuid=father, kin=kin_of(Partner=mother)))
+    resident = '@e[tag=scn_mother,distance=..48,limit=1,nbt={YukkuriLife:{NaturalHome:0b,HomeDimension:"minecraft:overworld"}}]'
+    young = []
     for name, offset, boldness in [('bold', -.22, 85), ('timid', .22, 25)]:
-        actors.append(yk('remilia', offset, -.22 if feeding else .12, name, dy=height+.15,
-                         stage='baby' if feeding else 'child', share=0 if feeding else .44,
-                         uuid=uid(sid, name), kin=young_kin, boldness=boldness, nutrition=24 if feeding else 92,
-                         childhood=None if feeding else 'WingPractice:0.45d'))
-    return actors
+        child = yk('remilia', offset, -.22 if feeding else .12, name, dy=height+.15,
+                   stage='baby' if feeding else 'child', share=0 if feeding else .44,
+                   uuid=uid(sid, name), kin=young_kin, boldness=boldness, nutrition=24 if feeding else 92,
+                   childhood=None if feeding else 'WingPractice:0.45d')
+        young.append(Retry(child, resident, first=5, tries=1))
+    return actors, young
+
+
+_feeding_parents, _feeding_young = _tree_family('pred_nest_feeding', 6, True)
+_fledge_parent, _fledge_young = _tree_family('pred_fledging', 7, False)
 
 
 add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小猎物回枝巢，赤油在巢里吃糜',
     '从坡上看树下的幼小遗体与枝巢上的两只赤油。看亲油在哪里叼起猎物、从哪边着枝、放下后怎样嚼糜对嘴喂食',
-    '约一至两分钟', [*_tree_family('pred_nest_feeding', 6, True),
+    '约一至两分钟', [*_feeding_parents,
                    remains(4.41, 4, 'small_prey', age='juvenile', scale=.4, dimensions=(.30, .138), food=3, capacity=3),
                    yk('reimu', 9, 6, 'forager', stage='child', childhood=CHILDHOOD_CRAWLING_READY)],
     spot='spawn', vantage=(7, 8, 150, 4), env={'time': 'dawn'},
-    late=[Retry(set_status('mother', 'needs.nutrition', 65), sel('mother'), first=40, tries=1)],
+    late=[*_feeding_young, Retry(set_status('mother', 'needs.nutrition', 65), sel('timid'), first=40, tries=1)],
     reads=[('读亲油口中猎物', f'yukkuri status {sel("mother")} raw'), ('读赤油进食', f'yukkuri status {sel("bold")} raw')],
     smoke=dict(ticks=2100, forbid=[], expect=[r'prey lifted remains=', r'prey carried to nest child=', r'feed portion from prey ',
                                   r'feed mash prepared child=', r'feed handed to meal child=',
@@ -2399,7 +2406,7 @@ add('pred_nest_feeding', 'grove', '育雏：叼小猎物回巢', '亲油叼小�
 
 add('pred_fledging', 'grove', '雏鸟学飞：扑翅、跳枝、首飞', '枝巢里的两只子油试着起飞',
     '七格高的巢垫上，两只子油已有同样的练习进度。看大胆的一只何时离枝、胆小的一只还练多久；失足后观察亲油是否落到树下守护',
-    '约一至两分钟', _tree_family('pred_fledging', 7, False),
+    '约一至两分钟', _fledge_parent, late=_fledge_young,
     spot='spawn', vantage=(7, 8, 145, 2), env={'time': 'dawn'},
     reads=[('读大胆子油', f'yukkuri status {sel("bold")} raw'), ('读胆小子油', f'yukkuri status {sel("timid")} raw')],
     smoke=dict(ticks=2000, forbid=[], expect=[r'fledge flap progress=', r'fledge hop progress=',

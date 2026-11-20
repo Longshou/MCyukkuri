@@ -507,7 +507,9 @@ public final class PredatorLife implements EcologyRoutine {
         if (!(animal.level() instanceof ServerLevel level) || !EcologyRoutines.predator(animal) || !animal.isAlive()) {
             cancelNestSearch(); return Result.NOT_FOUND;
         }
-        if (animal.life().homeStand() != null) { cancelNestSearch(); return Result.NOT_FOUND; }
+        if (animal.life().homeStand() != null || !animal.family().adult() && !animal.family().subadult()) {
+            cancelNestSearch(); return Result.NOT_FOUND;
+        }
         if (naturalSpawn || task == Task.FOUND || nestBuild.wantsSurvey()) { cancelNestSearch(); return Result.DEFERRED; }
         if (nestSearch != null && !nestSearch.current(level, animal)) cancelNestSearch();
         if (nestSearch == null) nestSearch = new PredatorNestSearch(level, animal, false);
@@ -696,6 +698,8 @@ public final class PredatorLife implements EcologyRoutine {
         }
         return null;
     }
+
+    public boolean rearing() { return animal.getVariant().isPredator() && provisionChild()!=null; }
 
     private YukkuriEntity provisionChild() {
         var home = broodPad();
