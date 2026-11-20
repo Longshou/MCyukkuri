@@ -29,11 +29,10 @@ import io.github.longshou.mcyukkuri.rare.MyonLife;
 
 /**
  * Finite wild food: one reachable plant becomes one real meal, subject to mob griefing. Searches are staggered per
- * animal, share the server-wide {@link SearchBudget}, test at most three paths, and reserve their tuft through
- * {@link ForageClaims}, so a whole colony never rushes the same plant in the same tick.
+ * animal, share the server-wide {@link SearchBudget}, test a hunger-driven number of paths, and reserve their tuft
+ * through {@link ForageClaims}, so a whole colony never rushes the same plant in the same tick.
  */
 public final class ForageGoal extends Goal {
-    private static final int MAX_PATH_TESTS = 3;
     private final YukkuriEntity entity;
     private BlockPos target;
     private BlockPos searchSpot;
@@ -154,7 +153,7 @@ public final class ForageGoal extends Goal {
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
                     || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;
-            if (++tests > HungerDrive.sweepAttempts(entity.life().nutrition()) - 3 + MAX_PATH_TESTS) break;
+            if (++tests > HungerDrive.sweepAttempts(entity.life().nutrition())) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());
                 if (claim != null) { target = pos; break; }

@@ -369,10 +369,11 @@ public final class HouseLife implements EcologyRoutine {
             if (sourceAvailable()) return start(Phase.NONE);
             feeding = false;
             // No food in the nest and none in reach: a hungry resident goes out and looks farther rather than lying in its nest.
-            if (outingAllowed() && scoutAllowed()) {
+            // A resident with no nest of its own keeps its own plan without one (a den's corner, or nothing to fetch).
+            if (value != null && value.usable(entity) && outingAllowed() && scoutAllowed()) {
                 entity.showReaction("teary", "hungry", 60);
                 clearSource();
-                if (value != null && physicallyInside()) return start(Phase.LEAVE);
+                if (physicallyInside()) return start(Phase.LEAVE);
                 scoutTarget = null; return start(Phase.SCOUT);
             }
         }

@@ -1113,7 +1113,8 @@ public final class YukkuriLife {
                 else {
                     unreachable++;
                     // Seen and refused: the search goes on to other food and farther ground instead of re-asking this item every plan.
-                    if (canCollect) rejectedFood.reject(item.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
+                    // Food behind glass is not refused: the press at the window is its own real route.
+                    if (canCollect && glassFood != item) rejectedFood.reject(item.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
                 }
             }
             if (canCollect && targetFood == null && !offered.isEmpty()) GameplayLog.limited(entity, "meal", "food_plan_refused", 400,
