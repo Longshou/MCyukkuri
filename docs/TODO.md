@@ -20,6 +20,7 @@
 | 村会馆柜台：徽章登记、补发与讲台观看 | `.worktrees/wp-badge-counter` | human/HumanNpc.java (counter role), pet/exam/ExamMenu.java, pet/exam/ExamHall.java, author_civic.py |
 | 小卖亭买卖，流浪在售货口讨要被店主驱赶 | `.worktrees/wp-kiosk-trade` | human retail (ProduceCrateBlock, HumanFolk), street encounters |
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
+| 性能：伤口与穿戴渲染（首次受伤卡顿） | `.worktrees/wp-perf-wounds` | client/HairWoundRenderer.java, client/WoundRenderer.java |
 
 ## 玩法待办
 
