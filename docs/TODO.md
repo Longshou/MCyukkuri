@@ -19,6 +19,7 @@
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
 | FG-08 判定时机与代码决策不一致 | `.worktrees/wp-fg08-verifier` | scripts/museum_scenarios.py (stray_boxes verifier) |
 | 夜市：油库里之间以物易物（街头买卖包 4） | `.worktrees/wp-night-barter` | social/ peer barter goal, motor/MouthOccupancy.java, life/LifeMeal.java |
+| 嘴里叼着巢料时又咬一口草（嘴部占用两个权威） | `.worktrees/wp-mouth-two` | motor/MouthOccupancy.java, settlement forage/habitat carry |
 
 ## 玩法待办
 
