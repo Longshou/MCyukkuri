@@ -92,7 +92,7 @@ public final class PunishmentReaction {
         var response = insult > Math.max(freeze, plead) ? Response.DEFIANT : plead > freeze ? Response.PLEAD : Response.FREEZE;
         target.interruptSpeech();
         target.getLookControl().setLookAt(other, 30, 30);
-        // Being carried off is not a blow: a plea asks not to be taken away, not to be spared.
+        // Being handed over is not a blow: a plea asks not to be taken away, not to be spared.
         target.forceReaction(response.action, response.face, switch (response) {
             case DEFIANT -> defiantLine;
             case PLEAD -> "handover_plea";

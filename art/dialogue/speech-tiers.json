@@ -59253,9 +59253,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ゆっ、ゆっ！ おろちて！ おろちて！",
-   "chinese": "油、油！放下窝！放下窝！",
-   "english": "Yu, yu! Put me down! Put me down!",
+   "japanese": "ゆっ、ゆっ！ おうち、かえりゅ！",
+   "chinese": "油、油！回家家！",
+   "english": "Yu, yu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -59295,9 +59295,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろちちぇ！ いかにゃいにぇ！",
-   "chinese": "放下窝！窝不去捏！",
-   "english": "Put me down! I am not going!",
+   "japanese": "やー！ おうちに かえりゅにぇ！",
+   "chinese": "不要！窝要回家捏！",
+   "english": "No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -59337,9 +59337,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろして！ いかないよ！",
-   "chinese": "放下！灵梦不去哦！",
-   "english": "Put me down! I am not going!",
+   "japanese": "いや！ おうちに かえるよ！",
+   "chinese": "不要！灵梦要回家哦！",
+   "english": "No! Reimu wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -60161,9 +60161,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ゆっ、ゆっ！ おろちて！ おろちて！",
-   "chinese": "油、油！放下窝！放下窝！",
-   "english": "Yu, yu! Put me down! Put me down!",
+   "japanese": "ゆっ、ゆっ！ おうち、かえりゅ！",
+   "chinese": "油、油！回家家！",
+   "english": "Yu, yu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -60203,9 +60203,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろちちぇ！ いかにゃいのじぇ！",
-   "chinese": "放下窝！窝不去惹杰！",
-   "english": "Put me down! I am not going!",
+   "japanese": "やー！ おうちに かえりゅのじぇ！",
+   "chinese": "不要！窝要回家惹杰！",
+   "english": "No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -60245,9 +60245,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろして！ いかないのぜ！",
-   "chinese": "放下！魔理沙不去贼！",
-   "english": "Put me down! I am not going!",
+   "japanese": "いや！ おうちに かえるのぜ！",
+   "chinese": "不要！魔理沙要回家贼！",
+   "english": "No! Marisa wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -61069,9 +61069,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ゆっ、ゆっ！ おろちて！ おろちて！",
-   "chinese": "油、油！放下窝！放下窝！",
-   "english": "Yu, yu! Put me down! Put me down!",
+   "japanese": "ゆっ、ゆっ！ おうち、かえりゅ！",
+   "chinese": "油、油！回家家！",
+   "english": "Yu, yu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -61111,9 +61111,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろちちぇ！ いかにゃいにょ！",
-   "chinese": "放下窝！窝不去哟！",
-   "english": "Put me down! I am not going!",
+   "japanese": "やー！ おうちに かえりゅにょ！",
+   "chinese": "不要！窝要回家哟！",
+   "english": "No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -61153,9 +61153,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろして！ いかないわ！",
-   "chinese": "放下！爱丽丝不去呢！",
-   "english": "Put me down! I am not going!",
+   "japanese": "いや！ おうちに かえるわ！",
+   "chinese": "不要！爱丽丝要回家呢！",
+   "english": "No! Alice wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -61977,9 +61977,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ゆ、にゃっ！ おろちて！ おろちて！",
-   "chinese": "油、喵！放下窝！放下窝！",
-   "english": "Yu, nya! Put me down! Put me down!",
+   "japanese": "ゆ、にゃっ！ おうち、かえりゅ！",
+   "chinese": "油、喵！回家家！",
+   "english": "Yu, nya! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -62019,9 +62019,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろちちぇ！ いかにゃいよぅ！",
-   "chinese": "放下窝！窝不去哟——！",
-   "english": "Put me down! I am not going!",
+   "japanese": "やー！ おうちに かえりゅよぅ！",
+   "chinese": "不要！窝要回家哟——！",
+   "english": "No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -62061,9 +62061,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "おろして！ いかないよー！",
-   "chinese": "放下！橙不去哟——！",
-   "english": "Put me down! I am not going!",
+   "japanese": "いや！ おうちに かえるよー！",
+   "chinese": "不要！橙要回家哟——！",
+   "english": "No! Chen wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -62885,9 +62885,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "む、きゅっ！ おろちて！ おろちて！",
-   "chinese": "姆、啾！放下窝！放下窝！",
-   "english": "Mu, kyu! Put me down! Put me down!",
+   "japanese": "む、きゅっ！ おうち、かえりゅ！",
+   "chinese": "姆、啾！回家家！",
+   "english": "Mu, kyu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -62927,9 +62927,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "むきゅ。おろちちぇ！ いかにゃいわ！",
-   "chinese": "姆啾。放下窝！窝不去惹哇！",
-   "english": "Mukyu. Put me down! I am not going!",
+   "japanese": "むきゅ。やー！ おうちに かえりゅわ！",
+   "chinese": "姆啾。不要！窝要回家惹哇！",
+   "english": "Mukyu. No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -62969,9 +62969,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "むきゅ。おろして！ いかないわ！",
-   "chinese": "姆啾。放下！帕秋莉不去哇！",
-   "english": "Mukyu. Put me down! I am not going!",
+   "japanese": "むきゅ。いや！ おうちに かえるわ！",
+   "chinese": "姆啾。不要！帕秋莉要回家哇！",
+   "english": "Mukyu. No! Patchouli wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -63793,9 +63793,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、うー！ おろちて！ おろちて！",
-   "chinese": "呜——、呜——！放下窝！放下窝！",
-   "english": "Uu, uu! Put me down! Put me down!",
+   "japanese": "うー、うー！ おうち、かえりゅ！",
+   "chinese": "呜——、呜——！回家家！",
+   "english": "Uu, uu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -63835,9 +63835,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、おろちちぇ！ いかにゃいなのだ！",
-   "chinese": "呜——放下窝！窝不去呀！",
-   "english": "Uu... Put me down! I am not going!",
+   "japanese": "うー、やー！ おうちに かえりゅなのだ！",
+   "chinese": "呜——不要！窝要回家呀！",
+   "english": "Uu... No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -63877,9 +63877,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、おろして！ いかないのだ！",
-   "chinese": "呜——放下！蕾米莉亚不去呀！",
-   "english": "Uu... Put me down! I am not going!",
+   "japanese": "うー、いや！ おうちに かえるのだ！",
+   "chinese": "呜——不要！蕾米莉亚要回家呀！",
+   "english": "Uu... No! Remilia wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -64714,9 +64714,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、うー！ おろちて！ おろちて！",
-   "chinese": "呜——、呜——！放下窝！放下窝！",
-   "english": "Uu, uu! Put me down! Put me down!",
+   "japanese": "うー、うー！ おうち、かえりゅ！",
+   "chinese": "呜——、呜——！回家家！",
+   "english": "Uu, uu! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -64756,9 +64756,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、おろちちぇ！ いかにゃいよぅ！",
-   "chinese": "呜——放下窝！窝不去哦！",
-   "english": "Uu... Put me down! I am not going!",
+   "japanese": "うー、やー！ おうちに かえりゅよぅ！",
+   "chinese": "呜——不要！窝要回家哦！",
+   "english": "Uu... No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -64798,9 +64798,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "うー、おろして！ いかないよ！",
-   "chinese": "呜——放下！芙兰不去哦！",
-   "english": "Uu... Put me down! I am not going!",
+   "japanese": "うー、いや！ おうちに かえるよ！",
+   "chinese": "呜——不要！芙兰要回家哦！",
+   "english": "Uu... No! Flandre wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -65654,9 +65654,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "みょ、みょん！ おろちて！ おろちて！",
-   "chinese": "咪、咪呦！放下窝！放下窝！",
-   "english": "Myo, myon! Put me down! Put me down!",
+   "japanese": "みょ、みょん！ おうち、かえりゅ！",
+   "chinese": "咪、咪呦！回家家！",
+   "english": "Myo, myon! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -65699,9 +65699,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "みょん！おろちちぇ！ いかにゃいみょ！",
-   "chinese": "咪呦！放下窝！窝不去哦！",
-   "english": "Myon! Put me down! I am not going!",
+   "japanese": "みょん！やー！ おうちに かえりゅみょ！",
+   "chinese": "咪呦！不要！窝要回家哦！",
+   "english": "Myon! No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -65744,9 +65744,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "みょん！おろして！ いかないよ！",
-   "chinese": "咪呦！放下！妖梦不去哦！",
-   "english": "Myon! Put me down! I am not going!",
+   "japanese": "みょん！いや！ おうちに かえるよ！",
+   "chinese": "咪呦！不要！妖梦要回家哦！",
+   "english": "Myon! No! Myon wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -66641,9 +66641,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ちん、ちーんぽ！ おろちて！ おろちて！",
-   "chinese": "金、金寶！放下窝！放下窝！",
-   "english": "Chin, chinpo! Put me down! Put me down!",
+   "japanese": "ちん、ちーんぽ！ おうち、かえりゅ！",
+   "chinese": "金、金寶！回家家！",
+   "english": "Chin, chinpo! Go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -66686,9 +66686,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ちーんぽ！おろちちぇ！ いかにゃいよぅ！",
-   "chinese": "金寶！放下窝！窝不去哦！",
-   "english": "Chinpo! Put me down! I am not going!",
+   "japanese": "ちーんぽ！やー！ おうちに かえりゅよぅ！",
+   "chinese": "金寶！不要！窝要回家哦！",
+   "english": "Chinpo! No! I want to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"
@@ -66731,9 +66731,9 @@
    "events": [
     "handover_plea"
    ],
-   "japanese": "ちーんぽ！おろして！ いかないよ！",
-   "chinese": "金寶！放下！妖梦不去哦！",
-   "english": "Chinpo! Put me down! I am not going!",
+   "japanese": "ちーんぽ！いや！ おうちに かえるよ！",
+   "chinese": "金寶！不要！妖梦要回家哦！",
+   "english": "Chinpo! No! Youmu wants to go home!",
    "origin": "project-original",
    "basis": "wp-gap-lines: reaction pool with no line before; project-original wording, voiced",
    "variant": "proud"

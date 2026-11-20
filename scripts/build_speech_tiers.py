@@ -666,18 +666,18 @@ GAP = {
             'proud': ('{p}ひどいことは やめて！ {n}は わるくない{e}！', '{p}别做过分的事！{n}没有做错{e}！', '{p}Stop that! {N} did nothing wrong!'),
             'timid': ('{p}こわい……ひどいこと、しないで……', '{p}好可怕……别做过分的事……', "{p}Scary... please don't hurt me..."),
             'plain': ('{p}おねがい……ゆるしてほしい{e}……', '{p}拜托……想被饶过{e}……', '{p}Please... let me off...')}},
-    # Carried off by a stranger: asks not to be taken away (a defiant one has the factory insult).
+    # Handed over to a stranger and set down on the floor: asks not to be taken away (a defiant one has the factory insult).
     'handover_plea': {
         'baby': {
-            'proud': ('{c}！ おろちて！ おろちて！', '{c}！放下窝！放下窝！', '{c}! Put me down! Put me down!'),
+            'proud': ('{c}！ おうち、かえりゅ！', '{c}！回家家！', '{c}! Go home!'),
             'timid': ('{c}……どこ いくの……こあい……', '{c}……要去哪……好口怕……', '{c}... where to... scawy...'),
             'plain': ('{c}……つれてかにゃいで……', '{c}……别带窝走……', '{c}... do not take me...')},
         'juvenile': {
-            'proud': ('{p}おろちちぇ！ いかにゃい{e}！', '{p}放下窝！窝不去{e}！', '{p}Put me down! I am not going!'),
+            'proud': ('{p}やー！ おうちに かえりゅ{e}！', '{p}不要！窝要回家{e}！', '{p}No! I want to go home!'),
             'timid': ('{p}どこに いくの……こあい……', '{p}要去哪里……好口怕……', '{p}Where to... scawy...'),
             'plain': ('{p}つれていかにゃいで……おねがい……', '{p}别带窝走……求求你……', '{p}Do not take me away... please...')},
         'adult': {
-            'proud': ('{p}おろして！ いかない{e}！', '{p}放下！{n}不去{e}！', '{p}Put me down! I am not going!'),
+            'proud': ('{p}いや！ おうちに かえる{e}！', '{p}不要！{n}要回家{e}！', '{p}No! {N} wants to go home!'),
             'timid': ('{p}どこへ いくの……こわい……', '{p}要去哪儿……好可怕……', '{p}Where to... scary...'),
             'plain': ('{p}つれていかないで……おねがい……', '{p}别带{n}走……拜托……', '{p}Do not take me away... please...')}},
     # A human holds something up: the animal cannot know what it is and tries to be gentle and good.
