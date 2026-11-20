@@ -2513,11 +2513,22 @@ def _verify_territory(window, trace):
     if float(pull[2]) - float(pull[3]) < 1.5:
         return 'The threat pass pulled up less than 1.5 blocks over Flandre'
     start, end = int(warn[1]), int(pull[1])
+    left, pad_x, pad_z = map(int, departure.groups())
+
+    def inside_pad(x, z):
+        return math.hypot(x-pad_x-.5, z-pad_z-.5) <= 10
+
     states = {resident: {}, intruder: {}}
     sizes = {}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] == 'st' and row['u'] in states and start <= row['t'] <= end:
+        if row['k'] != 'st' or row['u'] not in states:
+            continue
+        if row['u'] == intruder and row['t'] >= left:
+            x, _, z = row['st']['p']
+            if inside_pad(x, z):
+                return 'Flandre returned to the foreign territory after leaving'
+        if start <= row['t'] <= end:
             states[row['u']][row['t']] = row['st']
     for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window):
         row = json.loads(match[1])
@@ -2530,7 +2541,6 @@ def _verify_territory(window, trace):
         return 'Remilia must show the angry face and flap her wings during the screech'
     if not _territory_sweeps_clear(states, sizes, start, end):
         return 'The warned body intersected Remilia’s takeoff or approach sweep'
-    pad_x, pad_z = int(departure[2]), int(departure[3])
     roof = None
     settled = False
     address = (rf'\[home\] flandre #\d+ uuid={intruder} [^\n]*? (?:assigned kind=roof [^\n]*?'
@@ -2545,7 +2555,7 @@ def _verify_territory(window, trace):
         if row['uuid'] == intruder:
             x, y, z, x2, _, z2 = row['box']
             feet = ((x+x2)/2, y, (z+z2)/2)
-            if math.hypot(feet[0]-pad_x-.5, feet[2]-pad_z-.5) <= 10:
+            if inside_pad(feet[0], feet[2]):
                 return 'Flandre returned to the foreign territory after leaving'
             if row['supported'] and tuple(map(math.floor, feet)) == roof:
                 settled = True
