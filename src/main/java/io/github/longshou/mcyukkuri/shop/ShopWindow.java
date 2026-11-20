@@ -476,7 +476,10 @@ public final class ShopWindow implements MotorOwner {
         sessionStart = now; departedAt = -1;
         phase(Phase.WITNESS, now + WITNESS_TICKS);
         switch (witness) {
-            case ENVY -> { if (soldRank > rank) entity.speak("badge_envy"); }
+            case ENVY -> {
+                look(sold);
+                entity.speak(BadgeSocial.reactionLine(entity, "badge_envy", sold));
+            }
             case ME_TOO -> entity.speak("shop_appeal");
             default -> {}
         }

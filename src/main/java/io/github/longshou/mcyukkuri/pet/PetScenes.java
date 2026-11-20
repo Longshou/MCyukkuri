@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.*;
@@ -32,18 +33,19 @@ public final class PetScenes {
 
     /** Ordinary reaction beats for a performer that already holds a duty. */
     public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks) {
-        if (y.showReaction(action, face, "", ticks) && !event.isEmpty()) y.speakCue(event);
+        act(y, action, face, event, ticks, null);
     }
 
     public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
-        act(y, action, face, event, ticks);
+        if (y.showReaction(action, face, "", ticks) && !event.isEmpty()) y.speakCue(BadgeSocial.reactionLine(y, event, look));
     }
 
     /** Report only intelligible words actually delivered, including when a speaker can only babble. */
     public static boolean say(YukkuriEntity y, YukkuriAction action, String face, String event, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
-        if (!y.showReaction(action, face, "", action.durationTicks()) || !y.speakCue(event, null, 2)) return false;
+        if (!y.showReaction(action, face, "", action.durationTicks())
+                || !y.speakCue(BadgeSocial.reactionLine(y, event, look), null, 2)) return false;
         var line = NativeDialogue.byKey(y.getDialogueKey());
         return line != null && line.events().contains(event);
     }
@@ -53,7 +55,7 @@ public final class PetScenes {
         if (!(y.level() instanceof ServerLevel level) || !y.isAlive()) return;
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
         boolean played = action != null && y.playAction(action);
-        if (face != null) y.showReaction(face, event == null ? "" : event, ticks);
+        if (face != null) y.showReaction(face, event == null ? "" : BadgeSocial.reactionLine(y, event, look), ticks);
         long start = y.getAnimationStartTick();
         boolean loops = played && YukkuriAction.byId(action).map(YukkuriAction::loops).orElse(false);
         if (!loops && look == null) return;

@@ -186,7 +186,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void start() {
-        if (HomeClaim.declaring(body)) body.cancelReaction();
+        HomeClaim.interruptDeclaration(body);
         active = true; elapsed = 0; yielded = false;
         child = body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(RADIUS),
                 y -> y.isAlive() && body.family().caresFor(y) && Recognition.recognizes(body, y))

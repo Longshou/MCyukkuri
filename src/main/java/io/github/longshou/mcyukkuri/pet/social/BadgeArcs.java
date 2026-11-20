@@ -273,7 +273,10 @@ public final class BadgeArcs {
             }
             case 4 -> {
                 if (parent == null || o.family().adult()) { if (t >= 20) end(level, s, Phase.COMPLETE, "glance_" + s.result); return; }
-                if (t == 1) parent.showReaction("surprise", "badge_pull_back", 70);
+                if (t == 1) {
+                    parent.getLookControl().setLookAt(o, 30, 30);
+                    parent.showReaction("surprise", BadgeSocial.reactionLine(parent, "badge_pull_back", sub), 70);
+                }
                 if (parent.distanceToSqr(o) <= 4 || t >= 120) { s.result = s.result + "|pulled"; next(s); }
             }
             default -> { if (t >= 70) end(level, s, Phase.COMPLETE, "glance_" + s.result.replace("|", "_")); }
@@ -358,7 +361,7 @@ public final class BadgeArcs {
         int t = since(s);
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) o.showReaction("sneer", "badge_mock", 70);
+                if (t == 1) PetScenes.act(o, (String) null, "sneer", "badge_mock", 70, sub);
                 if (o.distanceToSqr(sub) <= 6.25) { quiet(o); next(s); }
                 else if (t >= 140) end(level, s, Phase.INTERRUPTED, "provoker_unreached");
             }
@@ -451,7 +454,7 @@ public final class BadgeArcs {
         switch (s.responses) {
             case 0 -> { if (o.distanceToSqr(sub) <= 4) next(s); else if (t >= 120) end(level, s, Phase.INTERRUPTED, "pity_unreached"); }
             case 1 -> {
-                if (t == 1) { quiet(o); if (scorn) PetScenes.act(o, "puff", "sneer", "badge_envy_snark", 60, sub); else PetScenes.act(o, "nuzzle", "teary", "badge_pity", 70, sub); }
+                if (t == 1) { quiet(o); if (scorn) PetScenes.act(o, "puff", "sneer", "puff", 60, sub); else PetScenes.act(o, "nuzzle", "teary", "badge_pity", 70, sub); }
                 if (t >= 55) { quiet(o); next(s); }
             }
             default -> {
@@ -471,7 +474,7 @@ public final class BadgeArcs {
                 if (t >= 90) { quiet(o); next(s); }
             }
             case 1 -> {
-                if (child != null && t == 1) child.showReaction("surprise", warn ? "badge_pull_back" : "badge_ask", 60);
+                if (child != null && t == 1) PetScenes.act(child, (String) null, "surprise", warn ? null : "badge_ask", 60, sub);
                 if (t >= 50) next(s);
             }
             default -> { if (t >= (warn ? 80 : 20)) end(level, s, Phase.COMPLETE, warn ? "elder_warned" : "elder_allowed"); }
@@ -500,7 +503,7 @@ public final class BadgeArcs {
             }
             case 2 -> {
                 if (s.result.equals("guard")) {
-                    if (t == 1) sub.showReaction("angry", "badge_retort", 70);
+                    if (t == 1) PetScenes.act(sub, (String) null, "angry", "badge_retort", 70, o);
                     if (sub.distanceToSqr(o) <= 6.25) { PetScenes.act(sub, "stand_ground", "angry", null, 50, o); Staging.anger(level, sub.position().add(0, sub.getBbHeight(), 0)); next(s); }
                     else if (t >= 160) next(s);
                 } else {
@@ -537,7 +540,7 @@ public final class BadgeArcs {
         int t = since(s);
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) o.showReaction("sneer", "badge_mock", 60);
+                if (t == 1) PetScenes.act(o, (String) null, "sneer", "badge_mock", 60, sub);
                 if (o.distanceToSqr(sub) <= 2.25) { quiet(o); next(s); }
                 else if (t >= 140) end(level, s, Phase.INTERRUPTED, "snatcher_unreached");
             }

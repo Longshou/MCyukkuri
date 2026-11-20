@@ -22,7 +22,7 @@ public final class PunishmentReaction {
         DEFIANT(YukkuriAction.PUFF, "cheek_puff", "puff"),
         FREEZE(YukkuriAction.BRACE, "horrified", ""),
         ENDURE(YukkuriAction.BRACE, "endure", ""),
-        PLEAD(YukkuriAction.BEG, "teary", "plea_sad"),
+        PLEAD(YukkuriAction.BEG, "teary", ""),
         ESCAPE(YukkuriAction.TREMBLE, "afraid", "afraid"),
         SHRINK(YukkuriAction.DROOP, "teary_frown", ""),
         TURN_TO_KIN(YukkuriAction.BRACE, "teary", ""),
@@ -90,6 +90,8 @@ public final class PunishmentReaction {
         double plead = (.4 * contact.wariness() + .6 * unease) * (1 - .65 * control);
         double insult = contact.insistence();
         var response = insult > Math.max(freeze, plead) ? Response.DEFIANT : plead > freeze ? Response.PLEAD : Response.FREEZE;
+        target.interruptSpeech();
+        target.getLookControl().setLookAt(other, 30, 30);
         target.forceReaction(response.action, response.face, response == Response.DEFIANT ? defiantLine : response.line);
         return response.name();
     }
@@ -138,6 +140,7 @@ public final class PunishmentReaction {
                 feeling.frightened(.6f);
             }
         }
+        target.interruptSpeech();
         response.show(target, punisher);
         GameplayLog.event(target, "punishment", "victim actor={} incident={} response={} fear={} -> {} health={} wounds={} unease={} exit={}",
                 punisher.getUUID(), incident, response, before, fear, target.getHealth(), wounds, target.mind().unease(), exit);

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -384,6 +385,13 @@ public final class HomeClaim {
         return action == YukkuriAction.HOME_DECLARE || action == YukkuriAction.HOME_DECLARE_TIMID
                 || action == YukkuriAction.PROUD && body.reactingTo("home_declare");
     }
+
+    static void interruptDeclaration(YukkuriEntity body) {
+        if (declaring(body)) {
+            body.cancelReaction();
+            body.interruptSpeech();
+        }
+    }
     private static void hold(ServerLevel level, HomeClaimData data, Claim c, List<YukkuriEntity> alive, long now) {
         c.holdTicks+=TICK;
         if(c.occupation) {
@@ -610,20 +618,21 @@ public final class HomeClaim {
         for (UUID id:c.members) if (level.getEntity(id) instanceof YukkuriEntity y && y.isAlive()) {
             if(c.occupation&&c.site.equals(y.life().home()))y.life().releaseHome();
             if (y!=hit) {
-                if (declaring(y)) y.cancelReaction();
+                interruptDeclaration(y);
                 y.life().personality().confiscated(actor.getUUID());
                 var temperament = y.life().personality().temperament();
                 var answer = Ousting.answer(temperament);
+                String line = ReactionSpeech.ousted(answer, false);
                 if (answer != Answer.CURSE) y.mind().felt(EmotionEvent.FRIGHTENED);
                 switch (answer) {
                     case CURSE -> {
                         var stamp = YukkuriAction.STAMP;
-                        if (y.showReactionDelayed(stamp, "angry", "driven_curse", ClipMarkers.of(stamp.id()).length(),
+                        if (y.showReactionDelayed(stamp, "angry", line, ClipMarkers.of(stamp.id()).length(),
                                 1, null, spoken -> GameplayLog.event(y, "home-claim", "curse stamp spoken={}", spoken))
                                 && !y.isPanicking()) SurfaceApproach.halt(y);
                     }
                     case FAREWELL -> {
-                        if (y.showReaction("teary", "", 80)) y.speakCue("driven_farewell");
+                        if (y.showReaction("teary", "", 80)) y.speakCue(line);
                     }
                     case SHRUG -> y.showReaction("hmph", "", 60);
                 }

@@ -66,7 +66,7 @@ final class YukkuriInteractions {
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving
             GameplayLog.limited(owner,"interaction","food_toxic",20,"food refused; player={} item={} reason=toxic nutrition={}",
                     player.getUUID(),stack.getItem(),owner.life().nutrition());
-            owner.showReaction("cheek_puff", "refuse", 60);
+            owner.showReaction("cheek_puff", "", 60);
             return InteractionResult.CONSUME;
         }
         if(prepared&&!InteractionDispatch.requireReach(player,owner,3))return InteractionResult.FAIL;
@@ -82,7 +82,7 @@ final class YukkuriInteractions {
             }
             GameplayLog.limited(owner,"interaction","food_unaccepted",20,"food refused; player={} item={} reason=cannot_eat nutrition={}",
                     player.getUUID(),stack.getItem(),owner.life().nutrition());
-            owner.showReaction("cheek_puff","refuse",60);
+            owner.showReaction("cheek_puff","",60);
             return InteractionResult.CONSUME;
         }
         int before=stack.getCount();
@@ -90,7 +90,7 @@ final class YukkuriInteractions {
         boolean fed = prepared ? owner.life().beginPreparedMeal(ownerMash ? InfantFood.mash(one, player.getUUID()) : one, player.getUUID())
                 : owner.life().beginOfferedMeal(one, player);
         if (fed && !player.getAbilities().instabuild) stack.shrink(1);
-        if (prepared && !fed) owner.showReaction("cheek_puff","refuse",60);
+        if (prepared && !fed) owner.showReaction("cheek_puff","",60);
         GameplayLog.event(owner,"interaction","food offered; player={} item={} meal_started={} item_count={} -> {} prepared={}",
                 player.getUUID(),one.getItem(),fed,before,stack.getCount(),prepared);
         return InteractionResult.CONSUME;

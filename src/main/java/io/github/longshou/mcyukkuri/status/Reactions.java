@@ -328,6 +328,7 @@ public final class Reactions {
 
         public void struck(DamageSource source, float loss, BodyHit.Kind kind, String incident) {
             if (y.isAlive()) y.interrupt(InterruptContext.hurt(source), InterruptPhase.AFTER_DANGER_STRIKE);
+            if (y.isAlive() && !y.body().dying()) y.interruptSpeech();
             var actor = source.getEntity() instanceof LivingEntity other && other != y ? other : null;
             boolean homeResponse = actor != null && (seal.holdsThroughHit() || response.leadingFrom(actor));
             seal.struck(actor);
@@ -361,7 +362,7 @@ public final class Reactions {
                 return;
             }
             if (actor == null) {
-                response.flee(null);
+                response.flee(null, loss > 0);
                 GameplayLog.event(y, "threat", "struck stance=FLEE cause={} loss={}", source.getMsgId(), loss);
             } else {
                 var choice = response.decide(actor, loss);
@@ -372,6 +373,7 @@ public final class Reactions {
         void humanIncident(LivingEntity actor, String incident) {
             int before = PunishmentReaction.recordHuman(y, actor, incident, 0);
             if (!y.isAlive() || y.body().dying()) return;
+            y.interruptSpeech();
             logHuman(actor, incident, before, response.decide(actor, 0));
         }
 

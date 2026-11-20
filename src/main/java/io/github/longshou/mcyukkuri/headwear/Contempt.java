@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -151,9 +152,7 @@ public final class Contempt {
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
         if (!SettlementSociety.sparesHatlessBlame(observer, target)) target.groupInteraction().defense().provoke(observer);
-        boolean answered = target.groupInteraction().defense().active() || target.isPanicking();
-        suffer(target, observer, answered ? "angry" : "teary", target.getRandom().nextInt(3) == 0 ? "settlement_hurt" : "", 80, SCORNED, "scorned",
-                SettlementSociety.sameGroup(observer, target));
+        suffer(target, observer, "teary", 80, SCORNED, "scorned", SettlementSociety.sameGroup(observer, target));
         GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
                 target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
         return AFTER_SCORN + observer.getRandom().nextInt(200);
@@ -166,7 +165,7 @@ public final class Contempt {
         if (relations.affinity(observer.getUUID(), target.getUUID()) > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), -5);
         observer.mind().add(6, "monster");
         observer.showReaction("surprise", "hatless_monster", 100);
-        suffer(target, observer, "cry", "settlement_hurt", 100, 2, "feared_as_monster", false);
+        suffer(target, observer, "cry", 100, 2, "feared_as_monster", false);
         boolean drive = observer.family().adult() && observer.life().personality().temperament().is(Gate.HARSH) && Sanction.eligibleTarget(target) && Sanction.enabled();
         boolean accepted = drive && Sanction.request(target, "monster", observer);
         boolean frightened = false;
@@ -182,11 +181,13 @@ public final class Contempt {
      * The face and line of the one being scorned or bullied, with exactly {@code unease} added: the line is only spoken, so
      * the reaction event's own unease (MindLife.felt) is not added on top.
      */
-    private static void suffer(YukkuriEntity target, YukkuriEntity source, String face, String line, int ticks, float unease, String cause, boolean pitPressure) {
+    private static void suffer(YukkuriEntity target, YukkuriEntity source, String face, int ticks, float unease, String cause, boolean pitPressure) {
         if (!target.isAlive()) return;
         if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
-        target.showReaction(face, "", ticks);
-        if (!line.isEmpty()) target.speak(line);
+        if (!target.groupInteraction().defense().active() && !target.isPanicking() && target.showReaction(face, "", ticks)) {
+            String line = ReactionSpeech.contempt(pitPressure && target.getRandom().nextInt(3) == 0);
+            target.speak(line);
+        }
         // An insult weighs less than being driven from a home (.5).
         if (!pitPressure && Ousting.fumes(target.life().personality().temperament()))
             target.mind().feeling().begin(EmotionCourse.Kind.RAGE, .35f, source.getUUID(), target.blockPosition());

@@ -278,7 +278,7 @@ final class LifeMeal {
             }
         }
         if (!startMeal(food, giver, false, offered)) {
-            o.entity().showReaction("cheek_puff", "refuse", 60);
+            o.entity().showReaction("cheek_puff", "", 60);
             return false;
         }
         if (offered != Verdict.REFUSE && Sweets.is(food)) {
@@ -449,7 +449,7 @@ final class LifeMeal {
 
     private boolean refusesWhileCarryingStallFood() {
         if (occupancy().purpose() != Purpose.STALL_FOOD) return false;
-        o.entity().showReaction("cheek_puff", "refuse", 60);
+        o.entity().showReaction("cheek_puff", "", 60);
         return true;
     }
 

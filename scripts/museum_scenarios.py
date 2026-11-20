@@ -2884,7 +2884,7 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     env=DAY, vantage=(0, 0),
     late=[home('identity_pet', -4, -7), home('identity_stray', -4, 7)],
     give=['mcyukkuri:field_notebook', 'minecraft:apple 4'],
-    note='魔理沙开口后可直接喂，或双手空着潜行右键，在「照料」中选「拒绝／赶走」。也可走开，等它停止请求。清场重开后可手持苹果走近，对照诱食接手。提高信任后还可收养魔理沙，或在照料栏对灵梦选择「弃养」。',
+    note='魔理沙开口后可直接喂，或双手空着潜行右键，在「照料」中选「拒绝／赶走」。也可走开，等它停止请求。清场重开后等它骂着索食再打一下，观察它逃跑或噗咕还击时的声音。清场重开后可手持苹果走近，对照诱食接手。提高信任后还可收养魔理沙，或在照料栏对灵梦选择「弃养」。',
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]'),
            ('读魔理沙的自尊与关系', f'yukkuri status {sel("identity_stray")} raw')])
 
@@ -7667,11 +7667,28 @@ _smoke('social_identity', 440, [
     readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')] +
             [f'data get entity @e[tag={tag("identity_stray")},distance=..24,limit=1] LastFoodRequestNutrition'])
 _human_contact_smoke = next(s for s in S if s.id == 'social_identity').smoke
+_identity_stray = sel('identity_stray')
+_human_contact_smoke['commands'] = [
+    (1, 'scoreboard players set #identity_struck museum 0'),
+    # Strike once during the actual demand, with that demand's human as the attacker.
+    *((tick, f'execute if score #identity_struck museum matches 0 if data entity {_identity_stray} LastFoodRequestNutrition '
+             f'store success score #identity_struck museum run damage {_identity_stray} 1 minecraft:mob_attack by {sel("identity_listener")}')
+      for tick in range(30, 201, 5)),
+]
 
 
 def _one_human_food_request(log):
-    requests = re.findall(r'\[social\] marisa #[^\n]* human food request target=', log)
-    return None if len(requests) == 1 else f'expected one voiced request from Marisa, found {len(requests)}'
+    requests = re.findall(r'\[social\] marisa #[^\n]* uuid=(\S+) t=(\d+) [^\n]* human food request target=(\S+)', log)
+    if len(requests) != 1:
+        return f'expected one voiced request from Marisa, found {len(requests)}'
+    actor, request_tick, human = requests[0]
+    voice = re.search(rf'\[speech\][^\n]* uuid={actor} t={request_tick} [^\n]* line event=human_food_demand [^\n]* until=(\d+)', log)
+    hits = re.findall(rf'\[threat\][^\n]* uuid={actor} t=(\d+)[^\n]* struck stance=(\w+) attacker={human} [^\n]* identity=stray\b', log)
+    if not voice or len(hits) != 1 or not int(request_tick) < int(hits[0][0]) < int(voice[1]):
+        return f'the human heard by Marisa must strike her during the voiced demand: {requests}, {hits}'
+    if hits[0][1] not in ('FLEE', 'PUFF_FIGHT'):
+        return f'the struck bold stray must flee or puff and fight, got {hits}'
+    return _struck_speech(log)
 
 
 _human_contact_smoke['verify'] = _one_human_food_request
@@ -8022,8 +8039,9 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
     if _sid == 'home_greedy':
         _spec['ticks'] = 1510
         _spec['commands'] += [
+            (25, 'execute positioned ~5.5 ~ ~10.5 run yukkuri scenario tool_operator enter'),
             # The visitor opens the existing door before asking the claimant to leave.
-            (697, 'execute positioned ~5.5 ~ ~9.5 run yukkuri scenario tool_operator enter'),
+            (697, 'execute positioned ~5.5 ~ ~9.5 run yukkuri scenario tool_operator move'),
             (698, 'yukkuri scenario shop_door_click ~5 ~ ~8 south'),
             (699, 'execute if block ~5 ~ ~8 minecraft:oak_door[facing=south,half=lower,hinge=left,open=true] '
                   'if block ~5 ~1 ~8 minecraft:oak_door[facing=south,half=upper,hinge=left,open=true] '
@@ -8039,7 +8057,10 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         _spec['expect'] += [r'MCYCLAIM_DOOR_OPEN', r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
                             r'\[home-claim\][^\n]* curse stamp spoken=true',
                             r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
-        _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')
+        _spec.setdefault('forbid', []).extend([
+            r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b',
+            r'\[speech\] marisa [^\n]* line event=badge_envy(?:_snark)?\b',
+        ])
         _spec.update(verify=_home_greedy_retreat, verify_trace=True)
 
 _warm_parent = _uuid_text('indep_near', 'warm_parent')

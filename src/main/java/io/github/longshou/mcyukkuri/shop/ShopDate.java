@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.pet.PetLife;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
@@ -139,7 +140,7 @@ public final class ShopDate implements IntPredicate {
                 if (pt == 14) b.showReaction("closed_smile", "date_meet", 70);
                 if (pt % 10 == 0) face(a, b);
                 if (flourish != null && pt == shy) {
-                    if (flourish.equals("proud")) { a.playAction("proud"); a.showReaction("smug", "badge_proud", 70); }
+                    if (flourish.equals("proud")) { a.playAction("proud"); a.showReaction("smug", BadgeSocial.reactionLine(a, "badge_proud", b), 70); }
                     else { a.playAction("greet"); a.showReaction("open_smile", "hello", 50); }
                 }
                 if (pt >= shy + (flourish == null ? 0 : 26)) { a.playAction("idle"); b.playAction("idle"); walk.go = true; next(); }

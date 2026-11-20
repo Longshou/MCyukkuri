@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -553,9 +554,9 @@ public final class MoldExile extends Goal implements MotorOwner {
         switch (answer) {
             case CURSE -> {
                 if (entity.showReaction(YukkuriAction.STAMP, "angry", "", 60))
-                    entity.speakCue(exile == null && guardian(peer, entity, home) ? "child_curse_parent" : "driven_curse");
+                    entity.speakCue(ReactionSpeech.ousted(answer, exile == null && guardian(peer, entity, home)));
             }
-            case FAREWELL -> entity.showReaction("cry", exile == null ? "settlement_hurt" : "", 40);
+            case FAREWELL -> entity.showReaction("cry", "", 40);
             case SHRUG -> entity.showReaction("hmph", "", 40);
         }
         GameplayLog.event(entity, "settlement", "mold exile answer={} fumes={}", answer, answer == Answer.CURSE);

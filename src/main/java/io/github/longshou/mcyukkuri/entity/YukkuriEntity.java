@@ -1032,11 +1032,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         speak(reactionEvent);
     }
 
-    public void struckReaction(YukkuriAction action, String face, String line, int ticks) {
+    /** Stop the speech already projected to clients, including a recording longer than its subtitle. */
+    public void interruptSpeech() {
         pendingSpeech = null;
         pendingSpeechTicks = 0;
-        reactionStartedAt = level().getGameTime();
         speechTiming.interrupt();
+        sync().dialogue("");
+        sync().speechEnd(0);
+        sync().speechSequence(speechSequence() + 1);
+    }
+
+    public void struckReaction(YukkuriAction action, String face, String line, int ticks) {
+        reactionStartedAt = level().getGameTime();
         startReaction(face, line, ticks);
         speak(line, speechTier(), false, null, NativeDialogue.priority("wounded"));
         reactionAction = action;
@@ -1085,7 +1092,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private Set<String> nearbySpeech(long now) {
         Set<String> heard = new HashSet<>();
         for (YukkuriEntity other : level().getEntitiesOfClass(YukkuriEntity.class, getBoundingBox().inflate(8),
-                y -> y != this && y.isAlive() && distanceToSqr(y) <= 64 && y.speechSequence() != 0
+                y -> y != this && y.isAlive() && distanceToSqr(y) <= 64 && y.speechEnd() != 0
                         && now < y.speechEnd() + 200)) {
             heard.add(other.getDialogueKey());
         }

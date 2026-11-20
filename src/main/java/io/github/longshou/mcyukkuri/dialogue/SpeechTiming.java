@@ -23,7 +23,7 @@ public final class SpeechTiming {
         if (incomingPriority < 2 && !speaker.level().getEntitiesOfClass(YukkuriEntity.class,
                 speaker.getBoundingBox().inflate(NEARBY_RADIUS), other -> other != speaker && other.isAlive()
                         && speaker.distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
-                        && other.speechSequence() != 0 && now < other.speechEnd() + NEARBY_QUIET_TICKS).isEmpty()) {
+                        && other.speechEnd() != 0 && now < other.speechEnd() + NEARBY_QUIET_TICKS).isEmpty()) {
             // Stagger retries without consuming the ecology/behaviour random stream.
             next = Math.max(next, now + 40 + Math.floorMod(speaker.getUUID().hashCode(), 41));
             return false;

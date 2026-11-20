@@ -221,7 +221,7 @@ public final class BegBite {
                     GameplayLog.event(pet, "badge", "beg help reached human={} stray={}", human, stray.getUUID());
                     pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length());
                     pet.speakCue("beg_help");
-                    if (SocialDisposition.contact(stray, live).wariness() < .5) stray.speakCue("beg_curse");
+                    if (!drivenOff && SocialDisposition.contact(stray, live).wariness() < .5) stray.speakCue("beg_curse");
                     if (drivenOff) pose(scene, Beat.LOOK, stray, YukkuriAction.WALK_LOOK_BACK, departureFace(), "", 1);
                     else lastLook(scene, stray, pet);
                 } else walkDeadline(level, scene, pet, "helper_unreached");
@@ -438,8 +438,7 @@ public final class BegBite {
     private void pose(Scene scene, Beat next, YukkuriEntity actor, YukkuriAction clip, String face, String line, int repeats) {
         setBeat(scene, next);
         duration = ClipMarkers.of(clip.id()).length() * repeats;
-        actor.showReaction(clip, face, "", duration);
-        if (!line.isEmpty()) actor.speakCue(line);
+        if (actor.showReaction(clip, face, "", duration) && !line.isEmpty()) actor.speakCue(line);
     }
 
     private void walk(Scene scene, Beat next, Vec3 target) {

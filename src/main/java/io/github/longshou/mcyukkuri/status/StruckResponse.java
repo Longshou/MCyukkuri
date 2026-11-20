@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.status;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -52,8 +53,9 @@ final class StruckResponse implements MotorOwner {
                 var home = body.habitat().shelter();
                 seal.commit(danger, home.contains(body.blockPosition()) ? DenSeal.Side.INSIDE : DenSeal.Side.OUTSIDE);
                 startFlight(danger);
-                body.struckReaction(EcologyPresentation.action(Behaviors.NEST_PRESS), "teary", "hurt_endure", 20);
-            } else flee(danger);
+                body.struckReaction(EcologyPresentation.action(Behaviors.NEST_PRESS), "teary",
+                        ReactionSpeech.struck(StruckStance.SEAL, loss > 0, false, false), 20);
+            } else startRetreat(danger, ReactionSpeech.struck(StruckStance.SEAL, loss > 0, false, false));
             GameplayLog.event(body, "threat", "struck stance=SEAL attacker={} loss={}", danger.getUUID(), loss);
             return StruckStance.SEAL;
         }
@@ -74,7 +76,7 @@ final class StruckResponse implements MotorOwner {
                 body.interrupt(Interrupt.FRIGHT);
                 body.life().involuntaryRelease("fright", false);
             }
-            flee(danger);
+            flee(danger, loss > 0);
         }
         else {
             actor = danger;
@@ -82,12 +84,13 @@ final class StruckResponse implements MotorOwner {
             start = body.level().getGameTime();
             initialDistance = body.distanceToSqr(actor);
             if (choice == StruckStance.PUFF_FIGHT && inputs.exitOpen() && initialDistance < 25) bump = new RamPerson(actor);
-            boolean tame = id.companion() || id == Identity.STOCK;
+            String line = ReactionSpeech.struck(choice, loss > 0, ReactionSpeech.trustsCareFrom(id, inputs.trustedOwner()), bump != null);
             switch (choice) {
-                case FREEZE -> hold(YukkuriAction.BRACE, inputs.baby() ? "cry" : "horrified", "hurt_freeze", inputs.freezeTicks());
-                case PUFF_FIGHT -> hold(YukkuriAction.PUFF, "angry", tame || body.getRandom().nextBoolean() ? "puff" : "hurt_defy", 50);
-                case PLEAD -> hold(YukkuriAction.BEG, "cry", tame ? "hurt_tame_plea" : "plea_sad", 48);
-                case ENDURE -> hold(YukkuriAction.STAND_GROUND, inputs.baby() ? "cry" : "teary", "hurt_endure", 40);
+                case FREEZE -> hold(YukkuriAction.BRACE, inputs.baby() ? "cry" : "horrified", line, inputs.freezeTicks());
+                case PUFF_FIGHT -> hold(YukkuriAction.PUFF, "angry", line, 50);
+                case PLEAD -> hold(YukkuriAction.BEG, "cry", line, 48);
+                case ENDURE -> hold(YukkuriAction.STAND_GROUND, inputs.baby() ? "cry" : "teary", line, 40);
+                case FLEE, LEAD_AWAY, SEAL -> throw new IllegalStateException("Cannot hold " + choice);
             }
             if (!inputs.baby()) {
                 var feeling = body.mind().feeling();
@@ -100,9 +103,9 @@ final class StruckResponse implements MotorOwner {
                 }
             }
         }
-        GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} duration={} dialogue={}",
+        GameplayLog.event(body, "threat", "struck stance={} attacker={} loss={} exit={} duration={} identity={} dialogue={}",
                 choice, danger.getUUID(), loss, inputs.exitOpen(), choice == StruckStance.FLEE ? body.newbornStage() ? 96 : 104 : until - start,
-                body.getDialogueKey());
+                id.id(), body.getDialogueKey());
         return choice;
     }
 
@@ -157,10 +160,11 @@ final class StruckResponse implements MotorOwner {
         if (now >= nextTaunt && body.distanceTo(actor) > HomeTactic.tauntGap(t)) {
             SurfaceApproach.halt(body);
             body.getLookControl().setLookAt(actor, 30, 30);
-            body.showReaction(YukkuriAction.PUKU_TEARY, "puff_teary", "protect_taunt", clip);
             var home = body.habitat().shelter();
-            if (home != null && actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
-                for (var child : dependants(home))
+            var young = home == null ? List.<YukkuriEntity>of() : dependants(home);
+            body.showReaction(YukkuriAction.PUKU_TEARY, "puff_teary", ReactionSpeech.leadTaunt(!young.isEmpty()), clip);
+            if (actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
+                for (var child : young)
                     if (predator.predator().divert(body, child)) break;
             GameplayLog.limited(body, "threat", "lead_taunt", 60, "lead away taunt distance={} attacker={}", () -> new Object[]{
                         body.distanceTo(actor), actor.getUUID()});
@@ -189,11 +193,20 @@ final class StruckResponse implements MotorOwner {
         return danger instanceof YukkuriEntity peer && peer.profile().dangerToYukkuri() ? 1 : .6f;
     }
 
-    void flee(LivingEntity danger) {
+    private String startledFace() {
+        return body.newbornStage() ? "cry" : body.body().weak() ? "teary" : "surprise";
+    }
+
+    private void startRetreat(LivingEntity danger, String line) {
         int ticks = startFlight(danger);
         if (body.status().reactions().threat().airEscape(danger)) body.predator().withdraw(danger);
-        body.struckReaction(YukkuriAction.STARTLE, body.newbornStage() ? "cry" : body.body().weak() ? "teary" : "surprise",
-                body.newbornStage() || danger == null ? "wounded" : "hurt_flee", ticks);
+        body.struckReaction(YukkuriAction.STARTLE, startledFace(), line, ticks);
+    }
+
+    void flee(LivingEntity danger, boolean hurt) {
+        String line = hurt && (body.newbornStage() || danger == null)
+                ? "wounded" : ReactionSpeech.struck(StruckStance.FLEE, hurt, false, false);
+        startRetreat(danger, line);
     }
 
     void clear() {
@@ -213,7 +226,8 @@ final class StruckResponse implements MotorOwner {
         if (stance == StruckStance.FREEZE && (expired && distance < 144 ||
                 StruckStance.breaksFreeze((int)(now - start), distance, initialDistance, true)) && exitOpen(actor)) {
             GameplayLog.event(body, "threat", "freeze broke into flight elapsed={} attacker={}", now - start, actor.getUUID());
-            flee(actor);
+            body.interruptSpeech();
+            flee(actor, false);
             return false;
         }
         if (expired) { clear(); return false; }

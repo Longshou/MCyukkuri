@@ -374,8 +374,7 @@ public final class YukkuriSocial implements MotorOwner {
         var clip = plead ? YukkuriAction.BEG : YukkuriAction.SHY;
         if (!plead) humanEscapeStand = Reactions.escapeStand(entity, person, 4, Set.of());
         duration = ClipMarkers.of(clip.id()).length();
-        entity.showReaction(clip, plead ? "teary_smile" : "side_teary", "");
-        entity.speakCue(plead ? "exam_sorry" : "afraid");
+        entity.showReaction(clip, plead ? "teary_smile" : "side_teary", plead ? "" : "afraid");
         GameplayLog.event(entity, "social", "tool response target={} tool={} choice={} appeal={} caution={} escape={}",
                 person.getUUID(), ((OperationToolItem) person.getMainHandItem().getItem()).tool().id,
                 plead ? "plead" : "withdraw", appeal, caution, humanEscapeStand);
