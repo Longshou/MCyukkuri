@@ -1,6 +1,6 @@
 import {categories, entryURL, loadEntries} from './entries.js';
 import {buildTimeline, emoteFrame, leakSteps, sampleTimeline, textureFace} from './timeline.mjs';
-import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, updateMesh} from './effects.js';
+import {actorMesh, loadEmote, loadFloor, loadPaper, loadTexture, surfaceMarks, updateMesh} from './effects.js';
 import {loadProp} from './props.js';
 import {loadSpeech} from './speech.js';
 import {mountVerdicts} from './verdicts.js';
@@ -18,11 +18,14 @@ async function pose(payload, packed = false) {
     if (!response.ok) throw new Error((await response.json()).error ?? 'HTTP ' + response.status);
     if (!packed) return response.json();
     const bytes = await response.arrayBuffer();
-    const mainLength = payload.partner ? Number(response.headers.get('X-Pose-Partner-Offset')) : bytes.byteLength;
+    const mark = JSON.parse(response.headers.get('X-Pose-Surface-Mark'));
+    const actorsEnd = mark?.offset ?? bytes.byteLength;
+    const mainLength = payload.partner ? Number(response.headers.get('X-Pose-Partner-Offset')) : actorsEnd;
     const attachments = payload.held || payload.hat ? JSON.parse(response.headers.get('X-Pose-Attachments')) : {};
     return {vertices: new Float32Array(bytes, 0, mainLength / 4),
-            partnerVertices: payload.partner ? new Float32Array(bytes, mainLength) : undefined,
+            partnerVertices: payload.partner ? new Float32Array(bytes, mainLength, (actorsEnd - mainLength) / 4) : undefined,
             partnerSpacing: payload.partner ? Number(response.headers.get('X-Pose-Partner-Spacing')) : undefined,
+            surfaceMark: mark && {...mark, vertices: new Float32Array(bytes, mark.offset)},
             emote: decodeURIComponent(response.headers.get('X-Pose-Emote')), ...attachments};
 }
 
@@ -155,19 +158,22 @@ async function playEntry(data, entry) {
     const [held, hat, partner] = await Promise.all([entry.held && loadProp(scene, entry.held, pose),
         entry.hat && loadProp(scene, entry.hat, pose), entry.partner && createPartner(scene, data, entry.partner)]);
     const leak = entry.leak && await pose({op: 'leak', ...entry.leak, bodyWidth: proportions.width * actor.scale});
+    const scratchStep = entry.steps?.find(step => step.scratch);
+    const marks = (leak || scratchStep) && surfaceMarks(scene);
     let drawFloor, stream;
     if (leak) {
         const {puddleAt, width} = leak.beat;
         const after = entry.steps[2];
-        const {outlet} = await pose({op: 'render', id, action: after.clip, time: 0, intensity: after.intensity,
+        const {outlet, surfaceMark} = await pose({op: 'render', id, action: after.clip, time: 0, intensity: after.intensity,
             expression: textureFace(data, actor, leak.faces[2], puddleAt / 20), scale: actor.scale,
-            outlet: proportions.outlet, vertexFormat: 'float32le'});
+            outlet: proportions.outlet, leakAge: 0, vertexFormat: 'float32le'});
         const floor = await pose({op: 'floorEffect', reason: 'excited_leak', amount: width, sourceId: 1,
             scale: actor.scale * proportions.modelScale, tick: puddleAt,
             position: {x: -outlet[0] / 16, y: outlet[1] / 16, z: -outlet[2] / 16 + leak.puddleReach},
             direction: {x: 0, y: 0, z: 1}});
         entry = {...entry, steps: leakSteps(entry.steps, leak, puddleAt + floor.lifetime)};
         drawFloor = await loadFloor(scene, floor);
+        await marks.texture(surfaceMark.texture);
         stream = actorMesh(scene, new THREE.MeshBasicMaterial({map: await loadTexture(actor.textures.leak_flow),
             side: THREE.DoubleSide, transparent: true, depthWrite: false}));
     } else if (entry.filling) {
@@ -184,6 +190,14 @@ async function playEntry(data, entry) {
         drawFloor = await loadFloor(scene, floor);
     }
     const {track, duration, loop} = buildTimeline(entry, clips, data.momentClips);
+    if (scratchStep) {
+        const impact = track.find(step => step.scratch);
+        const sample = sampleTimeline(track, clips, impact.start, 'auto');
+        const {surfaceMark} = await pose({op: 'render', id, action: sample.clip, time: sample.time,
+            expression: textureFace(data, actor, sample.face, impact.start), scale: actor.scale,
+            scratch: sample.scratch}, true);
+        await marks.texture(surfaceMark.texture);
+    }
     const cover = $('paper');
     cover.checked = params.get('paper') === '1';
     let paper;
@@ -216,6 +230,8 @@ async function playEntry(data, entry) {
             paper ??= loadPaper(scene);
         }
         if (streamVisible) payload.leakStream = true;
+        if (leak) payload.leakAge = tick - leak.beat.puddleAt;
+        if (sample.scratch) payload.scratch = sample.scratch;
         if (held) payload.held = {...entry.held, mouthBone: proportions.mouthBone};
         if (hat) payload.hat = {...hat.fit, accessories: proportions.paperAccessories,
             outline: covered ? hat.outline : undefined};
@@ -224,6 +240,8 @@ async function playEntry(data, entry) {
         const rich = streamVisible || covered;
         if (rich) payload.vertexFormat = 'float32le';
         const [frame, map, sheets, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, peer?.map]);
+        const mark = frame.surfaceMark;
+        const markMap = mark && await marks.texture(mark.texture);
         if (version !== revision) return;
         updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame.vertices);
         if (held) held.set(frame.held);
@@ -244,6 +262,7 @@ async function playEntry(data, entry) {
                 stream.material.opacity = alpha / 255;
             }
         }
+        if (marks) marks.draw(mark, mark && (rich ? floatVertices(mark.vertices) : mark.vertices), markMap);
         if (drawFloor) drawFloor(seconds);
         setMap(material, map);
         emote.set(frame.emote);

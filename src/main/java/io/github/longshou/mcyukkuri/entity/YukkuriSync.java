@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.WoundTags;
 import io.github.longshou.mcyukkuri.entity.YukkuriSyncState.Field;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
@@ -219,7 +220,7 @@ final class YukkuriSync {
     String tableTool(){return owner.getEntityData().get(TABLE_TOOL);}
     int visibleWound(){return owner.getEntityData().get(WOUND);}
     List<BodyWound> visibleWounds() {
-        if (woundsSnapshot == null) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
+        if (woundsSnapshot == null) woundsSnapshot = WoundTags.read(owner.getEntityData().get(WOUNDS));
         return woundsSnapshot;
     }
     /** Legacy display scale only; health remains the sole synchronized survival value. */
@@ -233,7 +234,7 @@ final class YukkuriSync {
         // BodyLife returns an immutable copy; ordered record equality includes emission clocks.
         var wounds = owner.body().wounds();
         if (!wounds.equals(sentWounds)) {
-            setChanged(WOUNDS, BodyWound.write(wounds));
+            setChanged(WOUNDS, WoundTags.write(wounds));
             sentWounds = wounds;
         }
         setChanged(HAIR_LOSS, owner.body().hairLoss());
@@ -463,7 +464,7 @@ final class YukkuriSync {
         if (AGITATION.equals(key)) agitationSnapshot = YukkuriSyncState.Agitation.read(owner.getEntityData().get(AGITATION));
         else if (WATER_DISTRESS.equals(key)) waterDistressSnapshot = YukkuriSyncState.WaterDistress.read(owner.getEntityData().get(WATER_DISTRESS));
         else if (LIVE_CHILDREN.equals(key)) liveChildrenSnapshot = YukkuriSyncState.LiveChildren.read(owner.getEntityData().get(LIVE_CHILDREN));
-        else if (WOUNDS.equals(key)) woundsSnapshot = BodyWound.read(owner.getEntityData().get(WOUNDS));
+        else if (WOUNDS.equals(key)) woundsSnapshot = WoundTags.read(owner.getEntityData().get(WOUNDS));
         else if (MARKS.equals(key)) marksCache=Marks.read(owner.getEntityData().get(MARKS));
         else if (HELD_PLACE.equals(key)) heldSnapshot = Held.read(owner.getEntityData().get(HELD_PLACE));
         if(GROWTH_SCALE.equals(key)||LIVE_PROGRESS.equals(key)||SUBSPECIES.equals(key))owner.refreshDimensions();

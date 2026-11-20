@@ -347,6 +347,56 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             self.assertGreater(abs(raw[3]) + abs(raw[5]), 12)
             self.assertEqual(self.pose(dict(payload, intensity=sample.get('intensity')))['root_pose'], raw)
 
+    def test_surface_marks_follow_pose_and_scrub(self):
+        from build_review_catalog import ASSETS, read
+
+        with self.actor('reimu') as actor:
+            render = dict(op='render', id=actor['id'], action='idle', time=0,
+                          expression='neutral', scale=1, leakAge=-1)
+            self.assertNotIn('surfaceMark', self.pose(render))
+            flow = self.pose(dict(render, action='brace', expression='leak_flow'))['surfaceMark']
+            self.assertEqual(flow['opacity'], 255)
+            payload = dict(render, action='startle', time=.12, leakAge=700)
+            frame = self.pose(payload)
+            wet = frame['surfaceMark']
+            self.assertEqual(wet['texture'], 'textures/props/body_wounds/leak_wet.png')
+            self.assertEqual(wet['opacity'], 128)
+            self.assertNotEqual(wet['vertices'], flow['vertices'])
+            self.assertEqual(wet['vertices'][3::8], flow['vertices'][3::8])
+            self.assertEqual(wet['vertices'][4::8], flow['vertices'][4::8])
+            self.assertNotIn('surfaceMark', self.pose(dict(payload, leakAge=800)))
+            self.assertEqual(self.pose(payload)['surfaceMark'], wet)
+
+            entry = next(e for e in self.data['entries'] if e['id'] == 'strike_scratches')
+            self.assertNotIn('scratch', entry['steps'][0])
+            strike = entry['steps'][1]
+            payload = dict(render, action=strike['clip'], time=.15, expression=strike['faces'][0][1],
+                           scratch=strike['scratch'])
+            impact = self.pose(payload)['surfaceMark']
+            self.assertEqual(impact['texture'], 'textures/wounds/hair/scratch-2.png')
+            self.assertEqual(impact['opacity'], 255)
+            self.assertNotEqual(impact['vertices'], self.pose(dict(payload, time=.3))['surfaceMark']['vertices'])
+            # The cheek below the eye and the side hair each receive ink.
+            idle = self.pose(dict(payload, action='idle', time=0, expression='neutral'))['surfaceMark']['vertices']
+            points = list(zip(idle[0::8], idle[1::8], idle[2::8]))
+            self.assertTrue(any(p[1] < 3 and p[2] < -3 for p in points))
+            self.assertTrue(any(p[0] > 4 and p[2] > -2 for p in points))
+            profile = read(ASSETS/'yukkuri_presentation/hair_wounds.json')['profiles']['scratch']
+            self.assertFalse(profile[str(strike['scratch']['grade'])]['open'])
+            for value in (wet, impact):
+                self.assertGreater(len(value['vertices']), 0)
+                self.assertEqual(len(value['vertices']) % 24, 0)
+                with urlopen(self.base+'/src/main/resources/assets/mcyukkuri/'+value['texture']) as source:
+                    self.assertEqual(source.headers.get_content_type(), 'image/png')
+            for payload in (dict(render, leakAge=700), payload):
+                packed = self.pose(dict(payload, vertexFormat='float32le'))
+                actor_bytes = b64decode(packed['vertices'])
+                mark = packed['surfaceMark']
+                with self.request_pose(payload, 'application/octet-stream') as response:
+                    metadata = json.loads(response.headers['X-Pose-Surface-Mark'])
+                    self.assertEqual(metadata, {k: mark[k] for k in ('texture', 'opacity')} | {'offset': len(actor_bytes)})
+                    self.assertEqual(response.read(), actor_bytes + b64decode(mark['vertices']))
+
     def test_live_attachments(self):
         from build_review_catalog import ASSETS, read
 

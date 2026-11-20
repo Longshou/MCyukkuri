@@ -47,10 +47,8 @@ public final class HatGeometry {
         var p=DATA.getAsJsonObject("placements").getAsJsonObject(aquatic?"aquatic":"land").getAsJsonObject(self?"self":"helper").getAsJsonArray("grip_worn");
         return new Vector3f(p.get(0).getAsFloat(),p.get(1).getAsFloat(),p.get(2).getAsFloat());
     }
-    /** The worn hat and the forms that sit near it (hat_interactions.json): take-off motion per hatted form, boxes per form. */
-    private static final JsonObject WORN=GeometryJson.read("yukkuri_presentation/hat_interactions.json").data();
     /** The worn hat of a hatted form (bone, lift and forward of its take-off motion), or null for a form without one. */
-    public static JsonObject worn(String assetId){return WORN.getAsJsonObject("variants").getAsJsonObject(assetId);}
+    public static JsonObject worn(String assetId){return WornHatGeometry.worn(assetId);}
     /** The authored hat geometry of a form with a brim, or null for other headwear. */
     public static JsonObject brim(YukkuriView body) {
         var hat = worn(body.assetId());
@@ -60,7 +58,7 @@ public final class HatGeometry {
     /** Half width of a form's authored boxes, hair and ribbons included (model units); Reimu's when the form has none. */
     public static double formHalfWidth(String assetId){
         return HALF_WIDTHS.computeIfAbsent(assetId,id->{
-            var forms=WORN.getAsJsonObject("children");var form=forms.has(id)?forms.getAsJsonObject(id):forms.getAsJsonObject("reimu");
+            var forms=WornHatGeometry.DATA.getAsJsonObject("children");var form=forms.has(id)?forms.getAsJsonObject(id):forms.getAsJsonObject("reimu");
             double half=0;
             for(var part:form.getAsJsonArray("parts")){var b=floats(part.getAsJsonArray());half=Math.max(half,Math.max(Math.abs(b[0]),Math.abs(b[3])));}
             return half;

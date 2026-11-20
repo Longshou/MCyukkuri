@@ -3,9 +3,9 @@ package io.github.longshou.mcyukkuri.client;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.body.RemainsCause;
 import io.github.longshou.mcyukkuri.body.RemainsWater;
+import io.github.longshou.mcyukkuri.body.WoundTags;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,7 +74,7 @@ final class RemainsAssets {
     private static ResourceLocation decal(String name){return name==null?null:MCYukkuri.id("textures/entity/remains/decal_"+name+".png");}
 
     static Look resolve(String model,CompoundTag data){
-        int burn=HairWoundAssets.wholeBurn(BodyWound.read(data.getCompound("Body")),model.startsWith("house_"));
+        int burn=HairWoundAssets.wholeBurn(WoundTags.read(data.getCompound("Body")),model.startsWith("house_"));
         String form=RemainsCause.form(RemainsCause.of(data));
         var look=FORMS.get(form);
         if(look==null)return new Look("sleep",HairWoundAssets.texture(model,"sleep",burn),1,.65f,1,0,null,null,0);
