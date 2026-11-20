@@ -4,6 +4,13 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StrayDensityTest {
+    @Test void homesUpTheVillageSlopeStillFrontItsStreets() {
+        // Seed 123456789: the only bed stands 38 blocks above its bell.
+        assertTrue(StrayDensity.inFootprint(-336 - (-276), 165 - 158));
+        assertTrue(StrayDensity.inFootprint(64, 0));
+        assertFalse(StrayDensity.inFootprint(60, 30));
+    }
+
     @Test void inhabitedBedsScaleArrivalsAndBadWeatherClosesVacancies() {
         for (int beds : new int[] {0, 1, 3, 4, 8, 16, 100}) {
             int fair = switch (beds) {

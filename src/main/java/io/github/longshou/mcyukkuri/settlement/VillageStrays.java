@@ -11,13 +11,18 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -25,17 +30,23 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public final class VillageStrays {
-    private static final int RADIUS = 64;
     private record Village(List<BlockPos> beds, int vacancies) {}
+
+    private static Stream<BlockPos> nearby(PoiManager pois, ResourceKey<PoiType> kind, BlockPos centre) {
+        return pois.getInSquare(type -> type.is(kind), centre, StrayDensity.RADIUS, PoiManager.Occupancy.ANY)
+                .map(PoiRecord::getPos)
+                .filter(p -> StrayDensity.inFootprint(p.getX() - centre.getX(), p.getZ() - centre.getZ()));
+    }
 
     private static Village survey(ServerLevel level, BlockPos pos) {
         var pois = level.getPoiManager();
-        var centre = pois.findClosest(type -> type.is(PoiTypes.MEETING), pos, RADIUS, PoiManager.Occupancy.ANY)
-                .orElse(pos);
-        var beds = pois.findAll(type -> type.is(PoiTypes.HOME), bed -> true, centre, RADIUS, PoiManager.Occupancy.ANY).toList();
+        var centre = nearby(pois, PoiTypes.MEETING, pos).min(Comparator.comparingDouble(pos::distSqr)).orElse(pos);
+        var beds = nearby(pois, PoiTypes.HOME, centre).toList();
         int target = StrayDensity.target(beds.size(), level.isNight(),
                 level.isRaining() && level.getBiome(centre).value().hasPrecipitation());
-        int residents = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(centre).inflate(RADIUS + 12),
+        var streets = new AABB(centre).inflate(StrayDensity.RADIUS + 12)
+                .setMinY(level.getMinBuildHeight()).setMaxY(level.getMaxBuildHeight());
+        int residents = level.getEntitiesOfClass(YukkuriEntity.class, streets,
                 y -> y.isAlive() && y.status().identity() == Identity.STRAY).size();
         return new Village(beds, target - residents);
     }

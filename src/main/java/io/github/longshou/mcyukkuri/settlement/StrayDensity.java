@@ -2,6 +2,12 @@ package io.github.longshou.mcyukkuri.settlement;
 
 /** Village beds measure the amount of inhabited street. The target limits arrivals only. */
 final class StrayDensity {
+    static final int RADIUS = 64;
+
+    static boolean inFootprint(int dx, int dz) {
+        return dx * dx + dz * dz <= RADIUS * RADIUS;
+    }
+
     static int target(int beds, boolean night, boolean rain) {
         if (beds == 0) return 0;
         int fairDay = Math.min(6, 2 + beds / 4);
