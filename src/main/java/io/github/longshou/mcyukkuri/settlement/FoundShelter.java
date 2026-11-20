@@ -1264,7 +1264,10 @@ public final class FoundShelter implements MotorOwner {
     private Step beckonOrInspect() {
         var family = body.family();
         var child = shelter == null || beckoned != null ? null : family.childToBeckon(shelter::contains);
-        if (child == null) return inspect();
+        if (child == null) {
+            GameplayLog.event(body, "habitat", "found no beckon shelter={}", target());
+            return inspect();
+        }
         beckoned = child;
         int patience = family.beckonPatience();
         phase = Phase.BECKON;
