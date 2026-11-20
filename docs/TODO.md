@@ -12,7 +12,6 @@
 | 加门的两格入口能斜着蹭出去（DN-06） | `.worktrees/wp-doorway-exit` | movement/path through doors (walker, path nodes) |
 | 两只接触动作同步开始结束，分开时身体不重叠 | `.worktrees/wp-pair-contact-sync` | shared pair contact clock (DailyLife/IndependenceLife/SocialContact), separation step |
 | 演出放映室：身体湿痕与伤口 | `.worktrees/wp-player-effects-3` | preview/review, pose/cli, client/WoundSurface (pure extract) |
-| 喂孩子时嘴真的碰到孩子嘴 | `.worktrees/wp-art-feed-child` | standards/yukkuri-library/motions/variants/lore (feed_child), exported motion |
 
 ## 玩法待办
 
@@ -29,6 +28,8 @@
 - 宠物迎接主人蹭蹭：已接入待试玩。街道 TN-30（`yard_owner_return`）观察宠物按自身步速迎上，欢跳问候后贴近蹭完，再恢复日常。完成标准：主人归来时宠物上前蹭一下。
 
 - 内容梳理：部分接入。起势接高峰神情、淡去表情与跨重载的惊惧和哀伤回想已接入待试玩（DN-01、DN-02、WT-05）。挨打或受制裁后的惊惧和愤怒已接入待试玩（BD-24 `punishment`，观察僵住或哭求后发抖、顶嘴后赌气）。被鄙视、执行制裁及认出自身油霉后的情绪余韵已接入待试玩（HD-04、BD-02）。受夸和玩耍后的喜悦已接入待试玩。TN-39 以饲主身份在旁看灵梦用食盆，头顶出现「？」时空手右键夸它，观察笑容如何淡去；PK-02 看两只宠物离开蹦床后的神情。DN-06 拒绝占窝事件后，观察魔理沙跺完脚再退走，怒容接着缓和（诅咒跺脚已接入待试玩）。动作衔接已接入待试玩，观察哀悼换姿、挨打时立即反应和同伴同步蹭脸（DN-01、BD-24、MD-02）。完成标准：把情绪渐进平复与演出前后衔接梳理补齐。「需要梳理过一遍现在的内容，之前说的情绪渐进平复 演出前后衔接等 感觉没有全部做好」
+
+- 喂孩子时嘴对嘴：未做（待用户评估是否要改）。按游戏站位，亲油喂子油时双方嘴相隔约 2.2–3.0 模型单位（不到 0.2 格），离线测量显示只改喂食片段做不到贴嘴不穿模，需要按脸部深度调站位、让关怀前倾嘴对嘴瞄准并给子油新做仰头接食片段。完成标准：喂食时亲油嘴贴到子油嘴、身体与头发不穿模。
 
 - 装篮后篮内不可见：已接入待试玩。街道 TN-33（`basket_weakness`）对照三种运输篮，手持或从展示框正面辨认篮内个体。完成标准：篮里能看到是谁。
 
