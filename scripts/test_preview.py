@@ -184,7 +184,7 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         result = self.run_cli('inbox', 'add', 'boundary', '--title', 'New title', '--url', '../boundary/index.html', '--decision', 'New decision')
         self.assertEqual(result.returncode, 0, result.stderr)
         items = json.loads((target/'items.json').read_text(encoding='utf-8'))
-        self.assertEqual(items[0], dict(id='life-review', title='Existing title', decision='Existing decision', url='../life-review/index.html'))
+        self.assertEqual(items[0], dict(id='life-review', title='Existing title', decision='Existing decision', url='../life-review/index.html', kind='decision'))
         result = self.run_cli('inbox', 'remove', 'boundary')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(json.loads((target/'items.json').read_text(encoding='utf-8'))), 1)
@@ -228,6 +228,55 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         self.assertEqual(markup.count('data-verdict-id="motion-greet-reimu"'), 2)
         self.assertIn('data-verdict-id="static-art"', markup)
         self.assertNotIn('data-verdict-id="playtest"', markup)
+
+    def test_inbox_kinds_backfill_and_page(self):
+        from preview import infer_kind, refresh_inbox
+
+        target = self.out/'inbox'
+        target.mkdir(parents=True)
+        (self.out/'art-demo').mkdir()
+        (self.out/'art-demo/pic.png').write_bytes(b'x')
+        (self.out/'art-demo/index.html').write_text('<img src="pic.png">', encoding='utf-8')
+        rows = [dict(id='art-demo', title='Art', url='../art-demo/index.html', decision='Look'),
+                dict(id='playtest-1', title='Play', url='../playtest-1/index.html', decision='Try'),
+                dict(id='clip', title='Clip', url='../clip/viewer.html?model=reimu', decision='Watch'),
+                dict(id='misc', title='Misc <b>', url='../misc/index.html', decision='Choose one')]
+        (target/'items.json').write_text(json.dumps(rows), encoding='utf-8')
+        self.assertEqual([infer_kind(row) for row in rows], ['art', 'playtest', 'motion', 'decision'])
+        result = self.run_cli('inbox', 'add', 'forced', '--title', 'F', '--decision', 'D',
+                              '--url', '../forced/index.html', '--kind', 'art')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        items = json.loads((target/'items.json').read_text(encoding='utf-8'))
+        self.assertEqual([item['kind'] for item in items], ['art', 'playtest', 'motion', 'decision', 'art'])
+        refresh_inbox(self.out, [])
+        markup = (target/'index.html').read_text(encoding='utf-8')
+        for ident in ('art-demo', 'clip', 'forced'):
+            self.assertIn(f'data-verdict-id="{ident}"', markup)
+        for ident in ('playtest-1', 'misc'):
+            self.assertNotIn(f'data-verdict-id="{ident}"', markup)
+        self.assertIn('src="../art-demo/pic.png"', markup)
+        self.assertIn('target="_blank"', markup)
+        self.assertIn('id="only-pending"', markup)
+        self.assertIn('Misc &lt;b&gt;', markup)
+        self.assertIn('待审 <span class="pending-count">2</span> / 共 2', markup)
+        self.assertIn('<b id="pending-total">3</b>', markup)
+
+    def test_verdict_reasons_round_trip(self):
+        import review_verdicts
+
+        log = self.out/'verdicts.jsonl'
+        log.write_text(json.dumps(dict(id='old', verdict='fail', note='stiff', ts='t')) + '\n', encoding='utf-8')
+        record = review_verdicts.append(dict(id='new', verdict='fail', reasons=['穿模', '看不清'], note='腿'), log)
+        review_verdicts.append(dict(id='plain', verdict='pass'), log)
+        latest = review_verdicts.latest(log)
+        self.assertEqual(latest['new']['reasons'], ['穿模', '看不清'])
+        self.assertEqual(latest['new'], record)
+        self.assertEqual(latest['old']['reasons'], [])
+        self.assertEqual(latest['old']['note'], 'stiff')
+        self.assertEqual(latest['plain']['reasons'], [])
+        for bad in ('x', ['a'] * 21, [1], ['']):
+            with self.assertRaises(ValueError):
+                review_verdicts.append(dict(id='bad', verdict='fail', reasons=bad), log)
 
     def test_refresh_preserves_handwritten_inbox(self):
         from preview import refresh_inbox

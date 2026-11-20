@@ -26,8 +26,12 @@ def append(value, path):
     note = value.get('note', '')
     if not isinstance(note, str) or len(note) > 500:
         raise ValueError('备注须为最多 500 字的文本。')
+    reasons = value.get('reasons', [])
+    if (not isinstance(reasons, list) or len(reasons) > 20
+            or not all(isinstance(r, str) and 0 < len(r) <= 40 for r in reasons)):
+        raise ValueError('原因须为最多 20 个短文本。')
     with LOCK:
-        record = dict(id=ident, verdict=verdict, note=note,
+        record = dict(id=ident, verdict=verdict, reasons=reasons, note=note,
                       ts=datetime.now(timezone.utc).isoformat(timespec='milliseconds'))
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('a', encoding='utf-8') as stream:
@@ -40,6 +44,7 @@ def latest(path):
         try:
             with path.open(encoding='utf-8') as stream:
                 records = (json.loads(line) for line in stream)
-                return {record['id']: record for record in records}
+                return {record['id']: dict(record, reasons=record.get('reasons', []), note=record.get('note', ''))
+                        for record in records}
         except FileNotFoundError:
             return {}

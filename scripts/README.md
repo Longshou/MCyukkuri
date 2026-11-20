@@ -137,7 +137,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 双演员演出可在主角和 `partner` 上填写同一组节拍长度与各自的 `steps`。主角每步的 `stance` 指向递喂、蹭脸、绕后或压制的站位规则。播放器把两只当前的片段和站位阶段送给姿态核心，接触距离和前倾使用游戏计算。
 
-`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果。
+`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮；`--kind motion|art|playtest|decision` 指定类别（缺省按链接与编号推断，动作与美术类显示“通过/不通过”，不通过时可勾选原因并写说明，其余只按类别分组显示）。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果（verdict、reasons、note、ts）。
 
 总入口调用 `build_preview_library.py` 生成物品缩略图及物品、模型、试玩场景索引 `library.json`。`preview_block_model.py` 渲染原生方块元素，`preview_inventory.py` 从 Java 注册与运行引用识别当前物品。分类与资源缺口写到 `.local/reports/preview-library.json`。
 

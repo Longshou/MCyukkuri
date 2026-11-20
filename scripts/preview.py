@@ -647,9 +647,12 @@ def inbox(args):
             item.update(url=args.url or '../player.html?'+urlencode({'entry': entry}), entry=entry)
         if args.look_only or entry:
             item['tag'] = 'look-only'
+        item['kind'] = getattr(args, 'kind', None) or infer_kind(item)
         items = [old for old in items if old['id'] != args.id] + [item]
     else:
         items = [item for item in items if item['id'] != args.id]
+    for item in items:
+        item.setdefault('kind', infer_kind(item))
     write_json(target/'items.json', items)
     catalog = OUT/'entries.json'
     refresh_inbox(OUT, read(catalog)['entries'] if catalog.is_file() else [])
@@ -666,20 +669,75 @@ def read_inbox(target):
     return []
 
 
-def write_inbox_page(target, items):
-    rows = []
-    for item in items:
-        link = f'<a href="{E(item["url"], quote=True)}">{E(item["title"])}</a>'
-        decision = f'<small>{E(item["decision"])}</small>'
-        verdict = ''
-        if item.get('tag') == 'look-only':
-            ident = E(item.get('entry', item['id']), quote=True)
-            verdict = f'<div data-verdict-id="{ident}"></div>'
-        rows.append(f'<li>{link}<br>{decision}{verdict}</li>')
-    body = '<ul>'+''.join(rows)+'</ul>' if rows else '<p>暂无待查看事项。</p>'
-    body += '<link rel="stylesheet" href="/preview/review/verdicts.css">'
-    body += '<script type="module" src="/preview/review/verdicts.js"></script>'
-    (target/'index.html').write_text(page('待你查看', body), encoding='utf-8')
+KINDS = {'motion': '动作', 'art': '美术', 'playtest': '试玩', 'decision': '决定'}
+REVIEWABLE = ('motion', 'art')
+
+
+def infer_kind(item):
+    """Best guess of an inbox item's kind from its entry, url, id and text."""
+    url, ident = item.get('url', ''), item['id']
+    if 'playtest' in ident or 'playtest' in url:
+        return 'playtest'
+    if item.get('entry') or re.search(r'(player|viewer)\.html', url) or 'motion' in ident + url:
+        return 'motion'
+    if re.search(r'(^|[-_])art([-_]|$)|props|models', ident + ' ' + url) or item.get('tag') == 'look-only':
+        return 'art'
+    if '试玩' in item.get('title', ''):
+        return 'playtest'
+    return 'decision'
+
+
+def thumbnail(out, item, entries):
+    """Relative image URL for an inbox card: the player entry image or the first image of the topic page."""
+    entry = next((row for row in entries if row['id'] == item.get('entry')), None)
+    if entry and entry.get('image'):
+        image = entry['image']
+        return image if image.startswith('/') else '../'+image
+    match = re.fullmatch(r'\.\./([\w-]+)/[^?#]*', item['url'].split('?')[0])
+    page_file = out/match[1]/(match[0].rsplit('/', 1)[1] or 'index.html') if match else None
+    if page_file and page_file.suffix == '.html' and page_file.is_file():
+        src = re.search(r'<img[^>]+src="([^"]+)"', page_file.read_text(encoding='utf-8', errors='replace'))
+        if src and not re.match(r'[a-z]+:|/', src[1]) and (page_file.parent/src[1]).is_file():
+            return f'../{match[1]}/{src[1]}'
+    return None
+
+
+def inbox_card(item, image):
+    kind = item['kind']
+    ident = E(item.get('entry', item['id']), quote=True)
+    thumb = f'<img class="thumb" loading="lazy" src="{E(image, quote=True)}" alt="">' if image else ''
+    reviewable = kind in REVIEWABLE
+    status = ' data-reviewable data-status="pending"' if reviewable else ''
+    badge = '<span class="badge">待审</span>' if reviewable else ''
+    verdict = f'<div data-verdict-id="{ident}" data-kind="{kind}"></div>' if reviewable else ''
+    return (f'<article class="card"{status}>{thumb}<h3>{E(item["title"])}</h3>'
+            f'<p class="decision">要你决定：{E(item["decision"])}</p>'
+            f'<div class="meta"><a class="open" target="_blank" rel="noopener" href="{E(item["url"], quote=True)}">打开预览</a>{badge}</div>'
+            f'{verdict}</article>')
+
+
+def write_inbox_page(target, items, entries=()):
+    out = target.parent
+    sections = []
+    for kind, name in KINDS.items():
+        group = [item for item in items if (item.get('kind') or infer_kind(item)) == kind]
+        if not group:
+            continue
+        count = (f'待审 <span class="pending-count">{len(group)}</span> / 共 {len(group)}'
+                 if kind in REVIEWABLE else f'共 {len(group)}')
+        cards = ''.join(inbox_card(dict(item, kind=kind), thumbnail(out, item, entries)) for item in group)
+        sections.append(f'<section class="kind" data-kind="{kind}"><h2>{name}<small>{count}</small></h2>'
+                        f'<div class="cards">{cards}</div></section>')
+    pending = sum(1 for item in items if (item.get('kind') or infer_kind(item)) in REVIEWABLE)
+    body = ''.join(sections) or '<p>暂无待查看事项。</p>'
+    head = (f'<header><h1>待你查看</h1><span>待审 <b id="pending-total">{pending}</b> 项</span>'
+            '<label class="filter"><input type="checkbox" id="only-pending"> 只看待审</label>'
+            '<a href="../index.html">预览总入口</a></header>')
+    doc = ('<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
+           '<meta name="viewport" content="width=device-width,initial-scale=1"><title>待你查看</title>'
+           f'<link rel="stylesheet" href="/preview/review/verdicts.css"><body class="inbox">{head}<main>{body}</main>'
+           '<script type="module" src="/preview/review/verdicts.js"></script></body></html>')
+    (target/'index.html').write_text(doc, encoding='utf-8')
 
 
 def refresh_inbox(out, entries):
@@ -706,7 +764,9 @@ def refresh_inbox(out, entries):
         legacy = re.fullmatch(r'C:/Program Files/Git/\.local/previews/([\w-]+/index\.html)', url)
         if legacy and (out/legacy[1]).is_file():
             item['url'] = '../'+legacy[1]
-    write_inbox_page(target, items)
+    for item in items:
+        item.setdefault('kind', infer_kind(item))
+    write_inbox_page(target, items, entries)
 
 
 def parser():
@@ -768,7 +828,8 @@ def parser():
             link = p.add_mutually_exclusive_group(required=True)
             link.add_argument('--url')
             link.add_argument('--entry', help='live player entry id for look-only review')
-            p.add_argument('--look-only', action='store_true', help='show verdict buttons below a look-only URL')
+            p.add_argument('--look-only', action='store_true', help='mark a static page as an art item with verdict buttons')
+            p.add_argument('--kind', choices=sorted(KINDS), help='motion/art get pass/fail buttons; default inferred from url and entry')
     commands.add_parser('verdicts', help='print the latest verdict per id as JSON')
     fp = commands.add_parser('faces', help='before/after runtime faces per beat on several forms')
     fp.add_argument('topic', type=valid_topic)
