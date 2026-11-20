@@ -7,24 +7,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class FarewellWindowTest {
     @Test void anApproachingChildCanComeIntoRange() {
-        assertTrue(EXCHANGE.open(24 * 24));
+        assertEquals(EXCHANGE, EXCHANGE.observed(24 * 24, false, false));
         assertFalse(inRange(24 * 24));
-        assertTrue(EXCHANGE.canAnswer(true, false));
     }
 
     @Test void aDepartureKeepsItsReplyThroughTheHandoffToOrdinaryTravel() {
-        assertTrue(DEPARTURE.open(16 * 16));
-        assertTrue(ONWARD.open(16 * 16));
-        assertTrue(DEPARTURE.canAnswer(true, true));
-        assertTrue(ONWARD.canAnswer(true, true));
-        assertFalse(ONWARD.canAnswer(false, true));
-        assertFalse(ONWARD.canAnswer(true, false));
+        assertEquals(DEPARTURE, DEPARTURE.observed(256, true, false)); // A look back.
+        assertEquals(HANDOFF, HANDOFF.observed(256, true, false)); // The old selector still owns MOVE.
+        assertEquals(ONWARD, ONWARD.observed(256, true, true));
+        assertEquals(CLOSED, ONWARD.observed(256, true, false));
     }
 
     @Test void aFinishedOrOutOfRangeDepartureExpires() {
-        assertFalse(CLOSED.open(0));
-        assertFalse(CLOSED.canAnswer(true, true));
-        assertFalse(DEPARTURE.open(16 * 16 + .01));
-        assertFalse(ONWARD.open(16 * 16 + .01));
+        for (var phase : new FarewellWindow[]{DEPARTURE, HANDOFF, ONWARD}) {
+            assertEquals(CLOSED, phase.observed(256.01, true, true));
+            assertEquals(CLOSED, phase.observed(16, false, true).observed(16, true, true));
+        }
+        assertEquals(CLOSED, ONWARD.observed(16, true, false).observed(16, true, true));
     }
 }

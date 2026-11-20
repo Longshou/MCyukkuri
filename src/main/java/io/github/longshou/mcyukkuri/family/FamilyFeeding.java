@@ -134,7 +134,7 @@ final class FamilyFeeding {
     private boolean careContextReady(boolean mouthAvailable) {
         return (o.adult()||o.subadult())&&!o.awaitingLanding()&&!o.entity().isNoAi()&&!o.entity().isPassenger()&&!o.entity().profile().houseBody()
                 &&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&!o.entity().operations().active()&&!o.entity().predator().active()
-                &&!o.entity().life().isSleeping()&&mouthAvailable&&!carrying().is(ModItems.REMAINS.get())&&!o.entity().independence().active()
+                &&!o.entity().life().isSleeping()&&mouthAvailable&&!carrying().is(ModItems.REMAINS.get())&&!o.entity().independence().leaving()
                 &&(o.entity().habitat().carrying().isEmpty()||o.entity().habitat().carryingMoveFood())&&o.entity().independence().carrying().isEmpty()
                 &&o.entity().settlement().duties().carrying().isEmpty()&&o.entity().house().carrying().isEmpty()
                 &&(carriedCheck||!o.carry().mouthBusy());
