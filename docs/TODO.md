@@ -14,6 +14,7 @@
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
 | 公园：主人在长椅旁留下伴侣离开（PK 包 B） | `.worktrees/wp-park-bench` | human/HumanStreet.java (outings, bench), human/TownMarkers.java, pet/PetLife.java |
 | 徽章会馆：佩章者在广场相遇（包 C） | `.worktrees/wp-badge-plaza` | human/TownMarkers.java, headwear badge reactions |
+| 街道：居民把满的垃圾桶搬到街角（街头买卖包 3） | `.worktrees/wp-bin-corner` | human/VillageBin.java, human/GarbageBinBlock*, human/HumanNpc.java |
 
 ## 玩法待办
 
