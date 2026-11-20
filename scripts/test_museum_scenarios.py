@@ -247,7 +247,15 @@ class ShopKinRoom(unittest.TestCase):
                  'water=1 -> 0 dryness=55.0 -> 25.0\n')
         second = claim.replace(CHILD, OTHER_CHILD).replace(f'x={x + 10}', f'x={x + 9}').replace(f'z={z - 2}', f'z={z - 3}')
         pair = claim + second
-        log = litter + pair + guard + drink
+        def feeding(actor):
+            prefix = f'[meal] reimu #1 uuid={actor} t=5 dim=minecraft:overworld '
+            item = 'item=mcyukkuri:oil_grain_regular count=1 '
+            return (prefix + f'pickup {item}source=BlockPos{{x={x + 12}, y={FEET + 2}, z={z - 1}}} holder=mouth\n'
+                    + prefix + f'swallowed {item}nutrition=35.0 -> 55.0\n')
+
+        bold_meal, timid_meal = feeding(CHILD), feeding(OTHER_CHILD)
+        water = litter + pair + guard + drink
+        log = water + bold_meal + timid_meal
         bed = [x + 10, FEET + 2, z - 2]
 
         def sleeping(actor, offset, nest='INSIDE_SUPPORTED'):
@@ -259,6 +267,9 @@ class ShopKinRoom(unittest.TestCase):
         bold = sleeping(CHILD, .5)
         timid = sleeping(OTHER_CHILD, .5)
         self.assertIsNone(verify(log, trace + bold + timid))
+        self.assertIsNone(verify(water + timid_meal + bold_meal, trace + bold + timid))
+        for wrong_meal in ('', timid_meal.splitlines(keepends=True)[0], timid_meal.replace(f'x={x + 12}', f'x={x + 11}')):
+            self.assertIn('eat from the family bowl', verify(water + bold_meal + wrong_meal, trace + bold + timid))
         for wrong_claim in (claim, claim + claim.replace(CHILD, OTHER_CHILD), pair + claim.replace(CHILD, OTHER_PARENT)):
             self.assertIn('claim each adjacent bed', verify(litter + wrong_claim + guard + drink, trace + bold + timid))
         self.assertIn('one parent pair', verify(log.replace('father=f', 'father=g', 1), trace + bold + timid))

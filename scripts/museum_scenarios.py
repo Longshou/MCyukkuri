@@ -4281,7 +4281,7 @@ _kin_room = (('kin_bold', 11.5, -3.5, 8.5, -2.0), ('kin_timid', 10.5, -3.5, 8.5,
 add('shop_kin_room', 'shop', '同窝兄弟：护盆、等候和相邻的窝',
     '同窝兄弟：护盆、等候和相邻的窝',
     '看右侧饮水器旁的两只同窝灵梦。胆大的抢先时会鼓脸，胆小的退开等空位，再走近喝水。'
-    '看过左侧食盆后等天黑，两只在家庭房相邻的软垫窝里各自睡下。',
+    '喝水后看两只先后吃左侧食盆里的粮，再等天黑，各自在家庭房相邻的软垫窝里睡下。',
     '约十几秒看护盆，约四十秒后入夜', [PET_SHOP,
         # Wholesale juvenile litters arrive in pairs. The template normally starts with three babies.
         'yukkuri clear ~8 ~2 ~-3 ~8 ~3 ~-3',
@@ -9373,6 +9373,14 @@ def _verify_shop_kin_room(window, trace):
     drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
     if not wait or not drink or wait.start() >= drink.start():
         return 'Expected the timid littermate to wait for the bold one and then drink'
+    bowl = rf'BlockPos\{{x={x + 12}, y={FEET + 2}, z={z - 1}\}}'
+    after_water = window[drink.end():]
+    for sibling in (bold, timid):
+        meal = rf'\[meal\][^\n]* uuid={sibling} [^\n]* '
+        grain = r'item=mcyukkuri:oil_grain_regular count=1 '
+        pickup = re.search(meal + rf'pickup {grain}source={bowl} holder=mouth', after_water)
+        if not pickup or not re.search(meal + rf'swallowed {grain}', after_water[pickup.end():]):
+            return f'Expected sibling {sibling} to eat from the family bowl after drinking'
     asleep = {}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
@@ -9399,7 +9407,6 @@ def _verify_shop_kin_room(window, trace):
 
 _smoke('shop_kin_room', 2200, [r'\[shop\][^\n]* action=family_bed result=installed grade=adjacent ',
                               r'\[meal\][^\n]* supply guarded [^\n]* kind=water ',
-                              r'\[meal\][^\n]* supply guarded [^\n]* kind=bowl ',
                               r'\[needs\][^\n]* drink [^\n]* kind=waterer '])
 next(s for s in S if s.id == 'shop_kin_room').smoke.update(verify=_verify_shop_kin_room, verify_trace=True)
 
