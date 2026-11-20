@@ -900,11 +900,13 @@ public final class SurfaceApproach {
         if(!GameplayLog.detailEnabled())return;
         // The Walk action prints its own walk.sample for the same ticks.
         if(actor.motor().current() instanceof Walk)return;
+        int suppressed = GameplayLog.admit(actor, "walk", "sample", SAMPLE_TICKS);
+        if (suppressed < 0) return;
         var navigation=actor.getNavigation();
         var path=navigation.getPath();
         int nodes=path==null?0:Math.max(0,path.getNodeCount()-path.getNextNodeIndex());
         var owner=actor.motor().owner();
-        GameplayLog.limited(actor,"walk","sample",SAMPLE_TICKS,
+        GameplayLog.limitedEvent(actor,"walk",suppressed,
                 "sample layer=approach at={} dest={} pathTarget={} navDone={} nodesLeft={} metric={} speed={} collided={} crawl={} owner={} result={}",
                 GameplayLog.at(actor.position()),GameplayLog.at(destination),navigation.getTargetPos(),navigation.isDone(),nodes,
                 String.format(Locale.ROOT,"%.2f",actor.position().distanceTo(destination)),
@@ -934,8 +936,11 @@ public final class SurfaceApproach {
             current.hatsSig=hats(actor,destination);current.hatsChecked=now;
             current.goal=outside(actor,destination,body);
             if(current.goal==null)return blocked(actor,"under_hat");
-            if(current.goal!=destination)GameplayLog.limited(actor,"approach","outside_hat",200,
-                    "destination under a hat's brim moved clear peer={} destination={} goal={}",peer,GameplayLog.at(destination),GameplayLog.at(current.goal));
+            if (current.goal != destination) {
+                int suppressed = GameplayLog.admit(actor, "approach", "outside_hat", 200);
+                if (suppressed >= 0) GameplayLog.limitedEvent(actor,"approach",suppressed,
+                        "destination under a hat's brim moved clear peer={} destination={} goal={}",peer,GameplayLog.at(destination),GameplayLog.at(current.goal));
+            }
         }
         destination=current.goal;
         if(navigation instanceof YukkuriGroundNavigation ground){

@@ -654,15 +654,19 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public Held heldPlace() { return sync().held(); }
     /** The server's record of where her kit is: her custody's place and spot, the hat it lies in, and the beat moving it now. */
     public Held heldRecord() {
-        if (hatKit().isEmpty()) return Held.NONE;
+        return heldRecord(hatKit());
+    }
+    Held heldRecord(ItemStack kit) {
+        if (kit.isEmpty()) return Held.NONE;
         var custody = life.custody();
         var move = motor().current() == null ? null : motor().current().heldMove();
+        var beat = move == null ? null : move.beat();
         var place = custody.kitPlace();
-        boolean into = move != null && move.beat().to() == Held.Place.HAT;
+        boolean into = move != null && beat.to() == Held.Place.HAT;
         var spot = place == Held.Place.HAT ? custody.kitSpot() : into ? move.spot() : null;
         var dir = place == Held.Place.HAT ? custody.kitDir() : into ? move.dir() : null;
         var hat = spot == null ? null : PlacedHatEntity.find(this);
-        return new Held(place, hat == null ? -1 : hat.getId(), hat == null ? null : spot, hat == null ? null : dir, move == null ? null : move.beat());
+        return new Held(place, hat == null ? -1 : hat.getId(), hat == null ? null : spot, hat == null ? null : dir, beat);
     }
     /** The one stack her hats keep for her and she therefore holds: the worn hat's kit, else her own set-down hat's. */
     public ItemStack hatKit() {

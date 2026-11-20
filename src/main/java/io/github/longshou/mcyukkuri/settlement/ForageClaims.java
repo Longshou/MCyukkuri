@@ -37,7 +37,8 @@ public final class ForageClaims {
         var group = forager.settlement().group();
         if (group == null || group.threatPos == null || !PlantSites.threatened(group.threat,
                 (double)site.getX() - group.threatPos.getX(), (double)site.getZ() - group.threatPos.getZ())) return false;
-        GameplayLog.limited(forager, "forage", "threat_zone", 200,
+        int suppressed = GameplayLog.admit(forager, "forage", "threat_zone", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(forager, "forage", suppressed,
                 "forage skipped reason=threat_zone site={} sighting={} threat={}", site, group.threatPos, group.threat);
         return true;
     }

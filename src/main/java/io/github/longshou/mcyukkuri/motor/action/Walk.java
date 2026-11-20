@@ -295,11 +295,13 @@ public final class Walk implements Action {
     /** {@code walk.sample}: position, navigation state, nodes left, owner and the metric, only with the detail switch on. */
     private void sample(YukkuriEntity body) {
         if (!GameplayLog.detailEnabled()) return;
+        int suppressed = GameplayLog.admit(body, "walk", "sample", SAMPLE_TICKS);
+        if (suppressed < 0) return;
         var navigation = body.getNavigation();
         var path = navigation.getPath();
         int nodes = path == null ? 0 : Math.max(0, path.getNodeCount() - path.getNextNodeIndex());
         var owner = body.motor().owner();
-        GameplayLog.limited(body, "walk", "sample", SAMPLE_TICKS,
+        GameplayLog.limitedEvent(body, "walk", suppressed,
                 "sample at={} from={} target={} host={} navDone={} nodesLeft={} owner={} metric={}",
                 GameplayLog.at(body.position()), GameplayLog.at(from),
                 GameplayLog.at(host == null ? target : host.frame().toWorld(local)),

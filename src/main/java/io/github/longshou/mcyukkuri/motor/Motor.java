@@ -66,7 +66,8 @@ public final class Motor {
                 else if (limited.x != 0 && SurfaceApproach.canSteerOver(body, from.add(limited.x, 0, 0)))
                     limited = limited.multiply(1, 1, 0);
                 else limited = limited.multiply(0, 1, 0);
-                GameplayLog.limited(body, "move", "unsafe_drop", 100, "avoided unsafe landing toward={} step={}",
+                int suppressed = GameplayLog.admit(body, "move", "unsafe_drop", 100);
+                if (suppressed >= 0) GameplayLog.limitedEvent(body, "move", suppressed, "avoided unsafe landing toward={} step={}",
                         GameplayLog.at(to), GameplayLog.at(limited));
             }
         }

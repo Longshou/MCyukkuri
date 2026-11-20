@@ -254,20 +254,25 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         boolean walking=!isDone();
         var target=walkingTarget;
-        // What the walk was heading for when it gives up (the path is gone once vanilla stops it).
-        var node=walking?path.getNextNodePos():null;
-        String route=walking?path.getNextNodeIndex()+"/"+path.getNodeCount():null;
         if (mob instanceof YukkuriEntity walker && (walker.isCrawling() || doorStep != null)) {
             gaitStuckDetection(walker, at, walking, target);
             return;
         }
+        // Vanilla drops the path when it gives up. Keep its index for an admitted diagnostic.
+        var previousPath = path;
+        int index = walking ? path.getNextNodeIndex() : -1;
         gaitCheckPos=null;
         super.doStuckDetection(at);
         if(walking&&isDone()){
             stalled=true;
-            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress target={} at={} node={} index={} held={} nodeBlock={} nodeBelow={} nodeFluid={} collided={} speed={} onGround={} motor={}",
-                    target,at,node,route,held,node==null?null:level.getBlockState(node).getBlock(),node==null?null:level.getBlockState(node.below()).getBlock(),node==null?null:level.getFluidState(node).getType(),
-                    mob.horizontalCollision,mob.getSpeed(),mob.onGround(),mob instanceof YukkuriEntity body?body.motor().current():null);
+            int suppressed = GameplayLog.admit(mob, "move", "path_stalled", 200);
+            if (suppressed >= 0) {
+                var node = previousPath.getNodePos(index);
+                GameplayLog.limitedEvent(mob,"move",suppressed,"ground path stopped reason=no_progress target={} at={} node={} index={} held={} nodeBlock={} nodeBelow={} nodeFluid={} collided={} speed={} onGround={} motor={}",
+                        target,at,node,index+"/"+previousPath.getNodeCount(),held,level.getBlockState(node).getBlock(),
+                        level.getBlockState(node.below()).getBlock(),level.getFluidState(node).getType(),
+                        mob.horizontalCollision,mob.getSpeed(),mob.onGround(),mob instanceof YukkuriEntity body?body.motor().current():null);
+            }
         }
     }
 
@@ -280,7 +285,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             double moved=at.distanceTo(gaitCheckPos),expected=pace*(now-gaitCheckTick);
             if(moved<expected*GAIT_SHARE){
                 stop();stalled=true;
-                GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait={} target={} at={} moved={} expected={}",
+                int suppressed = GameplayLog.admit(mob, "move", "path_stalled", 200);
+                if (suppressed >= 0) GameplayLog.limitedEvent(mob,"move",suppressed,"ground path stopped reason=no_progress gait={} target={} at={} moved={} expected={}",
                         walker.isCrawling()?"crawl":"door",target,at,String.format(Locale.ROOT,"%.3f",moved),String.format(Locale.ROOT,"%.3f",expected));
             }
         }
@@ -622,9 +628,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (turn.side() == 0) return to;
         if (moving) {
             way = turn.way();
-            if ((turn.id() != turnId || turn.side() != turnSide) && level.getEntity((int) turn.id()) instanceof Entity e)
-                GameplayLog.limited(mob, "move", "detour", 100, "walking round {} {} #{} side={} at={} to={}", kind(e),
-                        e.getUUID(), e.getId(), turn.side(), GameplayLog.at(at), GameplayLog.at(to));
+            if ((turn.id() != turnId || turn.side() != turnSide) && level.getEntity((int) turn.id()) instanceof Entity e) {
+                int suppressed = GameplayLog.admit(mob, "move", "detour", 100);
+                if (suppressed >= 0) GameplayLog.limitedEvent(mob, "move", suppressed, "walking round {} {} #{} side={} at={} to={}",
+                        kind(e), e.getUUID(), e.getId(), turn.side(), GameplayLog.at(at), GameplayLog.at(to));
+            }
             turnId = turn.id(); turnSide = turn.side(); turnTick = now;
         }
         return new Vec3(turn.x(), to.y, turn.z());
@@ -682,7 +690,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             else if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";
             else action = "waiting";
         }
-        GameplayLog.limited(animal, "move", "body_block_" + action, 100,
+        int suppressed = GameplayLog.admit(animal, "move", "body_block_" + action, 100);
+        if (suppressed >= 0) GameplayLog.limitedEvent(animal, "move", suppressed,
                 "blocked by {} {} #{} action={} window={} to={}", kind(other), other.getUUID(), other.getId(), action, stage, GameplayLog.at(aimed));
     }
 

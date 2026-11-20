@@ -262,7 +262,9 @@ final class FamilyFeeding {
             }
             if(sourceChosen())break;
         }
-        if(sourceChosen())GameplayLog.limited(o.entity(),"family","care.source",200,
+        if (!sourceChosen()) return;
+        int suppressed = GameplayLog.admit(o.entity(), "family", "care.source", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(o.entity(),"family",suppressed,
                 "feed source selected child={} source={} drop={} store={} plant={} larder={}",o.target().getUUID(),
                 plantSource!=null?"plant "+diet.yield(o.level().getBlockState(plantSource)):hatLarder!=null?"hat larder":foodStore!=null?"store":"drop",
                 foodSource==null?null:foodSource.getUUID(),foodStore,plantSource,hatLarder==null?null:hatLarder.getUUID());
@@ -389,10 +391,13 @@ final class FamilyFeeding {
         }
         var food=ItemContact.releaseSupported(o.entity(),carrying(),40);
         if(food==null){
-            var at=MouthPlacement.position(o.entity());
-            GameplayLog.limited(o.entity(),"family","care_food.release_refused",200,
-                    "feed reserved portion release refused item={} reason={} mouth={} supported={}",carrying(),reason,
-                    at, ItemContact.hasReleaseSupport(o.entity(),at));
+            int suppressed = GameplayLog.admit(o.entity(), "family", "care_food.release_refused", 200);
+            if (suppressed >= 0) {
+                var at=MouthPlacement.position(o.entity());
+                GameplayLog.limitedEvent(o.entity(),"family",suppressed,
+                        "feed reserved portion release refused item={} reason={} mouth={} supported={}",carrying(),reason,
+                        at, ItemContact.hasReleaseSupport(o.entity(),at));
+            }
             return false;
         }
         GameplayLog.event(o.entity(),"family","feed reserved portion dropped item={} drop={} reason={}",

@@ -492,7 +492,8 @@ final class Waters {
             if (bank != null) return new Exit(local, bank);
             refused.add(from);
         }
-        GameplayLog.limited(body, "aquatic", "hop.ashore", 200,
+        int suppressed = GameplayLog.admit(body, "aquatic", "hop.ashore", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
                 "hop ashore unavailable hat={} at={} edge={} brim={} stand={} exit_stops=0 width={} ability={}",
                 hat.getUUID(), GameplayLog.at(hat.position()), GameplayLog.at(edge.edge()), GameplayLog.at(nearest),
                 GameplayLog.at(boardingStand(edge, body)), body.getBbWidth(), BodyAbility.of(body).detail());
@@ -528,7 +529,8 @@ final class Waters {
                     : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
                     : !reachable.test(at) ? "hop_arc" : null;
             if (refusal == null) return at;
-            GameplayLog.limited(body, "aquatic", "shore." + refusal, 200,
+            int suppressed = GameplayLog.admit(body, "aquatic", "shore." + refusal, 200);
+            if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
                     "hop shore stand refused reason={} from={} stand={}", refusal, GameplayLog.at(from), GameplayLog.at(at));
         }
         return null;
@@ -602,7 +604,8 @@ final class Waters {
     }
 
     private static void rejectStick(YukkuriEntity body, ItemEntity stick, String reason, Vec3 floor, double range, boolean walk) {
-        GameplayLog.limited(body, "aquatic", "stick_" + reason + "_" + stick.getId(), 200,
+        int suppressed = GameplayLog.admit(body, "aquatic", "stick_" + reason + "_" + stick.getId(), 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
                 "stick rejected id={} uuid={} at={} reason={} floor={} range={} walk={} pickupDelayed={}", stick.getId(), stick.getUUID(),
                 GameplayLog.at(stick.position()), reason, GameplayLog.at(floor), range, walk, stick.hasPickUpDelay());
     }
@@ -688,7 +691,10 @@ final class Waters {
         var from = hat.blockPosition();
         if (route.isEmpty()) GameplayLog.limited(owner, "aquatic", "route.none." + purpose, 200, "route none purpose={} from={} to={} reason=no_calm_water_path",
                 purpose, from, goal == null ? "none" : goal);
-        else GameplayLog.limited(owner, "aquatic", "route." + purpose, 100, "route purpose={} from={} to={} cells={} leg={}", purpose,
-                from, goal, route.size(), leg(route));
+        else {
+            int suppressed = GameplayLog.admit(owner, "aquatic", "route." + purpose, 100);
+            if (suppressed >= 0) GameplayLog.limitedEvent(owner, "aquatic", suppressed,
+                    "route purpose={} from={} to={} cells={} leg={}", purpose, from, goal, route.size(), leg(route));
+        }
     }
 }

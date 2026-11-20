@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -80,16 +79,20 @@ public final class GameplayLog {
 
     /** Repeated automatic refusals: stable per-entity keys, with suppressed count on the next emitted line. */
     public static void limited(Entity source, String category, String key, int minTicks, String message, Object... values) {
-        limited(source, category, key, minTicks, message, () -> values);
+        int suppressed = admit(source, category, key, minTicks);
+        if (suppressed >= 0) limitedEvent(source, category, suppressed, message, values);
     }
 
-    /** Builds observation values only after the entity's bounded window admits the line. */
-    public static void limited(Entity source, String category, String key, int minTicks, String message, Supplier<Object[]> values) {
-        if (source == null || source.level().isClientSide) return;
+    /** Checks the window before the caller builds expensive observation values. A negative result skips the line. */
+    public static int admit(Entity source, String category, String key, int minTicks) {
+        if (source == null || source.level().isClientSide) return -1;
         Map<String, Window> windows = WINDOWS.computeIfAbsent(source, ignored -> new HashMap<>());
-        int suppressed = enter(windows, source.level().getGameTime(), category, key, minTicks);
-        if (suppressed < 0) return;
-        event(source, category, message + suffix(suppressed), suppressed, values.get());
+        return enter(windows, source.level().getGameTime(), category, key, minTicks);
+    }
+
+    /** Emits once after a successful {@link #admit} for this source and category. */
+    public static void limitedEvent(Entity source, String category, int suppressed, String message, Object... values) {
+        event(source, category, message + suffix(suppressed), suppressed, values);
     }
 
     /** Transactions without a live entity must include their stable token, group or block identity. */

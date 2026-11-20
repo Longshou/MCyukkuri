@@ -105,6 +105,7 @@ final class YukkuriSync {
     private static final EntityDataAccessor<String> SPEECH_VOICE_TIER = YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> TABLE_TOOL=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private Held heldSnapshot = Held.NONE;
+    private final LastSent<Held> sentHeld = new LastSent<>();
     private YukkuriSyncState.Agitation agitationSnapshot;
     private YukkuriSyncState.WaterDistress waterDistressSnapshot;
     private YukkuriSyncState.LiveChildren liveChildrenSnapshot;
@@ -414,22 +415,33 @@ final class YukkuriSync {
         if (!ItemStack.matches(owner.getEntityData().get(MOUTH), mouth)) owner.getEntityData().set(MOUTH, mouth.copy());
         owner.getEntityData().set(FOOD_ON_BRAID, owner.life().braidHasFood());
         owner.getEntityData().set(BRAID_MEAL_BIN, Optional.ofNullable(owner.life().braidMealBin()));
-        owner.getEntityData().set(DISH_CONTACT, owner.life().dishContact().toVector3f());
+        syncDishContact();
         if (!ItemStack.matches(owner.getEntityData().get(CARRYING), carried)) owner.getEntityData().set(CARRYING, carried.copy());
         owner.getEntityData().set(MEDAL, owner.pet().visibleGrade().id() | (owner.pet().disqualified() ? 8 : 0));
         owner.getEntityData().set(ACCESSORY, owner.life().hasAccessory());
         owner.getEntityData().set(WEAR, owner.wornBits());
     }
+    private void syncDishContact() {
+        var contact = owner.life().dishContactPoint();
+        var origin = owner.blockPosition();
+        float x = contact == null ? 0f : (float) (contact.x - origin.getX());
+        float y = contact == null ? 0f : (float) (contact.y - origin.getY());
+        float z = contact == null ? 0f : (float) (contact.z - origin.getZ());
+        if (!owner.getEntityData().get(DISH_CONTACT).equals(x, y, z))
+            owner.getEntityData().set(DISH_CONTACT, new Vector3f(x, y, z));
+    }
     void syncHeldItem() {
         var kit = owner.hatKit();
         if (!ItemStack.matches(owner.getEntityData().get(HELD_ITEM), kit)) owner.getEntityData().set(HELD_ITEM, kit.copy());
-        setChanged(HELD_PLACE, owner.heldRecord().write());
+        var held = owner.heldRecord(kit);
+        if (sentHeld.changed(held)) setChanged(HELD_PLACE, held.write());
     }
     void resetDeathPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
         owner.getEntityData().set(EXPRESSION, "neutral");
         owner.getEntityData().set(HELD_ITEM, ItemStack.EMPTY);
         owner.getEntityData().set(HELD_PLACE, new CompoundTag());
+        sentHeld.invalidate();
     }
     void resetLoadedPresentation() {
         setAnimation(YukkuriAction.IDLE, true);
@@ -499,6 +511,7 @@ final class YukkuriSync {
     void invalidateSentStructures() {
         sentWounds = null;
         sentLiveChildren = null;
+        sentHeld.invalidate();
     }
     void animationId(String value) { owner.getEntityData().set(ANIMATION, value); }
     void animationStart(long value) { owner.getEntityData().set(ANIMATION_START, value); }

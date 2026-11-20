@@ -1596,12 +1596,13 @@ public final class YukkuriLife {
         return task == Task.FOOD && targetBlock != null && targetFood == null && bowlStand != null && foodRoute == null;
     }
 
-    public Vec3 dishContact() {
-        if (guardingDish()) return Vec3.ZERO;
+    /** World contact point during the visible sip or bite, or null when there is no dish contact. */
+    public Vec3 dishContactPoint() {
+        if (guardingDish()) return null;
         if (bowlStand != null && targetBlock != null && (task == Task.DRINK && drinkTicks > 0 || takingFromDish() && bowlBiteTicks > 0
                 || meal.fromBowl() && mealTicks() > 0 && mealTicks() < LifeMeal.TAKE_TICKS)
-                && bowlStand.reaches(entity)) return bowlStand.contact().subtract(Vec3.atLowerCornerOf(entity.blockPosition()));
-        return Vec3.ZERO;
+                && bowlStand.reaches(entity)) return bowlStand.contact();
+        return null;
     }
 
     private void refuseEmptyDrink() {
@@ -1631,7 +1632,9 @@ public final class YukkuriLife {
         }
         refusedServings.put(BlockPos.containing(source), source);
         boolean drink = task == Task.DRINK;
-        GameplayLog.limited(entity, drink ? "needs" : "meal", drink ? "water_route" : "food_route", 200,
+        String category = drink ? "needs" : "meal";
+        int suppressed = GameplayLog.admit(entity, category, drink ? "water_route" : "food_route", 200);
+        if (suppressed >= 0) GameplayLog.limitedEvent(entity, category, suppressed,
                 "{} approach refused source={} stand={} reason={}", drink ? "water" : "food",
                 GameplayLog.at(source), stand == null ? "-" : GameplayLog.at(stand), reason);
         SurfaceApproach.stopWalking(entity);

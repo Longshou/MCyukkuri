@@ -17,6 +17,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /** The MOTOR component: exactly one action drives a body at a time and every request to move goes through it. Server only, never saved, never driven by a passive clock. */
@@ -38,6 +39,7 @@ public final class BodyDriver {
     private static final ThreadLocal<Boolean> DECIDING = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private final YukkuriEntity body;
+    private final BlockPos.MutableBlockPos buoyancySample = new BlockPos.MutableBlockPos();
     private YukkuriEntity leavingPartner;
     private long separationUntil;
     private Action current;
@@ -170,18 +172,30 @@ public final class BodyDriver {
     /** The water's lift ({@link Buoyancy#bodyLift}) for the share of the body under water over five columns of its box: it floats about half under, lift capped at 0.085. */
     private void buoy() {
         var box = body.getBoundingBox();
-        double d = body.getBbWidth() * .35, under = 0;
-        for (double[] c : new double[][]{{0, 0}, {-d, -d}, {d, -d}, {-d, d}, {d, d}})
-            for (int y = Mth.floor(box.minY); y <= Mth.floor(box.maxY); y++) {
-                var at = BlockPos.containing(body.getX() + c[0], y, body.getZ() + c[1]);
-                var fluid = body.level().hasChunkAt(at) ? body.level().getFluidState(at) : null;
-                if (fluid != null && fluid.is(FluidTags.WATER)) under += Math.max(0, Math.min(box.maxY, y + fluid.getHeight(body.level(), at)) - Math.max(box.minY, y));
-            }
+        double x = body.getX(), z = body.getZ(), d = body.getBbWidth() * .35;
+        double under = sampleWater(box, x, z, 0);
+        under = sampleWater(box, x - d, z - d, under);
+        under = sampleWater(box, x + d, z - d, under);
+        under = sampleWater(box, x - d, z + d, under);
+        under = sampleWater(box, x + d, z + d, under);
         double fraction = box.getYsize() <= 0 ? 0 : Math.clamp(under / (5 * box.getYsize()), 0, 1);
         if (fraction <= 0) return;
         Vec3 v = body.getDeltaMovement();
         double lift = Buoyancy.bodyLift(fraction, v.y);
         Motor.velocity(body, v.add(0, lift > 0 ? Math.max(0, Math.min(lift, .085 - v.y)) : lift, 0), "buoyancy");
+    }
+
+    private double sampleWater(AABB box, double x, double z, double under) {
+        var level = body.level();
+        int cellX = Mth.floor(x), cellZ = Mth.floor(z), top = Mth.floor(box.maxY);
+        for (int y = Mth.floor(box.minY); y <= top; y++) {
+            var at = buoyancySample.set(cellX, y, cellZ);
+            if (!level.hasChunkAt(at)) continue;
+            var fluid = level.getFluidState(at);
+            if (fluid.is(FluidTags.WATER))
+                under += Math.max(0, Math.min(box.maxY, y + fluid.getHeight(level, at)) - Math.max(box.minY, y));
+        }
+        return under;
     }
 
     private TravelMode drive() {
