@@ -3584,7 +3584,8 @@ _shelter_cell = re.escape(f'BlockPos{{x={_shelter_x}, y={FEET}, z={_shelter_z}}}
 _shelter_parts = [(f'~ ~{dy} ~{dz}', 12 + 25 * dy + 5 * dz) for dy in range(2) for dz in (-1, 0, 1)]
 _shelter_shell = ' '.join(f'if block {pos} mcyukkuri:cardboard_shelter[facing=west,part={part}]'
                           for pos, part in _shelter_parts)
-_shelter_placed = r'\[shelter\][^\n]* uuid=(?P=volunteer) [^\n]* carton placed [^\n]* facing=west hand=0'
+_shelter_placed = (r'\[shelter\][^\n]* uuid=(?P=volunteer) [^\n]* '
+                   rf'carton placed bay={_shelter_x}, {FEET}, {_shelter_z} facing=west hand=0')
 
 add('shelter_cartons', 'town', '志愿者从货箱取出纸箱，放到棚下', '志愿者从货箱取出纸箱，放到棚下',
     '看志愿者出门去捐赠箱取出最后一个纸箱，拿到棚下朝着小路放好。再看困倦的灵梦自己走进这个箱子。',
