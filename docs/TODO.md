@@ -18,6 +18,7 @@
 | 池塘场景溺水与循环（PD-15、PD-26、PD-09、PD-13） | `.worktrees/wp-pond-gates` | aquatic/* (water exit, boarding, shore hop, hull admission) |
 | 居民家里的住家油库里 | `.worktrees/wp-household-resident` | house/HouseholdEcology.java, human/HumanNpc.java |
 | 公园里等主人：本地流浪赠食并提供去处 | `.worktrees/wp-park-aid` | social/Kindness.java, pet/PetLife.java (waiting) |
+| 收容所志愿者给流浪放纸箱 | `.worktrees/wp-shelter-cartons` | human jobs, settlement/ShelterBlock.java |
 
 ## 玩法待办
 
