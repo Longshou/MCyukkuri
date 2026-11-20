@@ -17,6 +17,7 @@
 | FG-08 判定时机与代码决策不一致 | `.worktrees/wp-fg08-verifier` | scripts/museum_scenarios.py (stray_boxes verifier) |
 | 嘴里叼着巢料时又咬一口草（嘴部占用两个权威） | `.worktrees/wp-mouth-two` | motor/MouthOccupancy.java, settlement forage/habitat carry |
 | 台词与实际反应、身份性格一致（DN-06、索食被打） | `.worktrees/wp-voice-consistency` | dialogue/reaction line selection (Reactions, StruckResponse, Contempt, begging) |
+| FG-14/15 普通纸可收集、篝火取暖、寒冷台词与掉帧 | `.worktrees/wp-paper-fire` | temperature layer, paper cover, client paper-fit |
 
 ## 玩法待办
 
