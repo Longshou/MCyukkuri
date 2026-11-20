@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 捕食种叼小猎物回巢喂雏、雏鸟学飞（P12 CODE-3） | `.worktrees/wp-tree-pred-3` | predator/PredatorLife.java, family/FamilyLife.java, family/FamilyFeeding.java, family/ChildhoodLife.java, motor/MouthOccupancy.java |
 | 两只接触动作同步开始结束，分开时身体不重叠 | `.worktrees/wp-pair-contact-sync` | shared pair contact clock (DailyLife/IndependenceLife/SocialContact), separation step |
-| 演出放映室：身体湿痕与伤口 | `.worktrees/wp-player-effects-3` | preview/review, pose/cli, client/WoundSurface (pure extract) |
 
 ## 玩法待办
 
