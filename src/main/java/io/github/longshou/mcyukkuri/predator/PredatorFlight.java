@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.predator;
 
 import java.util.UUID;
-import java.util.Map;
 
 final class PredatorFlight {
     static final int OTHER_TASK_LIMIT = 800;
@@ -19,9 +18,12 @@ final class PredatorFlight {
             return this!=LAND && this!=FOUND && this!=PERCH && ticks>(pursuit()?1200:OTHER_TASK_LIMIT);
         }
     }
-    record Visit(UUID child, long groundCell) {
-        boolean available(Map<UUID,Long> refused) { return !Long.valueOf(groundCell).equals(refused.get(child)); }
-        void timedOut(Map<UUID,Long> refused) { refused.put(child, groundCell); }
+    record Visit(UUID child, long groundCell, long standCell) {}
+
+    static long visitRetryAt(long now, int elapsed) {
+        // An early failure waits out this attempt. A timed-out attempt gives the same route a full pause.
+        int wait = Task.VISIT_YOUNG.timedOut(elapsed) ? OTHER_TASK_LIMIT : OTHER_TASK_LIMIT - elapsed + 1;
+        return now + wait;
     }
     private PredatorFlight() {}
 }

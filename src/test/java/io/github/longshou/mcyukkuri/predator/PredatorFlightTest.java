@@ -1,6 +1,6 @@
 package io.github.longshou.mcyukkuri.predator;
 
-import java.util.HashMap;
+import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,18 +14,34 @@ class PredatorFlightTest {
         }
         assertFalse(PredatorFlight.Task.LAND.needsLanding(10));
     }
-    @Test void aTimedOutGroundVisitNeedsAChangedChildOrLandingCell() {
+    @Test void anEarlyFlightRefusalBlocksTheSameVisitUntilItsDeadline() {
+        var refused = new DeadlineMap<PredatorFlight.Visit>();
+        var child = new UUID(0, 1);
+        var firstStand = new PredatorFlight.Visit(child, 481, 482);
+        var secondStand = new PredatorFlight.Visit(child, 481, 483);
+        long retryAt = PredatorFlight.visitRetryAt(1061, 61);
+        assertEquals(1801, retryAt);
+        refused.put(firstStand, retryAt);
+        assertTrue(refused.active(firstStand, 1062));
+        assertTrue(refused.active(firstStand, 1800));
+        assertFalse(refused.active(firstStand, 1801));
+        assertFalse(refused.active(secondStand, 1062));
+        refused.put(secondStand, PredatorFlight.visitRetryAt(1122, 61));
+        assertTrue(refused.active(firstStand, 1123));
+        assertTrue(refused.active(secondStand, 1123));
+    }
+
+    @Test void aTimedOutGroundVisitPausesOnlyItsOwnCondition() {
         assertFalse(PredatorFlight.Task.VISIT_YOUNG.timedOut(800));
         assertTrue(PredatorFlight.Task.VISIT_YOUNG.timedOut(801));
-        var refused=new HashMap<UUID,Long>();
-        var a=new PredatorFlight.Visit(new UUID(0,1),481);
-        var sibling=new PredatorFlight.Visit(new UUID(0,2),481);
-        assertTrue(a.available(refused));
-        a.timedOut(refused);
-        assertFalse(a.available(refused));
-        assertTrue(sibling.available(refused));
-        sibling.timedOut(refused);
-        assertFalse(a.available(refused));
-        assertTrue(new PredatorFlight.Visit(a.child(),482).available(refused));
+        var refused = new DeadlineMap<PredatorFlight.Visit>();
+        var visit = new PredatorFlight.Visit(new UUID(0, 1), 481, 482);
+        long retryAt = PredatorFlight.visitRetryAt(1801, 801);
+        assertEquals(2601, retryAt);
+        refused.put(visit, retryAt);
+        assertTrue(refused.active(visit, 2600));
+        assertFalse(refused.active(new PredatorFlight.Visit(new UUID(0, 2), 481, 482), 1802));
+        assertFalse(refused.active(new PredatorFlight.Visit(visit.child(), 480, 482), 1802));
+        assertFalse(refused.active(visit, 2601));
     }
 }
