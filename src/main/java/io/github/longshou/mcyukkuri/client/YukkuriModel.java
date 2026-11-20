@@ -30,6 +30,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.WoundTags;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.HairParts;
 import io.github.longshou.mcyukkuri.body.ModelFingerprint;
@@ -1557,7 +1558,7 @@ public final class YukkuriModel {
                     ||entity.visibleKanroken()||mouthHolding)captureMouthAttachment();
             long surfaceStart=woundDisplay==null?0:WoundLod.start();
             // The puff uses a different skin mesh; keep its clip instead of pinning the body to the sole decal.
-            int soleOpacity=puffAmount>0&&!entity.contactPose().equals("FIXED")&&!entity.contactPose().equals("SUPINE")?0:leakOpacity;
+            int soleOpacity=ExcitedLeak.soleOpacity(leakOpacity,puffAmount,entity.contactPose().equals("FIXED")||entity.contactPose().equals("SUPINE"));
             var contact=compatible&&(drawingSurfaceMarks||soleOpacity>0||contactWound!=null)
                     ?WoundRenderer.render(entity,expression,soleOpacity,world,stack,buffer,buffers,light,overlay,drawEvidence):null;
             if(woundDisplay!=null){WoundLod.time(WoundLod.SURFACE,surfaceStart);long displayStart=WoundLod.start();
@@ -1619,7 +1620,7 @@ public final class YukkuriModel {
     RemainsInputs remainsInputs(CompoundTag data){
         var body=data.getCompound("Body");
         var mesh=WoundSurface.get(id);
-        var injuries=(BodyWound.read(body).stream()
+        var injuries=(WoundTags.read(body).stream()
                 .map(w->WoundMigration.restore(id,mesh,body,w))
                 .filter(Objects::nonNull).filter(mesh::valid).toList());
         var wounds=new ArrayList<>(injuries);

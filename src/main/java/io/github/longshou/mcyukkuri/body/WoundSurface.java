@@ -23,9 +23,8 @@ import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.Skin;
 import io.github.longshou.mcyukkuri.motor.geom.GeometryJson;
 import org.joml.Vector3f;
-import io.github.longshou.mcyukkuri.headwear.HatGeometry;
+import io.github.longshou.mcyukkuri.headwear.WornHatGeometry;
 import io.github.longshou.mcyukkuri.family.PregnancyAttachments;
-import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 
 /** Immutable selected skin geometry, shared by server hit tests and client attachments. No client classes. */
 public final class WoundSurface {
@@ -193,7 +192,7 @@ public final class WoundSurface {
     }
     /** Contact on the authored hair or worn accessory, in resting model pixels. */
     Vector3f headContact(int cut,int previousLoss,boolean accessory){
-        var hat=accessory?HatGeometry.worn(assetId):null;
+        var hat=accessory?WornHatGeometry.worn(assetId):null;
         if(hat!=null)return new Vector3f(floats(hat.getAsJsonArray("seat")));
         var model=accessory?null:AuthoredHair.MODELS.getAsJsonObject(assetId);
         var authored=new HashSet<String>();
@@ -339,7 +338,7 @@ public final class WoundSurface {
     public Hit ray(Vector3f origin,Vector3f direction,Matrix4f[] world,List<BodyWound> wounds,float pregnancy){Hit best=null;
         if(world==null)return restRay(tree,origin,direction,null);
         for(int i=0;i<skinCount;i+=3){var a=world==null?rest(i):posed(i,world,wounds);var b=world==null?rest(i+1):posed(i+1,world,wounds);var c=world==null?rest(i+2):posed(i+2,world,wounds);
-            if(pregnancy>.001f){LiveBirthGeometry.deform(a,pregnancy,0);LiveBirthGeometry.deform(b,pregnancy,0);LiveBirthGeometry.deform(c,pregnancy,0);}
+            if(pregnancy>.001f){Skin.deformPregnancy(a,pregnancy,0);Skin.deformPregnancy(b,pregnancy,0);Skin.deformPregnancy(c,pregnancy,0);}
             Vector3f e=b.sub(a),f=c.sub(a),h=new Vector3f(direction).cross(f);float det=e.dot(h);if(det<1e-7)continue;
             var s=new Vector3f(origin).sub(a);float u=s.dot(h)/det;if(u<-.0001||u>1.0001)continue;var q=s.cross(e);float v=direction.dot(q)/det;if(v<-.0001||u+v>1.0001)continue;
             float t=f.dot(q)/det;if(t>=0&&(best==null||t<best.distance))best=new Hit(i,u,v,t);
@@ -348,7 +347,7 @@ public final class WoundSurface {
     private float[][] poseValues(String action,float elapsed,String hatMotion,float hatPhase){float[][] values=new float[bones.size()][9];for(var v:values)v[6]=v[7]=v[8]=1;sample(clips.get("idle"),0,values);
         sample(clips.getOrDefault(action,clips.get("idle")),elapsed,values);
         if(hatMotion.equals("HAT_REMOVE")||hatMotion.equals("HAT_RETURN")){
-            var hat=HatGeometry.worn(assetId);if(hat!=null)Overlays.hat(values[hat.get("bone").getAsInt()],hatPhase,hatMotion.equals("HAT_RETURN"),hat.get("lift").getAsFloat(),hat.get("forward").getAsFloat());
+            var hat=WornHatGeometry.worn(assetId);if(hat!=null)Overlays.hat(values[hat.get("bone").getAsInt()],hatPhase,hatMotion.equals("HAT_RETURN"),hat.get("lift").getAsFloat(),hat.get("forward").getAsFloat());
         }
         return values;
     }

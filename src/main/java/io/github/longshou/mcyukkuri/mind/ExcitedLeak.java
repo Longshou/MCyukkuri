@@ -48,6 +48,15 @@ public final class ExcitedLeak {
         return Math.round(255 * Math.clamp((TRACE_LIFETIME - ticksSincePuddle) / (float) TRACE_FADE_TICKS, 0f, 1f));
     }
 
+    public static int opacity(String expression, boolean hasTrace, long ticksSincePuddle) {
+        if (FLOW_FACE.equals(expression)) return 255;
+        return hasTrace ? opacity(ticksSincePuddle) : 0;
+    }
+
+    public static int soleOpacity(int traceOpacity, float puff, boolean supine) {
+        return puff > 0 && !supine ? 0 : traceOpacity;
+    }
+
     public static double puddleReach(float width) { return .2 * width; }
 
     private ExcitedLeak() {}

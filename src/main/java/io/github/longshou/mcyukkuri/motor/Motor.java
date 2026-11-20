@@ -149,7 +149,7 @@ public final class Motor {
         var delta=to.subtract(body.position()).multiply(1,0,1);double distance=delta.length();
         body.getMoveControl().setWantedPosition(to.x,to.y,to.z,0);body.setSpeed(0);
         double pace=BodyAbility.of(body).walkSpeed()*BodyAbility.carrying(body)*speed*body.species().stride(speed);
-        var v=distance>.001?limitHorizontal(delta.scale(Math.min(pace,distance)/distance)):Vec3.ZERO;
+        var v=limitHorizontal(distance > pace ? delta.scale(pace / distance) : delta);
         body.motor().propulsion(v.x, 0, v.z, Math.min(pace, Gait.HUMAN_WALK));
         if(faceStep&&distance>.001)face(body,SurfaceApproach.yaw(body.position(),to));
         velocity(body,new Vec3(v.x,body.getDeltaMovement().y,v.z),"straight_step");

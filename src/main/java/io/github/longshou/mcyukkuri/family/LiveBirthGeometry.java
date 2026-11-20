@@ -37,7 +37,7 @@ import net.minecraft.util.Mth;
 /** Shared pregnancy deformation and front delivery route; adapted from the approved viviparous prototype. */
 public final class LiveBirthGeometry {
     private static final Map<String,Vector3f> OUTLETS=new ConcurrentHashMap<>();
-    private static final JsonObject BODY=readBodies();
+    private static final JsonObject BODY=PregnancyAttachments.BODY;
     private static final JsonObject POSES=readPoses();
     private static JsonObject readPoses(){
         try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json")){
@@ -70,16 +70,10 @@ public final class LiveBirthGeometry {
         new Quaternionf().rotationZYX(rotation.z,rotation.y,rotation.x).transform(point);
         point.add(origin).add(position).mul(units);return new Vec3(point);
     }
-    private static JsonObject readBodies(){
-        try(var stream=LiveBirthGeometry.class.getResourceAsStream("/assets/mcyukkuri/yukkuri_presentation/body_geometry.json")){
-            if(stream==null)throw new IllegalStateException("Missing selected body geometry");
-            return JsonParser.parseReader(new InputStreamReader(stream,StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("variants");
-        }catch(IOException ex){throw new UncheckedIOException(ex);}
-    }
     /** Forces the pose and body tables to load (resource warm-up). */
     public static void warm(){modelHeight("reimu");POSES.size();}
     public static float modelHeight(String id){
-        return BODY.has(id)?BODY.getAsJsonObject(id).get("height").getAsFloat():id.startsWith("house_")?3.82f:id.equals("remilia")||id.equals("flandre")?9.6f:8.48f*(id.endsWith("_bean")?1.55f:1);
+        return PregnancyAttachments.modelHeight(id);
     }
     /** A live newborn's size (GrowthSize, the life-stage size standard). */
     public static final float BABY_SCALE=GrowthSize.LIVE;

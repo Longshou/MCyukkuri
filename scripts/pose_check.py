@@ -21,10 +21,15 @@ def preview_sources():
 
 def java_sources():
     base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
-    return [*sorted((base/'pose').rglob('*.java')), base/'motor/geom/BraidChain.java', base/'motor/geom/Vec.java',
-            base/'body/ModelFingerprint.java', base/'body/BodyConstants.java', base/'entity/YukkuriVariant.java',
-            base/'mind/ExcitedLeak.java', base/'mind/LeakProfile.java', base/'dialogue/VoicePitch.java',
-            base/'headwear/HatDamageGeometry.java']
+    return [*sorted((base/'pose').rglob('*.java')), *(base/name for name in (
+        'motor/geom/BraidChain.java', 'motor/geom/GeometryJson.java', 'motor/geom/Vec.java',
+        'body/BodyConstants.java', 'body/BodyWound.java', 'body/HairParts.java', 'body/ModelFingerprint.java',
+        'body/SkinDecal.java', 'body/SurfaceMark.java', 'body/WoundInk.java', 'body/WoundKind.java',
+        'body/WoundMotion.java', 'body/WoundProfiles.java', 'body/WoundShape.java', 'body/WoundSurface.java',
+        'dialogue/VoicePitch.java', 'entity/YukkuriVariant.java', 'family/PregnancyAttachments.java',
+        'headwear/HatDamageGeometry.java', 'headwear/WornHatGeometry.java',
+        'mind/ExcitedLeak.java', 'mind/LeakProfile.java',
+    ))]
 
 
 def java_command():
@@ -58,8 +63,9 @@ def java_command():
             cache.mkdir(exist_ok=True)
             shutil.copytree(classes, cache, dirs_exist_ok=True)
             (cache / '.ready').touch()
-    return [str(javac.with_name('java' + suffix)), '-Xmx1g', '-cp', str(cache) + os.pathsep + cp,
-            'io.github.longshou.mcyukkuri.pose.cli.PoseCli', str(ROOT / 'src/main/resources/assets/mcyukkuri')]
+    resources = ROOT/'src/main/resources'
+    return [str(javac.with_name('java' + suffix)), '-Xmx1g', '-cp', os.pathsep.join((str(cache), cp, str(resources))),
+            'io.github.longshou.mcyukkuri.pose.cli.PoseCli', str(resources/'assets/mcyukkuri')]
 
 
 def main():

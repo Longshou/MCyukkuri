@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
@@ -82,18 +83,24 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private Query walkingQuery;
     private boolean retreating;
     private boolean forceSearch, stalled;
-    /** Crawl progress window (ticks, as vanilla) and the share of the gait's own travel below which a crawler counts as stuck. */
-    private static final int CRAWL_WINDOW=100;
-    private static final double CRAWL_SHARE=.25;
-    private long crawlCheckTick;
-    private Vec3 crawlCheckPos;
+    /** Progress window and minimum share of expected travel for motion outside vanilla's walking speed. */
+    private static final int GAIT_WINDOW=100;
+    private static final double GAIT_SHARE=.25;
+    private long gaitCheckTick;
+    private Vec3 gaitCheckPos;
     private AABB planningObstacle;
     private BlockPos surveyStart;
     private int followingNode=-1;
     private boolean closingCorner;
+    private Vec3 doorStep;
     private float searchMultiplier = 1;
 
     YukkuriGroundNavigation(YukkuriEntity animal, Level level) { super(animal, level); }
+
+    @Override public boolean shouldRecomputePath(BlockPos changed) {
+        ((YukkuriEntity)mob).status().reactions().threat().flight().collisionChanged(changed);
+        return super.shouldRecomputePath(changed);
+    }
 
     /** A body standing on solid ground may plan even when vanilla's ground flag is clear: an action that moved it without gravity (a grab, a
      *  carry) leaves the flag false until the next physics tick, and a walk planned in that tick was refused as having no route. */
@@ -201,14 +208,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // Vanilla sameAs compares nodes only, not the requested target or search accuracy.
         path=null;
         if(!super.moveTo(requested,speed)){stop();return false;}
-        walkingTarget=requested.getTarget();walkingQuery=planned==null?query(0):planned;crawlCheckPos=null;crawlCheckTick=0;
+        walkingTarget=requested.getTarget();walkingQuery=planned==null?query(0):planned;gaitCheckPos=null;gaitCheckTick=0;
         timeoutCachedNode=Vec3i.ZERO;timeoutTimer=0;timeoutLimit=0;lastTimeoutCheck=level.getGameTime();
         hasDelayedRecomputation=false;stalled=false;resetBlock();
         return true;
     }
 
     @Override public void stop(){
-        super.stop();crawlCheckPos=null;crawlCheckTick=0;walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
+        super.stop();gaitCheckPos=null;gaitCheckTick=0;walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
         retreating=false;
     }
 
@@ -250,8 +257,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // What the walk was heading for when it gives up (the path is gone once vanilla stops it).
         var node=walking?path.getNextNodePos():null;
         String route=walking?path.getNextNodeIndex()+"/"+path.getNodeCount():null;
-        if(mob instanceof YukkuriEntity crawler&&crawler.isCrawling()){crawlStuckDetection(crawler,at,walking,target);return;}
-        crawlCheckPos=null;
+        if (mob instanceof YukkuriEntity walker && (walker.isCrawling() || doorStep != null)) {
+            gaitStuckDetection(walker, at, walking, target);
+            return;
+        }
+        gaitCheckPos=null;
         super.doStuckDetection(at);
         if(walking&&isDone()){
             stalled=true;
@@ -261,24 +271,34 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
     }
 
-    /**
-     * Vanilla judges progress (and node timeouts) from the attribute speed of a walking body; a crawl covers a small fraction of
-     * that, so a steady crawl was stopped as stuck every 100 ticks (E11-3). A crawler is judged against its own gait instead:
-     * stuck when it covered less than a quarter of what its stroke would have carried it in the same window.
-     */
-    private void crawlStuckDetection(YukkuriEntity crawler,Vec3 at,boolean walking,BlockPos target){
+    /** Crawling travels by strokes, and the straight door step drives the body even though its vanilla speed is zero. */
+    private void gaitStuckDetection(YukkuriEntity walker,Vec3 at,boolean walking,BlockPos target){
         long now=level.getGameTime();
-        if(crawlCheckPos!=null&&now-crawlCheckTick<=CRAWL_WINDOW)return;
-        if(walking&&crawlCheckPos!=null&&at.distanceTo(crawlCheckPos)<crawler.crawlSpeed()*(now-crawlCheckTick)*CRAWL_SHARE){
-            double moved=at.distanceTo(crawlCheckPos),expected=crawler.crawlSpeed()*(now-crawlCheckTick);
-            stop();stalled=true;
-            GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait=crawl target={} at={} moved={} expected={}",
-                    target,at,String.format(Locale.ROOT,"%.3f",moved),String.format(Locale.ROOT,"%.3f",expected));
+        if(gaitCheckPos!=null&&now-gaitCheckTick<=GAIT_WINDOW)return;
+        if(walking&&gaitCheckPos!=null){
+            double pace = walker.isCrawling() ? walker.crawlSpeed() : BodyAbility.of(walker).walkSpeed() * BodyAbility.carrying(walker) * speedModifier;
+            double moved=at.distanceTo(gaitCheckPos),expected=pace*(now-gaitCheckTick);
+            if(moved<expected*GAIT_SHARE){
+                stop();stalled=true;
+                GameplayLog.limited(mob,"move","path_stalled",200,"ground path stopped reason=no_progress gait={} target={} at={} moved={} expected={}",
+                        walker.isCrawling()?"crawl":"door",target,at,String.format(Locale.ROOT,"%.3f",moved),String.format(Locale.ROOT,"%.3f",expected));
+            }
         }
-        crawlCheckTick=now;crawlCheckPos=at;
+        gaitCheckTick=now;gaitCheckPos=at;
     }
 
     @Override protected void followThePath(){
+        if (path.getNextNode().type == PathType.DOOR_OPEN) {
+            var pos = path.getNextNodePos();
+            var door = GroundDoorway.at(mob, pos.getX(), pos.getY(), pos.getZ());
+            if (door == null) { stop(); return; }
+            var node = path.getNextEntityPos(mob);
+            int next = path.getNextNodeIndex() + 1;
+            doorStep = door.aim(mob.position(), node, next < path.getNodeCount() ? path.getEntityPosAtNode(mob, next) : node);
+            if (doorStep == null) path.advance();
+            doStuckDetection(getTempMobPos());
+            return;
+        }
         followingNode=path.getNextNodeIndex();
         try{super.followThePath();}finally{followingNode=-1;}
     }
@@ -374,6 +394,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
             private PathType pathType(int x, int y, int z) {
                 PathType type = super.getCachedPathType(x, y, z);
+                if (type == PathType.DOOR_OPEN && GroundDoorway.at(mob, x, y, z) == null) return PathType.BLOCKED;
                 var feet=new Vec3(x+entityWidth*.5,y,z+entityDepth*.5);
                 if(mob instanceof YukkuriEntity actor&&NestDoorway.blocksLine(actor,feet,feet))return PathType.FENCE;
                 if(planningObstacle!=null&&mob.getDimensions(mob.getPose()).makeBoundingBox(
@@ -418,6 +439,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override public void tick() {
+        doorStep = null;
         if(mob instanceof YukkuriEntity actor){
             if (passage != null) tickPassage(actor);
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
@@ -447,8 +469,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var control = mob.getMoveControl();
         if (!isDone() && control.hasWanted() && mob instanceof YukkuriEntity walker) {
             var wanted = new Vec3(control.getWantedX(), control.getWantedY(), control.getWantedZ());
+            if (doorStep != null) {
+                wanted = new Vec3(doorStep.x, wanted.y, doorStep.z);
+                control.setWantedPosition(wanted.x, wanted.y, wanted.z, control.getSpeedModifier());
+            }
             var aim = aim(wanted, true);
-            boolean align = closingCorner && aim == wanted;
+            boolean align = (doorStep != null || closingCorner) && aim == wanted;
             if (aim != null && aim != wanted && !NestDoorway.blocksLine(walker,walker.position(),aim)
                     && SurfaceApproach.supported(walker, aim)) {
                 control.setWantedPosition(aim.x, aim.y, aim.z, control.getSpeedModifier());
@@ -458,9 +484,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var dry = SurfaceApproach.dryAim(walker, wanted);
             // A body perched on a brink (a drinker at the bank) may find every direct step toward the node putting more of it over
             // the water: it first centres on its own cell, which only lessens the water under it, and then goes on along the shore.
-            if (dry.distanceToSqr(walker.position()) < 1.0E-8) dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
+            if (dry != wanted && dry.distanceToSqr(walker.position()) < 1.0E-8)
+                dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
             if (dry.distanceToSqr(wanted) > 1.0E-8) control.setWantedPosition(dry.x, dry.y, dry.z, control.getSpeedModifier());
-            else if (align && SurfaceApproach.clearLastStep(walker, wanted))
+            else if (align && (doorStep != null || SurfaceApproach.clearLastStep(walker, wanted)))
                 step(wanted, control.getSpeedModifier());
         }
     }

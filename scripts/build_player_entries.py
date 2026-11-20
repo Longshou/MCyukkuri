@@ -86,6 +86,16 @@ def build_entries(catalog, items):
         moment = authored[row['moment']] if 'moment' in row else {}
         entries.append(dict(id=ident, category='performances', tag='look-only', **{**moment, **row}))
 
+    # Aim below the eyes on the cheek, then at the shipped hair-wound sample site.
+    hair_site = read(ASSETS/'yukkuri_presentation/hair_wounds.json')['models']['reimu']['sample_sites']['hair']
+    scratch = dict(grade=2, sites=[(.42, -1.7), (hair_site['az'], hair_site['y'])])
+    entries.append(dict(id='strike_scratches', category='performances', tag='look-only',
+                        title='受击后的擦伤', model='reimu', loop=False, steps=[
+        dict(clip='idle', faces=[], tempo=1, duration=.45),
+        dict(clip='startle', faces=[[0, 'surprise']], tempo=1, scratch=scratch, caption='受击'),
+        dict(clip='idle', faces=[[0, 'side_teary']], tempo=1, duration=2.5, scratch=scratch, caption='脸颊与头发留下擦伤'),
+    ]))
+
     for model in models:
         ident = model['id']
         entries.append(dict(id='model-'+ident, category='models', tag='look-only', title=model['name'],

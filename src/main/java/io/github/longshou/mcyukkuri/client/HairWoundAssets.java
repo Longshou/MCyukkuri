@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.WoundInk;
 import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import java.io.IOException;
@@ -149,7 +150,7 @@ final class HairWoundAssets {
         }
         return texture;
     }
-    static ResourceLocation material(String name){return MCYukkuri.id("textures/wounds/hair/"+name+".png");}
+    static ResourceLocation material(String name){return MCYukkuri.id(WoundInk.TEXTURE_DIR+name+".png");}
     private static Map<String,String> map(JsonObject data){var result=new HashMap<String,String>();if(data!=null)
         for(var entry:data.entrySet())result.put(entry.getKey(),entry.getValue().getAsString());return Map.copyOf(result);}
     private static Set<String> strings(JsonArray data){var result=new HashSet<String>();if(data!=null)for(var value:data)result.add(value.getAsString());return Set.copyOf(result);}

@@ -74,6 +74,30 @@ export function actorMesh(scene, material) {
     return mesh;
 }
 
+export function surfaceMarks(scene) {
+    const mesh = actorMesh(scene, new THREE.MeshBasicMaterial({
+        side: THREE.DoubleSide, transparent: true, depthWrite: false, vertexColors: true
+    }));
+    const textures = new Map();
+    return {
+        texture(path) {
+            if (!textures.has(path)) textures.set(path, loadTexture(assets + path).then(map => {
+                map.wrapS = THREE.RepeatWrapping;
+                return map;
+            }));
+            return textures.get(path);
+        },
+        draw(mark, vertices, map) {
+            mesh.visible = Boolean(mark);
+            if (!mark) return;
+            if (!mesh.material.map) mesh.material.needsUpdate = true;
+            mesh.material.map = map;
+            mesh.material.opacity = mark.opacity / 255;
+            updateMesh(mesh, vertices);
+        }
+    };
+}
+
 function floorMesh(rim, texture, trace, yaw) {
     const points = [], uvs = [];
     for (let i = 0; i < rim.length - 1; i++) {

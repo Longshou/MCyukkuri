@@ -1,13 +1,7 @@
 package io.github.longshou.mcyukkuri.body;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 
 /** Rest-surface triangle and barycentric coordinates survive movement and save/reload. */
 public record BodyWound(UUID id, WoundKind kind, int triangle, float u, float v, int severity, float size,
@@ -56,17 +50,4 @@ public record BodyWound(UUID id, WoundKind kind, int triangle, float u, float v,
         return new BodyWound(id,kind,triangle,u,v,s,size,emitted,lastRelease,peakSeverity,shape,Math.max(p,minPoints(s)));}
     public BodyWound heal(){return withSeverity(severity-1);}
     public BodyWound released(long tick){return new BodyWound(id,kind,triangle,u,v,severity,size,emitted+1,tick,peakSeverity,shape,points);}
-    public CompoundTag save(){var t=new CompoundTag();t.putUUID("Id",id);t.putString("Kind",kind.id());t.putInt("Triangle",triangle);
-        t.putFloat("U",u);t.putFloat("V",v);t.putInt("Severity",severity);t.putInt("PeakSeverity",peakSeverity);t.putFloat("Size",size);t.putInt("Emitted",emitted);t.putLong("LastRelease",lastRelease);
-        t.putFloat("Points",points);t.putString("Shape",shape.id());return t;}
-    // Legacy Display* tags are ignored: live bodies and remains both draw at the original injury site.
-    public static List<BodyWound> read(CompoundTag t){var result=new ArrayList<BodyWound>();var ids=new HashSet<UUID>();
-        for(var raw:t.getList("Wounds",Tag.TAG_COMPOUND)){var w=(CompoundTag)raw;if(w.getInt("Severity")<=0||!w.hasUUID("Id")||!ids.add(w.getUUID("Id")))continue;
-            result.add(new BodyWound(w.getUUID("Id"),WoundKind.parse(w.getString("Kind")),w.getInt("Triangle"),w.getFloat("U"),w.getFloat("V"),
-                    w.getInt("Severity"),w.getFloat("Size"),w.getInt("Emitted"),w.getLong("LastRelease"),
-                    w.contains("PeakSeverity",Tag.TAG_INT)?w.getInt("PeakSeverity"):w.getInt("Severity"),
-                    WoundShape.parse(w.getString("Shape"),WoundKind.parse(w.getString("Kind"))),
-                    w.contains("Points",Tag.TAG_FLOAT)?w.getFloat("Points"):0));if(result.size()==8)break;}
-        return List.copyOf(result);}
-    public static CompoundTag write(List<BodyWound> wounds){var t=new CompoundTag();var list=new ListTag();wounds.forEach(w->list.add(w.save()));t.put("Wounds",list);return t;}
 }

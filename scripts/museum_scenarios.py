@@ -2500,6 +2500,19 @@ add('pet_water', 'house', '宠物渴了求水，玩家用水桶加满饮水器',
     env=DAY, vantage=(2, 1, 190, 25, 0),
     reads=[('读饮水器余水', 'data get block ~3 ~ ~ Water'), ('读灵梦的口渴与请求', f'yukkuri status {sel("water_pet")} raw')])
 
+_return_pet = _uuid_text('pet_door_return', 'return_pet')
+add('pet_door_return', 'house', '困倦的院宠穿门回屋睡觉', '困倦的院宠穿门回屋睡觉',
+    '灵梦在南门外，自己的窝在屋里。看它从斜侧走到敞开的橡木门前，挪进门缝，再走进自己的窝睡下。', '约半分钟', [
+        *(box(x, 0, 7, x, 2, 7, 'minecraft:oak_planks') for x in (-1, 1)),
+        block(0, 2, 7, 'minecraft:oak_planks'),
+        *(block(0, dy, 7, f'minecraft:oak_door[facing=south,hinge=left,half={half},open=true]')
+          for dy, half in enumerate(('lower', 'upper'))),
+        block(0, 0, 4, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        yk('reimu', 2, 12, 'return_pet', uuid=uid('pet_door_return', 'return_pet'), label='回窝的院宠',
+           lead=True, nutrition=100, rest_wait=0), *own('return_pet'),
+    ], late=[home('return_pet', 0, 4), set_status('return_pet', 'needs.energy', 30)],
+    env=DAY, vantage=(-3, 11, -135, 15, 0), reads=[('读院宠归属与住所', f'yukkuri status {sel("return_pet")} raw')])
+
 # ====================================================================================================== town
 add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
     '四角分别是玩家的宠物、胆大的饥饿流浪油、胆小的聚落成员、胆大的独居野生油。空手站定，转身观察迎人、辱骂索食、退避与停看。',
@@ -6821,7 +6834,7 @@ TOPICS = {
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
     'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
-    'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3',
+    'house_empty': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
     'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
@@ -7148,9 +7161,75 @@ def _home_greedy_retreat(window, trace):
     x, y, z = map(int, stage.groups())
     if end not in frames or math.dist(frames[end]['p'], (x + .5, y, z + .5)) < 16:
         return 'The claimant ended the retreat before reaching the 16-block exit radius'
+    # The velvet nest is two cells east and five north of the south-facing, left-hinged door.
+    if problem := _oak_door_crossing(window, frames, actor, start, end, x - 2, y, z + 5, inward=False):
+        return problem
     flight = [frame['p'] for t, frame in frames.items() if t > end and frame['behavior'] == 'flee']
     if not flight or not any(math.dist(flight[0], pos) > .5 for pos in flight):
         return 'The claimant did not move during panic'
+
+
+def _oak_door_crossing(window, frames, actor, start, end, door_x, y, door_z, inward):
+    def progress(pz):
+        return door_z + 1 - pz if inward else pz - door_z
+
+    boxes = (json.loads(row) for row in re.findall(r'MCYGEOMETRY (\{[^\n]+\})', window))
+    box = next((row['box'] for row in boxes if row['uuid'] == actor), None)
+    if box is None:
+        return 'Missing collision width of the walker'
+    radius = (box[3] - box[0]) / 2
+    cleared = next((t for t in range(start, end + 1) if t in frames and progress(frames[t]['p'][2]) >= 1 + radius), None)
+    if cleared is None or start not in frames or progress(frames[start]['p'][2]) >= -radius:
+        return 'The walker did not reach the opposite side of the doorway'
+    crossing = []
+    for t in range(start, cleared + 1):
+        if t not in frames:
+            return 'Missing frame during the doorway crossing'
+        px, py, pz = frames[t]['p']
+        if frames[t]['veh'] is not None or (t > start and math.dist(frames[t-1]['p'], frames[t]['p']) > 1):
+            return 'The walker was carried or jumped across part of the approach'
+        if progress(pz) <= -radius:
+            crossing.clear()  # The whole body backed out. The next approach must cross both halves on its own.
+        elif door_z - radius + 1e-7 < pz < door_z + 1 + radius - 1e-7:
+            if px - radius < door_x - 1e-7 or px + radius > door_x + 13/16 + 1e-7 or abs(py - y) > 1e-6:
+                return 'The walker crossed outside the clear gap between the jamb and oak leaf'
+            if inward and frames[t]['behavior'] != 'return_home':
+                return 'The pet gave up walking home before its trailing edge cleared the door'
+            crossing.append(pz)
+    if not any(door_z <= pz < door_z + .5 for pz in crossing) or not any(door_z + .5 <= pz < door_z + 1 for pz in crossing):
+        return 'The walker skipped part of the door cell'
+
+
+def _pet_door_return(window, trace):
+    x, z = BY_ID['house'].anchor
+    bed = rf'BlockPos\{{x={x}, y={FEET}, z={z + 4}\}}'
+    home_tick = re.search(rf'\[home\][^\n]* uuid={_return_pet} t=(\d+) [^\n]*assigned kind=care [^\n]*{bed}', window)
+    sleep_tick = re.search(rf'\[sleep\][^\n]* uuid={_return_pet} t=(\d+) [^\n]*begin source=life occupancy=INSIDE_SUPPORTED bed={bed}', window)
+    if not home_tick or not sleep_tick:
+        return 'The returning pet needs its own assigned indoor bed and must fall asleep in it'
+    frames = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['u'] == _return_pet and row['k'] == 'st':
+            frames[row['t']] = row['st']
+    return _oak_door_crossing(window, frames, _return_pet, int(home_tick[1]), int(sleep_tick[1]), x, FEET, z + 7, inward=True)
+
+
+def _return_pet_identity(readout):
+    if not re.search(r'identity:\{[^}]*kind:"pet"[^}]*owner:"2d4c7192-2a6d-4da4-9f94-c82721b9de87"', readout):
+        return 'The returning animal must still belong to the staged player'
+
+
+_smoke('pet_door_return', 700, ['MCY_PET_RETURN_OPEN', 'MCY_PET_RETURN_OWNED'], readout=[f'yukkuri status {sel("return_pet")} raw'])
+next(s for s in S if s.id == 'pet_door_return').smoke.update(verify=_pet_door_return, verify_trace=True, verify_readout=_return_pet_identity, commands=[
+    (1, 'yukkuri scenario tool_operator enter'),
+    (2, f'execute store result score #return_owner museum run yukkuri scenario owner_at {sel("return_pet")} away'),
+    (3, 'execute if score #return_owner museum matches 1 run say MCY_PET_RETURN_OWNED'),
+    (4, 'yukkuri scenario tool_operator leave'),
+    (40, 'execute if block ~ ~ ~7 minecraft:oak_door[facing=south,hinge=left,half=lower,open=true] '
+         'if block ~ ~1 ~7 minecraft:oak_door[facing=south,hinge=left,half=upper,open=true] '
+         'if block ~-1 ~ ~7 minecraft:oak_planks if block ~1 ~ ~7 minecraft:oak_planks run say MCY_PET_RETURN_OPEN'),
+])
 
 
 # In headless smoke, stand an unrelated peer near the home as a visitor would. The residents still run ordinary AI.
@@ -7164,9 +7243,12 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         _spec['ticks'] = 1510
         _spec['commands'] += [
             # The visitor opens the existing door before asking the claimant to leave.
-            (698, block(5, 0, 8, 'minecraft:oak_door[facing=south,half=lower,open=true]')),
-            (698, block(5, 1, 8, 'minecraft:oak_door[facing=south,half=upper,open=true]')),
-            (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator enter'),
+            (697, 'execute positioned ~5.5 ~ ~9.5 run yukkuri scenario tool_operator enter'),
+            (698, 'yukkuri scenario shop_door_click ~5 ~ ~8 south'),
+            (699, 'execute if block ~5 ~ ~8 minecraft:oak_door[facing=south,half=lower,hinge=left,open=true] '
+                  'if block ~5 ~1 ~8 minecraft:oak_door[facing=south,half=upper,hinge=left,open=true] '
+                  'if block ~4 ~ ~8 minecraft:oak_planks if block ~6 ~ ~8 minecraft:oak_planks run say MCYCLAIM_DOOR_OPEN'),
+            (700, 'execute positioned ~8 ~ ~2.65 run yukkuri scenario tool_operator move'),
             (702, f'yukkuri scenario care_click {sel("greedy")} decline_event'),
             (1310, f'execute at {sel("greedy")} positioned ~ ~ ~2 run yukkuri scenario tool_operator move'),
             (1312, f'damage {sel("greedy")} 1 minecraft:player_attack by @e[type=minecraft:player,name=MuseumOperator,distance=..64,limit=1]'),
@@ -7174,7 +7256,7 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
             (1365, f'damage {sel("greedy")} 1 minecraft:in_fire'),
             (1415, 'yukkuri scenario tool_operator leave'),
         ]
-        _spec['expect'] += [r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
+        _spec['expect'] += [r'MCYCLAIM_DOOR_OPEN', r'\[home-claim\][^\n]* driven off member=[^ ]+ answer=CURSE',
                             r'\[home-claim\][^\n]* curse stamp spoken=true',
                             r'\[threat\] marisa [^\n]* struck stance=(?:PUFF_FIGHT|FLEE) [^\n]* dialogue=dialogue\.']
         _spec.setdefault('forbid', []).append(r'struck stance=FLEE [^\n]*(?:v[13]_wounded|v1_afraid)\b')

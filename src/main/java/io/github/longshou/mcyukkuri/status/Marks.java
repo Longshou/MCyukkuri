@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.body.WoundTags;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.body.WoundKind;
 import io.github.longshou.mcyukkuri.body.WoundShape;
@@ -166,8 +167,8 @@ public final class Marks {
         result.addAll(scars);
         return result;
     }
-    public static CompoundTag write(List<BodyWound> marks) { return BodyWound.write(marks); }
-    /** Unlike {@link BodyWound#read}, the mark list is not capped at the eight-wound limit. */
+    public static CompoundTag write(List<BodyWound> marks) { return WoundTags.write(marks); }
+    /** Unlike {@link WoundTags#read}, the mark list is not capped at the eight-wound limit. */
     public static List<BodyWound> read(CompoundTag tag) {
         var result = new ArrayList<BodyWound>();
         for (Tag raw : tag.getList("Wounds", Tag.TAG_COMPOUND)) {
@@ -186,7 +187,7 @@ public final class Marks {
         var tag = new CompoundTag();
         tag.putBoolean("Rolled", rolled); tag.putInt("Grime", grime); tag.putInt("Soil", soil); tag.putInt("Rain", rain);
         var list = new ListTag();
-        scars.forEach(s -> list.add(s.save()));
+        scars.forEach(s -> list.add(WoundTags.save(s)));
         tag.put("Scars", list);
         return tag;
     }

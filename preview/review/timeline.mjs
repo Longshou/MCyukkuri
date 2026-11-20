@@ -21,7 +21,7 @@ export function sampleTimeline(track, clips, seconds, expression) {
           ?? clip.faces.find(([start, end]) => clipTime >= start && clipTime < end)?.[2]
           ?? 'neutral'
         : expression;
-    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption,
+    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption, scratch: step.scratch,
             emote: step.emote, stepSeconds: elapsed};
 }
 

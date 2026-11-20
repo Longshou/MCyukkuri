@@ -70,6 +70,12 @@ class Handler(SimpleHTTPRequestHandler):
                 headers.append(('X-Pose-Partner-Offset', str(len(vertices))))
                 headers.append(('X-Pose-Partner-Spacing', str(result['partnerSpacing'])))
                 vertices += b64decode(result['partnerVertices'])
+            if 'surfaceMark' in result:
+                mark = result['surfaceMark']
+                headers.append(('X-Pose-Surface-Mark', json.dumps({
+                    'offset': len(vertices), 'texture': mark['texture'], 'opacity': mark['opacity']
+                }, separators=(',', ':'))))
+                vertices += b64decode(mark['vertices'])
             attachments = {key: result[key] for key in ('held', 'hat') if key in result}
             if attachments:
                 headers.append(('X-Pose-Attachments', json.dumps(attachments, separators=(',', ':'))))

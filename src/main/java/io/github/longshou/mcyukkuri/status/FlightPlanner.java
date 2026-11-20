@@ -4,13 +4,16 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse;
 import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.motor.geom.FlightCourse.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.entity.ai.util.GoalUtils;
+import net.minecraft.world.entity.ai.util.LandRandomPos;
+import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
@@ -20,6 +23,8 @@ public final class FlightPlanner {
     private static final double[] STRIDES = {1, .6, .3};
     private static final double CLEARANCE = 3.8;
     private final YukkuriEntity body;
+    private final FailedRetreat<Vec3> failed = new FailedRetreat<>();
+    private float failedWidth, failedHeight;
     private LivingEntity source;
     private Direction heading;
     private long plannedAt = Long.MIN_VALUE / 2;
@@ -97,12 +102,13 @@ public final class FlightPlanner {
     public void retreatToward(Vec3 danger, Vec3 anchor) {
         double distance = body.position().distanceTo(anchor);
         if (distance < 1.5) return;
-        if (cornered(null)) return;
+        if (holdsFailure(null, danger, anchor)) return;
+        failed.clear();
         source = null;
         plannedAt = body.level().getGameTime();
         var direction = FlightCourse.awayUnit(anchor.x, anchor.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         var path = fan(danger, Math.min(9, distance), direction, null, null);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1)) { noExit(); return; }
+        if (path == null || !SurfaceApproach.startRetreat(body, path, 1)) { noExit(danger, anchor); return; }
         route = body.getNavigation().getPath();
     }
 
@@ -113,17 +119,27 @@ public final class FlightPlanner {
             var path = routeTo(parent.position(), danger.position());
             if (path != null) return path;
         }
-        var ownerId = body.pet().owner();
-        if (ownerId != null && ((ServerLevel) body.level()).getEntity(ownerId) instanceof LivingEntity keeper
-                && keeper.isAlive() && !keeper.isSpectator() && keeper.distanceToSqr(body) <= 256 && keeper.distanceToSqr(danger) > 36) {
+        var keeper = keeper(danger);
+        if (keeper != null) {
             var path = routeTo(keeper.position(), danger.position());
             if (path != null) return path;
         }
+        return routeTo(refugeStand(), danger.position());
+    }
+
+    private LivingEntity keeper(LivingEntity danger) {
+        var owner = body.pet().owner();
+        return owner != null && ((ServerLevel) body.level()).getEntity(owner) instanceof LivingEntity keeper
+                && keeper.isAlive() && !keeper.isSpectator() && keeper.distanceToSqr(body) <= 256 && keeper.distanceToSqr(danger) > 36
+                ? keeper : null;
+    }
+
+    private Vec3 refugeStand() {
         var shelter = body.habitat().shelter();
         if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
-            return routeTo(Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing())), danger.position());
+            return Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing()));
         var home = body.life().homeStand();
-        return home == null ? null : routeTo(Vec3.atBottomCenterOf(home), danger.position());
+        return home == null ? null : Vec3.atBottomCenterOf(home);
     }
 
     boolean hasExit(LivingEntity danger) {
@@ -153,34 +169,77 @@ public final class FlightPlanner {
 
     public void lead(LivingEntity danger, Vec3 den) { run(danger, den); }
 
-    public void flee(LivingEntity danger) { run(danger, null); }
+    public boolean flee(LivingEntity danger) {
+        run(danger, null);
+        return route != null && !route.isDone() && body.getNavigation().getPath() == route;
+    }
 
     public void fleeWithoutSource() {
         var navigation = body.getNavigation();
         if (!navigation.isDone()) return;
-        long now = body.level().getGameTime();
-        if (source == null && route == null && now - plannedAt < 40) return;
+        if (holdsFailure(null, null, null)) return;
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
+        failed.clear();
         source = null;
-        plannedAt = now;
-        var target = DefaultRandomPos.getPos(body, 6, 3);
-        var path = target == null ? null : navigation.createPath(BlockPos.containing(target), 0);
-        if (path == null || !SurfaceApproach.startRetreat(body, path, 1.2)) { noExit(); return; }
-        route = navigation.getPath();
+        plannedAt = body.level().getGameTime();
+        // Vanilla's ten random stand candidates, with the actual escape route tested for each.
+        boolean restricted = GoalUtils.mobRestricted(body, 6);
+        for (int i = 0; i < 10; i++) {
+            var offset = RandomPos.generateRandomDirection(body.getRandom(), 6, 3);
+            var stand = LandRandomPos.generateRandomPosTowardDirection(body, 6, restricted, offset);
+            if (stand == null || stand.equals(body.blockPosition()) || GoalUtils.hasMalus(body, stand)) continue;
+            var path = navigation.createPath(stand, 0);
+            if (path != null && path.canReach() && SurfaceApproach.startRetreat(body, path, 1.2)) {
+                route = navigation.getPath();
+                return;
+            }
+        }
+        noExit(null, null);
     }
 
     public boolean cornered(LivingEntity danger) {
-        return source == danger && route == null && body.level().getGameTime() - plannedAt < 40
-                && (danger == null || danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576);
+        if (!sameFailedConditions(danger)) return false;
+        return danger == null ? failed.cornered(null, body.position(), null)
+                : danger.isAlive() && danger.level() == body.level() && body.distanceToSqr(danger) <= 576
+                    && failed.cornered(danger.getUUID(), body.position(), danger.position());
+    }
+
+    boolean fleeBlocked(LivingEntity danger) {
+        return holdsFailure(danger, danger.position(), null);
+    }
+
+    private boolean holdsFailure(LivingEntity threat, Vec3 danger, Vec3 destination) {
+        return sameFailedConditions(threat) && failed.holds(threat == null ? null : threat.getUUID(), body.position(), danger, destination);
+    }
+
+    private boolean sameFailedConditions(LivingEntity threat) {
+        if (failed.feet() == null || body.getBbWidth() != failedWidth || body.getBbHeight() != failedHeight) return false;
+        var keeper = threat == null ? null : keeper(threat);
+        return failed.stillApplies(body.level().getGameTime(), keeper == null ? null : keeper.getUUID(), threat == null ? null : refugeStand());
+    }
+
+    /** Vanilla notifies even idle navigations when a block's collision changes, including opening a door. */
+    public void collisionChanged(BlockPos pos) {
+        var feet = failed.feet();
+        if (feet != null && pos.closerToCenterThan(feet, TravelRange.PATH_RANGE)) failed.clear();
     }
 
     public void forgetRoute() {
+        // A panic/goal handoff can still be the same pursuer. Anonymous panics and evictions end with their goal.
+        if (failed.cornered(null, body.position(), null)) failed.clear();
         source = null;
         route = null;
         plannedAt = Long.MIN_VALUE / 2;
     }
 
-    private void noExit() {
+    void threatLost() { failed.clear(); }
+
+    private void noExit(Vec3 danger, Vec3 destination) {
+        failedWidth = body.getBbWidth();
+        failedHeight = body.getBbHeight();
+        var keeper = source == null ? null : keeper(source);
+        failed.remember(source == null ? null : source.getUUID(), body.position(), danger, destination,
+                body.level().getGameTime(), keeper == null ? null : keeper.getUUID(), source == null ? null : refugeStand());
         route = null;
         SurfaceApproach.halt(body);
         GameplayLog.limited(body, "threat", "flight.cornered", 100, "flight cornered danger={}", source == null ? null : source.getUUID());
@@ -191,18 +250,20 @@ public final class FlightPlanner {
         var dangerAt = danger.position();
         var navigation = body.getNavigation();
         if (danger != shieldedFrom) { shieldedFrom = null; shielded = null; }
+        if (holdsFailure(danger, dangerAt, den)) return;
         boolean changed = source != danger;
         var away = away(den == null ? dangerAt : dangerAt.lerp(den, .5));
-        if (!changed && now - plannedAt < 40 && (route == null || !navigation.isDone() && route == navigation.getPath())) {
+        if (!changed && now - plannedAt < 40 && route != null && !navigation.isDone() && route == navigation.getPath()) {
             if (dangerAt.distanceToSqr(checkedDanger) < .25) return;
             if (!FlightCourse.shouldReplan(now - plannedAt, false, false, heading, away)
-                    && (route == null || clearsThreat(route, dangerAt))) {
+                    && clearsThreat(route, dangerAt)) {
                 checkedDanger = dangerAt;
                 return;
             }
         }
         // Knockback can leave a grounded runner airborne between deciding to flee and starting the goal.
         if (navigation instanceof YukkuriGroundNavigation ground && !ground.canPlanApproach()) return;
+        failed.clear();
         if (changed || heading.dot(away) < .25) heading = away;
         var stalled = !changed && route != null && navigation.isStuck() ? route.getTarget() : null;
         source = danger;
@@ -211,7 +272,7 @@ public final class FlightPlanner {
         route = den == null ? refuge(danger) : null;
         if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled, shielded);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled, shielded);
-        if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(); return; }
+        if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(dangerAt, den); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         route = navigation.getPath();

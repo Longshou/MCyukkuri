@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pose.cli;
 
 import com.google.gson.*;
+import io.github.longshou.mcyukkuri.body.SurfaceMark;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 import io.github.longshou.mcyukkuri.pose.*;
 import java.util.*;
@@ -44,6 +45,8 @@ final class RenderPose implements Overlays.Contact {
     private boolean wallYieldBuilt;
     private SnugglePose snuggle;
     private float looseTop;
+    private ReviewMarks.Wet wet;
+    private ReviewMarks.Scratch scratchMark;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
         if(request.has("fit")&&!request.get("fit").isJsonNull())Splice.fit(data,request.getAsJsonObject("fit"),hash->true);
@@ -121,6 +124,7 @@ final class RenderPose implements Overlays.Contact {
         var clip=data.getAsJsonObject("clips").getAsJsonObject(action);
         if(data.has("behavior_clips")&&data.getAsJsonObject("behavior_clips").has(action))clip=data.getAsJsonObject("behavior_clips").getAsJsonObject(action);
         puff=clip.has("puff_envelope")?Clips.puffEnvelope(Rig.floats(clip.getAsJsonArray("puff_envelope")),clips.get(action).time(t)):0;
+        if(request.has("scratch"))puff=0;
         retention=request.has("retention")?request.get("retention").getAsFloat():0;
         source=rest.clone();String expression=request.get("expression").getAsString();
         var patches=data.getAsJsonObject("expression_patches");
@@ -212,6 +216,19 @@ final class RenderPose implements Overlays.Contact {
         }
         if (request.has("leakStream") && request.get("leakStream").getAsBoolean())
             out.add("leak_stream", vertexData(leakStream(output, scale), packed));
+        if (request.has("scratch")) {
+            var spec = request.getAsJsonObject("scratch");
+            if (scratchMark == null || !spec.equals(scratchMark.spec))
+                scratchMark = new ReviewMarks.Scratch(data.get("id").getAsString(), spec);
+            addMark(out, scratchMark.draw(this, expression, scale), scratchMark.texture, 255, packed);
+        } else if (request.has("leakAge")) {
+            int age = request.get("leakAge").getAsInt();
+            int alpha = ExcitedLeak.soleOpacity(ExcitedLeak.opacity(expression, age >= 0, age), puff, false);
+            if (alpha > 0) {
+                if (wet == null) wet = new ReviewMarks.Wet(data.get("id").getAsString());
+                addMark(out, wet.draw(world, scale), SurfaceMark.LEAK_WET_TEXTURE, alpha, packed);
+            }
+        }
         if (request.has("outlet")) {
             var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray("outlet")))).mul(scale);
             out.add("outlet", OfflineModel.array(new float[]{point.x, point.y, point.z}));
@@ -252,6 +269,14 @@ final class RenderPose implements Overlays.Contact {
         var bytes = ByteBuffer.allocate(vertices.length * Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
         bytes.asFloatBuffer().put(vertices);
         return new JsonPrimitive(Base64.getEncoder().encodeToString(bytes.array()));
+    }
+
+    private static void addMark(JsonObject out, float[] vertices, String texture, int opacity, boolean packed) {
+        var mark = new JsonObject();
+        mark.add("vertices", vertexData(vertices, packed));
+        mark.addProperty("texture", texture);
+        mark.addProperty("opacity", opacity);
+        out.add("surfaceMark", mark);
     }
 
     private float[] leakStream(float[] posed, float scale) {
@@ -319,7 +344,7 @@ final class RenderPose implements Overlays.Contact {
         }
         return out;
     }
-    private static int emitVert(float[] out,int at,Vector3f p,float u,float v,Vector3f n){
+    static int emitVert(float[] out,int at,Vector3f p,float u,float v,Vector3f n){
         out[at]=p.x;out[at+1]=p.y;out[at+2]=p.z;out[at+3]=u;out[at+4]=v;out[at+5]=n.x;out[at+6]=n.y;out[at+7]=n.z;return at+8;
     }
     private void smooth(float[] output,int start,int end,float amount){

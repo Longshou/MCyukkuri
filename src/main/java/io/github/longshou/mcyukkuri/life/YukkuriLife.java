@@ -1297,7 +1297,8 @@ public final class YukkuriLife {
                     }
                     // Awake arrival ends the trip, even while rain continues above the roof.
                     else { task = Task.NONE; targetBlock = null; planWait = 0; }
-                } else if (pursuitTicks > 60 && entity.getNavigation().isDone() && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
+                } else if (pursuitTicks > 60 && SurfaceApproach.lastResult(entity, bedCentre) == SurfaceApproach.Result.BLOCKED
+                        && entity.distanceToSqr(bedCentre) > 4 && !reachable(targetBlock, false)) stopGoal();
             }
             case CLAIM_BED -> approachUnclaimedBed();
             case TOILET -> {

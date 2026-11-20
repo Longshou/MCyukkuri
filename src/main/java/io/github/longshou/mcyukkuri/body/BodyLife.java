@@ -205,7 +205,7 @@ public final class BodyLife {
     };}
     public static boolean savedInjury(CompoundTag tag) {
         return tag.getBoolean("CoreHurt") || tag.getBoolean("FootBurned") || tag.getInt("FootScorch") > 0
-                || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || BodyWound.read(tag).stream().anyMatch(BodyLife::injury);
+                || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || WoundTags.read(tag).stream().anyMatch(BodyLife::injury);
     }
     private static boolean severe(BodyWound w){return injury(w)&&w.severity()>=3;}
     public boolean needsPhysicalRestoration() {
@@ -719,7 +719,7 @@ public final class BodyLife {
         if(stem!=null)GameplayLog.event(entity,"body","stem remains brood={} progress={} count={} absent={} placement={}",
                 stem.brood(),stem.progress(),stem.count(),stem.absentMask(),placedBody?"body":"item");
     }
-    public CompoundTag save(){var tag=BodyWound.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
+    public CompoundTag save(){var tag=WoundTags.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);
         // Preserve the old integer path for saved bodies, without retaining the removed bandage effect.
         tag.putInt("Bandage",0);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
@@ -756,7 +756,7 @@ public final class BodyLife {
         coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=
                 Math.clamp(tag.getInt("Toxin"),0,12);moldSpread=Math.clamp(tag.getInt("MoldSpread"),0,12000);
         dying=Math.clamp(tag.getInt("Dying"),0,DYING_TICKS);dyingCause=tag.getString("DyingCause");if(dying>0)coreHurt=true;
-        releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=BodyWound.read(tag);
+        releaseCursor=Math.max(0,tag.getInt("ReleaseCursor"));wounds.clear();var savedWounds=WoundTags.read(tag);
         if(!savedWounds.isEmpty()){var mesh=WoundSurface.get(entity.subspecies().assetId());for(var wound:savedWounds){var restored=
                 WoundMigration.restore(entity.subspecies().assetId(),mesh,tag,wound);if(restored!=null&&mesh.valid(restored))wounds.add(restored);}}
         refreshWounds();
