@@ -19,6 +19,7 @@
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 性能：伤口与穿戴渲染（首次受伤卡顿） | `.worktrees/wp-perf-wounds` | client/HairWoundRenderer.java, client/WoundRenderer.java |
 | 性能：住所与觅食搜索 | `.worktrees/wp-perf-settlement` | settlement/ShelterBlockEntity.java, settlement/NaturalShelter.java, settlement/ForageGoal.java |
+| 性能：路线与支撑探测复用 | `.worktrees/wp-perf-navigation` | life/SurfaceApproach.java, entity/YukkuriGroundNavigation.java |
 
 ## 玩法待办
 
