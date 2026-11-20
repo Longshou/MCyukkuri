@@ -54,6 +54,15 @@ class PoseNeighborGridTest {
         assertEquals(Set.of(0), found(grid, -8, 1, 1));
     }
 
+    @Test void keepsNeighborsWhoseDoubleDifferenceRoundsToTheRange() {
+        var grid = new PoseNeighborGrid();
+        grid.begin(1, .5f);
+        grid.add(0, -1e-17f, 0, 0);
+        grid.add(1, 2f, 0, 0);
+        assertEquals(2d, 2d - (double)-1e-17f);
+        assertEquals(Set.of(0, 1), found(grid, 2f, 0, 0));
+    }
+
     private static Set<Integer> found(PoseNeighborGrid grid, float x, float y, float z) {
         int count = grid.find(x, y, z);
         var result = new HashSet<Integer>();

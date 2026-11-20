@@ -6,6 +6,8 @@ import java.util.Arrays;
 /** Indexes the interpolated feet used by the contact check, including actors outside the render list. */
 final class PoseNeighborGrid {
     private static final int RANGE = PoseGeometry.PARTNER_BLOCKS;
+    // The scan's double subtraction can round a slightly longer separation to exactly RANGE.
+    private static final double SEARCH_RANGE = Math.nextUp((double)RANGE);
     private static final int CELL_SIZE = 2 * RANGE;
     private int[] heads = new int[16], next = new int[8], found = new int[8];
     private int[] cellX = new int[8], cellY = new int[8], cellZ = new int[8];
@@ -41,9 +43,9 @@ final class PoseNeighborGrid {
 
     int find(float x, float y, float z) {
         int count = 0;
-        int minX = cell((double)x - RANGE), maxX = cell((double)x + RANGE);
-        int minY = cell((double)y - RANGE), maxY = cell((double)y + RANGE);
-        int minZ = cell((double)z - RANGE), maxZ = cell((double)z + RANGE);
+        int minX = cell(x - SEARCH_RANGE), maxX = cell(x + SEARCH_RANGE);
+        int minY = cell(y - SEARCH_RANGE), maxY = cell(y + SEARCH_RANGE);
+        int minZ = cell(z - SEARCH_RANGE), maxZ = cell(z + SEARCH_RANGE);
         for (int i = minX; i <= maxX; i++) for (int j = minY; j <= maxY; j++) for (int k = minZ; k <= maxZ; k++) {
             for (int actor = heads[bucket(i, j, k)]; actor >= 0; actor = next[actor]) {
                 if (cellX[actor] != i || cellY[actor] != j || cellZ[actor] != k) continue;
