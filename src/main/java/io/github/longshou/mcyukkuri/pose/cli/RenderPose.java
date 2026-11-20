@@ -27,7 +27,8 @@ final class RenderPose implements Overlays.Contact {
     float[] source;
     final Skin.Binding[] bindings;
     final int[] features;
-    final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
+    final Matrix4f[] featureTransforms;
+    private final Matrix4f featureInverse=new Matrix4f();
     final Map<String,Clips.Clip> clips=new HashMap<>();
     final int root;
     private int hat = -1;
@@ -53,6 +54,7 @@ final class RenderPose implements Overlays.Contact {
         if(request.has("revision")&&!request.get("revision").isJsonNull()&&!Splice.revision(data,request.getAsJsonObject("revision")))
             throw new IllegalArgumentException("Revision skeleton mismatch");
         bones=Rig.bones(data.getAsJsonArray("bones"));pose=Rig.values(bones.length);defaults=Rig.values(bones.length);
+        featureTransforms=new Matrix4f[bones.length];
         world=Rig.matrices(bones.length);composer=new Compose(bones);
         int found=-1;for(int i=0;i<bones.length;i++)if(bones[i].name.equals("root"))found=i;
         if(found<0)throw new IllegalArgumentException("Missing root");root=found;
@@ -60,7 +62,7 @@ final class RenderPose implements Overlays.Contact {
         bindings=new Skin.Binding[rest.length/8];features=new int[bindings.length];Arrays.fill(features,-1);
         var weights=data.getAsJsonArray("weights");for(int i=0;i<bindings.length;i++){var w=Rig.floats(weights.get(i).getAsJsonArray());bindings[i]=new Skin.Binding((int)w[0],(int)w[1],w[2]);}
         for(var raw:data.getAsJsonArray("parts")){var p=raw.getAsJsonObject();if(p.has("feature_bone")){
-            int b=p.get("feature_bone").getAsInt();Arrays.fill(features,start(p),start(p)+count(p),b);featureTransforms.put(b,new Matrix4f());}}
+            int b=p.get("feature_bone").getAsInt();Arrays.fill(features,start(p),start(p)+count(p),b);featureTransforms[b]=new Matrix4f();}}
         if(data.has("puff_surface"))offsets(data.getAsJsonObject("puff_surface"));
         if(data.has("puff_attachments"))for(var raw:data.getAsJsonArray("puff_attachments"))offsets(raw.getAsJsonObject());
         if(data.has("puff_offsets"))for(var raw:data.getAsJsonArray("puff_offsets")){
@@ -103,7 +105,7 @@ final class RenderPose implements Overlays.Contact {
     }
     private void offsets(JsonObject p){var v=Rig.floats(p.getAsJsonArray("offsets"));System.arraycopy(v,0,offsets,start(p)*3,v.length);}
     public void compose(){composer.world(pose,world,hat,hatScale,hatAnchor,null);updateFeatures();}
-    private void updateFeatures(){featureTransforms.forEach((b,m)->Compose.feature(bones,world,b,m,new Matrix4f()));}
+    private void updateFeatures(){Compose.features(bones,world,featureTransforms,featureInverse);}
     private Vector3f skin(int i){var p=new Vector3f();Skin.base(i,p,scratch,source,bindings,world,retention>0?retain:null,puff,offsets,features,featureTransforms);return p;}
     public float minimumY(){float min=Float.POSITIVE_INFINITY;for(var raw:data.getAsJsonArray("parts")){
         var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body"))for(int i=start(p);i<start(p)+count(p);i++)min=Math.min(min,skin(i).y);

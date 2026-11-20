@@ -88,8 +88,7 @@ class PoseBridgePenetrationTest {
 
     private static void compose() {
         model.compose();
-        model.featureTransforms.forEach((bone, matrix) ->
-                Compose.feature(model.bones, model.world, bone, matrix, new Matrix4f()));
+        Compose.features(model.bones, model.world, model.featureTransforms, new Matrix4f());
     }
 
     private static Vector3d point(Draw draw, int vertex, Matrix4f toWall) {

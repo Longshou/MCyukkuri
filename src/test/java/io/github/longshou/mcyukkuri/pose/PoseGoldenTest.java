@@ -98,7 +98,7 @@ class PoseGoldenTest {
         final Matrix4f[] world;
         final Compose compose;
         final int[] features;
-        final Map<Integer,Matrix4f> transforms=new HashMap<>();
+        final Matrix4f[] transforms;
         final JsonObject data;
         final Vector3f mouth,second=new Vector3f(),point=new Vector3f();
         final List<Integer> floor=new ArrayList<>();
@@ -106,6 +106,7 @@ class PoseGoldenTest {
         float puffAmount,belly;
         Frame(JsonObject data,String id)throws Exception{
             this.data=data;bones=Rig.bones(data.getAsJsonArray("bones"));vertices=Rig.floats(data.getAsJsonArray("vertices"));
+            transforms=new Matrix4f[bones.length];
             pose=Rig.values(bones.length);defaults=Rig.values(bones.length);world=Rig.matrices(bones.length);compose=new Compose(bones);root=bone("root");
             var rows=data.getAsJsonArray("weights");bindings=new Skin.Binding[rows.size()];
             for(int i=0;i<bindings.length;i++){var v=rows.get(i).getAsJsonArray();bindings[i]=new Skin.Binding(v.get(0).getAsInt(),v.get(1).getAsInt(),v.get(2).getAsFloat());}
@@ -113,7 +114,7 @@ class PoseGoldenTest {
             for(var raw:data.getAsJsonArray("parts")){
                 var part=raw.getAsJsonObject();int start=part.get("start").getAsInt(),count=part.get("count").getAsInt();String name=part.get("name").getAsString();
                 if(name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface"))for(int i=start;i<start+count;i++)floor.add(i);
-                if(part.has("feature_bone")){int f=part.get("feature_bone").getAsInt();Arrays.fill(features,start,start+count,f);transforms.put(f,new Matrix4f());}
+                if(part.has("feature_bone")){int f=part.get("feature_bone").getAsInt();Arrays.fill(features,start,start+count,f);transforms[f]=new Matrix4f();}
             }
             if(data.has("puff_surface")){
                 offsets(data.getAsJsonObject("puff_surface"));if(data.has("puff_attachments"))for(var p:data.getAsJsonArray("puff_attachments"))offsets(p.getAsJsonObject());
@@ -155,7 +156,11 @@ class PoseGoldenTest {
                     for(int v=p.get("start").getAsInt(),end=v+p.get("count").getAsInt();v<end;v++){float x=vertices[v*8]-b.x,y=vertices[v*8+1]-b.y,z=vertices[v*8+2]-b.z,d=x*x+y*y+z*z;if(d>best){best=d;System.arraycopy(vertices,v*8,rest,chain.size()*3,3);}}}
                 Overlays.braid(bones,world,pose,chain.stream().mapToInt(Integer::intValue).toArray(),rest,new Vector3f(6,8,-5),.7f,new Overlays.BraidScratch());
             }
-            transforms.forEach((b,m)->{m.set(world[b]);if(bones[b].parent>=0)m.mul(new Matrix4f(world[bones[b].parent]).invert());});
+            for(int b=0;b<transforms.length;b++){
+                var m=transforms[b];
+                if(m==null)continue;
+                m.set(world[b]);if(bones[b].parent>=0)m.mul(new Matrix4f(world[bones[b].parent]).invert());
+            }
         }
     }
 }

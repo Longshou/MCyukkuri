@@ -65,12 +65,12 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
         var vertices=Rig.floats(data.getAsJsonArray("vertices")); var weights=data.getAsJsonArray("weights");
         var bindings=new Skin.Binding[weights.size()]; var features=new int[weights.size()]; Arrays.fill(features,-1);
         for(int i=0;i<bindings.length;i++){var w=weights.get(i).getAsJsonArray();bindings[i]=new Skin.Binding(w.get(0).getAsInt(),w.get(1).getAsInt(),w.get(2).getAsFloat());}
-        var transforms=new HashMap<Integer,Matrix4f>(); var visible=new ArrayList<Integer>();
+        var transforms=new Matrix4f[bones.length]; var visible=new ArrayList<Integer>();
         for(var raw:data.getAsJsonArray("parts")) {
             var part=raw.getAsJsonObject(); if(part.has("anatomy")&&!part.get("anatomy").getAsString().isEmpty())continue;
             int first=part.get("start").getAsInt(),end=first+part.get("count").getAsInt();
             for(int i=first;i<end;i++)visible.add(i);
-            if(part.has("feature_bone")){int b=part.get("feature_bone").getAsInt();Arrays.fill(features,first,end,b);transforms.put(b,new Matrix4f());}
+            if(part.has("feature_bone")){int b=part.get("feature_bone").getAsInt();Arrays.fill(features,first,end,b);transforms[b]=new Matrix4f();}
         }
         var markers=clips.getAsJsonObject(stroke).getAsJsonObject("markers");
         float launch=markers.get("launch").getAsFloat(),strike=markers.get("impact").getAsFloat(),settled=markers.get("settled").getAsFloat();
@@ -80,7 +80,7 @@ public record RamContact(double impact, double turn, double[] front, double[] pe
         BiFunction<Clips.Clip,Float,Double> reach=(clip,time)->{
             for(int i=0;i<pose.length;i++)System.arraycopy(defaults[i],0,pose[i],0,9);
             clip.sample(time,pose);compose.world(pose,world,-1,1,null,null);
-            transforms.forEach((b,m)->Compose.feature(bones,world,b,m,inverse));
+            Compose.features(bones,world,transforms,inverse);
             double f=0;
             for(int i:visible){Skin.base(i,point,scratch,vertices,bindings,world,null,0,null,features,transforms);f=Math.max(f,-point.z);turn[0]=Math.max(turn[0],Math.hypot(point.x,point.z));}
             return f;

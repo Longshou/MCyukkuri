@@ -63,7 +63,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
-import java.util.function.BiConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
@@ -97,8 +96,7 @@ public final class YukkuriModel {
     private final float[] vertices;
     private final float[] restVertices;
     private final int[] featureBones;
-    private final Map<Integer,Matrix4f> featureTransforms=new HashMap<>();
-    private final BiConsumer<Integer,Matrix4f> updateFeature=this::updateFeature;
+    private final Matrix4f[] featureTransforms;
     private final Map<String,List<Patch>> expressionPatches=new HashMap<>();
     private List<Patch> activePatches=List.of();
     private final String id;
@@ -395,6 +393,7 @@ public final class YukkuriModel {
     /** The shared normal of an expression card part, or null when the part keeps per-triangle normals. */
     Vector3f woundCardNormal(String part){return cardNormals.get(part);}
     private final Vector3f puffBlendedNormal=new Vector3f();
+    private final Vector3f transformedNormal=new Vector3f();
     String geometryExpression(String expression) { return expressionAliases.getOrDefault(expression,expression); }
     /** Vertices any expression patch can move; the wound renderer reuses everything else across expressions. */
     private boolean[] woundExpressionVertices=new boolean[0];
@@ -868,6 +867,7 @@ public final class YukkuriModel {
         vertices = floats(data.getAsJsonArray("vertices"));
         restVertices=vertices.clone();featureBones=new int[vertices.length/8];Arrays.fill(featureBones,-1);
         bones=Rig.bones(data.getAsJsonArray("bones"));
+        featureTransforms=new Matrix4f[bones.length];
         world=Rig.matrices(bones.length);
         composer=new Compose(bones);
         defaultPose=Rig.values(bones.length);
@@ -893,7 +893,7 @@ public final class YukkuriModel {
             parts.add(new Part(name, start, count, anatomy, card));
             if(part.has("feature_bone")){
                 int bone=part.get("feature_bone").getAsInt();if(bone<0||bone>=bones.length)throw new IllegalArgumentException("Invalid face feature bone");
-                Arrays.fill(featureBones,start,start+count,bone);featureTransforms.putIfAbsent(bone,new Matrix4f());
+                Arrays.fill(featureBones,start,start+count,bone);featureTransforms[bone]=new Matrix4f();
             }
         }
         fitted = new ClipBlend(bones, bindings, data.getAsJsonArray("parts"));
@@ -1259,7 +1259,7 @@ public final class YukkuriModel {
             }
         }
         if (delivery != null) delivery.follow(world[rootBone()]);
-        featureTransforms.forEach(updateFeature);
+        Compose.features(bones,world,featureTransforms,featureParentInverse);
         if (dishTarget != null) {
             boolean drinking = behavior.equals(Behaviors.DRINK);
             float progress = Math.clamp(behaviorTicks / DishFit.firstContact(ClipMarkers.of(drinking ? "drink" : "eat").length(), drinking), 0, 1);
@@ -1319,7 +1319,7 @@ public final class YukkuriModel {
                     bridge.takeContactFrame(fitted);
                     bridgeWeight = bridge.weight;
                     composeWorld();
-                    featureTransforms.forEach(updateFeature);
+                    Compose.features(bones,world,featureTransforms,featureParentInverse);
                     skinningCache.begin();
                     if (observe != null) observe.clear();
                 }
@@ -1330,10 +1330,6 @@ public final class YukkuriModel {
         } finally {
             skinningCache.end();
         }
-    }
-
-    private void updateFeature(Integer bone, Matrix4f matrix) {
-        Compose.feature(bones,world,bone,matrix,featureParentInverse);
     }
 
     private static int boundGroup(Part part, boolean worn) {
@@ -1487,10 +1483,11 @@ public final class YukkuriModel {
                     if(puffNormals!=null&&puffAmount>0&&puffNormals.groups[vertex]>=0)
                         vertexNormal=puffBlendedNormal.set(smoothBase).lerp(puffNormals.normals[puffNormals.groups[vertex]],puffAmount).normalize();
                     if(lifted!=null)vertexNormal=lifted;
+                    transform.transformNormal(vertexNormal,transformedNormal);
                     buffer.addVertex(transform.pose(), point.x / 16, point.y / 16, point.z / 16)
                             .setColor(tint>>16&255, tint>>8&255, tint&255, 255).setUv(vertices[uv], vertices[uv + 1])
                             .setOverlay(overlay).setLight(light)
-                            .setNormal(transform, vertexNormal.x, vertexNormal.y, vertexNormal.z);
+                            .setNormal(transformedNormal.x, transformedNormal.y, transformedNormal.z);
                 }
                 if(fourth>=0)first+=3;
             }

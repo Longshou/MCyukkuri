@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.pose;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -20,7 +19,7 @@ public final class Skin {
     }
     public static void base(int index,Vector3f target,Vector3f second,float[] vertices,Binding[] bindings,
                             Matrix4f[] world,Deform wound,float puffAmount,float[] puffOffsets,
-                            int[] featureBones,Map<Integer,Matrix4f> featureTransforms){
+                            int[] featureBones,Matrix4f[] featureTransforms){
         int offset = index * 8;
         Binding binding = bindings[index];
         target.set(vertices[offset], vertices[offset + 1], vertices[offset + 2]);
@@ -32,7 +31,7 @@ public final class Skin {
         }
         world[binding.first].transformPosition(target);
         if (binding.weight > 0) target.lerp(second, binding.weight);
-        int feature=featureBones[index];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
+        int feature=featureBones[index];if(feature>=0)featureTransforms[feature].transformPosition(target);
     }
     public static void blend(Vector3f point,Vector3f second,Binding binding,Matrix4f[] world){
         second.set(point);world[binding.first].transformPosition(point);
@@ -42,14 +41,14 @@ public final class Skin {
         out.zero();for(int k=0;k<weights.length;k+=2){world[(int)weights[k]].transformPosition(point,temp);out.fma(weights[k+1],temp);}return out;
     }
     public static void fragment(int triangle,float a,float b,float c,Vector3f rest,Vector3f target,Vector3f second,
-                                Binding[] bindings,Matrix4f[] world,int[] featureBones,Map<Integer,Matrix4f> featureTransforms){
+                                Binding[] bindings,Matrix4f[] world,int[] featureBones,Matrix4f[] featureTransforms){
         target.zero();
         for(int corner=0;corner<3;corner++){
             int index=triangle+corner;Binding binding=bindings[index];float bary=corner==0?a:corner==1?b:c;
             second.set(rest);world[binding.first].transformPosition(second);target.fma(bary*(1-binding.weight),second);
             if(binding.weight>0){second.set(rest);world[binding.second].transformPosition(second);target.fma(bary*binding.weight,second);}
         }
-        int feature=featureBones[triangle];if(feature>=0)featureTransforms.get(feature).transformPosition(target);
+        int feature=featureBones[triangle];if(feature>=0)featureTransforms[feature].transformPosition(target);
     }
     public static void pregnancy(Vector3f target,float belly,float contraction,int group,Vector3f crownLift,Vector3f braidLift){
         if(belly>0){if(group==1)target.add(crownLift);else if(group==2)target.add(braidLift);else deformPregnancy(target,belly,contraction);}

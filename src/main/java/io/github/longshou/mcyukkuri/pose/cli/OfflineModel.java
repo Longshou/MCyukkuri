@@ -23,7 +23,8 @@ final class OfflineModel implements Overlays.Contact {
     final float[] vertices;
     final Skin.Binding[] bindings;
     final int[] features;
-    final Map<Integer, Matrix4f> featureTransforms = new LinkedHashMap<>();
+    final Matrix4f[] featureTransforms;
+    private final Matrix4f featureInverse = new Matrix4f();
     final int root;
     final Vector3f mouth, scratch = new Vector3f();
     final List<Integer> floor = new ArrayList<>();
@@ -62,6 +63,7 @@ final class OfflineModel implements Overlays.Contact {
         }
         fingerprint = ModelFingerprint.of(chain.toString().getBytes(StandardCharsets.UTF_8)).lf();
         bones = Rig.bones(data.getAsJsonArray("bones")); root = bone("root");
+        featureTransforms = new Matrix4f[bones.length];
         pose = Rig.values(bones.length); defaults = Rig.values(bones.length); world = Rig.matrices(bones.length); compose = new Compose(bones);
         vertices = Rig.floats(data.getAsJsonArray("vertices"));
         var weights = data.getAsJsonArray("weights"); bindings = new Skin.Binding[weights.size()]; features = new int[weights.size()]; Arrays.fill(features, -1);
@@ -69,7 +71,7 @@ final class OfflineModel implements Overlays.Contact {
         for (var raw : data.getAsJsonArray("parts")) {
             var p = raw.getAsJsonObject(); int start = p.get("start").getAsInt(), count = p.get("count").getAsInt();
             if (group(p.get("name").getAsString()).equals("body")) for (int i = start; i < start + count; i++) floor.add(i);
-            if (p.has("feature_bone")) { int b = p.get("feature_bone").getAsInt(); Arrays.fill(features, start, start + count, b); featureTransforms.put(b, new Matrix4f()); }
+            if (p.has("feature_bone")) { int b = p.get("feature_bone").getAsInt(); Arrays.fill(features, start, start + count, b); featureTransforms[b] = new Matrix4f(); }
         }
         var living = read(assets.resolve("yukkuri_presentation/living.json")).getAsJsonObject("variants");
         var variant = living.getAsJsonObject(id);
@@ -92,7 +94,7 @@ final class OfflineModel implements Overlays.Contact {
         }
     }
     public void compose() { compose.world(pose, world, -1, 1, null, null); }
-    private void updateFeatures() { featureTransforms.forEach((b, m) -> Compose.feature(bones, world, b, m, new Matrix4f())); }
+    private void updateFeatures() { Compose.features(bones, world, featureTransforms, featureInverse); }
     Vector3f skin(int index) { var p = new Vector3f(); Skin.base(index, p, scratch, vertices, bindings, world, null, 0, null, features, featureTransforms); return p; }
     public float minimumY() { float min = Float.POSITIVE_INFINITY; for (int i : floor) min = Math.min(min, skin(i).y); return min; }
     public Vector3f mouth() { return world[root].transformPosition(new Vector3f(mouth)); }

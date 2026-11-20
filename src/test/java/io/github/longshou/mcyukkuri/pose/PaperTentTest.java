@@ -27,7 +27,7 @@ class PaperTentTest {
     }
 
     private record Loaded(String id, JsonObject data, Rig.Bone[] bones, Skin.Binding[] bindings, float[] rest,
-                          int[] features, Map<Integer, Matrix4f> featureTransforms, List<String> accessoryPrefixes,
+                          int[] features, Matrix4f[] featureTransforms, List<String> accessoryPrefixes,
                           Map<String, Clips.Clip> clips, float[][] defaults) {}
 
     private static Loaded loadModel(String id, JsonObject fitAll, JsonObject motionAll, JsonObject living) throws IOException {
@@ -46,14 +46,14 @@ class PaperTentTest {
         }
         int[] features = new int[bindings.length];
         Arrays.fill(features, -1);
-        Map<Integer, Matrix4f> featureTransforms = new HashMap<>();
+        Matrix4f[] featureTransforms = new Matrix4f[bones.length];
         for (var raw : data.getAsJsonArray("parts")) {
             var p = raw.getAsJsonObject();
             if (p.has("feature_bone")) {
                 int b = p.get("feature_bone").getAsInt();
                 int s = p.get("start").getAsInt(), c = p.get("count").getAsInt();
                 Arrays.fill(features, s, s + c, b);
-                featureTransforms.put(b, new Matrix4f());
+                featureTransforms[b] = new Matrix4f();
             }
         }
         List<String> acc = new ArrayList<>();
@@ -89,7 +89,7 @@ class PaperTentTest {
         clip.sample(time, pose);
         Matrix4f[] world = Rig.matrices(m.bones.length);
         new Compose(m.bones).world(pose, world, -1, 1, null, null);
-        m.featureTransforms.forEach((b, mat) -> Compose.feature(m.bones, world, b, mat, new Matrix4f()));
+        Compose.features(m.bones, world, m.featureTransforms, new Matrix4f());
 
         var partsJson = m.data.getAsJsonArray("parts");
         int nParts = partsJson.size();
@@ -335,7 +335,7 @@ class PaperTentTest {
         m.clips.getOrDefault(clipName, m.clips.get("idle")).sample(time, pose);
         Matrix4f[] world = Rig.matrices(m.bones.length);
         new Compose(m.bones).world(pose, world, -1, 1, null, null);
-        m.featureTransforms.forEach((b, mat) -> Compose.feature(m.bones, world, b, mat, new Matrix4f()));
+        Compose.features(m.bones, world, m.featureTransforms, new Matrix4f());
         Matrix4f place = new Matrix4f().translation(ox, 0f, oz).rotateY((float) Math.toRadians(yawDeg)).scale(scale / 16f);
         var partsJson = m.data.getAsJsonArray("parts");
         List<Float> tris = new ArrayList<>();

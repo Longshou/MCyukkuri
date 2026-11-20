@@ -35,7 +35,12 @@ public final class Compose {
         }
     }
     public static void raise(Matrix4f[] world,float lift){for(var matrix:world)matrix.m31(matrix.m31()+lift);}
-    public static void feature(Rig.Bone[] bones,Matrix4f[] world,int bone,Matrix4f matrix,Matrix4f inverse){
-        matrix.set(world[bone]);if(bones[bone].parent>=0)matrix.mul(inverse.set(world[bones[bone].parent]).invert());
+    public static void features(Rig.Bone[] bones,Matrix4f[] world,Matrix4f[] transforms,Matrix4f inverse){
+        for(int bone=0;bone<transforms.length;bone++){
+            var matrix=transforms[bone];
+            if(matrix==null)continue;
+            matrix.set(world[bone]);
+            if(bones[bone].parent>=0)matrix.mul(inverse.set(world[bones[bone].parent]).invert());
+        }
     }
 }

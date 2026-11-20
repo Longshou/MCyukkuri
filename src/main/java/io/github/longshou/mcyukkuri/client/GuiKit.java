@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
@@ -8,10 +13,12 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import org.joml.Matrix4f;
 
 /** Shared menu and HUD kit drawn from art/props/ui/author_shop_ui.py. */
 public final class GuiKit {
@@ -30,18 +37,37 @@ public final class GuiKit {
 
     private static void blit(GuiGraphics g, int x, int y, int u, int v, int w, int h) { g.blit(TEX, x, y, u, v, w, h, ATLAS, ATLAS); }
 
+    private static void quad(VertexConsumer buffer, Matrix4f pose, int x, int y, int u, int v, int w, int h) {
+        float u0 = (float) u / ATLAS, u1 = (float) (u + w) / ATLAS;
+        float v0 = (float) v / ATLAS, v1 = (float) (v + h) / ATLAS;
+        buffer.addVertex(pose, x, y, 0).setUv(u0, v0);
+        buffer.addVertex(pose, x, y + h, 0).setUv(u0, v1);
+        buffer.addVertex(pose, x + w, y + h, 0).setUv(u1, v1);
+        buffer.addVertex(pose, x + w, y, 0).setUv(u1, v0);
+    }
+
     /** Fills a rectangle by repeating a source tile, cutting the last repeat. */
-    private static void tile(GuiGraphics g, int x, int y, int w, int h, int u, int v, int tw, int th) {
-        for (int j = 0; j < h; j += th) for (int i = 0; i < w; i += tw) blit(g, x + i, y + j, u, v, Math.min(tw, w - i), Math.min(th, h - j));
+    private static void tile(VertexConsumer buffer, Matrix4f pose, int x, int y, int w, int h, int u, int v, int tw, int th) {
+        for (int j = 0; j < h; j += th) for (int i = 0; i < w; i += tw)
+            quad(buffer, pose, x + i, y + j, u, v, Math.min(tw, w - i), Math.min(th, h - j));
     }
 
     private static void nine(GuiGraphics g, int x, int y, int w, int h, int u, int v, int size, int c) {
         int m = size - 2 * c;
-        blit(g, x, y, u, v, c, c); blit(g, x + w - c, y, u + size - c, v, c, c);
-        blit(g, x, y + h - c, u, v + size - c, c, c); blit(g, x + w - c, y + h - c, u + size - c, v + size - c, c, c);
-        tile(g, x + c, y, w - 2 * c, c, u + c, v, m, c); tile(g, x + c, y + h - c, w - 2 * c, c, u + c, v + size - c, m, c);
-        tile(g, x, y + c, c, h - 2 * c, u, v + c, c, m); tile(g, x + w - c, y + c, c, h - 2 * c, u + size - c, v + c, c, m);
-        tile(g, x + c, y + c, w - 2 * c, h - 2 * c, u + c, v + c, m, m);
+        RenderSystem.setShaderTexture(0, TEX);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        Matrix4f pose = g.pose().last().pose();
+        var buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        quad(buffer, pose, x, y, u, v, c, c);
+        quad(buffer, pose, x + w - c, y, u + size - c, v, c, c);
+        quad(buffer, pose, x, y + h - c, u, v + size - c, c, c);
+        quad(buffer, pose, x + w - c, y + h - c, u + size - c, v + size - c, c, c);
+        tile(buffer, pose, x + c, y, w - 2 * c, c, u + c, v, m, c);
+        tile(buffer, pose, x + c, y + h - c, w - 2 * c, c, u + c, v + size - c, m, c);
+        tile(buffer, pose, x, y + c, c, h - 2 * c, u, v + c, c, m);
+        tile(buffer, pose, x + w - c, y + c, c, h - 2 * c, u + size - c, v + c, c, m);
+        tile(buffer, pose, x + c, y + c, w - 2 * c, h - 2 * c, u + c, v + c, m, m);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
     }
 
     public static void panel(GuiGraphics g, int x, int y, int w, int h) { nine(g, x, y, w, h, 0, 0, 24, 4); }
