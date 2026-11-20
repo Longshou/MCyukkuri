@@ -12,13 +12,9 @@
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
-| 公园：主人在长椅旁留下伴侣离开（PK 包 B） | `.worktrees/wp-park-bench` | human/HumanStreet.java (outings, bench), human/TownMarkers.java, pet/PetLife.java |
-| 徽章会馆：佩章者在广场相遇（包 C） | `.worktrees/wp-badge-plaza` | human/TownMarkers.java, headwear badge reactions |
-| 街道：居民把满的垃圾桶搬到街角（街头买卖包 3） | `.worktrees/wp-bin-corner` | human/VillageBin.java, human/GarbageBinBlock*, human/HumanNpc.java |
 | SP-13 家庭房只分到一只同窝的窝（main 上失败） | `.worktrees/wp-kin-nest` | life/LifeHome.java (shared nest assignment) |
 | PD-13 叼着孩子从岸边跳上船跳不到船沿 | `.worktrees/wp-shore-hop` | aquatic boarding / shore hop |
 | FG-08 判定时机与代码决策不一致 | `.worktrees/wp-fg08-verifier` | scripts/museum_scenarios.py (stray_boxes verifier) |
-| 夜市：油库里之间以物易物（街头买卖包 4） | `.worktrees/wp-night-barter` | social/ peer barter goal, motor/MouthOccupancy.java, life/LifeMeal.java |
 | 嘴里叼着巢料时又咬一口草（嘴部占用两个权威） | `.worktrees/wp-mouth-two` | motor/MouthOccupancy.java, settlement forage/habitat carry |
 
 ## 玩法待办
@@ -57,11 +53,9 @@
 - 公园里等主人（N34）：已接入待试玩。公园 PK-04「流浪油递来一口，回头指向空纸箱」，看等主人的灵梦接过苹果并吞下，本地流浪朝空纸箱走几步再回头。刚被留下的灵梦垂头后继续等，等得久又困的灵梦自己走进纸箱歇下，结束等候。完成标准：本地流浪赠食并提供一个去处（N34）。
 
 - 后续行为（未做）：
-  - 公园弃养：未做。主人把宠物留在长椅旁、放下一份点心后离开，宠物等待，别的个体拿走点心（TM08）。
   - 收容所接收与领养：未做。志愿者把虚弱的流浪抱进栏舍，玩家在收容所领养。
-  - 佩章者聚集在交流广场：未做。流浪羡慕或辱骂佩章个体。
-  - 垃圾分类日：未做。居民把垃圾桶搬到街角。
-  - 主街夜市与摊位以物易物（N73、N78）：未做。用户定案：先做油库里之间以物易物（N78），摊位用货币买卖以后再做。
+  - 佩章者聚集在交流广场：未做（暂缓：玩家难以触发）。流浪羡慕或辱骂佩章个体。
+  - 主街夜市与摊位以物易物（N73、N78）：未做（暂缓：玩家难以触发）。用户定案：先做油库里之间以物易物（N78），摊位用货币买卖以后再做。
   - 公园里的孩子（EH29）：未做。用户定案：做人类小孩在公园短暂逗弄、和油库里玩，油库里按性格反应；不做油库里照顾人类小孩。
 
 - FG-13 触发条件：部分接入（玩家手持食物隔着玻璃也能引来，饥饿时注意距离由 4 格放宽到 8 格）。完成标准：真实街景的触发率经试玩确认。「FG-13 这种行为真的能够稳定触发吗 我不是说一定触发。我担心，如果不在演示场里演示，而是在实际环境下，这种触发条件太苛刻，导致真实场景几乎看不到」
