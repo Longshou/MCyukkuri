@@ -103,8 +103,6 @@ public final class BegBite {
         }
         if (beat != Beat.EAT && (stray.life().mealTicks() > 0
                 || stray.life().nutrition() >= 50 && !result.equals("shared") && !result.equals("snatched"))) {
-            stray.showReaction("happy", "", ClipMarkers.of(BOW.id()).length());
-            stray.speakCue("beg_thanks");
             WildEvents.finish(level, scene, Phase.INTERRUPTED, "beggar_fed");
             return;
         }

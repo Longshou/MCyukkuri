@@ -211,9 +211,9 @@ public final class CarrierItem extends Item {
         boolean mobile = canReact(entity);
         boolean weary = weakness >= YukkuriLife.WEAKNESS_WARNING;
         if (mobile && !weary && response != SocialDisposition.Response.SULKY) {
-            entity.showReaction(response == SocialDisposition.Response.GUARDED ? YukkuriAction.TREMBLE : YukkuriAction.STRUGGLE,
-                    response == SocialDisposition.Response.GUARDED ? "teary" : "angry", "basket_refuse");
-        } else if (mobile) entity.showReaction("look_down", "basket_refuse", SCENE_WINDOW);
+            if (response == SocialDisposition.Response.GUARDED) entity.showReaction(YukkuriAction.TREMBLE, "teary", "afraid");
+            else entity.showReaction(YukkuriAction.STRUGGLE, "angry", "puff");
+        } else if (mobile) entity.showReaction("look_down", "", SCENE_WINDOW);
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         GameplayLog.event(entity, "carrier", "capture reaction player={} response={} esteem={} wariness={} insistence={} nutrition={} mobile={}",
                 player.getUUID(), !mobile ? "busy" : weary ? "weary" : response.id(),

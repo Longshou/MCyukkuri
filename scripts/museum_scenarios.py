@@ -1782,11 +1782,13 @@ _choice_scene(
 
 _choice_scene(
     'choice_food', '向拿苹果的人讨食：骂人索要或软声讨',
-    '中间的人手里拿着一个苹果，两边各有一只同样饿的魔理沙。左边胆大不友善的骂着要吃的，右边友善的宠物软声讨食。',
+    '中间的人手里拿着一个苹果，两边各有一只同样饿的魔理沙。左边胆大不友善的流浪油骂着要吃的，右边友善的宠物软声讨食。'
+    '也可站到左边等流浪油向你开口，打一下，观察它逃跑或噗咕还击时的声音。',
     # Residents put away or eat a main-hand apple as picnic food. An offhand apple stays visible to both visitors.
     [human('caretaker_sister', 0, 0, 'apple_holder', 0, label='拿苹果的人', attitude=2)[:-1]
      + ',HandItems:[{},{id:"minecraft:apple",count:1}]}',
-     _choice_actor('food_demand', -1.4, 0, yaw=-90, nutrition=38, social_wait=0, lead=True, **_pushy),
+     _choice_actor('food_demand', -1.4, 0, yaw=-90, nutrition=38, social_wait=0, lead=True,
+                   extra='YukkuriPet:{TownRoots:1b}', **_pushy),
      _choice_actor('food_ask', 1.4, 0, yaw=90, nutrition=38, social_wait=0, **_considerate),
      *own('food_ask')],
     (0, 6, 180, 12),
@@ -2884,7 +2886,7 @@ add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物�
     env=DAY, vantage=(0, 0),
     late=[home('identity_pet', -4, -7), home('identity_stray', -4, 7)],
     give=['mcyukkuri:field_notebook', 'minecraft:apple 4'],
-    note='魔理沙开口后可直接喂，或双手空着潜行右键，在「照料」中选「拒绝／赶走」。也可走开，等它停止请求。清场重开后等它骂着索食再打一下，观察它逃跑或噗咕还击时的声音。清场重开后可手持苹果走近，对照诱食接手。提高信任后还可收养魔理沙，或在照料栏对灵梦选择「弃养」。',
+    note='魔理沙开口后可直接喂，或双手空着潜行右键，在「照料」中选「拒绝／赶走」。也可走开，等它停止请求。清场重开后可手持苹果走近，对照诱食接手。提高信任后还可收养魔理沙，或在照料栏对灵梦选择「弃养」。',
     reads=[('读四只的身份', 'yukkuri status @e[tag=scn,type=#mcylab:yukkuri,distance=..24]'),
            ('读魔理沙的自尊与关系', f'yukkuri status {sel("identity_stray")} raw')])
 
@@ -7667,28 +7669,11 @@ _smoke('social_identity', 440, [
     readout=[f'yukkuri status {sel("identity_" + kind)} raw' for kind in ('pet', 'stray', 'settlement', 'family')] +
             [f'data get entity @e[tag={tag("identity_stray")},distance=..24,limit=1] LastFoodRequestNutrition'])
 _human_contact_smoke = next(s for s in S if s.id == 'social_identity').smoke
-_identity_stray = sel('identity_stray')
-_human_contact_smoke['commands'] = [
-    (1, 'scoreboard players set #identity_struck museum 0'),
-    # Strike once during the actual demand, with that demand's human as the attacker.
-    *((tick, f'execute if score #identity_struck museum matches 0 if data entity {_identity_stray} LastFoodRequestNutrition '
-             f'store success score #identity_struck museum run damage {_identity_stray} 1 minecraft:mob_attack by {sel("identity_listener")}')
-      for tick in range(30, 201, 5)),
-]
 
 
 def _one_human_food_request(log):
-    requests = re.findall(r'\[social\] marisa #[^\n]* uuid=(\S+) t=(\d+) [^\n]* human food request target=(\S+)', log)
-    if len(requests) != 1:
-        return f'expected one voiced request from Marisa, found {len(requests)}'
-    actor, request_tick, human = requests[0]
-    voice = re.search(rf'\[speech\][^\n]* uuid={actor} t={request_tick} [^\n]* line event=human_food_demand [^\n]* until=(\d+)', log)
-    hits = re.findall(rf'\[threat\][^\n]* uuid={actor} t=(\d+)[^\n]* struck stance=(\w+) attacker={human} [^\n]* identity=stray\b', log)
-    if not voice or len(hits) != 1 or not int(request_tick) < int(hits[0][0]) < int(voice[1]):
-        return f'the human heard by Marisa must strike her during the voiced demand: {requests}, {hits}'
-    if hits[0][1] not in ('FLEE', 'PUFF_FIGHT'):
-        return f'the struck bold stray must flee or puff and fight, got {hits}'
-    return _struck_speech(log)
+    requests = re.findall(r'\[social\] marisa #[^\n]* human food request target=', log)
+    return None if len(requests) == 1 else f'expected one voiced request from Marisa, found {len(requests)}'
 
 
 _human_contact_smoke['verify'] = _one_human_food_request
@@ -7851,15 +7836,50 @@ next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 
 def _struck_speech(window):
     events = {'FLEE': ('hurt_flee',), 'FREEZE': ('hurt_freeze',), 'PUFF_FIGHT': ('hurt_defy', 'puff'),
-              'PLEAD': ('plea_sad', 'hurt_tame_plea'), 'ENDURE': ('hurt_endure',)}
-    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* dialogue=(\S*)', window)
+              'PLEAD': ('hurt_tame_plea',), 'ENDURE': ('hurt_endure',)}
+    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* identity=(\w+) dialogue=(\S*)', window)
     if not strikes:
         return 'Missing struck stance and spoken line'
-    for actor, tick, stance, key in strikes:
+    for actor, tick, stance, identity, key in strikes:
         lines = re.findall(rf'\[speech\][^\n]* uuid={actor} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
+        if stance == 'PLEAD' and identity in ('wild_family', 'wild_settlement', 'stray', 'house'):
+            if key or lines:
+                return f'{actor} at {tick} pleaded silently in {identity} but delivered {lines}, key={key}'
+            continue
         matching = [(event, line) for event, line in lines if any(event in group for group in events.values()) or event == 'afraid']
         if len(matching) != 1 or matching[0] != lines[-1] or matching[0][0] not in events[stance] or matching[0][1] != key:
             return f'{actor} at {tick} chose {stance} but its speech was {lines}'
+
+
+_food_choice_smoke = next(s for s in S if s.id == 'choice_food').smoke
+_food_choice_counts = _food_choice_smoke['verify']
+_demanding_stray = sel('food_demand')
+_food_choice_smoke['commands'] = [
+    (1, 'scoreboard players set #choice_food_struck museum 0'),
+    # Sample spawn support at +1 and +20 before a blow can lift the beggar.
+    # Strike once, during the voiced demand and after the polite control has also asked.
+    *((tick, f'execute if score #choice_food_struck museum matches 0 if data entity {_demanding_stray} LastFoodRequestNutrition '
+             f'if data entity {sel("food_ask")} LastFoodRequestNutrition store success score #choice_food_struck museum '
+             f'run damage {_demanding_stray} 1 minecraft:mob_attack by {sel("apple_holder")}')
+      for tick in range(24, 201, 4)),
+]
+
+
+def _verify_struck_food_choice(log):
+    if problem := _food_choice_counts(log):
+        return problem
+    actor = _uuid_text(_ugly, 'food_demand')
+    request_tick, human = re.search(rf'\[social\][^\n]* uuid={actor} t=(\d+) [^\n]* human food request target=(\S+)', log).groups()
+    voice = re.search(rf'\[speech\][^\n]* uuid={actor} t={request_tick} [^\n]* line event=human_food_demand [^\n]* until=(\d+)', log)
+    hits = re.findall(rf'\[threat\][^\n]* uuid={actor} t=(\d+)[^\n]* struck stance=(\w+) attacker={human} [^\n]* identity=stray\b', log)
+    if not voice or len(hits) != 1 or not int(request_tick) < int(hits[0][0]) < int(voice[1]):
+        return f'the addressed human must strike during the voiced demand: request={request_tick}, hits={hits}'
+    if hits[0][1] not in ('FLEE', 'PUFF_FIGHT'):
+        return f'the struck bold stray must flee or puff and fight, got {hits}'
+    return _struck_speech(log)
+
+
+_food_choice_smoke['verify'] = _verify_struck_food_choice
 
 
 def _home_greedy_retreat(window, trace):

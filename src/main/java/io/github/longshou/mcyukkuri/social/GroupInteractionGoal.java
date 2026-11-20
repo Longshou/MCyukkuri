@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
@@ -178,7 +179,11 @@ public final class GroupInteractionGoal extends Goal {
                 entity.pet().conscience().breach(HouseRule.NO_BULLYING);
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){
                 peer.mind().addSlavePressure(6,"bullied_hatless");peer.mind().feltSlavePressure(EmotionEvent.SOCIAL_HURT);
-                peer.showReaction("teary","settlement_hurt",100);
+                if (!peer.isPanicking() && !peer.groupInteraction().defense().active()
+                        && peer.showReaction("teary", "", 100)) {
+                    peer.getLookControl().setLookAt(entity, 30, 30);
+                    peer.speak(ReactionSpeech.contempt(SettlementSociety.sameGroup(entity, peer)));
+                }
             }
             return;
         }
