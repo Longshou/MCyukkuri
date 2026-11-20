@@ -1044,9 +1044,11 @@ public final class Reactions {
             var theirs = partner.status().reactions().weather;
             partnerLeft = onRight; theirs.partnerLeft = !onRight; theirs.facing = facing;
             pressedAt = theirs.pressedAt = now;
+            int suppressed = GameplayLog.admit(y, "weather", "huddle.pressed", 600);
+            if (suppressed < 0) return;
             var to = partner.position().subtract(y.position());
-            GameplayLog.limited(y, "weather", "huddle.pressed", 600, "huddle pressed partner={} side={} centres={} afterTicks={}", () -> new Object[]{
-                        partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks});
+            GameplayLog.limitedEvent(y, "weather", suppressed, "huddle pressed partner={} side={} centres={} afterTicks={}",
+                    partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks);
         }
         /** A thunder clap it heard: it flinches; a pressed pair, startled together, nestles in again after it. */
         void clap(long now, double distance) {
