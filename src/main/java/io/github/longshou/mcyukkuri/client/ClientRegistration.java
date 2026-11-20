@@ -88,6 +88,7 @@ public final class ClientRegistration {
         NeoForge.EVENT_BUS.addListener(EntityTickEvent.Post.class, WallClearance::observePartner);
         NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, PoseNeighbors::join);
         NeoForge.EVENT_BUS.addListener(EntityLeaveLevelEvent.class, PoseNeighbors::leave);
+        NeoForge.EVENT_BUS.addListener(LevelEvent.Unload.class, PoseNeighbors::unload);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, PoseNeighbors::stage);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, true, InputEvent.InteractionKeyMappingTriggered.class, HatInteractionTrace::trace);
 

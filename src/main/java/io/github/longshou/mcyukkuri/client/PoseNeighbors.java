@@ -8,6 +8,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import org.joml.Matrix4f;
 
 /** Frame-local skinned bounds for the same neighborhood as the fitted partner contact check. */
@@ -33,6 +34,11 @@ final class PoseNeighbors {
     static void leave(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide() && event.getEntity() instanceof YukkuriEntity actor)
             actors.removeIf(peer -> peer == actor);
+    }
+
+    static void unload(LevelEvent.Unload event) {
+        var level = event.getLevel();
+        if (level.isClientSide()) actors.removeIf(peer -> peer.level() == level);
     }
 
     static void collect(YukkuriEntity self, float partial, Matrix4f start, Matrix4f posed) {
