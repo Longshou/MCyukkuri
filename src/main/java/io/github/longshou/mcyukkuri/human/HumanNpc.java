@@ -31,6 +31,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -579,7 +580,16 @@ public final class HumanNpc extends PathfinderMob {
         }
 
         private Vec3 clearStopStand(DoorExit exit) {
-            var stand = freeFloor(exit.stand(false));
+            var centre = clearStopStep(exit.stand(false));
+            if (centre != null) return centre;
+            var axis = exit.axis();
+            double origin = axis.choose(exit.door().getX(), exit.door().getY(), exit.door().getZ());
+            double edge = DoorPassage.stopEdge(exit.positive(), mob.getBbWidth() * .5, MoveControl.MIN_SPEED);
+            return clearStopStep(mob.position().with(axis, origin + edge));
+        }
+
+        private Vec3 clearStopStep(Vec3 target) {
+            var stand = freeFloor(target);
             if (stand == null) return null;
             var offset = stand.subtract(mob.position());
             var sweep = mob.getBoundingBox().move(0, Math.max(0, offset.y), 0).expandTowards(offset.x, 0, offset.z);

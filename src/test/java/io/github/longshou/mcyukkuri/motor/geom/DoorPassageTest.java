@@ -54,4 +54,15 @@ class DoorPassageTest {
         assertEquals(-.5, DoorPassage.stopStand(true, side -> side ? null : DoorPassage.stand(false, false)));
         assertNull(DoorPassage.stopStand(true, side -> null));
     }
+
+    @Test void crowdedExitHasRoomToClearBeforeTheNextCellCentre() {
+        double radius = .3, tolerance = .0005;
+        for (boolean positive : new boolean[]{false, true}) {
+            double neighbor = positive ? 2 : -1;
+            assertTrue(Math.abs(neighbor - DoorPassage.stand(positive, false)) < 2 * radius);
+            double edge = DoorPassage.stopEdge(positive, radius, tolerance);
+            assertTrue(Math.abs(neighbor - edge) > 2 * radius);
+            assertTrue(DoorPassage.cleared(edge - radius, edge + radius, positive));
+        }
+    }
 }

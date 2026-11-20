@@ -13,6 +13,11 @@ public final class DoorPassage {
 
     public static boolean overlaps(double low, double high) { return low < 1 && high > 0; }
 
+    /** Put the trailing edge beyond the frame even when steering stops within its arrival tolerance. */
+    public static double stopEdge(boolean positive, double radius, double tolerance) {
+        return positive ? 1 + radius + tolerance : -radius - tolerance;
+    }
+
     /** The saved crossing direction wins when a finished route is no longer available. */
     public static boolean stopSide(Boolean routeSide, double target, double centre) {
         return routeSide != null ? routeSide : (target == .5 ? centre : target) >= .5;
