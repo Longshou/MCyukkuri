@@ -610,9 +610,10 @@ def outputs():
         strings = {'item.mcyukkuri.' + name: labels[i] for name, labels in LABELS.items()}
         strings.update({'block.mcyukkuri.' + name: labels[i] for name, labels in LABELS.items()})
         strings.update({'activity.mcyukkuri.' + key: values[i] for key, values in {'tunnel': ['穿过管道', 'Passing through a tunnel'], 'slide_climb': ['登上滑梯', 'Climbing the slide'],
-            'slide_down': ['顺坡滑下', 'Sliding down'], 'trampoline': ['玩蹦床', 'Bouncing on a trampoline'], 'pool_edge': ['沿水池探看', 'Exploring the pool edge']}.items()})
+            'slide_down': ['顺坡滑下', 'Sliding down'], 'trampoline': ['玩蹦床', 'Bouncing on a trampoline'], 'tub_climb': ['爬进澡盆', 'Climbing into the tub'], 'juice_soak': ['泡橙汁澡', 'Soaking in orange juice']}.items()})
         strings.update({'play.mcyukkuri.no_space': ['需要平坦、空旷的 %s×%s×%s 空间', 'Needs a clear, supported %s×%s×%s space'][i],
-                        'play.mcyukkuri.pool': ['水池：%s／3 份水。右键使用水桶补水；入水仍会浸湿。', 'Pool: %s/3 water portions. Use a water bucket to fill; entering still wets the body.'][i]})
+                        'play.mcyukkuri.pool': ['橙汁澡盆：%s／%s 份橙汁。右键用橙汁一瓶补一份；油库会自己爬进去泡澡。', 'Orange juice tub: %s/%s portions of juice. Use orange juice on it, one bottle per portion; yukkuri climb in to soak on their own.'][i],
+                        'play.mcyukkuri.pool_full': ['澡盆已经满了', 'The tub is full'][i]})
         changed = any(existing.get(k) != v for k, v in strings.items())
         existing.update(strings)
         if changed:

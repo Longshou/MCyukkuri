@@ -19,6 +19,10 @@ public final class PlayLife {
     private PlayBlockEntity facility;
     private List<Vec3> route=List.of();
     private int cooldown,scanWait,elapsed,waypoint,bounces,stalled,bounceLimit;
+    /** A tub session: the route index of the seat (-1 elsewhere), the ticks soaked there and the state at the start of the soak. */
+    private int soakAt=-1,soakTicks;
+    private float soakHealth;
+    private int soakWounds,soakJuice;
     private int lastElapsed;
     private String refused;
     private double lastDistance=Double.MAX_VALUE;
@@ -29,12 +33,14 @@ public final class PlayLife {
     public int bounces(){return bounces;}
     public String refused(){return refused;}
     public String activity(){return !active()?Behaviors.IDLE:facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?Behaviors.SLIDE_DOWN:Behaviors.SLIDE_CLIMB):
-            facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?Behaviors.POOL_EDGE:Behaviors.TUNNEL;}
-    private boolean available(){return entity.outing().permitsPerformance(true)&&(active() || entity.childhood().canExercise())&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
+            facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?(soaking()?Behaviors.JUICE_SOAK:Behaviors.TUB_CLIMB):Behaviors.TUNNEL;}
+    private boolean soaking(){return soakAt>=0&&waypoint==soakAt;}
+    /** {@code tub}: the juice tub is the one facility a wounded body may use; every other play needs unhurt skin. */
+    private boolean available(boolean tub){return entity.outing().permitsPerformance(true)&&(active() || entity.childhood().canExercise())&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
             &&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
-            &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&entity.body().condition().readyForPlay()
+            &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&(tub||entity.body().condition().readyForPlay())
             &&!entity.family().active()&&!entity.house().active();}
     public void clock(){
         if(cooldown>0)cooldown--;
@@ -47,7 +53,7 @@ public final class PlayLife {
     public boolean canUse(){
         if(active())return valid();
         if(entity.outing().onOuting())return entity.outing().tryParkPlay();
-        if(cooldown>0||scanWait>0||!available()||entity.isNoAi())return false;
+        if(cooldown>0||scanWait>0||!available(true)||entity.isNoAi())return false;
         scanWait=160;
         if(entity.dailyLife().active()||entity.social().active())return false;
         var center=entity.blockPosition();
@@ -59,23 +65,33 @@ public final class PlayLife {
     }
     public boolean begin(PlayBlockEntity target){
         if(active()||cooldown>0)return refuse("cooldown");
-        if(!available())return refuse("unfit");
+        if(!available(target.kind()==PlayBlock.Kind.POOL))return refuse("unfit");
         if(target.getLevel()!=entity.level()||target.isRemoved())return refuse("gone");
         if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump())return refuse("cannot_jump");
         if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return refuse("far");
-        if(target.kind()==PlayBlock.Kind.POOL&&target.water()==0)return refuse("pool_empty");
+        JuiceTub.Seat seat=null;
+        if(target.kind()==PlayBlock.Kind.POOL){
+            // Each refusal has its remedy: pour juice, wait to grow, or sit on the bench once the juice reaches it.
+            if(target.juice()==0)return refuse("tub_empty");
+            if(JuiceTub.tooBig(entity.getBbWidth()))return refuse("too_big");
+            var seats=JuiceTub.seatsFor(JuiceTub.layout(),entity.getBbWidth(),target.juice());
+            if(seats.isEmpty())return refuse("tub_shallow");
+            seat=seats.get(Math.floorMod(entity.getUUID().hashCode(),seats.size()));
+        }
+        var tub=seat==null?null:JuiceTub.route(JuiceTub.layout(),seat);
+        int seatAt=tub==null?-1:tub.seat();
         var local=switch(target.kind()){
             case CERAMIC->List.of(new Vec3(0,0,-2),new Vec3(0,.125,-1),new Vec3(0,.125,0),new Vec3(0,.125,1),new Vec3(0,0,2));
             case SLIDE->List.of(new Vec3(0,0,-2.8),new Vec3(0,.25,-1.9),new Vec3(0,.5,-1.4),new Vec3(0,.75,-.9),new Vec3(0,1,-.4),new Vec3(0,1,0),new Vec3(0,0,2.8));
             case TRAMPOLINE->List.of(new Vec3(0,0,-1.7),new Vec3(0,PlayBlock.BED_HEIGHT,0),
                     new Vec3(0,0,Math.max(1.7,PlayBlock.RIM_RADIUS+entity.getBbWidth()/2.0+.22)));
-            case POOL->List.of(new Vec3(-.95,0,-1.2),new Vec3(-.95,.375,0),new Vec3(-.95,0,1.2),new Vec3(0,0,1.5));
+            case POOL->tub.points().stream().map(p->new Vec3(p[0],p[1],p[2])).toList();
         };
         var points=local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList();
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach())return refuse("blocked");
         if(!target.reserve(entity))return refuse("occupied");
-        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
+        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;soakAt=seatAt;soakTicks=0;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
         lastElapsed=-1;
         entity.getNavigation().moveTo(path,.8);
         GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} bounceLimit={}",
@@ -83,10 +99,9 @@ public final class PlayLife {
         return true;
     }
     private boolean refuse(String reason){refused=reason;return false;}
-    private boolean valid(){return active()&&available()&&elapsed<600&&!facility.isRemoved()&&facility.getLevel()==entity.level()
+    private boolean valid(){return active()&&available(facility.kind()==PlayBlock.Kind.POOL)&&elapsed<(facility.kind()==PlayBlock.Kind.POOL?600+JuiceTub.SOAK_TICKS:600)&&!facility.isRemoved()&&facility.getLevel()==entity.level()
             &&entity.level() instanceof ServerLevel level&&level.hasChunkAt(facility.getBlockPos())&&level.getBlockEntity(facility.getBlockPos())==facility
             &&(!entity.outing().onOuting()||entity.outing().parkFacility()==facility)
-            &&(facility.kind()!=PlayBlock.Kind.POOL||facility.water()>0)
             &&entity.distanceToSqr(Vec3.atCenterOf(facility.getBlockPos()))<144&&facility.reserve(entity);}
     public boolean canContinue(){return valid();}
 
@@ -106,6 +121,10 @@ public final class PlayLife {
         Vec3 target=route.get(waypoint);double distance=target.subtract(entity.position()).horizontalDistance();
         entity.getLookControl().setLookAt(target.x,entity.getEyeY(),target.z,25,25);
         boolean trampoline = facility.kind() == PlayBlock.Kind.TRAMPOLINE;
+        if (soaking() && distance < .22 && Math.abs(entity.getY() - target.y) < .6) {
+            if (soak()) { waypoint++; lastDistance = Double.MAX_VALUE; stalled = 0; }
+            return;
+        }
         if (trampoline && waypoint == 1) {
             if (springing) {
                 boolean enough = bounces >= bounceLimit || entity.life().energy() < 35
@@ -162,16 +181,46 @@ public final class PlayLife {
             Motor.velocity(entity,new Vec3(direction.x*.065,entity.getDeltaMovement().y,direction.z*.065),"play_route");
         }else if(elapsed%10==1&&!entity.getNavigation().moveTo(target.x,target.y,target.z,.8)){stop();}
     }
+    /**
+     * One tick in the juice at the seat. Every {@link JuiceTub#STEP_TICKS} the body regains a little health, the oldest wound closes
+     * a grade now and then, and it gets cleaner; a whole soak uses up one level. Done (true) when the soak ran its length or the
+     * juice ran out, and the route carries the body back out over the rim and stool.
+     */
+    private boolean soak(){
+        var back=PlayGeometry.world(facility.getBlockPos(),facility.facing(),0,0,1).subtract(PlayGeometry.world(facility.getBlockPos(),facility.facing(),0,0,0));
+        entity.getNavigation().stop();entity.getMoveControl().setWantedPosition(entity.getX(),entity.getY(),entity.getZ(),0);
+        face(back);
+        if(soakTicks==0){
+            soakHealth=entity.getHealth();soakWounds=entity.body().wounds().size();soakJuice=facility.juice();
+            GameplayLog.event(entity,"play","tub soak started at={} juice={} health={}/{} wounds={} hygiene={}",facility.getBlockPos(),soakJuice,
+                    entity.getHealth(),entity.getMaxHealth(),soakWounds,entity.life().hygiene());
+        }
+        if(facility.juice()==0){soakEnded(false);return true;}
+        soakTicks++;
+        if(soakTicks%JuiceTub.STEP_TICKS==0){
+            int step=soakTicks/JuiceTub.STEP_TICKS;
+            entity.heal(JuiceTub.healthStep(entity.getMaxHealth()));
+            if(JuiceTub.mendsWound(step))entity.body().soakMend();
+            entity.life().juiceSoakStep(JuiceTub.washesMarks(step));
+        }
+        if(soakTicks<JuiceTub.SOAK_TICKS)return false;
+        facility.soaked();soakEnded(true);return true;
+    }
+    private void soakEnded(boolean used){
+        GameplayLog.event(entity,"play","tub soak ended at={} used={} juice={} -> {} health={} -> {} wounds={} -> {} hygiene={}",facility.getBlockPos(),used,
+                soakJuice,facility.juice(),soakHealth,entity.getHealth(),soakWounds,entity.body().wounds().size(),entity.life().hygiene());
+    }
     public void stop(){stop(true);}
     private void stop(boolean log){
         if(facility!=null){
+            if(soaking()&&soakTicks>0&&soakTicks<JuiceTub.SOAK_TICKS)soakEnded(false);
             facility.release(entity);
             if(log)GameplayLog.limited(entity,"play","ended",1200,
                     "facility session ended kind={} at={} completed={} elapsed={} waypoint={} bounces={} stalled={} nutrition={} energy={} boredom={}",
                     facility.kind(),facility.getBlockPos(),completed,elapsed,waypoint,bounces,stalled,entity.life().nutrition(),
                     entity.life().energy(),entity.dailyLife().boredom());
         }
-        springing=false;facility=null;route=List.of();entity.getNavigation().stop();
+        springing=false;facility=null;route=List.of();soakAt=-1;soakTicks=0;entity.getNavigation().stop();
     }
     private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}

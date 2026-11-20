@@ -666,6 +666,14 @@ public final class BodyLife {
             refreshWounds();entity.heal(2);return true;}
         return false;
     }
+    /** A step of a soak in orange juice: the oldest injury the operations are not holding closes one grade, deep wounds included,
+     *  but only a grade at a time (the dose from a bottle clears them all at once). */
+    public boolean soakMend(){
+        if(entity.level().isClientSide||!treatmentAllowed())return false;
+        for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!injury(w)||entity.operations().pinsWound(w.id()))continue;
+            healWound(i);refreshWounds();return true;}
+        return false;
+    }
     public boolean treatInfection(){
         if(!treatmentAllowed()||infection==0)return false;
         int before=infection;infection=Math.max(0,infection-4);

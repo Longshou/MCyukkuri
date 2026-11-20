@@ -726,8 +726,8 @@ class Park(Field):
                 for dz in range(-depth, depth + 1):
                     for dy in (0, 1):
                         part = dx + 2 + 5 * (dz + 2) + 25 * dy        # PlayBlock.part, facing south
-                        water = 3 if kind == 'yukkuri_pool' and part == 12 else 0
-                        c.put(x + dx, dy + 1, z + dz, f'mcyukkuri:{kind}[facing=south,part={part},water={water}]')
+                        juice = '{Juice:4}' if kind == 'yukkuri_pool' and part == 12 else ''   # the tub starts full
+                        c.put(x + dx, dy + 1, z + dz, f'mcyukkuri:{kind}[facing=south,part={part}]{juice}')
         for x, z in self.WAIT + (self.OFFSETS['walk'],):
             c.box(x, 1, z, x, 2, z, None, soft=True)
         clear_ground = {(x, z) for x, y, z in c.cells}

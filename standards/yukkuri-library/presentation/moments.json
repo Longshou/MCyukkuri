@@ -920,6 +920,30 @@
         }
       ]
     },
+    "behavior_juice_soak": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "sunbathe",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "teary"
+            ],
+            [
+              0.8,
+              "closed_smile"
+            ],
+            [
+              9.2,
+              "happy"
+            ]
+          ]
+        }
+      ]
+    },
     "behavior_seek_shade": {
       "loop": true,
       "steps": [
@@ -5136,6 +5160,7 @@
     "thunder_cower": "behavior_thunder_cower",
     "thunder_startle": "behavior_thunder_startle",
     "sunbathe": "behavior_sunbathe",
+    "juice_soak": "behavior_juice_soak",
     "seek_shade": "behavior_seek_shade",
     "independence_build": "behavior_independence_build",
     "nest_build": "behavior_nest_build",

@@ -165,7 +165,8 @@ public final class Behaviors {
     public static final String PAIRING_ACCEPT = "pairing_accept";
     public static final String PEER = "peer";
     public static final String PLAYER = "player";
-    public static final String POOL_EDGE = "pool_edge";
+    public static final String TUB_CLIMB = "tub_climb";
+    public static final String JUICE_SOAK = "juice_soak";
     public static final String POSTPARTUM = "postpartum";
     public static final String PREDATOR_CHASE = "predator_chase";
     public static final String PREDATOR_BUILD = "predator_build";

@@ -212,6 +212,12 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     pose.mulPose(Axis.XP.rotationDegrees((float)(-Math.toDegrees(Math.atan(15.0/34))*blend)));
                 }
             }
+            if(!preview&&!hatCarrier&&!carried&&entity.onGround()){
+                // The bed gives under the body while it is in contact: the body sinks with it (the bed is drawn by PlaygroundRenderer).
+                var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
+                if(facility!=null&&facility.kind()==PlayBlock.Kind.TRAMPOLINE
+                        &&Math.abs(entity.getY()-facility.getBlockPos().getY()-PlayBlock.BED_HEIGHT)<1e-6)pose.translate(0,-facility.bedDepression(partialTick),0);
+            }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
             if (entity.isCrawling()&&!hatCarrier&&!carried) {
                 behavior = Behaviors.HOUSE_CRAWL;

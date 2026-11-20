@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.phys.AABB;
 
 public final class PlaygroundRenderer implements BlockEntityRenderer<PlayBlockEntity> {
+    private static final String JUICE_MESH="yukkuri_pool_juice";
     public PlaygroundRenderer(BlockEntityRendererProvider.Context context){}
     @Override public void render(PlayBlockEntity e,float partial,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         if(e.getLevel()!=null)light=LevelRenderer.getLightColor(e.getLevel(),e.getBlockPos().above(2));
@@ -19,7 +20,11 @@ public final class PlaygroundRenderer implements BlockEntityRenderer<PlayBlockEn
         if (e.kind() == PlayBlock.Kind.TRAMPOLINE) {
             // The fixed, opaque y=9 rim occludes the bed and contact at y=8 through the normal depth test.
             PropModels.renderShiftedPart(e.kind().id, "bed", -e.bedDepression(partial), pose, buffers, light, overlay);
-        } else PropModels.render(e.kind().id,Integer.MAX_VALUE,pose,buffers,light,overlay);
+        } else {
+            PropModels.render(e.kind().id,Integer.MAX_VALUE,pose,buffers,light,overlay);
+            // The fill mesh draws the juice at the level the server saved (parts juice_u1..u4).
+            if(e.kind()==PlayBlock.Kind.POOL&&e.juice()>0)PropModels.render(JUICE_MESH,e.juice(),pose,buffers,light,overlay);
+        }
         pose.popPose();
     }
     @Override public AABB getRenderBoundingBox(PlayBlockEntity e){return new AABB(e.getBlockPos()).inflate(2,0,2).expandTowards(0,2,0);}

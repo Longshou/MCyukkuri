@@ -13,12 +13,13 @@
 
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
-| 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
+| 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术与泡澡代码） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
 | PD-13 亲油叼着孩子在船上一直不动（出船跳被拒后不换法） | `.worktrees/wp-boat-carry-stuck` | aquatic Ferry/Hop/Ashore carried exit |
 | 困在小沙嘴上出不去、落水后贴着岸边上不来 | `.worktrees/wp-ledge-trap` | movement/water-exit shared layer |
 
 ## 玩法待办
 
+- 橙汁澡盆泡澡与蹦床下沉：已接入待试玩（`wp-playground-refine`，随美术提交一起合入）。公园 PK-05「受伤的灵梦爬进橙汁澡盆泡澡」看受伤的灵梦在盆里坐定后体力回升、伤口一级一级缩小、污垢变淡，盆里的橙汁少一份；玩家手持橙汁右键给澡盆加一份（一瓶一份，空瓶还回，满了拒绝）。蹦床 PK-02 看油库落在床面时随床面一起下沉。
 - 嘴部占用：已接入待试玩。FG-02（`forage`）看父油衔草时能否先送回粮堆，饿急时是否先放下所衔物再咬草；`den_call_timeout` 看父油拆屏前放下草，之后捡回并交齐四份。
 
 - 池塘上岸与载重：已接入待试玩。PD-15 看湿灵梦从浅水游上干岸甩水，PD-26 看亲子随帽漂到浅滩后能否踏稳石阶或草岸。PD-09 看赤油能否在打雷时收起玩耍，PD-13 看留岸的幼体等帽船能载下自己再登船，并在翻船后逐只看去向。

@@ -735,12 +735,11 @@
   "block.mcyukkuri.yukkuri_trampoline": "Yukkuri trampoline",
   "block.mcyukkuri.yukkuri_pool": "Orange juice tub",
   "play.mcyukkuri.no_space": "Needs a clear, supported %s×%s×%s space",
-  "play.mcyukkuri.pool": "Pool: %s/3 water portions. Use a water bucket to fill; entering still wets the body.",
+  "play.mcyukkuri.pool": "Orange juice tub: %s/%s portions of juice. Use orange juice on it, one bottle per portion; yukkuri climb in to soak on their own.",
   "activity.mcyukkuri.tunnel": "Passing through a tunnel",
   "activity.mcyukkuri.slide_climb": "Climbing the slide",
   "activity.mcyukkuri.slide_down": "Sliding down",
   "activity.mcyukkuri.trampoline": "Bouncing on a trampoline",
-  "activity.mcyukkuri.pool_edge": "Exploring the pool edge",
   "shelter.mcyukkuri.inspect_natural": "Natural nest\nResidents: %s / %s\nTwig boundary: %s / 3  Order: %s%%\nMoisture: %s%%  Bedding: %s / 4\nFood: %s  Dirt: %s%%\n%s",
   "shelter.mcyukkuri.cave": "Existing terrain provides cover; twigs provide no defense",
   "shelter.mcyukkuri.pit": "Open pit; leaves and twigs do not stop rain",
@@ -8968,5 +8967,8 @@
   "human.mcyukkuri.kiosk.blocked": "The serving hatch is blocked.",
   "human.mcyukkuri.kiosk.empty": "This crate has sold out.",
   "human.mcyukkuri.kiosk.till_full": "This crate has no room for the emerald.",
-  "human.mcyukkuri.kiosk.inventory_full": "There is no room in your inventory."
+  "human.mcyukkuri.kiosk.inventory_full": "There is no room in your inventory.",
+  "activity.mcyukkuri.tub_climb": "Climbing into the tub",
+  "activity.mcyukkuri.juice_soak": "Soaking in orange juice",
+  "play.mcyukkuri.pool_full": "The tub is full"
 }

@@ -25,6 +25,7 @@ MOMENT_TITLES = {
     'behavior_meal_content': '饭后满足',
     'behavior_call_child': '呼唤孩子',
     'behavior_sunbathe': '晒太阳',
+    'behavior_juice_soak': '泡橙汁澡',
     'behavior_sleep_enter': '入睡',
     'behavior_sleep': '睡眠',
     'behavior_rain_huddle_right': '雨中向右蜷缩',

@@ -8,8 +8,6 @@ import java.util.List;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
-import io.github.longshou.mcyukkuri.play.PlayBlock;
-import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -335,21 +333,17 @@ final class LifeHome {
     }
 
     /** An uncontained source has neither fixture. A depleted fixture remains identifiable until it is removed. */
-    record DrinkSource(CareBlockEntity waterer, PlayBlockEntity pool) {
-        boolean empty() { return waterer != null && waterer.water() == 0 || pool != null && pool.water() == 0; }
-        boolean spendWater() { return waterer != null ? waterer.spendWater() : pool == null || pool.spendWater(); }
+    record DrinkSource(CareBlockEntity waterer) {
+        boolean empty() { return waterer != null && waterer.water() == 0; }
+        boolean spendWater() { return waterer == null || waterer.spendWater(); }
     }
 
     DrinkSource drinkSource(BlockPos pos) {
         var level = o.level();
         if (!level.hasChunkAt(pos)) return null;
         if (level.getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.WATERER)
-            return new DrinkSource(care, null);
-        var pool = PlayBlock.facility(level, pos);
-        boolean fluid = drinkableWater(pos);
-        if (pool != null && pool.kind() == PlayBlock.Kind.POOL && (fluid
-                || pool.water() == 0 && !FoundShelter.streetUser(o.entity()))) return new DrinkSource(null, pool);
-        return fluid ? new DrinkSource(null, null) : null;
+            return new DrinkSource(care);
+        return drinkableWater(pos) ? new DrinkSource(null) : null;
     }
 
     private boolean drinkableWater(BlockPos pos) {

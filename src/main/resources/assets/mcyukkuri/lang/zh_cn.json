@@ -735,12 +735,11 @@
   "block.mcyukkuri.yukkuri_trampoline": "油库里蹦床",
   "block.mcyukkuri.yukkuri_pool": "橙汁澡盆",
   "play.mcyukkuri.no_space": "需要平坦、空旷的 %s×%s×%s 空间",
-  "play.mcyukkuri.pool": "水池：%s／3 份水。右键使用水桶补水；入水仍会浸湿。",
+  "play.mcyukkuri.pool": "橙汁澡盆：%s／%s 份橙汁。右键用橙汁一瓶补一份；油库会自己爬进去泡澡。",
   "activity.mcyukkuri.tunnel": "穿过管道",
   "activity.mcyukkuri.slide_climb": "登上滑梯",
   "activity.mcyukkuri.slide_down": "顺坡滑下",
   "activity.mcyukkuri.trampoline": "玩蹦床",
-  "activity.mcyukkuri.pool_edge": "沿水池探看",
   "shelter.mcyukkuri.inspect_natural": "天然巢穴\n住户：%s / %s\n树枝结界：%s / 3  整齐度：%s%%\n潮湿：%s%%  垫料：%s / 4\n存粮：%s  脏污：%s%%\n%s",
   "shelter.mcyukkuri.cave": "现有地形遮雨；树枝结界不提供防御",
   "shelter.mcyukkuri.pit": "露天土坑，树叶和结界不能挡雨",
@@ -8966,5 +8965,8 @@
   "human.mcyukkuri.kiosk.blocked": "售货口被挡住了。",
   "human.mcyukkuri.kiosk.empty": "这箱的货卖完了。",
   "human.mcyukkuri.kiosk.till_full": "这箱装不下绿宝石了。",
-  "human.mcyukkuri.kiosk.inventory_full": "背包没有空位。"
+  "human.mcyukkuri.kiosk.inventory_full": "背包没有空位。",
+  "activity.mcyukkuri.tub_climb": "爬进澡盆",
+  "activity.mcyukkuri.juice_soak": "泡橙汁澡",
+  "play.mcyukkuri.pool_full": "澡盆已经满了"
 }

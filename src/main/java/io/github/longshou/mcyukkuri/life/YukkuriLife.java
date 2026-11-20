@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.play.JuiceTub;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
@@ -543,6 +544,8 @@ public final class YukkuriLife {
     private void emotionTick(){ doses.emotionTick(); }
     public boolean spray(){ return doses.spray(); }
     public void poolRinse(){hygiene=Math.min(100,hygiene+15);wetness=Math.min(100,wetness+5);}
+    /** A step of a juice soak: cleaner, and the marks fade a grade now and then. Orange juice is not water, so it does not wet the body. */
+    public void juiceSoakStep(boolean washMarks){hygiene=Math.min(100,hygiene+JuiceTub.HYGIENE_STEP);if(washMarks)entity.status().marks().washed();}
     /** A finished shake throws half the water off the body (project design); returns the wetness before. */
     public float shakeOff(){float before=wetness;wetness=wetness/2;return before;}
     public long ageTicks() { return ageTicks; }
@@ -1665,11 +1668,11 @@ public final class YukkuriLife {
             GameplayLog.event(entity, "needs", "drink source={} kind=waterer water={} -> {} dryness={} -> {}",
                     targetBlock, waterBefore, waterer.water(), before, dryness);
         } else {
-            if (FoundShelter.streetUser(entity) && source.pool() == null) {
+            if (FoundShelter.streetUser(entity)) {
                 if (hygiene < 60) poolRinse();
                 streetDrinkAfter = level().getGameTime() + 2400;
             }
-            GameplayLog.event(entity,"needs","drink source={} dryness={} -> {} pool={}",targetBlock,before,dryness,source.pool()!=null);
+            GameplayLog.event(entity,"needs","drink source={} dryness={} -> {}",targetBlock,before,dryness);
         }
         task = Task.NONE;
         drinkTicks = 0;

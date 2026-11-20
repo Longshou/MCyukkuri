@@ -3953,6 +3953,16 @@ add(_park_aid, 'park', '流浪油递来一口，回头指向空纸箱', '流浪�
     reads=[('读等候状态', f'data get entity {_park_waiter} YukkuriPet.Waits'),
            ('读纸箱住客', 'data get block ~10 ~ ~-4 Residents')])
 
+add('juice_bath', 'park', '受伤的灵梦爬进橙汁澡盆泡澡', '受伤的灵梦爬进橙汁澡盆泡澡',
+    '公园里橙汁澡盆旁，一只胸前有二级撕裂伤、血量只剩一半多的灵梦（营养体力充足、身上很脏）。澡盆起始有 3 份橙汁。看它自己经木凳、盆沿爬进盆，'
+    '坐稳后闭眼泡着；约 12 秒里血量一格格回升、伤口一级一级缩小、身上变干净，盆里的橙汁少一份，泡完经原路爬出来。再用橙汁右键澡盆补一份，一瓶一份，空瓶还回。',
+    '约 1 分钟', [
+        'data merge block ~ ~ ~ {Juice:3}',
+        yk('reimu', 0, -4, 'soaker', uuid=uid('juice_bath', 'soaker'), label='受伤的灵梦', lead=True, yaw=0, hygiene=20, nutrition=95, energy=95),
+        set_status('soaker', 'health.health', 11),
+        set_status('soaker', 'health.wound_at', 'front:tear:2'),
+    ], give=['mcyukkuri:orange_juice 2'], env=DAY, spot='pool', vantage=(2, -7, 20, 22),
+    reads=[('读澡盆橙汁', 'data get block ~ ~ ~ Juice'), ('读灵梦', f'yukkuri status {sel("soaker")} raw')])
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -7480,7 +7490,7 @@ TOPICS = {
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -7537,6 +7547,13 @@ _smoke('kindness_adoption', 720, [
     rf'\[meal\][^\n]*uuid={_uuid_text("kindness_adoption", "orphan")} [^\n]*swallowed item=[^\n]*feeder={_uuid_text("kindness_adoption", "foster")}\b',
     rf'\[family\][^\n]*uuid={_uuid_text("kindness_adoption", "foster")} [^\n]*foster accepted child={_uuid_text("kindness_adoption", "orphan")}\b',
 ])
+
+# The soaker climbs into the tub unprompted, sits through one soak that uses up one level, and its one wound closes.
+_juice_log = _uuid_text('juice_bath', 'soaker')
+_smoke('juice_bath', 1800, [
+    rf'uuid={_juice_log} [^\n]*tub soak started at=[^\n]* juice=3 ',
+    rf'uuid={_juice_log} [^\n]*tub soak ended at=[^\n]* used=true juice=3 -> 2 [^\n]* wounds=1 -> 0 ',
+], forbid=[r'tub soak ended [^\n]* used=false'])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')
@@ -8772,7 +8789,7 @@ _street_cover_arrival = (
 _smoke('street_furniture', 900, [
     rf'\[habitat\][^\n]* uuid={_bench_stray}\b[^\n]* street rest spot=BENCH [^\n]* stand=(?:seat|foot)\b',
     rf'\[sleep\][^\n]* uuid={_bench_stray}\b[^\n]* begin source=life',
-    rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0 pool=false',
+    rf'\[needs\][^\n]* uuid={_water_stray}\b[^\n]* drink source=[^\n]* dryness=55\.0 -> 25\.0',
     _street_cover_arrival,
 ], readout=_street_health_reads('bench_stray', 'water_stray', 'barrel_stray', 'awning_stray'))
 
@@ -9210,7 +9227,7 @@ def _park_play_pet_fates(window):
 # The park's facilities are terrain (the field writes the blocks PlayItem.place sets), so no marker placement is logged: the start
 # checks every facility's core block instead, and a field clear must stand the trampoline up again without dropping it as an item.
 _park_cores = ' '.join(
-    'if block ~{} ~ ~{} mcyukkuri:{}'.format(*_lot_spot(spot), kind + ('[water=3]' if kind == 'yukkuri_pool' else ''))
+    'if block ~{} ~ ~{} mcyukkuri:{}'.format(*_lot_spot(spot), kind)
     for kind, spot in (('yukkuri_trampoline', 'trampoline'), ('yukkuri_slide', 'slide'), ('ceramic_tunnel', 'tunnel'),
                        ('yukkuri_pool', 'pool')))
 _park_bed = ' '.join(f'if block ~{_PARK_TRAMPOLINE[0] + x} ~{y} ~{_PARK_TRAMPOLINE[1] + z} mcyukkuri:yukkuri_trampoline'
