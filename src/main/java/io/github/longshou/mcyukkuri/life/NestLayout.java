@@ -1,5 +1,8 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.motor.geom.OccupancyMath;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -14,6 +17,21 @@ public final class NestLayout {
         }
     }
     private NestLayout() {}
+
+    /** Whether the empty bed's floor and the residents' turning clearance can accommodate the group. */
+    public static boolean fits(NestResting.Bed bed, List<Place> bodies, double arrival) {
+        var places = new LinkedHashMap<UUID, Place>();
+        var floor = bed.floor();
+        for (var body : bodies) {
+            var id = new UUID(0, places.size());
+            var place = choose(id, body, bed.levelHalf(), places,
+                    p -> OccupancyMath.classify(p.x(), p.z(), 0, p.width() * .5 + arrival, floor, 0, 0, true)
+                            == OccupancyMath.Result.INSIDE_SUPPORTED, false, bed.centreFirst(), arrival);
+            if (place == null) return false;
+            places.put(id, place);
+        }
+        return true;
+    }
 
     static Place choose(UUID id, Place body, double half, Map<UUID,Place> places, Predicate<Place> supported,
                         boolean sleeping, boolean centre, double arrival) {

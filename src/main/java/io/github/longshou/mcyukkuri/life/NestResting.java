@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import java.util.Map;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.life.NestLayout.Place;
+import io.github.longshou.mcyukkuri.motor.geom.FloorShape;
 import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
@@ -19,7 +20,13 @@ public final class NestResting {
      * radius {@code corner} (a circle when corner == half). Sizes follow the meshes in drafts/care-props (placed.py, wild.py).
      * {@code softBox}: the bed has no collision rim, so its level floor also takes the soft-rim allowance.
      */
-    public record Bed(double box,double half,double corner,boolean centreFirst,boolean softBox){}
+    public record Bed(double box,double half,double corner,boolean centreFirst,boolean softBox){
+        double levelHalf(){return box+(softBox?RIM_PRESS:0);}
+        public FloorShape floor(){
+            double reach=Math.min(half+RIM_PRESS,levelHalf());
+            return new FloorShape.RoundedRect(reach,Math.min(reach,corner+RIM_PRESS));
+        }
+    }
     /** Pet cushion nest: a level pad 23 across (the block and the bolster's inner slope) inside a round bolster whose
      *  inner side lies 11.1 out at body height; a 1.2x adult at full term (box 22.45) rests at the centre. */
     public static final Bed CUSHION=new Bed(11.5/16,11.1/16,11.1/16,true,false);
@@ -35,8 +42,7 @@ public final class NestResting {
     private NestResting(){}
     public static Place choose(YukkuriEntity e,Bed bed,Map<UUID,Place> others,Predicate<Place> supported,boolean centre){
         var body = new Place(0,0,e.getBbWidth(),HeadTop.reach(e));
-        double half = bed.box() + (bed.softBox() ? RIM_PRESS : 0);
-        return NestLayout.choose(e.getUUID(),body,half,others,supported,
+        return NestLayout.choose(e.getUUID(),body,bed.levelHalf(),others,supported,
                 e.life().isSleeping(), centre || bed.centreFirst(), SurfaceApproach.ARRIVAL);
     }
     public static ListTag save(Map<UUID,Place> places){

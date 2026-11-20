@@ -230,10 +230,10 @@ class ElopementScenes(unittest.TestCase):
 
 
 class ShopKinRoom(unittest.TestCase):
-    def test_requires_one_littermate_claim_and_timid_drink_after_waiting(self):
+    def test_requires_both_littermates_to_claim_and_sleep_inside_the_shared_bed(self):
         scene = next(s for s in S if s.id == 'shop_kin_room')
         verify = scene.smoke['verify']
-        actors = dict(zip(('kin_bold', 'kin_timid', 'kin_kind'), (CHILD, OTHER_CHILD, PARENT)))
+        actors = {'kin_bold': CHILD, 'kin_timid': OTHER_CHILD}
         trace = ['[trace] ' + json.dumps(dict(k='geo', u=actor, tags=[f'scn_{name}']))
                  for name, actor in actors.items()]
         litter = ''.join(f'[family] reimu #1 uuid={actor} t=1 wholesale litter mother=m father=f\n'
@@ -245,12 +245,26 @@ class ShopKinRoom(unittest.TestCase):
                  f'guard={CHILD} approacher={OTHER_CHILD} reason=harsh\n')
         drink = (f'[needs] reimu #2 uuid={OTHER_CHILD} t=4 drink source=waterer kind=waterer '
                  'water=1 -> 0 dryness=55.0 -> 25.0\n')
-        self.assertIsNone(verify(litter + claim + guard + drink, trace))
-        for wrong_claim in ('', claim + claim.replace(CHILD, OTHER_CHILD), claim.replace(CHILD, OTHER_PARENT)):
-            self.assertIn('claim the cushion', verify(litter + wrong_claim + guard + drink, trace))
-        self.assertIn('one parent pair', verify(litter.replace('father=f', 'father=g', 1) + claim + guard + drink, trace))
+        pair = claim + claim.replace(CHILD, OTHER_CHILD)
+        log = litter + pair + guard + drink
+        bed = [x + 10, FEET + 2, z - 2]
+
+        def sleeping(actor, offset, nest='INSIDE_SUPPORTED'):
+            state = dict(sleeping=True, nest=nest, home=bed, p=[bed[0] + offset, bed[1], bed[2] + offset],
+                         sleepWidth=.64, sleepReach=.55)
+            return ['[trace] ' + json.dumps(dict(k='st', u=actor, t=tick, st=state)) for tick in range(21)]
+
+        bold = sleeping(CHILD, -.5)
+        timid = sleeping(OTHER_CHILD, .5)
+        self.assertIsNone(verify(log, trace + bold + timid))
+        for wrong_claim in (claim, pair + claim.replace(CHILD, OTHER_PARENT)):
+            self.assertIn('claim the shared bed', verify(litter + wrong_claim + guard + drink, trace + bold + timid))
+        self.assertIn('one parent pair', verify(log.replace('father=f', 'father=g', 1), trace + bold + timid))
         for wrong_order in (guard, drink, drink + guard):
-            self.assertIn('wait for the bold one', verify(litter + claim + wrong_order, trace))
+            self.assertIn('wait for the bold one', verify(litter + pair + wrong_order, trace + bold + timid))
+        self.assertIn('asleep together', verify(log, trace + bold + sleeping(OTHER_CHILD, .5, 'OUTSIDE')))
+        self.assertIn('asleep together', verify(log, trace + bold + timid[:19]))
+        self.assertIn('overlap', verify(log, trace + bold + sleeping(OTHER_CHILD, -.4)))
 
 
 if __name__ == '__main__':

@@ -5,12 +5,15 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.GrowthTiming;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
+import io.github.longshou.mcyukkuri.life.NestLayout;
+import io.github.longshou.mcyukkuri.life.NestOccupancy;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -23,12 +26,14 @@ import java.util.Comparator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.item.ItemStack;
@@ -79,13 +84,15 @@ public final class ShopRestock {
             Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
             GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={}", shop.id, owner);
         }
+        if (!shop.familyNests.isEmpty() && candidates.stream().anyMatch(y -> ShopTrade.stockOf(y, shop.id)
+                && !HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) settleDisplayedFamilies(level, shop, candidates, true);
         for (var y : candidates) {
             if (!y.isAlive() || !box.contains(y.position())) continue;
             var custody = Custody.view(y);
             if (custody.role() != Custody.Role.STOCK || !custody.ownedBy(shop.id)) continue;
             var tag = HumanCommerce.data(y);
             if (tag.contains(ShopTrade.FOR_SALE_SINCE)) continue;
-            if (shop.kind == ShopKind.PET && !shop.familyNests.isEmpty()) {
+            if (!shop.familyNests.isEmpty() && !tag.getBoolean("FamilyStock")) {
                 for (var be : ShopStaff.blockEntities(level, shop)) {
                     if (!(be instanceof CareBlockEntity nest) || nest.kind() != CareBlock.Kind.NEST) continue;
                     var room = ShopAccess.petRoom(shop, nest.getBlockPos());
@@ -103,6 +110,40 @@ public final class ShopRestock {
             }
             tag = tag.copy(); tag.putLong(ShopTrade.FOR_SALE_SINCE, now); HumanCommerce.set(y, tag);
         }
+    }
+
+    private static void settleDisplayedFamilies(ServerLevel level, ShopRegistry.Entry shop, List<YukkuriEntity> stock, boolean newStock) {
+        for (var anchor : shop.familyNests) {
+            var room = ShopAccess.petRoom(shop, anchor);
+            var litter = stock.stream().filter(y -> room.contains(y.position()) && ShopTrade.stockOf(y, shop.id)
+                    && HumanCommerce.data(y).getBoolean("FamilyStock")).toList();
+            if (litter.isEmpty() || newStock && litter.stream().allMatch(y -> HumanCommerce.data(y).contains(ShopTrade.FOR_SALE_SINCE))) continue;
+            if (prepareFamilyBed(level, shop, anchor, litter)) {
+                var home = GlobalPos.of(level.dimension(), anchor);
+                for (var y : litter) if (!home.equals(y.life().home())) y.life().assignHome(home);
+            }
+        }
+    }
+
+    private static boolean prepareFamilyBed(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter) {
+        if (!(level.getBlockEntity(anchor) instanceof CareBlockEntity nest)) return false;
+        var bodies = litter.stream().map(y -> new ShopFamilyBed.Member(NestOccupancy.stage(y),
+                new NestLayout.Place(0, 0, y.getBbWidth(), HeadTop.reach(y)))).toList();
+        var choice = ShopFamilyBed.choose(nest.bed(), nest.largeNest(), bodies);
+        if (choice == ShopFamilyBed.TOO_SMALL) {
+            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=litter_does_not_fit shop={} nest={} count={}", shop.id, anchor, bodies.size());
+            return false;
+        }
+        if (choice == ShopFamilyBed.CUSHION || nest.largeNest()) return true;
+        var reclaimed = new ItemStack(nest.getBlockState().getBlock());
+        if (!ModBlocks.LARGE_NEST.get().replaceCushion(level, anchor, ShopRegistry.authoredRotation(shop))) {
+            GameplayLog.world(level, "shop", "action=family_bed result=refused reason=blocked_footprint_or_entrance shop={} nest={} count={}", shop.id, anchor, bodies.size());
+            return false;
+        }
+        var returns = shop.dock().above();
+        Containers.dropItemStack(level, returns.getX() + .5, returns.getY(), returns.getZ() + .5, reclaimed);
+        GameplayLog.world(level, "shop", "action=family_bed result=installed grade=woven shop={} nest={} count={}", shop.id, anchor, bodies.size());
+        return true;
     }
 
     private static void adoptLitter(YukkuriEntity animal, ShopLitter parents) {
@@ -164,6 +205,7 @@ public final class ShopRestock {
         registry.restocked(shop, level.getGameTime() + PERIOD);
         var custody = YukkuriWorldData.get(level);
         var stock = ShopRegistry.liveStock(level, shop);
+        settleDisplayedFamilies(level, shop, stock, false);
         var dock = level.getBlockEntity(shop.dock()) instanceof Container c ? c : null;
         int shipped = 0, waitingLand = 0;
         var departure = ShopRegistry.departure(level, shop);
@@ -223,6 +265,11 @@ public final class ShopRestock {
         int arrived = 0;
         var random = ModRandom.world(level);
         var slots = dock == null ? List.<Integer>of() : ShopStaff.openDockSlots(dock);
+        var familyRooms = new ArrayList<>(shop.familyNests);
+        familyRooms.removeIf(anchor -> {
+            var room = ShopAccess.petRoom(shop, anchor);
+            return stock.stream().anyMatch(y -> room.contains(y.position()));
+        });
         deliveries:
         for (int i = 0; i < land + predators + vacancies.families() && arrived < slots.size(); i++) {
             var species = i >= land && i < land + predators ? PREDATORS : LAND;
@@ -235,14 +282,25 @@ public final class ShopRestock {
                 litter = new FamilyDelivery(new ShopLitter(ModRandom.identity(random), ModRandom.identity(random)), age);
             }
             var variant = species.get(random.nextInt(species.size()));
+            var arrivals = new ArrayList<YukkuriEntity>(count);
             for (int member = 0; member < count; member++) {
+                var animal = prepareArrival(level, shop, variant, random, litter);
+                if (animal == null) break deliveries;
+                arrivals.add(animal);
+            }
+            if (litter != null) {
+                var room = familyRooms.stream().filter(anchor -> prepareFamilyBed(level, shop, anchor, arrivals)).findFirst();
+                if (room.isEmpty()) continue;
+                familyRooms.remove(room.get());
+            }
+            for (var animal : arrivals) {
                 int slot = slots.get(arrived);
                 var returned = dock.getItem(slot);
                 if (!returned.isEmpty()) {
                     if (ShopTrade.drop(level, shop.id, Vec3.atBottomCenterOf(shop.dock().above()), returned.copy()) == null) break deliveries;
                     dock.setItem(slot, ItemStack.EMPTY);
                 }
-                var basket = arrive(level, shop, variant, random, litter);
+                var basket = arrive(level, shop, animal, litter);
                 if (basket == null) break deliveries;
                 dock.setItem(slot, basket);
                 dock.setChanged();
@@ -265,11 +323,8 @@ public final class ShopRestock {
         return true;
     }
 
-    /**
-     * A new individual from the wholesaler, always young, packed in a basket.
-     * The temperament and condition reflect the shop's stock. It joins the world at the barrel for the tick of packing.
-     */
-    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, RandomSource random, FamilyDelivery litter) {
+    /** Prepare the wholesaler's actual bodies before choosing a bed or admitting any part of the litter. */
+    private static YukkuriEntity prepareArrival(ServerLevel level, ShopRegistry.Entry shop, YukkuriVariant variant, RandomSource random, FamilyDelivery litter) {
         var y = ModEntities.forVariant(variant).create(level);
         if (y == null) return null;
         var beside = shop.dock();
@@ -295,6 +350,11 @@ public final class ShopRestock {
         // Shop-raised stock is used to fine food and turns its nose up sooner (舌肥, FG-03).
         y.life().setPickiness(y.life().pickiness() + 18);
         Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
+        return y;
+    }
+
+    /** Join at the dock for the tick of packing. */
+    private static ItemStack arrive(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, FamilyDelivery litter) {
         if (!level.addFreshEntity(y)) return null;
         if (litter != null) adoptLitter(y, litter.parents());
         var token = YukkuriWorldData.get(level).capture(y);

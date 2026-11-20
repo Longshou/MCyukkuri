@@ -4277,13 +4277,14 @@ add('shop_water', 'shop', '饮水器：口渴的去喝，喝空后店员提水�
                  views={'dish_side': dict(position=(17.9, 2.45, 12.75), look_at=(16.5, 2.18, 13.2),
                                           criteria='从侧面看嘴贴住碟沿、水位降到零，再看店员补水。')}))
 
-_kin_room = (('kin_bold', 11.5, -3.5, 8.5, -2.0), ('kin_timid', 10.5, -3.5, 8.5, -3.4),
-             ('kin_kind', 8.5, -2.5, 11.5, -2.5))
-add('shop_kin_room', 'shop', '同窝兄弟：胆大的护着食盆和水，胆小的等，温和的让',
-    '同窝兄弟：胆大的护着食盆和水，胆小的等，温和的让',
-    '看右侧饮水器旁的三只同窝灵梦。胆大的抢先时会鼓脸，胆小的退开等空位，再走近喝水。等它们转去左侧食盆，'
-    '留意温和那只是否让同窝靠近。想看另一种拿到食水的顺序，可以重开。',
-    '约十几秒，看完喝水再看食盆', [PET_SHOP,
+_kin_room = (('kin_bold', 11.5, -3.5, 8.5, -2.0), ('kin_timid', 10.5, -3.5, 8.5, -3.4))
+add('shop_kin_room', 'shop', '同窝兄弟：护盆、等候和共用大编织窝',
+    '同窝兄弟：护盆、等候和共用大编织窝',
+    '看右侧饮水器旁的两只同窝灵梦。胆大的抢先时会鼓脸，胆小的退开等空位，再走近喝水。'
+    '看过左侧食盆后等天黑，两只各走到同一个大编织窝里自己的睡位。',
+    '约十几秒看护盆，约四十秒后入夜', [PET_SHOP,
+        # Wholesale juvenile litters arrive in pairs. The template normally starts with three babies.
+        'yukkuri clear ~8 ~2 ~-3 ~8 ~3 ~-3',
         *[shop_animal('reimu', x, z, name) for name, x, z, _, _ in _kin_room],
         *[command for name, _, _, x, z in _kin_room for command in (
             f'tp {sel(name)} ~{x} ~2 ~{z} 180 0', set_status(name, 'growth.age_ticks', 148000),
@@ -4291,11 +4292,11 @@ add('shop_kin_room', 'shop', '同窝兄弟：胆大的护着食盆和水，胆�
         )],
         f'data merge block {YARD_WATER} {{Water:2}}',
         f'data merge block {YARD_BOWL} {{Items:[{{Slot:0b,id:"mcyukkuri:oil_grain_regular",count:1}}]}}',
-    ], env=DAY, vantage=(10, -5, 0, 22, 2),
+    ], late=[Retry('time set midnight', sel('kin_bold'), tries=1, first=850)], env=DAY, vantage=(10, -5, 0, 22, 2),
     reads=[('读后院余水', f'data get block {YARD_WATER} Water'), ('读后院食盆', f'data get block {YARD_BOWL} Items'),
            ('读家庭窝住户', f'data get block {YARD_NEST}'),
            *[(f'读{label}的灵梦', f'yukkuri status {sel(name)} raw')
-             for (name, *_), label in zip(_kin_room, ('胆大', '胆小', '温和'))]])
+             for (name, *_), label in zip(_kin_room, ('胆大', '胆小'))]])
 
 _plant_x, _plant_z = BY_ID['plant'].entrance
 _plant_receiving = 'processing_plant'
@@ -9348,24 +9349,48 @@ next(s for s in S if s.id == 'shop_water').smoke['verify'] = _verify_shop_water
 def _verify_shop_kin_room(window, trace):
     actors = _shop_scene_actors(trace, [name for name, *_ in _kin_room])
     if any(len(ids) != 1 for ids in actors.values()):
-        return f'Expected three distinct staged littermates, got {actors}'
-    bold, timid, kind = (next(iter(ids)) for ids in actors.values())
-    if len({bold, timid, kind}) != 3:
-        return f'Expected three distinct staged littermates, got {actors}'
-    problem = _litter_problem(window, {bold, timid, kind})
+        return f'Expected two distinct staged littermates, got {actors}'
+    bold, timid = (next(iter(ids)) for ids in actors.values())
+    siblings = {bold, timid}
+    if len(siblings) != 2:
+        return f'Expected two distinct staged littermates, got {actors}'
+    problem = _litter_problem(window, siblings)
     if problem:
         return problem
-    claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*x={BY_ID["shop"].anchor[0] + 10}, y={FEET + 2}, z={BY_ID["shop"].anchor[1] - 2}\}}', window))
-    # At the staged juveniles' size, two worn Reimu ribbons need more clearance than the round cushion offers.
-    if len(claims) != 1 or not claims <= {bold, timid, kind}:
-        return f'Expected one juvenile littermate to claim the cushion, got {claims}'
+    x, z = BY_ID['shop'].anchor
+    bed = [x + 10, FEET + 2, z - 2]
+    at = rf'x={bed[0]}, y={bed[1]}, z={bed[2]}\}}'
+    claims = set(re.findall(rf'\[home\][^\n]* uuid=(\S+)[^\n]* assigned kind=care [^\n]* home=[^\n]*{at}', window))
+    if claims != siblings:
+        return f'Expected both juvenile littermates to claim the shared bed, got {claims}'
     wait = re.search(rf'\[meal\][^\n]* supply guarded [^\n]* kind=water guard={bold} approacher={timid} reason=harsh', window)
     drink = re.search(rf'\[needs\][^\n]* uuid={timid} [^\n]* drink [^\n]* kind=waterer water=[1-8] -> [0-7] dryness=55\.0 -> 25\.0', window)
     if not wait or not drink or wait.start() >= drink.start():
         return 'Expected the timid littermate to wait for the bold one and then drink'
+    asleep = {}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] in siblings:
+            state = row['st']
+            if state.get('sleeping') and state.get('nest') == 'INSIDE_SUPPORTED' and state.get('home') == bed:
+                asleep.setdefault(row['t'], {})[row['u']] = state
+    streak, previous = 0, None
+    for tick, sleepers in sorted(asleep.items()):
+        if sleepers.keys() != siblings:
+            continue
+        a, b = sleepers[bold], sleepers[timid]
+        dx, dz = abs(a['p'][0] - b['p'][0]), abs(a['p'][2] - b['p'][2])
+        if max(dx, dz) < (a['sleepWidth'] + b['sleepWidth']) / 2 or math.hypot(dx, dz) < a['sleepReach'] + b['sleepReach']:
+            return f'Siblings overlap in the shared bed at tick {tick}'
+        streak = streak + 1 if previous == tick - 1 else 1
+        previous = tick
+        if streak >= 20:
+            return None
+    return 'Expected 20 consecutive ticks asleep together inside the shared bed'
 
 
-_smoke('shop_kin_room', 1100, [r'\[meal\][^\n]* supply guarded [^\n]* kind=water ',
+_smoke('shop_kin_room', 2200, [r'\[shop\][^\n]* action=family_bed result=installed grade=woven ',
+                              r'\[meal\][^\n]* supply guarded [^\n]* kind=water ',
                               r'\[meal\][^\n]* supply guarded [^\n]* kind=bowl ',
                               r'\[needs\][^\n]* drink [^\n]* kind=waterer '])
 next(s for s in S if s.id == 'shop_kin_room').smoke.update(verify=_verify_shop_kin_room, verify_trace=True)

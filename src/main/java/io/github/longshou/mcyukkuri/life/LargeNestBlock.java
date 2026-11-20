@@ -28,6 +28,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.AABB;
 
 /**
  * A family nest on a real 2x2 footprint, like a bed: the clicked cell is part 0 (north-west, owns the block entity and the
@@ -150,6 +151,22 @@ public final class LargeNestBlock extends CareBlock {
             if (!shape.isEmpty() && shape.max(Direction.Axis.Y) > .125) return true;
         }
         return false;
+    }
+
+    /** Install a shop's woven bed at its rotated template anchor, where an old cushion may be replaced. */
+    public boolean replaceCushion(ServerLevel level, BlockPos anchor, Rotation rotation) {
+        var state = rotate(defaultBlockState(), rotation);
+        var nw = northWest(state, anchor);
+        for (int part = 0; part < 4; part++) {
+            var cell = at(nw, part);
+            if (!level.hasChunkAt(cell) || !level.getWorldBorder().isWithinBounds(cell) || !NestSupport.below(level, cell)
+                    || !cell.equals(anchor) && !level.getBlockState(cell).isAir()) return false;
+        }
+        if (!level.getEntitiesOfClass(LivingEntity.class, AABB.encapsulatingFullBlocks(nw, nw.offset(1, 0, 1))).isEmpty()) return false;
+        var target = fitted(level, nw, state);
+        if (target == null) return false;
+        for (int cell = 0; cell < 4; cell++) level.setBlock(at(nw, cell), cellState(target, cell), UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE);
+        return true;
     }
     @Override public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);

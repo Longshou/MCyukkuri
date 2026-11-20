@@ -45,7 +45,7 @@ public final class BedContainer implements Container {
             var hollow=care.bed();
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
-            return new BedContainer(e,centre,lying(hollow),floorY,
+            return new BedContainer(e,centre,hollow.floor(),floorY,
                     Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
         }
         var shelter=ShelterBlock.shelter(level,bed);
@@ -54,13 +54,7 @@ public final class BedContainer implements Container {
         var hollow=shelter.largeBeds().contains(bed)?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
         double floorY=shelter.kind()==ShelterBlock.Kind.BURROW?centre.y:floorAt(e,centre,centre.y);
-        return new BedContainer(e,centre,lying(hollow),floorY,floorY);
-    }
-
-    /** The outline a body may lie within: the hollow plus the soft wall a rounded body may press into ({@link NestResting#RIM_PRESS}), so every place NestResting assigns is inside. */
-    private static FloorShape lying(NestResting.Bed bed){
-        double half=Math.min(bed.half()+NestResting.RIM_PRESS,bed.box()+(bed.softBox()?NestResting.RIM_PRESS:0));
-        return new FloorShape.RoundedRect(half,Math.min(half,bed.corner()+NestResting.RIM_PRESS));
+        return new BedContainer(e,centre,hollow.floor(),floorY,floorY);
     }
 
     /** Test floor support, the body and overhead headwear clearance at the proposed feet. Side walls press the brim. */
