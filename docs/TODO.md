@@ -12,6 +12,7 @@
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
+| 公园：主人在长椅旁留下伴侣离开（PK 包 B） | `.worktrees/wp-park-bench` | human/HumanStreet.java (outings, bench), human/TownMarkers.java, pet/PetLife.java |
 
 ## 玩法待办
 
