@@ -14,6 +14,7 @@
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
 | 饿了不找吃的：盯着够不到的食物、家里没粮就干等、饿着睡不醒 | `.worktrees/wp-starve-stuck` | settlement/ForageGoal.java, life/YukkuriLife.java (meal/sleep), house/HouseLife.java |
+| 窝恢复旧外观（用户：窝的改动撤回） | `.worktrees/wp-nest-revert` | care-props nests, large nests, predator nest art |
 
 ## 玩法待办
 
