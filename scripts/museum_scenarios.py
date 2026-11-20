@@ -2512,7 +2512,7 @@ add('pet_door_return', 'house', '困倦的院宠穿门回屋睡觉', '困倦的�
         yk('reimu', 2, 12, 'return_pet', uuid=uid('pet_door_return', 'return_pet'), label='回窝的院宠',
            lead=True, nutrition=100, rest_wait=0), *own('return_pet'),
     ], late=[home('return_pet', 0, 4), set_status('return_pet', 'needs.energy', 30)],
-    env=DAY, vantage=(-3, 11, -135, 15, 1), reads=[('读院宠归属与住所', f'yukkuri status {sel("return_pet")} raw')])
+    env=DAY, vantage=(-3, 11, -135, 15, 0), reads=[('读院宠归属与住所', f'yukkuri status {sel("return_pet")} raw')])
 
 # ====================================================================================================== town
 add('social_identity', 'town', '宠物、流浪与野生四类对照', '宠物、流浪与野生四类对照',
@@ -7189,13 +7189,16 @@ def _oak_door_crossing(window, frames, actor, start, end, door_x, y, door_z, inw
         px, py, pz = frames[t]['p']
         if frames[t]['veh'] is not None or (t > start and math.dist(frames[t-1]['p'], frames[t]['p']) > 1):
             return 'The walker was carried or jumped across part of the approach'
-        if door_z - radius + 1e-7 < pz < door_z + 1 + radius - 1e-7:
+        if progress(pz) <= -radius:
+            crossing.clear()  # The whole body backed out. The next approach must cross both halves on its own.
+        elif door_z - radius + 1e-7 < pz < door_z + 1 + radius - 1e-7:
             if px - radius < door_x - 1e-7 or px + radius > door_x + 13/16 + 1e-7 or abs(py - y) > 1e-6:
                 return 'The walker crossed outside the clear gap between the jamb and oak leaf'
-            if inward and frames[t]['behavior'] != 'return_home':
-                return 'The pet crossed the door without walking home'
-            crossing.append(pz)
-    if not any(door_z <= pz < door_z + .5 for pz in crossing) or not any(door_z + .5 <= pz < door_z + 1 for pz in crossing):
+            crossing.append(t)
+    if inward and any(frames[t]['behavior'] != 'return_home' for t in crossing):
+        return 'The pet crossed the door without walking home'
+    zs = [frames[t]['p'][2] for t in crossing]
+    if not any(door_z <= pz < door_z + .5 for pz in zs) or not any(door_z + .5 <= pz < door_z + 1 for pz in zs):
         return 'The walker skipped part of the door cell'
 
 
