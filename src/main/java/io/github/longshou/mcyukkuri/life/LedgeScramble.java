@@ -58,7 +58,7 @@ public final class LedgeScramble implements Intent {
             return best;
         };
         var start = new Stranding.Cell(body.getBlockX(), body.getBlockZ(), body.getY());
-        var verdict = Stranding.assess(terrain, start, Math.max(ability.stepUp(), ability.hopHeight()), ability.scrambleRise(), DROP);
+        var verdict = Stranding.assess(terrain, start, Math.max(Math.max(ability.stepUp(), ability.hopHeight()), body.maxUpStep()), ability.scrambleRise(), DROP);
         if (!verdict.stranded()) return null;
         var exit = verdict.exit();
         if (exit == null) {

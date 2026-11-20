@@ -6516,14 +6516,14 @@ def _ledge_spit():
             box(x0 + 3, -1, -5, x0 + 12, 0, 5, 'minecraft:sandstone'),
             box(x0, 0, -2, x0 + 2, 3, 2, 'minecraft:air'),
             box(x0 + 3, 1, -5, x0 + 12, 4, 5, 'minecraft:air'),
-            item('minecraft:apple', 1, x0 + 8, 0, 'food')]
+            item('minecraft:apple', 1, x0 + 8, 0, 'food', dy=1.05)]
 
 
 # The spit of the starving Patchouli: only a strained scramble (hop and braid hook, paid in energy) gets a hungry body over the ledge.
 pond('ledge_spit', '饿着的帕秋莉被困在沙洲上', '饿着的帕秋莉被困在沙洲上',
      '饿着的帕秋莉站在水中一块 3×5 的沙洲上，三面是水，东面是比沙洲高整整一格的堤岸，跳不上去。看她走到堤脚、挂辫梢鼓劲翻上堤岸，再去吃堤上的苹果；翻堤花体力、播费力表情，营养越低、越胆大越早动身',
      '约 30–60 秒',
-     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55)],
+     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55, adult_scale=.8)],
      note=NEW, vantage=(bank_dx(0) - 3, 3, -90, 15),
      reads=[('读营养与体力', f'yukkuri status {sel("a")} raw')],
      smoke=dict(ticks=1800, expect=[r'\[move\][^\n]* stranded ledge rise=',
