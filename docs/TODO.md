@@ -15,6 +15,7 @@
 
 | 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
 | 圆形物品保持圆形、玩具做放置模型、药品不做（重做 R0 与护理包） | `.worktrees/wp-art-round-redo` | care-props bowls/toys, item icons |
+| DN-06 被火烧后偶尔原地躲着不跑（逃跑搜索误判被逼到角落） | `.worktrees/wp-fire-flight` | status/flight escape search |
 
 ## 玩法待办
 
