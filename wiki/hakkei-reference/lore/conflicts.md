@@ -71,6 +71,7 @@
 | 载具与搬运 | 咻咻车当汽车用，部分版本里 Suii 与 U-Pack 是活体、能自行移动，Suii 还能长大（[F58](https://yukkuri.fandom.com/wiki/Suiiii)、[F59](https://yukkuri.fandom.com/wiki/U-Packs)） | 没有车辆与活体载具；搬运只用真实身体部位与帽船，浮力、载重与体力按实际量结算 |
 | 捕食种胎数 | 未见蕾米莉亚、芙兰的每胎数量记载 | 项目设计：树冠巢垫只能容下少量茎果，两种捕食种每胎 1–2 只 |
 | 捕食者范围 | 鸟、鼠、猫、狗会伤害油库里；Letty、Yoshika、鵺、山女、露米娅等型也捕食同类（[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)、[F118](https://yukkuri.fandom.com/wiki/Yukkuri_Letty)、[F143](https://yukkuri.fandom.com/wiki/Yukkuri_Nue)、[F158](https://yukkuri.fandom.com/wiki/Yukkuri_Rumia)、[F190](https://yukkuri.fandom.com/wiki/Yukkuri_Yamame)）；灵梦页把土蜘蛛型与正邪型列为骚扰者（[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)） | 当前只实现蕾米莉亚与芙兰两个捕食种；环境捕食者与扩大名单见[待用户裁决](../../../docs/TODO.md#待用户裁决) |
+| 捕食种的住处 | 野生蕾米莉亚、芙兰在树冠里用细枝筑巢、在高枝栖息守望、白天正午避荫，都是项目设计；自然生成可带现成的巢 | 站点写芙兰野生时把猎物插在巢周围的尖桩上作装饰（[F86](https://yukkuri.fandom.com/wiki/Yukkuri_Flandre)）；未见树上生活或怕日光的记载 |
 | 认屋与屏障 | 宣称后无人应答即算空巢，枝条石子屏障是产权标记，强势个体可夺取住所（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)） | 住所由真实区域勘测与认领决定，细枝屏风只是可推开的物理枝叶，不是产权或防御凭证 |
 | 建造与工具 | 石头、泥浆、蜡布建屋，砸窗进屋（[F07](https://yukkuri.fandom.com/wiki/Home_Declaration)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)） | 无手工艺：只有嘴、辫子、尾巴与推、压、堆；现成洞穴、纸箱与人造物可被认领，软土小穴按真实施工形成 |
 | 失饰者的下场 | 失饰者被当作怪物、可被就地处死；饰物丢失在野外等于死刑（[F22](https://yukkuri.fandom.com/wiki/Accessory)）；亲族当场拒绝认她（[F201](https://yukkuri.fandom.com/wiki/%22Hatless_Marisa%22)、[F241](https://yukkuri.fandom.com/wiki/Removal_of_Marisa's_Accesory)） | 普通观察者需智力 80 才认得出，水生魔理沙例外；认不出则好感下降与制裁，制裁只欺负不杀；亲缘与过去的关系照旧记录 |

@@ -81169,6 +81169,18 @@
     }
   },
   {
+    "id": "predator_screech",
+    "key": "dialogue.mcyukkuri.original.predator_screech",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "predator_screech"
+    ],
+    "ticks": 50,
+    "sound": ""
+  },
+  {
     "id": "deficient_babble",
     "key": "dialogue.mcyukkuri.deficient.babble",
     "origin": "project-original",
