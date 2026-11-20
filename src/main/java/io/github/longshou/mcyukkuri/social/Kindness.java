@@ -352,8 +352,8 @@ public final class Kindness extends Goal {
         float yaw = SurfaceApproach.yaw(giver.position(), guest.position());
         SurfaceApproach.face(giver, yaw);
         if (lookBackAt == 0 && Math.abs(Mth.wrapDegrees(giver.getYRot() - yaw)) < 2) {
+            if (!giver.showReaction(YukkuriAction.LOOK_AROUND, "closed_smile", "")) { finished = true; return; }
             lookBackAt = ticks;
-            giver.showReaction(YukkuriAction.LOOK_AROUND, "closed_smile", "");
             GameplayLog.event(giver, "kindness", "carton offered peer={} shelter={} clip={}",
                     guest.getUUID(), carton.getBlockPos(), YukkuriAction.LOOK_AROUND.id());
         }
@@ -362,22 +362,22 @@ public final class Kindness extends Goal {
 
     /** The receiver samples a live company gesture while choosing its own next life task. */
     public ShelterOffer liveShelterOffer() {
-        if (!giver.pet().waitingAfterAbandonment() || !FoundShelter.invitationTraveler(giver)
-                || giver.life().nutrition() < 30 || giver.life().mealTicks() != 0
+        if (!giver.pet().waitingAfterAbandonment() || giver.life().nutrition() < 30 || giver.life().mealTicks() != 0
                 || !giver.component(YukkuriComponents.MOUTH).freeForExternalWork()) return null;
         var locals = level().getEntitiesOfClass(YukkuriEntity.class, giver.getBoundingBox().inflate(8), local -> {
             var visit = of(local);
             return visit.guest == giver && !visit.finished && visit.carton != null && giver.hasLineOfSight(local)
-                    && visit.valid() && fresh(evidence(visit.carton, local));
+                    && (visit.lookBackAt == 0 || local.reactionAction() == YukkuriAction.LOOK_AROUND)
+                    && visit.valid() && visit.shelterVisit() && fresh(evidence(visit.carton, local));
         });
         var local = locals.stream().min(Comparator.comparingDouble(giver::distanceToSqr)).orElse(null);
         return local == null ? null : new ShelterOffer(of(local).carton, local, of(local).lookBackAt > 0);
     }
 
     public boolean acceptsShelter(ShelterOffer offer) {
+        of(offer.local()).finished = true;
         var home = offer.carton();
         var evidence = evidence(home, offer.local());
-        heardOffers.put(home.getBlockPos(), evidence);
         // Attachment shifts the age at which cover wins from the first to the last third of the vigil.
         double age = giver.pet().vigilProgress();
         double wait = (1 + giver.life().personality().temperament().attached()) / 3;
@@ -385,7 +385,8 @@ public final class Kindness extends Goal {
         var look = Vec3.atCenterOf(giver.pet().abandonmentSite());
         giver.getLookControl().setLookAt(look.x, look.y, look.z);
         var action = willing ? YukkuriAction.LOOK_AROUND : YukkuriAction.DROOP;
-        giver.showReaction(action, willing ? "neutral" : "teary", "");
+        if (!giver.showReaction(action, willing ? "neutral" : "teary", "")) return false;
+        heardOffers.put(home.getBlockPos(), evidence);
         GameplayLog.event(giver, "kindness", "carton decision={} local={} shelter={} clip={}",
                 willing ? "follow" : "stay", offer.local().getUUID(), home.getBlockPos(), action.id());
         return willing;

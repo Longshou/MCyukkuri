@@ -7496,8 +7496,11 @@ def _verify_park_aid(window, trace):
         return 'Expected one linked bite, swallow and carton gesture in order'
     core = re.escape(offer[0][1])
     outcome, clip = ('stay', 'droop') if staying else ('follow', 'look_around')
-    decision = re.search(rf'\[kindness\][^\n]*uuid={_park_waiter_log} t=(\d+)[^\n]*carton decision={outcome} local={_park_local_log} shelter={core} clip={clip}\b', window)
-    if not decision or decision.start() <= offer[0].start():
+    decisions = list(re.finditer(rf'\[kindness\][^\n]*uuid={_park_waiter_log} t=(\d+)[^\n]*carton decision=(\w+) local=(\S+) shelter=(.+) clip=(\w+)', window))
+    if len(decisions) != 1:
+        return f'Expected one waiter decision for the carton gesture, saw {len(decisions)}'
+    decision = decisions[0]
+    if decision.start() <= offer[0].start() or decision.groups()[1:] != (outcome, _park_local_log, offer[0][1], clip):
         return f'The waiter did not choose {outcome} after the gesture to the same carton'
     after = window[decision.end():]
     settled = re.search(rf'\[habitat\][^\n]*uuid={_park_waiter_log} [^\n]*found settled shelter={core} kind=CARDBOARD occupants=1\b', after)
