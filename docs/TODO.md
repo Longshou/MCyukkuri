@@ -16,6 +16,7 @@
 | 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
 | 性能：感知扫描错峰与共享候选 | `.worktrees/wp-perf-perception` | status/StatusLife.java, status/Reactions.java |
 | 池塘场景溺水与循环（PD-15、PD-26、PD-09、PD-13） | `.worktrees/wp-pond-gates` | aquatic/* (water exit, boarding, shore hop, hull admission) |
+| 居民家里的住家油库里 | `.worktrees/wp-household-resident` | house/HouseholdEcology.java, human/HumanNpc.java |
 
 ## 玩法待办
 
