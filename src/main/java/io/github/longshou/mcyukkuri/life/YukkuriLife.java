@@ -609,6 +609,7 @@ public final class YukkuriLife {
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
     public boolean leadingToFoundShelter(YukkuriEntity child) { return foundCover.leads(child); }
     public boolean usingFoundCover() { return foundCover.active(); }
+    boolean restingInFoundCover() { return foundCover.resting(); }
     public boolean restingInPlainGap() { return foundCover.restingInPlainGap(); }
     public boolean restingInPlainGapAt(BlockPos pos) { return foundCover.restingInPlainGapAt(pos); }
     public boolean paperCoverFits() { return foundCover.paperCoverFits(); }

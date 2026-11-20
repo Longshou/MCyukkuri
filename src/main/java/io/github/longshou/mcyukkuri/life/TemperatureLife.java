@@ -355,7 +355,7 @@ public final class TemperatureLife {
                         && RefugeSpace.blocksStand(footprint, volume(other.getBoundingBox()), other.life().temperature().resting())).isEmpty();
     }
     private boolean resting() {
-        return restTicks > 0 || temporarySleepSite != null || entity.life().isSleeping();
+        return restTicks > 0 || temporarySleepSite != null || entity.life().restingInFoundCover() || entity.life().isSleeping();
     }
 
     private YukkuriEntity shieldingParent(BlockPos fire) {
