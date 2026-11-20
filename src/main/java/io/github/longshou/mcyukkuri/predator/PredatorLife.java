@@ -577,7 +577,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (home != null && !roost && provisionChild() == null && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
             Vec3 feet = landingFeet(home);
-            if (feet != null && canDepart(feet)) { landingStand = home; destination = feet; task = Task.RETURN; return true; }
+            if (feet != null && outsideTerritories(foreignTerritories(home, 0), feet) && canDepart(feet)) {
+                landingStand = home; destination = feet; task = Task.RETURN; return true;
+            }
         }
         double pressure = animal.onGround() ? nestBuild.framePressure() : 0;
         if ((cooldown > 0 && pressure == 0) || animal.life().energy() < 20) return false;
@@ -990,7 +992,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         var area = new AABB(pad).inflate(ThreatPass.ZONE_RADIUS, 0, ThreatPass.ZONE_RADIUS);
         var canopy = new AABB(area.minX, pad.getY() - 3, area.minZ, area.maxX, level().getMaxBuildHeight(), area.maxZ);
         territoryTarget = level().getEntitiesOfClass(YukkuriEntity.class, canopy, other -> other != warnedIntruder
-                && other.onGround() && territoryIntruder(pad, other) && animal.hasLineOfSight(other)).stream()
+                && other.onGround() && territoryIntruder(pad, other) && animal.hasLineOfSight(other)
+                && (CanopySite.tree(level().getBlockState(other.getBlockPosBelowThatAffectsMyMovement()))
+                || level().getBlockState(other.blockPosition()).is(ModBlocks.PREDATOR_NEST.get()))).stream()
                 .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
         if (territoryTarget == null) territoryTarget = level().getNearestPlayer(pad.getX() + .5, pad.getY(), pad.getZ() + .5, 5,
                 target -> target instanceof Player player && player != warnedIntruder && territoryIntruder(pad, player)
@@ -1048,7 +1052,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
 
     private void yieldTerritory(YukkuriEntity resident, BlockPos pad) {
-        if (!ready() || !canSustainFlight() || animal.childhood().nestling() || !hasAirExit()) return;
+        if (drivenFrom != null || !ready() || !canSustainFlight() || animal.childhood().nestling() || !hasAirExit()) return;
         boolean alreadyActive = active();
         interruptFounding();
         drivenFrom = pad;
