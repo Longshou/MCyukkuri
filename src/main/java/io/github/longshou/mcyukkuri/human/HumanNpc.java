@@ -677,8 +677,7 @@ public final class HumanNpc extends PathfinderMob {
             var stand = yieldStand(walker);
             if (stand == null || stand.equals(mob.position())) Motor.waitOnFoot(mob);
             else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, .8);
-            GameplayLog.limited(mob, "move", "door_give_way", 40, "action=door_give_way walker={} door={} aside={}",
-                    walker.getUUID(), clearedStop.door().toShortString(), stand != null);
+            logDoorGiveWay(walker, clearedStop, stand != null);
             return true;
         }
 
@@ -724,11 +723,16 @@ public final class HumanNpc extends PathfinderMob {
                 else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, speedModifier);
                 ++tick;
                 doStuckDetection(getTempMobPos());
-                GameplayLog.limited(mob, "move", "door_give_way", 40, "action=door_give_way walker={} door={} aside={}",
-                        other.getUUID(), exit.door().toShortString(), stand != null);
+                logDoorGiveWay(other, exit, stand != null);
                 return true;
             }
             return false;
+        }
+
+        private void logDoorGiveWay(HumanNpc walker, DoorExit exit, boolean aside) {
+            int suppressed = GameplayLog.admit(mob, "move", "door_give_way", 40);
+            if (suppressed >= 0) GameplayLog.limitedEvent(mob, "move", suppressed, "action=door_give_way walker={} door={} aside={}",
+                    walker.getUUID(), exit.door().toShortString(), aside);
         }
 
         private Vec3 aside(DoorExit exit, HumanNpc walker, Vec3 from, Predicate<Vec3> clear) {
