@@ -23,7 +23,7 @@ import net.neoforged.neoforge.event.EventHooks;
 
 /** The public bay has no reservation. The crate, hand, and world each own the carton in turn. */
 final class ShelterCartons extends Goal {
-    private static final String VOLUNTEER = "mcy_shelter_volunteer";
+    static final String VOLUNTEER = "mcy_shelter_volunteer";
     private enum Leg { PICKUP, PLACE, RETURN, DROP }
     private record Obstruction(BlockPos at, int state) {}
 
@@ -92,7 +92,7 @@ final class ShelterCartons extends Goal {
                 || !level().getBlockState(destination.below()).isFaceSturdy(level(), destination.below(), Direction.UP)) return false;
         var inReach = atStand(destination);
         var route = inReach ? null : npc.getNavigation().createPath(destination, 0);
-        if (!inReach && (route == null || !route.canReach())) return false;
+        if (!inReach && (route == null || !route.canReach() || !site.allowsWalk(npc, route))) return false;
         leg = next;
         stand = destination;
         path = route;

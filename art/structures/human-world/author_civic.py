@@ -353,6 +353,7 @@ def shelter(p):
     b.block(15, 1, 10, p.planks())
     produce_crate(b, 15, 2, 10, 'west', [('mcyukkuri:cardboard_shelter', 1)])
     marker(b, 14.5, 1, 12.5, 'mcy_shelter_supply', {
+        'Low': sequence(3, [-14, -1, -4]), 'High': sequence(3, [W - 1 - 14, H - 2, D - 1 - 12]),
         'Sister': sequence(3, [0, 0, 6]), 'Brother': sequence(3, [1, 0, 8]),
         'Crate': sequence(3, [1, 1, -2]), 'Bay': sequence(3, [0, 0, 0]),
     })

@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
@@ -134,7 +135,15 @@ public final class TownMarkers {
         };
     }
 
-    record ShelterSupply(Marker marker, BlockPos crate, ShelterPlacement.Plan bay) {}
+    record ShelterSupply(Marker marker, BlockPos crate, ShelterPlacement.Plan bay, AABB grounds) {
+        boolean allowsWalk(HumanNpc npc, Path path) {
+            if (!grounds.contains(path.getEndNode().asBlockPos().getCenter())) return false;
+            if (!grounds.contains(npc.position())) return true; // A displaced volunteer can walk back in.
+            for (int i = 0; i < path.getNodeCount(); i++)
+                if (!grounds.contains(path.getNodePos(i).getCenter())) return false;
+            return true;
+        }
+    }
 
     static ShelterSupply shelterSupply(ServerLevel level, BlockPos home) {
         for (var marker : level.getEntitiesOfClass(Marker.class, new AABB(home).inflate(10, 1, 10),
@@ -143,7 +152,7 @@ public final class TownMarkers {
             if (!home.equals(offset(marker, data, "Sister")) && !home.equals(offset(marker, data, "Brother"))) continue;
             var bay = new ShelterPlacement.Plan(offset(marker, data, "Bay"), ShelterBlock.Kind.CARDBOARD,
                     rotation(marker).rotate(Direction.WEST));
-            return new ShelterSupply(marker, offset(marker, data, "Crate"), bay);
+            return new ShelterSupply(marker, offset(marker, data, "Crate"), bay, yardBounds(marker, data));
         }
         return null;
     }
@@ -154,12 +163,11 @@ public final class TownMarkers {
 
     static Stream<AABB> yards(ServerLevel level, BlockPos bowl) {
         return level.getEntitiesOfClass(Marker.class, new AABB(bowl).inflate(HOME_TO_START, 4, HOME_TO_START),
-                marker -> marker.getTags().contains(SPAWNED)).stream().map(TownMarkers::yardBounds)
+                marker -> marker.getTags().contains(SPAWNED)).stream().map(marker -> yardBounds(marker, data(marker)))
                 .filter(bounds -> bounds.contains(bowl.getCenter()));
     }
 
-    private static AABB yardBounds(Marker marker) {
-        var data = data(marker);
+    private static AABB yardBounds(Marker marker, CompoundTag data) {
         return AABB.encapsulatingFullBlocks(offset(marker, data, "Low"), offset(marker, data, "High"));
     }
 

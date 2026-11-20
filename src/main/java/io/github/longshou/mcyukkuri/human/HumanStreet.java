@@ -662,6 +662,7 @@ final class HumanStreet {
 
         private final HumanNpc npc;
         private Vec3 destination;
+        private TownMarkers.ShelterSupply strollSite;
         private boolean finished;
         private Vec3 last;
         private int stalled;
@@ -743,8 +744,11 @@ final class HumanStreet {
                 return;
             }
             if (startOuting()) return;
+            if (npc.getTags().contains(ShelterCartons.VOLUNTEER))
+                strollSite = TownMarkers.shelterSupply((ServerLevel) npc.level(), npc.home());
             Vec3 stand = DefaultRandomPos.getPos(npc, 8, 2);
-            route(stand == null ? Vec3.atBottomCenterOf(npc.home()) : stand);
+            route(stand == null || strollSite != null && !strollSite.grounds().contains(stand)
+                    ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
         List<YukkuriEntity> readyPets() {
@@ -1389,7 +1393,8 @@ final class HumanStreet {
             var nav = npc.getNavigation();
             var path = nav.createPath(BlockPos.containing(to), 0);
             last = npc.position(); stalled = 0; destination = to;
-            if (path == null || !path.canReach() || !nav.moveTo(path, .65)) {
+            if (path == null || !path.canReach() || strollSite != null && !strollSite.allowsWalk(npc, path)
+                    || !nav.moveTo(path, .65)) {
                 nav.stop();
                 return false;
             }
@@ -1439,6 +1444,7 @@ final class HumanStreet {
             npc.getNavigation().stop();
             nextAt = npc.tickCount + 40 + npc.getRandom().nextInt(80);
             destination = null;
+            strollSite = null;
         }
     }
 }
