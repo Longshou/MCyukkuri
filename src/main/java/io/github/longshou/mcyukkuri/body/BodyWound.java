@@ -43,6 +43,8 @@ public record BodyWound(UUID id, WoundKind kind, int triangle, float u, float v,
         this(id, WoundKind.parse(kind), triangle, u, v, severity, size, emitted, lastRelease);
     }
     public Site origin(){return new Site(triangle,u,v);}
+    /** Health lost per wound-leak pulse, before the whole body's loss cap. */
+    public float leakLoss() { return kind == WoundKind.TEAR && severity >= 2 ? (severity == 2 ? .5f : 1) : 0; }
     /** Setting a grade resets the accumulated points to that grade's minimum, so healing and bumps stay coherent. */
     public BodyWound withSeverity(int value){int s=Math.clamp(value,1,3);return new BodyWound(id,kind,triangle,u,v,s,size,emitted,lastRelease,peakSeverity,shape,minPoints(s));}
     /** A repeat hit merged into this wound: add its loss; grade is the larger of the current one and the points band. */

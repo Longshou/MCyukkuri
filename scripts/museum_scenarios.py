@@ -91,7 +91,7 @@ class Scenario:
 def surface_demo_lines(sid, lines):
     """Preset skin demonstrations face the observer; explicit body-region comparisons retain their regions."""
     result = []
-    comparisons = {'wound_materials', 'thermal_body', 'wound_sources', 'hatless_monster', 'core_exposed'}
+    comparisons = {'wound_materials', 'thermal_body', 'wound_sources', 'wound_leak', 'hatless_monster', 'core_exposed'}
     for line in (part for entry in lines for part in (entry.splitlines() if isinstance(entry, str) else [entry])):
         if not isinstance(line,str):
             result.append(line)
@@ -4914,17 +4914,37 @@ add(_punishment_scene, 'body', '制裁反馈：顶嘴、僵住、哭求', '制�
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, label, *_ in _punishment_targets]
           + [('读哭求宠物的服从养成值', f'data get entity {sel("a3_plead")} YukkuriPet.Obedience')])
 
+_leak_subjects = ('v0', 'v1', 'v2', 'v3', 'v4')
+_leak_actors = [rf'uuid={_uuid_text("wound_leak", name)} [^\n]*' for name in (*_leak_subjects, 'healthy_grazer')]
 add('wound_leak', 'body', '伤口漏馅，橙汁止漏', '伤口漏馅，橙汁止漏',
-    '五只灵梦：1／2／3级裂口、多处三级裂口、血3且三级大裂口露核；每10秒漏血0／0.5／1／1／1。绕行看大伤口普通馅与唯一中枢创腔，橙汁闭伤补血止漏并原位留疤，面粉糊只去疤；露核者真实漏血可致死，及时治疗',
+    '从２级背部刺伤侧后方看馅粒外落、泪眼和喊痛。橙汁闭伤补血止漏。另有轻伤、大裂口、多处大裂口和低血露核对照；右侧无伤灵梦照常吃草',
     '先等 10 秒读血量，再用橙汁；随后再等 10 秒确认止漏', [
-        *[yk('reimu', -8 + 4 * i, 0, f'v{i}', yaw=180, lead=i == 1, label=label, nutrition=60, energy=95)
-          for i, label in enumerate(('轻伤', '二级裂口', '三级大伤口', '多处大伤口', '低血露核'))],
+        *[yk('reimu', -8 + 4 * i, 0, name, yaw=180, lead=i == 1, label=label, nutrition=60, energy=95,
+             uuid=uid('wound_leak', name)) for i, (name, label) in
+          enumerate(zip(_leak_subjects, ('轻伤', '二级背部刺伤', '三级大伤口', '多处大伤口', '低血露核')))],
         *[set_status(f'v{i}', 'marks.scars', 0) for i in range(5)],
-        *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in range(5)],
-        set_status('v3', 'health.wound_at', 'back:tear:3'), set_status('v4','health.health',3)],
-    give=['mcyukkuri:flour_paste 5', 'mcyukkuri:orange_juice 5'], note=NEW, vantage=(0, 10),
+        *[set_status(f'v{i}', 'health.wound_at', f'front:tear:{min(3, i + 1)}') for i in (0, 2, 3, 4)],
+        set_status('v1', 'health.wound_at', 'back:tear:2:puncture'),
+        set_status('v3', 'health.wound_at', 'back:tear:3'), set_status('v4','health.health',3),
+        block(12, -1, 7, 'minecraft:grass_block'), block(12, 0, 7, 'minecraft:short_grass'),
+        yk('reimu', 11, 7, 'healthy_grazer', label='无伤吃草', nutrition=75, picky=0, uuid=uid('wound_leak', 'healthy_grazer'))],
+    give=['mcyukkuri:flour_paste 5', 'mcyukkuri:orange_juice 5'], note=NEW, env=DAY, vantage=(0, 10),
     reads=[('读二级裂口', f'yukkuri status {sel("v1")}'), ('读三级裂口', f'yukkuri status {sel("v2")}'),
-           ('读多处裂口', f'yukkuri status {sel("v3")}'), ('读漏馅露核',f'yukkuri status {sel("v4")} raw')])
+           ('读多处裂口', f'yukkuri status {sel("v3")}'), ('读漏馅露核',f'yukkuri status {sel("v4")} raw')],
+    smoke=dict(ticks=480, commands=[
+        *[(270, f'yukkuri scenario care_click {sel(name)} orange_juice') for name in ('v1', 'v4')],
+        *[(460, f'execute if entity @e[tag={tag(name)},nbt={{Health:10.0f}},distance=..48] run say MCY_LEAK_FULL_HEALTH_{name}')
+          for name in ('v1', 'v4', 'healthy_grazer')],
+    ], expect=[
+        rf'\[body\][^\n]*{_leak_actors[1]} wound leak outlets=1 health=10\.0 -> 9\.5 loss=0\.5',
+        rf'\[speech\][^\n]*{_leak_actors[1]} cue event=wounded spoken=true',
+        rf'\[body\][^\n]*{_leak_actors[2]} wound leak outlets=1 health=9\.0 -> 8\.0 loss=1\.0',
+        rf'\[body\][^\n]*{_leak_actors[3]} wound leak outlets=2 health=10\.0 -> 9\.0 loss=1\.0',
+        rf'\[body\][^\n]*{_leak_actors[4]} wound leak outlets=1 health=3\.0 -> 2\.0 loss=1\.0',
+        *[rf'\[body\][^\n]*{_leak_actors[i]} orange juice cleared 1 wound\(s\)' for i in (1, 4)],
+        rf'\[meal\][^\n]*{_leak_actors[5]} swallowed item=minecraft:short_grass count=1 nutrition=75\.0 -> 95\.0',
+        *[f'MCY_LEAK_FULL_HEALTH_{name}' for name in ('v1', 'v4', 'healthy_grazer')],
+    ], forbid=[rf'\[body\][^\n]*{_leak_actors[i]} wound leak ' for i in (0, 5)]))
 
 add('treatment_severe', 'body', '重伤不自愈，橙汁治好留疤', '重伤不自愈，橙汁治好留疤',
     '四类三级伤、旧包扎裂伤、烤足共六只：自然等 40 秒三级伤仍在，旧包扎仍漏血。橙汁一剂清伤补满血，三级伤在原处必留疤，烤足也恢复；满血有伤照样能治。先读 wound_anchors，治后对照 scar_sites，面粉糊只去疤',

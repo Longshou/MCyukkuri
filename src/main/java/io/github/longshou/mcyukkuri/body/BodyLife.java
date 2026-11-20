@@ -450,7 +450,8 @@ public final class BodyLife {
         int index=wounds.indexOf(outlet);
         if(index>=0)wounds.set(index,outlet.released(entity.level().getGameTime()));
         // House yukkuri retain the same server-side wound and leak accounting, without emitting injury particles.
-        if(!entity.profile().houseBody())BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),WoundPlacement.outlet(entity,outlet));
+        if(!entity.profile().houseBody())BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),
+                WoundPlacement.outlet(entity,outlet),WoundPlacement.outward(entity,outlet));
     }
     private void witnessInjury(float ceiling){
         if(!(entity.level() instanceof ServerLevel level))return;
@@ -539,14 +540,18 @@ public final class BodyLife {
         boolean open=wounds.stream().anyMatch(BodySigns::open);
         if(burns>0&&ticks%400==0){if(life.hygiene()>=40&&life.nutrition()>=30){if(healBurn())life.spendNutrition(1);}else if(burns>=4)damage(.5f,"burn");}
         if(wound>0&&ticks%200==0){
-            // Only an open cut (severity 2+) leaks; orange juice closes every cut grade.
-            var leaking=wounds.stream().filter(w->w.kind()==WoundKind.TEAR&&BodySigns.open(w)).toList();
-            float total=0;for(var cut:leaking)total+=cut.severity()>=3?1:.5f;
+            var leaking=wounds.stream().filter(w->w.leakLoss()>0).toList();
+            float total=0;for(var cut:leaking)total+=cut.leakLoss();
             if(total>0){
                 float before=entity.getHealth();damage(Math.min(1,total),"leak");
                 float loss=Math.max(0,before-entity.getHealth());
-                if(entryFood>=0)entryFood=Math.max(0,entryFood-BodyFood.live(entity,loss).portions());
-                for(var cut:leaking)emitWound("leak",loss*(cut.severity()>=3?1:.5f)/total,cut);
+                if(loss>0){
+                    if(entryFood>=0)entryFood=Math.max(0,entryFood-BodyFood.live(entity,loss).portions());
+                    for(var cut:leaking)emitWound("leak",loss*cut.leakLoss()/total,cut);
+                    GameplayLog.event(entity,"body","wound leak outlets={} health={} -> {} loss={}",leaking.size(),before,entity.getHealth(),loss);
+                    if(entity.isAlive()&&!life.isSleeping()&&life.mealTicks()==0&&!entity.isPanicking()&&!entity.hasReaction()
+                            &&entity.showReaction("teary","",40))entity.speakCue("wounded");
+                }
                 if(!entity.isAlive())return;
             }
             if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
