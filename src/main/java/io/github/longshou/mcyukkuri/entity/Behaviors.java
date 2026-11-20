@@ -175,6 +175,7 @@ public final class Behaviors {
     public static final String PREDATOR_PERCH = "predator_perch";
     public static final String PREDATOR_FLAP = "predator_flap";
     public static final String PREDATOR_SCREECH = "predator_screech";
+    public static final String PREDATOR_CLEAR_PAD = "predator_clear_pad";
     public static final String PREDATOR_GATHER = "predator_gather";
     public static final String PREDATOR_RETURN = "predator_return";
     public static final String PREDATOR_SURVEY = "predator_survey";

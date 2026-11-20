@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -35,9 +36,12 @@ public final class Push implements Action {
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (!target.isAlive() || target.level() != body.level()) return Feasibility.of(Reason.TARGET_GONE, 0, "target_gone");
-        if (!(target instanceof YukkuriEntity) && !target.isPushable()) return Feasibility.of(Reason.TOO_HEAVY, 0, "not_pushable");
+        if (!(target instanceof YukkuriEntity || target instanceof RemainsEntity) && !target.isPushable())
+            return Feasibility.of(Reason.TOO_HEAVY, 0, "not_pushable");
         double gap = ContactGeometry.mouthGap(body, target) - ContactGeometry.GRAB_MARGIN;
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, String.format(Locale.ROOT, "gap=%.2f", gap));
+        if (target instanceof RemainsEntity && (!body.onGround() || !target.onGround() || !ContactGeometry.inMouthReach(body, target)))
+            return Feasibility.of(Reason.NO_CONTACT, 0, "remains_out_of_reach");
         gain = BodyAbility.of(body).pace(body.isInWaterOrBubble());
         if (target instanceof YukkuriEntity other) {
             var contact = groundContact(body, other);
@@ -73,6 +77,8 @@ public final class Push implements Action {
             Motor.face(body, SurfaceApproach.yaw(body.position(), target.position()));
         }
         if (++t > length) return new Outcome.Done("pushed ticks=" + length);
+        if (target instanceof RemainsEntity && (!target.onGround() || !ContactGeometry.inMouthReach(body, target)))
+            return new Running(length - t, TravelMode.PASS);
         Vec3 away = target.position().subtract(body.position()).multiply(1, 0, 1);
         Vec3 push = away.lengthSqr() < 1E-8 ? Vec3.ZERO : away.normalize().scale(gain);
         if (target instanceof YukkuriEntity other) Motor.velocity(other, other.getDeltaMovement().add(push), "pushed");
