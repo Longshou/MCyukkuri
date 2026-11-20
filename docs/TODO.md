@@ -16,6 +16,7 @@
 | 饿了不找吃的：盯着够不到的食物、家里没粮就干等、饿着睡不醒 | `.worktrees/wp-starve-stuck` | settlement/ForageGoal.java, life/YukkuriLife.java (meal/sleep), house/HouseLife.java |
 | 陶管、滑梯、蹦床精修，泳池改成低矮橙汁澡盆（美术） | `.worktrees/wp-playground-refine` | standards/yukkuri-library/drafts/playgrounds, art/props/playgrounds |
 | 记录 11-21 预览判断，试玩清单不再列美术动作类 | `.worktrees/wp-verdicts-1121` | docs/TODO.md, scripts/playtest_list.py |
+| 圆形物品保持圆形、玩具做放置模型、药品不做（重做 R0 与护理包） | `.worktrees/wp-art-round-redo` | care-props bowls/toys, item icons |
 
 ## 玩法待办
 
