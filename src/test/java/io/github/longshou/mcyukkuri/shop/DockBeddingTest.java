@@ -37,4 +37,36 @@ class DockBeddingTest {
         assertEquals(List.of(cushions(4), woven(), GOODS),
                 DockBedding.exchange(List.of(cushions(4), cushions(1), GOODS), -1, 1, 64, 64, 0));
     }
+
+    @Test void savedShopWithOneInstalledCushionGetsItsMissingBedAtOrdinaryRestock() {
+        var emptyDock = List.of(EMPTY_SLOT, EMPTY_SLOT);
+        assertNull(DockBedding.plan(emptyDock, -1, 0, 64, 64, 0, DockBedding.Supply.ON_HAND));
+        var adjacent = DockBedding.plan(emptyDock, -1, 0, 64, 64, 0, DockBedding.Supply.RESTOCK);
+        assertEquals(List.of(cushions(1), EMPTY_SLOT), adjacent.received());
+        assertEquals(emptyDock, adjacent.after());
+        assertEquals(1, adjacent.deliveredCushions());
+        assertEquals(0, adjacent.deliveredWoven());
+
+        var large = DockBedding.plan(emptyDock, 1, -1, 64, 64, 2, DockBedding.Supply.RESTOCK);
+        assertNull(large); // The returned cushion and two incoming baskets need three places.
+        large = DockBedding.plan(emptyDock, 1, -1, 64, 64, 0, DockBedding.Supply.RESTOCK);
+        assertEquals(List.of(woven(), EMPTY_SLOT), large.received());
+        assertEquals(List.of(cushions(1), EMPTY_SLOT), large.after());
+        assertEquals(0, large.deliveredCushions());
+        assertEquals(1, large.deliveredWoven());
+        var nextRestock = DockBedding.plan(large.after(), 0, 0, 64, 64, 0, DockBedding.Supply.RESTOCK);
+        assertEquals(0, nextRestock.deliveredCushions());
+        assertEquals(0, nextRestock.deliveredWoven());
+        assertEquals(large.after(), nextRestock.after());
+    }
+
+    @Test void restockUsesTheDockStockFirstAndNeedsRoomToUnload() {
+        var dock = List.of(cushions(1), GOODS);
+        var adjacent = DockBedding.plan(dock, -2, 0, 64, 64, 0, DockBedding.Supply.RESTOCK);
+        assertEquals(List.of(cushions(2), GOODS), adjacent.received());
+        assertEquals(List.of(EMPTY_SLOT, GOODS), adjacent.after());
+        assertEquals(1, adjacent.deliveredCushions());
+        assertNull(DockBedding.plan(dock, 1, -1, 64, 64, 0, DockBedding.Supply.RESTOCK));
+        assertEquals(List.of(cushions(1), GOODS), dock);
+    }
 }

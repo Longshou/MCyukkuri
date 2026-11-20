@@ -39,7 +39,7 @@ final class ShopFamilyRoom extends PathNavigationRegion {
     private final List<BlockPos> cells;
     private final Map<BlockPos,BlockState> planned = new LinkedHashMap<>();
     private final ShopBeddingDock dock;
-    private List<DockBedding.Slot> dockAfter;
+    private DockBedding.Exchange exchange;
     private int cushionsReturned, wovenReturned;
 
     private ShopFamilyRoom(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, Container barrel) {
@@ -62,12 +62,13 @@ final class ShopFamilyRoom extends PathNavigationRegion {
         return state == null ? super.getBlockState(pos) : state;
     }
 
-    static List<BlockPos> prepare(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter, int basketPlaces) {
+    static List<BlockPos> prepare(ServerLevel level, ShopRegistry.Entry shop, BlockPos anchor, List<YukkuriEntity> litter,
+                                  int basketPlaces, DockBedding.Supply supply) {
         if (shop.dock() == null || !(level.getBlockEntity(shop.dock()) instanceof Container barrel)) return List.of();
         var room = new ShopFamilyRoom(level, shop, anchor, barrel);
         var bodies = litter.stream().map(y -> new ShopFamilyBed.Member(NestOccupancy.stage(y),
                 new NestLayout.Place(0, 0, y.getBbWidth(), HeadTop.reach(y)))).toList();
-        var choice = ShopFamilyBed.choose(bodies, layout -> room.preview(layout, litter, basketPlaces));
+        var choice = ShopFamilyBed.choose(bodies, layout -> room.preview(layout, litter, basketPlaces, supply));
         if (choice == null) {
             GameplayLog.world(level, "shop", "action=family_bed result=refused reason=no_available_layout shop={} nest={} count={}",
                     shop.id, anchor, bodies.size());
@@ -77,7 +78,7 @@ final class ShopFamilyRoom extends PathNavigationRegion {
         return choice == ShopFamilyBed.ADJACENT ? room.cells.subList(0, litter.size()) : List.of(anchor);
     }
 
-    private List<ShopFamilyBed.Pad> preview(ShopFamilyBed layout, List<YukkuriEntity> litter, int basketPlaces) {
+    private List<ShopFamilyBed.Pad> preview(ShopFamilyBed layout, List<YukkuriEntity> litter, int basketPlaces, DockBedding.Supply supply) {
         planned.clear();
         for (var pos : cells) {
             var old = server.getBlockState(pos);
@@ -117,8 +118,8 @@ final class ShopFamilyRoom extends PathNavigationRegion {
             if (old.getBlock() != entry.getValue().getBlock()
                     && !server.getEntitiesOfClass(LivingEntity.class, new AABB(pos)).isEmpty()) return List.of();
         }
-        dockAfter = dock.exchange(cushionsReturned, wovenReturned, basketPlaces);
-        if (dockAfter.isEmpty()) return List.of();
+        exchange = dock.plan(cushionsReturned, wovenReturned, basketPlaces, supply);
+        if (exchange == null) return List.of();
         var pads = new ArrayList<ShopFamilyBed.Pad>();
         for (var pos : beds) {
             var state = getBlockState(pos);
@@ -133,9 +134,10 @@ final class ShopFamilyRoom extends PathNavigationRegion {
     private void install(ShopFamilyBed layout, int count) {
         var changes = planned.entrySet().stream().filter(e -> server.getBlockState(e.getKey()) != e.getValue()).toList();
         if (changes.isEmpty()) return;
-        dock.apply(dockAfter);
+        dock.apply(exchange);
         for (var change : changes) server.setBlock(change.getKey(), change.getValue(), Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE);
-        GameplayLog.world(server, "shop", "action=family_bed result=installed grade={} shop={} nest={} count={} dock_cushion_delta={} dock_woven_delta={}",
-                layout.name().toLowerCase(Locale.ROOT), shop.id, anchor, count, cushionsReturned, wovenReturned);
+        GameplayLog.world(server, "shop", "action=family_bed result=installed grade={} shop={} nest={} count={} delivered_cushions={} delivered_woven={} dock_cushion_delta={} dock_woven_delta={}",
+                layout.name().toLowerCase(Locale.ROOT), shop.id, anchor, count, exchange.deliveredCushions(), exchange.deliveredWoven(),
+                cushionsReturned + exchange.deliveredCushions(), wovenReturned + exchange.deliveredWoven());
     }
 }
