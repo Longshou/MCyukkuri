@@ -149,6 +149,7 @@ final class WallClearance {
     static void observePartner(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof YukkuriView entity) || !entity.level().isClientSide) return;
         var projection = PoseNeighbors.projection(entity);
+        if (projection == null) return; // The entity can leave the level during its tick.
         int id = entity.nuzzlePartnerId();
         if (id >= 0 && entity.yukkuriView(id) != null) {
             projection.lastPartner = id;
@@ -168,8 +169,10 @@ final class WallClearance {
     }
 
     private static WallYield.Face partnerFace(YukkuriView entity, YukkuriView mover, float partial, WallYield.Bounds ownBounds) {
+        var projection = PoseNeighbors.projection(entity);
+        if (projection == null) return null; // Spawner displays render without joining the level or receiving partner sync.
         int id = entity.nuzzlePartnerId();
-        if (id < 0) id = PoseNeighbors.projection(entity).lastPartner;
+        if (id < 0) id = projection.lastPartner;
         if (id < 0) return null;
         var peer = entity.yukkuriView(id);
         if (peer == null) return null;
