@@ -13,7 +13,7 @@ public final class ThreatCandidates {
     private ThreatCandidates() {}
 
     public static boolean includes(Object entity) {
-        return entity instanceof HumanNpc
-                || entity instanceof YukkuriEntity y && y.getVariant().isPredator();
+        return entity instanceof LivingEntity member && !member.level().isClientSide
+                && (member instanceof HumanNpc || member instanceof YukkuriEntity y && y.getVariant().isPredator());
     }
 }
