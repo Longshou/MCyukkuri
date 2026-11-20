@@ -35,7 +35,7 @@ public final class NaturalShelter {
         if (!(state.is(BlockTags.DIRT)||state.is(BlockTags.BASE_STONE_OVERWORLD)||state.is(BlockTags.LOGS)
                 ||state.is(Blocks.MOSS_BLOCK))) return 0;
         // A data pack can tag a block whose entity or shape changes without a block-state change.
-        int live = state.hasBlockEntity() || state.getBlock().hasDynamicShape() ? LIVE_SHAPE : 0;
+        int live = blockEntity != null || state.hasBlockEntity() || state.getBlock().hasDynamicShape() ? LIVE_SHAPE : 0;
         return live | (blockEntity == null && state.isFaceSturdy(level,pos,Direction.UP) ? PASS : 0);
     }
     public static boolean stand(Level level, BlockPos pos) {
@@ -90,9 +90,12 @@ public final class NaturalShelter {
         // Surveyed beds are within five blocks of the core, and banks can extend three beyond that.
         // Each axis spans sixteen blocks from its first to last position, touching two chunks.
         int x = (core.getX() - RADIUS - BANK_REACH) >> 4, z = (core.getZ() - RADIUS - BANK_REACH) >> 4;
+        // All beds share the core's elevation. Floor through roof can cross only one vertical section boundary.
+        int floor = server.getSectionIndex(Math.max(core.getY() - 1, server.getMinBuildHeight()));
+        int roof = server.getSectionIndex(Math.min(core.getY() + 3, server.getMaxBuildHeight() - 1));
         long tags = tagsVersion;
-        long nw = chunkVersion(server, x, z), ne = chunkVersion(server, x + 1, z);
-        long sw = chunkVersion(server, x, z + 1), se = chunkVersion(server, x + 1, z + 1);
+        long nw = chunkVersion(server, x, z, floor, roof), ne = chunkVersion(server, x + 1, z, floor, roof);
+        long sw = chunkVersion(server, x, z + 1, floor, roof), se = chunkVersion(server, x + 1, z + 1, floor, roof);
         int checks = cache.lookup(beds, tags, nw, ne, sw, se);
         if (checks != 0) {
             SearchBudget.probes(level, 2 * Math.abs(checks));
@@ -113,11 +116,13 @@ public final class NaturalShelter {
         return ((beds.size() + 1) << CHECK_SHIFT) | live | enclosureCheck(level, core);
     }
 
-    private static long chunkVersion(ServerLevel level, int x, int z) {
+    private static long chunkVersion(ServerLevel level, int x, int z, int floor, int roof) {
         var source = level.getChunkSource();
         if (!source.hasChunk(x, z)) return 0;
         var chunk = source.getChunkNow(x, z);
-        return chunk == null ? 0 : ((EnclosureTerrain) chunk).mcyukkuri$enclosureVersion();
+        return chunk == null ? 0 : EnclosureCache.columnVersion(
+                ((EnclosureTerrain) chunk.getSection(floor)).mcyukkuri$enclosureVersion(),
+                ((EnclosureTerrain) chunk.getSection(roof)).mcyukkuri$enclosureVersion());
     }
 
     static void tagsReloaded() { tagsVersion++; }

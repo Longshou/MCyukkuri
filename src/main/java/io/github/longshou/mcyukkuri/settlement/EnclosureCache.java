@@ -7,6 +7,9 @@ final class EnclosureCache {
     private long tags, nw, ne, sw, se;
     private int checks;
 
+    /** The next observed edit in either section is newer than both previous versions. */
+    static long columnVersion(long floor, long roof) { return Math.max(floor, roof); }
+
     int lookup(Object beds, long tags, long nw, long ne, long sw, long se) {
         return (nw != 0 && ne != 0 && sw != 0 && se != 0 && this.beds == beds && this.tags == tags
                 && this.nw == nw && this.ne == ne && this.sw == sw && this.se == se) ? checks : 0;

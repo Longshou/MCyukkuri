@@ -75,7 +75,7 @@ public final class PlantBedding {
             if(allowed.test(pos)&&entity.level().hasChunkAt(pos)&&!material(entity.level().getBlockState(pos)).isEmpty())plants.add(pos.immutable());
         candidates=plants.size();
         int paths=0;
-        for(var sites=ForageClaims.plantSites(entity,plants).iterator();paths<8&&sites.hasNext();){
+        nextPlant: for(var sites=ForageClaims.plantSites(entity,plants).iterator();paths<8&&sites.hasNext();){
             var plant=sites.next();
             var state=entity.level().getBlockState(plant);
             for(var direction:Direction.Plane.HORIZONTAL)for(int down=0;down<=1;down++){
@@ -89,7 +89,8 @@ public final class PlantBedding {
                 if(!entity.life().reachable(BlockPos.containing(stand),false))continue;reachableSites++;
                 if(visible(stand,touch,plant)){
                     claim=ForageClaims.claim(server,plant,entity.getUUID());
-                    if(claim!=null){target=new Target(plant,state,stand,touch);return true;}
+                    if(claim==null)continue nextPlant;
+                    target=new Target(plant,state,stand,touch);return true;
                 }
             }
         }

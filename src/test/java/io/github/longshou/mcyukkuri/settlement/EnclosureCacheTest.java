@@ -24,6 +24,14 @@ class EnclosureCacheTest {
         assertEquals(0, cache.lookup(beds, 0, 1, 2, 3, 5));
     }
 
+    @Test void aWriteOnEitherSideOfAVerticalSectionBoundaryExpiresTheColumn() {
+        long column = EnclosureCache.columnVersion(5, 6);
+        cache.remember(beds, 0, column, 2, 3, 4, 1 << EnclosureCache.CHECK_SHIFT | EnclosureCache.PASS);
+        assertEquals(1, cache.lookup(beds, 0, column, 2, 3, 4));
+        assertEquals(0, cache.lookup(beds, 0, EnclosureCache.columnVersion(7, 6), 2, 3, 4));
+        assertEquals(0, cache.lookup(beds, 0, EnclosureCache.columnVersion(5, 7), 2, 3, 4));
+    }
+
     @Test void layoutReloadTagsAndMissingChunksInvalidateTheResult() {
         cache.remember(beds, 0, 1, 2, 3, 4, 5 << EnclosureCache.CHECK_SHIFT);
         assertEquals(0, cache.lookup(new Object(), 0, 1, 2, 3, 4));

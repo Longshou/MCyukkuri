@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
-/** Implemented by full chunks. A version changes on edits and each load lifetime. */
+/** Globally ordered versions of the block sections read by a burrow. */
 public interface EnclosureTerrain {
     long mcyukkuri$enclosureVersion();
+    void mcyukkuri$invalidateEnclosure();
 }

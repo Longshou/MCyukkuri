@@ -51,6 +51,20 @@ class PlantSitesTest {
         assertEquals(Set.of(rollback), taken);
     }
 
+    @Test void sameTickClaimAfterSnapshotAdvancesToTheNextPlant() {
+        var leases = new LeaseTable<Tuft, String>(600);
+        var nearest = new Tuft(0, 0, 1);
+        var next = new Tuft(1, 0, 2);
+        var taken = new HashSet<Tuft>();
+        leases.forEachLive(100, (site, owner) -> taken.add(site));
+        var sites = PlantSites.nearest(List.of(next, nearest), Tuft::distance, site -> !taken.contains(site));
+        assertTrue(leases.acquireAll(List.of(nearest), "first", 700, 100));
+        assertEquals(next, sites.filter(site -> leases.acquireAll(List.of(site), "second", 700, 100))
+                .findFirst().orElseThrow());
+        assertEquals(Set.of("first"), leases.owners(nearest, 100));
+        assertEquals(Set.of("second"), leases.owners(next, 100));
+    }
+
     @Test void admissionVisitsOnlyTheRequiredPrefixInStableDistanceOrder() {
         var refused = new Tuft(8, 6, 1);
         var first = new Tuft(11, 0, 2);
