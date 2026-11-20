@@ -13,7 +13,6 @@
 | 村会馆柜台：徽章登记、补发与讲台观看 | `.worktrees/wp-badge-counter` | human/HumanNpc.java (counter role), pet/exam/ExamMenu.java, pet/exam/ExamHall.java, author_civic.py |
 | 挤在一起的个体不互相嵌入 | `.worktrees/wp-crowd-separation` | motor push/separation owner, YukkuriEntity push |
 | 性能：伤口与穿戴渲染（首次受伤卡顿） | `.worktrees/wp-perf-wounds` | client/HairWoundRenderer.java, client/WoundRenderer.java |
-| 低通过率试玩场景在当前 main 上复验（FG-07、TN-30、MD-02、MD-28） | `.worktrees/wp-scene-verify` | smoke checkers only |
 | 无家油库里抢先认领空床压过社交（social_identity 回归） | `.worktrees/wp-social-bed` | life/YukkuriLife.java (CLAIM_BED plan), life/LifeHome.java |
 | FG-02 留守亲油不再在洞口两侧巡看（main 上失败） | `.worktrees/wp-forage-patrol` | family/HomeWatch, settlement patrol stands |
 
