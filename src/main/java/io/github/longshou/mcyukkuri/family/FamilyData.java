@@ -456,8 +456,9 @@ public final class FamilyData extends SavedData {
         if(kind==BirthKind.EGG != mother.profile().houseBody())return refused("kind");
         if(kind==BirthKind.LIVE&&mother.profile().dangerToYukkuri())return refused("kind");
         long seed=mother.getUUID().getMostSignificantBits()^father.getUUID().getLeastSignificantBits()^mother.family().conceptions();
-        if (sizes.size() > mother.profile().pool().maxYoung) return refused("litter_size");
-        int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,mother.profile().pool()):2+new Random(seed).nextInt(3);
+        var pool=mother.profile().pool();
+        if (pool == BreedingPool.PREDATOR && sizes.size() > pool.maxYoung) return refused("litter_size");
+        int count=!sizes.isEmpty()?sizes.size():kind!=BirthKind.EGG?offspringCount(mother.family().adultScale(),seed,pool):2+new Random(seed).nextInt(3);
         var shelter=mother.habitat().shelter();
         boolean joinMother=ordinaryWildBurrow(mother,father,shelter);
         if(joinMother) {
