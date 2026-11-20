@@ -694,7 +694,8 @@ add('family_absence', 'forage', '出门采草的亲油迟迟不归', '出门采�
     '开场时灵梦已在土坡后的草场采草，家人记得她离开的方向。她在家人看不到的地方死亡。'
     '看子油在洞口内向外守望，赤油留在窝里等。魔理沙先巡视，亲油迟归后朝记得的方向扇形寻找并呼唤，发现遗体后哀悼，再去采草、照料饥饿的赤油。',
     '约 2–5 分钟（可倍速）', [
-        box(-3, 0, 6, 2, 2, 6, 'minecraft:dirt'),
+        # The bank hides the meadow from the den; its south face leaves the search fan's west stand (about -2.4, 7.4) clear.
+        box(-3, 0, 5, 2, 2, 5, 'minecraft:dirt'),
         box(-8, 0, 15, 8, 0, 23, 'minecraft:short_grass', 'keep'),
         yk('reimu', 1, 11, 'absent', uuid=_absent, yaw=0, kin=f'Partner:{uuid_nbt(_stayer)}', nutrition=82, energy=100,
            boldness=100),
