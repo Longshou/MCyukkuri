@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from html.parser import HTMLParser
 import json
-from math import ceil, floor
+from math import ceil, dist, floor, hypot
 from pathlib import Path
 import struct
 import subprocess
@@ -41,13 +41,14 @@ serve_review.main()
 """
 
 
-def fitted_sections(model_id):
+def fitted_sections(model_id, include_mouth=False):
     from build_review_catalog import ASSETS
     from placement_fit import fitted
 
     model = fitted(ASSETS/f'yukkuri/{model_id}.json')
     return {part['name']: (part['start'], part['count']) for part in model['parts']
-            if not part.get('anatomy') and not part['name'].startswith('face_')}
+            if not part.get('anatomy') and (not part['name'].startswith('face_')
+                                            or include_mouth and part['name'] == 'face_mouth')}
 
 
 def surface_depths(vertices, spans, select):
@@ -79,6 +80,28 @@ def drawn_spacing(first, second):
 
 def lateral_vertices(raw, spacing):
     return [(z, y, x-spacing) for x, y, z, *_ in struct.iter_unpack('<8f', raw)]
+
+
+def world_vertices(raw):
+    return [(x, y, z) for x, y, z, *_ in struct.iter_unpack('<8f', raw)]
+
+
+def paired_gap(left, left_parts, right, right_parts):
+    def center(vertices, parts):
+        start, count = parts['rounded_body_surface']
+        points = vertices[start:start+count]
+        return [(min(p[i] for p in points) + max(p[i] for p in points)) / 2 for i in (0, 2)]
+
+    a, b = center(left, left_parts), center(right, right_parts)
+    dx, dz = b[0]-a[0], b[1]-a[1]
+    length = hypot(dx, dz)
+    cx, cz = dx/length, dz/length
+
+    def rays(vertices, parts, select):
+        projected = [(x*cz-z*cx, y, x*cx+z*cz) for x, y, z in vertices]
+        return surface_depths(projected, (part for name, part in parts.items() if name != 'face_mouth'), select)
+
+    return drawn_spacing(rays(right, right_parts, min), rays(left, left_parts, max))
 
 
 class Document(HTMLParser):
@@ -152,8 +175,8 @@ class PlayerTests(unittest.TestCase):
             return json.load(response)
 
     @contextmanager
-    def actor(self, model):
-        record = self.pose(dict(op='register', modelId=model))
+    def actor(self, model, scale=1):
+        record = self.pose(dict(op='register', modelId=model, scale=scale))
         try:
             yield record
         finally:
@@ -168,7 +191,8 @@ class PlayerTests(unittest.TestCase):
         player_controls = {'view', 'variant', 'zoom', 'play', 'time', 'speed', 'caption', 'paper', 'mute', 'verdict'}
         pages = [('/', {'filters', 'catalog', 'status'}), ('/.local/previews/inbox/index.html', set())]
         pages.extend((f'/player.html?entry={ident}', player_controls)
-                     for ident in ('leak', 'moment-behavior_sunbathe', 'moment-behavior_call_child'))
+                     for ident in ('leak', 'moment-behavior_sunbathe', 'moment-behavior_call_child',
+                                   'family-feed', 'adult-pairing', 'alice-rapem'))
         for path, controls in pages:
             with urlopen(self.base+path) as response:
                 parser = Document()
@@ -230,7 +254,8 @@ class PlayerTests(unittest.TestCase):
                 self.assertIn(entry['clip'], clips[entry['model']])
             if 'partner' in entry:
                 partner = entry['partner']
-                self.assertIn(partner['clip'], clips[partner['model']])
+                requested = {step['clip'] for step in partner['steps']} if 'steps' in partner else {partner['clip']}
+                self.assertLessEqual(requested, clips[partner['model']])
             if entry['category'] == 'props':
                 self.assertEqual(entry['tag'] == 'look-only', bool(entry['image']))
             if media := entry.get('audio') or entry.get('image'):
@@ -501,6 +526,60 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
                                                   surface_depths(lateral_vertices(unpressed[1], spacing), parts.values(), max))
                     print(f'Without partner faces the 1.500s mesh gap is {unpressed_gap:.6f} model units', flush=True)
                     self.assertLess(unpressed_gap, -.05)
+
+    def test_drawn_staged_performances(self):
+        program = """
+import {readFileSync} from 'node:fs';
+import {buildTimeline, sampleTimeline, textureFace} from './preview/review/timeline.mjs';
+const {entry, clips, peerClips, data} = JSON.parse(readFileSync(0));
+const {track} = buildTimeline(entry, clips, data.momentClips);
+const peer = buildTimeline(entry.partner, peerClips, data.momentClips);
+const peaks = {feed_child: .20, snuggle_left: 1.50, sukkiri_pair_climax: 3.50};
+const moments = track.flatMap(step => [step.start + 1e-6,
+    step.start + (peaks[step.clip] ?? (step.end - step.start) / 2), step.end - .001]);
+const render = (sample, model, time) => ({action: sample.clip, time: sample.time,
+    intensity: sample.intensity, expression: textureFace(data, data.models[model], sample.face, time)});
+console.log(JSON.stringify(moments.map(time => {
+    const first = sampleTimeline(track, clips, time, 'auto');
+    const second = sampleTimeline(peer.track, peerClips, time, 'auto');
+    return {time, first: render(first, entry.model, time), second: render(second, entry.partner.model, time),
+            stage: first.pairStage};
+})));
+"""
+        entries = {entry['id']: entry for entry in self.data['entries']}
+        for ident in ('family-feed', 'adult-pairing', 'alice-rapem'):
+            entry = entries[ident]
+            peer = entry['partner']
+            parts = fitted_sections(entry['model'], include_mouth=True)
+            peer_parts = fitted_sections(peer['model'], include_mouth=True)
+            with self.actor(entry['model']) as first, self.actor(peer['model'], peer['scale']) as second:
+                minimal = {key: self.data[key] for key in ('models', 'momentClips', 'faceAnimations', 'faceAliases')}
+                result = subprocess.run(['node', '--input-type=module', '-e', program], cwd=ROOT, check=True,
+                                        input=json.dumps(dict(entry=entry, clips=first['clips'], peerClips=second['clips'],
+                                                              data=minimal)), capture_output=True, text=True, encoding='utf-8')
+                for index, sample in enumerate(json.loads(result.stdout)):
+                    with self.subTest(entry=ident, seconds=round(sample['time'], 4)):
+                        payload = dict(op='render', id=first['id'], scale=1, **sample['first'],
+                                       pairStage=sample['stage'],
+                                       partner=dict(id=second['id'], scale=peer['scale'], **sample['second']))
+                        with self.request_pose(payload, 'application/octet-stream') as response:
+                            offset = int(response.headers['X-Pose-Partner-Offset'])
+                            self.assertEqual(float(response.headers['X-Pose-Partner-Spacing']), 0)
+                            raw = response.read()
+                        left, right = world_vertices(raw[:offset]), world_vertices(raw[offset:])
+                        gap = paired_gap(left, parts, right, peer_parts)
+                        print(f"{ident} {sample['stage']['kind']} {sample['time']:.3f}s surface gap={gap:.6f} mu", flush=True)
+                        self.assertGreaterEqual(gap, -1e-5)
+                        if sample['stage']['kind'] == 'feed-offer':
+                            a, an = parts['face_mouth']
+                            b, bn = peer_parts['face_mouth']
+                            lip_gap = min(dist(x, y) for x in set(left[a:a+an]) for y in set(right[b:b+bn]))
+                            print(f"Family feed at the nominal stand, lip gap={lip_gap:.6f} mu", flush=True)
+                            self.assertGreater(lip_gap, 2.2)
+                            self.assertLess(lip_gap, 3)
+                        if index == 0:
+                            packed = self.pose(dict(payload, vertexFormat='float32le'))
+                            self.assertEqual(raw, b64decode(packed['vertices']) + b64decode(packed['partnerVertices']))
 
     def verdict(self, data, content_type='application/json'):
         body = data if isinstance(data, bytes) else json.dumps(data, ensure_ascii=False).encode('utf-8')

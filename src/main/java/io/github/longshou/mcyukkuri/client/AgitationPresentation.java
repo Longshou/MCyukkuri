@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.pose.ReproductionPose;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.ref.WeakReference;
@@ -31,13 +32,8 @@ final class AgitationPresentation {
     private static Map<String, OrganSite> organSites = Map.of();
 
     record OrganSite(boolean turn, float x, float y, float outer, float proud, float meet, float[][] rear) {
-        ReproductionPresentation.MamuPlacement rearPlacement(float target) {
-            float height = Math.clamp(target, rear[0][0], rear[rear.length-1][0]);
-            int i = 0;
-            while (i+2<rear.length && height>rear[i+1][0]) i++;
-            float[] a = rear[i], b = rear[i+1];
-            float depth = Mth.lerp((height-a[0])/(b[0]-a[0]),a[1],b[1]);
-            return new ReproductionPresentation.MamuPlacement(turn,-x,height-y,depth+proud-outer);
+        ReproductionPose.MamuPlacement rearPlacement(float target) {
+            return ReproductionPose.rearPlacement(turn,x,y,outer,proud,rear,target);
         }
     }
     // Values never strongly hold their key or level. Unloaded entities/worlds cannot be retained by a pose.

@@ -4,6 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
+import io.github.longshou.mcyukkuri.pose.ReproductionPose;
+import io.github.longshou.mcyukkuri.pose.ReproductionPose.MamuPlacement;
 import java.lang.ref.WeakReference;
 import java.util.Locale;
 import java.util.Map;
@@ -12,28 +14,16 @@ import java.util.WeakHashMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
 /** Shared adult-contact presentation. The server owns courtship, pinning and every consequence. */
 final class ReproductionPresentation {
     private ReproductionPresentation() {}
-    private static final int EXTEND_TICKS=5, RETRACT_TICKS=13, HISTORY_TICKS=40;
-    // Leave .8 model units of rest clearance for the authored pushes. Each side closes at most a quarter block.
-    private static final double CONTACT_CLEARANCE=.8/16, MAX_OFFSET=.25;
-    // Allow for the idle and walking clips around the seam.
-    private static final double ACCESSORY_CLEARANCE=.4/16;
+    private static final int HISTORY_TICKS=40;
     private static final float[] REST_POSE={0,0,0,1,1,1};
     private static final Map<YukkuriView,Track> TRACKS=new WeakHashMap<>();
     private static WeakReference<Level> level=new WeakReference<>(null);
     private static long lastPrune=Long.MIN_VALUE;
 
-    record MamuPlacement(boolean turn,float x,float y,float z) {
-        Matrix4f transform(Matrix4f root) {
-            var placement = new Matrix4f(root).translate(x,y,z);
-            if (turn) placement.scale(-1,1,-1);
-            return placement.mul(new Matrix4f(root).invert());
-        }
-    }
     record Anatomy(String part,float amount,MamuPlacement mamu) {}
     record Frame(Anatomy anatomy,Vec3 offset) {}
     private static final Frame REST = new Frame(null, Vec3.ZERO);
@@ -116,7 +106,7 @@ final class ReproductionPresentation {
             var peerTrack=TRACKS.get(peer);
             ornaments=peerTrack!=null&&peerTrack.accessoryPeer==entity.getId()
                     &&entity.hasVisibleAccessory()&&peer.hasVisibleAccessory()
-                    &&(now-track.accessoryAt<=RETRACT_TICKS||relief(entity)||relief(peer));
+                    &&(now-track.accessoryAt<=ReproductionPose.RETRACT_TICKS||relief(entity)||relief(peer));
         }
         if(!touching&&!ornaments)return null;
         var model=YukkuriModel.get(entity.assetId());var peerModel=YukkuriModel.get(peer.assetId());
@@ -131,13 +121,13 @@ final class ReproductionPresentation {
         double limit=Double.POSITIVE_INFINITY;
         if(ornaments) {
             double accessories=reach.accessory()*scale+peerReach.accessory()*peerScale;
-            limit=(distance-accessories-ACCESSORY_CLEARANCE)/2;
+            limit=ReproductionPose.ornamentLimit(distance,accessories);
         }
         if(!touching)return new Spacing(toward,0,limit,false);
         double rest=model.bodyDepth(contact.rear())*scale+peerModel.bodyDepth(other.rear())*peerScale;
         // Keep a separating plane for the widest reaches of the authored poses, including cheek turns.
         double posed=reach.body()*scale+peerReach.body()*peerScale;
-        double close=Math.clamp((distance-Math.max(rest+CONTACT_CLEARANCE,posed))/2,0,MAX_OFFSET);
+        double close=ReproductionPose.close(distance,rest,posed);
         return new Spacing(toward,close,limit,true);
     }
 
@@ -190,9 +180,9 @@ final class ReproductionPresentation {
         if(closing!=track.closing) {
             track.fromOffset=track.offset;track.closing=closing;track.contactChanged=now;
         }
-        double mix=Math.clamp((now-track.contactChanged)/(closing?EXTEND_TICKS:RETRACT_TICKS),0,1);
+        double mix=ReproductionPose.mix(now-track.contactChanged,closing);
         Vec3 offset=closing?spacing.toward().scale(spacing.desired()):Vec3.ZERO;
-        track.offset=track.fromOffset.lerp(offset,mix*mix*(3-2*mix));
+        track.offset=track.fromOffset.lerp(offset,mix);
         if(spacing!=null)track.offset=spacing.keepClear(track.offset);
         if(track.part==null&&spacing==null&&mix==1)TRACKS.remove(entity);
         if("mamu".equals(wanted))track.mamu=mamuPlacement(entity,contact);
@@ -203,8 +193,8 @@ final class ReproductionPresentation {
         if(track.part==null)return 0;
         float elapsed=Math.max(0,tick-track.changed);
         if(track.target==null||!track.part.equals(track.target))
-            return track.from*Mth.clamp(1-elapsed/RETRACT_TICKS,0,1);
-        float q=Mth.clamp(elapsed/EXTEND_TICKS,0,1);q=q*q*(3-2*q);
+            return track.from*Mth.clamp(1-elapsed/ReproductionPose.RETRACT_TICKS,0,1);
+        float q=ReproductionPose.extend(elapsed);
         return Mth.lerp(q,track.from,1);
     }
 

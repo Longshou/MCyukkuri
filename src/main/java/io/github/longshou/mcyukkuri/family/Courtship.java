@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Task;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.geom.ContactStand;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
@@ -309,7 +310,7 @@ final class Courtship {
 
     private Vec3 rearStand(YukkuriEntity receiver,YukkuriEntity giver) {
         var forward=Vec3.directionFromRotation(0,receiver.getYRot());
-        double spacing=(receiver.getBbWidth()+giver.getBbWidth())*.5*.9;
+        double spacing=ContactStand.courtRear(receiver.getBbWidth(),giver.getBbWidth());
         return receiver.position().subtract(forward.scale(spacing));
     }
 

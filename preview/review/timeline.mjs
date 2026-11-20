@@ -1,11 +1,13 @@
 export function buildTimeline(entry, clips, momentClips) {
     const steps = entry.steps ?? [{clip: entry.clip, faces: [], tempo: 1}];
     let duration = 0;
-    const track = steps.map(step => {
+    let stanceStart;
+    const track = steps.map((step, index) => {
         const start = duration;
+        if (step.stance !== steps[index - 1]?.stance) stanceStart = start;
         const length = entry.moment ? momentClips[step.clip] ?? 1 : clips[step.clip].duration;
         duration += step.duration ?? length / step.tempo;
-        return {...step, start, end: duration};
+        return {...step, start, end: duration, stanceStart};
     });
     return {track, duration, loop: entry.loop ?? clips[entry.clip].loop};
 }
@@ -21,7 +23,9 @@ export function sampleTimeline(track, clips, seconds, expression) {
           ?? clip.faces.find(([start, end]) => clipTime >= start && clipTime < end)?.[2]
           ?? 'neutral'
         : expression;
-    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption, scratch: step.scratch,
+    const pairStage = step.stance && {kind: step.stance, elapsed: seconds - step.stanceStart,
+        progress: Math.min(1, elapsed / (step.end - step.start))};
+    return {clip: step.clip, time, intensity: step.intensity, face, caption: step.caption, scratch: step.scratch, pairStage,
             emote: step.emote, stepSeconds: elapsed};
 }
 

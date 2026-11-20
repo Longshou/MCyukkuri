@@ -74,10 +74,14 @@ async function createPartner(scene, data, spec) {
     const texture = actorTexture(model);
     return {
         group: placed,
+        expandBounds(bounds) {
+            mesh.geometry.computeBoundingBox();
+            return bounds.expandByObject(placed);
+        },
         sample(seconds) {
             const sample = sampleTimeline(track, clips, seconds, 'auto');
             const face = textureFace(data, model, sample.face, seconds);
-            const payload = {id, action: sample.clip, expression: face, scale};
+            const payload = {id, action: sample.clip, time: sample.time, intensity: sample.intensity, expression: face, scale};
             return {payload, map: texture(face)};
         },
         draw(vertices, spacing, map) {
@@ -199,7 +203,9 @@ async function playEntry(data, entry) {
         await marks.texture(surfaceMark.texture);
     }
     const cover = $('paper');
-    cover.checked = params.get('paper') === '1';
+    const staged = entry.steps?.some(step => step.stance);
+    $('paper-control').hidden = Boolean(staged);
+    cover.checked = !staged && params.get('paper') === '1';
     let paper;
     const emoteHeight = proportions.emoteHeight * actor.scale * 16;
     const emoteSize = proportions.emoteSize * actor.scale * 16;
@@ -211,6 +217,7 @@ async function playEntry(data, entry) {
     const timeline = $('time');
     timeline.max = duration;
     const texture = actorTexture(actor);
+    const focus = new THREE.Vector3();
 
     let azimuth = .45, elevation = .15;
     let expression = 'auto', time = 0, elapsed = 0, lastTime, previous = performance.now();
@@ -237,6 +244,7 @@ async function playEntry(data, entry) {
             outline: covered ? hat.outline : undefined};
         const peer = partner && partner.sample(seconds);
         if (peer) payload.partner = peer.payload;
+        if (sample.pairStage) payload.pairStage = sample.pairStage;
         const rich = streamVisible || covered;
         if (rich) payload.vertexFormat = 'float32le';
         const [frame, map, sheets, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, peer?.map]);
@@ -248,6 +256,10 @@ async function playEntry(data, entry) {
         if (hat) hat.set(frame.hat);
         if (partner) partner.draw(rich ? floatVertices(frame.partnerVertices) : frame.partnerVertices,
             frame.partnerSpacing, peerMap);
+        if (staged) {
+            mesh.geometry.computeBoundingBox();
+            partner.expandBounds(new THREE.Box3().setFromObject(mesh)).getCenter(focus);
+        }
         if (sheets) {
             for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
                 const sheet = sheets[index];
@@ -281,9 +293,9 @@ async function playEntry(data, entry) {
     if (partner) bounds.expandByObject(partner.group);
     const top = Math.max(bounds.max.y, emoteHeight + emoteSize);
     const centerY = (bounds.min.y + top) / 2;
-    const {x: centerX, z: centerZ} = bounds.getCenter(new THREE.Vector3());
+    bounds.getCenter(focus);
     const span = Math.max((top - bounds.min.y) * .77, 4);
-    const radius = Math.hypot(bounds.max.x - centerX, bounds.max.z - centerZ);
+    const radius = Math.hypot(bounds.max.x - focus.x, bounds.max.z - focus.z);
     const zoom = $('zoom');
     function resize() {
         const width = canvas.clientWidth, height = canvas.clientHeight;
@@ -383,9 +395,9 @@ async function playEntry(data, entry) {
             });
         }
         if (dirty) {
-            camera.position.set(centerX - 150 * Math.sin(azimuth) * Math.cos(elevation),
-                centerY + 150 * Math.sin(elevation), centerZ - 150 * Math.cos(azimuth) * Math.cos(elevation));
-            camera.lookAt(centerX, centerY, centerZ);
+            camera.position.set(focus.x - 150 * Math.sin(azimuth) * Math.cos(elevation),
+                centerY + 150 * Math.sin(elevation), focus.z - 150 * Math.cos(azimuth) * Math.cos(elevation));
+            camera.lookAt(focus.x, centerY, focus.z);
             emote.face(camera);
             renderer.render(scene, camera);
             dirty = false;

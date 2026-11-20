@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
+import io.github.longshou.mcyukkuri.motor.geom.ContactStand;
 import io.github.longshou.mcyukkuri.motor.geom.PinContact;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -39,8 +40,7 @@ public final class Pin implements Action {
     /** Tangency of the two collision boxes along the target's rear bearing; neither body overlaps at release. */
     public static Vec3 stand(YukkuriEntity body, YukkuriEntity target) {
         Vec3 forward = Vec3.directionFromRotation(0, target.getYRot());
-        double spacing = (body.getBbWidth() + target.getBbWidth()) * .5
-                / Math.max(Math.abs(forward.x), Math.abs(forward.z));
+        double spacing = ContactStand.tangent(body.getBbWidth(), target.getBbWidth(), forward.x, forward.z);
         return target.position().subtract(forward.scale(spacing));
     }
 

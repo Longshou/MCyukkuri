@@ -16,7 +16,7 @@ public final class PoseCli {
     public static JsonObject run(Path assets, JsonObject request) throws IOException {
         if (request.has("op")) {
             return switch (request.get("op").getAsString()) {
-                case "render", "release" -> RenderPose.run(request);
+                case "render", "release" -> RenderPose.run(assets, request);
                 case "leak" -> ReviewEffects.leak(request);
                 case "floorEffect" -> ReviewEffects.floor(request);
                 case "prop" -> ReviewProps.load(assets, request);
@@ -24,7 +24,7 @@ public final class PoseCli {
                     var review = request.getAsJsonObject("review");
                     var actor = review == null ? null : ReviewActor.describe(
                             assets, PoseChecks.s(review, "model"), (float) PoseChecks.n(review, "scale"));
-                    var registered = RenderPose.run(request);
+                    var registered = RenderPose.run(assets, request);
                     if (actor != null) registered.add("actor", actor);
                     yield registered;
                 }

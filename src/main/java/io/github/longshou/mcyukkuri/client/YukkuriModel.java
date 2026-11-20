@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
 import io.github.longshou.mcyukkuri.pose.LipGrip;
+import io.github.longshou.mcyukkuri.pose.ReproductionPose;
 import io.github.longshou.mcyukkuri.pose.Rig;
 import io.github.longshou.mcyukkuri.pose.Rig.Bone;
 import io.github.longshou.mcyukkuri.pose.Skin;
@@ -224,7 +225,7 @@ public final class YukkuriModel {
     private LiveBirthRenderer.Delivery delivery;
     private String reproductiveAnatomy;
     private float reproductiveAmount;
-    private ReproductionPresentation.MamuPlacement mamuPlacement;
+    private ReproductionPose.MamuPlacement mamuPlacement;
     /** An independent visible anatomy layer; it never selects or advances a business action. */
     void setReproductiveAnatomy(ReproductionPresentation.Anatomy anatomy){
         reproductiveAnatomy=anatomy==null?null:anatomy.part();
@@ -1187,8 +1188,7 @@ public final class YukkuriModel {
         else if (!allowPuff) puffAmount = 0;
         if(reproductiveAnatomy!=null&&reproductiveAmount>0&&delivery==null) {
             Clip extend=clips.get("anatomy_"+reproductiveAnatomy+"_extend");
-            if(extend!=null)for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
-                track.sample(extend.duration*reproductiveAmount,pose[track.bone]);
+            if(extend!=null)Overlays.extendAnatomy(bones,pose,extend,reproductiveAmount);
         }
         if(carryLoad>0&&selected.equals("waddle")){
             Overlays.gait(pose,defaultPose,carryLoad);
@@ -1830,7 +1830,7 @@ public final class YukkuriModel {
                 minimum = Math.min(minimum, transform.transformPosition(point).y / 16);
             }
         }
-        return minimum == Float.MAX_VALUE ? 0 : Math.max(0, .006f-minimum);
+        return minimum == Float.MAX_VALUE ? 0 : Math.max(0, ReproductionPose.GROUND_MARGIN-minimum);
     }
 
     /** Place the lowest visible source vertex above the floor during rigid contact poses. */

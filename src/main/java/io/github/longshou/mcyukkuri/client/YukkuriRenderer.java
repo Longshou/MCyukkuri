@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.client;
+
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 
@@ -17,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
+import io.github.longshou.mcyukkuri.pose.Overlays;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import net.minecraft.client.Minecraft;
@@ -404,7 +406,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
         target.rotateY(childYaw)
                 .add((float)(childAt.x-parentAt.x),(float)(childAt.y-parentAt.y),(float)(childAt.z-parentAt.z))
                 .rotateY(-parentYaw).mul(16/Math.max(.001f,parentScale));
-        float blend=.35f+.65f*Mth.clamp(parent.careContactProgress(),0,1);
+        float blend=Overlays.careBlend(parent.careContactProgress());
         boolean rim = !firstToilet && FamilyFeedingContact.atCanopyRim(parent,child);
         model.setCareContact(target.x,target.y,target.z,blend,rim);
     }

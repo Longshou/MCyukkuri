@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.geom.ContactStand;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 
@@ -20,7 +21,7 @@ public final class FamilyFeedingContact {
     /** Number of uninterrupted mouth-contact ticks required before ownership may change. */
     public static final int REQUIRED_CONTACT_TICKS = 20;
     /** Extra clearance beyond two body radii while their mouths meet. */
-    public static final double MOUTH_CLEARANCE = .10;
+    public static final double MOUTH_CLEARANCE = ContactStand.MOUTH_CLEARANCE;
     /** Maximum difference between the two rendered head-height envelopes. */
     public static final double MAX_MOUTH_HEIGHT_DELTA = .50;
     /** Both faces must point substantially toward the other before food can change hands. */
@@ -48,7 +49,7 @@ public final class FamilyFeedingContact {
 
     /** Contact spacing; approachSpot also checks the square body footprints and the actual floor. */
     public static double standingDistance(YukkuriEntity caregiver, YukkuriEntity child) {
-        return mouthDistance(caregiver, child) - MOUTH_CLEARANCE * .5;
+        return ContactStand.feeding(caregiver.getBbWidth(), child.getBbWidth());
     }
 
     /** Supported stand beside the child, or null when no candidate is reachable; contact is checked separately. */

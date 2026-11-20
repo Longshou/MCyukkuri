@@ -135,6 +135,8 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `build_player_entries.py` 的放映室演出行可设 `held`、`hat` 和 `partner`。`held.mesh` 取运行道具编号，`joint` 取 `mouth`（嘴）或 `item`（当前片段的 `props.item` 握点）。`hat.mesh` 取运行帽子编号，`form` 取 `hat_vessel.json` 中有尺寸倍率的形态，`damage` 为游戏破损等级（0 完整、1 磨损、2 撕裂、3 拼接）。并排蹭的主角播放 `snuggle_left`，`partner` 用 `model`、`clip`（`snuggle_right`）和相对尺寸 `scale` 指定另一侧。两只同高同向，按游戏同一个 tick 取姿态；核心逐帧解析脸颊间距，并让松散部位避开对方的侧面。
 
+双演员演出可在主角和 `partner` 上填写同一组节拍长度与各自的 `steps`。主角每步的 `stance` 指向递喂、蹭脸、绕后或压制的站位规则。播放器把两只当前的片段和站位阶段送给姿态核心，接触距离和前倾使用游戏计算。
+
 `<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果。
 
 总入口调用 `build_preview_library.py` 生成物品缩略图及物品、模型、试玩场景索引 `library.json`。`preview_block_model.py` 渲染原生方块元素，`preview_inventory.py` 从 Java 注册与运行引用识别当前物品。分类与资源缺口写到 `.local/reports/preview-library.json`。

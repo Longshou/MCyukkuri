@@ -17,6 +17,12 @@ public final class Overlays {
         float minimumY();
         Vector3f mouth();
     }
+    public static float careBlend(float progress) { return .35f+.65f*Math.clamp(progress,0,1); }
+
+    public static void extendAnatomy(Rig.Bone[] bones,float[][] pose,Clips.Clip extend,float amount) {
+        for(var track:extend.tracks)if(bones[track.bone].name.startsWith("anatomy_"))
+            track.sample(extend.duration*amount,pose[track.bone]);
+    }
     public static void care(Contact contact,float[][] pose,Matrix4f[] world,int root,boolean feeding,boolean rim,
                             float careTargetMouthX,float careTargetMouthY,float careTargetMouthZ,float careBlend){
             float floor=contact.minimumY();float[] value=pose[root];

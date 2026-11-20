@@ -9,6 +9,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.zip.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -48,6 +49,7 @@ final class RenderPose implements Overlays.Contact {
     private float looseTop;
     private ReviewMarks.Wet wet;
     private ReviewMarks.Scratch scratchMark;
+    private JsonObject reviewActor;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
         if(request.has("fit")&&!request.get("fit").isJsonNull())Splice.fit(data,request.getAsJsonObject("fit"),hash->true);
@@ -111,7 +113,16 @@ final class RenderPose implements Overlays.Contact {
         var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body"))for(int i=start(p);i<start(p)+count(p);i++)min=Math.min(min,skin(i).y);
     }return min;}
     public Vector3f mouth(){return world[root].transformPosition(new Vector3f(anchor));}
-    private JsonObject frame(JsonObject request, WallYield.Face partnerFace){
+    record Drawn(JsonObject data,float[] vertices,boolean packed) {
+        JsonObject encode() {
+            data.add("vertices",vertexData(vertices,packed));
+            return data;
+        }
+    }
+    private JsonObject frame(JsonObject request, WallYield.Face partnerFace) {
+        return draw(request,partnerFace,null).encode();
+    }
+    Drawn draw(JsonObject request, WallYield.Face partnerFace, ReviewPair.Anatomy anatomy){
         String action=request.get("action").getAsString();float t=request.get("time").getAsFloat();
         for(int i=0;i<pose.length;i++)System.arraycopy(defaults[i],0,pose[i],0,9);
         clips.get(action).sample(t,pose);
@@ -123,6 +134,7 @@ final class RenderPose implements Overlays.Contact {
             var a=request.getAsJsonObject("adjustment");if(a.has("translation")){var v=Rig.floats(a.getAsJsonArray("translation"));for(int i=0;i<3;i++)pose[root][i]+=v[i];}
             if(a.has("pitch"))pose[root][3]+=a.get("pitch").getAsFloat();
         }
+        if(anatomy!=null)Overlays.extendAnatomy(bones,pose,clips.get("anatomy_"+anatomy.part()+"_extend"),anatomy.amount());
         var clip=data.getAsJsonObject("clips").getAsJsonObject(action);
         if(data.has("behavior_clips")&&data.getAsJsonObject("behavior_clips").has(action))clip=data.getAsJsonObject("behavior_clips").getAsJsonObject(action);
         puff=clip.has("puff_envelope")?Clips.puffEnvelope(Rig.floats(clip.getAsJsonArray("puff_envelope")),clips.get(action).time(t)):0;
@@ -144,6 +156,7 @@ final class RenderPose implements Overlays.Contact {
             hatScale = 1;
         }
         compose();
+        var rear=anatomy!=null&&anatomy.rear()!=null?anatomy.rear().transform(world[root]):null;
         if(request.has("care")){
             var care=request.getAsJsonObject("care");anchor=new Vector3f(Rig.floats(care.getAsJsonArray("anchor")));
             var target=Rig.floats(care.getAsJsonArray("target"));
@@ -177,7 +190,9 @@ final class RenderPose implements Overlays.Contact {
         Matrix4f wallToLocal=new Matrix4f(localToWall).invert();
         for(int pi=0;pi<data.getAsJsonArray("parts").size();pi++){
             var part=data.getAsJsonArray("parts").get(pi).getAsJsonObject();
-            if(part.has("anatomy")&&!part.get("anatomy").getAsString().isEmpty()&&!action.startsWith("anatomy_"+part.get("anatomy").getAsString()+"_"))continue;
+            String organ=part.has("anatomy")?part.get("anatomy").getAsString():"";
+            boolean layered=anatomy!=null&&organ.equals(anatomy.part())&&anatomy.amount()>.001f;
+            if(!organ.isEmpty()&&!layered&&!action.startsWith("anatomy_"+organ+"_"))continue;
             boolean smooth=false;
             if(puff>0){if(data.has("puff_surface")&&data.getAsJsonObject("puff_surface").get("part_index").getAsInt()==pi){part=data.getAsJsonObject("puff_surface");smooth=true;}
                 if(data.has("puff_attachments"))for(var raw:data.getAsJsonArray("puff_attachments"))if(raw.getAsJsonObject().get("part_index").getAsInt()==pi)part=raw.getAsJsonObject();}
@@ -188,7 +203,9 @@ final class RenderPose implements Overlays.Contact {
             boolean isAcc=wantPaper&&accPrefixes.stream().anyMatch(origName::startsWith);
             boolean skipTent=origName.startsWith("face_")||origName.contains("puff");
             if (worn != null && replaced.stream().anyMatch(origName::startsWith)) continue;
-            for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);p.mul(scale);
+            for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);
+                if(layered&&rear!=null)rear.transformPosition(p);
+                p.mul(scale);
                 if(wantPaper&&!skipTent){
                     var tp=new Vector3f(p);
                     if(loose)PaperTent.pressPoint(tp,localToWall,wallToLocal,faces,0f);
@@ -210,7 +227,6 @@ final class RenderPose implements Overlays.Contact {
         }
         var out=new JsonObject();
         boolean packed = request.has("vertexFormat") && request.get("vertexFormat").getAsString().equals("float32le");
-        out.add("vertices", vertexData(output, packed));
         if (request.has("emote")) {
             var cue = request.getAsJsonObject("emote");
             out.addProperty("emote", EmoteCue.select(cue.get("face").getAsString(), cue.get("sweat").getAsBoolean(),
@@ -263,9 +279,9 @@ final class RenderPose implements Overlays.Contact {
                 out.add("paper_under", vertexData(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn), packed));
             }
         }
-        if (packed) return out;
+        if (packed) return new Drawn(out,output,true);
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
-        out.add("root_pose",OfflineModel.array(pose[root]));return out;
+        out.add("root_pose",OfflineModel.array(pose[root]));return new Drawn(out,output,false);
     }
     private static JsonElement vertexData(float[] vertices, boolean packed) {
         if (!packed) return OfflineModel.array(vertices);
@@ -358,12 +374,17 @@ final class RenderPose implements Overlays.Contact {
     }
     private String key(int i){return Math.round(rest[i*8]*1e5)+","+Math.round(rest[i*8+1]*1e5)+","+Math.round(rest[i*8+2]*1e5);}
 
-    private SideSurface.Pose cheek(boolean right, int tick) {
+    SideSurface.Pose cheek(boolean right, int tick) {
         if (snuggle == null) snuggle = new SnugglePose(data);
         return snuggle.at(right, tick);
     }
 
-    static JsonObject run(JsonObject request) throws IOException {
+    JsonObject actor(Path assets) throws IOException {
+        if(reviewActor==null)reviewActor=ReviewActor.describe(assets,data.get("id").getAsString(),1);
+        return reviewActor;
+    }
+
+    static JsonObject run(Path assets,JsonObject request) throws IOException {
         if(request.get("op").getAsString().equals("register")){
             String id=Integer.toString(++serial);
             var bytes=new ByteArrayOutputStream();try(var zip=new GZIPOutputStream(bytes)){zip.write(request.toString().getBytes(StandardCharsets.UTF_8));}
@@ -375,6 +396,15 @@ final class RenderPose implements Overlays.Contact {
         var model = registered(id);
         var partner = request.getAsJsonObject("partner");
         if (partner == null) return model.frame(request, null);
+        if (request.has("vertexFormat")) partner.add("vertexFormat", request.get("vertexFormat"));
+        var peer = registered(partner.get("id").getAsString());
+        var stage = request.getAsJsonObject("pairStage");
+        if (stage != null && !stage.get("kind").getAsString().equals("rub"))
+            return ReviewPair.render(assets, model, peer, request, partner, stage);
+        return nuzzle(model, peer, request, partner, stage != null);
+    }
+
+    private static JsonObject nuzzle(RenderPose model, RenderPose peer, JsonObject request, JsonObject partner, boolean worldSpace) {
         if (!request.get("action").getAsString().equals("snuggle_left")
                 || !partner.get("action").getAsString().equals("snuggle_right"))
             throw new IllegalArgumentException("Peer nuzzle requires snuggle_left and snuggle_right");
@@ -383,8 +413,6 @@ final class RenderPose implements Overlays.Contact {
         int tick = (int) Math.floor(request.get("time").getAsDouble() * 20);
         request.addProperty("time", tick / 20f);
         partner.addProperty("time", tick / 20f);
-        if (request.has("vertexFormat")) partner.add("vertexFormat", request.get("vertexFormat"));
-        var peer = registered(partner.get("id").getAsString());
         float scale = request.get("scale").getAsFloat(), peerScale = partner.get("scale").getAsFloat();
         var left = model.cheek(false, tick);
         var right = peer.cheek(true, tick);
@@ -394,10 +422,10 @@ final class RenderPose implements Overlays.Contact {
         float high = Math.max(scale * (model.looseTop / 16 + .25f), peerScale * (peer.looseTop / 16 + .25f));
         var leftFace = WallYield.partnerFace(-1, 0, spacing, leftReach, rightReach, low, high);
         var rightFace = WallYield.partnerFace(1, 0, spacing, rightReach, leftReach, low, high);
-        var frame = model.frame(request, leftFace);
-        frame.add("partnerVertices", peer.frame(partner, rightFace).get("vertices"));
-        frame.addProperty("partnerSpacing", spacing * 16);
-        return frame;
+        var first = model.draw(request, leftFace, null);
+        var second = peer.draw(partner, rightFace, null);
+        if (worldSpace) ReviewPair.place(first.vertices(), new Matrix4f().translate(spacing * 16, 0, 0));
+        return ReviewPair.combine(first, second, worldSpace ? 0 : spacing * 16);
     }
     private static RenderPose registered(String id) throws IOException {
         if(!SOURCES.containsKey(id))throw new IllegalArgumentException("Unknown registered pose: "+id);

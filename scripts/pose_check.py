@@ -22,7 +22,7 @@ def preview_sources():
 def java_sources():
     base = ROOT / 'src/main/java/io/github/longshou/mcyukkuri'
     return [*sorted((base/'pose').rglob('*.java')), *(base/name for name in (
-        'motor/geom/BraidChain.java', 'motor/geom/GeometryJson.java', 'motor/geom/Vec.java',
+        'motor/geom/BraidChain.java', 'motor/geom/ContactStand.java', 'motor/geom/GeometryJson.java', 'motor/geom/Vec.java',
         'body/BodyConstants.java', 'body/BodyWound.java', 'body/HairParts.java', 'body/ModelFingerprint.java',
         'body/SkinDecal.java', 'body/SurfaceMark.java', 'body/WoundInk.java', 'body/WoundKind.java',
         'body/WoundMotion.java', 'body/WoundProfiles.java', 'body/WoundShape.java', 'body/WoundSurface.java',

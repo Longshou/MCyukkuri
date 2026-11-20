@@ -1,5 +1,6 @@
 """Build the live player's list from packaged models, moments, props and sound assets."""
 import json
+from math import ceil
 
 from build_review_catalog import ASSETS, ROOT, read
 from face_usage import resolve
@@ -58,6 +59,56 @@ ATTACHMENT_MOMENTS = {
                         partner=dict(model='reimu', clip='snuggle_right', scale=1)),
 }
 
+def staged_performances(models):
+    clips = {model['id']: model['clips'] for model in models}
+
+    def length(model, clip):
+        return clips[model][clip]['duration']
+
+    def entry(ident, title, first, second, scale, phases):
+        steps, peer_steps = [], []
+        for stance, duration, action, peer_action, face, peer_face, caption in phases:
+            steps.append(dict(clip=action, duration=duration, tempo=1, faces=[[0, face]] if face else [],
+                              stance=stance, caption=caption))
+            peer_steps.append(dict(clip=peer_action, duration=duration, tempo=1,
+                                   faces=[[0, peer_face]] if peer_face else []))
+        return dict(id=ident, title=title, category='performances', tag='look-only', loop=False, model=first,
+                    steps=steps, partner=dict(model=second, scale=scale, loop=False, steps=peer_steps))
+
+    court_cycle = length('marisa', 'sukkiri_pair_loop')
+    pin_cycle = length('alice', 'sukkiri_alice_loop')
+    return [
+        entry('family-feed', '林缘育幼：亲代递喂', 'reimu', 'reimu', .20, [
+            ('feed-approach', 1.8, 'waddle', 'newborn_crawl', None, 'open_smile', '亲代走近'),
+            ('feed-chew', 1.5, 'eat', 'newborn_crawl', 'chewing_closed', 'open_smile', '取食并咀嚼'),
+            ('feed-offer', 1.4, 'feed_child', 'drink', 'satisfied', 'open_smile', '近身递喂'),
+            ('feed-finish', 1.4, 'nuzzle', 'shiawase', 'happy', 'satisfied', '幼体吞咽'),
+            ('feed-finish', 1.1, 'idle', 'idle', 'happy', 'satisfied', '亲子停留'),
+        ]),
+        entry('adult-pairing', '普通配对：回应、蹭脸和绕后', 'marisa', 'reimu', 1, [
+            ('court-greet', 1.4, 'greet', 'greet', 'happy', 'happy', '双方回应'),
+            ('court-aside', .8, 'waddle', 'idle', 'closed_smile', 'closed_smile', '靠向身侧'),
+            ('rub', length('marisa', 'snuggle_left'), 'snuggle_left', 'snuggle_right',
+             'closed_smile', 'closed_smile', '并排蹭脸'),
+            ('court-rear', 1.6, 'waddle', 'idle', 'closed_smile', 'closed_smile', '绕到身后'),
+            ('court-contact', ceil(5 / court_cycle)*court_cycle, 'sukkiri_pair_loop', 'sukkiri_mamu_loop', None, None, '后方接触'),
+            ('court-contact', length('marisa', 'sukkiri_pair_climax'), 'sukkiri_pair_climax', 'sukkiri_mamu_climax',
+             None, None, '配对动作'),
+            ('court-release', length('marisa', 'sukkiri_after_tender'), 'sukkiri_after_tender', 'sukkiri_after_tender',
+             None, None, '分开后的反应'),
+        ]),
+        entry('alice-rapem', '爱丽丝雷普魔：宣言、追击与压制', 'alice', 'reimu', 1, [
+            ('pin-warn', 1, 'anatomy_peni_extend', 'idle', 'sukkiri_manic', 'surprise', '宣言'),
+            ('pin-chase', 3, 'sukkiri_alice_chase', 'flee', 'sukkiri_manic', 'teary', '追击与逃跑'),
+            ('pin-contact', ceil(5 / pin_cycle)*pin_cycle, 'sukkiri_alice_loop', 'sukkiri_held_loop',
+             None, None, '从后方压制'),
+            ('pin-contact', length('alice', 'sukkiri_pair_climax'), 'sukkiri_pair_climax', 'sukkiri_held_climax',
+             None, None, '压制动作与挣扎'),
+            ('pin-release', length('alice', 'sukkiri_after_manic'), 'sukkiri_after_manic', 'droop',
+             None, 'teary', '分离与恢复'),
+        ]),
+    ]
+
 
 def moment_entry_id(ident):
     if ident == 'excited_leak':
@@ -111,6 +162,7 @@ def build_entries(catalog, items):
     for ident, row in ATTACHMENT_MOMENTS.items():
         moment = authored[row['moment']] if 'moment' in row else {}
         entries.append(dict(id=ident, category='performances', tag='look-only', **{**moment, **row}))
+    entries.extend(staged_performances(models))
 
     # Aim below the eyes on the cheek, then at the shipped hair-wound sample site.
     hair_site = read(ASSETS/'yukkuri_presentation/hair_wounds.json')['models']['reimu']['sample_sites']['hair']
