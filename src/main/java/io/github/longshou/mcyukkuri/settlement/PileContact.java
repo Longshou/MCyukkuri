@@ -23,11 +23,10 @@ public final class PileContact {
         long now = entity.level().getGameTime();
         Vec3 stand = pile.standPoint(entity);
         if (near(pile) && !pile.reserve(entity.getUUID(), now)) { SurfaceApproach.halt(entity); contact = 0; return false; }
-        boolean arrived = SurfaceApproach.walk(entity, stand, .65);
-        // A heap or an uneven floor can make the exact last step impossible; a body standing on the spot is close enough.
-        if (!arrived && entity.onGround() && Math.abs(entity.getY() - stand.y) < .6
-                && entity.position().subtract(stand).horizontalDistanceSqr() < .09) { SurfaceApproach.halt(entity); arrived = true; }
-        if (!arrived) { contact = 0; return false; }
+        // Once in contact range, stop steering towards the stand so that facing the heap owns the turn.
+        if (entity.onGround() && Math.abs(entity.getY() - stand.y) < .6
+                && entity.position().subtract(stand).horizontalDistanceSqr() < .09) SurfaceApproach.halt(entity);
+        else if (!SurfaceApproach.walk(entity, stand, .65)) { contact = 0; return false; }
         Vec3 touch = pile.touchPoint();
         float yaw = SurfaceApproach.yaw(entity.position(), touch);
         SurfaceApproach.face(entity, yaw);
