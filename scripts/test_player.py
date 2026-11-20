@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from html.parser import HTMLParser
 import json
-from math import dist
+from math import ceil, floor
 from pathlib import Path
 import struct
 import subprocess
@@ -39,6 +39,46 @@ def stop():
 threading.Thread(target=stop, daemon=True).start()
 serve_review.main()
 """
+
+
+def fitted_sections(model_id):
+    from build_review_catalog import ASSETS
+    from placement_fit import fitted
+
+    model = fitted(ASSETS/f'yukkuri/{model_id}.json')
+    return {part['name']: (part['start'], part['count']) for part in model['parts']
+            if not part.get('anatomy') and not part['name'].startswith('face_')}
+
+
+def surface_depths(vertices, spans, select):
+    """Sample posed triangles on lateral rays spaced 1/20 model unit apart."""
+    hits = {}
+    for start, count in spans:
+        for i in range(start, start + count, 3):
+            a, b, c = vertices[i:i+3]
+            u = [end - origin for end, origin in zip(b, a)]
+            v = [end - origin for end, origin in zip(c, a)]
+            det = u[0]*v[1] - u[1]*v[0]
+            if abs(det) < 1e-8:
+                continue
+            for x in range(ceil(20*min(a[0], b[0], c[0])), floor(20*max(a[0], b[0], c[0])) + 1):
+                for y in range(ceil(20*min(a[1], b[1], c[1])), floor(20*max(a[1], b[1], c[1])) + 1):
+                    dx, dy = x/20 - a[0], y/20 - a[1]
+                    s = (dx*v[1] - dy*v[0])/det
+                    t = (u[0]*dy - u[1]*dx)/det
+                    if s < 0 or t < 0 or s + t > 1:
+                        continue
+                    z = a[2] + s*u[2] + t*v[2]
+                    hits[x, y] = select(z, hits.get((x, y), z))
+    return hits
+
+
+def drawn_spacing(first, second):
+    return min(first[ray] - second[ray] for ray in first.keys() & second.keys())
+
+
+def lateral_vertices(raw, spacing):
+    return [(z, y, x-spacing) for x, y, z, *_ in struct.iter_unpack('<8f', raw)]
 
 
 class Document(HTMLParser):
@@ -307,7 +347,7 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             self.assertGreater(abs(raw[3]) + abs(raw[5]), 12)
             self.assertEqual(self.pose(dict(payload, intensity=sample.get('intensity')))['root_pose'], raw)
 
-    def test_live_attachments_and_partner_contact(self):
+    def test_live_attachments(self):
         from build_review_catalog import ASSETS, read
 
         entries = {entry['id']: entry for entry in self.data['entries']}
@@ -354,30 +394,48 @@ console.log(JSON.stringify(sampleTimeline(track, clips, 0.16, 'auto')));
             grip = self.pose(dict(payload, action='braid_item_hold', held=dict(joint='item')))['held']
             self.assertGreater(grip[0][3], 5)
 
-        entry = entries['parent_child_contact']
+    def test_drawn_peer_nuzzle_contact(self):
+        entries = {e['id']: e for e in self.data['entries']}
+        self.assertNotIn('parent_child_contact', entries)
+        entry = entries['peer_nuzzle']
         spec = entry['partner']
-        with self.actor(entry['model']) as parent, self.actor(spec['model']) as child:
-            for seconds in (.04, .23, .59):
-                mouth = child['actor']['mouth']
-                peer = dict(id=child['id'], action=spec['clip'], time=seconds, scale=spec['scale'],
-                            expression='neutral', contactAnchor=mouth, offset=spec['offset'], yaw=spec['yaw'])
-                kid = self.pose(dict(peer, op='render', vertexFormat='float32le'))
-                x, y, z = kid['contactAnchor']
-                target = [-x, y, spec['offset'][2] - z]
-                payload = dict(op='render', id=parent['id'], action=entry['steps'][0]['clip'], time=seconds,
-                               scale=1, expression='satisfied', contactAnchor=parent['actor']['mouth'],
-                               vertexFormat='float32le')
-                free = self.pose(payload)
-                care = dict(anchor=parent['actor']['mouth'], blend=spec['blend'])
-                pair = dict(payload, care=care, partner=peer)
-                touching = self.pose(pair)
-                self.assertLess(dist(touching['contactAnchor'], target), dist(free['contactAnchor'], target))
-                self.assertLess(dist(touching['contactAnchor'], target), .8)  # Less than .05 blocks.
-                self.assertEqual(touching['partnerVertices'], kid['vertices'])
-                with self.request_pose(pair, 'application/octet-stream') as response:
-                    vertices = b64decode(touching['vertices'])
-                    self.assertEqual(int(response.headers['X-Pose-Partner-Offset']), len(vertices))
-                    self.assertEqual(response.read(), vertices + b64decode(kid['vertices']))
+        parts = fitted_sections(entry['model'])
+        cheek = [parts['rounded_body_surface']]
+        left_clip, right_clip = entry['steps'][0]['clip'], spec['clip']
+        with self.actor(entry['model']) as left, self.actor(spec['model']) as right:
+            duration = left['clips'][left_clip]['duration']
+            for seconds in (0, 1.5, 1.9, duration - .001, duration):
+                clock = seconds % duration
+                face = next(face for start, end, face in left['clips'][left_clip]['faces'] if start <= clock < end)
+                peer = dict(id=right['id'], action=right_clip, scale=spec['scale'], expression=face)
+                payload = dict(op='render', id=left['id'], action=left_clip, time=seconds,
+                               expression=face, scale=1, partner=peer)
+                with self.request_pose(payload, 'application/octet-stream') as response:
+                    split = int(response.headers['X-Pose-Partner-Offset'])
+                    spacing = float(response.headers['X-Pose-Partner-Spacing'])
+                    raw = response.read()
+                first = lateral_vertices(raw[:split], 0)
+                second = lateral_vertices(raw[split:], spacing)
+                all_gap = drawn_spacing(surface_depths(first, parts.values(), min),
+                                        surface_depths(second, parts.values(), max))
+                cheek_gap = drawn_spacing(surface_depths(first, cheek, min), surface_depths(second, cheek, max))
+                print(f'Peer nuzzle {seconds:.3f}s spacing={spacing:.6f} cheek gap={cheek_gap:.6f} '
+                      f'whole mesh gap={all_gap:.6f} model units', flush=True)
+                with self.subTest(seconds=seconds):
+                    self.assertGreaterEqual(all_gap, -1e-5, 'Rendered body, hair or bow penetrates the other actor')
+                    self.assertLessEqual(cheek_gap, .005, 'Rendered cheeks are apart')
+                if seconds == 1.5:
+                    packed = self.pose(dict(payload, vertexFormat='float32le'))
+                    self.assertEqual(spacing, packed['partnerSpacing'])
+                    self.assertEqual(raw, b64decode(packed['vertices']) + b64decode(packed['partnerVertices']))
+                    # Removing the partner faces at the same stand makes the loose meshes intersect.
+                    unpressed = [self.pose(dict(op='render', id=actor['id'], action=clip, time=seconds,
+                                                expression=face, scale=scale), packed=True)
+                                 for actor, clip, scale in ((left, left_clip, 1), (right, right_clip, spec['scale']))]
+                    unpressed_gap = drawn_spacing(surface_depths(lateral_vertices(unpressed[0], 0), parts.values(), min),
+                                                  surface_depths(lateral_vertices(unpressed[1], spacing), parts.values(), max))
+                    print(f'Without partner faces the 1.500s mesh gap is {unpressed_gap:.6f} model units', flush=True)
+                    self.assertLess(unpressed_gap, -.05)
 
     def verdict(self, data, content_type='application/json'):
         body = data if isinstance(data, bytes) else json.dumps(data, ensure_ascii=False).encode('utf-8')

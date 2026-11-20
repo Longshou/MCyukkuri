@@ -42,6 +42,8 @@ final class RenderPose implements Overlays.Contact {
     /** Limbs that give way to the request's "wall" (faces around the body axis in blocks, after its yaw), built on first use. */
     private WallYield wallYield;
     private boolean wallYieldBuilt;
+    private SnugglePose snuggle;
+    private float looseTop;
     RenderPose(JsonObject request) {
         data=request.getAsJsonObject("model");
         if(request.has("fit")&&!request.get("fit").isJsonNull())Splice.fit(data,request.getAsJsonObject("fit"),hash->true);
@@ -69,6 +71,7 @@ final class RenderPose implements Overlays.Contact {
             var p=raw.getAsJsonObject();String name=p.get("name").getAsString(),group=OfflineModel.group(name);
             if(group.equals("body")){ranges.add(start(p));ranges.add(count(p));}
             if(group.equals("hair")||group.equals("braid")||name.contains("back_lock"))overSkin.set(start(p),start(p)+count(p));
+            if(WallYield.loose(name))for(int i=start(p);i<start(p)+count(p);i++)looseTop=Math.max(looseTop,rest[i*8+1]);
         }
         body=Skin.retentionFrame(rest,ranges.stream().mapToInt(Integer::intValue).toArray());
         retain=(index,point)->Skin.deformRetention(point,retention,body,overSkin.get(index));
@@ -103,7 +106,7 @@ final class RenderPose implements Overlays.Contact {
         var p=raw.getAsJsonObject();if(OfflineModel.group(p.get("name").getAsString()).equals("body"))for(int i=start(p);i<start(p)+count(p);i++)min=Math.min(min,skin(i).y);
     }return min;}
     public Vector3f mouth(){return world[root].transformPosition(new Vector3f(anchor));}
-    private JsonObject frame(JsonObject request){
+    private JsonObject frame(JsonObject request, WallYield.Face partnerFace){
         String action=request.get("action").getAsString();float t=request.get("time").getAsFloat();
         for(int i=0;i<pose.length;i++)System.arraycopy(defaults[i],0,pose[i],0,9);
         clips.get(action).sample(t,pose);
@@ -143,15 +146,19 @@ final class RenderPose implements Overlays.Contact {
         float scale=request.get("scale").getAsFloat();float[] output=new float[rest.length];
         // A wall beside the body: the entity's yaw turns the output, and with "yield" the loose parts give way as in the game.
         var wall=request.has("wall")&&!request.get("wall").isJsonNull()?request.getAsJsonObject("wall"):null;
-        var faces=new ArrayList<WallYield.Face>();Matrix4f turn=null;boolean yield=false;
+        var faces=new ArrayList<WallYield.Face>();Matrix4f turn=null;boolean yield=partnerFace!=null;
+        if(partnerFace!=null)faces.add(partnerFace);
         if(wall!=null){
             turn=new Matrix4f().rotateY((float)Math.toRadians(wall.get("yaw").getAsFloat()));yield=wall.get("yield").getAsBoolean();
             for(var raw:wall.getAsJsonArray("faces")){var f=Rig.floats(raw.getAsJsonArray());faces.add(new WallYield.Face(f[0],f[1],f[2],f[3],f[4]));}
+        }
+        if(wall!=null||partnerFace!=null){
             if(!wallYieldBuilt){wallYieldBuilt=true;var parts=data.getAsJsonArray("parts");int n=parts.size();
                 var names=new String[n];var starts=new int[n];var counts=new int[n];
                 for(int i=0;i<n;i++){var p=parts.get(i).getAsJsonObject();names[i]=p.get("name").getAsString();starts[i]=start(p);counts[i]=count(p);}
                 wallYield=WallYield.of(data.get("id").getAsString(),bones,bindings,rest,names,starts,counts);}
-            if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,new Matrix4f(turn).scale(scale/16),faces,kind->false);else wallYield.clear();}
+            var wallFrame=turn==null?new Matrix4f():new Matrix4f(turn);
+            if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,wallFrame.scale(scale/16),faces,kind->false);else wallYield.clear();}
         }
         boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();
         List<String> accPrefixes=new ArrayList<>();
@@ -205,9 +212,9 @@ final class RenderPose implements Overlays.Contact {
         }
         if (request.has("leakStream") && request.get("leakStream").getAsBoolean())
             out.add("leak_stream", vertexData(leakStream(output, scale), packed));
-        for (String field : new String[]{"outlet", "contactAnchor"}) if (request.has(field)) {
-            var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray(field)))).mul(scale);
-            out.add(field, OfflineModel.array(new float[]{point.x, point.y, point.z}));
+        if (request.has("outlet")) {
+            var point = world[root].transformPosition(new Vector3f(Rig.floats(request.getAsJsonArray("outlet")))).mul(scale);
+            out.add("outlet", OfflineModel.array(new float[]{point.x, point.y, point.z}));
         }
         if (request.has("held")) {
             var held = request.getAsJsonObject("held");
@@ -322,6 +329,12 @@ final class RenderPose implements Overlays.Contact {
         for(int i=start;i<end;i++){var n=new Vector3f(groups.get(key(i)));if(n.length()>1e-8f){n.normalize();int k=i*8;var blended=new Vector3f(output[k+5],output[k+6],output[k+7]).lerp(n,amount);if(blended.length()>1e-8f){blended.normalize();output[k+5]=blended.x;output[k+6]=blended.y;output[k+7]=blended.z;}}}
     }
     private String key(int i){return Math.round(rest[i*8]*1e5)+","+Math.round(rest[i*8+1]*1e5)+","+Math.round(rest[i*8+2]*1e5);}
+
+    private SideSurface.Pose cheek(boolean right, int tick) {
+        if (snuggle == null) snuggle = new SnugglePose(data);
+        return snuggle.at(right, tick);
+    }
+
     static JsonObject run(JsonObject request) throws IOException {
         if(request.get("op").getAsString().equals("register")){
             String id=Integer.toString(++serial);
@@ -333,17 +346,29 @@ final class RenderPose implements Overlays.Contact {
         if(request.get("op").getAsString().equals("release")){MODELS.remove(id);SOURCES.remove(id);return new JsonObject();}
         var model = registered(id);
         var partner = request.getAsJsonObject("partner");
-        if (partner == null) return model.frame(request);
+        if (partner == null) return model.frame(request, null);
+        if (!request.get("action").getAsString().equals("snuggle_left")
+                || !partner.get("action").getAsString().equals("snuggle_right"))
+            throw new IllegalArgumentException("Peer nuzzle requires snuggle_left and snuggle_right");
 
+        // MD-28's established level rub: the game draws both actors at the same published tick.
+        int tick = (int) Math.floor(request.get("time").getAsDouble() * 20);
+        request.addProperty("time", tick / 20f);
+        partner.addProperty("time", tick / 20f);
         if (request.has("vertexFormat")) partner.add("vertexFormat", request.get("vertexFormat"));
-        var peer = registered(partner.get("id").getAsString()).frame(partner);
-        var target = new Vector3f(Rig.floats(peer.getAsJsonArray("contactAnchor")))
-                .rotateY((float) Math.toRadians(partner.get("yaw").getAsFloat()))
-                .add(new Vector3f(Rig.floats(partner.getAsJsonArray("offset"))))
-                .div(request.get("scale").getAsFloat());
-        request.getAsJsonObject("care").add("target", OfflineModel.array(new float[]{target.x, target.y, target.z}));
-        var frame = model.frame(request);
-        frame.add("partnerVertices", peer.get("vertices"));
+        var peer = registered(partner.get("id").getAsString());
+        float scale = request.get("scale").getAsFloat(), peerScale = partner.get("scale").getAsFloat();
+        var left = model.cheek(false, tick);
+        var right = peer.cheek(true, tick);
+        float spacing = (float) SideSurface.meet(left, scale / 16d, right, peerScale / 16d, 0, 0).separation();
+        double leftReach = left.reach(false) * scale / 16, rightReach = right.reach(true) * peerScale / 16;
+        float low = -Math.max(scale, peerScale) / 4;
+        float high = Math.max(scale * (model.looseTop / 16 + .25f), peerScale * (peer.looseTop / 16 + .25f));
+        var leftFace = WallYield.partnerFace(-1, 0, spacing, leftReach, rightReach, low, high);
+        var rightFace = WallYield.partnerFace(1, 0, spacing, rightReach, leftReach, low, high);
+        var frame = model.frame(request, leftFace);
+        frame.add("partnerVertices", peer.frame(partner, rightFace).get("vertices"));
+        frame.addProperty("partnerSpacing", spacing * 16);
         return frame;
     }
     private static RenderPose registered(String id) throws IOException {

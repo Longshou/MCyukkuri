@@ -68,6 +68,7 @@ class Handler(SimpleHTTPRequestHandler):
                 headers.append(('X-Pose-Emote', quote(result['emote'], safe='')))
             if 'partnerVertices' in result:
                 headers.append(('X-Pose-Partner-Offset', str(len(vertices))))
+                headers.append(('X-Pose-Partner-Spacing', str(result['partnerSpacing'])))
                 vertices += b64decode(result['partnerVertices'])
             attachments = {key: result[key] for key in ('held', 'hat') if key in result}
             if attachments:

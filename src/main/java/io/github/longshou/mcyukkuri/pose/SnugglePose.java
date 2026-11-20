@@ -28,12 +28,17 @@ public final class SnugglePose {
     private final Clips.Clip left, right;
     private final SideSurface.Pose[] leftFrames, rightFrames;
 
-    private SnugglePose(String id) {
+    private static JsonObject load(String id) {
         byte[] bytes = resource("yukkuri/" + id + ".json");
         var data = json(bytes);
         var fit = Revisions.FIT.getAsJsonObject(id);
         if (fit != null) Splice.fit(data, fit, ModelFingerprint.of(bytes)::matches);
         Splice.revision(data, Revisions.MOTION.getAsJsonObject(id));
+        return data;
+    }
+
+    /** Also used by the offline player, whose registered model is already fitted and revised. */
+    public SnugglePose(JsonObject data) {
         bones = Rig.bones(data.getAsJsonArray("bones"));
         var clips = data.getAsJsonObject("clips");
         left = Clips.read(clips.getAsJsonObject("snuggle_left"), bones.length);
@@ -73,10 +78,10 @@ public final class SnugglePose {
     }
 
     public static SideSurface.Pose at(String model, boolean right, int tick) {
-        return MODELS.computeIfAbsent(model, SnugglePose::new).frame(right, tick);
+        return MODELS.computeIfAbsent(model, id -> new SnugglePose(load(id))).at(right, tick);
     }
 
-    private synchronized SideSurface.Pose frame(boolean rightSide, int tick) {
+    public synchronized SideSurface.Pose at(boolean rightSide, int tick) {
         var frames = rightSide ? rightFrames : leftFrames;
         int i = tick % frames.length;
         if (frames[i] != null) return frames[i];

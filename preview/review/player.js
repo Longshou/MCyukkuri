@@ -22,6 +22,7 @@ async function pose(payload, packed = false) {
     const attachments = payload.held || payload.hat ? JSON.parse(response.headers.get('X-Pose-Attachments')) : {};
     return {vertices: new Float32Array(bytes, 0, mainLength / 4),
             partnerVertices: payload.partner ? new Float32Array(bytes, mainLength) : undefined,
+            partnerSpacing: payload.partner ? Number(response.headers.get('X-Pose-Partner-Spacing')) : undefined,
             emote: decodeURIComponent(response.headers.get('X-Pose-Emote')), ...attachments};
 }
 
@@ -61,13 +62,10 @@ function setMap(material, map) {
 async function createPartner(scene, data, spec) {
     const model = data.models[spec.model];
     const scale = model.scale * spec.scale;
-    const {id, clips, actor} = await registerActor(spec.model, scale);
+    const {id, clips} = await registerActor(spec.model, scale);
     const {track} = buildTimeline(spec, clips, data.momentClips);
     const material = actorMaterial();
     const placed = new THREE.Group();
-    const yaw = spec.yaw * Math.PI / 180;
-    placed.position.set(-spec.offset[0], spec.offset[1], spec.offset[2]);
-    placed.rotation.y = -yaw;
     scene.add(placed);
     const mesh = actorMesh(placed, material);
     const texture = actorTexture(model);
@@ -76,12 +74,11 @@ async function createPartner(scene, data, spec) {
         sample(seconds) {
             const sample = sampleTimeline(track, clips, seconds, 'auto');
             const face = textureFace(data, model, sample.face, seconds);
-            const payload = {id, action: sample.clip,
-                time: sample.time, intensity: sample.intensity, expression: face, scale,
-                contactAnchor: actor.mouth, offset: spec.offset, yaw: spec.yaw};
+            const payload = {id, action: sample.clip, expression: face, scale};
             return {payload, map: texture(face)};
         },
-        draw(vertices, map) {
+        draw(vertices, spacing, map) {
+            placed.position.x = spacing;
             updateMesh(mesh, vertices);
             setMap(material, map);
         }
@@ -201,7 +198,7 @@ async function playEntry(data, entry) {
     timeline.max = duration;
     const texture = actorTexture(actor);
 
-    let azimuth = partner ? Math.PI / 2 : .45, elevation = .15;
+    let azimuth = .45, elevation = .15;
     let expression = 'auto', time = 0, elapsed = 0, lastTime, previous = performance.now();
     let playing = false, pending = false, dirty = true, revision = 0;
     async function drawFrame(seconds, elapsed, version) {
@@ -223,10 +220,7 @@ async function playEntry(data, entry) {
         if (hat) payload.hat = {...hat.fit, accessories: proportions.paperAccessories,
             outline: covered ? hat.outline : undefined};
         const peer = partner && partner.sample(seconds);
-        if (peer) {
-            payload.partner = peer.payload;
-            payload.care = {anchor: proportions.mouth, blend: entry.partner.blend};
-        }
+        if (peer) payload.partner = peer.payload;
         const rich = streamVisible || covered;
         if (rich) payload.vertexFormat = 'float32le';
         const [frame, map, sheets, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, peer?.map]);
@@ -234,7 +228,8 @@ async function playEntry(data, entry) {
         updateMesh(mesh, rich ? floatVertices(frame.vertices) : frame.vertices);
         if (held) held.set(frame.held);
         if (hat) hat.set(frame.hat);
-        if (partner) partner.draw(rich ? floatVertices(frame.partnerVertices) : frame.partnerVertices, peerMap);
+        if (partner) partner.draw(rich ? floatVertices(frame.partnerVertices) : frame.partnerVertices,
+            frame.partnerSpacing, peerMap);
         if (sheets) {
             for (const [index, field] of ['paper_top', 'paper_under'].entries()) {
                 const sheet = sheets[index];
@@ -359,9 +354,10 @@ async function playEntry(data, entry) {
             }
         }
         speech?.sync(elapsed, playing, Number(speed.value));
-        if (!pending && time !== lastTime) {
+        const sampleTime = partner ? Math.floor(time * 20) / 20 : time;
+        if (!pending && sampleTime !== lastTime) {
             pending = true;
-            drawFrame(time, elapsed, revision).then(() => { pending = false; }).catch(error => {
+            drawFrame(sampleTime, elapsed, revision).then(() => { pending = false; }).catch(error => {
                 setPlaying(false);
                 $('play').disabled = timeline.disabled = true;
                 $('status').textContent = '姿态读取失败。' + error.message;

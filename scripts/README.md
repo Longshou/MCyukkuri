@@ -131,7 +131,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `<py> scripts/build_preview_hub.py` 生成放映室首页、实时播放器目录、模型／物品缩略图和声音索引。`--render` 另行重建专项图，部分专项依赖原版资源。目录使用当前包内模型、片段、物品和声音。`build_preview_props.py` 只读当前打包网格和贴图。用 `<py> scripts/serve_review.py --port 8766` 启动本机服务，手动打开输出地址。播放器使用 JDK 21 的纯姿态核心。界面和审阅记录见 [预览说明](../preview/README.md)。
 
-`build_player_entries.py` 的放映室演出行可设 `held`、`hat` 和 `partner`。`held.mesh` 取运行道具编号，`joint` 取 `mouth`（嘴）或 `item`（当前片段的 `props.item` 握点）。`hat.mesh` 取运行帽子编号，`form` 取 `hat_vessel.json` 中有尺寸倍率的形态，`damage` 为游戏破损等级（0 完整、1 磨损、2 撕裂、3 拼接）。`partner` 指定第二个演员的 `model`、`clip`、相对模型尺寸 `scale`、模型单位偏移 `offset`（X、Y、Z）、朝向 `yaw`（度）和贴合权重 `blend`（0–1）。两个演员按同一时刻取姿态，主角的照料姿态以第二个演员当时的嘴部锚点为目标。
+`build_player_entries.py` 的放映室演出行可设 `held`、`hat` 和 `partner`。`held.mesh` 取运行道具编号，`joint` 取 `mouth`（嘴）或 `item`（当前片段的 `props.item` 握点）。`hat.mesh` 取运行帽子编号，`form` 取 `hat_vessel.json` 中有尺寸倍率的形态，`damage` 为游戏破损等级（0 完整、1 磨损、2 撕裂、3 拼接）。并排蹭的主角播放 `snuggle_left`，`partner` 用 `model`、`clip`（`snuggle_right`）和相对尺寸 `scale` 指定另一侧。两只同高同向，按游戏同一个 tick 取姿态；核心逐帧解析脸颊间距，并让松散部位避开对方的侧面。
 
 `<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果。
 
