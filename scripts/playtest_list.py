@@ -25,6 +25,8 @@ SCENE_NUMBER = re.compile(r'(?<![A-Za-z0-9_/-])(?<![A-Za-z0-9_]\.)([A-Z]{1,2})-?
                           r'(?![A-Za-z0-9_/-]|\.[A-Za-z0-9_])')
 PLAY_DIR = Path('.local/experimental-map/play-museum')
 WATCH_MAX = 40
+APPEARANCE_TITLE = re.compile(r'^(?:美术|放映室)')
+APPEARANCE_POINTERS = ('待看页', '待你查看', '放映室')
 
 
 def main_root():
@@ -84,6 +86,14 @@ def todo_items(text):
 def status_of(text):
     hits = [(text.find(s), s) for s in STATUSES if s in text]
     return min(hits)[1] if hits else None
+
+
+def appearance_only(item):
+    """Whether an item is pure appearance, judged on the preview inbox (see lead.md) and never by playing:
+    a 美术…／放映室… title, or text that points the user at 待看页／待你查看／放映室 for its verdict."""
+    title, text = item
+    label = text.split('：', 1)[0]
+    return bool(APPEARANCE_TITLE.match(label) or APPEARANCE_TITLE.match(title)) or any(p in text for p in APPEARANCE_POINTERS)
 
 
 def norm(s):
@@ -230,6 +240,8 @@ def build(since, until):
         if hit is None or status_of(hit[1]) not in RANK:
             skipped.append(item[0])
             continue
+        if appearance_only(hit):
+            continue
         if hit in items:
             continue
         items.append(hit)
@@ -268,6 +280,8 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
     rows = []
     by_scene = {}
     for item in current:
+        if appearance_only(item):
+            continue
         _, text = item
         status = status_of(text)
         if status not in MENU:
