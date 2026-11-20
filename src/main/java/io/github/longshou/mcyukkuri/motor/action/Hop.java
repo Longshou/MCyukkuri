@@ -61,8 +61,9 @@ public final class Hop implements Action {
     static final int SETTLE = 10;
     private static final double TOUCH = .05;
     /** How far (blocks) a carried young may graze a block once its carrier's hop is under way: the arc was admitted with it
-     *  clear, and the frames it is flown in differ from the forecast ones by less than this. Invisible. */
-    private static final double HELD_GIVE = .01;
+     *  clear, and the rocking hull it is flown in differs from the forecast frames (a carried young rose out of a bank top by 0.02
+     *  in a run). The body's own contact tolerance, so the flight and its carried young are held to the same reading. Invisible. */
+    private static final double HELD_GIVE = TOUCH;
     private Vec3 target;
     private Vec3 runUp;
     private SurfaceHost seatHost;
