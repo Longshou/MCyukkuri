@@ -2499,16 +2499,26 @@ def _verify_territory(window):
     if not departure:
         return 'Flandre did not leave the nest territory'
     pad_x, pad_z = map(int, departure.groups())
-    samples = []
-    for match in re.finditer(r'MCYGEOMETRY (\{[^\n]+\})', window[departure.end():]):
-        row = json.loads(match[1])
+    roof = None
+    settled = False
+    address = (rf'\[home\] flandre #\d+ uuid={intruder} [^\n]*? (?:assigned kind=roof [^\n]*?'
+               r'BlockPos\{x=(-?\d+), y=(-?\d+), z=(-?\d+)\}|released home=|assigned kind=\w+)')
+    for match in re.finditer(address + r'|MCYGEOMETRY (\{[^\n]+\})', window):
+        if match[4] is None:
+            roof = tuple(map(int, match.groups()[:3])) if match[1] is not None else None
+            continue
+        if match.start() < departure.end():
+            continue
+        row = json.loads(match[4])
         if row['uuid'] == intruder:
-            x, _, z, x2, _, z2 = row['box']
-            if math.dist(((x+x2)/2, (z+z2)/2), (pad_x+.5, pad_z+.5)) <= 10:
+            x, y, z, x2, _, z2 = row['box']
+            feet = ((x+x2)/2, y, (z+z2)/2)
+            if math.hypot(feet[0]-pad_x-.5, feet[2]-pad_z-.5) <= 10:
                 return 'Flandre returned to the foreign territory after leaving'
-            samples.append(row['supported'])
-    if not samples or not samples[-1]:
-        return 'Flandre must finish supported outside the foreign territory'
+            if row['supported'] and tuple(map(math.floor, feet)) == roof:
+                settled = True
+    if not settled:
+        return 'Flandre must reach her claimed alternative roof on supported feet'
     pushed = re.search(rf'\[predator\] remilia #\d+ uuid={_uuid_text(_territory, "resident")} [^\n]*?'
                        r'leftovers pushed off pad=[^\n]*? remains=(\S+)', window)
     if pushed:

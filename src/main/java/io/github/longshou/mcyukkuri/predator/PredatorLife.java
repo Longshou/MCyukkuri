@@ -1415,18 +1415,24 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             case SCAVENGE -> corpse;
             default -> null;
         };
-        // Allow one block beyond the route for a running body to enter during the next tick.
+        // A falling or flying warning target can enter the stroke from beyond the nearby-body search.
+        if (territoryTarget != null && territoryTarget != contact && territoryTarget.level() == animal.level() && territoryTarget.isAlive()
+                && !territoryTarget.isSpectator() && !clearsBody(moving, travel, territoryTarget)) return false;
         for (var other : level().getEntities(animal, box.expandTowards(step).inflate(1),
-                body -> body != contact && !body.isSpectator() && body.isAlive()
+                body -> body != territoryTarget && body != contact && !body.isSpectator() && body.isAlive()
                         && (body instanceof LivingEntity || body instanceof RemainsEntity))) {
-            var obstacle = sweptBox(other.getBoundingBox());
-            if (!SweptBody.clear(moving, travel, obstacle, Vec.ZERO)
-                    || !SweptBody.clear(moving, travel, obstacle, Floor.vec(other.getDeltaMovement()))) return false;
-            // A player's accepted movement packets can move them even when their server velocity is zero.
-            if (other instanceof Player && !SweptBody.clear(moving, travel, obstacle,
-                    Floor.vec(other.position().subtract(other.getPosition(0))))) return false;
+            if (!clearsBody(moving, travel, other)) return false;
         }
         return true;
+    }
+
+    private static boolean clearsBody(SweptBody.Box moving, Vec travel, Entity other) {
+        var obstacle = sweptBox(other.getBoundingBox());
+        if (!SweptBody.clear(moving, travel, obstacle, Vec.ZERO)
+                || !SweptBody.clear(moving, travel, obstacle, Floor.vec(other.getDeltaMovement()))) return false;
+        // A player's accepted movement packets can move them even when their server velocity is zero.
+        return !(other instanceof Player) || SweptBody.clear(moving, travel, obstacle,
+                Floor.vec(other.position().subtract(other.getPosition(0))));
     }
 
     private static SweptBody.Box sweptBox(AABB box) {
