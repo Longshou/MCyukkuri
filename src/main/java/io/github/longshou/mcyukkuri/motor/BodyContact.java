@@ -44,7 +44,7 @@ public final class BodyContact {
                 || body.family().courting(peer) || peer.family().courting(body)
                 || peer.motor().current() instanceof Grab grip && grip.target() == body
                 || peer.woundComfort().helping(body) || body.woundComfort().helping(peer)
-                || body.sharesNearbyNest(peer);
+                || body.life().isSleeping() && body.sharesNearbyNest(peer);
     }
 
     private double share(YukkuriEntity peer) {

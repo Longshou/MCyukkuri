@@ -132,6 +132,12 @@ public interface YukkuriView {
     float peerRubSpacing();
     int carePartnerId();
     BlockPos nearbyAssignedNest();
+    default boolean inNestSleepPose() {
+        return switch (getBehaviorId()) {
+            case Behaviors.SLEEP_ENTER, Behaviors.SLEEP, Behaviors.WAKE -> true;
+            default -> false;
+        };
+    }
     default boolean sharesNearbyNest(YukkuriView peer) {
         var nest = nearbyAssignedNest();
         return nest != null && nest.equals(peer.nearbyAssignedNest());
