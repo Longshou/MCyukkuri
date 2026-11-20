@@ -456,8 +456,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override public void move(MoverType type, Vec3 delta) {
         Vec3 from = position();
         super.move(type, type == MoverType.SELF ? Motor.groundTravel(this, delta, xxa != 0 || zza != 0 || isCrawling()) : delta);
-        if (!level().isClientSide && type == MoverType.SELF)
+        if (!level().isClientSide && type == MoverType.SELF) {
+            motor.contact.finishMove();
             motor.stride.resolved(tickCount, delta.x, delta.y, delta.z, getX() - from.x, getY() - from.y, getZ() - from.z);
+        }
     }
 
     /** Action sweeps and contact motion have already been solved by the motor. */

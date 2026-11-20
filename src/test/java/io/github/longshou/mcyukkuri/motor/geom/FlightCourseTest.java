@@ -12,7 +12,7 @@ class FlightCourseTest {
         var step = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
                 Double.isFinite(FlightCourse.landingAfter(x, y, z, x + driftX, z + driftZ, drop,
                         (px, pz) -> px >= -348 ? 64 : -60)));
-        assertTrue(step.choose(-.015, 0, inertia, 0));
+        assertTrue(step.choose(0, -.015, 0, inertia, 0));
         assertEquals(0, step.x());
         assertNotEquals(0, step.z());
         assertTrue(x + (step.x() + inertia) / (1 - Ballistic.AIR_DRAG) >= -348);
@@ -24,19 +24,19 @@ class FlightCourseTest {
         var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
                 Double.isFinite(FlightCourse.landingAfter(.99, 64, .99, .99 + driftX, .99 + driftZ, drop,
                         (x, z) -> x < 1 && z < 1 ? 64 : floor[0])));
-        assertTrue(shove.choose(.03, .03, 0, 0));
+        assertTrue(shove.choose(0, .03, .03, 0, 0));
         var right = new FlightCourse.Direction(.03, .03).rotate(Math.toDegrees(.5));
         assertEquals(right.x(), shove.x(), 1e-12);
         assertEquals(right.z(), shove.z(), 1e-12);
         floor[0] = -60;
-        assertFalse(shove.choose(.03, .03, 0, 0));
+        assertFalse(shove.choose(1, .03, .03, 0, 0));
         assertEquals(0, shove.x());
         assertEquals(0, shove.z());
     }
 
     @Test void positiveXWallAndPositiveZDropLeaveTheNegativeZProjectionOpen() {
         var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) -> dx <= 0 && driftZ <= 0);
-        assertTrue(shove.choose(.03, 0, 0, 0));
+        assertTrue(shove.choose(0, .03, 0, 0, 0));
         assertEquals(0, shove.x());
         assertEquals(-.03 * Math.sin(.5), shove.z(), 1e-12);
     }
@@ -47,8 +47,26 @@ class FlightCourseTest {
         assertTrue(FlightCourse.clearsNeighbour(true, .1, 0, 0, -.03));
         var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) ->
                 FlightCourse.clearsNeighbour(true, 0, -.2, dx, dz));
-        assertTrue(shove.choose(.03, 0, 0, 0));
+        assertTrue(shove.choose(0, .03, 0, 0, 0));
         assertTrue(shove.x() > 0 && shove.z() < 0);
+    }
+
+    @Test void repeatedRecoilCallbacksShareOneBudgetAcrossDirectionsAndRestartNextTick() {
+        boolean[] open = {false};
+        var shove = new FlightCourse.Shove((dx, dz, driftX, driftZ) -> open[0]);
+        double cap = SeparationStep.SHOVE * SeparationStep.MAX_YIELD;
+        assertFalse(shove.choose(10, cap, 0, 0, 0));
+        open[0] = true;
+        double total = 0;
+        for (int i = 1; i <= 20; i++) {
+            double strength = Math.min(i * .01, .05);
+            shove.choose(10, i % 2 == 0 ? -strength : 0, i % 2 == 0 ? 0 : strength, 0, 0);
+            total += Math.hypot(shove.x(), shove.z());
+            assertEquals(strength, total, 1e-12);
+        }
+        assertTrue(shove.choose(11, 2 * cap, 0, 0, 0));
+        assertEquals(cap, Math.hypot(shove.x(), shove.z()), 1e-12);
+        assertTrue(shove.remaining(11, 2 * cap) <= 1e-12);
     }
 
     @Test void crossingTheThreatIsRejectedEvenWithADistantEndpoint() {

@@ -43,18 +43,42 @@ public final class FlightCourse {
         private static final double COS = Math.cos(.5), SIN = Math.sin(.5);
         private final ShoveProbe probe;
         private double x, z;
+        private long tick = Long.MIN_VALUE;
+        private double spent;
 
         public Shove(ShoveProbe probe) { this.probe = probe; }
         public double x() { return x; }
         public double z() { return z; }
 
-        public boolean choose(double dx, double dz, double vx, double vz) {
+        public boolean choose(long now, double dx, double dz, double vx, double vz) {
+            if (tick != now) {
+                tick = now;
+                spent = 0;
+            }
+            double length = Math.hypot(dx, dz);
+            double remaining = remaining(now, length);
+            if (remaining <= 0) {
+                x = z = 0;
+                return false;
+            }
+            if (length > remaining) {
+                dx *= remaining / length;
+                dz *= remaining / length;
+            }
             double rx = dx * COS - dz * SIN, rz = dx * SIN + dz * COS;
             double lx = dx * COS + dz * SIN, lz = -dx * SIN + dz * COS;
             if (tryStep(rx, rz, vx, vz) || tryStep(lx, lz, vx, vz)
-                    || tryAxes(rx, rz, dx, dz, vx, vz) || tryAxes(lx, lz, dx, dz, vx, vz)) return true;
+                    || tryAxes(rx, rz, dx, dz, vx, vz) || tryAxes(lx, lz, dx, dz, vx, vz)) {
+                spent += Math.min(remaining, Math.hypot(x, z));
+                return true;
+            }
             x = z = 0;
             return false;
+        }
+
+        /** All callbacks together get at most the strongest incident impulse this tick. */
+        public double remaining(long now, double strength) {
+            return Math.min(strength, SeparationStep.SHOVE * SeparationStep.MAX_YIELD) - (now == tick ? spent : 0);
         }
 
         private boolean tryAxes(double x, double z, double awayX, double awayZ, double vx, double vz) {
