@@ -2604,12 +2604,11 @@ add(_pad_cleanup, 'grove', '清理枝巢：把空遗体推下树', '清理枝巢
     '看蕾米莉亚从枝上绕到空遗体后面，把同一具遗体推出巢垫，遗体落到树下地面',
     '约半分钟', [
         *_grove_pad,
+        remains(0, -.4, 'pad_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
         yk('remilia', 1, 0, 'pad_cleaner', dy=8, lead=True, nutrition=100, energy=100,
            uuid=uid(_pad_cleanup, 'resident')),
         f'yukkuri scenario home {sel("pad_cleaner")} ~ ~8 ~',
     ],
-    late=[Retry(remains(0, -.4, 'pad_leftovers', dy=8.15, food=0, scale=.4, dimensions=(.30, .138)),
-                sel('pad_cleaner'), first=1, tries=1)],
     spot='spawn', vantage=(6, 8, 145, -25), env={'time': 'dawn'},
     reads=[('读巢主', f'yukkuri status {sel("pad_cleaner")} raw')],
     smoke=dict(ticks=650, expect=[], forbid=[], verify=_verify_pad_cleanup))
@@ -2658,7 +2657,7 @@ add(_grove_forage, 'grove', '林间采草：绕开目击捕食种的地方', '�
         block(8, 8, 5, 'mcyukkuri:predator_nest'),
         block(7, 7, 5, 'minecraft:oak_log[axis=x]'),
         box(7, 9, 4, 8, 9, 5, 'minecraft:oak_leaves[persistent=true]'),
-        yk('remilia', 7, 5, 'grass_predator', dy=8, yaw=0, nutrition=100, energy=34, uuid=uid(_grove_forage, 'predator')),
+        yk('remilia', 8, 5.33, 'grass_predator', dy=8.15, yaw=0, nutrition=100, energy=34, uuid=uid(_grove_forage, 'predator')),
         f'yukkuri scenario home {sel("grass_predator")} ~8 ~8 ~5',
         yk('reimu', 8, 13, 'grass_forager', yaw=180, nutrition=35, lead=True, uuid=_grove_forager,
            kin=kin_of(Partner=_grove_mate), also=('grass_family',)),
@@ -2667,7 +2666,8 @@ add(_grove_forage, 'grove', '林间采草：绕开目击捕食种的地方', '�
         f'yukkuri scenario community {sel("grass_mate")} {sel_all("grass_family")}',
         *[f'yukkuri scenario home {sel(name)} ~12 ~ ~17' for name in ('grass_forager', 'grass_mate')],
     ],
-    late=[Retry(block(x, 0, z, 'minecraft:short_grass'), sel('grass_forager'), first=80, tries=1)
+    # The family samples sightings every 100 ticks; the late function starts at tick 40.
+    late=[Retry(block(x, 0, z, 'minecraft:short_grass'), sel('grass_forager'), first=161, tries=1)
           for x, z in (_grove_unsafe, _grove_safe)],
     spot='spawn', vantage=(2, 20, -152, 0), env={'time': 'dawn'},
     reads=[('读灵梦', f'yukkuri status {sel("grass_forager")} raw'),
