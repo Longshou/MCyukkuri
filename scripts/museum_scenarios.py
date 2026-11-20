@@ -7182,12 +7182,15 @@ for _sid, _at, _dx, _dz in (('home_greedy', 360, 7.7, 4.6), ('den_family', 6000,
         _spec.update(verify=_home_greedy_retreat, verify_trace=True)
 
 _warm_parent = _uuid_text('indep_near', 'warm_parent')
+_warm_teen = _uuid_text('indep_near', 'warm_teen')
 _smoke('indep_near', 7200, [
     r'\[independence\][^\n]* farewell started',
     r'\[independence\][^\n]* farewell exchange [^\n]* attachment=85 parentAttachment=85 nuzzleTicks=[1-9]\d* lookBacks=2\b',
     r'\[independence\][^\n]* farewell exchange [^\n]* attachment=20 parentAttachment=20 nuzzleTicks=0 lookBacks=0\b',
     r'\[independence\][^\n]* see off answer [^\n]* attached=true\b',
     r'\[independence\][^\n]* see off answer [^\n]* attached=false\b',
+    rf'\[independence\][^\n]*uuid={_warm_teen} [^\n]* farewell rub started parent={_warm_parent} ticks=75\b',
+    rf'\[independence\][^\n]*uuid={_warm_teen} [^\n]* farewell rub released parent={_warm_parent} ticks=75 planned=75\b',
     r'\[independence\][^\n]* looked back [^\n]* count=2/2\b',
     rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course begun kind=parting\b',
     rf'\[emotion\][^\n]*uuid={_warm_parent} [^\n]* course goal behavior kind=parting stage=peak behavior=parting_gaze\b',

@@ -311,8 +311,13 @@ public final class IndependenceLife extends Goal {
         if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
         // Close the last gap while the parent answers. The waiting window ends even if the parent stays busy.
         if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
-            if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35);
+            // The parent may still be walking home. Retire a stand that can no longer bring the bodies into contact.
+            double reach = touch - SurfaceApproach.ARRIVAL;
+            if (target != null && target.distanceToSqr(parent.position()) > reach * reach) target = progress = null;
+            if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35
+                    && at.distanceToSqr(parent.position()) <= reach * reach);
             if (target != null) approach(parent);
+            else SurfaceApproach.halt(entity);
         } else SurfaceApproach.halt(entity);
         if (!touching) faceParent(parent);
         entity.getLookControl().setLookAt(parent, 25, 25);
