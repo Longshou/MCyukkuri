@@ -434,6 +434,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     @Override public void tick() {
+        doorStep = null;
         if(mob instanceof YukkuriEntity actor){
             if (passage != null) tickPassage(actor);
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
@@ -457,7 +458,6 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         if (mob instanceof YukkuriEntity animal && !animal.level().isClientSide) watch(animal);
         closingCorner = false;
-        doorStep = null;
         super.tick();
         // The route knew the footprints as they were when it was planned: each step to the next node heads round them now,
         // where the way round stands on supported, open ground (never off a ledge or into a wall).
@@ -479,7 +479,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             var dry = SurfaceApproach.dryAim(walker, wanted);
             // A body perched on a brink (a drinker at the bank) may find every direct step toward the node putting more of it over
             // the water: it first centres on its own cell, which only lessens the water under it, and then goes on along the shore.
-            if (dry.distanceToSqr(walker.position()) < 1.0E-8) dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
+            if (dry != wanted && dry.distanceToSqr(walker.position()) < 1.0E-8)
+                dry = SurfaceApproach.dryAim(walker, new Vec3(walker.getBlockX() + .5, walker.getY(), walker.getBlockZ() + .5));
             if (dry.distanceToSqr(wanted) > 1.0E-8) control.setWantedPosition(dry.x, dry.y, dry.z, control.getSpeedModifier());
             else if (align && (doorStep != null || SurfaceApproach.clearLastStep(walker, wanted)))
                 step(wanted, control.getSpeedModifier());
