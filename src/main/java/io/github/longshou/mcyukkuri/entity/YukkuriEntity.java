@@ -406,6 +406,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void clearPairContact() { sync().clearPairContact(); }
     public float peerRubSpacing() { return sync().peerRubSpacing(); }
     public int carePartnerId() { return sync().carePartnerId(); }
+    public BlockPos nearbyAssignedNest() { return sync().nearbyAssignedNest(); }
     public float careContactProgress() { return sync().careContactProgress(); }
     public float toiletVolume() { return level().isClientSide?sync().toiletVolume():(float)DetachedItems.wasteAmount(this); }
     public boolean isCrawling() { return sync().isCrawling(); }

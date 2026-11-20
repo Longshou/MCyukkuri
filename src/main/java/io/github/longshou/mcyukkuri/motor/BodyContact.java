@@ -1,7 +1,6 @@
 package io.github.longshou.mcyukkuri.motor;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Pin;
@@ -45,7 +44,7 @@ public final class BodyContact {
                 || body.family().courting(peer) || peer.family().courting(body)
                 || peer.motor().current() instanceof Grab grip && grip.target() == body
                 || peer.woundComfort().helping(body) || body.woundComfort().helping(peer)
-                || FamilyNest.sameNest(body, peer) && FamilyNest.atAssignedNest(body) && FamilyNest.atAssignedNest(peer);
+                || body.sharesNearbyNest(peer);
     }
 
     private double share(YukkuriEntity peer) {

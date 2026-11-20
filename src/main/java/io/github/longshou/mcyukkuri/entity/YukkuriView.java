@@ -108,7 +108,7 @@ public interface YukkuriView {
     CompoundTag moodReadout();
     String getBehaviorId();
     default boolean usesCrowdSpacing() {
-        return !isPassenger() && !isVehicle() && nuzzlePartnerId() < 0 && carePartnerId() < 0
+        return !isPassenger() && !isVehicle() && nuzzlePartnerId() < 0 && carePartnerId() < 0 && contactPose().equals("NONE")
                 && (Behaviors.crowdSpacing(getBehaviorId()) || getAnimationId().equals("idle") && motorAction().isEmpty());
     }
     long getBehaviorStartTick();
@@ -131,6 +131,11 @@ public interface YukkuriView {
     int peerRubTick();
     float peerRubSpacing();
     int carePartnerId();
+    BlockPos nearbyAssignedNest();
+    default boolean sharesNearbyNest(YukkuriView peer) {
+        var nest = nearbyAssignedNest();
+        return nest != null && nest.equals(peer.nearbyAssignedNest());
+    }
     float careContactProgress();
     boolean isCrawling();
     long getCrawlStartTick();

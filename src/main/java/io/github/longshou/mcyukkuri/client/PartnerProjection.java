@@ -9,23 +9,23 @@ final class PartnerProjection {
     private long frame = Long.MIN_VALUE;
     private float partial;
     private double x, z, reach;
-    private String asset;
+    private YukkuriModel model;
     private int headwear, flags;
     private boolean accessory;
     private double scale;
     private WallYield.Bounds loose;
 
     WallYield.Bounds bounds(YukkuriView actor) {
-        String id = actor.assetId();
+        var current = YukkuriModel.get(actor.assetId());
         double size = (double)actor.getScale() * actor.growthScale();
-        if (!id.equals(asset) || scale != size || flags != actor.subspeciesFlags()
+        if (current != model || scale != size || flags != actor.subspeciesFlags()
                 || headwear != actor.visibleHeadwear() || accessory != actor.hasVisibleAccessory()) {
-            asset = id;
+            model = current;
             scale = size;
             flags = actor.subspeciesFlags();
             headwear = actor.visibleHeadwear();
             accessory = actor.hasVisibleAccessory();
-            loose = WallClearance.bounds(actor, YukkuriModel.get(id));
+            loose = WallClearance.bounds(actor, model);
         }
         return loose;
     }

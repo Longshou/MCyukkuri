@@ -40,9 +40,12 @@ public final class FamilyNest {
         return shelter!=null&&shelter==b.habitat().shelter()&&shelter.bed(a.getUUID())!=null&&shelter.bed(a.getUUID()).equals(shelter.bed(b.getUUID()));
     }
     public static boolean atAssignedNest(YukkuriEntity e){
-        var c=care(e);var wild=e.habitat().shelter();
+        return nearbyAssignedNest(e)!=null;
+    }
+    public static BlockPos nearbyAssignedNest(YukkuriEntity e){
+        var c=care(e);var wild=c==null?e.habitat().shelter():null;
         BlockPos pos=c!=null?c.getBlockPos():wild!=null?wild.bed(e.getUUID()):null;
-        return pos!=null&&e.distanceToSqr(c!=null?c.centre():Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire();
+        return pos!=null&&e.distanceToSqr(c!=null?c.centre():Vec3.atBottomCenterOf(pos))<2.25&&!e.isInWaterOrBubble()&&!e.isOnFire()?pos:null;
     }
     public static boolean large(YukkuriEntity e){
         var c=care(e);if(c!=null)return c.largeNest();
