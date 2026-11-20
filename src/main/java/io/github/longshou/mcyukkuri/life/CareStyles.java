@@ -9,13 +9,13 @@ import net.minecraft.world.item.DyeColor;
 /**
  * Dye-selected looks of the placed pet goods. A style only changes the drawn mesh (block id, or block id + "_" + style);
  * the default style "" keeps the plain mesh name. Mesh names must match
- * standards/yukkuri-library/drafts/care-props/placed.py STYLES.
+ * standards/yukkuri-library/drafts/care-props/vanilla_props.py STYLES.
  */
 public final class CareStyles {
     public record Style(String id, String label) {}
     private static final Map<String, Map<DyeColor, Style>> TABLE = new LinkedHashMap<>();
     static {
-        add("food_bowl", DyeColor.CYAN, "", "奶油薄荷", DyeColor.RED, "hearts", "红心", DyeColor.PINK, "polka", "樱粉波点",
+        add("food_bowl", DyeColor.WHITE, "", "白釉红边", DyeColor.RED, "hearts", "红心", DyeColor.PINK, "polka", "樱粉波点",
                 DyeColor.LIGHT_BLUE, "sailor", "水手条纹", DyeColor.YELLOW, "paws", "柠檬爪印", DyeColor.ORANGE, "terracotta", "赤陶流釉",
                 DyeColor.LIGHT_GRAY, "steel", "不锈钢");
         add("yukkuri_nest", DyeColor.RED, "", "草莓", DyeColor.LIGHT_BLUE, "gingham", "蓝格", DyeColor.PINK, "polka", "粉波点",
@@ -47,7 +47,7 @@ public final class CareStyles {
         var styles = TABLE.get(block);
         return styles == null ? style : styles.values().stream().filter(s -> s.id().equals(style)).map(Style::label).findFirst().orElse(style);
     }
-    /** Dyes accepted by this block, e.g. "青色=奶油薄荷、红色=红心". */
+    /** Dyes accepted by this block, e.g. "白色=白釉红边、红色=红心". */
     public static String hint(String block) {
         var styles = TABLE.get(block);
         if (styles == null) return "";

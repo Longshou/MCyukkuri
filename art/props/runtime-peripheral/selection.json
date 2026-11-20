@@ -161,62 +161,62 @@
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.mesh.json",
-      "sha256": "aea5c206990754acbf351b2d54dfd0c2dcb6fa3c2363cbc8a366dcad48f9ffc5",
+      "sha256": "7d82a34ada722fa7f83376770709a4ac7380326ccc32e8e46250ea6f4d72a210",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/food_bowl.bbmodel",
-      "sha256": "4d9fb240f69763e876c292b99b803a1aae039bfc8e559962c6802c6c22bc1e81",
+      "sha256": "d5e694a3ce5baf4f068526e05784cac6270c43f4d5c8ff3e105a0b8ac8db8655",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl/texture.png",
-      "sha256": "98acaf787beec29606e9e823b2322d2f8567a198be5af028b2d2f52e24425c83",
+      "sha256": "2414e104eafbb87953ace4c608fae29bfca280bebadd63dc9252d659c54f9268",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.mesh.json",
-      "sha256": "394fec956c66530cd36feb5dde4c84f7025e56f54641a5545643462b8ffdd30b",
+      "sha256": "ffbfb02c499f85628f7de3cdcc99dd01ed9914e990446b721837fb641ae7ed45",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/food_bowl_regular.bbmodel",
-      "sha256": "2bec5347df88b9161ce065c22eaa8fe59c638bb1d1df0133422da4d537dbb41f",
+      "sha256": "8a48c12bd2d8cd51841c05ceb18fc4130eb46e18348c79be4a92eb143afe4aab",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_regular/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_regular/texture.png",
-      "sha256": "ec323de54441330d4681d19d27d1ff1295047385750a6bc471bdbf0fc8e31a6c",
+      "sha256": "186e59e5af4f7b328d799aa97fd66cd605fdbf718203ca37de7e8e13ecbd4b59",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.mesh.json",
-      "sha256": "401ffd3243dd2697484afafab6376da44958004916b89b1dc1081aaf19786146",
+      "sha256": "085cc80208a8c03d1c160760971cdba839ab5279dc0a77bee67ecacd8339d077",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/food_bowl_wheat.bbmodel",
-      "sha256": "797d76e60291f0e26459632e4a83ba0d881abf6679631a291288cf3c8f6361ef",
+      "sha256": "c42a233631045367ed427935edec741e156f265f882697aec69ddc95558eee61",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_wheat/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_wheat/texture.png",
-      "sha256": "39744212fa2444d17cac70d5e7b47e65665c12ca1e6ac5fa76a8391d43ae91db",
+      "sha256": "b6f9f84d2555add6aa64713e6eb23124ba3690e4381bebe54129e98275b17ee8",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.mesh.json",
-      "sha256": "95b69224c5532b9c7afd5ea55dcd2a0022b143b1a5c2d5c4d1b2c15bf9da78b0",
+      "sha256": "db4f354966508522f9ddddb7caf2b38d174f96f29ee5ad8f0de8ad1505ed95f7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/food_bowl_forage.bbmodel",
-      "sha256": "bc7bb1f1a794a21b4188a90716a01c7a7ce473f640c7414b9823d1bb7e21f8d4",
+      "sha256": "62150554e1f44750c8d78f0b3d8305f4e8ee4a0e5178f76e105e74fab143a483",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_forage/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_forage/texture.png",
-      "sha256": "00ac78591700034fe704621d7fce1a1667c71c256b5839b07b6df348ab67b4ff",
+      "sha256": "812f10b043dd6ad8e7c1584b4a96a909fabd330111b401859a454b5998a0b1ed",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/waterer/waterer.mesh.json": {
@@ -326,92 +326,92 @@
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_hearts/food_bowl_hearts.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_hearts/food_bowl_hearts.mesh.json",
-      "sha256": "f3407babe601566c1d35353328b2f4b07d533504d8c0e411e869a97642f885ca",
+      "sha256": "42d91aaef3ff2b074ba9532f8f1ba329fa1e4566101234532dce33a87dd19361",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_hearts/food_bowl_hearts.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_hearts/food_bowl_hearts.bbmodel",
-      "sha256": "09fe72047879dbcbe48f1676118042f5e8ece04ee831559a01bff18c88a781c0",
+      "sha256": "6ff50839c93165971a47872d28a9fe00ef53b5e93e9c6daa2949d7bddb9cfa9f",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_hearts/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_hearts/texture.png",
-      "sha256": "72328639fa602c4c3a8be1d389dfd56b5df552fe38d55dd87a5ca5b4c9fe5de7",
+      "sha256": "0bf1b15a1123126ad8a44de36dfb1c6fd86a58b04687c249bdf7491ac1489987",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_polka/food_bowl_polka.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_polka/food_bowl_polka.mesh.json",
-      "sha256": "716e1e280d09508b8c4f9f1ea16c25ebc9f08e9f6c550a756235abd4216ac37a",
+      "sha256": "79d572be95be8be12bc0a49e88e6b84e78a0baf11ebe1993a70c7da350b45ef6",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_polka/food_bowl_polka.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_polka/food_bowl_polka.bbmodel",
-      "sha256": "247657086d1505127b6b8692afbe165f30901b67fefed46a736f9ffc8e6f8170",
+      "sha256": "dc4c7e5f6921c030fc7a67358f0514b25b12c0876614dfab03264e02470a8f71",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_polka/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_polka/texture.png",
-      "sha256": "bef1c1ba9d8c3e3d0ab41529916fe5e4fd0e28579b5c542ab7d5f17f8e238e0f",
+      "sha256": "913dea4afef9654f52c5ab572b6dabac9af8a0961bc21264ecf5b55336ea7aa7",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_sailor/food_bowl_sailor.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_sailor/food_bowl_sailor.mesh.json",
-      "sha256": "abd690306f2e8d97dae3f1b36516527faad46ea14dc49a6277615f259cb5b2f7",
+      "sha256": "53446053a8a3fb268ee140a59ae882a533fa66f1d5931ae586cc9e2e586470da",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_sailor/food_bowl_sailor.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_sailor/food_bowl_sailor.bbmodel",
-      "sha256": "ce2f58b5864d272c13355e4e33a5d6da026d2558864cae42b1cd21bd410ae934",
+      "sha256": "bad789747cb7c9fc40acebe56253e5be413aa2d3e6ae52c2bcc14b55ac9dcfb8",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_sailor/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_sailor/texture.png",
-      "sha256": "886b419b3754916e2dc0dc31fa8b96d0d8476eac5f57c3901d2b2fd684cb79bb",
+      "sha256": "f096f1b026ebb99380c330bbc74e8484f52668b7533d9ce76aaaef739aab8c29",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_paws/food_bowl_paws.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_paws/food_bowl_paws.mesh.json",
-      "sha256": "984ca1c795b4846b58e8ae1cde45ffb095b7283029e2f797a726a5af550ae35b",
+      "sha256": "9e8d0ca184ce867b2d72d82a8ad6d12b544acfb93eaa1750167e232b68541978",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_paws/food_bowl_paws.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_paws/food_bowl_paws.bbmodel",
-      "sha256": "7e712a2e95b991fe484b7de2bb3e51645ba9988adb0abc374c8934560bbc0037",
+      "sha256": "09ddccd883459dad504100ca6d40ae0d2ae7ba7a6713cfa6b38cdc819e766f61",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_paws/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_paws/texture.png",
-      "sha256": "e2ea6d64e75cef0cd70fb5a68a2e7baa31299dd9aeb1dd83ee9fc17533796707",
+      "sha256": "df93d51ae831a6216ec444a966834b7e3d7365901e52b54b695c4bb99099bf39",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_terracotta/food_bowl_terracotta.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_terracotta/food_bowl_terracotta.mesh.json",
-      "sha256": "67a4f8dde01c7ed48e8bbbabbbb49b5853fe503752e0df44e684c163b5448f59",
+      "sha256": "08f2c1223a2b4450fd6419b9376ff3a289e74e4c1325da5f4ff351fe80bfb592",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_terracotta/food_bowl_terracotta.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_terracotta/food_bowl_terracotta.bbmodel",
-      "sha256": "4f36da56ea36aa062cd5fe5f48ff62723874c64f7cca4327f805196af278daff",
+      "sha256": "28fb9991426e61ca83df4a338eaab3150953a6f011ab40ea35c099794c6aa96f",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_terracotta/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_terracotta/texture.png",
-      "sha256": "b230559b62ec6d8e4f44b05499d7edb3788acc28a88022f1f2a530925865af2b",
+      "sha256": "6d5cd4f6f0c36751bbc58643aa095535b931c3f8a21c87aa618fbb0fe3f056f9",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_steel/food_bowl_steel.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_steel/food_bowl_steel.mesh.json",
-      "sha256": "3d256faf319687e9d3d02589fafe6c2b1e7e70b94a19c970208977b3ba5b25f3",
+      "sha256": "8027e9a545d4241a337496b118c2b29be8944f126ddbf41478668279ec220505",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_steel/food_bowl_steel.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_steel/food_bowl_steel.bbmodel",
-      "sha256": "17828fa6fab5fef5b0083b5d755a11d59c634567d57a030563440765688a5b9d",
+      "sha256": "a39a771c57c8069e5ab3bd34771311091fec4fc4be150f9e43f31ede2f0ea007",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/food_bowl_steel/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/food_bowl_steel/texture.png",
-      "sha256": "2add586d1cd8bc36349a091808629af6eec1095d70df8d4903468a3d325b91bd",
+      "sha256": "a854e81d062821666b736ea80e894fb88b0457541ffb9edb2b142d9ed53aa333",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_toilet_pink/yukkuri_toilet_pink.mesh.json": {

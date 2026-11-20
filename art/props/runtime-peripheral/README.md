@@ -8,7 +8,7 @@
 
 三种运输篮各有自己的方块风格网格与贴图（`block-props/devices.py`）：普通篮麦秆色、高级篮蓝（带两侧镂空观察窗与铁扣）、大号篮绿且宽深各多 2、高多 1；三者均在 `+Z` 正面开口至 `y=1` 篮底以露出乘坐油库里的面部，大号篮提手移至后沿避免俯视遮挡多只幼体。
 
-食盆内的油粮颗粒堆、割草堆和麦秆堆（自绘材质，`food_bowl_regular`／`_forage`／`_wheat` 只含堆体，叠画在任一款式的盆里）显示最多八份，库存仍使用原有九格容器，八份以上外观饱和。漏馅掉落实体按实际堆叠数量分组绘制，避免原版物品掉落渲染重复绘制整个堆叠。地面便便、脱落头饰和土堆保存原个体尺寸；普通物品栏采用便于辨认的展示尺寸。食盆、沙厕及便堆是方块风格道具，三档宠物窝及贴墙变形是圆润低多边形加手绘材质；它们与编织大窝的非默认染料款式（`<方块 ID>_<款式>`）也作为附属网格在此导出（见[照料道具制作源](../../../standards/yukkuri-library/drafts/care-props/README.md)）。
+食盆内的油粮颗粒堆、割草堆和麦秆堆（自绘材质，`food_bowl_regular`／`_forage`／`_wheat` 只含堆体，叠画在任一款式的盆里）显示最多八份，库存仍使用原有九格容器，八份以上外观饱和。漏馅掉落实体按实际堆叠数量分组绘制，避免原版物品掉落渲染重复绘制整个堆叠。地面便便、脱落头饰和土堆保存原个体尺寸；普通物品栏采用便于辨认的展示尺寸。食盆及其填充是圆形釉瓷（`care-props/bowl.py`），沙厕及便堆是方块风格道具，三档宠物窝及贴墙变形是圆润低多边形加手绘材质；它们与编织大窝的非默认染料款式（`<方块 ID>_<款式>`）也作为附属网格在此导出（见[照料道具制作源](../../../standards/yukkuri-library/drafts/care-props/README.md)）。
 
 三档油粮与橙汁的物品外观是 [16×16 图标](../supply-icons/README.md)，本包只把它们的网格作为附属物保留给离线预览；食盆里的油粮仍由 `food_bowl_regular` 显示。
 
@@ -20,4 +20,4 @@
 
 当前快照的制作源在[照料道具统一造型](../../../standards/yukkuri-library/drafts/care-props/README.md)等对应素材包；更新制作源后重新导出并登记新的快照指纹。
 
-橙汁预览网格的背面瓶标由 [shop_goods_v2.py](shop_goods_v2.py) 生成，逐件 GUI 旋转与缩放可记录在 `recipe.json` 的 `gui_display`。物品模型模板来自[方块道具工具](../../../standards/yukkuri-library/drafts/block-props/kit.py)。清洗布、毛线球、教导哨与同伴绳由[小玩具](../care-expansion/README.md)导出，除霉剂由[消耗品](../consumables/README.md)导出。
+橙汁预览网格的背面瓶标由 [shop_goods_v2.py](shop_goods_v2.py) 生成，逐件 GUI 旋转与缩放可记录在 `recipe.json` 的 `gui_display`。物品模型模板来自[方块道具工具](../../../standards/yukkuri-library/drafts/block-props/kit.py)。毛线球与清洗布、教导哨、同伴绳的物品模型由[小玩具](../care-expansion/README.md)导出，去霉药的物品模型由[消耗品](../consumables/README.md)导出。
