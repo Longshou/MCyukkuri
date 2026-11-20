@@ -656,7 +656,7 @@ public final class Hop implements Action {
         var aim = from.add(p.x(), p.y(), p.z());
         if (aboard) aim = seatHost.frame().toWorld(aim.scale(1 / seatHost.frame().unit()));
         var delta = aim.subtract(body.position());
-        if (!carriedClear(body, body.position(), aim)) return Outcome.of(Reason.NO_SUPPORT, 0, "held_arc_blocked");
+        if (!carriedClear(body, body.position(), aim)) return Outcome.of(Reason.NO_SUPPORT, 0, "held_arc_blocked " + heldReading(body, aim));
         Motor.velocity(body, aboard ? Vec3.ZERO : delta, "hop_flight");
         var contact = aboard ? null : ContactResolver.resolve(body);
         if (contact != null) return contact.refused() ? Outcome.of(Reason.NO_ROOM, 0, "mount_refused") : landed(body);
@@ -862,6 +862,18 @@ public final class Hop implements Action {
             }
         }
         return true;
+    }
+
+    /** Where the carried young are against the arc that refused them: their seat, whether the box already stands in a block, and the
+     *  yaw the seat will turn through this tick. */
+    private String heldReading(YukkuriEntity body, Vec3 aim) {
+        var out = new StringBuilder("air=" + air + "/" + (flight == null ? 0 : flight.size() - 1) + " body=" + GameplayLog.at(body.position())
+                + " aim=" + GameplayLog.at(aim));
+        for (var passenger : body.getPassengers()) if (passenger instanceof YukkuriEntity child)
+            out.append(" child=").append(child.getUUID()).append(" hold=").append(ParentCarry.hold(body, child).key())
+                    .append(" at=").append(GameplayLog.at(child.position())).append(" inBlock=")
+                    .append(!body.level().noCollision(child, child.getBoundingBox().deflate(HELD_GIVE)));
+        return out.toString();
     }
 
     private static Vec3 carriedOffset(YukkuriEntity body, YukkuriEntity child, float yaw) {

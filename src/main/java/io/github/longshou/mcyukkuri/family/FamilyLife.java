@@ -176,7 +176,9 @@ public final class FamilyLife {
         return home!=null&&home.usable(entity)?home.bed(entity.getUUID()):null;
     }
     /** The carrier walks the carried baby home (retrieval); marching carriers keep to the settlement walk instead. */
-    void beginCarry(){if(task==Task.NONE){task=Task.CARRY;target=carry.carried();taskTicks=0;}}
+    /** Aboard a hull the land family goal is not bound, so a carry task begun there would be stopped again at once, every tick:
+     *  the shore landing owns a carrier on the water. */
+    void beginCarry(){if(task==Task.NONE&&!entity.isPassenger()){task=Task.CARRY;target=carry.carried();taskTicks=0;}}
     void endCarry(){if(task==Task.CARRY)stop();}
     public String describe() {
         return "task=" + task + " ticks=" + taskTicks

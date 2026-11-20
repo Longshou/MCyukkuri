@@ -246,6 +246,14 @@ final class SetOut implements Intent, FamilyRendezvous {
                 "set_out far shore stand={} water={} distance={} young={}",
                 GameplayLog.at(stand), shore.water().toShortString(), Math.round(Math.sqrt(owner.distanceToSqr(stand))), strays(owner).size());
         return List.of(() -> SurfaceApproach.arrived(owner, stand) ? null : new Step.Do(new Walk(stride(stand))),
+                // She does not stand a gather call out with a young in her mouth: it is set down on the stand and, no longer
+                // asked, lifted again for the next stretch.
+                () -> {
+                    var held = AquaticLife.carried(owner);
+                    if (held == null || !lagging()) return null;
+                    asked.remove(held.getUUID());
+                    return new Step.Do(new Release(held));
+                },
                 () -> {
                     if (!lagging()) return null;
                     long until = owner.level().getGameTime() + GATHER_YOUNG;

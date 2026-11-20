@@ -6066,7 +6066,12 @@ def _bank_pickup_retries(window):
 
 
 def _carried_boarding(window, owner):
-    for attempt in re.finditer(r'\[aquatic\][^\n]*uuid=' + owner + r' [^\n]* boarding from bank child=(\S+) hat=(\S+)', window):
+    """The keeper boarded from the bank with a carried child, and it ended on the hull. A window where she never tried is a premise
+    that did not happen, so the check fails instead of passing on nothing."""
+    attempts = list(re.finditer(r'\[aquatic\][^\n]*uuid=' + owner + r' [^\n]* boarding from bank child=(\S+) hat=(\S+)', window))
+    if not attempts:
+        return 'keeper never boarded from the bank with a carried child (premise not exercised)'
+    for attempt in attempts:
         child, hat = map(re.escape, attempt.groups())
         following = window[attempt.end():]
         contact = re.search(r'\[body\][^\n]*uuid=' + owner + r' [^\n]* mount host=' + hat + r' cause=hop_contact\b', following)

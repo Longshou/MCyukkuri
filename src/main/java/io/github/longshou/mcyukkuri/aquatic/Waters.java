@@ -620,7 +620,9 @@ final class Waters {
      *  body on foot ({@code walk}: one it can walk to now), afloat beside a bank stand within its reach. An owner afloat looks
      *  for sticks on the water with {@link #floatingStick}. */
     static ItemEntity stick(YukkuriEntity body, double range, boolean walk) {
-        UUID id = kept(body.level(), key(body.level(), "stick", body.blockPosition(), range, walk), () -> {
+        // The answer rests on where she stands and where the sticks lie, so it is kept as long as the far-shore search is (200 ticks):
+        // an afloat stick no bank stand reaches is refused once per stand she takes, not on every refresh of a cache that cannot change.
+        UUID id = kept(body.level(), key(body.level(), "stick", body.blockPosition(), range, walk), 200, () -> {
             var found = findStick(body, range, walk);
             return found == null ? null : found.getUUID();
         });

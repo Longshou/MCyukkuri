@@ -270,7 +270,9 @@ final class AquaticGoal extends Goal {
         if (child != null) {
             out.add(Desire.of("carry_ashore", num("birth_ashore_want", 200), List.of(cell(hat), child.getUUID()),
                     () -> "held_child=" + child.getUUID(), () -> Ashore.come(body)));
-            return;
+            // A landing that failed holds under the same facts (hull cell, child). She does not stand idle with the child in her
+            // mouth meanwhile: the ordinary hull life goes on, and a paddle to another cell is what reopens the landing.
+            if (!drive().failed("carry_ashore")) return;
         }
         var at = cell(hat);
         // Her mate waits beside her through her own-hat water labour, so a newborn that lands in the water is within a stroke of him.

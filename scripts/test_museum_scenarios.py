@@ -59,6 +59,9 @@ class PondBankPickup(unittest.TestCase):
         for missed in (contact + approach, approach + release + contact, approach + contact.replace('hat1', 'hat2'),
                        approach + contact.replace(PARENT, OTHER_PARENT)):
             self.assertIn(CHILD, _carried_boarding(missed, PARENT))
+        # no boarding attempt of her own at all: the premise never happened, which is not a pass
+        for silent in ('', approach.replace(PARENT, OTHER_PARENT) + contact):
+            self.assertIn('not exercised', _carried_boarding(silent, PARENT))
 
     def test_a_second_lift_needs_a_real_approach_to_the_hull(self):
         lift = f'[action] marisa uuid={PARENT} t=12616 end id=grab outcome=DONE detail=mounted target={CHILD}\n'
