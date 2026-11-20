@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.human.TownAware;
 
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
-import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -359,6 +358,12 @@ public final class HabitatLife {
     }
     private boolean freeForWork() { return oral().canHold(HABITAT); }
 
+    private boolean fitForWork() {
+        if (carryingMoveFood()) return true;
+        float nutrition = entity.life().nutrition();
+        return entity.life().energy() >= 35 && (carrying().isEmpty() ? nutrition >= 40 : !HABITAT.yieldsToMeal(nutrition));
+    }
+
     public boolean canUse() {
         if (carryingGarbage()) return false;
         if(carrying().isEmpty())moveLoad=false;
@@ -425,9 +430,9 @@ public final class HabitatLife {
         }
         if(!gazing&&seasonal.shareStart(value))return true;
         if(carrying().isEmpty()&&(entity.settlement().society().dejected()||!entity.settlement().duties().carrying().isEmpty()))return false;
-        boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&entity.life().nutrition()>=40&&entity.life().energy()>=35;
+        boolean mayWork=EventHooks.canEntityGrief(level(),entity)&&fitForWork();
         if(!carrying().isEmpty()) {
-            if(!mayWork&&!(moveLoad&&carrying().is(YukkuriEntity.FOOD))){if(entity.life().dryStand(entity.blockPosition()))dropCarrying();return false;}
+            if(!mayWork){dropCarrying();return false;}
             task=carrying().is(ModItems.WASTE.get())?Task.CLEAN:Task.DEPOSIT;ticks=0;return true;
         }
         if(!mayWork)return false;
@@ -520,7 +525,7 @@ public final class HabitatLife {
         return active()&&ready()&&ticks<400&&homeStand()!=null&&(meal()||EventHooks.canEntityGrief(level(),entity))
                 &&(!entity.independence().householdOuting()||!carrying().isEmpty()||task==Task.FOOD&&outingMealAvailable())
                 &&(meal()||!carrying().isEmpty()||!entity.settlement().society().dejected())
-                &&(meal()||entity.life().nutrition()>=40&&entity.life().energy()>=35);
+                &&(meal()||fitForWork());
     }
     public void tickGoal() {
         if(!canContinue()){stop();return;}ticks++;
@@ -636,7 +641,11 @@ public final class HabitatLife {
         } else if(task==Task.CLEAN) {
             BlockPos outside=value.entrance().relative(value.facing(),2);
             if(!entity.life().dryStand(outside)){stop();return;}
-            if(approach(outside)){dropCarrying();value.cleaned();entity.species().chore();stop();}
+            if(approach(outside)){
+                dropCarrying();
+                if(carrying().isEmpty()){value.cleaned();entity.species().chore();}
+                stop();
+            }
         }
     }
     boolean approach(BlockPos pos) {
@@ -692,15 +701,14 @@ public final class HabitatLife {
         stop();
     }
     public void interruptOnHurt() {
-        if (!carrying().isEmpty() && ItemContact.hasReleaseSupport(entity, entity.getEyePosition())) dropCarrying();
+        dropCarrying();
         if (active()) stop();
     }
     public void dropCarrying() {
         while (!carrying().isEmpty()) {
             var stack = carrying();
-            var drop = ModRandom.created(new ItemEntity(level(),entity.getX(),entity.getY(),entity.getZ(),stack.copy()),entity.getRandom());
-            drop.setPickUpDelay(100);
-            if (!level().addFreshEntity(drop)) {
+            var drop = ItemContact.releaseSupported(entity, stack, 100);
+            if (drop == null) {
                 GameplayLog.limited(entity,"habitat","drop_refused",200,"drop refused item={} count={} task={}",stack.getItem(),stack.getCount(),task);
                 return;
             }

@@ -5,7 +5,6 @@ import static io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose.FORAGE;
 import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
-import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
@@ -325,7 +324,7 @@ public final class ForageTrip extends Goal {
         if (phase != Phase.NONE && level().getGameTime() > deadline + 3600) { giveUp("lapsed"); return false; }
         if (!body() || entity.bereaving()) return false;
         if (recoveringNeeds) {
-            if (entity.life().nutrition() < 30 || entity.life().energy() < 30) return false;
+            if ((load().isEmpty() && entity.life().nutrition() < 30) || entity.life().energy() < 30) return false;
             recoveringNeeds = false;
         }
         // A suspended trip must yield to the same needs that stopped it, including emergency grazing.
@@ -448,7 +447,7 @@ public final class ForageTrip extends Goal {
     public void abortOnDanger(String why) {
         if (!outing() && load().isEmpty()) return;
         reason = why;
-        if (!load().isEmpty() && (why.equals("death") || ItemContact.hasReleaseSupport(entity, entity.getEyePosition()))) dropLoad();
+        dropLoad();
         if (outing()) finish(false);
     }
     ItemEntity putDownLoad() {
@@ -471,8 +470,8 @@ public final class ForageTrip extends Goal {
 
     private void dropLoad() {
         if (load().isEmpty()) return;
-        var drop = ModRandom.created(new ItemEntity(level(), entity.getX(), entity.getY(), entity.getZ(), load().copy()), entity.getRandom()); drop.setPickUpDelay(100);
-        if (level().addFreshEntity(drop)) {
+        var drop = ItemContact.releaseSupported(entity, load(), 100);
+        if (drop != null) {
             GameplayLog.event(entity,"forage","drop item={} count={} reason={} drop={}",load().getItem(),load().getCount(),reason,drop.getUUID());
             carry(ItemStack.EMPTY);
         } else GameplayLog.limited(entity,"forage","drop_refused",200,"drop refused count={} reason={}",load().getCount(),reason);
@@ -560,6 +559,7 @@ public final class ForageTrip extends Goal {
         if (++failures >= 4) { failures = 0; if (phase == Phase.OUT) recall("no_route"); else if (storeAim != null) skipLevy("levy_no_route"); else giveUp("no_route_home"); }
     }
     private void gather(ShelterBlockEntity home) {
+        if (!canCarryForage()) return;
         if (!hunting && ForageClaims.threatZone(entity, dest)) { recall("threat_zone"); return; }
         if (!hunting && plants.active() && ForageClaims.threatZone(entity, plants.source())) {
             plants.stop();

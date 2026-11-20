@@ -330,7 +330,9 @@ public final class MouthOccupancy {
         }
         while (!displaced.isEmpty()) {
             var stack = displaced.getFirst();
-            var drop = ItemContact.release(owner, stack, owner.position(), Vec3.ZERO);
+            var at = MouthPlacement.position(owner);
+            if (!ItemContact.hasReleaseSupport(owner, at)) return;
+            var drop = ItemContact.release(owner, stack, at, Vec3.ZERO);
             if (drop == null) {
                 refusedAt = owner.blockPosition();
                 GameplayLog.event(owner, "body", "legacy mouth drop refused item={} count={}", stack.getItem(), stack.getCount());
