@@ -99,9 +99,6 @@ public final class Reactions {
         return threat.stage != Threat.Stage.NONE ? threat.describe() : weather.stage != Weather.Stage.NONE ? weather.describe()
                 : threat.seal.active() ? "den seal=" + threat.seal.describe() : "none";
     }
-    void scanThreat() {
-        if (PerceptionScan.due(entity.level().getGameTime(), entity.getId())) threat.scan();
-    }
     void scanWeatherAndNeeds() {
         weather.scan();
         long now = entity.level().getGameTime();

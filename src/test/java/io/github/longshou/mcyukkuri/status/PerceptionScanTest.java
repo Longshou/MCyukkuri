@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PerceptionScanTest {
     @Test void consecutiveActorsAreSpreadAcrossEveryFiveTickWindow() {
-        for (long start = -5; start < 10; start++) {
+        for (int start = -5; start < 10; start++) {
             int[] scans = new int[5];
             for (int id = -7; id < 3; id++) {
                 int visits = 0;

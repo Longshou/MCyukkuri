@@ -8,8 +8,9 @@ public final class PerceptionScan {
 
     private PerceptionScan() {}
 
-    static boolean due(long tick, int entityId) {
-        return Math.floorMod(tick, INTERVAL) == Math.floorMod(entityId, INTERVAL);
+    /** Entity ticks keep the five-tick bound when a loaded section stops and resumes ticking. */
+    static boolean due(int entityTick, int entityId) {
+        return Math.floorMod(entityTick, INTERVAL) == Math.floorMod(entityId, INTERVAL);
     }
 
     /** Holds only current section members, in the section's insertion order. */
