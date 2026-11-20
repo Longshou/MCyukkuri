@@ -7837,18 +7837,18 @@ next(s for s in S if s.id == 'den_family').smoke['verify'] = _den_family_verify
 def _struck_speech(window):
     events = {'FLEE': ('hurt_flee',), 'FREEZE': ('hurt_freeze',), 'PUFF_FIGHT': ('hurt_defy', 'puff'),
               'PLEAD': ('hurt_tame_plea', 'hurt_plea', 'plea_spare'), 'ENDURE': ('hurt_endure',)}
-    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=[^\n]* identity=(\w+) [^\n]*?dialogue=(\S*)', window)
+    strikes = re.findall(r'\[threat\][^\n]* uuid=(\S+) t=(\d+)[^\n]* struck stance=(\w+) attacker=\S+ loss=(\S+) [^\n]* identity=(\w+) [^\n]*?dialogue=(\S*)', window)
     if not strikes:
         return 'Missing struck stance and spoken line'
-    for actor, tick, stance, identity, key in strikes:
+    for actor, tick, stance, loss, identity, key in strikes:
         lines = re.findall(rf'\[speech\][^\n]* uuid={actor} t={tick} [^\n]* line event=(\S+) key=(\S+)', window)
         matching = [(event, line) for event, line in lines if any(event in group for group in events.values()) or event == 'afraid']
-        if stance == 'PLEAD' and identity in ('wild_family', 'wild_settlement', 'stray', 'house'):
-            # Without a keeper it trusts, a plea never asks to be treated.
-            if not matching or matching[-1][0] not in ('hurt_plea', 'plea_spare') or matching[-1][1] != key:
-                return f'{actor} at {tick} pleaded in {identity} but delivered {lines}, key={key}'
-            continue
-        if len(matching) != 1 or matching[0] != lines[-1] or matching[0][0] not in events[stance] or matching[0][1] != key:
+        allowed = events[stance]
+        if stance == 'PLEAD':
+            # An unhurt plea asks to be spared; only a kept animal may ask a keeper it trusts to treat the wound.
+            allowed = ('plea_spare',) if float(loss) == 0 else ('hurt_plea',) \
+                if identity in ('wild_family', 'wild_settlement', 'stray', 'house') else ('hurt_tame_plea', 'hurt_plea')
+        if len(matching) != 1 or matching[0] != lines[-1] or matching[0][0] not in allowed or matching[0][1] != key:
             return f'{actor} at {tick} chose {stance} but its speech was {lines}'
 
 
