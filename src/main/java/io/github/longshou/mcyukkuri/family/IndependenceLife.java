@@ -246,7 +246,7 @@ public final class IndependenceLife extends Goal {
     @Override public boolean canContinueToUse() {
         if (!active() || !steady()) return false;
         return switch (task) {
-            case FAREWELL -> !independent;
+            case FAREWELL -> !independent && (said || elapsed < FAREWELL_LIMIT + GO_LINE);
             case DEPART -> departTicks < DEPART_LIMIT;
             case SEE_OFF -> seeOffValid();
             case NONE -> false;
@@ -310,10 +310,11 @@ public final class IndependenceLife extends Goal {
         }
         if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
         // Close the last gap while the parent answers. The waiting window ends even if the parent stays busy.
-        if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
+        if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && parent.independence().seeingOff(entity)
+                && entity.distanceToSqr(parent) > touch * touch) {
             // The parent may still be walking home. Retire a stand that can no longer bring the bodies into contact.
             double reach = touch - SurfaceApproach.ARRIVAL;
-            if (target != null && target.distanceToSqr(parent.position()) > reach * reach) target = progress = null;
+            if (target != null && target.distanceToSqr(parent.position()) > reach * reach) reject(target, "parent_moved");
             if (target == null) target = standNear(parent, touch - .10, at -> Math.abs(at.y - parent.getY()) <= .35
                     && at.distanceToSqr(parent.position()) <= reach * reach);
             if (target != null) approach(parent);

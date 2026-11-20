@@ -87,11 +87,12 @@ public final class Motor {
         // The walking pose can extend past the collision box, as when each partner turns after a side press.
         double clearance = GreetingStance.visualDistance(body, partner);
         var wanted = new Vec(motion.x, motion.y, motion.z);
-        var step = SeparationStep.away(body.getX() - partner.getX(), body.getZ() - partner.getZ(), clearance, wanted);
-        if (step == wanted) return motion;
-        if (body.onGround() && !SurfaceApproach.canSteerOver(body, body.position().add(step.x(), 0, step.z())))
-            return new Vec3(0, motion.y, 0);
-        return new Vec3(step.x(), motion.y, step.z());
+        var step = SeparationStep.away(body.getX() - partner.getX(), body.getZ() - partner.getZ(), clearance, wanted, candidate -> {
+            var at = body.position().add(candidate.x(), 0, candidate.z());
+            return SurfaceApproach.canSteerOver(body, at) && (body.onGround() ? SurfaceApproach.stands(body, at)
+                    : SurfaceApproach.dryStep(body, body.position(), at));
+        });
+        return step == wanted ? motion : new Vec3(step.x(), motion.y, step.z());
     }
 
     /** Path-node steering uses the same three-dimensional pace as a direct flight command. */
