@@ -141,6 +141,7 @@ public final class ForageGoal extends Goal {
         ForageClaims.release(claim);
         claim = null; target = null; int tests = 0;
         for (BlockPos pos : found) {
+            if (ForageClaims.threatZone(entity, pos)) continue;
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
                     || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;
@@ -168,8 +169,9 @@ public final class ForageGoal extends Goal {
     @Override public void tick() {
         elapsed++;
         if (!canContinueToUse()) { stop(); return; }
-        if (target != null && !edible(target)) {
+        if (target != null && (!edible(target) || ForageClaims.threatZone(entity, target))) {
             ForageClaims.release(claim); claim = null; target = null;
+            entity.getNavigation().stop();
         } else if (target != null && !ForageClaims.owns(level(), target, claim)) {
             // A soft reservation expiring is not a lost target: re-take the same plant while it is still free, so the walk
             // continues instead of dropping the target and re-finding it on every claim expiry (E11-3 food-found churn).
@@ -184,6 +186,10 @@ public final class ForageGoal extends Goal {
                 searchSpot = null; return;
             }
             if (elapsed % 10 == 3 && attendFood()) return;
+            if (searchSpot != null && ForageClaims.threatZone(entity, searchSpot)) {
+                searchSpot = null;
+                entity.getNavigation().stop();
+            }
             // A sweep walk is walked to its end, not re-aimed every few blocks: a destination down the slope is then really
             // reached (re-aiming six blocks into every leg left a member circling a bare hill top until it starved).
             if (searchSpot == null || entity.getNavigation().isDone()) {
@@ -198,7 +204,9 @@ public final class ForageGoal extends Goal {
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))
                             || !entity.family().allowsForageWalk(point)) continue;
                     var candidate = BlockPos.containing(point);
-                    if (entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
+                    if (!ForageClaims.threatZone(entity, candidate) && entity.life().navigate(candidate,searchSpeed(),false)) {
+                        searchSpot = candidate; break;
+                    }
                 }
                 GameplayLog.limited(entity,"forage","search_path",200,
                         "search sweep destination={} moving={} nutrition={} rain={} elapsed={}",searchSpot,

@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import java.util.UUID;
 import java.util.Set;
@@ -28,6 +30,16 @@ public final class ForageClaims {
     }
     private static final int HOLD = 600;
     private static final LeaseTable<Key, Claim> CLAIMS = new LeaseTable<>(HOLD);
+
+    /** The group's latest sighting excludes forage sites within ten horizontal blocks while the threat is remembered. */
+    static boolean threatZone(YukkuriEntity forager, BlockPos site) {
+        var group = forager.settlement().group();
+        if (group == null || group.threat <= 0 || group.threatPos == null
+                || site.atY(group.threatPos.getY()).distSqr(group.threatPos) > 100) return false;
+        GameplayLog.limited(forager, "forage", "threat_zone", 200,
+                "forage skipped reason=threat_zone site={} sighting={} threat={}", site, group.threatPos, group.threat);
+        return true;
+    }
 
     private static Key key(ServerLevel level, BlockPos pos) { return new Key(level.getServer(), level.dimension(), pos.asLong()); }
     /** True when somebody other than {@code by} holds a live claim on this block. */

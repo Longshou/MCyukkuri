@@ -272,6 +272,7 @@ public final class ForageTrip extends Goal {
             for (int dy = -1; dy <= 1; dy++) {
                 var pos = new BlockPos(column.getX(), y + dy, column.getZ());
                 if (level().getFluidState(pos).isEmpty() && Grazing.edible(level().getBlockState(pos))) {
+                    if (ForageClaims.threatZone(entity, stand)) break;
                     plants++;
                     if (nearest == null || stand.distSqr(exit) < nearest.distSqr(exit)) nearest = stand;
                 }
@@ -287,16 +288,16 @@ public final class ForageTrip extends Goal {
     private BlockPos chooseDestination(ShelterBlockEntity home, int r) {
         // Inside-out: the nearest ring that holds a meadow, so a trip is never longer than the food requires.
         for (int ring = Math.min(24, r); ; ring = Math.min(ring + 16, r)) {
-            var spot = destinationFrom(home.getBlockPos(), ring, .5);
+            var spot = destinationFrom(home.getBlockPos(), ring, false);
             if (spot != null || ring == r) return spot;
         }
     }
     /** A meadow {@code 0.5..1.0 x r} blocks from {@code origin}; used by the leader to pick the hunting ground. */
-    BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, .5); }
-    private BlockPos destinationFrom(BlockPos origin, int r, double inner) {
+    BlockPos destinationFrom(BlockPos origin, int r) { return destinationFrom(origin, r, true); }
+    private BlockPos destinationFrom(BlockPos origin, int r, boolean hunt) {
         var level = level(); BlockPos best = null; int bestCount = 3;
         for (int attempt = 0; attempt < 6; attempt++) {
-            double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (inner + entity.getRandom().nextDouble() * (1 - inner));
+            double angle = entity.getRandom().nextDouble() * Math.PI * 2, dist = r * (.5 + entity.getRandom().nextDouble() * .5);
             int x = origin.getX() + (int) Math.round(Math.cos(angle) * dist), z = origin.getZ() + (int) Math.round(Math.sin(angle) * dist);
             var column = new BlockPos(x, origin.getY(), z);
             if (!level.hasChunkAt(column)) continue;
@@ -304,10 +305,12 @@ public final class ForageTrip extends Goal {
             var spot = new BlockPos(x, y, z);
             if (Math.abs(y - origin.getY()) > 12 || TownAware.inTown(level, spot)
                     || !level.getFluidState(spot.below()).isEmpty() || !level.getFluidState(spot).isEmpty()) continue;
+            if (!hunt && ForageClaims.threatZone(entity, spot)) continue;
             int count = 0;
             for (int dx = -6; dx <= 6; dx += 2) for (int dz = -6; dz <= 6; dz += 2) for (int dy = -2; dy <= 2; dy++) {
                 var p = spot.offset(dx, dy, dz);
-                if (level.hasChunkAt(p) && Grazing.edible(level.getBlockState(p))) count++;
+                if (level.hasChunkAt(p) && Grazing.edible(level.getBlockState(p))
+                        && (hunt || !ForageClaims.threatZone(entity, p))) count++;
             }
             if (count > bestCount) { bestCount = count; best = spot; }
         }
@@ -497,6 +500,7 @@ public final class ForageTrip extends Goal {
         }
         switch (phase) {
             case OUT -> {
+                if (!hunting && ForageClaims.threatZone(entity, dest)) { recall("threat_zone"); return; }
                 // From inside the burrow the straight line to the meadow runs through the hill: walk out of the mouth first.
                 if (!hunting && leavingHome(home)) { travel(outside(home)); watchdog(outside(home)); return; }
                 if (horizontal(dest) < 6) {
@@ -555,13 +559,19 @@ public final class ForageTrip extends Goal {
         if (++failures >= 4) { failures = 0; if (phase == Phase.OUT) recall("no_route"); else if (storeAim != null) skipLevy("levy_no_route"); else giveUp("no_route_home"); }
     }
     private void gather(ShelterBlockEntity home) {
+        if (!hunting && ForageClaims.threatZone(entity, dest)) { recall("threat_zone"); return; }
+        if (!hunting && plants.active() && ForageClaims.threatZone(entity, plants.source())) {
+            plants.stop();
+            entity.getNavigation().stop();
+        }
         // Cheek pouches (Reimu only) carry two extra portions per extra cheek slot.
         int portions = role == Role.FAMILY ? 4 + Math.round(entity.life().personality().boldness() / 50f) : 6;
         int cap = portions + (entity.species().cheekCapacity() - 1) * 2;
         if (load.getCount() >= cap) { recall("full"); return; }
         if (!plants.active()) {
             if (ticks % 5 != 0) return;
-            if (!plants.find(dest, 9, pos -> Grazing.edible(level().getBlockState(pos)))) {
+            if (!plants.find(dest, 9, pos -> Grazing.edible(level().getBlockState(pos))
+                    && (hunting || !ForageClaims.threatZone(entity, pos)))) {
                 if (!plants.refused() && ++barren >= 4) recall(load.isEmpty() ? "barren" : "enough");
                 else if (ticks > 40 && !plants.refused() && horizontal(dest) > 5) travel(dest);
                 return;
