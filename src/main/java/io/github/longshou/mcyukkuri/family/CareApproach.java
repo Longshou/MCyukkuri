@@ -295,7 +295,8 @@ public final class CareApproach {
                 var centre = Vec3.atBottomCenterOf(pad);
                 var outward = entrance.subtract(centre).multiply(1,0,1).normalize();
                 var side = new Vec3(-outward.z,0,outward.x);
-                double lateral = Math.clamp(child.position().subtract(centre).dot(side),-.25,.25);
+                double shelfMargin = .5 - SurfaceApproach.supportRadius(owner) - SurfaceApproach.ARRIVAL;
+                double lateral = Math.clamp(child.position().subtract(centre).dot(side), -shelfMargin, shelfMargin);
                 var parentFeet = centre.add(outward.scale(.5+owner.getBbWidth()/2+.01)).add(side.scale(lateral));
                 var childFeet = parentFeet.subtract(outward.scale(FamilyFeedingContact.standingDistance(owner,child)));
                 childFeet = new Vec3(childFeet.x,child.getY(),childFeet.z);
