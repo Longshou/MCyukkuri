@@ -357,8 +357,8 @@ public final class IndependenceLife extends Goal {
     }
 
     private void releaseNuzzle() {
-        GameplayLog.event(entity, "independence", "farewell rub released parent={} ticks={} planned={}", visitor, pair.ticks(), closeTicks);
-        pair.release();
+        int shown = pair.release();
+        GameplayLog.event(entity, "independence", "farewell rub released parent={} ticks={} planned={}", visitor, shown, closeTicks);
         pair = null;
         contact = closeEnd();
     }

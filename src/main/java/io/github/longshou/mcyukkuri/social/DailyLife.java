@@ -596,14 +596,14 @@ public final class DailyLife {
         var current = session; session = null;
         if (current == null || current.ended) return;
         current.ended = true;
+        int shown = current.pair == null ? current.contact : current.pair.release();
         if(log)GameplayLog.limited(current.leader,"daily","stopped."+current.kind,1200,
                 "session stopped kind={} companion={} elapsed={} contactTicks={}",
-                current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,current.contactTicks());
+                current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,shown);
         if (current.companion != null) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
         boolean unanswered = current.kind == Kind.NUZZLE && current.contactTicks() == 0
                 && (current.rub == null || current.rub.mode != PeerNuzzle.GREET);
-        if (current.pair != null) current.pair.release();
         current.leader.dailyLife().session = null;
         // Either partner can end the session after the other has handed MOVE to a higher-priority goal.
         if (current.leader.competingMoveGoalId() == null) current.leader.getNavigation().stop();

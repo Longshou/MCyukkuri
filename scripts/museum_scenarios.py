@@ -353,22 +353,21 @@ _mold_family('den_mold_keep', True)
 
 
 # The teen's independence is armed in NBT (Force); each family has its den as a starting home, and the farewell or departure is
-# ordinary. The warm family lives in the independence mound and the cool one in the roomy earthen den 32 blocks east, both parents at
-# home; the far one in the family mound 18 blocks west, its parent walled in a closed stone-brick room far out of PARENT_RANGE (24),
-# so it cannot wander back during the wait. Only the five-axis attachment differs between warm and cool.
-_indep = []
-for _lane, _dx, _parent_z, _teen_z, _attach, _label in (('warm', 0, 3, 4, 85, '亚成·依恋高'),
-                                                     ('cool', 32, -2, -3, 20, '亚成·依恋低'),
-                                                     ('far', -18, 3, 4, 60, '亚成·亲油不在')):
+# ordinary. The warm pair starts at the back of its mound with a grazed clearing beyond the door. The cool pair starts in
+# the earthen den 32 blocks east. The far parent is taken to a closed stone-brick room outside the child's hearing range.
+_indep = [box(-12, 0, -12, 12, 0, 14, 'minecraft:air', 'replace minecraft:short_grass')]
+for _lane, _dx, _teen_dx, _parent_z, _teen_z, _attach, _label in (('warm', 0, 0, -4, -3, 85, '亚成·依恋高'),
+                                                               ('cool', 32, 1, -2, -3, 20, '亚成·依恋低'),
+                                                               ('far', -18, 1, 3, 4, 60, '亚成·亲油不在')):
     _pm, _pc = uid('indep_near', f'{_lane}_parent'), uid('indep_near', f'{_lane}_teen')
     _indep += [yk('reimu', _dx, _parent_z, f'{_lane}_parent', uuid=_pm, yaw=180, label='亲油', attachment=_attach, **pair_ready()),
-               yk('reimu', _dx + 1, _teen_z, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_lane == 'warm', nutrition=100, energy=100,
+               yk('reimu', _dx + _teen_dx, _teen_z, f'{_lane}_teen', stage='teen', uuid=_pc, yaw=180, lead=_lane == 'warm', nutrition=100, energy=100,
                   attachment=_attach, label=_label, kin=f'Mother:{uuid_nbt(_pm)}', extra='YukkuriIndependence:{Force:1b}'),
                f'yukkuri scenario kin {sel(f"{_lane}_parent")} {sel(f"{_lane}_teen")} false',
                *[f'yukkuri scenario home {sel(f"{_lane}_{who}")} ~{_dx} ~ ~-1' for who in ('parent', 'teen')]]
 _indep += [box(38, 0, 1, 42, 3, 5, 'minecraft:stone_bricks'), box(39, 0, 2, 41, 2, 4, 'minecraft:air')]
 add('indep_near', 'den', '亚成离巢：亲油在就告别', '亚成离巢：亲油在就告别',
-    '三只亚成同时到了独立的时候。中间（依恋高）：亚成走到亲油跟前含泪说要去找自己的家，亲油哭着「要常回来看看」，两只贴脸好一会儿，'
+    '三只亚成同时到了独立的时候。中间的洞里（依恋高）：亚成走到亲油跟前含泪说要去找自己的家，亲油哭着「要常回来看看」，两只贴脸好一会儿，'
     '亚成说「我走了」后离开，途中两次回头、最后喊「要保重」。送别时亲油会抽泣，孩子走远后则含泪微笑看着道路。右边（依恋低）：亚成爽快告别，亲油祝福，'
     '亚成鞠个躬就走，不回头，亲油看一眼就回去过日子。左边亲油被关在远处，约 3 分钟后亚成不告别直接离开。之后各自去找空洞或挖穴，亲缘与好感保留',
     '约 3 分钟内离开（可倍速）', _indep, env=DAY, spot='indep', retry='先“清空本场地”（洞口格要空）', vantage=(0, 16),

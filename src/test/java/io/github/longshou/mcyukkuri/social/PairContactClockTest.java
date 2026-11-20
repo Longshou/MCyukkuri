@@ -22,6 +22,7 @@ class PairContactClockTest {
                 assertFalse(clock.finished(100L + tick));
             }
             assertTrue(clock.finished(100L + length));
+            assertEquals(length, clock.releasedTicks(100L + length));
         }
     }
 
@@ -31,5 +32,14 @@ class PairContactClockTest {
         clock.publish(10, frame -> fail("first advanced twice"), frame -> fail("second advanced twice"));
         assertEquals(1, clock.ticks());
         assertFalse(clock.finished(11));
+    }
+
+    @Test void releaseCountsOnlyFramesThatSurvivedTheirPublicationTick() {
+        var clock = new PairContactClock(140);
+        clock.publish(3815, shown -> {}, shown -> {});
+        assertEquals(0, clock.releasedTicks(3815));
+        for (long tick = 3816; tick <= 3830; tick++) clock.publish(tick, shown -> {}, shown -> {});
+        assertEquals(15, clock.releasedTicks(3830));
+        assertEquals(16, clock.releasedTicks(3831));
     }
 }

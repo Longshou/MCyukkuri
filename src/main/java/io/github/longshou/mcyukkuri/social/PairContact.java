@@ -41,9 +41,12 @@ public final class PairContact {
                 frame -> second.showPairContact(first, pose.opposite(), now - frame, frame, spacing));
     }
 
-    public void release() {
+    /** Clears both poses and returns the number of frames that survived their publication tick. */
+    public int release() {
+        int shown = clock.releasedTicks(first.level().getGameTime());
         first.clearPairContact();
         second.clearPairContact();
         Motor.separateAfterContact(first, second);
+        return shown;
     }
 }

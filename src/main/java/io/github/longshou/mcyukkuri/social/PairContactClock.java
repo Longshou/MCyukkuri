@@ -14,6 +14,9 @@ final class PairContactClock {
     boolean complete() { return ticks == length; }
     boolean finished(long now) { return complete() && now > publishedAt; }
 
+    /** The frame cleared in the tick that published it never reached either end-of-tick draw. */
+    int releasedTicks(long now) { return now == publishedAt ? ticks - 1 : ticks; }
+
     void publish(long now, IntConsumer first, IntConsumer second) {
         if (now == publishedAt || complete()) return;
         first.accept(ticks);
