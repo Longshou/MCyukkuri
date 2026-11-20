@@ -11,12 +11,14 @@ import io.github.longshou.mcyukkuri.headwear.HullSurface;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.GridPath;
 import io.github.longshou.mcyukkuri.motor.geom.HeightGrid;
+import io.github.longshou.mcyukkuri.motor.geom.Vec;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
-import io.github.longshou.mcyukkuri.motor.surface.HostFrame;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.StatusEvents;
 import java.util.ArrayList;
@@ -27,8 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToIntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -365,32 +369,28 @@ final class Waters {
 
     private record Held(UUID id, ParentCarry.Hold hold) {}
 
-    private record Occupant(UUID id, Vec3 at, float yaw, double width, List<Held> carried) {
+    record Occupant(UUID id, Vec at, float yaw, double width, List<Held> carried) {
         boolean sameRoom(Occupant other) {
-            return id.equals(other.id) && at.distanceToSqr(other.at) < EXIT_CLEARANCE * EXIT_CLEARANCE
-                    && Math.abs(Mth.wrapDegrees(yaw - other.yaw)) * Mth.DEG_TO_RAD * width / 2 < EXIT_CLEARANCE
+            var shift = at.sub(other.at);
+            return id.equals(other.id) && Math.hypot(shift.hlen(), shift.y()) < EXIT_CLEARANCE
+                    && Math.abs(Math.toRadians(Math.IEEEremainder(yaw - other.yaw, 360))) * width / 2 < EXIT_CLEARANCE
                     && Math.abs(width - other.width) < EXIT_CLEARANCE && carried.equals(other.carried);
         }
     }
 
-    private record ExitPose(UUID hat, HostFrame frame, Vec3 velocity, boolean moored, boolean sails, BodyAbility ability,
-                            List<Occupant> riders, List<Occupant> blockers) {
-        boolean sameStand(ExitPose other) {
-            if (!hat.equals(other.hat) || moored != other.moored || sails != other.sails || ability.canJump() != other.ability.canJump()
-                    || Math.abs(ability.hopReach() - other.ability.hopReach()) >= EXIT_CLEARANCE
-                    || Math.abs(ability.hopHeight() - other.ability.hopHeight()) >= EXIT_CLEARANCE) return false;
-            var shift = frame.origin().subtract(other.frame.origin());
-            double radius = brimRadius();
-            double turn = Mth.wrapDegrees((frame.yawRad() - other.frame.yawRad()) * Mth.RAD_TO_DEG) * Mth.DEG_TO_RAD;
-            double tilt = Math.hypot(frame.rollDeg() - other.frame.rollDeg(), frame.pitchDeg() - other.frame.pitchDeg()) * Mth.DEG_TO_RAD;
-            return shift.horizontalDistanceSqr() < SAME_STAND * SAME_STAND && Math.abs(shift.y) < EXIT_CLEARANCE
-                    && velocity.subtract(other.velocity).horizontalDistanceSqr() < MOORED * MOORED
-                    && Math.abs(turn) * radius < SAME_STAND && tilt * radius < EXIT_CLEARANCE
-                    && Math.abs(radius - other.brimRadius()) < EXIT_CLEARANCE
+    record ExitPose(UUID hat, Vec origin, double brimRadius, float yawRad, Vec velocity, boolean moored, boolean sails,
+                    boolean canJump, double hopReach, double hopHeight, List<Occupant> riders, List<Occupant> blockers) {
+        boolean sameBerth(ExitPose other) {
+            if (!hat.equals(other.hat) || moored != other.moored || sails != other.sails || canJump != other.canJump
+                    || Math.abs(hopReach - other.hopReach) >= EXIT_CLEARANCE || Math.abs(hopHeight - other.hopHeight) >= EXIT_CLEARANCE)
+                return false;
+            var shift = origin.sub(other.origin);
+            double turn = Math.IEEEremainder(yawRad - other.yawRad, 2 * Math.PI);
+            return shift.hlen() < SAME_STAND && Math.abs(shift.y()) < EXIT_CLEARANCE
+                    && velocity.sub(other.velocity).hlen() < MOORED && Math.abs(turn) * brimRadius < SAME_STAND
+                    && Math.abs(brimRadius - other.brimRadius) < EXIT_CLEARANCE
                     && sameRoom(riders, other.riders) && sameRoom(blockers, other.blockers);
         }
-
-        double brimRadius() { return HullBounds.RADIUS * frame.unit() / HullBounds.UNIT; }
 
         private static boolean sameRoom(List<Occupant> previous, List<Occupant> current) {
             if (previous.size() != current.size()) return false;
@@ -399,7 +399,45 @@ final class Waters {
         }
     }
 
-    private record ExitSearch(ExitPose pose, Exit exit, int bank, long tick) {}
+    record Tilt(float roll, float pitch) {
+        boolean sameClearance(Tilt other, double radius) {
+            return Math.toRadians(Math.hypot(roll - other.roll, pitch - other.pitch)) * radius < EXIT_CLEARANCE;
+        }
+    }
+
+    enum Landing { ACCEPT, NEXT_BANK, NEXT_BRIM }
+
+    /** An off-hop reports TOO_FAR on the hull-local leg. Its bank handoff can fail independently for each stand and tilt. */
+    record BrimStops(Edge edge, List<Vec> remaining) {
+        Landing check(Vec local, Feasibility hop) {
+            if (hop.reason() == Reason.TOO_FAR) {
+                remaining.remove(local);
+                return Landing.NEXT_BRIM;
+            }
+            return hop.ok() ? Landing.ACCEPT : Landing.NEXT_BANK;
+        }
+    }
+
+    record ExitSearch(ExitPose berth, Tilt tilt, BrimStops stops, Exit exit, int bank, long tick) {
+        static ExitSearch observe(ExitSearch last, ExitPose live, Tilt tilt, long now, ToIntFunction<ExitPose> bankBlocks,
+                                  Supplier<BrimStops> brim, Function<BrimStops, Exit> search) {
+            boolean sameBerth = last != null && last.berth.sameBerth(live);
+            var berth = sameBerth ? last.berth : live;
+            boolean sampleBank = !sameBerth || now - last.tick >= KEEP;
+            int bank = sampleBank ? bankBlocks.applyAsInt(berth) : last.bank;
+            long sampled = sampleBank ? now : last.tick;
+            BrimStops stops;
+            if (sameBerth && bank == last.bank) {
+                if (last.stops == null || last.stops.remaining().isEmpty() || last.tilt.sameClearance(tilt, berth.brimRadius())) {
+                    return sampleBank ? new ExitSearch(berth, last.tilt, last.stops, last.exit, bank, sampled) : last;
+                }
+                stops = new BrimStops(last.stops.edge(), new ArrayList<>(last.stops.remaining()));
+            } else {
+                stops = brim.get();
+            }
+            return new ExitSearch(berth, tilt, stops, stops == null ? null : search.apply(stops), bank, sampled);
+        }
+    }
     /** One observation per live body. Values contain only snapshots and never keep a rider or its hull alive. */
     private static final Map<YukkuriEntity, ExitSearch> EXITS = new WeakHashMap<>();
 
@@ -407,24 +445,14 @@ final class Waters {
      *  the bank first, then the ones beside it, so a hull whose brim reaches over the bank still has a way off. */
     static Exit brimAshore(PlacedHatEntity hat, YukkuriEntity body) {
         if (body.getVehicle() != hat || !hat.steady()) return null;
-        var level = body.level();
-        long now = level.getGameTime();
-        var pose = exitPose(hat, body);
         ExitSearch last;
         synchronized (EXITS) { last = EXITS.get(body); }
-        if (last != null && last.pose().sameStand(pose)) {
-            // Sample the bank for edits while the hull lies still. Time passing alone never retries the hop.
-            if (now - last.tick() < KEEP) return last.exit();
-            int bank = bankBlocks(level, last.pose());
-            if (bank == last.bank()) {
-                synchronized (EXITS) { EXITS.put(body, new ExitSearch(last.pose(), last.exit(), bank, now)); }
-                return last.exit();
-            }
-        }
-        var exit = timed(body, "brim_ashore", () -> findBrimAshore(hat, body));
-        int bank = bankBlocks(level, pose);
-        synchronized (EXITS) { EXITS.put(body, new ExitSearch(pose, exit, bank, now)); }
-        return exit;
+        var level = body.level();
+        var next = ExitSearch.observe(last, exitPose(hat, body), new Tilt(hat.roll(), hat.pitch()), level.getGameTime(),
+                pose -> bankBlocks(level, pose), () -> brimStops(hat, body),
+                stops -> timed(body, "brim_ashore", () -> findBrimAshore(hat, body, stops)));
+        if (next != last) synchronized (EXITS) { EXITS.put(body, next); }
+        return next.exit();
     }
 
     /** The cached choice is a planning read. Launch admission and execution still use the live hull and arc. */
@@ -442,7 +470,8 @@ final class Waters {
         if (body.getVehicle() != hat) return;
         synchronized (EXITS) {
             var last = EXITS.get(body);
-            if (last != null && last.exit() == exit) EXITS.put(body, new ExitSearch(last.pose(), null, last.bank(), last.tick()));
+            if (last != null && last.exit() == exit)
+                EXITS.put(body, new ExitSearch(last.berth(), last.tilt(), last.stops(), null, last.bank(), last.tick()));
         }
     }
 
@@ -454,43 +483,56 @@ final class Waters {
                 for (var passenger : carrier.getPassengers()) if (passenger instanceof YukkuriEntity child)
                     carried.add(new Held(child.getUUID(), ParentCarry.hold(carrier, child)));
             }
-            riders.add(new Occupant(rider.getUUID(), hat.riders().local(rider.getUUID()).scale(hat.unit()),
+            riders.add(new Occupant(rider.getUUID(), Floor.vec(hat.riders().local(rider.getUUID())).scale(hat.unit()),
                     hat.riders().yaw(rider.getUUID()), rider.getBbWidth(), carried));
         }
         var blockers = body.level().getEntities(body, hat.getBoundingBox().inflate(3),
                 entity -> entity.getRootVehicle() != hat && (entity.canBeCollidedWith() || entity instanceof PlacedHatEntity))
-                .stream().map(entity -> new Occupant(entity.getUUID(), entity.position(), entity.getYRot(), entity.getBbWidth(), List.of()))
+                .stream().map(entity -> new Occupant(entity.getUUID(), Floor.vec(entity.position()), entity.getYRot(), entity.getBbWidth(), List.of()))
                 .sorted(Comparator.comparing(Occupant::id)).toList();
-        return new ExitPose(hat.getUUID(), hat.frame(), hat.getDeltaMovement(), moored(hat), body.childhood().canSail(),
-                BodyAbility.of(body), riders, blockers);
+        var ability = BodyAbility.of(body);
+        return new ExitPose(hat.getUUID(), Floor.vec(hat.position()), HullBounds.RADIUS * hat.unit() / HullBounds.UNIT,
+                hat.turn(), Floor.vec(hat.getDeltaMovement()), moored(hat), body.childhood().canSail(),
+                ability.canJump(), ability.hopReach(), ability.hopHeight(), riders, blockers);
     }
 
     /** The block states around the brim, the two-cell bank scan and the clearance above its stands. */
     private static int bankBlocks(Level level, ExitPose pose) {
-        var at = BlockPos.containing(pose.frame().origin());
+        var at = BlockPos.containing(pose.origin().x(), pose.origin().y(), pose.origin().z());
         int radius = 3 + Mth.ceil(pose.brimRadius());
-        int above = 3 + Mth.ceil(pose.ability().hopHeight());
+        int above = 3 + Mth.ceil(pose.hopHeight());
         int result = 1;
         for (var p : BlockPos.betweenClosed(at.offset(-radius, -3, -radius), at.offset(radius, above, radius)))
             result = 31 * result + (level.hasChunkAt(p) ? 1 + Block.getId(level.getBlockState(p)) : 0);
         return result;
     }
 
-    private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body) {
+    private static BrimStops brimStops(PlacedHatEntity hat, YukkuriEntity body) {
         var edge = edges(body, hat.position(), 4, false).stream().findFirst().orElse(null);
         if (edge == null) return null;
-        Vec3 nearest = null;
-        var search = Hop.Search.admission();
-        var refused = new ArrayList<Vec3>();
-        for (var local : search.stops(hat, body).stream()
+        // Choose one representative per stand at this berth. Rocking preserves the spacing between them.
+        var stops = new ArrayList<Vec>();
+        var stands = new ArrayList<Vec3>();
+        for (var local : hat.hopStops(body).stream()
                 .sorted(Comparator.comparingDouble(p -> hat.toWorld(p).distanceToSqr(edge.edge()))).toList()) {
             var from = hat.toWorld(local);
+            if (stands.stream().anyMatch(at -> at.distanceToSqr(from) < SAME_STAND * SAME_STAND)) continue;
+            stands.add(from);
+            stops.add(Floor.vec(local));
+        }
+        return new BrimStops(edge, stops);
+    }
+
+    private static Exit findBrimAshore(PlacedHatEntity hat, YukkuriEntity body, BrimStops stops) {
+        var edge = stops.edge();
+        Vec3 nearest = null;
+        var search = Hop.Search.admission();
+        for (var stop : List.copyOf(stops.remaining())) {
+            var local = Floor.point(stop);
+            var from = hat.toWorld(local);
             if (nearest == null) nearest = from;
-            // Stands a few centimetres apart fail alike; once one has no way ashore, its close neighbours are not asked again.
-            if (refused.stream().anyMatch(r -> r.distanceToSqr(from) < SAME_STAND * SAME_STAND)) continue;
-            var bank = findAshore(body, from, at -> search.admits(body, hat, local, at));
+            var bank = findAshore(body, from, at -> stops.check(stop, Hop.off(hat, local, at).check(body, search)));
             if (bank != null) return new Exit(local, bank);
-            refused.add(from);
         }
         int suppressed = GameplayLog.admit(body, "aquatic", "hop.ashore", 200);
         if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
@@ -516,19 +558,23 @@ final class Waters {
     }
 
     private static Vec3 findAshore(YukkuriEntity body, Vec3 from) {
-        return findAshore(body, from, at -> Hop.reaches(body, from, at));
+        return findAshore(body, from, at -> Hop.reaches(body, from, at) ? Landing.ACCEPT : Landing.NEXT_BANK);
     }
 
-    private static Vec3 findAshore(YukkuriEntity body, Vec3 from, Predicate<Vec3> reachable) {
+    private static Vec3 findAshore(YukkuriEntity body, Vec3 from, Function<Vec3, Landing> hop) {
         var own = body.getVehicle() instanceof PlacedHatEntity hat && hat.owner() == body ? hat : null;
         int asked = 0;
         for (var e : edges(body, from, 2, false)) {
             var at = Hop.bankStand(e.edge(), e.normal(), from);
             if (asked++ >= ASKED) break;
             String refusal = !Hop.ground(body, at) ? "no_support" : hatOver(body, at, 0) ? "other_hat"
-                    : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach"
-                    : !reachable.test(at) ? "hop_arc" : null;
-            if (refusal == null) return at;
+                    : own != null && !body.childhood().canSail() && !bankReach(body, e.stand(body.getBbWidth()), own) ? "reclaim_reach" : null;
+            if (refusal == null) {
+                var landing = hop.apply(at);
+                if (landing == Landing.ACCEPT) return at;
+                if (landing == Landing.NEXT_BRIM) return null;
+                refusal = "hop_arc";
+            }
             int suppressed = GameplayLog.admit(body, "aquatic", "shore." + refusal, 200);
             if (suppressed >= 0) GameplayLog.limitedEvent(body, "aquatic", suppressed,
                     "hop shore stand refused reason={} from={} stand={}", refusal, GameplayLog.at(from), GameplayLog.at(at));
