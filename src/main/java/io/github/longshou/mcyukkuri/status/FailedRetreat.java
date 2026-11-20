@@ -6,13 +6,12 @@ import java.util.UUID;
 /** One unsuccessful flight search. Positions are immutable values in the level where it failed. */
 final class FailedRetreat<P> {
     // After ten seconds a cornered animal tries again, even if it could not sense what changed.
-    private static final int RETRY_TICKS = 200;
+    static final int RETRY_TICKS = 200;
+    // A panic with no known source (fire, thorns) has nothing to wait for: it searches again after a second.
+    static final int SOURCELESS_RETRY_TICKS = 20;
     private long retryAt;
     private UUID source, keeper;
     private P feet, danger, destination, refuge;
-
-    /** A panic with no known source (fire, thorns) has nothing to wait for: it searches again after a second. */
-    static final int SOURCELESS_RETRY_TICKS = 20;
 
     void remember(UUID source, P feet, P danger, P destination, long now, UUID keeper, P refuge) {
         remember(source, feet, danger, destination, now, keeper, refuge, RETRY_TICKS);

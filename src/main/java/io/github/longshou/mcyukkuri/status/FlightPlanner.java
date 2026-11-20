@@ -12,10 +12,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.entity.ai.util.GoalUtils;
 import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.ai.util.RandomPos;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
@@ -202,7 +202,7 @@ public final class FlightPlanner {
         var heading = away(origin);
         for (double stride : STRIDES) {
             for (int angle = 0; angle < 360; angle += 45) {
-                var ray = heading.rotate(angle == 0 ? 0 : angle > 180 ? angle - 360 : angle);
+                var ray = heading.rotate(angle);
                 var stand = SurfaceApproach.retreatFloor(body, body.position().add(ray.x() * 6 * stride, 0, ray.z() * 6 * stride));
                 if (stand == null || BlockPos.containing(stand).equals(body.blockPosition())
                         || hot != null && FlightCourse.passesNearThreat(body.getX(), body.getZ(), stand.x, stand.z, hot.x, hot.z, 1.5)) continue;
@@ -273,7 +273,7 @@ public final class FlightPlanner {
         var keeper = source == null ? null : keeper(source);
         failed.remember(source == null ? null : source.getUUID(), body.position(), danger, destination,
                 body.level().getGameTime(), keeper == null ? null : keeper.getUUID(), source == null ? null : refugeStand(),
-                source == null && danger == null && destination == null ? FailedRetreat.SOURCELESS_RETRY_TICKS : 200);
+                source == null && danger == null && destination == null ? FailedRetreat.SOURCELESS_RETRY_TICKS : FailedRetreat.RETRY_TICKS);
         route = null;
         SurfaceApproach.halt(body);
         GameplayLog.limited(body, "threat", "flight.cornered", 100, "flight cornered danger={}", source == null ? null : source.getUUID());
