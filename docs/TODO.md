@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 放映室：实时播放器成为首页，清理过时拼帧页面（P11d） | `.worktrees/wp-hub-purge` | preview/hub, preview/review, scripts/build_preview_hub.py, scripts/build_preview_library.py |
 | 居民和主人在城镇里开门过门 | `.worktrees/wp-human-door` | human/HumanNpc.java, human/HumanStreet.java (navigation) |
 | 性能：限频日志与实体同步 | `.worktrees/wp-perf-serverlog` | status/GameplayLog.java, entity/YukkuriSync.java, motor/BodyDriver.java |
 | 性能：感知扫描错峰与共享候选 | `.worktrees/wp-perf-perception` | status/StatusLife.java, status/Reactions.java |
