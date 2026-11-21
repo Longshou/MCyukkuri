@@ -10,7 +10,7 @@ Units are 1/16 block, +y up. Nothing here copies Minecraft pixels.
 """
 import importlib.util, math, sys
 from pathlib import Path
-from shapes import Build, ellipsoid, tube, sphere_paint, turn, canvas, put, stamp
+from shapes import Build, ellipsoid, tube, sphere_paint, turn, canvas, put, stamp, rgb
 
 DRAW = Path(__file__).resolve().parent.parent / 'item-icons/draw.py'
 if 'item_icon_ramps' not in sys.modules:
@@ -58,60 +58,193 @@ def ring(centre, radius, axis_turn, offset, lift=0.0, segs=20):
 
 
 # =====================================================================================================================
-YARN_R, YARN_Y = 3.4, 3.3
-WRAPS = ((turn(20, 0, 52), .7), (turn(-35, 0, -48), .8), (turn(95, 0, 70), 1.4))   # outer turns of yarn: (axis, latitude)
+YARN_Y = 3.2
+YARN_BANDS = (
+    # (axis_turn, latitude_offset, half_width, r_out, (strand_a, strand_b, edge))
+    (turn(12, 0, 28),    0.0,  1.28, 3.18, (2, 1, 1)),
+    (turn(100, 0, -34),  0.0,  1.22, 3.28, (2, 3, 1)),
+    (turn(52, 0, 70),    0.30, 1.15, 3.38, (3, 2, 1)),
+    (turn(-36, 0, -64), -0.25, 1.05, 3.50, (4, 3, 2)),
+)
+
+
+def _vadd(a, b): return [a[i] + b[i] for i in range(3)]
+def _vsub(a, b): return [a[i] - b[i] for i in range(3)]
+def _vcross(a, b): return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+
+def _flat_quad(b, part, pts, uvs, outward_hint):
+    """Two flat-shaded triangles for a quad, with face normal oriented along outward_hint."""
+    e1, e2 = _vsub(pts[1], pts[0]), _vsub(pts[2], pts[0])
+    n = _vcross(e1, e2)
+    nl = math.sqrt(sum(c * c for c in n))
+    if nl < 1e-8:
+        return
+    n = [c / nl for c in n]
+    if _dot(n, outward_hint) < 0:
+        n = [-c for c in n]
+    for i0, i1, i2 in ((0, 1, 2), (0, 2, 3)):
+        b.p.tri(part, [pts[i0], pts[i1], pts[i2]], [n] * 3, None, uvs=[uvs[i0], uvs[i1], uvs[i2]])
+
+
+def _wrap_band(b, part, centre, r_in, r_out, half_w, axis_turn, offset, key, img, segs=12, floor_y=0.0):
+    """A flat-shaded polygonal belt hugging a sphere, with outer face and tucked side walls."""
+    axis = [axis_turn[i][1] for i in range(3)]
+    e1 = [axis_turn[i][0] for i in range(3)]
+    e2 = [axis_turn[i][2] for i in range(3)]
+    ox, oy = b.region(key, img, wrap=True)
+    W, H = img.size
+
+    def pt(r, s, t):
+        rad = [math.cos(t) * e1[i] + math.sin(t) * e2[i] for i in range(3)]
+        rr = math.sqrt(max(0.05, r * r - s * s))
+        p = [centre[i] + axis[i] * s + rad[i] * rr for i in range(3)]
+        if p[1] < floor_y:
+            p[1] = floor_y
+        return p, rad
+
+    s0, s1 = offset - half_w, offset + half_w
+    for k in range(segs):
+        t0, t1 = 2 * math.pi * k / segs, 2 * math.pi * (k + 1) / segs
+        u0, u1 = ox + W * k / segs, ox + W * (k + 1) / segs
+        o00, rad0 = pt(r_out, s0, t0)
+        o10, rad1 = pt(r_out, s0, t1)
+        o11, _ = pt(r_out, s1, t1)
+        o01, _ = pt(r_out, s1, t0)
+        i00, _ = pt(r_in, s0, t0)
+        i10, _ = pt(r_in, s0, t1)
+        i11, _ = pt(r_in, s1, t1)
+        i01, _ = pt(r_in, s1, t0)
+        rmid = _unit([rad0[c] + rad1[c] for c in range(3)])
+        _flat_quad(b, part, [o00, o10, o11, o01], [(u0, oy), (u1, oy), (u1, oy + H), (u0, oy + H)], rmid)
+        _flat_quad(b, part, [i00, i10, o10, o00], [(u0, oy), (u1, oy), (u1, oy + 1), (u0, oy + 1)], [-c for c in axis])
+        _flat_quad(b, part, [o01, o11, i11, i01], [(u0, oy + H - 1), (u1, oy + H - 1), (u1, oy + H), (u0, oy + H)], axis)
+
+
+def _square_strand(b, part, path, half_w, key, img):
+    """A chunky flat-shaded 4-sided yarn tail along a polyline, resting cleanly on the ground."""
+    ox, oy = b.region(key, img, wrap=False)
+    W, H = img.size
+    n = len(path)
+    rings = []
+    for k, p in enumerate(path):
+        t = _unit(_vsub(path[min(k + 1, n - 1)], path[max(k - 1, 0)]))
+        up = (0.0, 1.0, 0.0) if abs(t[1]) < 0.85 else (1.0, 0.0, 0.0)
+        s = _unit(_vcross(t, up))
+        u = _unit(_vcross(s, t))
+        corners = [
+            [p[c] + (-s[c] + u[c]) * half_w for c in range(3)],
+            [p[c] + ( s[c] + u[c]) * half_w for c in range(3)],
+            [p[c] + ( s[c] - u[c]) * half_w for c in range(3)],
+            [p[c] + (-s[c] - u[c]) * half_w for c in range(3)],
+        ]
+        rings.append((corners, s, u))
+    for k in range(n - 1):
+        c0, s0, u0 = rings[k]
+        c1, s1, u1 = rings[k + 1]
+        v0, v1 = oy + H * k / (n - 1), oy + H * (k + 1) / (n - 1)
+        hints = (u0, s0, [-x for x in u0], [-x for x in s0])
+        for f in range(4):
+            f1 = (f + 1) % 4
+            fu0, fu1 = ox + W * f / 4, ox + W * (f + 1) / 4
+            _flat_quad(b, part, [c0[f], c0[f1], c1[f1], c1[f]], [(fu0, v0), (fu1, v0), (fu1, v1), (fu0, v1)], hints[f])
+    for end, toward in ((0, 1), (n - 1, n - 2)):
+        hint = _unit(_vsub(path[end], path[toward]))
+        c = rings[end][0]
+        _flat_quad(b, part, c, [(ox, oy), (ox + W, oy), (ox + W, oy + H), (ox, oy + H)], hint)
 
 
 def yarn_ball():
-    """The rolling toy: a ball of rose yarn 6.8 across. Its body is wound in rows (dark grooves between lit strands, as the
-    icon's dark rows), three outer turns cross over it in relief, and the loose end runs down its lower right and curls on
-    the floor inside the ball's own footprint, so the bounds-centred ground drawing keeps the ball on the item."""
+    """The rolling toy: a flat-shaded low-poly ball of rose yarn (~6.8 across) built from overlapping modelled wrap bands
+    over a calm core, with a short chunky loose end resting on the ground inside the ball's footprint."""
     b = Build('yarn_ball', square=True)
     centre = (0.0, YARN_Y, 0.0)
-    wind = _unit((.25, 1, .3))
-
-    def wound(d):
-        row = (math.asin(max(-1, min(1, _dot(d, wind)))) / math.pi * 9) % 1      # nine rows pole to pole
-        tone = 3 if lit(d) > .3 else 2 if lit(d) > -.4 else 1
-        if row < .2:
-            return ROSE[max(0, tone - 2)]                         # the groove between two strands
-        return ROSE[min(4, tone + 1)] if .45 < row < .75 and tone >= 2 else ROSE[tone]
-    ellipsoid(b, b.part('wound_ball'), centre, (YARN_R,) * 3, 'ball', sphere_paint(64, 32, wound), segs=20, rows=12,
-              floor=-YARN_Y)
-    turns = b.part('outer_turns')       # sunk into the ball so each turn stands only a strand's width proud of it
-    strand = strip(6, 24, lambda u, v: ROSE[3] if u in (1, 2, 3) else ROSE[2])
-    for k, (axis, offset) in enumerate(WRAPS):
-        tube(b, turns, [(p, .25) for p in ring(centre, YARN_R, axis, offset, lift=-.08, segs=28)], f'turn{k}', strand, segs=6,
-             closed=True)
-    end = [((-1.95, 2.0, -2.15), .27), ((-2.4, 1.35, -2.5), .27), ((-2.65, .7, -2.55), .27), ((-2.75, .3, -2.25), .27),
-           ((-2.95, .27, -1.45), .27), ((-3.1, .27, -.6), .27), ((-2.85, .27, .15), .27), ((-2.35, .27, .45), .25)]
-    tube(b, b.part('loose_thread'), end, 'thread', strip(6, 16, lambda u, v: ROSE[3] if u in (1, 2) else ROSE[2]), segs=6)
+    core_img = sphere_paint(16, 8, lambda d: ROSE[2] if d[1] > -0.2 else ROSE[1])
+    ellipsoid(b, b.part('wound_core'), centre, (3.06, 3.06, 3.06), 'core', core_img, segs=16, rows=7,
+              floor=-3.02, flat=True)
+    bands = b.part('wrap_bands')
+    for idx, (axis, offset, half_w, r_out, (t_a, t_b, t_edge)) in enumerate(YARN_BANDS):
+        band_img = canvas(16, 5)
+        for u in range(16):
+            put(band_img, u, 0, ROSE[t_edge], False)
+            put(band_img, u, 1, ROSE[t_a], False)
+            put(band_img, u, 2, ROSE[t_b], False)
+            put(band_img, u, 3, ROSE[t_a], False)
+            put(band_img, u, 4, ROSE[t_edge], False)
+        _wrap_band(b, bands, centre, 2.90, r_out, half_w, axis, offset, f'band{idx}', band_img, segs=16, floor_y=0.0)
+    tail_img = canvas(4, 6)
+    for v in range(6):
+        put(tail_img, 0, v, ROSE[3], False)
+        put(tail_img, 1, v, ROSE[2], False)
+        put(tail_img, 2, v, ROSE[1], False)
+        put(tail_img, 3, v, ROSE[2], False)
+    tail = [(-2.35, 1.05, -1.75), (-2.80, 0.48, -1.95), (-3.10, 0.22, -1.65),
+            (-3.22, 0.22, -0.85), (-2.85, 0.22, -0.25)]
+    _square_strand(b, b.part('loose_thread'), tail, 0.22, 'tail', tail_img)
     return b.finish()
 
 
 def glass_marble():
-    """The rolling marble: a ball of deep blue glass 4.4 across with the icon's white glint at the top left and its orange
-    twist seen inside: an S-shaped streak in the middle of each of the four sides, so it shows from wherever the marble
-    has rolled to. Opaque, like the icon's glass at 1x."""
+    """The rolling marble: a flat-shaded low-poly translucent glass sphere (4.4 across) enclosing an opaque 3D amber-gold
+    cat's-eye swirl and topped with a crisp white specular glint."""
     b = Build('glass_marble', square=True)
-    sides = [((0, 0, -1), (-1, 0, 0)), ((-1, 0, 0), (0, 0, 1)), ((0, 0, 1), (1, 0, 0)), ((1, 0, 0), (0, 0, -1))]
-
+    centre = (0.0, 2.1, 0.0)
+    # Part 0 (opaque): three crossed, twisted cat's-eye ribbon vanes suspended inside the glass.
+    swirl = b.part('cat_eye')
+    tilt = turn(20, 18, -25)
+    e1 = [tilt[i][0] for i in range(3)]
+    ax = [tilt[i][1] for i in range(3)]
+    e2 = [tilt[i][2] for i in range(3)]
+    vane_palettes = (
+        ('#ff8c1a', '#ffc23d', '#fff4c2'),
+        ('#ffad2e', '#ffe066', '#fffbe6'),
+        ('#ff8c1a', '#ffc23d', '#fff4c2'),
+    )
+    steps = 8
+    for vi, (c_out, c_mid, c_in) in enumerate(vane_palettes):
+        vimg = canvas(4, 8)
+        for y in range(8):
+            put(vimg, 0, y, c_in, False)
+            put(vimg, 1, y, c_mid, False)
+            put(vimg, 2, y, c_mid, False)
+            put(vimg, 3, y, c_out, False)
+        ox, oy = b.region(f'vane{vi}', vimg, wrap=False)
+        base_a = vi * 2 * math.pi / 3
+        rings = []
+        for s in range(steps + 1):
+            t = -1.0 + 2.0 * s / steps
+            h = 1.52 * t
+            w = 1.48 * math.sqrt(max(0.0, 1.0 - t * t))
+            ang = base_a + 1.15 * t
+            rad = [math.cos(ang) * e1[c] + math.sin(ang) * e2[c] for c in range(3)]
+            nrm = [-math.sin(ang) * e1[c] + math.cos(ang) * e2[c] for c in range(3)]
+            p_in = [centre[c] + ax[c] * h for c in range(3)]
+            p_out = [centre[c] + ax[c] * h + rad[c] * max(0.14, w) for c in range(3)]
+            rings.append((p_in, p_out, nrm))
+        for s in range(steps):
+            a0, b0, n0 = rings[s]
+            a1, b1, n1 = rings[s + 1]
+            v0, v1 = oy + 8 * s / steps, oy + 8 * (s + 1) / steps
+            nmid = _unit([n0[c] + n1[c] for c in range(3)])
+            uvs = [(ox, v0), (ox + 4, v0), (ox + 4, v1), (ox, v1)]
+            _flat_quad(b, swirl, [a0, b0, b1, a1], uvs, nmid)
+            _flat_quad(b, swirl, [a0, a1, b1, b0], [(ox, v0), (ox, v1), (ox + 4, v1), (ox + 4, v0)], [-c for c in nmid])
+    # Part 1 (translucent): flat-shaded clear/sky-blue glass sphere with crisp specular highlight.
     def glass(d):
-        g = _dot(d, _unit((.5, .62, -.6)))
-        if g > .97:
-            return MARBLE[4]                                      # the glint
-        if g > .93:
-            return MARBLE[3]
-        for face, right in sides:                                 # (outward, the viewer's right on that side)
-            if _dot(d, face) > .5 and abs(d[1]) < .5:
-                off = _dot(d, right) - (.25 * d[1] + .12 * math.sin(d[1] * 6))
-                if abs(off) < .11:
-                    return AMBER[4] if d[1] > .2 and off < 0 else AMBER[3]
-                if abs(off) < .17:
-                    return AMBER[2]
-        return MARBLE[2] if d[1] > .8 else MARBLE[1] if d[1] > -.55 else MARBLE[0]      # a small lit cap, no lid edge
-    ellipsoid(b, b.part('marble'), (0.0, 2.2, 0.0), (2.2, 2.2, 2.2), 'glass', sphere_paint(48, 24, glass), segs=18, rows=10,
-              floor=-2.1)
+        g = _dot(d, _unit((0.46, 0.68, -0.56)))
+        if g > 0.945:
+            return (255, 255, 255, 245)                     # tight crisp white specular glint
+        if g > 0.87:
+            return (218, 242, 255, 165)                     # small pale glint halo
+        if _dot(d, _unit((-0.45, -0.50, 0.55))) > 0.92:
+            return (210, 238, 255, 150)                     # tiny opposite bounce glint
+        if d[1] > 0.65:
+            return (162, 218, 255, 88)                      # clear bright sky dome
+        if d[1] < -0.55:
+            return (64, 136, 214, 132)                      # deep sky-blue glass base
+        return (96, 178, 245, 74)                           # clear sky-blue glass body
+    ellipsoid(b, b.part('glass_shell', translucent=True), centre, (2.2, 2.2, 2.2), 'glass',
+              sphere_paint(24, 12, glass), segs=14, rows=7, floor=-2.1, flat=True)
     return b.finish()
 
 

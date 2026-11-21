@@ -106,7 +106,7 @@ def render(src, items, az=225, el=28, ppu=24, size=None, flat=False, lock=None, 
     d = np.array([math.sin(a) * math.cos(e), math.sin(e), math.cos(a) * math.cos(e)])
     right = np.cross([0, 1, 0.0], d); right /= np.linalg.norm(right)
     up = np.cross(d, right)
-    tris = []
+    tris, trans = [], []
     for it in items:
         nm, un, dx, dy, dz, sc = it[:6]
         yaw = it[6] if len(it) > 6 else 0
@@ -122,13 +122,14 @@ def render(src, items, az=225, el=28, ppu=24, size=None, flat=False, lock=None, 
                 continue
             T = tex(s_.tex_of(nm, part))
             tint = np.array(part.get('tint', [255, 255, 255]), dtype=np.float32) / 255
+            bucket = trans if part.get('translucent') else tris
             s, c = part['start'], part['count']
             for f in range(s, s + c, 3):
                 tv = v[f:f + 3]
                 P = (tv[:, :3] @ R.T) * sc + np.array([dx, dy, dz])
                 N = tv[:, 5:8] @ R.T
-                tris.append((P, tv[:, 3:5], N, T, tint))
-    allp = np.concatenate([t[0] for t in tris])
+                bucket.append((P, tv[:, 3:5], N, T, tint))
+    allp = np.concatenate([t[0] for t in tris + trans])
     sx, sy = allp @ right, allp @ up
     minx, maxx, miny, maxy = lock if lock else (sx.min(), sx.max(), sy.min(), sy.max())
     if size is None:
@@ -139,47 +140,58 @@ def render(src, items, az=225, el=28, ppu=24, size=None, flat=False, lock=None, 
     cx, cy = (minx + maxx) / 2, (miny + maxy) / 2
     img = np.zeros((H, W, 4), dtype=np.float32); img[:] = np.array(bg) / 255.0
     zb = np.full((H, W), -1e9, dtype=np.float32)
-    for p, uv, nrm, T, tint in tris:
-        X = (p @ right - cx) * ppu + W / 2
-        Y = H / 2 - (p @ up - cy) * ppu
-        Z = p @ d
-        x0, x1 = max(int(math.floor(X.min())), 0), min(int(math.ceil(X.max())), W - 1)
-        y0, y1 = max(int(math.floor(Y.min())), 0), min(int(math.ceil(Y.max())), H - 1)
-        if x1 < x0 or y1 < y0:
-            continue
-        den = (Y[1] - Y[2]) * (X[0] - X[2]) + (X[2] - X[1]) * (Y[0] - Y[2])
-        if abs(den) < 1e-9:
-            continue
-        gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + .5, np.arange(y0, y1 + 1) + .5)
-        w0 = ((Y[1] - Y[2]) * (gx - X[2]) + (X[2] - X[1]) * (gy - Y[2])) / den
-        w1 = ((Y[2] - Y[0]) * (gx - X[2]) + (X[0] - X[2]) * (gy - Y[2])) / den
-        w2 = 1 - w0 - w1
-        m = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
-        if not m.any():
-            continue
-        z = w0 * Z[0] + w1 * Z[1] + w2 * Z[2]
-        sub = zb[y0:y1 + 1, x0:x1 + 1]
-        upd = m & (z > sub + 1e-3)
-        if not upd.any():
-            continue
-        u = w0 * uv[0, 0] + w1 * uv[1, 0] + w2 * uv[2, 0]
-        vv = w0 * uv[0, 1] + w1 * uv[1, 1] + w2 * uv[2, 1]
-        th, tw = T.shape[:2]
-        tx = np.floor(u * tw).astype(int) % tw        # GL_REPEAT
-        ty = np.floor(vv * th).astype(int) % th
-        col = T[ty, tx].astype(np.float32) / 255
-        upd = upd & (col[..., 3] > 0.5)
-        if not upd.any():
-            continue
-        if flat:
-            sh = np.ones(gx.shape, dtype=np.float32)
-        else:
-            nn = w0[..., None] * nrm[0] + w1[..., None] * nrm[1] + w2[..., None] * nrm[2]
-            nn /= np.maximum(np.linalg.norm(nn, axis=-1, keepdims=True), 1e-6)
-            sh = light(nn)
-        rgba = col.copy()
-        rgba[..., :3] *= tint * sh[..., None]
-        rgba[..., 3] = 1
-        sub[upd] = z[upd]
-        img[y0:y1 + 1, x0:x1 + 1][upd] = rgba[upd]
+    for is_trans, group in ((False, tris), (True, sorted(trans, key=lambda t: float((t[0] @ d).mean())))):
+        for p, uv, nrm, T, tint in group:
+            X = (p @ right - cx) * ppu + W / 2
+            Y = H / 2 - (p @ up - cy) * ppu
+            Z = p @ d
+            x0, x1 = max(int(math.floor(X.min())), 0), min(int(math.ceil(X.max())), W - 1)
+            y0, y1 = max(int(math.floor(Y.min())), 0), min(int(math.ceil(Y.max())), H - 1)
+            if x1 < x0 or y1 < y0:
+                continue
+            den = (Y[1] - Y[2]) * (X[0] - X[2]) + (X[2] - X[1]) * (Y[0] - Y[2])
+            if abs(den) < 1e-9:
+                continue
+            gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + .5, np.arange(y0, y1 + 1) + .5)
+            w0 = ((Y[1] - Y[2]) * (gx - X[2]) + (X[2] - X[1]) * (gy - Y[2])) / den
+            w1 = ((Y[2] - Y[0]) * (gx - X[2]) + (X[0] - X[2]) * (gy - Y[2])) / den
+            w2 = 1 - w0 - w1
+            m = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
+            if not m.any():
+                continue
+            z = w0 * Z[0] + w1 * Z[1] + w2 * Z[2]
+            sub = zb[y0:y1 + 1, x0:x1 + 1]
+            upd = m & (z > sub + 1e-3)
+            if not upd.any():
+                continue
+            u = w0 * uv[0, 0] + w1 * uv[1, 0] + w2 * uv[2, 0]
+            vv = w0 * uv[0, 1] + w1 * uv[1, 1] + w2 * uv[2, 1]
+            th, tw = T.shape[:2]
+            tx = np.floor(u * tw).astype(int) % tw        # GL_REPEAT
+            ty = np.floor(vv * th).astype(int) % th
+            col = T[ty, tx].astype(np.float32) / 255
+            upd = upd & (col[..., 3] > (0.01 if is_trans else 0.5))
+            if not upd.any():
+                continue
+            if flat:
+                sh = np.ones(gx.shape, dtype=np.float32)
+            else:
+                nn = w0[..., None] * nrm[0] + w1[..., None] * nrm[1] + w2[..., None] * nrm[2]
+                nn /= np.maximum(np.linalg.norm(nn, axis=-1, keepdims=True), 1e-6)
+                sh = light(nn)
+            if is_trans:
+                dst = img[y0:y1 + 1, x0:x1 + 1]
+                sa = col[..., 3:4]
+                da = dst[..., 3:4]
+                src_rgb = col[..., :3] * tint * sh[..., None]
+                out_a = sa + da * (1.0 - sa)
+                out_rgb = (src_rgb * sa + dst[..., :3] * da * (1.0 - sa)) / np.maximum(out_a, 1e-6)
+                blended = np.concatenate([out_rgb, out_a], axis=-1)
+                dst[upd] = blended[upd]
+            else:
+                rgba = col.copy()
+                rgba[..., :3] *= tint * sh[..., None]
+                rgba[..., 3] = 1
+                sub[upd] = z[upd]
+                img[y0:y1 + 1, x0:x1 + 1][upd] = rgba[upd]
     return Image.fromarray((np.clip(img, 0, 1) * 255).astype(np.uint8), 'RGBA'), (minx, maxx, miny, maxy)

@@ -37,7 +37,13 @@ def put(img, x, y, colour, wrap=True):
     if wrap:
         x %= w
     if 0 <= x < w and 0 <= y < h:
-        img.putpixel((x, y), (rgb(colour) if isinstance(colour, str) else tuple(colour[:3])) + (255,))
+        if isinstance(colour, str):
+            rgba = rgb(colour) + (255,)
+        elif len(colour) >= 4:
+            rgba = tuple(colour[:4])
+        else:
+            rgba = tuple(colour[:3]) + (255,)
+        img.putpixel((x, y), rgba)
 
 
 def get(img, x, y):
@@ -398,11 +404,11 @@ def sphere_paint(w, h, painter):
     return img
 
 
-def ellipsoid(b, part, centre, radii, key, img, segs=16, rows=8, rot=None, floor=None):
-    """A smooth ellipsoid with its own normals. The painted region wraps once round it: u from the back (+z) round to the
-    front (-z) at the middle column, the image's left on the viewer's left; v from the top (row 0) to the bottom
-    (sphere_paint paints it by direction). `floor` (a local height below the centre) cuts the bottom flat there, a disc
-    the shape rests on; `rot` (turn()) turns the shape about its centre."""
+def ellipsoid(b, part, centre, radii, key, img, segs=16, rows=8, rot=None, floor=None, flat=False):
+    """A smooth (or flat-shaded when flat=True) ellipsoid with its own normals. The painted region wraps once round it:
+    u from the back (+z) round to the front (-z) at the middle column, the image's left on the viewer's left; v from the
+    top (row 0) to the bottom (sphere_paint paints it by direction). `floor` (a local height below the centre) cuts the
+    bottom flat there, a disc the shape rests on; `rot` (turn()) turns the shape about its centre."""
     ox, oy = b.region(key, img, wrap=True)
     W, H = img.size
     rx, ry, rz = radii
@@ -418,9 +424,15 @@ def ellipsoid(b, part, centre, radii, key, img, segs=16, rows=8, rot=None, floor
         for j in range(segs):
             p0, p1 = 2 * math.pi * j / segs, 2 * math.pi * (j + 1) / segs
             quad = [vertex(p0, lats[i]), vertex(p1, lats[i]), vertex(p1, lats[i + 1]), vertex(p0, lats[i + 1])]
-            for a, c, d in ((0, 1, 2), (0, 2, 3)):
-                b.p.tri(part, [quad[a][0], quad[c][0], quad[d][0]], [quad[a][1], quad[c][1], quad[d][1]], None,
-                        uvs=[quad[a][2], quad[c][2], quad[d][2]])
+            if flat:
+                fn = unit(add(add(quad[0][1], quad[1][1]), add(quad[2][1], quad[3][1])))
+                for a, c, d in ((0, 1, 2), (0, 2, 3)):
+                    b.p.tri(part, [quad[a][0], quad[c][0], quad[d][0]], [fn] * 3, None,
+                            uvs=[quad[a][2], quad[c][2], quad[d][2]])
+            else:
+                for a, c, d in ((0, 1, 2), (0, 2, 3)):
+                    b.p.tri(part, [quad[a][0], quad[c][0], quad[d][0]], [quad[a][1], quad[c][1], quad[d][1]], None,
+                            uvs=[quad[a][2], quad[c][2], quad[d][2]])
     if floor is not None:                            # the flat base, in the bottom row's colours
         down = unit(_apply(rot, [0, -1, 0]))
         base = add(_apply(rot, [0, floor, 0]), centre)
