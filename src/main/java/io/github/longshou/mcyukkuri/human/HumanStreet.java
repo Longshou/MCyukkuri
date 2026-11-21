@@ -703,6 +703,8 @@ final class HumanStreet {
         private record Seat(BlockPos cell, Vec3 top, Direction facing) {}
         /** Horizontal offset from the board centre within which the hips are on the board (board 14/16 deep, hips about 0.3 wide). */
         private static final double SEAT_CENTRE = .2;
+        /** From the cell beside the bench (1.0 from the board centre) the owner steps up by itself. */
+        private static final double REACH_SEAT = 1.2;
         // Beyond the park's twelve-block calling distance the owner goes to the pet herself.
         private static final double CALL_RANGE = 12;
 
@@ -1144,13 +1146,31 @@ final class HumanStreet {
                     && !FoundShelter.streetClaimed(level, seat.cell(), null);
         }
 
+        /**
+         * A bench cell is no path node (the board blocks the node box), so walk to the cell beside the long side and step up onto the
+         * board by move control; the destination stays the board top.
+         */
         private boolean routeSeat(Seat target) {
             var nav = npc.getNavigation();
-            var path = nav.createPath(target.cell(), 0);
-            if (path == null || !path.canReach() || !nav.moveTo(path, .65)) return false;
             last = npc.position(); stalled = 0; destination = target.top();
-            return true;
+            if (npc.onGround() && Math.hypot(npc.getX() - target.top().x, npc.getZ() - target.top().z) <= REACH_SEAT
+                    && Math.abs(npc.getY() - target.top().y) <= .6) {
+                nav.stop();
+                return true;
+            }
+            var sides = new ArrayList<>(List.of(target.facing(), target.facing().getOpposite()));
+            sides.sort(Comparator.comparingDouble(side -> npc.distanceToSqr(Vec3.atBottomCenterOf(target.cell().relative(side)))));
+            for (var side : sides) {
+                var stand = target.cell().relative(side);
+                if (!standable(stand)) continue;
+                var path = nav.createPath(stand, 0);
+                if (path != null && path.canReach() && nav.moveTo(path, .65)) return true;
+            }
+            return false;
         }
+
+        /** The route to the standing cell, or the way back to the seat. */
+        private boolean routeStand(Vec3 to) { return seat != null ? routeSeat(seat) : route(to); }
 
         private double seatGap() { return Math.hypot(npc.getX() - seat.top().x, npc.getZ() - seat.top().z); }
 
@@ -1297,7 +1317,7 @@ final class HumanStreet {
             detours = 0;
             resume = null;
             if (homeward) continueHome();
-            else if (!(parkDestination != null ? routePark(then) : route(then))) blockedOutingLeg();
+            else if (!(parkDestination != null ? routePark(then) : routeStand(then))) blockedOutingLeg();
         }
 
         private boolean legStep() {
@@ -1493,6 +1513,17 @@ final class HumanStreet {
                         npc.getNavigation().stop();
                         if (!standAside(facility)) { returnHome("blocked"); return; }
                     }
+                    if (seat != null && !parkLingering() && leg == Leg.NONE && resume == null && !atStand()
+                            && npc.getNavigation().isDone() && seatGap() <= REACH_SEAT + .3) {
+                        if (++stalled >= ROUTE_TICKS) {
+                            GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_step seat={}", seat.cell().toShortString());
+                            seat = null;
+                            if (!standAside(facility)) returnHome("blocked");
+                            return;
+                        }
+                        npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .45);
+                        return;
+                    }
                     if (leg == Leg.NONE && resume == null) {
                         if (atStand()) {
                             if (!parkLingering()) {
@@ -1506,7 +1537,7 @@ final class HumanStreet {
                         }
                         if (!npc.finishingDoorway() && parkLingering() && npc.getNavigation().isDone() && stalled == 0) {
                             GameplayLog.event(npc, "npc-care", "action=outing_park_recover stand={}", GameplayLog.at(watch));
-                            if (!route(watch)) { returnHome("blocked"); return; }
+                            if (!routeStand(watch)) { returnHome("blocked"); return; }
                             stalled = 1;
                         }
                     }
