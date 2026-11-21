@@ -387,7 +387,7 @@ public final class Hop implements Action {
             if (candidate == null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "no_spot size=" + body.growthScale() * body.getScale()), null, null);
             if (!seatHost.steady()) return new Flight(Feasibility.of(Reason.NO_SUPPORT, 0, "host_unsteady"), null, null);
             var refusal = candidate.unavailable(body, arrivalYaw(body, from, candidate));
-            if (refusal != null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied:" + refusal), null, null);
+            if (refusal != null) return new Flight(Feasibility.of(Reason.NO_ROOM, 0, "destination_occupied:" + refusal + " at=" + candidate.local() + " riders=" + seatHost.entity().getPassengers().stream().map(q -> q.getUUID().toString().substring(0, 4) + "@" + seatHost.riders().local(q.getUUID())).toList()), null, null);
             to = candidate.world();
         }
         var ability = BodyAbility.of(body);

@@ -226,9 +226,11 @@ final class Ashore implements Intent {
      *  stroke is read from. */
     private static List<Supplier<Step>> bankApproach(YukkuriEntity owner, PlacedHatEntity hat, Waters.Edge edge) {
         var stand = edge.stand(owner.getBbWidth());
-        if (owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
-            return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
         float yaw = SurfaceApproach.yaw(owner.position(), hat.position());
+        // Where her hold already reaches the hull she does not walk on to the exact stand: a young she just set down may be on it.
+        boolean reaches = ContactGeometry.reachesHullFrom(owner, owner.position(), yaw, hat, true, false);
+        if (!reaches && owner.position().multiply(1, 0, 1).distanceTo(stand.multiply(1, 0, 1)) >= .25)
+            return List.of(() -> new Step.Do(Walk.stand(stand, 1)));
         if (Math.abs(Mth.wrapDegrees(yaw - owner.yBodyRot)) > Face.FACE_ARRIVED)
             return List.of(() -> new Step.Do(new Face(yaw)));
         return List.of();
