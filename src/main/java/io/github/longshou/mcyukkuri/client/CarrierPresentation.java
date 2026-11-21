@@ -20,10 +20,12 @@ import org.joml.Vector3f;
 final class CarrierPresentation {
     static final ResourceManagerReloadListener RELOAD = resources -> clear();
     // Stack copies share an immutable component. Its layout keeps the shared meshes alive while the stack exists.
-    private static final Map<CustomData, Seat[][]> LAYOUTS = new MapMaker().weakKeys().makeMap();
+    private static final Map<CustomData, Seat[]> LAYOUTS = new MapMaker().weakKeys().makeMap();
     private static final Map<Look, Mesh> MESHES = new MapMaker().weakValues().makeMap();
     private static final Vector3f POSITION = new Vector3f();
     private static final Vector3f NORMAL = new Vector3f();
+    /** Basket meshes are authored in 1/16-block units; the occupant mesh is drawn in blocks. */
+    private static final float UNITS = 16;
 
     private record Look(String model, int form, boolean accessory, int headwear, int hair, int medal, boolean asleep) {}
     private record Seat(Mesh mesh, float x, float y, float z, float scale) {}
@@ -34,18 +36,11 @@ final class CarrierPresentation {
         MESHES.clear();
     }
 
-    static void render(ItemStack stack, String basket, PoseStack.Pose pose, MultiBufferSource buffers, int light, int overlay) {
+    static void render(ItemStack stack, PoseStack.Pose pose, MultiBufferSource buffers, int light, int overlay) {
         var data = stack.get(DataComponents.CUSTOM_DATA);
         if (data == null) return;
-        boolean large = basket.equals("yukkuri_carrier_large");
-        int size = large ? 1 : 0;
-        var layouts = LAYOUTS.get(data);
-        if (layouts == null) {
-            layouts = new Seat[2][];
-            LAYOUTS.put(data, layouts);
-        }
-        var seats = layouts[size];
-        if (seats == null) layouts[size] = seats = layout(data, large);
+        var seats = LAYOUTS.get(data);
+        if (seats == null) LAYOUTS.put(data, seats = layout(data));
         for (var seat : seats) {
             for (var batch : seat.mesh.batches) {
                 var out = buffers.getBuffer(batch.type);
@@ -61,7 +56,7 @@ final class CarrierPresentation {
         }
     }
 
-    private static Seat[] layout(CustomData data, boolean large) {
+    private static Seat[] layout(CustomData data) {
         var entries = CarrierContents.appearances(data);
         var meshes = new Mesh[entries.size()];
         var scales = new float[entries.size()];
@@ -76,31 +71,17 @@ final class CarrierPresentation {
             scales[count++] = entry.getFloat("RenderScale");
         }
         if (count == 0) return EMPTY;
-        int columns = (int) Math.ceil(Math.sqrt(count));
-        int rows = (count + columns - 1) / columns;
-        // The runtime meshes have a rectangular lined floor at y=1. The small baskets have an 8x6 floor,
-        // the large has 10x8. The handle underside is 9 or 10 units above that floor.
-        float width = (large ? 10 : 8) / (16f * columns);
-        float depth = (large ? 8 : 6) / (16f * rows);
-        float height = (large ? 10 : 9) / 16f;
-        float gap = .125f / 16;
-        float fit = 1;
+        var boxes = new BasketSeating.Box[count];
         for (int i = 0; i < count; i++) {
             var mesh = meshes[i];
-            float scale = scales[i];
-            fit = Math.min(fit, (width - gap) / (scale * (mesh.maxX - mesh.minX)));
-            fit = Math.min(fit, (depth - gap) / (scale * (mesh.maxZ - mesh.minZ)));
-            fit = Math.min(fit, (height - gap) / (scale * (mesh.maxY - mesh.minY)));
+            boxes[i] = new BasketSeating.Box(mesh.minX * UNITS, mesh.minY * UNITS, mesh.minZ * UNITS,
+                    mesh.maxX * UNITS, mesh.maxY * UNITS, mesh.maxZ * UNITS);
         }
+        var placed = BasketSeating.arrange(boxes, scales);
         var seats = new Seat[count];
         for (int i = 0; i < count; i++) {
-            var mesh = meshes[i];
-            float scale = fit * scales[i];
-            int row = i / columns;
-            int across = Math.min(columns, count - row * columns);
-            float x = (i % columns - (across - 1) * .5f) * width - (mesh.minX + mesh.maxX) * .5f * scale;
-            float z = ((rows - 1) * .5f - row) * depth - (mesh.minZ + mesh.maxZ) * .5f * scale;
-            seats[i] = new Seat(mesh, x, 1 / 16f - mesh.minY * scale, z, scale);
+            var seat = placed[i];
+            seats[i] = new Seat(meshes[i], seat.x() / UNITS, seat.y() / UNITS, seat.z() / UNITS, seat.scale());
         }
         return seats;
     }

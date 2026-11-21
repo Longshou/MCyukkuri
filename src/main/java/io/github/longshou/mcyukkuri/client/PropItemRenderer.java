@@ -69,7 +69,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             PropModels.renderHat(name,hatDamage(stack),-1,pose,buffers,light,overlay);
         else PropModels.render(name,name.equals("leaked_filling")?Math.min(12,stack.getCount()):8,pose,buffers,light,overlay);
         if(!gui&&stack.getItem() instanceof CarrierItem)
-            CarrierPresentation.render(stack,name,pose.last(),buffers,light,overlay);
+            CarrierPresentation.render(stack,pose.last(),buffers,light,overlay);
         if(stack.getItem() instanceof AccessoryItem){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             YukkuriModel.renderDetachedBadge(name,tag.getInt("BadgeTier"),tag.getBoolean("Cut"),pose,buffers,light,overlay);
