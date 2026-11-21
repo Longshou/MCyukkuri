@@ -233,7 +233,7 @@ public final class ForageGoal extends Goal {
                             || !entity.family().allowsForageWalk(point)) { refused[1]++; continue; }
                     var candidate = BlockPos.containing(point);
                     if (ForageClaims.threatZone(entity, candidate)) { refused[2]++; continue; }
-                    if (entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
+                    if (entity.life().reachableAndBack(candidate) && entity.life().navigate(candidate,searchSpeed(),false)) { searchSpot = candidate; break; }
                     refused[3]++;
                 }
                 // Starving with nowhere to go is shown, not borne in silence.

@@ -24,6 +24,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.human.GarbageBinBlockEntity;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.DishFit;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
@@ -73,6 +74,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
@@ -2289,7 +2291,36 @@ public final class YukkuriLife {
         long now = level().getGameTime();
         var here = entity.blockPosition();
         if (!here.equals(reachFrom) || now - reachSince > REACH_MEMO || reachMemo.size() >= 32) { reachMemo.clear(); reachFrom = here; reachSince = now; }
-        return reachMemo.computeIfAbsent(target.asLong() * 2 + (escapeWater ? 1 : 0), key -> path(target, escapeWater) != null);
+        return reachMemo.computeIfAbsent(target.asLong() * 4 + (escapeWater ? 1 : 0), key -> path(target, escapeWater) != null);
+    }
+    /**
+     * A walk of choice (a stroll, a search leg), not of need: reachable, and not down a ledge the body cannot climb back. A drop
+     * past its step plus hop height leaves it in whatever lies below, so the walk is taken only when a dry route leads from the
+     * destination back to the top of that drop (a slope round the cliff). Without one the pocket below is a trap with no exit.
+     */
+    public boolean reachableAndBack(BlockPos target) {
+        if (trustRoutes) return true;
+        long now = level().getGameTime();
+        var here = entity.blockPosition();
+        if (!here.equals(reachFrom) || now - reachSince > REACH_MEMO || reachMemo.size() >= 32) { reachMemo.clear(); reachFrom = here; reachSince = now; }
+        return reachMemo.computeIfAbsent(target.asLong() * 4 + 2, key -> {
+            var route = path(target, false);
+            return route != null && comesBack(route);
+        });
+    }
+    private boolean comesBack(Path route) {
+        double regain = entity.getAttributeValue(Attributes.STEP_HEIGHT) + BodyAbility.of(entity).hopHeight();
+        for (int i = 1; i < route.getNodeCount(); i++) {
+            var top = route.getNodePos(i - 1);
+            int drop = top.getY() - route.getNodePos(i).getY();
+            if (drop <= regain) continue;
+            var end = route.getNodePos(route.getNodeCount() - 1);
+            boolean back = dryRouteFrom(end, Set.of(top));
+            if (!back) GameplayLog.limited(entity, "move", "one_way_drop", 400,
+                    "walk refused: drop of {} blocks at {} cannot be climbed back from the destination {}", () -> new Object[]{drop, top, end});
+            return back;
+        }
+        return true;
     }
 
     /** Full dry route for a land march. Planning leaves the actor's current movement alone. */

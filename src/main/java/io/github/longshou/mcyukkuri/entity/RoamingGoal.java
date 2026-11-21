@@ -219,7 +219,7 @@ public final class RoamingGoal extends Goal {
             if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) { refusals[3]++; continue; }
             if (animal.level() instanceof ServerLevel level && RemainsRot.source(level,Vec3.atBottomCenterOf(pos)) != null) continue;
             if (++paths > 4) break;
-            if (!animal.life().reachable(pos,false)) { refusals[4]++; continue; }
+            if (!animal.life().reachableAndBack(pos)) { refusals[4]++; continue; }
             return pos.immutable();
         }
         return null;
