@@ -5,7 +5,7 @@
 ## 1. 代码架构与红线
 
 - Java 根为 `src/main/java/io/github/longshou/mcyukkuri/`。客户端类只放 `client/`；服务端拥有生态状态和决策，成长、饥饿、繁殖不依赖客户端帧率。
-- 组件、保存和事件契约：`YukkuriEntity` 委托 `YukkuriComponents` 登记的组件（`ComponentKey`／`ComponentSpec`，分 EARLY／READY 初始化；一个组件可登记多项存读）。新增组件沿用此方式；领域组件拥有权威数据，状态登记不存副本。拆分保持完整 NBT 路径、类型、写入时机和已有读取条件，`YukkuriVersion` 为 1；`YukkuriVariant` ordinal 只能末尾追加；当前试玩场的数据结构调整不另增旧存档迁移或补偿层。公共／客户端事件分别接入 `CommonRegistration`、`ClientRegistration`，保留顺序、优先级与取消策略，避免重复订阅。
+- 组件、保存和事件契约：`YukkuriEntity` 委托 `YukkuriComponents` 登记的组件（`ComponentKey`／`ComponentSpec`，分 EARLY／READY 初始化；一个组件可登记多项存读）。新增组件沿用此方式；领域组件拥有权威数据，状态登记不存副本。拆分保持完整 NBT 路径、类型、写入时机和已有读取条件，`YukkuriVersion` 为 1；`YukkuriVariant` ordinal 只能末尾追加；不考虑旧存档（见 AGENTS.md），不加迁移、占位或补偿层。公共／客户端事件分别接入 `CommonRegistration`、`ClientRegistration`，保留顺序、优先级与取消策略，避免重复订阅。
 - `registerGoals` 在父构造期运行，其中赋值的字段不得带初始化器（含 `= null`）；早期构造不得读取未就绪的 variant 或组件。
 - 显示只观察实际运行的 Goal，不启动或探测业务。客户端经 `YukkuriView` / `PlacedHatView` 读同步展示数据，不调用服务端组件 getter。
 - 行为 ID 使用 `Behaviors`，类型使用 import，避免内联全限定名。`scripts/check_architecture.py --check` 仅为按需只读建议，边界见[脚本说明](../../scripts/README.md)。
@@ -60,6 +60,6 @@
 - 获取前先看部位：已被占用时，新动作先了结原占用（吞下、交给对方、放到地上或放回来源），不叠加、不覆盖。嘴里叼着东西就不能进食或叼另一件，辫子在抓物、托子或划桨时不能接新任务。
 - 交接在接触时刻一次完成：来源扣减与目标获得在同一 tick；中间态只能是“在某个部位上”或“在地上、容器里”，玩家能看到物品从哪里到哪里。
 - 中断与退路：玩家打断、受伤、死亡或实际拒绝时，放回真实来源，或从接触点放到有承托且无液体的地方。世界拒绝时保持持有并让交接失败。帽船翻覆、搁浅和移除的强制洒落沿用原规则。
-- 保存与重载：区块卸载保留占用和乘员，动作回到最后一次已提交的交接点。旧存档同用途的负载全部保留。混合用途优先保留活体乘员，冲突物品在载体身边生成真实掉落物，生成被拒绝时仍保留原物。运输篮等容器沿用同一个体。
+- 保存与重载：区块卸载保留占用和乘员，动作回到最后一次已提交的交接点。混合用途优先保留活体乘员，冲突物品在载体身边生成真实掉落物，生成被拒绝时仍保留原物。运输篮等容器沿用同一个体。
 - 改动写明占用：涉及这些部位的改动，在报告里列出每个动作前后各部位的占用与权威记录；新增持有状态先用已有的权威，不新开第二份记录。
 - 现状：`motor/MouthOccupancy` 持有进食、亲代喂食、清扫、采叶、采粮、迁徙备粮、筑巢和家油搬运的嘴部负载。工具随 `HatCustody`／`PlacedHatEntity` 交接，活体占用来自实际骑乘关系及 `ParentCarry`／`Riders` 的接触记录。
