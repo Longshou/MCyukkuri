@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
@@ -193,6 +194,7 @@ public final class PlayLife {
             }
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
         }
+        if(entity.horizontalCollision)askToYield(target);
         if(distance<lastDistance-.015){stalled=0;lastDistance=distance;}else if(++stalled>100){
             GameplayLog.limited(entity,"play","stalled",1200,"facility route stalled waypoint={} at={} target={} collided={} onGround={} navDone={} navTarget={} wanted={} speed={} motor={} leashed={} riding={}",
                     waypoint,GameplayLog.at(entity.position()),GameplayLog.at(target),entity.horizontalCollision,entity.onGround(),
@@ -212,6 +214,14 @@ public final class PlayLife {
             // Authored short-route speed: the facility route carries the body at its own pace, not the walk ability's.
             Motor.velocity(entity,new Vec3(direction.x*.065,entity.getDeltaMovement().y,direction.z*.065),"play_route");
         }else if(elapsed%10==1&&!entity.getNavigation().moveTo(target.x,target.y,target.z,.8)){stop();}
+    }
+    /** Pushing against a body that is not on the facility (a pet that finished and idles at the tunnel's end): ask it to step aside, as staff do. */
+    private void askToYield(Vec3 target){
+        var line=target.subtract(entity.position()).multiply(1,0,1);
+        if(line.lengthSqr()<1e-6)return;
+        var ahead=entity.getBoundingBox().expandTowards(line.normalize().scale(.6)).inflate(.1,0,.1);
+        for(var other:entity.level().getEntitiesOfClass(YukkuriEntity.class,ahead,o->o!=entity&&!o.playLife().active()))
+            YukkuriGroundNavigation.giveWay(other,entity,target);
     }
     /**
      * One tick in the juice at the seat. Every {@link JuiceTub#STEP_TICKS} a hurt body regains a little health and the oldest wound
