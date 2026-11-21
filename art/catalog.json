@@ -192,8 +192,7 @@
           "ids": [
             "accessory_*",
             "hat-damage-index",
-            "hat_damage_inner",
-            "trimmed_hair"
+            "hat_damage_inner"
           ]
         },
         {

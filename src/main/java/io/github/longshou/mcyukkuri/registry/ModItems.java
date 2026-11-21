@@ -59,8 +59,6 @@ public final class ModItems {
             ITEMS.addAlias(MCYukkuri.id(cutter),ResourceLocation.withDefaultNamespace("shears"));
         ITEMS.addAlias(MCYukkuri.id("heated_awl"),MCYukkuri.id("care_awl"));
     }
-    public static final DeferredItem<Item> TRIMMED_HAIR=ITEMS.registerSimpleItem("trimmed_hair",new Item.Properties());
-
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier",
             () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.PLAIN));

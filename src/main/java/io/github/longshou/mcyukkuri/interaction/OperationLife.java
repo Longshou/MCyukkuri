@@ -590,7 +590,7 @@ public final class OperationLife {
         var item=ItemContact.release(entity,stack,WoundPlacement.shearContact(entity,0),Vec3.ZERO);
         if(item==null)return false;
         if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}
-        ItemContact.shearFeedback(entity,player,item);
+        ItemContact.shearFeedback(entity,player,item.position());
         if(entity.isVehicle())entity.motor().interrupt("hat_taken");
         entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
     }

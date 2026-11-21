@@ -301,7 +301,7 @@ public final class ShopStaff {
         start(staff, job, looseScrap == null ? job.target.getCenter() : looseScrap.position());
     }
 
-    private static boolean scrap(ItemStack stack) { return stack.is(Items.PAPER) || stack.is(ModItems.TRIMMED_HAIR.get()); }
+    private static boolean scrap(ItemStack stack) { return stack.is(Items.PAPER); }
 
     private static int scrapSlot(Container trash) {
         for (int i = 0; i < trash.getContainerSize(); i++) if (scrap(trash.getItem(i))) return i;

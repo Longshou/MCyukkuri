@@ -188,14 +188,8 @@ public final class BodyLife {
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());entity.syncBody();}
     public boolean cutHair(int parts,Player player){
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
-        var stack=new ItemStack(ModItems.TRIMMED_HAIR.get());
-        final int removed=cut;
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->{tag.putUUID("Source",entity.getUUID());tag.putString("Variant",entity.getVariant().assetId());
-            tag.putInt("HairParts",removed);tag.putFloat("SourceScale",entity.growthScale()*entity.getScale()*(entity.profile().modelScale()));});
-        var drop=ItemContact.release(entity,stack,WoundPlacement.shearContact(entity,cut),Vec3.ZERO);
-        if(drop==null)return false;
         hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
-        ItemContact.shearFeedback(entity,player,drop);
+        ItemContact.shearFeedback(entity,player,WoundPlacement.shearContact(entity,cut));
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** Older wound lists may contain surface marks; those are not injuries. */

@@ -1,6 +1,6 @@
 """Operation and abuse tools drawn as vanilla-style 16x16 item sprites (same look as care-props/supplies.py: flour paste etc.).
 
-The sprite is the art for the GUI, the ground and item frames (and the cut hair lock everywhere); both hands show the 3D
+The sprite is the art for the GUI, the ground and item frames; both hands show the 3D
 model from held.py, and the pin, hook and rotor on the body are the same model (see build.py). Cutting is vanilla shears;
 care_awl_hot is the awl's heated look. Style: light from the top left, each material has its own hue-shifted ramp (dark -> light), the
 outline is the darkest step of the material it bounds (no black), no anti-aliasing and no partial alpha. Tools lie on the
@@ -34,7 +34,6 @@ STRING = ['#6f6556', '#a99f8a', '#d9d1bf']
 HOT = ['#6e1708', '#b9320c', '#ec6417', '#ffaa33', '#fff0a0']         # heated spike, glowing to the tip
 GLASS = ['#557fae', '#8bb0d4', '#b4cfe9', '#dbeaf7']                  # same glass as the orange-juice bottle
 SYRUP = ['#9a6a17', '#cf9a33', '#efc861', '#fff0b0']                  # sugar water in the brood bottle
-HAIR = ['#2a170d', '#462818', '#673f24', '#8a5a34', '#ad7d4f']        # cut lock
 FLAME = ['#2b56c4', '#5a8ff0', '#a9d0ff', '#ffffff']                  # alcohol flame
 SPIRIT = ['#5f86b3', '#93b8dd', '#c2dcf1']                            # lamp spirit (faintly blue)
 PLANK = ['#4d3720', '#7d5c36', '#ad8650', '#caa56c', '#e3c68f']        # pale oak restraint plank
@@ -387,29 +386,6 @@ def iron_enclosure():
     return i
 
 
-def trimmed_hair():
-    """A loose lock of cut hair: four soft strands drawn as connected, kinked lines, gathered at staggered cut ends (bottom
-    left) and parting towards lighter tips (top right); no tie and no binding."""
-    i = Icon('trimmed_hair')
-    strands = [
-        [(3, 13), (3, 12), (3, 11), (4, 11), (4, 10), (4, 9), (4, 8), (5, 8), (5, 7), (5, 6), (6, 6), (6, 5), (6, 4), (7, 4),
-         (7, 3), (8, 3), (8, 2)],
-        [(4, 13), (4, 12), (5, 12), (5, 11), (6, 11), (6, 10), (7, 10), (7, 9), (7, 8), (8, 8), (8, 7), (9, 7), (9, 6), (10, 6), (10, 5),
-         (10, 4), (11, 4), (11, 3), (12, 3), (12, 2)],
-        [(5, 14), (5, 13), (6, 13), (6, 12), (7, 12), (7, 11), (8, 11), (9, 11), (9, 10), (10, 10), (10, 9), (11, 9), (11, 8),
-         (12, 8), (12, 7), (13, 7), (13, 6), (14, 6), (14, 5)],
-        [(6, 14), (7, 14), (7, 13), (8, 13), (9, 13), (9, 12), (10, 12), (11, 12), (12, 12), (12, 11), (13, 11), (14, 11),
-         (14, 10)],
-    ]
-    i.part += 1
-    for strand in strands:
-        n = len(strand)
-        for k, (x, y) in enumerate(strand):
-            step = 1 if k < 2 else 4 if k >= n - 2 else 3 if k >= n - 5 else 2
-            i.px[(x, y)] = [HAIR, step, i.part]
-    return i
-
-
 def alcohol_lamp():
     """DRAFT (not shipped until the item exists): アルコールランプ. A squat clear glass lamp with a visible spirit line, a
     brass collar, a cotton wick and a small flame: blue outside, white-yellow core."""
@@ -440,7 +416,7 @@ def alcohol_lamp():
 ICONS = {
     'pin_tool': pin_tool, 'care_mallet': care_mallet, 'care_awl': care_awl, 'care_awl_hot': care_awl_hot,
     'restraint_frame': restraint_frame, 'wrap_sling': wrap_sling, 'hanging_hook': hanging_hook,
-    'care_vibrator': care_vibrator, 'iron_enclosure': iron_enclosure, 'trimmed_hair': trimmed_hair,
+    'care_vibrator': care_vibrator, 'iron_enclosure': iron_enclosure,
 }
 DRAFTS = {'alcohol_lamp': alcohol_lamp}
 SHIPPED = tuple(ICONS)

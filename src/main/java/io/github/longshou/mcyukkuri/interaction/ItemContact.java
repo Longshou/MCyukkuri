@@ -152,12 +152,10 @@ public final class ItemContact {
         return release(holder, owned, at, velocity, ItemEntity::setDefaultPickUpDelay);
     }
 
-    public static void shearFeedback(YukkuriEntity source,Player player,ItemEntity drop){
-        var at=drop.position();
-        drop.level().playSound(null,at.x,at.y,at.z,SoundEvents.SHEEP_SHEAR,SoundSource.PLAYERS,1,1);
-        drop.level().gameEvent(GameEvent.SHEAR,at,GameEvent.Context.of(player));
-        GameplayLog.event(source,"interaction","shear drop; item={} drop={} contact={} above_feet={}",
-                drop.getItem().getItem(),drop.getUUID(),at,at.y-source.getY());
+    public static void shearFeedback(YukkuriEntity source,Player player,Vec3 at){
+        source.level().playSound(null,at.x,at.y,at.z,SoundEvents.SHEEP_SHEAR,SoundSource.PLAYERS,1,1);
+        source.level().gameEvent(GameEvent.SHEAR,at,GameEvent.Context.of(player));
+        GameplayLog.event(source,"interaction","shear; contact={} above_feet={}",at,at.y-source.getY());
     }
 
     private static ItemEntity release(Entity holder, ItemStack owned, Vec3 at, Vec3 velocity, Consumer<ItemEntity> pickupDelay) {

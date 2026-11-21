@@ -4254,9 +4254,9 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
            ('读胆大灵梦', f'yukkuri status {sel("oni_bold")} raw'),
            ('读胆小灵梦', f'yukkuri status {sel("oni_timid")} raw')])
 add('oni_street_scrap', 'shop', '鬼威惨商店：店员把一份碎屑送到街桶', '鬼威惨商店：店员把一份碎屑送到街桶',
-    '废物桶里有一份剪落的头发。看店员从后屋拿出，走到门外街桶投放。桶里的头发可以读数。', '约一分钟', [
+    '废物桶里有一份废纸。看店员从后屋拿出，走到门外街桶投放。桶里的废纸可以读数。', '约一分钟', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
-        'data merge block ~17 ~2 ~-6 {Items:[{Slot:0b,id:"mcyukkuri:trimmed_hair",count:1}]}',
+        'data merge block ~17 ~2 ~-6 {Items:[{Slot:0b,id:"minecraft:paper",count:1}]}',
         *garbage_bin(5, 18, [('minecraft:stick', 1)], False),
     ], env=DAY, vantage=(4, 20, 180, 10),
     reads=[('读店内废物桶', 'data get block ~17 ~2 ~-6 Items'),
@@ -8393,7 +8393,7 @@ _smoke('wound_sources', 490, [
     r'\[interaction\][^\n]* operation started; [^\n]* pose=BOX duration=400 reserved_item=mcyukkuri:iron_enclosure count=1',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:iron_enclosure count=1',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
-    r'\[interaction\][^\n]* shear drop; item=mcyukkuri:trimmed_hair [^\n]*above_feet=0\.[1-9]',
+    r'\[interaction\][^\n]* shear; contact=[^\n]* above_feet=0\.[1-9]',
     r'\[interaction\][^\n]* shear drop; item=mcyukkuri:reimu_ribbon [^\n]*above_feet=0\.[1-9]',
     r'\[interaction\][^\n]* action=CUT_ACCESSORY success=true',
 ], forbid=[r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=(?:operator_unreachable|timeout)'])
@@ -8865,8 +8865,8 @@ def _crop_warning_retreat(log):
 next(s for s in S if s.id == 'street_crops').smoke['verify'] = _crop_warning_retreat
 next(s for s in S if s.id == 'street_furniture').smoke['verify'] = _street_furniture_result
 _smoke('oni_street_scrap', 1300, [
-    r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=mcyukkuri:trimmed_hair count=1',
-    r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=mcyukkuri:trimmed_hair count=1',
+    r'\[shop\][^\n]* action=street_scrap result=lifted [^\n]* item=minecraft:paper count=1',
+    r'\[shop\][^\n]* action=street_scrap result=stored [^\n]* item=minecraft:paper count=1',
 ], readout=['data get block ~17 ~2 ~-6 Items', 'data get block ~5 ~ ~18 Items'])
 _smoke('shop_build', 1600, [r'\[npc-care\][^\n]* action=refill_bowl ', r'\[npc-care\][^\n]* action=clean_toilet ',
                             r'\[shop\][^\n]* action=dispose_waste result=stored ', r'\[shop\][^\n]* action=register shop=',

@@ -118,7 +118,6 @@ def hoop(center,r,t,c): return {'hoop':[center,r,t], 'color':c}
 def band(a,b,c,width=.8): return {'band':[a,b,width,.14], 'color':c}
 
 RECIPE = {
- 'trimmed_hair':[rod([-2,0,0],[1,2,.3],.22,10,.02),rod([-1,0,.4],[2,2,-.3],.22,10,.02),rod([-2,0,.6],[-.5,2.4,0],.22,10,.02)],
  'brood_bottle':[hoop([0,.15,0],2.4,.13,4),hoop([0,4,0],2.1,.14,4),{**rod([0,.1,0],[0,3.5,0],2.4,11),'caps':'bottom'},{**rod([0,3.5,0],[0,4,0],2.4,11,2.1),'caps':'none'},rod([0,.18,0],[0,.75,0],2.27,12)],
 }
 

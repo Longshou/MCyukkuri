@@ -6648,8 +6648,7 @@
       "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling.png",
       "hanging_hook": "src/main/resources/assets/mcyukkuri/textures/item/hanging_hook.png",
       "care_vibrator": "src/main/resources/assets/mcyukkuri/textures/item/care_vibrator.png",
-      "iron_enclosure": "src/main/resources/assets/mcyukkuri/textures/item/iron_enclosure.png",
-      "trimmed_hair": "src/main/resources/assets/mcyukkuri/textures/item/trimmed_hair.png"
+      "iron_enclosure": "src/main/resources/assets/mcyukkuri/textures/item/iron_enclosure.png"
     },
     "held_models": {
       "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool_model.png",
@@ -6664,7 +6663,7 @@
     "drafts": {
       "alcohol_lamp": "art/props/operation-tools/icons/alcohol_lamp.png"
     },
-    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (neoforge:separate_transforms: 3D base in the hands, sprite in GUI, ground and frames; the placed restraint_frame takes its block model (art/props/restraint-table) as the hand base; trimmed_hair is item/generated; written by build.py)",
+    "models": "src/main/resources/assets/mcyukkuri/models/item/<id>.json (neoforge:separate_transforms: 3D base in the hands, sprite in GUI, ground and frames; the placed restraint_frame takes its block model (art/props/restraint-table) as the hand base; written by build.py)",
     "role": "vanilla-style 16x16 sprites for the GUI, ground and item frames, and real 3D cuboid models of the same tools for both hands; the pin, hook and rotor contact meshes on the body are the same 3D models, and the body-fitted sling and iron box sample the same material textures. Cutting tools are vanilla shears; the heated awl is the awl's heat state (care_awl_hot override). Drafts are not shipped until their item is registered",
     "status": "pending_user_confirmation"
   },
