@@ -56,7 +56,7 @@ def read_properties(path):
 
 
 MOD_CACHE = server.COMMON / '.local/smoke/mod-cache'
-MOD_CACHE_KEEP = 4
+MOD_CACHE_IDLE = 2 * 3600
 
 
 def link_or_copy(src, dst):
@@ -108,11 +108,47 @@ def classes_key(worktree, java, classpath):
 
 
 def prune_mod_cache():
-    """Keep the newest few compiled trees (a hit refreshes its time); drop stale half-built ones of crashed runs."""
-    entries = sorted((p for p in MOD_CACHE.iterdir() if p.is_dir()), key=lambda p: p.stat().st_mtime, reverse=True)
-    done = [p for p in entries if '.tmp-' not in p.name]
-    for path in done[MOD_CACHE_KEEP:] + [p for p in entries if '.tmp-' in p.name and time.time() - p.stat().st_mtime > 86400]:
-        shutil.rmtree(path, ignore_errors=True)
+    """Remove compiled trees nobody has used for two hours; every hit touches its tree before linking, so a tree another
+    session may be using stays. Half-built trees of crashed runs age out the same way."""
+    cutoff = time.time() - MOD_CACHE_IDLE
+    for path in MOD_CACHE.iterdir():
+        try:
+            stale = path.is_dir() and path.stat().st_mtime < cutoff
+        except FileNotFoundError:  # another session pruned it first
+            continue
+        if stale:
+            shutil.rmtree(path, ignore_errors=True)
+
+
+def compile_classes(cached, worktree, java, classpath, instance):
+    """javac into a uniquely named tree, then rename it onto the key; if another session cached the same key first, that
+    tree is kept and this one dropped. The unique suffix keeps a crashed run's tree from colliding with a reused PID."""
+    classpath = list(classpath)
+    # The launcher discovers bundled libraries such as MixinExtras at runtime. javac needs them as separate jars.
+    with ZipFile(classpath[0]) as archive:
+        for member in archive.namelist():
+            if member.startswith('META-INF/jarjar/') and member.endswith('.jar'):
+                library = instance / 'compile-libs' / Path(member).name
+                library.parent.mkdir(parents=True, exist_ok=True)
+                library.write_bytes(archive.read(member))
+                classpath.append(library)
+    args = instance / 'javac.args'
+    cp = ';'.join(path.as_posix() for path in classpath)
+    args.write_text(f'-cp "{cp}"\n' + '\n'.join(f'"{path.as_posix()}"' for path in
+                    sorted((worktree / 'src/main/java').rglob('*.java'))), encoding='utf-8')
+    print(f'Compiling worktree {worktree} -> {cached.name}', flush=True)
+    building = cached.with_name(f'{cached.name}.tmp-{os.getpid()}-{secrets.token_hex(4)}')
+    building.mkdir()
+    try:
+        subprocess.run([str(java.with_name('javac.exe')), '-proc:none', '-nowarn', '-encoding', 'UTF-8',
+                        '-Xmaxerrs', '300', '-d', str(building), '@' + str(args)], cwd=instance, check=True)
+        try:
+            building.rename(cached)
+        except OSError:  # another session cached the same key first
+            shutil.rmtree(building, ignore_errors=True)
+    except BaseException:
+        shutil.rmtree(building, ignore_errors=True)
+        raise
 
 
 def assemble_mod(worktree, runtime, java, instance):
@@ -136,36 +172,20 @@ def assemble_mod(worktree, runtime, java, instance):
     metadata.write_text(re.sub(r'\$\{(\w+)\}', lambda match: properties[match[1]], template), encoding='utf-8')
     MOD_CACHE.mkdir(parents=True, exist_ok=True)
     cached = MOD_CACHE / classes_key(worktree, java, classpath)
-    if cached.is_dir():
-        print(f'Reusing compiled classes {cached.name} for worktree {worktree}', flush=True)
-    else:
-        # The launcher discovers bundled libraries such as MixinExtras at runtime. javac needs them as separate jars.
-        with ZipFile(merged) as archive:
-            for member in archive.namelist():
-                if member.startswith('META-INF/jarjar/') and member.endswith('.jar'):
-                    library = instance / 'compile-libs' / Path(member).name
-                    library.parent.mkdir(parents=True, exist_ok=True)
-                    library.write_bytes(archive.read(member))
-                    classpath.append(library)
-        args = instance / 'javac.args'
-        cp = ';'.join(path.as_posix() for path in classpath)
-        args.write_text(f'-cp "{cp}"\n' + '\n'.join(f'"{path.as_posix()}"' for path in
-                        sorted((worktree / 'src/main/java').rglob('*.java'))), encoding='utf-8')
-        print(f'Compiling worktree {worktree} -> {cached.name}', flush=True)
-        building = cached.with_name(f'{cached.name}.tmp-{os.getpid()}')
-        building.mkdir(parents=True)
+    for attempt in (0, 1):
+        if cached.is_dir():
+            print(f'Reusing compiled classes {cached.name} for worktree {worktree}', flush=True)
+        else:
+            compile_classes(cached, worktree, java, classpath, instance)
         try:
-            subprocess.run([str(java.with_name('javac.exe')), '-proc:none', '-nowarn', '-encoding', 'UTF-8',
-                            '-Xmaxerrs', '300', '-d', str(building), '@' + str(args)], cwd=instance, check=True)
-            try:
-                building.rename(cached)
-            except OSError:  # another session cached the same key first
-                shutil.rmtree(building, ignore_errors=True)
-        except BaseException:
-            shutil.rmtree(building, ignore_errors=True)
-            raise
-    os.utime(cached)
-    link_tree(cached, mod)
+            os.utime(cached)
+            link_tree(cached, mod)
+            break
+        except FileNotFoundError:
+            # Another session's prune removed the tree between the check and the link: retry as a cache miss.
+            if attempt:
+                raise
+            print(f'Compiled classes {cached.name} vanished while linking; rebuilding', flush=True)
     prune_mod_cache()
     return mod
 

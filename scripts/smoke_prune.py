@@ -6,7 +6,7 @@ Candidates are `.local/smoke/instance-*` / `pack-*` and `.local/captures/<run>/`
 --keep-hours. A candidate is kept when its directory name appears in docs/, AGENTS.md, scripts/README.md or `.local/HANDOFF.md`, or in
 the briefs / reports of a package that still has a worktree (`.local/refactor/reports|briefs/<package>*`, `.local/reports/<package>*`).
 Evidence to keep after a package lands must be named in the TODO or the handoff. Result and baseline indexes under `.local/smoke/`
-are not references: they name every run. `.local/smoke/mod-cache/` (compiled classes, newest few kept) is bounded by smoke_museum itself and not touched here.
+are not references: they name every run. `.local/smoke/mod-cache/` (compiled classes; trees unused for two hours are removed) is bounded by smoke_museum itself and not touched here.
 Without --apply only the plan is printed.
 """
 import argparse
