@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 公园休息：街上遛宠、长椅上坐着看宠物玩；口袋公园放游具 | `.worktrees/wp-park-rest` | HumanStreet, PetOuting, ParkSeats, human renderer, author_lots pocket park, museum_scenarios park |
 | 流浪油库里白天上街（FG-13 真实世界触发率，v3：上街换锚点） | `.worktrees/wp-stray-draw` | life/StreetDraw (new), entity/RoamingGoal, settlement/ForageGoal, FEATURES FG-13 |
 
 
