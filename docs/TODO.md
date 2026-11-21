@@ -14,6 +14,7 @@
 
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 | PD-13 抱幼返船复测失败（弯岸够不到帽檐、随机种子失败） | `.worktrees/wp-pd13-retry` | pond boat boarding, carry hop |
+| 橙汁澡盆：健康个体泡澡降不安，受伤个体修复橙汁有效的伤势，家规管宠物能否泡 | `.worktrees/wp-tub-rules` | play/JuiceTub, PlayLife, house rules |
 
 
 ## 玩法待办
