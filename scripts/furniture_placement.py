@@ -7,7 +7,7 @@ def joined(kind, cells, axis='x', wood=None):
     cells, out = set(cells), {}
     for x, z in sorted(cells):
         near = {'north': (x, z - 1), 'south': (x, z + 1), 'west': (x - 1, z), 'east': (x + 1, z)}
-        props = {d: str(c in cells and (kind == 'wooden_table' or (d in ('west', 'east')) == (axis == 'x'))).lower()
+        props = {d: str(c in cells and (d in ('west', 'east')) == (axis == 'x')).lower()
                  for d, c in near.items()}
         if kind == 'wooden_bench':
             props['axis'] = axis

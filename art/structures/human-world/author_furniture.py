@@ -1,9 +1,10 @@
-"""Original wooden furniture for streets, shops and houses: a joining bench, a joining table and an open produce crate as native
-block models, each in the four woods of the village palettes (block property `wood`, human/VillageWood).
+"""Original wooden furniture for streets, shops and houses: a joining bench and an open produce crate as native block models, each in
+the four woods of the village palettes (block property `wood`, human/VillageWood).
 
-Both pieces join neighbours of the same kind (block properties north/east/south/west, see human/JoinedFurnitureBlock): a run of benches
-or a group of tables reads as one piece with legs only at its outer ends and corners. The bench is a backless village bench (seat top
-at 8/16, the same height as a slab, so the street rest spot keeps its climb); a single bench is a stool. The table top is at 16/16.
+The bench joins neighbours of the same kind (block properties north/east/south/west, see human/JoinedFurnitureBlock): a run of
+benches reads as one piece with legs only at its outer ends and corners. It is a backless village bench (seat top at 8/16, the same
+height as a slab, so the street rest spot keeps its climb); a single bench is a stool. Tables are solid vanilla plank blocks of the
+building's wood.
 
 The crate (human/ProduceCrateBlock) is a slatted box on four corner posts, 9/16 high, its front (model north) one slat lower. The goods
 it holds are drawn by client/ProduceCrateRenderer from its real contents, standing on the floor board at 2/16.
@@ -35,7 +36,7 @@ WOODS = {
     'jungle': ['#523527', '#7a513a', '#a37355', '#bd8f70'],
 }
 GRIME = (0x3b, 0x2e, 0x22)
-NAMES = {'wooden_bench': ('长椅', 'Wooden Bench', 'ベンチ'), 'wooden_table': ('木桌', 'Wooden Table', '木のテーブル'),
+NAMES = {'wooden_bench': ('长椅', 'Wooden Bench', 'ベンチ'),
          'produce_crate': ('货箱', 'Produce Crate', '野菜箱'), 'display_tray': ('展示托盘', 'Display Tray', '陳列トレー')}
 
 
@@ -172,66 +173,6 @@ def bench_blockstate():
     return {'variants': variants}
 
 
-# ---------------------------------------------------------------------------------------------------------- table
-TOP_Y = (13, 16)
-APRON_Y = (10, 13)
-
-
-def table_part(name, elements):
-    return name, {'parent': 'minecraft:block/block', 'textures': textures(), 'elements': elements}
-
-
-def table_parts():
-    """Pieces drawn for the north-west quarter; the blockstate turns them to the other sides and corners."""
-    a, b = (0, TOP_Y[0], 0), (16, TOP_Y[1], 16)
-    return dict([
-        table_part('top', [box(a, b, faces(a, b, v_top=0))]),
-        table_part('leg', [leg(1, 1, TOP_Y[0])]),
-        table_part('apron', [rail((3, APRON_Y[0], 1), (13, APRON_Y[1], 2))]),            # north side between the corner legs
-        table_part('apron_west', [rail((0, APRON_Y[0], 1), (3, APRON_Y[1], 2))]),       # ...continued west into a joined table
-        table_part('apron_east', [rail((13, APRON_Y[0], 1), (16, APRON_Y[1], 2))]),     # ...continued east into a joined table
-    ])
-
-
-SIDES = ['north', 'east', 'south', 'west']        # clockwise; the model's north turned by y = 90 * index
-
-
-def table_blockstate():
-    parts = []
-    for wood in WOODS:
-        piece = lambda name: tex('wooden_table_' + name + suffix(wood))
-        parts.append({'when': {'wood': wood}, 'apply': {'model': piece('top')}})
-        for i, side in enumerate(SIDES):
-            left, right = SIDES[(i - 1) % 4], SIDES[(i + 1) % 4]       # the model's west and east, seen from this side
-            turn = {'y': 90 * i} if i else {}
-            parts.append({'when': {'wood': wood, side: 'false', left: 'false'}, 'apply': {'model': piece('leg'), **turn}})
-            parts.append({'when': {'wood': wood, side: 'false'}, 'apply': {'model': piece('apron'), **turn}})
-            parts.append({'when': {'wood': wood, side: 'false', left: 'true'}, 'apply': {'model': piece('apron_west'), **turn}})
-            parts.append({'when': {'wood': wood, side: 'false', right: 'true'}, 'apply': {'model': piece('apron_east'), **turn}})
-    return {'multipart': parts}
-
-
-def table_item():
-    """The lone table: top, four legs and four aprons in one model (multipart has no item form)."""
-    parts = table_parts()
-    elements = list(parts['top']['elements'])
-    for i in range(4):
-        for piece in ('leg', 'apron'):
-            elements += [turned(e, i) for e in parts[piece]['elements']]
-    return {'parent': 'minecraft:block/block', 'textures': parts['top']['textures'], 'elements': elements}
-
-
-def turned(element, quarter):
-    """An element turned clockwise (seen from above) by quarter * 90° about the block centre, as a blockstate y rotation does."""
-    e = json.loads(json.dumps(element))
-    for _ in range(quarter):
-        (x0, y0, z0), (x1, y1, z1) = e['from'], e['to']
-        e['from'], e['to'] = [16 - z1, y0, x0], [16 - z0, y1, x1]
-        f = e['faces']
-        e['faces'] = {'east': f['north'], 'south': f['east'], 'west': f['south'], 'north': f['west'], 'up': f['up'], 'down': f['down']}
-    return e
-
-
 # ---------------------------------------------------------------------------------------------------------- crate
 CRATE_TOP = 9            # corner posts; the slats end one pixel lower
 CRATE_FLOOR = 2          # top of the floor board: the goods stand here (client/ProduceCrateRenderer)
@@ -316,16 +257,12 @@ def export():
                              'sha256': hashlib.sha256(data).hexdigest()}
     models = ASSET / 'models'
     drawn = {'wooden_bench_' + name: bench(west, east) for (west, east), name in BENCH_MODELS.items()}
-    drawn.update({'wooden_table_' + name: model for name, model in table_parts().items()})
     drawn['produce_crate'] = crate()
     for name, model in drawn.items():
         write(models / f'block/{name}.json', model)
         for wood in list(WOODS)[1:]: write(models / f'block/{name}_{wood}.json', in_wood(name, wood))
     write(ASSET / 'blockstates/wooden_bench.json', bench_blockstate())
     write(models / 'item/wooden_bench.json', {'parent': tex('wooden_bench_single')})
-    write(models / 'block/wooden_table.json', table_item())
-    write(ASSET / 'blockstates/wooden_table.json', table_blockstate())
-    write(models / 'item/wooden_table.json', {'parent': tex('wooden_table')})
     write(ASSET / 'blockstates/produce_crate.json', crate_blockstate())
     write(models / 'item/produce_crate.json', {'parent': tex('produce_crate')})
     for raised in (False, True):
@@ -348,18 +285,16 @@ def export():
     stick = {'item': 'minecraft:stick'}
     write(DATA / 'recipe/wooden_bench.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['sss', 't t'],
           'key': {'s': {'tag': 'minecraft:wooden_slabs'}, 't': stick}, 'result': {'id': 'mcyukkuri:wooden_bench', 'count': 2}})
-    write(DATA / 'recipe/wooden_table.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['ppp', 't t'],
-          'key': {'p': {'tag': 'minecraft:planks'}, 't': stick}, 'result': {'id': 'mcyukkuri:wooden_table', 'count': 1}})
     write(DATA / 'recipe/produce_crate.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['s s', 'sss'],
           'key': {'s': {'tag': 'minecraft:wooden_slabs'}}, 'result': {'id': 'mcyukkuri:produce_crate', 'count': 2}})
     write(DATA / 'recipe/display_tray.json', {'type': 'minecraft:crafting_shaped', 'category': 'building', 'pattern': ['tst'],
           'key': {'s': {'tag': 'minecraft:wooden_slabs'}, 't': stick}, 'result': {'id': 'mcyukkuri:display_tray', 'count': 1}})
     write(ROOT / 'src/main/resources/data/minecraft/tags/block/mineable/axe.json',
-          {'replace': False, 'values': ['mcyukkuri:' + name for name in (*NAMES, 'notice_board')]})
+          {'replace': False, 'values': ['mcyukkuri:' + name for name in NAMES]})
     write(ART / 'furniture-manifest.json', {'status': 'pending_user_confirmation', 'author': 'Original procedural pixel art; no external source pixels.',
-        'geometry': 'bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); '
-                    'table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the '
-                    'same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front; '
+        'geometry': 'bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece), joining '
+                    'same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides '
+                    'and back, one on the front; '
                     'tray: board 1/16 with a 2/16 rim, inset 1 px; raised form on an 8/16 slab of the vanilla planks texture',
         'woods': WOODS,
         'models': sorted(p.relative_to(ROOT).as_posix() for pattern in ('block/wooden_*.json', 'block/produce_crate*.json', 'block/display_tray*.json')

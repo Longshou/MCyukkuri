@@ -1,7 +1,7 @@
 {
   "status": "pending_user_confirmation",
   "author": "Original procedural pixel art; no external source pixels.",
-  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece); table: top 13..16/16, 2 px legs at open corners, aprons on open sides; both join same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front; tray: board 1/16 with a 2/16 rim, inset 1 px; raised form on an 8/16 slab of the vanilla planks texture",
+  "geometry": "bench: seat 5..8/16 high, 1..15 deep, trestles at the open ends (and mid-span in a middle piece), joining same-kind neighbours of the same wood; crate: posts 9/16 high, floor board top at 2/16, two slats on the sides and back, one on the front; tray: board 1/16 with a 2/16 rim, inset 1 px; raised form on an 8/16 slab of the vanilla planks texture",
   "woods": {
     "oak": [
       "#4a3826",
@@ -56,28 +56,7 @@
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_acacia.json",
     "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_spruce.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_acacia.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_acacia.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_east_spruce.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_spruce.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_acacia.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_apron_west_spruce.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_acacia.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_leg_spruce.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_acacia.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_jungle.json",
-    "src/main/resources/assets/mcyukkuri/models/block/wooden_table_top_spruce.json"
+    "src/main/resources/assets/mcyukkuri/models/block/wooden_bench_west_end_spruce.json"
   ],
   "assets": {
     "village_wood_planks": {

@@ -374,7 +374,7 @@ def kiosk(p):
     b.block(2, 1, 2, 'mcyukkuri:newspaper_stack', {'facing': 'south', 'bundles': '3'})
     garbage(b, 7, 1, 2, 'west', [('paper', 2), ('bread', 1), ('cookie', 1), ('stick', 1)])
     lamp(b, 0, 1, 1)
-    b.block(7, 2, 5, 'mcyukkuri:notice_board', {'facing': 'east'})
+    b.wall_sign(7, 2, 5, ['告示', '', '', ''], 'east', p.wood)
     b.block(8, 1, 6, p.pot(0))
     return finish(b)
 

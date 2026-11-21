@@ -61,7 +61,8 @@ def wall_item(b, x, y, z, item, facing='north', scale=.5):
 
 
 def notice(b, x, y, z, facing):
-    b.block(x, y, z, 'mcyukkuri:notice_board', {'facing': facing})
+    """A public notice as a blank village wall sign on the same supporting block."""
+    b.wall_sign(x, y, z, ['告示', '', '', ''], facing, b.palette.wood)
 
 
 def paper(b, x, y, z):

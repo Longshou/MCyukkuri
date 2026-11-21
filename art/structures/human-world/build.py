@@ -194,11 +194,15 @@ def slab(b,x,y,z,name,kind='bottom'):
     b.block(x,y,z,name+'_slab',{'type':kind,'waterlogged':'false'})
 def barrel(b,x,y,z,facing='up'): b.block(x,y,z,'barrel',{'facing':facing,'open':'false'})
 def furniture_wood(b):
-    """The wood of the building's village type for the bench, table and crate (their `wood` property); oak without a palette."""
+    """The wood of the building's village type for the bench and crate (their `wood` property); oak without a palette."""
     p=getattr(b,'palette',None); return p.wood if p else 'oak'
 def furniture(b,kind,y,cells,axis='x'):
-    """A wooden bench (along axis; one cell is a stool) or table over the joined (x, z) cells, in the building's wood."""
-    for (x,z),props in joined('wooden_'+kind,cells,axis,furniture_wood(b)).items(): b.block(x,y,z,'mcyukkuri:wooden_'+kind,props)
+    """A wooden bench (along axis; one cell is a stool) over the joined (x, z) cells, in the building's wood; a table is a solid
+    plank block of that wood at the same height, so things set on it keep their height."""
+    if kind=='table':
+        for x,z in cells: b.block(x,y,z,furniture_wood(b)+'_planks')
+        return
+    for (x,z),props in joined('wooden_bench',cells,axis,furniture_wood(b)).items(): b.block(x,y,z,'mcyukkuri:wooden_bench',props)
 def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
 def glass(b,a,c,y0=3,y1=7,full=False,top=5):
     """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""
@@ -442,7 +446,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     furniture(b,'bench',3,[(24,5),(24,6)],'z')
-    b.block(24,4,7,'mcyukkuri:notice_board',{'facing':'east'})
+    b.wall_sign(24,4,7,['告示','','',''],'east',p.wood)
     # Mock living room (7x5 interior) with glass walls, window observation spot and entrance door.
     pen_rect(b,29,14,35,18); b.door(30,3,13)
     b.bowl(29,14); b.bowl(35,14); b.block(35,3,18,'mcyukkuri:yukkuri_toilet')

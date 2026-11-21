@@ -602,7 +602,8 @@ WORKSTATIONS = {'minecraft:' + n for n in ('barrel', 'lectern', 'composter', 'sm
 PLANT_BLOCKS = {'minecraft:' + n for n in (
     'air', 'light', 'lantern', 'chain', 'ochre_froglight', 'glass', 'glass_pane', 'white_concrete', 'yellow_concrete',
     'stone_bricks', 'stone_brick_wall', 'stone_brick_stairs', 'stone_brick_slab', 'polished_andesite', 'polished_andesite_stairs', 'polished_andesite_slab', 'smooth_stone',
-    'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern', 'lever')}
+    'smooth_stone_slab', 'andesite', 'stone', 'gravel', 'waxed_copper_door', 'chest', 'hay_block', 'birch_wall_sign', 'potted_fern', 'lever',
+    'spruce_planks')}
 # The largest body a sweet box admits: an adult deibu (formScale 1.5) at the top adult scale 1.2 -- hitbox 0.8 x 0.6 per unit growth
 # (body_geometry.json) -> 1.44 wide, 1.08 high; its rounded body surface is as wide (12.8 units). The widest drawn model is the wasa
 # deibu (reimu_wasa_deibu) at 1.8: 2.41 across its hair, which WallYield presses onto any face nearer than that (measured with the pose

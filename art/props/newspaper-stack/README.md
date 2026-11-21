@@ -1,6 +1,6 @@
 # 报纸堆
 
-城镇街角与小卖部门口的旧报纸捆，原生方块模型（元素与 16 像素贴图），颜色取共用色板 `art/props/palette.json`（`paper` 纸面，`straw` 麻绳，`chili`／`sky`／`berry`／`gold` 报头红印与夹页广告）。制作源为 `build.py`，从仓库根目录运行 `<py> art/props/newspaper-stack/build.py` 写出运行资源与 `manifest.json` 指纹，加 `--check` 只比较。预览与告示板共用 [`../notice-board/preview.py`](../notice-board/preview.py)。
+城镇街角与小卖部门口的旧报纸捆，原生方块模型（元素与 16 像素贴图），颜色取共用色板 `art/props/palette.json`（`paper` 纸面，`straw` 麻绳，`chili`／`sky`／`berry`／`gold` 报头红印与夹页广告）。制作源为 `build.py`，从仓库根目录运行 `<py> art/props/newspaper-stack/build.py` 写出运行资源与 `manifest.json` 指纹，加 `--check` 只比较。
 
 | 状态 | 模型 | 外形 |
 | --- | --- | --- |

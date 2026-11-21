@@ -101,7 +101,8 @@ def bench(b, cells, axis):
 
 
 def table(b, cells):
-    for (x, z), props in joined('wooden_table', cells, 'x', WOOD).items(): b.block(x, 3, z, 'mcyukkuri:wooden_table', props)
+    """A solid plank table: the same top height as the bench table it replaces, so trays and lamps keep their place."""
+    for x, z in cells: b.block(x, 3, z, WOOD + '_planks')
 
 
 def hang(b, x, z, y=7):

@@ -217,11 +217,13 @@ def box(dx1, dy1, dz1, dx2, dy2, dz2, state, mode=''):
 
 
 def furniture(kind, y, cells, axis='x', relative=True):
-    """A wooden bench (along ``axis``; one cell is a stool) or table over the (x, z) cells, written with the joins the blocks compute
-    ``relative`` places at the scenario anchor, otherwise at world coordinates."""
+    """A wooden bench (along ``axis``; one cell is a stool) over the (x, z) cells, written with the joins the blocks compute; a
+    table is a solid oak plank block at the same height. ``relative`` places at the scenario anchor, otherwise at world coordinates."""
     at = '~' if relative else ''
-    return [f'setblock {at}{x} {at}{y} {at}{z} mcyukkuri:wooden_{kind}{_state(props)}'
-            for (x, z), props in _joined('wooden_' + kind, cells, axis).items()]
+    if kind == 'table':
+        return [f'setblock {at}{x} {at}{y} {at}{z} minecraft:oak_planks' for x, z in cells]
+    return [f'setblock {at}{x} {at}{y} {at}{z} mcyukkuri:wooden_bench{_state(props)}'
+            for (x, z), props in _joined('wooden_bench', cells, axis).items()]
 
 
 def shed(dx, dz, half=2, height=3):

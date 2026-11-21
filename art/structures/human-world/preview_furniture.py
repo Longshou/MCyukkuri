@@ -1,4 +1,4 @@
-"""Offline preview of the village furniture: the bench, table and produce crate in the four woods, the crate close up, the market
+"""Offline preview of the village furniture: the bench and produce crate in the four woods, the crate close up, the market
 stall counter of every village type, the display tray close up and the desks and counters that use it, rendered with the real block
 models and textures; an adult Reimu stands by for scale.
 
@@ -146,14 +146,15 @@ def crate_block(wood, facing, goods):
 
 
 def wood_set(style):
-    """A stool, a three-piece bench, a two-piece table and crates (one on the table, one on the ground) in the type's wood, in front of
-    a wall of the type's planks on its sidewalk stone."""
+    """A stool, a three-piece bench, a two-piece plank table and crates (one on the table, one on the ground) in the type's wood, in
+    front of a wall of the type's planks on its sidewalk stone."""
     p = PALETTES[style]; b = {}
     for x in range(-5, 6):
         for z in range(-2, 3): b[x, -1, z] = ('minecraft:' + p.sidewalk[0][0], {}, None)
         for y in (0, 1): b[x, y, -2] = ('minecraft:' + p.planks(), {}, None)
-    for kind, cells in [('wooden_bench', [(-4, 0)]), ('wooden_bench', [(-2, 0), (-1, 0), (0, 0)]), ('wooden_table', [(2, 0), (3, 0)])]:
-        for (x, z), props in joined(kind, cells, 'x', p.wood).items(): b[x, 0, z] = ('mcyukkuri:' + kind, props, None)
+    for cells in ([(-4, 0)], [(-2, 0), (-1, 0), (0, 0)]):
+        for (x, z), props in joined('wooden_bench', cells, 'x', p.wood).items(): b[x, 0, z] = ('mcyukkuri:wooden_bench', props, None)
+    for x, z in ((2, 0), (3, 0)): b[x, 0, z] = ('minecraft:' + p.planks(), {}, None)
     b[3, 1, 0] = crate_block(p.wood, 'south', [('apple', 4), ('apple', 4), ('apple', 3)])
     b[4, 0, 1] = crate_block(p.wood, 'south', [('carrot', 4), ('potato', 4), ('beetroot', 3), ('bread', 2)])
     return b
@@ -177,9 +178,9 @@ def tray_block(facing, goods, raised=False, wood='oak'):
 
 
 def tray_row():
-    """Oak trays: three on a table (one thing, two piles, four piles), then a slab-topped counter with two raised trays in it."""
+    """Oak trays: three on a plank table (one thing, two piles, four piles), then a slab-topped counter with two raised trays in it."""
     b = {}
-    for (x, z), props in joined('wooden_table', [(-4, 0), (-3, 0), (-2, 0)], 'x', 'oak').items(): b[x, 0, z] = ('mcyukkuri:wooden_table', props, None)
+    for x, z in ((-4, 0), (-3, 0), (-2, 0)): b[x, 0, z] = ('minecraft:oak_planks', {}, None)
     b[-4, 1, 0] = tray_block('south', [('mcyukkuri:badge_handbook', 1)])
     b[-3, 1, 0] = tray_block('south', [('mcyukkuri:care_awl', 1), ('shears', 1)])
     b[-2, 1, 0] = tray_block('south', [('book', 2), ('mcyukkuri:bronze_yukkuri_badge', 1), ('paper', 3), ('writable_book', 1)])
