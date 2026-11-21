@@ -36,7 +36,6 @@ public final class PetLessons {
     private Ability kind;
     private UUID owner, markCard;
     private boolean completed;
-    private boolean coached;
     private int feedbackLeft, today, dayClock, routineObserveLeft;
     private long nextStudy;
     private int lastSeenYoung;
@@ -76,7 +75,7 @@ public final class PetLessons {
     public void performed(Ability skill, boolean success) {
         boolean lesson = practicing(skill);
         if (lesson) finishLesson(success);
-        if (success) animal.skills().practise(skill, lesson && coached ? 3 : 1, lesson && coached ? "lesson" : "daily");
+        if (success) animal.skills().practise(skill, lesson ? 3 : 1, lesson ? "lesson" : "daily");
     }
 
     public void restore(int today, int dayClock) { this.today = Math.clamp(today, 0, 999); this.dayClock = Math.clamp(dayClock, 0, DAY); }
@@ -110,12 +109,9 @@ public final class PetLessons {
         return preconditionOk(player, skill) ? null : "need_" + skill.key();
     }
     public boolean start(Player player, Ability skill) {
-        return !ExamSession.running(animal) && request(player, skill, true);
+        return !ExamSession.running(animal) && request(player, skill);
     }
-    public boolean orderWait(Player player) {
-        return !ExamSession.running(animal) && request(player, Ability.WAIT, false);
-    }
-    private boolean request(Player player, Ability skill, boolean lesson) {
+    private boolean request(Player player, Ability skill) {
         if (animal.level().isClientSide || state != State.IDLE) return false;
         var reason = refusal(player, skill);
         if (reason != null) {
@@ -130,7 +126,6 @@ public final class PetLessons {
             player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse." + reason), true); return false;
         }
         // A button press is the actual lesson request.
-        coached = lesson;
         return begin(player,skill);
     }
     private boolean begin(Player player, Ability skill) {

@@ -290,6 +290,7 @@ public final class MouthOccupancy {
     }
 
     public void remainsAcceptedItems() {
-        if (load() != null) held.consume();
+        var load = load();
+        if (load != null && !load.items().isEmpty()) held.consume();
     }
 }
