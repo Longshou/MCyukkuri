@@ -89,8 +89,9 @@ final class Ferry {
     }
 
     /** Load one young from the bank: board the brim place its braid reaches it from and lift it into a seat; when no brim place
-     *  does, do not board first but take it from the ground and carry it aboard. No step is started on a stand its own admission
-     *  refuses, and no failed step is run again. */
+     *  does, do not board first but take it from the ground and carry it aboard; when she has no way aboard now (the hull out
+     *  of reach, her place taken) she works on getting aboard herself first and lifts nothing. No step is started on a stand
+     *  its own admission refuses, and no failed step is run again. */
     static List<Supplier<Step>> loadFromBank(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {
         if (AquaticLife.aboard(carrier, hat))
             return BraidFetch.withinReach(carrier, child) ? BraidFetch.steps(carrier, child, hat)
