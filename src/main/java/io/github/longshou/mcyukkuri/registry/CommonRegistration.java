@@ -29,7 +29,6 @@ import io.github.longshou.mcyukkuri.intent.DriveWeights;
 import io.github.longshou.mcyukkuri.life.LegacyBlockContents;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
-import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
 import io.github.longshou.mcyukkuri.mind.Naming;
 import io.github.longshou.mcyukkuri.motor.AbilityTable;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -207,7 +206,7 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ExplosionEvent.Detonate.class, ShopProtection::exploded);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, HouseholdEcology::sheared);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, MagnifyingGlassItem::blockCare);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::spyglassScoping);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::interact);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
 

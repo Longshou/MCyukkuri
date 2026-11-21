@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.interaction.CareLineage;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.shop.KeeperMenu;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import java.util.concurrent.CompletableFuture;
@@ -87,7 +86,7 @@ final class CaptureScreen {
                 case "shop" -> ShopMenu.open(player, (HumanNpc) actor);
                 case "exam" -> ExamMenu.open(player, (HumanNpc) actor);
                 case "keeper" -> KeeperMenu.open(player, (HumanNpc) actor);
-                case "magnifier" -> player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.MAGNIFYING_GLASS.toStack());
+                case "magnifier" -> player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SPYGLASS));
                 default -> throw new IllegalArgumentException("Unknown capture screen " + kind);
             }
             return actor.getId();
@@ -108,7 +107,7 @@ final class CaptureScreen {
         if (!target.isDone()) return false;
         int id = target.join();
         if (kind.equals("magnifier")) {
-            if (mc.player.getMainHandItem().is(ModItems.MAGNIFYING_GLASS.get()) && mc.level.getEntity(id) != null) {
+            if (mc.player.getMainHandItem().is(Items.SPYGLASS) && mc.level.getEntity(id) != null) {
                 int pressTick = magnifierDistance == null ? OPEN_TICK : PRESS_TICK;
                 if (!startedUse && tick >= pressTick) {
                     mc.options.keyUse.setDown(true);

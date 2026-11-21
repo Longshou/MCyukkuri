@@ -203,29 +203,6 @@ def pin_tool():
     return i.finish()
 
 
-def care_mallet():
-    """ハンマー: Hakkei's dark drum mallet with steel face plates on both ends and a plain wooden handle."""
-    i = Icon('care_mallet')
-    i.rows(legend(a=(WOOD, 1), c=(WOOD, 3), b=(WOOD, 0)), [
-        "", "", "", "", "", "", "", "",
-        ".......acb......",
-        "......acb.......",
-        ".....acb........",
-        "....acb.........",
-        "...acb..........",
-        "..acb...........",
-        "..bb............",
-    ])
-    a, b = (6.0, 2.0), (13.0, 9.0)
-    i.bar(a, b, 2.4, DRUM, glint=True)
-    i.finish()
-    for (x, y), v in i.px.items():          # the two end faces of the drum are steel plates, two pixels deep
-        t = ((x - a[0]) + (y - a[1])) / ((b[0] - a[0]) + (b[1] - a[1]))
-        if v[0] is DRUM and (t < .2 or t > .8):
-            v[0], v[1] = IRON, 0 if v[1] == 0 else (4 if t < .2 and v[1] >= 2 else 3 if t < .2 else 2 if v[1] >= 2 else 1)
-    return i
-
-
 def _awl(name, spike):
     i = Icon(name)
     i.bar((2.4, 13.6), (6.2, 9.8), 1.4, WOOD, glint=True, round_ends=True)
@@ -414,7 +391,7 @@ def alcohol_lamp():
 
 
 ICONS = {
-    'pin_tool': pin_tool, 'care_mallet': care_mallet, 'care_awl': care_awl, 'care_awl_hot': care_awl_hot,
+    'pin_tool': pin_tool, 'care_awl': care_awl, 'care_awl_hot': care_awl_hot,
     'restraint_frame': restraint_frame, 'wrap_sling': wrap_sling, 'hanging_hook': hanging_hook,
     'care_vibrator': care_vibrator, 'iron_enclosure': iron_enclosure,
 }

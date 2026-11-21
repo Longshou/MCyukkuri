@@ -139,7 +139,7 @@ def contact_tile(src_root, form, scale_of):
 PAGE = """<!doctype html><meta charset="utf-8"><title>鬼威惨工具 2：手持与身上的立体模型</title>
 <style>body{font-family:sans-serif;background:#e8e4da;margin:24px;color:#253c35}img{image-rendering:pixelated;max-width:100%}</style>
 <h1>鬼威惨工具 2：手持与身上的立体模型</h1>
-<p>剪刀类（理发器、裁剪刀、去势剪、两种剪茎剪刀）并入原版剪刀，加热锥子是锥子烧热后的样子。剩下八种工具：物品栏里仍是图标，
+<p>剪刀类（理发器、裁剪刀、去势剪、两种剪茎剪刀）并入原版剪刀，加热锥子是锥子烧热后的样子。剩下七种工具：物品栏里仍是图标，
 手里换成同样配色的立体模型；大头针、振动器、鱼钩束缚时身上是同一个模型，固定台、吊带、铁箱按体型贴合并用同一套材质。</p>
 <p>请决定：手里的立体模型和身上的模型方向是否可用。</p>
 <h2>图标与手持模型（三视角）</h2><img src="hand.png">

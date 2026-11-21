@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 /** Stable action names are the save/protocol vocabulary; each entry has a server-side operation. */
 public enum CareAction {
     LIFT(1,0), GRIP(2,0), FLICK(3,0), PUNCH(4,0), SLAP(5,0), RUB(6,0), ROLL(7,0), LAY_DOWN(8,0), SHAKE_HOME(9,0),
-    PIN(10,Tool.PIN), MALLET(11,Tool.MALLET), PIERCE(12,Tool.AWL), BURN(13,Tool.AWL),
+    PIN(10,Tool.PIN), PIERCE(12,Tool.AWL), BURN(13,Tool.AWL),
     REMOVE_BADGE(14,2), WRAP_HANG(15,Tool.SLING), HOOK_HANG(16,Tool.HOOK),
     TRIM_HAIR(17,CareAction.SHEARS), CUT_LEFT(18,CareAction.SHEARS), CUT_RIGHT(19,CareAction.SHEARS),
     COLD(21,1), FAVOR(22,1), DISLIKE(23,1), SHOW_RUMP(24,1), LIE_COMMAND(25,1),

@@ -181,7 +181,6 @@ public final class OperationLife {
         float health = entity.getHealth();
         boolean done = switch (action) {
             case PIN -> punctureAndBind(actor, Pose.PIN, 0, Tool.PIN, null);
-            case MALLET -> strike(actor, entity.getMaxHealth() + 20, WoundShape.BLUNT);
             case PIERCE, BURN -> strike(actor, 2, WoundShape.PUNCTURE);
             case WRAP_HANG -> begin(actor, Pose.WRAPPED, 300, Tool.SLING, ceiling(), null);
             case HOOK_HANG -> punctureAndBind(actor, Pose.HOOK, 300, Tool.HOOK, ceiling());

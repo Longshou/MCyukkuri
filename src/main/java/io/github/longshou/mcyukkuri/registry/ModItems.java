@@ -21,7 +21,6 @@ import io.github.longshou.mcyukkuri.item.JunkHeadwearItem;
 import io.github.longshou.mcyukkuri.item.CompanionCordItem;
 import io.github.longshou.mcyukkuri.item.HouseEggItem;
 import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
-import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
 import io.github.longshou.mcyukkuri.item.PetHarnessItem;
@@ -32,9 +31,7 @@ import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public final class ModItems {
@@ -52,12 +49,6 @@ public final class ModItems {
         for(var tool:OperationToolItem.Tool.values())OPERATION_TOOLS.put(tool,ITEMS.register(tool.id,()->new OperationToolItem(tool,
                 tool.inserted?new Item.Properties().stacksTo(16):new Item.Properties().durability(128))));
     }
-    static {
-        // Cutting tools are vanilla shears now and the heated awl is the awl's heat state; saved stacks resolve to those items.
-        for(var cutter:List.of("hair_clippers","cutting_knife","sterilizing_shears","stem_shears","bottle_stem_shears"))
-            ITEMS.addAlias(MCYukkuri.id(cutter),ResourceLocation.withDefaultNamespace("shears"));
-        ITEMS.addAlias(MCYukkuri.id("heated_awl"),MCYukkuri.id("care_awl"));
-    }
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier",
             () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.PLAIN));
@@ -68,7 +59,6 @@ public final class ModItems {
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new HouseholdSprayItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<MagnifyingGlassItem> MAGNIFYING_GLASS = ITEMS.register("magnifying_glass", () -> new MagnifyingGlassItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     /** The aquatic Marisa's larger hat uses the shared shape with a separate accessory item. */
@@ -97,10 +87,6 @@ public final class ModItems {
     public static final DeferredItem<TreatmentItem> FLOUR_PASTE=ITEMS.register("flour_paste",()->new TreatmentItem(TreatmentItem.Kind.FLOUR_PASTE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<TreatmentItem> MOLD_REMOVER=ITEMS.register("mold_remover",()->new TreatmentItem(TreatmentItem.Kind.MOLD_REMOVER,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<TreatmentItem> MEDICINE=ITEMS.register("herbal_medicine",()->new TreatmentItem(TreatmentItem.Kind.HERB,new Item.Properties()));
-    static {
-        // Old saved stacks resolve to the existing skin-repair material; the bandage itself is no longer registered.
-        ITEMS.addAlias(MCYukkuri.id("bandage"), MCYukkuri.id("flour_paste"));
-    }
     public static final DeferredItem<RemainsItem> REMAINS=ITEMS.register("yukkuri_remains",()->new RemainsItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<PetHarnessItem> PET_HARNESS = ITEMS.register("pet_harness",
             () -> new PetHarnessItem(new Item.Properties().stacksTo(16)));

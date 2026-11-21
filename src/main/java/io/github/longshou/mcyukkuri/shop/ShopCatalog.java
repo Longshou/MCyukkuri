@@ -29,6 +29,7 @@ public final class ShopCatalog {
     }
     private static Good good(String id, int category, Supplier<ItemStack> supplier, int price, int cap, int restock, int unlock) { return new Good(id,
             category, supplier, price, cap, restock, unlock); }
+    private static Supplier<ItemStack> dose(Consumables.Kind kind) { return () -> new ItemStack(Consumables.ITEMS.get(kind).get()); }
     private static final Good BUDGET_GRAIN = good("oil_grain_budget", 0, () -> new ItemStack(ModItems.GRAIN_BUDGET.get(), 16), 2, 6, 3, 0);
     /** A day's working supply, sized to cover all pens of either shop. Staff take these from the shelf and return empties. */
     static final Good TRANSPORT_CARRIER = good("transport_carrier", 1, () -> new ItemStack(ModItems.CARRIER.get()), 0, 16, 16, 0);
@@ -49,6 +50,11 @@ public final class ShopCatalog {
         good("velvet_nest", 1, () -> new ItemStack(ModItems.VELVET_NEST.get()), 9, 2, 1, 1),
         good("yukkuri_toilet", 1, () -> new ItemStack(ModItems.TOILET.get()), 3, 4, 2, 0),
         good("mold_remover", 1, () -> new ItemStack(ModItems.MOLD_REMOVER.get()), 3, 4, 2, 0),
+        // Every helping medicine the pet shop can stock; the herbal medicine is not sold here.
+        good("flour_paste", 1, () -> new ItemStack(ModItems.FLOUR_PASTE.get()), 2, 4, 2, 0),
+        good("yogurt_drink", 1, dose(Consumables.Kind.YOGURT), 2, 4, 2, 0),
+        good("reproductive_filling", 1, dose(Consumables.Kind.REPRODUCTIVE), 3, 4, 2, 0),
+        good("sitataran", 1, dose(Consumables.Kind.SITATARAN), 3, 4, 2, 0),
         good("yarn_ball", 2, () -> new ItemStack(ModItems.TOY.get()), 2, 4, 2, 0),
         good("reimu_ribbon", 2, () -> new ItemStack(ModItems.RIBBON.get()), 4, 2, 1, 0),
         good("marisa_hat", 2, () -> new ItemStack(ModItems.HAT.get()), 4, 2, 1, 0),
@@ -56,6 +62,7 @@ public final class ShopCatalog {
         good("alice_headband", 2, () -> new ItemStack(ModItems.ALICE_HEADBAND.get()), 4, 2, 1, 0),
         good("patchouli_bonnet", 2, () -> new ItemStack(ModItems.PATCHOULI_BONNET.get()), 4, 2, 1, 0),
         good("teaching_whistle", 3, () -> new ItemStack(ModItems.WHISTLE.get()), 4, 2, 1, 0),
+        good("spyglass", 3, () -> new ItemStack(Items.SPYGLASS), 3, 2, 1, 0),
         good("companion_cord", 4, () -> new ItemStack(ModItems.COMPANION_CORD.get()), 4, 2, 1, 0),
         // added with the closed care loop: sweets, harness and swaddle, and the soft hats of the predator species (a lost hat could never be replaced)
         good("sweet_candy", 0, () -> new ItemStack(ModItems.SWEET_CANDY.get(), 6), 1, 8, 4, 0),
@@ -81,8 +88,8 @@ public final class ShopCatalog {
         goods.add(3, good(RestraintTableBlock.ID, TOOL_CATEGORY, () -> new ItemStack(ModItems.RESTRAINT.get()), ShopTrade.RESTRAINT_DEPOSIT, 3, 1, 0));
         // Every cut (hair, accessory, stem, sterilizing) is made with vanilla shears.
         goods.add(good("shears", TOOL_CATEGORY, () -> new ItemStack(Items.SHEARS), 2, 3, 1, 0));
-        for (var dose : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT))
-            goods.add(good(dose.id, 1, () -> new ItemStack(Consumables.ITEMS.get(dose).get()), 2, 6, 3, 0));
+        for (var kind : List.of(Consumables.Kind.SPICY, Consumables.Kind.RAMUNE, Consumables.Kind.STIMULANT, Consumables.Kind.FLOUR))
+            goods.add(good(kind.id, 1, dose(kind), 2, 6, 3, 0));
         goods.addAll(List.of(BUDGET_GRAIN,
                 good("bread", 0, () -> new ItemStack(Items.BREAD, 4), 1, 6, 3, 0),
                 good("candle", 0, () -> new ItemStack(Items.CANDLE, 4), 1, 6, 3, 0),

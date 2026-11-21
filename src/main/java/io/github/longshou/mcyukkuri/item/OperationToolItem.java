@@ -28,7 +28,7 @@ import net.minecraft.world.level.block.CampfireBlock;
 /** Tools with no vanilla counterpart. Cutting uses vanilla shears (InteractionDispatch.openCutter); the awl's heat is a timed state of the same stack. */
 public final class OperationToolItem extends Item {
     public enum Tool {
-        PIN("pin_tool",true),MALLET("care_mallet",false),AWL("care_awl",false),
+        PIN("pin_tool",true),AWL("care_awl",false),
         SLING("wrap_sling",true),HOOK("hanging_hook",true),
         VIBRATOR("care_vibrator",true),BOX("iron_enclosure",true);
         public final String id;

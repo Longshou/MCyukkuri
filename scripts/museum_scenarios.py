@@ -1045,7 +1045,7 @@ add(_junk_scene, 'forage', '流浪：用垃圾顶替失去的头饰', '流浪：
         box(2, 0, -4, 2, 1, -1, 'minecraft:oak_fence'),
         street_stray(_junk_scene, 'reimu', 1, -2, 'mocking_stray', friendliness=20, boldness=65,
                      yaw=90, label='会嘲笑的邻居'),
-    ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:junk_headwear 2', 'mcyukkuri:magnifying_glass'], env=DAY, spot='street', vantage=(0, 11),
+    ], give=['mcyukkuri:reimu_ribbon', 'mcyukkuri:junk_headwear 2', 'minecraft:spyglass'], env=DAY, spot='street', vantage=(0, 11),
     smoke=dict(ticks=1400, forbid=[],
                commands=[(300, 'damage ' + sel('covered_stray') + ' 100 minecraft:generic_kill'),
                          (340, 'execute if entity @e[type=mcyukkuri:yukkuri_remains,distance=..12,nbt={Remains:{components:{"minecraft:custom_data":{JunkHeadwear:"bottle_cap"}}}}] run say MCYJUNK_REMAINS'),
@@ -1073,7 +1073,7 @@ add('stray_wind', 'forage', '流浪：钻进木板缝挡风', '流浪：钻进�
                      rest_wait=0, label='叼纸灵梦', lead=True),
         street_stray('stray_wind', 'reimu', 10, 3, 'wind_plain', stage='child', intelligence=20, energy=58,
                      rest_wait=0, label='缩身灵梦'),
-    ], give=['minecraft:campfire', 'mcyukkuri:magnifying_glass'], env={'time': 'night'}, spot='street', vantage=(0, 14, 180, 15),
+    ], give=['minecraft:campfire', 'minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 14, 180, 15),
     smoke=dict(ticks=460,
                commands=[(320, 'setblock ~-10 ~ ~ minecraft:campfire[lit=true]')],
                forbid=[r'\[habitat\][^\n]* home chosen ', r'\[sleep\][^\n]* woken by danger reason=environment',
@@ -1119,7 +1119,7 @@ add('stray_paper', 'forage', '流浪：抽报纸铺垫，冬夜盖纸发抖', '�
                      rest_wait=0, yaw=180, label='垫纸魔理沙'),
         street_stray('stray_paper', 'reimu', -6, 3, 'tired_paper', stage='teen', intelligence=90, boldness=25, energy=28,
                      rest_wait=0, yaw=180, label='疲惫灵梦', lead=True),
-    ], give=['minecraft:flint_and_steel', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
+    ], give=['minecraft:flint_and_steel', 'mcyukkuri:cardboard_shelter', 'minecraft:spyglass'],
     env={'time': 'night'}, spot='street', vantage=(0, 8, 180, 15),
     reads=[('读垫纸魔理沙', f'yukkuri status {sel("bold_paper")} raw'),
            ('读盖纸灵梦', f'yukkuri status {sel("tired_paper")} raw')],
@@ -1181,7 +1181,7 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                      energy=88, rest_wait=0, yaw=180, label='自利灵梦'),
         street_stray('stray_paper_young', 'reimu', 4, 0, 'self_baby', stage='baby', energy=58, rest_wait=0, yaw=180,
                      kin=f'Mother:{uuid_nbt(_self_mother)}', childhood=CHILDHOOD_HOPPING, label='发抖赤油'),
-    ], give=['minecraft:flint_and_steel', 'mcyukkuri:cardboard_shelter', 'mcyukkuri:magnifying_glass'],
+    ], give=['minecraft:flint_and_steel', 'mcyukkuri:cardboard_shelter', 'minecraft:spyglass'],
     env={'time': 'night'}, spot='street', vantage=(0, 5, 180, 16),
     reads=[('读重亲情魔理沙（给赤油盖完再盖自己）', f'yukkuri status {sel("devoted_parent")} raw'),
            ('读披纸赤油（寒战减轻）', f'yukkuri status {sel("devoted_baby")} raw'),
@@ -1514,14 +1514,14 @@ def _dirt_snub_verify(window, trace):
 
 
 add('care_attitude', 'meadow', '照料时的态度：洗涤与油粮', '照料时的态度：洗涤与油粮',
-    '先用放大镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；在生存模式给营养 50、舌肥 95 的强硬魔理沙递预算粮，它含一下再吐掉，再试高级粮。右侧饿的个体也会吃预算粮。',
+    '先用望远镜看看同类的态度。给脏的灵梦用湿布，看看它如何回应；在生存模式给营养 50、舌肥 95 的强硬魔理沙递预算粮，它含一下再吐掉，再试高级粮。右侧饿的个体也会吃预算粮。',
     '右键后看表情，约 2 秒吞咽', [
         yk('reimu', -7, 0, 'wash_shy', boldness=0, friendliness=75, hygiene=5, lead=True, also=('care_subject',)),
         set_status('wash_shy', 'marks.dirt', 3),
         yk('marisa', 0, 0, 'grain_proud', nutrition=50, boldness=100, friendliness=0, self_control=0, picky=95, also=('care_subject',)),
         yk('marisa', 7, 0, 'grain_hungry', nutrition=29, boldness=100, friendliness=0, self_control=0, picky=95, also=('care_subject',)),
         yk('chen', -5, 0, 'dirt_observer', friendliness=0, also=('care_subject',)),
-    ], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]',
+    ], give=['minecraft:spyglass', 'mcyukkuri:wash_cloth[minecraft:custom_data={Water:8}]',
              'mcyukkuri:oil_grain_budget 4', 'mcyukkuri:oil_grain_premium 2'], env=DAY, vantage=(0, 11),
     reads=[('读脏污、卫生和态度', 'yukkuri status @e[tag=scn_care_subject,distance=..20] raw')],
     smoke=dict(ticks=280, forbid=[], commands=[
@@ -1612,7 +1612,7 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
           for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
         yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95),
         yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95)],
-    env=DAY, give=['minecraft:apple 4', 'mcyukkuri:magnifying_glass'], vantage=(0, 16),
+    env=DAY, give=['minecraft:apple 4', 'minecraft:spyglass'], vantage=(0, 16),
     reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
         + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读同种对照',f'yukkuri status {sel("fed")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
 
@@ -3041,13 +3041,14 @@ add('training_study', 'town', '宠物数苹果', '宠物数苹果',
     reads=[('读数数技能', f'data get entity {sel("counter")} YukkuriSkills'),
            ('读养育经历', f'data get entity {sel("counter")} YukkuriLife.Personality')])
 
-add('skills_magnifier', 'town', '放大镜看技能行', '放大镜看技能行',
-    '依次用放大镜看三只宠物。灵梦有等待★和如厕✓，魔理沙能数到六所以有数数✓，橙尚无技能。田野手册的技能页会写明等级和数数上限。',
+add('skills_magnifier', 'town', '望远镜看技能行', '望远镜看技能行',
+    '依次用望远镜看三只宠物。灵梦有等待★和如厕✓，魔理沙能数到六所以有数数✓，橙尚无技能。田野手册的技能页会写明等级和数数上限。',
     '随时', [
         yk('reimu', -3, 0, 'trained', stage='child', label='等待和如厕', skills={'wait': 9, 'toilet': 5}, cap=2, lead=True), *own('trained'),
         yk('marisa', 0, 0, 'counting', stage='child', label='数到六', cap=6), *own('counting'),
         yk('chen', 3, 0, 'untrained', stage='child', label='尚无技能', cap=2), *own('untrained')],
-    env=DAY, vantage=(0, 6), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
+    env=DAY, vantage=(0, 6), give=['minecraft:spyglass', 'mcyukkuri:field_notebook'],
+    smoke=dict(ticks=100, expect=[], forbid=[r'\[body\][^\n]* invariant\b']),
     reads=[(f'读{name}', f'data get entity {sel(actor)} YukkuriSkills') for name, actor in (
         ('等待和如厕', 'trained'), ('数到六', 'counting'), ('尚无技能', 'untrained'))])
 
@@ -3057,7 +3058,7 @@ add('skills_got_it', 'town', '如厕后学会了', '如厕后学会了',
         block(0, 0, 0, 'mcyukkuri:yukkuri_toilet'),
         yk('reimu', 0, 2, 'learner', uuid=uid('skills_got_it', 'learner'), bladder=80, self_control=100, lead=True,
            skills={'toilet': 4}), *own('learner')],
-    env=DAY, vantage=(0, 5), give=['mcyukkuri:field_notebook', 'mcyukkuri:magnifying_glass'],
+    env=DAY, vantage=(0, 5), give=['mcyukkuri:field_notebook', 'minecraft:spyglass'],
     reads=[('读如厕技能', f'data get entity {sel("learner")} YukkuriSkills')],
     smoke=dict(ticks=320, expect=[r'\[needs\][^\n]* relieved source=facility',
                                   r'\[skill\][^\n]* learned ability=TOILET grade=2 source=daily'],
@@ -4184,7 +4185,7 @@ _pick_stock = (('pick_friendly', 'chen', CHEN, 20, 85), ('pick_bold', 'alice', A
 add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订后头顶标记', '在店里挑：潜行右键看卡片、了解、预订后头顶标记',
     '进临街两个单间，空主手右键或潜行右键在售的橙与爱丽丝。比较两只的“了解”弹窗：橙胆小又体贴，爱丽丝大胆又好奇。'
     '预订一只，观察头顶的金色标记，另一位玩家看见的是灰色。再次打开卡片取消预订，标记随即消失，定金留在店里。'
-    '也可在预订后购买，等店员装进运输篮时付余款。放出买下的个体，用放大镜核对性格词。鬼威惨的库存评语见 SP-05。'
+    '也可在预订后购买，等店员装进运输篮时付余款。放出买下的个体，用望远镜核对性格词。鬼威惨的库存评语见 SP-05。'
     + SHOP_ACCESS_HINT,
     '建筑几秒，进临街展栏后即可选购', [PET_SHOP,
         *[command for name, _, actor, boldness, friendliness in _pick_stock for command in (
@@ -4196,7 +4197,7 @@ add('shop_pick', 'shop', '在店里挑：潜行右键看卡片、了解、预订
             set_status(name, 'personality.intelligence', 50),
             set_status(name, 'personality.self_control', 50),
         )],
-    ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 6, 0, 12, 2),
+    ], give=['minecraft:emerald 64', 'minecraft:spyglass'], env=DAY, vantage=(15, 6, 0, 12, 2),
     reads=[('读胆小体贴的橙', f'yukkuri status {sel("pick_friendly")} raw'),
            ('读大胆好奇的爱丽丝', f'yukkuri status {sel("pick_bold")} raw')])
 _fetch_stock = (('fetch_corner', 'chen'), ('fetch_nest', 'alice'), ('fetch_yard', 'reimu'))
@@ -4219,14 +4220,14 @@ add('shop_fetch', 'shop', '店员取货：角落、睡在窝里、后院远处�
            ('读窝里睡觉的库存', f'yukkuri status {sel("fetch_nest")} raw'),
            ('读后院库存', f'yukkuri status {sel("fetch_yard")} raw')])
 add('oni_shop', 'shop', '鬼威惨商店：工具、处理过的库存和低价收购', '鬼威惨商店：工具、处理过的库存和低价收购',
-    '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用放大镜看非油症预防。'
+    '从街面进店，查看工具墙和货架，右键任一店员打开菜单。橱窗里有多毛与不足油，可用望远镜看非油症预防。'
     '空主手潜行右键库存，点“了解”看鬼威惨商店的库存评语。'
     '沿着橱窗慢慢走，看个体怎样回应。访客可试开后屋和展栏铁门。菜单底部显示本店购买资格，升会员需累计花 2 颗绿宝石，升贵宾需 6 颗。'
     + SHOP_ACCESS_HINT,
     '建筑几秒，展舱附近等片刻', [
         'yukkuri human build oni_shop ~8 ~ ~17 south',
         'execute positioned ~ ~2 ~ run ' + human('caretaker_sister', 15, 16, 'oni_customer', 0),
-    ], give=['minecraft:emerald 64', 'mcyukkuri:magnifying_glass'], env=DAY, vantage=(15, 17, 180, 8),
+    ], give=['minecraft:emerald 64', 'minecraft:spyglass'], env=DAY, vantage=(15, 17, 180, 8),
     capture=dict(shots=(60,), sequences=(), observe=False,
                  views={'counter': dict(position=(9.5, 3.5, 2.8), look_at=(14.5, 3.3, 0.8))}),
     reads=[('读店铺与库存', 'yukkuri human shop list'), ('读库存体况与预防', f'yukkuri status {STOCK} raw')])
@@ -4245,7 +4246,7 @@ add('oni_stress_room', 'shop', '鬼威惨商店：租工具解压', '鬼威惨�
           for name, (_, boldness, unease) in _stress_stock.items()
           for key, value in [('personality.boldness', boldness), ('personality.self_control', 25),
                              ('personality.friendliness', 30), ('mood.unease', unease)]],
-    ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl'],
+    ], give=['minecraft:emerald 16', 'mcyukkuri:yukkuri_carrier', 'minecraft:spyglass', 'mcyukkuri:care_awl'],
     env=DAY, vantage=(8, 17, 180, 8),
     capture=dict(shots=(84, 100, 116, 137, 152, 160, 173), sequences=((86, 170, 6),), observe=False,
                  views={'table': dict(position=(24.5, 3.7, .75), look_at=(22.5, 2.55, 2.5),
@@ -4332,7 +4333,7 @@ add(_plant_receiving, 'plant', '加工所厂房：收活体', '加工所厂房�
           *[set_status(name, 'mood.unease', unease) for name, _, _, _, _, _, _, _, unease, *_ in _receiving_animals],
           *[f'effect give {sel(name)} minecraft:weakness 120' for name, *_ in _receiving_animals],
           yk('marisa', -5, -15, 'receive_pet', dy=2, label='大厅·魔理沙', uuid=uid(_plant_receiving, 'receive_pet'))],
-    give=['mcyukkuri:yukkuri_carrier', 'mcyukkuri:magnifying_glass', 'mcyukkuri:sleep_spray 1'],
+    give=['mcyukkuri:yukkuri_carrier', 'minecraft:spyglass', 'mcyukkuri:sleep_spray 1'],
     env=DAY, vantage=(_plant_x, _plant_z - 3, 0, 0),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, _, label, *_ in _receiving_animals])
 
@@ -4348,11 +4349,11 @@ _sweet_b = '@e[type=mcyukkuri:reimu,distance=..2,limit=1]'
 _sweet_boards = (
     (18, ('A 同龄对照', '用同一工具', '看它顶嘴或哭求', '空手右键拔针')),
     (23, ('B 尚淡起步', '不安越久', '积甜越多', '看箱牌转普通甜')),
-    (28, ('C 普通甜起步', '馅甜达到 65', '可送普通甜', '用放大镜查看')),
+    (28, ('C 普通甜起步', '馅甜达到 65', '可送普通甜', '用望远镜查看')),
     (35, ('D 浓甜起步', '馅甜达到 75', '员工停手', '留它休息')),
 )
 add(_sweet_box, 'plant', '甜化箱：加压、积甜与停手', '甜化箱：加压、积甜与停手',
-    '看 B 箱门牌。灵梦的馅还淡，员工会按体况选工具。看它受惊、缩起或硬撑，用放大镜对比接触前后的不安与积甜，等箱牌从尚淡转为普通甜。'
+    '看 B 箱门牌。灵梦的馅还淡，员工会按体况选工具。看它受惊、缩起或硬撑，用望远镜对比接触前后的不安与积甜，等箱牌从尚淡转为普通甜。'
     '沿走道看 C 箱的普通甜和 D 箱的浓甜，门牌写着员工对几只停手。到 A 箱对三只同龄个体用同一工具，比较它们对你的反应与恐惧。',
     '观察约一分钟。双手空着右键个体拔针。创造模式的针仍在物品栏，生存模式可从地上拾回。用运输篮带个体上固定台',
     [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north',
@@ -4368,7 +4369,7 @@ add(_sweet_box, 'plant', '甜化箱：加压、积甜与停手', '甜化箱：�
            extra=f'YukkuriMind:{{Migrated:1b,Unease:{unease}f,Sweetness:5f}}'),
         f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_sweet_site} UUID',
-    )], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
+    )], give=['minecraft:spyglass', 'mcyukkuri:care_awl', 'mcyukkuri:pin_tool', 'mcyukkuri:restraint_frame',
               'mcyukkuri:yukkuri_carrier', 'mcyukkuri:sweet_candy 3'], env=DAY, vantage=(_plant_x, _plant_z + 24, 113, -5, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _sweet_cast])
 
@@ -4393,7 +4394,7 @@ def _kin_point(x, y, z):
 add(_kin_boxes, 'plant', '母子隔箱', '母子隔箱',
     '在 B 箱用冷锥碰一下隔玻璃子油，看 A 箱的两只亲油各自贴窗护幼或转开。D 箱的子油隔着实板，C 箱亲油看不见。'
     '看持具员工走近 A 箱的同箱子油时，两只亲油怎样挡在前面或把孩子拱过去。拆掉箱间玻璃可通行。'
-    '拆掉 B 箱西侧的外窗，油库里走过窗台外沿才变流浪。放大镜可查看归属和亲缘。',
+    '拆掉 B 箱西侧的外窗，油库里走过窗台外沿才变流浪。望远镜可查看归属和亲缘。',
     '先看隔箱目击，再看同箱反应和破窗去路',
     [f'yukkuri human build plant ~{_plant_x} ~ ~{_plant_z} north'],
     late=[
@@ -4409,7 +4410,7 @@ add(_kin_boxes, 'plant', '母子隔箱', '母子隔箱',
             f'data merge entity {sel(name)} {{NeoForgeData:{{HumanCommerce:{{OwnerKind:"npc",Use:"plant_stock"}}}}}}',
             f'data modify entity {sel(name)} {OWNED}.Owner set from entity {_kin_site} UUID',
         )],
-    ], give=['mcyukkuri:magnifying_glass', 'mcyukkuri:care_awl', 'minecraft:diamond_pickaxe', 'mcyukkuri:sweet_candy 3'],
+    ], give=['minecraft:spyglass', 'mcyukkuri:care_awl', 'minecraft:diamond_pickaxe', 'mcyukkuri:sweet_candy 3'],
     env=DAY, vantage=(_plant_x - 2, _plant_z + 19, 90, 15, 2),
     reads=[(label, f'yukkuri status {sel(name)} raw') for name, _, _, label, *_ in _kin_cast])
 
@@ -4485,7 +4486,7 @@ def _verify_need_tell(window):
 
 add('need_tell', 'meadow', '尿急与便急的预兆', '尿急与便急的预兆',
     '两栏各有一个沙厕。左边性急的灵梦先扭动，一分钟后尿意自然涨到够用沙厕，留意尿流。'
-    '右边沉稳的灵梦便急，先绷紧身体再去排便。用放大镜看各自的需求图标何时消失，用手册对照余量。',
+    '右边沉稳的灵梦便急，先绷紧身体再去排便。用望远镜看各自的需求图标何时消失，用手册对照余量。',
     '右栏约十秒，左栏约一分钟', [
         *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-6, 7) for z in range(-3, 5)
           if x in (-6, 0, 6) or z in (-3, 4)),
@@ -4495,7 +4496,7 @@ add('need_tell', 'meadow', '尿急与便急的预兆', '尿急与便急的预兆
            boldness=80, friendliness=20, lead=True),
         yk('reimu', 3, 2, 'strain', label='便急', uuid=uid('need_tell', 'strain'), bladder=55, self_control=85,
            boldness=35, friendliness=70)],
-    env=DAY, vantage=(0, 8, 180, 27), give=['mcyukkuri:magnifying_glass', 'mcyukkuri:field_notebook'],
+    env=DAY, vantage=(0, 8, 180, 27), give=['minecraft:spyglass', 'mcyukkuri:field_notebook'],
     reads=[('读左栏尿意', f'data get entity {sel("fidget")} YukkuriLife.Urine'),
            ('读右栏便意', f'data get entity {sel("strain")} YukkuriLife.Bladder')],
     smoke=dict(ticks=1720, expect=[r'\[needs\][^\n]*tell need=URINE', r'\[needs\][^\n]*tell need=STOOL'],

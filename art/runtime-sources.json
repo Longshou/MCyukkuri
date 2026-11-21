@@ -6640,7 +6640,6 @@
     "exporter": "standards/yukkuri-library/drafts/operation-tools/build.py",
     "items": {
       "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool.png",
-      "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet.png",
       "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl.png",
       "care_awl_hot": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_hot.png",
       "restraint_frame": "src/main/resources/assets/mcyukkuri/textures/item/restraint_frame.png",
@@ -6651,7 +6650,6 @@
     },
     "held_models": {
       "pin_tool": "src/main/resources/assets/mcyukkuri/textures/item/pin_tool_model.png",
-      "care_mallet": "src/main/resources/assets/mcyukkuri/textures/item/care_mallet_model.png",
       "care_awl": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_model.png",
       "care_awl_hot": "src/main/resources/assets/mcyukkuri/textures/item/care_awl_hot_model.png",
       "wrap_sling": "src/main/resources/assets/mcyukkuri/textures/item/wrap_sling_model.png",

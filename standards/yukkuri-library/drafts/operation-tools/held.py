@@ -85,12 +85,6 @@ def pin_tool():
             rod_y(3.5, 10, .5, 'iron'), rod_y(10, 11, .25, 'iron')]
 
 
-def care_mallet():
-    head = [cube((-4, 10.5, -2.5), (4, 14.5, 2.5), 'drum'), cube((-4, 10, -2), (4, 15, 2), 'drum')]   # octagonal drum
-    faces = [cube((4, 10.75, -1.75), (4.75, 14.25, 1.75), 'iron'), cube((-4.75, 10.75, -1.75), (-4, 14.25, 1.75), 'iron')]
-    return [rod_y(0, 10, .75, 'wood'), rod_y(.5, 3.5, 1, 'leather')] + head + faces
-
-
 def _awl(spike):
     return [rod_y(0, 6, 1.25, 'wood'), rod_y(-.5, 0, .9, 'wood'), rod_y(6, 7, 1.5, 'iron'),
             rod_y(7, 13, .5, spike), rod_y(13, 14, .25, spike)]
@@ -149,7 +143,6 @@ FLIP_Y = ((1, 0, 0), (0, -1, 0), (0, 0, -1))         # pin: point down into the 
 CYCLE = ((0, 0, 1), (1, 0, 0), (0, 1, 0))            # rotor: egg lies along the skin (tool Y -> Z), tool X -> normal
 HELD = {
     'pin_tool': (pin_tool, 'tool', ('pink', 'iron'), {'origin': (0, 9.5, 0), 'rows': FLIP_Y}),
-    'care_mallet': (care_mallet, 'tool', ('wood', 'leather', 'drum', 'iron'), None),
     'care_awl': (care_awl, 'tool', ('wood', 'iron'), None),
     'care_awl_hot': (care_awl_hot, 'tool', ('wood', 'iron', 'hot'), None),
     'hanging_hook': (hanging_hook, 'item', ('iron', 'string'), {'origin': (0, 0, 0), 'rows': ((1, 0, 0), (0, 1, 0), (0, 0, 1))}),

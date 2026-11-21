@@ -148,7 +148,7 @@ def main():
     args = parser.parse_args()
     if not args.before:
         removed = subprocess.run(['git', 'log', '-1', '--format=%H', '--diff-filter=D', '--',
-                                  'src/main/resources/assets/mcyukkuri/yukkuri_props/care_mallet.json'],
+                                  'src/main/resources/assets/mcyukkuri/yukkuri_props/care_awl.json'],
                                  cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
         args.before = f'{removed}^' if removed else 'HEAD'
     OUT.mkdir(parents=True, exist_ok=True)

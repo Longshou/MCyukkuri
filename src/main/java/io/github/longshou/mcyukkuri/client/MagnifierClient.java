@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.life.GlassSight;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.CharacterWords;
 import java.util.Locale;
 import net.minecraft.client.Camera;
@@ -21,24 +20,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
-/** Client half of the magnifying glass: a smooth close zoom, scaled mouse and a crosshair status strip. */
+/** Client half of the spyglass readout: the vanilla scope shows a crosshair status strip. */
 public final class MagnifierClient {
-    private static final float ZOOM_FOV = 0.28f;
-    private static final double MOUSE_SCALE = 0.3;
-    private static final double REACH = 12.0;
+    private static final double REACH = 32.0;
     private static final double AIM_ASSIST = 0.12; // Allow a narrow margin around a small body.
     private static final int ITEM_NAME_INSET = 59, ITEM_NAME_NO_HEALTH_SHIFT = 14, ITEM_NAME_GAP = 5;
     private static final Ability[] ABILITIES = Ability.values();
     private static final String[] SKILL_MARKS = {"", "·", "✓", "★"};
-    private static float previousZoom;
-    private static float zoom;
 
     public static void registerHud(RegisterGuiLayersEvent event) {
         event.registerAbove(VanillaGuiLayers.SELECTED_ITEM_NAME, MCYukkuri.id("magnifier_status"), MagnifierClient::renderStrip);
@@ -48,50 +39,14 @@ public final class MagnifierClient {
         var player = minecraft.player;
         if (player == null || !player.isAlive() || minecraft.screen != null || minecraft.getOverlay() != null
                 || !minecraft.options.getCameraType().isFirstPerson() || minecraft.getCameraEntity() != player) return null;
-        var glass = ModItems.MAGNIFYING_GLASS.get();
-        return player.isHolding(glass) && (!player.isUsingItem() || player.getUseItem().is(glass)) ? player : null;
-    }
-
-    private static boolean scoping(Minecraft minecraft, LocalPlayer player) {
-        return minecraft.options.keyUse.isDown() && player.isUsingItem()
-                && player.getItemInHand(player.getUsedItemHand()).is(ModItems.MAGNIFYING_GLASS.get());
-    }
-
-    static void tick(ClientTickEvent.Post event) {
-        var minecraft = Minecraft.getInstance();
-        var player = observer(minecraft);
-        if (player == null) {
-            previousZoom = zoom = 0f;
-            return;
-        }
-        previousZoom = zoom;
-        zoom = Mth.approach(zoom, scoping(minecraft, player) ? 1f : 0f, 0.12f);
-    }
-
-    static void fov(ViewportEvent.ComputeFov event) {
-        if (!event.usedConfiguredFov() || observer(Minecraft.getInstance()) == null) return;
-        float amount = Mth.lerp((float) event.getPartialTick(), previousZoom, zoom);
-        event.setFOV(event.getFOV() * Mth.lerp(amount, 1f, ZOOM_FOV));
-    }
-
-    static void mouse(CalculatePlayerTurnEvent event) {
-        if (zoom == 0f || observer(Minecraft.getInstance()) == null) return;
-        // MouseHandler cubes (0.6 * sensitivity + 0.2) to get the actual turn rate.
-        double base = event.getMouseSensitivity() * 0.6f + 0.2f;
-        double scaled = base * Math.cbrt(Mth.lerp(zoom, 1.0, MOUSE_SCALE));
-        event.setMouseSensitivity((scaled - 0.2f) / 0.6f);
-    }
-
-    static void renderHand(RenderHandEvent event) {
-        var minecraft = Minecraft.getInstance();
-        var player = observer(minecraft);
-        if (player != null && (scoping(minecraft, player) || previousZoom > 0f || zoom > 0f)) event.setCanceled(true);
+        return player.isScoping() ? player : null;
     }
 
     private static void renderStrip(GuiGraphics g, DeltaTracker delta) {
         var minecraft = Minecraft.getInstance();
+        if (minecraft.options.hideGui) return;
         var player = observer(minecraft);
-        if (minecraft.options.hideGui || player == null || !scoping(minecraft, player)) return;
+        if (player == null) return;
         var aim = pick(player, minecraft.gameRenderer.getMainCamera());
         if (aim == null) return;
         // Match Gui.renderSelectedItemName after the health, hunger and vehicle layers set their heights.

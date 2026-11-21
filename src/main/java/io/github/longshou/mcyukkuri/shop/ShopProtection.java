@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -16,6 +15,7 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.phys.EntityHitResult;
@@ -32,7 +32,7 @@ import net.neoforged.neoforge.event.level.PistonEvent;
  * Inside a shop (its authored footprint, docs/FEATURES.md 宠物店) nothing is destroyed and the stock is not handled before it is bought:
  * players cannot break or place blocks there, cannot take, turn or break the goods' item frames,
  * and cannot interact with or hurt stock animals; explosions leave the shop and its stock standing.
- * An empty main hand opens a stock animal's shop card; the magnifying glass may look at it.
+ * An empty main hand opens a stock animal's shop card; a spyglass may scope at it.
  */
 public final class ShopProtection {
     private ShopProtection() {}
@@ -109,7 +109,7 @@ public final class ShopProtection {
         }
         if (stockShop(target) == null) return;
         var held = event.getItemStack();
-        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND || held.is(ModItems.MAGNIFYING_GLASS.get())) return;
+        if (held.isEmpty() && event.getHand() == InteractionHand.MAIN_HAND || held.is(Items.SPYGLASS)) return;
         event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
         if (event.getHand() == InteractionHand.MAIN_HAND) refuse(player, "stock");
     }
@@ -118,7 +118,7 @@ public final class ShopProtection {
         var target = event.getTarget();
         var shop = stockShop(target);
         if (target instanceof ItemFrame frame && guarded(event.getLevel(), frame.getPos()) || shop != null && !event.getItemStack().isEmpty()
-                && !event.getItemStack().is(ModItems.MAGNIFYING_GLASS.get())) {
+                && !event.getItemStack().is(Items.SPYGLASS)) {
             event.setCanceled(true); event.setCancellationResult(InteractionResult.FAIL);
         }
     }

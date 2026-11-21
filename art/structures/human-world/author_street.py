@@ -317,9 +317,9 @@ def street_alley(p):
 # ---------------------------------------------------------------------------------------------------------- oni-san shop
 # Tools on the wall, consumables and goods on the two shelves (docs/FEATURES.md 鬼威惨工具; wiki shops-factory-npcs R7/R8).
 # Cutting is done with vanilla shears (they hang with the tools).
-TOOLS = ['pin_tool', 'care_mallet', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook', 'care_vibrator',
+TOOLS = ['pin_tool', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook', 'care_vibrator',
          'iron_enclosure', 'minecraft:shears']
-CONSUMABLES = ['spicy_grain', 'sleep_spray', 'stimulant']
+CONSUMABLES = ['spicy_grain', 'sleep_spray', 'stimulant', 'wheat_flour']
 GROCERY = ['oil_grain_budget', 'minecraft:bread', 'minecraft:candle', 'minecraft:paper']
 # Scummy stock: intelligence, friendliness, boldness, attachment, self-control. Arrogant and rude (gesu) or dull and timid; underfed and dirty.
 GESU = (25, 15, 90, 30, 10)
@@ -507,7 +507,6 @@ def oni_body(p, name):
     # aisle with tools laid out on it, sacks against the counter end.
     for x, z, h in [(8, 4, 2), (9, 4, 1), (8, 5, 1)]:
         for y in range(3, 3 + h): barrel(b, x, y, z, 'up' if y == 3 else 'south')
-    display_tray(b, 8, 5, 4, 'south', 'mcyukkuri:care_mallet')
     furniture(b, 'table', 3, [(12, 9), (12, 10)])
     for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: display_tray(b, 12, 4, z, 'west', item)
     b.block(14, 3, 15, 'hay_block', LOG)

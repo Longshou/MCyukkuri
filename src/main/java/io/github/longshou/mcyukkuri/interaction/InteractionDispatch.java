@@ -109,6 +109,16 @@ public final class InteractionDispatch {
         refuse(player,target,"assist",reason==null?"condition":reason);
         return false;
     }
+    /** A spyglass scopes through the body instead of caring for it; an empty main hand still lets an offhand spyglass be used. */
+    public static void spyglassScoping(PlayerInteractEvent.EntityInteract event){
+        if(!(event.getTarget() instanceof YukkuriEntity))return;
+        var stack=event.getItemStack();
+        if(stack.is(Items.SPYGLASS)||event.getHand()==InteractionHand.MAIN_HAND&&stack.isEmpty()
+                &&event.getEntity().getOffhandItem().is(Items.SPYGLASS)){
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.PASS);
+        }
+    }
     /** Vanilla naming and leashing, as well as held-item interactions, enter through this event. */
     public static void interact(PlayerInteractEvent.EntityInteract event){
         if(event.getLevel().isClientSide()||!(event.getTarget() instanceof YukkuriEntity target))return;
@@ -187,7 +197,7 @@ public final class InteractionDispatch {
                         case BURN -> OperationToolItem.isHot(actor.getMainHandItem(), target.level()) ? null : "heat";
                         case WRAP_HANG, HOOK_HANG -> operation.table()==null && operation.ceiling()==null ? "ceiling" : null;
                         case VIBRATE -> target.family().adult() && !target.family().sterile() ? null : "condition";
-                        case PIERCE, MALLET -> null;
+                        case PIERCE -> null;
                         default -> throw new IllegalArgumentException(action.name());
                     };
                 });

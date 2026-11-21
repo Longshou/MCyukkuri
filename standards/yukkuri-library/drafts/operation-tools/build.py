@@ -289,7 +289,7 @@ def outputs():
         if name=='care_awl':model['overrides']=[{'predicate':{'mcyukkuri:hot':1},'model':'mcyukkuri:item/care_awl_hot'}]
         emit(ASSETS/f'models/item/{name}.json',model);emit(SNAPSHOT/'held'/f'{name}.json',model)
         skin=held.texture(name);result[ASSETS/f'textures/item/{name}_model.png']=skin;result[SNAPSHOT/'held'/f'{name}_model.png']=skin
-    ingredients={'pin_tool':['iron_nugget','pink_dye'],'care_mallet':['iron_ingot','iron_ingot','stick'],
+    ingredients={'pin_tool':['iron_nugget','pink_dye'],
       'care_awl':['iron_nugget','iron_ingot','stick'],'restraint_frame':['oak_planks','oak_planks','string','leather'],
       'wrap_sling':['white_wool','string','string'],'hanging_hook':['iron_ingot','string'],
       'care_vibrator':['redstone','iron_ingot','pink_dye'],'iron_enclosure':['iron_ingot','iron_ingot','iron_ingot','iron_bars']}
