@@ -724,7 +724,9 @@ public final class ScenarioCommands {
         var floor = BlockPosArgument.getLoadedBlockPos(c, "floor");
         var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
         player.setPos(Vec3.atBottomCenterOf(floor.above().east()));
-        var result = CarrierRelease.choose(player, InteractionHand.MAIN_HAND, 0, CarrierRelease.Target.GROUND, floor.above());
+        var tokens = CarrierContents.tokens(player.getMainHandItem());
+        if (tokens.isEmpty()) return 0;
+        var result = CarrierRelease.choose(player, InteractionHand.MAIN_HAND, tokens.getFirst(), CarrierRelease.Target.GROUND, floor.above());
         return result.consumesAction() ? 1 : 0;
     }
 

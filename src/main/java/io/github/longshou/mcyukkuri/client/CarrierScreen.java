@@ -33,8 +33,7 @@ final class CarrierScreen extends Screen {
             var row = menu.rows().get(i);
             Component label = Component.translatable("care.mcyukkuri.carrier.menu.row",
                     row.name() == null ? row.species() : row.name(), row.stage(), row.health());
-            int index = i;
-            addRenderableWidget(Button.builder(label, button -> choose(index))
+            addRenderableWidget(Button.builder(label, button -> choose(row.token()))
                     .bounds(panelLeft + PAD + i / lines * (COLUMN + GAP), panelTop + 44 + i % lines * ROW, COLUMN, 20)
                     .build(GuiKit.ActionButton::new));
         }
@@ -43,8 +42,8 @@ final class CarrierScreen extends Screen {
                 .build(GuiKit.ActionButton::new));
     }
 
-    private void choose(int index) {
-        PacketDistributor.sendToServer(new CarrierPayload.Release(menu.offhand(), index, menu.target(), menu.pos()));
+    private void choose(java.util.UUID token) {
+        PacketDistributor.sendToServer(new CarrierPayload.Release(menu.offhand(), token, menu.target(), menu.pos()));
         onClose();
     }
 

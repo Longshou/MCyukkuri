@@ -35,18 +35,20 @@ public final class CarrierRelease {
         CarrierItem.prepareBasket(world, stack);
         var tokens = CarrierContents.tokens(stack);
         if (tokens.isEmpty()) { blocked(player); return; }
-        if (tokens.size() == 1) { release(level, player, stack, hand, target, pos, yaw, 0); return; }
+        if (tokens.size() == 1) { release(level, player, stack, hand, target, pos, yaw, tokens.getFirst()); return; }
         if (player instanceof ServerPlayer server)
             PacketDistributor.sendToPlayer(server, menu(level, world, tokens, hand, target, pos));
     }
 
     /** The screen's answer, checked against the basket still in that hand. */
-    public static InteractionResult choose(ServerPlayer player, InteractionHand hand, int index, Target target, BlockPos pos) {
+    public static InteractionResult choose(ServerPlayer player, InteractionHand hand, UUID token, Target target, BlockPos pos) {
         var stack = player.getItemInHand(hand);
-        if (!CarrierContents.isBasket(stack)) return InteractionResult.FAIL;
-        int size = CarrierContents.tokens(stack).size();
-        if (index < 0 || index >= size) return InteractionResult.FAIL;
-        return release(player.serverLevel(), player, stack, hand, target, pos, player.getYRot(), index);
+        if (!CarrierContents.isBasket(stack) || stack.getCount() != 1) return InteractionResult.FAIL;
+        if (!CarrierContents.tokens(stack).contains(token)) return InteractionResult.FAIL;
+        var level = player.serverLevel();
+        if (target != Target.FRONT && (!level.hasChunkAt(pos) || player.distanceToSqr(Vec3.atCenterOf(pos)) > 49)) return blocked(player);
+        if (target == Target.FREEZER && !(level.getBlockState(pos).getBlock() instanceof FreezerBlock)) return blocked(player);
+        return release(level, player, stack, hand, target, pos, player.getYRot(), token);
     }
 
     private static CarrierPayload.Menu menu(ServerLevel level, YukkuriWorldData world, List<UUID> tokens,
@@ -58,14 +60,13 @@ public final class CarrierRelease {
             var stage = Component.translatable("stage.mcyukkuri." + CarrierContents.stage(snapshot));
             var name = snapshot.get("CustomName") instanceof StringTag
                     ? Component.Serializer.fromJson(snapshot.getString("CustomName"), level.registryAccess()) : null;
-            rows.add(new CarrierPayload.Row(name, species, stage, Math.round(snapshot.getFloat("Health"))));
+            rows.add(new CarrierPayload.Row(token, name, species, stage, Math.round(snapshot.getFloat("Health"))));
         }
         return new CarrierPayload.Menu(hand == InteractionHand.OFF_HAND, target, pos, rows);
     }
 
     private static InteractionResult release(ServerLevel level, Player player, ItemStack stack, InteractionHand hand,
-                                             Target target, BlockPos pos, float yaw, int index) {
-        UUID token = CarrierContents.tokens(stack).get(index);
+                                             Target target, BlockPos pos, float yaw, UUID token) {
         return switch (target) {
             case FRONT -> ground(level, player, stack, token, player.blockPosition().relative(player.getDirection()), yaw);
             case GROUND -> ground(level, player, stack, token, pos, yaw);
