@@ -114,11 +114,12 @@ public final class PetOuting extends Goal {
     }
 
     public void forget() { home = null; escort = null; playAvailable = false; }
+    /** Until it is back in its yard it neither searches for a home nor claims a bed, so the way back is not cut short by a bed claim. */
     public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
     public boolean onEscortLead() { return pet.getLeashHolder() instanceof HumanNpc holder && holder == escort(); }
     public boolean permitsPerformance(boolean optional) { return OutingPerformance.allowed(onEscortLead(), optional); }
-    public boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
+    private boolean away() { return home != null && pet.blockPosition().distSqr(home) > 36; }
 
     void releaseVacatedNest() {
         if (!away() || pet.life().home() == null) return;

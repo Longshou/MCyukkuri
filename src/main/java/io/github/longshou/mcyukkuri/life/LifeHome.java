@@ -203,7 +203,7 @@ final class LifeHome {
             if (!naturalHome) o.homeProvider().lostHome(o.entity(), home.pos());
             releaseHome();
         }
-        if (o.entity().mind().feeling().mourning() || o.entity().outing().away()) return false;
+        if (o.entity().mind().feeling().mourning() || o.entity().outing().onOuting()) return false;
         var search=o.homeProvider().findHome(o.entity());
         if(search==HomeProvider.SearchResult.DEFERRED)return true;
         if(search==HomeProvider.SearchResult.FOUND)return false;
@@ -249,7 +249,7 @@ final class LifeHome {
     BlockPos unclaimedSingleBed(boolean wantsShelter) {
         long now = o.level().getGameTime();
         if (home != null && !naturalHome || o.entity().habitat().hasMemory() || !o.entity().family().adult()
-                || o.homeProvider() != HomeProvider.ORDINARY || o.entity().outing().away() || o.entity().mind().feeling().mourning()
+                || o.homeProvider() != HomeProvider.ORDINARY || o.entity().outing().onOuting() || o.entity().mind().feeling().mourning()
                 || now < nextNestSearch || HomeClaim.holds(o.entity()) || HomeClaim.cooling(o.entity())) return null;
         var bed = nearestCare(CareBlock.Kind.NEST, false);
         boolean claimable = bed != null && walkToClaim(bed);

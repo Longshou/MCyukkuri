@@ -1789,7 +1789,8 @@ final class HumanStreet {
                     return true;
                 }
             }
-            GameplayLog.event(npc, "npc-care", "action=park_route result=refused reason=unreachable target={}", GameplayLog.at(to));
+            GameplayLog.event(npc, "npc-care", "action=park_route result=refused reason=unreachable target={} path={}", GameplayLog.at(to),
+                    path == null ? "none" : "ends_at=" + GameplayLog.at(Vec3.atBottomCenterOf(path.getEndNode().asBlockPos())));
             return false;
         }
 

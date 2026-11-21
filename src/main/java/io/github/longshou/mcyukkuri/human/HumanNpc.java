@@ -414,7 +414,7 @@ public final class HumanNpc extends PathfinderMob {
     Vec3 freeFloor(Vec3 target) { return ((HumanNavigation) getNavigation()).freeFloor(target); }
     Path yardPath(Set<BlockPos> stands, AABB blocker) {
         var nav = (HumanNavigation) getNavigation();
-        return blocker == null ? nav.createPath(stands, 0) : nav.pathAround(stands, blocker);
+        return nav.pathAround(stands, blocker);
     }
     boolean finishingDoorway() { return ((HumanNavigation) getNavigation()).finishingDoorway(); }
     DoorExit crossedDoorway() { return ((HumanNavigation) getNavigation()).crossedDoorway(); }
@@ -451,7 +451,8 @@ public final class HumanNpc extends PathfinderMob {
         private HumanNavigation(Level level) { super(HumanNpc.this, level); }
 
         @Override public Path createPath(BlockPos target, int accuracy) {
-            if (ShopStaff.active(HumanNpc.this) && accuracy == 0) return pathAround(Set.of(target), null);
+            // A shop round or a leashed outing (yard, street, park round a fence) outruns the ordinary follow range and node budget.
+            if (accuracy == 0 && (ShopStaff.active(HumanNpc.this) || stroll().outing())) return pathAround(Set.of(target), null);
             // GroundPathNavigation lifts solid targets above the lintel. A doorway can itself be the destination.
             var door = handDoor(target);
             return door == null ? super.createPath(target, accuracy) : createPath(Set.of(door), accuracy);
