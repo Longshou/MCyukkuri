@@ -29,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
@@ -39,30 +40,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 public final class CarrierItem extends Item {
-    public enum Grade {
-        PLAIN(4), FINE(6), LARGE(12);
-        private final int capacity;
-        Grade(int capacity) { this.capacity = capacity; }
-    }
     private enum Admission { WILLING, UNCONSCIOUS, WEAK, REFUSED }
-    private static final Map<String, Integer> STAGE_LOAD = Map.of("adult", 4, "subadult", 2, "juvenile", 2, "baby", 1);
-    private final Grade grade;
+    private final CarrierLoad.Grade grade;
 
-    public CarrierItem(Properties properties, Grade grade) {
+    public CarrierItem(Properties properties, CarrierLoad.Grade grade) {
         super(properties);
         this.grade = grade;
     }
 
     private static int load(YukkuriWorldData world, ItemStack stack) {
         return CarrierContents.tokens(stack).stream().map(world::captiveSnapshot)
-                .mapToInt(snapshot -> STAGE_LOAD.get(CarrierContents.stage(snapshot))).sum();
+                .mapToInt(snapshot -> CarrierLoad.stageLoad(CarrierContents.stage(snapshot))).sum();
     }
 
-    private static void prepareBasket(YukkuriWorldData world, ItemStack stack) {
+    static void prepareBasket(YukkuriWorldData world, ItemStack stack) {
         if (CarrierContents.needsAppearance(stack)) CarrierContents.refreshAppearance(stack, world);
         for (UUID token : CarrierContents.tokens(stack)) {
             if (world.hasToken(token) && !world.freezer.contains(token)) continue;
@@ -131,13 +125,13 @@ public final class CarrierItem extends Item {
         var level=(ServerLevel)player.level();
         var world = YukkuriWorldData.get(level);
         prepareBasket(world, stack);
-        if (load(world, stack) + STAGE_LOAD.get(entity.family().stageId()) > grade.capacity) {
+        if (!CarrierLoad.fits(grade, load(world, stack), CarrierLoad.stageLoad(entity.family().stageId()))) {
             InteractionDispatch.refuse(player, entity, "capture", "carrier_full");
             return InteractionResult.FAIL;
         }
         var contact = SocialDisposition.contact(entity, player);
         float weakness = entity.life().weakness();
-        double resistance = resistance(contact);
+        double resistance = CarrierLoad.resistance(contact.insistence(), contact.esteem(), contact.fear());
         var admission = admission(player, entity, weakness, resistance);
         if (admission == Admission.WILLING) welcome(level, player, hand, stack, entity, contact);
         else if (admission == Admission.REFUSED) refuse(level, player, entity, contact, weakness, resistance);
@@ -150,15 +144,10 @@ public final class CarrierItem extends Item {
         }
         return InteractionResult.CONSUME;
     }
-    private static double resistance(SocialDisposition.Contact contact) {
-        // A timid body yields to moderate weakness. Defiance and esteem can shift that threshold up to .65.
-        return .35 + .15 * contact.insistence() + .10 * contact.esteem() / 100 + .05 * (1 - contact.fear() / 100.0);
-    }
-
     private static Admission admission(Player player, YukkuriEntity entity, float weakness, double resistance) {
         if (entity.life().drugSleep() > 0) return Admission.UNCONSCIOUS;
         if (willing(player, entity)) return Admission.WILLING;
-        return weakness > resistance ? Admission.WEAK : Admission.REFUSED;
+        return CarrierLoad.overpowered(weakness, resistance) ? Admission.WEAK : Admission.REFUSED;
     }
 
     private static boolean willing(Player player, YukkuriEntity entity) {
@@ -186,7 +175,9 @@ public final class CarrierItem extends Item {
             if (!finishScene(entity.getUUID(), session)) return true;
             var reason = InteractionDispatch.reachRefusal(player, entity, 4);
             if (reason == null) {
-                var admission = admission(player, entity, entity.life().weakness(), resistance(SocialDisposition.contact(entity, player)));
+                var now = SocialDisposition.contact(entity, player);
+                var admission = admission(player, entity, entity.life().weakness(),
+                        CarrierLoad.resistance(now.insistence(), now.esteem(), now.fear()));
                 reason = admission == Admission.REFUSED ? entity.isPanicking() ? "fear" : "condition"
                         : capture(level, player, hand, stack, entity, admission);
             }
@@ -246,8 +237,8 @@ public final class CarrierItem extends Item {
         var world = YukkuriWorldData.get(level);
         prepareBasket(world, stack);
         int before = load(world, stack);
-        int added = STAGE_LOAD.get(entity.family().stageId());
-        if (before + added > grade.capacity) return "carrier_full";
+        int added = CarrierLoad.stageLoad(entity.family().stageId());
+        if (!CarrierLoad.fits(grade, before, added)) return "carrier_full";
         var previousCustody = HumanCommerce.data(entity).copy();
         var role = Custody.fromData(previousCustody).role();
         if (role == Custody.Role.PLANT_STOCK && Custody.harmRefusal(player, entity, entity.blockPosition()) != null) return "custody";
@@ -263,50 +254,32 @@ public final class CarrierItem extends Item {
         CarrierContents.add(stack, token, world.captiveSnapshot(token));
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.captured", entity.getName()), true);
         GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={} admission={}",
-                entity.getUUID(),token,before,before + added,grade.capacity,admission);
+                entity.getUUID(),token,before,before + added,grade.capacity(),admission);
         return null;
+    }
+    @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        var stack = player.getItemInHand(hand);
+        if (CarrierContents.tokens(stack).isEmpty()) return InteractionResultHolder.pass(stack);
+        if (level instanceof ServerLevel server)
+            CarrierRelease.click(server, player, stack, hand, CarrierRelease.Target.FRONT, BlockPos.ZERO, player.getYRot());
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
     @Override public InteractionResult useOn(UseOnContext context) {
         var stack = context.getItemInHand();
         if (CarrierContents.tokens(stack).isEmpty()) return InteractionResult.PASS;
         if (context.getLevel() instanceof ServerLevel level) {
-            var world = YukkuriWorldData.get(level);
-            prepareBasket(world, stack);
-            var tokens = CarrierContents.tokens(stack);
-            if (tokens.isEmpty()) return blocked(context);
-            UUID token = tokens.getFirst();
-            if (level.getBlockEntity(context.getClickedPos()) instanceof RestraintTableBlockEntity table) {
-                var player = context.getPlayer();
-                if (player == null) return InteractionResult.PASS;
-                var result = table.placeFrom(player, stack, token, context.getRotation());
-                if (result.animal() == null) {
-                    GameplayLog.event(player, "carrier", "action=table_release result=refused token={} reason={}", token, result.refusal());
-                    return blocked(context);
-                }
-                GameplayLog.event(player, "carrier", "action=release result=committed target={} token={} remaining={} table={}",
-                        result.animal().getUUID(), token, tokens.size() - 1, context.getClickedPos());
-                return InteractionResult.CONSUME;
-            }
-            var pos = context.getClickedPos().relative(context.getClickedFace());
-            if (!level.hasChunkAt(pos) || !level.getBlockState(pos.below()).isSolidRender(level, pos.below())) {
-                GameplayLog.event(context.getPlayer(),"carrier","action=release result=refused token={} destination={} reason={}",token,pos.toShortString(),!level.hasChunkAt(pos)?"unloaded":"unsupported_ground");
-                return blocked(context);
-            }
-            YukkuriEntity entity = world.releaseOnGround(token, level, Vec3.atBottomCenterOf(pos), context.getRotation());
-            if (entity == null) return blocked(context);
-            if (!entity.life().sedated()) { entity.playAction("basket_out"); entity.speak("basket_exit"); } // a sedated animal simply keeps sleeping
-            CarrierContents.remove(stack, token);
-            GameplayLog.event(context.getPlayer(),"carrier","action=release result=committed target={} token={} remaining={}",entity.getUUID(),token,tokens.size() - 1);
+            boolean table = level.getBlockEntity(context.getClickedPos()) instanceof RestraintTableBlockEntity;
+            if (table && context.getPlayer() == null) return InteractionResult.PASS;
+            CarrierRelease.click(level, context.getPlayer(), stack, context.getHand(),
+                    table ? CarrierRelease.Target.TABLE : CarrierRelease.Target.GROUND,
+                    table ? context.getClickedPos() : context.getClickedPos().relative(context.getClickedFace()),
+                    context.getRotation());
         }
         return InteractionResult.sidedSuccess(context.getLevel().isClientSide);
     }
-    private static InteractionResult blocked(UseOnContext context) {
-        if (context.getPlayer() != null) context.getPlayer().displayClientMessage(Component.translatable("care.mcyukkuri.carrier.blocked"), true);
-        return InteractionResult.FAIL;
-    }
     @Override public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("care.mcyukkuri.carrier.capacity", grade.capacity,
-                STAGE_LOAD.get("adult"), STAGE_LOAD.get("juvenile"), STAGE_LOAD.get("baby")));
+        tooltip.add(Component.translatable("care.mcyukkuri.carrier.capacity", grade.capacity(),
+                CarrierLoad.stageLoad("adult"), CarrierLoad.stageLoad("juvenile"), CarrierLoad.stageLoad("baby")));
         CarrierContents.appendOccupants(stack, context.registries(), tooltip);
         tooltip.add(Component.translatable(CarrierContents.tokens(stack).isEmpty() ? "care.mcyukkuri.carrier.empty" : "care.mcyukkuri.carrier.full"));
     }

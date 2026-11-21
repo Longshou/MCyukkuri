@@ -3565,8 +3565,8 @@ add('pred_pets', 'town', '饿了的宠物捕食种：受训的忍住', '饿了�
     reads=[('读受训捕食者', f'yukkuri status {sel("rem")} raw'), ('读未训捕食者', f'yukkuri status {sel("fla")} raw')])
 
 add('transport', 'town', '装篮运输：三种容量', '装篮运输：三种容量',
-    '喷雾后用普通篮装子油与两只赤油，试装第三只。蓝篮可装成体与两只赤油。绿篮可混装两只成体、子油与两只赤油。看物品提示，再到西侧石地逐只放出。',
-    '喷雾后约 5 秒；每次点击干地放出一只', [
+    '喷雾后用普通篮装子油与两只赤油，试装第三只。蓝篮可装成体加四只赤油。绿篮可装三只成体。看物品提示，再到西侧石地右键逐只放出。',
+    '喷雾后约 5 秒；每次右键干地选一只放出', [
     yk('reimu', 0, 0, 'pet', grade=1, yaw=-90, lead=True), *own('pet'),
     box(6, 0, -3, 10, 1, -3, 'minecraft:oak_fence'), box(6, 0, 1, 10, 1, 1, 'minecraft:oak_fence'),
     box(6, 0, -2, 6, 1, 0, 'minecraft:oak_fence'), box(10, 0, -2, 10, 1, 0, 'minecraft:oak_fence'),
@@ -9851,7 +9851,7 @@ _plant_smoke['expect'].append(
     rf'\[carrier\][^\n]* action=capture result=refused target={_uuid_text(_plant_receiving, "receive_insult")} [^\n]* weakness=0\.0 ')
 _basket_moves = (
     ('basket_young', 0, 2, 4, 2), ('basket_baby_0', 2, 3, 4, 1), ('basket_baby_1', 3, 4, 4, 0),
-    ('wild', 0, 4, 6, 2), ('basket_baby_2', 4, 5, 6, 1), ('basket_baby_3', 5, 6, 6, 0),
+    ('wild', 0, 4, 8, 3), ('basket_baby_2', 4, 5, 8, 2), ('basket_baby_3', 5, 6, 8, 1), ('basket_baby_4', 6, 7, 8, 0),
 )
 _smoke('transport', 320, [
     *[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text("transport", name)} token=\S+ load={before}->{after} capacity={cap}\b'
@@ -9859,11 +9859,11 @@ _smoke('transport', 320, [
     *[rf'\[carrier\][^\n]* action=release result=committed target={_uuid_text("transport", name)} token=\S+ remaining={remaining}\b'
       for name, _, _, _, remaining in _basket_moves],
     *[rf'\[interaction\][^\n]* uuid={_uuid_text("transport", name)} [^\n]* action=capture reason=carrier_full\b'
-      for name in ('basket_baby_2', 'basket_baby_4')],
+      for name in ('basket_baby_2',)],
     r'\[transport\][^\n]* action=release result=refused token=\S+ [^\n]* reason=(?:collision|occupied_ground)\b',
     r'\[carrier\][^\n]* action=upgrade_check occupants=0 matched=true result=mcyukkuri:yukkuri_carrier_large\b',
-    r'\[carrier\][^\n]* action=upgrade_check occupants=3 matched=false result=minecraft:air\b',
-], forbid=[rf'\[carrier\][^\n]* action=capture result=committed target={_uuid_text("transport", "basket_baby_4")}\b'])
+    r'\[carrier\][^\n]* action=upgrade_check occupants=4 matched=false result=minecraft:air\b',
+], forbid=[])
 next(s for s in S if s.id == 'transport').smoke['commands'] = [
     (60, 'yukkuri scenario basket plain'),
     *[(61+i, f'yukkuri scenario basket spray {sel(name)}')
@@ -9880,7 +9880,7 @@ next(s for s in S if s.id == 'transport').smoke['commands'] = [
       for i, name in enumerate(('wild', 'basket_baby_2', 'basket_baby_3', 'basket_baby_4'))],
     (205, 'yukkuri scenario basket upgrade_check'),
     *[(210+i, f'yukkuri scenario basket release ~{x} ~-1 ~7')
-      for i, x in enumerate((-10, -8, -6))],
+      for i, x in enumerate((-10, -8, -6, -4))],
 ]
 
 def _migration_housing(log):

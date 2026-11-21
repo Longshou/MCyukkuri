@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.client;
 
+import io.github.longshou.mcyukkuri.network.CarrierPayload;
 import io.github.longshou.mcyukkuri.network.MuseumMenuPayload;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.client.aquatic.HullLarderRenderer;
@@ -49,6 +50,7 @@ public final class ClientRegistration {
             NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, ViewerScreen::tick);
         }
         MuseumMenuPayload.State.installClientReceiver(ViewerScreen::receiveState);
+        CarrierPayload.Menu.installClientReceiver(CarrierScreen::open);
         if (Boolean.getBoolean("mcyukkuri.clientProfile")) {
             NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, ClientProfile::tick);
             NeoForge.EVENT_BUS.addListener(RenderFrameEvent.Post.class, ClientProfile::frame);

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.CarrierLoad;
 import io.github.longshou.mcyukkuri.item.NotebookItem;
 import io.github.longshou.mcyukkuri.item.TeachingWhistleItem;
 import io.github.longshou.mcyukkuri.item.WashClothItem;
@@ -62,11 +63,11 @@ public final class ModItems {
 
     public static final DeferredItem<NotebookItem> FIELD_NOTEBOOK = ITEMS.register("field_notebook", () -> new NotebookItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<CarrierItem> CARRIER = ITEMS.register("yukkuri_carrier",
-            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierItem.Grade.PLAIN));
+            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.PLAIN));
     public static final DeferredItem<CarrierItem> FINE_CARRIER = ITEMS.register("yukkuri_carrier_fine",
-            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierItem.Grade.FINE));
+            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.FINE));
     public static final DeferredItem<CarrierItem> LARGE_CARRIER = ITEMS.register("yukkuri_carrier_large",
-            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierItem.Grade.LARGE));
+            () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.LARGE));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new HouseholdSprayItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));

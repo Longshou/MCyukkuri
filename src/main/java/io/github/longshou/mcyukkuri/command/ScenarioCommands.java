@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
+import io.github.longshou.mcyukkuri.item.CarrierRelease;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
@@ -57,7 +58,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.level.GameRules;
@@ -724,8 +724,7 @@ public final class ScenarioCommands {
         var floor = BlockPosArgument.getLoadedBlockPos(c, "floor");
         var player = FakePlayerFactory.getMinecraft(c.getSource().getLevel());
         player.setPos(Vec3.atBottomCenterOf(floor.above().east()));
-        var hit = new BlockHitResult(Vec3.atBottomCenterOf(floor.above()), Direction.UP, floor, false);
-        var result = player.getMainHandItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        var result = CarrierRelease.choose(player, InteractionHand.MAIN_HAND, 0, CarrierRelease.Target.GROUND, floor.above());
         return result.consumesAction() ? 1 : 0;
     }
 
