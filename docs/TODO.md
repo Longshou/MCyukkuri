@@ -16,6 +16,7 @@
 | PD-13 抱幼返船复测失败（弯岸够不到帽檐、随机种子失败） | `.worktrees/wp-pd13-retry` | pond boat boarding, carry hop |
 | 橙汁澡盆：健康个体泡澡降不安，受伤个体修复橙汁有效的伤势，家规管宠物能否泡 | `.worktrees/wp-tub-rules` | play/JuiceTub, PlayLife, house rules |
 | 赤油长期见不到同类和人类时按数值可能发展为非油症 | `.worktrees/wp-lonely-baby` | mind/MindLife unease sources |
+| 台词小问题与补台词配音 | `.worktrees/wp-lines-1121` | dialogue sources, language files, aquestalk audio |
 
 
 ## 玩法待办
