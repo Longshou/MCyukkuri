@@ -4041,6 +4041,8 @@ _counter_build = [
     'place template mcyukkuri:village/plains/side_street ~-2 ~-1 ~-8',
     # Direct template placement leaves the three street jigsaws intact. Their village final_state is air.
     block(-2, 0, -4, 'minecraft:air'), block(15, 0, -4, 'minecraft:air'), block(6, 0, 13, 'minecraft:air'),
+    # The street band in front of the hatch is dirt path in places (15/16 high): level it so a walking stray never drops half a pixel.
+    box(-3, -1, -8, 5, -1, -1, 'minecraft:polished_andesite'),
     f'execute positioned ~0.5 ~ ~1.5 run tag @e[type=mcyukkuri:caretaker_brother,distance=..0.5,limit=1] add {tag("counter_keeper")}',
 ]
 _counter_rows = [('读面包箱存货', f'data get block {_counter_bread_crate} Items'),
