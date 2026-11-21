@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 /**
  * The wood a piece of village furniture is made of: the wood families of the five village palettes
- * (art/structures/human-world/palette.py). States saved before the property existed load as {@link #OAK}, the original look.
+ * (art/structures/human-world/palette.py).
  */
 public enum VillageWood implements StringRepresentable {
     OAK, SPRUCE, ACACIA, JUNGLE;

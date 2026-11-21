@@ -732,8 +732,7 @@ public final class BodyLife {
     }
     public CompoundTag save(){var tag=WoundTags.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);
-        // Preserve the old integer path for saved bodies, without retaining the removed bandage effect.
-        tag.putInt("Bandage",0);tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
+        tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
         if(entryFood>=0)tag.putFloat("EntryFood",entryFood);
         tag.putBoolean("FaceMarks",faceMarks);
@@ -763,7 +762,6 @@ public final class BodyLife {
         moldContact=Math.clamp(tag.getInt("MoldContact"),0,MoldContagion.THRESHOLD);
         noticedMoldTier=Math.clamp(tag.getInt("NoticedMoldTier"),0,4);
         burns=Math.clamp(tag.getInt("Burns"),0,8);hairLoss=tag.getInt("HairLoss")&7;
-        // Saves from before the centre filling existed carry no flag: their core is unhurt.
         coreHurt=tag.getBoolean("CoreHurt");footBurned=tag.getBoolean("FootBurned");footScorch=Math.clamp(tag.getInt("FootScorch"),0,12);toxin=
                 Math.clamp(tag.getInt("Toxin"),0,12);moldSpread=Math.clamp(tag.getInt("MoldSpread"),0,12000);
         dying=Math.clamp(tag.getInt("Dying"),0,DYING_TICKS);dyingCause=tag.getString("DyingCause");if(dying>0)coreHurt=true;
@@ -773,13 +771,6 @@ public final class BodyLife {
         refreshWounds();
         entryFood=tag.contains("EntryFood")&&Float.isFinite(tag.getFloat("EntryFood"))?Math.max(0,tag.getFloat("EntryFood")):-1;
         deathFood=tag.contains("PendingFood")&&Float.isFinite(tag.getFloat("PendingFood"))?Math.max(0,tag.getFloat("PendingFood")):-1;
-        if(tag.getInt("HealthVersion")==0&&tag.contains("Filling")&&!settled&&entity.getHealth()>0){
-            float before=entity.getHealth();
-            float converted=Math.min(before,entity.getMaxHealth()*Math.clamp(tag.getInt("Filling")/12f,0,1));
-            // Migration never kills a loaded live body without its death transaction, or revives a dying one.
-            float liveMinimum=entity.profile().houseBody()?.01f:1;
-            entity.setHealth(coreHurt?Math.min(before,Math.max(liveMinimum,converted)):Math.max(liveMinimum,converted));
-        }
         if(dying>0&&deathFood<0)freezeFood();
         updateMobility();
     }

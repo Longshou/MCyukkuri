@@ -107,14 +107,6 @@ public final class PetLife {
         return BadgeRequirements.talent(p.potential(Trait.INTELLIGENCE), p.potential(Trait.SELF_CONTROL),
                 p.potential(Trait.FRIENDLINESS), p.potential(Trait.ATTACHMENT));
     }
-    /** Rollback for a temporary wild-candidate owner from an older save. */
-    private CompoundTag examWildTag;
-    private UUID examTemporaryOwner;
-    public void finishWildExam() {
-        if (examWildTag != null && animal.isAlive() && grade == BadgeGrade.NONE && ownedBy(examTemporaryOwner))
-            Custody.release(animal, Custody.ReleaseReason.EXAM_ROLLBACK, null, examWildTag);
-        examWildTag = null; examTemporaryOwner = null;
-    }
     public BadgeGrade visibleGrade() { return worn && animal.life().hasAccessory() ? grade : BadgeGrade.NONE; }
     public BadgeGrade humanRank() { return effectiveGrade() == BadgeGrade.NONE ? BadgeGrade.NONE : visibleGrade(); }
     public boolean worn() { return worn; }
@@ -399,7 +391,7 @@ public final class PetLife {
             if (neglect == 100 && animal.status().identity() == Identity.PET && !busy()) {
                 var player = animal.level().getPlayerByUUID(owner());
                 if (player == null || player.distanceToSqr(animal) > 256) {
-                    Custody.release(animal, Custody.ReleaseReason.LOST_CONTACT, owner(), null);
+                    Custody.release(animal, Custody.ReleaseReason.LOST_CONTACT, owner());
                     return;
                 }
                 contact(player.getUUID(), true);
@@ -448,7 +440,6 @@ public final class PetLife {
         if (director != null) direct(null);
         lastContact = now(); neglect = 0; neglectClock = 0; searchClock = 0;
         ownerAbsence = 0; noticeSent = false; joyDelay = 0;
-        if (former.equals(examTemporaryOwner)) { examWildTag = null; examTemporaryOwner = null; }
     }
     public void lostContact() {
         conscience.forgetOwner();
@@ -570,7 +561,6 @@ public final class PetLife {
         // Run after all entity/NeoForge data has loaded, before ownership-dependent routines.
         if (animal.tickCount == 1) PetPrivileges.note(animal);
         if (townRoots && animal.tickCount % 100 == 1) VillageStrays.observe(animal);
-        if (examWildTag != null && !ExamSession.running(animal)) finishWildExam();
         if (cooldown > 0) cooldown--;
         lessons.tick(); care.tick(); tickPerformance(); tickOwnerLine(); tickAbandoned();
         discovery.tick(animal);
@@ -593,9 +583,6 @@ public final class PetLife {
 
     public CompoundTag save() {
         var tag = new CompoundTag();
-        if (examWildTag != null && examTemporaryOwner != null) {
-            tag.put("ExamWildTag", examWildTag.copy()); tag.putUUID("ExamTemporaryOwner", examTemporaryOwner);
-        }
         tag.putInt("Grade", grade.id()); tag.putBoolean("Worn", worn); tag.putLong("IssuedAt", issuedAt); tag.putInt("Source", source);
         tag.putInt("Neglect", neglect); tag.putLong("LastContact", lastContact); tag.putBoolean("NoticeSent", noticeSent);
         tag.putBoolean("VoidBadge", voidBadge); tag.putLong("AbandonedAt", abandonedAt); tag.putInt("AbandonedGrade", abandonedGrade); tag.putLong("DropPos", dropPos);
@@ -651,8 +638,6 @@ public final class PetLife {
         obedienceShift = RulesMath.capShift(tag.getInt("Obedience"));
         conscience.load(tag.getCompound("Conscience"));
         ledger.load(tag.getCompound("BadgeLedger"));
-        examWildTag = tag.contains("ExamWildTag", 10) && tag.hasUUID("ExamTemporaryOwner") ? tag.getCompound("ExamWildTag").copy() : null;
-        examTemporaryOwner = examWildTag == null ? null : tag.getUUID("ExamTemporaryOwner");
         lockKind = null; lockedBy = null; director = null; lockGone = 0;
     }
     public static final class SessionGoal extends Goal {

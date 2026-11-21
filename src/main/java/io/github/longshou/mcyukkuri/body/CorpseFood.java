@@ -16,14 +16,12 @@ import net.minecraft.world.item.component.CustomData;
 public final class CorpseFood {
     public static final String REMAINING = "FoodRemaining";
     public static final String CAPACITY = "FoodCapacity";
-    private static final String LEGACY_FILLING = "Filling";
 
     private CorpseFood() {}
 
-    /** Remaining edible portions. Legacy remains retain exactly their old {@code Filling} value. */
+    /** Remaining edible portions. */
     public static float remaining(CompoundTag remains) {
-        if (remains.contains(REMAINING)) return finitePortions(remains.getFloat(REMAINING));
-        return finitePortions(remains.getFloat(LEGACY_FILLING));
+        return finitePortions(remains.getFloat(REMAINING));
     }
 
     /** Immutable body-size reference used only for visual fullness. It never restores old remains. */
@@ -54,7 +52,6 @@ public final class CorpseFood {
             tag.putFloat(CAPACITY, Math.max(capacity(tag), current));
             tag.putFloat(REMAINING, Math.max(0, current - portions));
             if(current<=portions)tag.remove(RemainsStem.KEY);
-            tag.remove(LEGACY_FILLING);
         });
         return bite;
     }
@@ -62,18 +59,6 @@ public final class CorpseFood {
     /** Factory work is restricted to fresh, ordinary edible remains. */
     public static boolean canProcessInFactory(CompoundTag remains) {
         return RemainsRot.stage(remains) == RemainsRot.FRESH && !remains.getBoolean("FoodFoul") && remaining(remains) >= 1;
-    }
-
-    /** Converts a legacy carried corpse once without changing its remaining balance. */
-    public static void migrate(ItemStack remains) {
-        if (!isRemains(remains)) return;
-        CustomData.update(DataComponents.CUSTOM_DATA, remains, tag -> {
-            if (tag.contains(REMAINING)) return;
-            float legacy = finitePortions(tag.getFloat(LEGACY_FILLING));
-            tag.putFloat(REMAINING, legacy);
-            tag.putFloat(CAPACITY, legacy);
-            tag.remove(LEGACY_FILLING);
-        });
     }
 
     private static boolean isRemains(ItemStack stack) { return !stack.isEmpty() && stack.is(ModItems.REMAINS.get()); }

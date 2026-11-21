@@ -394,7 +394,7 @@ public final class WildEvents {
         var data=WildEventData.get(level);
         Scene scene=data.start(Kind.ABANDONMENT,"abandonment",GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),player.getUUID(),level.getGameTime());
         if(scene==null)return false;
-        Custody.release(e, Custody.ReleaseReason.ABANDON, player.getUUID(), null);
+        Custody.release(e, Custody.ReleaseReason.ABANDON, player.getUUID());
         data.phase(scene,Phase.WAITING);return true;
     }
     private static boolean pleading(Scene scene, YukkuriEntity e) {

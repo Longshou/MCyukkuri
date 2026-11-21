@@ -111,7 +111,7 @@ public final class RemainsEntity extends Entity {
                 body -> identity.equals(body.identity()) && body.distanceToSqr(near) <= range * range && near.hasLineOfSight(body));
         return matches.isEmpty() ? null : matches.getFirst();
     }
-    public void setRemains(ItemStack stack){CorpseFood.migrate(stack);entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
+    public void setRemains(ItemStack stack){entityData.set(REMAINS,stack.copyWithCount(1));rot=stack.getOrDefault(DataComponents.CUSTOM_DATA,
             CustomData.EMPTY).copyTag().getLong("Rot");var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
             soak=Math.max(0,tag.getLong(RemainsWater.SOAK));waterStage=RemainsWater.stage(tag);
             carriesItems=tag.contains(CARRIED_ITEMS,Tag.TAG_LIST);refreshDimensions();}

@@ -33,8 +33,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Marker;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
@@ -65,8 +63,7 @@ public final class ShopRegistry extends SavedData {
         private BlockPos first, second, counter, dock, trash;
         final Set<BlockPos> familyNests = new LinkedHashSet<>();
         private AABB protection;
-        private Direction legacyFront;
-        private boolean legacy, closed, closing;
+        private boolean closed;
         private final Set<UUID> staff = new LinkedHashSet<>();
         private final Set<UUID> releases = new LinkedHashSet<>();
         long nextRestock;
@@ -112,8 +109,6 @@ public final class ShopRegistry extends SavedData {
                     && !mayShare.test(other.getUUID())).isEmpty();
         }
         public boolean authored() { return first != null; }
-        boolean legacy() { return legacy; }
-        Direction legacyFront() { return legacyFront; }
         boolean closed() { return closed; }
         public boolean staff(UUID id) { return staff.contains(id); }
         List<HumanNpc> loadedStaff(ServerLevel level) {
@@ -142,10 +137,6 @@ public final class ShopRegistry extends SavedData {
         var kind = ShopKind.forStaff(founder);
         var shop = new Entry(ModRandom.identity(ModRandom.world(level)), dim, founder.home().immutable(), kind);
         readMarkers(level, shop);
-        if (!shop.authored() && kind == ShopKind.PET && founder.siteRole().equals(kind.clerkRole)) {
-            var previous = new Entry(founder.getUUID(), dim, founder.home().immutable(), kind);
-            if (readLegacyBounds(level, previous)) shop = previous;
-        }
         if (!shop.authored() && kind == ShopKind.ONI) return null;
         shops.put(shop.id, shop);
         shop.staff.add(founder.getUUID());
@@ -159,7 +150,6 @@ public final class ShopRegistry extends SavedData {
         if (!(staff.level() instanceof ServerLevel level) || staff.job() != HumanNpc.Job.SHOPKEEPER) return null;
         for (var entry : shops.values()) if (entry.staff(staff.getUUID())) {
             if (entry.closed) return null;
-            if (entry.legacy && entry.legacyFront == null) readLegacyBounds(level, entry);
             return entry;
         }
         var kind = ShopKind.forStaff(staff);
@@ -177,19 +167,6 @@ public final class ShopRegistry extends SavedData {
         if (shop.staff.add(npc.getUUID())) setDirty();
     }
 
-    /** Old site roles are saved on the NPC, so conversion also works when a staff chunk loads later. */
-    public void adoptLegacy(ServerLevel level, HumanNpc npc) {
-        if (!npc.siteRole().equals("shop_keeper") && !npc.siteRole().equals("shop_sister")) return;
-        if (npc.job() == HumanNpc.Job.SHOPKEEPER) return;
-        for (var entry : shops.values())
-            if (entry.legacy && !entry.closed && entry.legacyFront == null && entry.pos.distSqr(npc.home()) < 32 * 32
-                    && entry.dimension.equals(level.dimension().location().toString())) readLegacyBounds(level, entry);
-        var shop = shopAt(level, npc.home().getCenter(), ShopKind.PET);
-        if (shop == null || !shop.legacy) return;
-        npc.setJob(HumanNpc.Job.SHOPKEEPER);
-        enroll(shop, npc);
-    }
-
     /**
      * A staff member died: the shop goes on with the others. When none is left the shop closes like a dead owner: its stock and the baskets
      * holding stock lose their owner (the custody death record of the site id), and reservations end.
@@ -198,7 +175,6 @@ public final class ShopRegistry extends SavedData {
         var shop = of(dead);
         if (shop == null) { Custody.ownerDied(dead); return; }
         for (var npc : level.getEntitiesOfClass(HumanNpc.class, shop.bounds().inflate(8), n -> n != dead && n.isAlive())) {
-            adoptLegacy(level, npc);
             if (npc.job() == HumanNpc.Job.SHOPKEEPER && ShopKind.forStaff(npc) == shop.kind && shop.contains(npc.home().getCenter())) enroll(shop, npc);
         }
         shop.releases.addAll(YukkuriWorldData.get(level).captiveTokens(view -> view.role() == Custody.Role.STOCK && view.ownedBy(dead.getUUID())
@@ -209,16 +185,11 @@ public final class ShopRegistry extends SavedData {
         boolean staffed = !shop.staff.isEmpty();
         GameplayLog.event(dead, "shop", "action=staff_died shop={} shop_closes={}", shop.id, !staffed);
         if (staffed) return;
-        if (shop.legacy && !ShopRestock.shopLoaded(level, shop)) {
-            shop.closing = true;
-            return;
-        }
         close(level, shop);
     }
 
     private void close(ServerLevel level, Entry shop) {
         shop.closed = true;
-        shop.closing = false;
         setDirty();
         for (var animal : List.copyOf(shop.deposits.keySet())) refund(level, shop, animal);
         for (var animal : List.copyOf(shop.orders.keySet()))
@@ -266,7 +237,7 @@ public final class ShopRegistry extends SavedData {
     private Entry protectedShop(ServerLevel level, Predicate<AABB> overlaps) {
         var dim = level.dimension().location().toString();
         for (var shop : shops.values()) if (!shop.closed && shop.dimension.equals(dim)
-                && (shop.protection != null ? overlaps.test(shop.protection) : shop.legacy && overlaps.test(shop.bounds()))) return shop;
+                && shop.protection != null && overlaps.test(shop.protection)) return shop;
         return null;
     }
 
@@ -287,7 +258,7 @@ public final class ShopRegistry extends SavedData {
     static YukkuriEntity releaseBasketNear(ServerLevel level, UUID token, BlockPos near, boolean releaseCustody) {
         var animal = YukkuriWorldData.get(level).releaseOnGround(token, level, Vec3.atBottomCenterOf(near), 0, 4);
         if (animal != null && releaseCustody && Custody.view(animal).role() == Custody.Role.STOCK)
-            Custody.release(animal, Custody.ReleaseReason.DELIVERY_FAILED, Custody.view(animal).owner(), null);
+            Custody.release(animal, Custody.ReleaseReason.DELIVERY_FAILED, Custody.view(animal).owner());
         return animal;
     }
 
@@ -310,14 +281,6 @@ public final class ShopRegistry extends SavedData {
         var doors = registry.openedDoors.get(level.dimension().location().toString());
         if (doors != null) ShopDoors.closeUnattended(level, doors);
         for (var shop : registry.shops.values()) if (shop.dimension.equals(level.dimension().location().toString())) {
-            if (shop.closing && ShopRestock.shopLoaded(level, shop)) {
-                for (var npc : level.getEntitiesOfClass(HumanNpc.class, shop.bounds(), HumanNpc::isAlive)) {
-                    registry.adoptLegacy(level, npc);
-                    if (npc.job() == HumanNpc.Job.SHOPKEEPER && ShopKind.forStaff(npc) == shop.kind && shop.contains(npc.home().getCenter())) registry.enroll(shop, npc);
-                }
-                if (shop.staff.isEmpty()) registry.close(level, shop);
-                else { shop.closing = false; registry.setDirty(); }
-            }
             if (!shop.releases.isEmpty()) registry.recoverClosed(level, shop);
             if (!shop.closed) {
                 var tray = lendingTrayOf(level, shop);
@@ -436,26 +399,6 @@ public final class ShopRegistry extends SavedData {
         setDirty();
     }
 
-    /** Both templates share the shell. In a legacy world the old street door fixes its rotation. */
-    private boolean readLegacyBounds(ServerLevel level, Entry shop) {
-        for (var rotation : Rotation.values()) {
-            var door = shop.pos.offset(new BlockPos(1, 0, -11).rotate(rotation));
-            if (!level.hasChunkAt(door)) continue;
-            var state = level.getBlockState(door);
-            var examDoor = shop.pos.offset(new BlockPos(16, 0, -11).rotate(rotation));
-            if (!state.is(Blocks.OAK_DOOR) || state.getValue(DoorBlock.FACING) != rotation.rotate(Direction.NORTH)) continue;
-            if (!shop.legacy && (!level.hasChunkAt(examDoor) || !level.getBlockState(examDoor).is(Blocks.OAK_DOOR))) continue;
-            shop.legacy = true;
-            shop.legacyFront = rotation.rotate(Direction.NORTH);
-            shop.first = shop.pos.offset(new BlockPos(-10, -3, -11).rotate(rotation));
-            shop.second = shop.pos.offset(new BlockPos(12, 12, 18).rotate(rotation));
-            shop.protection = shell(shop.pos, rotation, 11);
-            setDirty();
-            return true;
-        }
-        return false;
-    }
-
     private static AABB authoredProtection(Entry shop) {
         var rotation = authoredRotation(shop);
         if (shop.kind == ShopKind.ONI && rotation != null)
@@ -480,24 +423,6 @@ public final class ShopRegistry extends SavedData {
     private static AABB shell(BlockPos clerk, Rotation rotation, int clerkX) {
         return AABB.encapsulatingFullBlocks(clerk.offset(new BlockPos(-clerkX, -3, -14).rotate(rotation)),
                 clerk.offset(new BlockPos(40 - clerkX, 13, 18).rotate(rotation)));
-    }
-
-    static ShopAccess.Hatch legacyHatch(ServerLevel level, Entry shop, YukkuriEntity animal) {
-        if (shop.legacyFront == null) return null;
-        for (var rotation : Rotation.values()) {
-            if (rotation.rotate(Direction.NORTH) != shop.legacyFront) continue;
-            for (int x : new int[] {2, 6, 16, 20}) {
-                var first = shop.pos.offset(new BlockPos(x - 11, 1, -10).rotate(rotation));
-                var last = shop.pos.offset(new BlockPos(x - 9, 2, -8).rotate(rotation));
-                var room = AABB.encapsulatingFullBlocks(first, last);
-                if (!room.intersects(animal.getBoundingBox())) continue;
-                var door = shop.pos.offset(new BlockPos(x - 11, 1, -7).rotate(rotation));
-                if (!ShopDoors.ironLower(level, door)) return null;
-                var outside = door.relative(shop.legacyFront.getOpposite()).below();
-                return new ShopAccess.Hatch(door, outside, Vec3.atBottomCenterOf(door.relative(shop.legacyFront)), room, true);
-            }
-        }
-        return null;
     }
 
     static BlockPos departure(ServerLevel level, Entry shop) {
@@ -623,10 +548,7 @@ public final class ShopRegistry extends SavedData {
             c.putString("ShopKind", shop.kind.name());
             c.putLong("NextRestock", shop.nextRestock);
             c.putLong("EmeraldTill", shop.emeraldTill);
-            c.putBoolean("Legacy", shop.legacy);
-            if (shop.legacyFront != null) c.putString("LegacyFront", shop.legacyFront.getName());
             c.putBoolean("Closed", shop.closed);
-            c.putBoolean("Closing", shop.closing);
             c.put("Staff", ids(shop.staff));
             c.put("Releases", ids(shop.releases));
             var orders = new ListTag();
@@ -693,15 +615,10 @@ public final class ShopRegistry extends SavedData {
         }
         for (var item : tag.getList("Shops", 10)) {
             var c = (CompoundTag) item;
-            boolean converted = !c.hasUUID("Id") && c.hasUUID("Keeper");
-            if (!converted && !c.hasUUID("Id")) continue;
+            if (!c.hasUUID("Id")) continue;
             var kind = c.getString("ShopKind").equals(ShopKind.ONI.name()) ? ShopKind.ONI : ShopKind.PET;
-            var shop = new Entry(c.getUUID(converted ? "Keeper" : "Id"), c.getString("Dim"), NbtUtils.readBlockPos(c, "Pos").orElse(BlockPos.ZERO), kind);
-            shop.legacy = converted || c.getBoolean("Legacy");
-            shop.legacyFront = Direction.byName(c.getString("LegacyFront"));
+            var shop = new Entry(c.getUUID("Id"), c.getString("Dim"), NbtUtils.readBlockPos(c, "Pos").orElse(BlockPos.ZERO), kind);
             shop.closed = c.getBoolean("Closed");
-            shop.closing = c.getBoolean("Closing");
-            if (converted) { shop.staff.add(shop.id); result.setDirty(); }
             readIds(c, "Staff", shop.staff);
             readIds(c, "Releases", shop.releases);
             for (var raw : c.getList("Orders", 10)) {
@@ -717,7 +634,7 @@ public final class ShopRegistry extends SavedData {
             var protectedMin = NbtUtils.readBlockPos(c, "ProtectedMin");
             var protectedMax = NbtUtils.readBlockPos(c, "ProtectedMax");
             if (protectedMin.isPresent() && protectedMax.isPresent()) shop.protection = AABB.encapsulatingFullBlocks(protectedMin.get(), protectedMax.get());
-            else if (shop.first != null && !shop.legacy) shop.protection = authoredProtection(shop);
+            else if (shop.first != null) shop.protection = authoredProtection(shop);
             shop.counter = NbtUtils.readBlockPos(c, "Counter").orElse(null);
             shop.dock = NbtUtils.readBlockPos(c, "Dock").orElse(null);
             for (long pos : c.getLongArray("Family")) shop.familyNests.add(BlockPos.of(pos));

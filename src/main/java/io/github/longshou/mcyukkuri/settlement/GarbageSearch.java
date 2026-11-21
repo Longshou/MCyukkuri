@@ -37,7 +37,6 @@ import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -112,21 +111,17 @@ public final class GarbageSearch implements MotorOwner {
         nextScan = now() + 80;
         var here = body.blockPosition();
         var options = new ArrayList<Point>();
-        var legacy = new ArrayList<BarrelBlockEntity>();
         for (int z = (here.getZ() - RADIUS) >> 4; z <= (here.getZ() + RADIUS) >> 4; z++)
             for (int x = (here.getX() - RADIUS) >> 4; x <= (here.getX() + RADIUS) >> 4; x++) {
                 var chunk = level().getChunkSource().getChunkNow(x, z);
                 if (chunk == null) continue;
                 for (var candidate : chunk.getBlockEntities().values()) {
-                    if (GarbageBinBlock.legacy(candidate) && here.distSqr(candidate.getBlockPos()) <= RADIUS * RADIUS) legacy.add((BarrelBlockEntity) candidate);
                     if (!(candidate instanceof GarbageBinBlockEntity bin) || bin.isRemoved()) continue;
                     var pos = bin.getBlockPos();
                     if (here.distSqr(pos) > RADIUS * RADIUS || refused.getOrDefault(pos, 0L) > now() || serving(bin) < 0) continue;
                     for (var point : points(bin)) if (allowedByFamily(point.stand()) && body.life().dryStand(point.stand())) options.add(point);
                 }
             }
-        // An old garbage barrel in sight becomes a bin now (after the scan); it is a candidate from the next scan on.
-        for (var barrel : legacy) GarbageBinBlock.adopt(level(), barrel);
         point = options.stream().sorted(Comparator.comparingDouble(p -> here.distSqr(p.stand()))).limit(4)
                 .filter(p -> SurfaceApproach.canApproach(body, p.approach())).findFirst().orElse(null);
         if (point == null) return false;

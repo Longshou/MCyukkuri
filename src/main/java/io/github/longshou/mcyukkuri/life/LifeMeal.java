@@ -844,9 +844,6 @@ final class LifeMeal {
         sweetFeedback = null;
         String feedback = tag.getString("SweetFeedback");
         for (Ability skill : Ability.values()) if (skill.key().equals(feedback)) sweetFeedback = skill;
-        ItemStack mouth = tag.contains("Mouth",Tag.TAG_COMPOUND) ? ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("Mouth")) : ItemStack.EMPTY;
-        BodyFood.Bite bodyFood = tag.contains("BodyFood", Tag.TAG_COMPOUND) ? BodyFood.Bite.load(tag.getCompound("BodyFood")) : BodyFood.Bite.EMPTY;
-        occupancy().importMeal(mouth, bodyFood, edible(mouth) || Consumables.oral(mouth) || mouth.is(ModItems.WASTE.get()));
         ItemStack held = mouth();
         mealTicks = hasMouthFood() ? Math.clamp(tag.getInt("MealTicks"), 1, SLOW_SWALLOW_TICK - 1) : 0;
         if (held.isEmpty() || Consumables.oral(held)) {

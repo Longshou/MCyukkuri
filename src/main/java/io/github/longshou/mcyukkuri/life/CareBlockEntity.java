@@ -245,7 +245,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     private void changed() {
         setChanged();
     }
-    /** A nest loaded from an older save (or next to blocks changed while it was unloaded) checks its sides once. */
+    /** A loaded nest checks its sides once, in case neighbours changed while it was unloaded. */
     @Override public void onLoad() {
         super.onLoad();
         if (level instanceof ServerLevel server && (getBlockState().getBlock() instanceof PetNestBlock || getBlockState().getBlock() instanceof LargeNestBlock))

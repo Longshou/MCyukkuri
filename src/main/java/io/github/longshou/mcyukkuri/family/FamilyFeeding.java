@@ -114,7 +114,6 @@ final class FamilyFeeding {
         tag.put("CareRetry",retries);
     }
     void load(CompoundTag tag) {
-        mouth().importItem(Purpose.CARE, tag.contains("CareFood")?ItemStack.parseOptional(o.entity().registryAccess(),tag.getCompound("CareFood")):ItemStack.EMPTY);
         careCarryTicks=Math.clamp(tag.getInt("CareFoodTicks"),0,200);
         careChewTicks=Math.clamp(tag.getInt("CareChewTicks"),0,40);careOfferTicks=Math.clamp(tag.getInt("CareOfferTicks"),0,FamilyFeedingContact.REQUIRED_CONTACT_TICKS);
         retryUntil.clear();

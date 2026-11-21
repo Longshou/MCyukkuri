@@ -336,7 +336,6 @@ public final class HumanNpc extends PathfinderMob {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (job() == Job.FACTORY) return sweeteningStaff() ? PlantSweetening.receiveBasket(this, player, hand) : PlantReceiving.interact(player, this, hand);
         if (!level().isClientSide) {
-            ShopRegistry.get((ServerLevel) level()).adoptLegacy((ServerLevel) level(), this);
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
             else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
@@ -886,11 +885,8 @@ public final class HumanNpc extends PathfinderMob {
             if (yardBowl != null) restockCareFood();
             nextRestock = level().getGameTime() + HumanStreet.DAY;
         }
-        if ((tickCount == 1 || tickCount % 100 == 1 && (siteRole.equals("shop_keeper") || siteRole.equals("shop_sister")))
-                && level() instanceof ServerLevel server) {
-            var shops = ShopRegistry.get(server);
-            shops.adoptLegacy(server, this);
-            if (job() == Job.SHOPKEEPER) shops.of(this);
+        if (job() == Job.SHOPKEEPER && (tickCount == 1 || tickCount % 100 == 1) && level() instanceof ServerLevel server) {
+            ShopRegistry.get(server).of(this);
         }
         restrictTo(home(), 18);
         if (level().getGameTime() >= nextRestock) {

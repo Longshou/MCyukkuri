@@ -727,7 +727,6 @@ public final class SettlementLife {
         arrivalHomeSearch = null;
         if (origin == null) groupId = null;
         migrationDeparture = FamilyData.position(tag, "MigrationDeparture");
-        recoverLegacyDeparture();
         pendingNatural = tag.getBoolean("PendingNatural") && groupId == null;
         target = null;
         marching = false;
@@ -738,15 +737,7 @@ public final class SettlementLife {
         LoadedGroupMembers.changed(entity);
     }
 
-    /** Old saves have no departure marker: recover only a loaded member visibly marching away from its still-active old centre. */
-    private void recoverLegacyDeparture() {
-        if (migrationDeparture != null || origin == null || entity.level().isClientSide) return;
-        var group = group();
-        if (!Migration.onJourney(group, level().getGameTime())) return;
-        recoverDepartureForAbandon(group);
-    }
-
-    /** Compatibility for a loaded old-save member when the still-active MARCH is abandoned before it can reload. */
+    /** Recovers a loaded member when the still-active MARCH is abandoned before it can reload. */
     void recoverDepartureForAbandon(SettlementData.Group group) {
         if (migrationDeparture != null || origin == null || !origin.pos().equals(group.center) || !Migration.joins(entity, group)
                 || entity.distanceToSqr(Vec3.atBottomCenterOf(group.center)) <= 48 * 48) return;

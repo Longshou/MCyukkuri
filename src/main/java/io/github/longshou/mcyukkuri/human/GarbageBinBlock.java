@@ -1,8 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
-import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -20,16 +18,13 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -61,7 +56,6 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         @Override public String getSerializedName() { return name().toLowerCase(Locale.ROOT); }
         private static Rock toward(Direction direction, String size) { return valueOf(direction.name() + "_" + size); }
     }
-    private static final String LEGACY_MARKER = "YukkuriGarbage";
     // Model boxes (16ths) with the mouth of the fallen can toward south; the blockstate turns them like the model.
     private static final double[][] STANDING = {{2, 0, 2, 14, 14, 14}, {6, 14, 7, 10, 15, 9}};
     private static final double[][] FALLEN = {{2, 0, 1, 14, 11, 13}, {14, 0, 2, 16, 12, 14}};
@@ -167,43 +161,6 @@ public final class GarbageBinBlock extends Block implements EntityBlock {
         };
         level.setBlock(pos, state.setValue(ROCK, next), Block.UPDATE_CLIENTS);
         if (next != Rock.NONE) level.scheduleTick(pos, this, 2);
-    }
-
-    /** Older street templates made garbage points from vanilla barrels tagged {@code NeoForgeData.YukkuriGarbage}. */
-    public static boolean legacy(BlockEntity entity) {
-        return entity instanceof BarrelBlockEntity barrel && !barrel.isRemoved() && barrel.getPersistentData().getBoolean(LEGACY_MARKER);
-    }
-
-    /**
-     * Turns such a barrel, where a stray or a passer-by first looks at it, into a fallen bin opening the way the barrel lay
-     * (its stand cell); untagged barrels are never touched. Its stock moves over in slot order; stacks past the bin's nine
-     * slots drop at the spot, so nothing is lost. Not called while a caller iterates the chunk's block entities.
-     */
-    public static void adopt(ServerLevel level, BarrelBlockEntity barrel) {
-        var pos = barrel.getBlockPos();
-        if (level.getBlockEntity(pos) != barrel) return;
-        var facing = barrel.getBlockState().getValue(BarrelBlock.FACING);
-        var stock = new ArrayList<ItemStack>(barrel.getContainerSize());
-        for (int slot = 0; slot < barrel.getContainerSize(); slot++) stock.add(barrel.getItem(slot).copy());
-        var saved = barrel.getPersistentData();   // read while the barrel still exists
-        barrel.clearContent();   // the barrel's own removal would otherwise spill what is moved below
-        var state = ModBlocks.GARBAGE_BIN.get().defaultBlockState().setValue(TIPPED, facing.getAxis().isHorizontal())
-                .setValue(FACING, facing.getAxis().isHorizontal() ? facing : Direction.SOUTH);
-        if (!level.setBlock(pos, state, Block.UPDATE_ALL)) {
-            for (int slot = 0; slot < stock.size(); slot++) barrel.setItem(slot, stock.get(slot));
-            return;
-        }
-        var bin = (GarbageBinBlockEntity) level.getBlockEntity(pos);
-        if (saved.contains(VillageBin.DAY)) bin.deposited(saved.getLong(VillageBin.DAY));
-        int stacks = 0, dropped = 0;
-        for (var stack : stock) {
-            if (stack.isEmpty()) continue;
-            if (stacks < GarbageBinBlockEntity.SLOTS) bin.setItem(stacks, stack);
-            else { Containers.dropItemStack(level, pos.getX() + .5, pos.getY() + 1, pos.getZ() + .5, stack); dropped++; }
-            stacks++;
-        }
-        GameplayLog.world(level, "street", "legacy garbage barrel converted bin={} stacks={} dropped={} tipped={}",
-                pos.toShortString(), stacks, dropped, state.getValue(TIPPED));
     }
 
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {

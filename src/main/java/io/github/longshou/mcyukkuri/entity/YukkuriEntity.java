@@ -838,7 +838,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void tick() {
-        if (!level().isClientSide) component(YukkuriComponents.MOUTH).settleLegacy();
         super.tick();
         if (!level().isClientSide) sync().syncBodyYaw(yBodyRot);
         HumanCommerce.tickAnimal(this);
@@ -1217,8 +1216,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Decoded snapshots still describe entityData; retain them until a slot actually changes.
         sync().invalidateSentStructures();
         components.load(new LoadContext(tag, tag.getInt("YukkuriVersion")));
-        // A pre-component save has no family compound, so its vanilla attributes can only be normalized after every
-        // component loader (including the legacy Body/Filling migration) has completed.
+        // Vanilla attributes can only be normalized after every component loader has completed.
         body.syncStageHealth();
     }
 

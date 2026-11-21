@@ -81,8 +81,8 @@ public final class LevelledPoolElement extends SinglePoolElement {
     }
 
     public boolean reservesColumns() {
-        // Legacy elements had no town fields and already reserved columns. Authored town lots only use max_fill.
-        return maxCut.isPresent() || (!hasPlacementLimits() && fill.isEmpty() && edge.isEmpty());
+        // Authored town lots only use max_fill; a cut lot reserves its columns.
+        return maxCut.isPresent();
     }
 
     public boolean hasPlacementLimits() {

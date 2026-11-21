@@ -44,7 +44,7 @@ public final class PetPrivileges extends SavedData {
         var data = get(level);
         long day = level.getDayTime() / 24000 + 1;
         if (data.conduct.eloped(pet.getUUID(), pet.pet().ownedBy(owner), pet.pet().grade() != BadgeGrade.NONE, day,
-                () -> Custody.release(pet, Custody.ReleaseReason.ELOPED, owner, null))) {
+                () -> Custody.release(pet, Custody.ReleaseReason.ELOPED, owner))) {
             data.setDirty();
             GameplayLog.event(pet, "badge", "disqualified cause=eloped owner={} day={} serial={}", owner, day, pet.pet().serial());
         }

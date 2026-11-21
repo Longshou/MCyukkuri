@@ -327,7 +327,6 @@ public final class SettlementDuties {
         return tag;
     }
     public void load(CompoundTag tag) {
-        mouth().importItem(Purpose.DUTY, tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY);
         task = Task.NONE; item = null; toilet = destination = workCenter = null; elapsed = 0; wait = 80;
     }
 }

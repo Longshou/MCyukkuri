@@ -32,8 +32,6 @@ public final class Consumables {
     public static final EnumMap<Kind,DeferredItem<DoseItem>> ITEMS=new EnumMap<>(Kind.class);
     static {
         for(var kind:Kind.values())ITEMS.put(kind,ITEM_TYPES.register(kind.id,()->new DoseItem(kind,new Item.Properties().stacksTo(16))));
-        // The mint leaf (2026-10-18) was merged into the marble-soda sleep spray: old saves load their leaves as sprays.
-        ITEM_TYPES.addAlias(MCYukkuri.id("mint_leaf"),MCYukkuri.id(Kind.RAMUNE.id));
     }
     public static void register(IEventBus bus) {
         ITEM_TYPES.register(bus);

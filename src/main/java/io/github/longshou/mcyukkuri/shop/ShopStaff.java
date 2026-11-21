@@ -269,7 +269,7 @@ public final class ShopStaff {
         }
         for (var item : level.getEntitiesOfClass(ItemEntity.class, shop.bounds(), i -> i.isAlive() && shopBasket(level, shop, i.getItem())))
             if (free(item.getUUID(), now) && !shipOut(YukkuriWorldData.get(level).captiveSnapshot(CarrierContents.singleToken(item.getItem())))
-                    && (shop.legacy() || destination(level, shop, item.getItem(), staff.position()) != null)) {
+                    && destination(level, shop, item.getItem(), staff.position()) != null) {
                 var job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.loose = item; job.animal = item.getUUID();
                 start(staff, job, item.position()); return;
             }
@@ -438,7 +438,7 @@ public final class ShopStaff {
             job = new Job(staff.getUUID(), shop.id, Kind.BUY); job.customer = view.owner(); job.target = shop.counter();
         } else {
             job = new Job(staff.getUUID(), shop.id, Kind.SETTLE); job.target = destination(level, shop, hand, staff.position());
-            if (job.target == null) job.target = shop.legacy() ? shop.counter() : shop.dock();
+            if (job.target == null) job.target = shop.dock();
             if (job.target == null) return false;
         }
         if (UNREACHABLE.active(job.kind == Kind.BUY ? token : job.target, level.getGameTime())) return true;
@@ -794,7 +794,7 @@ public final class ShopStaff {
     /** The free nest for the held basket, else the arrivals barrel to wait there for one. */
     private static BlockPos destinationOr(ServerLevel level, ShopRegistry.Entry shop, HumanNpc staff) {
         var nest = destination(level, shop, staff.getMainHandItem(), staff.position());
-        return nest != null ? nest : shop.legacy() ? shop.counter() : shop.dock();
+        return nest != null ? nest : shop.dock();
     }
 
     private static void carry(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job) {
@@ -841,19 +841,11 @@ public final class ShopStaff {
             return;
         }
         if (job.kind == Kind.CLEAN) { fail(level, staff, shop, job, "no_destination"); return; }
-        if (shop.legacy() && job.target.equals(shop.counter())) {
-            if (ShopRegistry.releaseBasketNear(level, job.token, staff.blockPosition(), false) == null) {
-                fail(level, staff, shop, job, "set_down_blocked"); return;
-            }
-            emptyCarrier(staff, job.token);
-            end(staff, job, "released");
-        } else {
-            if (shop.kind == ShopKind.PET) {
-                var current = destinationOr(level, shop, staff);
-                if (!job.target.equals(current)) { carryTo(job, current); return; }
-            }
-            release(level, staff, shop, job);
+        if (shop.kind == ShopKind.PET) {
+            var current = destinationOr(level, shop, staff);
+            if (!job.target.equals(current)) { carryTo(job, current); return; }
         }
+        release(level, staff, shop, job);
     }
 
     private static void deliver(ServerLevel level, HumanNpc staff, ShopRegistry.Entry shop, Job job, ItemStack hand) {

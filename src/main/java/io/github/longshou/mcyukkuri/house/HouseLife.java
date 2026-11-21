@@ -1128,7 +1128,6 @@ public final class HouseLife implements EcologyRoutine {
             var direction = Direction.byName(tag.getString("DenEntrance"));
             if (direction != null && direction.getAxis().isHorizontal()) den = new HouseholdEcology.Den(BlockPos.of(tag.getLong("Den")), direction);
         }
-        mouth().importItem(Purpose.HOUSE, tag.contains("Carrying") ? ItemStack.parseOptional(entity.registryAccess(), tag.getCompound("Carrying")) : ItemStack.EMPTY);
         careWait = Math.clamp(tag.getInt("CareWait"), 0, 120); lostTicks = Math.clamp(tag.getInt("LostTicks"), 0, 1200);
         startledTicks = Math.clamp(tag.getInt("StartledTicks"), 0, 24); refuge = null;
         var counts = tag.getCompound("Counts");

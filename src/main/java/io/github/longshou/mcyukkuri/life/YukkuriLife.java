@@ -931,11 +931,6 @@ public final class YukkuriLife {
     public boolean snatchedBy(YukkuriEntity thief){ return meal.snatchedBy(thief); }
     private void tryShare(){ meal.tryShare(); }
     public void releaseMouthForDeath() { meal.releaseForInterrupt(); }
-    public void clearDisplacedMeal() {
-        meal.clearInterrupted();
-        doses.clearReturnBottle();
-    }
-
     public void interrupt() {
         accountEnvironmentalWake();
         stopFatigueRest();
@@ -2367,8 +2362,6 @@ public final class YukkuriLife {
     public void load(CompoundTag tag) {
         nutrition = bounded(tag,"Nutrition",60); energy = bounded(tag,"Energy",80); hygiene = bounded(tag,"Hygiene",100);
         toiletNeeds.bowel = bounded(tag,"Bladder",0); toiletNeeds.urine = bounded(tag,"Urine",0); wetness = bounded(tag,"Wetness",0); ageTicks = Math.max(0,tag.getLong("AgeTicks"));
-        // Old saves recorded a 0..19 phase of the universal twenty-tick clock.  Keep that phase intact while
-        // allowing new aquatic saves to retain the longer sixty-tick phase.
         immersionTicks = Math.clamp(tag.getInt("ImmersionTicks"), 0, immersionInterval()-1);
         temperature.load(tag.getCompound("Temperature"));
         entity.wintering().load(tag.getCompound("Wintering"));

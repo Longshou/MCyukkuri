@@ -56,7 +56,6 @@ final class ShopAccess {
     }
 
     static Hatch hatch(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity animal) {
-        if (shop.legacy()) return ShopRegistry.legacyHatch(level, shop, animal);
         var rotation = ShopRegistry.authoredRotation(shop);
         if (rotation == null) return null;
         Hatch closest = null;

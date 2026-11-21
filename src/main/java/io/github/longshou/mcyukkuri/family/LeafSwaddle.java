@@ -625,9 +625,6 @@ public final class LeafSwaddle {
         openAt = open && tag.contains("OpenX") ? new Vec3(tag.getDouble("OpenX"), tag.getDouble("OpenY"), tag.getDouble("OpenZ")) : null;
         read(tag.getList("Material", Tag.TAG_COMPOUND), material);
         wrapper = tag.hasUUID("Wrapper") ? tag.getUUID("Wrapper") : null;
-        var legacyLeaves = new ArrayList<ItemStack>();
-        read(tag.getList("Leaves", Tag.TAG_COMPOUND), legacyLeaves);
-        mouth().importItems(Purpose.SWADDLE, legacyLeaves);
         folded = tag.getBoolean("Folded") && leafCount() >= LEAVES_PER_WRAP;
         soilRetryAt = 0;
     }

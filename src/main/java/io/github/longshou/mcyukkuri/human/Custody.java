@@ -26,7 +26,7 @@ import java.util.Set;
 /** Queries and ownership transitions for the existing NeoForgeData.HumanCommerce storage. */
 public final class Custody {
     public enum OwnerKind { NONE, UNKNOWN, PLAYER, NPC }
-    public enum ReleaseReason { ABANDON, LOST_CONTACT, PLANT_EXIT, DELIVERY_FAILED, EXAM_ROLLBACK, OWNER_DIED, ELOPED }
+    public enum ReleaseReason { ABANDON, LOST_CONTACT, PLANT_EXIT, DELIVERY_FAILED, OWNER_DIED, ELOPED }
     private static final String PENDING_RELEASE = "PendingCustodyRelease";
     private static final List<String> ACTIVE_KEYS = List.of(
             "Owner", "OwnerKind", "Use", "PendingRole", "FactoryStage", "StageWork", "LastFactoryWork",
@@ -179,7 +179,7 @@ public final class Custody {
         if (custody.role() != Role.PLANT_STOCK) return;
         var boundary = CustodyData.get(level).plant(custody.owner());
         if (boundary != null && !boundary.contains(level, animal.blockPosition()))
-            release(animal, ReleaseReason.PLANT_EXIT, custody.owner(), null);
+            release(animal, ReleaseReason.PLANT_EXIT, custody.owner());
     }
 
     public static void joining(EntityJoinLevelEvent event) {
@@ -210,7 +210,7 @@ public final class Custody {
                 if (tag.hasUUID("Owner") && tag.getUUID("Owner").equals(owner))
                     affected.add(animal);
             }
-        for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner, null);
+        for (var animal : affected) release(animal, ReleaseReason.OWNER_DIED, owner);
         YukkuriWorldData.get(level).normalizeCustody(level);
         GameplayLog.world(level, "custody", "owner gone owner={} loadedDependants={}", owner, affected.size());
         return affected;
@@ -298,7 +298,7 @@ public final class Custody {
     public static void restore(YukkuriEntity animal, CompoundTag previous) { set(animal, previous); }
 
     /** Callers retain scene creation and exam eligibility guards; each reason keeps its original cleanup order. */
-    public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner, @Nullable CompoundTag previous) {
+    public static void release(YukkuriEntity animal, ReleaseReason reason, @Nullable UUID formerOwner) {
         switch (reason) {
             case ABANDON, LOST_CONTACT, PLANT_EXIT, ELOPED -> {
                 var before = animal.status().identity();
@@ -322,7 +322,6 @@ public final class Custody {
                 });
             }
             case DELIVERY_FAILED -> { set(animal, new CompoundTag()); animal.life().releaseHome(); }
-            case EXAM_ROLLBACK -> restore(animal, Objects.requireNonNull(previous));
             case OWNER_DIED -> {
                 // Only the durable confirmed-death record can authorize this release.
                 if (animal.level() instanceof ServerLevel level && CustodyData.get(level).deadNpc(formerOwner)) {

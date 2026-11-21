@@ -1,11 +1,9 @@
 package io.github.longshou.mcyukkuri.motor;
 
-import io.github.longshou.mcyukkuri.body.BodyEffects;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -35,11 +33,6 @@ public final class MouthOccupancy {
 
     private final YukkuriEntity owner;
     private final CarrierSlot<Load> held = new CarrierSlot<>();
-    // Real excess from an older save. It is never presented or available for another mouth action.
-    private final List<ItemStack> displaced = new ArrayList<>();
-    private boolean importing;
-    private boolean reconcileOnTick;
-    private BlockPos refusedAt;
     private BlockPos paperDropRefusedAt;
 
     public MouthOccupancy(YukkuriEntity owner) { this.owner = owner; }
@@ -230,32 +223,10 @@ public final class MouthOccupancy {
         return drop;
     }
 
-    public void importItems(Purpose purpose, List<ItemStack> items) {
-        if (importing) restoreItems(purpose, items);
-    }
-
-    /** Cargo retains its domain's NBT keys. Conflicting saved purposes cannot share the live slot. */
+    /** Cargo retains its domain's NBT keys. */
     public void restoreItems(Purpose purpose, List<ItemStack> items) {
-        if (items.isEmpty()) return;
-        if (held.isEmpty()) held.acquire(new Load(purpose, new ArrayList<>(items), BodyFood.Bite.EMPTY));
-        else if (purpose() == purpose) load().items().addAll(items);
-        else displaced.addAll(items);
-    }
-
-    public void importItem(Purpose purpose, ItemStack stack) {
-        if (!stack.isEmpty()) importItems(purpose, List.of(stack));
-    }
-
-    public void importMeal(ItemStack item, BodyFood.Bite bite, boolean usableItem) {
-        if (!importing) return;
-        if (bite.isEmpty()) {
-            if (usableItem && !item.isEmpty()) importItem(Purpose.MEAL, item.split(1));
-            if (!item.isEmpty()) displaced.add(item);
-        }
-        else {
-            held.acquire(new Load(Purpose.MEAL, List.of(), bite));
-            if (!item.isEmpty()) displaced.add(item);
-        }
+        if (items.isEmpty() || !held.isEmpty()) return;
+        held.acquire(new Load(purpose, new ArrayList<>(items), BodyFood.Bite.EMPTY));
     }
 
     public CompoundTag save() {
@@ -266,19 +237,13 @@ public final class MouthOccupancy {
             tag.put("Items", saveItems(load.items()));
             if (!load.bite().isEmpty()) tag.put("Bite", load.bite().save());
         }
-        if (!displaced.isEmpty()) tag.put("Displaced", saveItems(displaced));
         return tag;
     }
 
     public void load(CompoundTag root) {
-        importing = !root.contains("YukkuriMouth", Tag.TAG_COMPOUND);
-        reconcileOnTick = true;
-        refusedAt = null;
         paperDropRefusedAt = null;
         held.restore(null);
-        displaced.clear();
         var tag = root.getCompound("YukkuriMouth");
-        displaced.addAll(readItems(tag, "Displaced"));
         if (tag.contains("Purpose", Tag.TAG_STRING)) {
             var purpose = Purpose.valueOf(tag.getString("Purpose"));
             var stacks = readItems(tag, "Items");
@@ -302,48 +267,6 @@ public final class MouthOccupancy {
         return stacks;
     }
 
-    /** Vanilla has attached restored passengers by the first entity tick. They keep their real holds. */
-    public void settleLegacy() {
-        if ((!reconcileOnTick && displaced.isEmpty()) || owner.blockPosition().equals(refusedAt)) return;
-        if (reconcileOnTick) {
-            reconcileOnTick = false;
-            importing = false;
-            boolean child = ParentCarry.mouthCarrying(owner);
-            boolean kit = kitInMouth();
-            if ((child || kit) && !held.isEmpty()) {
-                boolean meal = purpose() == Purpose.MEAL;
-                displaced.addAll(load().items());
-                if (!bite().isEmpty()) BodyEffects.emit(owner, "spit", bite().portions(), MouthPlacement.position(owner));
-                held.consume();
-                if (meal) owner.life().clearDisplacedMeal();
-            }
-            if (child && kit) {
-                var custody = owner.life().custody();
-                boolean released = !custody.kit().isEmpty() ? custody.releaseKit(owner.position())
-                        : PlacedHatEntity.find(owner).releaseKit(owner.position(), Vec3.ZERO, "legacy_mouth");
-                if (!released) {
-                    reconcileOnTick = true;
-                    refusedAt = owner.blockPosition();
-                    return;
-                }
-            }
-        }
-        while (!displaced.isEmpty()) {
-            var stack = displaced.getFirst();
-            var at = MouthPlacement.position(owner);
-            if (!ItemContact.hasReleaseSupport(owner, at)) return;
-            var drop = ItemContact.release(owner, stack, at, Vec3.ZERO);
-            if (drop == null) {
-                refusedAt = owner.blockPosition();
-                GameplayLog.event(owner, "body", "legacy mouth drop refused item={} count={}", stack.getItem(), stack.getCount());
-                return;
-            }
-            displaced.removeFirst();
-            GameplayLog.event(owner, "body", "legacy mouth drop item={} count={} drop={}", stack.getItem(), stack.getCount(), drop.getUUID());
-        }
-        refusedAt = null;
-    }
-
     public void interruptWork(String reason) {
         var purpose = purpose();
         if (purpose == Purpose.CARE) owner.family().releaseCareFood(reason);
@@ -362,15 +285,11 @@ public final class MouthOccupancy {
     }
 
     public ListTag itemsForRemains() {
-        var tag = saveItems(displaced);
         var load = load();
-        if (load != null) tag.addAll(saveItems(load.items()));
-        return tag;
+        return load == null ? new ListTag() : saveItems(load.items());
     }
 
     public void remainsAcceptedItems() {
-        var load = load();
-        if (load != null && !load.items().isEmpty()) held.consume();
-        displaced.clear();
+        if (load() != null) held.consume();
     }
 }

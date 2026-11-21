@@ -149,7 +149,7 @@ public final class SettlementData extends SavedData {
         /** Transient pacing (not saved): next claim attempt. */
         public long retryAt;
         private SitePlan plan;
-        /** Standing level of each part, as built (the layout itself never depends on the terrain, the levels do). Null for old saves. */
+        /** Standing level of each part, as built (the layout itself never depends on the terrain, the levels do). */
         public int[] levels;
         public Site(UUID id, SiteTier tier, long seed, int rotation, int palette, BlockPos origin, boolean auto) {
             this.id = id; this.tier = tier; this.seed = seed; this.rotation = rotation; this.palette = palette; this.origin = origin.immutable(); this.auto = auto;
@@ -578,7 +578,6 @@ public final class SettlementData extends SavedData {
                 site.state = SiteState.valueOf(value.getString("State"));
                 site.prosperity = Math.clamp(value.getInt("Prosperity"), 0, 3);
                 site.failures = Math.max(0, value.getInt("Failures"));
-                // Older saves have no counter: begin at zero, without offline catch-up.
                 site.emptySince = Math.clamp(value.getLong("EmptySince"), 0L, Site.ABANDON_TICKS);
                 site.group = value.hasUUID("Group") ? value.getUUID("Group") : null;
                 data.sites.put(site.id, site);

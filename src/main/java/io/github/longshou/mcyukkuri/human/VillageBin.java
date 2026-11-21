@@ -21,7 +21,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -44,15 +43,10 @@ public final class VillageBin {
         for (var at : BlockPos.withinManhattan(resident.blockPosition(), REACH, 1, REACH)) {
             if (!level.hasChunkAt(at) || resident.distanceToSqr(at.getCenter()) > REACH * REACH) continue;
             var candidate = level.getBlockEntity(at);
-            if (!(candidate instanceof GarbageBinBlockEntity) && !GarbageBinBlock.legacy(candidate)) continue;
+            if (!(candidate instanceof GarbageBinBlockEntity bin)) continue;
             var hit = level.clip(new ClipContext(resident.getEyePosition(), at.getCenter(),
                     ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, resident));
             if (!at.equals(hit.getBlockPos())) continue;
-            if (candidate instanceof BarrelBlockEntity barrel) {
-                GarbageBinBlock.adopt(level, barrel);
-                candidate = level.getBlockEntity(at);
-            }
-            if (!(candidate instanceof GarbageBinBlockEntity bin)) continue;
             if (bin.tipped()) {
                 if (!GarbageBinBlock.standUp(level, at)) continue;
                 resident.swing(InteractionHand.MAIN_HAND);

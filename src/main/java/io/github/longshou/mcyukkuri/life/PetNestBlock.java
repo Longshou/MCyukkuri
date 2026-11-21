@@ -168,7 +168,7 @@ public final class PetNestBlock extends CareBlock {
                     && (blocksCorner(level, pos, side, side.getClockWise()) || blocksCorner(level, pos, side, side.getCounterClockWise())));
         return state;
     }
-    /** Scheduled when its block entity loads (an older save had no fit) or a diagonal neighbour changed. */
+    /** Scheduled when its block entity loads or a diagonal neighbour changed. */
     @Override protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!level.isAreaLoaded(pos, 1)) return;
         var fitted = refit(state, level, pos);
