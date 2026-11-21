@@ -23,10 +23,10 @@ ADULT, YOUNG = 'yuk:reimu:neutral', 'yuk:marisa:neutral'
 YOUNG_SCALE = .42
 # (x, y, z, scale, yaw) in model units at the current heights; the old models keep their own route heights.
 USE = {
-    'ceramic_tunnel': {'old': [(0, 2, -4, 1, 0), (0, 2, 12, YOUNG_SCALE, 180)], 'new': [(0, 3, -4, 1, 0), (0, 3, 12, YOUNG_SCALE, 180)]},
+    'ceramic_tunnel': {'old': [(0, 3, -4, 1, 0), (0, 3, 12, YOUNG_SCALE, 180)], 'new': [(0, 3, -4, 1, 0), (0, 3, 12, YOUNG_SCALE, 180)]},
     'yukkuri_slide': {'old': [(0, 16, -1, 1, 0), (0, 9, 18, YOUNG_SCALE, 0)], 'new': [(0, 16, -1, 1, 0), (0, 9, 18, YOUNG_SCALE, 0)]},
     'yukkuri_trampoline': {'old': [(-4, 8, 0, 1, 20), (9, 8, 6, YOUNG_SCALE, -30)], 'new': [(-4, 8, 0, 1, 20), (9, 8, 6, YOUNG_SCALE, -30)]},
-    'yukkuri_pool': {'old': [(-15, 6, 0, 1, 90), (-15, 0, 16, YOUNG_SCALE, 0)], 'new': None},
+    'yukkuri_pool': {'old': None, 'new': None},
 }
 
 
@@ -96,14 +96,15 @@ def sheet(name, old, new):
     if name == 'yukkuri_pool':
         seats, data = tub_seats(new)
         adult, bench = seats['adult_alone'], seats['small_bench_right']
-        spots = {**spots, 'new': [(adult['x'], adult['y'], adult['z'], 1, 25), (bench['x'], bench['y'], bench['z'], YOUNG_SCALE, 10)]}
+        tub_pair = [(adult['x'], adult['y'], adult['z'], 1, 25), (bench['x'], bench['y'], bench['z'], YOUNG_SCALE, 10)]
+        spots = {'old': tub_pair, 'new': tub_pair}
     pairs = [('旧', old, spots['old']), ('新', new, spots['new'])]
     rows = [title(f'{name} · 使用中')]
     for az, el, what in ((210, 24, '入口侧'), (30, 24, '对侧')):
         rows.append(tiles([(f'{tag} · {what}', scene(src, name, s)) for tag, src, s in pairs], az, el))
     if name == 'yukkuri_trampoline':
         centre = [(0, 8, 0, 1, 20)]
-        rows.append(tiles([(f'新 · 床面压下 {k} 单位' + (' · 成体随床面下沉（需代码）' if k else ' · 静止'), scene(new, name, centre, k))
+        rows.append(tiles([(f'新 · 床面压下 {k} 单位' + (' · 成体随床面下沉' if k else ' · 静止'), scene(new, name, centre, k))
                            for k in (0, 1, 2)], 200, 32, (420, 300)))
         rows.append(tiles([(f'新 · 床面压下 {k} 单位 · 无人', scene(new, name, [], k)) for k in (0, 1, 2)], 200, 40, (420, 260)))
     if name == 'yukkuri_pool':

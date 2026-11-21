@@ -401,23 +401,23 @@ def marisa_doll():
 
 # ---- playground -------------------------------------------------------------------------------------------------------
 def ceramic_tunnel():
-    """土管: a clay pipe lying on its side, the open end toward the viewer showing the dark bore."""
+    """土管: a symmetric glazed clay pipe lying on its side with matching collars on both ends and a dark bore."""
     i = Icon('ceramic_tunnel')
     i.rows(legend(o=(TERRA, 0), H=(TERRA, 4), h=(TERRA, 3), m=(TERRA, 2), s=(TERRA, 1), x=(INK, 1), X=(INK, 2)), [
         "................",
         "................",
         "................",
-        "..ooooo.........",
-        ".oHHHHhoooooooo.",
-        "oHhooooHHHHHHhmo",
-        "oHoxxxxohhhhhhmo",
-        "oHoXxxxohhhhhhmo",
-        "oHoxxxxohhhhhmmo",
-        "ohoxxxxomhhhmmso",
-        "ohoxxxxommmmmsso",
-        "omsoooomssssssso",
-        ".ommmmsoooooooo.",
-        "..ooooo.........",
+        "..ooooo....ooo..",
+        ".oHHHHhoooHhhHo.",
+        "oHhooooHHHhhHhh.",
+        "oHoxxxxohhhmHhh.",
+        "oHoXxxxohhhmHhm.",
+        "oHoxxxxohhhmHhm.",
+        "ohoxxxxomhhmHms.",
+        "ohoxxxxommmmHms.",
+        "omsoooomssssHso.",
+        ".ommmmsoooosso..",
+        "..ooooo....oo...",
         "................",
         "................",
     ])
@@ -449,10 +449,10 @@ def yukkuri_slide():
 
 
 def yukkuri_trampoline():
-    """Trampoline seen from above at an angle: a flat dark oval bed inside a gold ring, short iron legs under the ring."""
+    """Trampoline seen from above at an angle: a taut dark bed with a target ring inside a gold pad, steel springs and iron legs."""
     i = Icon('yukkuri_trampoline')
     i.rows(legend(g=(GOLD, 0), G=(GOLD, 2), y=(GOLD, 3), Y=(GOLD, 1), k=(INK, 2), K=(INK, 1), l=(INK, 3), i=(IRON, 0),
-                  I=(IRON, 2)), [
+                  I=(IRON, 3), j=(IRON, 2)), [
         "................",
         "................",
         "................",
@@ -460,13 +460,13 @@ def yukkuri_trampoline():
         "....gggggggg....",
         "..ggyyyyyyyygg..",
         ".gyykkkkkkkkGGg.",
-        ".gykllkkkkkkKGg.",
-        ".gGkkkkkkkkKKYg.",
+        ".gykklkkkkkkKGg.",
+        ".gGkkllkkkkkKYg.",
         "..gGGkkkkKKGYg..",
         "...ggGGGGGGYgg..",
-        "...igggggggggi..",
+        "...iIijIijIiji..",
         "...iI.......iI..",
-        "...iI.......iI..",
+        "...ij.......ij..",
         "...ii.......ii..",
         "................",
     ])

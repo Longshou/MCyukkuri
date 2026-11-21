@@ -4,7 +4,7 @@
   "exporter": "scripts/export_item_icons.py",
   "inputs": {
     "art/props/item-icons/cardboard_shelter.png": "c52c0a522fe290f802599fedfed16d769c7547d45a4a91981aa87c4516e4b0f8",
-    "art/props/item-icons/ceramic_tunnel.png": "219ca826167e3f12f32288d6eeb0185de4868bb18672c983668109ecac5445c5",
+    "art/props/item-icons/ceramic_tunnel.png": "6fe67c4bc0a3c8e478c83294acd0a21c21a4bc76f05cba360bc74789063d16cc",
     "art/props/item-icons/companion_cord.png": "6d31024eb40a430bbf923d3525439e32d34633ba2a3b49a48c6e1f20a7b773ba",
     "art/props/item-icons/food_bowl.png": "041f38a63d82fc469c421dad63b4142485a0690414b987021a1a7c582157812c",
     "art/props/item-icons/forage_pile.png": "019073721d66baf3efe1df49a76c6a2db2336421dca9a17147b3d3e2c8cc94df",
@@ -38,12 +38,12 @@
     "art/props/item-icons/yukkuri_slide.png": "851376a4b34c6dda4a403e9c240a991aaf2c55c8dde226f845895656c25a2a60",
     "art/props/item-icons/yukkuri_stem.png": "13e73678a78cafaf9ff878ba13eaea2ffc2695a28ef518c704a500626101490e",
     "art/props/item-icons/yukkuri_toilet.png": "7c42bec625970fea195193710bd2935179a957a2f18353bae75de0b771107659",
-    "art/props/item-icons/yukkuri_trampoline.png": "8bb94a4cee1afa606f49b9cca331fe1219f92213666e2fa0856edc5b081412e1"
+    "art/props/item-icons/yukkuri_trampoline.png": "9314b65c92d63caf4e57177a48293ab0f001206aa33219f8612f414cc6cc2366"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/textures/item/cardboard_shelter.png": "c52c0a522fe290f802599fedfed16d769c7547d45a4a91981aa87c4516e4b0f8",
     "src/main/resources/assets/mcyukkuri/models/item/icon/cardboard_shelter.json": "996af8fa14276ac11dd789c69f9f17de9b0152d2d9611cf04ecb0a0e150e3a45",
-    "src/main/resources/assets/mcyukkuri/textures/item/ceramic_tunnel.png": "219ca826167e3f12f32288d6eeb0185de4868bb18672c983668109ecac5445c5",
+    "src/main/resources/assets/mcyukkuri/textures/item/ceramic_tunnel.png": "6fe67c4bc0a3c8e478c83294acd0a21c21a4bc76f05cba360bc74789063d16cc",
     "src/main/resources/assets/mcyukkuri/models/item/icon/ceramic_tunnel.json": "9c358abd0df7612e1e2c42f51c35c9b3f1b7ca1c9928016340d450f957aabffa",
     "src/main/resources/assets/mcyukkuri/textures/item/companion_cord.png": "6d31024eb40a430bbf923d3525439e32d34633ba2a3b49a48c6e1f20a7b773ba",
     "src/main/resources/assets/mcyukkuri/models/item/icon/companion_cord.json": "a534f8369b747eb0b47ac08885e11fcd46906f42cf3c96cc5ec1ef3ec414de01",
@@ -111,7 +111,7 @@
     "src/main/resources/assets/mcyukkuri/models/item/icon/yukkuri_stem.json": "b2da27c6a86a7b3691af6b5e063364e70f66f3eb50d874668e15f910d013115b",
     "src/main/resources/assets/mcyukkuri/textures/item/yukkuri_toilet.png": "7c42bec625970fea195193710bd2935179a957a2f18353bae75de0b771107659",
     "src/main/resources/assets/mcyukkuri/models/item/icon/yukkuri_toilet.json": "73894b0bbe688c874ea3be8550c582ec857538de8c5356d84576ab4ffc60dfa1",
-    "src/main/resources/assets/mcyukkuri/textures/item/yukkuri_trampoline.png": "8bb94a4cee1afa606f49b9cca331fe1219f92213666e2fa0856edc5b081412e1",
+    "src/main/resources/assets/mcyukkuri/textures/item/yukkuri_trampoline.png": "9314b65c92d63caf4e57177a48293ab0f001206aa33219f8612f414cc6cc2366",
     "src/main/resources/assets/mcyukkuri/models/item/icon/yukkuri_trampoline.json": "943cfd88bcd37bf34adaae44771827b85efef44e3e810fd514467418f9c0d5c3"
   }
 }
