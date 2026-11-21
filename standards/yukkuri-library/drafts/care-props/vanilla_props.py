@@ -1,6 +1,6 @@
 """Registry of the placed care props for the exporters (build.py, large_nests.py).
 
-The food bowl and its fills are round glazed ceramic (bowl.py). The waterer and its water, the sand toilet and the carriers
+The food bowl and its fills are round glazed ceramic (bowl.py). The waterer and its water and the sand toilet
 are block-style (block-props/devices.py). The three grades of one-block pet bed with their fitted shapes and the 2x2
 woven nest are rounded low-poly props with painted regions from placed.py; the 2x2 wild bedding comes from wild.py
 (wild_kit atlas). Units are 1/16 block, origin at the footprint centre. Footprints, heights and entrances follow

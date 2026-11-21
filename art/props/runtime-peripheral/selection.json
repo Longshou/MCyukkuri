@@ -971,47 +971,17 @@
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json",
-      "sha256": "55e1cd7c26c113efd9fd4e3a815022599dd8db616232e3b7f0c62624bdc31a46",
+      "sha256": "82626b7503acf1cf346f19f64a586aa79580a0eb1897c273ed369cb8aa5f3452",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.bbmodel": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.bbmodel",
-      "sha256": "4decf9d6ec37f8104c86bcfb9ea1eee509943c9e02785e70f48e45064d051277",
+      "sha256": "43af1697f2468efafff587b3528472d68efcd6f676f592cb1ad96a0d80f681fe",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
     "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/texture.png": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/texture.png",
-      "sha256": "8619342f6ea9acf6c33f318c6ef6af955c62e249009f014e8ff87499dd8404bf",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_fine/yukkuri_carrier_fine.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_fine/yukkuri_carrier_fine.mesh.json",
-      "sha256": "be4f462330f2896ba0698192f2703572bcbfd26d6c81ea2b07a183d53fa5453c",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_fine/yukkuri_carrier_fine.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_fine/yukkuri_carrier_fine.bbmodel",
-      "sha256": "8ed98847f2f9dae43dc6d08a0eb9907558c897c8b3c5ccde113769f6d3d37709",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_fine/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_fine/texture.png",
-      "sha256": "5a7cd4a6865a99814a80c48982cd129dd09ebeaa54ae072a4d4122efe7340634",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_large/yukkuri_carrier_large.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_large/yukkuri_carrier_large.mesh.json",
-      "sha256": "ced32d1d5ff7cd4b2030f59b9462caf58c5b151d4de6173099a922f15d805600",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_large/yukkuri_carrier_large.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_large/yukkuri_carrier_large.bbmodel",
-      "sha256": "bde1cd133aee985914a01a785d60cf951c29d11fe8a17a20ef895e4749889d21",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/yukkuri_carrier_large/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier_large/texture.png",
-      "sha256": "5fa5f6d46db6f10cc30b2b24d0425ad8837964e0ad00f2dfc7dc4d5ac8ce6288",
+      "sha256": "ace4ddac187a9e59e39b8a62e12af8fa8a345dcba4cb6437229ce62f07cd408f",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     }
   }
