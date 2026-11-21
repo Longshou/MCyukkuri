@@ -60,6 +60,8 @@ public final class SurfaceApproach {
     public static final double BODY_CLEARANCE = .015;
     /** How far past the probe a collision query reaches so a top exactly on the probe's edge is returned. */
     private static final double TOP_TOUCH = .001;
+    /** How far under a rejected top the next lower top is looked for. */
+    private static final double LOWER_TOP = .01;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -216,9 +218,12 @@ public final class SurfaceApproach {
         return Double.isFinite(top)?new Vec3(near.x,top,near.z):null;
     }
 
+    /** The highest collision top near {@code near} the body can stand on. A higher top it cannot stand on (a bench board beside the
+     *  ground it walks) does not hide the ground under it. */
     private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
-        var at=top(actor,near);
-        return at!=null&&supported(actor,at,planning)?at:null;
+        for(var at=top(actor,near);at!=null;at=top(actor,new Vec3(near.x,at.y-.5-LOWER_TOP,near.z)))
+            if(supported(actor,at,planning))return at;
+        return null;
     }
 
     /** The same terrain stand check with a body size, for placement before any resident exists. */
