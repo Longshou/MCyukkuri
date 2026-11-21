@@ -58,6 +58,8 @@ public final class SurfaceApproach {
     private static final int LANDING_TICKS = 20;
     private static final double SAME_STAND_SQR = .0025;
     public static final double BODY_CLEARANCE = .015;
+    /** How far past the probe a collision query reaches so a top exactly on the probe's edge is returned. */
+    private static final double TOP_TOUCH = .001;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -191,7 +193,9 @@ public final class SurfaceApproach {
     public static Vec3 collisionTop(CollisionGetter level, Entity actor, double width, Vec3 near) {
         double half=width*.5-.005, top=Double.NEGATIVE_INFINITY;
         var probe=new AABB(near.x-half,near.y-.5,near.z-half,near.x+half,near.y+.5,near.z+half);
-        for (var shape : level.getBlockCollisions(actor, probe)) {
+        // A top exactly at the probe's floor (the ground half a block under a bench seat) only touches the probe and is not a
+        // collision of it; the height test below admits it, so the query reaches that far too.
+        for (var shape : level.getBlockCollisions(actor, probe.inflate(0, TOP_TOUCH, 0))) {
             var x = shape.getCoords(Direction.Axis.X);
             var y = shape.getCoords(Direction.Axis.Y);
             var z = shape.getCoords(Direction.Axis.Z);
@@ -719,7 +723,7 @@ public final class SurfaceApproach {
         for(var direction:directions){
             var near=other.position().add(direction.scale(distance));
             var at=floor(actor,near);
-            if(at==null){why.append(" nofloor@").append(GameplayLog.at(near));continue;}
+            if(at==null){why.append(" ").append(noFloor(actor,near)).append("@").append(GameplayLog.at(near));continue;}
             if(Math.abs(at.y-other.getY())>maxHeight){why.append(" height@").append(GameplayLog.at(at));continue;}
             if(Double.isFinite(maxDistance)){
                 double flat=Math.min(distance,Math.sqrt(Math.max(0,maxDistance*maxDistance-Math.pow(at.y-other.getY(),2)))-.025);
@@ -738,6 +742,17 @@ public final class SurfaceApproach {
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} at={} box={} distance={} maxHeight={} rejected:{}",
                 other.getUUID(),GameplayLog.at(other.position()),other.getBoundingBox(),distance,maxHeight,why);
         return null;
+    }
+
+    /** Why {@link #floor} found no stand at {@code near}, for the rejection log: no collision top in reach, or the top it found fails one support test. */
+    private static String noFloor(YukkuriEntity actor,Vec3 near){
+        var at=top(actor,near);
+        if(at==null)return "notop";
+        if(!Reactions.Weather.allowsStep(actor,BlockPos.containing(at)))return "weather";
+        var body=actor.getBoundingBox().move(at.subtract(actor.position()));
+        if(wetArea(actor.level(),body,at)>0)return "wet";
+        if(!actor.level().noCollision(actor,body.deflate(.005)))return "blocked";
+        return "sole";
     }
 
     /** The next shared movement to a loose item: a supported walk to a stand beside it on dry ground, or, by species ability, from

@@ -23,6 +23,8 @@ public final class PetOuting extends Goal {
     private BlockPos home, blockedAt, escortAt;
     private HumanNpc escort, owner;
     private Vec3 stand;
+    /** A pet with no stand beside its owner looks again this often: the crowd round the owner and its own place change while the owner sits still. */
+    private static final int RESAMPLE_TICKS = 20;
     private Vec3 doorwayStand;
     private boolean shelter;
     private boolean closeApproach;
@@ -219,7 +221,7 @@ public final class PetOuting extends Goal {
             }
             doorwayStand = null;
             boolean close = owner.callingPet(pet) || wantsPicnic(owner);
-            if (!owner.blockPosition().equals(escortAt) || close != closeApproach) {
+            if (!owner.blockPosition().equals(escortAt) || close != closeApproach || stand == null && pet.tickCount % RESAMPLE_TICKS == 0) {
                 escortAt = owner.blockPosition();
                 closeApproach = close;
                 stand = SurfaceApproach.beside(pet, owner, close ? 1.5 : innerDistance(), 1, Double.POSITIVE_INFINITY,
