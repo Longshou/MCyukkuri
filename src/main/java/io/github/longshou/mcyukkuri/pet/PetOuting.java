@@ -225,7 +225,7 @@ public final class PetOuting extends Goal {
                 escortAt = owner.blockPosition();
                 closeApproach = close;
                 stand = SurfaceApproach.beside(pet, owner, close ? 1.5 : innerDistance(), 1, Double.POSITIVE_INFINITY,
-                        at -> pet.getLeashHolder() != owner || pet.level().clip(new ClipContext(at.add(0, pet.getEyeHeight(), 0),
+                        at -> !close && pet.getLeashHolder() != owner || pet.level().clip(new ClipContext(at.add(0, pet.getEyeHeight(), 0),
                                 owner.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet)).getType() == HitResult.Type.MISS);
             }
             // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
