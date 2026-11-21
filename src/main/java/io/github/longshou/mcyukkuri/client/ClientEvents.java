@@ -105,7 +105,6 @@ public final class ClientEvents {
         Facilities.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         Playgrounds.ITEMS.values().forEach(item->event.registerItem(extension,item.get()));
         event.registerItem(extension,Consumables.ITEMS.get(Consumables.Kind.REPRODUCTIVE).get());
-        event.registerItem(extension,ModItems.FOREST_BURROW.get());
         event.registerItem(extension,ModItems.CARDBOARD_SHELTER.get());
     }
 

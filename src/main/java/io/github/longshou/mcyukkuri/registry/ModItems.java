@@ -125,7 +125,6 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> PRODUCE_CRATE=ITEMS.registerSimpleBlockItem("produce_crate",ModBlocks.PRODUCE_CRATE);
     public static final DeferredItem<BlockItem> DISPLAY_TRAY=ITEMS.registerSimpleBlockItem("display_tray",ModBlocks.DISPLAY_TRAY);
     public static final DeferredItem<BlockItem> FORAGE_PILE=ITEMS.registerSimpleBlockItem("forage_pile",ModBlocks.FORAGE_PILE);
-    public static final DeferredItem<ShelterItem> FOREST_BURROW=ITEMS.register("forest_burrow",()->new ShelterItem(ShelterBlock.Kind.BURROW,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<ShelterItem> CARDBOARD_SHELTER=ITEMS.register("cardboard_shelter",()->new ShelterItem(ShelterBlock.Kind.CARDBOARD,new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<DeferredSpawnEggItem> REIMU_SPAWN_EGG = registerSpawnEgg(YukkuriVariant.REIMU);
