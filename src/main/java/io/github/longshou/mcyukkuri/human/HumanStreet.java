@@ -340,7 +340,12 @@ final class HumanStreet {
     }
 
     static boolean seesSite(LivingEntity observer, BlockPos site) {
-        var sight = observer.level().clip(new ClipContext(observer.getEyePosition(), site.getCenter(),
+        return seesSite(observer, site, site.getCenter());
+    }
+
+    /** The same, aimed at a point of the site: goods lie on a crate's top, so a low body at the foot of the counter still sees them. */
+    static boolean seesSite(LivingEntity observer, BlockPos site, Vec3 point) {
+        var sight = observer.level().clip(new ClipContext(observer.getEyePosition(), point,
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
         return sight.getType() == HitResult.Type.MISS || sight.getBlockPos().equals(site);
     }

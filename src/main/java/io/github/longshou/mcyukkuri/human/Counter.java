@@ -74,7 +74,7 @@ record Counter(BlockPos middle, Direction front) {
 
     boolean hasFood(YukkuriEntity stray) {
         for (var crate : run(stray.level(), null)) {
-            if (crate.hasCounterFood(stray.life()::seeksFood) && HumanStreet.seesSite(stray, crate.getBlockPos())) return true;
+            if (crate.hasCounterFood(stray.life()::seeksFood) && HumanStreet.seesSite(stray, crate.getBlockPos(), crate.getBlockPos().getCenter().add(0, .4, 0))) return true;
         }
         return false;
     }
