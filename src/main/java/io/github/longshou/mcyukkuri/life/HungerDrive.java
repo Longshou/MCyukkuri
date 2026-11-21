@@ -28,6 +28,17 @@ public final class HungerDrive {
     /** Food search reach multiplier: unchanged until urgent, doubled when starving (the path range still caps it). */
     public static double reachScale(float nutrition) { return 1 + pressure(nutrition); }
 
+    /** How far a stray sees a held serving as an invitation, outdoors or through one pane: 8 blocks when fed, 20 when starving
+     *  (nutrition 75 down to 15), boldness moving either end by up to 6, night or rain cutting it to three fifths. Never below
+     *  the 4 blocks the glass branch always had; the real line of sight, fear gate and route still decide what follows. */
+    public static double noticeRange(float nutrition, int boldness, boolean dim) {
+        double need = Math.clamp((LifeMeal.FULL - nutrition) / (LifeMeal.FULL - 15.0), 0, 1);
+        return Math.max(4, (8 + 12 * need + (boldness - 50) * .12) * (dim ? .6 : 1));
+    }
+
+    /** The notice a body without the stray's open-air interest keeps (the pets' and wild bodies' old Tempt and glass reach). */
+    public static final double PLAIN_NOTICE = 8;
+
     /** Candidate sweep destinations tried per leg: three when fed, eight when starving. */
     public static int sweepAttempts(float nutrition) { return 3 + Math.round(5 * pressure(nutrition)); }
 

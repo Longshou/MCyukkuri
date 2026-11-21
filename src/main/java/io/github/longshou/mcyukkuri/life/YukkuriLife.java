@@ -128,9 +128,18 @@ public final class YukkuriLife {
     private ItemEntity targetFood;
     private Entity foodGlassTarget;
     private Vec3 foodGlassStand;
-    /** Leave blocked food alone for a while, while still considering meals that can be reached. */
-    private static final int FOOD_GLASS_COOLDOWN = 400;
-    private long foodGlassAfter;
+    private BlockPos foodGlassPane;
+    /** The stand is past the pane's face height: the body can only be seen and beg at a distance, not press its face. */
+    private boolean foodGlassLook;
+    /** Game time the look-beg at the window ends; 0 while still walking to the stand. */
+    private long foodGlassBegUntil;
+    /** The held-food warning beat: who was noticed and when, and how long the body stands still looking. */
+    private UUID noticedPlayer;
+    private long noticedAt = Long.MIN_VALUE / 2, noticeBeatUntil;
+    private static final int NOTICE_COOLDOWN = 600;
+    /** A pane takes at most this many begging bodies at its stand; extras take another stand or watch from farther. */
+    private static final int PANE_HOLDERS = 2;
+    private record GlassPlan(Vec3 stand, BlockPos pane, boolean press) {}
     private final MotorOwner foodGlass = new MotorOwner() {
         @Override public String ownerId() { return Behaviors.SEEK_FOOD; }
         @Override public boolean active() { return task == Task.FOOD_GLASS; }
@@ -580,6 +589,32 @@ public final class YukkuriLife {
     }
     private boolean seeksOfferedFood(ItemStack food, LivingEntity giver) {
         return food.is(YukkuriEntity.FOOD) && meal.seeksFood(food, giver.getUUID());
+    }
+    /** A free stray with no one's lead sees held food from afar; pets, house bodies and the wild keep the plain reach. */
+    public boolean widensFoodNotice() { return entity.status().identity() == Identity.STRAY && entity.getLeashHolder() == null; }
+    /** How far this body takes a held serving as an invitation now (see {@link HungerDrive#noticeRange}). */
+    public double foodNoticeRange() {
+        return widensFoodNotice() ? HungerDrive.noticeRange(nutrition, personality.boldness(),
+                level().isNight() || level().isRainingAt(entity.blockPosition())) : HungerDrive.PLAIN_NOTICE;
+    }
+    /**
+     * The one warning beat before a stray moves toward or begs at a food holder: it stops, turns to the hand and drools for
+     * 10 ticks (bold and hungry) to 40 (timid and fed). True while the beat holds the body. Each player is noticed once per
+     * {@value #NOTICE_COOLDOWN} ticks, and never while asleep, chewing or panicking.
+     */
+    public boolean noticing(Player player) {
+        long now = level().getGameTime();
+        if (player.getUUID().equals(noticedPlayer) && now < noticeBeatUntil) return true;
+        if (player.getUUID().equals(noticedPlayer) && now - noticedAt < NOTICE_COOLDOWN || isSleeping() || mealTicks() > 0 || entity.isPanicking()) return false;
+        double drive = (personality.boldness() / 100.0 + 1 - SocialDisposition.ramp(nutrition, 15, LifeMeal.FULL)) / 2;
+        int beat = 10 + (int) Math.round(30 * (1 - drive));
+        noticedPlayer = player.getUUID();
+        noticedAt = now;
+        noticeBeatUntil = now + beat;
+        entity.showReaction("drool", "", beat);
+        GameplayLog.limited(entity, "meal", "food_noticed", NOTICE_COOLDOWN, "noticed a held serving player={} distance={} beat={} nutrition={} boldness={}",
+                player.getUUID(), entity.distanceTo(player), beat, nutrition, personality.boldness());
+        return true;
     }
     public boolean acceptsFood(ItemStack food){ return meal.acceptsFood(food); }
     private boolean readyForFood(){ return meal.readyForFood(); }
@@ -1095,9 +1130,9 @@ public final class YukkuriLife {
             // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
             // when none is, the same pass has already counted why each was passed over for the readout below.
             boolean ignoresScraps = entity.pet().care().walk().ignoresScraps();
-            boolean mayPress = !ignoresScraps && level().getGameTime() >= foodGlassAfter;
+            boolean mayPress = !ignoresScraps;
             Entity glassFood = null;
-            Vec3 glassStand = null;
+            GlassPlan glassPlan = null;
             targetFood = null; int delayed = 0, outOfBabyRange = 0, unreachable = 0;
             for (var item : offered.stream().sorted(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                     .thenComparingDouble(entity::distanceToSqr)).toList()) {
@@ -1109,8 +1144,8 @@ public final class YukkuriLife {
                     break;
                 }
                 if (mayPress && glassFood == null) {
-                    glassStand = foodWindowStand(item);
-                    if (glassStand != null && !reachable(item.blockPosition(), false)) glassFood = item;
+                    glassPlan = foodWindowStand(item);
+                    if (glassPlan != null && !reachable(item.blockPosition(), false)) glassFood = item;
                 }
                 if (item.hasPickUpDelay()) delayed++;
                 else {
@@ -1138,23 +1173,27 @@ public final class YukkuriLife {
                 task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
             }
             if (mayPress && glassFood == null) {
-                double range = FoodWindow.heldFoodRange(nutrition, personality.boldness());
+                double range = foodNoticeRange();
                 for (var player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(range),
                         p -> entity.distanceToSqr(p) <= range * range && seesOfferedWindowFood(p)).stream()
                         .sorted(Comparator.comparingDouble(entity::distanceToSqr)).toList()) {
-                    glassStand = foodWindowStand(player);
-                    if (glassStand != null && !reachable(player.blockPosition(), false)) { glassFood = player; break; }
+                    glassPlan = foodWindowStand(player);
+                    if (glassPlan != null && !reachable(player.blockPosition(), false)) { glassFood = player; break; }
                 }
             }
             if (glassFood != null) {
                 foodGlassTarget = glassFood;
-                foodGlassStand = glassStand;
+                foodGlassStand = glassPlan.stand();
+                foodGlassPane = glassPlan.pane();
+                foodGlassLook = !glassPlan.press();
+                foodGlassBegUntil = 0;
                 task = Task.FOOD_GLASS;
                 pursuitTicks = 0;
                 int suppressed = GameplayLog.admit(entity, "meal", "glass_food_planned", 400);
                 if (suppressed >= 0) GameplayLog.limitedEvent(entity, "meal", suppressed,
-                        "food behind glass target={} kind={} stand={} nutrition={} boldness={} distance={}",
-                        glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassStand),
+                        "food behind glass target={} kind={} stand={} pane={} paneBase={} look={} nutrition={} boldness={} distance={}",
+                        glassFood.getUUID(), glassFood instanceof ItemEntity ? "loose" : "held", GameplayLog.at(glassPlan.stand()),
+                        glassPlan.pane().toShortString(), glassPlan.pane().getY() - Mth.floor(glassPlan.stand().y), foodGlassLook,
                         nutrition, personality.boldness(), entity.distanceTo(glassFood));
                 return true;
             }
@@ -1804,12 +1843,29 @@ public final class YukkuriLife {
         replanNow();
     }
 
-    private Vec3 foodWindowStand(Entity food) {
+    /**
+     * Where this body goes to beg at the window it sees {@code food} through: the wall stand when the pane is at its face height
+     * (a press), else a stand two to four blocks out with a clear single-glass line (a look). Null when the begging latch holds
+     * this pane back or no supported stand exists. A stand already holding {@link #PANE_HOLDERS} bodies is not used.
+     */
+    private GlassPlan foodWindowStand(Entity food) {
         var hit = GlassSight.glassBetween(entity, entity.getEyePosition(), food);
         if (hit == null) return null;
-        var stand = GlassSight.stand(entity, food, hit.getBlockPos());
-        return stand != null && TravelRange.babyDestination(entity, BlockPos.containing(stand)) ? stand : null;
+        var pane = hit.getBlockPos();
+        if (!entity.social().begs().allows(level().getGameTime(), nutrition, pane.asLong())) return null;
+        var wall = GlassSight.stand(entity, food, pane);
+        boolean press = wall != null && GlassSight.faceHeight(entity, pane, wall) && !crowdedStand(wall);
+        var stand = press ? wall : GlassSight.lookStand(entity, food, pane, s -> !crowdedStand(s));
+        return stand != null && TravelRange.babyDestination(entity, BlockPos.containing(stand)) ? new GlassPlan(stand, pane, press) : null;
     }
+
+    private boolean crowdedStand(Vec3 stand) {
+        return level().getEntitiesOfClass(YukkuriEntity.class, new AABB(stand, stand).inflate(1.2, 1, 1.2),
+                other -> other != entity && other.life().foodGlassPane() != null).size() >= PANE_HOLDERS;
+    }
+
+    /** The pane this body is at the window of, or null when it is not begging at one. */
+    public BlockPos foodGlassPane() { return task == Task.FOOD_GLASS ? foodGlassPane : null; }
 
     private boolean seesOfferedWindowFood(Player player) {
         return !player.isSpectator() && seeksOfferedFood(player) && (LearnedFear.hungerOverrides(entity)
@@ -1817,16 +1873,31 @@ public final class YukkuriLife {
     }
 
     private void seekFoodAtGlass() {
-        if (!canEat() || pursuitTicks > 240 || !foodGlassTarget.isAlive() || foodGlassTarget.level() != level()
+        boolean begging = foodGlassBegUntil > 0;
+        if (!canEat() || (begging ? level().getGameTime() >= foodGlassBegUntil : pursuitTicks > 240) || !foodGlassTarget.isAlive()
+                || foodGlassTarget.level() != level() || foodGlassInterrupted()
                 || !(foodGlassTarget instanceof ItemEntity item ? seeksFood(item.getItem()) : seesOfferedWindowFood((Player) foodGlassTarget))) {
             stopGoal();
             replanNow();
             return;
         }
+        if (begging) {
+            // The look-beg: it sits at the stand facing the window and drools; nothing moves it but the end of the beg.
+            SurfaceApproach.halt(entity);
+            entity.getLookControl().setLookAt(foodGlassTarget, 30, 30);
+            if (level().getGameTime() % 40 == 0) entity.showReaction("drool", "", 50);
+            return;
+        }
         if (entity.motor().owner() == foodGlass) return;
+        if (foodGlassTarget instanceof Player holder && noticing(holder)) {
+            SurfaceApproach.halt(entity);
+            entity.getLookControl().setLookAt(holder, 30, 30);
+            return;
+        }
         if (foodGlassStand != null) {
             if (SurfaceApproach.walk(entity, foodGlassStand, 1.15)) {
                 foodGlassStand = null;
+                if (foodGlassLook) { beginLookBeg(); return; }
                 var press = GlassPress.toward(entity, foodGlassTarget);
                 if (press != null && entity.motor().run(foodGlass, press)) return;
             } else if (SurfaceApproach.lastResult(entity, foodGlassStand) != SurfaceApproach.Result.BLOCKED) return;
@@ -1835,11 +1906,33 @@ public final class YukkuriLife {
         replanNow();
     }
 
+    /** Reasons to give up the window at once, through {@link #endFoodGlass}: the ordinary life needs and dangers. */
+    private boolean foodGlassInterrupted() {
+        return BehaviorContinuity.emergency(entity) || hasUrgentNonFoodNeed() || temperature.unsafeSleep()
+                || rainOutside() && !covered(entity.blockPosition());
+    }
+
+    /** At the stand with the pane too high to press: 120 to 400 ticks of looking in, longer when hungry and bold, shorter when afraid. */
+    private void beginLookBeg() {
+        double fear = foodGlassTarget instanceof Player holder
+                ? SocialDisposition.ramp(personality.fear(holder.getUUID()), 0, BondLevels.SOCIAL_FEAR_LIMIT) : 0;
+        double drive = ((1 - SocialDisposition.ramp(nutrition, 15, LifeMeal.FULL)) + personality.boldness() / 100.0) / 2 * (1 - .5 * fear);
+        int ticks = 120 + (int) Math.round(280 * drive);
+        foodGlassBegUntil = level().getGameTime() + ticks;
+        pursuitTicks = 0;
+        entity.showReaction("drool", "", 50);
+        GameplayLog.limited(entity, "meal", "glass_look_beg", 400, "begging at a pane too high to press pane={} ticks={} fear={} nutrition={} boldness={}",
+                foodGlassPane.toShortString(), ticks, fear, nutrition, personality.boldness());
+    }
+
     private void endFoodGlass() {
         if (task != Task.FOOD_GLASS) return;
+        entity.social().begs().ended(level().getGameTime(), nutrition, foodGlassPane.asLong());
         foodGlassTarget = null;
         foodGlassStand = null;
-        foodGlassAfter = level().getGameTime() + FOOD_GLASS_COOLDOWN;
+        foodGlassPane = null;
+        foodGlassLook = false;
+        foodGlassBegUntil = 0;
         entity.motor().cancel(foodGlass, "food_glass_ended");
         SurfaceApproach.halt(entity);
     }

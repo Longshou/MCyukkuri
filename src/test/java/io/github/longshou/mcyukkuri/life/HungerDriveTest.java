@@ -19,6 +19,26 @@ class HungerDriveTest {
     }
 
     @Test
+    void noticeRangeGrowsWithHungerAndBoldnessAndShrinksInTheDark() {
+        assertEquals(8, HungerDrive.noticeRange(75, 50, false), 1e-9);
+        assertEquals(8, HungerDrive.noticeRange(90, 50, false), 1e-9);
+        assertEquals(20, HungerDrive.noticeRange(15, 50, false), 1e-9);
+        assertEquals(20, HungerDrive.noticeRange(0, 50, false), 1e-9);
+        assertEquals(14, HungerDrive.noticeRange(45, 50, false), 1e-9);
+        assertTrue(HungerDrive.noticeRange(45, 80, false) > HungerDrive.noticeRange(45, 50, false));
+        assertTrue(HungerDrive.noticeRange(45, 20, false) < HungerDrive.noticeRange(45, 50, false));
+        assertEquals(.6 * 14, HungerDrive.noticeRange(45, 50, true), 1e-9);
+        assertEquals(4, HungerDrive.noticeRange(75, 0, true), 1e-9);
+        for (int n = 0; n <= 100; n += 5)
+            for (int b = 0; b <= 100; b += 10) {
+                double day = HungerDrive.noticeRange(n, b, false);
+                assertTrue(day >= 4 && day <= 26.1);
+                assertTrue(HungerDrive.noticeRange(n, b, true) <= day);
+                if (n >= 5) assertTrue(HungerDrive.noticeRange(n - 5, b, false) >= day);
+            }
+    }
+
+    @Test
     void sleeperWakesForHungerByRangeFromTwentyToThirty() {
         assertEquals(20, HungerDrive.wakeLevel(0), 1e-6);
         assertEquals(30, HungerDrive.wakeLevel(100), 1e-6);

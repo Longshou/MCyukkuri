@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
+import java.util.function.Predicate;
 
 /** A glass wall one block thick lets bodies see each other across it, including along seams between tiles. */
 public final class GlassSight {
@@ -78,6 +79,37 @@ public final class GlassSight {
             var hit = glassBetween(body, stand.add(0, body.getEyeY() - body.getY(), 0), other);
             if (hit != null && glass.equals(hit.getBlockPos()) && SurfaceApproach.canApproach(body, stand)) {
                 closest = stand; best = body.distanceToSqr(stand);
+            }
+        }
+        return closest;
+    }
+
+    /** Whether a body on {@code stand} has the pane at its face height: the level line {@link GlassPress} probes through the body's
+     *  middle meets the pane's own cell, so a press can land; a sill above that leaves only a look. */
+    public static boolean faceHeight(YukkuriEntity body, BlockPos glass, Vec3 stand) {
+        double middle = stand.y + body.getBbHeight() / 2;
+        return middle >= glass.getY() && middle < glass.getY() + 1;
+    }
+
+    /** The nearest supported point two to four blocks out from the pane, on the body's side, from which {@code other} is still seen
+     *  through that same pane with one clear glass layer, and which {@code open} accepts; null when the geometry gives none (a
+     *  sill the body's low eye cannot see over has no such point). */
+    public static Vec3 lookStand(YukkuriEntity body, Entity other, BlockPos glass, Predicate<Vec3> open) {
+        var centre = Vec3.atBottomCenterOf(glass);
+        var bounds = body.level().getBlockState(glass).getCollisionShape(body.level(), glass).bounds();
+        Vec3 closest = null;
+        double best = Double.POSITIVE_INFINITY;
+        for (var normal : Direction.Plane.HORIZONTAL) {
+            var out = Vec3.atLowerCornerOf(normal.getNormal());
+            if (other.position().subtract(centre).dot(out) >= 0) continue;
+            double width = normal.getAxis() == Direction.Axis.X ? bounds.getXsize() : bounds.getZsize();
+            for (int step = 2; step <= 4; step++) {
+                var stand = SurfaceApproach.restingFloor(body, centre.add(out.scale(width / 2 + step)));
+                if (stand == null || body.distanceToSqr(stand) >= best || !open.test(stand)) continue;
+                var hit = glassBetween(body, stand.add(0, body.getEyeY() - body.getY(), 0), other);
+                if (hit != null && glass.equals(hit.getBlockPos()) && SurfaceApproach.canApproach(body, stand)) {
+                    closest = stand; best = body.distanceToSqr(stand);
+                }
             }
         }
         return closest;

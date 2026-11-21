@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.FoodNoticeGoal;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
@@ -124,7 +125,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, basicBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() {
-                return !owner.isPassenger() && owner.life().canEat() && super.canUse()
+                // A free stray has its own wider, line-of-sight scan (FoodNoticeGoal); this one keeps pets, house bodies and the wild.
+                return !owner.isPassenger() && !owner.life().widensFoodNotice() && owner.life().canEat() && super.canUse()
                         && owner.life().seeksOfferedFood(player)
                         && (LearnedFear.hungerOverrides(owner)||owner.life().personality().fear(player.getUUID())<BondLevels.SOCIAL_FEAR_LIMIT)
                         && !owner.social().takeFoodApproach(player);
@@ -134,6 +136,7 @@ final class YukkuriGoals {
                 return !owner.isPassenger() && owner.life().canEat() && super.canContinueToUse();
             }
         }));
+        goalSelector.addGoal(4, basicBinding(PresentationGoals.TEMPT, new FoodNoticeGoal(owner)));
         goalSelector.addGoal(FAMILY_PRIORITY, landBinding(PresentationGoals.FAMILY, new FamilyGoal()));
         goalSelector.addGoal(5, new AgitationLife.BehaviorGoal(owner));
         goalSelector.addGoal(1, new AgitationLife.HeldGoal(owner));

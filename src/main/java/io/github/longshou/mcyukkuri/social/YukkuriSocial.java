@@ -67,6 +67,7 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean cautious;
     private double observedDistance;
     private float lastFoodRequest = -1;
+    private final BegLatch begs = new BegLatch();
     private boolean humanMayAsk;
     private double humanRetreatRoll;
     private int humanWatchUntil;
@@ -166,7 +167,10 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void ate(float nutrition) {
         if (nutrition >= FED_NUTRITION) lastFoodRequest = -1;
+        begs.fed(nutrition);
     }
+    /** The one budget of silent begs (window looks, drooling at a hand that cannot be asked) in a hunger round. */
+    public BegLatch begs() { return begs; }
     public void mealStarted() {
         if (humanContact()) stop();
     }

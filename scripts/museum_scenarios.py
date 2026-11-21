@@ -752,6 +752,21 @@ add('food_behind_glass', 'forage', '隔着玻璃看见苹果', '隔着玻璃看�
     env=DAY, spot='forage', vantage=(4, 7, 155),
     reads=[('读窗外灵梦', f'yukkuri status {sel("glass_food_eater")} raw')])
 
+# The same window at sill height: the pane's base is one block above the ground, over a stray's low eye, so it can be seen
+# through only from a few blocks out and cannot be reached with the face. The operator holds the apple inside beside the pane.
+_sill_beggar = uid('food_sill_window', 'sill_beggar')
+add('food_sill_window', 'forage', '窗台高的窗：远远望着窗里的苹果', '窗台高的窗：远远望着窗里的苹果',
+    '屋里的人手里拿着苹果，窗台高的玻璃板在一人高的墙上。窗外饿着的流浪灵梦走到离窗三四格的地方，面朝窗口流口水望着，'
+    '够不着窗台所以不挤脸；几秒后离开。',
+    '约 15 秒', [box(-2, -1, -2, 2, 2, 2, 'minecraft:stone_bricks', 'hollow'),
+        block(0, 1, 2, 'minecraft:glass_pane'),
+        yk('reimu', 0, 7, 'sill_beggar', uuid=_sill_beggar, nutrition=45, yaw=180, boldness=60, lead=True,
+           extra='YukkuriPet:{TownRoots:1b}'),
+        item('minecraft:poppy', 1, 0, 1, name='sill_anchor'),
+        f'data modify entity {sel("sill_anchor")} PickupDelay set value 32767s'],
+    env=DAY, spot='forage', vantage=(4, 9, 155), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读窗外灵梦', f'yukkuri status {sel("sill_beggar")} raw')])
+
 # One-cell glass niches, three deep, with their glass back toward the visitor and open to the south (a yukkuri cannot see through
 # glass). Each hungry body has one apple at the back of its niche and one out in the open south of it: it walks in and eats facing
 # the visitor (wings, braid, side locks pressed in between the side panes), then turns round and walks out to the second apple,
@@ -7507,7 +7522,7 @@ TOPICS = {
     'choice_nest': 'D1', 'choice_food': 'D1', 'choice_tool': 'D1', 'choice_snatch': 'D1', 'choice_toilet': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
-    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6',
+    'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'food_sill_window': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
     'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1',
     'family_absence': 'W9',
@@ -8247,6 +8262,16 @@ next(s for s in S if s.id == 'food_behind_glass').smoke['verify'] = lambda log: 
     (_glass_food_eater, 'food behind glass .*kind=loose'),
     (_glass_food_eater, 'start id=glass_press'), (_glass_food_eater, 'end id=glass_press outcome=DONE'),
 ], [(_glass_food_eater, 'start id=glass_press')])
+_sill_operator = '@e[type=minecraft:player,name=MuseumOperator,distance=..60,limit=1]'
+_smoke('food_sill_window', 900, [
+    rf'\[meal\][^\n]* uuid={_uuid_of(_sill_beggar)} [^\n]*food behind glass target=\S+ kind=held [^\n]* look=true\b',
+    rf'\[meal\][^\n]* uuid={_uuid_of(_sill_beggar)} [^\n]*begging at a pane too high to press'],
+    forbid=[rf'\[action\][^\n]* uuid={_uuid_of(_sill_beggar)} [^\n]*start id=glass_press'])
+next(s for s in S if s.id == 'food_sill_window').smoke['commands'] = [
+    (40, f'execute at {sel("sill_anchor")} run yukkuri scenario tool_operator enter'),
+    (41, f'item replace entity {_sill_operator} hotbar.0 with minecraft:apple'),
+    (42, 'yukkuri scenario tool_operator select 0'),
+    (880, 'yukkuri scenario tool_operator leave')]
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
 _smoke('meet', 2400, [r'\[social\][^\n]* greet [^\n]*why=first_meet', r'\[daily\][^\n]* session result kind=NUZZLE'])
@@ -9991,6 +10016,7 @@ for _beg_scene in ('wild', 'wild_beg_refuse', 'wild_beg_snatch', 'wild_beg_help'
     _scene_end(_beg_scene, [('pet', _DRY), ('wild', _DRY)])
 
 _scene_end('food_behind_glass', [('glass_food_eater', _DRY)])
+_scene_end('food_sill_window', [('sill_beggar', _DRY)])
 _scene_end('stray_wind', [('wind_stray', _ASHORE), ('wind_plain', _ASHORE)],
            [('wind_stray', 'seen:habitat:gathered item=minecraft:paper count=1'),
             ('wind_stray', 'seen:habitat:paper bedding placed'),
