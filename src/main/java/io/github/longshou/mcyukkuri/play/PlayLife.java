@@ -111,10 +111,13 @@ public final class PlayLife {
     private boolean tubPermitted(boolean hurt){
         HouseRule rule=JuiceTub.tubRule(hurt);
         var choice=entity.pet().conscience().tempted(rule,tubPressure(hurt),1);
-        if(choice==Choice.BREAK){soakRule=rule;return true;}
-        GameplayLog.limited(entity,"play","tub_rule:"+rule.key(),1200,"tub refused by house rule rule={} choice={} hurt={} obedience={}",
-                rule.key(),choice,hurt,entity.pet().obedience());
-        return false;
+        if(!JuiceTub.permitsSoak(choice)){
+            GameplayLog.limited(entity,"play","tub_rule:"+rule.key(),1200,"tub refused by house rule rule={} choice={} hurt={} obedience={}",
+                    rule.key(),choice,hurt,entity.pet().obedience());
+            return false;
+        }
+        if(choice==Choice.BREAK)soakRule=rule;
+        return true;
     }
     /** How badly the body wants the soak: play and unease for a healthy one, pain and lost health for a hurt one. */
     private double tubPressure(boolean hurt){

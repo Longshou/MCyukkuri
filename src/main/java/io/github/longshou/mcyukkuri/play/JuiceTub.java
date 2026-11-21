@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.play;
 
 import com.google.gson.JsonParser;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -85,6 +86,11 @@ public final class JuiceTub {
     /** The house rule that speaks to this body: a hurt one answers the hurt ban, a healthy one the healthy ban. */
     public static HouseRule tubRule(boolean hurt) {
         return hurt ? HouseRule.NO_TUB_WHEN_HURT : HouseRule.NO_TUB_WHEN_HEALTHY;
+    }
+
+    /** A body may soak unless it held or waited on the ban; an unbound rule ({@code ALLOW}) or a break both let it in. */
+    public static boolean permitsSoak(RulesMath.Choice choice) {
+        return choice != RulesMath.Choice.HOLD && choice != RulesMath.Choice.WAIT;
     }
 
     /** The seats a body of {@code width} fits at {@code level}: its size class, wide enough, and reached by the juice. */

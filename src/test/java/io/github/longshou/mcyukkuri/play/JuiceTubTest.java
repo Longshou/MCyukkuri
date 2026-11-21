@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.play;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +63,11 @@ class JuiceTubTest {
     @Test void eachBodyCarriesTheBanThatFitsItsState() {
         assertEquals(HouseRule.NO_TUB_WHEN_HEALTHY, JuiceTub.tubRule(false));
         assertEquals(HouseRule.NO_TUB_WHEN_HURT, JuiceTub.tubRule(true));
+        // A wild or stray body has no master, so the unattached answer lets it in; holding or waiting keeps it out.
+        assertTrue(JuiceTub.permitsSoak(Choice.ALLOW));
+        assertTrue(JuiceTub.permitsSoak(Choice.BREAK));
+        assertFalse(JuiceTub.permitsSoak(Choice.HOLD));
+        assertFalse(JuiceTub.permitsSoak(Choice.WAIT));
         // Both are the owner's choice: a household starts with only the sukkiri ban.
         assertFalse(HouseRule.DEFAULT.contains(HouseRule.NO_TUB_WHEN_HEALTHY));
         assertFalse(HouseRule.DEFAULT.contains(HouseRule.NO_TUB_WHEN_HURT));
