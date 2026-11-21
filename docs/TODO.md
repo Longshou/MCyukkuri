@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 清理：旧存档兼容代码、考场标记与躲藏箱、教学哨 | `.worktrees/wp-legacy-purge` | ModItems, Consumables, Facilities, Playgrounds, LegacyBlockContents, GarbageBinBlock, VillageBin, ShopRegistry, ExamMarkBlock, exam templates, teaching_whistle |
 | 公园休息：街上遛宠、长椅上坐着看宠物玩；口袋公园放游具 | `.worktrees/wp-park-rest` | HumanStreet, PetOuting, ParkSeats, human renderer, author_lots pocket park, museum_scenarios park |
+| 流浪油库里白天上街觅食（FG-13 真实世界触发率） | `.worktrees/wp-stray-street` | life/StreetBeat (new), RoamingGoal, ForageGoal, YukkuriLife, FoundShelter, FEATURES FG-13 |
 
 
 
