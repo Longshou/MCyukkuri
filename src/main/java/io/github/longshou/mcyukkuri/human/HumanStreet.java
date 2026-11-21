@@ -1703,8 +1703,10 @@ final class HumanStreet {
             String phase = homeward ? "return" : "depart";
             double gap = npc.distanceToSqr(pet);
             boolean present = pet.isAlive() && !pet.isRemoved() && escorts(pet);
-            if (present && pet.canBeLeashed() && !pet.isLeashed() && !pet.isPassenger() && !pet.pet().busy()
-                    && (homeward || pet.outing().fit()) && gap <= 6.25 && npc.hasLineOfSight(pet)) {
+            String blocked = !present ? "unavailable" : !pet.canBeLeashed() ? "not_leashable" : pet.isLeashed() ? "leashed_elsewhere"
+                    : pet.isPassenger() ? "riding" : pet.pet().busy() ? "busy" : !homeward && !pet.outing().fit() ? "unfit"
+                    : gap > 6.25 ? "far" : !npc.hasLineOfSight(pet) ? "no_sight" : null;
+            if (blocked == null) {
                 pet.setLeashedTo(npc, true);
                 npc.swing(InteractionHand.MAIN_HAND);
                 GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result=attach pet={} gap={}",
@@ -1713,7 +1715,7 @@ final class HumanStreet {
             } else if (!present || npc.tickCount >= callUntil) {
                 callPet();
                 GameplayLog.event(npc, "npc-care", "action=outing_lead phase={} result={} pet={} reason={} gap={}",
-                        phase, homeward ? "separated" : "left_home", pet.getUUID(), present ? "unreachable" : "unavailable", Math.sqrt(gap));
+                        phase, homeward ? "separated" : "left_home", pet.getUUID(), blocked, Math.sqrt(gap));
                 int index = companions.indexOf(pet);
                 companions.remove(index);
                 nextPet(index);
