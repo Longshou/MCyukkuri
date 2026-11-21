@@ -9120,6 +9120,8 @@
   "rules.mcyukkuri.memory": "%s日目：「%s」に違反したことが発覚",
   "care.mcyukkuri.rules": "家のきまり",
   "rules.mcyukkuri.no_sukkiri": "すっきり禁止",
+  "rules.mcyukkuri.no_tub_when_healthy": "元気なときは橙汁風呂禁止",
+  "rules.mcyukkuri.no_tub_when_hurt": "怪我をしているときは橙汁風呂禁止",
   "rules.mcyukkuri.told": "伝達済み",
   "rules.mcyukkuri.untold": "未伝達",
   "rules.mcyukkuri.obedience.1": "頑固",

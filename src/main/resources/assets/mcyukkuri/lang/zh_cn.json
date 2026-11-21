@@ -161,6 +161,8 @@
   "rules.mcyukkuri.memory": "第 %s 天被发现违反「%s」",
   "care.mcyukkuri.rules": "家规",
   "rules.mcyukkuri.no_sukkiri": "不准素鸡立",
+  "rules.mcyukkuri.no_tub_when_healthy": "健康时不准泡澡盆",
+  "rules.mcyukkuri.no_tub_when_hurt": "受伤时不准泡澡盆",
   "rules.mcyukkuri.told": "已告知",
   "rules.mcyukkuri.untold": "未告知",
   "rules.mcyukkuri.obedience.1": "倔强",

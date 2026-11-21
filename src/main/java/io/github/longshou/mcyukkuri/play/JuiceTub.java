@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.play;
 
 import com.google.gson.JsonParser;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
@@ -21,6 +22,8 @@ public final class JuiceTub {
     public static final int SOAK_TICKS = STEP_TICKS * STEPS;
     /** Cleanliness gained each step; marks (grime) are washed every third step, so a full soak lifts about two grades. */
     public static final float HYGIENE_STEP = 8;
+    /** Unease eased each step before the individual's shift: a whole soak lifts about one stage band (18-24 of 0-100). */
+    public static final float UNEASE_STEP = 3, UNEASE_SHIFT = 1;
     /** A bench seat's centres are 7 units apart (.4375 block): the widest body that sits there. */
     public static final double SMALL_MAX_WIDTH = .40;
     /** Adult side seats are 9 units apart (.5625 block); the lone middle seat has the floor's 15-unit depth less the leaning walls. */
@@ -71,6 +74,18 @@ public final class JuiceTub {
     /** A wound closes one grade every second step, so a soak eases three grades and a deep wound needs several soaks. */
     public static boolean mendsWound(int step) { return step % 2 == 0; }
     public static boolean washesMarks(int step) { return step % 3 == 0; }
+
+    /** What one soak step pays a body: only a hurt one regains health and, every second step, closes one wound grade. */
+    public record Payout(boolean heal, boolean mend) {}
+    public static Payout payout(boolean hurt, int step) { return new Payout(hurt, hurt && mendsWound(step)); }
+
+    /** Unease eased per step; a timid body settles a little deeper in the warm juice. */
+    public static float uneaseStep(double timid) { return UNEASE_STEP + UNEASE_SHIFT * (float) timid; }
+
+    /** The house rule that speaks to this body: a hurt one answers the hurt ban, a healthy one the healthy ban. */
+    public static HouseRule tubRule(boolean hurt) {
+        return hurt ? HouseRule.NO_TUB_WHEN_HURT : HouseRule.NO_TUB_WHEN_HEALTHY;
+    }
 
     /** The seats a body of {@code width} fits at {@code level}: its size class, wide enough, and reached by the juice. */
     public static List<Seat> seatsFor(Layout layout, double width, int level) {

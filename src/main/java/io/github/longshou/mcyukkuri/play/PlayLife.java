@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -21,8 +23,11 @@ public final class PlayLife {
     private int cooldown,scanWait,elapsed,waypoint,bounces,stalled,bounceLimit;
     /** A tub session: the route index of the seat (-1 elsewhere), the ticks soaked there and the state at the start of the soak. */
     private int soakAt=-1,soakTicks;
-    private float soakHealth;
+    private float soakHealth,soakUnease;
     private int soakWounds,soakJuice;
+    /** Whether this body entered hurt (it carries a wound orange juice treats) and the house rule it broke to do so. */
+    private boolean soakHurt;
+    private HouseRule soakRule;
     private int lastElapsed;
     private String refused;
     private double lastDistance=Double.MAX_VALUE;
@@ -70,12 +75,16 @@ public final class PlayLife {
         if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump())return refuse("cannot_jump");
         if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return refuse("far");
         JuiceTub.Seat seat=null;
+        boolean hurt=false;
         if(target.kind()==PlayBlock.Kind.POOL){
             // Each refusal has its remedy: pour juice, wait to grow, or sit on the bench once the juice reaches it.
             if(target.juice()==0)return refuse("tub_empty");
             if(JuiceTub.tooBig(entity.getBbWidth()))return refuse("too_big");
             var seats=JuiceTub.seatsFor(JuiceTub.layout(),entity.getBbWidth(),target.juice());
             if(seats.isEmpty())return refuse("tub_shallow");
+            hurt=entity.body().hasJuiceTreatableWound();
+            soakRule=null;
+            if(!tubPermitted(hurt))return refuse("house_rule");
             seat=seats.get(Math.floorMod(entity.getUUID().hashCode(),seats.size()));
         }
         var tub=seat==null?null:JuiceTub.route(JuiceTub.layout(),seat);
@@ -91,12 +100,27 @@ public final class PlayLife {
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach())return refuse("blocked");
         if(!target.reserve(entity))return refuse("occupied");
-        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;soakAt=seatAt;soakTicks=0;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
+        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;soakAt=seatAt;soakTicks=0;soakHurt=hurt;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
         lastElapsed=-1;
         entity.getNavigation().moveTo(path,.8);
         GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} bounceLimit={}",
                 target.kind(),target.getBlockPos(),entity.life().energy(),bounceLimit);
         return true;
+    }
+    /** A pet weighs its master's ban on the tub before climbing in; a wild or stray body has no master to obey. */
+    private boolean tubPermitted(boolean hurt){
+        HouseRule rule=JuiceTub.tubRule(hurt);
+        var choice=entity.pet().conscience().tempted(rule,tubPressure(hurt),1);
+        if(choice==Choice.BREAK){soakRule=rule;return true;}
+        GameplayLog.limited(entity,"play","tub_rule:"+rule.key(),1200,"tub refused by house rule rule={} choice={} hurt={} obedience={}",
+                rule.key(),choice,hurt,entity.pet().obedience());
+        return false;
+    }
+    /** How badly the body wants the soak: play and unease for a healthy one, pain and lost health for a hurt one. */
+    private double tubPressure(boolean hurt){
+        return hurt
+                ? Math.max(entity.body().condition().painSeverity()/3.0,1-entity.body().healthRatio())
+                : Math.max(entity.dailyLife().boredom()/100.0,entity.mind().unease()/100.0);
     }
     private boolean refuse(String reason){refused=reason;return false;}
     private boolean valid(){return active()&&available(facility.kind()==PlayBlock.Kind.POOL)&&elapsed<(facility.kind()==PlayBlock.Kind.POOL?600+JuiceTub.SOAK_TICKS:600)&&!facility.isRemoved()&&facility.getLevel()==entity.level()
@@ -182,33 +206,38 @@ public final class PlayLife {
         }else if(elapsed%10==1&&!entity.getNavigation().moveTo(target.x,target.y,target.z,.8)){stop();}
     }
     /**
-     * One tick in the juice at the seat. Every {@link JuiceTub#STEP_TICKS} the body regains a little health, the oldest wound closes
-     * a grade now and then, and it gets cleaner; a whole soak uses up one level. Done (true) when the soak ran its length or the
-     * juice ran out, and the route carries the body back out over the rim and stool.
+     * One tick in the juice at the seat. Every {@link JuiceTub#STEP_TICKS} a hurt body regains a little health and the oldest wound
+     * orange juice treats closes a grade now and then; every body gets cleaner and the warm soak eases its unease. A whole soak uses
+     * up one level. Done (true) when the soak ran its length or the juice ran out, and the route carries the body back out over the
+     * rim and stool.
      */
     private boolean soak(){
         var back=PlayGeometry.world(facility.getBlockPos(),facility.facing(),0,0,1).subtract(PlayGeometry.world(facility.getBlockPos(),facility.facing(),0,0,0));
         entity.getNavigation().stop();entity.getMoveControl().setWantedPosition(entity.getX(),entity.getY(),entity.getZ(),0);
         face(back);
         if(soakTicks==0){
-            soakHealth=entity.getHealth();soakWounds=entity.body().wounds().size();soakJuice=facility.juice();
-            GameplayLog.event(entity,"play","tub soak started at={} juice={} health={}/{} wounds={} hygiene={}",facility.getBlockPos(),soakJuice,
-                    entity.getHealth(),entity.getMaxHealth(),soakWounds,entity.life().hygiene());
+            soakHealth=entity.getHealth();soakWounds=entity.body().wounds().size();soakJuice=facility.juice();soakUnease=entity.mind().unease();
+            if(soakRule!=null)entity.pet().conscience().breach(soakRule);
+            GameplayLog.event(entity,"play","tub soak started at={} juice={} health={}/{} wounds={} hygiene={} hurt={} unease={}",facility.getBlockPos(),
+                    soakJuice,entity.getHealth(),entity.getMaxHealth(),soakWounds,entity.life().hygiene(),soakHurt,soakUnease);
         }
         if(facility.juice()==0){soakEnded(false);return true;}
         soakTicks++;
         if(soakTicks%JuiceTub.STEP_TICKS==0){
             int step=soakTicks/JuiceTub.STEP_TICKS;
-            entity.heal(JuiceTub.healthStep(entity.getMaxHealth()));
-            if(JuiceTub.mendsWound(step))entity.body().soakMend();
+            var payout=JuiceTub.payout(soakHurt,step);
+            if(payout.heal())entity.heal(JuiceTub.healthStep(entity.getMaxHealth()));
+            if(payout.mend())entity.body().soakMend();
             entity.life().juiceSoakStep(JuiceTub.washesMarks(step));
+            entity.mind().add(-JuiceTub.uneaseStep(entity.life().personality().temperament().timid()),"juice_soak");
         }
         if(soakTicks<JuiceTub.SOAK_TICKS)return false;
         facility.soaked();soakEnded(true);return true;
     }
     private void soakEnded(boolean used){
-        GameplayLog.event(entity,"play","tub soak ended at={} used={} juice={} -> {} health={} -> {} wounds={} -> {} hygiene={}",facility.getBlockPos(),used,
-                soakJuice,facility.juice(),soakHealth,entity.getHealth(),soakWounds,entity.body().wounds().size(),entity.life().hygiene());
+        GameplayLog.event(entity,"play","tub soak ended at={} used={} juice={} -> {} health={} -> {} wounds={} -> {} hygiene={} unease={} -> {}",
+                facility.getBlockPos(),used,soakJuice,facility.juice(),soakHealth,entity.getHealth(),soakWounds,entity.body().wounds().size(),
+                entity.life().hygiene(),soakUnease,entity.mind().unease());
     }
     public void stop(){stop(true);}
     private void stop(boolean log){
@@ -220,7 +249,7 @@ public final class PlayLife {
                     facility.kind(),facility.getBlockPos(),completed,elapsed,waypoint,bounces,stalled,entity.life().nutrition(),
                     entity.life().energy(),entity.dailyLife().boredom());
         }
-        springing=false;facility=null;route=List.of();soakAt=-1;soakTicks=0;entity.getNavigation().stop();
+        springing=false;facility=null;route=List.of();soakAt=-1;soakTicks=0;soakHurt=false;soakRule=null;entity.getNavigation().stop();
     }
     private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}

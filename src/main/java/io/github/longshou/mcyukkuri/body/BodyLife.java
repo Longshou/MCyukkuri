@@ -213,14 +213,18 @@ public final class BodyLife {
                 || wounds.stream().anyMatch(BodyLife::injury);
     }
 
+    /** Orange juice treats every skin injury, deep ones included; sole damage is mended too and scars heed only flour paste. */
+    public static boolean juiceTreats(BodyWound w){return injury(w);}
+    /** A body carrying a wound orange juice treats; a healthy one carries none. */
+    public boolean hasJuiceTreatableWound(){return wounds.stream().anyMatch(BodyLife::juiceTreats);}
     /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {
         if(!treatmentAllowed() || !needsPhysicalRestoration())return false;
         if(!entity.operations().releasePinForTreatment())return false;
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
-        for(var healed:List.copyOf(wounds))if(injury(healed))entity.status().marks().healed(healed);
-        wounds.removeIf(BodyLife::injury);
+        for(var healed:List.copyOf(wounds))if(juiceTreats(healed))entity.status().marks().healed(healed);
+        wounds.removeIf(w->!juiceTreats(w));
         cleared-=wounds.size();
         entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
         int scars=entity.status().marks().scarCount()+(int)wounds.stream().filter(w->w.kind()==WoundKind.SCAR).count();
@@ -666,11 +670,11 @@ public final class BodyLife {
             refreshWounds();entity.heal(2);return true;}
         return false;
     }
-    /** A step of a soak in orange juice: the oldest injury the operations are not holding closes one grade, deep wounds included,
-     *  but only a grade at a time (the dose from a bottle clears them all at once). */
+    /** A step of a soak in orange juice: the oldest wound orange juice treats ({@link #juiceTreats}) that the operations are not
+     *  holding closes one grade, deep wounds included, but only a grade at a time (the dose from a bottle clears them all at once). */
     public boolean soakMend(){
         if(entity.level().isClientSide||!treatmentAllowed())return false;
-        for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!injury(w)||entity.operations().pinsWound(w.id()))continue;
+        for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(!juiceTreats(w)||entity.operations().pinsWound(w.id()))continue;
             healWound(i);refreshWounds();return true;}
         return false;
     }

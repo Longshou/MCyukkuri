@@ -161,6 +161,8 @@
   "rules.mcyukkuri.memory": "Day %s: caught breaking “%s”",
   "care.mcyukkuri.rules": "House rules",
   "rules.mcyukkuri.no_sukkiri": "No sukkiri",
+  "rules.mcyukkuri.no_tub_when_healthy": "No soaking in the juice tub when healthy",
+  "rules.mcyukkuri.no_tub_when_hurt": "No soaking in the juice tub when hurt",
   "rules.mcyukkuri.told": "Told",
   "rules.mcyukkuri.untold": "Untold",
   "rules.mcyukkuri.obedience.1": "Stubborn",

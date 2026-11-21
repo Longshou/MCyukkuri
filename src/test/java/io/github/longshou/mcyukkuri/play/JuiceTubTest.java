@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.play;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -26,18 +27,45 @@ class JuiceTubTest {
         assertEquals(0, JuiceTub.drained(0));
     }
 
-    @Test void aSoakPaysOutSlowlyNotAllAtOnce() {
+    @Test void aHurtSoakPaysOutSlowlyNotAllAtOnce() {
         float health = 0;
         int wounds = 0, washes = 0;
         for (int step = 1; step <= JuiceTub.STEPS; step++) {
+            var payout = JuiceTub.payout(true, step);
+            assertTrue(payout.heal());
             health += JuiceTub.healthStep(20);
-            if (JuiceTub.mendsWound(step)) wounds++;
+            if (payout.mend()) wounds++;
             if (JuiceTub.washesMarks(step)) washes++;
         }
         assertEquals(4.8f, health, 1e-4);          // under a quarter of a 20-health body per soak
         assertEquals(3, wounds);                    // three grades per soak: a deep wound takes more than one soak
         assertEquals(2, washes);
         assertTrue(JuiceTub.SOAK_TICKS <= 300);
+    }
+
+    @Test void aHealthySoakOnlySettlesAndCleans() {
+        for (int step = 1; step <= JuiceTub.STEPS; step++) {
+            var payout = JuiceTub.payout(false, step);
+            assertFalse(payout.heal());
+            assertFalse(payout.mend());
+        }
+        // A whole soak lifts about one 0-100 stage band, a little more for a timid body.
+        float bold = 0, timid = 0;
+        for (int step = 1; step <= JuiceTub.STEPS; step++) {
+            bold += JuiceTub.uneaseStep(0);
+            timid += JuiceTub.uneaseStep(1);
+        }
+        assertEquals(18f, bold, 1e-4);
+        assertEquals(24f, timid, 1e-4);            // still short of one 25-wide band
+    }
+
+    @Test void eachBodyCarriesTheBanThatFitsItsState() {
+        assertEquals(HouseRule.NO_TUB_WHEN_HEALTHY, JuiceTub.tubRule(false));
+        assertEquals(HouseRule.NO_TUB_WHEN_HURT, JuiceTub.tubRule(true));
+        // Both are the owner's choice: a household starts with only the sukkiri ban.
+        assertFalse(HouseRule.DEFAULT.contains(HouseRule.NO_TUB_WHEN_HEALTHY));
+        assertFalse(HouseRule.DEFAULT.contains(HouseRule.NO_TUB_WHEN_HURT));
+        assertTrue(HouseRule.DEFAULT.contains(HouseRule.NO_SUKKIRI));
     }
 
     @Test void babiesNeedTheBenchAndItNeedsEnoughJuice() {

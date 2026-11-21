@@ -16,7 +16,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public final class HouseRules extends SavedData {
     private record Entry(EnumSet<HouseRule> rules, int version) {}
-    private static final Entry ORIGINAL = new Entry(EnumSet.of(HouseRule.NO_SUKKIRI), 0);
+    private static final Entry ORIGINAL = new Entry(EnumSet.copyOf(HouseRule.DEFAULT), 0);
     private final Map<UUID, Entry> households = new HashMap<>();
 
     public static HouseRules get(ServerLevel level) {
