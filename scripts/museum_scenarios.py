@@ -3889,7 +3889,7 @@ def _lot_pet(scene, keeper, kind, x, name, **stats):
 
 _outing_pets = [('reimu', 'outing_shy', -2, 5, 95), ('marisa', 'outing_bold', 2, 95, 5)]
 add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人逛街',
-    '院子在公园大门对面。院主给灵梦和魔理沙系绳，带它们沿街往西走十来格再折回。看两只油自己跑跳、绳子何时拉紧、主人怎样回望。'
+    '院子在公园大门对面，但院主够不着任何公园。院主给灵梦和魔理沙系绳，带它们沿街往西走十来格再折回。看两只油自己跑跳、绳子何时拉紧、主人怎样回望。'
     '街道东边的鬼威惨喝斥面前的流浪油，院主带宠物往西走。',
     '约 1 分钟', [
         *_lot_yard(-2, 2),
@@ -3906,7 +3906,7 @@ add('park_walk', 'park', '两只宠物跟主人逛街', '两只宠物跟主人�
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
 add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带两只宠物去公园玩蹦床',
-    '院主带灵梦和魔理沙进公园，到蹦床西侧解绳等候。两只宠物轮流从北侧上床、朝街这一侧跳下。看较重、精力较少的灵梦和魔理沙弹得多高，'
+    '院主带灵梦和魔理沙进公园，解绳后坐到蹦床旁的长椅上等候，头跟着玩的宠物转。两只宠物轮流从北侧上床、朝街这一侧跳下。看较重、精力较少的灵梦和魔理沙弹得多高，'
     '床面是否随落地压下回弹。也可以站上床面自己跳，试着落地接跳或潜行停弹。',
     '约 2 分钟', [
         *_lot_yard(-2, 2),
@@ -3922,15 +3922,14 @@ add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带�
     ], env=DAY, spot='yard', vantage=(*_lot_spot('trampoline', -1, 5), -169, 15),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
-add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公园野餐布旁分苹果',
-    '院子货箱里有一个苹果。院主先取苹果，再带饿了的魔理沙进公园，走到野餐布旁掰开苹果，一半放到魔理沙面前，一半自己吃，吃完回院。'
+add('park_picnic', 'park', '主人在公园长椅上分苹果', '主人在公园长椅上分苹果',
+    '院子货箱里有一个苹果。院主先取苹果，再带饿了的魔理沙进公园，坐到蹦床旁的长椅上掰开苹果，一半放到魔理沙面前，一半自己吃，吃完回院。'
     '街上饿着的流浪橙也可能进来讨食。',
     '约 2 分钟', [
         *_lot_yard(-2),
         block(_PARK_CRATE[0], 0, _PARK_CRATE[1], 'mcyukkuri:produce_crate[facing=west]'),
         f'item replace block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} container.0 with minecraft:apple 1',
         'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_picnic"]}}'.format(*(v + .5 for v in _lot_spot('picnic', 2, 0))),
         _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
         *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
         street_trial('park_picnic', 'chen', *_lot_spot('street', -6, 0), 'picnic_stray', nutrition=25),
@@ -3938,6 +3937,30 @@ add('park_picnic', 'park', '主人在公园野餐布旁分苹果', '主人在公
     reads=[('读货箱存量', f'data get block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} Items'),
            ('读魔理沙', f'yukkuri status {sel("picnic_pet")} raw'),
            ('读流浪橙', f'yukkuri status {sel("picnic_stray")} raw')])
+
+# The pocket park lot beside the pet yard on one street: the template's ceramic tunnel is placed from its marker, the owner leads the pets
+# along the street to the park, sits on a bench to watch, and leads them home. Offsets are from the town anchor (the yard's centre).
+_REST_PARK = (8, -4)
+_rest_pets = [('reimu', 'rest_shy', -2, 5, 95), ('marisa', 'rest_bold', 2, 95, 5)]
+add('pocket_park_rest', 'town', '主人带两只宠物去口袋公园，坐长椅看它们钻陶管', '主人带两只宠物去口袋公园，坐长椅看它们钻陶管',
+    '街边一座口袋公园，圆形铺地中央有一条陶管（地块自带），两侧各有一排长椅。院主牵着灵梦和魔理沙沿街走到公园，解绳后走到长椅上坐下，'
+    '身体朝陶管，头跟着玩的那只转。两只宠物自己决定谁先钻陶管，胆小的灵梦不会跑远。玩够或等久了，院主站起来、重新系绳、牵它们回院。',
+    '约 2 分钟', [
+        box(-12, -1, -9, 22, -1, 10, 'minecraft:stone_bricks'),
+        box(-12, 0, -9, 22, 9, 10, 'minecraft:air'),
+        box(-12, -1, -8, 22, -1, -6, 'minecraft:dirt_path'),
+        *_lot_yard(-2, 2),
+        f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
+        f'place template mcyukkuri:village/plains/pocket_park ~{_REST_PARK[0]} ~-1 ~{_REST_PARK[1]}',
+        # Direct template placement leaves the entrance jigsaw (its village final_state is air) in the gap of the lot's front edge.
+        block(_REST_PARK[0] + 5, 0, _REST_PARK[1], 'minecraft:air'),
+        (human('caretaker_sister', 0, -2, 'rest_keeper', 0, yaw=180, label='院主')[:-1]
+         + f',YardBowl:{_yard_pos(*_PARK_BOWL)}L,HumanHome:{_yard_pos(*_PARK_HOME)}L}}'),
+        *(line for kind, name, x, bold, bond in _rest_pets
+          for line in _lot_pet('pocket_park_rest', 'rest_keeper', kind, x, name, boldness=bold, attachment=bond, nutrition=100,
+                               energy=(85, 100))),
+    ], env=DAY, vantage=(13, -8, 0, 20),
+    reads=[('读灵梦', f'yukkuri status {sel("rest_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("rest_bold")} raw')])
 
 _park_aid = 'park_aid'
 _park_waiter = sel('park_waiter')
@@ -7529,7 +7552,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
-    'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5',
+    'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -9278,6 +9301,7 @@ def _park_play_pet_fates(window):
 
 # The park's facilities are terrain (the field writes the blocks PlayItem.place sets), so no marker placement is logged: the start
 # checks every facility's core block instead, and a field clear must stand the trampoline up again without dropping it as an item.
+_SIT = r'action=outing_sit seat=-?\d+, -?\d+, -?\d+ facing=\w+ candidates=[1-9]'
 _park_cores = ' '.join(
     'if block ~{} ~ ~{} mcyukkuri:{}'.format(*_lot_spot(spot), kind)
     for kind, spot in (('yukkuri_trampoline', 'trampoline'), ('yukkuri_slide', 'slide'), ('ceramic_tunnel', 'tunnel'),
@@ -9288,12 +9312,14 @@ _smoke('park_play', 2600, [
     r'MCY_PARK_FACILITIES_STAND',
     r'action=outing_depart pets=2 ',
     r'action=outing_park facility=',
+    _SIT, r'action=outing_stand reason=leave',
     r'action=outing_turn reason=park_(?:done|time)',
     r'action=outing_home',
     *[rf'uuid={_uuid_text("park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
     *_outing_leads('park_play', [p[1] for p in _outing_pets], True),
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
+           r'action=outing_sit result=taken', r'action=outing_stand reason=move',
            r'\[body\][^\n]*accepted damage cause=fall\b'],
     readout=[
         f'execute {_park_bed} run say MCY_PARK_FACILITY_BEFORE_CLEAR',
@@ -9314,7 +9340,7 @@ _picnic_transfers = [
     rf'uuid={_picnic_pet} [^\n]*swallowed item=minecraft:apple count=1',
 ]
 _smoke('park_picnic', 3200, [
-    r'action=outing_depart pets=1 ', r'action=outing_park facility=', *_picnic_transfers,
+    r'action=outing_depart pets=1 ', r'action=outing_park facility=', _SIT, *_picnic_transfers,
     *_outing_leads('park_picnic', ['picnic_pet'], True),
     r'action=picnic_half_gone', r'action=outing_home', rf'uuid={_picnic_pet} [^\n]*outing reached home',
     r'MCY_PICNIC_APPLES_ACCOUNTED_FOR',
@@ -9341,6 +9367,32 @@ def _picnic_ledger(window):
 
 
 next(s for s in S if s.id == 'park_picnic').smoke.update(verify=_picnic_ledger, gating_checks=['LEDGER', 'END'])
+
+
+def _pocket_rest_verify(window):
+    """The owner sits before the first tunnel session ends and stands after the last one; the bold and the shy pet are both accounted for."""
+    sat = re.search(r'action=outing_sit seat=', window)
+    stood = re.search(r'action=outing_stand reason=leave', window)
+    if not sat or not stood or not sat.start() < stood.start():
+        return 'the keeper did not sit and then stand up from the bench'
+    sessions = [m for m in re.finditer(r'facility session ended kind=CERAMIC[^\n]*completed=true\b', window)]
+    if not sessions or not all(sat.start() < m.start() < stood.start() for m in sessions):
+        return 'no tunnel session was completed while the keeper sat'
+    return None
+
+
+_smoke('pocket_park_rest', 2600, [
+    r'park facility result=placed kind=CERAMIC',
+    r'action=outing_depart pets=2 ',
+    r'action=outing_park facility=',
+    _SIT, r'action=outing_stand reason=leave',
+    r'action=outing_turn reason=park_(?:done|time)',
+    r'action=outing_home',
+    *[rf'uuid={_uuid_text("pocket_park_rest", p[1])} [^\n]*outing reached home' for p in _rest_pets],
+    *_outing_leads('pocket_park_rest', [p[1] for p in _rest_pets], True),
+], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
+           r'action=outing_sit result=taken', r'action=outing_stand reason=move'])
+next(s for s in S if s.id == 'pocket_park_rest').smoke.update(verify=_pocket_rest_verify)
 
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'

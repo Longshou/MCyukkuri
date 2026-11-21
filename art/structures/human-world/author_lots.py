@@ -15,8 +15,8 @@ places the socket at the first free height, so the paving at y0 meets the lane a
 - kiosk: a small corner kiosk on a pavement: serving hatch (counter one and a half blocks high) under a blue/white awning, goods on the
   counter, newspaper stacks, a notice board, a bench nook under the west eave with a low dry gap under the paper shelf; the keeper lives
   behind the counter (back door); a standing bin.
-- pocket_park: a lawn behind a kerb and hedges with one tree of the type (a pergola with a cloth shade in the desert), a bench pair, a
-  small pond, a lamp and a standing bin.
+- pocket_park: a lawn behind a kerb and hedges with one tree of the type (a pergola with a cloth shade in the desert), a ceramic tunnel
+  (a `mcy_park_play` marker) on the paved square, a bench pair either side of it, a small pond, a lamp and a standing bin.
 - back_lot: the poor corner: a shabby shed, a woodpile, a lean-to against the shed with a two-cell wind gap, a cardboard spot and a bin
   already knocked over.
 
@@ -26,7 +26,7 @@ uses the marked survey corners.
 from pathlib import Path
 import math, sys
 sys.path.insert(0, str(Path(__file__).parent))
-from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence
+from build import stairs, slab, furniture, marker, flat_roof, gable_snow, light_up, name_at, integer, sequence, string
 from palette import PALETTES, STYLES, BEDS, link, leaves, mc, pick
 from author_street import Site, garbage, wind_gap, carton, lamp, lot_ground, produce_crate, connect_bars, jigsaw
 
@@ -404,11 +404,12 @@ def tree(b, x, z):
 
 
 def pocket_park(p):
-    """11 x 11: a lawn with a round paved square, a bench pair either side, one tree at the back (a pergola in the desert), a small pond
+    """11 x 11: a lawn with a round paved square holding a ceramic tunnel (the play facility, a marker), a bench pair either side, one tree at the back (a pergola in the desert), a small pond
     in the back corner, a lamp and a standing bin by the east bench; hedges (pots in the desert) on the kerb of three sides."""
     W, H, D = 11, 11, 11
     b = new_lot('pocket_park', (W, H, D), p, 5)
-    marker(b, 5.5, 1, 4.5, 'mcy_park_walk')
+    marker(b, 5.5, 1, 2.5, 'mcy_park_walk')
+    marker(b, 5.5, 1, 5.5, 'mcy_park_play', {'Kind': string('ceramic_tunnel'), 'Facing': string('south')})
     path(b, [(5, 1), (5, 2)])
     for x in range(1, W - 1):
         for z in range(1, D - 1):

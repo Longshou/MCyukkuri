@@ -37,6 +37,14 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             }
         });
     }
+    /** A bench board sits 0.5 above the cell floor; the vanilla riding legs lie flat when the hips are lowered this far, so the thighs meet the board. */
+    private static final double SIT_DROP = .6;
+    @Override public void render(HumanNpc npc, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
+        pose.pushPose();
+        if (npc.sitsNow()) pose.translate(0, -SIT_DROP, 0);
+        super.render(npc, yaw, partial, pose, buffers, light);
+        pose.popPose();
+    }
     @Override public ResourceLocation getTextureLocation(HumanNpc npc) {
         // EXAMINER/KEEPER are matched by name so this compiles before those Job constants land.
         String job = npc.job().name();
@@ -58,6 +66,7 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             return LayerDefinition.create(mesh, 64, 64);
         }
         @Override public void setupAnim(HumanNpc n, float swing, float amount, float age, float yaw, float pitch) {
+            if (n.sitsNow()) riding = true;
             super.setupAnim(n, swing, amount, age, yaw, pitch);
             longHair.visible = n.look() == HumanNpc.Look.SISTER && n.job() == HumanNpc.Job.RESIDENT;
             mohawk.visible = n.look() == HumanNpc.Look.ONIISAN && n.job() == HumanNpc.Job.RESIDENT;

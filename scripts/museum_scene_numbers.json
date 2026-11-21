@@ -317,6 +317,7 @@
     "shelter_cartons": "TN-63",
     "shelter_cartons_blocked": "TN-64",
     "kiosk_buy": "TN-65",
-    "kiosk_shoo": "TN-66"
+    "kiosk_shoo": "TN-66",
+    "pocket_park_rest": "TN-67"
   }
 }

@@ -1,9 +1,13 @@
 package io.github.longshou.mcyukkuri.human;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -27,6 +31,20 @@ public final class WoodenBenchBlock extends JoinedFurnitureBlock {
     public static Direction front(BlockState state) {
         return Direction.fromAxisAndDirection(state.getValue(AXIS) == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X,
                 Direction.AxisDirection.POSITIVE);
+    }
+
+    /** A bench seat's long-side normal: any wooden bench piece, or a player-built slab between two like stairs; null for any other cell. */
+    public static Direction seatFront(BlockGetter level, BlockPos pos) {
+        var seat = level.getBlockState(pos);
+        if (seat.getBlock() instanceof WoodenBenchBlock) return front(seat);
+        if (!(seat.getBlock() instanceof SlabBlock)) return null;
+        for (var side : new Direction[]{Direction.EAST, Direction.NORTH}) {
+            var a = level.getBlockState(pos.relative(side));
+            var b = level.getBlockState(pos.relative(side.getOpposite()));
+            if (a.getBlock() instanceof StairBlock && a == b && a.getValue(StairBlock.FACING).getAxis() != side.getAxis())
+                return a.getValue(StairBlock.FACING);
+        }
+        return null;
     }
 
     @Override

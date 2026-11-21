@@ -70,10 +70,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.entity.BarrelBlockEntity;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.phys.AABB;
@@ -480,9 +479,12 @@ public final class FoundShelter implements MotorOwner {
         return !streetOccupied(body, pos);
     }
 
-    private static boolean streetOccupied(YukkuriEntity body, BlockPos pos) {
-        return !body.level().getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(1),
-                other -> other != body && other.isAlive()
+    private static boolean streetOccupied(YukkuriEntity body, BlockPos pos) { return streetClaimed(body.level(), pos, body); }
+
+    /** A yukkuri other than {@code except} stands on, or has claimed, this public rest cell. */
+    public static boolean streetClaimed(Level level, BlockPos pos, YukkuriEntity except) {
+        return !level.getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(1),
+                other -> other != except && other.isAlive()
                         && (other.blockPosition().equals(pos) || other.life().ownsStreetCover(pos))).isEmpty();
     }
 
@@ -507,19 +509,7 @@ public final class FoundShelter implements MotorOwner {
         return benchFacing(pos) == null ? roofKind(level(), pos) : StreetSpot.BENCH;
     }
 
-    /** A bench seat: any wooden bench piece, or a player-built slab between two like stairs. */
-    private Direction benchFacing(BlockPos pos) {
-        var seat = level().getBlockState(pos);
-        if (seat.getBlock() instanceof WoodenBenchBlock) return WoodenBenchBlock.front(seat);
-        if (!(seat.getBlock() instanceof SlabBlock)) return null;
-        for (var side : new Direction[]{Direction.EAST, Direction.NORTH}) {
-            var a = level().getBlockState(pos.relative(side));
-            var b = level().getBlockState(pos.relative(side.getOpposite()));
-            if (a.getBlock() instanceof StairBlock && a == b && a.getValue(StairBlock.FACING).getAxis() != side.getAxis())
-                return a.getValue(StairBlock.FACING);
-        }
-        return null;
-    }
+    private Direction benchFacing(BlockPos pos) { return WoodenBenchBlock.seatFront(level(), pos); }
 
     private boolean planStreet(BlockPos here) {
         var options = new ArrayList<BlockPos>();

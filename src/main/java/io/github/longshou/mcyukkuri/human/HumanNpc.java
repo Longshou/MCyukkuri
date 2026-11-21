@@ -31,6 +31,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.*;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.ai.control.BodyRotationControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
@@ -75,6 +77,8 @@ public final class HumanNpc extends PathfinderMob {
     private static final EntityDataAccessor<Integer> ATTITUDE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> STREET_GRAIN = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
+    /** 0 standing, else the horizontal direction (2D data value + 1) the owner faces while sitting on a bench board. Derived each tick, not saved. */
+    private static final EntityDataAccessor<Integer> SEAT = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private final Look look;
     private BlockPos home;
     private String siteRole = "";
@@ -183,7 +187,24 @@ public final class HumanNpc extends PathfinderMob {
             .add(Attributes.MOVEMENT_SPEED, .26).add(Attributes.FOLLOW_RANGE, 24); }
     @Override protected void defineSynchedData(SynchedEntityData.Builder b) {
         super.defineSynchedData(b); ModRandom.construct(this); b.define(JOB, 0); b.define(ATTITUDE, 1); b.define(RESTING, false); b.define(STREET_GRAIN, false);
+        b.define(SEAT, 0);
     }
+    /** Sitting on a bench board: the pose is drawn by the client. The body turns across the bench, the head still follows what it watches. */
+    @Override protected BodyRotationControl createBodyControl() {
+        return new BodyRotationControl(this) {
+            @Override public void clientTick() {
+                if (!seated()) { super.clientTick(); return; }
+                yBodyRot = seatFacing().toYRot();
+                yHeadRot = Mth.rotateIfNecessary(yHeadRot, yBodyRot, getMaxHeadYRot());
+            }
+        };
+    }
+    public boolean seated() { return entityData.get(SEAT) != 0; }
+    public Direction seatFacing() { return Direction.from2DDataValue(entityData.get(SEAT) - 1); }
+    /** Seated and not being carried along: the client draws the sit pose and lowers the body onto the board only then. */
+    public boolean sitsNow() { return seated() && getDeltaMovement().horizontalDistanceSqr() < .002; }
+    void sit(Direction facing) { entityData.set(SEAT, facing.get2DDataValue() + 1); }
+    void standUp() { entityData.set(SEAT, 0); }
     public Look look() { return look; }
     public Job job() { return Job.values()[entityData.get(JOB)]; }
     public Attitude attitude() { return Attitude.values()[entityData.get(ATTITUDE)]; }

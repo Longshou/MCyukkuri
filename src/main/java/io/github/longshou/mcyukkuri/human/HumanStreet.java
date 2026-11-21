@@ -19,11 +19,14 @@ import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
+import io.github.longshou.mcyukkuri.pet.rules.ParkSeats;
 import io.github.longshou.mcyukkuri.pet.rules.YardArrival;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -696,6 +699,10 @@ final class HumanStreet {
     static final class Stroll extends Goal {
         private static final int OUTING_INTERVAL = 3000;
         private enum Leg { NONE, GATE, TAKE, COLLECT, STOW }
+        /** A bench cell, the board top the feet rest on, and the long side the sitter faces. */
+        private record Seat(BlockPos cell, Vec3 top, Direction facing) {}
+        /** Horizontal offset from the board centre within which the hips are on the board (board 14/16 deep, hips about 0.3 wide). */
+        private static final double SEAT_CENTRE = .2;
         // Beyond the park's twelve-block calling distance the owner goes to the pet herself.
         private static final double CALL_RANGE = 12;
 
@@ -730,6 +737,8 @@ final class HumanStreet {
         private Vec3 resume;
         private Vec3 parkDestination;
         private PlayBlockEntity facility;
+        private Seat seat;
+        private int seatCandidates;
         private long parkOpened;
         private int tiredTicks;
         private Leg leg = Leg.NONE;
@@ -1068,18 +1077,21 @@ final class HumanStreet {
                     .filter(PlayBlockEntity.class::isInstance).map(PlayBlockEntity.class::cast)
                     .min(Comparator.comparingDouble(play -> play.getBlockPos().distSqr(center))).orElse(null);
             if (found == null) return false;
-            var facing = found.facing();
-            if (npc.holdsPicnicFood()) {
-                var spots = level.getEntitiesOfClass(Marker.class, new AABB(center).inflate(12),
-                        marker -> marker.getTags().contains("mcy_park_picnic"));
-                spots.sort(Comparator.comparingDouble(npc::distanceToSqr));
-                for (var spot : spots) {
-                    if (routeLeg(spot.blockPosition())) {
-                        parkStand(found);
-                        return true;
-                    }
-                }
+            seat = null;
+            var seats = seats(found);
+            seatCandidates = seats.size();
+            for (var candidate : ParkSeats.order(seats, npc.getUUID().hashCode())) {
+                if (!routeSeat(candidate)) continue;
+                seat = candidate;
+                parkStand(found);
+                return true;
             }
+            return standAside(found);
+        }
+
+        /** No bench in reach: stand to the side of the facility, or in front of it. */
+        private boolean standAside(PlayBlockEntity found) {
+            var facing = found.facing();
             for (var side : List.of(facing.getClockWise(), facing.getCounterClockWise(), facing)) {
                 var pos = found.getBlockPos().relative(side, found.kind().depth + (side == facing ? 3 : 2));
                 if (!routeLeg(pos)) continue;
@@ -1087,6 +1099,82 @@ final class HumanStreet {
                 return true;
             }
             return false;
+        }
+
+        /** Benches watching the facility, nearest to it first. */
+        private List<Seat> seats(PlayBlockEntity found) {
+            var level = npc.level();
+            var origin = found.getBlockPos();
+            var core = origin.getCenter();
+            var seats = new ArrayList<Seat>();
+            for (var cell : BlockPos.betweenClosed(origin.offset(-9, -1, -9), origin.offset(9, 1, 9))) {
+                if (!level.hasChunkAt(cell)) continue;
+                var front = WoodenBenchBlock.seatFront(level, cell);
+                if (front == null || !npc.isWithinRestriction(cell)
+                        || !ParkSeats.watchable(Math.hypot(cell.getX() + .5 - core.x, cell.getZ() + .5 - core.z))) continue;
+                var seat = seatAt(cell.immutable(), front, core);
+                if (seat != null) seats.add(seat);
+            }
+            seats.sort(Comparator.comparingDouble(candidate -> candidate.top().distanceToSqr(core)));
+            return seats;
+        }
+
+        /** The sitter's feet rest on the board top; it must be reachable by a step, free of bodies, and see the facility. */
+        private Seat seatAt(BlockPos cell, Direction front, Vec3 core) {
+            var level = npc.level();
+            double height = level.getBlockState(cell).getCollisionShape(level, cell).max(Direction.Axis.Y);
+            if (height > npc.maxUpStep() || !level.getFluidState(cell).isEmpty()
+                    || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) return null;
+            var top = new Vec3(cell.getX() + .5, cell.getY() + height, cell.getZ() + .5);
+            double along = (core.x - top.x) * front.getStepX() + (core.z - top.z) * front.getStepZ();
+            var seat = new Seat(cell, top, ParkSeats.facesFirstNormal(along) ? front : front.getOpposite());
+            if (!seatFree(seat)) return null;
+            var sight = level.clip(new ClipContext(top.add(0, 1.2, 0), core, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
+            return sight.getType() == HitResult.Type.MISS || level.getBlockState(sight.getBlockPos()).getBlock() instanceof PlayBlock
+                    ? seat : null;
+        }
+
+        /** Room for a body on the board, and nobody (a player, a resident, a stray on or claiming the cell) already there. */
+        private boolean seatFree(Seat seat) {
+            var level = npc.level();
+            var box = npc.getBoundingBox().move(seat.top().subtract(npc.position()));
+            return level.noCollision(npc, box)
+                    && level.getEntitiesOfClass(LivingEntity.class, box, other -> other != npc && other.isAlive()
+                            && !other.isSpectator() && !companions.contains(other)).isEmpty()
+                    && !FoundShelter.streetClaimed(level, seat.cell(), null);
+        }
+
+        private boolean routeSeat(Seat target) {
+            var nav = npc.getNavigation();
+            var path = nav.createPath(target.cell(), 0);
+            if (path == null || !path.canReach() || !nav.moveTo(path, .65)) return false;
+            last = npc.position(); stalled = 0; destination = target.top();
+            return true;
+        }
+
+        private double seatGap() { return Math.hypot(npc.getX() - seat.top().x, npc.getZ() - seat.top().z); }
+
+        /** On the way, near the cell and the walk over, or at the stand. */
+        private boolean atStand() {
+            return atDestination() || seat != null && npc.getNavigation().isDone() && seatGap() <= .6
+                    && Math.abs(npc.getY() - seat.top().y) <= .6;
+        }
+
+        /** The one place that decides sitting: resting on the board top, centred on it, with no walk or leg in progress. */
+        private void syncSeat() {
+            boolean sit = seat != null && parkLingering() && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()
+                    && npc.onGround() && Math.abs(npc.getY() - seat.top().y) <= .05 && seatGap() <= SEAT_CENTRE;
+            if (sit == npc.seated()) return;
+            if (!sit) { standUp("move"); return; }
+            npc.sit(seat.facing());
+            GameplayLog.event(npc, "npc-care", "action=outing_sit seat={} facing={} candidates={}",
+                    seat.cell().toShortString(), seat.facing(), seatCandidates);
+        }
+
+        private void standUp(String reason) {
+            if (!npc.seated()) return;
+            npc.standUp();
+            GameplayLog.event(npc, "npc-care", "action=outing_stand reason={}", reason);
         }
 
         private void parkStand(PlayBlockEntity found) {
@@ -1253,7 +1341,9 @@ final class HumanStreet {
         private void linger() {
             npc.getNavigation().stop();
             stalled = detours = 0;
-            if (!npc.isUsingItem()) npc.getLookControl().setLookAt(facility.getBlockPos().getCenter());
+            if (!npc.isUsingItem()) npc.getLookControl().setLookAt(watched());
+            if (seat != null && leg == Leg.NONE && resume == null && seatGap() > SEAT_CENTRE && Math.abs(npc.getY() - seat.top().y) <= .6)
+                npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .3);
             if (picnicHalf != null) {
                 var half = looseHalf();
                 if (half == null) {
@@ -1278,6 +1368,14 @@ final class HumanStreet {
             else if (lingerTicks >= 3000 || lingerTicks >= 2400 && !playing) returnHome("park_time");
         }
 
+        /** The owner watches the pet at play, else the nearest pet, else the facility. */
+        private Vec3 watched() {
+            var pet = companions.stream().filter(Entity::isAlive)
+                    .min(Comparator.comparingInt((YukkuriEntity p) -> p.playLife().active() ? 0 : 1)
+                            .thenComparingDouble(npc::distanceToSqr)).orElse(null);
+            return pet == null ? facility.getBlockPos().getCenter() : pet.getEyePosition();
+        }
+
         private void clearPark() {
             if (parkLingering()) GameplayLog.event(npc, "npc-care", "action=outing_park_leave stand={} gap={}",
                     GameplayLog.at(watch), npc.distanceToSqr(watch));
@@ -1285,6 +1383,8 @@ final class HumanStreet {
             facility = null;
             watch = null;
             parkOpened = 0;
+            seat = null;
+            standUp("leave");
             tiredTicks = 0;
             offered = false;
             picnicTryAt = 0;
@@ -1331,6 +1431,11 @@ final class HumanStreet {
         @Override public boolean requiresUpdateEveryTick() { return true; }
 
         @Override public void tick() {
+            step();
+            syncSeat();
+        }
+
+        private void step() {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
             if (kiosk != null) { kioskStep(); return; }
@@ -1382,8 +1487,14 @@ final class HumanStreet {
                 if (doorStep()) return;
                 if (facility != null) {
                     if (facility.isRemoved()) { returnHome("park_done"); return; }
+                    if (seat != null && !parkLingering() && npc.tickCount % 10 == 0 && !seatFree(seat)) {
+                        GameplayLog.event(npc, "npc-care", "action=outing_sit result=taken seat={}", seat.cell().toShortString());
+                        seat = null;
+                        npc.getNavigation().stop();
+                        if (!standAside(facility)) { returnHome("blocked"); return; }
+                    }
                     if (leg == Leg.NONE && resume == null) {
-                        if (atDestination()) {
+                        if (atStand()) {
                             if (!parkLingering()) {
                                 endGlance();
                                 parkOpened = npc.level().getGameTime();
@@ -1664,6 +1775,7 @@ final class HumanStreet {
             kioskArrived = false;
             kioskBusyUntil = 0;
             doorWait = null;
+            standUp("interrupt");
             clearPark();
             if (leg == Leg.GATE) companions = List.of();
             clearLeg();
