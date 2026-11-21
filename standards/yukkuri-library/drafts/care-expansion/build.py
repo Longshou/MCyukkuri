@@ -2,7 +2,7 @@
 
 Toys have world models, because they are dropped, pushed, rolled and played with on the ground: yarn ball, glass marble,
 Reimu and Marisa dolls are round props (care-props/toys.py) drawn by client/PropItemRenderer and, dropped,
-by HouseScrapRenderer. The small handheld care tools (wash cloth, teaching whistle, companion cord) have no world model:
+by HouseScrapRenderer. The small handheld care tools (wash cloth, companion cord) have no world model:
 they are vanilla item/generated models of their inventory icons, the way vanilla draws a held or dropped item.
 No original game pixels. 16 units = one block. --check verifies editable, selected and packaged exports.
 """
@@ -19,7 +19,7 @@ if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-pro
 block_kit=sys.modules['block_props_kit']   # the prop item model (builtin/entity) shared by every prop item
 sys.path.insert(0,str(HERE.parent/'care-props'))
 import toys
-ITEMS=('wash_cloth','teaching_whistle','companion_cord')   # vanilla item models of their icons (textures/item/<id>.png)
+ITEMS=('wash_cloth','companion_cord')   # vanilla item models of their icons (textures/item/<id>.png)
 TOYS=('glass_marble','reimu_doll','marisa_doll')   # also kept editable in assembled/, crafted by recipe
 SNAPSHOT=ROOT/'art/props/care-expansion'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'

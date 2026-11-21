@@ -63,7 +63,6 @@ NAVYW = ['#273f5c', '#3d5f86', '#5a83ad', '#86abcf', '#b8d2ea']        # fine (b
 SAGEW = ['#2b4a33', '#41704b', '#5f9467', '#8bb98d', '#bfe0bd']        # large (green) carrier wicker
 WATER = ['#1d4a7a', '#2f6fa8', '#4b93cc', '#7cb9e6', '#bfe0f7']        # waterer water
 WASH = ['#2f5677', '#4f7fa6', '#78a8cc', '#a6cde8', '#d6ecf9']         # wash cloth
-WHISTLE = ['#5a2e0f', '#8f501d', '#bf7a35', '#e0a55b', '#f5cd8b']      # wooden whistle
 ROPE = ['#3d2410', '#62401f', '#8a5e30', '#b08346', '#d4ab6e']         # companion cord
 TWIG = ['#2e1d0f', '#4d331b', '#6e4c2a', '#90693d', '#b38a55']         # predator nest twigs
 FLOWER = ['#8a7a3a', '#d8c25a', '#ffffff']                             # forage pile daisy (centre, petals)
@@ -848,32 +847,6 @@ def wash_cloth():
     return i
 
 
-def teaching_whistle():
-    """Teaching whistle (a metal pea whistle, side view): a flat mouthpiece to the left running into the round chamber, the dark
-    sound slot cut into the top edge, a ring at the back."""
-    i = Icon('teaching_whistle')
-    i.rows(legend(o=(IRON, 0), H=(IRON, 4), h=(IRON, 3), m=(IRON, 2), s=(IRON, 1), K=(INK, 1),
-                  c=(IRON, 1), C=(IRON, 3)), [
-        "................",
-        "................",
-        ".............CC.",
-        "............C..c",
-        "oooooooooKKooCcc",
-        "oHHHhhhhoKKoHhmo",
-        "ohhhhhhhhhhhhhmo",
-        "ommmmmmmhhhhhmmo",
-        "oooooooohhhhhmso",
-        ".......ohhhhmmso",
-        ".......ohhhmmsso",
-        "........ossssso.",
-        ".........ooooo..",
-        "................",
-        "................",
-        "................",
-    ])
-    return i
-
-
 def companion_cord():
     """Companion cord: a loop of soft brown rope tied off with a red bow (it introduces a pair; nothing is bound)."""
     i = Icon('companion_cord')
@@ -934,7 +907,7 @@ ICONS = {
     'cardboard_shelter': cardboard_shelter, 'forage_pile': forage_pile,
     'yukkuri_carrier': yukkuri_carrier, 'yukkuri_carrier_fine': yukkuri_carrier_fine,
     'yukkuri_carrier_large': yukkuri_carrier_large,
-    'wash_cloth': wash_cloth, 'teaching_whistle': teaching_whistle, 'companion_cord': companion_cord,
+    'wash_cloth': wash_cloth, 'companion_cord': companion_cord,
     'yukkuri_stem': yukkuri_stem,
 }
 

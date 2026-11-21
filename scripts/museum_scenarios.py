@@ -2956,7 +2956,7 @@ def _practice_scene(sid, title, hint, wait, props, env, vantage, expect, **need)
                **need),
             *own(name), home(name, x, -4)]
     add(sid, 'town', title, title, hint, wait, lines, env=env, vantage=vantage,
-        give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook', 'mcyukkuri:teaching_whistle', 'mcyukkuri:sweet_candy 6'],
+        give=['mcyukkuri:field_notebook', 'mcyukkuri:badge_handbook', 'mcyukkuri:sweet_candy 6'],
         reads=[('读熟手技能', f'data get entity {sel("practised")} YukkuriSkills'),
                ('读新手技能', f'data get entity {sel("novice")} YukkuriSkills')],
         smoke=dict(ticks=2100, expect=expect, forbid=[r'\[body\][^\n]* invariant\b'],
@@ -2980,7 +2980,7 @@ def _verify_bowl_treats(window):
     actor = rf'[^\n]* uuid={pet} t=(\d+) [^\n]* '
     wait = re.search(r'\[lesson\]' + actor + r'wait treat taken owner=(\S+) early=(true|false)', window)
     if not wait:
-        return 'Missing the trained pet’s whistle treat handover'
+        return 'Missing the trained pet’s wait treat handover'
     owner, early = wait[2], wait[3] == 'true'
     treat = rf' item=mcyukkuri:sweet_candy count=1[^\n]* feeder={owner}\b'
     received = re.findall(r'\[meal\]' + actor + r'received' + treat, window)
@@ -3010,9 +3010,8 @@ _bowl_smoke['commands'] = [
     (441, f'data modify entity {_bowl_pet} {OWNED}.Owner set from entity {_bowl_owner} UUID'),
     (441, f'data modify entity {_bowl_pet} YukkuriSkills.Points.wait set value 9'),
     (442, set_status('practised', 'needs.nutrition', 82)),
-    (442, f'item replace entity {_bowl_owner} hotbar.0 with mcyukkuri:teaching_whistle'),
     (442, f'item replace entity {_bowl_owner} weapon.offhand with mcyukkuri:sweet_candy'),
-    (443, f'yukkuri scenario shop_stock_click {_bowl_pet}'),
+    (443, f'yukkuri scenario badge_lesson_click {_bowl_pet}'),
     (930, f'execute at {_bowl_pet} positioned ~ ~ ~1 run yukkuri scenario tool_operator move'),
     (930, f'item replace entity {_bowl_owner} hotbar.0 with mcyukkuri:sweet_candy'),
     (931, f'yukkuri scenario shop_stock_click {_bowl_pet}'),

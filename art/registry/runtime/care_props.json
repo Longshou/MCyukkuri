@@ -92,7 +92,7 @@
   "vanilla_items": {
     "models": {
       "mold_remover, yogurt_drink, stimulant, sitataran, sleep_spray, wheat_flour, spicy_grain": "standards/yukkuri-library/drafts/consumables/build.py",
-      "teaching_whistle, wash_cloth, companion_cord": "standards/yukkuri-library/drafts/care-expansion/build.py",
+      "wash_cloth, companion_cord": "standards/yukkuri-library/drafts/care-expansion/build.py",
       "household_guard": "standards/yukkuri-library/ecology/house-repellent/build.py"
     },
     "style": "medicine and small handheld tools have no world model: a vanilla item/generated model on textures/item/<id>.png"

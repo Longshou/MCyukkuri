@@ -2,7 +2,7 @@
 
 Which style: things that are round by nature (the food bowl, balls, pebbles, plush dolls) are modelled round with
 care-props/shapes.py, not stepped. Medicine and small handheld tools need no world model: they are vanilla item/generated
-models of their icons (mold remover, wash cloth, whistle, cord, household guard); other small bottles and sacks are
+models of their icons (mold remover, wash cloth, cord, household guard); other small bottles and sacks are
 extruded icons. Other props placed as a block, larger than about 8 units or standing on furniture are block style, and
 any rounded part of them gets an explicit stepped-round recipe (octagon() and inset() for flat vessels, Shape.ball() for
 spheres) plus painted detail, never a plain cuboid stack.

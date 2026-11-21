@@ -40,7 +40,7 @@ TAB = ['field_notebook', 'reimu_spawn_egg', 'marisa_spawn_egg', 'marisa_aquatic_
        'remilia_bonnet', 'flandre_bonnet', 'house_reimu_spawn_egg', 'house_marisa_spawn_egg', 'yukkuri_carrier',
        'yukkuri_carrier_fine', 'yukkuri_carrier_large', 'food_bowl', 'yukkuri_nest', 'large_yukkuri_nest', 'large_wild_nest',
        'yukkuri_toilet', 'cardboard_shelter', 'forage_pile', 'wash_cloth', 'household_guard', 'yarn_ball',
-       'teaching_whistle', 'companion_cord', 'pet_harness', 'swaddle_cloth', 'yukkuri_stem',
+       'companion_cord', 'pet_harness', 'swaddle_cloth', 'yukkuri_stem',
        'oil_grain_budget', 'oil_grain_regular', 'oil_grain_premium', 'sweet_candy', 'custard_pudding', 'orange_juice',
        'flour_paste', 'mold_remover', 'pin_tool', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook',
        'care_vibrator', 'iron_enclosure', 'newspaper_mat', 'soil_mat', 'sandpaper_mat', 'ceramic_toilet', 'covered_toilet',

@@ -10,6 +10,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.badge.BadgeMenu;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
@@ -247,6 +248,8 @@ public final class ScenarioCommands {
                         .executes(ScenarioCommands::shopStockClick)))
                 .then(Commands.literal("shop_rental_click").requires(source -> source.hasPermission(2))
                         .then(Commands.argument("staff", EntityArgument.entity()).executes(ScenarioCommands::shopRentalClick)))
+                .then(Commands.literal("badge_lesson_click").requires(source -> source.hasPermission(2))
+                        .then(Commands.argument("target", EntityArgument.entity()).executes(ScenarioCommands::badgeLessonClick)))
                 .then(Commands.literal("exam_counter").requires(source -> source.hasPermission(2))
                         .then(Commands.literal("open").then(Commands.argument("staff", EntityArgument.entity())
                                 .executes(c -> examCounterOpen(c, EntityArgument.getEntity(c, "staff")))))
@@ -570,6 +573,15 @@ public final class ScenarioCommands {
         // FakePlayer cannot open a network menu. Use the same server container and button handler.
         var menu = new ShopMenu(0, player.getInventory(), staff.getId());
         return menu.clickMenuButton(player, ShopMenu.ButtonId.RENT_TAB) && menu.clickMenuButton(player, ShopMenu.ButtonId.RENT) ? 1 : 0;
+    }
+
+    private static int badgeLessonClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var level = c.getSource().getLevel();
+        if (c.getSource().getEntity() != null || !(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
+                || !(EntityArgument.getEntity(c, "target") instanceof YukkuriEntity pet)) return 0;
+        // FakePlayer cannot open a network menu. Use the handbook's server container and its wait-lesson button.
+        var menu = new BadgeMenu(0, player.getInventory(), pet.getId());
+        return menu.clickMenuButton(player, BadgeMenu.ButtonId.LESSON_START) ? 1 : 0;
     }
 
     private static int examCounterOpen(CommandContext<CommandSourceStack> c, Entity target) {

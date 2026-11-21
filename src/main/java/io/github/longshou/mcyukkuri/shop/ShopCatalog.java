@@ -61,7 +61,6 @@ public final class ShopCatalog {
         good("chen_hat", 2, () -> new ItemStack(ModItems.CHEN_HAT.get()), 4, 2, 1, 0),
         good("alice_headband", 2, () -> new ItemStack(ModItems.ALICE_HEADBAND.get()), 4, 2, 1, 0),
         good("patchouli_bonnet", 2, () -> new ItemStack(ModItems.PATCHOULI_BONNET.get()), 4, 2, 1, 0),
-        good("teaching_whistle", 3, () -> new ItemStack(ModItems.WHISTLE.get()), 4, 2, 1, 0),
         good("spyglass", 3, () -> new ItemStack(Items.SPYGLASS), 3, 2, 1, 0),
         good("companion_cord", 4, () -> new ItemStack(ModItems.COMPANION_CORD.get()), 4, 2, 1, 0),
         // added with the closed care loop: sweets, harness and swaddle, and the soft hats of the predator species (a lost hat could never be replaced)

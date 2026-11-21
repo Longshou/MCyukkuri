@@ -6,7 +6,6 @@ import io.github.longshou.mcyukkuri.item.AccessoryItem;
 import io.github.longshou.mcyukkuri.item.CarrierItem;
 import io.github.longshou.mcyukkuri.item.CarrierLoad;
 import io.github.longshou.mcyukkuri.item.NotebookItem;
-import io.github.longshou.mcyukkuri.item.TeachingWhistleItem;
 import io.github.longshou.mcyukkuri.item.WashClothItem;
 import io.github.longshou.mcyukkuri.item.ShelterItem;
 import net.minecraft.world.item.BlockItem;
@@ -58,7 +57,6 @@ public final class ModItems {
             () -> new CarrierItem(new Item.Properties().stacksTo(1), CarrierLoad.Grade.LARGE));
     public static final DeferredItem<WashClothItem> WASH_CLOTH = ITEMS.register("wash_cloth", () -> new WashClothItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<HouseholdSprayItem> HOUSEHOLD_GUARD=ITEMS.register("household_guard",()->new HouseholdSprayItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<TeachingWhistleItem> WHISTLE = ITEMS.register("teaching_whistle", () -> new TeachingWhistleItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<AccessoryItem> RIBBON = registerAccessory(YukkuriVariant.Accessory.RIBBON);
     public static final DeferredItem<AccessoryItem> HAT = registerAccessory(YukkuriVariant.Accessory.HAT);
     /** The aquatic Marisa's larger hat uses the shared shape with a separate accessory item. */
