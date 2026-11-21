@@ -13,6 +13,8 @@ public final class StreetDraw {
     public static final int SCENT = 12;
     /** Blocks a stray strolls around a food holder it is drawn to. */
     public static final int HOLDER_RADIUS = 10;
+    /** Strolls in a row that find no walkable hop toward the aim before the spell is dropped (one is just a bad draw of random points). */
+    public static final int MISSES = 3;
     /** After a spell finds no walkable hop (a ravine, steep ground) no new draw starts this long, so the stray is never pinned. */
     public static final int BLOCKED_TICKS = 2400;
 

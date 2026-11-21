@@ -32,7 +32,9 @@ public final class RoamingGoal extends Goal {
     private long nextWalk, nextExpedition;
     /** Runtime only (a reload falls back to the home anchor): the street spell's end, and when a new one may start. */
     private long streetUntil, streetBlockedUntil, streetFrom;
-    private int streetStrolls;
+    private int streetStrolls, streetMisses;
+    /** Why the last stroll choice found nothing: no point, refused site, anchor rule, dry/rain, no route. */
+    private int[] refusals = new int[5];
     /** Where this stroll is drawn to instead of the home (the village heart in a spell, or a food holder), and how far it strolls there. */
     private BlockPos draw;
     private int radius, homeRadius, elapsed, failures, roll = -1, drawRadius;
@@ -92,13 +94,18 @@ public final class RoamingGoal extends Goal {
         if (draw != null) homeRadius = drawRadius;
         destination = choose();
         if (destination == null && draw != null) {
-            // No walkable hop toward the aim (a ravine, steep ground): drop it for a while instead of standing pinned.
+            // One refused stroll is a bad draw of random points (water, fences, a rise): wait for the next. Three in a row
+            // is no walkable way toward the aim: drop it for a while instead of standing pinned or walking back to the burrow.
+            GameplayLog.limited(animal, "move", "street_refused", 200, "street stroll refused origin={} aim={} misses={} refused(noPoint,site,anchor,wet,route)={}",
+                    origin, draw, streetMisses + 1, java.util.Arrays.toString(refusals));
+            if (++streetMisses < StreetDraw.MISSES) return false;
             endSpell(now, "no_route");
             streetBlockedUntil = now + StreetDraw.BLOCKED_TICKS;
             draw = null;
             homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
             destination = choose();
         }
+        if (destination != null) streetMisses = 0;
         yard = animal.life().homeStand();
         yardChoice = null;
         if (yard != null && (!insideYard(animal.position()) || !animal.pet().conscience().binds(HouseRule.NO_LEAVING_YARD))) yard = null;
@@ -165,7 +172,7 @@ public final class RoamingGoal extends Goal {
             GameplayLog.event(animal, "move", "street spell start aim={} p={} ticks={} nutrition={} boldness={} friendliness={}",
                     heart, Math.round(p * 100) / 100.0, ticks, nutrition, traits.boldness(), traits.friendliness());
         }
-        draw = heart;
+        draw = heart.atY(animal.getBlockY());
         drawRadius = radius;
     }
     /**
@@ -195,23 +202,24 @@ public final class RoamingGoal extends Goal {
         int paths = 0;
         BlockPos companion = companionSpot();
         var allowed = animal.life().quietSites(origin, radius);
+        refusals = new int[5];
         for (int attempt = 0; attempt < 16; attempt++) {
             Vec3 point = outside ? LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(anchor))
                     : companion == null ? LandRandomPos.getPos(animal, radius, 3)
                     : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
-            if (point == null) continue;
+            if (point == null) { refusals[0]++; continue; }
             BlockPos pos = BlockPos.containing(point);
-            if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) continue;
-            if (draw != null && animal.life().avoidsField(pos)) continue;
-            if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) continue;
+            if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) { refusals[1]++; continue; }
+            if (draw != null && animal.life().avoidsField(pos)) { refusals[1]++; continue; }
+            if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) { refusals[2]++; continue; }
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;
             if (companion != null && companion.distSqr(pos) > 64) continue;
             if (preferInside && !(shelter != null ? shelter.contains(pos) : pos.distSqr(home) <= 4 && animal.life().covered(pos))) continue;
-            if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) continue;
+            if (Reactions.Weather.rainAt(animal,pos) || !animal.life().dryStand(pos)) { refusals[3]++; continue; }
             if (animal.level() instanceof ServerLevel level && RemainsRot.source(level,Vec3.atBottomCenterOf(pos)) != null) continue;
             if (++paths > 4) break;
-            if (!animal.life().reachable(pos,false)) continue;
+            if (!animal.life().reachable(pos,false)) { refusals[4]++; continue; }
             return pos.immutable();
         }
         return null;
