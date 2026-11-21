@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 公园休息：街上遛宠、长椅上坐着看宠物玩；口袋公园放游具 | `.worktrees/wp-park-rest` | HumanStreet, PetOuting, ParkSeats, human renderer, author_lots pocket park, museum_scenarios park |
-| 统一有人看守的柜台：报亭并入街角店、回购、宠物店相亲预约 | `.worktrees/wp-counters` | human/KioskCounter→Counter, ProduceCrate*, HumanStreet, HumanNpc, shop/KeeperMenu, author_lots, FEATURES |
 | 流浪油库里白天上街（FG-13 真实世界触发率，v3：上街换锚点） | `.worktrees/wp-stray-draw` | life/StreetDraw (new), entity/RoamingGoal, settlement/ForageGoal, FEATURES FG-13 |
 
 
