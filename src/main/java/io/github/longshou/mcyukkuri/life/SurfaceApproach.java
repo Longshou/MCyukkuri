@@ -715,23 +715,28 @@ public final class SurfaceApproach {
         directions.add(new Vec3(1,0,0));directions.add(new Vec3(-1,0,0));
         directions.add(new Vec3(0,0,1));directions.add(new Vec3(0,0,-1));
         var candidates=new ArrayList<Vec3>();
+        var why=new StringBuilder();
         for(var direction:directions){
             var near=other.position().add(direction.scale(distance));
             var at=floor(actor,near);
-            if(at==null||Math.abs(at.y-other.getY())>maxHeight)continue;
+            if(at==null){why.append(" nofloor@").append(GameplayLog.at(near));continue;}
+            if(Math.abs(at.y-other.getY())>maxHeight){why.append(" height@").append(GameplayLog.at(at));continue;}
             if(Double.isFinite(maxDistance)){
                 double flat=Math.min(distance,Math.sqrt(Math.max(0,maxDistance*maxDistance-Math.pow(at.y-other.getY(),2)))-.025);
-                if(flat<=0)continue;
+                if(flat<=0){why.append(" reach");continue;}
                 at=floor(actor,other.position().add(direction.scale(flat)));
-                if(at==null||Math.abs(at.y-other.getY())>maxHeight||at.distanceTo(other.position())>maxDistance)continue;
+                if(at==null||Math.abs(at.y-other.getY())>maxHeight||at.distanceTo(other.position())>maxDistance){why.append(" reach@").append(GameplayLog.at(near));continue;}
             }
             var body=actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.005);
-            if(body.intersects(other.getBoundingBox())||!contact.test(at))continue;
+            if(body.intersects(other.getBoundingBox())){why.append(" overlap@").append(GameplayLog.at(at));continue;}
+            if(!contact.test(at)){why.append(" contact@").append(GameplayLog.at(at));continue;}
             candidates.add(at);
         }
         var stand=nearestReachable(actor,candidates,other.getBoundingBox());
         if(stand!=null)return stand;
-        GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} distance={} maxHeight={}",other.getUUID(),distance,maxHeight);
+        for(var at:candidates)why.append(" noroute@").append(GameplayLog.at(at));
+        GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} at={} box={} distance={} maxHeight={} rejected:{}",
+                other.getUUID(),GameplayLog.at(other.position()),other.getBoundingBox(),distance,maxHeight,why);
         return null;
     }
 
