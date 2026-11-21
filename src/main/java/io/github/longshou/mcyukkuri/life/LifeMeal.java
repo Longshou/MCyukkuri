@@ -425,7 +425,7 @@ final class LifeMeal {
         if (passed && share) {
             if (food.is(Items.APPLE))
                 GameplayLog.event(o.entity(), "meal", "serving split input={} input_count=1 output={} output_count=2 recipient={}",
-                        food.getItem(), ModItems.APPLE_HALF.get(), peer.getUUID());
+                        food.getItem(), food.getItem(), peer.getUUID());
             o.personality().experienced(Trait.FRIENDLINESS, 1, "shared_food");
             o.personality().decided("share_food");
         }

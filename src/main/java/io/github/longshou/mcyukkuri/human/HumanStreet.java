@@ -1054,7 +1054,7 @@ final class HumanStreet {
         private boolean collectForHome() {
             if (picnicHalf == null || tried.contains(Leg.COLLECT)) return false;
             var hand = npc.getMainHandItem();
-            if (!hand.isEmpty() && !hand.is(ModItems.APPLE_HALF.get())) return false;
+            if (!hand.isEmpty() && !PicnicFood.apple(hand)) return false;
             var half = looseHalf();
             return half != null && beginCollect(half, null);
         }
@@ -1230,7 +1230,7 @@ final class HumanStreet {
                         if (!npc.pickUpFood(half)) return false;
                         npc.swing(InteractionHand.MAIN_HAND);
                         GameplayLog.event(npc, "npc-care", "action=picnic_collect result=picked pickup item={} count=1 source={} serving={}",
-                                ModItems.APPLE_HALF.get(), half.getUUID(), picnicHalf);
+                                half.getItem(), half.getUUID(), picnicHalf);
                         picnicHalf = null;
                     }
                 }

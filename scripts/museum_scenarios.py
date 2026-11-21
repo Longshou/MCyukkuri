@@ -2908,7 +2908,7 @@ def begging_scene(sid, title, watch, pet_traits, stray_traits, helper=False, van
                ('读魔理沙的营养与关系', f'yukkuri status {sel("wild")} raw')])
 
 
-begging_scene('wild', '流浪油讨食：分享半个苹果', '看魔理沙隔开一段距离开口，灵梦分出半个苹果。魔理沙道谢、吃掉半个，离开前回望。',
+begging_scene('wild', '流浪油讨食：分享苹果', '看魔理沙隔开一段距离开口，灵梦分出苹果。魔理沙道谢、吃掉一份，离开前回望。',
               dict(nutrition=54, boldness=60, friendliness=90), dict(nutrition=29, boldness=55, friendliness=65))
 begging_scene('wild_beg_refuse', '流浪油讨食：拒绝后纠缠', '看灵梦护住苹果并扭开，魔理沙绕到侧面求食、跺地哭泣，最后慢慢走开。',
               dict(nutrition=52, boldness=60, friendliness=15), dict(nutrition=30, boldness=60, friendliness=50),
@@ -7734,9 +7734,9 @@ def _one_human_food_request(log):
 
 _human_contact_smoke['verify'] = _one_human_food_request
 for _sid, _outcome, _beg_checks in (
-    ('wild', 'shared', [r' beg transfer [^\n]*result=shared received=mcyukkuri:apple_half retained=mcyukkuri:apple_half',
-                        r'\[meal\] reimu [^\n]*swallowed item=mcyukkuri:apple_half count=1',
-                        r'\[meal\] marisa [^\n]*swallowed item=mcyukkuri:apple_half count=1']),
+    ('wild', 'shared', [r' beg transfer [^\n]*result=shared received=minecraft:apple retained=minecraft:apple',
+                        r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1',
+                        r'\[meal\] marisa [^\n]*swallowed item=minecraft:apple count=1']),
     ('wild_beg_refuse', 'refused', [r' beg refusal [^\n]*response=PESTER', r' beg circled ',
                                   r'\[meal\] reimu [^\n]*swallowed item=minecraft:apple count=1']),
     ('wild_beg_snatch', 'snatched', [r' beg transfer [^\n]*result=snatched received=minecraft:apple retained=minecraft:air',
@@ -9281,11 +9281,11 @@ next(s for s in S if s.id == 'park_play').smoke.update(
 _picnic_pet = _uuid_text('park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
-    rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple kept=1 mcyukkuri:apple_half '
-    r'placed item=mcyukkuri:apple_half count=1 drop=([0-9a-f-]{36}) age=-32768 ',
-    r'action=picnic_ate item=mcyukkuri:apple_half count=1',
-    rf'uuid={_picnic_pet} [^\n]*pickup item=mcyukkuri:apple_half count=1 source=([0-9a-f-]{{36}}) ',
-    rf'uuid={_picnic_pet} [^\n]*swallowed item=mcyukkuri:apple_half count=1',
+    rf'action=picnic_offer pet={_picnic_pet} input=minecraft:apple kept=1 minecraft:apple '
+    r'placed item=minecraft:apple count=1 drop=([0-9a-f-]{36}) age=-32768 ',
+    r'action=picnic_ate item=minecraft:apple count=1',
+    rf'uuid={_picnic_pet} [^\n]*pickup item=minecraft:apple count=1 source=([0-9a-f-]{{36}}) ',
+    rf'uuid={_picnic_pet} [^\n]*swallowed item=minecraft:apple count=1',
 ]
 _smoke('park_picnic', 3200, [
     r'action=outing_depart pets=1 ', r'action=outing_park facility=', *_picnic_transfers,
@@ -9297,7 +9297,6 @@ _smoke('park_picnic', 3200, [
     f'execute if block {_lot_crate} mcyukkuri:produce_crate unless data block {_lot_crate} Items[0] '
     f'if entity {sel("picnic_keeper")} unless data entity {sel("picnic_keeper")} HandItems[0].id '
     'unless entity @e[type=minecraft:item,distance=..48,nbt={Item:{id:"minecraft:apple"}}] '
-    'unless entity @e[type=minecraft:item,distance=..48,nbt={Item:{id:"mcyukkuri:apple_half"}}] '
     'run say MCY_PICNIC_APPLES_ACCOUNTED_FOR',
 ])
 

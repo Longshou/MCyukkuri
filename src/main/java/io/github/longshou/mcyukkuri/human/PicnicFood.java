@@ -1,6 +1,5 @@
 package io.github.longshou.mcyukkuri.human;
 
-import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.UUID;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -11,7 +10,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 /** The mark travels with the serving through hands, mouths, containers and drops. */
 public final class PicnicFood {
-    static boolean apple(ItemStack stack) { return stack.is(Items.APPLE) || stack.is(ModItems.APPLE_HALF.get()); }
+    static boolean apple(ItemStack stack) { return stack.is(Items.APPLE); }
 
     static ItemStack mark(ItemStack stack) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean("Picnic", true));
@@ -30,12 +29,12 @@ public final class PicnicFood {
     }
 
     public static ItemStack split(ItemStack apple) {
-        var half = new ItemStack(ModItems.APPLE_HALF.get());
+        var half = new ItemStack(Items.APPLE);
         return marked(apple) ? mark(half) : half;
     }
 
     static boolean matches(ItemStack stack, UUID id) {
-        if (!stack.is(ModItems.APPLE_HALF.get())) return false;
+        if (!apple(stack)) return false;
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         return tag.hasUUID("PicnicServing") && id.equals(tag.getUUID("PicnicServing"));
     }

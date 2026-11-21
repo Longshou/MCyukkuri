@@ -138,7 +138,7 @@ public final class HumanNpc extends PathfinderMob {
     boolean pickUpFood(ItemEntity item) {
         var hand = getMainHandItem();
         var stack = item.getItem();
-        if (!stack.is(ModItems.APPLE_HALF.get()) || item.hasPickUpDelay() || !reachesPickup(item)) return false;
+        if (!PicnicFood.apple(stack) || item.hasPickUpDelay() || !reachesPickup(item)) return false;
         var half = PicnicFood.collected(stack);
         if (!hand.isEmpty() && (!ItemStack.isSameItemSameComponents(hand, half) || hand.getCount() >= hand.getMaxStackSize())) return false;
         if (hand.isEmpty()) setItemSlot(EquipmentSlot.MAINHAND, half);
