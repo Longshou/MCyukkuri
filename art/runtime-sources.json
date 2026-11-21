@@ -198,7 +198,6 @@
       "kit": "standards/yukkuri-library/drafts/block-props/kit.py",
       "palette": "standards/yukkuri-library/drafts/item-icons/draw.py (icon ramps)",
       "models": {
-        "waterer": "standards/yukkuri-library/drafts/block-props/devices.py (saucer, cork collar and cut-out glass jar; waterer_water is the saucer water and one jar row per portion, units 1-8)",
         "yukkuri_toilet": "standards/yukkuri-library/drafts/block-props/devices.py (three dye styles, each with _dirty)",
         "forage_pile": "standards/yukkuri-library/drafts/block-props/forage.py",
         "ceramic_tunnel/yukkuri_slide/yukkuri_trampoline/yukkuri_pool/yukkuri_pool_juice": "standards/yukkuri-library/drafts/playgrounds/build.py (faceted low-poly and box assemblies with 1-texel-per-unit pixel-art textures, collision from the same dimensions, slide chute sampled along its slope; trampoline bed is unit 2 with its pivot at y 8 over a static faceted well with 16 visible radial steel springs; yukkuri_pool is the faceted white-enamel orange-juice tub with fill mesh yukkuri_pool_juice units 1-4), in-use preview standards/yukkuri-library/drafts/playgrounds/preview.py"
@@ -211,21 +210,22 @@
       "kit": "standards/yukkuri-library/drafts/care-props/shapes.py (revolve, ellipsoid, tube, sphere_paint)",
       "models": {
         "food_bowl": "standards/yukkuri-library/drafts/care-props/bowl.py (six dye styles; fills food_bowl_regular/_wheat/_forage, one heap per portion, units 1-8)",
-        "yarn_ball, glass_marble, pretty_stone, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/care-props/toys.py (icon ramps from item-icons/draw.py), exported by standards/yukkuri-library/drafts/care-expansion/build.py"
+        "waterer, waterer_water": "standards/yukkuri-library/drafts/care-props/waterer.py (round saucer at the bowl's footprint and rim height, cork collar and round glass jar with a transparent pane; waterer_water is the saucer water dish_water and one jar cylinder per portion, tank_u1-u8)",
+        "yarn_ball, glass_marble, reimu_doll, marisa_doll": "standards/yukkuri-library/drafts/care-props/toys.py (icon ramps from item-icons/draw.py), exported by standards/yukkuri-library/drafts/care-expansion/build.py"
       },
       "preview": "standards/yukkuri-library/drafts/block-props/preview.py",
-      "style": "things round by nature are modelled round: smooth revolved and ellipsoid solids with hand-painted regions, the toys at two to three texels per unit; the toys are the placed world models (dropped, pushed and rolled)",
+      "style": "things round by nature are modelled round: smooth revolved and ellipsoid solids with hand-painted regions, the toys at two to three texels per unit; the toys are the placed world models, and the yarn ball and glass marble roll by the ground distance they travel while the dolls stay upright",
       "status": "pending_user_confirmation"
     },
     "vanilla_items": {
       "models": {
-        "mold_remover": "standards/yukkuri-library/drafts/consumables/build.py",
+        "mold_remover, yogurt_drink, stimulant, sitataran, sleep_spray, wheat_flour, spicy_grain": "standards/yukkuri-library/drafts/consumables/build.py",
         "teaching_whistle, wash_cloth, companion_cord": "standards/yukkuri-library/drafts/care-expansion/build.py",
         "household_guard": "standards/yukkuri-library/ecology/house-repellent/build.py"
       },
       "style": "medicine and small handheld tools have no world model: a vanilla item/generated model on textures/item/<id>.png"
     },
-    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed bowls are round, the toilets block_style, the placed beds are placed_goods; wild self-built nests are wild.py",
+    "material_tiles": "kit.py material tiles: palette colours drawn as 16x16 texel tiles with sparse one-step pixel noise, world-aligned at 1 texel per unit (vanilla density), for the low-poly care props; the placed bowls and the waterer are round, the toilets block_style, the placed beds are placed_goods; wild self-built nests are wild.py",
     "placed_goods": {
       "models": [
         "food_bowl",
@@ -265,11 +265,11 @@
         "yukkuri_toilet_sky",
         "yukkuri_toilet_sky_dirty"
       ],
-      "author": "standards/yukkuri-library/drafts/care-props/bowl.py (round: bowl, its styles and fills); standards/yukkuri-library/drafts/block-props/devices.py (block_style: waterer, toilet); standards/yukkuri-library/drafts/care-props/placed.py (the three pet bed grades, pet_nest_fit_1..15, the 2x2 woven nest); standards/yukkuri-library/drafts/care-props/wild.py (large_wild_nest)",
+      "author": "standards/yukkuri-library/drafts/care-props/bowl.py (round: bowl, its styles and fills); standards/yukkuri-library/drafts/care-props/waterer.py (round: waterer and its water); standards/yukkuri-library/drafts/block-props/devices.py (block_style: toilet); standards/yukkuri-library/drafts/care-props/placed.py (the three pet bed grades, pet_nest_fit_1..15, the 2x2 woven nest); standards/yukkuri-library/drafts/care-props/wild.py (large_wild_nest)",
       "kit": "standards/yukkuri-library/drafts/block-props/kit.py; standards/yukkuri-library/drafts/care-props/shapes.py",
       "registry": "standards/yukkuri-library/drafts/care-props/vanilla_props.py (PROPS, LARGE, VARIANTS)",
       "preview_source": "standards/yukkuri-library/drafts/care-props/preview_vanilla_care.py",
-      "style": "the bowl and its fills round (round.style), waterer and toilet in block style (block_style.style); the pet beds and the 2x2 woven nest are rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit, the three bed grades one geometry and one texture layout; several dye-selected styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; the pet beds and the 2x2 woven nest collide along their visible top surface",
+      "style": "the bowl, its fills and the waterer round (round.style), the toilet in block style (block_style.style); the pet beds and the 2x2 woven nest are rounded low-poly solids (revolved circles / rounded rectangles, no staircase cells) with hand-painted regions at about one texel per unit, the three bed grades one geometry and one texture layout; several dye-selected styles per item on the same geometry; fills are heap-only meshes drawn inside any bowl style; the pet beds and the 2x2 woven nest collide along their visible top surface",
       "styles_table": "life/CareStyles.java (dye -> style) mirrors vanilla_props.STYLES; non-default styles ship as runtime-peripheral attachments named <block id>_<style>",
       "status": "pending_user_confirmation",
       "runtime_hook": "client/CareRenderer draws <model>[_<style>] from CareBlockEntity Pattern, then the fill mesh for bowls, and the stored droppings on the sand toilet floor",
@@ -2963,7 +2963,6 @@
       "marisa_doll": "src/main/resources/assets/mcyukkuri/textures/item/marisa_doll.png",
       "mold_remover": "src/main/resources/assets/mcyukkuri/textures/item/mold_remover.png",
       "predator_nest": "src/main/resources/assets/mcyukkuri/textures/item/predator_nest.png",
-      "pretty_stone": "src/main/resources/assets/mcyukkuri/textures/item/pretty_stone.png",
       "reimu_doll": "src/main/resources/assets/mcyukkuri/textures/item/reimu_doll.png",
       "reproductive_filling": "src/main/resources/assets/mcyukkuri/textures/item/reproductive_filling.png",
       "sitataran": "src/main/resources/assets/mcyukkuri/textures/item/sitataran.png",
