@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 接近同伴找不到站位时原地无限重试；PD-13 场景前提不稳定 | `.worktrees/wp-contact-loop` | life/SurfaceApproach callers, social/YukkuriSocial, scripts/museum_scenarios.py hat_crowd |
 
 
 
