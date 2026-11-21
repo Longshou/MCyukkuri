@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
-| 运输篮恢复原样 | `.worktrees/wp-basket-revert` | carrier props |
 
 
 | 删除漂亮石子；药瓶改平面物品；饮水器碟改圆；掉落玩具滚动 | `.worktrees/wp-prop-cleanup` | care-expansion, consumables, waterer, HouseScrapRenderer |
