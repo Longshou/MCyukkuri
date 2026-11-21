@@ -807,7 +807,8 @@ final class HumanStreet {
                 var counter = Counter.atHome(npc.level(), npc.home());
                 if (counter != null) {
                     boolean standable = standable(counter.stand());
-                    if (standable && route(Vec3.atBottomCenterOf(counter.stand()))) {
+                    // The way from a shop's home out to its hatch can be longer than the ordinary follow range: search the long range.
+                    if (standable && route(Vec3.atBottomCenterOf(counter.stand()), npc.shopPath(counter.stand()))) {
                         this.counter = counter;
                         return;
                     }
@@ -1623,8 +1624,11 @@ final class HumanStreet {
         }
 
         private boolean route(Vec3 to) {
+            return route(to, npc.getNavigation().createPath(BlockPos.containing(to), 0));
+        }
+
+        private boolean route(Vec3 to, Path path) {
             var nav = npc.getNavigation();
-            var path = nav.createPath(BlockPos.containing(to), 0);
             last = npc.position(); stalled = 0; destination = to;
             if (path == null || !path.canReach() || strollSite != null && !strollSite.allowsWalk(npc, path)
                     || !nav.moveTo(path, .65)) {
