@@ -2295,8 +2295,9 @@ public final class YukkuriLife {
     }
     /**
      * A walk of choice (a stroll, a search leg), not of need: reachable, and not down a ledge the body cannot climb back. A drop
-     * past its step plus hop height leaves it in whatever lies below, so the walk is taken only when a dry route leads from the
-     * destination back to the top of that drop (a slope round the cliff). Without one the pocket below is a trap with no exit.
+     * past its step plus hop height leaves it in whatever lies below, so the walk is taken only when, for every such drop on the
+     * route, a dry route leads from the destination back to that drop's top (a slope round the cliff). Without one the pocket below
+     * is a trap with no exit.
      */
     public boolean reachableAndBack(BlockPos target) {
         if (trustRoutes) return true;
@@ -2310,15 +2311,15 @@ public final class YukkuriLife {
     }
     private boolean comesBack(Path route) {
         double regain = entity.getAttributeValue(Attributes.STEP_HEIGHT) + BodyAbility.of(entity).hopHeight();
+        var end = route.getNodePos(route.getNodeCount() - 1);
         for (int i = 1; i < route.getNodeCount(); i++) {
             var top = route.getNodePos(i - 1);
             int drop = top.getY() - route.getNodePos(i).getY();
             if (drop <= regain) continue;
-            var end = route.getNodePos(route.getNodeCount() - 1);
-            boolean back = dryRouteFrom(end, Set.of(top));
-            if (!back) GameplayLog.limited(entity, "move", "one_way_drop", 400,
+            if (dryRouteFrom(end, Set.of(top))) continue;
+            GameplayLog.limited(entity, "move", "one_way_drop", 400,
                     "walk refused: drop of {} blocks at {} cannot be climbed back from the destination {}", () -> new Object[]{drop, top, end});
-            return back;
+            return false;
         }
         return true;
     }
