@@ -54,6 +54,9 @@ public final class SurfaceApproach {
     public static final double ARRIVAL = .02;
     /** Ticks between two {@code walk.sample} detail lines; the retry gate of a blocked request; how often a walk rechecks the hats round its goal. */
     private static final int SAMPLE_TICKS = 20, RETRY = 20, HATS_CHECK = 15;
+    /** A refused contact-stand ask holds RETRY, then twice, then four times as long (20, 40, 80 ticks) while it stays unchanged:
+     *  the world round a still pair rarely changes in a second or two, and the wait ends the tick the peer or this body moves. */
+    private static final int CONTACT_HOLD_DOUBLINGS = 2;
     /** One second for a completed ground path to settle after a step or knockback. */
     private static final int LANDING_TICKS = 20;
     private static final double SAME_STAND_SQR = .0025;
@@ -94,6 +97,15 @@ public final class SurfaceApproach {
     /** The last destination found to have no stand clear of a hat, and until when that answer holds. */
     private Vec3 noStand;
     private long noStandUntil;
+    /** A contact-stand request that found no stand, as asked: the peer's body, this body's cell and the reach it was asked for. */
+    private record NoContact(UUID peer, AABB body, BlockPos cell, double distance, double maxHeight, double maxDistance, long until, int refusals) {
+        boolean asks(YukkuriEntity actor, Entity other, double distance, double maxHeight, double maxDistance) {
+            return peer.equals(other.getUUID()) && sameBody(body, other.getBoundingBox()) && cell.equals(actor.blockPosition())
+                    && this.distance == distance && this.maxHeight == maxHeight && this.maxDistance == maxDistance;
+        }
+    }
+    /** The last contact-stand request refused: the same ask answers the same until its hold ends, which grows with each refusal. */
+    private NoContact noContact;
 
     private static SurfaceApproach controller(YukkuriEntity actor){return actor.life().approach();}
 
@@ -725,6 +737,12 @@ public final class SurfaceApproach {
                     &&!actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.005).intersects(other.getBoundingBox())
                     &&supported(actor,at)&&contact.test(at))return at;
         }
+        // Asking again with nothing changed (the peer's body, this body's cell, the reach) cannot find a stand the last search did not:
+        // the refusal holds a real interval, longer each time it is met unchanged, and a changed ask searches at once.
+        var self=controller(actor);
+        long now=actor.level().getGameTime();
+        var refused=self.noContact!=null&&self.noContact.asks(actor,other,distance,maxHeight,maxDistance)?self.noContact:null;
+        if(refused!=null&&now<refused.until)return null;
         var candidates=new ArrayList<Vec3>();
         var why=new StringBuilder();
         for(var direction:bearings(actor,other.position())){
@@ -744,7 +762,10 @@ public final class SurfaceApproach {
             candidates.add(at);
         }
         var stand=nearestReachable(actor,candidates,other.getBoundingBox());
-        if(stand!=null)return stand;
+        if(stand!=null){self.noContact=null;return stand;}
+        int refusals=refused==null?1:refused.refusals+1;
+        self.noContact=new NoContact(other.getUUID(),other.getBoundingBox(),actor.blockPosition(),distance,maxHeight,maxDistance,
+                now+((long)RETRY<<Math.min(refusals-1,CONTACT_HOLD_DOUBLINGS)),refusals);
         for(var at:candidates)why.append(" noroute@").append(GameplayLog.at(at));
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} at={} box={} distance={} maxHeight={} rejected:{}",
                 other.getUUID(),GameplayLog.at(other.position()),other.getBoundingBox(),distance,maxHeight,why);
