@@ -12,6 +12,11 @@ final class StrayDensity {
         return sameDimension && dx * dx + dz * dz <= 96 * 96;
     }
 
+    /** A point a stroll hop (16) inside the resident line: a stray drawn to it stays a resident. */
+    static boolean wellInside(double dx, double dz) {
+        return dx * dx + dz * dz <= 80 * 80;
+    }
+
     static boolean night(long dayTime) {
         long time = Math.floorMod(dayTime, 24000L);
         return time >= 13000 && time < 23000;

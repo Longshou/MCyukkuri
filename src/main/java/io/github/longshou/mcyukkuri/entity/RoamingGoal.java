@@ -10,6 +10,8 @@ import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
+import io.github.longshou.mcyukkuri.settlement.StreetDraw;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.Locale;
@@ -28,7 +30,12 @@ public final class RoamingGoal extends Goal {
     private BlockPos yard;
     private Choice yardChoice;
     private long nextWalk, nextExpedition;
-    private int radius, homeRadius, elapsed, failures, roll = -1;
+    /** Runtime only (a reload falls back to the home anchor): the street spell's end, and when a new one may start. */
+    private long streetUntil, streetBlockedUntil, streetFrom;
+    private int streetStrolls;
+    /** Where this stroll is drawn to instead of the home (the village heart in a spell, or a food holder), and how far it strolls there. */
+    private BlockPos draw;
+    private int radius, homeRadius, elapsed, failures, roll = -1, drawRadius;
     private boolean expedition, active, returning;
     private String result = "none";
     private Vec3 progressPosition;
@@ -81,7 +88,17 @@ public final class RoamingGoal extends Goal {
         }
         // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).
         homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
+        drawToStreet(now);
+        if (draw != null) homeRadius = drawRadius;
         destination = choose();
+        if (destination == null && draw != null) {
+            // No walkable hop toward the aim (a ravine, steep ground): drop it for a while instead of standing pinned.
+            endSpell(now, "no_route");
+            streetBlockedUntil = now + StreetDraw.BLOCKED_TICKS;
+            draw = null;
+            homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
+            destination = choose();
+        }
         yard = animal.life().homeStand();
         yardChoice = null;
         if (yard != null && (!insideYard(animal.position()) || !animal.pet().conscience().binds(HouseRule.NO_LEAVING_YARD))) yard = null;
@@ -99,7 +116,57 @@ public final class RoamingGoal extends Goal {
         }
         result = destination == null ? "no_reachable_destination" : "planned";
         if (expedition && destination == null) GameplayLog.event(animal,"explore","start refused reason={} radius={}",result,radius);
+        if (destination != null && draw != null && streetUntil > 0) streetStrolls++;
         return destination != null;
+    }
+    /** Whether a street spell is running (read by the food search, which pulls a starving stray toward the heart). */
+    public boolean onStreetSpell() { return streetUntil > animal.level().getGameTime(); }
+    private void endSpell(long now, String reason) {
+        if (streetUntil == 0) return;
+        streetUntil = 0;
+        GameplayLog.event(animal, "move", "street spell end reason={} ticks={} strolls={} nutrition={}", reason, now - streetFrom,
+                streetStrolls, animal.life().nutrition());
+    }
+    /**
+     * A village stray in daylight is drawn to the street at every stroll start: a food holder it would react to (chance by hunger and
+     * nerve) first, else the village bell while a spell lasts. A spell starts with chance {@link StreetDraw#chance} and ends at dusk,
+     * in rain or cold, on a scold, or when the body stops being a free rooted stray (adopted, picked up, hurt, with young).
+     */
+    private void drawToStreet(long now) {
+        draw = null;
+        double daylight = StreetDraw.daylight(animal.level().getDayTime());
+        if (!VillageStrays.walksStreet(animal) || daylight == 0) {
+            endSpell(now, daylight == 0 ? "dusk" : "unfit");
+            return;
+        }
+        if (streetUntil > 0 && now >= streetUntil) endSpell(now, "timeout");
+        var life = animal.life();
+        var traits = life.personality();
+        float nutrition = life.nutrition();
+        if (now < streetBlockedUntil) return;
+        var holder = VillageStrays.holder(animal, life.foodNoticeRange());
+        if (holder != null && animal.getRandom().nextDouble() < StreetDraw.holderChance(nutrition, traits.boldness(), daylight)) {
+            draw = holder.blockPosition();
+            drawRadius = StreetDraw.HOLDER_RADIUS;
+            GameplayLog.limited(animal, "move", "street_holder", 600, "drawn to a food holder player={} distance={} nutrition={}",
+                    holder.getUUID(), Math.round(animal.distanceTo(holder)), nutrition);
+            return;
+        }
+        boolean starting = streetUntil == 0;
+        double p = StreetDraw.chance(nutrition, traits.boldness(), traits.friendliness(), daylight);
+        if (starting && animal.getRandom().nextDouble() >= p) return;
+        var heart = VillageStrays.heart(animal);
+        if (heart == null || life.avoidsField(heart)) return;
+        if (starting) {
+            int ticks = StreetDraw.ticks(nutrition);
+            streetUntil = now + ticks;
+            streetFrom = now;
+            streetStrolls = 0;
+            GameplayLog.event(animal, "move", "street spell start aim={} p={} ticks={} nutrition={} boldness={} friendliness={}",
+                    heart, Math.round(p * 100) / 100.0, ticks, nutrition, traits.boldness(), traits.friendliness());
+        }
+        draw = heart;
+        drawRadius = radius;
     }
     /**
      * An attached individual (with probability attachment/100) strolls near its mate, else the most trusted friend it sees
@@ -122,7 +189,7 @@ public final class RoamingGoal extends Goal {
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
         boolean preferInside = baby && home != null && animal.getRandom().nextInt(5) != 0;
-        BlockPos anchor = baby || expedition || animal.settlement().underway() ? null : animal.life().homeStand();
+        BlockPos anchor = baby || expedition || animal.settlement().underway() ? null : draw != null ? draw : animal.life().homeStand();
         // Already outside the home range: head back toward the home instead of choosing another point out there.
         boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
@@ -135,6 +202,7 @@ public final class RoamingGoal extends Goal {
             if (point == null) continue;
             BlockPos pos = BlockPos.containing(point);
             if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) continue;
+            if (draw != null && animal.life().avoidsField(pos)) continue;
             if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) continue;
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
             if (!expedition && !animal.family().allowsIdleWalk(point)) continue;

@@ -22,7 +22,7 @@ public final class FoodNoticeGoal extends Goal {
     private final YukkuriEntity owner;
     private Player holder;
     private int waited;
-    private boolean crowded;
+    private boolean crowded, reached;
 
     public FoodNoticeGoal(YukkuriEntity owner) {
         this.owner = owner;
@@ -56,7 +56,7 @@ public final class FoodNoticeGoal extends Goal {
     }
 
     /** What the latch tells one holder from another by: a different hand is a changed condition. */
-    private static long key(Player player) { return player.getUUID().getLeastSignificantBits(); }
+    public static long key(Player player) { return player.getUUID().getLeastSignificantBits(); }
 
     @Override public boolean canContinueToUse() {
         // The keen range keeps its hand through a step or two of margin so a stray at the edge does not flicker in and out.
@@ -66,7 +66,7 @@ public final class FoodNoticeGoal extends Goal {
 
     @Override public void start() {
         waited = 0;
-        crowded = false;
+        crowded = reached = false;
     }
 
     @Override public void stop() {
@@ -84,6 +84,11 @@ public final class FoodNoticeGoal extends Goal {
     @Override public void tick() {
         double distance = owner.distanceTo(holder);
         owner.getLookControl().setLookAt(holder, 30, 30);
+        if (!reached && distance <= CONTACT) {
+            reached = true;
+            GameplayLog.event(owner, "meal", "food_hand_reached", "reached the hand of a held serving player={} nutrition={}",
+                    holder.getUUID(), owner.life().nutrition());
+        }
         if (distance > CONTACT && owner.life().noticing(holder)) {
             owner.getNavigation().stop();
             return;

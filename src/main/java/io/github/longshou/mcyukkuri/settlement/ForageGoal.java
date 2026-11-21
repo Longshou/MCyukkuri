@@ -128,6 +128,19 @@ public final class ForageGoal extends Goal {
         }
         return false;
     }
+    /**
+     * A starving village stray's far sweep legs head for people instead of random ground: a food holder past the reach of
+     * {@link #attendFood}, else the village bell while its street spell runs. Within {@value #PULL_FROM} blocks of the aim the legs
+     * stay random, so a stray at the plaza still sweeps the lawns around it.
+     */
+    private Vec3 streetPull() {
+        if (entity.life().nutrition() >= HungerDrive.URGENT || !VillageStrays.walksStreet(entity)
+                || StreetDraw.daylight(level().getDayTime()) == 0) return null;
+        var holder = VillageStrays.holder(entity, TravelRange.search(entity, 12));
+        BlockPos aim = holder != null ? holder.blockPosition() : entity.roaming().onStreetSpell() ? VillageStrays.heart(entity) : null;
+        return aim == null || entity.distanceToSqr(Vec3.atBottomCenterOf(aim)) <= PULL_FROM * PULL_FROM ? null : Vec3.atBottomCenterOf(aim);
+    }
+    private static final int PULL_FROM = 24;
     private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
     private void findFood(int reach) {
         var found = new ArrayList<BlockPos>();
@@ -208,10 +221,12 @@ public final class ForageGoal extends Goal {
                 // Hunger sends it farther and lets it try more destinations: ground beyond water or a rise is found by trying others.
                 int reach = (int)Math.round(TravelRange.search(entity, 12) * HungerDrive.reachScale(entity.life().nutrition()));
                 var refused = new int[4]; // no point, refused step, threat zone, no route
+                var pull = streetPull();
                 for (int attempt = 0, attempts = HungerDrive.sweepAttempts(entity.life().nutrition()); attempt < attempts; attempt++) {
                     // Every other try stays close: a body fenced in by water or a ledge it cannot climb still paces the ground it has.
                     int span = attempt % 2 == 1 ? 6 : reach;
-                    var point = LandRandomPos.getPos(entity,span,span);
+                    var point = pull != null && attempt % 2 == 0 ? LandRandomPos.getPosTowards(entity,span,span,pull)
+                            : LandRandomPos.getPos(entity,span,span);
                     if (point == null) { refused[0]++; continue; }
                     if (!TravelRange.babyDestination(entity,BlockPos.containing(point))
                             || !Reactions.Weather.allowsStep(entity,BlockPos.containing(point))

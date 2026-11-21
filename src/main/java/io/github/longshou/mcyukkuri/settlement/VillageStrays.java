@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyConfig;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.TownAware;
+import io.github.longshou.mcyukkuri.life.FoodNoticeGoal;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -11,6 +12,8 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,6 +21,7 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
@@ -43,6 +47,46 @@ public final class VillageStrays {
         if (!body.pet().townRoots() || !(body.level() instanceof ServerLevel level)) return false;
         var person = FamilyData.get(level).person(body.getUUID());
         return person != null && person.village() != null && withinVillage(body, person.village());
+    }
+
+    /** A rooted free stray nothing keeps at home, in weather it can stand: the one that may spend daytime on the street. */
+    public static boolean walksStreet(YukkuriEntity body) {
+        var temperature = body.life().temperature();
+        return FoundShelter.streetUser(body) && rooted(body) && !body.family().hasDependentYoung() && !body.settlement().underway()
+                && !body.life().scolded() && !Reactions.Weather.rainAt(body, body.blockPosition())
+                && !temperature.cold() && !temperature.hot();
+    }
+
+    /** The bell of the village this stray is rooted in (its roots, not its feet, pick the village); null with no bell standing. */
+    public static BlockPos heart(YukkuriEntity body) {
+        var level = (ServerLevel) body.level();
+        var root = FamilyData.get(level).person(body.getUUID()).village().pos();
+        var streets = SettlementData.get(level).villageSurvey.at(level, root);
+        return streets != null && level.hasChunkAt(streets.centre()) && level.getBlockState(streets.centre()).is(Blocks.BELL)
+                ? streets.centre() : null;
+    }
+
+    /**
+     * The nearest player holding food this stray would take, beyond {@code beyond} blocks (inside that the notice goal or the ask owns
+     * it) and within scent range of the notice range, standing well inside the village so the stray is never lured out of it. The
+     * same gates as FoodNoticeGoal, so a stray that would not react is not drawn.
+     */
+    public static Player holder(YukkuriEntity body, double beyond) {
+        var life = body.life();
+        long now = body.level().getGameTime();
+        double reach = life.foodNoticeRange() + StreetDraw.SCENT;
+        if (!life.canEat() || !life.needsFood()) return null;
+        var root = FamilyData.get((ServerLevel) body.level()).person(body.getUUID()).village().pos();
+        Player nearest = null;
+        for (var player : body.level().players()) {
+            double distance = body.distanceTo(player);
+            if (!player.isAlive() || player.isSpectator() || distance <= beyond || distance > reach
+                    || !life.seeksOfferedFood(player) || LearnedFear.waryOf(body, player)
+                    || !body.social().begs().allows(now, life.nutrition(), FoodNoticeGoal.key(player))
+                    || !StrayDensity.wellInside(player.getBlockX() - root.getX(), player.getBlockZ() - root.getZ())) continue;
+            if (nearest == null || distance < body.distanceTo(nearest)) nearest = player;
+        }
+        return nearest;
     }
 
     private static boolean withinVillage(YukkuriEntity body, GlobalPos root) {

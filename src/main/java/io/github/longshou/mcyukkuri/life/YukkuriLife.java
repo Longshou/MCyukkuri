@@ -893,8 +893,10 @@ public final class YukkuriLife {
     public boolean beginCropMeal(ItemStack serving, BooleanSupplier harvest) { return meal.beginHarvestMeal(serving, harvest); }
     public void warnedAtCrop() { meal.warnedAtCrop(); }
     public boolean avoidsField(BlockPos at) {
-        return avoidedField != null && level().getGameTime() < avoidFieldUntil && avoidedField.distSqr(at) <= 64;
+        return scolded() && avoidedField.distSqr(at) <= 64;
     }
+    /** A scold or shooing is still fresh: the body keeps off the street spell and away from that field. */
+    public boolean scolded() { return avoidedField != null && level().getGameTime() < avoidFieldUntil; }
     public void avoidField(BlockPos at) {
         avoidedField = at.immutable();
         // The shortest existing street scold memory allows a hungry adult to lose only ten more nutrition at the default rate.
