@@ -12,6 +12,7 @@
 | 流浪油库里白天上街觅食（FG-13 真实世界触发率） | `.worktrees/wp-stray-street` | life/StreetBeat (new), RoamingGoal, ForageGoal, YukkuriLife, FoundShelter, FEATURES FG-13 |
 | 野生卡片第一步：删除无效果与重复的卡片 | `.worktrees/wp-wildcards-cut` | event/WildCards, lang, FEATURES |
 | 统一有人看守的柜台：报亭并入街角店、回购、宠物店相亲预约 | `.worktrees/wp-counters` | human/KioskCounter→Counter, ProduceCrate*, HumanStreet, HumanNpc, shop/KeeperMenu, author_lots, FEATURES |
+| 拔针后伤口先结疤，橙汁治不到伤（BD-07 wound_sources） | `.worktrees/wp-wound-scar` | body/BodyWound, body/BodyLife, 针与治疗相关 |
 
 
 
