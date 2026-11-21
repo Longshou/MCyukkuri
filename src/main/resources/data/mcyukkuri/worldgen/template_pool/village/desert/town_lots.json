@@ -3,7 +3,7 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 20,
+      "weight": 27,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/desert/home_yard",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "weight": 12,
+      "weight": 15,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/desert/home_yard_large",
@@ -35,24 +35,7 @@
       }
     },
     {
-      "weight": 17,
-      "element": {
-        "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/desert/kiosk",
-        "processors": "minecraft:empty",
-        "projection": "rigid",
-        "max_count": 3,
-        "max_fill": 5,
-        "fill": {
-          "Name": "minecraft:sandstone"
-        },
-        "edge": {
-          "Name": "minecraft:cut_sandstone"
-        }
-      }
-    },
-    {
-      "weight": 12,
+      "weight": 15,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/desert/pocket_park",
@@ -69,7 +52,7 @@
       }
     },
     {
-      "weight": 12,
+      "weight": 15,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/desert/back_lot",

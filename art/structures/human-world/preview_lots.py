@@ -17,7 +17,7 @@ import author_lots as lots
 
 DIRS = ('north', 'east', 'south', 'west')
 VANILLA = ('{t}_small_house_1', '{t}_medium_house_1')
-TITLES = {'home_yard': '民居与宠物院子', 'home_yard_large': '大民居（后院平台与宠物花园）', 'kiosk': '街角小卖亭',
+TITLES = {'home_yard': '民居与宠物院子', 'home_yard_large': '大民居（后院平台与宠物花园）',
           'pocket_park': '口袋公园', 'back_lot': '后院杂物角'}
 
 
@@ -106,7 +106,7 @@ h1{margin:0 0 6px}h2{margin:28px 0 8px}h3{margin:18px 0 4px}.d{background:#fffdf
 img{max-width:100%;border-radius:8px;display:block;margin:8px 0}.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 p{line-height:1.6}nav a{margin-right:14px}</style>
 <h1>村庄城镇 · 镇内地块（五种村庄）</h1>
-<p class="d"><b>要你决定：</b>民居与宠物院子、大民居、街角小卖亭、口袋公园和后院杂物角，放在原版村道旁、挨着原版房子时，是否像镇上本来就有的房子，不出戏。
+<p class="d"><b>要你决定：</b>民居与宠物院子、大民居、口袋公园和后院杂物角，放在原版村道旁、挨着原版房子时，是否像镇上本来就有的房子，不出戏。
 每种村庄用自己原版村庄的材料；地块入口与村道路面齐平。</p>
 <p>画面为离线渲染（真实方块贴图，无光照）；人物、宠物位、垃圾桶等在平面图上用符号表示。宠物院子里目前只有窝、食盆、厕所和玩具，宠物本身等后续的城镇生活包接入。</p>
 <nav>{{NAV}}</nav>
@@ -142,7 +142,7 @@ def main():
     args = ap.parse_args(); out = args.out; out.mkdir(parents=True, exist_ok=True)
     a = ps.Assets(args.minecraft_resources); jar = zipfile.ZipFile(args.minecraft_resources)
     sections, nav = [], []
-    order = ['home_yard', 'vanilla0', 'kiosk', 'pocket_park', 'vanilla1', 'back_lot', 'home_yard_large']
+    order = ['home_yard', 'vanilla0', 'pocket_park', 'vanilla1', 'back_lot', 'home_yard_large']
     for style in args.styles:
         parts = street(jar, style, [o for o in order if o.startswith('vanilla') or o in args.lots])
         x1 = max(o[0] + l.size[0] for l, o, _ in parts[1:]); cx = x1 / 2
@@ -157,7 +157,7 @@ def main():
             view(a, v, out, f'{style}-{name}-back', 1000, 760, 2.5, .6, max(b.size[0], b.size[2]) * .62 + 1, 3)
             cells.append(f'<div><h3>{TITLES[name]}</h3><img src="{style}-{name}.png"><img src="{style}-{name}-back.png"></div>')
         nav.append(f'<a href="#{style}">{NAMES_ZH[style]}</a>')
-        sections.append(f'<h2 id="{style}">{NAMES_ZH[style]}村庄</h2><p>村道旁：民居、原版小屋、小卖亭、口袋公园、原版中屋、杂物角、大民居（自西向东）。</p>'
+        sections.append(f'<h2 id="{style}">{NAMES_ZH[style]}村庄</h2><p>村道旁：民居、原版小屋、口袋公园、原版中屋、杂物角、大民居（自西向东）。</p>'
                         f'<img src="{style}-lane.png"><div class="g">{"".join(cells)}</div>')
         print('rendered', style, flush=True)
     plans = []

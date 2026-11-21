@@ -3,7 +3,7 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 19,
+      "weight": 25,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/snowy/home_yard",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "weight": 11,
+      "weight": 14,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/snowy/home_yard_large",
@@ -35,24 +35,7 @@
       }
     },
     {
-      "weight": 16,
-      "element": {
-        "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/snowy/kiosk",
-        "processors": "minecraft:empty",
-        "projection": "rigid",
-        "max_count": 3,
-        "max_fill": 5,
-        "fill": {
-          "Name": "minecraft:dirt"
-        },
-        "edge": {
-          "Name": "minecraft:stone_bricks"
-        }
-      }
-    },
-    {
-      "weight": 11,
+      "weight": 14,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/snowy/pocket_park",
@@ -69,7 +52,7 @@
       }
     },
     {
-      "weight": 11,
+      "weight": 14,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/snowy/back_lot",

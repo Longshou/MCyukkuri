@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
@@ -119,7 +120,15 @@ public final class KeeperMenu extends AbstractContainerMenu {
         if (mine.isEmpty() || !(viewer.level() instanceof ServerLevel level)) return null;
         return level.getEntity(mine.get(Math.min(selected, mine.size() - 1))) instanceof YukkuriEntity y && y.isAlive() && y.pet().ownedBy(viewer.getUUID()) ? y : null;
     }
-    private List<YukkuriEntity> studs() { return target == null ? List.of() : target.animals(Custody.Role.STUD); }
+    /** The shop's studs (owned by the shop, so they outlive any one clerk) and any the clerk was handed directly. */
+    private List<YukkuriEntity> studs() {
+        if (target == null || !(viewer.level() instanceof ServerLevel level)) return List.of();
+        var shop = ShopRegistry.get(level).of(target);
+        return level.getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(48), y -> y.isAlive()
+                && Custody.view(y).role() == Custody.Role.STUD
+                && (HumanCommerce.ownedBy(y, target.getUUID()) || shop != null && HumanCommerce.ownedBy(y, shop.id)))
+                .stream().sorted(Comparator.comparing(YukkuriEntity::getUUID)).toList();
+    }
     private YukkuriEntity stud() { var all = studs(); return all.isEmpty() ? null : all.get(Math.min(stud, all.size() - 1)); }
     private boolean matchable(YukkuriEntity pet, YukkuriEntity s) {
         if (!(pet.level() instanceof ServerLevel level)) return false;

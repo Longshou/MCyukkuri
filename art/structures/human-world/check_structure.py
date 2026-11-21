@@ -171,7 +171,7 @@ def reachable(b):
     return seen
 
 def shop_pen_errors(b, pen):
-    """Pet-shop sale pen rules: exactly one nest, bowl + waterer + toilet present, every facility within baby reach (3 blocks,
+    """Pet-shop sale pen rules: exactly one nest, bowl + waterer + toilet present (plus declared extras), every facility within baby reach (3 blocks,
     TravelRange.babyDestination) of both the nest's home stand and its entrance cell, and predator nests sealed overhead."""
     x0, z0, x1, z1 = pen['interior']; y = pen['y']; name = pen['name']; errors = []
     cells = [(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)]
@@ -181,12 +181,13 @@ def shop_pen_errors(b, pen):
     toilets = [c for c in cells if name_at(b, c[0], y, c[1]) == 'mcyukkuri:yukkuri_toilet']
     if len(pen['nests']) != 1 or nests != list(pen['nests']):
         errors.append(f'pen {name}: expected 1 nest matching {pen["nests"]}, found {nests}')
-    if pen.get('waterer') is None or waterers != [pen['waterer']]:
-        errors.append(f'pen {name}: expected 1 waterer at {pen.get("waterer")}, found {waterers}')
-    if bowls != [pen['bowl']]:
-        errors.append(f'pen {name}: expected 1 bowl at {pen["bowl"]}, found {bowls}')
-    if len(toilets) != 1 or (pen.get('toilet') is not None and toilets != [pen['toilet']]):
-        errors.append(f'pen {name}: expected 1 toilet at {pen.get("toilet")}, found {toilets}')
+    extra = pen.get('extra', {})
+    if pen.get('waterer') is None or sorted(waterers) != sorted([pen['waterer'], *extra.get('waterer', [])]):
+        errors.append(f'pen {name}: expected waterers at {pen.get("waterer")} + {extra.get("waterer", [])}, found {waterers}')
+    if sorted(bowls) != sorted([pen['bowl'], *extra.get('bowl', [])]):
+        errors.append(f'pen {name}: expected bowls at {pen["bowl"]} + {extra.get("bowl", [])}, found {bowls}')
+    if pen.get('toilet') is not None and sorted(toilets) != sorted([pen['toilet'], *extra.get('toilet', [])])             or len(toilets) != 1 + len(extra.get('toilet', [])):
+        errors.append(f'pen {name}: expected toilets at {pen.get("toilet")} + {extra.get("toilet", [])}, found {toilets}')
     if len(nests) == 1:
         nx, nz = nests[0]; nest_name, props = state_at(b, nx, y, nz)
         if nest_name == 'mcyukkuri:predator_nest':

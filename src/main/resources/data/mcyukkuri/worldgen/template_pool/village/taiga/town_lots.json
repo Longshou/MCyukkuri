@@ -3,7 +3,7 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 21,
+      "weight": 28,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/taiga/home_yard",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "weight": 12,
+      "weight": 16,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/taiga/home_yard_large",
@@ -35,24 +35,7 @@
       }
     },
     {
-      "weight": 18,
-      "element": {
-        "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/taiga/kiosk",
-        "processors": "minecraft:empty",
-        "projection": "rigid",
-        "max_count": 3,
-        "max_fill": 5,
-        "fill": {
-          "Name": "minecraft:dirt"
-        },
-        "edge": {
-          "Name": "minecraft:cobblestone"
-        }
-      }
-    },
-    {
-      "weight": 12,
+      "weight": 16,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/taiga/pocket_park",
@@ -69,7 +52,7 @@
       }
     },
     {
-      "weight": 12,
+      "weight": 16,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/taiga/back_lot",

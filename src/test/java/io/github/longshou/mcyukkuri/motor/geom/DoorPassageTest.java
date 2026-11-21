@@ -26,7 +26,7 @@ class DoorPassageTest {
         }
     }
 
-    @Test void kioskKeeperKeepsPriorityWhenHerCentrePassesTheJamb() {
+    @Test void counterKeeperKeepsPriorityWhenHerCentrePassesTheJamb() {
         // TN-21 at tick 1778. Both centres have passed Z 704, but only the keeper still occupies the frame.
         boolean keeperInFrame = DoorPassage.overlaps(703.7254 - 703, 704.3254 - 703);
         boolean brotherInFrame = DoorPassage.overlaps(704.2366 - 703, 704.8366 - 703);
@@ -49,7 +49,7 @@ class DoorPassageTest {
         assertTrue(DoorPassage.close(false, true, 41, 20));
     }
 
-    @Test void stoppedKioskResidentStillOverlapsTheDoorWithHisTrailingEdge() {
+    @Test void stoppedCounterResidentStillOverlapsTheDoorWithHisTrailingEdge() {
         double centre = 702.767 - 703;
         assertTrue(DoorPassage.overlaps(centre - .3, centre + .3));
         assertFalse(DoorPassage.stopSide(null, -1.5, centre));

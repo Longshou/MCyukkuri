@@ -517,8 +517,10 @@ def side_street(p):
     roof(b, 0, 5, 8, 17, 6, 'z', overhang=0, steep=True)
     # Hatch onto the sidewalk: a board counter carrying open crates of real goods, an opening above it.
     for x in range(1, 5): b.block(x, 1, 8, p.planks()); b.box((x, 3, 8), (x, 4, 8), 'air')
+    # The four hatch crates are one staffed counter: the shopkeeper whose home is behind them serves the run, and the emerald row
+    # in the second crate is its till float.
     for x, item in [(1, 'minecraft:bread'), (2, 'mcyukkuri:sweet_candy'), (3, 'minecraft:apple'), (4, 'mcyukkuri:oil_grain_budget')]:
-        produce_crate(b, x, 2, 8, 'north', [(item, 3), (item, 2)])
+        produce_crate(b, x, 2, 8, 'north', ([('emerald', 4)] if x == 2 else []) + [(item, 3), (item, 2)], counter=True)
     # Blue/white awning over the hatch and along the lane side; the newspaper stack and a loose sheet on the sidewalk.
     for x in range(0, 6):
         wool = 'blue_wool' if x % 2 == 0 else 'white_wool'
@@ -565,7 +567,7 @@ def side_street(p):
     b.block(2, 5 if p.flat else 7, 12, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     resident(b, 2, 9, 'caretaker_brother', 2)                                       # the shopkeeper, home behind the counter
     furniture(b, 'table', 1, [(12, 13), (13, 13)]); furniture(b, 'bench', 1, [(12, 12), (13, 12)]); furniture(b, 'bench', 1, [(12, 14), (13, 14)])
-    for x, z in [(11, 17), (12, 17), (13, 17)]: b.block(x, 1, z, 'brown_carpet')
+    for x, z in [(12, 17), (13, 17)]: b.block(x, 1, z, 'brown_carpet')   # not (11, 17): the local's home cell must stay clear
     b.block(13, 4, 15, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     furniture(b, 'bench', 6, [(11, 17), (12, 17)]); b.box((11, 6, 10), (11, 7, 10), 'bookshelf')
     for x, z in [(12, 12), (13, 16)]: b.block(x, 6, z, 'red_carpet')

@@ -6,6 +6,6 @@
 
 角色登记见 [humans.json](../../../standards/yukkuri-library/characters/humans.json)，来源及确认状态见 [human-npcs.json](../../../standards/yukkuri-library/provenance/human-npcs.json)。角色没有下载玩家皮肤，也没有复制漫画或八景 U 的美术；当前为已接入、待用户造型确认，不能视为已确认标准。
 
-店主、考官、饲养员三套职员贴图由 `tools/author_staff_skins.py` 绘制（头、帽层、身体与四肢逐面绘制；原版 HumanoidModel 没有外套层，体积只靠帽层），待用户造型确认。
+店主、考官两套职员贴图由 `tools/author_staff_skins.py` 绘制（头、帽层、身体与四肢逐面绘制；原版 HumanoidModel 没有外套层，体积只靠帽层），待用户造型确认。
 
 统一导出 `python scripts/export_human_world.py`。

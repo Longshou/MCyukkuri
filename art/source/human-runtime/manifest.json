@@ -62,15 +62,6 @@
         "src/main/resources/assets/mcyukkuri/textures/entity/human/examiner.png"
       ],
       "sha256": "88ffddb54ac54112b3f0139ec4e3054b44e2669127712be0661dce7efb763ab2"
-    },
-    "keeper": {
-      "source": "standards/yukkuri-library/textures/human/keeper.png",
-      "targets": [
-        "standards/yukkuri-library/assembled/humans/textures/keeper.png",
-        "art/source/human-runtime/textures/keeper.png",
-        "src/main/resources/assets/mcyukkuri/textures/entity/human/keeper.png"
-      ],
-      "sha256": "48fe79263897022a6412164bcaa259ee4710256a80affb3fee1edbc85e96b754"
     }
   }
 }

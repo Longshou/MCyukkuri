@@ -347,8 +347,8 @@ public final class ScenarioCommands {
                         .then(Commands.argument("animal", EntityArgument.entity()).executes(c -> {
                             var keeperEntity = EntityArgument.getEntity(c, "keeper"); var stud = yukkuri(c, "animal");
                             if (!(keeperEntity instanceof HumanNpc keeper) || stud == null || keeper.level() != stud.level()) return 0;
-                            if (keeper.job() != HumanNpc.Job.KEEPER)
-                                return refused(c.getSource(), keeper, "登记种油", "店方必须是饲养员。");
+                            if (keeper.job() != HumanNpc.Job.SHOPKEEPER)
+                                return refused(c.getSource(), keeper, "登记种油", "店方必须是店员。");
                             Custody.assign(stud, keeper, Custody.Role.STUD);
                             return done(c.getSource(), "店方种油已按真实归属登记；能力与徽章仍须由实际行为获得。");
                         }))))

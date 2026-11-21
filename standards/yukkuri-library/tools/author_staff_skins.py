@@ -1,4 +1,4 @@
-"""Original pixel skins for the pet-shop staff (shopkeeper, examiner, keeper), standard 64x64 player-skin UV layout.
+"""Original pixel skins for the pet-shop staff (shopkeeper, examiner), standard 64x64 player-skin UV layout.
 
 HumanRenderer uses vanilla HumanoidModel: head + hat layer + body + limbs (there is no jacket/sleeve overlay), so only
 the hat layer carries volume (hair fringe, cap).  Every tile is drawn on purpose: ramp fills give 4 shade steps lit from
@@ -228,79 +228,6 @@ def examiner():
         put(im, 5, yy, '#6f727d')
     put(im, 5, 30, '#4a4b55')
     fill(im, (4, 16, 7, 19), sl, 130); fill(im, (8, 16, 11, 19), ('#202026',) * 4, 131)
-    return im
-
-
-# --------------------------------------------------------------------------------------------------------------
-def keeper():
-    """Moss-green coverall, towel round the neck, tan cap, rolled sleeves, yellow rubber gloves, tall rubber boots."""
-    im = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
-    skin = ('#eebf93', '#d9a478', '#bd855d', '#935f40')
-    hair = ('#54433a', '#3a2d26', '#261d19', '#17110e')
-    cap = ('#d1b273', '#b2935a', '#8c6f3f', '#654e2c')
-    L = lg({'M': '#3a2d26', 'D': '#261d19', 'H': '#54433a', 'w': '#f7f2e8', 'i': '#2e211a', 'b': '#dc9980', 'm': '#8f4f43',
-            'n': '#b06a58', 't': '#f3ece0', 'N': '#bd855d', 'E': '#bd855d', 'e': '#935f40',
-            'C': '#d1b273', 'c': '#bfa062', 'B': '#8c6f3f', 'a': '#654e2c', 'o': '#ecd9a4'})
-    base = {
-        'front': ["MMMMMMMM", "MMMMMMMM", "MMMMMMMM", "MDD  DDM", " wi  iw ", " b NN b ", " nmttmn ", "        "],
-        'side': ["MMMMMMMM", "MMMMMMMM", "MMMMMMMM", "MMMMM  M", "MMMEe   ", "MMMEE   ", "MM      ", "        "],
-        'back': ["MMMMMMMM", "MMMMMMMM", "MMMMMMMM", "MMDMMMDM", "MMMMMDMM", "MDMMMMMM", "MM    MM", "        "]}
-    hat = {
-        'front': ["CCCCCCCc", "CCCooCcc", "BBBBBBBB", "        ", "        ", "        ", "        ", "        "],
-        'side': ["CCCCCCCc", "CCCCCCcc", "aBBBBBBB", "        ", "        ", "        ", "        ", "        "],
-        'back': ["CCCCCCCc", "CCCooCcc", "aBBBBBBa", "        ", "        ", "        ", "        ", "        "]}
-    head_tiles(im, skin, hair, cap, L, base, hat)
-    for y in range(8):   # cap crown: four panels meeting at a button
-        for x in range(8):
-            cx, cy = x in (3, 4), y in (3, 4)
-            if cx and cy:
-                put(im, 40 + x, y, '#654e2c' if (x, y) != (3, 3) else '#e8d39d')
-            elif cx or cy:
-                put(im, 40 + x, y, '#8c6f3f')
-    cv = ('#6e8a3c', '#6e8a3c', '#587230', '#587230')
-    roll = ('#a3bd62', '#8aa64e', '#6e8a3c', '#587230')
-    yel = ('#f6dc72', '#e8c446', '#c9a42e', '#a07f22')
-    C = lg({'G': '#6e8a3c', 'g': '#86a04c', 'k': '#587230', 'K': '#425624', 'z': '#c8cfd4', 'T': '#eef0ea', 't': '#c9d4dc',
-            'U': '#4d86b8', 's': '#d9a478', 'o': '#6a4a2c', 'Y': '#e3c35a', 'r': '#c8453c', 'd': '#4a3a28', 'p': '#4d6628',
-            'q': '#7b9640', 'K': '#425624'})
-    body_fill(im, cv, 140, jit=.03)
-    art(im, 20, 20, [
-        "TTTssTTT",   # towel across the neck
-        "tTTkzTTt",   # zip placket
-        " TTkz   ",   # towel end hanging on the viewer's left
-        " TTkz  r",
-        " UUkz qq",   # chest pocket, a pen
-        " TTkz pp",
-        " UUkz pp",
-        " ttkz   ",
-        "oooYYooo",   # belt with buckle
-        " kK  Kk ",
-        "        ",
-        "        "], C)
-    art(im, 32, 20, ["TTTssTTT", "TTTTTTTT", "tttttttt", "   kk   ", "   kk   ", "   kk   ", "   kk   ", "   kk   ",
-                     "oooooooo", " pp  pp ", " pp  pp ", "        "], C)
-    side_pair(im, ["TTTT", "tttt", "    ", "    ", "    ", "    ", "    ", "    ", "oooo", "    ", "    ", "    "], C)
-    for xx, yy in ((21, 31), (26, 31), (35, 31)):
-        put(im, xx, yy, '#4a3a28')
-    art(im, 21, 29, ["KK"], C); art(im, 25, 29, ["KK"], C)   # hip folds
-    for t in (40, 44, 48, 52):
-        put(im, t + 1, 24, '#425624'); put(im, t + 2, 24, '#425624')   # elbow crease
-    # arms: green sleeves, rolled cuffs, bare forearms, yellow rubber gloves
-    band(im, 40, 0, 4, cv, 150, jit=.03); band(im, 40, 5, 6, roll, 154); band(im, 40, 7, 8, skin, 158)
-    band(im, 40, 9, 9, yel, 162); band(im, 40, 10, 11, ('#fbe988', '#eecb4c', '#d0a734', '#a98524'), 166)
-    for t in (40, 44, 48, 52):
-        for xx in range(t, t + 4):
-            put(im, xx, 26, '#587230')
-    fill(im, (44, 16, 47, 19), cv, 170, .2); fill(im, (48, 16, 51, 19), cv, 171, .4)
-    boot = ('#59647a', '#3a4357', '#2a3141', '#1b202b')
-    band(im, 0, 0, 4, cv, 180, jit=.03); band(im, 0, 5, 5, roll, 184); band(im, 0, 6, 6, yel, 188)
-    band(im, 0, 7, 10, boot, 192); band(im, 0, 11, 11, ('#a7a396', '#8d897c', '#6d6a5f', '#55524a'), 196)
-    art(im, 4, 23, ["dd", "dd"], C)   # knee patch
-    for t in (0, 4, 8, 12):
-        put(im, t + 1, 21, '#425624'); put(im, t + 2, 21, '#425624')   # thigh fold
-    for yy in range(27, 31):
-        put(im, 4, yy, '#59647a')     # rubber sheen
-    fill(im, (4, 16, 7, 19), cv, 200); fill(im, (8, 16, 11, 19), ('#2a3141',) * 4, 201)
     return im
 
 
@@ -573,4 +500,4 @@ def factory_worker():
 
 
 ROLES = {'oniisan': oniisan, 'brother': brother, 'sister': sister, 'shopkeeper': shopkeeper,
-         'factory_worker': factory_worker, 'examiner': examiner, 'keeper': keeper}
+         'factory_worker': factory_worker, 'examiner': examiner}

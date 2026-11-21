@@ -7,7 +7,7 @@
       33
     ],
     "blocks": 11949,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -18,7 +18,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -29,7 +29,7 @@
       41
     ],
     "blocks": 12300,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -40,7 +40,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -51,7 +51,7 @@
       41
     ],
     "blocks": 12433,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -62,7 +62,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -638,17 +638,6 @@
     "source": "art/structures/human-world/author_lots.py"
   },
   {
-    "name": "village/plains/kiosk",
-    "size": [
-      9,
-      9,
-      9
-    ],
-    "blocks": 729,
-    "entities": 2,
-    "source": "art/structures/human-world/author_lots.py"
-  },
-  {
     "name": "village/plains/pocket_park",
     "size": [
       11,
@@ -690,17 +679,6 @@
     ],
     "blocks": 2304,
     "entities": 12,
-    "source": "art/structures/human-world/author_lots.py"
-  },
-  {
-    "name": "village/desert/kiosk",
-    "size": [
-      9,
-      9,
-      9
-    ],
-    "blocks": 729,
-    "entities": 2,
     "source": "art/structures/human-world/author_lots.py"
   },
   {
@@ -748,17 +726,6 @@
     "source": "art/structures/human-world/author_lots.py"
   },
   {
-    "name": "village/savanna/kiosk",
-    "size": [
-      9,
-      9,
-      9
-    ],
-    "blocks": 729,
-    "entities": 2,
-    "source": "art/structures/human-world/author_lots.py"
-  },
-  {
     "name": "village/savanna/pocket_park",
     "size": [
       11,
@@ -803,17 +770,6 @@
     "source": "art/structures/human-world/author_lots.py"
   },
   {
-    "name": "village/snowy/kiosk",
-    "size": [
-      9,
-      9,
-      9
-    ],
-    "blocks": 727,
-    "entities": 2,
-    "source": "art/structures/human-world/author_lots.py"
-  },
-  {
     "name": "village/snowy/pocket_park",
     "size": [
       11,
@@ -855,17 +811,6 @@
     ],
     "blocks": 2304,
     "entities": 12,
-    "source": "art/structures/human-world/author_lots.py"
-  },
-  {
-    "name": "village/taiga/kiosk",
-    "size": [
-      9,
-      9,
-      9
-    ],
-    "blocks": 729,
-    "entities": 2,
     "source": "art/structures/human-world/author_lots.py"
   },
   {

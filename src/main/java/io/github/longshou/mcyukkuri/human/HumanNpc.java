@@ -70,7 +70,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 public final class HumanNpc extends PathfinderMob {
     public enum Look { ONIISAN, BROTHER, SISTER }
-    public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER, KEEPER }
+    public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER }
     public static final int DOSE_SWING_TICKS = 20, DOSE_TICKS = 30;
     public enum Attitude { CRUEL, CARING, NEUTRAL }
     private static final EntityDataAccessor<Integer> JOB = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
@@ -250,12 +250,13 @@ public final class HumanNpc extends PathfinderMob {
     public BlockPos householdHome() {
         return residentAvailable() && hurtTime == 0 ? home : null;
     }
-    KioskCounter kioskWindow() { return stroll().kioskWindow(); }
-    boolean kioskBusy() { return stroll().kioskBusy(); }
-    public boolean attendingKiosk() { return kioskWindow() != null; }
+    Counter counterWindow() { return stroll().counterWindow(); }
+    boolean counterBusy() { return stroll().counterBusy(); }
+    /** Whether this resident stands at a counter hatch serving it (the corner shop keeper, a market stall keeper). */
+    public boolean attendingKiosk() { return counterWindow() != null; }
     public boolean offersKioskFoodTo(YukkuriEntity y) {
-        var counter = kioskWindow();
-        return counter != null && !kioskBusy() && street.kioskGuest(y, counter) && counter.hasFood(y);
+        var counter = counterWindow();
+        return counter != null && !counterBusy() && street.counterGuest(y, counter) && counter.hasFood(y);
     }
 
     public boolean streetThreatTo(YukkuriEntity animal) { return street.threatTo(animal); }
@@ -361,7 +362,6 @@ public final class HumanNpc extends PathfinderMob {
         if (!level().isClientSide) {
             if (player.isShiftKeyDown() && CommodityLife.sellCore(player, this)) return InteractionResult.sidedSuccess(false);
             if (job() == Job.SHOPKEEPER) ShopMenu.open(player, this);
-            else if (job() == Job.KEEPER) KeeperMenu.open(player, this); // the matchmaker with its studs, not shop staff
             else if (job() == Job.EXAMINER || badgeCounter() && atBadgeCounter()) ExamMenu.open(player, this);
             else HumanFolk.interact(player, this);
         }
@@ -999,7 +999,7 @@ public final class HumanNpc extends PathfinderMob {
     BlockPos yardCrate() { return yardCrate; }
 
     private void restockCareFood() {
-        if (job() == Job.SHOPKEEPER || job() == Job.KEEPER) {
+        if (job() == Job.SHOPKEEPER) {
             careFood = Math.max(careFood, SHOP_DAILY_GRAIN);
         } else if (yardBowl != null && streetResident() && attitude() == Attitude.CARING) {
             int companions = Math.min(YARD_COMPANION_CAP, animals(Custody.Role.COMPANION).size());
