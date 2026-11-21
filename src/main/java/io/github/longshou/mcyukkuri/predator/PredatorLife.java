@@ -1163,7 +1163,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
     private boolean edibleDrop(ItemEntity item) {
         return item.isAlive() && !item.hasPickUpDelay() && animal.hasLineOfSight(item)
-                && (FillingResource.isFilling(item.getItem()) && animal.life().acceptsFood(item.getItem())
+                && (FillingResource.isCore(item.getItem()) && animal.life().acceptsFood(item.getItem())
                     || item.getItem().is(ModItems.REMAINS.get()) && edibleCorpseData(FillingResource.data(item.getItem())));
     }
     private boolean edibleCorpse(RemainsEntity remains) {

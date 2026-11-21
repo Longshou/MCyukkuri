@@ -17,7 +17,7 @@ final class BodyFoodMouthRenderer {
         pose.pushPose();
         pose.translate(0, -.018, -.025);
         pose.scale(.095f * tasteScale, .095f * tasteScale, .095f * tasteScale);
-        PropModels.render("leaked_filling", lumps, pose, buffers, light, overlay);
+        PropModels.render("core_filling", lumps, pose, buffers, light, overlay);
         pose.popPose();
     }
 

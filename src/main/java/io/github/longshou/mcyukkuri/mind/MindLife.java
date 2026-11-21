@@ -200,8 +200,8 @@ public final class MindLife {
     public void ate(ItemStack swallowed, boolean petSweet) {
         if (entity.level().isClientSide) return;
         var tag = FillingResource.data(swallowed);
-        if (FillingResource.isFilling(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
-        if (FillingResource.isFilling(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
+        if (FillingResource.isCore(swallowed) && "foul".equals(tag.getString("Taste"))) { add(12, "foul_filling"); return; }
+        if (FillingResource.isCore(swallowed) && "stale".equals(tag.getString("Taste"))) { add(6, "stale_filling"); return; }
         if (Consumables.kind(swallowed) == Consumables.Kind.SPICY) { add(6, "spicy"); return; }
         if (Sweets.is(swallowed)) { if (!petSweet) add(-8, "sweets"); return; }
         if (FoodTaste.grass(swallowed)) { felt(EmotionEvent.BITTER_TASTE); return; }

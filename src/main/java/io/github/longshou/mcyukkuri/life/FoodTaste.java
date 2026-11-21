@@ -23,7 +23,7 @@ public final class FoodTaste {
         var bite = InfantFood.preyBite(food);
         if (!bite.isEmpty()) return bite.nutrition();
         var data = food.get(DataComponents.FOOD);
-        float gain = FillingResource.isFilling(food) ? FillingResource.nutrition(food)
+        float gain = FillingResource.isCore(food) ? FillingResource.nutrition(food)
                 : food.is(ModItems.FOOD_SCRAP.get()) ? 10 : data == null ? 20 : Math.clamp(data.nutrition() * 5, 10, 35);
         if (food.is(ModItems.WASTE.get())) gain = LifeMeal.PIT_MEAL_NUTRITION * (float) DetachedItems.volume(food);
         else if (food.is(ModItems.GRAIN_BUDGET.get())) gain = 12;

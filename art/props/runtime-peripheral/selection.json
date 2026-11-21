@@ -954,21 +954,6 @@
       "sha256": "196e1c54be1b0a588dade3f43faef7e3a0161f4227b7e3ae208f621cd67cda56",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
-    "generated:art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.mesh.json": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.mesh.json",
-      "sha256": "359efec9efcffb74a47bb55eda63bde4cd3bfa615a3d63b4567a167e922cb4a5",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.bbmodel": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/leaked_filling.bbmodel",
-      "sha256": "0fa196d8a4de712d3d4d2a2375ac49e791831312924588809dee2e0ed083369c",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
-    "generated:art/props/runtime-peripheral/selected/leaked_filling/texture.png": {
-      "snapshot": "art/props/runtime-peripheral/selected/leaked_filling/texture.png",
-      "sha256": "76651a3f3d1291500a576051c0cff466d29d03daf64ed0f70f7dcf2d4c6030ab",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
     "generated:art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json": {
       "snapshot": "art/props/runtime-peripheral/selected/yukkuri_carrier/yukkuri_carrier.mesh.json",
       "sha256": "82626b7503acf1cf346f19f64a586aa79580a0eb1897c273ed369cb8aa5f3452",

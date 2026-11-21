@@ -294,7 +294,7 @@ public final class Cannibalism extends Goal {
     }
     private ItemEntity foodNearby() {
         return level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(8, 3, 8),
-                i -> i.isAlive() && !i.hasPickUpDelay() && entity.life().acceptsFood(i.getItem()) && !FillingResource.isFilling(i.getItem())
+                i -> i.isAlive() && !i.hasPickUpDelay() && entity.life().acceptsFood(i.getItem()) && !FillingResource.isCore(i.getItem())
                         && reachable(i)).stream().findFirst().orElse(null);
     }
     /** A living adult, free-living, unrecognised hatless yukkuri that is not a pet and not a monster; kin and group get no exemption. */

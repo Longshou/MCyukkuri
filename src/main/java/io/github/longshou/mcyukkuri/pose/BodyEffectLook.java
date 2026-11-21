@@ -11,7 +11,7 @@ public final class BodyEffectLook {
     public static final double FLOOR_LIFT = .004;
 
     public enum Kind {
-        FILLING("textures/props/leaked_filling.png", 600, 100),
+        FILLING("textures/effects/leak_puddle.png", 600, 100),
         PUDDLE("textures/effects/leak_puddle.png", 1800, 600);
 
         public final String texture;

@@ -33,22 +33,6 @@ def yukkuri_waste():
     return p
 
 
-LUMPS = [(.05, -.1), (-.45, .2), (.1, -.7), (.75, .6), (-1.25, -.2), (1.25, -.6), (-.35, 1.0), (-.75, -1.1), (1.75, .4), (-1.75, .45), (.9, -1.4), (.7, 1.4)]
-
-
-def leaked_filling():
-    """Loose lumps of bean-paste filling in the filling ramp. Lump k (unit k) appears when k pieces were leaked."""
-    p = Prop('leaked_filling')
-    rng = deterministic(409)
-    for k, (x, z) in enumerate(LUMPS, 1):
-        part = p.part(f'lump_{k}', k)
-        r, h = .78 + rng.uniform(-.08, .1), .55
-        profile = [(r, 0), (r * .86, h * .7), (r * .45, h), (0, h * 1.05)]
-        tones = [C('anko', 1), C('anko', 2), C('anko', 3)]
-        p.lathe(part, profile, Band(lambda i, j, c, t=tones: t[i]), seg=6, squash=.85, center=(x, z), phase=rng.uniform(0, 1), grid=None, smooth='both')
-    return p
-
-
 def food_mash_serving():
     """Soft pale green-beige porridge dollop with a glossy highlight, on a small leaf."""
     p = Prop('food_mash_serving')

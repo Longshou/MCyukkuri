@@ -441,7 +441,7 @@ public final class BodyLife {
         var at=WoundPlacement.outlet(entity,site);
         boolean fire=source.is(DamageTypeTags.IS_FIRE)||strike.shape().thermal();
         if(fire)level.sendParticles(ParticleTypes.SMOKE,at.x,at.y,at.z,5,.05,.05,.05,.01);
-        else level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,new ItemStack(ModItems.FILLING.get())),at.x,at.y,at.z,6,.06,.06,.06,.04);
+        else level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,new ItemStack(ModItems.CORE_FILLING.get())),at.x,at.y,at.z,6,.06,.06,.06,.04);
     }
     private void emitWound(String reason,float loss,BodyWound outlet){
         if(loss<=0)return;

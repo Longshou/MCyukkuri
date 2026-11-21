@@ -364,7 +364,7 @@ console.log(JSON.stringify(previews));
             self.assertAlmostEqual(puddle['traces'][0]['halfX'], .24)
             filling = self.pose(dict(event, reason='vomit', amount=1))
             self.assertEqual(filling, self.pose(dict(event, reason='vomit', amount=1)))
-            self.assertEqual(filling['texture'], 'textures/props/leaked_filling.png')
+            self.assertEqual(filling['texture'], 'textures/effects/leak_puddle.png')
             self.assertEqual(len(filling['flights']), 3)
             self.assertTrue(all(2 <= len(f['path']) <= 13 for f in filling['flights']))
             self.assertEqual(filling['traces'][-1]['until'] - filling['traces'][-1]['tick'], 600)

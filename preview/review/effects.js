@@ -128,7 +128,7 @@ export async function loadFloor(scene, effect) {
     });
     const flights = [];
     if (effect.flights.length) {
-        const response = await fetch(assets + 'yukkuri_props/leaked_filling.json');
+        const response = await fetch(assets + 'yukkuri_props/core_filling.json');
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const {parts, vertices} = await response.json();
         const lump = parts.find(part => part.unit === 1);

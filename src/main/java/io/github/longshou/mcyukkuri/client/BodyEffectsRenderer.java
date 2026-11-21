@@ -161,7 +161,7 @@ public final class BodyEffectsRenderer {
             pose.pushPose();
             pose.translate(fragment.position.x - camera.x, fragment.position.y - camera.y, fragment.position.z - camera.z);
             pose.scale(fragment.size, fragment.size, fragment.size);
-            PropModels.render("leaked_filling", 1, pose, buffers, light, 0);
+            PropModels.render("core_filling", 1, pose, buffers, light, 0);
             pose.popPose();
         }
         buffers.endBatch();

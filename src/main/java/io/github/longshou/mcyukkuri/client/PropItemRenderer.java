@@ -67,7 +67,7 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             PropModels.renderCut(name,pose,buffers,light,overlay);
         else if(stack.getItem() instanceof AccessoryItem&&hatDamage(stack)>0)
             PropModels.renderHat(name,hatDamage(stack),-1,pose,buffers,light,overlay);
-        else PropModels.render(name,name.equals("leaked_filling")?Math.min(12,stack.getCount()):8,pose,buffers,light,overlay);
+        else PropModels.render(name,8,pose,buffers,light,overlay);
         if(!gui&&stack.getItem() instanceof CarrierItem)
             CarrierPresentation.render(stack,pose.last(),buffers,light,overlay);
         if(stack.getItem() instanceof AccessoryItem){

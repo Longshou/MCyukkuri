@@ -391,7 +391,7 @@ final class WoundRenderer {
         if(healthFraction>0)for(int i=0;i<wounds.size();i++){var w=wounds.get(i);if(w.kind()==WoundKind.TEAR&&BodySigns.open(w)&&mesh.valid(w)
                 &&(geometry.cavity==null||!geometry.cavity.opening.contains(mesh.anchor(w)))){
             var hit=mesh.displaySite(w).hit();pointNormal(geometry,hit,geometry.na);point(geometry,hit,.09f,geometry.na,geometry.a);stack.pushPose();stack.translate(geometry.a.x/16,geometry.a.y/16,geometry.a.z/16);float s=house?.035f:.10f;
-                    stack.scale(s,s,s);PropModels.render("leaked_filling",1,stack,propBuffers,light,overlay);stack.popPose();
+                    stack.scale(s,s,s);PropModels.render("core_filling",1,stack,propBuffers,light,overlay);stack.popPose();
         }}
         if(contact==null)return null;
         var point=new Vector3f();

@@ -167,11 +167,11 @@ final class LifeMeal {
     }
 
     boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
-            ||FillingResource.isFilling(food)||o.entity().getVariant().isPredator()&&!InfantFood.preyBite(food).isEmpty()
+            ||FillingResource.isCore(food)||o.entity().getVariant().isPredator()&&!InfantFood.preyBite(food).isEmpty()
             ||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())
             ||food.is(ModItems.WASTE.get())&&o.entity().settlement().duties().pit().eatsWaste();}
 
-    boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isFilling(food)||FillingResource.acceptable(o.entity(),food));}
+    boolean acceptsFood(ItemStack food){return edible(food)&&(!FillingResource.isCore(food)||FillingResource.acceptable(o.entity(),food));}
 
     private int tasteFor(UUID giver) {
         return Taste.effective(o.pickiness(), SocialDisposition.selfEsteem(o.entity()), o.personality().trust(giver));
@@ -570,7 +570,7 @@ final class LifeMeal {
                     o.doses().clearReturnBottle();feeder=null;o.entity().gameEvent(GameEvent.DRINK);
                 }else{
                 boolean scrap=mouth.is(ModItems.FOOD_SCRAP.get());
-                boolean filling=FillingResource.isFilling(mouth);
+                boolean filling=FillingResource.isCore(mouth);
                 boolean spicy=Consumables.kind(mouth)==Consumables.Kind.SPICY;
                 boolean sweet=Sweets.is(mouth);
                 boolean grass=FoodTaste.grass(mouth);

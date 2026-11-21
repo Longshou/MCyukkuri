@@ -177,7 +177,7 @@ public final class WildCards {
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;
             case "alley-sniff" -> narrowCorner(first) && (first.life().hygiene()<50 || first.life().nutrition()<50)
                     && (resource=target(first,item -> item.getItem().is(ModItems.WASTE.get())
-                    ||FillingResource.isFilling(item.getItem())))!=null;
+                    ||FillingResource.isCore(item.getItem())))!=null;
             case "alley-corner" -> all.size()==3&&narrowCorner(first)&&all.stream().allMatch(p -> close(first,p,1.6));
             case "forest-family" -> all.size()>=3 && WildEvents.forest(first)
                     && peers.stream().allMatch(p -> Bonds.careKin(first, p)&&WildEvents.friendly(first,p));

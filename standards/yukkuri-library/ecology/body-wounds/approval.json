@@ -23,9 +23,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri_wounds/patchouli.json.gz": "d05d6a17688097c239620ad112c386222c2435f645b76cd773f5a5cf6da85d3c",
     "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_reimu.json.gz": "242306a064cdaeb6b5696eba7b23943ecebc350affebb9cca7789be373789353",
     "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz": "ad00d997fdd13be78f9df7970942b881ebbfc86f8af76dc991006d8563049fe7",
-    "src/main/resources/assets/mcyukkuri/textures/props/body_wounds.png": "31eb41ec71e8e2528ff8db52c6af08dfca3eac6100ff3a44847c8c02b6390576",
-    "src/main/resources/assets/mcyukkuri/textures/props/leaked_filling.png": "a1d759a32b8c9635385cf6813c187be330dac012d81ff679a1d7457137cb9f57",
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/leaked_filling.json": "5e44fc27ddb609ad81c35edcfa2316d109174069d263cd928b1ee6a4b4bb7293"
+    "src/main/resources/assets/mcyukkuri/textures/props/body_wounds.png": "31eb41ec71e8e2528ff8db52c6af08dfca3eac6100ff3a44847c8c02b6390576"
   },
   "selected_runtime_sources": {
     "reimu": {

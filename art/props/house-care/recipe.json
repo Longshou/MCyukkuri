@@ -6,7 +6,6 @@
   },
   "items": {
     "food_scrap": "minecraft:item/bread",
-    "leaked_filling": "minecraft:item/cocoa_beans",
     "herbal_medicine": "minecraft:item/dried_kelp"
   },
   "item_models": {"yukkuri_remains": "art/props/house-care/yukkuri_remains.item.json"},

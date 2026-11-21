@@ -3,7 +3,7 @@
 Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json, texture.png}. Run
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
-Props authored here: the three oil-grain bags, food scrap, waste, leaked filling and carrier basket on the low-poly kit; the placed goods
+Props authored here: the three oil-grain bags, food scrap, waste and carrier basket on the low-poly kit; the placed goods
 through vanilla_props.py (the round food bowl, its heap-only grain / wheat / forage fills and the round waterer from
 bowl.py and waterer.py; the block-style sand toilet clean and dirty from block-props/devices.py; the rounded three grades
 of pet bed and their fitted shapes from placed.py; every non-default dye style, including the 2x2 woven nest's), and the
@@ -39,7 +39,6 @@ BUILD = {
     'oil_grain_premium': bags.oil_grain_premium,
     'food_scrap': small.food_scrap,
     'yukkuri_waste': small.yukkuri_waste,
-    'leaked_filling': small.leaked_filling,
     'yukkuri_carrier': small.yukkuri_carrier,
 }
 REMOVED = ('food_bowl_garbage', 'hat_provisions',

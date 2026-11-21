@@ -13,7 +13,6 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import io.github.longshou.mcyukkuri.entity.MaterialDrop;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -29,10 +28,6 @@ public final class ModEntities {
             TYPES.register("placed_hat", () -> EntityType.Builder.<PlacedHatEntity>of(
                     PlacedHatEntity::new, MobCategory.MISC)
                     .sized(.6f, .1143f).clientTrackingRange(8).updateInterval(2).build(MCYukkuri.id("placed_hat").toString()));
-    public static final DeferredHolder<EntityType<?>,EntityType<MaterialDrop>> MATERIAL_DROP=TYPES.register("material_drop",
-            ()->EntityType.Builder.<MaterialDrop>of(MaterialDrop::new,MobCategory.MISC)
-                    .sized(.25f,.25f).clientTrackingRange(6).updateInterval(20).build(MCYukkuri.id("material_drop").toString()));
-
     // Body bounds at 16 model units per block; hats and ribbons are visual accessories.
     public static final DeferredHolder<EntityType<?>,EntityType<RemainsEntity>> REMAINS=TYPES.register("yukkuri_remains",
             ()->EntityType.Builder.<RemainsEntity>of(RemainsEntity::new,MobCategory.MISC)

@@ -12,7 +12,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
-/** The dedicated centre filling, plus read-only recognition of its old item form. */
+/** The dedicated centre filling. */
 public final class FillingResource {
     private FillingResource() {}
 
@@ -31,7 +31,6 @@ public final class FillingResource {
             if (remains.hasUUID("Identity")) tag.putUUID("Source", remains.getUUID("Identity"));
             tag.putString("Variant", remains.getString("Variant"));
             tag.putFloat("SourceScale", remains.contains("SourceScale") ? remains.getFloat("SourceScale") : 1);
-            tag.putString("Composition", CORE);
             tag.putString("Method", "core");
             tag.putInt("Nutrition", 10);
             tag.putInt("Sweetness", sweetness);
@@ -41,15 +40,7 @@ public final class FillingResource {
         stack.set(DataComponents.FOOD, new FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build());
         return stack;
     }
-    public static final String CORE = "core";
-    /** New core items and old leaked-filling stacks with {@code Composition=core} stay valid. */
-    public static boolean isCore(ItemStack stack) {
-        return stack.is(ModItems.CORE_FILLING.get())
-                || stack.is(ModItems.FILLING.get()) && CORE.equals(data(stack).getString("Composition"));
-    }
-
-    /** Only the centre filling remains edible. Ordinary leaked filling is a legacy placeholder. */
-    public static boolean isFilling(ItemStack stack) { return isCore(stack); }
+    public static boolean isCore(ItemStack stack) { return stack.is(ModItems.CORE_FILLING.get()); }
     public static int nutrition(ItemStack stack) {
         var tag = data(stack);
         return tag.contains("Nutrition") ? Math.clamp(tag.getInt("Nutrition"), 1, 10) : isCore(stack) ? 10 : 0;

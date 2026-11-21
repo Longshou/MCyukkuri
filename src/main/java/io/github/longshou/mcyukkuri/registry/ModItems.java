@@ -19,7 +19,6 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.item.AccessoryShardItem;
 import io.github.longshou.mcyukkuri.item.JunkHeadwearItem;
 import io.github.longshou.mcyukkuri.item.CompanionCordItem;
-import io.github.longshou.mcyukkuri.item.FillingItem;
 import io.github.longshou.mcyukkuri.item.HouseEggItem;
 import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
 import io.github.longshou.mcyukkuri.item.MagnifyingGlassItem;
@@ -85,11 +84,9 @@ public final class ModItems {
     public static final DeferredItem<HouseEggItem> HOUSE_EGG=ITEMS.register("house_egg",
             ()->new HouseEggItem(new Item.Properties().stacksTo(1)));
     public static final DeferredItem<Item> YUKKURI_STEM=ITEMS.registerSimpleItem("yukkuri_stem",new Item.Properties());
-    /** The valuable centre filling is a real item. Old core stacks stored in leaked_filling remain compatible. */
+    /** The valuable centre filling is a real item. */
     public static final DeferredItem<Item> CORE_FILLING=ITEMS.registerSimpleItem("core_filling",new Item.Properties().stacksTo(16)
             .food(new FoodProperties.Builder().nutrition(6).saturationModifier(1.2f).build()));
-    /** Compatibility placeholder for old saves only; new ordinary filling is never created. */
-    public static final DeferredItem<FillingItem> FILLING=ITEMS.register("leaked_filling",()->new FillingItem(new Item.Properties()));
     public static final DeferredItem<Item> GRAIN_BUDGET=ITEMS.registerSimpleItem("oil_grain_budget",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_REGULAR=ITEMS.registerSimpleItem("oil_grain_regular",new Item.Properties());
     public static final DeferredItem<Item> GRAIN_PREMIUM=ITEMS.registerSimpleItem("oil_grain_premium",new Item.Properties());

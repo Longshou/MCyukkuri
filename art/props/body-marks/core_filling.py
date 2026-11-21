@@ -1,7 +1,7 @@
 """Builds the centre-filling prop (item and dropped portion): a compact, glossy lump, darker and redder than leaked filling.
 
 Komicolle 11518802: the centre filling is the darker part in the middle of the body and the sweetest. Project-original shape
-and colours; no external reference image. Outputs (format 1 prop, like leaked_filling):
+and colours; no external reference image. Outputs (format 1 prop):
   src/main/resources/assets/mcyukkuri/yukkuri_props/core_filling.json
   src/main/resources/assets/mcyukkuri/yukkuri_props/body-index.json
   src/main/resources/assets/mcyukkuri/textures/props/core_filling.png
@@ -85,7 +85,7 @@ def same(path, data):
 
 
 def preview(mesh_bytes, png_bytes):
-    """Flat-shaded three-quarter view, next to a leaked-filling swatch strip, into .local/previews/injury/core_filling.png."""
+    """Flat-shaded three-quarter view, next to the filling palette strip, into .local/previews/injury/core_filling.png."""
     from PIL import ImageDraw
     mesh = json.loads(mesh_bytes)
     strip = Image.open(io.BytesIO(png_bytes)).convert("RGB")

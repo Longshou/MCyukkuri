@@ -75,7 +75,7 @@ def predator():
 
 
 def goods():
-    names = [('oil_grain_budget', 0), ('oil_grain_regular', 0), ('oil_grain_premium', 0), ('food_scrap', 8), ('yukkuri_waste', 1), ('leaked_filling', 8),
+    names = [('oil_grain_budget', 0), ('oil_grain_regular', 0), ('oil_grain_premium', 0), ('food_scrap', 8), ('yukkuri_waste', 1),
              ('yukkuri_carrier', 0), ('yarn_ball', 0),
              ('spicy_grain', 0), ('food_mash_serving', 0), ('yukkuri_toilet', 0)]
     rows = []
