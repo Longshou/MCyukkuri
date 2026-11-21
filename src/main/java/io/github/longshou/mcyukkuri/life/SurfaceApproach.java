@@ -713,14 +713,9 @@ public final class SurfaceApproach {
                     &&!actor.getBoundingBox().move(at.subtract(actor.position())).deflate(.005).intersects(other.getBoundingBox())
                     &&supported(actor,at)&&contact.test(at))return at;
         }
-        var directions=new ArrayList<Vec3>();
-        var toward=actor.position().subtract(other.position()).multiply(1,0,1);
-        if(toward.horizontalDistanceSqr()>.0001)directions.add(toward.normalize());
-        directions.add(new Vec3(1,0,0));directions.add(new Vec3(-1,0,0));
-        directions.add(new Vec3(0,0,1));directions.add(new Vec3(0,0,-1));
         var candidates=new ArrayList<Vec3>();
         var why=new StringBuilder();
-        for(var direction:directions){
+        for(var direction:bearings(actor,other.position())){
             var near=other.position().add(direction.scale(distance));
             var at=floor(actor,near);
             if(at==null){why.append(" ").append(noFloor(actor,near)).append("@").append(GameplayLog.at(near));continue;}
