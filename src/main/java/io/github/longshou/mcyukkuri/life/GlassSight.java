@@ -103,8 +103,9 @@ public final class GlassSight {
             var out = Vec3.atLowerCornerOf(normal.getNormal());
             if (other.position().subtract(centre).dot(out) >= 0) continue;
             double width = normal.getAxis() == Direction.Axis.X ? bounds.getXsize() : bounds.getZsize();
-            for (int step = 2; step <= 4; step++) {
-                var stand = SurfaceApproach.restingFloor(body, centre.add(out.scale(width / 2 + step)));
+            for (int step = 2; step <= 4; step++) for (int below = 0; below <= 2; below++) {
+                // The floor is the pane's base height or up to two blocks under it: a sill sits above the ground outside.
+                var stand = SurfaceApproach.restingFloor(body, centre.add(out.scale(width / 2 + step)).subtract(0, below, 0));
                 if (stand == null || body.distanceToSqr(stand) >= best || !open.test(stand)) continue;
                 var hit = glassBetween(body, stand.add(0, body.getEyeY() - body.getY(), 0), other);
                 if (hit != null && glass.equals(hit.getBlockPos()) && SurfaceApproach.canApproach(body, stand)) {

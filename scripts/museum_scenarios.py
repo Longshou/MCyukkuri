@@ -8268,9 +8268,10 @@ _smoke('food_sill_window', 900, [
     rf'\[meal\][^\n]* uuid={_uuid_of(_sill_beggar)} [^\n]*begging at a pane too high to press'],
     forbid=[rf'\[action\][^\n]* uuid={_uuid_of(_sill_beggar)} [^\n]*start id=glass_press'])
 next(s for s in S if s.id == 'food_sill_window').smoke['commands'] = [
-    (40, f'execute at {sel("sill_anchor")} run yukkuri scenario tool_operator enter'),
-    (41, f'item replace entity {_sill_operator} hotbar.0 with minecraft:apple'),
-    (42, 'yukkuri scenario tool_operator select 0'),
+    # The holder is in place before the stray's first plan; a stray that has already wandered sideways sees only wall.
+    (3, f'execute at {sel("sill_anchor")} run yukkuri scenario tool_operator enter'),
+    (4, f'item replace entity {_sill_operator} hotbar.0 with minecraft:apple'),
+    (5, 'yukkuri scenario tool_operator select 0'),
     (880, 'yukkuri scenario tool_operator leave')]
 _smoke('meal_content', 900, [r'\[meal\][^\n]* full nutrition=[^\n]*content=true'])
 next(s for s in S if s.id == 'meal_content').smoke['verify'] = _meal_content_verify
