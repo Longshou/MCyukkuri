@@ -194,9 +194,10 @@ public final class PlayLife {
             if(!entity.life().spendEnergy(.5f)){stop();return;}target=route.get(waypoint);
         }
         if(distance<lastDistance-.015){stalled=0;lastDistance=distance;}else if(++stalled>100){
-            GameplayLog.limited(entity,"play","stalled",1200,"facility route stalled waypoint={} at={} target={} collided={} onGround={} nav={} motor={} leashed={} riding={}",
+            GameplayLog.limited(entity,"play","stalled",1200,"facility route stalled waypoint={} at={} target={} collided={} onGround={} navDone={} navTarget={} wanted={} speed={} motor={} leashed={} riding={}",
                     waypoint,GameplayLog.at(entity.position()),GameplayLog.at(target),entity.horizontalCollision,entity.onGround(),
-                    entity.getNavigation().isDone(),entity.motor().owner()==null?"none":entity.motor().owner().ownerId(),entity.isLeashed(),entity.isPassenger());
+                    entity.getNavigation().isDone(),entity.getNavigation().getTargetPos(),entity.getMoveControl().hasWanted(),entity.getSpeed(),
+                    entity.motor().owner()==null?"none":entity.motor().owner().ownerId(),entity.isLeashed(),entity.isPassenger());
             stop();return;}
         if(facility.kind()==PlayBlock.Kind.SLIDE&&waypoint==6){
             entity.getNavigation().stop();Vec3 direction=target.subtract(entity.position()).multiply(1,0,1).normalize();

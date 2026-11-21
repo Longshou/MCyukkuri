@@ -50,6 +50,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -1244,10 +1245,19 @@ final class HumanStreet {
             picnicRefusedAt = pet.blockPosition();
         }
 
+        /** Where the half goes down: in front of the pet's mouth, else round it, on ground level with its feet; a raised seat's board is no place for a pet to reach. */
+        private Vec3 servingPlace(YukkuriEntity pet) {
+            for (int quarter = 0; quarter < 4; quarter++) {
+                var inFront = pet.position().add(0, .3, 0)
+                        .add(MouthPlacement.outward(pet).yRot(quarter * Mth.HALF_PI).scale(pet.getBbWidth() / 2 + .3));
+                var at = ItemContact.releaseSurface(pet, inFront);
+                if (at != null && Math.abs(at.y - pet.getY()) <= .1) return at;
+            }
+            return null;
+        }
+
         private void offerHalf(YukkuriEntity pet) {
-            var inFront = pet.position().add(0, .3, 0)
-                    .add(MouthPlacement.outward(pet).scale(pet.getBbWidth() / 2 + .3));
-            var at = ItemContact.releaseSurface(pet, inFront);
+            var at = servingPlace(pet);
             if (at == null) { refuseOffer(pet, "no_dry_ground"); return; }
             var hand = npc.getMainHandItem();
             var input = hand.getItem();
