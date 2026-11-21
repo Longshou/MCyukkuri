@@ -48,7 +48,7 @@ TAB = ['field_notebook', 'reimu_spawn_egg', 'marisa_spawn_egg', 'marisa_aquatic_
        'ceramic_tunnel', 'yukkuri_slide', 'yukkuri_trampoline', 'yukkuri_pool', 'yogurt_drink', 'stimulant', 'sitataran',
        'sleep_spray', 'spicy_grain', 'reproductive_filling', 'wheat_flour', 'oniisan_spawn_egg', 'caretaker_brother_spawn_egg',
        'caretaker_sister_spawn_egg', 'bronze_yukkuri_badge', 'silver_yukkuri_badge', 'gold_yukkuri_badge',
-       'platinum_yukkuri_badge', 'badge_handbook', 'exam_podium', 'exam_hide_box', 'exam_mark', 'cold_storage']
+       'platinum_yukkuri_badge', 'badge_handbook', 'exam_podium', 'cold_storage']
 PROP_NAME = {'marisa_aquatic_hat': 'aquatic_basin_hat'}
 
 

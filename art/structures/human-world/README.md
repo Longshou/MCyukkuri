@@ -111,13 +111,13 @@
 - 后院血缘家庭栏（x2–15、z18–29）：围墙内露天地面（沙漠为沙），z18–20 是木台阶板檐廊（三盏吊灯），檐下不贴墙圆草窝（10,3,19，带 `mcy_shop_family` 标记）配食盆、饮水器与厕所（均在窝站立格 3 格内），地上有该类型的花草、一丛灌木与三件玩具；隐藏光源让夜里也不生怪。西墙前厅一侧的窗（z17，x3–5）可看见檐廊。
 - 员工：三位店员都是 Job 1；柜台店员 `SiteRole` 为 `shopkeeper`，持有库存（模板动物的 `PendingRole` 都指向他），另外两位为 `shop_staff`（前厅西角与后屋）。考官 Job 3（`shop_examiner`）。店铺足迹由两枚 `mcy_shop_corner` 标记给出（x1–23、z3–30，不含考场），柜台交接格为 `mcy_shop_counter`，家庭栏窝位标记为 `mcy_shop_family`。
 - 初始库存：普通展房 `w1` 为金章爱丽丝（六项技能，赤油）、`w2` 为子油橙；捕食种房 `p1` 为银章蕾米莉亚（六项技能，赤油）、`p2` 为亚成芙兰；后院家庭栏放养同窝三只赤油灵梦（`HumanCommerce.Litter = 1`）。开张没有成体，库存以真实年龄写入 `YukkuriFamily.Age`，在售期间冻结；资格与已学技能写入根 `YukkuriPet.Grade`／`KnownSkills`，五属性写入 `YukkuriLife.Personality.Innate`。首次绑定店员时，已有资格的库存补齐发证编号与发证者。
-- 考场（x24–38）：口试区（答题台对考官桌、躲藏箱、两个约定席、西墙告示板）、7×5 玻璃模拟房间（`exam_mark` room、窗外观察位 examiner）、陪考生栏（三个 trainee 标记，门通模拟房间）、金章间（3×3 两格由玻璃隔开：gold／actor）。
+- 考场（x24–38）：口试区（答题台对考官桌、角落木桶、两个约定席、西墙告示板）、7×5 玻璃模拟房间（绿色地毯标出 room、窗外观察位用青色地毯 examiner）、陪考生栏（三块紫色 trainee 地毯，门通模拟房间）、金章间（3×3 两格由玻璃隔开：黄色 gold／橙色 actor）。
 
 `author_furniture.py` 制作街面、商店与屋内共用的木长椅（`wooden_bench`）和货箱（`produce_crate`）：原生方块模型，各有橡木、云杉、金合欢、丛林木四种木料（方块属性 `wood`，缺省橡木，旧存档与不带该属性的结构照旧是橡木；橡木贴图取共用色板 `wood`，其余三种色阶写在制作源里），`build.furniture` 与 `author_street.produce_crate` 按建筑所属村庄类型的木种写出，不同木料互不相连；相邻长椅自动连成一条，腿只在外端与外角。长椅无靠背，椅面顶在 8/16 格（与半砖同高，流浪油的长椅短睡照常攀上），单节即凳子。桌台面用该类型的原版木板铺满整格（桌面顶在整格），寻路绕行。货箱是四根角柱加板条的敞口箱（高 9/16 格，矮的一面朝 `facing`），箱内最多四排、每排四个物品，由 `ProduceCrateRenderer` 按真实库存逐个画出；摊位、街角小店和小卖亭柜台上的货物都装在货箱里。展示托盘（`display_tray`，`DisplayTrayBlock`）是同一方块实体的平放形式：带矮边的木板，最多四堆、每堆四件，平放画出（立体道具缩小后立着）；`raised` 形式下面带一块同木种半砖，替换半砖台面柜台的一格而不改台面高度与碰撞。徽章会馆柜台与办公桌、保护站接收窗口与护理桌、鬼威惨商店柜台与工具桌、后巷劈柴墩上的物品都放在托盘里（`author_street.display_tray`），物资架与店内货架用货箱；每排数量不得超过该物品的堆叠上限。会馆墙上的徽章与工厂标签仍是固定 `item_display`。结构与试玩场用 `build.furniture`／`museum_dsl.furniture` 写出长椅的带连接状态方块，桌子写原版木板。离线预览：`<py> preview_furniture.py --minecraft-resources <原版客户端 jar>` 输出四种木料的家具、货箱近看和五种村庄的摊位到 `.local/previews/town-props/`（箱内物品按渲染器的同一组排布数字画出）。
 
 打掉未受店铺保护的抬高托盘时，托盘和底下同木料的半砖分别掉落。
 
-`author_exam_props.py` 绘制并导出三个考场功能方块（答题台、躲藏箱、考位标记，`kind` 含 room／promise／actor／gold／trainee／examiner）的贴图与模型，躲藏箱内部宽 14/16、高 15/16，容得下全部普通与捕食成体，不含胖大的 deibu。`check_structure.py` 在 `export_human_world.py` 导出与 `--check` 中运行：检查方块覆盖、实体占位与地板、栏内窝位／食盆／饮水器、地面光照 ≥8（按灯笼泛光计算）、门高、员工可达性、立面单一材质不超过 6×6、屋顶占比。
+`author_exam_props.py` 绘制并导出答题台的贴图与模型；考场的分区用原版彩色地毯标出（room 绿、promise 蓝、actor 橙、gold 黄、trainee 紫、examiner 青），角落放一个原版木桶。`check_structure.py` 在 `export_human_world.py` 导出与 `--check` 中运行：检查方块覆盖、实体占位与地板、栏内窝位／食盆／饮水器、地面光照 ≥8（按灯笼泛光计算）、门高、员工可达性、立面单一材质不超过 6×6、屋顶占比。
 
 考官为 caretaker_brother。顶灯嵌入 y8 天花板，使用赭黄蛙明灯，约每 6 格地面一盏以保证地面光照 ≥8；柜台与过道上方保留少量吊灯。`check_structure.py` 另查：宠物店每栏恰好一个窝、食盆与饮水器齐全且设施均在窝站立格 3 格内，`mcy_shop_family` 落在后院不贴墙圆草窝上，展示框集合等于宠物店 32 件商品；有员工门的栏（四间展房与后院）四壁从地面到天花板不留空、员工门框在原木立柱与门楣里且门内外各有可走格，捕食种房顶部封闭。离线预览：`<py> preview_shop.py [--minecraft-resources <原版客户端 jar>]` 输出五种村庄的俯视平面与街面新旧对比图到 `.local/previews/shop-rooms/`。
 

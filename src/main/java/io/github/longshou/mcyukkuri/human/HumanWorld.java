@@ -50,10 +50,6 @@ public final class HumanWorld {
     public static final DeferredBlock<FactoryStationBlock> TRANSFER_TRAY = station("factory_transfer_tray");
     public static final DeferredBlock<ExamPodiumBlock> EXAM_PODIUM = simple("exam_podium",
             () -> new ExamPodiumBlock(BlockBehaviour.Properties.of().strength(1.5f).sound(SoundType.WOOD).noOcclusion()));
-    public static final DeferredBlock<ExamHideBoxBlock> EXAM_HIDE_BOX = simple("exam_hide_box",
-            () -> new ExamHideBoxBlock(BlockBehaviour.Properties.of().strength(.4f).sound(SoundType.WOOL).noOcclusion()));
-    public static final DeferredBlock<ExamMarkBlock> EXAM_MARK = simple("exam_mark",
-            () -> new ExamMarkBlock(BlockBehaviour.Properties.of().strength(.2f).sound(SoundType.WOOL).noCollission().noOcclusion()));
     public static final DeferredBlock<WoodenBenchBlock> WOODEN_BENCH = simple("wooden_bench",
             () -> new WoodenBenchBlock(BlockBehaviour.Properties.of().strength(2f).sound(SoundType.WOOD).ignitedByLava().noOcclusion()));
     public static final DeferredBlock<NewspaperStackBlock> NEWSPAPER_STACK = simple("newspaper_stack",

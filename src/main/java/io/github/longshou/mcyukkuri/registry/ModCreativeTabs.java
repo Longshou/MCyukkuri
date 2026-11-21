@@ -89,7 +89,7 @@ public final class ModCreativeTabs {
             event.accept(HumanWorld.SISTER_EGG);
             for (var item : List.of(HumanWorld.BRONZE_BADGE, HumanWorld.SILVER_BADGE,
                     HumanWorld.GOLD_BADGE, HumanWorld.PLATINUM_BADGE, HumanWorld.BADGE_HANDBOOK)) event.accept(item.get());
-            event.accept(HumanWorld.EXAM_PODIUM.get()); event.accept(HumanWorld.EXAM_HIDE_BOX.get()); event.accept(HumanWorld.EXAM_MARK.get());
+            event.accept(HumanWorld.EXAM_PODIUM.get());
         }
         if (event.getTabKey().location().equals(MCYukkuri.id("yukkuri_world"))) {
             event.accept(HumanWorld.WOODEN_BENCH.get()); event.accept(ModItems.PRODUCE_CRATE.get());

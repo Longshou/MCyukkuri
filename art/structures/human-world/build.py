@@ -203,7 +203,9 @@ def furniture(b,kind,y,cells,axis='x'):
         for x,z in cells: b.block(x,y,z,furniture_wood(b)+'_planks')
         return
     for (x,z),props in joined('wooden_bench',cells,axis,furniture_wood(b)).items(): b.block(x,y,z,'mcyukkuri:wooden_bench',props)
-def mark(b,x,z,kind): b.block(x,3,z,'mcyukkuri:exam_mark',{'kind':kind})
+MARKS={'room':'green_carpet','promise':'blue_carpet','actor':'orange_carpet',
+       'gold':'yellow_carpet','trainee':'purple_carpet','examiner':'cyan_carpet'}
+def mark(b,x,z,kind): b.block(x,3,z,MARKS[kind])
 def glass(b,a,c,y0=3,y1=7,full=False,top=5):
     """Pen wall along a line of cells: full height glass (street, predator booth) or a birch base with glass panes (y4..top)."""
     for x in range(a[0],c[0]+1):
@@ -439,11 +441,11 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     # Shop footprint for the register (protection, the physical roster, staff membership): the sales half and its yard.
     marker(b,1.5,0.5,3.5,'mcy_shop_corner'); marker(b,23.5,15.5,30.5,'mcy_shop_corner')
     # ---- Exam hall (x 24..38, z 4..29).
-    # Oral area: podium faces the examiner desk; hide corner; two promise seats.
+    # Oral area: podium faces the examiner desk; a barrel in the corner; two promise seats.
     b.block(34,3,5,'mcyukkuri:exam_podium',{'facing':'south'})
     furniture(b,'table',3,[(x,7) for x in (33,34,35)])
     b.human(34.5,10.5,'caretaker_brother',3,1,'shop_examiner')
-    b.block(38,3,6,'mcyukkuri:exam_hide_box',{'facing':'west'})
+    barrel(b,38,3,6,'west')
     mark(b,30,5,'promise'); mark(b,31,5,'promise')
     furniture(b,'bench',3,[(24,5),(24,6)],'z')
     b.wall_sign(24,4,7,['告示','','',''],'east',p.wood)

@@ -189,6 +189,7 @@ FIXED = {
     'black_concrete', 'yellow_concrete', 'red_nether_bricks',
     # pens and the exam area: pen posts, cushion floors, rugs, the records corner
     'stripped_birch_log', 'pink_wool', 'purple_wool', 'coarse_dirt', 'red_carpet', 'light_blue_carpet', 'green_carpet', 'brown_carpet',
+    'blue_carpet', 'cyan_carpet', 'orange_carpet', 'purple_carpet', 'yellow_carpet',
     'bookshelf',
     # existing shop and market furnishings (staff areas are behind iron doors; the oni shop's treatment bench)
     'barrel', 'crafting_table', 'lectern', 'brewing_stand', 'water_cauldron', 'grindstone', 'composter', 'cobweb', 'hay_block',

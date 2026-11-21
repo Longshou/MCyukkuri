@@ -13,7 +13,7 @@ import importlib.util, sys
 
 AIR = 'minecraft:air'
 # Blocks an entity (or a walking human) may share a cell with: no collision box.
-FREE = {AIR, 'mcyukkuri:exam_mark', 'minecraft:light'}
+FREE = {AIR, 'minecraft:light'}
 def free(name): return name in FREE or name.endswith(('_sign', '_banner', '_carpet'))
 # Blocks that let block light through. Furniture, stairs, slabs and every full cube count as opaque (a conservative estimate).
 TRANSPARENT = {AIR, 'minecraft:glass', 'minecraft:glass_pane', 'minecraft:lantern', 'minecraft:chain', 'minecraft:light', 'minecraft:spruce_fence', 'minecraft:oak_leaves',
