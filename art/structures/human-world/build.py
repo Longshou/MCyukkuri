@@ -458,13 +458,14 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     glass(b,(24,13),(28,13)); glass(b,(24,19),(28,19)); b.door(28,3,16,'east')
     b.bowl(25,14); b.block(24,3,18,'mcyukkuri:yukkuri_nest'); b.block(26,3,18,'mcyukkuri:yukkuri_nest')
     for x in (25,26,27): mark(b,x,16,'trainee')
+    # A carpet is a real 1/16-high floor, so the pets whose marks it is stand on top of it.
     for x,kind in [(25.5,'marisa'),(26.5,'alice'),(27.5,'reimu')]:
-        b.pet(x,16.5,kind,'shop_examiner','trainee',0,skills=LIFE_SKILLS,traits=(55,70,55,60,80))
+        b.pet(x,16.5,kind,'shop_examiner','trainee',0,skills=LIFE_SKILLS,traits=(55,70,55,60,80),y=3.0625)
     register_pen(b,'trainee',(24,14,27,18),(25,14),[(24,18),(26,18)],(3,3))
     # Gold booth: two 3x3 cells split by a glass wall. Candidate (gold mark) and actor (wild-role yukkuri).
     pen_rect(b,29,23,35,25); glass(b,(32,23),(32,25)); b.door(30,3,22); b.door(34,3,22)
     mark(b,30,24,'gold'); mark(b,34,24,'actor')
-    b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',0)
+    b.bowl(33,25); b.block(35,3,25,'mcyukkuri:yukkuri_nest'); b.pet(34.5,24.5,'reimu','shop_examiner','exam_actor',0,y=3.0625)
     register_pen(b,'actor',(33,23,35,25),(33,25),[(35,25)],(3,3))
     # Records corner at the south end.
     b.block(30,3,28,'lectern',{'facing':'north','has_book':'false','powered':'false'}); barrel(b,36,3,28); barrel(b,37,3,28); furniture(b,'bench',3,[(26,28)],'z'); furniture(b,'table',3,[(27,28)])
