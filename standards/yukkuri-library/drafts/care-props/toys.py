@@ -58,13 +58,14 @@ def ring(centre, radius, axis_turn, offset, lift=0.0, segs=20):
 
 
 # =====================================================================================================================
-YARN_Y = 3.2
+YARN_Y = 2.98
 YARN_BANDS = (
     # (axis_turn, latitude_offset, half_width, r_out, (strand_a, strand_b, edge))
-    (turn(12, 0, 28),    0.0,  1.28, 3.18, (2, 1, 1)),
-    (turn(100, 0, -34),  0.0,  1.22, 3.28, (2, 3, 1)),
-    (turn(52, 0, 70),    0.30, 1.15, 3.38, (3, 2, 1)),
-    (turn(-36, 0, -64), -0.25, 1.05, 3.50, (4, 3, 2)),
+    (turn(10, 0, 24),    0.00, 1.04, 3.10, (2, 1, 0)),
+    (turn(78, 0, -40),   0.10, 0.98, 3.18, (2, 3, 1)),
+    (turn(-48, 0, 56),  -0.10, 0.94, 3.26, (3, 2, 1)),
+    (turn(132, 0, 36),   0.18, 0.90, 3.34, (3, 4, 2)),
+    (turn(-18, 0, -68), -0.14, 0.84, 3.42, (4, 3, 2)),
 )
 
 
@@ -87,8 +88,8 @@ def _flat_quad(b, part, pts, uvs, outward_hint):
         b.p.tri(part, [pts[i0], pts[i1], pts[i2]], [n] * 3, None, uvs=[uvs[i0], uvs[i1], uvs[i2]])
 
 
-def _wrap_band(b, part, centre, r_in, r_out, half_w, axis_turn, offset, key, img, segs=12, floor_y=0.0):
-    """A flat-shaded polygonal belt hugging a sphere, with outer face and tucked side walls."""
+def _wrap_band(b, part, centre, r_in, r_out, half_w, axis_turn, offset, key, img, segs=14, lat_steps=3, floor_y=0.0):
+    """A flat-shaded polygonal belt hugging a sphere across lat_steps latitude strips, with tucked side walls."""
     axis = [axis_turn[i][1] for i in range(3)]
     e1 = [axis_turn[i][0] for i in range(3)]
     e2 = [axis_turn[i][2] for i in range(3)]
@@ -101,28 +102,37 @@ def _wrap_band(b, part, centre, r_in, r_out, half_w, axis_turn, offset, key, img
         p = [centre[i] + axis[i] * s + rad[i] * rr for i in range(3)]
         if p[1] < floor_y:
             p[1] = floor_y
-        return p, rad
+        out = _unit([axis[i] * s + rad[i] * rr for i in range(3)])
+        return p, out
 
-    s0, s1 = offset - half_w, offset + half_w
+    s_vals = [offset - half_w + 2 * half_w * j / lat_steps for j in range(lat_steps + 1)]
     for k in range(segs):
         t0, t1 = 2 * math.pi * k / segs, 2 * math.pi * (k + 1) / segs
         u0, u1 = ox + W * k / segs, ox + W * (k + 1) / segs
-        o00, rad0 = pt(r_out, s0, t0)
-        o10, rad1 = pt(r_out, s0, t1)
-        o11, _ = pt(r_out, s1, t1)
-        o01, _ = pt(r_out, s1, t0)
+        for j in range(lat_steps):
+            sa, sb = s_vals[j], s_vals[j + 1]
+            va, vb = oy + H * j / lat_steps, oy + H * (j + 1) / lat_steps
+            o00, n00 = pt(r_out, sa, t0)
+            o10, n10 = pt(r_out, sa, t1)
+            o11, n11 = pt(r_out, sb, t1)
+            o01, n01 = pt(r_out, sb, t0)
+            nmid = _unit([n00[c] + n10[c] + n11[c] + n01[c] for c in range(3)])
+            _flat_quad(b, part, [o00, o10, o11, o01], [(u0, va), (u1, va), (u1, vb), (u0, vb)], nmid)
+        s0, s1 = s_vals[0], s_vals[-1]
+        o00, _ = pt(r_out, s0, t0)
+        o10, _ = pt(r_out, s0, t1)
         i00, _ = pt(r_in, s0, t0)
         i10, _ = pt(r_in, s0, t1)
-        i11, _ = pt(r_in, s1, t1)
+        o01, _ = pt(r_out, s1, t0)
+        o11, _ = pt(r_out, s1, t1)
         i01, _ = pt(r_in, s1, t0)
-        rmid = _unit([rad0[c] + rad1[c] for c in range(3)])
-        _flat_quad(b, part, [o00, o10, o11, o01], [(u0, oy), (u1, oy), (u1, oy + H), (u0, oy + H)], rmid)
+        i11, _ = pt(r_in, s1, t1)
         _flat_quad(b, part, [i00, i10, o10, o00], [(u0, oy), (u1, oy), (u1, oy + 1), (u0, oy + 1)], [-c for c in axis])
         _flat_quad(b, part, [o01, o11, i11, i01], [(u0, oy + H - 1), (u1, oy + H - 1), (u1, oy + H), (u0, oy + H)], axis)
 
 
 def _square_strand(b, part, path, half_w, key, img):
-    """A chunky flat-shaded 4-sided yarn tail along a polyline, resting cleanly on the ground."""
+    """A thin flat-shaded 4-sided yarn tail along a polyline, resting flat on the ground."""
     ox, oy = b.region(key, img, wrap=False)
     W, H = img.size
     n = len(path)
@@ -155,32 +165,35 @@ def _square_strand(b, part, path, half_w, key, img):
 
 
 def yarn_ball():
-    """The rolling toy: a flat-shaded low-poly ball of rose yarn (~6.8 across) built from overlapping modelled wrap bands
-    over a calm core, with a short chunky loose end resting on the ground inside the ball's footprint."""
+    """The rolling toy: a flat-shaded low-poly ball of rose yarn (~6.8 across) built from five overlapping modelled wrap
+    bands hugging a calm core, with a short yarn-thin loose end lying flat on the ground inside the ball's footprint."""
     b = Build('yarn_ball', square=True)
     centre = (0.0, YARN_Y, 0.0)
     core_img = sphere_paint(16, 8, lambda d: ROSE[2] if d[1] > -0.2 else ROSE[1])
-    ellipsoid(b, b.part('wound_core'), centre, (3.06, 3.06, 3.06), 'core', core_img, segs=16, rows=7,
-              floor=-3.02, flat=True)
+    ellipsoid(b, b.part('wound_core'), centre, (2.98, 2.98, 2.98), 'core', core_img, segs=16, rows=7,
+              floor=-2.98, flat=True)
     bands = b.part('wrap_bands')
     for idx, (axis, offset, half_w, r_out, (t_a, t_b, t_edge)) in enumerate(YARN_BANDS):
-        band_img = canvas(16, 5)
+        band_img = canvas(16, 6)
         for u in range(16):
             put(band_img, u, 0, ROSE[t_edge], False)
             put(band_img, u, 1, ROSE[t_a], False)
             put(band_img, u, 2, ROSE[t_b], False)
             put(band_img, u, 3, ROSE[t_a], False)
-            put(band_img, u, 4, ROSE[t_edge], False)
-        _wrap_band(b, bands, centre, 2.90, r_out, half_w, axis, offset, f'band{idx}', band_img, segs=16, floor_y=0.0)
+            put(band_img, u, 4, ROSE[t_b], False)
+            put(band_img, u, 5, ROSE[t_edge], False)
+        _wrap_band(b, bands, centre, 2.86, r_out, half_w, axis, offset, f'band{idx}', band_img, segs=16, lat_steps=3,
+                   floor_y=0.0)
     tail_img = canvas(4, 6)
     for v in range(6):
         put(tail_img, 0, v, ROSE[3], False)
         put(tail_img, 1, v, ROSE[2], False)
         put(tail_img, 2, v, ROSE[1], False)
         put(tail_img, 3, v, ROSE[2], False)
-    tail = [(-2.35, 1.05, -1.75), (-2.80, 0.48, -1.95), (-3.10, 0.22, -1.65),
-            (-3.22, 0.22, -0.85), (-2.85, 0.22, -0.25)]
-    _square_strand(b, b.part('loose_thread'), tail, 0.22, 'tail', tail_img)
+    # Yarn-thin (0.22 wide) loose end emerging continuously from under the base and lying flat on y = 0.
+    tail = [(-0.80, 0.11, -0.80), (-1.90, 0.11, -1.55), (-2.75, 0.11, -1.65),
+            (-3.12, 0.11, -1.00), (-2.85, 0.11, -0.35)]
+    _square_strand(b, b.part('loose_thread'), tail, 0.11, 'tail', tail_img)
     return b.finish()
 
 
@@ -196,9 +209,9 @@ def glass_marble():
     ax = [tilt[i][1] for i in range(3)]
     e2 = [tilt[i][2] for i in range(3)]
     vane_palettes = (
-        ('#ff8c1a', '#ffc23d', '#fff4c2'),
-        ('#ffad2e', '#ffe066', '#fffbe6'),
-        ('#ff8c1a', '#ffc23d', '#fff4c2'),
+        ('#ff700a', '#ffad22', '#fff4b8'),
+        ('#ff9018', '#ffd248', '#fffbe0'),
+        ('#ff700a', '#ffad22', '#fff4b8'),
     )
     steps = 8
     for vi, (c_out, c_mid, c_in) in enumerate(vane_palettes):
@@ -213,13 +226,13 @@ def glass_marble():
         rings = []
         for s in range(steps + 1):
             t = -1.0 + 2.0 * s / steps
-            h = 1.52 * t
-            w = 1.48 * math.sqrt(max(0.0, 1.0 - t * t))
-            ang = base_a + 1.15 * t
+            h = 1.50 * t
+            w = 1.28 * math.sqrt(max(0.0, 1.0 - t * t))
+            ang = base_a + 1.25 * t
             rad = [math.cos(ang) * e1[c] + math.sin(ang) * e2[c] for c in range(3)]
             nrm = [-math.sin(ang) * e1[c] + math.cos(ang) * e2[c] for c in range(3)]
             p_in = [centre[c] + ax[c] * h for c in range(3)]
-            p_out = [centre[c] + ax[c] * h + rad[c] * max(0.14, w) for c in range(3)]
+            p_out = [centre[c] + ax[c] * h + rad[c] * max(0.12, w) for c in range(3)]
             rings.append((p_in, p_out, nrm))
         for s in range(steps):
             a0, b0, n0 = rings[s]
@@ -235,14 +248,14 @@ def glass_marble():
         if g > 0.945:
             return (255, 255, 255, 245)                     # tight crisp white specular glint
         if g > 0.87:
-            return (218, 242, 255, 165)                     # small pale glint halo
+            return (222, 244, 255, 160)                     # small pale glint halo
         if _dot(d, _unit((-0.45, -0.50, 0.55))) > 0.92:
-            return (210, 238, 255, 150)                     # tiny opposite bounce glint
+            return (214, 240, 255, 145)                     # tiny opposite bounce glint
         if d[1] > 0.65:
-            return (162, 218, 255, 88)                      # clear bright sky dome
+            return (174, 226, 255, 76)                      # clear bright sky dome
         if d[1] < -0.55:
-            return (64, 136, 214, 132)                      # deep sky-blue glass base
-        return (96, 178, 245, 74)                           # clear sky-blue glass body
+            return (68, 146, 224, 130)                      # deep sky-blue glass base
+        return (108, 192, 252, 62)                          # clear sky-blue glass body
     ellipsoid(b, b.part('glass_shell', translucent=True), centre, (2.2, 2.2, 2.2), 'glass',
               sphere_paint(24, 12, glass), segs=14, rows=7, floor=-2.1, flat=True)
     return b.finish()
