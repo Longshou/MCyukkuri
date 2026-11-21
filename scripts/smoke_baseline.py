@@ -37,7 +37,7 @@ def main():
     if reason:
         print(f'Machine busy, baseline of {commit[:9]} not filled: {reason}', flush=True)
         return 0
-    args.layout, args.no_wait = False, True
+    args.layout, args.no_wait, args.jfr = False, True, False
     table = smoke.baseline(commit, args.scenes or None, args, stop=busy)
     smoke.print_table(table, f'Main baseline {commit[:9]} (fate checker {smoke.fate.CHECKER}):')
     return 0

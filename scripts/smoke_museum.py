@@ -2,6 +2,7 @@
 """Run scene-owned log expectations and the actor fate check (smoke_fate.py) on a throwaway dedicated server;
 a self-check, never playtest acceptance."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import hashlib
 import importlib
@@ -54,6 +55,66 @@ def read_properties(path):
     return properties
 
 
+MOD_CACHE = server.COMMON / '.local/smoke/mod-cache'
+MOD_CACHE_KEEP = 4
+
+
+def link_or_copy(src, dst):
+    """Hardlink instead of copying (same drive), copy when linking fails (other drive, link limit). The destination is
+    replaced, never written through; nothing writes into a mod tree afterwards (javac only adds files, the server only reads)."""
+    try:
+        if os.path.lexists(dst):
+            os.unlink(dst)
+        os.link(src, dst)
+    except OSError:
+        shutil.copy2(src, dst)
+
+
+def link_tree(src, dst, ignore=None):
+    """Link (or copy) src into dst (existing files replaced). A file link costs about 5 ms here and is bound by the file
+    system, not the CPU, so the ~15k resource files go through a small thread pool (about 2.5 times faster than in sequence)."""
+    pairs = []
+
+    def walk(source, target):
+        target.mkdir(parents=True, exist_ok=True)
+        entries = list(os.scandir(source))
+        skipped = ignore(str(source), [entry.name for entry in entries]) if ignore else ()
+        for entry in entries:
+            if entry.name in skipped:
+                continue
+            if entry.is_dir():
+                walk(Path(entry.path), target / entry.name)
+            else:
+                pairs.append((entry.path, target / entry.name))
+
+    walk(Path(src), Path(dst))
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(lambda pair: link_or_copy(*pair), pairs))
+
+
+def classes_key(worktree, java, classpath):
+    """What the compiled classes depend on: the java files themselves (not HEAD, so uncommitted edits count),
+    gradle.properties, the merged Minecraft/NeoForge jar (size and time) and the compiler and library paths."""
+    digest = hashlib.sha256()
+    for path in classpath:
+        digest.update(f'{path}\n'.encode('utf-8'))
+    merged = classpath[0].stat()
+    digest.update(f'{java} {merged.st_size} {merged.st_mtime_ns}\n'.encode('utf-8'))
+    digest.update((worktree / 'gradle.properties').read_bytes())
+    sources = worktree / 'src/main/java'
+    for path in sorted(sources.rglob('*.java')):
+        digest.update(b'\0' + path.relative_to(sources).as_posix().encode('utf-8') + b'\0' + path.read_bytes())
+    return digest.hexdigest()[:24]
+
+
+def prune_mod_cache():
+    """Keep the newest few compiled trees (a hit refreshes its time); drop stale half-built ones of crashed runs."""
+    entries = sorted((p for p in MOD_CACHE.iterdir() if p.is_dir()), key=lambda p: p.stat().st_mtime, reverse=True)
+    done = [p for p in entries if '.tmp-' not in p.name]
+    for path in done[MOD_CACHE_KEEP:] + [p for p in entries if '.tmp-' in p.name and time.time() - p.stat().st_mtime > 86400]:
+        shutil.rmtree(path, ignore_errors=True)
+
+
 def assemble_mod(worktree, runtime, java, instance):
     properties = read_properties(worktree / 'gradle.properties')
     merged = server.COMMON / f'build/moddev/artifacts/neoforge-{properties["neo_version"]}-merged.jar'
@@ -62,31 +123,50 @@ def assemble_mod(worktree, runtime, java, instance):
     # Match javac_check.sh's merged Minecraft/NeoForge classes, using the installed runtime's dependencies.
     classpath = [merged] + [Path(entry) for entry in server.read_args_file(runtime / 'clientRunClasspath.txt')[1].split(';')
                             if Path(entry) != runtime / 'mod']
-    # The launcher discovers bundled libraries such as MixinExtras at runtime. javac needs them as separate jars.
-    with ZipFile(merged) as archive:
-        for member in archive.namelist():
-            if member.startswith('META-INF/jarjar/') and member.endswith('.jar'):
-                library = instance / 'compile-libs' / Path(member).name
-                library.parent.mkdir(parents=True, exist_ok=True)
-                library.write_bytes(archive.read(member))
-                classpath.append(library)
     mod = instance / 'mod'
     ignore = shutil.ignore_patterns('.cache', '*.bbmodel')
-    shutil.copytree(worktree / 'src/main/resources', mod, ignore=ignore)
+    link_tree(worktree / 'src/main/resources', mod, ignore)
     generated = worktree / 'src/generated/resources'
     if generated.is_dir():
-        shutil.copytree(generated, mod, dirs_exist_ok=True, ignore=ignore)
+        link_tree(generated, mod, ignore)
     metadata = mod / 'META-INF/neoforge.mods.toml'
     metadata.parent.mkdir(parents=True, exist_ok=True)
+    metadata.unlink(missing_ok=True)
     template = (worktree / 'src/main/templates/META-INF/neoforge.mods.toml').read_text(encoding='utf-8')
     metadata.write_text(re.sub(r'\$\{(\w+)\}', lambda match: properties[match[1]], template), encoding='utf-8')
-    args = instance / 'javac.args'
-    cp = ';'.join(path.as_posix() for path in classpath)
-    args.write_text(f'-cp "{cp}"\n' + '\n'.join(f'"{path.as_posix()}"' for path in
-                    sorted((worktree / 'src/main/java').rglob('*.java'))), encoding='utf-8')
-    print(f'Compiling worktree {worktree} -> {mod}', flush=True)
-    subprocess.run([str(java.with_name('javac.exe')), '-proc:none', '-nowarn', '-encoding', 'UTF-8',
-                    '-Xmaxerrs', '300', '-d', str(mod), '@' + str(args)], cwd=instance, check=True)
+    MOD_CACHE.mkdir(parents=True, exist_ok=True)
+    cached = MOD_CACHE / classes_key(worktree, java, classpath)
+    if cached.is_dir():
+        print(f'Reusing compiled classes {cached.name} for worktree {worktree}', flush=True)
+    else:
+        # The launcher discovers bundled libraries such as MixinExtras at runtime. javac needs them as separate jars.
+        with ZipFile(merged) as archive:
+            for member in archive.namelist():
+                if member.startswith('META-INF/jarjar/') and member.endswith('.jar'):
+                    library = instance / 'compile-libs' / Path(member).name
+                    library.parent.mkdir(parents=True, exist_ok=True)
+                    library.write_bytes(archive.read(member))
+                    classpath.append(library)
+        args = instance / 'javac.args'
+        cp = ';'.join(path.as_posix() for path in classpath)
+        args.write_text(f'-cp "{cp}"\n' + '\n'.join(f'"{path.as_posix()}"' for path in
+                        sorted((worktree / 'src/main/java').rglob('*.java'))), encoding='utf-8')
+        print(f'Compiling worktree {worktree} -> {cached.name}', flush=True)
+        building = cached.with_name(f'{cached.name}.tmp-{os.getpid()}')
+        building.mkdir(parents=True)
+        try:
+            subprocess.run([str(java.with_name('javac.exe')), '-proc:none', '-nowarn', '-encoding', 'UTF-8',
+                            '-Xmaxerrs', '300', '-d', str(building), '@' + str(args)], cwd=instance, check=True)
+            try:
+                building.rename(cached)
+            except OSError:  # another session cached the same key first
+                shutil.rmtree(building, ignore_errors=True)
+        except BaseException:
+            shutil.rmtree(building, ignore_errors=True)
+            raise
+    os.utime(cached)
+    link_tree(cached, mod)
+    prune_mod_cache()
     return mod
 
 
@@ -151,20 +231,29 @@ def build_pack(builder, pack_root, layout=False):
     return pack
 
 
-def wait_command(st, command, marker, timeout=120):
+def pause(st, fast):
+    """The wait between two polls of a tick-paced setup: 20 game ticks, sprinted when ``fast`` (the same ticks, no idle time)."""
+    if fast:
+        server.sprint(st, 20)
+    else:
+        time.sleep(0.2)
+
+
+def wait_command(st, command, marker, timeout=120, fast=False):
     offset = server.log_offset(st)
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         server.run_cmd(st, command)
         if marker in server.log_text(st, offset):
             return
-        time.sleep(0.2)
+        pause(st, fast)
     raise TimeoutError(f'Timed out waiting for {marker}; see {st["rundir"]}/logs/latest.log')
 
 
 def clear_all(st, fields):
     offset = server.log_offset(st)
     server.run_cmd(st, 'function mcylab:util/clear_all')
+    server.sprint(st, 60)  # the reset runs 3 s (60 ticks) after it loads the fields; later retries are 20 ticks each
     # The generated reset removes every field's forced chunks only after all field clears return.
     # Its tellraw @a completion is invisible without players; observe the last removal instead.
     x, z = sorted(fields[-1].chunks())[-1]
@@ -174,11 +263,11 @@ def clear_all(st, fields):
         server.run_cmd(st, 'execute if score #smoke_reset museum matches 0 run say MCYSMOKE_RESET_COMPLETE')
         if 'MCYSMOKE_RESET_COMPLETE' in server.log_text(st, offset):
             return
-        time.sleep(0.2)
+        server.sprint(st, 20)
     raise TimeoutError('Museum clear_all did not finish; see ' + st['rundir'] + '/logs/latest.log')
 
 
-def load_field(st, field, feet):
+def load_field(st, field, feet, fast=False):
     chunks = sorted(field.chunks())
     for x, z in chunks:
         server.run_cmd(st, f'forceload add {x} {z}')
@@ -189,7 +278,7 @@ def load_field(st, field, feet):
         group = chunks[start:start + batch]
         marker = f'MCYSMOKE_FIELD_READY_{start // batch}'
         loaded = ' '.join(f'if loaded {x} {feet} {z}' for x, z in group)
-        wait_command(st, f'execute {loaded} run say {marker}', marker)
+        wait_command(st, f'execute {loaded} run say {marker}', marker, fast=fast)
 
 
 def failure(smoke, window, trace=(), readout=''):
@@ -241,15 +330,18 @@ def gated_problems(reports, checks=GATING_CHECKS):
             if finding['check'] in checks and finding['verdict'] == 'fail']
 
 
-def run_scene(st, scene, builder, run_index, seed):
+def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
+    """Run one scene on the server and return a future of its result: the checks of the finished window read only the copied
+    log, so they run on ``pool`` (one worker, so output stays in scene order) while the next scene's setup uses the server."""
     server.run_cmd(st, 'schedule clear mcylab:observe/loop')
     server.run_cmd(st, 'schedule clear mcylab:observe/first')
     clear_all(st, builder.FIELDS)
-    load_field(st, builder.BY_ID[scene.field], builder.FEET)
+    load_field(st, builder.BY_ID[scene.field], builder.FEET, fast=True)
     server.run_cmd(st, 'yukkuri status trace dense')
     server.run_cmd(st, 'kill @e[tag=mcyv]')
     server.run_cmd(st, 'summon minecraft:marker 0 100 0 {Tags:["mcyv"]}')
-    server.jfr_start(st, f'{scene.id}-{run_index}')
+    if jfr:
+        server.jfr_start(st, f'{scene.id}-{run_index}')
     offset = server.log_offset(st)
     # The run's seed before the scene's own actors exist, inside this run's window so its log names its seed.
     server.run_cmd(st, f'yukkuri status seed {seed}')
@@ -292,44 +384,53 @@ def run_scene(st, scene, builder, run_index, seed):
     (Path(st['rundir']).parent / f'{scene.id}-{run_index}.readout.txt').write_text(readout, encoding='utf-8')
     end_tick = re.search(r'\d+', server.run_cmd(st, 'time query gametime'))[0]
     log = Path(st['rundir']).parent / f'{scene.id}-{run_index}.log'
-    legacy = []
-    trace = []
-    nonempty = False
     end_offset = server.log_offset(st)
-    with log.open('w', encoding='utf-8') as output:
-        for line in server.log_lines(st, offset, end_offset):
-            nonempty |= bool(line.strip())
-            output.write(line)
-            if '[trace]' not in line:
-                legacy.append(line)
-            elif scene.smoke.get('verify_trace'):
-                trace.append(line)
-        output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
-    window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
-    problems = [] if nonempty else [('empty log', 'empty server log window')]
-    problems += failure(scene.smoke, window, trace, readout)
-    problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
-    rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
-                    str(builder.ROOT), '--seed', str(seed), scene.id])
-    observations_dir = log.with_suffix('')
-    reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, seed, rerun, dense=True,
-                                      only=scene.id)
-    gating_checks = GATING_CHECKS.union(scene.smoke.get('gating_checks', ()))
-    problems += gated_problems(reports, gating_checks)
-    for _, text in problems:
-        print(f'FAIL {scene.id}: {text}', flush=True)
-    if not problems:
-        print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate; '
-              f'no gating check failure ({", ".join(sorted(gating_checks))})', flush=True)
-    jfr = server.jfr_summary(st, f'{scene.id}-{run_index}')
-    (observations_dir / 'jfr.json').write_text(json.dumps(jfr, indent=2), encoding='utf-8')
-    summary = [r for r in reports if r.get('scene') == scene.id]
-    for report in summary:
-        print(f'REPORT {scene.id}: seed={seed} ' + ' '.join(f'{r["check"]}={r["verdict"]}' for r in report['summary']), flush=True)
-    print(f'JFR {scene.id}: {jfr["verdict"]}; {jfr.get("top_methods", [])[:3]}; {observations_dir}', flush=True)
-    return dict(scene=scene.id, index=run_index, log=str(log), passed=not problems,
-                seed=seed, rerun=rerun, observations=str(observations_dir / 'checks.json'), jfr=jfr,
-                reasons=list(dict.fromkeys(reason for reason, _ in problems)), problems=[text for _, text in problems])
+
+    def finish():
+        legacy = []
+        trace = []
+        nonempty = False
+        with log.open('w', encoding='utf-8') as output:
+            for line in server.log_lines(st, offset, end_offset):
+                nonempty |= bool(line.strip())
+                output.write(line)
+                if '[trace]' not in line:
+                    legacy.append(line)
+                elif scene.smoke.get('verify_trace'):
+                    trace.append(line)
+            output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
+        window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
+        problems = [] if nonempty else [('empty log', 'empty server log window')]
+        problems += failure(scene.smoke, window, trace, readout)
+        problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
+        rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',
+                        str(builder.ROOT), '--seed', str(seed), scene.id])
+        observations_dir = log.with_suffix('')
+        reports = smoke_checks.report_log(log, observations_dir, {scene.id: scene.smoke}, seed, rerun, dense=True,
+                                          only=scene.id)
+        gating_checks = GATING_CHECKS.union(scene.smoke.get('gating_checks', ()))
+        problems += gated_problems(reports, gating_checks)
+        for _, text in problems:
+            print(f'FAIL {scene.id}: {text}', flush=True)
+        if not problems:
+            print(f'PASS {scene.id}: {len(scene.smoke["expect"])} expected patterns; no forbidden lines; no undeclared actor fate; '
+                  f'no gating check failure ({", ".join(sorted(gating_checks))})', flush=True)
+        for report in (r for r in reports if r.get('scene') == scene.id):
+            print(f'REPORT {scene.id}: seed={seed} ' + ' '.join(f'{r["check"]}={r["verdict"]}' for r in report['summary']), flush=True)
+        return dict(scene=scene.id, index=run_index, log=str(log), passed=not problems,
+                    seed=seed, rerun=rerun, observations=str(observations_dir / 'checks.json'),
+                    reasons=list(dict.fromkeys(reason for reason, _ in problems)), problems=[text for _, text in problems])
+
+    future = pool.submit(finish)
+    if jfr:
+        # --jfr: the recording stops before the next scene starts its own, so the checks do not overlap it.
+        result = future.result()
+        profile = server.jfr_summary(st, f'{scene.id}-{run_index}')
+        observations_dir = Path(result['observations']).parent
+        (observations_dir / 'jfr.json').write_text(json.dumps(profile, indent=2), encoding='utf-8')
+        print(f'JFR {scene.id}: {profile["verdict"]}; {profile.get("top_methods", [])[:3]}; {observations_dir}', flush=True)
+        result['jfr'] = profile
+    return future
 
 
 def geometry_rows(reply):
@@ -545,6 +646,16 @@ def warn_smoke_drift(source, scenes):
             print(f'WARNING scene {sid}: smoke checks differ from origin/main: ' + '; '.join(differences), flush=True)
 
 
+def sprint_build(st, step=200, limit=30):
+    """Sprint the museum build instead of waiting it out at 20 ticks/s: its ``schedule ... 1s/3s`` chain is paced by game ticks,
+    not work. Stops at the marker (the caller still waits for it and checks the log), or after ``limit`` steps when the
+    build never completes, which the caller then reports as before."""
+    for _ in range(limit):
+        if 'MCYMUSEUM_BUILD_COMPLETE' in server.log_text(st):
+            return
+        server.sprint(st, step)
+
+
 def session(source, compile_tree, builder, scenes, args, label, stop=None):
     """One server for ``scenes`` in order (repeats included), holding a machine-wide slot; one result per run."""
     instances = server.COMMON / '.local/smoke' if compile_tree else server.INSTANCES
@@ -563,6 +674,7 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
         server.wait_closed(not args.no_wait)
         st = server.start(runtime, java, datapack, name, mod, instances)
         try:
+            sprint_build(st)
             server.wait_log(st, r'MCYMUSEUM_BUILD_COMPLETE')
             if 'Failed to load function' in server.log_text(st):
                 raise RuntimeError('Generated functions failed to load; see ' + st['rundir'] + '/logs/latest.log')
@@ -570,14 +682,15 @@ def session(source, compile_tree, builder, scenes, args, label, stop=None):
                 for field in {builder.BY_ID[scene.field] for scene in scenes}:
                     load_field(st, field, builder.FEET)
                 return [check_layout(st, builder, scene) for scene in scenes]
-            results = []
-            for index, scene in enumerate(scenes, 1):
-                reason = stop() if stop else None
-                if reason:
-                    print(f'Stopping before {scene.id}: {reason}', flush=True)
-                    break
-                results.append(run_scene(st, scene, builder, index, run_seed(args.seed, index)))
-            return results
+            futures = []
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                for index, scene in enumerate(scenes, 1):
+                    reason = stop() if stop else None
+                    if reason:
+                        print(f'Stopping before {scene.id}: {reason}', flush=True)
+                        break
+                    futures.append(run_scene(st, scene, builder, index, run_seed(args.seed, index), pool, args.jfr))
+            return [future.result() for future in futures]
         finally:
             server.stop(st)
 
@@ -717,6 +830,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worktree', type=Path, help='Compile this worktree into an isolated mod (no Gradle)')
     parser.add_argument('--layout', action='store_true', help='Check the generated world of every scene (default: all scenes) instead of the smoke expectations')
+    parser.add_argument('--jfr', action='store_true', help='Record a JFR profile per scene (adds ~2-3 s per scene; reports server hot methods)')
     parser.add_argument('--repeat', type=int, default=1, help='Run every scene N times in one server session and print pass counts')
     parser.add_argument('--baseline', action='store_true',
                         help='Run the merge-base of this tree with origin/main instead, topping its cached counts up to --repeat runs')

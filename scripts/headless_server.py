@@ -23,6 +23,7 @@ def git_common_root(worktree):
 ROOT = Path(__file__).resolve().parent.parent
 COMMON = git_common_root(ROOT)
 INSTANCES = ROOT / '.local/smoke'
+SMOKE_LOG4J2 = ROOT / 'scripts/smoke-log4j2.xml'
 
 
 def below_normal_priority():
@@ -242,7 +243,9 @@ def run_cmd(st, cmd, timeout=30):
 
 
 def build_java_cmd(runtime, java, rundir, mod):
-    vm = [a for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
+    # Smoke servers log to latest.log only (the runtime's config also writes debug.log and a full console copy per line).
+    vm = [f'-Dlog4j2.configurationFile={SMOKE_LOG4J2}' if a.startswith('-Dlog4j2.configurationFile=') else a
+          for a in read_args_file(runtime / 'clientRunVmArgs.txt') if not a.startswith('-Dneoforge.enableGameTest')]
     cp = read_args_file(runtime / 'clientRunClasspath.txt')[:2]
     cp[1] = ';'.join(str(mod) if Path(entry) == runtime / 'mod' else entry for entry in cp[1].split(';'))
     prog = read_args_file(runtime / 'clientRunProgramArgs.txt')
