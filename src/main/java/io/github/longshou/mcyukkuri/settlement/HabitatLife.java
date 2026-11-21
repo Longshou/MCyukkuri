@@ -720,7 +720,12 @@ public final class HabitatLife {
     YukkuriEntity entity() { return entity; }
     int ticks() { return ticks; }
     void resetTicks() { ticks=0; }
-    void task(Task next) { task=next; }
+    /** A home project (dig, surface nest, nest build, roam for a site) outranks the stroll goal while it runs: its start and end are logged. */
+    void task(Task next) {
+        if (next != task && (project(next) || project(task))) GameplayLog.event(entity,"habitat","project task={} -> {}",task,next);
+        task=next;
+    }
+    private static boolean project(Task t) { return t==Task.DIG||t==Task.ROAM||t==Task.SURFACE_NEST||t==Task.NEST_BUILD; }
     Task task() { return task; }
     BlockPos targetBlock() { return targetBlock; }
     void targetBlock(BlockPos next) { targetBlock=next; }

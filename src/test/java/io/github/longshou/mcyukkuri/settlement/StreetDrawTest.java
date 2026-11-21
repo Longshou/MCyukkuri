@@ -35,7 +35,7 @@ class StreetDrawTest {
     }
 
     @Test
-    void spellLengthGrowsWithHungerFromTwentyToEightySeconds() {
+    void spellLengthGrowsWithHungerFromSixtyToTwoHundredFortySeconds() {
         assertEquals(1200, StreetDraw.ticks(100));
         assertEquals(1200, StreetDraw.ticks(85));
         assertEquals(4800, StreetDraw.ticks(40));
