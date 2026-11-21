@@ -11,7 +11,6 @@
 | 公园休息：街上遛宠、长椅上坐着看宠物玩；口袋公园放游具 | `.worktrees/wp-park-rest` | HumanStreet, PetOuting, ParkSeats, human renderer, author_lots pocket park, museum_scenarios park |
 | 流浪油库里白天上街觅食（FG-13 真实世界触发率） | `.worktrees/wp-stray-street` | life/StreetBeat (new), RoamingGoal, ForageGoal, YukkuriLife, FoundShelter, FEATURES FG-13 |
 | 统一有人看守的柜台：报亭并入街角店、回购、宠物店相亲预约 | `.worktrees/wp-counters` | human/KioskCounter→Counter, ProduceCrate*, HumanStreet, HumanNpc, shop/KeeperMenu, author_lots, FEATURES |
-| 冒烟提速：构建阶段加速、资源硬链接、编译缓存、精简日志 | `.worktrees/wp-smoke-speed` | scripts/smoke_museum.py, scripts/headless_server.py, docs/roles/coder.md, docs/roles/smoke-approver.md, scripts/README.md |
 
 
 
