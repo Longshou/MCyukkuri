@@ -184,7 +184,7 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         result = self.run_cli('inbox', 'add', 'boundary', '--title', 'New title', '--url', '../boundary/index.html', '--decision', 'New decision')
         self.assertEqual(result.returncode, 0, result.stderr)
         items = json.loads((target/'items.json').read_text(encoding='utf-8'))
-        self.assertEqual(items[0], dict(id='life-review', title='Existing title', decision='Existing decision', url='../life-review/index.html', kind='decision'))
+        self.assertEqual(items[0], dict(id='life-review', title='Existing title', decision='Existing decision', url='../life-review/index.html', kind='art'))
         result = self.run_cli('inbox', 'remove', 'boundary')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(json.loads((target/'items.json').read_text(encoding='utf-8'))), 1)
@@ -242,24 +242,24 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
                 dict(id='clip', title='Clip', url='../clip/viewer.html?model=reimu', decision='Watch'),
                 dict(id='misc', title='Misc <b>', url='../misc/index.html', decision='Choose one')]
         (target/'items.json').write_text(json.dumps(rows), encoding='utf-8')
-        self.assertEqual([infer_kind(row) for row in rows], ['art', 'playtest', 'motion', 'decision'])
+        self.assertEqual([infer_kind(row) for row in rows], ['art', 'playtest', 'motion', 'art'])
         result = self.run_cli('inbox', 'add', 'forced', '--title', 'F', '--decision', 'D',
                               '--url', '../forced/index.html', '--kind', 'art')
         self.assertEqual(result.returncode, 0, result.stderr)
         items = json.loads((target/'items.json').read_text(encoding='utf-8'))
-        self.assertEqual([item['kind'] for item in items], ['art', 'playtest', 'motion', 'decision', 'art'])
+        self.assertEqual([item['kind'] for item in items], ['art', 'playtest', 'motion', 'art', 'art'])
         refresh_inbox(self.out, [])
         markup = (target/'index.html').read_text(encoding='utf-8')
-        for ident in ('art-demo', 'clip', 'forced'):
+        for ident in ('art-demo', 'clip', 'forced', 'misc'):
             self.assertIn(f'data-verdict-id="{ident}"', markup)
-        for ident in ('playtest-1', 'misc'):
+        for ident in ('playtest-1',):
             self.assertNotIn(f'data-verdict-id="{ident}"', markup)
         self.assertIn('src="../art-demo/pic.png"', markup)
         self.assertIn('target="_blank"', markup)
         self.assertIn('id="only-pending"', markup)
         self.assertIn('Misc &lt;b&gt;', markup)
-        self.assertIn('待审 <span class="pending-count">2</span> / 共 2', markup)
-        self.assertIn('<b id="pending-total">3</b>', markup)
+        self.assertIn('待审 <span class="pending-count">3</span> / 共 3', markup)
+        self.assertIn('<b id="pending-total">4</b>', markup)
 
     def test_verdict_reasons_round_trip(self):
         import review_verdicts

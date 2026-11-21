@@ -661,7 +661,11 @@ def inbox(args):
 def read_inbox(target):
     database = target/'items.json'
     if database.is_file():
-        return read(database)
+        items = read(database)
+        for item in items:
+            if item.get('kind') not in KINDS:
+                item['kind'] = infer_kind(dict(item, kind=None))
+        return items
     if (target/'index.html').is_file():
         reader = InboxReader()
         reader.feed((target/'index.html').read_text(encoding='utf-8'))
@@ -669,7 +673,7 @@ def read_inbox(target):
     return []
 
 
-KINDS = {'motion': '动作', 'art': '美术', 'playtest': '试玩', 'decision': '决定'}
+KINDS = {'motion': '动作', 'art': '美术', 'playtest': '试玩'}
 REVIEWABLE = ('motion', 'art')
 
 
@@ -684,7 +688,7 @@ def infer_kind(item):
         return 'art'
     if '试玩' in item.get('title', ''):
         return 'playtest'
-    return 'decision'
+    return 'art'
 
 
 def thumbnail(out, item, entries):
