@@ -684,7 +684,7 @@ GAP = {
     'tool_appease': {
         'baby': {
             'proud': ('{c}♪ にんげんしゃ、にこにこ！', '{c}♪ 人类先森，笑笑！', '{c}! Mr. Human, smiley!'),
-            'timid': ('{c}……やしゃしく……ちて……', '{c}……温温柔柔……的……', '{c}... be gentle...'),
+            'timid': ('{c}……やしゃしく……ちて……', '{c}……轻、轻一点……', '{c}... be gentle...'),
             'plain': ('{c}……いいこ、いいこ……', '{c}……乖乖，乖乖……', '{c}... good, good...')},
         'juvenile': {
             'proud': ('{p}にんげんしゃん、{n}、いいこ{e}！ にこにこ{e}！', '{p}人类先生，{n}是乖孩子{e}！笑笑{e}！', '{p}Mr. Human, {N} is good! Smile!'),
@@ -707,7 +707,7 @@ GAP = {
         'adult': {
             'proud': ('{p}ひどい{e}！ {n}は なにも してない{e}！', '{p}好过分{e}！{n}什么都没做{e}！', '{p}So mean! {N} did nothing!'),
             'timid': ('{p}ひどいよ……{n}、なにもしてないのに……', '{p}好过分……{n}什么都没做呀……', '{p}So mean... I did nothing...'),
-            'plain': ('{p}どうして……そんなこと いうの……', '{p}为什么……要那样说……', '{p}Why... say such a thing...')}},
+            'plain': ('{p}どうして……ひどいこと するの……', '{p}为什么……要做过分的事……', '{p}Why... do such a mean thing...')}},
     # Too weak to resist the basket, but it still says no.
     'basket_refuse_weary': {
         'baby': {
@@ -722,7 +722,7 @@ GAP = {
             'proud': ('{p}ふらふらでも、かごさんは いや{e}！', '{p}就算晃晃悠悠，也不要篮子先生{e}！', '{p}Wobbly, but I still say no to the basket!'),
             'timid': ('{p}ふらふら……かごさん、もう むり{e}……', '{p}晃晃悠悠……篮子先生，已经不行了{e}……', '{p}Wobbly... the basket is too much...'),
             'plain': ('{p}つかれた……うごけない{e}……', '{p}累了……动不了{e}……', '{p}Tired... cannot move...')}},
-    # A plain no: food it will not take, a dose, a wash, a hat it will not fill.
+    # A plain no: food it will not take, a dose, a hat it will not fill.
     'refuse': {
         'baby': {
             'proud': ('{c}！ いやー！ いやいや！', '{c}！不要！不要不要！', '{c}! No! No no!'),
@@ -736,6 +736,96 @@ GAP = {
             'proud': ('{p}いや{e}！ いらない{e}！', '{p}不要{e}！不需要{e}！', '{p}No! I do not want it!'),
             'timid': ('{p}いや……いらない……', '{p}不……不要……', '{p}No... do not want...'),
             'plain': ('{p}ううん、いらない{e}。', '{p}不，不需要{e}。', '{p}No, I do not want it.')}},
+}
+
+# Reaction events that still named a line after wp-gap-lines but had no pool at all: the face was shown and the animal
+# stayed silent. Same style-tagged triples per tier; wording stays inside what the body feels or sees at that moment.
+GAP_FILL_BASIS = 'wp-lines-1121: reaction pool with no line before; project-original wording, voiced'
+GAP_FILL = {
+    # A plain pain without an attacker to plead with (harmful food, a late mould dose, a bare-handed bash, a soiled wrap).
+    'hurt': {
+        'baby': {
+            'proud': ('{c}！ いちゃい！', '{c}！好痛！', '{c}! Ouch!'),
+            'timid': ('{c}……いちゃい……', '{c}……好痛……', '{c}... it hurts...'),
+            'plain': ('{c}……いちゃいの……', '{c}……痛痛……', '{c}... ouchie...')},
+        'juvenile': {
+            'proud': ('{p}いちゃい{e}！', '{p}好痛{e}！', '{p}It hurts!'),
+            'timid': ('{p}いちゃい……', '{p}好痛……', '{p}It hurts...'),
+            'plain': ('{p}……いちゃいの、いや{e}……', '{p}……好痛，不要{e}……', '{p}... ouch, no more...')},
+        'adult': {
+            'proud': ('{p}いたい{e}！', '{p}好痛{e}！', '{p}It hurts!'),
+            'timid': ('{p}いたい……', '{p}好痛……', '{p}It hurts...'),
+            'plain': ('{p}……いたいの、いや{e}……', '{p}……好痛，不要{e}……', '{p}... it hurts, no more...')}},
+    # A member of the group is captured, dead or gone: the rest cry out for it.
+    'search_family': {
+        'baby': {
+            'proud': ('{c}！ みんな、どこー！', '{c}！大家，在哪！', '{c}! Everyone, where!'),
+            'timid': ('{c}……みんな……いない……', '{c}……大家……不在……', '{c}... everyone... gone...'),
+            'plain': ('{c}……どこに いるの……', '{c}……在哪儿……', '{c}... where are you...')},
+        'juvenile': {
+            'proud': ('{p}みんなー！ どこに いるの！', '{p}大家——！在哪儿！', '{p}Everyone! Where are you!'),
+            'timid': ('{p}みんな……いない……どこ……', '{p}大家……不在……在哪……', '{p}Everyone... gone... where...'),
+            'plain': ('{p}……みんな、どこに いったの{e}……', '{p}……大家，去哪儿了{e}……', '{p}... everyone, where did you go...')},
+        'adult': {
+            'proud': ('{p}みんな！ どこに いるの{e}！', '{p}大家！在哪儿{e}！', '{p}Everyone! Where are you!'),
+            'timid': ('{p}みんな……いない……', '{p}大家……不在……', '{p}Everyone... gone...'),
+            'plain': ('{p}……みんな、どこに いったの{e}……', '{p}……大家，都去哪儿了{e}……', '{p}... everyone, where have you gone...')}},
+    # A prepared serving is put in its mouth: it says the food has come before it swallows.
+    'receive_mash': {
+        'baby': {
+            'proud': ('{c}♪ まんま、きた！ まんま！', '{c}♪ 饭饭来啦！饭饭！', '{c}! Food is here! Food!'),
+            'timid': ('{c}……まんま……くれるの……？', '{c}……饭饭……给窝的……？', '{c}... food... for me...?'),
+            'plain': ('{c}……まんま、きた……', '{c}……饭饭，来啦……', '{c}... food came...')},
+        'juvenile': {
+            'proud': ('{p}ごはんしゃん、きた{e}！ たべる{e}！', '{p}饭鲜笋来啦{e}！窝要吃{e}！', '{p}Mr. Food is here! I will eat!'),
+            'timid': ('{p}ごはんしゃん……くれるの{e}……？', '{p}饭鲜笋……是给窝的吗{e}……？', '{p}Mr. Food... is it for me...?'),
+            'plain': ('{p}ごはんしゃん、きた{e}……', '{p}饭鲜笋来啦{e}……', '{p}Mr. Food is here...')},
+        'adult': {
+            'proud': ('{p}ごはんさん、きた{e}！ たべる{e}！', '{p}饭先生来啦{e}！开吃{e}！', '{p}Mr. Food is here! I am eating!'),
+            'timid': ('{p}ごはんさん……くれるの{e}……？', '{p}饭先生……是给我的吗{e}……？', '{p}Mr. Food... is it for me...?'),
+            'plain': ('{p}ごはんさん、きた{e}……', '{p}饭先生来啦{e}……', '{p}Mr. Food is here...')}},
+    # A clap of lightning: a big sound with no attacker it can see.
+    'thunder': {
+        'baby': {
+            'proud': ('{c}！ おおきい おと！', '{c}！好大的声音！', '{c}! Big sound!'),
+            'timid': ('{c}……びっくりした……', '{c}……吓一跳……', '{c}... startled...'),
+            'plain': ('{c}……こわい おと……', '{c}……可怕的声音……', '{c}... scary sound...')},
+        'juvenile': {
+            'proud': ('{p}おおきい おと{e}！ びっくりした{e}！', '{p}好大的声音{e}！吓一跳{e}！', '{p}A big sound! I am startled!'),
+            'timid': ('{p}びっくりした……こわい……', '{p}吓一跳……好可怕……', '{p}Startled... scary...'),
+            'plain': ('{p}……おおきい おと、こわい{e}……', '{p}……好大的声音，好可怕{e}……', '{p}... big sound, scary...')},
+        'adult': {
+            'proud': ('{p}おおきい おと{e}！ なに{e}！', '{p}好大的声音{e}！什么{e}！', '{p}A big sound! What was that!'),
+            'timid': ('{p}びっくりした……こわい……', '{p}吓了一跳……好可怕……', '{p}Startled... scary...'),
+            'plain': ('{p}……おおきい おとが した{e}……', '{p}……响起了好大的声音{e}……', '{p}... there was a big sound...')}},
+    # The body broadens into its adult form: it feels the change happen.
+    'deibu_developed': {
+        'baby': {
+            'proud': ('{c}！ からだ、おおきい！', '{c}！身体，好大！', '{c}! Body, big!'),
+            'timid': ('{c}……からだ……おおきい……', '{c}……身体……好大……', '{c}... body... big...'),
+            'plain': ('{c}……からだが、かわった……？', '{c}……身体，变了……？', '{c}... my body changed...?')},
+        'juvenile': {
+            'proud': ('{p}からだが おおきくなった{e}！', '{p}身体变大了{e}！', '{p}My body got bigger!'),
+            'timid': ('{p}……からだが、おおきい……', '{p}……身体，好大……', '{p}... my body is big...'),
+            'plain': ('{p}……なんだか、からだが ひろい{e}……', '{p}……总觉得，身体变宽了{e}……', '{p}... somehow my body feels wide...')},
+        'adult': {
+            'proud': ('{p}からだが おおきくなった{e}！', '{p}身体变大了{e}！', '{p}My body got bigger!'),
+            'timid': ('{p}……からだが、おおきい……', '{p}……身体，好大……', '{p}... my body is big...'),
+            'plain': ('{p}……なんだか、からだが ひろい{e}……', '{p}……总觉得，身体变宽了{e}……', '{p}... somehow my body feels wide...')}},
+    # Washed against its will: it struggles and tells the one rubbing it to stop.
+    'wash_refuse': {
+        'baby': {
+            'proud': ('{c}！ やめちぇ！ やめちぇ！', '{c}！别弄！别弄！', '{c}! Stop! Stop!'),
+            'timid': ('{c}……やめちぇ……やだ……', '{c}……别弄……不要……', '{c}... stop... no...'),
+            'plain': ('{c}……いやの……やめちぇ……', '{c}……不要……别弄……', '{c}... no... stop...')},
+        'juvenile': {
+            'proud': ('{p}いやだ{e}！ もう やめちぇ！', '{p}不要{e}！别弄了！', '{p}No! Stop it!'),
+            'timid': ('{p}やめちぇ……いやだよぉ……', '{p}别弄……好讨厌……', '{p}Stop... I hate it...'),
+            'plain': ('{p}……いや。やめちぇ。', '{p}……不要。别弄。', '{p}... no. Stop it.')},
+        'adult': {
+            'proud': ('{p}いや{e}！ やめて！', '{p}不要{e}！停下！', '{p}No! Stop it!'),
+            'timid': ('{p}やめて……いやよ……', '{p}停下……不要……', '{p}Stop... no...'),
+            'plain': ('{p}……いや。やめてほしい{e}。', '{p}……不要。想让你停下{e}。', '{p}... no. Please stop.')}},
 }
 
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
@@ -882,6 +972,10 @@ def main():
             for tier, variants in tiers.items():
                 for i, (variant, frame) in enumerate(variants.items(), 1):
                     make(sp, tier, event, frame, context(sp, tier), lines, GAP_BASIS, prefix=f'g{i}_', variant=variant)
+        for event, tiers in GAP_FILL.items():
+            for tier, variants in tiers.items():
+                for i, (variant, frame) in enumerate(variants.items(), 1):
+                    make(sp, tier, event, frame, context(sp, tier), lines, GAP_FILL_BASIS, prefix=f'g{i}_', variant=variant)
         for tier, frame in PROTECTION_TAUNT_TIERS.items():
             if tier == 'adult' and sp in ('reimu', 'marisa', 'alice', 'chen', 'patchouli'):
                 continue  # their adult taunt is the older line above; the tic-bearing Myon keys and the two predators had none

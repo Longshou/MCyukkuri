@@ -944,7 +944,7 @@ public final class YukkuriLife {
         personality.washed(player);
         switch (response) {
             case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
-            case DEFIANT -> entity.showReaction(YukkuriAction.STRUGGLE, "angry", "refuse");
+            case DEFIANT -> entity.showReaction(YukkuriAction.STRUGGLE, "angry", "wash_refuse");
             case GRATEFUL -> entity.showReaction(YukkuriAction.BOW, "closed_smile", "request_thanks");
             default -> entity.showReaction("happy", "washed", 60);
         }

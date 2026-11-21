@@ -91,10 +91,10 @@ public final class NativeDialogue {
                     "boat_rock_startle", "family_alarm_flee", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "braid_rescue_mouth_grip",
                     "self_rescue_hat", "self_rescue_hat_seek", "self_rescue_grip",
-                    "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach" -> 3;
+                    "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach", "hurt" -> 3;
             case "airborne", "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
                     "family_alarm_calm", "braid_rescue_safe", "braid_rescue_safe_ashore", "self_rescue_safe", "hat_recovered",
-                    "glass_wait", "glass_child_answer", "glass_ram" -> 2;
+                    "glass_wait", "glass_child_answer", "glass_ram", "search_family" -> 2;
             case "give_up_search" -> 3;
             // Period onset, the staged sukkiri completion, its unmet ending and the aftermath realization
             // are one-off state beats; they must not be swallowed by ordinary chatter.
@@ -111,7 +111,8 @@ public final class NativeDialogue {
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
                  "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
                  "basket_refuse", "basket_refuse_guarded", "basket_refuse_defiant", "basket_refuse_weary", "basket_enter", "basket_exit",
-                 "factory_receive_insult", "handover_plea", "tool_appease", "scorn_hurt", "refuse", "wild_plea_keep", "pet_report_owner",
+                 "factory_receive_insult", "handover_plea", "tool_appease", "scorn_hurt", "refuse", "wash_refuse", "receive_mash",
+                 "thunder", "deibu_developed", "wild_plea_keep", "pet_report_owner",
                  "predator_restrain", "predator_obey", "predator_defy", "predator_screech",
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",

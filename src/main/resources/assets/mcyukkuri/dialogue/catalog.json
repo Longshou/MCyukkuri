@@ -78053,7 +78053,7 @@
     "events": [
       "scorn_hurt"
     ],
-    "ticks": 63,
+    "ticks": 64,
     "sound": "voice.original.reimu.adult.g3_scorn_hurt",
     "variant": "plain"
   },
@@ -78289,6 +78289,708 @@
     ],
     "ticks": 45,
     "sound": "voice.original.reimu.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.reimu.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.reimu.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.reimu.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.reimu.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.reimu.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.reimu.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.reimu.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.reimu.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.reimu.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.reimu.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.reimu.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.reimu.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.reimu.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.reimu.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.reimu.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.reimu.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.reimu.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.reimu.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.reimu.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.reimu.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.reimu.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.reimu.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.reimu.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.reimu.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.reimu.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.reimu.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.reimu.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.reimu.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.reimu.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.reimu.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.reimu.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.reimu.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "reimu.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "reimu.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.reimu.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "reimu.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.reimu.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "reimu",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.reimu.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -78896,7 +79598,7 @@
     "events": [
       "scorn_hurt"
     ],
-    "ticks": 63,
+    "ticks": 64,
     "sound": "voice.original.marisa.adult.g3_scorn_hurt",
     "variant": "plain"
   },
@@ -79132,6 +79834,708 @@
     ],
     "ticks": 46,
     "sound": "voice.original.marisa.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.marisa.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.marisa.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.marisa.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.marisa.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.marisa.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.marisa.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.marisa.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.marisa.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.marisa.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.marisa.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.marisa.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.marisa.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.marisa.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.marisa.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.marisa.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.marisa.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.marisa.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.marisa.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.marisa.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.marisa.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.marisa.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.marisa.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.marisa.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.marisa.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.marisa.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.marisa.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.marisa.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "marisa.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "marisa.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.marisa.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "marisa.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.marisa.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "marisa",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.marisa.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -79978,6 +81382,708 @@
     "variant": "plain"
   },
   {
+    "id": "alice.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.alice.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.alice.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.alice.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.alice.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.alice.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.alice.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.alice.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.alice.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.alice.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.alice.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.alice.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.alice.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.alice.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.alice.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.alice.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.alice.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.alice.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.alice.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.alice.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.alice.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.alice.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.alice.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.alice.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.alice.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.alice.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.alice.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.alice.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "alice.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "alice.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.alice.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "alice.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.alice.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "alice",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.alice.adult.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
     "id": "alice.baby.retest_protect_taunt",
     "key": "dialogue.mcyukkuri.original.alice.baby.retest_protect_taunt",
     "origin": "project-original",
@@ -80582,7 +82688,7 @@
     "events": [
       "scorn_hurt"
     ],
-    "ticks": 53,
+    "ticks": 54,
     "sound": "voice.original.chen.adult.g3_scorn_hurt",
     "variant": "plain"
   },
@@ -80818,6 +82924,708 @@
     ],
     "ticks": 45,
     "sound": "voice.original.chen.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.chen.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.chen.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.chen.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.chen.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.chen.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.chen.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.chen.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.chen.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.chen.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.chen.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.chen.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.chen.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "chen.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "chen.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.chen.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "chen.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.chen.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "chen",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.chen.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -81425,7 +84233,7 @@
     "events": [
       "scorn_hurt"
     ],
-    "ticks": 102,
+    "ticks": 104,
     "sound": "voice.original.patchouli.adult.g3_scorn_hurt",
     "variant": "plain"
   },
@@ -81661,6 +84469,708 @@
     ],
     "ticks": 75,
     "sound": "voice.original.patchouli.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.patchouli.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.patchouli.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.patchouli.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.patchouli.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.patchouli.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.patchouli.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.patchouli.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.patchouli.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.patchouli.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.patchouli.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.patchouli.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.patchouli.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.patchouli.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.patchouli.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 96,
+    "sound": "voice.original.patchouli.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.patchouli.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 100,
+    "sound": "voice.original.patchouli.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.patchouli.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.patchouli.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.patchouli.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.patchouli.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.patchouli.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.patchouli.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 102,
+    "sound": "voice.original.patchouli.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.patchouli.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.patchouli.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.patchouli.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.patchouli.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.patchouli.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 95,
+    "sound": "voice.original.patchouli.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.patchouli.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.patchouli.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.patchouli.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.patchouli.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.patchouli.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.patchouli.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.patchouli.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.patchouli.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.patchouli.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.patchouli.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.patchouli.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.patchouli.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 103,
+    "sound": "voice.original.patchouli.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.patchouli.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.patchouli.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.patchouli.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.patchouli.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.patchouli.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.patchouli.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "patchouli.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.patchouli.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "patchouli.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.patchouli.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "patchouli.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.patchouli.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "patchouli",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 89,
+    "sound": "voice.original.patchouli.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -82268,7 +85778,7 @@
     "events": [
       "scorn_hurt"
     ],
-    "ticks": 91,
+    "ticks": 93,
     "sound": "voice.original.remilia.adult.g3_scorn_hurt",
     "variant": "plain"
   },
@@ -82504,6 +86014,708 @@
     ],
     "ticks": 68,
     "sound": "voice.original.remilia.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.remilia.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.remilia.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.remilia.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.remilia.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.remilia.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.remilia.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.remilia.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.remilia.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.remilia.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.remilia.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.remilia.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.remilia.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.remilia.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.remilia.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 93,
+    "sound": "voice.original.remilia.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 69,
+    "sound": "voice.original.remilia.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.remilia.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.remilia.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 96,
+    "sound": "voice.original.remilia.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 75,
+    "sound": "voice.original.remilia.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.remilia.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 100,
+    "sound": "voice.original.remilia.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.remilia.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 74,
+    "sound": "voice.original.remilia.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.remilia.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.remilia.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.remilia.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 99,
+    "sound": "voice.original.remilia.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.remilia.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 80,
+    "sound": "voice.original.remilia.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 91,
+    "sound": "voice.original.remilia.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.remilia.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.remilia.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.remilia.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.remilia.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.remilia.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 86,
+    "sound": "voice.original.remilia.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.remilia.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 97,
+    "sound": "voice.original.remilia.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.remilia.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.remilia.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.remilia.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 81,
+    "sound": "voice.original.remilia.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.remilia.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.remilia.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "remilia.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.remilia.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "remilia.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.remilia.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "remilia.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.remilia.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "remilia",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.remilia.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -83359,6 +87571,708 @@
     ],
     "ticks": 51,
     "sound": "voice.original.flandre.adult.g3_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.juvenile.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.juvenile.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.flandre.juvenile.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.adult.g1_hurt",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.adult.g2_hurt",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.flandre.adult.g3_hurt",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.flandre.juvenile.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.flandre.juvenile.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.flandre.juvenile.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.flandre.adult.g1_search_family",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.adult.g2_search_family",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 63,
+    "sound": "voice.original.flandre.adult.g3_search_family",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.flandre.baby.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.baby.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 64,
+    "sound": "voice.original.flandre.juvenile.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.flandre.juvenile.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.flandre.juvenile.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.flandre.adult.g1_receive_mash",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.flandre.adult.g2_receive_mash",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.flandre.adult.g3_receive_mash",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.flandre.juvenile.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.flandre.juvenile.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.flandre.juvenile.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.flandre.adult.g1_thunder",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.flandre.adult.g2_thunder",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.flandre.adult.g3_thunder",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.baby.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.baby.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.flandre.baby.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.flandre.juvenile.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.flandre.juvenile.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.flandre.juvenile.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.flandre.adult.g1_deibu_developed",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.flandre.adult.g2_deibu_developed",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.flandre.adult.g3_deibu_developed",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.flandre.baby.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.baby.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.flandre.juvenile.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.flandre.juvenile.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 46,
+    "sound": "voice.original.flandre.juvenile.g3_wash_refuse",
+    "variant": "plain"
+  },
+  {
+    "id": "flandre.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.adult.g1_wash_refuse",
+    "variant": "proud"
+  },
+  {
+    "id": "flandre.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.flandre.adult.g2_wash_refuse",
+    "variant": "timid"
+  },
+  {
+    "id": "flandre.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.flandre.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "flandre",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.flandre.adult.g3_wash_refuse",
     "variant": "plain"
   },
   {
@@ -85197,6 +90111,1518 @@
     ],
     "ticks": 70,
     "sound": "voice.original.myon.kinbao.adult.g3_refuse",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.baby.g1_hurt",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.baby.g2_hurt",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.baby.g3_hurt",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.juvenile.g1_hurt",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.juvenile.g2_hurt",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.miyo.juvenile.g3_hurt",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.adult.g1_hurt",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.miyo.adult.g2_hurt",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.myon.miyo.adult.g3_hurt",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.g1_search_family",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.g2_search_family",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.g3_search_family",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.myon.miyo.juvenile.g1_search_family",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 68,
+    "sound": "voice.original.myon.miyo.juvenile.g2_search_family",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.myon.miyo.juvenile.g3_search_family",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.myon.miyo.adult.g1_search_family",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.miyo.adult.g2_search_family",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.miyo.adult.g3_search_family",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.myon.miyo.baby.g1_receive_mash",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.myon.miyo.baby.g2_receive_mash",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.myon.miyo.baby.g3_receive_mash",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.myon.miyo.juvenile.g1_receive_mash",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.juvenile.g2_receive_mash",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.miyo.juvenile.g3_receive_mash",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.adult.g1_receive_mash",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.myon.miyo.adult.g2_receive_mash",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.adult.g3_receive_mash",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.g1_thunder",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.myon.miyo.baby.g2_thunder",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 51,
+    "sound": "voice.original.myon.miyo.baby.g3_thunder",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.miyo.juvenile.g1_thunder",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.myon.miyo.juvenile.g2_thunder",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.miyo.juvenile.g3_thunder",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.myon.miyo.adult.g1_thunder",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.myon.miyo.adult.g2_thunder",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.myon.miyo.adult.g3_thunder",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.myon.miyo.baby.g1_deibu_developed",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 55,
+    "sound": "voice.original.myon.miyo.baby.g2_deibu_developed",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.myon.miyo.baby.g3_deibu_developed",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.myon.miyo.juvenile.g1_deibu_developed",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.miyo.juvenile.g2_deibu_developed",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.myon.miyo.juvenile.g3_deibu_developed",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.myon.miyo.adult.g1_deibu_developed",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.miyo.adult.g2_deibu_developed",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.adult.g3_deibu_developed",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 54,
+    "sound": "voice.original.myon.miyo.baby.g1_wash_refuse",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.myon.miyo.baby.g2_wash_refuse",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 53,
+    "sound": "voice.original.myon.miyo.baby.g3_wash_refuse",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.myon.miyo.juvenile.g1_wash_refuse",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 61,
+    "sound": "voice.original.myon.miyo.juvenile.g2_wash_refuse",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.miyo.juvenile.g3_wash_refuse",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.miyo.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.myon.miyo.adult.g1_wash_refuse",
+    "quirk": "miyo",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.miyo.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.myon.miyo.adult.g2_wash_refuse",
+    "quirk": "miyo",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.miyo.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.miyo.adult.g3_wash_refuse",
+    "quirk": "miyo",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.myon.kinbao.baby.g1_hurt",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 47,
+    "sound": "voice.original.myon.kinbao.baby.g2_hurt",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 49,
+    "sound": "voice.original.myon.kinbao.baby.g3_hurt",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_hurt",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 45,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_hurt",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_hurt",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 50,
+    "sound": "voice.original.myon.kinbao.adult.g1_hurt",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 48,
+    "sound": "voice.original.myon.kinbao.adult.g2_hurt",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_hurt",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_hurt",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "hurt"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.myon.kinbao.adult.g3_hurt",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.kinbao.baby.g1_search_family",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.kinbao.baby.g2_search_family",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.kinbao.baby.g3_search_family",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_search_family",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_search_family",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 83,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_search_family",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.kinbao.adult.g1_search_family",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.adult.g2_search_family",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_search_family",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_search_family",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "search_family"
+    ],
+    "ticks": 88,
+    "sound": "voice.original.myon.kinbao.adult.g3_search_family",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.myon.kinbao.baby.g1_receive_mash",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.kinbao.baby.g2_receive_mash",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.myon.kinbao.baby.g3_receive_mash",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 87,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_receive_mash",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 72,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_receive_mash",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 67,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_receive_mash",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.myon.kinbao.adult.g1_receive_mash",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 76,
+    "sound": "voice.original.myon.kinbao.adult.g2_receive_mash",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_receive_mash",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_receive_mash",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "receive_mash"
+    ],
+    "ticks": 70,
+    "sound": "voice.original.myon.kinbao.adult.g3_receive_mash",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 58,
+    "sound": "voice.original.myon.kinbao.baby.g1_thunder",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 52,
+    "sound": "voice.original.myon.kinbao.baby.g2_thunder",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 56,
+    "sound": "voice.original.myon.kinbao.baby.g3_thunder",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 92,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_thunder",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 66,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_thunder",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 79,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_thunder",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.kinbao.adult.g1_thunder",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 73,
+    "sound": "voice.original.myon.kinbao.adult.g2_thunder",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_thunder",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_thunder",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "thunder"
+    ],
+    "ticks": 84,
+    "sound": "voice.original.myon.kinbao.adult.g3_thunder",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.kinbao.baby.g1_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 60,
+    "sound": "voice.original.myon.kinbao.baby.g2_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.myon.kinbao.baby.g3_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 77,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 85,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 82,
+    "sound": "voice.original.myon.kinbao.adult.g1_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 71,
+    "sound": "voice.original.myon.kinbao.adult.g2_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_deibu_developed",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_deibu_developed",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "deibu_developed"
+    ],
+    "ticks": 90,
+    "sound": "voice.original.myon.kinbao.adult.g3_deibu_developed",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.baby.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.myon.kinbao.baby.g1_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.baby.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 57,
+    "sound": "voice.original.myon.kinbao.baby.g2_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.baby.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.baby.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "baby",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 59,
+    "sound": "voice.original.myon.kinbao.baby.g3_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.myon.kinbao.juvenile.g1_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.juvenile.g2_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.juvenile.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "juvenile",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 62,
+    "sound": "voice.original.myon.kinbao.juvenile.g3_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "plain"
+  },
+  {
+    "id": "myon.kinbao.adult.g1_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g1_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.adult.g1_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "proud"
+  },
+  {
+    "id": "myon.kinbao.adult.g2_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g2_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 65,
+    "sound": "voice.original.myon.kinbao.adult.g2_wash_refuse",
+    "quirk": "kinbao",
+    "variant": "timid"
+  },
+  {
+    "id": "myon.kinbao.adult.g3_wash_refuse",
+    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.g3_wash_refuse",
+    "origin": "project-original",
+    "species": "myon",
+    "age": "adult",
+    "events": [
+      "wash_refuse"
+    ],
+    "ticks": 78,
+    "sound": "voice.original.myon.kinbao.adult.g3_wash_refuse",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -88981,7 +95407,41 @@
       "predator_screech"
     ],
     "ticks": 50,
-    "sound": ""
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.predator_screech.alice.baby",
+      "alice.juvenile": "voice.original.predator_screech.alice.juvenile",
+      "alice.young": "voice.original.predator_screech.alice.young",
+      "alice.adult": "voice.original.predator_screech.alice.adult",
+      "chen.baby": "voice.original.predator_screech.chen.baby",
+      "chen.juvenile": "voice.original.predator_screech.chen.juvenile",
+      "chen.young": "voice.original.predator_screech.chen.young",
+      "chen.adult": "voice.original.predator_screech.chen.adult",
+      "flandre.baby": "voice.original.predator_screech.flandre.baby",
+      "flandre.juvenile": "voice.original.predator_screech.flandre.juvenile",
+      "flandre.young": "voice.original.predator_screech.flandre.young",
+      "flandre.adult": "voice.original.predator_screech.flandre.adult",
+      "marisa.baby": "voice.original.predator_screech.marisa.baby",
+      "marisa.juvenile": "voice.original.predator_screech.marisa.juvenile",
+      "marisa.young": "voice.original.predator_screech.marisa.young",
+      "marisa.adult": "voice.original.predator_screech.marisa.adult",
+      "myon.baby": "voice.original.predator_screech.myon.baby",
+      "myon.juvenile": "voice.original.predator_screech.myon.juvenile",
+      "myon.young": "voice.original.predator_screech.myon.young",
+      "myon.adult": "voice.original.predator_screech.myon.adult",
+      "patchouli.baby": "voice.original.predator_screech.patchouli.baby",
+      "patchouli.juvenile": "voice.original.predator_screech.patchouli.juvenile",
+      "patchouli.young": "voice.original.predator_screech.patchouli.young",
+      "patchouli.adult": "voice.original.predator_screech.patchouli.adult",
+      "reimu.baby": "voice.original.predator_screech.reimu.baby",
+      "reimu.juvenile": "voice.original.predator_screech.reimu.juvenile",
+      "reimu.young": "voice.original.predator_screech.reimu.young",
+      "reimu.adult": "voice.original.predator_screech.reimu.adult",
+      "remilia.baby": "voice.original.predator_screech.remilia.baby",
+      "remilia.juvenile": "voice.original.predator_screech.remilia.juvenile",
+      "remilia.young": "voice.original.predator_screech.remilia.young",
+      "remilia.adult": "voice.original.predator_screech.remilia.adult"
+    }
   },
   {
     "id": "deficient_babble",
