@@ -17,6 +17,7 @@
 | 橙汁澡盆：健康个体泡澡降不安，受伤个体修复橙汁有效的伤势，家规管宠物能否泡 | `.worktrees/wp-tub-rules` | play/JuiceTub, PlayLife, house rules |
 | 赤油长期见不到同类和人类时按数值可能发展为非油症 | `.worktrees/wp-lonely-baby` | mind/MindLife unease sources |
 | 台词小问题与补台词配音 | `.worktrees/wp-lines-1121` | dialogue sources, language files, aquestalk audio |
+| 删除漂亮石子；药瓶改平面物品；饮水器碟改圆；掉落玩具滚动 | `.worktrees/wp-prop-cleanup` | care-expansion, consumables, waterer, HouseScrapRenderer |
 
 
 ## 玩法待办
