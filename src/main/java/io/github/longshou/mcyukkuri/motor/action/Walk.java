@@ -48,6 +48,11 @@ public final class Walk implements Action {
     /** A crawler on a host goes at its crawl gait and stroke clock, not the walk pace. */
     private boolean crawl;
     private Vec3 from;
+    /** Ticks the ground walk's remaining distance has not shrunk before it asks idle bodies on its line to step aside, and how far it asks. */
+    private static final int STALL_ASK = 10;
+    private static final double ASK_RANGE = 1.75;
+    private double best = Double.MAX_VALUE;
+    private int stall;
     /** Replans that may restart the watchdog window in one walk; after them NO_PROGRESS fires as usual. */
     private static final int REPLAN_RESETS = 3;
     /** Where the ground walk actually goes (the target, or just clear of a hat's brim it lies under), the navigation's replans seen so far, and the window restarts used. */
@@ -190,6 +195,10 @@ public final class Walk implements Action {
             if (!arrived) SurfaceApproach.halt(body);
             return new Outcome.Done(String.format(Locale.ROOT, "at=%s flat=%.2f", GameplayLog.at(body.position()), flat));
         }
+        if (left < best - .01) {
+            best = left;
+            stall = 0;
+        } else if (++stall >= STALL_ASK) askWay(body);
         if (SurfaceApproach.lastResult(body, target) == SurfaceApproach.Result.BLOCKED)
             return Outcome.of(Reason.NO_PATH, left, String.format(Locale.ROOT, "left=%.2f route=blocked why=%s", left, SurfaceApproach.why(body, target)));
         // A route planned round what held the body up restarts the watchdog window (best metric kept), at most REPLAN_RESETS times.
@@ -198,6 +207,14 @@ public final class Walk implements Action {
         if (fresh) resets++;
         replans = seen;
         return new Running(left - groundRouteOffset, TravelMode.PASS, fresh);
+    }
+
+    /** A walk held up on its line asks the idle bodies there to step aside, as shop staff and park pets do ({@code giveWay}); a body
+     *  that cannot (busy, asleep, carried) is not asked again by that call, and the walk's watchdog still ends a walk nothing clears. */
+    private void askWay(YukkuriEntity body) {
+        for (var other : body.level().getEntitiesOfClass(YukkuriEntity.class, body.getBoundingBox().inflate(ASK_RANGE, 0, ASK_RANGE),
+                y -> y != body && y.isAlive() && !y.isPassenger() && !body.hasPassenger(y)))
+            YukkuriGroundNavigation.giveWay(other, body, goal);
     }
 
     private static int replans(YukkuriEntity body) {

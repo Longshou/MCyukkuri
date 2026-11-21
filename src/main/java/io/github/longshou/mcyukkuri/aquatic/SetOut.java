@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -55,6 +56,8 @@ import net.minecraft.world.phys.Vec3;
 final class SetOut implements Intent, FamilyRendezvous {
     /** The whole setting out (the walk to a far shore included), the post-launch boarding call, and the longer bank gather (ticks). */
     private static final int DEADLINE = 6000, WAIT_YOUNG = 300, GATHER_YOUNG = WAIT_YOUNG * 4;
+    /** The stand rings a young tries round her on the bank, each one body width further out than the last. */
+    private static final int GATHER_RINGS = 3;
     /** The longest stretch (blocks) she walks toward a far shore before she waits for her young. */
     private static final double STRIDE = 6;
 
@@ -88,8 +91,14 @@ final class SetOut implements Intent, FamilyRendezvous {
         var hat = AquaticLife.hat(owner);
         if (hat == null || AquaticLife.ashore(owner)) {
             var bank = hat == null ? Waters.berth(owner) : Waters.beside(hat, owner);
-            return SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05, 1.2,
-                    Double.POSITIVE_INFINITY, at -> bank == null || at.subtract(owner.position()).dot(bank.normal()) < 0);
+            // Behind her, so her berth stand and the line from it to the brim stay clear; no stand there takes the next ring out.
+            Predicate<Vec3> behind = at -> bank == null || at.subtract(owner.position()).dot(bank.normal()) <= -owner.getBbWidth() / 2;
+            for (int ring = 0; ring < GATHER_RINGS; ring++) {
+                var at = SurfaceApproach.beside(child, owner, (child.getBbWidth() + owner.getBbWidth()) / 2 + .05 + ring * child.getBbWidth(),
+                        1.2, Double.POSITIVE_INFINITY, behind);
+                if (at != null) return at;
+            }
+            return null;
         }
         var edge = Waters.beside(hat, child);
         return edge == null ? null : Waters.boardingStand(edge, child);

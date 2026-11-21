@@ -97,15 +97,19 @@ public final class SurfaceApproach {
     /** The last destination found to have no stand clear of a hat, and until when that answer holds. */
     private Vec3 noStand;
     private long noStandUntil;
-    /** A contact-stand request that found no stand, as asked: the peer's body, this body's cell and the reach it was asked for. */
+    /** A contact-stand request that found no stand: the peer and reach it was asked for, the peer's body and this body's cell then. */
     private record NoContact(UUID peer, AABB body, BlockPos cell, double distance, double maxHeight, double maxDistance, long until, int refusals) {
-        boolean asks(YukkuriEntity actor, Entity other, double distance, double maxHeight, double maxDistance) {
-            return peer.equals(other.getUUID()) && sameBody(body, other.getBoundingBox()) && cell.equals(actor.blockPosition())
-                    && this.distance == distance && this.maxHeight == maxHeight && this.maxDistance == maxDistance;
+        boolean sameAsk(Entity other, double distance, double maxHeight, double maxDistance) {
+            return peer.equals(other.getUUID()) && this.distance == distance && this.maxHeight == maxHeight && this.maxDistance == maxDistance;
+        }
+        boolean unchanged(YukkuriEntity actor, Entity other) {
+            return sameBody(body, other.getBoundingBox()) && cell.equals(actor.blockPosition());
         }
     }
-    /** The last contact-stand request refused: the same ask answers the same until its hold ends, which grows with each refusal. */
-    private NoContact noContact;
+    /** How many refused contact-stand asks a body remembers (a caller walking outward through rings asks several at once). */
+    private static final int REFUSED_ASKS = 8;
+    /** The refused contact-stand asks: the same ask answers the same until its hold ends, which grows with each refusal. */
+    private final List<NoContact> noContact = new ArrayList<>();
 
     private static SurfaceApproach controller(YukkuriEntity actor){return actor.life().approach();}
 
@@ -741,8 +745,9 @@ public final class SurfaceApproach {
         // the refusal holds a real interval, longer each time it is met unchanged, and a changed ask searches at once.
         var self=controller(actor);
         long now=actor.level().getGameTime();
-        var refused=self.noContact!=null&&self.noContact.asks(actor,other,distance,maxHeight,maxDistance)?self.noContact:null;
-        if(refused!=null&&now<refused.until)return null;
+        var refused=self.noContact.stream().filter(r->r.sameAsk(other,distance,maxHeight,maxDistance)).findFirst().orElse(null);
+        boolean unchanged=refused!=null&&refused.unchanged(actor,other);
+        if(unchanged&&now<refused.until)return null;
         var candidates=new ArrayList<Vec3>();
         var why=new StringBuilder();
         for(var direction:bearings(actor,other.position())){
@@ -762,10 +767,12 @@ public final class SurfaceApproach {
             candidates.add(at);
         }
         var stand=nearestReachable(actor,candidates,other.getBoundingBox());
-        if(stand!=null){self.noContact=null;return stand;}
-        int refusals=refused==null?1:refused.refusals+1;
-        self.noContact=new NoContact(other.getUUID(),other.getBoundingBox(),actor.blockPosition(),distance,maxHeight,maxDistance,
-                now+((long)RETRY<<Math.min(refusals-1,CONTACT_HOLD_DOUBLINGS)),refusals);
+        self.noContact.remove(refused);
+        if(stand!=null)return stand;
+        int refusals=unchanged?refused.refusals+1:1;
+        if(self.noContact.size()==REFUSED_ASKS)self.noContact.removeFirst();
+        self.noContact.add(new NoContact(other.getUUID(),other.getBoundingBox(),actor.blockPosition(),distance,maxHeight,maxDistance,
+                now+((long)RETRY<<Math.min(refusals-1,CONTACT_HOLD_DOUBLINGS)),refusals));
         for(var at:candidates)why.append(" noroute@").append(GameplayLog.at(at));
         GameplayLog.limited(actor,"approach","stand",200,"contact stand unavailable peer={} at={} box={} distance={} maxHeight={} rejected:{}",
                 other.getUUID(),GameplayLog.at(other.position()),other.getBoundingBox(),distance,maxHeight,why);
