@@ -344,7 +344,7 @@
         },
         {
           "id": "core-filling",
-          "label": "中枢馅与漏馅",
+          "label": "中枢馅",
           "prefixes": [
             "art/props/body-marks/"
           ],
@@ -352,7 +352,6 @@
             "core_filling"
           ],
           "ids": [
-            "leaked_filling",
             "body_marks"
           ]
         },
@@ -674,8 +673,7 @@
             "oil_grain_*",
             "food_scrap",
             "custard_pudding",
-            "sweet_candy",
-            "apple_half"
+            "sweet_candy"
           ]
         }
       ]
