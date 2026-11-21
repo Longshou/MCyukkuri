@@ -3911,9 +3911,9 @@ add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带�
     '约 2 分钟', [
         *_lot_yard(-2, 2),
         f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
-        # Straight through the gate from the yard (the owner's path search gives up on a detour round the fence) and north of the
-        # line to her waiting cell, so the pets trail in on the side they mount from and their run-up does not pass her.
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
+        # Straight through the gate from the yard (the owner's path search gives up on a detour round the fence), ending a few blocks from
+        # the bench south of the trampoline: the owner walks the last stretch leashed, and a long trek makes the pets lag.
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -4, 3))),
         _lot_keeper('outing_keeper'),
         *(line for kind, name, x, bold, bond in _outing_pets
           for line in _lot_pet('park_play', 'outing_keeper', kind, x, name, boldness=bold, attachment=bond, nutrition=100,
@@ -3929,7 +3929,7 @@ add('park_picnic', 'park', '主人在公园长椅上分苹果', '主人在公园
         *_lot_yard(-2),
         block(_PARK_CRATE[0], 0, _PARK_CRATE[1], 'mcyukkuri:produce_crate[facing=west]'),
         f'item replace block ~{_PARK_CRATE[0]} ~ ~{_PARK_CRATE[1]} container.0 with minecraft:apple 1',
-        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('gate', 1, -9))),
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -4, 3))),
         _lot_keeper('picnic_keeper', f',YardCrate:{_lot_pos(*_PARK_CRATE)}L,HumanInitialized:1b,NextRestock:2147483647L,CareFood:0'),
         *_lot_pet('park_picnic', 'picnic_keeper', 'marisa', -2, 'picnic_pet', boldness=40, attachment=50, nutrition=40, energy=100),
         street_trial('park_picnic', 'chen', *_lot_spot('street', -6, 0), 'picnic_stray', nutrition=25),

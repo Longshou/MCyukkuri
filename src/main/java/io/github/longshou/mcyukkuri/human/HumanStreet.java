@@ -1058,6 +1058,8 @@ final class HumanStreet {
                 last = npc.position();
                 stalled = 0;
             } else {
+                GameplayLog.event(npc, "npc-care", "action=outing_home_route result=refused stands={} path={}", stands.size(),
+                        path == null ? "none" : path.canReach() ? "not_started" : "partial");
                 findReturnShelter();
             }
         }
