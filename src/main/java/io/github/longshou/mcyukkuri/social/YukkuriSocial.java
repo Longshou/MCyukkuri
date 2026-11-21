@@ -429,6 +429,11 @@ public final class YukkuriSocial implements MotorOwner {
         GameplayLog.event(entity,"headwear","loose accessory retrieval started item={} at={}",target.getUUID(),GameplayLog.at(target.position()));
         return true;
     }
+    /**
+     * The walk to a person's side may go round a low obstacle (a newspaper stack, a counter) that hides them for a moment: only the
+     * contact itself needs sight, and the approach is already bounded by its own duration and route.
+     */
+    private boolean walkingUpToHuman() { return task == Task.PLAYER && !greeted && !retreat; }
     public boolean canContinue() {
         if (task == Task.STUDY) return elapsed < duration && freeForSocial() && !entity.pet().busy();
         if (task == Task.OWNER_RETURN) return entity.pet().canWelcomeOwner() && target.isAlive()
@@ -436,7 +441,7 @@ public final class YukkuriSocial implements MotorOwner {
                 && !(target instanceof Player player && player.isSpectator()) && !urgent();
         return task != Task.NONE && target != null && target.isAlive() && target.level() == entity.level()
                 && !attachedTo(target)
-                && (task == Task.ACCESSORY || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
+                && (task == Task.ACCESSORY || walkingUpToHuman() || entity.hasLineOfSight(target)) && !entity.dailyLife().active() && !entity.life().isSleeping()
                 && entity.distanceToSqr(target) < 64 && !entity.isPanicking() && !urgent()
                 && entity.life().mealTicks() == 0 && !entity.isCommandPlaying()
                 && (replyUntil > 0 ? entity.level().getGameTime() < replyUntil : elapsed < duration || holdingPeerGreeting())

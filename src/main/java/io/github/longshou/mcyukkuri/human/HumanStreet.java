@@ -821,13 +821,19 @@ final class HumanStreet {
                     ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
-        Counter counterWindow() {
-            return counterArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
-                    && npc.onGround() && !npc.isOnFire() && npc.hurtTime == 0 && !npc.level().isRaining()
-                    && nearDestination() && !npc.finishingDoorway() && dryFooting(counter.stand())
-                    && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
-                    && counter.crate(npc.level()) != null
-                    ? counter : null;
+        Counter counterWindow() { return counterArrived && counterUnavailable() == null ? counter : null; }
+
+        /** Why the keeper cannot serve right now, or null when the hatch is open. */
+        private String counterUnavailable() {
+            if (!npc.streetActive()) return "street_inactive";
+            if (npc.walking() || npc.resting() || npc.isUsingItem()) return "busy";
+            if (!npc.onGround()) return "airborne";
+            if (npc.isOnFire() || npc.hurtTime != 0) return "hurt";
+            if (npc.level().isRaining()) return "rain";
+            if (!nearDestination() || npc.finishingDoorway()) return "off_stand";
+            if (!dryFooting(counter.stand())) return "wet_footing";
+            if (npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()) return "obstructed";
+            return counter.crate(npc.level()) == null ? "no_crate" : null;
         }
 
         boolean counterBusy() { return npc.level().getGameTime() < counterBusyUntil; }
@@ -849,7 +855,7 @@ final class HumanStreet {
             }
             if (counterWindow() == null) {
                 GameplayLog.event(npc, "npc-care", "action=counter_closed stand={} reason={}",
-                        counter.stand().toShortString(), counterArrived ? "unavailable" : "route_ended");
+                        counter.stand().toShortString(), counterArrived ? counterUnavailable() : "route_ended");
                 finished = true;
                 return;
             }
