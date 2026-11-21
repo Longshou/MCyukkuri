@@ -75,11 +75,12 @@ public final class ShopRestock {
                     && HumanCommerce.data(y).contains("Litter")) {
                 adoptLitter(y, ShopLitter.template(shop.id, HumanCommerce.data(y).getInt("Litter")));
             }
-            if (custody.role() != Custody.Role.STOCK || custody.ownedBy(shop.id)) continue;
+            // Stock and the pet shop's studs bound to one of its staff are the shop's own: a clerk's death must not orphan them.
+            if (custody.role() != Custody.Role.STOCK && custody.role() != Custody.Role.STUD || custody.ownedBy(shop.id)) continue;
             var owner = custody.owner();
             if (owner == null || !(level.getEntity(owner) instanceof HumanNpc staff) || registry.of(staff) != shop) continue;
-            Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, Custody.Role.STOCK.id());
-            GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={}", shop.id, owner);
+            Custody.assignRaw(y, shop.id, Custody.OwnerKind.NPC, custody.role().id());
+            GameplayLog.event(y, "shop", "action=adopt shop={} from_staff={} role={}", shop.id, owner, custody.role().id());
         }
         if (!shop.familyNests.isEmpty() && candidates.stream().anyMatch(y -> ShopTrade.stockOf(y, shop.id)
                 && HumanCommerce.data(y).getBoolean("FamilyStock")

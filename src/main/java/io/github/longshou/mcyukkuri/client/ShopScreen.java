@@ -56,6 +56,7 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         add(ShopMenu.ButtonId.PREVIOUS_PAGE, 8, FOOT, 40, Component.literal("<")); add(ShopMenu.ButtonId.NEXT_PAGE, 52, FOOT, 40, Component.literal(">"));
         add(ShopMenu.ButtonId.PREVIOUS_SUBJECT, 8, FOOT, 40, Component.literal("<")); add(ShopMenu.ButtonId.NEXT_SUBJECT, 52, FOOT, 40, Component.literal(">"));
         add(ShopMenu.ButtonId.SELL, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.sell"));
+        add(ShopMenu.ButtonId.DATE, 100, FOOT, 160, Component.translatable("shop.mcyukkuri.date"));
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(leftPos + 272, topPos + FOOT, 60, 20).build(ActionButton::new));
     }
     private void press(int id) {
@@ -118,6 +119,8 @@ public final class ShopScreen extends AbstractContainerScreen<ShopMenu> {
         actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].visible = actions[ShopMenu.ButtonId.NEXT_SUBJECT].visible = tab == ShopMenu.BUYBACK ||
                 tab == ShopMenu.CONSULT; actions[ShopMenu.ButtonId.PREVIOUS_SUBJECT].active = actions[ShopMenu.ButtonId.NEXT_SUBJECT].active = menu.value(ShopMenu.Data.SUBJECT_COUNT) > 1;
         actions[ShopMenu.ButtonId.SELL].visible = tab == ShopMenu.BUYBACK; actions[ShopMenu.ButtonId.SELL].active = own;
+        actions[ShopMenu.ButtonId.DATE].visible = tab != ShopMenu.BUYBACK && !menu.oniShop();
+        actions[ShopMenu.ButtonId.DATE].active = day;
     }
     @Override protected void renderBg(GuiGraphics g, float partial, int x, int y) {
         panel(g, leftPos, topPos, imageWidth, imageHeight);

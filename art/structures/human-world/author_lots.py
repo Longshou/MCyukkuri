@@ -12,9 +12,6 @@ places the socket at the first free height, so the paving at y0 meets the lane a
 - home_yard_large: a two-room house raised on a stone plinth, a back deck, a fenced pet garden behind it with a roofed kennel corner, a
   side passage. Owner and one local live indoors; one vanilla bed; a hidden corner; a wind gap under the deck end, reached from the side
   passage; a standing bin in the passage.
-- kiosk: a small corner kiosk on a pavement: serving hatch (counter one and a half blocks high) under a blue/white awning, goods on the
-  counter, newspaper stacks, a notice board, a bench nook under the west eave with a low dry gap under the paper shelf; the keeper lives
-  behind the counter (back door); a standing bin.
 - pocket_park: a lawn behind a kerb and hedges with one tree of the type (a pergola with a cloth shade in the desert), a bench pair, a
   small pond, a lamp and a standing bin.
 - back_lot: the poor corner: a shabby shed, a woodpile, a lean-to against the shed with a two-cell wind gap, a cardboard spot and a bin
@@ -37,7 +34,7 @@ LOG = {'axis': 'y'}
 POOL_ENTRIES = [
     {'pool': 'town_lots', 'piece': piece, 'weight': weight, 'max_count': limit, 'max_cut': None, 'max_fill': None, 'styles': None,
      'new': True}
-    for piece, weight, limit in [('home_yard', 7, None), ('home_yard_large', 4, None), ('kiosk', 6, 3), ('pocket_park', 4, 2),
+    for piece, weight, limit in [('home_yard', 7, None), ('home_yard_large', 4, None), ('pocket_park', 4, 2),
                                  ('back_lot', 4, 2)]
 ]
 RUGS = {'plains': 'red_carpet', 'desert': 'brown_carpet', 'savanna': 'red_carpet', 'snowy': 'light_blue_carpet', 'taiga': 'green_carpet'}
@@ -328,57 +325,6 @@ def home_yard_large(p):
     return finish(b)
 
 
-def kiosk(p):
-    """9 x 9: a 5 x 5 kiosk (x2..6, z3..7) on a paved front, the hatch facing the lane under the blue/white awning (z1..2), the bench
-    nook under the west eave with the paper shelf over a two-cell gap, a notice board on the east wall, the back door at z7."""
-    W, H, D = 9, 9, 9
-    b = new_lot('kiosk', (W, H, D), p, 4)
-    for x in range(1, W - 1):
-        for z in (1, 2): b.block(x, 0, z, p.sidewalk_at(x, z))
-    b.box((3, 0, 4), (5, 0, 6), p.floor)
-    # Shell: walls y1..4 (plinth course y1), corner posts; the front is the hatch: a board counter carrying open crates of real goods,
-    # open above, a beam.
-    ring(b, 2, 6, 3, 7, 1, 4, p.wall)
-    for x in (3, 4, 5):
-        b.block(x, 1, 3, p.planks()); b.block(x, 3, 3, 'air')
-        b.block(x, 4, 3, *p.state(p.beam, 'x'))
-    for x, item in [(3, 'minecraft:bread'), (4, 'minecraft:paper'), (5, 'mcyukkuri:sweet_candy')]:
-        front = 'mcyukkuri:oil_grain_regular' if item == 'minecraft:bread' else item
-        produce_crate(b, x, 2, 3, 'north', [(item, 3), (front, 2)])
-    b.door(4, 1, 7, 'south', p.wood)
-    panes(b, [(2, 3, 4), (6, 3, 4), (6, 3, 6), (3, 3, 7)])
-    # Roof: ridge along z with overhanging eaves; the west eave runs on down over the bench nook as a lean-to.
-    if p.flat:
-        flat_roof(b, p, {(x, z) for x in range(2, 7) for z in range(3, 8)}, 5)
-        for z in range(3, 8): slab(b, 1, 4, z, p.roof); slab(b, 0, 3, z, p.roof)
-    else:
-        gable(b, 2, 6, 3, 7, 5, 'z', eaves=True)
-        for z in range(3, 8): stairs(b, 0, 3, z, p.roof, 'east')
-    # Awning: blue and white stripes over the pavement in front of the hatch, a valance on its front edge.
-    for x in range(1, 8):
-        wool = 'blue_wool' if x % 2 else 'white_wool'
-        for z in (1, 2): b.block(x, 4, z, wool)
-        b.block(x, 3, 1, wool)
-    # Inside: two goods tables at the back (a lantern on one), the keeper's home cell behind the counter.
-    furniture(b, 'table', 1, [(3, 6)]); furniture(b, 'table', 1, [(5, 6)])
-    produce_crate(b, 3, 2, 6, 'north', [('apple', 3), ('apple', 2)])
-    b.block(5, 2, 6, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
-    resident(b, 4, 1, 5, 'caretaker_sister', 2)
-    # Bench nook (west): a two-seat bench, then the paper shelf on boards at y2 with the newspaper stacks; the dry cells under it.
-    furniture(b, 'bench', 1, [(1, 3), (1, 4)], 'z')
-    b.box((1, 2, 6), (1, 2, 7), p.planks())
-    b.block(1, 3, 6, 'mcyukkuri:newspaper_stack', {'facing': 'east', 'bundles': '2'})
-    b.block(1, 3, 7, 'mcyukkuri:newspaper_stack', {'facing': 'south', 'bundles': '1'})
-    wind_gap(b, 1, 1, 6); wind_gap(b, 1, 1, 7, paper=False)
-    # Front: a stack by the hatch, the standing bin at the east end of the awning, a lamp; the notice board on the east wall.
-    b.block(2, 1, 2, 'mcyukkuri:newspaper_stack', {'facing': 'south', 'bundles': '3'})
-    garbage(b, 7, 1, 2, 'west', [('paper', 2), ('bread', 1), ('cookie', 1), ('stick', 1)])
-    lamp(b, 0, 1, 1)
-    b.wall_sign(7, 2, 5, ['告示', '', '', ''], 'east', p.wood)
-    b.block(8, 1, 6, p.pot(0))
-    return finish(b)
-
-
 def tree(b, x, z):
     """One tree of the type standing at (x, z): an oak in the plains, a flat-topped acacia in the savanna, a spruce in the snowy and
     taiga villages. Returns the cells over its top leaves that take snow in the snowy village."""
@@ -477,7 +423,7 @@ def back_lot(p):
     return finish(b)
 
 
-LOTS = {'home_yard': home_yard, 'home_yard_large': home_yard_large, 'kiosk': kiosk, 'pocket_park': pocket_park, 'back_lot': back_lot}
+LOTS = {'home_yard': home_yard, 'home_yard_large': home_yard_large, 'pocket_park': pocket_park, 'back_lot': back_lot}
 
 
 def pieces(style='plains'):

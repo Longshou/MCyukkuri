@@ -62,7 +62,9 @@ public final class ShopMenu extends AbstractContainerMenu {
         public static final int DELIVER_ORDER_LAST = 28;
         public static final int RENT_TAB = 29;
         public static final int RENT = 30;
-        public static final int COUNT = 31;
+        /** The pet shop's matchmaking booking: closes this menu and opens the matchmaker menu with the shop's studs. */
+        public static final int DATE = 31;
+        public static final int COUNT = 32;
         private ButtonId() {}
     }
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -406,6 +408,13 @@ public final class ShopMenu extends AbstractContainerMenu {
             broadcastChanges(); return true;
         }
         if (ShopAccess.refuseService(level, shop, player)) return false;
+        if (id == ButtonId.DATE) {
+            if (oniShop()) return false;
+            // Close first: opening the next menu from inside this one would run this menu's removal (endTrade) after its beginTrade.
+            player.closeContainer();
+            KeeperMenu.open(player, target);
+            return true;
+        }
         boolean ok;
         if (liveRow(id) >= 0) return false;
         if (id <= ButtonId.BUY_GOODS_LAST) ok = tab == GOODS && buyGood(level, p, id - ButtonId.BUY_GOODS_BASE);

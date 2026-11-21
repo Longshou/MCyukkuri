@@ -126,15 +126,16 @@ final class HumanStreet {
 
     YukkuriEntity pick() {
         if (!npc.streetActive() || !npc.onGround() || !observable()) return null;
-        var window = npc.kioskWindow();
-        if (window != null && (npc.kioskBusy() || kioskRequest(window) != null)) return null;
+        var window = npc.counterWindow();
+        if (window != null && (npc.counterBusy() || counterRequest(window) != null)) return null;
         if (actionDay != day()) { actionDay = day(); actions = 0; }
         warnings.values().removeIf(warning -> now() >= Math.max(warning.at + DAY, warning.blockedUntil));
         return switch (npc.attitude()) {
             case CARING -> nearest(4, this::canCare);
             case NEUTRAL -> null;
             case CRUEL -> {
-                if (npc.level().isRaining()) yield null;
+                // A keeper at the hatch serves the counter: an abuser would otherwise strike a customer's pet over it.
+                if (window != null || npc.level().isRaining()) yield null;
                 yield actions >= 2 ? null : nearest(2, this::canStart);
             }
         };
@@ -172,26 +173,26 @@ final class HumanStreet {
                 && !remembersScold(y);
     }
 
-    boolean kioskGuest(YukkuriEntity y, KioskCounter counter) {
+    boolean counterGuest(YukkuriEntity y, Counter counter) {
         return y.status().identity() == Identity.STRAY && (y.family().adult() || y.family().subadult())
                 && y.childhood().canLiveIndependently() && !Custody.protectedAnimal(y)
                 && available(y) && y.onGround() && !y.isPanicking()
                 && counter.onPublicSide(y.position()) && !y.life().avoidsField(counter.stand());
     }
 
-    private YukkuriEntity kioskRequest(KioskCounter counter) {
-        return nearest(1.5, y -> kioskGuest(y, counter) && y.social().foodRequestTo(npc) && npc.hasLineOfSight(y));
+    private YukkuriEntity counterRequest(Counter counter) {
+        return nearest(1.5, y -> counterGuest(y, counter) && y.social().foodRequestTo(npc) && npc.hasLineOfSight(y));
     }
 
-    private void answerKiosk(YukkuriEntity stray, KioskCounter counter) {
+    private void answerCounter(YukkuriEntity stray, Counter counter) {
         if (eligibleMeal(stray) && care(stray)) {
             stray.social().stop();
             return;
         }
-        var line = npc.attitude() == HumanNpc.Attitude.CARING ? "kiosk_gentle" : "warning";
+        var line = npc.attitude() == HumanNpc.Attitude.CARING ? "counter_gentle" : "warning";
         expulsionCue(stray, counter.stand(), line);
         stray.social().stop();
-        GameplayLog.event(npc, "npc-care", "action=kiosk_shoo target={} stand={} attitude={} nutrition={} health={}",
+        GameplayLog.event(npc, "npc-care", "action=counter_shoo target={} stand={} attitude={} nutrition={} health={}",
                 stray.getUUID(), counter.stand().toShortString(), npc.attitude(), stray.life().nutrition(), stray.getHealth());
     }
 
@@ -346,8 +347,7 @@ final class HumanStreet {
 
     static HumanNpc witnessedStallTake(YukkuriEntity y, BlockPos crate, Vec3 contact) {
         if (y.level().isRaining() || !StallTheft.maySteal(y)
-                || !(y.level().getBlockEntity(crate) instanceof ProduceCrateBlockEntity stock)
-                || KioskCounter.at(y.level(), crate, stock.getBlockState().getValue(ProduceCrateBlock.FACING)) != null) return null;
+                || !(y.level().getBlockEntity(crate) instanceof ProduceCrateBlockEntity)) return null;
         var witness = y.level().getEntitiesOfClass(HumanNpc.class, y.getBoundingBox().inflate(12),
                 npc -> npc.streetActive() && !npc.resting() && !npc.walking() && npc.street.observable()
                         && npc.distanceToSqr(y) <= 144 && npc.isWithinRestriction(crate)
@@ -707,9 +707,9 @@ final class HumanStreet {
         private int stalled;
         private int nextAt;
         private int detours;
-        private KioskCounter kiosk;
-        private boolean kioskArrived;
-        private long kioskBusyUntil;
+        private Counter counter;
+        private boolean counterArrived;
+        private long counterBusyUntil;
         private List<YukkuriEntity> companions = List.of();
         private YukkuriEntity called;
         private int callUntil;
@@ -804,9 +804,9 @@ final class HumanStreet {
             if (npc.getTags().contains(ShelterCartons.VOLUNTEER)) {
                 strollSite = TownMarkers.shelterSupply((ServerLevel) npc.level(), npc.home());
             } else {
-                var counter = KioskCounter.atHome(npc.level(), npc.home());
+                var counter = Counter.atHome(npc.level(), npc.home());
                 if (counter != null && standable(counter.stand()) && route(Vec3.atBottomCenterOf(counter.stand()))) {
-                    kiosk = counter;
+                    this.counter = counter;
                     return;
                 }
             }
@@ -815,25 +815,25 @@ final class HumanStreet {
                     ? Vec3.atBottomCenterOf(npc.home()) : stand);
         }
 
-        KioskCounter kioskWindow() {
-            return kioskArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
+        Counter counterWindow() {
+            return counterArrived && npc.streetActive() && !npc.walking() && !npc.resting() && !npc.isUsingItem()
                     && npc.onGround() && !npc.isOnFire() && npc.hurtTime == 0 && !npc.level().isRaining()
-                    && nearDestination() && !npc.finishingDoorway() && dryFooting(kiosk.stand())
+                    && nearDestination() && !npc.finishingDoorway() && dryFooting(counter.stand())
                     && !npc.level().getBlockCollisions(npc, npc.getBoundingBox()).iterator().hasNext()
-                    && kiosk.valance(npc.level()) && kiosk.hasCrate(npc.level())
-                    ? kiosk : null;
+                    && counter.crate(npc.level()) != null
+                    ? counter : null;
         }
 
-        boolean kioskBusy() { return npc.level().getGameTime() < kioskBusyUntil; }
+        boolean counterBusy() { return npc.level().getGameTime() < counterBusyUntil; }
 
-        private void kioskStep() {
-            if (!kioskArrived && npc.streetActive() && !npc.level().isRaining()) {
+        private void counterStep() {
+            if (!counterArrived && npc.streetActive() && !npc.level().isRaining()) {
                 if (atDestination()) {
                     npc.getNavigation().stop();
-                    kioskArrived = true;
-                    if (kioskWindow() != null) {
-                        GameplayLog.event(npc, "npc-care", "action=kiosk_staffed stand={} home={}",
-                                kiosk.stand().toShortString(), kiosk.home().toShortString());
+                    counterArrived = true;
+                    if (counterWindow() != null) {
+                        GameplayLog.event(npc, "npc-care", "action=counter_staffed stand={} home={}",
+                                counter.stand().toShortString(), npc.home().toShortString());
                     }
                 } else {
                     if (npc.finishingDoorway()) return;
@@ -841,22 +841,22 @@ final class HumanStreet {
                     if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) return;
                 }
             }
-            if (kioskWindow() == null) {
-                GameplayLog.event(npc, "npc-care", "action=kiosk_closed stand={} reason={}",
-                        kiosk.stand().toShortString(), kioskArrived ? "unavailable" : "route_ended");
+            if (counterWindow() == null) {
+                GameplayLog.event(npc, "npc-care", "action=counter_closed stand={} reason={}",
+                        counter.stand().toShortString(), counterArrived ? "unavailable" : "route_ended");
                 finished = true;
                 return;
             }
-            if (kioskBusy()) return;
-            var stray = npc.street.kioskRequest(kiosk);
+            if (counterBusy()) return;
+            var stray = npc.street.counterRequest(counter);
             if (stray != null) {
                 // Hold service through the existing frown gesture.
-                kioskBusyUntil = npc.level().getGameTime() + FROWN_TICKS;
-                npc.street.answerKiosk(stray, kiosk);
+                counterBusyUntil = npc.level().getGameTime() + FROWN_TICKS;
+                npc.street.answerCounter(stray, counter);
                 return;
             }
             if (!npc.swinging) {
-                var outward = Vec3.atLowerCornerOf(kiosk.front().getNormal());
+                var outward = Vec3.atLowerCornerOf(counter.front().getNormal());
                 npc.getLookControl().setLookAt(npc.getX() + outward.x, npc.getEyeY(), npc.getZ() + outward.z, 30, 30);
             }
         }
@@ -1333,7 +1333,7 @@ final class HumanStreet {
         @Override public void tick() {
             // Vanilla still ticks running goals before its next continuation check.
             if (finished) return;
-            if (kiosk != null) { kioskStep(); return; }
+            if (counter != null) { counterStep(); return; }
             if (leg == Leg.GATE) {
                 if (!npc.level().isDay() || npc.level().isRaining() || npc.avoidingStreet()
                         || !atDestination() && (npc.getNavigation().isDone() || ++stalled >= ROUTE_TICKS)) {
@@ -1660,9 +1660,9 @@ final class HumanStreet {
 
         @Override public void stop() {
             endGlance();
-            kiosk = null;
-            kioskArrived = false;
-            kioskBusyUntil = 0;
+            counter = null;
+            counterArrived = false;
+            counterBusyUntil = 0;
             doorWait = null;
             clearPark();
             if (leg == Leg.GATE) companions = List.of();

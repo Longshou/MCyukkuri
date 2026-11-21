@@ -3,7 +3,7 @@
   "fallback": "minecraft:empty",
   "elements": [
     {
-      "weight": 23,
+      "weight": 30,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/savanna/home_yard",
@@ -19,7 +19,7 @@
       }
     },
     {
-      "weight": 13,
+      "weight": 17,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/savanna/home_yard_large",
@@ -35,24 +35,7 @@
       }
     },
     {
-      "weight": 19,
-      "element": {
-        "element_type": "mcyukkuri:levelled",
-        "location": "mcyukkuri:village/savanna/kiosk",
-        "processors": "minecraft:empty",
-        "projection": "rigid",
-        "max_count": 3,
-        "max_fill": 5,
-        "fill": {
-          "Name": "minecraft:dirt"
-        },
-        "edge": {
-          "Name": "minecraft:terracotta"
-        }
-      }
-    },
-    {
-      "weight": 13,
+      "weight": 17,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/savanna/pocket_park",
@@ -69,7 +52,7 @@
       }
     },
     {
-      "weight": 13,
+      "weight": 17,
       "element": {
         "element_type": "mcyukkuri:levelled",
         "location": "mcyukkuri:village/savanna/back_lot",

@@ -3557,8 +3557,8 @@ for sid, title, description, traits, child_pos in (
         give=['mcyukkuri:field_notebook'], smoke=smoke, env=DAY, vantage=(0, -5, 0, 9))
 
 
-add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店方饲养员牵线：有顶窝、真实银章的玩家灵梦，与店方真实登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧饲养员；约 1 分钟', [
-    human('caretaker_brother', 4, -4, 'keeper', 4, yaw=180, label='店方饲养员'), *shed(-4, -3),
+add('date', 'town', '店方牵线，银章灵梦相亲', '店方牵线，银章灵梦相亲', '北侧店员牵线：有顶窝、真实银章的玩家灵梦，与店方登记的银章种油魔理沙害羞、靠近、蹭蹭', '等 2 秒登记窝位后，右键北侧店员，点「相亲预约」；约 1 分钟', [
+    human('caretaker_brother', 4, -4, 'keeper', 1, yaw=180, label='店方店员'), *shed(-4, -3),
     # Five is the largest ordinary live litter; two spare nests beside the mother's (centres two blocks apart, so the bolsters do not
     # overlap) cover extraCells(5) == 2 while the centre remains the mother's home.
     block(-6, 0, -3, 'mcyukkuri:yukkuri_nest'), block(-2, 0, -3, 'mcyukkuri:yukkuri_nest'),
@@ -4029,35 +4029,40 @@ add('stall_theft', 'town', '流浪油在摊前偷胡萝卜', '流浪油在摊前
            ('读嘴中货物', f'data get entity {sel("stall_stray")} YukkuriMouth'),
            ('读流浪油状态', f'yukkuri status {sel("stall_stray")} raw')])
 
-_kiosk_keeper = sel('kiosk_keeper')
-_kiosk_stray = sel('kiosk_stray')
-_kiosk_grain = 'mcyukkuri:oil_grain_regular'
-_kiosk_goods, _kiosk_paper = '~-1 ~1 ~', '~ ~1 ~'
-_kiosk_build = [
-    box(-9, -1, -9, 9, -1, 9, 'minecraft:polished_andesite'),
-    'place template mcyukkuri:village/plains/kiosk ~-4 ~-1 ~-3',
-    # Direct template placement leaves the entrance jigsaw intact. Its village final_state is air.
-    block(0, 0, -3, 'minecraft:air'),
-    f'execute positioned ~0.5 ~ ~2.5 run tag @e[type=mcyukkuri:caretaker_sister,distance=..0.5,limit=1] add {tag("kiosk_keeper")}',
+_counter_keeper = sel('counter_keeper')
+_counter_stray = sel('counter_stray')
+_counter_bread = 'minecraft:bread'
+# The corner shop of the side street (x0..5, z8..17 of the template): four counter crates on the hatch at z8, the keeper's home behind
+# the second one. Origin ~ is the second crate (candy and the emerald float); the first holds bread, the third apples, the fourth budget grain.
+_counter_bread_crate, _counter_candy_crate = '~-1 ~1 ~', '~ ~1 ~'
+_counter_apple_crate = '~1 ~1 ~'
+_counter_build = [
+    box(-12, -1, -12, 17, -1, 15, 'minecraft:polished_andesite'),
+    'place template mcyukkuri:village/plains/side_street ~-2 ~-1 ~-8',
+    # Direct template placement leaves the three street jigsaws intact. Their village final_state is air.
+    block(-2, 0, -4, 'minecraft:air'), block(15, 0, -4, 'minecraft:air'), block(6, 0, 13, 'minecraft:air'),
+    f'execute positioned ~0.5 ~ ~1.5 run tag @e[type=mcyukkuri:caretaker_brother,distance=..0.5,limit=1] add {tag("counter_keeper")}',
 ]
-_kiosk_rows = [('读粮箱存货和收款', f'data get block {_kiosk_goods} Items'),
-               ('读纸箱存货和收款', f'data get block {_kiosk_paper} Items'),
-               ('读店主的站位', f'data get entity {_kiosk_keeper} Pos')]
-add('kiosk_buy', 'town', '在小卖亭用绿宝石买油粮和纸', '在小卖亭用绿宝石买油粮和纸',
-    '先看店主从柜台后的住处走后门、绕到遮阳篷下。空手从街边点货箱看货，再手持绿宝石各买一件油粮和纸。'
-    '看实物离开货箱，绿宝石留在箱内。也可试着买空左边的粮箱。', '约半分钟',
-    _kiosk_build, give=['minecraft:emerald 7'], env={'time': 'noon', 'weather': 'clear'},
-    vantage=(-3, -5, -45, 8), reads=_kiosk_rows + [('读自己的背包', 'data get entity @s Inventory')])
+_counter_rows = [('读面包箱存货', f'data get block {_counter_bread_crate} Items'),
+                 ('读糖箱存货和找零', f'data get block {_counter_candy_crate} Items'),
+                 ('读苹果箱存货', f'data get block {_counter_apple_crate} Items'),
+                 ('读店主的站位', f'data get entity {_counter_keeper} Pos')]
+add('counter_buy', 'town', '在街角店向店主买货，再把货卖回柜台', '在街角店向店主买货，再把货卖回柜台',
+    '先看店主从柜台后的住处走出店门、绕到遮阳篷下的售货口。空手点货箱看货，手持绿宝石各买一件糖和面包；'
+    '再用纸（4 张）和面包（2 个）卖给店主，各换一颗绿宝石，货进货箱、绿宝石从柜台里付出。钻石柜台不收。', '约 1 分钟',
+    _counter_build, give=['minecraft:emerald 7', 'minecraft:paper 4', 'minecraft:diamond 1', 'minecraft:bread 2'],
+    env={'time': 'noon', 'weather': 'clear'},
+    vantage=(-3, -5, -45, 8), reads=_counter_rows + [('读自己的背包', 'data get entity @s Inventory')])
 
-add('kiosk_shoo', 'town', '流浪油在售货口讨食，店主挥手赶开', '流浪油在售货口讨食，店主挥手赶开',
+add('counter_shoo', 'town', '流浪油在售货口讨食，店主挥手赶开', '流浪油在售货口讨食，店主挥手赶开',
     '看饥饿的流浪灵梦走到在岗的店主旁开口索食。店主挥手喝止，灵梦自己跑开；货箱里的食物还在。'
     '站在街边给灵梦让路，挥手结束就能继续买东西。', '约半分钟',
-    _kiosk_build, give=['minecraft:emerald 2'], env={'time': 'noon', 'weather': 'clear'}, vantage=(5, -6, 40, 8),
+    _counter_build, give=['minecraft:emerald 2'], env={'time': 'noon', 'weather': 'clear'}, vantage=(5, -6, 40, 8),
     # The first social search needs grounded candidates. Allow the spawned stray to land first.
-    late=[Retry(street_trial('kiosk_shoo', 'reimu', -2, -4, 'kiosk_stray', nutrition=42, social_wait=3,
+    late=[Retry(street_trial('counter_shoo', 'reimu', -2, -4, 'counter_stray', nutrition=42, social_wait=3,
                              boldness=75, friendliness=75, self_control=75, picky=10, yaw=-20, lead=True),
-                _kiosk_keeper, tries=1, first=370)],
-    reads=_kiosk_rows + [('读流浪灵梦的状态', f'yukkuri status {_kiosk_stray} raw')])
+                _counter_keeper, tries=1, first=370)],
+    reads=_counter_rows + [('读流浪灵梦的状态', f'yukkuri status {_counter_stray} raw')])
 
 add('street_furniture', 'town', '流浪油：长椅歇息、饮水、木桶檐下躲雨', '流浪油：长椅歇息、饮水、木桶檐下躲雨',
     '西边困倦的魔理沙会在檐下长椅的椅面或椅脚歇息。口渴的灵梦能在干岸饮水。东边两只流浪油附近各有一处遮雨地，分别是抬高木桶和遮篷。', '约半分钟', [
@@ -7529,7 +7534,7 @@ TOPICS = {
     'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
-    'stall_theft': 'M5', 'kiosk_buy': 'M5', 'kiosk_shoo': 'M5',
+    'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
@@ -8761,77 +8766,100 @@ next(s for s in S if s.id == 'stall_theft').smoke['commands'] = [
     (320, f'execute if block {_stall_box} mcyukkuri:produce_crate unless data block {_stall_box} Items[0] run say MCYSTALL_EMPTY'),
 ]
 
-_kiosk_buyer = '@a[name=MuseumOperator,distance=..8,limit=1]'
-_kiosk_keeper_id = r'[0-9a-f-]{36}'
-_kiosk_staffed = rf'\[npc-care\][^\n]* uuid=({_kiosk_keeper_id})\b[^\n]* action=kiosk_staffed'
+_counter_buyer = '@a[name=MuseumOperator,distance=..8,limit=1]'
+_counter_keeper_id = r'[0-9a-f-]{36}'
+_counter_staffed = rf'\[npc-care\][^\n]* uuid=({_counter_keeper_id})\b[^\n]* action=counter_staffed'
+_counter_coin, _counter_candy, _counter_paper, _counter_diamond = ('minecraft:emerald', 'mcyukkuri:sweet_candy', 'minecraft:paper',
+                                                                   'minecraft:diamond')
 
 
-def _kiosk_check(tick, label, crate, rows, coins, goods):
-    checks = [f'if data block {crate} {{Items:[{{Slot:{slot}b,id:"{item_id}",count:{count}}}]}}'
-              for slot, item_id, count in rows]
-    checks.append(f'unless data block {crate} Items[{len(rows)}]')
-    counts = [('minecraft:emerald', coins), (_kiosk_grain, goods[0]), ('minecraft:bread', goods[1]), ('minecraft:paper', goods[2])]
-    return [(tick, f'execute store result score #kiosk_{i} museum run clear {_kiosk_buyer} {item_id} 0')
+def _counter_check(tick, label, crates, coins, candy, paper, bread, diamond=1):
+    """Ledger at one tick: what the operator carries, and every crate's exact rows [(slot, item, count)] (conservation: the emeralds,
+    candy, paper and bread of the player and the three crates always add up to what the scene started with)."""
+    counts = [(_counter_coin, coins), (_counter_candy, candy), (_counter_paper, paper), (_counter_bread, bread),
+              (_counter_diamond, diamond)]
+    checks = []
+    for crate, rows in crates:
+        checks += [f'if data block {crate} {{Items:[{{Slot:{slot}b,id:"{item_id}",count:{count}}}]}}' for slot, item_id, count in rows]
+        checks.append(f'unless data block {crate} Items[{len(rows)}]')
+    return [(tick, f'execute store result score #counter_{i} museum run clear {_counter_buyer} {item_id} 0')
             for i, (item_id, _) in enumerate(counts)] + [
-        (tick, 'execute ' + ' '.join([f'if score #kiosk_{i} museum matches {count}' for i, (_, count) in enumerate(counts)]
-                                    + checks) + f' run say MCYKIOSK_{label}')]
+        (tick, 'execute ' + ' '.join([f'if score #counter_{i} museum matches {count}' for i, (_, count) in enumerate(counts)]
+                                    + checks) + f' run say MCYCOUNTER_{label}')]
 
 
-_kiosk_coins = 'minecraft:emerald'
-_kiosk_bread = 'minecraft:bread'
-_kiosk_food_start = [(0, _kiosk_bread, 3), (1, _kiosk_grain, 2)]
-_kiosk_paper_start = [(0, 'minecraft:paper', 3), (1, 'minecraft:paper', 2)]
-_kiosk_sale = rf'\[shop\][^\n]* uuid={_kiosk_keeper_id}\b[^\n]* action=kiosk_sale'
-_smoke('kiosk_buy', 560, [
-    _kiosk_staffed, _kiosk_sale + rf'[^\n]* goods={_kiosk_grain}\b',
-    _kiosk_sale + r'[^\n]* goods=minecraft:paper\b',
-    r'\[shop\][^\n]* action=kiosk_refused [^\n]*reason=unstaffed',
-    r'\[shop\][^\n]* action=kiosk_refused [^\n]*reason=empty',
-    *[f'MCYKIOSK_{label}\\b' for label in ('UNSTAFFED', 'INSPECT', 'GRAIN', 'PAPER', 'LAST_GRAIN', 'BREAD_1', 'BREAD_2', 'LAST_BREAD', 'EMPTY')],
-], readout=[command for _, command in _kiosk_rows])
-_kiosk_click = 'yukkuri scenario shop_block_click'
-next(s for s in S if s.id == 'kiosk_buy').smoke['commands'] = [
+_counter_sale = rf'\[shop\][^\n]* uuid={_counter_keeper_id}\b[^\n]* action=counter_sale'
+_counter_buyback = rf'\[shop\][^\n]* uuid={_counter_keeper_id}\b[^\n]* action=counter_buyback'
+_smoke('counter_buy', 760, [
+    _counter_staffed, _counter_sale + rf'[^\n]* goods={_counter_candy} count=1 emeralds=1 till=4->5',
+    _counter_sale + rf'[^\n]* goods={_counter_bread} count=1 emeralds=1',
+    _counter_buyback + rf'[^\n]* goods={_counter_paper} count=4 emeralds=1 till=',
+    _counter_buyback + rf'[^\n]* goods={_counter_bread} count=2 emeralds=1 till=',
+    r'\[shop\][^\n]* action=counter_refused [^\n]*reason=unstaffed',
+    r'\[shop\][^\n]* action=counter_refused [^\n]*reason=wrong_item',
+    *[f'MCYCOUNTER_{label}\\b' for label in ('UNSTAFFED', 'INSPECT', 'CANDY', 'BREAD', 'PAPER', 'WRONG', 'BREAD_BACK')],
+], readout=[command for _, command in _counter_rows])
+_counter_click = 'yukkuri scenario shop_block_click'
+_b = _counter_bread
+_start_bread, _start_apple = [(0, _b, 3), (1, _b, 2)], [(0, 'minecraft:apple', 3), (1, 'minecraft:apple', 2)]
+_start_candy = [(0, _counter_coin, 4), (1, _counter_candy, 3), (2, _counter_candy, 2)]
+_candy_after_buy = [(0, _counter_coin, 4), (1, _counter_candy, 3), (2, _counter_candy, 1), (3, _counter_coin, 1)]
+_all_start = [(_counter_bread_crate, _start_bread), (_counter_candy_crate, _start_candy), (_counter_apple_crate, _start_apple)]
+next(s for s in S if s.id == 'counter_buy').smoke['commands'] = [
     (1, 'execute positioned ~-0.5 ~ ~-2.5 run yukkuri scenario tool_operator enter'),
-    (2, f'gamemode survival {_kiosk_buyer}'),
-    (2, f'give {_kiosk_buyer} minecraft:emerald 7'),
-    (3, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(4, 'UNSTAFFED', _kiosk_goods, _kiosk_food_start, 7, (0, 0, 0)),
-    (410, 'yukkuri scenario tool_operator select 1'),
-    (411, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(412, 'INSPECT', _kiosk_goods, _kiosk_food_start, 7, (0, 0, 0)),
-    (420, 'yukkuri scenario tool_operator select 0'),
-    (421, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(422, 'GRAIN', _kiosk_goods, [(0, _kiosk_bread, 3), (1, _kiosk_grain, 1), (2, _kiosk_coins, 1)], 6, (1, 0, 0)),
-    (430, f'{_kiosk_click} {_kiosk_paper} up'),
-    *_kiosk_check(431, 'PAPER', _kiosk_paper, [(0, 'minecraft:paper', 3), (1, 'minecraft:paper', 1), (2, _kiosk_coins, 1)], 5, (1, 0, 1)),
-    (440, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(441, 'LAST_GRAIN', _kiosk_goods, [(0, _kiosk_bread, 3), (2, _kiosk_coins, 2)], 4, (2, 0, 1)),
-    (450, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(451, 'BREAD_1', _kiosk_goods, [(0, _kiosk_bread, 2), (2, _kiosk_coins, 3)], 3, (2, 1, 1)),
-    (460, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(461, 'BREAD_2', _kiosk_goods, [(0, _kiosk_bread, 1), (2, _kiosk_coins, 4)], 2, (2, 2, 1)),
-    (470, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(471, 'LAST_BREAD', _kiosk_goods, [(0, _kiosk_coins, 1), (2, _kiosk_coins, 4)], 1, (2, 3, 1)),
-    (480, f'{_kiosk_click} {_kiosk_goods} north'),
-    *_kiosk_check(481, 'EMPTY', _kiosk_goods, [(0, _kiosk_coins, 1), (2, _kiosk_coins, 4)], 1, (2, 3, 1)),
-    (510, 'yukkuri scenario tool_operator leave'),
+    (2, f'gamemode survival {_counter_buyer}'),
+    (2, f'give {_counter_buyer} {_counter_coin} 7'), (2, f'give {_counter_buyer} {_counter_paper} 4'),
+    (2, f'give {_counter_buyer} {_counter_diamond} 1'), (2, f'give {_counter_buyer} {_counter_bread} 2'),
+    (3, f'{_counter_click} {_counter_candy_crate} north'),
+    *_counter_check(4, 'UNSTAFFED', _all_start, 7, 0, 4, 2),
+    # The keeper walks out through the shop door and round to the hatch (about 22 blocks): inspect with an empty hand first.
+    (450, 'yukkuri scenario tool_operator select 8'),
+    (451, f'{_counter_click} {_counter_candy_crate} north'),
+    *_counter_check(452, 'INSPECT', _all_start, 7, 0, 4, 2),
+    # Buy one candy: the emerald goes onto the crate's first row with room (a fourth row: the first emerald row is full), the candy leaves.
+    (460, 'yukkuri scenario tool_operator select 0'),
+    (461, f'{_counter_click} {_counter_candy_crate} north'),
+    *_counter_check(462, 'CANDY', [(_counter_bread_crate, _start_bread), (_counter_candy_crate, _candy_after_buy),
+                                   (_counter_apple_crate, _start_apple)], 6, 1, 4, 2),
+    # Buy one bread from the first crate: its emerald lands in the crate's free third row.
+    (470, f'{_counter_click} {_counter_bread_crate} north'),
+    *_counter_check(471, 'BREAD', [(_counter_bread_crate, [(0, _b, 3), (1, _b, 1), (2, _counter_coin, 1)]),
+                                   (_counter_candy_crate, _candy_after_buy), (_counter_apple_crate, _start_apple)], 5, 1, 4, 3),
+    # Sell four paper at the apple crate: the batch lands there, the emerald comes out of the first crate holding one (the bread crate).
+    (480, 'yukkuri scenario tool_operator select 1'),
+    (481, f'{_counter_click} {_counter_apple_crate} north'),
+    *_counter_check(482, 'PAPER', [(_counter_bread_crate, [(0, _b, 3), (1, _b, 1)]), (_counter_candy_crate, _candy_after_buy),
+                                   (_counter_apple_crate, _start_apple + [(2, _counter_paper, 4)])], 6, 1, 0, 3),
+    # A diamond is not counter goods: refused, nothing moves.
+    (490, 'yukkuri scenario tool_operator select 2'),
+    (491, f'{_counter_click} {_counter_apple_crate} north'),
+    *_counter_check(492, 'WRONG', [(_counter_bread_crate, [(0, _b, 3), (1, _b, 1)]), (_counter_candy_crate, _candy_after_buy),
+                                   (_counter_apple_crate, _start_apple + [(2, _counter_paper, 4)])], 6, 1, 0, 3),
+    # Sell the two given bread at the bread crate: the loose bread rows fill up, the emerald comes out of the candy crate's first row.
+    (500, 'yukkuri scenario tool_operator select 3'),
+    (501, f'{_counter_click} {_counter_bread_crate} north'),
+    *_counter_check(502, 'BREAD_BACK', [(_counter_bread_crate, [(0, _b, 4), (1, _b, 2)]),
+                                        (_counter_candy_crate, [(0, _counter_coin, 3), (1, _counter_candy, 3), (2, _counter_candy, 1),
+                                                                (3, _counter_coin, 1)]),
+                                        (_counter_apple_crate, _start_apple + [(2, _counter_paper, 4)])], 7, 1, 0, 1),
+    (540, 'yukkuri scenario tool_operator leave'),
 ]
 
-_kiosk_beggar = _uuid_text('kiosk_shoo', 'kiosk_stray')
-_smoke('kiosk_shoo', 750, [
-    _kiosk_staffed + rf'[^\n]*\n[\s\S]*?\[social\][^\n]* uuid={_kiosk_beggar}\b[^\n]* human food request target=\1\b'
-    + rf'[^\n]*\n[\s\S]*?\[npc-care\][^\n]* uuid=\1\b[^\n]* action=kiosk_shoo target={_kiosk_beggar}\b[^\n]* attitude=NEUTRAL'
-    + rf'[^\n]*\n[\s\S]*?\[threat\][^\n]* uuid={_kiosk_beggar}\b[^\n]* response started source=\1\b stage=RETREAT',
-    r'MCYKIOSK_RETREATED',
-], forbid=[rf'\[body\][^\n]* uuid={_kiosk_beggar}\b[^\n]* accepted damage',
-           rf'\[forage\][^\n]* uuid={_kiosk_beggar}\b[^\n]* stall pickup'],
-    readout=[command for _, command in _kiosk_rows] + _street_health_reads('kiosk_stray') + [
-        f'data get entity {_kiosk_stray} YukkuriLife.AvoidedField', f'data get entity {_kiosk_stray} YukkuriLife.AvoidFieldUntil'])
-next(s for s in S if s.id == 'kiosk_shoo').smoke['commands'] = [
-    (705, f'execute positioned ~0.5 ~ ~-0.5 if entity @e[tag={tag("kiosk_stray")},distance=3..,limit=1] '
-          f'if data entity {_kiosk_stray} {{YukkuriLife:{{AvoidedField:{_yard_pos(0, -1)}L}}}} '
-          f'positioned ~-0.5 ~ ~0.5 if data block {_kiosk_goods} {{Items:[{{Slot:0b,id:"minecraft:bread",count:3}},'
-          f'{{Slot:1b,id:"{_kiosk_grain}",count:2}}]}} unless data block {_kiosk_goods} Items[2] run say MCYKIOSK_RETREATED'),
+_counter_beggar = _uuid_text('counter_shoo', 'counter_stray')
+_smoke('counter_shoo', 750, [
+    _counter_staffed + rf'[^\n]*\n[\s\S]*?\[social\][^\n]* uuid={_counter_beggar}\b[^\n]* human food request target=\1\b'
+    + rf'[^\n]*\n[\s\S]*?\[npc-care\][^\n]* uuid=\1\b[^\n]* action=counter_shoo target={_counter_beggar}\b[^\n]* attitude=NEUTRAL'
+    + rf'[^\n]*\n[\s\S]*?\[threat\][^\n]* uuid={_counter_beggar}\b[^\n]* response started source=\1\b stage=RETREAT',
+    r'MCYCOUNTER_RETREATED',
+], forbid=[rf'\[body\][^\n]* uuid={_counter_beggar}\b[^\n]* accepted damage',
+           rf'\[forage\][^\n]* uuid={_counter_beggar}\b[^\n]* stall pickup'],
+    readout=[command for _, command in _counter_rows] + _street_health_reads('counter_stray') + [
+        f'data get entity {_counter_stray} YukkuriLife.AvoidedField', f'data get entity {_counter_stray} YukkuriLife.AvoidFieldUntil'])
+next(s for s in S if s.id == 'counter_shoo').smoke['commands'] = [
+    (705, f'execute positioned ~0.5 ~ ~-0.5 if entity @e[tag={tag("counter_stray")},distance=3..,limit=1] '
+          f'if data entity {_counter_stray} {{YukkuriLife:{{AvoidedField:{_yard_pos(0, -1)}L}}}} '
+          f'positioned ~-0.5 ~ ~0.5 if data block {_counter_bread_crate} {{Items:[{{Slot:0b,id:"minecraft:bread",count:3}},'
+          f'{{Slot:1b,id:"minecraft:bread",count:2}}]}} unless data block {_counter_bread_crate} Items[2] run say MCYCOUNTER_RETREATED'),
 ]
 
 _street_cover_arrival = (

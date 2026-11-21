@@ -517,8 +517,10 @@ def side_street(p):
     roof(b, 0, 5, 8, 17, 6, 'z', overhang=0, steep=True)
     # Hatch onto the sidewalk: a board counter carrying open crates of real goods, an opening above it.
     for x in range(1, 5): b.block(x, 1, 8, p.planks()); b.box((x, 3, 8), (x, 4, 8), 'air')
+    # The four hatch crates are one staffed counter: the shopkeeper whose home is behind them serves the run, and the emerald row
+    # in the second crate is its till float.
     for x, item in [(1, 'minecraft:bread'), (2, 'mcyukkuri:sweet_candy'), (3, 'minecraft:apple'), (4, 'mcyukkuri:oil_grain_budget')]:
-        produce_crate(b, x, 2, 8, 'north', [(item, 3), (item, 2)])
+        produce_crate(b, x, 2, 8, 'north', ([('emerald', 4)] if x == 2 else []) + [(item, 3), (item, 2)], counter=True)
     # Blue/white awning over the hatch and along the lane side; the newspaper stack and a loose sheet on the sidewalk.
     for x in range(0, 6):
         wool = 'blue_wool' if x % 2 == 0 else 'white_wool'

@@ -35,7 +35,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * An open crate whose low side faces FACING. A kiosk's public hatch sells directly from the displayed rows.
+ * An open crate whose low side faces FACING. A counter crate (flagged) trades over its public side through the keeper, see {@link Counter}.
  */
 public class ProduceCrateBlock extends Block implements EntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -62,9 +62,16 @@ public class ProduceCrateBlock extends Block implements EntityBlock {
         if (stack.isEmpty() || !(level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate))
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
-        var counter = KioskCounter.at(level, pos, state.getValue(FACING));
-        if (counter != null && counter.publicSide(player, hit)) {
-            buy(crate, counter, player, stack, hit);
+        if (crate.counter()) {
+            if (new Counter(pos, state.getValue(FACING)).publicSide(player, hit)) {
+                trade(crate, player, stack, hit);
+                return ItemInteractionResult.CONSUME;
+            }
+            // The back side is the shop's own: goods go in as a deposit, nothing is paid.
+            if (!ProduceCrateBlockEntity.sells(stack)) { refuse(player, pos, "wrong_item"); return ItemInteractionResult.FAIL; }
+            if (!crate.put(stack)) { refuse(player, pos, "crate_full"); return ItemInteractionResult.FAIL; }
+            stack.consume(1, player);
+            level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .8f, 1f);
             return ItemInteractionResult.CONSUME;
         }
         if (!crate.put(stack)) return ItemInteractionResult.FAIL;
@@ -75,12 +82,14 @@ public class ProduceCrateBlock extends Block implements EntityBlock {
 
     @Override protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!(level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity crate)) return InteractionResult.PASS;
-        var counter = KioskCounter.at(level, pos, state.getValue(FACING));
-        if (counter != null && counter.publicSide(player, hit)) {
+        if (crate.counter()) {
             if (!level.isClientSide) {
-                var offer = crate.kioskOffer();
-                if (offer.isEmpty()) message(player, "empty");
-                else message(player, "offer", offer.getHoverName());
+                if (!new Counter(pos, state.getValue(FACING)).publicSide(player, hit)) message(player, "back_take");
+                else {
+                    var offer = crate.counterOffer();
+                    if (offer.isEmpty()) message(player, "empty");
+                    else message(player, "offer", offer.getHoverName(), ProduceCrateBlockEntity.batch(offer));
+                }
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
@@ -92,11 +101,14 @@ public class ProduceCrateBlock extends Block implements EntityBlock {
         return InteractionResult.CONSUME;
     }
 
-    private static void buy(ProduceCrateBlockEntity crate, KioskCounter counter, Player player, ItemStack payment, BlockHitResult hit) {
+    /** The public side of a counter crate: an emerald in hand buys one good, a good the counter handles is sold back for an emerald. */
+    private static void trade(ProduceCrateBlockEntity crate, Player player, ItemStack held, BlockHitResult hit) {
         var level = player.level();
         var pos = crate.getBlockPos();
-        if (!payment.is(Items.EMERALD)) {
-            refuse(player, pos, "emerald");
+        var facing = crate.getBlockState().getValue(FACING);
+        boolean buying = held.is(Items.EMERALD);
+        if (!buying && !ProduceCrateBlockEntity.sells(held)) {
+            refuse(player, pos, "wrong_item");
             return;
         }
         var sight = level.clip(new ClipContext(player.getEyePosition(), hit.getLocation(),
@@ -105,38 +117,48 @@ public class ProduceCrateBlock extends Block implements EntityBlock {
             refuse(player, pos, "blocked");
             return;
         }
-        var keeper = level.getEntitiesOfClass(HumanNpc.class, new AABB(counter.stand()).inflate(1),
-                        npc -> counter.equals(npc.kioskWindow()))
+        // The keeper is whoever stands at a window whose run this crate belongs to (a crate two cells off the keeper's own still counts).
+        var keeper = level.getEntitiesOfClass(HumanNpc.class, new AABB(pos).inflate(4, 3, 4),
+                        npc -> npc.counterWindow() != null && npc.counterWindow().owns(pos, facing))
                 .stream().findFirst().orElse(null);
         if (keeper == null) {
             refuse(player, pos, "unstaffed");
             return;
         }
-        if (keeper.kioskBusy() || !keeper.hasLineOfSight(player)) {
-            refuse(player, pos, keeper.kioskBusy() ? "busy" : "blocked");
+        if (keeper.counterBusy() || !keeper.hasLineOfSight(player)) {
+            refuse(player, pos, keeper.counterBusy() ? "busy" : "blocked");
             return;
         }
-        var offer = crate.kioskOffer().copyWithCount(1);
-        var sale = crate.sellOne(player, payment);
-        if (sale != ProduceCrateBlockEntity.Sale.SOLD) {
-            refuse(player, pos, sale.name().toLowerCase(Locale.ROOT));
+        var run = keeper.counterWindow().run(level, pos);
+        var goods = (buying ? crate.counterOffer() : held).copyWithCount(1);
+        int tillBefore = CounterTrade.till(run);
+        int batch = ProduceCrateBlockEntity.batch(held);
+        var result = buying ? CounterTrade.buy(run, player, held) : CounterTrade.buyBack(run, player, held);
+        if (result != CounterTrade.Result.DONE) {
+            refuse(player, pos, result.name().toLowerCase(Locale.ROOT), batch);
             return;
         }
         keeper.getLookControl().setLookAt(player, 30, 30);
         keeper.swing(InteractionHand.MAIN_HAND);
-        level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, .8f, 1f);
-        message(player, "sold", offer.getHoverName());
-        GameplayLog.event(keeper, "shop", "action=kiosk_sale buyer={} crate={} goods={} count=1 emeralds=1",
-                player.getUUID(), pos.toShortString(), offer.getItem());
+        level.playSound(null, pos, buying ? SoundEvents.ITEM_FRAME_REMOVE_ITEM : SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, .8f, 1f);
+        if (buying) {
+            message(player, "sold", goods.getHoverName());
+            GameplayLog.event(keeper, "shop", "action=counter_sale buyer={} crate={} goods={} count=1 emeralds=1 till={}->{}",
+                    player.getUUID(), pos.toShortString(), goods.getItem(), tillBefore, CounterTrade.till(run));
+        } else {
+            message(player, "bought", batch, goods.getHoverName());
+            GameplayLog.event(keeper, "shop", "action=counter_buyback seller={} crate={} goods={} count={} emeralds=1 till={}->{}",
+                    player.getUUID(), pos.toShortString(), goods.getItem(), batch, tillBefore, CounterTrade.till(run));
+        }
     }
 
-    private static void refuse(Player player, BlockPos pos, String reason) {
-        message(player, reason);
-        GameplayLog.limited(player, "shop", "kiosk." + reason, 40, "action=kiosk_refused crate={} reason={}", pos.toShortString(), reason);
+    private static void refuse(Player player, BlockPos pos, String reason, Object... args) {
+        message(player, reason, args);
+        GameplayLog.limited(player, "shop", "counter." + reason, 40, "action=counter_refused crate={} reason={}", pos.toShortString(), reason);
     }
 
     private static void message(Player player, String key, Object... args) {
-        player.displayClientMessage(Component.translatable("human.mcyukkuri.kiosk." + key, args), true);
+        player.displayClientMessage(Component.translatable("human.mcyukkuri.counter." + key, args), true);
     }
 
     @Override protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState replacement, boolean moving) {

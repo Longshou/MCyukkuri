@@ -38,11 +38,8 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
         });
     }
     @Override public ResourceLocation getTextureLocation(HumanNpc npc) {
-        // EXAMINER/KEEPER are matched by name so this compiles before those Job constants land.
-        String job = npc.job().name();
         String name = npc.job() == HumanNpc.Job.SHOPKEEPER ? "shopkeeper" : npc.job() == HumanNpc.Job.FACTORY ? "factory_worker"
-                : job.equals("EXAMINER") ? "examiner" : job.equals("KEEPER") ? "keeper"
-                : npc.look().name().toLowerCase(Locale.ROOT);
+                : npc.job() == HumanNpc.Job.EXAMINER ? "examiner" : npc.look().name().toLowerCase(Locale.ROOT);
         return MCYukkuri.id("textures/entity/human/" + name + ".png");
     }
     public static final class Model extends HumanoidModel<HumanNpc> {

@@ -316,7 +316,7 @@
     "resident_house_lint": "HS-06",
     "shelter_cartons": "TN-63",
     "shelter_cartons_blocked": "TN-64",
-    "kiosk_buy": "TN-65",
-    "kiosk_shoo": "TN-66"
+    "counter_buy": "TN-65",
+    "counter_shoo": "TN-66"
   }
 }

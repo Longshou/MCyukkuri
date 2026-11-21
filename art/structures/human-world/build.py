@@ -242,10 +242,12 @@ def frame(b,x,y,z,item,facing=None):
     if facing is not None: data['Facing'] = byte(1)
     yaw = {'south': 0., 'west': 90., 'north': 180., 'east': 270.}[facing or 'north']
     marker(b,x+.5,y+.5,z+.5,'mcy_shop_frame',data,yaw)
-def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3,hatch=None,waterer=None,toilet=None,sealed=False):
-    """y is the cell the animals stand in (the floor block is below it); hatch is the (x, z) of its service door in the wall ring."""
+def register_pen(b,name,interior,bowl,nests,minimum=(3,3),y=3,hatch=None,waterer=None,toilet=None,sealed=False,extra=None):
+    """y is the cell the animals stand in (the floor block is below it); hatch is the (x, z) of its service door in the wall ring.
+    extra: {'bowl'|'waterer'|'toilet': [(x, z), ...]} further facilities of that kind the pen has besides the first (a pen shared by
+    more animals than its first set was drawn for)."""
     b.pens.append({'name':name,'interior':interior,'bowl':bowl,'nests':nests,'min':minimum,'y':y,'hatch':hatch,
-                   'waterer':waterer,'toilet':toilet,'sealed':sealed})
+                   'waterer':waterer,'toilet':toilet,'sealed':sealed,'extra':extra or {}})
 def carpet(b,x0,z0,x1,z1,color):
     """Rug on free floor cells only."""
     for x in range(x0,x1+1):
@@ -426,17 +428,24 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     for x in (3,8,13): b.block(x,5,19,'lantern',{'hanging':'true','waterlogged':'false'})
     b.pet_nest(10,19,'south'); marker(b,10.5,3.5,19.5,'mcy_shop_family')
     b.bowl(8,18,grain=4); b.waterer(12,18,water=8); b.block(8,3,21,'mcyukkuri:yukkuri_toilet')
+    # The two studs share the yard with the littermates: a second bowl, waterer and toilet, each also within baby reach of the nest.
+    b.bowl(9,18,grain=4); b.waterer(11,18,water=8); b.block(12,3,21,'mcyukkuri:yukkuri_toilet')
     for i,(x,z) in enumerate([(4,22),(10,27),(13,23),(6,28),(14,26)]):   # the type's yard plants, one of each in turn
         plant=p.plants[i%len(p.plants)][0]
         if plant: b.block(x,3,z,plant)
     b.block(8,3,25,*yard_bush(p))
     for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
     for x,z,item in [(11.5,21.5,'glass_marble'),(7.5,26.5,'yarn_ball')]: b.toy(x,3,z,item)
-    register_pen(b,'yard',(2,18,15,29),(8,18),[(10,19)],(10,10),hatch=(16,21),waterer=(12,18),toilet=(8,21))
+    register_pen(b,'yard',(2,18,15,29),(8,18),[(10,19)],(10,10),hatch=(16,21),waterer=(12,18),toilet=(8,21),
+                 extra={'bowl':[(9,18)],'waterer':[(11,18)],'toilet':[(12,21)]})
     # Three baby Reimu littermates (HumanCommerce.Litter = 1): bold+harsh, timid, kindly.
     b.pet(9.5,21.5,'reimu','shopkeeper','stock',0,traits=(60,25,80,50,35),age=55000,litter=1)
     b.pet(10.5,21.5,'reimu','shopkeeper','stock',0,traits=(60,60,20,65,65),age=55000,litter=1)
     b.pet(12.5,20.5,'reimu','shopkeeper','stock',0,traits=(65,85,60,80,75),age=55000,litter=1)
+    # Two adult silver studs, the shop's own for the "相亲预约" menu (grown, so no age: the default is an adult; Use "stud" is bound to the
+    # clerk, then adopted by the shop like stock): a bold Reimu and a gentle Marisa.
+    b.pet(8.5,19.5,'reimu','shopkeeper','stud',2,traits=(65,45,75,50,60))
+    b.pet(12.5,22.5,'marisa','shopkeeper','stud',2,traits=(60,75,45,60,70))
     # Shop footprint for the register (protection, the physical roster, staff membership): the sales half and its yard.
     marker(b,1.5,0.5,3.5,'mcy_shop_corner'); marker(b,23.5,15.5,30.5,'mcy_shop_corner')
     # ---- Exam hall (x 24..38, z 4..29).

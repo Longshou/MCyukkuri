@@ -69,13 +69,18 @@ def garbage(b, x, y, z, facing, items, tipped=False):
     b.garbage.append(((x, y, z), facing, (x + dx, y, z + dz)))
 
 
-def produce_crate(b, x, y, z, facing, goods, *, stall=False):
+def produce_crate(b, x, y, z, facing, goods, *, stall=False, counter=False):
     """An open market crate of the type's wood, its low side toward `facing`. goods: up to four (item, count <= 4) rows from the back
-    to the front; they are the crate's real contents and all that is drawn in it."""
+    to the front; they are the crate's real contents and all that is drawn in it. stall: the carrot crate strays take from (never a
+    counter crate). counter: a crate of a staffed counter, sold from and bought back by the keeper whose home is behind its run; put
+    an `emerald` row first in one crate of each run as its till float."""
+    assert not (stall and counter), (x, y, z)
     assert len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
     nbt = {'id': string('mcyukkuri:produce_crate'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(goods)])}
     if stall:
         nbt['Stall'] = byte(1)
+    if counter:
+        nbt['Counter'] = byte(1)
     b.block(x, y, z, 'mcyukkuri:produce_crate', {'facing': facing, 'wood': build.furniture_wood(b)}, nbt)
 
 
@@ -239,10 +244,12 @@ def street_stall(p):
     for x in range(5, 11):
         if x == 7: b.block(x, 1, 9, 'hay_block', LOG); slab(b, x, 2, 9, p.wood)
         else: b.block(x, 1, 9, p.planks())
-    for x, goods in [(4, [('carrot', 4), ('carrot', 4), ('carrot', 3)]), (5, [('potato', 4), ('potato', 4), ('potato', 2)]),
+    # Crates x5,6 and x8..10 are staffed counters (one keeper's run each; the emerald row first in x5 and x9 is that run's till float);
+    # x4, the low carrot crate, stays the theft crate.
+    for x, goods in [(4, [('carrot', 4), ('carrot', 4), ('carrot', 3)]), (5, [('emerald', 3), ('potato', 4), ('potato', 4), ('potato', 2)]),
                      (6, [('apple', 4), ('apple', 3), ('apple', 3)]), (8, [('beetroot', 4), ('beetroot', 3)]),
-                     (9, [('bread', 3), ('bread', 3)]), (10, [('pumpkin_pie', 3), ('pumpkin_pie', 2)])]:
-        produce_crate(b, x, 1 if x == 4 else 2, 9, 'north', goods, stall=x == 4)
+                     (9, [('emerald', 4), ('bread', 3), ('bread', 3)]), (10, [('pumpkin_pie', 3), ('pumpkin_pie', 2)])]:
+        produce_crate(b, x, 1 if x == 4 else 2, 9, 'north', goods, stall=x == 4, counter=x != 4)
     for x, block in [(4, 'pumpkin'), (5, 'hay_block'), (9, 'melon'), (10, 'pumpkin')]:
         b.block(x, 1, 13, block, LOG if block == 'hay_block' else None)
     b.block(7, 3, 11, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})

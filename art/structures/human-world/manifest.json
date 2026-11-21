@@ -7,7 +7,7 @@
       33
     ],
     "blocks": 11949,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -18,7 +18,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -29,7 +29,7 @@
       41
     ],
     "blocks": 12300,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -40,7 +40,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -51,7 +51,7 @@
       41
     ],
     "blocks": 12433,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -62,7 +62,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 57,
+    "entities": 59,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -284,5 +284,555 @@
     "blocks": 10281,
     "entities": 19,
     "source": "art/structures/human-world/author_plant.py"
+  },
+  {
+    "name": "village/plains/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 25,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 4,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 25,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 4,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/desert/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 25,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 4,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/savanna/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13300,
+    "entities": 25,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5036,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8071,
+    "entities": 4,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5932,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/snowy/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/badge_hall",
+    "size": [
+      26,
+      16,
+      32
+    ],
+    "blocks": 13312,
+    "entities": 25,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/shelter",
+    "size": [
+      21,
+      10,
+      24
+    ],
+    "blocks": 5040,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/park",
+    "size": [
+      23,
+      13,
+      27
+    ],
+    "blocks": 8073,
+    "entities": 4,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/side_street",
+    "size": [
+      18,
+      15,
+      22
+    ],
+    "blocks": 5940,
+    "entities": 6,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/mouth_east",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/taiga/mouth_west",
+    "size": [
+      9,
+      6,
+      8
+    ],
+    "blocks": 432,
+    "entities": 0,
+    "source": "art/structures/human-world/author_civic.py"
+  },
+  {
+    "name": "village/plains/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 12,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/plains/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 12,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/desert/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 12,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/savanna/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1049,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2300,
+    "entities": 12,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/snowy/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 500,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/home_yard",
+    "size": [
+      9,
+      9,
+      13
+    ],
+    "blocks": 1053,
+    "entities": 8,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/home_yard_large",
+    "size": [
+      12,
+      12,
+      16
+    ],
+    "blocks": 2304,
+    "entities": 12,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/pocket_park",
+    "size": [
+      11,
+      11,
+      11
+    ],
+    "blocks": 1331,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
+  },
+  {
+    "name": "village/taiga/back_lot",
+    "size": [
+      7,
+      8,
+      9
+    ],
+    "blocks": 504,
+    "entities": 1,
+    "source": "art/structures/human-world/author_lots.py"
   }
 ]
