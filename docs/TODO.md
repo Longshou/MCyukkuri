@@ -11,7 +11,6 @@
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
 
 
-| 删除无用物品：剪下的头发、旧版巢穴标记物品、木桌、告示板、漏出的馅料；半个苹果改原版苹果；剪断的饰物并入头饰碎裂 | `.worktrees/wp-item-prune` | item registry, lang, human-world templates, accessory cut |
 
 
 ## 玩法待办
