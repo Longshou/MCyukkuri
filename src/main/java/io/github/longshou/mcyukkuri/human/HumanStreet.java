@@ -1513,7 +1513,7 @@ final class HumanStreet {
                         npc.getNavigation().stop();
                         if (!standAside(facility)) { returnHome("blocked"); return; }
                     }
-                    if (seat != null && !parkLingering() && leg == Leg.NONE && resume == null && !atStand()
+                    if (seat != null && leg == Leg.NONE && resume == null && !atStand()
                             && npc.getNavigation().isDone() && seatGap() <= REACH_SEAT + .3) {
                         if (++stalled >= ROUTE_TICKS) {
                             GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_step seat={}", seat.cell().toShortString());

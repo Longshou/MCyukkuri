@@ -200,6 +200,8 @@ public final class HumanNpc extends PathfinderMob {
         };
     }
     public boolean seated() { return entityData.get(SEAT) != 0; }
+    /** A pet running past must not shove the owner off the board. */
+    @Override public boolean isPushable() { return !seated() && super.isPushable(); }
     public Direction seatFacing() { return Direction.from2DDataValue(entityData.get(SEAT) - 1); }
     /** Seated and not being carried along: the client draws the sit pose and lowers the body onto the board only then. */
     public boolean sitsNow() { return seated() && getDeltaMovement().horizontalDistanceSqr() < .002; }
