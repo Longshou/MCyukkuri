@@ -31,6 +31,7 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
         Quaternionf rotation=last==null?new Quaternionf():new Quaternionf(last.rotation());
         double dx=entity.getX()-entity.xo,dz=entity.getZ()-entity.zo,distance=Math.sqrt(dx*dx+dz*dz);
         if(distance>1e-6)rotation.rotateAxis((float)(distance/radius),(float)(dz/distance),0,(float)(-dx/distance));
+        rotation.normalize();
         ROLLS.put(entity,new Roll(rotation,entity.tickCount));
         return rotation;
     }
