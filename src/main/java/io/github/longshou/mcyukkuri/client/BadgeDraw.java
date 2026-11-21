@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.client;
 
 import static io.github.longshou.mcyukkuri.client.YukkuriModel.floats;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -39,13 +38,12 @@ final class BadgeDraw {
         emitBadge(tier,center,right,up,outward,half,stack,buffers,light,overlay);
     }
 
-    static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
+    static void renderDetachedBadge(String name,int tier,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
         var mount=YukkuriModel.detachedBadge(name);if(mount==null||tier<1||tier>BadgeGrade.PLATINUM.id())return;
         var center=new Vector3f(floats(mount.getAsJsonArray("rest_point"))).div(16);
         var outward=new Vector3f(floats(mount.getAsJsonArray("rest_normal"))).normalize();
         var right=new Vector3f(0,1,0).cross(outward).normalize();var up=new Vector3f(outward).cross(right).normalize();
         stack.pushPose();
-        if(cut){int side=center.x<0?-1:1;stack.translate(side*.1,0,side*.035);stack.mulPose(Axis.YP.rotationDegrees(side*12));}
         emitBadge(tier,center,right,up,outward,mount.get("diameter").getAsFloat()*.5f,stack,buffers,light,overlay);
         stack.popPose();
     }

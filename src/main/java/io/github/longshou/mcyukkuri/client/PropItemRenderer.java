@@ -63,16 +63,14 @@ public final class PropItemRenderer extends BlockEntityWithoutLevelRenderer {
             if(Float.isFinite(size))scale*=Math.clamp(size,.05f,4f);
         }
         pose.scale(scale,scale,scale);PropModels.center(name,pose,false);
-        if(stack.getItem() instanceof AccessoryItem&&stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag().getBoolean("Cut"))
-            PropModels.renderCut(name,pose,buffers,light,overlay);
-        else if(stack.getItem() instanceof AccessoryItem&&hatDamage(stack)>0)
+        if(stack.getItem() instanceof AccessoryItem&&hatDamage(stack)>0)
             PropModels.renderHat(name,hatDamage(stack),-1,pose,buffers,light,overlay);
         else PropModels.render(name,8,pose,buffers,light,overlay);
         if(!gui&&stack.getItem() instanceof CarrierItem)
             CarrierPresentation.render(stack,pose.last(),buffers,light,overlay);
         if(stack.getItem() instanceof AccessoryItem){
             var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-            YukkuriModel.renderDetachedBadge(name,tag.getInt("BadgeTier"),tag.getBoolean("Cut"),pose,buffers,light,overlay);
+            YukkuriModel.renderDetachedBadge(name,tag.getInt("BadgeTier"),pose,buffers,light,overlay);
         }
         pose.popPose();
     }

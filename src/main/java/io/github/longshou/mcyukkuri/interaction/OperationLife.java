@@ -40,7 +40,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -56,7 +55,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -583,16 +581,9 @@ public final class OperationLife {
         if(!active())begin(player,returning?Pose.HAT_RETURN:Pose.HAT_REMOVE,21,null);
     }
     private boolean cutAccessory(Player player){
-        var token=ModRandom.identity(entity.getRandom());var stack=new ItemStack(ModItems.accessoryFor(entity));
-        stack.set(DataComponents.CUSTOM_NAME,Component.translatable("item.mcyukkuri.cut_accessory",stack.getHoverName()));
-        AccessoryItem.markSource(stack,entity);
-        CustomData.update(DataComponents.CUSTOM_DATA,stack,tag->tag.putBoolean("Cut",true));
-        var item=ItemContact.release(entity,stack,WoundPlacement.shearContact(entity,0),Vec3.ZERO);
-        if(item==null)return false;
-        if(entity.life().takeAccessory(player.getUUID(),token)==null){item.discard();return false;}
-        ItemContact.shearFeedback(entity,player,item.position());
-        if(entity.isVehicle())entity.motor().interrupt("hat_taken");
-        entity.life().personality().confiscated(player.getUUID());entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("surprise","lost_accessory",140);return true;
+        if(!entity.headwear().harm(3,"cut",false))return false;
+        ItemContact.shearFeedback(entity,player,WoundPlacement.shearContact(entity,0));
+        entity.life().personality().confiscated(player.getUUID());entity.showReaction("surprise","lost_accessory",140);return true;
     }
     private ItemEntity nearestItem(Player player){
         return entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()

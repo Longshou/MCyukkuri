@@ -853,8 +853,8 @@ public final class YukkuriModel {
     }
     /** Pose the same three accessory vertices used by the authored mount, including body stretch. */
     public void renderBadge(int tier, PoseStack stack, MultiBufferSource buffers, int light, int overlay) { badgeDraw.renderBadge(tier,stack,buffers,light,overlay); }
-    public static void renderDetachedBadge(String name,int tier,boolean cut,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
-            BadgeDraw.renderDetachedBadge(name,tier,cut,stack,buffers,light,overlay); }
+    public static void renderDetachedBadge(String name,int tier,PoseStack stack,MultiBufferSource buffers,int light,int overlay) {
+            BadgeDraw.renderDetachedBadge(name,tier,stack,buffers,light,overlay); }
 
     /** Splice placement-fit meshes into the base model they were authored on: a part is overwritten
      *  in place (same triangle order) or appended and redirected; flat normals are rebuilt. */

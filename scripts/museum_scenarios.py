@@ -8394,7 +8394,7 @@ _smoke('wound_sources', 490, [
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:iron_enclosure count=1',
     r'\[interaction\][^\n]* binding returned to world; [^\n]* item=mcyukkuri:hanging_hook count=1',
     r'\[interaction\][^\n]* shear; contact=[^\n]* above_feet=0\.[1-9]',
-    r'\[interaction\][^\n]* shear drop; item=mcyukkuri:reimu_ribbon [^\n]*above_feet=0\.[1-9]',
+    r'\[headwear\][^\n]* accessory destroyed burned=false cause=cut pieces=[23]',
     r'\[interaction\][^\n]* action=CUT_ACCESSORY success=true',
 ], forbid=[r'\[interaction\][^\n]* operation ended; [^\n]* pose=PIN [^\n]* reason=(?:operator_unreachable|timeout)'])
 _floor_pin = 'mcyukkuri:pin_tool[minecraft:custom_data={BDFloor:1b}]'

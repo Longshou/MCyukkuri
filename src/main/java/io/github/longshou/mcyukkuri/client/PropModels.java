@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.headwear.WornSeat;
 import java.io.IOException;
@@ -141,10 +140,6 @@ public final class PropModels {
     }
     public static void renderLayers(String name,int mask,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
         renderPiece(name,Integer.MAX_VALUE,pose,buffers,light,overlay,0,mask);
-    }
-    public static void renderCut(String name,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-        for(int side:new int[]{-1,1}){pose.pushPose();pose.translate(side*.1,0,side*.035);pose.mulPose(Axis.YP.rotationDegrees(side*12));
-            renderPiece(name,8,pose,buffers,light,overlay,side);pose.popPose();}
     }
     /** Full prop, square-cell damage exactly like the worn hat (client/HatDamageFaces). {@code piece} is unused. */
     public static void renderHat(String name,int level,int piece,PoseStack pose,MultiBufferSource buffers,int light,int overlay){

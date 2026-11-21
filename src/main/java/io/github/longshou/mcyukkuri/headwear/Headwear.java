@@ -348,7 +348,6 @@ public final class Headwear extends Goal implements MotorOwner {
     public String transferredShardRefusalReason(ItemStack stack) {
         if(stack.isEmpty()||!stack.is(ModItems.ACCESSORY_SHARD.get()))return "kind";
         var tag=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(tag.getBoolean("Cut"))return "cut";
         var id=ResourceLocation.tryParse(tag.getString("Accessory"));
         var item=id==null?null:BuiltInRegistries.ITEM.getOptional(id).orElse(null);
         if(item==null)return "kind";

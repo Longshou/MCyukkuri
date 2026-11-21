@@ -63,7 +63,6 @@ public final class AccessoryItem extends Item {
     public static String recipientMismatchReason(YukkuriEntity entity,ItemStack stack){
         if(!(stack.getItem() instanceof AccessoryItem)||stack.isEmpty())return "kind";
         var data=stack.getOrDefault(DataComponents.CUSTOM_DATA,CustomData.EMPTY).copyTag();
-        if(data.getBoolean("Cut"))return "cut";
         return recipientProfileMismatchReason(entity,stack.getItem(),data);
     }
     /** Age and former owner do not restrict an accessory or repair fragment of the same kind. */
