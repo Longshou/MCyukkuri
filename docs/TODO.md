@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 流浪油库里白天上街（FG-13 真实世界触发率，v3：上街换锚点） | `.worktrees/wp-stray-draw` | settlement/StreetDraw (new), VillageStrays, entity/RoamingGoal, settlement/ForageGoal, life/FoodNoticeGoal, FEATURES FG-13；已提交，探针 2/5 未达 3/5，待总负责人裁定 |
 
 
 
