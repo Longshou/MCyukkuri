@@ -1295,6 +1295,7 @@ final class HumanStreet {
             tried.add(Leg.COLLECT);
             var stand = half.blockPosition();
             if (npc.reachesPickup(half) || routeLeg(stand)) {
+                standUp("collect");
                 beginLeg(Leg.COLLECT, then);
                 return true;
             }

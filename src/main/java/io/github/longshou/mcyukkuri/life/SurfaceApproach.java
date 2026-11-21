@@ -62,6 +62,9 @@ public final class SurfaceApproach {
     private static final double TOP_TOUCH = .001;
     /** How far under a rejected top the next lower top is looked for. */
     private static final double LOWER_TOP = .01;
+    /** How many tops the fallback checks (this top and the lower ones under it): a bench board over the ground is one of them,
+     *  while a rejection that repeats down the column (rain over a keepDry body, a wet shore) stops here instead of min build height. */
+    private static final int LOWER_TOPS = 3;
     SurfaceApproach() {}
     private record Route(Path path,double length) {}
     public enum Result { ARRIVED, MOVING, WAITING, BLOCKED }
@@ -221,8 +224,12 @@ public final class SurfaceApproach {
     /** The highest collision top near {@code near} the body can stand on. A higher top it cannot stand on (a bench board beside the
      *  ground it walks) does not hide the ground under it. */
     private static Vec3 floor(YukkuriEntity actor, Vec3 near, boolean planning) {
-        for(var at=top(actor,near);at!=null;at=top(actor,new Vec3(near.x,at.y-.5-LOWER_TOP,near.z)))
+        var at=top(actor,near);
+        for(int left=LOWER_TOPS;at!=null;left--){
             if(supported(actor,at,planning))return at;
+            if(left==1)break;
+            at=top(actor,new Vec3(near.x,at.y-.5-LOWER_TOP,near.z));
+        }
         return null;
     }
 
