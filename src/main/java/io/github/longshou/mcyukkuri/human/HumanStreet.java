@@ -805,9 +805,14 @@ final class HumanStreet {
                 strollSite = TownMarkers.shelterSupply((ServerLevel) npc.level(), npc.home());
             } else {
                 var counter = Counter.atHome(npc.level(), npc.home());
-                if (counter != null && standable(counter.stand()) && route(Vec3.atBottomCenterOf(counter.stand()))) {
-                    this.counter = counter;
-                    return;
+                if (counter != null) {
+                    boolean standable = standable(counter.stand());
+                    if (standable && route(Vec3.atBottomCenterOf(counter.stand()))) {
+                        this.counter = counter;
+                        return;
+                    }
+                    GameplayLog.limited(npc, "npc-care", "counter_route", 200, "action=counter_route result={} stand={} home={}",
+                            standable ? "unreachable" : "not_standable", counter.stand().toShortString(), npc.home().toShortString());
                 }
             }
             Vec3 stand = DefaultRandomPos.getPos(npc, 8, 2);

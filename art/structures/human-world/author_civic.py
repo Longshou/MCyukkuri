@@ -567,7 +567,7 @@ def side_street(p):
     b.block(2, 5 if p.flat else 7, 12, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     resident(b, 2, 9, 'caretaker_brother', 2)                                       # the shopkeeper, home behind the counter
     furniture(b, 'table', 1, [(12, 13), (13, 13)]); furniture(b, 'bench', 1, [(12, 12), (13, 12)]); furniture(b, 'bench', 1, [(12, 14), (13, 14)])
-    for x, z in [(11, 17), (12, 17), (13, 17)]: b.block(x, 1, z, 'brown_carpet')
+    for x, z in [(12, 17), (13, 17)]: b.block(x, 1, z, 'brown_carpet')   # not (11, 17): the local's home cell must stay clear
     b.block(13, 4, 15, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     furniture(b, 'bench', 6, [(11, 17), (12, 17)]); b.box((11, 6, 10), (11, 7, 10), 'bookshelf')
     for x, z in [(12, 12), (13, 16)]: b.block(x, 6, z, 'red_carpet')
