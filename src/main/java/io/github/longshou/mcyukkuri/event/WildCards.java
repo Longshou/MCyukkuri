@@ -127,13 +127,6 @@ public final class WildCards {
         if(all.stream().anyMatch(e -> !first.hasLineOfSight(e)||first.distanceToSqr(e)>64)) {
             WildEvents.finish(level,s,Phase.INTERRUPTED,"participants_separated");return;
         }
-        if(s.result.equals("voice-peace")||s.result.equals("scold-after")) {
-            if(s.phaseTicks>=70&&!first.social().active()) {
-                first.showReaction(s.result.equals("voice-peace")?"happy":"surprise","heard",50);
-                first.getPersistentData().remove("WildConflict");second.getPersistentData().remove("WildConflict");
-                WildEvents.finish(level,s,Phase.COMPLETE,"actual_"+s.result);
-            }return;
-        }
         if(s.phaseTicks==1) {
             for(var e:all)e.showReaction("neutral","wait_turn",60);
         }
@@ -232,11 +225,9 @@ public final class WildCards {
     private static void after(String card,YukkuriEntity e,UUID player,YukkuriEntity requestedPeer) {
         if(!(e.level() instanceof ServerLevel level)||!WildEvents.safe(e))return;
         Player observer=level.getPlayerByUUID(player);if(!WildEvents.playerNear(e,observer))return;
-        YukkuriEntity peer=requestedPeer;
-        if(peer==null)peer=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(4),p -> p!=e&&WildEvents.available(p)&&e.hasLineOfSight(p)).stream().findFirst().orElse(null);
-        if(peer==null||!WildEvents.available(peer)||!close(e,peer,4))return;
-        Scene s=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID(),peer.getUUID()),player,level.getGameTime());
-        if(s!=null){s.phase=Phase.RESPONDING;s.responses=1;peer.social().stop();}
+        if(!WildEvents.available(requestedPeer)||!close(e,requestedPeer,4))return;
+        Scene s=WildEventData.get(level).start(Kind.CARD,card,GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID(),requestedPeer.getUUID()),player,level.getGameTime());
+        if(s!=null){s.phase=Phase.RESPONDING;s.responses=1;requestedPeer.social().stop();}
     }
     private WildCards() {}
 }

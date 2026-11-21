@@ -261,21 +261,13 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#advance ( ServerLevel level , Scene s , List < YukkuriEntity > all )",
-      "token_hash": "ec2fbac0942b139b2075a65ff64827ef7f657f0fdb2f95bdd0c2f3f421e09f15",
+      "token_hash": "5faa38be24a3bdcf62ac37004d4d67dc720a0611a006978fee8e10744ad19eba",
       "subjects": {
-        "getPersistentData": 4
+        "getPersistentData": 2
       },
-      "reason": "Actual completed player mediation clears first participant memory.; Actual completed player mediation clears second participant memory.; Accepted reconciliation clears first participant memory.; Accepted reconciliation clears second participant memory.",
+      "reason": "Accepted reconciliation clears first participant memory.; Accepted reconciliation clears second participant memory.",
       "receiver": "See individually reviewed accesses in source order.",
       "keys": [
-        {
-          "path": "WildConflict",
-          "operation": "remove"
-        },
-        {
-          "path": "WildConflict",
-          "operation": "remove"
-        },
         {
           "path": "WildConflict",
           "operation": "remove"
@@ -287,28 +279,6 @@
       ],
       "accesses": [
         {
-          "receiver": "first: YukkuriEntity, voice-peace/scold-after completion",
-          "keys": [
-            {
-              "path": "WildConflict",
-              "operation": "remove"
-            }
-          ],
-          "reason": "Actual completed player mediation clears first participant memory.",
-          "ordinal": 1
-        },
-        {
-          "receiver": "second: YukkuriEntity, voice-peace/scold-after completion",
-          "keys": [
-            {
-              "path": "WildConflict",
-              "operation": "remove"
-            }
-          ],
-          "reason": "Actual completed player mediation clears second participant memory.",
-          "ordinal": 2
-        },
-        {
           "receiver": "first: YukkuriEntity, accepted reconcile branch",
           "keys": [
             {
@@ -317,7 +287,7 @@
             }
           ],
           "reason": "Accepted reconciliation clears first participant memory.",
-          "ordinal": 3
+          "ordinal": 1
         },
         {
           "receiver": "second: YukkuriEntity, accepted reconcile branch",
@@ -328,7 +298,7 @@
             }
           ],
           "reason": "Accepted reconciliation clears second participant memory.",
-          "ordinal": 4
+          "ordinal": 2
         }
       ]
     },
