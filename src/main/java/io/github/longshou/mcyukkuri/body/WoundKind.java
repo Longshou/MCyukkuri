@@ -13,6 +13,9 @@ public enum WoundKind {
 
     public String id() { return id; }
 
+    /** A skin injury that orange juice treats and a lick can mend; the mark kinds are not injuries. */
+    public boolean injury() { return this == SCRATCH || this == TEAR || this == DENT || this == SCORCH; }
+
     public static WoundKind parse(String id) {
         Objects.requireNonNull(id);
         for (var kind : values()) if (kind.id.equals(id)) return kind;

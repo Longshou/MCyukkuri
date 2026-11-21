@@ -193,10 +193,7 @@ public final class BodyLife {
                 entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** Older wound lists may contain surface marks; those are not injuries. */
-    private static boolean injury(BodyWound w){return switch(w.kind()){
-        case SCRATCH,TEAR,DENT,SCORCH -> true;
-        default -> false;
-    };}
+    private static boolean injury(BodyWound w){return w.kind().injury();}
     public static boolean savedInjury(CompoundTag tag) {
         return tag.getBoolean("CoreHurt") || tag.getBoolean("FootBurned") || tag.getInt("FootScorch") > 0
                 || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || WoundTags.read(tag).stream().anyMatch(BodyLife::injury);
@@ -218,7 +215,7 @@ public final class BodyLife {
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
         for(var healed:List.copyOf(wounds))if(juiceTreats(healed))entity.status().marks().healed(healed);
-        wounds.removeIf(w->!juiceTreats(w));
+        wounds.removeIf(BodyLife::juiceTreats);
         cleared-=wounds.size();
         entity.setHealth(entity.getMaxHealth());mendFoot();refreshWounds();
         int scars=entity.status().marks().scarCount()+(int)wounds.stream().filter(w->w.kind()==WoundKind.SCAR).count();
