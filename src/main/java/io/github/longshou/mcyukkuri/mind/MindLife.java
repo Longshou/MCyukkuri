@@ -10,6 +10,8 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
@@ -34,6 +36,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -66,6 +69,9 @@ public final class MindLife {
     private final YukkuriEntity entity;
     private float unease, sweetness;
     private int breakingTicks, courseTicks, namings, shoutClock, fitClock, moanClock, witherClock;
+    /** Loaded ticks this baby has spent awake with nobody in sight; any sighting clears it. */
+    private int aloneTicks;
+    private boolean lonely;
     private long preventionUntil;
     private Course course = Course.NONE;
     private String heldAction = "";
@@ -306,6 +312,7 @@ public final class MindLife {
         if (entity.settlement().groupId() != null && entity.settlement().society().dejected()
                 && !pitPressure) put("shunned", 1);
         surroundings(identity);
+        alone();
         // reliefs
         put("ease", -1);
         if (life.isSleeping()) put("sleep", -1);
@@ -361,6 +368,33 @@ public final class MindLife {
         // Droppings lying on the ground (life/Poops) smell like loose ones within three blocks.
         if (!waste && !Poops.near(level, entity.blockPosition(), 3, 2).isEmpty()) waste = true;
         if (waste && !entity.settlement().society().pitPressureProtected()) put("waste", .5f);
+    }
+
+    /**
+     * Babies only: a whole game day awake with no living yukkuri, player or human NPC in sight starts pressing on it,
+     * harder the more it wants company and the less nerve it has ({@link Loneliness}). Sleeping pauses the count.
+     */
+    private void alone() {
+        if (entity.family().stage() != FamilyLife.Stage.BABY || entity.life().isSleeping()) return;
+        if (company()) { aloneTicks = 0; lonely = false; return; }
+        aloneTicks += SAMPLE;
+        if (aloneTicks <= Loneliness.GRACE) return;
+        float rate = Loneliness.ratePerMinute(entity.life().personality().temperament());
+        put("lonely", rate);
+        if (!lonely) {
+            lonely = true;
+            entity.showReaction("cry", pick("lost_parent", "afraid"), 100);
+            GameplayLog.limited(entity, "mind", "lonely", 24000, "alone {} ticks, lonely +{}/min (unease {})",
+                    aloneTicks, Math.round(rate * 10) / 10f, Math.round(unease));
+        }
+    }
+
+    /** Any living yukkuri, player or human NPC it can see keeps a baby company. */
+    private boolean company() {
+        if (!(entity.level() instanceof ServerLevel level)) return false;
+        return !level.getEntities(entity, entity.getBoundingBox().inflate(Loneliness.SIGHT),
+                other -> other.isAlive() && (other instanceof YukkuriEntity || other instanceof Player || other instanceof HumanNpc)
+                        && entity.hasLineOfSight(other)).isEmpty();
     }
 
     private boolean atHome(Identity identity) {
