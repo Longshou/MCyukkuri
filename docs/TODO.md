@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 饿着的流浪油困在地形死角、所有路线被拒后原地饿死 | `.worktrees/wp-stuck-forage` | settlement/ForageGoal, life/SurfaceApproach, entity/YukkuriGroundNavigation |
 
 
 
