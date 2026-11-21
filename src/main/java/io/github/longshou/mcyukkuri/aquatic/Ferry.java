@@ -96,6 +96,9 @@ final class Ferry {
             return BraidFetch.withinReach(carrier, child) ? BraidFetch.steps(carrier, child, hat)
                     : List.<Supplier<Step>>of(() -> boardHop(carrier, hat, child, beckoning));
         if (!reachingStops(carrier, hat, child).isEmpty()) return boardNear(carrier, hat, child, beckoning);
+        // She does not lift a young she could only set down again: with no way aboard now (the hull out of reach, her place taken)
+        // she works on getting aboard herself first.
+        if (!canBoard(carrier, hat)) return hopAboard(carrier, hat, beckoning);
         var steps = new ArrayList<Supplier<Step>>();
         var grab = new Grab(child, hat);
         steps.add(new Plan.Approach<>(() -> grab.check(carrier), () -> grab.nextContactStand(carrier),
