@@ -11,7 +11,6 @@
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
 | 运输篮恢复原样 | `.worktrees/wp-basket-revert` | carrier props |
 
-| PD-13 抱幼返船复测失败（弯岸够不到帽檐、随机种子失败） | `.worktrees/wp-pd13-retry` | pond boat boarding, carry hop |
 
 | 删除漂亮石子；药瓶改平面物品；饮水器碟改圆；掉落玩具滚动 | `.worktrees/wp-prop-cleanup` | care-expansion, consumables, waterer, HouseScrapRenderer |
 | 删除无用物品：剪下的头发、旧版巢穴标记物品、木桌、告示板、漏出的馅料；半个苹果改原版苹果；剪断的饰物并入头饰碎裂 | `.worktrees/wp-item-prune` | item registry, lang, human-world templates, accessory cut |
