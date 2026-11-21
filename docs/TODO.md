@@ -10,6 +10,9 @@
 | --- | --- | --- |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
 | 补齐反应缺的台词并配音（求饶、拒绝、工具讨好等） | `.worktrees/wp-gap-lines` | dialogue sources, language files, speech selection, aquestalk audio |
+| 毛线团与弹珠第二次重做 | `.worktrees/wp-art-round-redo-2` | care-props toys |
+| 游具与橙汁澡盆第二次重做 | `.worktrees/wp-playground-refine-2` | playgrounds drafts, item icons |
+| 运输篮恢复原样 | `.worktrees/wp-basket-revert` | carrier props |
 
 | 普通村庄几乎没有流浪油（街头行为在真实世界看不到） | `.worktrees/wp-stray-density` | settlement/SettlementSpawner.java, spawns json, YukkuriConfig caps |
 
