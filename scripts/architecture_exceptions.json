@@ -72,51 +72,6 @@
     {
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
-      "signature": "YukkuriEntity#imitateSpeech ( YukkuriEntity teacher )",
-      "token_hash": "ac3723205fc64ca616a66fd04de404e8f7e58768b1f08b0d0ccd812cdf5d31d7",
-      "subjects": {
-        "getPersistentData": 2
-      },
-      "reason": "Continue persistent successful-imitation provenance count; does not authorize speech without real teacher/timing checks.; Record actual accepted teacher/line/gameTime provenance after successful imitation. This is an existing save record, not a new cooldown.",
-      "receiver": "See individually reviewed accesses in source order.",
-      "keys": [
-        {
-          "path": "LearnedDialect.Uses",
-          "operation": "read int"
-        },
-        {
-          "path": "LearnedDialect",
-          "operation": "write compound: Teacher UUID, Species/Key string, HeardAt long, Uses int"
-        }
-      ],
-      "accesses": [
-        {
-          "receiver": "implicit this: YukkuriEntity",
-          "keys": [
-            {
-              "path": "LearnedDialect.Uses",
-              "operation": "read int"
-            }
-          ],
-          "reason": "Continue persistent successful-imitation provenance count; does not authorize speech without real teacher/timing checks.",
-          "ordinal": 1
-        },
-        {
-          "receiver": "implicit this: YukkuriEntity",
-          "keys": [
-            {
-              "path": "LearnedDialect",
-              "operation": "write compound: Teacher UUID, Species/Key string, HeardAt long, Uses int"
-            }
-          ],
-          "reason": "Record actual accepted teacher/line/gameTime provenance after successful imitation. This is an existing save record, not a new cooldown.",
-          "ordinal": 2
-        }
-      ]
-    },
-    {
-      "rule": "PERSISTENT_DATA",
-      "path": "src/main/java/io/github/longshou/mcyukkuri/entity/YukkuriEntity.java",
       "signature": "YukkuriEntity#readAdditionalSaveData ( CompoundTag tag )",
       "token_hash": "23164848b9d7457baa35d7be3f86569186999cced8f0dcb0cd69772b0f2a9489",
       "subjects": {
@@ -306,7 +261,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#advance ( ServerLevel level , Scene s , List < YukkuriEntity > all )",
-      "token_hash": "fb1041e020cdc7fb9e8cd3fa6102c82ef3a71bfe2069f28eb9b6c615d23591b9",
+      "token_hash": "ec2fbac0942b139b2075a65ff64827ef7f657f0fdb2f95bdd0c2f3f421e09f15",
       "subjects": {
         "getPersistentData": 4
       },
@@ -381,7 +336,7 @@
       "rule": "PERSISTENT_DATA",
       "path": "src/main/java/io/github/longshou/mcyukkuri/event/WildCards.java",
       "signature": "WildCards#talked ( YukkuriEntity e , UUID player , boolean gentle )",
-      "token_hash": "ab728e76cd47f971c5a0fc707567be714ec6216071c5c22ebcd1b0808704255b",
+      "token_hash": "5c93b0d256e8643e3baa1a0512fb8bc834e4c0e202d625fc2566613a98d55c70",
       "subjects": {
         "getPersistentData": 1
       },

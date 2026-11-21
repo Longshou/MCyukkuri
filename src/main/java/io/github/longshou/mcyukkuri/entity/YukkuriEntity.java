@@ -17,7 +17,6 @@ import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.body.BodyWound;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
-import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
@@ -103,7 +102,6 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Optional;
 import java.util.UUID;
@@ -1118,25 +1116,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         sync().speechStart(now); sync().speechEnd(speechTiming.end());
         sync().speechSequence(speechSequence() + 1);
         if (StatusEvents.trace()) GameplayLog.event(this, "speech", "line event={} key={} until={} voiceTier={}", event, key, speechTiming.end(), tier);
-    }
-
-    /** Repeat a currently heard, catalogued line and retain its actual speaker as provenance. */
-    public boolean imitateSpeech(YukkuriEntity teacher) {
-        if (level().isClientSide || !isAlive() || teacher == this || !teacher.isAlive()
-                || teacher.level() != level() || distanceToSqr(teacher) > 36 || !hasLineOfSight(teacher)) return false;
-        if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) return speak("imitate");
-        var line = NativeDialogue.byKey(teacher.getDialogueKey());
-        long now = level().getGameTime();
-        if (line == null || teacher.speechEnd() <= now || !line.species().equals(teacher.getVariant().dialogueSpecies())
-                || !Objects.equals(line.quirk(), line.species().equals(variant.dialogueSpecies()) ? myon.quirk()
-                        : SpeechQuirk.of(line.species(), getUUID()))
-                || !speechTiming.admit(now, line.ticks(), 1)) return false;
-        showSpeech("imitate", line.key(), speechTier(), now);
-        var learned = new CompoundTag(); learned.putUUID("Teacher", teacher.getUUID());
-        learned.putString("Species", line.species()); learned.putString("Key", line.key());
-        learned.putLong("HeardAt", now); learned.putInt("Uses", getPersistentData().getCompound("LearnedDialect").getInt("Uses") + 1);
-        getPersistentData().put("LearnedDialect", learned);
-        return true;
     }
 
     /** Marks only the immediately following synchronous hurt/die call, never persistent data. */

@@ -33,7 +33,7 @@ import java.util.function.BooleanSupplier;
 
 /** Event progress only. Ancestry, food and ownership remain in their existing authorities. */
 public final class WildEventData extends SavedData {
-    public enum Kind { CONCERT, SISTERS, SINGLE_PARENT, ADOPTION, ABANDONMENT, RIVER, EXPEDITION, CARD, BADGE_ARC }
+    public enum Kind { CONCERT, ADOPTION, ABANDONMENT, EXPEDITION, CARD, BADGE_ARC }
     public enum Phase { APPROACH, WAITING, RESPONDING, SEPARATED, COMPLETE, INTERRUPTED, REFUSED }
     public static final class Scene {
         public final UUID id;

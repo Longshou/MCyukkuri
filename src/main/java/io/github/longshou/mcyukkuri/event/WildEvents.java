@@ -121,15 +121,6 @@ public final class WildEvents {
         return parent.family().adult() && !child.family().adult() && person!=null
                 && (parent.getUUID().equals(person.mother)||parent.getUUID().equals(person.father));
     }
-    public static boolean singleParent(YukkuriEntity parent, YukkuriEntity child) {
-        if(!childOf(parent,child))return false;
-        var data=FamilyData.get((ServerLevel)parent.level());var childRecord=data.person(child.getUUID());
-        UUID other=parent.getUUID().equals(childRecord.mother)?childRecord.father:childRecord.mother;
-        // Unknown and explicitly dead are distinct valid cases. Unloaded/captured is never dead.
-        if(other!=null && (data.person(other)==null || data.person(other).status!=FamilyData.Status.DEAD))return false;
-        UUID mate=parent.family().partner();
-        return mate==null || data.person(mate)!=null && data.person(mate).status==FamilyData.Status.DEAD;
-    }
     public static boolean forest(YukkuriEntity e) {
         var group=e.settlement().group();
         return e.level().getBiome(e.blockPosition()).is(BiomeTags.IS_FOREST)
@@ -157,11 +148,6 @@ public final class WildEvents {
                 || e.level()!=level || first.distanceToSqr(e)>64 || !first.hasLineOfSight(e)
                 || e!=first && !first.life().reachable(e.blockPosition(),false)))return null;
         boolean valid=switch(kind) {
-            case SISTERS -> all.size()==2 && siblings(first,others.getFirst()) && friendly(first,others.getFirst())
-                    && all.stream().allMatch(e -> unowned(e)&&e.life().nutrition()<40) && all.stream().anyMatch(WildEvents::inhabited) && playerNear(first,player);
-            case SINGLE_PARENT -> all.size()>=2 && others.stream().allMatch(e -> singleParent(first,e)&&friendly(first,e))
-                    && all.stream().allMatch(WildEvents::unowned) && others.stream().anyMatch(e -> e.life().nutrition()<40)
-                    && inhabited(first) && playerNear(first,player);
             case ADOPTION -> first.family().adult() && all.size()>=2 && others.stream().allMatch(e -> Bonds.careKin(first, e)&&friendly(first,e))
                     && all.stream().allMatch(WildEvents::unowned) && playerNear(first,player)
                     && all.stream().allMatch(e -> e.life().nutrition()>=40)
@@ -176,7 +162,7 @@ public final class WildEvents {
         List<UUID> ids=all.stream().map(Entity::getUUID).toList();
         if(!data.canStart(origin,ids,level.getGameTime()))return null;
         // Reserve admission before starting the real song; a failed song publishes no scene.
-        Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind==Kind.SISTERS?"sisters-wait":kind.name().toLowerCase(Locale.ROOT),
+        Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind.name().toLowerCase(Locale.ROOT),
                 origin,ids,player==null?null:player.getUUID(),level.getGameTime(),
                 () -> kind!=Kind.CONCERT || first.dailyLife().singTo(others.getFirst()));
         if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e
@@ -194,11 +180,6 @@ public final class WildEvents {
         if(!data.canStart(GlobalPos.of(level.dimension(),e.blockPosition()),List.of(e.getUUID()),level.getGameTime()))return;
         List<YukkuriEntity> peers=nearby(e);if(peers.isEmpty())return;
         Player player=level.getNearestPlayer(e,8);
-        for(var peer:peers) {
-            if(begin(Kind.SISTERS,e,List.of(peer),player)!=null)return;
-            var children=peers.stream().filter(p -> singleParent(e,p)&&friendly(e,p)).toList();
-            if(!children.isEmpty()&&begin(Kind.SINGLE_PARENT,e,children,player)!=null)return;
-        }
         if(playerNear(e,player)) {
             var kin=peers.stream().filter(p -> Bonds.careKin(e, p)&&friendly(e,p)).limit(3).toList();
             if(!kin.isEmpty()&&begin(Kind.ADOPTION,e,kin,player)!=null)return;
@@ -295,13 +276,12 @@ public final class WildEvents {
         Player player=level.getPlayerByUUID(s.player);
         if(!playerNear(loaded.getFirst(),player)) {finish(level,s,Phase.REFUSED,"player_left");return;}
         if(s.phase==Phase.APPROACH) {
-            if(s.phaseTicks==1)for(var e:loaded)e.showReaction("teary",s.kind==Kind.ADOPTION?"caregiver":"hungry",80);
+            if(s.phaseTicks==1)for(var e:loaded)e.showReaction("teary","caregiver",80);
             if(loaded.getFirst().distanceToSqr(player)<=16)data.phase(s,Phase.WAITING);
         } else if(s.phase==Phase.WAITING && s.phaseTicks%120==1) {
-            for(var e:loaded)e.showReaction("teary",s.kind==Kind.ADOPTION?"wait_family":"hungry",60);
+            for(var e:loaded)e.showReaction("teary","wait_family",60);
         } else if(s.phase==Phase.RESPONDING && s.phaseTicks>=80) {
-            if(s.kind==Kind.ADOPTION || s.fed.containsAll(s.members))finish(level,s,Phase.COMPLETE,s.kind==Kind.ADOPTION?"individual_adopted":"all_members_actually_fed");
-            else data.phase(s,Phase.WAITING);
+            finish(level,s,Phase.COMPLETE,"individual_adopted");
         }
         if(s.ticks>=1200)finish(level,s,Phase.REFUSED,"request_timed_out");
     }
@@ -349,17 +329,8 @@ public final class WildEvents {
         WildCards.swallowed(e);
         if(player==null || !(e.level() instanceof ServerLevel level))return;
         var data=WildEventData.get(level);
-        Scene s=data.forMember(e.getUUID(),scene -> (scene.kind==Kind.SISTERS || scene.kind==Kind.SINGLE_PARENT) && !scene.fed.contains(e.getUUID())
-                || pleading(scene,e) && player.equals(scene.player));
-        if(s!=null && (s.kind==Kind.SISTERS||s.kind==Kind.SINGLE_PARENT) && s.active()) {
-            if(s.fed.add(e.getUUID())) {
-                WildEventData.get(level).phase(s,Phase.RESPONDING);
-                e.showReaction("happy","share",80);
-                for(UUID id:s.members)if(!id.equals(e.getUUID()) && level.getEntity(id) instanceof YukkuriEntity peer)
-                    peer.showReaction(s.fed.contains(id)?"happy":"teary",s.fed.contains(id)?"known_peer":"hungry",60);
-            }
-        } else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.fed(level,s,e,player);
-        else if(data.forMember(e.getUUID())==null)WildCards.fed(e,player);
+        Scene s=data.forMember(e.getUUID(),scene -> pleading(scene,e) && player.equals(scene.player));
+        if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.fed(level,s,e,player);
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
     public static boolean canAdopt(YukkuriEntity e, Player player) {
