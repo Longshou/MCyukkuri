@@ -395,14 +395,14 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.double_door(18,3,12,'south')
     b.human(12.5,14.5,'caretaker_brother',1,1,'shopkeeper')
     b.human(4.5,14.5,'caretaker_sister',1,1,'shop_staff')
-    # Goods hang in 32 item frames matching all 32 ShopCatalog goods: two 10-wide rows behind the counter, toys on the west wall,
+    # Goods hang in 31 item frames matching all 31 ShopCatalog goods: two 10-wide rows behind the counter, toys on the west wall,
     # accessories and dolls on the east wall.
     rows=[(5,['oil_grain_regular','oil_grain_budget','oil_grain_premium','orange_juice','sweet_candy','minecraft:cookie','custard_pudding','food_bowl','waterer','yukkuri_toilet']),
           (4,['straw_nest','yukkuri_nest','velvet_nest','yukkuri_carrier','wash_cloth','mold_remover','teaching_whistle','pet_harness','companion_cord','swaddle_cloth'])]
     for y,items in rows:
         for x,item in zip(range(7,17),items): frame(b,x,y,16,item)
     # Side-wall frames stop a cell short of the back wall, so each hangs on exactly one wall.
-    for z,item in zip((11,10,13),['yarn_ball','glass_marble','pretty_stone']): frame(b,2,4,z,item)
+    for z,item in zip((11,10),['yarn_ball','glass_marble']): frame(b,2,4,z,item)
     for z,item in zip((11,10,13,14,15),['reimu_ribbon','marisa_hat','chen_hat','alice_headband','patchouli_bonnet']): frame(b,22,5,z,item)
     for z,item in zip((11,10,13,14),['remilia_bonnet','flandre_bonnet','reimu_doll','marisa_doll']): frame(b,22,4,z,item)
     # Windows from the west goods corner into the backyard arcade.
@@ -426,7 +426,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
         if plant: b.block(x,3,z,plant)
     b.block(8,3,25,*yard_bush(p))
     for x,z in [(5,24),(11,24),(5,28),(11,28)]: b.block(x,7,z,'light',{'level':'12','waterlogged':'false'})
-    for x,z,item in [(11.5,21.5,'glass_marble'),(7.5,26.5,'yarn_ball'),(4.5,26.5,'pretty_stone')]: b.toy(x,3,z,item)
+    for x,z,item in [(11.5,21.5,'glass_marble'),(7.5,26.5,'yarn_ball')]: b.toy(x,3,z,item)
     register_pen(b,'yard',(2,18,15,29),(8,18),[(10,19)],(10,10),hatch=(16,21),waterer=(12,18),toilet=(8,21))
     # Three baby Reimu littermates (HumanCommerce.Litter = 1): bold+harsh, timid, kindly.
     b.pet(9.5,21.5,'reimu','shopkeeper','stock',0,traits=(60,25,80,50,35),age=55000,litter=1)

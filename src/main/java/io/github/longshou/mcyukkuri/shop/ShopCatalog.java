@@ -67,7 +67,6 @@ public final class ShopCatalog {
         good("swaddle_cloth", 4, () -> new ItemStack(ModItems.SWADDLE_CLOTH.get()), 3, 3, 1, 0),
         // The other real toys (life/Facilities): cheap rolling marbles up to the plush dolls, which need a bronze badge in the buyer's keeping.
         good("glass_marble", 2, () -> new ItemStack(Facilities.ITEMS.get("glass_marble").get()), 1, 6, 3, 0),
-        good("pretty_stone", 2, () -> new ItemStack(Facilities.ITEMS.get("pretty_stone").get()), 2, 4, 2, 0),
         good("reimu_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("reimu_doll").get()), 5, 2, 1, 1),
         good("marisa_doll", 2, () -> new ItemStack(Facilities.ITEMS.get("marisa_doll").get()), 5, 2, 1, 1));
 

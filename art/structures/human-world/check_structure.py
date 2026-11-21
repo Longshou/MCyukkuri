@@ -225,8 +225,8 @@ def shop_marker_errors(b):
             if nest_name != 'mcyukkuri:yukkuri_nest': errors.append(f'mcy_shop_family at {(cx, cy, cz)} is not on a yukkuri_nest ({nest_name})')
             elif any(props.get(d) == 'true' for d in ('north', 'east', 'south', 'west')):
                 errors.append(f'mcy_shop_family nest at {(cx, cy, cz)} is pressed flat and cannot fit two children')
-    if len(frames) != 32 or len(set(frames)) != 32:
-        errors.append(f'expected 32 distinct mcy_shop_frame goods, found {len(frames)} ({len(set(frames))} distinct)')
+    if len(frames) != 31 or len(set(frames)) != 31:
+        errors.append(f'expected 31 distinct mcy_shop_frame goods, found {len(frames)} ({len(set(frames))} distinct)')
     if len(families) != 1:
         errors.append(f'expected 1 mcy_shop_family marker, found {families}')
     return errors

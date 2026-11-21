@@ -1,9 +1,9 @@
 """Original single-portion care consumables. Parametric source, editable meshes and runtime export.
 
-Medicine needs no world model: the mold remover is a vanilla item/generated model of its inventory icon. The other
-hand-held consumables and the spicy-grain pouch are their 16x16 inventory icons extruded into one-pixel-thick plates
-(block-props/kit.py extrude), and the oral *_serving doses are stepped voxel shapes built with block-props/kit.py and
-icon ramps from item-icons/draw.py. food_mash_serving remains authored by care-props/small.py."""
+Medicine and the bottles need no world model: they are vanilla item/generated models of their inventory icons. The
+reproductive filling is its 16x16 inventory icon extruded into a one-pixel-thick plate (block-props/kit.py extrude),
+and the oral *_serving doses are stepped voxel shapes built with block-props/kit.py and icon ramps from item-icons/draw.py.
+food_mash_serving remains authored by care-props/small.py."""
 import argparse,importlib.util,io,json,sys
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
@@ -18,8 +18,8 @@ if 'block_props_kit' not in sys.modules:   # loaded under its own name: care-pro
 block_kit=sys.modules['block_props_kit']
 # Extruded icons (block-props/kit.py extrude): the 16x16 inventory icon as a one-pixel-thick plate of this height in units.
 ICONS=ROOT/'art/props/item-icons'
-ITEMS=('mold_remover',)   # vanilla item models of their icons (textures/item/<id>.png), no prop mesh
-EXTRUDED={'yogurt_drink':6.0,'stimulant':5.0,'sitataran':4.8,'sleep_spray':6.7,'spicy_grain':11.5,'reproductive_filling':5.8,'wheat_flour':5.7}
+ITEMS=('mold_remover','yogurt_drink','stimulant','sitataran','sleep_spray','wheat_flour','spicy_grain')   # vanilla item models of their icons (textures/item/<id>.png), no prop mesh
+EXTRUDED={'reproductive_filling':5.8}   # still drawn in the world by LiveBirthRenderer
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri';DATA=ROOT/'src/main/resources/data/mcyukkuri';SELECTED=ROOT/'art/props/consumables'
 def mesh_number(value):
  value=round(value,6)

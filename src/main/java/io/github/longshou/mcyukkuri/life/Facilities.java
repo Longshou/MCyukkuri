@@ -21,7 +21,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class Facilities {
     private static final DeferredRegister.Blocks BLOCK_TYPES = DeferredRegister.createBlocks(MCYukkuri.MOD_ID);
     private static final DeferredRegister.Items ITEM_TYPES = DeferredRegister.createItems(MCYukkuri.MOD_ID);
-    private static final List<String> TOYS = List.of("glass_marble","reimu_doll","marisa_doll","pretty_stone");
+    private static final List<String> TOYS = List.of("glass_marble","reimu_doll","marisa_doll");
     public static final Map<String,DeferredItem<? extends Item>> ITEMS=new LinkedHashMap<>();
     static {
         for(String name:TOYS)ITEMS.put(name,ITEM_TYPES.registerSimpleItem(name,new Item.Properties().stacksTo(16)));

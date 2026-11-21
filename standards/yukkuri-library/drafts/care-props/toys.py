@@ -1,10 +1,11 @@
-"""The shop toys as round props after their inventory icons: yarn ball, glass marble, pretty stone, Reimu and Marisa dolls.
+"""The shop toys as round props after their inventory icons: yarn ball, glass marble, Reimu and Marisa dolls.
 
 Round things are modelled round: smooth ellipsoids, rings and strands (shapes.py) whose painted regions are laid out by
 where a mark sits on the ball (sphere_paint), at about two to three texels per unit so faces and strands read at play
 distance. Colours are the icons' own ramps (item-icons/draw.py). A dropped toy is drawn at its real size standing on its
-bottom (client/HouseScrapRenderer) and never turns, so each one rests on a small flat base, is centred on x = z = 0 and
-reads from every side; the dolls face -z. Their atlases are square.
+bottom (client/HouseScrapRenderer); the round ones (yarn ball, glass marble) spin about their centre by the ground distance
+they travel, the dolls stay upright and face -z. Each rests on a small flat base, is centred on x = z = 0 and reads from
+every side. Their atlases are square.
 
 Units are 1/16 block, +y up. Nothing here copies Minecraft pixels.
 """
@@ -18,7 +19,7 @@ if 'item_icon_ramps' not in sys.modules:
     sys.modules['item_icon_ramps'] = _module = importlib.util.module_from_spec(_spec)
     _spec.loader.exec_module(_module)
 draw = sys.modules['item_icon_ramps']
-ROSE, MARBLE, AMBER, STONE, PAPER = draw.ROSE, draw.MARBLE, draw.AMBER, draw.STONE, draw.PAPER
+ROSE, MARBLE, AMBER, PAPER = draw.ROSE, draw.MARBLE, draw.AMBER, draw.PAPER
 SKIN, HAIR, BLOND, INK, BERRY, RED = draw.SKIN, draw.HAIR, draw.BLOND, draw.INK, draw.BERRY, draw.RED
 LIGHT = (.45, .7, -.55)          # the icons' light, from the top left of the front (+x is the viewer's left)
 
@@ -262,24 +263,6 @@ def glass_marble():
 
 
 # =====================================================================================================================
-def pretty_stone():
-    """A smooth river pebble 6 x 2.6 x 4.9, flat underneath, in the icon's blue-grey with a pale quartz vein running
-    diagonally over the top and down both sides and a glint at the top left."""
-    b = Build('pretty_stone', square=True)
-    vein = _unit((.7, .12, .7))
-
-    def pebble(d):
-        if abs(_dot(d, vein)) < .075:
-            return PAPER[3] if d[1] > .3 else PAPER[2]
-        if _dot(d, _unit((.5, .75, -.45))) > .95:
-            return STONE[4]
-        return STONE[3 if d[1] > .7 else 2 if d[1] > -.1 else 1]
-    ellipsoid(b, b.part('pebble'), (0.0, 1.0, 0.0), (3.0, 1.6, 2.45), 'stone', sphere_paint(40, 16, pebble), segs=20, rows=8,
-              floor=-1.0)
-    return b.finish()
-
-
-# =====================================================================================================================
 BUN = (3.6, 3.1, 3.3)                # the plush bun's radii; it stands on a flat bottom 2.6 below its centre
 BUN_Y = 2.6
 BUN_TOP = BUN_Y + BUN[1]
@@ -363,5 +346,5 @@ def marisa_doll():
     return b.finish()
 
 
-PROPS = {'yarn_ball': yarn_ball, 'glass_marble': glass_marble, 'pretty_stone': pretty_stone,
+PROPS = {'yarn_ball': yarn_ball, 'glass_marble': glass_marble,
          'reimu_doll': reimu_doll, 'marisa_doll': marisa_doll}

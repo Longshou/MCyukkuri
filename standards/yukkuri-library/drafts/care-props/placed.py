@@ -4,7 +4,8 @@ styles, velvet) with its shapes fitted against blocks, and the 2x2 woven family 
 Rounded low-poly solids with painted 16 px-density textures: revolved circles or rounded rectangles with 24-40 segments
 (shapes.py), no stepped cells. Each style is a set of painted regions on the same geometry, so one item carries every
 style and the block keeps the style chosen with a dye (life/CareStyles.java holds the dye table). The other placed
-goods (bowl, fills, waterer, toilet, carriers) are block-style props in block-props/devices.py.
+goods (bowl, fills and waterer in bowl.py and waterer.py; toilet and carriers) are block-style props in
+block-props/devices.py.
 
 Source evidence (wiki): an open soft-pad bed (EH32 p.5-9), a round raised-rim cushion (EH23 p.2). Colours, patterns,
 the three grades and the woven 2x2 basket are project design. Palettes are local hue-shifted ramps (dark -> light);

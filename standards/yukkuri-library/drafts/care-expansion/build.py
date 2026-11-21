@@ -1,7 +1,7 @@
 """Shop toys and small care goods as vanilla-style items; editable source, not approved standards.
 
 Toys have world models, because they are dropped, pushed, rolled and played with on the ground: yarn ball, glass marble,
-pretty stone, Reimu and Marisa dolls are round props (care-props/toys.py) drawn by client/PropItemRenderer and, dropped,
+Reimu and Marisa dolls are round props (care-props/toys.py) drawn by client/PropItemRenderer and, dropped,
 by HouseScrapRenderer. The small handheld care tools (wash cloth, teaching whistle, companion cord) have no world model:
 they are vanilla item/generated models of their inventory icons, the way vanilla draws a held or dropped item.
 No original game pixels. 16 units = one block. --check verifies editable, selected and packaged exports.
@@ -20,15 +20,13 @@ block_kit=sys.modules['block_props_kit']   # the prop item model (builtin/entity
 sys.path.insert(0,str(HERE.parent/'care-props'))
 import toys
 ITEMS=('wash_cloth','teaching_whistle','companion_cord')   # vanilla item models of their icons (textures/item/<id>.png)
-TOYS=('glass_marble','reimu_doll','marisa_doll','pretty_stone')   # also kept editable in assembled/, crafted by recipe
+TOYS=('glass_marble','reimu_doll','marisa_doll')   # also kept editable in assembled/, crafted by recipe
 SNAPSHOT=ROOT/'art/props/care-expansion'
 ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 DATA=ROOT/'src/main/resources/data/mcyukkuri'
 INGREDIENTS={'glass_marble':['glass','red_dye'],
- 'reimu_doll':['white_wool','black_wool','red_dye'],'marisa_doll':['white_wool','black_wool','yellow_dye'],
- 'pretty_stone':['cobblestone','amethyst_shard']}
-LABELS={'glass_marble':['玻璃弹珠','Glass marble'],'reimu_doll':['灵梦布偶','Reimu doll'],'marisa_doll':['魔理沙布偶','Marisa doll'],
- 'pretty_stone':['漂亮石子','Pretty stone']}
+ 'reimu_doll':['white_wool','black_wool','red_dye'],'marisa_doll':['white_wool','black_wool','yellow_dye']}
+LABELS={'glass_marble':['玻璃弹珠','Glass marble'],'reimu_doll':['灵梦布偶','Reimu doll'],'marisa_doll':['魔理沙布偶','Marisa doll']}
 
 def outputs():
     previous=provenance(SNAPSHOT/'manifest.json')

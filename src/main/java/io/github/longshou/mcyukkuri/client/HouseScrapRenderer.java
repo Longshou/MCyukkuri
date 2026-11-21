@@ -15,10 +15,25 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import java.util.Map;
+import java.util.WeakHashMap;
+import org.joml.Quaternionf;
 
 /** A food scrap is a ground-level crumb at the same size as a house lock grip. */
 public final class HouseScrapRenderer extends ItemEntityRenderer {
     static final float HELD_SCALE=.18f;
+    /** Rolls of the dropped round toys, accumulated once per client tick from the ground distance each one travelled. */
+    private static final Map<ItemEntity,Roll> ROLLS=new WeakHashMap<>();
+    private record Roll(Quaternionf rotation,int tick){}
+    private static Quaternionf roll(ItemEntity entity,float radius){
+        Roll last=ROLLS.get(entity);
+        if(last!=null&&last.tick()==entity.tickCount)return last.rotation();
+        Quaternionf rotation=last==null?new Quaternionf():new Quaternionf(last.rotation());
+        double dx=entity.getX()-entity.xo,dz=entity.getZ()-entity.zo,distance=Math.sqrt(dx*dx+dz*dz);
+        if(distance>1e-6)rotation.rotateAxis((float)(distance/radius),(float)(dz/distance),0,(float)(-dx/distance));
+        ROLLS.put(entity,new Roll(rotation,entity.tickCount));
+        return rotation;
+    }
     static String smallProp(ItemStack item){
         if(item.is(ModItems.NEST_LINT.get()))return "nest_lint";
         if(!item.is(ModItems.HOUSE_EGG.get()))return null;
@@ -32,6 +47,10 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
             String name=BuiltInRegistries.ITEM.getKey(entity.getItem().getItem()).getPath();
             pose.pushPose();
             PropModels.center(name,pose,true);
+            if(Facilities.rollingToy(entity.getItem())){
+                float radius=PropModels.height(name)/2;
+                pose.translate(0,radius,0);pose.mulPose(roll(entity,radius));
+            }
             PropModels.render(name,Integer.MAX_VALUE,pose,buffers,light,OverlayTexture.NO_OVERLAY);
             pose.popPose();return;
         }

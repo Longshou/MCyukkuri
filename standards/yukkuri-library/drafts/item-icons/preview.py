@@ -44,7 +44,7 @@ TAB = ['field_notebook', 'reimu_spawn_egg', 'marisa_spawn_egg', 'marisa_aquatic_
        'oil_grain_budget', 'oil_grain_regular', 'oil_grain_premium', 'sweet_candy', 'custard_pudding', 'orange_juice',
        'flour_paste', 'mold_remover', 'pin_tool', 'care_mallet', 'care_awl', 'restraint_frame', 'wrap_sling', 'hanging_hook',
        'care_vibrator', 'iron_enclosure', 'newspaper_mat', 'soil_mat', 'sandpaper_mat', 'ceramic_toilet', 'covered_toilet',
-       'glass_marble', 'rubber_ball', 'reimu_doll', 'marisa_doll', 'pretty_stone', 'clear_dice', 'paper_tunnel',
+       'glass_marble', 'rubber_ball', 'reimu_doll', 'marisa_doll', 'clear_dice', 'paper_tunnel',
        'ceramic_tunnel', 'yukkuri_slide', 'yukkuri_trampoline', 'yukkuri_pool', 'yogurt_drink', 'stimulant', 'sitataran',
        'sleep_spray', 'spicy_grain', 'reproductive_filling', 'wheat_flour', 'oniisan_spawn_egg', 'caretaker_brother_spawn_egg',
        'caretaker_sister_spawn_egg', 'bronze_yukkuri_badge', 'silver_yukkuri_badge', 'gold_yukkuri_badge',

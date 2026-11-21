@@ -4,10 +4,10 @@ Writes art/props/runtime-peripheral/selected/<id>/{<id>.bbmodel, <id>.mesh.json,
 scripts/export_peripheral_assets.py afterwards to produce the runtime resources. --check is read-only.
 
 Props authored here: the three oil-grain bags, food scrap, waste, leaked filling and carrier basket on the low-poly kit; the placed goods
-through vanilla_props.py (the rounded food bowl and its fills from bowl.py; the block-style waterer and sand toilet
-clean and dirty from block-props/devices.py; the rounded three grades of pet bed and their fitted shapes from placed.py;
-every non-default dye style, including the 2x2 woven nest's), and the block-style forage pile
-(block-props/forage.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
+through vanilla_props.py (the round food bowl, its heap-only grain / wheat / forage fills and the round waterer from
+bowl.py and waterer.py; the block-style sand toilet clean and dirty from block-props/devices.py; the rounded three grades
+of pet bed and their fitted shapes from placed.py; every non-default dye style, including the 2x2 woven nest's), and the
+block-style forage pile (block-props/forage.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
 Food mash is exported by its own package builder, which imports this folder. The self-built nests of wild yukkuri
 (forest_burrow, personal_leaf_nest, bedding_bundle) are authored by wild.py and exported by ecology/wild-shelters/build.py;

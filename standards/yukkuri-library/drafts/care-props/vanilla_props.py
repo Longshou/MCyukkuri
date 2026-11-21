@@ -1,15 +1,15 @@
 """Registry of the placed care props for the exporters (build.py, large_nests.py).
 
-The food bowl and its fills are round glazed ceramic (bowl.py). The waterer and its water and the sand toilet
-are block-style (block-props/devices.py). The three grades of one-block pet bed with their fitted shapes and the 2x2
-woven nest are rounded low-poly props with painted regions from placed.py; the 2x2 wild bedding comes from wild.py
+The food bowl and its fills are round glazed ceramic (bowl.py), and so is the waterer with its water (waterer.py). The
+sand toilet is block-style (block-props/devices.py). The three grades of one-block pet bed with their fitted shapes and
+the 2x2 woven nest are rounded low-poly props with painted regions from placed.py; the 2x2 wild bedding comes from wild.py
 (wild_kit atlas). Units are 1/16 block, origin at the footprint centre. Footprints, heights and entrances follow
 CareBlock collision (life/CareBlock.java). STYLES is the dye-style table (keep in step with life/CareStyles.java); '' is
 the default style carried by the plain mesh name.
 """
 import sys
 from pathlib import Path
-import bowl, placed
+import bowl, waterer, placed
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "block-props"))
 import devices      # block-style props (block-props/kit.py)
 
@@ -23,8 +23,8 @@ def large_wild_nest():
     return wild.large_wild_nest()
 
 
-PROPS = {**bowl.PROPS,
-         **{name: devices.PROPS[name] for name in ('waterer', 'waterer_water', 'yukkuri_toilet', 'yukkuri_toilet_dirty')},
+PROPS = {**bowl.PROPS, **waterer.PROPS,
+         **{name: devices.PROPS[name] for name in ('yukkuri_toilet', 'yukkuri_toilet_dirty')},
          'yukkuri_nest': placed.yukkuri_nest, 'straw_nest': placed.straw_nest, 'velvet_nest': placed.velvet_nest}
 LARGE = {'large_yukkuri_nest': placed.large_yukkuri_nest, 'large_wild_nest': large_wild_nest}
 VARIANTS = {**bowl.variants(),        # dye-selected styles, shipped as runtime-peripheral attachments

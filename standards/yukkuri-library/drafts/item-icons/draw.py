@@ -46,7 +46,6 @@ EMBER = ['#5c1708', '#93280d', '#c94a17', '#f0802e', '#ffc06a']        # spicy k
 SAND = ['#7a6440', '#a68c5e', '#c4ab7d', '#dac69a', '#f1e4bf']         # toilet sand, straw-light
 STRAW = ['#55431a', '#86702e', '#b39a47', '#d6bd68', '#efda91']        # dry grass, wicker
 TERRA = ['#5a2715', '#8c4225', '#bb663a', '#dc9160', '#f2bd8f']        # clay pipe
-STONE = ['#2a3236', '#454f54', '#637078', '#8a979e', '#bccad0']        # pretty stone
 ROSE = ['#6a2140', '#a03a60', '#c95c85', '#e98cad', '#ffc3d6']         # yarn
 SKIN = ['#7a6249', '#b29977', '#d9c7a5', '#efe2c6', '#fff8ea']         # yukkuri bun (dolls)
 HAIR = ['#2a1a12', '#4a2e1f', '#6c452d', '#8f6340']                    # Reimu doll hair
@@ -328,22 +327,6 @@ def glass_marble():
         ".......rd.......",
     ])
     return i
-def pretty_stone():
-    """A smooth blue-grey river pebble with a pale quartz vein and a glint: the kind a yukkuri keeps as treasure."""
-    i = Icon('pretty_stone')
-    i.disc((7.5, 9.0), 6.6, STONE, ry=4.6, glint=True)
-    i.finish()
-    i.rows(legend(v=(PAPER, 3), V=(PAPER, 2), w=(PAPER, 4)), [""] * 6 + [
-        "....w...........",
-        "...ww......v....",
-        ".........vV.....",
-        ".......vV.......",
-        ".....vV.........",
-        "...vV...........",
-    ])
-    return i
-
-
 def _doll(name, hair, top_legend, top_rows):
     """A plush yukkuri doll: a round bun face with hair over the top, two dot eyes and a small smile."""
     i = Icon(name)
@@ -941,7 +924,7 @@ ICONS = {
     'yogurt_drink': yogurt_drink, 'stimulant': stimulant, 'sitataran': sitataran, 'sleep_spray': sleep_spray,
     'spicy_grain': spicy_grain, 'reproductive_filling': reproductive_filling, 'wheat_flour': wheat_flour,
     'mold_remover': mold_remover, 'household_guard': household_guard,
-    'yarn_ball': yarn_ball, 'glass_marble': glass_marble, 'pretty_stone': pretty_stone, 'reimu_doll': reimu_doll,
+    'yarn_ball': yarn_ball, 'glass_marble': glass_marble, 'reimu_doll': reimu_doll,
     'marisa_doll': marisa_doll,
     'ceramic_tunnel': ceramic_tunnel, 'yukkuri_slide': yukkuri_slide, 'yukkuri_trampoline': yukkuri_trampoline,
     'yukkuri_pool': yukkuri_pool,
