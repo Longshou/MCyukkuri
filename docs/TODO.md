@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | FG-13 在真实世界里能看到（触发条件区间化） | `.worktrees/wp-fg13-real` | FG-13 trigger chain |
+| 道具收尾 P1：护理锤下线、宠物店卖全部药品、放大镜改用原版望远镜 | `.worktrees/wp-shop-tools` | ShopCatalog, ModItems, MagnifyingGlassItem/MagnifierClient, OperationToolItem, lang, FEATURES |
 
 
 
