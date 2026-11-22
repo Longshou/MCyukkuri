@@ -213,7 +213,6 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private void readmitted(Object by) {
-        greetParents(exile.home);
         GameplayLog.event(entity, "settlement", "mold exile readmitted group={} den={} by={}", exile.home.group(), exile.home.den(), by);
         exile = null;
     }
@@ -430,11 +429,17 @@ public final class MoldExile extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         if (task == null || !available()) return false;
         return switch (task) {
-            case WITNESS -> ticks < noticeEnd + (harsh ? SCORN_HOLD : WARN_HOLD) && peer.isAlive() && peer.body().mold() > 0 && sees(entity, peer);
+            case WITNESS -> ticks < noticeEnd + (harsh ? SCORN_HOLD : WARN_HOLD) + (departing() ? WALK_LIMIT : 0) && peer.isAlive()
+                    && peer.body().mold() > 0 && sees(entity, peer);
             case LEAVE -> entity.body().mold() > 0 && (exile != null || home.equals(currentHome()));
             case APPEAL -> exile != null && entity.body().mold() > 0;
             case VISIT -> exile != null && entity.body().mold() == 0;
         };
+    }
+
+    /** The driven one has answered and is on its way out: the drive-off lasts until it is outside or out of reach. */
+    private boolean departing() {
+        return driving && peer != null && peer.moldExile().task == Task.LEAVE && peer.moldExile().exile == null;
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -456,9 +461,10 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (ticks == noticeEnd && noticeEnd > 0) answer();
         if (harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
                 && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
-        if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0) || pushed && !(entity.motor().current() instanceof Push)) return;
+        if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0)) return;
+        // One decision is one continuous drive-off: a shove runs to its own end, then it follows and shoves again until the sick one is out.
+        if (entity.motor().current() instanceof Push) return;
         if (!canPush()) {
-            if (pushed) { entity.motor().cancel(this, "contact_ended"); return; }
             // A harsh one, having shouted, goes right up to shove it out; the others push only one already within reach.
             // It comes up on the home side of the sick one, so its shove points out of the home.
             if (harsh && ticks > noticeEnd + SCORN_AFTER) {
@@ -469,13 +475,11 @@ public final class MoldExile extends Goal implements MotorOwner {
             }
             return;
         }
-        if (!pushed) {
+        SurfaceApproach.stopWalking(entity);
+        if (entity.motor().run(this, new Push(peer)) && !pushed) {
             pushed = true;
-            SurfaceApproach.stopWalking(entity);
-            if (entity.motor().run(this, new Push(peer))) {
-                if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
-                GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
-            }
+            if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
+            GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
         }
     }
 
@@ -495,8 +499,8 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private boolean canPush() {
-        if (!peer.onGround() || peer.isPassenger() || peer.isVehicle()
-                || ContactGeometry.mouthGap(entity, peer) > ContactGeometry.GRAB_MARGIN
+        if (!peer.onGround() || peer.isPassenger() || peer.isVehicle() || peer.operations().active()
+                || !ContactGeometry.inMouthReach(entity, peer)
                 || !peer.moldExile().canLeave(home, entity)) return false;
         return dryOutwardStep(entity.position());
     }
@@ -602,7 +606,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE);
             for (var parent : guardians(home)) {
                 var verdict = MoldVerdict.decide(verdictInputs(parent, entity, home));
-                FamilyData.get(level()).dismissChild(parent, entity.getUUID());
+                Bonds.sever(parent, entity.getUUID(), "child_exiled");
                 if (verdict == Verdict.DRIVE_TEARFUL)
                     parent.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, entity.getUUID(), entity.blockPosition());
             }
@@ -629,22 +633,12 @@ public final class MoldExile extends Goal implements MotorOwner {
         return outcome == SurfaceApproach.Result.ARRIVED;
     }
 
-    private void greetParents(Home address) {
-        for (var parent : nearby()) {
-            var id = parent.getUUID();
-            if ((id.equals(entity.family().mother()) || id.equals(entity.family().father())) && resident(parent, address)
-                    && sees(parent, entity) && FamilyData.get(level()).acknowledgeChild(parent, entity.getUUID()))
-                parent.showReaction("teary_smile", "known_peer", REACTION);
-        }
-    }
-
     private void visit() {
         if (home.colony() && reunionPeer() != null) {
             end();
             return;
         }
         if (!arrivedAtHome()) return;
-        greetParents(home);
         var den = home.colony() ? null : ShelterBlock.shelter(level(), home.den());
         if (den != null && entity.habitat().choose(den)) end();
         else fail("no_admission");

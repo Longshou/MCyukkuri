@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -167,7 +168,7 @@ final class FamilySeparation {
             pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
             if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
             if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&GlassSight.glassBetween(e,e.getEyePosition(),child)==null){
-                data.dismissChild(e,id);searching.remove(id);
+                Bonds.sever(e,id,"search_abandoned");searching.remove(id);
                 e.showReaction("teary","mood_bad",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；孩子仍然认得母油");
                 if(o.target()==child&&o.task()==FamilyLife.Task.SEARCH)o.stop();
             }

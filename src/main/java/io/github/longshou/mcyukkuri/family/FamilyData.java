@@ -426,19 +426,13 @@ public final class FamilyData extends SavedData {
         var person=people.get(parent);
         return person==null||!person.dismissedChildren.contains(child);
     }
-    public void dismissChild(YukkuriEntity parent, UUID child) {
+    /** Callers go through {@code Bonds.sever}. */
+    public void dismissChild(YukkuriEntity parent, UUID child, String reason) {
         register(parent);
         if(people.get(parent.getUUID()).dismissedChildren.add(child)){
             setDirty();
-            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained",child);
+            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained reason={}",child,reason);
         }
-    }
-    public boolean acknowledgeChild(YukkuriEntity parent, UUID child) {
-        var person = people.get(parent.getUUID());
-        if (person == null || !person.dismissedChildren.remove(child)) return false;
-        setDirty();
-        GameplayLog.event(parent, "family", "parent acknowledged child={}", child);
-        return true;
     }
     public boolean socialKin(UUID first, UUID second) {
         if (first.equals(second)) return true;

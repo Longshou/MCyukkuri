@@ -255,7 +255,7 @@ def _mold_family(sid, keep):
                    rf'uuid={mother} [^\n]*line event=mold_self_aware\b']
         forbid = [r'mold exile departed']
     else:
-        watch = '洞口母油冷着脸，父油哭着让孩子走。看子油怎样回应推挤：会顶嘴咒骂，也会含泪回头道别。出了家门范围亲油才放弃照护。用去霉药治好后，可以再看亲子相认。'
+        watch = '洞口母油冷着脸，父油哭着让孩子走。看子油怎样回应推挤：会顶嘴咒骂，也会含泪回头道别。亲油一路跟着推到孩子出了家门范围，才断绝照护，治好后也不再相认。'
         expect += [rf'mold exile push subject={child}\b', rf'uuid={child} [^\n]*mold exile departed scope=family\b',
                    rf'uuid={child} [^\n]*mold exile answer=(CURSE|FAREWELL|SHRUG)\b', r'line event=drive_child_tearful\b',
                    *[rf'uuid={who} [^\n]*parent dismissed child={child}\b' for who in (mother, father)]]

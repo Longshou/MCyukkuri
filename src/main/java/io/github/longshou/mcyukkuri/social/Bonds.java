@@ -42,6 +42,10 @@ public final class Bonds {
     public static boolean mutualMates(YukkuriEntity a, YukkuriEntity b) {
         return recordedMate(a, b) && recordedMate(b, a);
     }
+    /** The one-sided cut: the parent stops treating the child as its own, permanently; the child still recognises the parent. {@code reason} is only logged. */
+    public static void sever(YukkuriEntity parent, UUID child, String reason) {
+        FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child, reason);
+    }
     /** Recorded entity parents, without the ledger's sibling or incident-source expansion. */
     public static boolean parentOf(YukkuriEntity parent, YukkuriEntity child) {
         return (parent.getUUID().equals(child.family().mother()) || parent.getUUID().equals(child.family().father()))
