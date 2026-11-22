@@ -398,10 +398,13 @@ public final class EmotionCourse {
     }
 
     private void finish() {
+        // "That little one will be fine" is said by a parent about its own child; a child or sibling parting stays quiet.
+        boolean ownChild = kind == Kind.PARTING && about != null
+                && FamilyData.get((ServerLevel)entity.level()).children(entity.getUUID()).contains(about);
         String closing = switch (kind) {
             case GRIEF -> "mourn_over";
             case TERROR -> "shaken_over";
-            case PARTING -> "parting_over";
+            case PARTING -> ownChild ? "parting_over" : null;
             default -> null;
         };
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";

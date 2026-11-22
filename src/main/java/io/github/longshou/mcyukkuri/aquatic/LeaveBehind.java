@@ -186,7 +186,8 @@ final class LeaveBehind implements Intent {
         }
         child.mind().felt(EmotionEvent.SOCIAL_HURT);
         child.mind().feeling().wronged(parent.getUUID(), .6f);
-        String cue = ReactionSpeech.ousted(memo.reply, false);
+        // The one severing here is always the child's own parent.
+        String cue = ReactionSpeech.ousted(memo.reply, true);
         if (shown && !cue.isEmpty()) child.speakCue(cue);
         for (var sibling : AquaticLife.young(parent)) {
             if (sibling == child || !Bonds.parentOf(parent, sibling)) continue;
