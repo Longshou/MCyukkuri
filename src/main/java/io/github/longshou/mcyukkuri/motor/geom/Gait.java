@@ -49,6 +49,23 @@ public final class Gait {
         return ease(pace, FLIGHT_CRUISE, HUMAN_WALK * .98);
     }
 
+    /** Wingbeat period of the {@code predator_fly} clip, seconds. */
+    public static final double FLAP_PERIOD = .6;
+
+    /**
+     * Height of a flier's body above its glide line, in model blocks of the body's own scale, at {@code seconds} into
+     * the wingbeat: lowest where the wing tips are highest (the end of the upstroke, a quarter period in) and rising
+     * through the downstroke.
+     */
+    public static double flapBob(double seconds) {
+        return .045 * Math.sin(2 * Math.PI * (seconds / FLAP_PERIOD - .5));
+    }
+
+    /** Vertical scale of a spent body's walk: a slow heave about a lowered carriage, one heave per walk cycle. */
+    public static double tiredSag(double seconds) {
+        return .94 + .015 * Math.sin(2 * Math.PI * seconds / 1.2);
+    }
+
     /** A growing body's reach and its peak horizontal launch pace are separate budgets. */
     public static double hop(double size, double temperament) {
         return HUMAN_WALK * Math.min(.94, (.48 + .36 * size) * temperament);

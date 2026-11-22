@@ -54,4 +54,16 @@ class GaitTest {
         assertFalse(Gait.needsStandingTurn(distance, .8, headingError, 12));
         assertFalse(Gait.needsStandingTurn(distance, .8, 350, 12));
     }
+
+    @org.junit.jupiter.api.Test void aFlierRisesThroughTheDownstrokeAndRepeatsEveryWingbeat() {
+        double low = Gait.flapBob(Gait.FLAP_PERIOD * .25), high = Gait.flapBob(Gait.FLAP_PERIOD * .75);
+        org.junit.jupiter.api.Assertions.assertTrue(low < -.04 && high > .04);
+        org.junit.jupiter.api.Assertions.assertEquals(Gait.flapBob(.1), Gait.flapBob(.1 + Gait.FLAP_PERIOD), 1e-9);
+        org.junit.jupiter.api.Assertions.assertEquals(0, Gait.flapBob(0), 1e-9);
+    }
+
+    @org.junit.jupiter.api.Test void aSpentWalkKeepsALoweredCarriageThatBreathes() {
+        for (double t = 0; t < 2.4; t += .1)
+            org.junit.jupiter.api.Assertions.assertTrue(Gait.tiredSag(t) > .9 && Gait.tiredSag(t) < .96);
+    }
 }

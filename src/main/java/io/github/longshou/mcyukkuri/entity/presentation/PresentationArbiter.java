@@ -115,7 +115,8 @@ public final class PresentationArbiter {
         String clip=e.getAnimationId();
         long start=e.getAnimationStartTick();
         if (e.species().catchingBreath() && !e.isInWaterOrBubble()
-                && (YukkuriAction.WATER_GASP.id().equals(clip) || e.predatorFlying() && e.species().sprintRequested()))
+                && (YukkuriAction.WATER_GASP.id().equals(clip) || e.predatorFlying() && e.species().sprintRequested()
+                    || e.onGround() && (YukkuriAction.WADDLE.id().equals(clip) || YukkuriAction.RUN.id().equals(clip))))
             return "teary_pant"; // The face library plays both authored tear frames.
         if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
@@ -283,7 +284,8 @@ public final class PresentationArbiter {
                 return;
             }
             if (!shell) state.animation(e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
-                    : e.onGround() && e.species().catchingBreath() ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
+                    : e.onGround() && e.species().catchingBreath() && e.getDeltaMovement().horizontalDistanceSqr() <= 0.000001
+                    ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
                     : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
             // The frame retains the pre-decrement count used to choose the clip.
             state.expression(e.newbornStage() ? "cry" : e.body().weak() ? "teary" : "surprise");
@@ -355,7 +357,7 @@ public final class PresentationArbiter {
                 : HomeClaim.declaring(e) ? e.reactionAction()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
-                : e.species().catchingBreath() && e.onGround() && !e.isPassenger()
+                : e.species().catchingBreath() && e.onGround() && !e.isPassenger() && m.distanceSquared() <= 0.000001
                         && (e.species().sprintRequested() || behavior.equals(Behaviors.THREAT_RETREAT) || behavior.equals(Behaviors.IDLE))
                 ? EcologyPresentation.catchBreath(e)
                 : m.distanceSquared() > 0.000001 && e.onGround() && !e.life().isSleeping()

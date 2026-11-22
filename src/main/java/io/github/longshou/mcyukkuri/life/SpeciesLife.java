@@ -101,9 +101,12 @@ public final class SpeciesLife {
         if (!ran && stamina.debt() == 0) return;
         var build = SprintStamina.Build.of(entity.getVariant());
         boolean resting = stamina.resting();
-        if (ran) stamina.run(SprintStamina.capacity(build, BodyAbility.fitness(entity), BodyAbility.growthPace(entity),
-                entity.growthScale() * entity.getScale(), entity.life().nutrition(), entity.pet().isPet()));
-        else stamina.recover(build);
+        var personality = entity.life().personality();
+        double constitution = SprintStamina.constitution(personality.boldness(), personality.selfControl());
+        double growth = BodyAbility.growthPace(entity);
+        if (ran) stamina.run(SprintStamina.capacity(build, BodyAbility.fitness(entity), growth,
+                entity.growthScale() * entity.getScale(), entity.life().nutrition(), entity.pet().isPet(), constitution));
+        else stamina.recover(SprintStamina.restTicks(build, growth, constitution));
         if (resting != stamina.resting())
             GameplayLog.event(entity, "move", "sprint {} build={} flying={} nutrition={} energy={}",
                     stamina.resting() ? "spent" : "recovered", build, entity.predatorFlying(), entity.life().nutrition(), entity.life().energy());

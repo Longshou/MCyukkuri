@@ -9,11 +9,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.ParentCarry.Hold;
 import io.github.longshou.mcyukkuri.motor.TimelineClock;
+import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.InfantFood;
@@ -218,6 +220,14 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                 var facility=PlayBlock.facility(entity.level(),entity.blockPosition());
                 if(facility!=null&&facility.kind()==PlayBlock.Kind.TRAMPOLINE
                         &&Math.abs(entity.getY()-facility.getBlockPos().getY()-PlayBlock.BED_HEIGHT)<1e-6)pose.translate(0,-facility.bedDepression(partialTick),0);
+            }
+            if (!preview && !hatCarrier && !carried) {
+                String clip = entity.getAnimationId();
+                // A flier's body rises and sinks with its wingbeat instead of gliding on a flat line.
+                if (clip.equals(Behaviors.PREDATOR_FLY)) pose.translate(0, Gait.flapBob(elapsed), 0);
+                // A spent body (the panting face) plays the ordinary walk slower with its carriage lowered.
+                else if ((clip.equals(YukkuriAction.WADDLE.id()) || clip.equals(YukkuriAction.RUN.id()))
+                        && entity.getExpressionId().equals("teary_pant")) pose.scale(1, (float) Gait.tiredSag(elapsed), 1);
             }
             float phaseTicks = Math.max(0, entity.level().getGameTime() - entity.getBehaviorStartTick() + partialTick);
             if (entity.isCrawling()&&!hatCarrier&&!carried) {

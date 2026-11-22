@@ -39,4 +39,17 @@ class PerchScoreTest {
         assertEquals(55 - 12, PerchScore.huntThreshold(50, true));
         assertEquals(65 - 6, PerchScore.huntThreshold(100, true));
     }
+
+    @Test void aPursuitGoesOnPastItsStartLineUntilSatedAndHoldsPreyOutOfSightLonger() {
+        for (int boldness = 0; boldness <= 100; boldness += 25) {
+            // The hunt starts below about 45-65 (or 75 when ordered) and is truly sated well above every one of those.
+            assertTrue(PerchScore.satedLine(boldness) > 75, "line " + boldness);
+            assertTrue(PerchScore.satedLine(boldness) > PerchScore.huntThreshold(boldness, false) + 20);
+            assertTrue(PerchScore.satedLine(boldness) < 100);
+        }
+        assertTrue(PerchScore.satedLine(90) > PerchScore.satedLine(10));
+        assertEquals(160, PerchScore.lostAfter(0));
+        assertEquals(360, PerchScore.lostAfter(100));
+        assertTrue(PerchScore.lostAfter(80) > PerchScore.lostAfter(30));
+    }
 }
