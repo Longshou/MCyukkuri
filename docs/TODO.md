@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 冒烟修复：场景布置与校验 | `.worktrees/wp-fix-scenes` | scripts/museum_scenarios.py (several scenes), settlement/ForageGoal log rate |
 | 头上的饿幼体在船舱满时上岸喂 | `.worktrees/wp-head-baby-2` | aquatic/AquaticGoal come_ashore pull, Care, Provision, hat_larder scene |
-| 从略高于岸面的站位起跳被自己的下降段拒绝 | `.worktrees/wp-hop-descent` | motor/action/Hop, motor/geom ArcSolver/TakeoffLip |
 
 
 
