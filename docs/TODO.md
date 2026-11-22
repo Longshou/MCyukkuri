@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 冒烟修复：情绪过程不再打断救援、驱逐与央求 | `.worktrees/wp-fix-course-preempt` | mind/EmotionCourse goal tiers, social/MoldExile, settlement colony exile visit, presentation idle pose |
 | 冒烟修复：场景布置与校验 | `.worktrees/wp-fix-scenes` | scripts/museum_scenarios.py (several scenes), settlement/ForageGoal log rate |
+| 头上的幼体也能被喂、单独亲油能从停靠帽檐跳上岸 | `.worktrees/wp-head-baby` | aquatic/AquaticGoal care, aquatic/Care, motor/action/Hop + ArcSolver, hat_larder scene |
 
 
 
