@@ -38,8 +38,12 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(ROOT / '.local/setup/python'))
-sys.path.insert(0, str(ROOT.parent.parent / '.local/setup/python'))   # a worktree under .worktrees/ shares the main checkout's tools
+# The bundled nbtlib lives in the main checkout's .local/setup/python; worktrees (.worktrees/<name>) and the smoke baseline trees
+# (.local/smoke/baseline/<tree>) sit below it, so take the nearest ancestor that has it.
+for _base in (ROOT, *ROOT.parents):
+    if (_base / '.local/setup/python').is_dir():
+        sys.path.insert(0, str(_base / '.local/setup/python'))
+        break
 from museum_actions import ACTION_META  # noqa: E402
 from museum_dsl import _text, _q, OBJ  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, big_fill  # noqa: E402
