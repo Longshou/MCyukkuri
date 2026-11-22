@@ -96,7 +96,7 @@ public final class BadgeArcs {
         if (o == s || !o.isAlive() || !s.isAlive() || o.level() != level || s.level() != level) return "invalid_pair";
         if (!o.outing().permitsPerformance(arc.optionalPerformance()) || !s.outing().permitsPerformance(arc.optionalPerformance()))
             return "outing_lead";
-        if (!usable(o) || !WildEvents.availableForOpportunity(o)) return "observer_unavailable";
+        if (!usable(o) || !WildEvents.available(o)) return "observer_unavailable";
         if (!subjectReady(s, arc == Arc.BEG_BITE)) return "subject_unavailable";
         if (!WildEventData.get(level).opportunitySlot(s.getUUID())) return "subject_in_scene";
         if (o.distanceToSqr(s) > 144 || !o.hasLineOfSight(s)) return "not_in_sight";
@@ -137,7 +137,7 @@ public final class BadgeArcs {
         // A conflicting optional participant rejects this roster; ordinary cooldown fallback below stays local.
         boolean nearbyExtra = extra != null && extra != o && extra != s && extra.level() == level && extra.distanceToSqr(o) <= 100;
         if (nearbyExtra && !data.opportunitySlot(extra.getUUID())) return null;
-        boolean third = nearbyExtra && usable(extra) && WildEvents.availableForOpportunity(extra);
+        boolean third = nearbyExtra && usable(extra) && WildEvents.available(extra);
         if (third) all.add(extra);
         UUID viewer = player == null ? null : player.getUUID();
         var begging = arc == Arc.BEG_BITE ? BegBite.plan(o, s) : null;

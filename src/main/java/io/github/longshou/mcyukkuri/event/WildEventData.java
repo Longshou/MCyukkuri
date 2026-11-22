@@ -53,11 +53,10 @@ public final class WildEventData extends SavedData {
         }
         public boolean active() { return phase != Phase.COMPLETE && phase != Phase.INTERRUPTED && phase != Phase.REFUSED; }
     }
-    private record Delay(GlobalPos origin, long until, boolean ambient) {}
+    private record Delay(GlobalPos origin, long until) {}
     private final Map<UUID, Scene> scenes = new LinkedHashMap<>();
     private MinecraftServer server;
     private final DeadlineMap<UUID> cooldowns = new DeadlineMap<>();
-    private final DeadlineMap<UUID> ambientCooldowns = new DeadlineMap<>();
     private final List<Delay> regions = new ArrayList<>();
     public static WildEventData get(ServerLevel level) {
         var data = level.getServer().overworld().getDataStorage().computeIfAbsent(
@@ -78,25 +77,14 @@ public final class WildEventData extends SavedData {
     public Scene controlling(UUID id) { return forMember(id); }
     public List<Scene> scenes() { return List.copyOf(scenes.values()); }
     public boolean membersFree(List<UUID> members) { return EventReservations.free(server,members); }
-    public boolean opportunitySlot(UUID member) {
-        return EventReservations.owners(server, member).stream().allMatch(token -> {
-            var owner = token.source() == EventReservations.Source.WILD ? scenes.get(token.id()) : null;
-            return owner != null && WildCards.canYield(owner);
-        });
-    }
+    /** True when no event scene or home claim holds the member; a live badge opportunity may then start. */
+    public boolean opportunitySlot(UUID member) { return EventReservations.owners(server, member).isEmpty(); }
     public boolean canStart(GlobalPos origin, List<UUID> members, long now) {
-        return canStart(origin, members, now, false);
-    }
-    private boolean canStart(GlobalPos origin, List<UUID> members, long now, boolean opportunity) {
         if (members.isEmpty() || members.size()>6 || new HashSet<>(members).size()!=members.size()) return false;
-        if (opportunity ? !members.stream().allMatch(this::opportunitySlot) : !membersFree(members)) return false;
-        if (members.stream().anyMatch(id -> cooldowns.active(id, now) || !opportunity && ambientCooldowns.active(id, now))) return false;
-        if (regions.stream().anyMatch(d -> d.until > now && near(d.origin, origin) && !(opportunity && d.ambient))) return false;
-        return scenes.values().stream().noneMatch(s -> s.active() && near(s.origin, origin)
-                && !(opportunity && yieldsTo(s, members)));
-    }
-    private static boolean yieldsTo(Scene s, List<UUID> members) {
-        return WildCards.canYield(s) && s.members.stream().anyMatch(members::contains);
+        if (!membersFree(members)) return false;
+        if (members.stream().anyMatch(id -> cooldowns.active(id, now))) return false;
+        if (regions.stream().anyMatch(d -> d.until > now && near(d.origin, origin))) return false;
+        return scenes.values().stream().noneMatch(s -> s.active() && near(s.origin, origin));
     }
     private static boolean near(GlobalPos a, GlobalPos b) {
         return RegionKey.within(a,b,32);
@@ -104,17 +92,13 @@ public final class WildEventData extends SavedData {
     public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now) {
         return start(kind,card,origin,members,player,now,() -> true);
     }
-    /** A live badge opportunity may take over an ambient reservation before its response. The new roster owns preparation. */
+    /** {@code prepare} runs before the scene is committed; a null or false result releases the reservation. */
     public Scene start(Kind kind, String card, GlobalPos origin, List<UUID> members, UUID player, long now,
                        BooleanSupplier prepare) {
-        boolean opportunity = kind == Kind.BADGE_ARC;
-        if (!canStart(origin, members, now, opportunity)) return null;
+        if (!canStart(origin, members, now)) return null;
         var level = server.getLevel(origin.dimension());
         if (WildEvents.optionalPerformance(kind, card) && members.stream().anyMatch(id ->
                 level.getEntity(id) instanceof YukkuriEntity pet && !pet.outing().permitsPerformance(true))) return null;
-        if (opportunity && !membersFree(members))
-            for (var current : scenes()) if (yieldsTo(current, members))
-                WildEvents.yieldForOpportunity(server, current);
         Scene scene=new Scene(ModRandom.identity(ModRandom.world(level)),kind,card,origin,members); scene.player=player;
         var token=new EventReservations.Token(EventReservations.Source.WILD,scene.id);
         if (!EventReservations.acquire(server,members,token)) return null;
@@ -147,12 +131,10 @@ public final class WildEventData extends SavedData {
         phase(scene,phase); scene.result=result;
         log(scene, "ended", result);
         if (cooldownTicks > 0) {
-            boolean ambient = WildCards.ambient(scene);
-            var deadlines = ambient ? ambientCooldowns : cooldowns;
-            for(UUID member:scene.members) deadlines.put(member,DeadlineMap.after(now,cooldownTicks));
-            regions.add(new Delay(scene.origin,DeadlineMap.after(now,400),ambient));
+            for(UUID member:scene.members) cooldowns.put(member,DeadlineMap.after(now,cooldownTicks));
+            regions.add(new Delay(scene.origin,DeadlineMap.after(now,400)));
         }
-        regions.removeIf(d -> d.until<=now); cooldowns.prune(now); ambientCooldowns.prune(now);
+        regions.removeIf(d -> d.until<=now); cooldowns.prune(now);
         while(scenes.size()>256) {
             UUID old=scenes.values().stream().filter(s -> !s.active()).map(s -> s.id).findFirst().orElse(null);
             if(old==null)break; scenes.remove(old);
@@ -168,7 +150,7 @@ public final class WildEventData extends SavedData {
         var origins = scenes.values().stream().filter(s -> !s.active() && touches(s,dimension,box,members)).map(s -> s.origin).toList();
         regions.removeIf(delay -> origins.contains(delay.origin));
         scenes.values().removeIf(s -> !s.active() && touches(s,dimension,box,members));
-        for(UUID id:members) { cooldowns.remove(id); ambientCooldowns.remove(id); }
+        for(UUID id:members) cooldowns.remove(id);
         // A delay blocks new scenes within 32 blocks of its origin, so the band around the box goes too.
         var reach=box.inflate(32);
         regions.removeIf(d -> d.origin.dimension().equals(dimension) && reach.contains(Vec3.atCenterOf(d.origin.pos())));
@@ -188,8 +170,7 @@ public final class WildEventData extends SavedData {
         }
         tag.put("Scenes",list);
         tag.put("Cooldowns", saveCooldowns(cooldowns));
-        tag.put("AmbientCooldowns", saveCooldowns(ambientCooldowns));
-        list=new ListTag();for(var d:regions){CompoundTag n=new CompoundTag();FamilyData.putPosition(n,"Origin",d.origin);n.putLong("Until",d.until);n.putBoolean("Ambient",d.ambient);list.add(n);}tag.put("Regions",list);
+        list=new ListTag();for(var d:regions){CompoundTag n=new CompoundTag();FamilyData.putPosition(n,"Origin",d.origin);n.putLong("Until",d.until);list.add(n);}tag.put("Regions",list);
         return tag;
     }
     private static ListTag saveCooldowns(DeadlineMap<UUID> deadlines) {
@@ -227,9 +208,8 @@ public final class WildEventData extends SavedData {
             } catch(IllegalArgumentException ignored) { /* Unknown kinds must not fabricate encounters. */ }
         }
         loadCooldowns(tag.getList("Cooldowns",Tag.TAG_COMPOUND), data.cooldowns);
-        loadCooldowns(tag.getList("AmbientCooldowns",Tag.TAG_COMPOUND), data.ambientCooldowns);
         for(Tag entry:tag.getList("Regions",Tag.TAG_COMPOUND)){CompoundTag n=(CompoundTag)entry;GlobalPos p=FamilyData.position(n,"Origin");if(p!=null)data.regions.add(new Delay(p,
-                n.getLong("Until"),n.getBoolean("Ambient")));}
+                n.getLong("Until")));}
         return data;
     }
 }

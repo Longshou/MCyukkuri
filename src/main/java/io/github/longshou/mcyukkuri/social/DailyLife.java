@@ -176,9 +176,9 @@ public final class DailyLife {
                 && !SettlementSeasons.confined(e);
     }
     /**
-     * The one "well and free" gate for leisure and wild cards: a weak body rests, and a calm mind with nothing pressing
+     * The one "well and free" gate for leisure: a weak body rests, and a calm mind with nothing pressing
      * (an own newborn awaiting its first meal or toilet within 12, a swaddle needing care, a comfort walk under way, a heat with its partner in sight)
-     * is what songs, exercise and cards need. The scans run only when a session is being admitted, never while one continues.
+     * is what songs and exercise need. The scans run only when a session is being admitted, never while one continues.
      */
     public static boolean wellAndFree(YukkuriEntity e, boolean continuing) {
         if (e.body().weak() || e.mind().unease() >= MindLife.UNEASY || e.leafSwaddle().needsCare() || e.woundComfort().active()) return false;

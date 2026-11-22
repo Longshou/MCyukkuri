@@ -13,7 +13,7 @@ public final class TravelRange {
     public static final int PATH_RANGE = 64;
     public static final int BABY_RADIUS = 3;
 
-    /** Singing, exercise and play cards start only this near the home: about half the adult stroll (20), so the song carries to the nest. */
+    /** Singing and exercise start only this near the home: about half the adult stroll (20), so the song carries to the nest. */
     public static final int LEISURE_RADIUS = 10;
     /** A parent of unweaned young strolls this far from them: three baby radii, inside the leisure radius, still in sight of the nest. */
     public static final int NURSE_RADIUS = 3 * BABY_RADIUS;

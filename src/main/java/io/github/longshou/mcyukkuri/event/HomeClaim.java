@@ -125,14 +125,14 @@ public final class HomeClaim {
     }
     /** A jump delays action decisions, not membership or site discovery. */
     private static boolean decisionReady(YukkuriEntity e) { return e.onGround(); }
-    private static boolean eligible(YukkuriEntity e, boolean housing) {
+    private static boolean eligible(YukkuriEntity e) {
         return e.isAlive() && !e.profile().houseBody() && !e.profile().dangerToYukkuri() && !e.profile().aquatic()
                 && (e.status().identity()==Identity.STRAY || e.status().identity()==Identity.WILD_FAMILY)
-                && WildEvents.availableForHome(e,housing);
+                && WildEvents.availableForHome(e);
     }
     private static List<YukkuriEntity> family(YukkuriEntity e) {
         var level=(ServerLevel)e.level(); var kin=FamilyData.get(level);
-        List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p,needsHome(e))
+        List<YukkuriEntity> found=level.getEntitiesOfClass(YukkuriEntity.class,e.getBoundingBox().inflate(8),p -> p!=e && eligible(p)
                 && (Bonds.careKin(e, p) || p.getUUID().equals(e.family().partner())) && WildEvents.recognizes(e,p)).stream()
                 .sorted(Comparator.comparingDouble(e::distanceToSqr)).limit(5).toList();
         List<YukkuriEntity> all=new ArrayList<>(); all.add(e); all.addAll(found); return all;
@@ -165,7 +165,7 @@ public final class HomeClaim {
     }
     /** Called from {@link WildEvents#discover} for an available wild adult; true when a claim started. */
     public static boolean discover(YukkuriEntity e) {
-        if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e,needsHome(e))) return false;
+        if (!(e.level() instanceof ServerLevel level) || !YukkuriConfig.HOME_CLAIMS.get() || !e.family().adult() || !eligible(e)) return false;
         Player player=level.getNearestPlayer(e,WITNESS);
         var data=HomeClaimData.get(level);
         if (data.cooling(e.getUUID(),level.getGameTime())) return false;
@@ -256,7 +256,7 @@ public final class HomeClaim {
     }
     /** Admin entry: nearest eligible wild family to {@code origin} claims a site near {@code origin}, skipping chance and cooldowns. */
     public static Claim startAt(ServerLevel level, BlockPos origin, Player player) {
-        var near=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(origin).inflate(32),p -> p.family().adult() && eligible(p,needsHome(p))).stream()
+        var near=level.getEntitiesOfClass(YukkuriEntity.class,new AABB(origin).inflate(32),p -> p.family().adult() && eligible(p)).stream()
                 .sorted(Comparator.comparingDouble(p -> p.blockPosition().distSqr(origin))).toList();
         for (YukkuriEntity e:near) {
             List<YukkuriEntity> members=family(e);
@@ -272,9 +272,7 @@ public final class HomeClaim {
         var data=HomeClaimData.get(level); long now=level.getGameTime();
         GlobalPos site=GlobalPos.of(level.dimension(),stand);
         if (!force && (data.regionBlocked(site,now) || members.stream().anyMatch(m -> data.cooling(m.getUUID(),now)))) return null;
-        boolean housing=needsHome(members.getFirst());
-        if (members.stream().anyMatch(m -> !eligible(m,housing))) return null;
-        if (housing) WildEvents.yieldLeisureToHome(level,members);
+        if (members.stream().anyMatch(m -> !eligible(m))) return null;
         List<UUID> ids=members.stream().map(YukkuriEntity::getUUID).toList();
         Claim c=data.start(ids,site,player==null?null:player.getUUID(),occupation);
         if (c==null) return null;
