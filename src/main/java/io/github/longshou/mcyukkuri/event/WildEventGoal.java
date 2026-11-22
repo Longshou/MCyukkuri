@@ -29,7 +29,7 @@ public final class WildEventGoal extends Goal {
     @Override public void tick() {
         var level=(ServerLevel)entity.level();var scene=WildEventData.get(level).controlling(entity.getUUID());if(scene==null)return;
         if(scene.kind==WildEventData.Kind.EXPEDITION){Expedition.move(entity,scene);return;}
-        if(scene.kind==WildEventData.Kind.CARD){WildCards.move(entity,scene);return;}
+        if(scene.kind==WildEventData.Kind.CARD){GroupCards.move(entity,scene);return;}
         if(scene.kind==WildEventData.Kind.BADGE_ARC){BadgeArcs.move(entity,scene);return;}
         Entity target=scene.player==null?null:level.getPlayerByUUID(scene.player);
         if(target==null && scene.members.size()>1)target=level.getEntity(scene.members.getFirst());

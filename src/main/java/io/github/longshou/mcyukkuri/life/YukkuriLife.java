@@ -84,7 +84,6 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyLife;
-import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
@@ -574,8 +573,8 @@ public final class YukkuriLife {
     public long braidMealStart() { return meal.braidStart(); }
     public boolean braidHasFood() { return meal.braidHasFood(); }
     public BlockPos braidMealBin() { return meal.braidMealBin(); }
-    /** Ticks this body has waited its turn at a contested meal; 0 when it is not heading for food. */
-    public int queuedTicks() { return task == Task.FOOD ? queueTicks : 0; }
+    /** This body is heading for a meal now (a rival at the same portion may have to wait for it). */
+    boolean contestsFood() { return task == Task.FOOD; }
     public boolean hasAccessory(){ return accessory.hasAccessory(); }
     /** The hat is simply not worn (a young who has none yet): no token, nothing to be returned. */
     public void removeAccessory(){ accessory.removeAccessory("removed"); }
@@ -911,7 +910,7 @@ public final class YukkuriLife {
     public void eatAtStand() {
         if (entity.tickCount % 10 != 0 || !canEat() || !EventHooks.canEntityGrief(level(), entity)) return;
         var items = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(.5), item ->
-                seeksFood(item.getItem()) && ItemContact.reaches(entity,item) && WildCards.mayTakeFood(entity,item));
+                seeksFood(item.getItem()) && ItemContact.reaches(entity,item));
         var food = items.stream().min(Comparator.comparingInt((ItemEntity it) -> FoodTaste.rank(it.getItem()))
                 .thenComparingDouble(entity::distanceToSqr)).orElse(null);
         if (food != null) {
@@ -941,7 +940,6 @@ public final class YukkuriLife {
     public void interrupt() {
         accountEnvironmentalWake();
         stopFatigueRest();
-        WildCards.mealInterrupted(entity);
         temperature.stop();
         entity.dailyLife().stop();
         if (!meal.releaseForInterrupt()) return;
@@ -2004,14 +2002,22 @@ public final class YukkuriLife {
             if (foodRoute == null) entity.getLookControl().setLookAt(targetFood, 20, 20);
             else if (!braidAtFood(groundFoodContact(targetFood))) return;
             if (foodRoute != null || ItemContact.reaches(entity, targetFood)) {
-                if (!WildCards.mayTakeFood(entity,targetFood)) { entity.getNavigation().stop(); return; }
+                if (meal.inspectsStrangeFood(targetFood)) { pursuitTicks--; return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
                 int wait=nutrition<15?0:queueBudget;
-                // First come eats: wait only behind a rival that has queued longer, never behind one that arrived later.
-                boolean behindRival = rivals.stream().anyMatch(rival -> rival.life().queuedTicks() > queueTicks);
+                // Only a stack too small for everyone makes an order: a hungrier rival (25 or more) goes first, close ones split by id.
+                // The one behind spends its waiting budget (20..220 ticks, self-control) and then goes, so it never waits for good.
+                boolean behindRival = targetFood.getItem().getCount() <= rivals.size() && rivals.stream().anyMatch(rival ->
+                        rival.life().contestsFood() && FoodOrder.yieldsTo(nutrition, entity.getUUID(), rival.life().nutrition(), rival.getUUID()));
                 if (behindRival && queueTicks++ < wait) {
-                    entity.getNavigation().stop(); if (queueTicks == 1) {personality.decided("wait_food");entity.showReaction("neutral", "wait_turn", wait);} return;
+                    pursuitTicks--; entity.getNavigation().stop();
+                    if (queueTicks == 1) {
+                        personality.decided("wait_food"); entity.showReaction("neutral", "wait_turn", wait);
+                        GameplayLog.event(entity, "meal", "food_order wait_behind rivals={} stack={} nutrition={} budget={}",
+                                rivals.size(), targetFood.getItem().getCount(), nutrition, wait);
+                    }
+                    return;
                 }
                 if (waitsForServing(groundFoodContact(targetFood))) return;
                 if (takeGroundFood(targetFood, foodRoute, foodChoice == Choice.BREAK ? entity.pet().owner() : null)) {
@@ -2141,8 +2147,7 @@ public final class YukkuriLife {
     }
 
     private boolean handGroundFood(ItemEntity food, Predicate<ItemStack> receiver, String holder) {
-        if (!food.isAlive() || food.hasPickUpDelay() || !EventHooks.canEntityGrief(level(), entity)
-                || !WildCards.mayTakeFood(entity, food)) return false;
+        if (!food.isAlive() || food.hasPickUpDelay() || !EventHooks.canEntityGrief(level(), entity)) return false;
         var one = food.getItem().copyWithCount(1);
         if (!receiver.test(one)) return false;
         var remaining = food.getItem().copy();
@@ -2150,7 +2155,6 @@ public final class YukkuriLife {
         if (remaining.isEmpty()) food.discard(); else food.setItem(remaining);
         GameplayLog.event(entity, "meal", "pickup item={} count=1 source={} remaining={} holder={}",
                 one.getItem(), food.getUUID(), remaining.getCount(), holder);
-        WildCards.foodTaken(entity, food);
         return true;
     }
     private boolean clearContact(BlockPos pos) {

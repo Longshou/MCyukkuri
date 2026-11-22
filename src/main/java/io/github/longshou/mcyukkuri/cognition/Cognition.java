@@ -20,10 +20,4 @@ public final class Cognition {
         return Double.isFinite(roll) && roll >= 0 && roll < 1
                 && roll < student.life().personality().learningProbability(student.mind().stressView());
     }
-
-    /** A search attempt only chooses whether this actual target was identified; it never creates food. */
-    public static boolean forestFindSucceeds(YukkuriEntity entity, double roll) {
-        return Double.isFinite(roll) && roll >= 0 && roll < 1
-                && roll < Math.clamp(.35 + .006 * intelligence(entity), .35, .95);
-    }
 }

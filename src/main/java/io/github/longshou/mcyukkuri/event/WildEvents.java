@@ -174,8 +174,7 @@ public final class WildEvents {
             if(!kin.isEmpty()&&begin(Kind.ADOPTION,e,kin,player)!=null)return;
         }
         if(GroupCards.discover(e,peers))return;
-        if(Expedition.discover(e,peers)!=null)return;
-        WildCards.discover(e,peers);
+        Expedition.discover(e,peers);
     }
     public static void tick(ServerTickEvent.Post event) {
         var data=WildEventData.get(event.getServer().overworld());
@@ -234,7 +233,7 @@ public final class WildEvents {
             return;
         }
         if(s.kind==Kind.EXPEDITION){Expedition.advance(level,s,loaded);return;}
-        if(s.kind==Kind.CARD){WildCards.advance(level,s,loaded);return;}
+        if(s.kind==Kind.CARD){GroupCards.advance(level,s,loaded);return;}
         if(s.kind==Kind.ABANDONMENT) {
             var e=loaded.getFirst();boolean attached=e.life().personality().trust(s.player)>=BondLevels.TRUST_FAMILIAR;
             if(s.phaseTicks==1)e.showReaction(attached?"surprise":"happy",attached?"search_family":"hello",70);
@@ -294,7 +293,6 @@ public final class WildEvents {
     }
     /** Called only at the existing successful food swallow, before its feeder UUID is cleared. */
     public static void fed(YukkuriEntity e, UUID player) {
-        WildCards.swallowed(e);
         if(player==null || !(e.level() instanceof ServerLevel level))return;
         var data=WildEventData.get(level);
         Scene s=data.forMember(e.getUUID(),scene -> pleading(scene,e) && player.equals(scene.player));

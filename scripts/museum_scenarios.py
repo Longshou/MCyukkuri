@@ -1714,6 +1714,8 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
     '另一方好感不低于 -10，回应问候，双方好感回升；若对方不领情则只转头看着、保持距离。每次吵架至多试一次。'
     '南边同样的抢食发生在互相敌对（好感 -60）的两只之间：有吵架记录，但谁也不会走近。约 2 分钟内发生；一次没看到可在 M 菜单重开',
     '约 1–2 分钟', [
+        # North pen (6x3 inside, one gap on the far north side): the pair cannot wander out of sight of each other before one makes up.
+        box(-5, 0, -10, 2, 0, -6, 'minecraft:oak_fence'), box(-4, 0, -9, 1, 0, -7, 'minecraft:air'), block(-1, 0, -10, 'minecraft:air'),
         yk('reimu', -3, -8, 'claimer', uuid=_QUARREL['claimer'], label='饿·自制极低·友善', nutrition=30, self_control=5, friendliness=85,
            attachment=70, social_wait=0, yaw=-90, lead=True),
         item('minecraft:apple', 1, -1, -8, name='apple_north'),
@@ -1730,6 +1732,24 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
     ], env=DAY, vantage=(0, 16), note='待验证：新场景，尚未在游戏里实测。',
     reads=[('读北边饿的', f'yukkuri status {sel("claimer")} raw'), ('读北边吃饱的', f'yukkuri status {sel("rival")} raw'),
            ('读南边饿的', f'yukkuri status {sel("foe_claimer")} raw'), ('读南边吃饱的', f'yukkuri status {sel("foe_rival")} raw')])
+
+# Three free strays on one street, one stack of two apples between them (smaller than the eaters, so the hunger order applies).
+# West: a timid, dull stray (long inspect pause). East: a bold, clever one (short pause). South: a starving one (below nutrition 30:
+# no pause at all; the hungriest, so the other two let it go first). Nutrition 40 keeps the two above the no-pause line.
+_STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
+add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
+    '街中间地上一小堆两个苹果，三只流浪的油围着它。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
+    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 20，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 25 以上），另两只若同时到了苹果旁就让它先取，站着等（头顶中性脸）。'
+    '苹果只有两个、嘴有三张：等的那只等完自己的耐性（20–220 tick）后才会去拿，拿不到就走开，不会一直站着。约 10 秒内发生；一次没看到可在 M 菜单重开',
+    '约 10–40 秒', [
+        item('minecraft:apple', 2, 0, 0, name='strange_apple'),
+        street_stray('stray_strange_food', 'reimu', -4, 3, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
+        street_stray('stray_strange_food', 'marisa', 4, 3, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
+        street_stray('stray_strange_food', 'reimu', 0, 5, 'starving', nutrition=20, boldness=50, intelligence=50, label='饿极·营养20'),
+    ], env=DAY, spot='street', vantage=(0, 12),
+    reads=[('读胆小的', f'yukkuri status {sel("timid")} raw'), ('读胆大的', f'yukkuri status {sel("bold")} raw'),
+           ('读饿极的', f'yukkuri status {sel("starving")} raw')],
+    note='待验证：新场景，尚未冒烟、尚未在游戏里实测。')
 
 # Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
 # child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
@@ -7720,7 +7740,7 @@ TOPICS = {
     'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1',
     'family_absence': 'W9',
     'wall_tuck': 'M5',
-    'stray_boxes': 'M5', 'stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
+    'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
@@ -8508,6 +8528,15 @@ _smoke('quarrel_makeup', 2400, [
     rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*reconcile answered peer=(?:{_qn[0]}|{_qn[1]}) accepted=true\b',
     rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*quarrel recorded peer=(?:{_qs[0]}|{_qs[1]})\b',
 ], forbid=[rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*reconcile (?:approach|answered)\b'])
+# The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 20) not at all; the
+# starving one eats first, and at least one of the others waits behind it (the stack of two is smaller than the three eaters).
+_strange = {name: _uuid_text('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
+_smoke('stray_strange_food', 900, [
+    rf'\[meal\][^\n]*uuid={_strange["timid"]} [^\n]*strange_food_pause item=minecraft:apple ticks=(?:[7-9]\d|80) ',
+    rf'\[meal\][^\n]*uuid={_strange["bold"]} [^\n]*strange_food_pause item=minecraft:apple ticks=(?:[89]|1\d) ',
+    rf'\[meal\][^\n]*uuid={_strange["starving"]} [^\n]*swallowed item=minecraft:apple',
+    rf'\[meal\][^\n]*uuid=(?:{_strange["timid"]}|{_strange["bold"]}) [^\n]*food_order wait_behind ',
+], forbid=[rf'\[meal\][^\n]*uuid={_strange["starving"]} [^\n]*strange_food_pause'])
 # Marisa keeps the tired Reimu company; the unknown timid Chen gives none.
 _company_friend = _uuid_text('company_visit', 'friend')
 _smoke('company_visit', 900, [

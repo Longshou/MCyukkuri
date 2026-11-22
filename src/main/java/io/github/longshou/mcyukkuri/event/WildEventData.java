@@ -41,8 +41,7 @@ public final class WildEventData extends SavedData {
         public final String card;
         public final GlobalPos origin;
         public final List<UUID> members;
-        public final Set<UUID> fed = new HashSet<>();
-        public UUID player, target;
+        public UUID player;
         public GlobalPos destination;
         public transient BegBite begging;
         public final EventWatchdog.State supervision = new EventWatchdog.State();
@@ -182,9 +181,9 @@ public final class WildEventData extends SavedData {
             s.supervision.save(n);
             FamilyData.putPosition(n,"Origin",s.origin);n.putString("Phase",s.phase.name());n.putInt("Ticks",s.ticks);
             n.putInt("PhaseTicks",s.phaseTicks);n.putInt("Responses",s.responses);n.putInt("SourceCount",s.sourceCount);n.putString("Result",s.result);
-            if(s.player!=null)n.putUUID("Player",s.player);if(s.target!=null)n.putUUID("Target",s.target);
+            if(s.player!=null)n.putUUID("Player",s.player);
             FamilyData.putPosition(n,"Destination",s.destination);
-            ListTag members=new ListTag();for(UUID id:s.members){CompoundTag m=new CompoundTag();m.putUUID("Id",id);m.putBoolean("Fed",s.fed.contains(id));members.add(m);}
+            ListTag members=new ListTag();for(UUID id:s.members){CompoundTag m=new CompoundTag();m.putUUID("Id",id);members.add(m);}
             n.put("Members",members);list.add(n);
         }
         tag.put("Scenes",list);
@@ -215,14 +214,14 @@ public final class WildEventData extends SavedData {
             CompoundTag n=(CompoundTag)entry; GlobalPos origin=FamilyData.position(n,"Origin");
             if(!n.hasUUID("Id")||origin==null)continue;
             try {
-                List<UUID> ids=new ArrayList<>();Set<UUID> fed=new HashSet<>();
-                for(Tag member:n.getList("Members",Tag.TAG_COMPOUND)){CompoundTag m=(CompoundTag)member;if(m.hasUUID("Id")){UUID id=m.getUUID("Id");ids.add(id);if(m.getBoolean("Fed"))fed.add(id);}}
+                List<UUID> ids=new ArrayList<>();
+                for(Tag member:n.getList("Members",Tag.TAG_COMPOUND)){CompoundTag m=(CompoundTag)member;if(m.hasUUID("Id"))ids.add(m.getUUID("Id"));}
                 if(ids.isEmpty()||ids.size()>6||new HashSet<>(ids).size()!=ids.size())continue;
                 Scene s=new Scene(n.getUUID("Id"),Kind.valueOf(n.getString("Kind")),n.getString("Card"),origin,ids);
                 s.supervision.load(n);
                 s.phase=Phase.valueOf(n.getString("Phase"));s.ticks=Math.clamp(n.getInt("Ticks"),0,2400);s.phaseTicks=Math.clamp(n.getInt("PhaseTicks"),0,2400);
-                s.responses=Math.max(0,n.getInt("Responses"));s.sourceCount=Math.max(0,n.getInt("SourceCount"));s.result=n.getString("Result");s.fed.addAll(fed);
-                s.player=n.hasUUID("Player")?n.getUUID("Player"):null;s.target=n.hasUUID("Target")?n.getUUID("Target"):null;
+                s.responses=Math.max(0,n.getInt("Responses"));s.sourceCount=Math.max(0,n.getInt("SourceCount"));s.result=n.getString("Result");
+                s.player=n.hasUUID("Player")?n.getUUID("Player"):null;
                 s.destination=FamilyData.position(n,"Destination");
                 data.scenes.putIfAbsent(s.id,s); // Retain all old sessions even when their members overlap.
             } catch(IllegalArgumentException ignored) { /* Unknown kinds must not fabricate encounters. */ }

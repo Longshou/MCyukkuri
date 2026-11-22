@@ -37,6 +37,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -201,6 +202,40 @@ final class LifeMeal {
             GameplayLog.event(o.entity(), "meal", "food_complain item={} grade={} verdict=REFUSE nutrition={} pickiness={} taste={} giver={}",
                     item, FoodTaste.grade(food).id(), o.nutrition(), o.pickiness(), tasteFor(giver), giver);
         }
+        return true;
+    }
+
+    /** Item kinds this free body has already looked over (unsaved, a reload repeats one short pause). */
+    private final LinkedHashSet<Item> inspected = new LinkedHashSet<>();
+    private static final int INSPECTED_KINDS = 16;
+    private Item inspecting;
+    private int inspectTicks;
+
+    /**
+     * A free individual (stray or wild) at a ground portion of a kind it has not yet looked over pauses, looking at it, for
+     * 8..80 ticks (timid ones longer, clever ones shorter), then eats normally. A body below nutrition 30 skips it. The kind is
+     * remembered only when the pause ends, so an interruption cannot loop, and nothing here ever blocks the meal for good.
+     */
+    boolean inspectsStrangeFood(ItemEntity food) {
+        Item kind = food.getItem().getItem();
+        if (!o.entity().status().identity().free() || o.nutrition() < FoodOrder.NO_INSPECTION_BELOW || inspected.contains(kind)) return false;
+        var traits = o.personality().temperament();
+        int pause = FoodOrder.inspectTicks(traits.timid(), traits.clever());
+        if (inspecting != kind) {
+            inspecting = kind;
+            inspectTicks = 0;
+            o.entity().showReaction("neutral", "", pause);
+            GameplayLog.event(o.entity(), "meal", "strange_food_pause item={} ticks={} nutrition={} timid={} clever={}",
+                    kind, pause, o.nutrition(), traits.timid(), traits.clever());
+        }
+        if (++inspectTicks > pause) {
+            if (inspected.size() == INSPECTED_KINDS) inspected.removeFirst();
+            inspected.add(kind);
+            inspecting = null;
+            return false;
+        }
+        o.entity().getNavigation().stop();
+        o.entity().getLookControl().setLookAt(food, 20, 20);
         return true;
     }
 

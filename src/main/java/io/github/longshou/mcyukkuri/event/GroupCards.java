@@ -34,7 +34,6 @@ import net.neoforged.neoforge.event.EventHooks;
 public final class GroupCards {
     public static final String MONOPOLY = "nest-monopoly", RAID = "bandit-raid", COLLAPSE = "burrow-collapse";
     private static final String BAR = "ShelterBarredUntil";
-    public static boolean handles(String card) { return card.equals(MONOPOLY) || card.equals(RAID) || card.equals(COLLAPSE); }
     public static boolean discover(YukkuriEntity e, List<YukkuriEntity> peers) {
         if (!(e.level() instanceof ServerLevel level)) return false;
         return bandits(e, peers, level) || monopoly(e, peers, level);
