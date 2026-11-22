@@ -7970,7 +7970,15 @@ _smoke(_child_ball, 3200, [
     rf'\[social\][^\n]*uuid={_child_timid} [^\n]*child offer response=FLINCH ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*reaction=played target={_child_bold} ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*ball_recovered ',
-], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll|approach_timeout|no_stand)'])
+], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll)'])
+
+# no_stand and approach_timeout are honest retries (a short pause follows); a real loop would repeat them every pause (200 ticks, 16 in the 3200-tick window).
+def _child_retry_bound(window):
+    n = len(re.findall(rf'\[child\][^
+]*uuid={_child_log} [^
+]*end reason=(?:approach_timeout|no_stand|target_busy)', window))
+    return f'the child retried {n} times (more than 12): a retry loop' if n > 12 else None
+next(s for s in S if s.id == _child_ball).smoke.update(verify=_child_retry_bound)
 
 # The child picks one of the three teases the scene promises (a crumb, a poke or a chase) at the near bold stray; the stray answers by
 # its own values and the child answers that, whatever the roll was.

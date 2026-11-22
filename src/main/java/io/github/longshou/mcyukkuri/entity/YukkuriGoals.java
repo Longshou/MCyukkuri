@@ -345,7 +345,8 @@ final class YukkuriGoals {
     private final class PlaygroundGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.playLife().active()); }
         PlaygroundGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK,Flag.JUMP));}
-        @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued() && owner.playLife().canUse();}
+        @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued()
+                && io.github.longshou.mcyukkuri.human.ChildPlay.offerTo(owner) == null && owner.playLife().canUse();}   // a child's offer is answered first (SocialGoal), free play waits
         @Override public boolean canContinueToUse(){return owner.playLife().canContinue();}
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.playLife().tickGoal();}
