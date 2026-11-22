@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 冒烟修复：帽船存粮喂不到孩子、超载预警亲油下不了船 | `.worktrees/wp-fix-hat` | aquatic/Care, Provision, Ferry exit, scripts/museum_scenarios.py hat scenes |
 | 冒烟修复：情绪过程不再打断救援、驱逐与央求 | `.worktrees/wp-fix-course-preempt` | mind/EmotionCourse goal tiers, social/MoldExile, settlement colony exile visit, presentation idle pose |
+| 冒烟修复：场景布置与校验 | `.worktrees/wp-fix-scenes` | scripts/museum_scenarios.py (several scenes), settlement/ForageGoal log rate |
 
 
 
