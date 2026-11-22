@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| PD-13/PD-29 每局演出完整；亲油下岸不再循环；重载检查不中断整批 | `.worktrees/wp-hat-chain` | scenario growth command, aquatic Ferry/Hop exit, PlacedHatEntity Riders, scripts/smoke_museum.py reload check, hat scenes |
 
 
 
