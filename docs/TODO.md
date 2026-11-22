@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | WT-06/PT-03：虚弱步态、捕食种泪水与速度、掩体与食性 | `.worktrees/wp-predator-hunt` | predator/PredatorLife, Gait, skills, predator/PreySight(new), predator tear textures |
-| DN-06：两格门口斜着出、受击台词与反应一致 | `.worktrees/wp-dn06-door` | home/HomeClaim, life/YukkuriDamage, navigation DoorGap/GroundDoorway |
 | BD-22 吊钩顶棚、照护员病号（场景布置） | `.worktrees/wp-scene-fixes` | scripts/museum_scenarios.py hook_kin_rescue, treatment_care |
 | PD-13 拆场景：超载取舍演出、超载预警、帽船存粮 | `.worktrees/wp-pd13-tradeoff` | aquatic/AquaticLife overload, aquatic/LeaveBehind(new), MoldVerdict, scripts/museum_scenarios.py hat_crowd + 2 new scenes |
 
