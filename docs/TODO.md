@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 表情优先级：一张统一的先后表 | `.worktrees/wp-face-precedence` | entity/presentation/PresentationArbiter |
 
 
 
