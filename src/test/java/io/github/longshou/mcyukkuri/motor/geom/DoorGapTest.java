@@ -49,4 +49,14 @@ class DoorGapTest {
         assertEquals(1, DoorGap.fit(1, .8, new ArrayList<>(leaves)).lane(1));
         assertNull(DoorGap.fit(1, .82, new ArrayList<>(leaves)));
     }
+
+    @Test void twoWideOpeningOffersTheFreeCellBesideTheLeaf() {
+        var solids = new ArrayList<>(List.of(new DoorGap.Span(-1, 0), new DoorGap.Span(0, 3/16.), new DoorGap.Span(2, 3)));
+        var gap = DoorGap.fit(.5, .3, solids, 1.5);
+        assertEquals(3/16. + .3, gap.low(), 1e-9);
+        assertEquals(1.7, gap.high(), 1e-9);
+        assertEquals(.5, gap.lane(.5), 1e-9);
+        // the one-cell window cannot reach past the node's own cell
+        assertTrue(DoorGap.fit(.5, .3, new ArrayList<>(solids)).high() <= 1.0);
+    }
 }

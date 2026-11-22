@@ -20,7 +20,7 @@ record GroundDoorway(boolean acrossX, DoorGap gap, double entry, double exit) {
             if (!(state.getBlock() instanceof DoorBlock) || !state.getValue(DoorBlock.OPEN)) continue;
             boolean acrossX = state.getValue(DoorBlock.FACING).getAxis() == Direction.Axis.Z;
             double lateral = (acrossX ? x : z) + cells * .5, along = acrossX ? pos.getZ() : pos.getX();
-            double radius = body.getBbWidth() * .5, span = radius + .5;
+            double radius = body.getBbWidth() * .5, span = radius + 1.5;
             double bottom = y + 1e-7, top = y + body.getBbHeight() - 1e-7;
             var slice = acrossX ? new AABB(lateral-span, bottom, along, lateral+span, top, along+1)
                     : new AABB(along, bottom, lateral-span, along+1, top, lateral+span);
@@ -29,7 +29,7 @@ record GroundDoorway(boolean acrossX, DoorGap gap, double entry, double exit) {
                 for (var box : shape.toAabbs())
                     if (box.intersects(slice)) solids.add(acrossX ? new DoorGap.Span(box.minX, box.maxX)
                             : new DoorGap.Span(box.minZ, box.maxZ));
-            var gap = DoorGap.fit(lateral, radius, solids);
+            var gap = DoorGap.fit(lateral, radius, solids, 1.5);
             return gap == null ? null : new GroundDoorway(acrossX, gap, along-radius, along+1+radius);
         }
         return null;

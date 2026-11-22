@@ -11,8 +11,13 @@ public record DoorGap(double low, double high) {
 
     /** Pick a clear lane within half a grid step of the node, accounting for both sides of the footprint. */
     public static DoorGap fit(double node, double radius, List<Span> solids) {
+        return fit(node, radius, solids, .5);
+    }
+
+    /** The lane window reaches {@code reach} either side of the node, so a free neighbour cell of a wide opening is offered. */
+    public static DoorGap fit(double node, double radius, List<Span> solids, double reach) {
         solids.sort(Comparator.comparingDouble(Span::min));
-        double low = node - .5, limit = node + .5;
+        double low = node - reach, limit = node + reach;
         DoorGap best = null;
         for (var solid : solids) {
             best = nearer(best, low, Math.min(limit, solid.min - radius), node);

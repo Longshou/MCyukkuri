@@ -98,11 +98,12 @@ final class YukkuriDamage {
                     GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
                 owner.settlement().attackedBy(source,false);
-                if(source.getEntity() instanceof Player attackerPlayer)HomeClaim.attacked(owner,attackerPlayer);
                 owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
             }
             if(physicalHit && kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
                 owner.status().reactions().threat().struck(source, result.loss(), kind, "hurt");
+            // After the stance exists: the claim follows the reaction chosen for this blow.
+            if(notify&&owner.isAlive()&&source.getEntity() instanceof Player attackerPlayer)HomeClaim.attacked(owner,attackerPlayer);
             return result;
         } finally {
             current=previous;

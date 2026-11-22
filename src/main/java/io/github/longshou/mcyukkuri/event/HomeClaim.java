@@ -579,6 +579,7 @@ public final class HomeClaim {
     /** A player hit a claimant (called from {@code YukkuriEntity.hurt}). */
     public static void attacked(YukkuriEntity e, Player player) {
         e.homeTerritory().offended(player);
+        if (e.status().reactions().threat().fightingBack()) return; // it holds its home and fights; a later flee/freeze/plea hit drives it off
         Claim c=responsiveClaim(e);
         if (responsive(c)) driveOff((ServerLevel)e.level(),c,player,e);
     }

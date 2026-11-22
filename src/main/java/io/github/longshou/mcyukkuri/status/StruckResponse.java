@@ -33,6 +33,7 @@ final class StruckResponse implements MotorOwner {
         return stance != null && body.level().getGameTime() < until && actor.isAlive() && actor.level() == body.level();
     }
 
+    boolean fighting() { return active() && stance == StruckStance.PUFF_FIGHT; }
     boolean leadingFrom(LivingEntity danger) { return stance == StruckStance.LEAD_AWAY && actor == danger && active(); }
 
     private boolean exitOpen(LivingEntity danger) {

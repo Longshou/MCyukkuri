@@ -194,6 +194,7 @@ public final class Reactions {
             response = new StruckResponse(y);
         }
         public boolean holdingStance() { return response.active(); }
+        public boolean fightingBack() { return response.fighting(); }
         public boolean seesThreat() { return seen != null && seen.isAlive(); }
         public YukkuriAction stanceAction() { return response.action(); }
         public FlightPlanner flight() { return flight; }
