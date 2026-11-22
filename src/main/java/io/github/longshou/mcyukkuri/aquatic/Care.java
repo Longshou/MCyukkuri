@@ -69,14 +69,14 @@ final class Care implements Intent {
                 && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
     }
 
-    /** A hungry head rider she can feed only once it sits on the floor she stands on (the head is out of mouth reach): the cabin has
-     *  a free place, or the brim does. */
+    /** A hungry head rider is out of mouth reach and a brim rider out of her floor's reach: she can feed it only once the cabin has a
+     *  free place for it (a sibling that leaves it, a hull that grew room). */
     static boolean canLowerToFeed(YukkuriEntity parent, YukkuriEntity child, PlacedHatEntity hat) {
         return child.getVehicle() == parent && ParentCarry.hold(parent, child) == ParentCarry.Hold.HEAD
-                && (!hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty() || !hat.places(child, SeatTarget.Kind.BRIM, 1).isEmpty());
+                && !hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty();
     }
 
-    /** Ordinary parental placement: lift a brim child to shelter, lower a head rider onto her hull's floor to feed it, or lower a head
+    /** Ordinary parental placement: lift a brim child to shelter, lower a head rider into a free cabin place to feed it, or lower a head
      *  rider onto supported ground. */
     static final class Transfer implements Intent {
         private final YukkuriEntity parent, child;
@@ -90,7 +90,7 @@ final class Care implements Intent {
             this.child = child;
             this.hat = hat;
             lowering = hat != null && child.getVehicle() == parent;
-            release = lowering ? Release.offHead(child, hat) : new Release(child, hat);
+            release = lowering ? Release.toCabin(child, hat) : new Release(child, hat);
             started = parent.level().getGameTime();
         }
 
@@ -101,7 +101,7 @@ final class Care implements Intent {
         @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
         private List<Supplier<Step>> derive() {
             if (lowering) {
-                // the braid takes the head rider down (Grab from the head), then sets it on the cabin floor or the brim
+                // the braid takes the head rider down (Grab from the head), then sets it on the cabin floor
                 var steps = new ArrayList<>(BraidFetch.lift(parent, child, hat));
                 steps.add(() -> new Step.Do(release));
                 return steps;

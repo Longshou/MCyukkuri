@@ -79,7 +79,7 @@ public final class Release implements Action, MotorOwner {
     private Walk approach;
     private final SurfaceHost destination;
     private SeatTarget seat;
-    private boolean released, offHead;
+    private boolean released, cabinOnly;
     private BlockPos nest;
     private Vec3 endpoint, stand;
     private String placement;
@@ -100,16 +100,16 @@ public final class Release implements Action, MotorOwner {
 
     public Release(YukkuriEntity child) { this(child, null); }
 
-    /** A set-down onto {@code host} that never keeps a head rider on the head: the cabin floor, else the brim. */
-    public static Release offHead(YukkuriEntity child, SurfaceHost host) {
+    /** A set-down onto {@code host}'s cabin floor only (a head rider lowered to the floor its parent can feed it on). */
+    public static Release toCabin(YukkuriEntity child, SurfaceHost host) {
         var release = new Release(child, host);
-        release.offHead = true;
+        release.cabinOnly = true;
         return release;
     }
 
     private List<SeatTarget> places() {
         var places = destination.places(child, Integer.MAX_VALUE);
-        return offHead ? places.stream().filter(p -> p.kind() != SeatTarget.Kind.HEAD).toList() : places;
+        return cabinOnly ? places.stream().filter(p -> p.kind() == SeatTarget.Kind.CABIN).toList() : places;
     }
     public Release(YukkuriEntity child, SurfaceHost destination) {
         this.child = child;
