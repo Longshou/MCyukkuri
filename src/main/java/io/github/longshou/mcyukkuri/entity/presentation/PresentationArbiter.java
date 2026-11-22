@@ -62,8 +62,7 @@ public final class PresentationArbiter {
         result.publish();
         publishMoment(id);
         var e = state.owner();
-        String leakFace = e.mind().leakFace();
-        state.expression(leakFace.isEmpty() ? face(id) : leakFace);
+        state.expression(face(id));
         if (e.level().isClientSide) return;
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
@@ -103,7 +102,7 @@ public final class PresentationArbiter {
             MomentEffects.start(e, id, frame);
     }
 
-    /** Physical operation and active performance precede the ordinary expression rules. */
+    /** Walks {@link FacePrecedence} top to bottom: the first source with a face wins. */
     private String face(String source){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){
@@ -131,7 +130,14 @@ public final class PresentationArbiter {
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
         if(state.reactionTicks()>0&&!state.reactionExpression().isEmpty())return state.reactionExpression();
         if(e.body().dying())return "blank_cry";
+        String leakFace=e.mind().leakFace();
+        if(!leakFace.isEmpty())return leakFace;
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        // The published emotion row and the last frame of a flight precede the drain, weakness and resting faces.
+        if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
+            String mood = e.mind().face("neutral");
+            if (!mood.equals("neutral")) return mood;
+        }
         // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
         if(e.aftermathDrain()>0)switch(e.getBehaviorId()) {
             case Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,
@@ -141,11 +147,6 @@ public final class PresentationArbiter {
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         if (!e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING)
             return e.life().energy() <= 25 ? "sleepy" : "teary";
-        // The published emotion row and the last frame of a flight both precede resting faces.
-        if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
-            String mood = e.mind().face("neutral");
-            if (!mood.equals("neutral")) return mood;
-        }
         switch(e.getBehaviorId()){
             case Behaviors.TOILET,Behaviors.GROUND_TOILET,Behaviors.BOAT_TOILET,Behaviors.TOILET_ACCIDENT,
                  Behaviors.FIRST_TOILET_ASSIST,Behaviors.FIRST_TOILET_WAIT,Behaviors.FIRST_TOILET_STIMULATED->{clip=e.getBehaviorId();start=e.getBehaviorStartTick();}
