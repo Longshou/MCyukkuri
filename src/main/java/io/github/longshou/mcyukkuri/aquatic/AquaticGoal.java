@@ -27,6 +27,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +153,9 @@ final class AquaticGoal extends Goal {
     private void leftAshore(Map<UUID, String> young) {
         if (left == null) left = new HashMap<>();
         long until = body.level().getGameTime() + LEFT_TICKS;
+        // the biggest young her full hull leaves on the bank (not already left this spell) gets her look from the hull
+        AquaticLife.young(body).stream().filter(y -> "hull_full".equals(young.get(y.getUUID())) && !leftBehind(y))
+                .max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(y -> LeaveBehind.leftAshore(body, y));
         for (var id : young.keySet()) if (left.size() < LEFT_MAX || left.containsKey(id)) left.put(id, until);
     }
 

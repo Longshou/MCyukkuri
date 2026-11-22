@@ -6371,9 +6371,12 @@ def _overload_tradeoff(window):
             return f'{parent}: must cut exactly one child at the one capsize'
         if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + child, window[capsized.start() + drawn.end() + cut.end():]):
             return f'{parent}: the dropped child was regathered after the cut'
-        siblings = re.findall(r'overload sibling cries sibling=' + child + r'|overload child missed departure sibling=' + child, window)
+        siblings = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*overload (?:sibling cries|child missed departure) sibling=' + child, window)
         if not siblings:
             return f'{parent}: no sibling reacted to the dropped child (neither cried nor logged as out of sight)'
+        # the user's order: her words, the child's answer and the siblings' cry, then the cut
+        if any(int(at) >= int(cut[1]) for at in siblings):
+            return f'{parent}: the siblings reacted only at or after the cut'
     return None
 
 
@@ -6414,6 +6417,10 @@ def _load_warning_choice(window):
             return f'{parent}: turned for the bank at the load warning but never landed the family'
         if dismissals:
             return f'{parent}: dismissed a young without an overload capsize'
+        # the trade-off seen without a capsize: the young her full hull left on the bank gets her look back from the hull
+        left = re.search(r'\[aquatic\][^\n]*uuid=' + owner + r' [^\n]* set_out left_ashore=\{[^}]*=hull_full', window)
+        if left and not re.search(r'\[family\][^\n]*uuid=' + owner + r' [^\n]* overload beat start child=\S+ verdict=KEEP ferry=true', window[left.end():]):
+            return f'{parent}: set out leaving a young ashore for a full hull without looking back at it'
     return None
 
 
@@ -6896,7 +6903,7 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
       *_overload_family('hat_crowd', 'cold', 3, False, '依恋15·友善20', **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
-     note='先看翻船后亲油的表情和台词，再看被舍弃的孩子的回应与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start → parent dismissed child → overload severed（answer）→ overload sibling cries。'
+     note='先看翻船后亲油的表情和台词，再看被舍弃的孩子的回应与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start → overload sibling cries（孩子答话、手足哭）→ parent dismissed child（断亲）→ overload severed（answer）；断亲前她先看着孩子听完回应。'
           '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧被舍弃的孩子允许淹死，其余都要活着。',
      reads=[('读北侧亲油（含泪）', f'yukkuri status {sel("normal")} raw'),
             ('读南侧亲油（冷淡）', f'yukkuri status {sel("cold")} raw'),
@@ -6926,7 +6933,8 @@ pond('hat_load_warning', '载重警戒，亲油靠岸卸人', '载重警戒，�
       *_overload_family('hat_load_warning', 'kind', 4, True, '智20·友善80', intelligence=20, friendliness=80)],
      late=[f'execute as {sel("early")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
-     note='日志 [aquatic] load heavy … reason=unload_ashore → come_ashore 结束 DONE → set_out left_ashore（hull_full）；另一位记 capsized cause=too_heavy 与 overload keeps children。'
+     note='本场景不断亲：北侧普通亲油演的是「卸人」这一取舍——先看到她皱眉哭一声再划回岸卸人，再出航时载不下的最大孩子留在岸上，她在帽上回头看它一眼，孩子按性格哭、哼或发火（日志 overload beat start … ferry=true → overload left ashore child answers）；南侧不理会警戒、翻船后全认，不演取舍。'
+          '日志 [aquatic] load heavy … reason=unload_ashore → come_ashore 结束 DONE → set_out left_ashore（hull_full）；另一位记 capsized cause=too_heavy 与 overload keeps children。'
           '读 load changed 看载重、概率与抽值；不强制翻船或死亡，真实碰撞、拒绝和水伤保留，整窗不得有人饿死。',
      reads=[('读北侧普通亲油（只进警戒）', f'yukkuri status {sel("early")} raw'),
             ('读低智力高友善亲油', f'yukkuri status {sel("kind")} raw'),
