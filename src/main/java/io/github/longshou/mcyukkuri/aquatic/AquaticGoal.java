@@ -239,8 +239,9 @@ final class AquaticGoal extends Goal {
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             // A hull she has no way aboard (out of hop and stroke reach from every bank stand) is not set out for: she goes after it
-            // herself (resolve_own_hat), her young set down on dry ground first.
-            boolean boardable = hat == null || !usable || Ferry.canBoard(body, hat);
+            // herself (resolve_own_hat), her young set down on dry ground first. When that has no way either (hat out of swim
+            // range, no bank edge) she is left with the boat call of set_out: the reclaim's failure reopens it.
+            boolean boardable = hat == null || !usable || Ferry.canBoard(body, hat) || drive().failed("resolve_own_hat");
             if (AquaticLife.ashore(body) && (!usable || !boardable || floor(setOut) == 0 || drive().failed("set_out"))) {
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
                     out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
