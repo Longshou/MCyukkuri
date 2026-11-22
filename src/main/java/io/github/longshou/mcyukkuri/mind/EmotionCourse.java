@@ -583,7 +583,8 @@ public final class EmotionCourse {
             return f().goalPriority() == priority && y.isAlive() && !y.isNoAi() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
-                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y) && !y.duty().claimed();
+                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
+                    && (priority != PARTING_PRIORITY || !y.duty().claimed());
         }
         @Override public boolean canUse() { return wanted(); }
         @Override public boolean canContinueToUse() { return wanted(); }
