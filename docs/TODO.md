@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| WT-06：追杀到底、体力慢耗慢回且随种族遗传、疲劳步态与扇翅起伏 | `.worktrees/wp-stamina-chase` | predator/PredatorLife, BodyAbility/stamina, heredity traits, client GaitClock |
 
 
 
