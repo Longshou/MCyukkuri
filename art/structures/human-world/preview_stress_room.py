@@ -1,6 +1,6 @@
 """Offline preview of the oni-san shop's stress room (author_street.stress_room): the room beside the shop in the five village types, the
 room's interior with an adult reimu on the hard middle floor, a plan with the shop's protection box and the eye line between the counter's
-lending tray and the room door, and the counter's west end with the lending tray. Real block models and textures, no lighting; no game or
+lending crate and the room door, and the counter's west end with the lending crate. Real block models and textures, no lighting; no game or
 browser. Requires Pillow, NumPy, Node and the Minecraft client jar (--minecraft-resources). Writes .local/previews/oni-stress-room of the
 main checkout (or MCYUKKURI_PREVIEWS).
 """
@@ -67,10 +67,10 @@ def main():
     plan.text(R + 6, 13, '视线', 13, back='#8a6d00cc')
     plan.image.save(out / 'plan.png')
     cards.append('plan.png')
-    # The counter's west end: the lending tray with the restraint frame, next to the manju trays, the room door at the left.
+    # The counter's west end: the lending crate with the restraint frame, next to the manju frames, the room door at the left.
     images = [shot(pf.mesh(a, oni.blocks, (R + 7.5, 3, 16), ((R + 1, 2, 14), (R + 10, 6, 18))), 'counter', (1200, 620, .35, .45, 3.6, 1))]
-    cards.append(pf.sheet(images, ['从顾客一侧看柜台西端：靠解压间门的一格（画面右侧）托盘里放着店里的固定台，借出时押金放在这里'], 1,
-                          '柜台借还格（平原）', '托盘是现有的抬高展示托盘，与半砖台面同高；标记 mcy_oni_lend', out, 'counter'))
+    cards.append(pf.sheet(images, ['从顾客一侧看柜台西端：靠解压间门的一格（画面右侧）货箱里放着店里的固定台，借出时押金放在这里'], 1,
+                          '柜台借还格（平原）', '借还格是柜台上的货箱（占一格半砖台面）；标记 mcy_oni_lend', out, 'counter'))
     shutil.rmtree(out / '_work', ignore_errors=True)
     for p in out.glob('*.png'):
         if p.name not in cards: p.unlink()

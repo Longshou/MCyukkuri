@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from build import stairs, slab, furniture, light_up, flat_roof, gable_snow, ground, name_at, string, integer, compound, sequence, marker
 from palette import PALETTES, STYLES, link, pick, leaves, mc
 from author_street import (Site, garbage, wind_gap, carton, lamp, jigsaw, street_ends, street_band, lot_ground, fence_row,
-                           display_tray, produce_crate)
+                           display_frame, produce_crate)
 from author_lots import no_carton
 
 LOG = {'axis': 'y'}
@@ -276,7 +276,7 @@ def badge_hall(p):
     b.box((18, 4, 8), (24, 4, 14), 'white_wool')
     furniture(b, 'bench', 1, [(x, 10) for x in (20, 21, 22)]); furniture(b, 'bench', 1, [(x, 12) for x in (20, 21, 22)])
     furniture(b, 'table', 1, [(x, 11) for x in (20, 21, 22)])
-    display_tray(b, 21, 2, 11, 'north', 'mcyukkuri:badge_handbook')
+    display_frame(b, 21, 2, 11, 'mcyukkuri:badge_handbook')
     b.block(21, 3, 11, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     # West: a raised stone bed with the type's tree (pots in the desert) and the hall's notice pillar facing the street.
     for x, z in ring(2, 6, 9, 13): b.block(x, 1, z, p.plinth_at(x, z, 6))
@@ -309,14 +309,14 @@ def badge_hall(p):
     b.box((4, 3, 25), (5, 7, 25), p.planks()); b.box((20, 3, 25), (21, 7, 25), p.planks())
     b.door(5, 3, 25, 'north', p.wood)
     for x in range(6, 20): b.block(x, 3, 25, p.planks()); slab(b, x, 4, 25, p.wood)
-    display_tray(b, 12, 4, 25, 'north', 'mcyukkuri:badge_handbook', raised=True)
-    display_tray(b, 9, 4, 25, 'north', 'mcyukkuri:bronze_yukkuri_badge', raised=True)
-    display_tray(b, 16, 4, 25, 'north', 'minecraft:writable_book', raised=True)
+    display_frame(b, 12, 4, 25, 'mcyukkuri:badge_handbook', raised=True)
+    display_frame(b, 9, 4, 25, 'mcyukkuri:bronze_yukkuri_badge', raised=True)
+    display_frame(b, 16, 4, 25, 'minecraft:writable_book', raised=True)
     # Behind the counter: archives (bookshelves), a desk, and the wall of badges by grade (platinum on top, bronze at the bottom).
     for z in (26, 27, 28, 29):
         b.box((4, 3, z), (4, 4, z), 'bookshelf'); b.box((21, 3, z), (21, 4, z), 'bookshelf')
     furniture(b, 'table', 3, [(7, 27), (8, 27)]); furniture(b, 'bench', 3, [(7, 28)])
-    display_tray(b, 8, 4, 27, 'north', 'minecraft:book')
+    display_frame(b, 8, 4, 27, 'minecraft:book')
     for y, items in BADGES:
         x0 = 13 - len(items) // 2
         for i, item in enumerate(items): wall_item(b, x0 + i, y, 29, item, 'north', .45)
@@ -385,20 +385,20 @@ def shelter(p):
     # Intake counter in the front wall east of the door: boards, a slab top, a hatch above it onto the yard.
     for x in (13, 14, 15):
         b.block(x, 1, 16, p.planks()); slab(b, x, 2, 16, p.wood); b.block(x, 3, 16, 'air')
-    display_tray(b, 13, 2, 16, 'north', ('mcyukkuri:orange_juice', 2), raised=True)
-    display_tray(b, 15, 2, 16, 'north', 'mcyukkuri:wash_cloth', raised=True)
+    display_frame(b, 13, 2, 16, 'mcyukkuri:orange_juice', raised=True)
+    display_frame(b, 15, 2, 16, 'mcyukkuri:wash_cloth', raised=True)
     lamp(b, 1, 1, 7); lamp(b, W - 2, 1, 7); lamp(b, 12, 1, 15, 2)
     # ---- Inside. West room: care table and the supply shelf. East room (behind its own door): the intake counter and the volunteers'
     # cots.
     b.strict = True
     b.box((11, 1, 17), (11, 3, 22), p.wall); b.door(11, 1, 18, 'east', p.wood)
     furniture(b, 'table', 1, [(6, 19), (7, 19)])
-    for x, item in [(6, 'mcyukkuri:orange_juice'), (7, 'mcyukkuri:flour_paste')]: display_tray(b, x, 2, 19, 'north', item)
+    for x, item in [(6, 'mcyukkuri:orange_juice'), (7, 'mcyukkuri:flour_paste')]: display_frame(b, x, 2, 19, item)
     furniture(b, 'bench', 1, [(5, 19)], 'z'); furniture(b, 'bench', 1, [(8, 19)], 'z')
     for x in range(3, 9): b.block(x, 2, 22, p.planks())
     for x, item in zip(range(3, 6), ['oil_grain_regular', 'oil_grain_regular', 'swaddle_cloth']):
         produce_crate(b, x, 3, 22, 'north', [('mcyukkuri:' + item, 3), ('mcyukkuri:' + item, 2)])
-    for x, item in [(6, 'wash_cloth'), (7, 'yukkuri_carrier'), (8, 'food_bowl')]: display_tray(b, x, 3, 22, 'north', 'mcyukkuri:' + item)
+    for x, item in [(6, 'wash_cloth'), (7, 'yukkuri_carrier'), (8, 'food_bowl')]: display_frame(b, x, 3, 22, 'mcyukkuri:' + item)
     b.block(3, 1, 22, 'hay_block', LOG); b.block(4, 1, 22, 'hay_block', LOG)
     b.block(3, 1, 17, p.pot(1)); b.block(10, 1, 22, p.pot(2))
     furniture(b, 'bench', 1, [(13, 22), (14, 22)]); furniture(b, 'bench', 1, [(16, 22), (17, 22)])

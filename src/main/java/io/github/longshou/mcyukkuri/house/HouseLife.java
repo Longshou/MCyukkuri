@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.house;
 
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
+import io.github.longshou.mcyukkuri.life.FoodTaste;
 import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
@@ -23,6 +24,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -58,6 +60,8 @@ public final class HouseLife implements EcologyRoutine {
     private UUID nestIdentity;
     private HouseholdEcology.Den den;
     private SupplyPileBlockEntity supplyTarget;
+    /** A real food item lying on the floor that a hungry resident walks to and nibbles (one item per bite). */
+    private ItemEntity foodTarget;
     private int wait, ticks, careWait, sleepTicks, startledTicks, lostTicks;
     private boolean active, tending, rested, careContact, feeding, lifting, hurry, denRest;
     private Phase phase = Phase.NONE;
@@ -180,7 +184,7 @@ public final class HouseLife implements EcologyRoutine {
     public String stage() {
         var relocation = relocation();
         if (!active) return relocation == null ? sleeping() ? "sleep" : "idle" : "clutch_" + relocation.phase().name().toLowerCase(Locale.ROOT);
-        if (interaction > 0) return switch (interaction) { case 1 -> "pickup"; case 2 -> founding() ? "found_nest" : "deposit"; case 4 -> "place_egg"; case 6 -> "return_egg"; default -> "contact"; };
+        if (interaction > 0) return switch (interaction) { case 1 -> "pickup"; case 2 -> founding() ? "found_nest" : "deposit"; case 7 -> "nibble"; case 4 -> "place_egg"; case 6 -> "return_egg"; default -> "contact"; };
         if (relocation != null) {
             if (relocation.handoff()) return "clutch_handoff";
             if (relocation.rollbackHandoff()) return "clutch_return_handoff";
@@ -188,7 +192,7 @@ public final class HouseLife implements EcologyRoutine {
             return carrying().isEmpty() ? "to_clutch" : "carry_egg";
         }
         return switch (phase) {
-            case NONE -> feeding ? "feed" : !carrying().isEmpty() ? "carry" : sourceAvailable() ? "to_source" : "outing";
+            case NONE -> feeding ? "feed" : !carrying().isEmpty() ? "carry" : sourceAvailable() ? "to_source" : foodAvailable() ? "to_food" : "outing";
             case APPROACH -> hurry ? "hide_home" : "to_nest";
             case HIDE -> denRest ? "den_rest" : "hide";
             default -> phase.name().toLowerCase(Locale.ROOT);
@@ -365,6 +369,9 @@ public final class HouseLife implements EcologyRoutine {
             if (carrying().isEmpty() && value != null && value.usable(entity) && value.food() > 0) return start(Phase.NONE);
             feeding = true;
             if (SupplyPiles.crumb(carrying())) return start(Phase.NONE);
+            // Real food on the floor first (a person dropped it); the leftovers in the piles second.
+            findFood();
+            if (foodAvailable()) return start(Phase.NONE);
             findSource(value);
             if (sourceAvailable()) return start(Phase.NONE);
             feeding = false;
@@ -480,7 +487,25 @@ public final class HouseLife implements EcologyRoutine {
         return hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(supplyTarget.getBlockPos());
     }
     private ItemStack takeSource() { return supplyTarget.takeOne(); }
-    private void clearSource() { supplyTarget = null; }
+    private void clearSource() { supplyTarget = null; foodTarget = null; }
+    /** The best real food portion within the hunger-driven reach: plain food only (no grass or droppings), taste first, then nearness. */
+    private void findFood() {
+        clearSource();
+        int radius = TravelRange.search(entity, hungerReach(LOCATE_RADIUS));
+        var items = entity.level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(radius), item ->
+                item.isAlive() && !item.hasPickUpDelay() && FoodTaste.rank(item.getItem()) == 0 && entity.life().seeksFood(item.getItem()));
+        items.sort(Comparator.comparingDouble(entity::distanceToSqr));
+        int checks = 0;
+        for (var item : items) {
+            if (checks++ >= MAX_SOURCE_PATH_CHECKS) break;
+            if (!(entity.level() instanceof ServerLevel level) || HouseholdProtection.protectedAt(level, item.blockPosition())) continue;
+            if (entity.life().reachable(item.blockPosition(), false)) { foodTarget = item; return; }
+        }
+    }
+    private boolean foodAvailable() {
+        return foodTarget != null && foodTarget.isAlive() && !foodTarget.isRemoved() && !foodTarget.getItem().isEmpty()
+                && foodTarget.level() == entity.level();
+    }
     private boolean enterHome() {
         restPosition = null; sleepTicks = 0; rested = false;
         return start(physicallyInside() ? tending ? Phase.TEND : Phase.REST : Phase.APPROACH);
@@ -493,7 +518,7 @@ public final class HouseLife implements EcologyRoutine {
         if (phase == Phase.SCOUT) return ticks < 600 && entranceCell() != null;
         if (phase == Phase.SNIFF || phase == Phase.SHAPE) return ticks < 80;
         if (phase == Phase.HIDE) return ticks < (denRest ? 900 : 600);
-        if (feeding) return ticks < travelLimit() && (sourceAvailable() || SupplyPiles.crumb(carrying()));
+        if (feeding) return ticks < travelLimit() && (sourceAvailable() || foodAvailable() || SupplyPiles.crumb(carrying()));
         if (relocation() != null && !urgentMeal()) return ticks < travelLimit();
         if (homeStand() == null) return false;
         if (phase == Phase.REST) return true;
@@ -558,6 +583,11 @@ public final class HouseLife implements EcologyRoutine {
             if (!wantedSource(value) || !mayTransfer()) { stop(); return; }
             if (inSourceStand(sourcePosition()) && canSeeSource()) beginInteraction(1, sourcePosition());
             else approachSource(sourcePosition());
+        } else if (foodAvailable()) {
+            if (!feeding || !mayTransfer() || !entity.life().seeksFood(foodTarget.getItem())) { stop(); return; }
+            var spot = foodTarget.position();
+            if (inSourceStand(spot) && canSeeContact(spot)) beginInteraction(7, spot);
+            else approachSource(spot);
         } else stop();
     }
     private Vec3 restingPlace(HouseNestBlockEntity value) {
@@ -1009,6 +1039,18 @@ public final class HouseLife implements EcologyRoutine {
                     stop(); return;
                 }
                 store(taken);
+            } else if (interaction == 7) {
+                // One bite of real food: the item loses one portion only once the meal has begun, so nothing is eaten twice or lost.
+                if (!carrying().isEmpty() || !feeding || !foodAvailable() || !entity.life().canEat() || !ItemContact.reaches(entity, foodTarget.position().add(0, .05, 0), .10)
+                        || !canSeeContact(foodTarget.position())) { stop(); return; }
+                var food = foodTarget; var bite = food.getItem().copyWithCount(1);
+                if (!entity.life().beginMeal(bite, null, false)) { stop(); return; }
+                var rest = food.getItem().copy(); rest.shrink(1);
+                if (rest.isEmpty()) food.discard(); else food.setItem(rest);
+                GameplayLog.event(entity,"house","nibble item={} remaining={} source={}",bite.getItem(),rest.getCount(),food.getUUID());
+                count(Stat.ATE);
+                entity.showReaction("happy", "house_pickup", 60);
+                stop(); return;
             } else if (interaction == 2 && !carrying().isEmpty()) {
                 var entrance = entranceCell();
                 if (entrance == null || !inReach(Vec3.atBottomCenterOf(entrance)) || !canSeeContact(Vec3.atBottomCenterOf(entrance))) { stop(); return; }

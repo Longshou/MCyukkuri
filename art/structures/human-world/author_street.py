@@ -69,7 +69,7 @@ def garbage(b, x, y, z, facing, items, tipped=False):
     b.garbage.append(((x, y, z), facing, (x + dx, y, z + dz)))
 
 
-def produce_crate(b, x, y, z, facing, goods, *, stall=False, counter=False):
+def produce_crate(b, x, y, z, facing, goods, *, stall=False, counter=False, over=False):
     """An open market crate of the type's wood, its low side toward `facing`. goods: up to four (item, count <= 4) rows from the back
     to the front; they are the crate's real contents and all that is drawn in it. stall: the carrot crate strays take from (never a
     counter crate). counter: a crate of a staffed counter, sold from and bought back by the keeper whose home is behind its run; put
@@ -81,19 +81,22 @@ def produce_crate(b, x, y, z, facing, goods, *, stall=False, counter=False):
         nbt['Stall'] = byte(1)
     if counter:
         nbt['Counter'] = byte(1)
-    b.block(x, y, z, 'mcyukkuri:produce_crate', {'facing': facing, 'wood': build.furniture_wood(b)}, nbt)
+    b.block(x, y, z, 'mcyukkuri:produce_crate', {'facing': facing, 'wood': build.furniture_wood(b)}, nbt, over=over)
 
 
-def display_tray(b, x, y, z, facing, *items, raised=False):
-    """A shallow tray of the type's wood with up to four things lying on it (an item id or (item, count <= 4)); they are its real
-    contents, read from `facing`. A count must not exceed the item's stack size. raised: the counter-top
-    form, written over one slab of a slab-topped counter."""
-    goods = [(item, 1) if isinstance(item, str) else item for item in items]
-    assert 1 <= len(goods) <= 4 and all(1 <= n <= 4 for _, n in goods), goods
-    nbt = {'id': string('mcyukkuri:produce_crate'), 'Items': sequence(10, [item_stack(i, item, n) for i, (item, n) in enumerate(goods)])}
-    if raised: assert b.blocks[(x, y, z)][0].endswith('_slab'), (x, y, z)
-    b.block(x, y, z, 'mcyukkuri:display_tray', {'facing': facing, 'raised': str(raised).lower(), 'wood': build.furniture_wood(b)}, nbt,
-            over=raised)
+def display_frame(b, x, y, z, item, raised=False):
+    """A real thing laid on a desk, table or counter top: a vanilla item frame lying flat (facing up, invisible, fixed) holding the real
+    item, in the cell above the block it rests on. raised: a counter-top display, written over one slab of a slab-topped counter, which
+    becomes a top slab so that the frame's floor lies flush on its top face (a frame cannot hang half a block above a bottom slab)."""
+    cell = (x, y + 1, z) if raised else (x, y, z)
+    if raised:
+        name = b.blocks[(x, y, z)][0]; assert name.endswith('_slab'), (x, y, z)
+        b.block(x, y, z, name, {'type': 'top', 'waterlogged': 'false'}, over=True)
+    assert b.blocks.get(cell, ('minecraft:air',))[0] == 'minecraft:air', cell
+    b.entity(x + .5, cell[1] + .5, z + .5, 'minecraft:item_frame', {
+        'Facing': byte(1), 'Item': compound({'id': string(item if ':' in item else 'minecraft:' + item), 'count': integer(1)}), 'ItemRotation': byte(0),
+        'Fixed': byte(1), 'Invisible': byte(1), 'Invulnerable': byte(1),
+        'TileX': integer(cell[0]), 'TileY': integer(cell[1]), 'TileZ': integer(cell[2])}, yaw=0.)
 
 
 def wind_gap(b, x, y, z, paper=True):
@@ -288,7 +291,7 @@ def street_alley(p):
     b.block(1, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})   # on the hay stack
     # East: tool shed, door on the sidewalk; a lean-to on its alley wall and a woodpile closing it at the far end.
     shed(b, 11, 16, 8, 15, p.wall, p.beam, p.roof_trim if p.trim_stairs else p.roof, door=(13, 8, 'north'), windows=[(16, 11), (11, 9)])
-    b.block(15, 1, 14, p.tree_log, LOG); display_tray(b, 15, 2, 14, 'north', 'iron_axe')   # chopping block
+    b.block(15, 1, 14, p.tree_log, LOG); display_frame(b, 15, 2, 14, 'iron_axe')   # chopping block
     b.block(12, 1, 14, p.tree_log, {'axis': 'x'})
     for y in (1, 2): b.block(15, y, 9, 'hay_block', LOG)
     b.block(15, 3, 9, 'lantern', {'hanging': 'false', 'waterlogged': 'false'})
@@ -502,11 +505,14 @@ def oni_body(p, name):
     b.box((2, 5, 16), (3, 6, 16), *p.state(POST[0], 'x'))
     b.box((5, 5, 16), (13, 6, 16), 'iron_bars')
     for x in range(5, 14): slab(b, x, 4, 16, p.wood, 'bottom')
+    # The goods on show lie on the counter top under the grille's lintel row: the bars of their cells start one row up (a 1-high window the
+    # strays cannot reach, the counter top is two blocks above the shop floor).
     for x, item in [(6, 'mcyukkuri:yukkuri_manju'), (7, 'mcyukkuri:yukkuri_manju'), (12, 'minecraft:cookie'), (13, 'mcyukkuri:spicy_grain')]:
-        display_tray(b, x, 4, 16, 'north', (item, 1 if 'grain' in item else 2), raised=True)
-    # Lending tray at the counter's west end, the one nearest the stress room door: the shop's one real restraint frame lies in it, and
+        b.block(x, 5, 16, 'air', over=True)
+        display_frame(b, x, 4, 16, item, raised=True)
+    # Lending crate at the counter's west end, the one nearest the stress room door: the shop's one real restraint frame lies in it, and
     # the deposit lies there while the frame is out (design factory.md section 5).
-    display_tray(b, 5, 4, 16, 'north', 'mcyukkuri:restraint_frame', raised=True)
+    produce_crate(b, 5, 4, 16, 'north', [('mcyukkuri:restraint_frame', 1)], over=True)
     marker(b, 5.5, 4.5, 16.5, 'mcy_oni_lend')
     b.human(9.5, 17.5, 'oniisan', 1, 0, 'oni_shopkeeper')
     marker(b, 9.5, 3, 17.5, 'mcy_oni_counter')
@@ -515,7 +521,7 @@ def oni_body(p, name):
     for x, z, h in [(8, 4, 2), (9, 4, 1), (8, 5, 1)]:
         for y in range(3, 3 + h): barrel(b, x, y, z, 'up' if y == 3 else 'south')
     furniture(b, 'table', 3, [(12, 9), (12, 10)])
-    for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: display_tray(b, 12, 4, z, 'west', item)
+    for z, item in [(9, 'mcyukkuri:pin_tool'), (10, 'mcyukkuri:iron_enclosure')]: display_frame(b, 12, 4, z, item)
     b.block(14, 3, 15, 'hay_block', LOG)
     for x, z in [(10, 6), (11, 6), (12, 6), (13, 6), (11, 7), (12, 7)]: b.block(x, 3, z, 'brown_carpet')
     # Customer nook by the east street window: a small table under the window with a chair on each side, the cages in view.
@@ -534,14 +540,14 @@ def oni_body(p, name):
     b.block(11, 4, 23, 'brewing_stand', {'has_bottle_0': 'true', 'has_bottle_1': 'false', 'has_bottle_2': 'true'})
     b.block(13, 3, 23, 'water_cauldron', {'level': '2'})
     b.block(9, 3, 23, 'grindstone', {'face': 'floor', 'facing': 'north'})
-    display_tray(b, 10, 4, 23, 'north', 'mcyukkuri:care_awl'); display_tray(b, 12, 4, 23, 'north', 'minecraft:shears')
+    display_frame(b, 10, 4, 23, 'mcyukkuri:care_awl'); display_frame(b, 12, 4, 23, 'minecraft:shears')
     for x in (16, 17, 18):
         barrel(b, x, 3, 23, 'up')
         if x != 17: barrel(b, x, 4, 23, 'up')
     b.block(4, 3, 23, 'hay_block', LOG); b.block(5, 3, 23, 'hay_block', LOG); b.block(4, 4, 23, 'hay_block', LOG)
     for x in (19, 20, 21, 22): barrel(b, x, 3, 23, 'up')
     barrel(b, 20, 4, 23, 'up'); b.block(22, 3, 22, 'composter', {'level': '6'})
-    display_tray(b, 17, 4, 23, 'north', 'mcyukkuri:yukkuri_carrier')
+    display_frame(b, 17, 4, 23, 'mcyukkuri:yukkuri_carrier')
     b.human(14.5, 21.5, 'caretaker_brother', 1, 0, 'oni_staff')
     for x, z in [(2, 23), (22, 23), (2, 17), (22, 4)]: b.block(x, 6, z, 'cobweb')
     # Shop footprint (protection, roster, staff membership): the building from the facade to the back wall.

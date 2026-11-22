@@ -536,7 +536,7 @@ ONI_PROTECTION = ((-9, -3, -16), (15, 11, 7))
 def stress_room_errors(b, room):
     """The oni shop's stress room (author_street.stress_room): its interior (between the two mcy_oni_room markers) lies wholly outside the
     shop's protection box, on a dry full-block floor with a clear 3x3 middle, lit and reached on foot from the street door; its door and the
-    customer's stand at the lending tray see each other at eye level; the tray holds the restraint frame."""
+    customer's stand at the lending crate see each other at eye level; the lending crate holds the restraint frame."""
     errors = []; tags = {}
     for ent in b.entities:
         nbt = ent['nbt'][1]; x, y, z = ent['pos'][1][1]
@@ -560,9 +560,9 @@ def stress_room_errors(b, room):
     level = light_levels(b)
     dark = [c for c in cells if free(name_at(b, c[0], y, c[1])) and level.get((c[0], y, c[1]), 0) < 8]
     if dark: errors.append(f'{b.name}: stress room cells below light 8: {dark[:4]}')
-    # Eye line (feet + 1.6) from the customer's stand in front of the tray to each door leaf, sampled finely; doors, bars and panes see through.
-    tx, ty, tz = lend[0]; tray = b.blocks.get((tx, ty, tz))
-    if not tray or tray[0] != 'mcyukkuri:display_tray' or 'restraint_frame' not in str(tray[2]): errors.append(f'{b.name}: lending tray at {lend[0]} holds no restraint frame')
+    # Eye line (feet + 1.6) from the customer's stand in front of the crate to each door leaf, sampled finely; doors, bars and panes see through.
+    tx, ty, tz = lend[0]; crate = b.blocks.get((tx, ty, tz))
+    if not crate or crate[0] != 'mcyukkuri:produce_crate' or 'restraint_frame' not in str(crate[2]): errors.append(f'{b.name}: lending crate at {lend[0]} holds no restraint frame')
     doors = [(x, z) for x, yy, z in b.doors if yy == y and x == room + 1]
     if len(doors) != 2: errors.append(f'{b.name}: stress room door is not a 2-wide pair in the shop wall'); return errors
     see = lambda n: free(n) or n.endswith(('_door', '_pane', 'iron_bars', 'lantern'))
@@ -571,7 +571,7 @@ def stress_room_errors(b, room):
         for i in range(1, steps):
             px, pz = a[0] + (c[0] - a[0]) * i / steps, a[1] + (c[1] - a[1]) * i / steps
             n = name_at(b, int(px // 1), y + 1, int(pz // 1))
-            if not see(n): errors.append(f'{b.name}: tray stand cannot see the stress room door {(dx, dz)}: {n} at {(int(px), int(pz))}'); break
+            if not see(n): errors.append(f'{b.name}: lending stand cannot see the stress room door {(dx, dz)}: {n} at {(int(px), int(pz))}'); break
     return errors
 
 def check_street():

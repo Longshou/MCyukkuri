@@ -227,10 +227,10 @@ public final class HouseholdEcology {
 
     // ------------------------------------------------------------------------------------------------ traces of activity
     /** Real meal completion by a player: at most one crumb, only under a roof. */
-    public static boolean meal(ServerLevel level,BlockPos origin){return trace(level,origin,SupplyPiles.crumbUnit(),1)==1;}
+    public static boolean meal(ServerLevel level,BlockPos origin,ItemStack eaten){return trace(level,origin,SupplyPiles.crumbUnit(),1,eaten)==1;}
     public static void finished(LivingEntityUseItemEvent.Finish event){
         if(event.getEntity() instanceof ServerPlayer player&&!(player instanceof FakePlayer)&&player.isAlive()&&!player.isSpectator()
-                &&event.getItem().has(DataComponents.FOOD))meal(player.serverLevel(),player.blockPosition());
+                &&event.getItem().has(DataComponents.FOOD))meal(player.serverLevel(),player.blockPosition(),event.getItem());
     }
     /** A night in a bed shakes out fibre from sheets and blankets. */
     public static void woke(PlayerWakeUpEvent event){
@@ -241,7 +241,7 @@ public final class HouseholdEcology {
         if(!(event.getLevel() instanceof ServerLevel level)||!(event.getPlayer() instanceof ServerPlayer player)||player instanceof FakePlayer)return;
         var state=event.getState();
         if(state.is(BlockTags.WOOL)||state.is(BlockTags.WOOL_CARPETS)||state.is(BlockTags.BEDS))trace(level,player.blockPosition(),SupplyPiles.lintUnit(),2);
-        else if(state.getBlock() instanceof CropBlock crop&&crop.isMaxAge(state))trace(level,player.blockPosition(),SupplyPiles.crumbUnit(),1);
+        else if(state.getBlock() instanceof CropBlock crop&&crop.isMaxAge(state))trace(level,player.blockPosition(),SupplyPiles.crumbUnit(),1,new ItemStack(Items.WHEAT));
     }
     /** Shearing a sheep under a roof leaves loose wool in the room. */
     public static void sheared(PlayerInteractEvent.EntityInteract event){
@@ -252,17 +252,19 @@ public final class HouseholdEcology {
     /** Preparing food in the kitchen (crafting or smelting something edible) leaves crumbs. */
     public static void crafted(PlayerEvent.ItemCraftedEvent event){
         if(event.getEntity() instanceof ServerPlayer player&&!(player instanceof FakePlayer)&&event.getCrafting().has(DataComponents.FOOD))
-            trace(player.serverLevel(),player.blockPosition(),SupplyPiles.crumbUnit(),1);
+            trace(player.serverLevel(),player.blockPosition(),SupplyPiles.crumbUnit(),1,event.getCrafting());
     }
     public static void smelted(PlayerEvent.ItemSmeltedEvent event){
         if(event.getEntity() instanceof ServerPlayer player&&!(player instanceof FakePlayer)&&event.getSmelting().has(DataComponents.FOOD))
-            trace(player.serverLevel(),player.blockPosition(),SupplyPiles.crumbUnit(),1);
+            trace(player.serverLevel(),player.blockPosition(),SupplyPiles.crumbUnit(),1,event.getSmelting());
     }
     /**
      * Puts up to {@code units} of lint or crumbs on the floor near {@code origin}, spending the region's event budget. Returns
      * how many landed. Nothing is placed outdoors, in cleaned or sprayed regions, or when the room is already full.
      */
-    public static int trace(ServerLevel level,BlockPos origin,ItemStack unit,int units){
+    public static int trace(ServerLevel level,BlockPos origin,ItemStack unit,int units){return trace(level,origin,unit,units,ItemStack.EMPTY);}
+    /** {@code source} is the thing being eaten or made: bits of it visibly fall from the doer to the pile that grows (empty: only the puff). */
+    public static int trace(ServerLevel level,BlockPos origin,ItemStack unit,int units,ItemStack source){
         if(units<=0||!SupplyPiles.internal(unit)||!enabled(level)||!covered(level,origin)||suppressed(level,origin))return 0;
         var data=HouseholdEcologyData.get(level);long now=level.getGameTime();
         var area=data.area(HouseholdEcologyData.Region.at(origin),now);area.refill(now);
@@ -273,7 +275,9 @@ public final class HouseholdEcology {
         if(placed>0){
             if(lint)area.lintBudget-=placed;else area.crumbBudget-=placed;
             area.lastActive=now;data.setDirty();
-            puff(level,spot[0]==null?origin:spot[0],lint);
+            var floor=spot[0]==null?origin:spot[0];
+            puff(level,floor,lint);
+            if(!lint&&!source.isEmpty())fall(level,origin,floor,source);
         }
         return placed;
     }
@@ -282,6 +286,12 @@ public final class HouseholdEcology {
         var at=Vec3.atBottomCenterOf(floor);
         if(lint)level.sendParticles(ParticleTypes.WHITE_ASH,at.x,at.y+.12,at.z,6,.12,.04,.12,.01);
         else level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,new ItemStack(Items.BREAD)),at.x,at.y+.1,at.z,4,.08,.03,.08,.02);
+    }
+    /** Crumbs of {@code source} drop from hand height at {@code origin} down onto the cell {@code floor} where the pile grows. */
+    static void fall(ServerLevel level,BlockPos origin,BlockPos floor,ItemStack source){
+        var to=Vec3.atBottomCenterOf(floor);
+        double top=Math.max(to.y+.4,Math.min(origin.getY()+1.0,to.y+1.3));
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,source.copyWithCount(1)),to.x,top,to.z,6,.06,.12,.06,0);
     }
     /** Lint and crumbs exist only as world state. Anything that leaks into an inventory or onto the ground as an item is removed. */
     public static void itemJoin(EntityJoinLevelEvent event){
@@ -332,7 +342,7 @@ public final class HouseholdEcology {
                     var food=inventory.getItem(slot);
                     if(food.getCount()<16||!(food.is(Items.BREAD)||food.is(Items.CARROT)||food.is(Items.POTATO)||food.is(Items.BEETROOT)))continue;
                     // The ground write succeeds before debiting the actual inventory; no legal ground means no meal or loss.
-                    if(meal(level,villager.blockPosition())){inventory.removeItem(slot,1);area.villagerMealTicks=0;meals++;ate=true;}
+                    if(meal(level,villager.blockPosition(),food)){inventory.removeItem(slot,1);area.villagerMealTicks=0;meals++;ate=true;}
                     break;
                 }
                 if(ate)break;

@@ -220,7 +220,7 @@ public final class ShopRegistry extends SavedData {
         if (shop.kind != ShopKind.ONI) return null;
         for (var marker : level.getEntitiesOfClass(Marker.class, shop.bounds(), m -> m.getTags().contains("mcy_oni_lend"))) {
             var pos = marker.blockPosition();
-            if (level.getBlockState(pos).is(ModBlocks.DISPLAY_TRAY.get())
+            if (level.getBlockState(pos).is(ModBlocks.PRODUCE_CRATE.get())
                     && level.getBlockEntity(pos) instanceof ProduceCrateBlockEntity tray) return tray;
         }
         return null;

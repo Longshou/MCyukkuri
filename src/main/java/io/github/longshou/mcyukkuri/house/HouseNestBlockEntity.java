@@ -653,8 +653,11 @@ public final class HouseNestBlockEntity extends BlockEntity {
         }
         // Residents must drop an in-flight ticket instead of writing it back into a nest that is being removed.
         destroyed=true;disturb(true);
-        if(materials>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.NEST_LINT.get(),materials));
-        if(food>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.FOOD_SCRAP.get(),food));
+        // Lint and crumbs are never loose items (HouseholdEcology.itemJoin removes them): the stock is left as piles on the floor around the nest.
+        if(level instanceof ServerLevel server){
+            if(materials>0)HouseholdEcology.residual(server,worldPosition,SupplyPiles.lintUnit().copyWithCount(materials));
+            if(food>0)HouseholdEcology.residual(server,worldPosition,SupplyPiles.crumbUnit().copyWithCount(food));
+        }
         if(debris>0)Block.popResource(level,worldPosition,new ItemStack(ModItems.WASTE.get(),debris));
         food=materials=dirt=pendingDebris=0;Arrays.fill(eggSlots,null);Arrays.fill(eggPresent,false);Arrays.fill(eggProgress,0);broodId=null;changed();
     }

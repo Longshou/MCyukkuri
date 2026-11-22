@@ -2,7 +2,6 @@
   "replace": false,
   "values": [
     "mcyukkuri:wooden_bench",
-    "mcyukkuri:produce_crate",
-    "mcyukkuri:display_tray"
+    "mcyukkuri:produce_crate"
   ]
 }
