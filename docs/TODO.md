@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 饿急流浪油：找得到吃的，或在手边求食后放弃（FG-13） | `.worktrees/wp-forage-fixes` | settlement/ForageGoal, life/MouthOccupancy, life/LifeMeal, FoodNoticeGoal |
 | DN-12：只有一个窝，幼体躺在垫草上 | `.worktrees/wp-dn12-nest` | settlement/ShelterBlockEntity nestExtras, client/ShelterRenderer, NestResting/BedContainer |
 
 
