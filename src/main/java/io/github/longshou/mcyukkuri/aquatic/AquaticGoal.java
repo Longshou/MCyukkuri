@@ -325,7 +325,9 @@ final class AquaticGoal extends Goal {
         boolean heavy = overladen(body, hat);
         double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(birthWant, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
-        var world = List.of(at, stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood);
+        // Where she lies is the hull's four-cell region, not its cell: a landing that failed (its dock paddles the hull cell to cell) is not
+        // offered again on the same facts until she has really moved on, and then the next bank is another try.
+        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
                 hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
