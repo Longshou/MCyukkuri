@@ -34,7 +34,7 @@ if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   # Tests run WITHOUT Minecraft on the classpath, like CI: a test that loads a Minecraft class fails here too.
   RC=$TRC
   if [ "$TRC" = 0 ]; then
-  "$JAVA" -Xmx1g -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
+  "$JAVA" -Xmx3g -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
     --select-package io.github.longshou.mcyukkuri.motor --select-package io.github.longshou.mcyukkuri.intent --select-package io.github.longshou.mcyukkuri.aquatic \
     --select-package io.github.longshou.mcyukkuri.family --select-package io.github.longshou.mcyukkuri.life --select-package io.github.longshou.mcyukkuri.status \
     --select-package io.github.longshou.mcyukkuri.pose --select-package io.github.longshou.mcyukkuri.interaction --select-package io.github.longshou.mcyukkuri.social \
