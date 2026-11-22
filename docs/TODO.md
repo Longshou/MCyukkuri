@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 冒烟修复：帽船存粮喂不到孩子、超载预警亲油下不了船 | `.worktrees/wp-fix-hat` | aquatic/Care, Provision, Ferry exit, scripts/museum_scenarios.py hat scenes |
 
 
 
