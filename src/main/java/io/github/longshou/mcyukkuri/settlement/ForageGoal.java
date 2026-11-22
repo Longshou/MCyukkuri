@@ -87,7 +87,7 @@ public final class ForageGoal extends Goal {
                 || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
         if (!entity.life().canEat()) {
-            if (entity.life().nutrition() < HungerDrive.URGENT) {
+            if (entity.life().eatingBlockedByCargo() && entity.life().nutrition() < HungerDrive.URGENT) {
                 var mouth = entity.component(YukkuriComponents.MOUTH);
                 GameplayLog.limited(entity, "forage", "blocked_cargo", 400, "forage blocked reason=cargo purpose={} support={} nutrition={}",
                         () -> new Object[]{mouth.purpose(), mouth.canReleaseHere(), entity.life().nutrition()});

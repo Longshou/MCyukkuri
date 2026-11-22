@@ -269,6 +269,9 @@ final class LifeMeal {
 
     boolean canEat() { return canEatSolid() && cargoAllowsMeal(); }
 
+    /** Field cargo in the mouth is the only thing keeping an otherwise able body from eating. */
+    boolean blockedByCargo() { return canEatSolid() && !cargoAllowsMeal(); }
+
     boolean canTakeSweet(ItemStack food) {
         return Sweets.is(food) && o.nutrition() <= Sweets.FULL && mouthForMeal() && cargoAllowsMeal()
                 && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()

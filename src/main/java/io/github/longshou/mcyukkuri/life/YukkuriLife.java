@@ -628,6 +628,8 @@ public final class YukkuriLife {
     private boolean readyForFood(){ return meal.readyForFood(); }
     /** Food gathered or offered as a normal meal is for a child that can chew independently. */
     public boolean canEat(){ return meal.canEat(); }
+    /** True only when cargo carried in the mouth keeps an able body from eating. */
+    public boolean eatingBlockedByCargo(){ return meal.blockedByCargo(); }
     public boolean pursuingFoodOnLead() { return task == Task.FOOD && targetFood != null && entity.pet().isPet() && entity.getLeashHolder() != null; }
     /** Checks mouth capacity and current eating state before a source resource is consumed. */
     public boolean canAcceptBodyFood() { return meal.canAcceptBodyFood(); }
