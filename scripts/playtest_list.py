@@ -24,7 +24,9 @@ MENU = ('复测失败', '已接入待试玩')
 SCENE_NUMBER = re.compile(r'(?<![A-Za-z0-9_/-])(?<![A-Za-z0-9_]\.)([A-Z]{1,2})-?([0-9]{2})'
                           r'(?![A-Za-z0-9_/-]|\.[A-Za-z0-9_])')
 PLAY_DIR = Path('.local/experimental-map/play-museum')
-WATCH_MAX = 40
+WATCH_FILE = HERE / 'playtest_watch.json'
+WATCH_MAX = 30
+FEEDBACK_TITLE = re.compile(r'^(\d{4}-\d{2}-\d{2}).*反馈')
 APPEARANCE_TITLE = re.compile(r'^(?:美术|放映室)')
 APPEARANCE_POINTERS = ('待看页', '待你查看', '放映室')
 
@@ -140,57 +142,18 @@ def scene_ids_at(commit):
     return set(re.findall(r"^add\('([a-z0-9_]+)'", git_show(commit, 'scripts/museum_scenarios.py'), re.M))
 
 
-def _plain(t):
-    return re.sub(r'\[([^\]]*)\]\([^)]*\)', r'\1', t).replace('`', '')
-
-
-def _clip(w):
-    if len(w) > WATCH_MAX:
-        cut = w[:WATCH_MAX]
-        stop = max(cut.rfind(p) for p in '，、；：（')
-        w = (cut[:stop] if stop > 12 else cut) + '…'
-    return w
-
-
-def _good(seg):
-    seg = re.sub(r'\b[0-9a-f]{7,9}\b[：:，,]?', '', seg).strip('，、： ')
-    if seg.startswith(('未做', '未解决', '待定', '已知', '剩余', '试玩记录')):
-        return ''
-    if len(seg) < 8 or seg.count('）') > seg.count('（') or any(w in seg for w in ('本机冒烟', '非验收', '其后已改', '运行版本', '待核实')):
-        return ''
-    return seg
-
-
 def display_name(hit):
     """Nested items show their own leading label; the parent's bold title only when the label says nothing."""
     title, text = hit
     if text.startswith('**'):
         return title
     label = text.split('：', 1)[0]
-    return label if _good(label) and '｜' not in label else title
+    return label if 8 <= len(label) <= 30 and '｜' not in label and not any(s in label for s in STATUSES) else title
 
 
-def watch_of(hit, current):
-    """The shortest what-to-watch phrase for the item: 看点／完成 clauses (own or same-title children),
-    else the children's leading phrases, else the text after the status; '' when nothing usable."""
-    title, text = hit
-    texts = [_plain(text)] + [_plain(t) for ti, t in current[current.index(hit) + 1:] if ti == title]
-    cands = []
-    for t in texts:
-        for m in re.finditer(r'(?:看点|完成标准|完成|看)：|(?:^|[；。])\s*看(?:点)?[：:]?', t):
-            seg = re.split(r'[；。]', t[m.end():])[0].strip('，、： ')
-            if seg:
-                cands.append(seg)
-    if not cands and texts[0].startswith('**'):
-        cands = [re.split(r'[；。]', t)[0].strip('，、： ') for t in texts[1:]]
-    status = status_of(text)
-    if not cands and status:
-        rest = _plain(text)[_plain(text).find(status) + len(status):].lstrip('：（(，。；、 ')
-        rest = re.sub(r'^（[^）]*）', '', rest).lstrip('：，。；、 ')
-        cands = [re.split(r'[；。]', rest)[0]]
-        cands += [re.split(r'[；。]', r)[0] for r in rest.split('。', 1)[1:2] if r]
-    good = [_good(c) for c in cands]
-    return _clip(min((g for g in good if g), key=len, default=''))
+def load_watch():
+    """Scene id -> the short, hand-written 看点 (scripts/playtest_watch.json), the only source of hint text."""
+    return json.loads(WATCH_FILE.read_text(encoding='utf-8-sig'))
 
 
 def load_museum():
@@ -212,23 +175,27 @@ def scene_refs(text, scenes, numbers):
     return list(dict.fromkeys(ids))
 
 
-def feedback_watches(text, numbers):
-    """Keep numbered feedback quotes with the scene named at the start of each quote."""
-    watches = {}
-    for quote in re.findall(r'\d+「([^」]+)」', text):
-        ref = SCENE_NUMBER.match(quote)
-        if ref:
-            sid = numbers.get(f'{ref[1]}-{ref[2]}')
-            watch = quote[ref.end():].strip(' ：:')
-            if sid and watch:
-                watches.setdefault(sid, []).append(_clip(watch))
-    return watches
+def recent_feedback(current, scenes, numbers):
+    """(scene ids, item texts) of the two latest dated feedback rounds in the TODO (lead.md: only those get listed)."""
+    rounds = {m[1] for title, _ in current if (m := FEEDBACK_TITLE.match(title))}
+    keep = sorted(rounds)[-2:]
+    texts = {text for title, text in current if (m := FEEDBACK_TITLE.match(title)) and m[1] in keep}
+    return {i for t in texts for i in scene_refs(t, scenes, numbers)}, texts
+
+
+def recent_ids(ids, text, recent):
+    """The item's scenes inside the recent rounds; None when the item drops out of the list."""
+    scene_set, texts = recent
+    kept = [i for i in ids if i in scene_set]
+    return kept if kept or (not ids and text in texts) else None
 
 
 def build(since, until):
     old = {t for _, t in todo_items(git_show(since, 'docs/TODO.md'))}
     current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
     scenes, numbers, field_order = load_museum()
+    recent = recent_feedback(current, scenes, numbers)
+    watch = load_watch()
     gone_pool = (scene_ids_at(since) | scene_ids_at(until)) - set(scenes)
     rows, unnamed, gone, skipped = {}, [], {}, []
     items = []
@@ -244,25 +211,22 @@ def build(since, until):
             continue
         if hit in items:
             continue
-        items.append(hit)
         title, ctext = hit
         status = status_of(ctext)
         tokens = list(dict.fromkeys(re.findall(r'`([a-z][a-z0-9_]*)`', ctext)))
-        ids = scene_refs(ctext, scenes, numbers)
-        w = watch_of(hit, current)
+        ids = recent_ids(scene_refs(ctext, scenes, numbers), ctext, recent)
+        if ids is None:
+            continue
+        items.append(hit)
         name = display_name(hit)
         for token in tokens:
             if token in gone_pool:
                 gone.setdefault(token, set()).add(name)
         if not ids:
-            unnamed.append((name, status, w))
+            unnamed.append((name, status, ''))
             continue
-        watches = feedback_watches(ctext, numbers)
         for i in ids:
-            r = rows.setdefault(i, dict(watches=[], status=status))
-            for watch in watches.get(i, (w,)):
-                if watch and watch not in r['watches']:
-                    r['watches'].append(watch)
+            r = rows.setdefault(i, dict(watches=[watch[i]] if i in watch else [], status=status))
             if RANK[status] < RANK[r['status']]:
                 r['status'] = status
     fields = []
@@ -275,10 +239,12 @@ def build(since, until):
 
 def menu(current, fresh_texts, scenes, numbers, field_order):
     """One row per scene: a performance several items point at shows once, with the worst status of its items,
-    every distinct watch text and fresh if any item is fresh. Items without a scene stay one row each."""
+    its one hand-written watch text and fresh if any item is fresh. Items without a scene stay one row each."""
     order = {sid: i for i, sid in enumerate(sid for _, ids in field_order for sid in ids)}
     rows = []
     by_scene = {}
+    recent = recent_feedback(current, scenes, numbers)
+    watch = load_watch()
     for item in current:
         if appearance_only(item):
             continue
@@ -286,24 +252,19 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
         status = status_of(text)
         if status not in MENU:
             continue
-        ids = scene_refs(text, scenes, numbers)
-        if not ids:
-            rows.append(dict(status=status, title=display_name(item), watch=watch_of(item, current),
-                             fresh=text in fresh_texts, scenes=[]))
+        ids = recent_ids(scene_refs(text, scenes, numbers), text, recent)
+        if ids is None:
             continue
-        w = watch_of(item, current)
-        watches = feedback_watches(text, numbers)
+        if not ids:
+            rows.append(dict(status=status, title=display_name(item), watch='', fresh=text in fresh_texts, scenes=[]))
+            continue
         for sid in ids:
-            r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=[], fresh=False,
+            r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=watch.get(sid, ''), fresh=False,
                                               scenes=[dict(id=sid, label=scenes[sid][1], field=scenes[sid][0])]))
             if RANK[status] < RANK[r['status']]:
                 r['status'] = status
             r['fresh'] = r['fresh'] or text in fresh_texts
-            for watch in watches.get(sid, (w,)):
-                if watch and watch not in r['watch']:
-                    r['watch'].append(watch)
-    rows += [dict(status=r['status'], title=r['title'], watch='；'.join(r['watch']), fresh=r['fresh'],
-                  scenes=r['scenes']) for r in by_scene.values()]
+    rows += list(by_scene.values())
     return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'],
                                          order[row['scenes'][0]['id']] if row['scenes'] else len(order)))
 

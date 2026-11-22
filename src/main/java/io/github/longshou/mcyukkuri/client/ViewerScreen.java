@@ -9,6 +9,7 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -50,7 +51,7 @@ final class ViewerScreen extends Screen {
     private Map<String, String> clipNames;
     private List<String> forms;
     private List<FormattedCharSequence> summary;
-    private List<Row> rows = List.of();
+    private List<Slot> slots = List.of();
     private int left, right, listTop, listBottom, contentHeight;
     private int scroll, listScroll, listContent;
     private float yaw = 18, pitch = 12, zoom = 1;
@@ -61,9 +62,40 @@ final class ViewerScreen extends Screen {
     private int previewX, previewY, previewW, previewH, controlY, sliderY, timeY;
     private Scrub scrub;
 
-    private record Row(ViewerTodo.Item item, List<FormattedCharSequence> text) {
-        int buttonOffset() { return 2 * PAD + LINE + text.size() * LINE; }
-        int height() { return buttonOffset() + item.scenes().size() * PITCH + PAD; }
+    /** One header (field title) or one card of the 待看 grid; {@code y} is measured from the top of the list content. */
+    private record Slot(String header, ViewerTodo.Item item, ViewerTodo.Scene scene, int column, int y) {}
+
+    /** Compact 待看 card: status chip, scene number and title; the 看点 shows as the tooltip on hover or focus. */
+    private static final class TodoCard extends Button {
+        private final ViewerTodo.Item item;
+        private final String label;
+
+        TodoCard(int x, int y, int width, ViewerTodo.Item item, String label, Runnable jump) {
+            super(x, y, width, BUTTON, Component.literal(label), b -> jump.run(), DEFAULT_NARRATION);
+            this.item = item;
+            this.label = label;
+            var tip = Component.literal(label);
+            if (!item.watch().isEmpty()) tip.append("\n").append(item.watch());
+            setTooltip(Tooltip.create(tip));
+        }
+
+        @Override protected void renderWidget(GuiGraphics g, int mx, int my, float partial) {
+            var font = Minecraft.getInstance().font;
+            GuiKit.card(g, getX(), getY(), width, height, isHoveredOrFocused() && active || item.fresh());
+            boolean failed = item.failed();
+            Component status = tr(failed ? "todo.failed" : "todo.ready");
+            int chip = font.width(status) + 6, textY = getY() + (height - 9) / 2;
+            g.fill(getX() + 3, getY() + 3, getX() + 3 + chip, getY() + height - 3, failed ? 0xfff4d1cb : 0xfff6e6a6);
+            g.drawString(font, status, getX() + 6, textY, failed ? GuiKit.WARN : 0xff75500e, false);
+            int right = getX() + width - 5;
+            if (item.fresh()) {
+                Component fresh = tr("todo.fresh");
+                right -= font.width(fresh) + 3;
+                g.drawString(font, fresh, right + 3, textY, GuiKit.GOOD, false);
+            }
+            var text = GuiKit.ellipsize(font, Component.literal(label), right - (getX() + chip + 9));
+            g.drawString(font, text, getX() + chip + 9, textY, active ? GuiKit.INK : GuiKit.SOFT, false);
+        }
     }
 
     private record UtilityGroup(String title, Action action, List<String> keys) {}
@@ -155,26 +187,39 @@ final class ViewerScreen extends Screen {
             long failed = todo.items().stream().filter(ViewerTodo.Item::failed).count();
             long fresh = todo.items().stream().filter(ViewerTodo.Item::fresh).count();
             heading = tr("todo.summary", failed, todo.items().size() - failed, fresh, shortCommit(todo.since()), shortCommit(todo.until()));
-            int textWidth = right - left - 5 * PAD;
-            rows = todo.items().stream().map(item -> {
-                var detail = Component.literal(item.title());
-                if (!item.watch().isEmpty()) {
-                    detail.append("\n").append(Component.literal(watchPreview(item.watch(), textWidth)).withColor(GuiKit.SOFT & 0xffffff));
-                }
-                if (item.scenes().isEmpty()) detail.append("\n").append(tr("todo.no_scene").withColor(GuiKit.SOFT & 0xffffff));
-                return new Row(item, font.split(detail, textWidth));
-            }).toList();
+            slots = todoSlots();
         }
         summary = font.split(heading, right - left - 2 * PAD);
         listTop = 2 * PAD + BUTTON + 4 + summary.size() * LINE + PAD;
-        contentHeight = rows.stream().mapToInt(row -> row.height() + 4).sum();
+        contentHeight = slots.isEmpty() ? 0 : slots.get(slots.size() - 1).y() + PITCH;
     }
 
-    private String watchPreview(String watch, int width) {
-        var lines = font.getSplitter().splitLines(watch, width, Style.EMPTY);
-        if (lines.size() <= 3) return watch;
-        var last = GuiKit.ellipsize(font, Component.literal(lines.get(2).getString() + "…"), width);
-        return String.join("\n", lines.get(0).getString(), lines.get(1).getString(), last.getString());
+    private int todoColumns() { return right - left - 3 * PAD >= 300 ? 2 : 1; }
+
+    /** Cards grouped by field in the order of the 场景 page; items without a scene go last. */
+    private List<Slot> todoSlots() {
+        var groups = new LinkedHashMap<String, List<Slot>>();
+        for (var item : todo.items()) {
+            if (item.scenes().isEmpty()) groups.computeIfAbsent("", k -> new ArrayList<>()).add(new Slot(null, item, null, 0, 0));
+            for (var scene : item.scenes()) groups.computeIfAbsent(scene.field(), k -> new ArrayList<>()).add(new Slot(null, item, scene, 0, 0));
+        }
+        var order = fields.stream().map(MuseumIndex.Field::title).toList();
+        var keys = new ArrayList<>(groups.keySet());
+        keys.sort(Comparator.comparingInt(key -> key.isEmpty() ? Integer.MAX_VALUE : order.contains(key) ? order.indexOf(key) : Integer.MAX_VALUE - 1));
+        int columns = todoColumns(), y = 0;
+        var placed = new ArrayList<Slot>();
+        for (var key : keys) {
+            if (y > 0) y += 4;
+            placed.add(new Slot(key.isEmpty() ? tr("todo.no_scene").getString() : key, null, null, 0, y));
+            y += LINE + 2;
+            var cards = groups.get(key);
+            for (int i = 0; i < cards.size(); i++) {
+                var card = cards.get(i);
+                placed.add(new Slot(null, card.item(), card.scene(), i % columns, y));
+                if (i % columns == columns - 1 || i == cards.size() - 1) y += PITCH;
+            }
+        }
+        return placed;
     }
 
     private void refresh() {
@@ -213,18 +258,15 @@ final class ViewerScreen extends Screen {
 
     private void buildTodoRows() {
         scroll = Mth.clamp(scroll, 0, maxScroll());
-        int y = listTop - scroll;
-        for (Row row : rows) {
-            int buttonY = y + row.buttonOffset();
-            for (var scene : row.item().scenes()) {
-                if (buttonY >= listTop && buttonY + BUTTON <= listBottom) {
-                    addRenderableWidget(Button.builder(Component.literal(scene.label()), b -> dispatch(Action.JUMP_SCENE, scene.id()))
-                            .bounds(left + 2 * PAD, buttonY, right - left - 5 * PAD, BUTTON)
-                            .tooltip(Tooltip.create(Component.literal(scene.field()))).build(GuiKit.ActionButton::new));
-                }
-                buttonY += PITCH;
-            }
-            y += row.height() + 4;
+        int columns = todoColumns(), gap = 4, width = right - left - 3 * PAD, cardWidth = (width - (columns - 1) * gap) / columns;
+        for (var slot : slots) {
+            int y = listTop - scroll + slot.y();
+            if (slot.item() == null || y < listTop || y + BUTTON > listBottom) continue;
+            var scene = slot.scene();
+            var card = new TodoCard(left + PAD + slot.column() * (cardWidth + gap), y, cardWidth, slot.item(),
+                    scene == null ? slot.item().title() : scene.label(), () -> { if (scene != null) dispatch(Action.JUMP_SCENE, scene.id()); });
+            card.active = scene != null;
+            addRenderableWidget(card);
         }
     }
 
@@ -484,20 +526,11 @@ final class ViewerScreen extends Screen {
     private void renderTodo(GuiGraphics graphics) {
         drawLines(graphics, summary, left + PAD, 2 * PAD + BUTTON + 4, GuiKit.INK);
         graphics.enableScissor(left + PAD, listTop, right - 2 * PAD, listBottom);
-        int y = listTop - scroll;
-        for (Row row : rows) {
-            if (y + row.height() > listTop && y < listBottom) {
-                GuiKit.card(graphics, left + PAD, y, right - left - 3 * PAD, row.height(), row.item().fresh());
-                int textX = left + 2 * PAD;
-                boolean failed = row.item().failed();
-                Component status = tr(failed ? "todo.failed" : "todo.ready");
-                int chipWidth = font.width(status) + 8;
-                graphics.fill(textX, y + PAD - 2, textX + chipWidth, y + PAD + 10, failed ? 0xfff4d1cb : 0xfff6e6a6);
-                graphics.drawString(font, status, textX + 4, y + PAD, failed ? GuiKit.WARN : 0xff75500e, false);
-                if (row.item().fresh()) graphics.drawString(font, tr("todo.fresh"), textX + chipWidth + 6, y + PAD, GuiKit.GOOD, false);
-                drawLines(graphics, row.text(), textX, y + PAD + LINE, row.item().scenes().isEmpty() ? GuiKit.SOFT : GuiKit.INK);
-            }
-            y += row.height() + 4;
+        for (var slot : slots) {
+            int y = listTop - scroll + slot.y();
+            if (slot.header() == null || y + LINE < listTop || y > listBottom) continue;
+            graphics.drawString(font, slot.header(), left + PAD + 2, y + 1, GuiKit.INK, false);
+            graphics.fill(left + PAD, y + LINE, right - 2 * PAD, y + LINE + 1, 0xffdfd4bd);
         }
         graphics.disableScissor();
         renderBar(graphics, bar(), scroll);
