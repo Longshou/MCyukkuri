@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | DN-12：只有一个窝，幼体躺在垫草上 | `.worktrees/wp-dn12-nest` | settlement/ShelterBlockEntity nestExtras, client/ShelterRenderer, NestResting/BedContainer |
+| WT-06/PT-03：虚弱步态、捕食种泪水与速度、掩体与食性 | `.worktrees/wp-predator-hunt` | predator/PredatorLife, Gait, skills, predator/PreySight(new), predator tear textures |
 
 
 
