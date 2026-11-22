@@ -20,7 +20,8 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
-import io.github.longshou.mcyukkuri.settlement.MoldVerdict.Verdict;
+import io.github.longshou.mcyukkuri.social.SeveranceVerdict;
+import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -183,7 +184,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (observer == subject || observer.level().isClientSide || subject.body().mold() == 0 || !sees(observer, subject)) return false;
         var address = encounterHome(subject);
         if (address == null || !resident(observer, address)) return false;
-        if (guardian(observer, subject, address)) return MoldVerdict.decide(verdictInputs(observer, subject, address)) != Verdict.KEEP;
+        if (guardian(observer, subject, address)) return SeveranceVerdict.decide(verdictInputs(observer, subject, address)) != Verdict.KEEP;
         return aversion(observer, subject) > 0;
     }
 
@@ -260,10 +261,11 @@ public final class MoldExile extends Goal implements MotorOwner {
                 other.isAlive() && !other.body().dying() && other.body().mold() == 0 && resident(other, address) && WildEvents.siblings(child, other));
     }
 
-    private static MoldVerdict.Inputs verdictInputs(YukkuriEntity parent, YukkuriEntity child, Home address) {
+    private static SeveranceVerdict.Inputs verdictInputs(YukkuriEntity parent, YukkuriEntity child, Home address) {
         int bond = YukkuriWorldData.get((ServerLevel)parent.level()).affinity(parent.getUUID(), child.getUUID());
-        return new MoldVerdict.Inputs(parent.life().personality().temperament(), BodySigns.moldTier(child.body().mold()),
-                parent.skills().knows(Ability.MOLD_LORE), bond, !siblings(child, address).isEmpty());
+        return new SeveranceVerdict.Inputs(parent.life().personality().temperament(),
+                SeveranceVerdict.mold(BodySigns.moldTier(child.body().mold()), parent.skills().knows(Ability.MOLD_LORE)), bond,
+                !siblings(child, address).isEmpty());
     }
 
     private boolean canLeave(Home address, YukkuriEntity by) {
@@ -273,7 +275,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         else {
             var parents = guardians(address);
             if (!parents.isEmpty() && !parents.contains(by)) reason = "not_guardian";
-            else if (parents.stream().anyMatch(parent -> MoldVerdict.decide(verdictInputs(parent, entity, address)) == Verdict.KEEP))
+            else if (parents.stream().anyMatch(parent -> SeveranceVerdict.decide(verdictInputs(parent, entity, address)) == Verdict.KEEP))
                 reason = "parent_keeps";
         }
         if (reason == null) return true;
@@ -287,7 +289,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (entity.body().mold() == 0) {
             var departing = child.moldExile();
             return departing.task == Task.LEAVE && departing.exile == null && guardian(entity, child, departing.home)
-                    && MoldVerdict.decide(verdictInputs(entity, child, departing.home)) != Verdict.KEEP;
+                    && SeveranceVerdict.decide(verdictInputs(entity, child, departing.home)) != Verdict.KEEP;
         }
         var address = exile != null ? exile.home : task == Task.LEAVE ? home : null;
         return address != null && local(address) && child.childhood().shouldStayWithParents() && healthyParent(child, address) != null;
@@ -397,12 +399,13 @@ public final class MoldExile extends Goal implements MotorOwner {
             childVerdict = null;
             if (guardian(entity, peer, home)) {
                 var inputs = verdictInputs(entity, peer, home);
-                childVerdict = MoldVerdict.decide(inputs);
+                int tier = BodySigns.moldTier(peer.body().mold());
+                childVerdict = SeveranceVerdict.decide(inputs);
                 GameplayLog.event(entity, "settlement", "mold child verdict child={} verdict={} resolve={} tier={} knows={} bond={} siblings={}",
-                        peer.getUUID(), childVerdict, MoldVerdict.resolve(inputs), inputs.tier(), inputs.knows(), inputs.bond(), inputs.siblings());
+                        peer.getUUID(), childVerdict, SeveranceVerdict.resolve(inputs), tier, entity.skills().knows(Ability.MOLD_LORE), inputs.bond(), inputs.siblings());
                 fond = childVerdict == Verdict.KEEP;
                 driving = harsh = !fond;
-                if (fond) keptChildren.put(lastWitnessed, new Kept(inputs.tier(), level().getGameTime() + 2400));
+                if (fond) keptChildren.put(lastWitnessed, new Kept(tier, level().getGameTime() + 2400));
             }
             GameplayLog.event(entity, "settlement", "mold witnessed subject={} stage={} distance={} aversion={} response={} fond={} harsh={}",
                     peer.getUUID(), peer.body().mold(), entity.distanceTo(peer), Math.round(aversion(entity, peer)), driving ? "drive" : "stay", fond, harsh);
@@ -643,7 +646,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             // Only one that begged on the spot comes back to ask again.
             exile = new Exile(home, answer == Answer.CURSE || !pleads ? Appeal.WITHDREW : Appeal.NONE);
             for (var parent : guardians(home)) {
-                var verdict = MoldVerdict.decide(verdictInputs(parent, entity, home));
+                var verdict = SeveranceVerdict.decide(verdictInputs(parent, entity, home));
                 Bonds.sever(parent, entity.getUUID(), "child_exiled");
                 // A parting that ends by its own course: it watches the child go, then goes back to its duties.
                 if (verdict == Verdict.DRIVE_TEARFUL)

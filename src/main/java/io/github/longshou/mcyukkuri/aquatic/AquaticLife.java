@@ -5,7 +5,9 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.SeveranceVerdict;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
@@ -30,7 +33,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 
 /**
@@ -135,8 +137,11 @@ public final class AquaticLife {
         return out;
     }
 
-    /** The real overload outcome, after the occupants were thrown; genealogy and the child's recognition stay intact. */
-    static void overloadCapsized(PlacedHatEntity hat) {
+    /** The real overload outcome, after the occupants were thrown, at the {@code ratio} (load over capacity) that capsized it: an
+     *  ordinary parent weighs the largest young that is no helpless newborn ({@link SeveranceVerdict}: the danger of the load
+     *  against her temperament, her bond to it and its siblings). The verdict is played out in view by {@link LeaveBehind}, which
+     *  makes the cut; genealogy and the child's recognition stay intact. */
+    static void overloadCapsized(PlacedHatEntity hat, double ratio) {
         var parent = hat.owner();
         if (parent == null || !parent.isAlive()) return;
         int intelligence = parent.life().personality().intelligence(), friendliness = parent.life().personality().friendliness();
@@ -145,18 +150,17 @@ public final class AquaticLife {
                     hat.getUUID(), intelligence, friendliness);
             return;
         }
-        young(parent).stream().filter(y -> y.isAlive() && Bonds.parentOf(parent, y))
-                .max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(child -> {
-                    Bonds.sever(parent, child.getUUID(), "boat_overload");
-                    // The largest young sits on her head: the capsize did not throw it, so the dismissal sheds it from the head,
-                    // else the load that capsized the hat would stay with her and the hat would capsize again.
-                    if (child.getVehicle() == parent) {
-                        ParentCarry.released(parent, child, "overload_dismissed");
-                        Motor.dismount(child, child.position(), Vec3.ZERO, "overload_dismissed");
-                    }
-                    YOUNG.remove(parent);
-                    parent.showReaction("teary", "mood_bad", 120);
-                });
+        var candidates = young(parent).stream().filter(y -> y.isAlive() && Bonds.parentOf(parent, y) && !y.childhood().needsNewbornCare()).toList();
+        candidates.stream().max(Comparator.comparingDouble(y -> y.growthScale() * y.getScale())).ifPresent(child -> {
+            int bond = YukkuriWorldData.get((ServerLevel) parent.level()).affinity(parent.getUUID(), child.getUUID());
+            var inputs = new SeveranceVerdict.Inputs(parent.life().personality().temperament(), SeveranceVerdict.overload(ratio), bond,
+                    candidates.size() > 1);
+            var verdict = SeveranceVerdict.decide(inputs);
+            GameplayLog.event(parent, "family", "overload verdict child={} verdict={} resolve={} severity={} bond={} siblings={} hat={}",
+                    child.getUUID(), verdict, String.format(Locale.ROOT, "%.3f", SeveranceVerdict.resolve(inputs)),
+                    String.format(Locale.ROOT, "%.3f", inputs.severity()), bond, inputs.siblings(), hat.getUUID());
+            LeaveBehind.remember(parent, child, verdict);
+        });
     }
 
     /** From dusk to the end of the night (vanilla's sleep window): the hours the family returns ashore to rest. */

@@ -363,7 +363,7 @@ public final class HullAfloat implements PlacedHatBehavior {
                 "capsized cause={} value={} falling={} shake_window={} turbulent_ticks={} angle_limit={} impact_limit={} drop_limit={} count={} form={} thrown={} owner={}",
                 cause, triggerValue, falling, HullTriggers.WINDOW, HullTriggers.WET_TICKS, HullTriggers.ANGLE,
                 HullTriggers.IMPACT, HullPresentation.number("drop_speed"), capsizes, hat.formId(), thrown, hat.ownerYukkuri());
-        if (cause.equals("too_heavy")) AquaticLife.overloadCapsized(hat);
+        if (cause.equals("too_heavy")) AquaticLife.overloadCapsized(hat, triggerValue);
     }
 
     private record Contact(Vec3 move, Vec3 velocity) {}

@@ -162,6 +162,8 @@
     "hat_current": "PD-26",
     "hat_grounded_capsized": "PD-27",
     "ledge_spit": "PD-28",
+    "hat_load_warning": "PD-29",
+    "hat_larder": "PD-30",
     "house_empty": "HS-01",
     "house_pair": "HS-02",
     "house_eggs": "HS-03",

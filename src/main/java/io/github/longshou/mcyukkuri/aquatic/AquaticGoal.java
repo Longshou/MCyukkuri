@@ -210,6 +210,7 @@ final class AquaticGoal extends Goal {
             GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason=birth_lead lead={}",
                     brood.id, brood.duration - brood.elapsed, aboard, body.family().currentShoreBirthLead());
         }
+        LeaveBehind.offer(out, body, steadyFooting());
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
         var unloadedNewborns = young.stream().filter(y -> !y.isPassenger() && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()

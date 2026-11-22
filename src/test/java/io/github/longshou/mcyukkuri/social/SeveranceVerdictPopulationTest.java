@@ -1,13 +1,12 @@
 package io.github.longshou.mcyukkuri.social;
 
-import io.github.longshou.mcyukkuri.settlement.MoldVerdict;
-import io.github.longshou.mcyukkuri.settlement.MoldVerdict.Inputs;
+import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Inputs;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
-import static io.github.longshou.mcyukkuri.settlement.MoldVerdict.Verdict.KEEP;
+import static io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict.KEEP;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class MoldVerdictPopulationTest {
+class SeveranceVerdictPopulationTest {
     @Test void strongerSignsAndKnowledgeRaiseResolveAcrossWildFamilies() {
         int aware = 0, unaware = 0;
         var random = new Random(19112026);
@@ -18,11 +17,11 @@ class MoldVerdictPopulationTest {
             for (boolean knows : new boolean[]{false, true}) {
                 double previous = Double.NEGATIVE_INFINITY;
                 for (int tier = 1; tier <= 4; tier++) {
-                    var in = new Inputs(t,tier,knows,30,true);
-                    double resolve = MoldVerdict.resolve(in);
+                    var in = new Inputs(t,SeveranceVerdict.mold(tier,knows),30,true);
+                    double resolve = SeveranceVerdict.resolve(in);
                     assertTrue(resolve > previous);
-                    if (knows) assertTrue(resolve > MoldVerdict.resolve(new Inputs(t,tier,false,30,true)));
-                    if (tier == 2 && MoldVerdict.decide(in) != KEEP) {
+                    if (knows) assertTrue(resolve > SeveranceVerdict.resolve(new Inputs(t,SeveranceVerdict.mold(tier,false),30,true)));
+                    if (tier == 2 && SeveranceVerdict.decide(in) != KEEP) {
                         if (knows) aware++; else unaware++;
                     }
                     previous = resolve;
