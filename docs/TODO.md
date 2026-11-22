@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | WT-06/PT-03：虚弱步态、捕食种泪水与速度、掩体与食性 | `.worktrees/wp-predator-hunt` | predator/PredatorLife, Gait, skills, predator/PreySight(new), predator tear textures |
+| DN-06：两格门口斜着出、受击台词与反应一致 | `.worktrees/wp-dn06-door` | home/HomeClaim, life/YukkuriDamage, navigation DoorGap/GroundDoorway |
 
 
 
