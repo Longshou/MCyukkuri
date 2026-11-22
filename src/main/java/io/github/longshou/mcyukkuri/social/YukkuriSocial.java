@@ -31,6 +31,7 @@ import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
+import io.github.longshou.mcyukkuri.human.ChildPlay;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
@@ -69,6 +70,8 @@ public final class YukkuriSocial implements MotorOwner {
     private float lastFoodRequest = -1;
     private final BegLatch begs = new BegLatch();
     private boolean humanMayAsk;
+    /** The current retreat is a flinch at a child's rolled ball: drawn as fright however the plain wariness reads. */
+    private boolean startled;
     private double humanRetreatRoll;
     private int humanWatchUntil;
     private long replyUntil;
@@ -236,7 +239,7 @@ public final class YukkuriSocial implements MotorOwner {
             if (entity.level().isDay() && day != morningDay) { morningPending = true; morningDay = day; }
         }
         if (!entity.childhood().canLearn() || !availableForSocial()) return false;
-        if (noticeTool()) return true;
+        if (noticeTool() || answerChildOffer()) return true;
         var returning = entity.pet().takeOwnerWelcome();
         if (returning != null) {
             returnClip = entity.pet().ownerWelcomeClip();
@@ -314,6 +317,43 @@ public final class YukkuriSocial implements MotorOwner {
         return (!canAsk || !entity.status().identity().free()) && findHuman(false);
     }
 
+    /** Wariness below which a stray goes for a child's ball (a confident one: the stranger term is at most .12 from boldness 65), and from which it flinches (boldness about 40 or lower, or real fear). */
+    private static final double CHILD_PLAY_WARINESS = .30, CHILD_FLINCH_WARINESS = .40;
+
+    /**
+     * A child rolled its ball to this animal: answered once, by its own values (EH29-B). Unafraid and bored or curious: it goes for the
+     * ball and plays. Startled: it flinches away. In between: the ordinary human contact, which watches and then greets or keeps away.
+     */
+    private boolean answerChildOffer() {
+        if (entity.tickCount % 4 != 0) return false;
+        var offer = ChildPlay.offerTo(entity);
+        if (offer == null) return false;
+        ChildPlay.answered(entity);
+        var child = offer.child();
+        var relation = personality().relation(child.getUUID());
+        double wariness = SocialDisposition.humanWariness(entity, child, relation);
+        double drive = Math.max(SocialDisposition.ramp(entity.dailyLife().boredom(), 40, 60), personality().temperament().curious());
+        double nerve = .6 + .4 * SocialDisposition.ramp(personality().boldness(), 30, 70);
+        String response;
+        if (wariness < CHILD_PLAY_WARINESS && drive * nerve >= .5 && beginPlay(offer.ball())) response = "play";
+        else if (wariness >= CHILD_FLINCH_WARINESS) {
+            startHuman(child, false);
+            startled = true;
+            retreat = true;
+            duration = 80;
+            response = "flinch";
+        } else response = tryHuman(child, relation, false) ? "watch" : "ignore";
+        GameplayLog.event(entity, "social", "child offer response={} child={} ball={} wariness={} drive={} boredom={} boldness={}",
+                response, child.getUUID(), offer.ball().getUUID(), wariness, drive, entity.dailyLife().boredom(), personality().boldness());
+        return !response.equals("ignore");
+    }
+
+    /** In a toy session on this very item. */
+    public boolean playingWith(ItemEntity toy) { return task == Task.TOY && target == toy; }
+
+    /** Backing away from this person right now. */
+    public boolean retreatingFrom(Entity person) { return humanContact() && target == person && retreat; }
+
     private record HumanCandidate(LivingEntity person, YukkuriWorldData.Relation relation) {}
 
     private boolean findHuman(boolean ask) {
@@ -349,6 +389,7 @@ public final class YukkuriSocial implements MotorOwner {
     private void startHuman(LivingEntity person, boolean ask) {
         task = Task.PLAYER;
         target = person;
+        startled = false;
         elapsed = 0;
         duration = CONTACT_APPROACH;
         humanMayAsk = ask;
@@ -885,7 +926,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (!greeted) {
             if (!EcologyMovement.supported(entity)) return;
             greeted = true;
-            boolean afraid = wariness >= .62;
+            boolean afraid = wariness >= .62 || startled;
             if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
             if (visitor(target)) entity.pet().lessons().performed(Ability.GREETING, false);
             if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
@@ -915,7 +956,7 @@ public final class YukkuriSocial implements MotorOwner {
         humanEscapeStand = null;
         EcologyMovement.halt(entity);
         duration = elapsed + 40;
-        if (wariness >= .62) entity.showReaction("teary", "afraid", 40);
+        if (wariness >= .62 || startled) entity.showReaction("teary", "afraid", 40);
         else entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 40);
         GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=false response=cower",
                 entity.status().identity().id(), target.getUUID(), wariness);

@@ -36,10 +36,12 @@ POOL_ENTRIES = [
 
 
 # ---------------------------------------------------------------------------------------------------------- shared helpers
-def resident(b, x, z, kind, attitude=2, tags=(), y=None):
-    """A street resident (HumanJob 0, no site role); the cell it is written in becomes its home on the first tick."""
+def resident(b, x, z, kind, attitude=2, tags=(), y=None, hand=None):
+    """A street resident (HumanJob 0, no site role); the cell it is written in becomes its home on the first tick. ``hand`` is one item
+    held in the main hand (the park child's yarn ball)."""
     extra = {'HumanJob': integer(0), 'HumanAttitude': integer(attitude)}
     if tags: extra['Tags'] = sequence(8, list(tags))
+    if hand: extra['HandItems'] = sequence(10, [{'id': string(hand), 'count': integer(1)}, {}])
     b.entity(x + .5, b.floor if y is None else y, z + .5, 'mcyukkuri:' + kind, extra)
 
 
@@ -411,7 +413,7 @@ def shelter(p):
 def park(p):
     """公园: a green rest stop. A clipped hedge with a wide gap to the street, a path loop of the lane block around a lawn, a small pond
     (one block deep, a dry grass bank) with benches facing it, a roofed pavilion with a bench (residents' rain cover), the type's trees and
-    plants, and the gardeners' lodge at the back where two residents live. Desert: no trees; pergolas with a wool shade, pots and dead bushes."""
+    plants, and the gardeners' lodge at the back where two residents and a child live. Desert: no trees; pergolas with a wool shade, pots and dead bushes."""
     W, H, D = 23, 13, 27
     b = Site(f'village/{p.style}/park', [W, H, D], p)
     marker(b, 11.5, 1, 10.5, 'mcy_park_walk')
@@ -467,7 +469,7 @@ def park(p):
             if (x, z) not in path and (x, z) not in pond and not (10 <= x <= 14 and abs(z - play_z) <= depth + 1)]
     plants(b, [(x, z) for x, z in lawn if (x * 7 + z * 3) % 5 == 0 and not 13 <= x <= 19], 1)
     plants(b, [(x, z) for x in range(1, 15) for z in range(21, 26) if (x * 5 + z) % 4 == 0], 2)
-    # Gardeners' lodge (x15..21, z21..25): a small house of the type, door onto the path; two residents live in it.
+    # Gardeners' lodge (x15..21, z21..25): a small house of the type, door onto the path; two residents and a child live in it.
     lodge = (15, 21, 22, 26)
     x0, x1, z0, z1 = lodge
     b.box((x0, 0, z0), (x1, 0, z1), p.plinth); b.box((x0 + 1, 0, z0 + 1), (x1 - 1, 0, z1 - 1), p.floor)
@@ -487,6 +489,7 @@ def park(p):
     furniture(b, 'table', 1, [(18, 25)]); furniture(b, 'bench', 1, [(17, 25)], 'z')
     resident(b, 16, 24, 'caretaker_brother', 2, ['mcy_street_local'])
     resident(b, 20, 24, 'oniisan', 2, ['mcy_street_local', 'mcy_street_special'])
+    resident(b, 19, 23, 'child', 2, hand='mcyukkuri:yarn_ball')   # the child plays in the park by day (human/ChildPlay)
     b.strict = False
     street_ends(b, W)
     footprint = {(x, y, z) for x in range(11, 14) for y in (1, 2) for z in range(play_z - depth, play_z + depth + 1)}

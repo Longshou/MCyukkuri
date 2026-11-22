@@ -4048,6 +4048,21 @@ add('juice_bath', 'park', '受伤的灵梦爬进橙汁澡盆泡澡', '受伤的�
         set_status('soaker', 'health.wound_at', 'front:tear:2'),
     ], give=['mcyukkuri:orange_juice 2'], env=DAY, spot='pool', vantage=(2, -7, 20, 22),
     reads=[('读澡盆橙汁', 'data get block ~ ~ ~ Juice'), ('读灵梦', f'yukkuri status {sel("soaker")} raw')])
+_child_ball = 'park_child_ball'
+add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
+    '野餐草坪上，一个拿着毛线球的小孩，左边近处是胆大爱玩的流浪灵梦，右边稍远处是胆小的流浪魔理沙。开场几秒内小孩走到离灵梦三四格处站定，'
+    '举球往后拉一秒，再把球贴着灵梦身侧慢慢滚过去。灵梦会追上去拨球，小孩挥手；球玩完后小孩把它捡回，再对魔理沙滚一次，魔理沙缩着身子躲开，小孩只看着或小幅挥手。'
+    '两只的反应各看自己的胆量，重开可再看一遍。',
+    '约 1 分钟', [
+        human('child', 0, 0, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
+        + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
+        street_trial(_child_ball, 'reimu', -4, -1, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
+                     extra='YukkuriDailyLife:{Boredom:80}'),
+        street_trial(_child_ball, 'marisa', 6, 1, 'child_timid', boldness=15, friendliness=50, yaw=0),
+    ], env=DAY, spot='picnic', vantage=(1, 4, 180, 14),
+    reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
+           ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -7617,7 +7632,7 @@ TOPICS = {
     'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -7681,6 +7696,20 @@ _smoke('juice_bath', 1800, [
     rf'uuid={_juice_log} [^\n]*tub soak started at=[^\n]* juice=3 ',
     rf'uuid={_juice_log} [^\n]*tub soak ended at=[^\n]* used=true juice=3 -> 2 health=4\.0 -> (?!4\.0 )\S+ wounds=1 -> 0 hygiene=(?!20\.0\b)\S+',
 ], forbid=[r'tub soak ended [^\n]* used=false'])
+
+# One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
+# and each answer is logged by the animal itself.
+_child_log = _uuid_text(_child_ball, 'park_child')
+_child_bold = _uuid_text(_child_ball, 'child_bold')
+_child_timid = _uuid_text(_child_ball, 'child_timid')
+_smoke(_child_ball, 3200, [
+    rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_bold} ball=[0-9a-f-]{{36}} ',
+    rf'\[social\][^\n]*uuid={_child_bold} [^\n]*child offer response=play ',
+    rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_timid} ball=[0-9a-f-]{{36}} ',
+    rf'\[social\][^\n]*uuid={_child_timid} [^\n]*child offer response=flinch ',
+    rf'\[child\][^\n]*uuid={_child_log} [^\n]*reaction=played target={_child_bold} ',
+    rf'\[child\][^\n]*uuid={_child_log} [^\n]*ball_recovered ',
+], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll|approach_timeout|no_stand)'])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')

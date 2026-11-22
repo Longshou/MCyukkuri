@@ -39,7 +39,13 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
     }
     /** A bench board sits 0.5 above the cell floor; the vanilla riding legs lie flat when the hips are lowered this far, so the thighs meet the board. */
     private static final double SIT_DROP = .6;
+    /** A child is the adult rig at 0.62 with a larger head (Model.setupAnim); its shadow shrinks with it. */
+    private static final float CHILD_SCALE = .62f, CHILD_HEAD = 1.15f;
+    @Override protected void scale(HumanNpc npc, PoseStack pose, float partial) {
+        if (npc.look() == HumanNpc.Look.CHILD) pose.scale(CHILD_SCALE, CHILD_SCALE, CHILD_SCALE);
+    }
     @Override public void render(HumanNpc npc, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
+        shadowRadius = npc.look() == HumanNpc.Look.CHILD ? .35f * CHILD_SCALE : .35f;
         pose.pushPose();
         if (npc.sitsNow()) pose.translate(0, -SIT_DROP, 0);
         super.render(npc, yaw, partial, pose, buffers, light);
@@ -88,6 +94,23 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
                 used.xRot = -1.3f;
                 used.yRot = arm == HumanoidArm.RIGHT ? -.35f : .35f;
             }
+            float headScale = n.look() == HumanNpc.Look.CHILD ? CHILD_HEAD : 1f;
+            head.xScale = head.yScale = head.zScale = headScale;
+            hat.xScale = hat.yScale = hat.zScale = headScale;
+            var gesture = n.childPose();
+            if (gesture != ChildPlay.Pose.NONE) {
+                var arm = n.getMainArm() == HumanoidArm.RIGHT ? rightArm : leftArm;
+                float outward = n.getMainArm() == HumanoidArm.RIGHT ? -1 : 1;
+                if (gesture == ChildPlay.Pose.DRAW) {
+                    // The ball is drawn back beside the hip for the roll: arm swung behind, the body leaning into it.
+                    arm.xRot = .9f;
+                    body.xRot = .18f;
+                } else {
+                    // A friendly or apologetic wave: the hand up and swinging from the shoulder.
+                    arm.xRot = -2.5f;
+                    arm.zRot = outward * (.2f + .35f * Mth.sin(age * .6f));
+                }
+            }
             if (n.kicking()) rightLeg.xRot = -.8f;
             if (n.frowning()) { head.zRot = -.13f; head.xRot += .25f; hat.copyFrom(head); }
         }
@@ -98,6 +121,7 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             e.registerEntityRenderer(HumanWorld.ONIISAN.get(), HumanRenderer::new);
             e.registerEntityRenderer(HumanWorld.BROTHER.get(), HumanRenderer::new);
             e.registerEntityRenderer(HumanWorld.SISTER.get(), HumanRenderer::new);
+            e.registerEntityRenderer(HumanWorld.CHILD.get(), HumanRenderer::new);
         }
         public static void layers(EntityRenderersEvent.RegisterLayerDefinitions e) { e.registerLayerDefinition(LAYER, Model::layer); }
         public static void screens(RegisterMenuScreensEvent e) {
