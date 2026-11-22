@@ -10,10 +10,12 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +41,8 @@ final class KinAbsence {
 
     private final FamilyLife family;
     private final Map<UUID, Memory> kin = new LinkedHashMap<>(2);
+    /** Dead children whose remains this parent has already met (transient). */
+    private final Set<UUID> mourned = new HashSet<>();
     private UUID searching;
     private Vec3 destination;
     private boolean callStarted;
@@ -97,6 +101,7 @@ final class KinAbsence {
         var e = body();
         if (e.life().isSleeping() || e.isPassenger() || family.awaitingLanding()) return;
         if (family.adult() && FamilyProvision.home(e) == null) return;
+        if (family.adult()) mournChildRemains();
         var mate = family.partner();
         if (family.adult()) {
             if (mate != null) {
@@ -129,6 +134,23 @@ final class KinAbsence {
         }
     }
 
+    /** A parent that did not see its child die (asleep, away) grieves on coming upon the remains: the same family-death course and line. */
+    private void mournChildRemains() {
+        var e = body();
+        var data = FamilyData.get(family.level());
+        for (var id : data.children(e.getUUID())) {
+            if (mourned.contains(id)) continue;
+            if (id.equals(e.mind().feeling().about())) { mourned.add(id); continue; }
+            if (e.mind().feeling().mourning() || !data.acknowledgesChild(e.getUUID(), id)) continue;
+            var corpse = RemainsEntity.find(family.level(), e, id, 8);
+            if (corpse == null || !e.hasLineOfSight(corpse)) continue;
+            mourned.add(id);
+            e.life().personality().experienced(Trait.BOLDNESS, -3, "found_kin_remains");
+            e.bereave(EmotionEvent.FAMILY_DEATH, id, corpse.blockPosition());
+            GameplayLog.event(e, "family", "found child remains child={} at={}", id, corpse.blockPosition());
+        }
+    }
+
     private void observe(UUID id) {
         if (id == null) return;
         var memory = kin.get(id);
@@ -152,6 +174,7 @@ final class KinAbsence {
     }
 
     void witness(UUID id, BlockPos at) {
+        mourned.add(id);
         var memory = kin.get(id);
         if (memory == null && !(id.equals(family.mother()) || id.equals(family.father())
                 || id.equals(family.partner()) || id.equals(family.fosterParent()))) return;

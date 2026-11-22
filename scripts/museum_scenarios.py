@@ -212,7 +212,7 @@ def _mold_family(sid, keep):
     if keep:
         spots = ((-1, -3), (1, -3), (0, -3), (0, -2))
     else:
-        spots = ((0, 4), (-.8, 4.2), (0, 4.9), (.6, 3.9))
+        spots = ((-1.5, 4), (1.5, 4.2), (0, 5.2), (3, 5))
     title = '舍不得赶走，全家染上油霉' if keep else '油霉子油被亲油狠心赶走'
     lines = [
         yk('reimu', *spots[0], 'mother', uuid=ids['mother'], yaw=0, label='母油', skills=aware, adult_scale=.88 if keep else 1,

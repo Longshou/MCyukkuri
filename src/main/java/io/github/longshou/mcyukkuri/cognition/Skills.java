@@ -87,6 +87,8 @@ public final class Skills {
     }
 
     private void gotIt(Ability ability, int grade) {
+        // Learning what mould is comes with the cure or the sight of it: the treatment's thanks or the fright stands, not a pleased "I learned".
+        if (ability == Ability.MOLD_LORE) return;
         if (entity.onGround() && entity.life().mealTicks() == 0 && !entity.life().isSleeping()) {
             entity.showReactionCue(YukkuriAction.JOY_JUMP, "sparkle", "lesson_learned");
         } else if (entity.showReaction("sparkle", "", 60)) {

@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.action.Push;
+import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.settlement.MoldVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -49,8 +50,10 @@ public final class MoldExile extends Goal implements MotorOwner {
     private static final int REACTION = 60;
     /** Witness beats: the start at the sight, then the warning, then (harsh ones) the scorn and the push. */
     private static final int NOTICE = 30, SCORN_AFTER = 50, WARN_HOLD = 80, SCORN_HOLD = 150;
-    /** The sick one's stare before it answers. */
-    private static final int LISTEN = 30;
+    /** Lines take turns: a beat that speaks waits for the others close by to finish theirs, at most this long. */
+    private static final int TURN_CAP = 120;
+    /** Blocks it keeps walking beyond the home range after the departure is settled, out of sight of the home. */
+    private static final int TRUDGE = 6;
     // The walk limit leaves time to answer, look back, turn, try another dry stand and cover the colony return radius at a crawl.
     private static final int WALK_LIMIT = 900;
     private static final int EXIT_CLEARANCE = 1;
@@ -104,7 +107,9 @@ public final class MoldExile extends Goal implements MotorOwner {
     private int failedStage;
     // The beats of this confrontation, decided at its start. Transient.
     private int noticeEnd, answerTicks, lookBacks, lookBackTicks;
-    private boolean fond, harsh, resists;
+    private boolean fond, harsh, resists, pleads, trudging;
+    private int turnWaited;
+    private UUID departedBy;
     private Verdict childVerdict;
     private Answer answer;
 
@@ -118,7 +123,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         return switch (task) {
             case WITNESS -> ticks < noticeEnd ? Behaviors.MOLD_NOTICE : fond || childVerdict == Verdict.DRIVE_TEARFUL ? Behaviors.MOLD_SORROW
                     : !driving ? null : harsh && ticks >= noticeEnd + SCORN_AFTER ? Behaviors.MOLD_SCORN : Behaviors.MOLD_WARN;
-            case LEAVE -> ticks < LISTEN ? Behaviors.MOLD_NOTICE : ticks < LISTEN + answerTicks ? resists ? Behaviors.MOLD_RESIST : Behaviors.MOLD_PLEAD
+            case LEAVE -> ticks <= answerTicks ? resists ? Behaviors.MOLD_RESIST : Behaviors.MOLD_PLEAD
                     : answer != Answer.FAREWELL ? null : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
             case APPEAL -> exile != null && exile.appeal == Appeal.AWAITING_REPLY ? Behaviors.MOLD_PLEAD : null;
             case VISIT -> null;
@@ -399,8 +404,6 @@ public final class MoldExile extends Goal implements MotorOwner {
                 driving = harsh = !fond;
                 if (fond) keptChildren.put(lastWitnessed, new Kept(inputs.tier(), level().getGameTime() + 2400));
             }
-            if (!known) entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
-            else answer();
             GameplayLog.event(entity, "settlement", "mold witnessed subject={} stage={} distance={} aversion={} response={} fond={} harsh={}",
                     peer.getUUID(), peer.body().mold(), entity.distanceTo(peer), Math.round(aversion(entity, peer)), driving ? "drive" : "stay", fond, harsh);
             // A fond kin feels the loss while it still watches: a light grief of its own.
@@ -408,13 +411,14 @@ public final class MoldExile extends Goal implements MotorOwner {
                 entity.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .3f, peer.getUUID(), peer.blockPosition());
         } else if (task == Task.LEAVE) {
             resists = exile == null && t.is(Gate.PROTESTS_EXILE);
-            answerTicks = resists ? 50 + t.boldness() / 3 : 50 + t.attachment() / 2;
+            // Whether it begs is its own character: attached or fond of the one driving it, and not too proud or selfish to ask.
+            pleads = !resists && peer != null && !t.is(Gate.HARSH) && (t.is(Gate.ATTACHED)
+                    || YukkuriWorldData.get(level()).affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_CLOSE);
+            answerTicks = resists ? 50 + t.boldness() / 3 : pleads ? 50 + t.attachment() / 2 : 0;
             answer = Ousting.answer(t);
             lookBacks = answer == Answer.FAREWELL ? t.is(Gate.DEVOTED_KIN) ? 2 : 1 : 0;
-            if (exile == null) entity.showReaction("surprise", "", LISTEN);
-            else if (peer != null) ticks = LISTEN; // Stay facing the resident after the plea.
-            else {
-                ticks = LISTEN + answerTicks;
+            if (exile != null && peer == null) {
+                ticks = answerTicks + 1;
                 lookBacks = 0;
             }
             outward = entity.position().subtract(home.centre()).multiply(1, 0, 1).normalize();
@@ -422,7 +426,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             if (outward.lengthSqr() == 0) outward = new Vec3(0, 0, 1);
             if (peer != null) GameplayLog.event(entity, "settlement", "mold exile {} witness={} stage={} group={} den={} answer={} lookBacks={}",
                     exile == null ? "protest" : "refused return", peer.getUUID(), entity.body().mold(), home.group(), home.den(),
-                    resists ? "resist" : "plead", lookBacks);
+                    resists ? "resist" : pleads ? "plead" : "silent", lookBacks);
         } else if (task == Task.VISIT || exile.appeal != Appeal.AWAITING_REPLY) {
             destination = SurfaceApproach.floor(entity, home.centre());
         }
@@ -465,9 +469,14 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     private void watch() {
         entity.getLookControl().setLookAt(peer, 30, 30);
-        if (ticks == noticeEnd && noticeEnd > 0) answer();
-        if (harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
-                && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
+        int answerAt = Math.max(noticeEnd, 1);
+        boolean scorn = harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER;
+        if ((ticks == 1 && noticeEnd > 0 || ticks == answerAt || scorn) && !myTurn()) { ticks--; return; }
+        if (ticks == 1 && noticeEnd > 0)
+            entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
+        if (ticks == answerAt) answer();
+        if (scorn && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50) && entity.skills().knows(Ability.MOLD_LORE))
+            entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0)) return;
         // One decision is one continuous drive-off: one push action starts, follows the sick one and keeps its clip until it is out
         // of the home range; the witness then only watches it go.
@@ -478,7 +487,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             if (harsh && ticks > noticeEnd + SCORN_AFTER) {
                 double spacing = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .1;
                 var stand = SurfaceApproach.beside(entity, peer, spacing, ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
-                        at -> ContactGeometry.inMouthReach(entity, at, peer) && dryOutwardStep(at));
+                        at -> ContactGeometry.inMouthReach(entity, at, peer) && dryOutwardStep(at) && SurfaceApproach.roomAt(entity, at, peer));
                 if (stand != null) SurfaceApproach.walkToContact(entity, stand, peer, 1);
             }
             return;
@@ -523,15 +532,28 @@ public final class MoldExile extends Goal implements MotorOwner {
                 && SurfaceApproach.dryStep(peer, peer.position(), at);
     }
 
+    /** Spoken beats take turns: it waits while anyone close by is mid-line, then goes ahead once the wait has run its cap. */
+    private boolean myTurn() {
+        long now = level().getGameTime();
+        if (turnWaited < TURN_CAP && !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2 * SIGHT),
+                y -> y != entity && y.isAlive() && y.speechEnd() > now).isEmpty()) {
+            turnWaited++;
+            return false;
+        }
+        turnWaited = 0;
+        return true;
+    }
+
     private void leave() {
-        // It stares at the one driving it, then pleads or protests to its face; only then does it turn to go.
-        if (ticks < LISTEN + answerTicks) {
+        // A begging or protesting one starts at once, to the face of the one driving it; one that neither begs nor protests just turns to go.
+        if (!trudging && (ticks == 1 && answerTicks > 0 && exile == null || ticks == answerTicks + 1) && !myTurn()) { ticks--; return; }
+        if (ticks <= answerTicks) {
             if (peer != null) entity.getLookControl().setLookAt(peer, 30, 30);
-            if (ticks == LISTEN)
+            if (ticks == 1 && exile == null)
                 entity.showReaction(resists ? "angry" : "teary", resists ? "mold_resist" : "mold_plea", answerTicks);
             return;
         }
-        if (ticks == LISTEN + answerTicks) turnAway();
+        if (ticks == answerTicks + 1) turnAway();
         if (entity.reactionAction() == YukkuriAction.STAMP) return;
         if (lookBackTicks > 0) {
             SurfaceApproach.stopWalking(entity);
@@ -550,9 +572,10 @@ public final class MoldExile extends Goal implements MotorOwner {
             GameplayLog.event(entity, "settlement", "mold exile looked back left={} out={}", lookBacks, Math.round(out * 100) / 100.0);
             return;
         }
-        int clearRange = home.radius() + EXIT_CLEARANCE;
+        int clearRange = clearRange();
         if (entity.position().subtract(home.centre()).horizontalDistanceSqr() >= clearRange * clearRange
                 && entity.onGround() && SurfaceApproach.stands(entity, entity.position())) {
+            if (trudging) { end(); return; }
             if (exile == null && !canLeave(home, peer)) { end(); return; }
             completeLeave();
             return;
@@ -584,18 +607,21 @@ public final class MoldExile extends Goal implements MotorOwner {
                 continue;
             }
             child.showReactionDelayed("cry", "mold_child_cry", 80, 20);
-            child.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, entity.getUUID(), entity.blockPosition());
+            child.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
             GameplayLog.event(child, "family", "mold exile child cries parent={}", entity.getUUID());
         }
     }
 
+    /** Outside the home range; once the departure is settled it keeps walking on until it is out of sight of the home. */
+    private int clearRange() { return home.radius() + EXIT_CLEARANCE + (trudging ? TRUDGE : 0); }
+
     private boolean nextRetreat() {
         while (nextExit < EXIT_ANGLES.length) {
             float turn = (float)Math.toRadians(EXIT_ANGLES[nextExit++]);
-            var aim = home.centre().add(outward.yRot(turn).scale(home.radius() + 2));
+            var aim = home.centre().add(outward.yRot(turn).scale(clearRange() + 1));
             if (!level().hasChunkAt(BlockPos.containing(aim))) continue;
             var stand = SurfaceApproach.floor(entity, aim);
-            int clearRange = home.radius() + EXIT_CLEARANCE;
+            int clearRange = clearRange();
             if (stand == null || stand.subtract(home.centre()).horizontalDistanceSqr() < clearRange * clearRange
                     || !SurfaceApproach.hasDryBankBuffer(entity, stand, entity.getMaxFallDistance())
                     || !SurfaceApproach.canApproach(entity, stand)) continue;
@@ -614,12 +640,14 @@ public final class MoldExile extends Goal implements MotorOwner {
                 GameplayLog.event(entity, "family", "mold exile child stays child={} healthy_parent={} child_home={}",
                         child.getUUID(), parent.getUUID(), child.life().homeStand());
             }
-            exile = new Exile(home, answer == Answer.CURSE ? Appeal.WITHDREW : Appeal.NONE);
+            // Only one that begged on the spot comes back to ask again.
+            exile = new Exile(home, answer == Answer.CURSE || !pleads ? Appeal.WITHDREW : Appeal.NONE);
             for (var parent : guardians(home)) {
                 var verdict = MoldVerdict.decide(verdictInputs(parent, entity, home));
                 Bonds.sever(parent, entity.getUUID(), "child_exiled");
+                // A parting that ends by its own course: it watches the child go, then goes back to its duties.
                 if (verdict == Verdict.DRIVE_TEARFUL)
-                    parent.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, entity.getUUID(), entity.blockPosition());
+                    parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
             }
             entity.habitat().release();
             entity.life().releaseHome();
@@ -631,10 +659,23 @@ public final class MoldExile extends Goal implements MotorOwner {
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
                     witness == null ? "without answer" : "after refusal", witness, entity.body().mold());
         }
-        // Outside, it feels the loss of its home most strongly on the first departure.
-        entity.mind().feeling().wronged(witness, first ? 1f : .6f, BlockPos.containing(home.centre()));
-        entity.habitat().seekHomeNow();
+        departedBy = witness;
+        if (first) {
+            // The departure is settled; it walks on out of the home's sight before it feels the loss (end).
+            trudging = true;
+            destination = null;
+            nextExit = 0;
+            return;
+        }
+        grieveDeparture();
         end();
+    }
+
+    /** Outside, it feels the loss of its home most strongly on the first departure. */
+    private void grieveDeparture() {
+        entity.mind().feeling().wronged(departedBy, trudging ? 1f : .6f, BlockPos.containing(home.centre()));
+        entity.habitat().seekHomeNow();
+        trudging = false;
     }
 
     private boolean arrivedAtHome() {
@@ -700,6 +741,7 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     private void end() {
         if (task == null) return;
+        if (trudging) grieveDeparture();
         entity.motor().cancel(this, "mold_exile_end");
         SurfaceApproach.stopWalking(entity);
         task = null;

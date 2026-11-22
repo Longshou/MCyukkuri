@@ -114,7 +114,7 @@ public final class Push implements Action {
     private static void follow(YukkuriEntity body, YukkuriEntity other) {
         double spacing = (body.getBbWidth() + other.getBbWidth()) * .5 + .1;
         var stand = SurfaceApproach.beside(body, other, spacing, ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY,
-                at -> ContactGeometry.inMouthReach(body, at, other));
+                at -> ContactGeometry.inMouthReach(body, at, other) && SurfaceApproach.roomAt(body, at, other));
         if (stand != null) SurfaceApproach.walkToContact(body, stand, other, 1);
         else SurfaceApproach.stopWalking(body);
     }

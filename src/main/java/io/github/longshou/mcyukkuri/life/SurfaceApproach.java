@@ -559,6 +559,13 @@ public final class SurfaceApproach {
         return signature;
     }
 
+    /** No other body stands where {@code actor} would stand at {@code at} (the peer it is going to is not counted): stands keep apart. */
+    public static boolean roomAt(YukkuriEntity actor, Vec3 at, Entity peer) {
+        double clear = actor.getBbWidth() * .5;
+        return actor.level().getEntitiesOfClass(YukkuriEntity.class, actor.getBoundingBox().inflate(4), y -> y != actor && y != peer && y.isAlive()
+                && y.position().subtract(at).horizontalDistance() < clear + y.getBbWidth() * .5 + .3).isEmpty();
+    }
+
     /** A supported, reachable stand around a fixed contact point, admitted by the caller's shared contact ability. */
     public static Vec3 beside(YukkuriEntity actor, Vec3 point, double distance, Predicate<Vec3> contact) {
         var candidates = new ArrayList<Vec3>();
