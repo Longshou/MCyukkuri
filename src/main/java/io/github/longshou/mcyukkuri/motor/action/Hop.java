@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
 import io.github.longshou.mcyukkuri.motor.geom.BankStand;
+import io.github.longshou.mcyukkuri.motor.geom.TakeoffLip;
 import io.github.longshou.mcyukkuri.motor.geom.HopPath;
 import io.github.longshou.mcyukkuri.motor.geom.HopHeading;
 import io.github.longshou.mcyukkuri.motor.geom.Vec;
@@ -774,6 +775,13 @@ public final class Hop implements Action {
         return clear(body, from, anchor, hosts, points, delay, yaw, yaw, null);
     }
 
+    /** How far the start box of a take-off at {@code from} sits sunk in a block it rises out of (see {@link TakeoffLip}), 0 if it does not. */
+    private static double takeoffLip(YukkuriEntity body, AABB base, Vec3 from) {
+        var start = base.move(from.subtract(body.position()));
+        double lift = TakeoffLip.lift(l -> body.level().noCollision(body, start.move(0, l, 0)));
+        return Math.max(0, lift);
+    }
+
     private record BrimClearance(Predicate<Vec3> hat, List<AABB> occupants) {
         boolean clear(Vec3 corner, Vec3 at, AABB first, AABB second) {
             return hat.test(corner) && hat.test(at) && occupants.stream().noneMatch(box -> box.intersects(first) || box.intersects(second));
@@ -795,6 +803,8 @@ public final class Hop implements Action {
                           float startYaw, float bearing, BrimClearance brim) {
         AABB base = body.getBoundingBox();
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
+        double lip = anchor == null ? takeoffLip(body, base, from) : 0;
+        boolean lipSpent = false;
         for (int tick = 0; tick < points.size(); tick++) {
             float yaw = (float) HopHeading.flightYaw(startYaw, bearing, tick, points.size() - 1);
             var point = points.get(tick);
@@ -811,9 +821,12 @@ public final class Hop implements Action {
             if (!carriedClear(body, previous, at, yaw)) {
                 obstruction = "held_world at=" + GameplayLog.at(at); return false;
             }
-            AABB startBox = base.move(previous.subtract(body.position()));
-            AABB cornerBox = base.move(corner.subtract(body.position()));
-            AABB atBox = base.move(at.subtract(body.position()));
+            // the sunk edge of a take-off stand leaves its block with the first rise; a descent never takes the lip back
+            if (lip > 0 && at.y - from.y >= lip && at.y >= previous.y) lipSpent = true;
+            double held = lip > 0 && !lipSpent ? 1 : 0;
+            AABB startBox = base.move(previous.subtract(body.position())).move(0, held * TakeoffLip.held(lip, previous.y - from.y), 0);
+            AABB cornerBox = base.move(corner.subtract(body.position())).move(0, held * TakeoffLip.held(lip, corner.y - from.y), 0);
+            AABB atBox = base.move(at.subtract(body.position())).move(0, held * TakeoffLip.held(lip, at.y - from.y), 0);
             var first = startBox.minmax(cornerBox);
             var second = cornerBox.minmax(atBox);
             if (brim != null && !brim.clear(corner, at, first, second)) {

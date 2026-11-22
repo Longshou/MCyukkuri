@@ -68,22 +68,32 @@ final class Care implements Intent {
                 && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
     }
 
-    /** Ordinary parental placement: lift a brim child to shelter, or lower a head rider onto supported ground. */
+    /** A hungry head rider she can feed only once it sits on the floor she stands on (the head is out of mouth reach): the cabin has
+     *  a free place, or the brim does. */
+    static boolean canLowerToFeed(YukkuriEntity parent, YukkuriEntity child, PlacedHatEntity hat) {
+        return child.getVehicle() == parent && ParentCarry.hold(parent, child) == ParentCarry.Hold.HEAD
+                && (!hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty() || !hat.places(child, SeatTarget.Kind.BRIM, 1).isEmpty());
+    }
+
+    /** Ordinary parental placement: lift a brim child to shelter, lower a head rider onto her hull's floor to feed it, or lower a head
+     *  rider onto supported ground. */
     static final class Transfer implements Intent {
         private final YukkuriEntity parent, child;
         private final PlacedHatEntity hat;
         private final Release release;
         private final long started;
+        private final boolean lowering;
 
         Transfer(YukkuriEntity parent, YukkuriEntity child, PlacedHatEntity hat) {
             this.parent = parent;
             this.child = child;
             this.hat = hat;
-            release = new Release(child, hat);
+            lowering = hat != null && child.getVehicle() == parent;
+            release = lowering ? Release.offHead(child, hat) : new Release(child, hat);
             started = parent.level().getGameTime();
         }
 
-        @Override public String id() { return hat == null ? "set_down_young" : "shelter_young"; }
+        @Override public String id() { return hat == null ? "set_down_young" : lowering ? "lower_young" : "shelter_young"; }
         @Override public long deadline() { return started + COMFORT; }
         @Override public Commitment commitment() { return Commitment.HARD; }
         @Override public boolean satisfied() { return release.released(); }

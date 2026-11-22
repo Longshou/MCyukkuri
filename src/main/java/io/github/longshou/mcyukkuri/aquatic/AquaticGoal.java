@@ -441,6 +441,17 @@ final class AquaticGoal extends Goal {
         var larder = HullLarder.of(hat);
         YukkuriEntity hungry = null, gasping = null;
         for (var y : young) {
+            if (y.getVehicle() == body && ParentCarry.hold(body, y) == ParentCarry.Hold.HEAD) {
+                // A hungry head rider is out of mouth reach: once her feeding decision is accepted she lowers it to the cabin floor or the
+                // brim (her braid is free), and the feed_young above is offered at once.
+                if (Care.hungry(body, y) && !ParentCarry.braidBusy(body) && Care.canLowerToFeed(body, y, hat)
+                        && !body.family().careDecisions().refused(y, CareDecisionLedger.Need.FEED)
+                        && (larder != null && larder.has(one -> y.life().canReceiveCareFood(one)) || !held.isEmpty() && y.life().canReceiveCareFood(held))
+                        && body.family().careDecisions().decide(y, CareDecisionLedger.Need.FEED, y.life().nutrition() < 30 || !y.childhood().firstMealDone()).accepted())
+                    out.add(Desire.of("lower_young", floor(num("feed_want", 55) + Math.max(0, 50 - y.life().nutrition())), List.of(at, y.getUUID()),
+                            () -> "hungry head rider child=" + y.getUUID(), () -> new Care.Transfer(body, y, hat)));
+                continue;
+            }
             if (y.getVehicle() != hat) continue;
             if (Care.upset(y) && gasping == null && !recently(y)) gasping = y;
             if (!Care.hungry(body, y) || body.family().careDecisions().refused(y, CareDecisionLedger.Need.FEED)) continue;

@@ -79,7 +79,7 @@ public final class Release implements Action, MotorOwner {
     private Walk approach;
     private final SurfaceHost destination;
     private SeatTarget seat;
-    private boolean released;
+    private boolean released, offHead;
     private BlockPos nest;
     private Vec3 endpoint, stand;
     private String placement;
@@ -99,6 +99,18 @@ public final class Release implements Action, MotorOwner {
     private Outcome brimResult;
 
     public Release(YukkuriEntity child) { this(child, null); }
+
+    /** A set-down onto {@code host} that never keeps a head rider on the head: the cabin floor, else the brim. */
+    public static Release offHead(YukkuriEntity child, SurfaceHost host) {
+        var release = new Release(child, host);
+        release.offHead = true;
+        return release;
+    }
+
+    private List<SeatTarget> places() {
+        var places = destination.places(child, Integer.MAX_VALUE);
+        return offHead ? places.stream().filter(p -> p.kind() != SeatTarget.Kind.HEAD).toList() : places;
+    }
     public Release(YukkuriEntity child, SurfaceHost destination) {
         this.child = child;
         this.destination = destination;
@@ -133,7 +145,7 @@ public final class Release implements Action, MotorOwner {
         if (!child.isAlive()) return Feasibility.of(Reason.TARGET_GONE, 0, "child_gone");
         if (child.getVehicle() != carrier) return Feasibility.of(Reason.NO_CONTACT, 0, "not_held");
         if (destination != null) {
-            var places = destination.places(child, Integer.MAX_VALUE);
+            var places = places();
             GameplayLog.limited(carrier, "family", "release.places", 200,
                     "release places child={} host={} cabin={} head={} brim={}", () -> new Object[]{child.getUUID(), destination.entity().getUUID(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.CABIN).count(),
@@ -541,7 +553,7 @@ public final class Release implements Action, MotorOwner {
             previousLocal = local;
             String unavailable = seat.unavailable(child);
             if (unavailable != null) {
-                var places = destination.places(child, Integer.MAX_VALUE);
+                var places = places();
                 if (places.isEmpty()) return Outcome.of(Reason.NO_ROOM, 0, "no_seat check=" + unavailable);
                 var replacement = nearest(carrier, places, List.of(carrier.bodyYaw()));
                 if (replacement == null) return Outcome.of(Reason.NO_SUPPORT, 0, "transfer_blocked check=" + unavailable);
