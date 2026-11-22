@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| PD-13 拆场景：超载取舍演出、超载预警、帽船存粮 | `.worktrees/wp-pd13-tradeoff` | aquatic/AquaticLife overload, aquatic/LeaveBehind(new), MoldVerdict, scripts/museum_scenarios.py hat_crowd + 2 new scenes |
 
 
 
