@@ -237,7 +237,7 @@
       "category": "活动",
       "behavior": "绑定同伴听歌",
       "contexts": "三类",
-      "implementation": "DailyLife.singTo",
+      "implementation": "DailyLife.SING companion",
       "presentation": "listen_song；闭口微笑，听完才缓解需求",
       "status": "本轮新增；不凭附近人数伪造观众",
       "source": "N3"
