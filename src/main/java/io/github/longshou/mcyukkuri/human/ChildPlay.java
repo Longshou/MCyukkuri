@@ -242,7 +242,8 @@ public final class ChildPlay extends Goal {
 
     /** The ball keeps rolling at walking pace until it has gone past the animal, hits something or an animal takes it up. */
     private void push() {
-        if (rollLeft <= 0 || playing()) return;
+        if (rollLeft <= 0) return;
+        if (playing()) { rollLeft = 0; return; }   // the animal has taken the ball up: the child's roll is over, the ball must not glide on its own
         if (ball.horizontalCollision || ball.isInWater() || !ball.onGround() && ball.getDeltaMovement().y < -.3) { rollLeft = 0; return; }
         Motor.velocity(ball, new Vec3(rollDir.x * ROLL_SPEED, ball.getDeltaMovement().y, rollDir.z * ROLL_SPEED), "child_roll");
         ball.hurtMarked = true;
