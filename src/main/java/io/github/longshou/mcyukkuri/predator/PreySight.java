@@ -1,14 +1,9 @@
 package io.github.longshou.mcyukkuri.predator;
 
-import io.github.longshou.mcyukkuri.cognition.Ability;
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-
 /**
  * What a hunting predator makes out of prey standing in grass: open prey is seen across the whole hunt range, covered prey
  * only within a range that grows with the predator's HUNTING grade, shrinks with the prey's WILD_SURVIVAL grade, and
- * grows when the prey moves. The two grades are each body's own, set once from its traits and age.
+ * grows when the prey moves. The two grades are each body's own, set once from its traits and age. Pure; {@link PreyEyes} reads the bodies.
  */
 public final class PreySight {
     /** Blocks within which a hunter makes out still prey in cover at HUNTING grade 0, and the gain per grade (grades run 0..3: 4..16 blocks). */
@@ -43,31 +38,5 @@ public final class PreySight {
     /** Whether prey at {@code distance} is made out: open prey always (the caller bounds it by the hunt range), covered prey within its detect range. */
     static boolean seen(double distance, boolean covered, boolean moving, int hunting, int survival) {
         return !covered || distance <= detectRange(hunting, survival, moving);
-    }
-
-    /** Whether the hunter makes out the prey now, by the two bodies' own grades. */
-    public static boolean seen(YukkuriEntity hunter, YukkuriEntity prey) {
-        if (!covered(prey)) return true;
-        return seen(hunter.distanceTo(prey), true, prey.getDeltaMovement().horizontalDistanceSqr() > MOVING_SPEED * MOVING_SPEED,
-                grade(hunter, Ability.HUNTING), grade(prey, Ability.WILD_SURVIVAL));
-    }
-
-    /** Whether the body stands in a clump of tall grass, fern or berry bush that hides it (short grass is knee-high and hides no one). */
-    static boolean covered(YukkuriEntity body) {
-        Block block = body.level().getBlockState(body.blockPosition()).getBlock();
-        return block == Blocks.TALL_GRASS || block == Blocks.FERN || block == Blocks.LARGE_FERN || block == Blocks.SWEET_BERRY_BUSH;
-    }
-
-    /** The body's grade of a wild ability, set from its traits at the first look. */
-    private static int grade(YukkuriEntity body, Ability ability) {
-        var skills = body.skills();
-        if (!skills.assessed(ability)) {
-            var traits = body.life().personality();
-            boolean adult = body.family().adult();
-            skills.innate(ability, gradeOf(ability == Ability.HUNTING
-                    ? huntScore(traits.boldness(), traits.intelligence(), adult)
-                    : hidingScore(traits.selfControl(), traits.intelligence(), adult)), "wild_traits");
-        }
-        return skills.grade(ability);
     }
 }

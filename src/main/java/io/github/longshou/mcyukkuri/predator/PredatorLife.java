@@ -713,7 +713,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     /** The best live yukkuri this hunter makes out within {@code range} (see {@link PreySight}); selecting it starts the hunt. */
     private boolean choosePrey(double range) {
         prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(range, PerchScore.MAX_HEIGHT + 1, range),
-                        y -> animal.distanceToSqr(y) <= range * range && mayHunt(y) && PreySight.seen(animal, y)).stream()
+                        y -> animal.distanceToSqr(y) <= range * range && mayHunt(y) && PreyEyes.seen(animal, y)).stream()
                 .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
                         .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
                         .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal()
@@ -721,7 +721,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (prey == null) return false;
         GameplayLog.event(animal,"predator","prey selected target={} stage={} speed={} slow_child={} range={} distance={} covered={}",
                 prey.getUUID(),prey.family().stage(),prey.getAttributeValue(Attributes.MOVEMENT_SPEED),slowChild(prey),range,animal.distanceTo(prey),
-                PreySight.covered(prey));
+                PreyEyes.covered(prey));
         task = Task.TAKEOFF; return true;
     }
     BlockPos broodPad() {
