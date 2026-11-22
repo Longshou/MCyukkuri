@@ -104,6 +104,7 @@ def cmd_start(args):
     git(MAIN, 'add', TODO)
     git(MAIN, 'commit', '-q', '-m', f'TODO: register {name}')
     git(MAIN, 'push', 'origin', 'HEAD:main')
+    smoke_slots.wait_user_away('creating the worktree (about 4 GB, 40k files)')
     git(MAIN, 'worktree', 'add', '-b', name, str(wt), 'origin/main')
     brief = MAIN / '.local/refactor/briefs' / f'{name}.md'
     if not brief.exists():
@@ -130,6 +131,7 @@ def dry_copy(name, wt):
     if tmp.exists():
         raise Fail(f'temp copy already exists: {tmp}')
     tmp.parent.mkdir(parents=True, exist_ok=True)
+    smoke_slots.wait_user_away('creating the dry-run copy')
     git(MAIN, 'worktree', 'add', '--detach', str(tmp), git(wt, 'rev-parse', 'HEAD'))
     return tmp
 
