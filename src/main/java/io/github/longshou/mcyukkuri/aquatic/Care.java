@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -99,6 +100,12 @@ final class Care implements Intent {
         @Override public boolean satisfied() { return release.released(); }
         @Override public List<Method> methods() { return List.of(Plan.of(id(), this::derive)); }
         private List<Supplier<Step>> derive() {
+            if (lowering) {
+                // the braid takes the head rider down (Grab from the head), then sets it on the cabin floor or the brim
+                var steps = new ArrayList<>(BraidFetch.lift(parent, child, hat));
+                steps.add(() -> new Step.Do(release));
+                return steps;
+            }
             if (hat != null && child.getVehicle() != parent) return BraidFetch.lift(parent, child, hat);
             return List.of(() -> new Step.Do(release));
         }
