@@ -46,6 +46,7 @@
   "breed_need": 35,
   "birth_ashore_want": 200,
   "young_ashore_need": 60,
+  "head_feed_need": 70,
   "reclaim": 85,
   "cruise_want": 30,
   "follow": 65,

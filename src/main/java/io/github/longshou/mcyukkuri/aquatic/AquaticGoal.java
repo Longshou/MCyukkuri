@@ -25,6 +25,7 @@ import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -247,12 +248,18 @@ final class AquaticGoal extends Goal {
             // herself (resolve_own_hat), her young set down on dry ground first. When that has no way either (hat out of swim
             // range, no bank edge) she is left with the boat call of set_out: the reclaim's failure reopens it.
             boolean boardable = hat == null || !usable || Ferry.canBoard(body, hat) || drive().failed("resolve_own_hat");
-            if (AquaticLife.ashore(body) && (!usable || !boardable || floor(setOut) == 0 || drive().failed("set_out"))) {
+            boolean stranded = !usable || !boardable || floor(setOut) == 0 || drive().failed("set_out");
+            if (AquaticLife.ashore(body)) {
+                // A head rider is set down on dry ground when she cannot set out with it, or when it is hungry and food is to be had:
+                // the ground feed (family care) reaches only a child on the ground.
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
-                    out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
-                            () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
+                    boolean feed = hungryHead(rider, hat);
+                    if (stranded || feed) out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
+                            () -> (feed ? "hungry_head_rider_ashore child=" : "head_rider_ashore child=") + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
                     break;
                 }
+            }
+            if (AquaticLife.ashore(body) && stranded) {
                 // The young still riding the afloat hull come ashore too, through the family landing: a capable one hops off by
                 // itself, a dependent one she takes over the rim from the bank, or boards for when the bank does not reach it.
                 var rider = youngAboard(body, hat);
@@ -323,13 +330,17 @@ final class AquaticGoal extends Goal {
         // The hull sits low and rocks under her young's weight (its load warning): an ordinary parent takes the family ashore to
         // unload before it goes over; a keeper (low intelligence, high friendliness) keeps going (FEATURES 载重).
         boolean heavy = overladen(body, hat);
+        // A hungry head rider with no free cabin place is out of her mouth's reach: she is fed on dry ground.
+        boolean headFeed = young.stream().anyMatch(y -> y.getVehicle() == body && ParentCarry.hold(body, y) == ParentCarry.Hold.HEAD
+                && hat.places(y, SeatTarget.Kind.CABIN, 1).isEmpty() && hungryHead(y, hat));
         double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
-                Math.max(birthWant, Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
+                Math.max(Math.max(birthWant, headFeed ? num("head_feed_need", 70) : 0),
+                        Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
         // Where she lies is the hull's four-cell region, not its cell: a landing that failed (its dock paddles the hull cell to cell) is not
         // offered again on the same facts until she has really moved on, and then the next bank is another try.
-        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood);
-        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f",
-                hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired);
+        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood, headFeed);
+        Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f head_feed=%b",
+                hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired, headFeed);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
                 // she feels it sit low and wallow with her young aboard: a worried cry before she turns for the bank
@@ -342,6 +353,17 @@ final class AquaticGoal extends Goal {
         // At the desire ceiling, labour's shore requirement wins ties with hunger; other bodily emergencies still own their goals.
         if (birth) out.addFirst(ashoreDesire); else out.add(ashoreDesire);
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
+    }
+
+    /** A hungry head rider she has food for (her hold, her mouth, or on the bank) and whose feeding her care decision accepted: out of
+     *  mouth reach on her head, it is fed on dry ground. */
+    private boolean hungryHead(YukkuriEntity y, PlacedHatEntity hat) {
+        if (!Care.hungry(body, y) || body.family().careDecisions().refused(y, CareDecisionLedger.Need.FEED)) return false;
+        var larder = HullLarder.of(hat);
+        var held = body.family().carrying();
+        boolean food = larder != null && larder.has(one -> y.life().canReceiveCareFood(one)) || !held.isEmpty() && y.life().canReceiveCareFood(held)
+                || foodAshore(body);
+        return food && body.family().careDecisions().decide(y, CareDecisionLedger.Need.FEED, y.life().nutrition() < 30 || !y.childhood().firstMealDone()).accepted();
     }
 
     /** An ordinary parent's read of her hull's load: aboard, it sits in its load warning; ashore, it would once she boarded with the

@@ -69,8 +69,8 @@ final class Care implements Intent {
                 && !hat.places(child, SeatTarget.Kind.HEAD, 1).isEmpty();
     }
 
-    /** A hungry head rider is out of mouth reach and a brim rider out of her floor's reach: she can feed it only once the cabin has a
-     *  free place for it (a sibling that leaves it, a hull that grew room). */
+    /** A hungry head rider is out of mouth reach: with a free cabin place she lowers it there to feed it; with none it is set down and fed
+     *  on dry ground (come_ashore, then set_down_young). */
     static boolean canLowerToFeed(YukkuriEntity parent, YukkuriEntity child, PlacedHatEntity hat) {
         return child.getVehicle() == parent && ParentCarry.hold(parent, child) == ParentCarry.Hold.HEAD
                 && !hat.places(child, SeatTarget.Kind.CABIN, 1).isEmpty();
