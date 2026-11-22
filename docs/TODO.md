@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 表情优先级：一张统一的先后表 | `.worktrees/wp-face-precedence` | entity/presentation/PresentationArbiter |
 | 删除 WildCards（WildCards 第 2 步收尾） | `.worktrees/wp-wc-final` | event/WildCards (delete), WildEventData, WildEvents, config, lang, architecture_exceptions |
 
 
