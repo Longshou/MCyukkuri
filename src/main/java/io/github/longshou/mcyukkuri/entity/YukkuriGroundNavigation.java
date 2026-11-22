@@ -739,7 +739,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private static Vec3 right(Vec3 heading) { return new Vec3(-heading.z, 0, heading.x); }
     private static final double YIELD_PACE = .16;
     public static final int YIELD_LIMIT = 20;
-    /** Ticks a finished (or roomless) give-way is not repeated for the same walker: two step durations, so a pass is one step and a walker still blocked later is asked again. */
+    /** Ticks a finished (or roomless) give-way is not repeated: two step durations, so a pass gets one step and a walker still blocked later is asked again. */
     private static final int REASK_TICKS = 2 * YIELD_LIMIT;
     private static final int MAX_YIELD_NOTICE = 3;
     private static final double STAFF_PASSAGE_RANGE = 1.75;
@@ -893,11 +893,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (!(blocker.directNavigation() instanceof YukkuriGroundNavigation nav) || !(blocker.level() instanceof ServerLevel)
                 || !canGiveWay(blocker)) return false;
         if (nav.passage != null) {
-            // A step in progress is the walker's alone; a finished one (or one that found no room) is not asked again for the same walker
-            // before REASK_TICKS, and never holds back another walker or a later pass in a crowded den.
-            boolean mine = nav.passage.walker.equals(walker.getUUID());
-            if (!nav.passage.done) return mine;
-            if (mine && blocker.level().getGameTime() - nav.passage.began < REASK_TICKS) return false;
+            // A step in progress is the walker's alone; a finished one (or one that found no room) is not asked again for
+            // REASK_TICKS, so one pass gets one sidestep and no walker can repeat an ask another walker already made.
+            if (!nav.passage.done) return nav.passage.walker.equals(walker.getUUID());
+            if (blocker.level().getGameTime() - nav.passage.began < REASK_TICKS) return false;
         }
         var side = right(heading);
         var offset = blocker.position().subtract(walker.position());
