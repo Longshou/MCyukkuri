@@ -162,11 +162,13 @@ final class Ferry {
     private static Step approachHull(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
         var hop = new Hop(hat);
         var search = Hop.Search.admission();
-        if (hop.check(body, search).ok()) return null;
+        var ready = hop.check(body, search);
+        if (ready.ok()) return null;
         var move = boardingApproach(body, hat, beckoning, search);
         if (move != null) return act(move);
         GameplayLog.limited(body, "aquatic", "board.no_stand", 200,
-                "board waiting reason=no_dry_hop_stand hat={}", hat.getUUID());
+                "board waiting reason=no_dry_hop_stand hat={} hop={} detail={} carrying={}", hat.getUUID(), ready.reason(), ready.detail(),
+                body.getPassengers().size());
         return new Step.Wait(() -> hop.check(body, Hop.Search.admission()).ok(),
                 ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL);
     }
