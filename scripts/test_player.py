@@ -221,7 +221,7 @@ class PlayerTests(unittest.TestCase):
         variants.update(read(ASSETS/'yukkuri_presentation/subspecies.json'))
         self.assertEqual(set(self.data['models']), variants)
         self.assertEqual({e['model'] for e in entries if e['category'] == 'models'}, variants)
-        items = set(current_items()) - set(read(ROOT/'preview/hub/categories.json')['excludeItems'])
+        items = set(current_items())
         self.assertEqual({e['id'] for e in entries if e['category'] == 'props'}, {'item-'+i for i in items})
         sounds = set()
         for event in read(ASSETS/'sounds.json').values():

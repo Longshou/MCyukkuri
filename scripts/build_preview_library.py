@@ -135,8 +135,6 @@ def build(catalog, out):
                    and not ident.endswith('_spawn_egg')
                    and ('item.mcyukkuri.'+ident in lang or 'block.mcyukkuri.'+ident in lang)]
     for ident, registration in sorted(registered.items()):
-        if ident in config['excludeItems']:
-            continue
         path = model_paths.get(ident)
         title = lang.get('item.mcyukkuri.'+ident) or lang.get('block.mcyukkuri.'+ident) or ident
         category = classify_item(ident, categories)

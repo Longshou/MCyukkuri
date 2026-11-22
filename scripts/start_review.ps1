@@ -1,7 +1,7 @@
-param([int]$Port=8766,[switch]$NoOpen)
+param([int]$Port=8766,[switch]$NoOpen,[string]$Page=".local/previews/index.html")
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
-$url="http://127.0.0.1:$Port/.local/previews/index.html"
+$url="http://127.0.0.1:$Port/$Page"
 $ready=$false
 try {
     $health=Invoke-RestMethod "http://127.0.0.1:$Port/review-health" -TimeoutSec 2
