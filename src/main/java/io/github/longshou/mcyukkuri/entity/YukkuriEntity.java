@@ -457,7 +457,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override public void move(MoverType type, Vec3 delta) {
         Vec3 from = position();
-        super.move(type, type == MoverType.SELF ? Motor.groundTravel(this, delta, xxa != 0 || zza != 0 || isCrawling()) : delta);
+        boolean driving = type == MoverType.SELF && (xxa != 0 || zza != 0 || isCrawling());
+        drivenThisTick |= driving;
+        super.move(type, type == MoverType.SELF ? Motor.groundTravel(this, delta, driving) : delta);
         if (!level().isClientSide && type == MoverType.SELF) {
             motor.contact.finishMove();
             motor.stride.resolved(tickCount, delta.x, delta.y, delta.z, getX() - from.x, getY() - from.y, getZ() - from.z);
@@ -855,6 +857,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return animStep;
     }
 
+    private boolean drivenThisTick;
+
     @Override
     public void aiStep() {
         if (!level().isClientSide && !crawler()) syncCrawl(false);
@@ -891,7 +895,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!isAlive()) return;
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
         if (reactionTicks > 0 && reactionEvent.equals("need_tell") && !status().reactions().allowsNeedTell()) cancelReaction();
-        presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ);
+        // A shove or the neighbour-separation shift is contact, not travel: it must not flip a standing clip to the walk.
+        boolean passive = !drivenThisTick && (motor.contact.recoiling() || motor.contact.pushedThisTick(level().getGameTime()));
+        drivenThisTick = false;
+        presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ, passive);
         sync().syncHeldItem();
     }
 

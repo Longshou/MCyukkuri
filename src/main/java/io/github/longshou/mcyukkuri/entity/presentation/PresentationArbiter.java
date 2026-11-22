@@ -26,19 +26,36 @@ public final class PresentationArbiter {
     private long lastGameTick;
     private String lastBirthBehavior;
     private String lastBirthClip;
+    private static final int WALK_HOLD = 3;
+    private int travelTicks;
 
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
 
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
-    public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ) {
-        var motion = new Motion(travelledX, travelledZ);
+    public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive) {
+        // passive: this tick's travel is contact (a shove or separation shift), not the body's own walk.
+        var motion = passive && !walkingClip() ? new Motion(0, 0) : new Motion(travelledX, travelledZ);
+        travelTicks = motion.distanceSquared() > 0.000001 ? travelTicks + 1 : 0;
         switch (frame.takeover()) {
             case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
             case PANIC -> publish("panic", panic(state, frame.panicTicks()));
             case SHELL -> publish("shell", shell(state, motion));
             case AGITATION -> publish("agitation", agitation(state, motion));
-            case NONE -> presentOrdinary(motion);
+            case NONE -> presentOrdinary(settled(motion));
         }
+    }
+
+    /**
+     * A body that stands in its clip keeps it through a short passive shift (a shove, knockback): the walk clip is
+     * published only once the travel has held three ticks; an already walking body keeps walking without the hold.
+     */
+    private Motion settled(Motion motion) {
+        return travelTicks >= WALK_HOLD || walkingClip() ? motion : new Motion(0, 0);
+    }
+
+    private boolean walkingClip() {
+        String clip = state.owner().getAnimationId();
+        return clip.equals(YukkuriAction.WADDLE.id()) || clip.equals(YukkuriAction.RUN.id());
     }
 
     private void publish(String id, Presentation result) {

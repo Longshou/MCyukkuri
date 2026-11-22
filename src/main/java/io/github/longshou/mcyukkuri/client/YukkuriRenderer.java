@@ -327,8 +327,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     PropModels.center(houseProp,pose,false);
                     PropModels.render(houseProp,8,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }
-                if(heldIndex==1&&(behavior.startsWith(Behaviors.NEST_PREFIX)||behavior.startsWith(Behaviors.INDEPENDENCE_PREFIX)||behavior.equals(Behaviors.SHELTER_CARRY))
-                        &&(held.is(ItemTags.LEAVES)||held.is(Items.SHORT_GRASS)||held.is(Items.WHEAT))){
+                if(heldIndex==1&&(held.is(ItemTags.LEAVES)||held.is(Items.SHORT_GRASS)||held.is(Items.WHEAT))){
                     HeldItemPresentation.bedding(pose);
                     PropModels.render("bedding_bundle",0,pose,buffers,packedLight,overlay);pose.popPose();continue;
                 }

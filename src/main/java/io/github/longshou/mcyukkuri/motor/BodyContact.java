@@ -29,6 +29,7 @@ public final class BodyContact {
     private final FlightCourse.Shove shove = new FlightCourse.Shove(this::clearShove);
     private int pressed = -1;
     private long lastRecoil = Long.MIN_VALUE;
+    private long pressedTick = Long.MIN_VALUE;
     private AABB lastBox, queryBox;
     private double lastReach, lastHeight;
 
@@ -142,8 +143,16 @@ public final class BodyContact {
                 Integer.compare(body.getId(), closest.getId()), share(closest), wanted, groundFooting);
         pressed = closest.getId();
         scan.guard();
-        return new Vec3(step.x(), motion.y, step.z());
+        var result = new Vec3(step.x(), motion.y, step.z());
+        if (result.x != motion.x || result.z != motion.z) pressedTick = body.level().getGameTime();
+        return result;
     }
+
+    /** True while a shove's coast is still carrying the body: its travel is contact, not the body's own walk. */
+    public boolean recoiling() { return lastRecoil != Long.MIN_VALUE; }
+
+    /** True when this tick's ground step was shifted by a neighbour instead of being the body's own motion. */
+    public boolean pushedThisTick(long tick) { return pressedTick == tick; }
 
     public boolean permitsResolved(Vec3 step) { return scan.permitsResolved(step.x, step.y, step.z); }
     public void finishMove() { scan.clear(); }

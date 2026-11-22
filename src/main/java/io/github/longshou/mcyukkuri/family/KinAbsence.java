@@ -117,7 +117,8 @@ final class KinAbsence {
         }
         for (var entry : kin.entrySet()) {
             var memory = entry.getValue();
-            if (!memory.confirmed && memory.away >= expectation()) {
+            // Coming upon the remains (RemainsEntity.find: in sight, close) is a witness at once; the timer only gates the search.
+            if (!memory.confirmed && memory.away > 0) {
                 var corpse = RemainsEntity.find(family.level(), e, entry.getKey(), 8);
                 if (corpse != null) {
                     witness(entry.getKey(), corpse.blockPosition());
