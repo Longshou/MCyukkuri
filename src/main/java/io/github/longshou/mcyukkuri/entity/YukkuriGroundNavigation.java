@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.BodyContact;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Passage;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -49,8 +50,8 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * Placed hats and standing bodies are footprints ({@link Detour}): a search keeps the foot off a hat's brim and prefers to
  * miss standing bodies, never closer than the start and the goal leave them; every step heads round the first footprint on
  * the way, on the side it took. The body a walk's goal belongs to and bodies walking themselves are not steered round. A
- * walker held up by one plans round it (solid for a while), then gives way once (two walking into each other: only the lower
- * id; an idle blocker is asked to move), and plans again when the mark lapses. Bodies never close the path finder for good.
+ * walker held up by one plans round it (solid for a while), then gives way once (two walking into each other: only the one {@link #keepsLine}
+ * ranks lower; an idle blocker is asked to move), and plans again when the mark lapses. Bodies never close the path finder for good.
  */
 public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Stall sample window (ticks); how close (blocks) to where it heads a body counts as arriving, not held up; how far past its
@@ -449,6 +450,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         doorStep = null;
         if(mob instanceof YukkuriEntity actor){
             if (passage != null) tickPassage(actor);
+            if (backTo != null) backOff(actor);
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
                 NestDoorway.observe(actor,observedGround,actor.position(),level.getGameTime()-steerTick<=1?aimed:null);
             observedGround=actor.onGround()&&!actor.isPassenger()?actor.position():null;
@@ -654,8 +656,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /**
      * Samples progress every WINDOW ticks while walking (a path or a direct steer); only a walker held up by a footprint ahead
-     * escalates, so nothing runs per tick. Against a body walking into it, the higher id keeps its line and the lower one gives
-     * way; otherwise the round is: plan round it (solid SOLID_TICKS), give way once (hold still a window before a walking body,
+     * escalates, so nothing runs per tick. Against a body walking into it, the one that ranks higher keeps its line and the other gives
+     * way (a step aside, else back off along its own line); otherwise the round is: plan round it (solid SOLID_TICKS), give way once (hold still a window before a walking body,
      * ask an idle one to move), wait, and plan again once the mark lapses.
      */
     private void watch(YukkuriEntity animal) {
@@ -681,13 +683,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         long id = blocker.box().id();
         var round = blockers.get(id);
         boolean oncoming = moving(other);
+        boolean marked = round != null && round.until() > now;
+        // The rank is a pure function of both bodies; a mark from this round keeps the yielder yielding, and a keeper still held
+        // up after three windows (the yielder cannot clear the way) takes the yielder's part once per round.
+        boolean keeps = oncoming && !marked && blockedWindows < KEEPER_WINDOWS
+                && (other instanceof YukkuriEntity peer ? keepsLine(animal, peer) : animal.getId() > other.getId());
         String action;
-        if (oncoming && animal.getId() > other.getId()) action = "keeps_line";
-        else if (round == null || round.until() <= now) action = replan(blocker, now) ? "replanned" : "no_alternative";
+        if (keeps) action = "keeps_line";
+        else if (!marked) action = replan(blocker, now) ? "replanned" : "no_alternative";
         else if (round.asked()) action = "waiting";
         else {
             blockers.put(id, new Blocker(round.obstacle(), round.until(), true));
-            if (oncoming) { yieldUntil = now + WINDOW; stepAside(animal, other, heading); action = "gives_way"; }
+            if (oncoming) action = giveWayAhead(animal, other, heading, now);
             else if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";
             else action = "waiting";
         }
@@ -759,6 +766,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
     }
     private Yield passage;
+    private Vec3 backTo;
 
     /**
      * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
@@ -771,6 +779,44 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         double away = Math.signum((body.getX() - other.getX()) * side.x + (body.getZ() - other.getZ()) * side.z);
         if (away == 0) away = 1;
         return Motor.move(body, side.scale(away * YIELD_PACE), "give_way").lengthSqr() > 1e-6;
+    }
+
+    /** Ticks the keeper may be held up (windows) before it takes the yielder's part; blocks a yielder backs off along its own line, at what pace. */
+    private static final int KEEPER_WINDOWS = 3;
+    private static final double BACK_OFF = 1.5, BACK_PACE = .12;
+
+    /**
+     * Which of two bodies walking into each other keeps its line: the heavier, the one carrying a child, the more urgent (panic,
+     * hunger), the bolder and surer. Each term is a difference, so the score is antisymmetric and both sides reach the same
+     * answer from synced state; inside the dead band the higher id keeps (as before). Exactly one of a pair keeps.
+     */
+    static boolean keepsLine(YukkuriEntity a, YukkuriEntity b) {
+        double score = Math.log(BodyContact.mass(a) / BodyContact.mass(b))
+                + .6 * (BodyAbility.carrying(a) < 1 ? 1 : 0) - .6 * (BodyAbility.carrying(b) < 1 ? 1 : 0)
+                + .3 * (urgency(a) - urgency(b))
+                + .4 * (a.life().personality().boldness() - b.life().personality().boldness()) / 100.0
+                + .3 * (SocialDisposition.confidence(SocialDisposition.selfEsteem(a)) - SocialDisposition.confidence(SocialDisposition.selfEsteem(b)));
+        return Math.abs(score) < .1 ? a.getId() > b.getId() : score > 0;
+    }
+
+    private static double urgency(YukkuriEntity body) { return (body.isPanicking() ? 1 : 0) + (body.life().nutrition() < 30 ? .5 : 0); }
+
+    /** The yielder's ladder: a step to a free side (taken by {@link #stepAside}), else back off along the line it just walked, else nothing (the round then replans). */
+    private String giveWayAhead(YukkuriEntity animal, Entity other, Vec3 heading, long now) {
+        if (stepAside(animal, other, heading)) { yieldUntil = now + WINDOW; return "gives_way"; }
+        for (double d = BACK_OFF; d >= .5; d -= .5) {
+            var back = animal.position().subtract(heading.scale(d));
+            if (clearYieldStand(animal, back)) { backTo = back; yieldUntil = now + YIELD_LIMIT; return "backs_off"; }
+        }
+        return "no_room";
+    }
+
+    /** One pace of the back-off a yielder is taking; it ends where it stands when the way back is no longer free. */
+    private void backOff(YukkuriEntity animal) {
+        var delta = backTo.subtract(animal.position()).multiply(1, 0, 1);
+        if (level.getGameTime() >= yieldUntil || delta.lengthSqr() < 1e-4 || !clearYieldStand(animal, backTo)) { backTo = null; return; }
+        var step = delta.normalize().scale(Math.min(delta.length(), BACK_PACE));
+        if (Motor.move(animal, step, "give_way").lengthSqr() < 1e-6) backTo = null;
     }
 
     /** The server player moves via packets. Sample actual positions instead of using server velocity. */

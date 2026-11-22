@@ -61,7 +61,7 @@ public final class BodyContact {
         return Math.clamp(2 * theirs / (own + theirs), .4, SeparationStep.MAX_YIELD) * (body.life().isSleeping() ? .6 : 1);
     }
 
-    private static double mass(YukkuriEntity body) {
+    public static double mass(YukkuriEntity body) {
         return body.getBbWidth() * body.getBbWidth() * body.getBbHeight();
     }
 
