@@ -84,9 +84,11 @@ public final class GarbageSearch implements MotorOwner {
     public boolean targeting(BlockPos pos) { return point != null && point.bin().getBlockPos().equals(pos) && phase != Phase.RETREAT && phase != Phase.CARRY; }
 
     private boolean eligible() {
-        var identity = body.status().identity();
         var brood = body.family().brood();
-        if (body.life().nutrition() >= 40 || body.family().stage() == Stage.BABY
+        var identity = body.status().identity();
+        // A fed stray still goes for a bin when its own bare head would wear what the bin holds.
+        boolean bareStray = identity == Identity.STRAY && wantsJunk();
+        if (body.life().nutrition() >= 40 && !bareStray || body.family().stage() == Stage.BABY
                 || brood != null && !brood.cancelled && !brood.complete()
                 || body.profile().dangerToYukkuri() || body.profile().houseBody() || body.isPassenger()
                 || body.isInWaterOrBubble() || body.isOnFire() || body.settlement().underway()
@@ -152,11 +154,12 @@ public final class GarbageSearch implements MotorOwner {
     /** Food first; a junk headwear only for a bare head that would wear it; then loose scraps a stray carries off. */
     private int serving(GarbageBinBlockEntity bin) {
         int junk = -1, scrap = -1;
+        boolean hungry = body.life().nutrition() < 40;
         for (int slot = 0; slot < bin.getContainerSize(); slot++) {
             var stack = bin.getItem(slot);
-            if (edible(stack)) return slot;
+            if (hungry && edible(stack)) return slot;
             if (junk < 0 && JunkHeadwear.isItem(stack) && wantsJunk()) junk = slot;
-            if (scrap < 0 && scrap(stack)) scrap = slot;
+            if (hungry && scrap < 0 && scrap(stack)) scrap = slot;
         }
         return junk >= 0 ? junk : scrap;
     }
@@ -164,7 +167,7 @@ public final class GarbageSearch implements MotorOwner {
         return !stack.isEmpty() && !stack.is(Items.ROTTEN_FLESH) && Toxins.dose(stack) == 0 && body.life().seeksFood(stack);
     }
     private boolean wantsJunk() {
-        return JunkHeadwear.fits(body) && JunkHeadwear.available(body) && JunkHeadwear.accepts(body, SocialDisposition.contact(body, null));
+        return JunkHeadwear.fits(body) && JunkHeadwear.accepts(body, SocialDisposition.contact(body, null));
     }
     private static boolean scrap(ItemStack stack) { return stack.is(Items.PAPER) || stack.is(Items.STICK) || stack.is(Items.FEATHER); }
 

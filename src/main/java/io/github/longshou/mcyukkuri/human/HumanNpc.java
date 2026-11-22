@@ -97,6 +97,8 @@ public final class HumanNpc extends PathfinderMob {
     private BlockPos yardBowl, yardCrate;
     private int trades, careFood, medicine = 8, routineDelay;
     private long counterClosesAt;
+    /** Next day's check of the corner shop's newspaper stack; not saved, a reload only re-checks a stack that is short. */
+    private long nextNewspaper;
     private int nextBadgeGreeting;
     private YukkuriEntity attention;
     final HumanStreet street = new HumanStreet(this);
@@ -936,6 +938,10 @@ public final class HumanNpc extends PathfinderMob {
         if (routineDelay != 0) routineDelay -= Integer.signum(routineDelay);
         if (look == Look.CHILD && level().isRaining()) goHome(200);
         street.tick();
+        if (attendingKiosk() && !counterBusy() && level().getGameTime() >= nextNewspaper) {
+            nextNewspaper = level().getGameTime() + HumanStreet.DAY;
+            NewspaperRestock.run(this, counterWindow());
+        }
         street.pickUpGrain();
         entityData.set(STREET_GRAIN, streetResident() && attitude() == Attitude.CARING && careFood > 0);
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
