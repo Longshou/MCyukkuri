@@ -62,6 +62,15 @@
         "src/main/resources/assets/mcyukkuri/textures/entity/human/examiner.png"
       ],
       "sha256": "88ffddb54ac54112b3f0139ec4e3054b44e2669127712be0661dce7efb763ab2"
+    },
+    "child": {
+      "source": "standards/yukkuri-library/textures/human/child.png",
+      "targets": [
+        "standards/yukkuri-library/assembled/humans/textures/child.png",
+        "art/source/human-runtime/textures/child.png",
+        "src/main/resources/assets/mcyukkuri/textures/entity/human/child.png"
+      ],
+      "sha256": "4286766a90ea23d9fc43ec7e21cc2baf2ed0518eac04f4a704d3da847b520f9b"
     }
   }
 }
