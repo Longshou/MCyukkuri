@@ -33,7 +33,8 @@ CHILDHOOD_HOPPING = 'Version:2,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToilet
 OWNED = 'NeoForgeData.HumanCommerce'
 # A subadult in the fixed age interval, ready to live independently.
 TEEN_FAMILY = ('Version:2,Initialized:1b,Stage:"JUVENILE",Age:276000L,Nourishment:276000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1f,Scale:0.72f')
-LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario afloat')
+LATE_COMMANDS = ('yukkuri scenario home', 'yukkuri scenario twigs', 'yukkuri scenario birth', 'yukkuri scenario eggs', 'yukkuri scenario afloat',
+                 'yukkuri scenario sumo')
 PENDING = '修复中'     # a scenario whose helper behaviour is not wired in yet: the sign says so, the button and terrain stay
 # A rider crushed into a block is never a pond outcome: whichever scene has a young on a hat brim, its smoke window forbids the death.
 _POND_SMOKE_FORBID = r'\[body\][^\n]* death settled [^\n]*cause=inWall\b'
