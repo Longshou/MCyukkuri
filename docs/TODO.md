@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 接近同伴找不到站位时原地无限重试；PD-13 场景前提不稳定 | `.worktrees/wp-contact-loop` | life/SurfaceApproach callers, social/YukkuriSocial, scripts/museum_scenarios.py hat_crowd |
+| 朋友累了或中暑时，友善的同伴过来陪伴（WildCards 第 2 步之 2） | `.worktrees/wp-wc-company` | social/Kindness, entity/RoamingGoal, event/WildCards, scripts/museum_scenarios.py new scene |
 
 
 
