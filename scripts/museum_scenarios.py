@@ -1226,6 +1226,81 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                        r'MCYPAPER_YOUNG_ONE_LEFT'],
                verify=_paper_young_fire_phases))
 
+# A forest burrow on the family mound with two beds and a stocked store, the way the mold scenes place one: the beds are the
+# whole capacity, so two residents fill it. The pile is a real forage pile the burrow adopts at its store cell.
+def _den_cell(dx, dz):
+    x, z = BY_ID['den'].spots['family']
+    return f'{((x + dx) << 38) | (((z + dz) & 0x3ffffff) << 12) | FEET}L'
+
+
+def _two_bed_burrow(stock):
+    beds = f'{_den_cell(-1, -3)},{_den_cell(1, -3)}'
+    lines = [block(0, 0, -1, f'mcyukkuri:forest_burrow[facing=south]{{Condition:100,NaturalBeds:[L;{beds}],'
+                   f'NaturalPile:{_den_cell(-2, -4)},NaturalPileStand:{_den_cell(-1, -4)}}}')]
+    if stock:
+        items = ','.join(f'{{Slot:{slot}b,id:"minecraft:short_grass",count:{stock}}}' for slot in range(3))
+        lines.append(block(-2, 0, -4, f'mcyukkuri:forage_pile{{Items:[{items}]}}'))
+    return lines
+
+
+# Two sated residents live in a stocked burrow; a bandit band stands south in the open, in sight of the door. Once the band is made
+# a real bandit group, the raider (nutrition 30 < 45) walks to the door and eats from the store bite by bite, the mate (50, below the
+# gang line 55) follows the same den while the raider is at it, and the fed control (95) does not move on the den at all.
+_RAID = {name: uid('den_raid', name) for name in ('raider', 'mate', 'fed', 'host', 'guest')}
+_RAID_TXT = {name: _uuid_text('den_raid', name) for name in _RAID}
+add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱的不动', '饿了的匪帮抢存粮的洞',
+    '洞里有两只吃饱的住户和一堆草存粮；南边空地上三只匪帮：最西的灵梦营养 30（低于 45）、旁边的魔理沙营养 50（低于 55、高于 45）、'
+    '最东吃饱的魔理沙营养 95。约 20 秒后匪帮被喂饿：饿极的灵梦先看着洞口走过去，在洞口一口一口吃存粮（至多 3 口，每口隔约 3 秒，营养到 65 就停），'
+    '住户有的胆大会鼓脸、胆小的会哭，好感都下降；住户里看得见它的会把它赶开，它之后 1 分钟不再走向这个洞。'
+    '魔理沙（50）只在灵梦已经在抢时才跟过去，同样一口口吃；吃饱的魔理沙不理这个洞。洞里的存粮真实减少。'
+    '约 30 秒内发生；一次没看到可在 M 菜单重开',
+    '约 30–90 秒', [
+        *_two_bed_burrow(16),
+        box(-8, 0, 3, 8, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
+        yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
+        yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
+        yk('reimu', -2, 8, 'raider', uuid=_RAID['raider'], label='匪帮·饿极30', nutrition=90, energy=100, boldness=70, social_wait=0,
+           yaw=0, lead=True, also=('band',)),
+        yk('marisa', 0, 9, 'mate', uuid=_RAID['mate'], label='匪帮·营养50', nutrition=90, energy=100, boldness=60, social_wait=0,
+           yaw=0, also=('band',)),
+        yk('marisa', 4, 8, 'fed', uuid=_RAID['fed'], label='匪帮·吃饱95', nutrition=95, energy=100, boldness=60, social_wait=0,
+           yaw=0, also=('band',)),
+        home('host', 0, -1), home('guest', 0, -1),
+        f'yukkuri scenario community {sel("raider")} {sel_all("band")} bandits',
+    ], late=[Retry(set_status('raider', 'needs.nutrition', 30), sel('raider'), tries=1, first=400),
+             Retry(set_status('mate', 'needs.nutrition', 50), sel('mate'), tries=1, first=400)],
+    env=DAY, spot='family', vantage=(0, 14),
+    note='待验证：新场景，尚未在游戏里实测。存粮是预置的真实草堆，洞会在开场后收养它；饿是约 20 秒后才写入的初态。',
+    reads=[('读洞与存粮', 'data get block ~ ~ ~-1'), ('读饿的灵梦', f'yukkuri status {sel("raider")} raw'),
+           ('读营养 50 的魔理沙', f'yukkuri status {sel("mate")} raw'), ('读吃饱的魔理沙', f'yukkuri status {sel("fed")} raw')],
+    smoke=dict(ticks=2400, expect=[rf'\[settlement\][^\n]* uuid={_RAID_TXT["raider"]} [^\n]*den raid approach den=',
+                                   rf'\[settlement\][^\n]* uuid={_RAID_TXT["raider"]} [^\n]*den raid bite den='],
+               forbid=[rf'\[settlement\][^\n]* uuid={_RAID_TXT["fed"]} [^\n]*den raid', r'\[body\][^\n]* invariant\b']))
+
+# A selfish, tired owner and its mate fill a two-bed burrow. The owner (friendliness 5, self control 10: top selfish gate; energy 45 < 50)
+# keeps its mate out of the burrow for 600-900 ticks (600 + 3 * (100 - friendliness) = 885) or until it has slept and woken. The owner
+# itself is not part of the scene: it uses its own bed as usual. No dice: the scene is there as soon as the two are in the burrow.
+_MONO = {name: uid('den_monopoly', name) for name in ('owner', 'mate')}
+add('den_monopoly', 'den', '自私又累的油占着窝，不让伴侣用', '自私又累的油占窝',
+    '两张床的洞里住着一对：灵梦自私（友善 5、自制 10）、精力 45 低于 50，魔理沙是它的伴侣、友善。两张床都被占，窝挤，'
+    '灵梦开场后不久（每 5 秒查一次）就占着窝：魔理沙被挡在外面，走到洞口外两格站着等并摆出“等轮到我”的哭脸，'
+    '灵梦照常用自己的床，头顶显示“我的”；这期间魔理沙对灵梦的好感缓慢下降。'
+    '持续 600 + 3×(100 − 友善) = 885 tick（约 44 秒），或灵梦睡过一觉醒来就结束。结束时若魔理沙对灵梦的好感总和为负，灵梦垂泪道歉、好感回升，魔理沙开心；'
+    '否则只是“守住了窝”。之后至少 1 分钟灵梦不再占窝。约 10 秒内发生；一次没看到可在 M 菜单重开',
+    '约 15–60 秒', [
+        *_two_bed_burrow(0),
+        yk('reimu', -1, -3, 'owner', uuid=_MONO['owner'], label='自私·累 精力45', nutrition=100, energy=45, friendliness=5, self_control=10,
+           social_wait=0, yaw=180, lead=True, kin=kin_of(Partner=_MONO['mate'])),
+        yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='伴侣·友善', nutrition=100, energy=95, friendliness=80, social_wait=0,
+           yaw=180, kin=kin_of(Partner=_MONO['owner'])),
+        home('owner', 0, -1), home('mate', 0, -1),
+    ], env=DAY, spot='family', vantage=(0, 10),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读自私的灵梦', f'yukkuri status {sel("owner")} raw'), ('读伴侣', f'yukkuri status {sel("mate")} raw')],
+    smoke=dict(ticks=1400, expect=[r'\[wild-event\][^\n]*event=started[^\n]*card=nest-monopoly',
+                                   r'\[wild-event\][^\n]*event=ended[^\n]*card=nest-monopoly'],
+               forbid=[r'\[body\][^\n]* invariant\b']))
+
 # ====================================================================================================== biome settlements
 def settlement(plot, kind, seen):
     from museum_fields import BIOME_PLOTS
@@ -7757,7 +7832,7 @@ TOPICS = {
     'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'food_sill_window': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
-    'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1',
+    'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1', 'den_raid': 'W1', 'den_monopoly': 'W1',
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',

@@ -29,6 +29,7 @@ import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.exam.ExamMenu;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.registry.ModItems;
+import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.shop.ShopMenu;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.ChatFormatting;
@@ -285,12 +286,9 @@ public final class ScenarioCommands {
                 .then(Commands.literal("geometry").executes(c -> SceneGeometry.read(c.getSource()))
                         .then(Commands.literal("record").executes(c -> SceneGeometry.record(c.getSource()))))
                 .then(Commands.literal("community").then(Commands.argument("leader", EntityArgument.entity())
-                        .then(Commands.argument("members", EntityArgument.entities()).executes(c -> {
-                            var leader = yukkuri(c, "leader");
-                            if (leader == null) return 0;
-                            var members = EntityArgument.getEntities(c, "members").stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast).toList();
-                            return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()));
-                        }))))
+                        .then(Commands.argument("members", EntityArgument.entities())
+                                .executes(c -> community(c, SettlementData.Kind.FOREST))
+                                .then(Commands.literal("bandits").executes(c -> community(c, SettlementData.Kind.BANDITS))))))
                 .then(Commands.literal("push").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("dx", DoubleArgumentType.doubleArg())
                                 .then(Commands.argument("dz", DoubleArgumentType.doubleArg()).executes(c -> {
@@ -495,6 +493,13 @@ public final class ScenarioCommands {
         if(source.getEntity()!=null||!(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player))return 0;
         player.setPos(source.getPosition());
         return 1;
+    }
+
+    private static int community(CommandContext<CommandSourceStack> c, SettlementData.Kind kind) throws CommandSyntaxException {
+        var leader = yukkuri(c, "leader");
+        if (leader == null) return 0;
+        var members = EntityArgument.getEntities(c, "members").stream().filter(YukkuriEntity.class::isInstance).map(YukkuriEntity.class::cast).toList();
+        return ScenarioSetup.community(leader, members, BlockPos.containing(c.getSource().getPosition()), kind);
     }
 
     private static int ownerAt(CommandContext<CommandSourceStack> c, int distance) throws CommandSyntaxException {

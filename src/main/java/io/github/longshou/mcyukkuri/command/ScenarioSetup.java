@@ -154,10 +154,10 @@ final class ScenarioSetup {
     private enum SceneIdentity { UNCHANGED, WILD_FAMILY, STRAY }
 
     /** Initial community identity for explicitly summoned households; movement and settlement remain ordinary AI. */
-    static int community(YukkuriEntity leader, List<YukkuriEntity> members, BlockPos centre) {
+    static int community(YukkuriEntity leader, List<YukkuriEntity> members, BlockPos centre, SettlementData.Kind kind) {
         if (!leader.family().adult() || !members.contains(leader) || members.stream().anyMatch(e -> e.settlement().group() != null)) return 0;
         var level = (ServerLevel) leader.level();
-        var group = new SettlementData.Group(ModRandom.identity(leader.getRandom()), SettlementData.Kind.FOREST, centre, leader.getUUID());
+        var group = new SettlementData.Group(ModRandom.identity(leader.getRandom()), kind, centre, leader.getUUID());
         SettlementData.get(level).add(group);
         members.forEach(e -> e.settlement().join(group));
         GameplayLog.event(leader, "settlement", "scenario community initialized group={} centre={} members={}", group.id, centre, members.stream().map(YukkuriEntity::getUUID).toList());

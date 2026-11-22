@@ -5,14 +5,11 @@ import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.family.FamilyData;
-import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.settlement.SettlementData;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlockEntity;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import java.util.ArrayList;
@@ -30,13 +27,17 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.EventHooks;
 
-/** Supplementary group scenes around shelters: nest monopoly, bandit raids and burrow collapse. Food only moves between real stores and mouths. */
+/** Supplementary group scenes around shelters: nest monopoly and burrow collapse (bandit raids are a life drive, {@code DenRaid}). */
 public final class GroupCards {
-    public static final String MONOPOLY = "nest-monopoly", RAID = "bandit-raid", COLLAPSE = "burrow-collapse";
-    private static final String BAR = "ShelterBarredUntil";
+    public static final String MONOPOLY = "nest-monopoly", COLLAPSE = "burrow-collapse";
+    private static final String BAR = "ShelterBarredUntil", REST = "NestMonopolyRestUntil";
+    /** The owner is tired below this energy (the sleepy line of the other rest checks). */
+    private static final int TIRED = 50;
+    /** After a monopoly the same owner starts none for this long (the shared scene cooldown). */
+    private static final int REPEAT_GUARD = 1200;
     public static boolean discover(YukkuriEntity e, List<YukkuriEntity> peers) {
         if (!(e.level() instanceof ServerLevel level)) return false;
-        return bandits(e, peers, level) || monopoly(e, peers, level);
+        return monopoly(e, peers, level);
     }
     private static ShelterBlockEntity shelterAt(ServerLevel level, Scene s) {
         if (s.destination == null || !level.hasChunkAt(s.destination.pos())) return null;
@@ -55,15 +56,19 @@ public final class GroupCards {
     }
 
     // ---- 1. Nest monopoly -------------------------------------------------------------------------------------
+    // A selfish adult that needs the nest (tired, or the nest is uninsulated) and finds it crowded keeps its kin out of it. The owner is
+    // not a member of the scene: it takes its bed like anyone, and the scene (a bar on the kin only) ends when it wakes or the timer runs.
     private static boolean sameMother(FamilyData family, YukkuriEntity a, YukkuriEntity b) {
         var first = family.person(a.getUUID()); var second = family.person(b.getUUID());
         return first != null && second != null && first.mother != null && first.mother.equals(second.mother);
     }
     private static boolean monopoly(YukkuriEntity e, List<YukkuriEntity> peers, ServerLevel level) {
         var shelter = e.habitat().shelter();
+        long now = level.getGameTime();
         if (shelter == null || !e.family().adult() || !e.life().personality().temperament().is(Gate.SELFISH)
-                || e.getRandom().nextInt(YukkuriConfig.MONOPOLY_ONE_IN.get()) != 0
-                || e.blockPosition().distSqr(shelter.getBlockPos()) > 36 || !shelter.usable(e)) return false;
+                || e.getPersistentData().getLong(REST) > now
+                || e.blockPosition().distSqr(shelter.getBlockPos()) > 36 || !shelter.usable(e)
+                || !(e.life().energy() < TIRED || !shelter.insulated()) || !shelter.crowded()) return false;
         var family = FamilyData.get(level);
         List<YukkuriEntity> kin = new ArrayList<>();
         for (var p : peers)
@@ -71,118 +76,50 @@ public final class GroupCards {
                     && p.blockPosition().distSqr(shelter.getBlockPos()) <= 36 && shelter.usable(p)) kin.add(p);
         if (kin.isEmpty()) return false;
         kin.sort(Comparator.comparingInt(p -> sameMother(family, e, p) ? 0 : 1)); // sisters first
-        List<YukkuriEntity> roster = new ArrayList<>();
-        roster.add(e); roster.addAll(kin.stream().limit(3).toList());
+        List<YukkuriEntity> roster = kin.stream().limit(3).toList();
         var scene = WildEventData.get(level).start(Kind.CARD, MONOPOLY, GlobalPos.of(level.dimension(), e.blockPosition()),
-                roster.stream().map(YukkuriEntity::getUUID).toList(), null, level.getGameTime());
+                roster.stream().map(YukkuriEntity::getUUID).toList(), e.getUUID(), now); // scene.player = the owner
         if (scene == null) return false;
         scene.destination = GlobalPos.of(level.dimension(), shelter.getBlockPos().immutable());
-        scene.sourceCount = 600 + e.getRandom().nextInt(301); // [original] 30-45 seconds
-        roster.get(1).getPersistentData().putLong(BAR, level.getGameTime() + scene.sourceCount + 200);
-        for (var member : roster) { member.social().stop(); member.setPersistenceRequired(); }
+        // 600 ticks for the friendliest owner to 900 for the least friendly (the 30-45 s of the original).
+        scene.sourceCount = 600 + 3 * (100 - e.life().personality().friendliness());
+        for (var member : roster) {
+            member.getPersistentData().putLong(BAR, now + scene.sourceCount + 200);
+            member.social().stop(); member.setPersistenceRequired();
+        }
+        e.getPersistentData().putLong(REST, now + scene.sourceCount + REPEAT_GUARD);
         return true;
     }
     private static void release(List<YukkuriEntity> all) { for (var e : all) e.getPersistentData().remove(BAR); }
     private static void monopolyAdvance(ServerLevel level, Scene s, List<YukkuriEntity> all) {
         var shelter = shelterAt(level, s);
-        if (all.size() < 2 || shelter == null || !shelter.sound()) { release(all); WildEvents.finish(level, s, Phase.INTERRUPTED, "nest_lost"); return; }
-        var owner = all.getFirst(); var barredOut = all.get(1);
-        var relations = YukkuriWorldData.get(level);
-        if (s.phaseTicks == 1 || s.phaseTicks % 200 == 100) {
-            owner.showReaction("angry", "mine", 80);
-            owner.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, barredOut.getUUID(), owner.blockPosition());
-            barredOut.showReaction("teary", "wait_turn", 80);
-            for (int i = 2; i < all.size(); i++) all.get(i).showReaction("neutral", "shy", 60);
+        var owner = level.getEntity(s.player) instanceof YukkuriEntity y && y.isAlive() ? y : null;
+        if (shelter == null || !shelter.sound() || owner == null || owner.habitat().shelter() != shelter) {
+            release(all); WildEvents.finish(level, s, Phase.INTERRUPTED, "nest_lost"); return;
         }
-        if (s.phaseTicks % 100 == 50) for (int i = 1; i < all.size(); i++) relations.relate(all.get(i).getUUID(), owner.getUUID(), -2);
-        if (s.phaseTicks < s.sourceCount) return;
+        var relations = YukkuriWorldData.get(level);
+        boolean sleeping = owner.life().isSleeping();
+        if (sleeping) s.responses = 1; // the owner has taken its bed; waking ends the bar
+        if (!sleeping && (s.phaseTicks == 1 || s.phaseTicks % 200 == 100)) {
+            owner.showReaction("angry", "mine", 80);
+            owner.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, all.getFirst().getUUID(), owner.blockPosition());
+            all.getFirst().showReaction("teary", "wait_turn", 80);
+            for (int i = 1; i < all.size(); i++) all.get(i).showReaction("neutral", "shy", 60);
+        }
+        if (s.phaseTicks % 100 == 50) for (var kin : all) relations.relate(kin.getUUID(), owner.getUUID(), -2);
+        if (s.phaseTicks < s.sourceCount && (sleeping || s.responses == 0)) return;
         int regard = 0;
-        for (int i = 1; i < all.size(); i++) regard += relations.affinity(all.get(i).getUUID(), owner.getUUID());
+        for (var kin : all) regard += relations.affinity(kin.getUUID(), owner.getUUID());
         release(all);
         if (regard < 0) {
             owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "gentle", 90);
-            for (int i = 1; i < all.size(); i++) relations.relate(all.get(i).getUUID(), owner.getUUID(), 4);
-            barredOut.showReaction("happy", "share", 70);
+            for (var kin : all) relations.relate(kin.getUUID(), owner.getUUID(), 4);
+            all.getFirst().showReaction("happy", "share", 70);
             WildEvents.finish(level, s, Phase.COMPLETE, "apologized_and_shared");
         } else WildEvents.finish(level, s, Phase.COMPLETE, "kept_the_nest");
     }
     private static void monopolyMove(YukkuriEntity e, Scene s, ShelterBlockEntity shelter) {
-        int index = s.members.indexOf(e.getUUID());
-        if (index == 0) go(e, s, shelter.entrance(), 1.2);
-        else if (index == 1) go(e, s, shelter.entrance().relative(shelter.facing(), 2), 1.5);
-        else e.getNavigation().stop();
-    }
-
-    // ---- 2. Bandit raid -------------------------------------------------------------------------------------------
-    private static boolean bandits(YukkuriEntity e, List<YukkuriEntity> peers, ServerLevel level) {
-        var group = e.settlement().group();
-        if (group == null || group.kind != SettlementData.Kind.BANDITS || !e.family().adult()
-                || e.getRandom().nextInt(YukkuriConfig.BANDIT_RAID_ONE_IN.get()) != 0) return false;
-        var mates = peers.stream().filter(p -> group.id.equals(p.settlement().groupId())).limit(2).toList();
-        if (mates.isEmpty()) return false;
-        ShelterBlockEntity best = null;
-        for (BlockPos pos : BlockPos.betweenClosed(e.blockPosition().offset(-16, -3, -16), e.blockPosition().offset(16, 3, 16))) {
-            if (pos.distSqr(e.blockPosition()) > 256 || e.life().avoidsField(pos) || !level.hasChunkAt(pos)) continue;
-            if (level.getBlockEntity(pos) instanceof ShelterBlockEntity shelter && shelter.occupants() > 0 && shelter.food() > 0 && shelter.sound()
-                    && (best == null || pos.distSqr(e.blockPosition()) < best.getBlockPos().distSqr(e.blockPosition()))) best = shelter;
-        }
-        if (best == null || !e.life().reachable(best.entrance(), false)) return false;
-        List<YukkuriEntity> roster = new ArrayList<>();
-        roster.add(e); roster.addAll(mates);
-        var scene = WildEventData.get(level).start(Kind.CARD, RAID, GlobalPos.of(level.dimension(), e.blockPosition()),
-                roster.stream().map(YukkuriEntity::getUUID).toList(), null, level.getGameTime());
-        if (scene == null) return false;
-        scene.destination = GlobalPos.of(level.dimension(), best.getBlockPos().immutable());
-        for (var member : roster) { member.social().stop(); member.setPersistenceRequired(); }
-        return true;
-    }
-    private static void raidAdvance(ServerLevel level, Scene s, List<YukkuriEntity> all) {
-        var thief = all.getFirst();
-        var shelter = shelterAt(level, s);
-        if (shelter == null) { WildEvents.finish(level, s, Phase.INTERRUPTED, "store_missing"); return; }
-        if (thief.life().avoidsField(shelter.getBlockPos())) { WildEvents.finish(level, s, Phase.INTERRUPTED, "store_guarded"); return; }
-        if (s.phaseTicks >= 1200) {
-            WildEvents.finish(level, s, s.sourceCount > 0 ? Phase.COMPLETE : Phase.INTERRUPTED, s.sourceCount > 0 ? "raided_store" : "raid_timed_out"); return;
-        }
-        if (s.phaseTicks == 1) {
-            thief.showReaction("angry", "mine", 50);
-            thief.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, null, thief.blockPosition());
-        }
-        if (thief.life().mealTicks() > 0 || thief.distanceToSqr(Vec3.atBottomCenterOf(shelter.entrance())) > 6.25) return;
-        if (s.sourceCount > 0 && s.phaseTicks - s.responses < 60) return;
-        var loot = shelter.raid();
-        if (loot.isEmpty()) {
-            thief.showReaction("neutral", "wait_turn", 50);
-            WildEvents.finish(level, s, Phase.COMPLETE, s.sourceCount > 0 ? "raided_store" : "store_empty"); return;
-        }
-        if (!thief.life().beginMeal(loot, null, false)) {
-            shelter.returnFood(loot);
-            WildEvents.finish(level, s, Phase.INTERRUPTED, "raid_serving_refused");
-            return;
-        }
-        s.sourceCount++; s.responses = s.phaseTicks;
-        thief.species().narrate("steal");
-        YukkuriEntity witness = null;
-        for (UUID id : shelter.residentIds()) {
-            if (level.getEntity(id) instanceof YukkuriEntity resident && resident.isAlive() && resident.distanceToSqr(thief) <= 100) {
-                boolean fights = resident.getRandom().nextFloat() < resident.life().personality().helpProbability(true, false);
-                if (!fights) resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
-                // The raid stays with them: the ones who stood up fume, the rest are shaken (mind/EmotionCourse).
-                resident.mind().feeling().begin(fights ? EmotionCourse.Kind.RAGE : EmotionCourse.Kind.TERROR, .5f, thief.getUUID(), resident.blockPosition());
-                YukkuriWorldData.get(level).relate(resident.getUUID(), thief.getUUID(), -3);
-                if (!resident.isNoAi() && !resident.life().isSleeping() && resident.hasLineOfSight(thief)
-                        && (witness == null || resident.distanceToSqr(thief) < witness.distanceToSqr(thief))) witness = resident;
-            }
-        }
-        if (witness != null) {
-            Expulsion.driveOff(thief, witness, shelter.getBlockPos());
-            WildEvents.finish(level, s, Phase.COMPLETE, "raided_store");
-        } else if (s.sourceCount >= 3 || shelter.food() == 0) WildEvents.finish(level, s, Phase.COMPLETE, "raided_store");
-    }
-    private static void raidMove(YukkuriEntity e, Scene s, ShelterBlockEntity shelter) {
-        if (s.members.indexOf(e.getUUID()) == 0) { go(e, s, shelter.entrance(), 1.2); return; }
-        var level = (ServerLevel) e.level();
-        if (level.getEntity(s.members.getFirst()) instanceof YukkuriEntity thief) go(e, s, thief.blockPosition(), 3);
+        if (s.members.indexOf(e.getUUID()) == 0) go(e, s, shelter.entrance().relative(shelter.facing(), 2), 1.5);
         else e.getNavigation().stop();
     }
 
@@ -212,14 +149,12 @@ public final class GroupCards {
     // ---- dispatch ---------------------------------------------------------------------------------------------------
     public static void advance(ServerLevel level, Scene s, List<YukkuriEntity> all) {
         if (s.card.equals(MONOPOLY)) monopolyAdvance(level, s, all);
-        else if (s.card.equals(RAID)) raidAdvance(level, s, all);
         else WildEvents.finish(level, s, Phase.COMPLETE, "collapsed_in_long_rain");
     }
     public static void move(YukkuriEntity e, Scene s) {
         var shelter = shelterAt((ServerLevel) e.level(), s);
         if (shelter == null) return;
         if (s.card.equals(MONOPOLY)) monopolyMove(e, s, shelter);
-        else if (s.card.equals(RAID)) raidMove(e, s, shelter);
     }
     private GroupCards() {}
 }

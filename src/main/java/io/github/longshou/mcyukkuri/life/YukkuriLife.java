@@ -100,13 +100,14 @@ import net.minecraft.world.effect.MobEffects;
 /** Loaded-time physiology and interruptible, server-authoritative life activities. */
 public final class YukkuriLife {
     private enum Task { NONE, FOOD, FOOD_GLASS, WINTER_FOOD, HOME, CLAIM_BED, TOILET, GROUND_TOILET, SLEEP, DRINK, TEMPERATURE,
-        SHELTER_REPLY, SHELTER_DECLINED, FOUND_COVER, GARBAGE, CROP, STALL }
+        SHELTER_REPLY, SHELTER_DECLINED, FOUND_COVER, GARBAGE, CROP, STALL, RAID }
     private final YukkuriEntity entity;
     private final SurfaceApproach approach = new SurfaceApproach();
     private final TemperatureLife temperature;
     private final FoundShelter foundCover;
     private final GarbageSearch garbage;
     private final StallTheft stallTheft;
+    private final DenRaid denRaid;
     private final YukkuriPersonality personality;
     private float nutrition = 60, energy = 80, hygiene = 100, wetness;
     private final ToiletNeeds toiletNeeds = new ToiletNeeds();
@@ -213,6 +214,7 @@ public final class YukkuriLife {
         foundCover = new FoundShelter(entity);
         garbage = new GarbageSearch(entity);
         stallTheft = new StallTheft(entity);
+        denRaid = new DenRaid(entity);
         personality = new YukkuriPersonality(entity);
         pickiness = Taste.innate(entity.getUUID());
         hotFloor = new HotFloorEscape(entity);
@@ -569,6 +571,8 @@ public final class YukkuriLife {
     public BodyFood.Bite mouthBodyFood() { return meal.mouthBodyFood(); }
     public boolean hasMouthFood() { return meal.hasMouthFood(); }
     public int mealTicks(){ return meal.mealTicks(); }
+    /** The den this body is raiding right now, or null; hungry group mates within sight follow it. */
+    public BlockPos raidDen() { return task == Task.RAID ? denRaid.den() : null; }
     public String braidMealClip() { return meal.braidClip(); }
     public long braidMealStart() { return meal.braidStart(); }
     public boolean braidHasFood() { return meal.braidHasFood(); }
@@ -698,7 +702,7 @@ public final class YukkuriLife {
                 ? Behaviors.TOILET : Behaviors.SEEK_TOILET;
             case GROUND_TOILET -> toiletTicks > 0 ? toiletAccident ? Behaviors.TOILET_ACCIDENT : Behaviors.GROUND_TOILET : Behaviors.SEEK_TOILET;
             case DRINK -> drinkTicks>0?Behaviors.DRINK:Behaviors.SEEK_WATER; case TEMPERATURE -> temperature.activity();
-            case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); case STALL -> stallTheft.activity();
+            case FOUND_COVER -> foundCover.activity(); case GARBAGE -> garbage.activity(); case STALL -> stallTheft.activity(); case RAID -> denRaid.activity();
             default -> Behaviors.IDLE; };
     }
     public ShelterBlockEntity foundShelter() { return foundCover.inside(); }
@@ -947,6 +951,7 @@ public final class YukkuriLife {
         releasePaperCover("interrupt");
         garbage.stop();
         stallTheft.stop();
+        denRaid.stop();
         if(task==Task.SLEEP&&sleepTicks>=20)GameplayLog.limited(entity,"sleep","interrupt",200,
                 "interrupted source=life ticks={} energy={} nutrition={} panic={} water={} fire={}", () -> new Object[]{
                     sleepTicks,energy,nutrition,entity.isPanicking(),entity.isInWaterOrBubble(),entity.isOnFire()});
@@ -1211,6 +1216,7 @@ public final class YukkuriLife {
             boolean rainFirst = freeToShelter && foundCover.seekingStreetRoof();
             if (rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
             if (!entity.forageTrip().provisioningFirst() && stallTheft.plan()) { task = Task.STALL; return true; }
+            if (!entity.forageTrip().provisioningFirst() && denRaid.plan()) { task = Task.RAID; return true; }
             if (EventHooks.canEntityGrief(level(), entity) && garbage.plan()) { task = Task.GARBAGE; return true; }
             if (freeToShelter && !rainFirst && foundCover.plan()) { task = Task.FOUND_COVER; return true; }
         }
@@ -1401,6 +1407,7 @@ public final class YukkuriLife {
             }
             case GARBAGE -> { if (!garbage.tick()) stopGoal(); }
             case STALL -> { if (!stallTheft.tick()) stopGoal(); }
+            case RAID -> { if (!denRaid.tick()) stopGoal(); }
             case CROP -> {
                 if (pursuitTicks > 200 || !Grazing.streetForager(entity) || !canEat() || !Grazing.cropAt(entity, targetBlock)) {
                     stopGoal();
@@ -2171,6 +2178,7 @@ public final class YukkuriLife {
         foundCover.stop();
         garbage.stop();
         stallTheft.stop();
+        denRaid.stop();
         entity.wintering().stopMeal();
         endFoodGlass();
         warnedAtDish = false;
