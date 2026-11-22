@@ -833,7 +833,8 @@ public final class Hop implements Action {
             }
             if (!body.level().noCollision(body, first) || !body.level().noCollision(body, second)) {
                 bodyBlocked |= bodyCollision(body, first, second);
-                obstruction = "world at=" + GameplayLog.at(at) + " from=" + GameplayLog.at(previous);
+                obstruction = "world at=" + GameplayLog.at(at) + " from=" + GameplayLog.at(previous)
+                        + " tick=" + tick + "/" + (points.size() - 1) + " start=" + GameplayLog.at(from) + " lip=" + lip;
                 return false;
             }
             for (SurfaceHost host : hosts) {
