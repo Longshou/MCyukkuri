@@ -7974,9 +7974,7 @@ _smoke(_child_ball, 3200, [
 
 # no_stand and approach_timeout are honest retries (a short pause follows); a real loop would repeat them every pause (200 ticks, 16 in the 3200-tick window).
 def _child_retry_bound(window):
-    n = len(re.findall(rf'\[child\][^
-]*uuid={_child_log} [^
-]*end reason=(?:approach_timeout|no_stand|target_busy)', window))
+    n = len(re.findall(rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:approach_timeout|no_stand|target_busy)', window))
     return f'the child retried {n} times (more than 12): a retry loop' if n > 12 else None
 next(s for s in S if s.id == _child_ball).smoke.update(verify=_child_retry_bound)
 
