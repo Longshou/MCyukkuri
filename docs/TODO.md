@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 救援不把孩子放上会沉的帽船；翻正后漂远的帽船先拉回岸边 | `.worktrees/wp-rescue-load` | aquatic rescue, AquaticLife load, Ferry/AquaticGoal set_out |
 
 
 
