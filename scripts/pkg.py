@@ -151,6 +151,12 @@ def check_tree(tree, scenes):
         command = [sys.executable, str(serial), str(tree)] if serial.is_file() else ['bash', 'scripts/javac_check.sh', str(tree)]
         if subprocess.run(command, cwd=tree).returncode:
             raise Fail('javac_check.sh failed')
+    if any(path.startswith('scripts/museum_') for path in changed):
+        # The launcher builds the playground from museum_scenarios.py; an import-time assertion there stops world generation.
+        print('museum scenes changed: import check and pack check', flush=True)
+        for check in (['-c', 'import museum_scenarios'], [str(tree / 'scripts/check_museum_pack.py')]):
+            if subprocess.run([sys.executable, *check], cwd=tree / 'scripts').returncode:
+                raise Fail('museum scene check failed: ' + ' '.join(check))
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
         code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode
