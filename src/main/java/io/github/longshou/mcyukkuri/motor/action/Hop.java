@@ -821,8 +821,7 @@ public final class Hop implements Action {
             if (!carriedClear(body, previous, at, yaw)) {
                 obstruction = "held_world at=" + GameplayLog.at(at); return false;
             }
-            // the sunk edge of a take-off stand leaves its block with the first rise; a descent never takes the lip back
-            if (lip > 0 && at.y - from.y >= lip && at.y >= previous.y) lipSpent = true;
+            // the sunk edge of a take-off stand leaves its block with the first rise (this leg's start still counts as sunk)
             double held = lip > 0 && !lipSpent ? 1 : 0;
             AABB startBox = base.move(previous.subtract(body.position())).move(0, held * TakeoffLip.held(lip, previous.y - from.y), 0);
             AABB cornerBox = base.move(corner.subtract(body.position())).move(0, held * TakeoffLip.held(lip, corner.y - from.y), 0);
@@ -855,6 +854,8 @@ public final class Hop implements Action {
                     }
                 }
             }
+            // a descent never takes the lip back
+            if (lip > 0 && at.y - from.y >= lip && at.y >= previous.y) lipSpent = true;
             previous = at;
         }
         return true;
