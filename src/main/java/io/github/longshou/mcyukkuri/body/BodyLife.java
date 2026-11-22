@@ -273,7 +273,9 @@ public final class BodyLife {
         if(entity.isOnFire())return "on_fire";
         return "none";
     }
+    /** Contamination only takes in an injury: infection lives in a wound. */
     public void contaminated(){
+        if(wounds.stream().noneMatch(BodyLife::injury))return;
         int before=infection;infection=Math.min(8,infection+1);
         if(BodySigns.infectionTier(before)!=BodySigns.infectionTier(infection))entity.syncBody();
     }

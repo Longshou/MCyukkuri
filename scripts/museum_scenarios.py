@@ -4963,7 +4963,7 @@ for i,(label,level) in enumerate((('感染轻度',1),('感染中度',4),('感染
         set_status(name,'marks.scars',0),set_status(name,'health.wound_at','front:tear:2'),set_status(name,'health.wound_at','back:dent:3'),
         *([set_status(name,'health.infection',level)] if level else [])]
 add('wound_materials','body','伤口外观：八伤型、五部位与发面','伤口外观：八伤型、五部位与发面',
-    '中排八种伤型每只正面一级、侧面二级、背面三级；北排五只分别在头顶、正面、背面、侧面、底面有二级细刺伤，比较锚点和动作贴合；南排豆形、先天稀发、多毛及水生大帽对照；最北一排三只脏灵梦感染 1／4／7，旁边一只干净对照，用望远镜看读数应为“伤口感染·轻度／中度／重度”，伤口呈化脓；不洗直接喂橙汁会被拒绝，先用擦洗布洗再喂橙汁，伤口与感染一并清除。绕行看皮面、发面和断发边，移动时看蒙皮；用橙汁闭伤后看同锚点留疤，再用面粉糊。三级裂口继续漏血，及时治疗。本场是外观初态，实际来源另看真实伤因场景',
+    '中排八种伤型每只正面一级、侧面二级、背面三级；北排五只分别在头顶、正面、背面、侧面、底面有二级细刺伤，比较锚点和动作贴合；南排豆形、先天稀发、多毛及水生大帽对照；最南一排三只脏灵梦感染 1／4／7，旁边一只干净对照，用望远镜看读数应为“伤口感染·轻度／中度／重度”，伤口呈化脓；不洗直接喂橙汁会被拒绝，先用擦洗布洗再喂橙汁，伤口与感染一并清除。绕行看皮面、发面和断发边，移动时看蒙皮；用橙汁闭伤后看同锚点留疤，再用面粉糊。三级裂口继续漏血，及时治疗。本场是外观初态，实际来源另看真实伤因场景',
     '先看后背三级，再看侧面与正面；可清场重开',_wound_materials,env=DAY,vantage=(0,15),
     give=['mcyukkuri:orange_juice 16','mcyukkuri:flour_paste 16','mcyukkuri:wash_cloth','minecraft:spyglass'],
     reads=[('读八类伤型与锚点',f'execute as {sel_all("wound_shapes")} run yukkuri status @s raw')]
