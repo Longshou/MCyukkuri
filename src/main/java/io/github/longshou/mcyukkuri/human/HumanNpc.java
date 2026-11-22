@@ -190,8 +190,8 @@ public final class HumanNpc extends PathfinderMob {
         super(type, level); this.look = look;
         setAttitude(look == Look.ONIISAN ? Attitude.CRUEL : look == Look.CHILD ? Attitude.NEUTRAL : Attitude.CARING);
         setPersistenceRequired();
-        // The yarn ball it holds is a real item: it falls where the child falls.
-        if (look == Look.CHILD) setDropChance(EquipmentSlot.MAINHAND, 2.0f);
+        // The yarn ball and the bite of food it holds are real items: they fall where the child falls.
+        if (look == Look.CHILD) { setDropChance(EquipmentSlot.MAINHAND, 2.0f); setDropChance(EquipmentSlot.OFFHAND, 2.0f); }
     }
     public static AttributeSupplier.Builder attributes() { return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 24)
             .add(Attributes.MOVEMENT_SPEED, .26).add(Attributes.FOLLOW_RANGE, 24); }

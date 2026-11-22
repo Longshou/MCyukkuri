@@ -319,33 +319,65 @@ public final class YukkuriSocial implements MotorOwner {
 
     /** Wariness below which a stray goes for a child's ball (a confident one: the stranger term is at most .12 from boldness 65), and from which it flinches (boldness about 40 or lower, or real fear). */
     private static final double CHILD_PLAY_WARINESS = .30, CHILD_FLINCH_WARINESS = .40;
+    /** A chase this hard on an animal this wary frightens it for real: its fear of the child rises once by a few points. */
+    private static final double CHILD_SCARED_WARINESS = .65;
+    private static final int CHILD_SCARE_FEAR = 3;
+    /** A pet this attached to its owner stays beside the owner when a child makes a gesture, instead of answering it. */
+    private static final int CHILD_OWNER_ATTACHMENT = 60;
 
     /**
-     * A child rolled its ball to this animal: answered once, by its own values (EH29-B). Unafraid and bored or curious: it goes for the
-     * ball and plays. Startled: it flinches away. In between: the ordinary human contact, which watches and then greets or keeps away.
+     * A child made a gesture to this animal (ball, crumb, poke or run): answered once, by its own values (EH29). A pet looks to its owner
+     * first. Startled: it flinches away (to its owner when it has one near; a real scare after a chase raises its fear of the child once).
+     * An owner-attached pet stays beside the owner. Unafraid and bored or curious: it plays the ball, or stands its ground and plays back
+     * at a poke or run. A crumb is left to the animal's own hunger: it eats it once the child has stepped back. In between: the ordinary
+     * human contact, which watches and then greets or keeps away.
      */
     private boolean answerChildOffer() {
         if (entity.tickCount % 4 != 0) return false;
         var offer = ChildPlay.offerTo(entity);
         if (offer == null) return false;
-        ChildPlay.answered(entity);
         var child = offer.child();
+        var gesture = offer.gesture();
         var relation = personality().relation(child.getUUID());
         double wariness = SocialDisposition.humanWariness(entity, child, relation);
         double drive = Math.max(SocialDisposition.ramp(entity.dailyLife().boredom(), 40, 60), personality().temperament().curious());
         double nerve = .6 + .4 * SocialDisposition.ramp(personality().boldness(), 30, 70);
-        String response;
-        if (wariness < CHILD_PLAY_WARINESS && drive * nerve >= .5 && beginPlay(offer.ball())) response = "play";
-        else if (wariness >= CHILD_FLINCH_WARINESS) {
-            startHuman(child, false);
-            startled = true;
-            retreat = true;
-            duration = 80;
-            response = "flinch";
-        } else response = tryHuman(child, relation, false) ? "watch" : "ignore";
-        GameplayLog.event(entity, "social", "child offer response={} child={} ball={} wariness={} drive={} boredom={} boldness={}",
-                response, child.getUUID(), offer.ball().getUUID(), wariness, drive, entity.dailyLife().boredom(), personality().boldness());
-        return !response.equals("ignore");
+        var owner = ChildPlay.ownerNear(entity);
+        if (owner != null) entity.getLookControl().setLookAt(owner, 30, 30);
+        var answer = ChildPlay.Answer.IGNORE;
+        boolean took = true;
+        if (wariness >= CHILD_FLINCH_WARINESS) {
+            answer = ChildPlay.Answer.FLINCH;
+            if (gesture == ChildPlay.Gesture.CHASE && wariness >= CHILD_SCARED_WARINESS) {
+                personality().relationshipChanged(child.getUUID(), 0, CHILD_SCARE_FEAR);
+                answer = ChildPlay.Answer.SCARED;
+            }
+            // A pet hides beside its owner; any other flinches away from the child.
+            if (owner == null || !tryHuman(owner, personality().relation(owner.getUUID()), false)) {
+                startHuman(child, false);
+                startled = true;
+                retreat = true;
+                duration = 80;
+            }
+        } else if (owner != null && personality().attachment() >= CHILD_OWNER_ATTACHMENT) {
+            answer = tryHuman(owner, personality().relation(owner.getUUID()), false) ? ChildPlay.Answer.OWNER : ChildPlay.Answer.WATCH;
+        } else if (gesture == ChildPlay.Gesture.CRUMB) {
+            answer = ChildPlay.Answer.WATCH;
+            took = false;
+        } else if (wariness < CHILD_PLAY_WARINESS && drive * nerve >= .5) {
+            if (gesture == ChildPlay.Gesture.BALL) answer = beginPlay(offer.item()) ? ChildPlay.Answer.PLAY : ChildPlay.Answer.IGNORE;
+            else {
+                startHuman(child, false);
+                entity.showReaction("happy", "gentle", 60);
+                answer = ChildPlay.Answer.PLAY;
+            }
+        }
+        if (answer == ChildPlay.Answer.IGNORE) answer = tryHuman(child, relation, false) ? ChildPlay.Answer.WATCH : ChildPlay.Answer.IGNORE;
+        ChildPlay.answered(entity, answer);
+        GameplayLog.event(entity, "social", "child offer gesture={} response={} child={} item={} owner={} wariness={} drive={} boredom={} boldness={}",
+                gesture, answer, child.getUUID(), offer.item() == null ? null : offer.item().getUUID(), owner == null ? null : owner.getUUID(),
+                wariness, drive, entity.dailyLife().boredom(), personality().boldness());
+        return took && answer != ChildPlay.Answer.IGNORE;
     }
 
     /** In a toy session on this very item. */

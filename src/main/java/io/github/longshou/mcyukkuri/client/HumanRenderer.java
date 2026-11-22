@@ -70,6 +70,8 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
         }
         @Override public void setupAnim(HumanNpc n, float swing, float amount, float age, float yaw, float pitch) {
             if (n.sitsNow()) riding = true;
+            // The vanilla crouch (body pitched, hips and legs shifted) is the child's down-on-the-heels pose; it must be set before the base pass.
+            crouching = n.childPose() == ChildPlay.Pose.CROUCH || n.childPose() == ChildPlay.Pose.POKE;
             super.setupAnim(n, swing, amount, age, yaw, pitch);
             longHair.visible = n.look() == HumanNpc.Look.SISTER && n.job() == HumanNpc.Job.RESIDENT;
             mohawk.visible = n.look() == HumanNpc.Look.ONIISAN && n.job() == HumanNpc.Job.RESIDENT;
@@ -100,16 +102,53 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             var gesture = n.childPose();
             if (gesture != ChildPlay.Pose.NONE) {
                 var arm = n.getMainArm() == HumanoidArm.RIGHT ? rightArm : leftArm;
+                var other = arm == rightArm ? leftArm : rightArm;
                 float outward = n.getMainArm() == HumanoidArm.RIGHT ? -1 : 1;
-                if (gesture == ChildPlay.Pose.DRAW) {
-                    // The ball is drawn back beside the hip for the roll: arm swung behind, the body leaning into it.
-                    arm.xRot = .9f;
-                    body.xRot = .18f;
-                } else {
-                    // A friendly or apologetic wave: the hand up and swinging from the shoulder.
-                    arm.xRot = -2.5f;
-                    arm.zRot = outward * (.2f + .35f * Mth.sin(age * .6f));
+                switch (gesture) {
+                    case DRAW -> {
+                        // The ball is drawn back beside the hip for the roll: arm swung behind, the body leaning into it.
+                        arm.xRot = .9f;
+                        body.xRot = .18f;
+                    }
+                    case WAVE -> {
+                        // A friendly wave or a laugh after a run: the hand up and swinging from the shoulder.
+                        arm.xRot = -2.5f;
+                        arm.zRot = outward * (.2f + .35f * Mth.sin(age * .6f));
+                    }
+                    case CROUCH -> {
+                        // Down on the heels, the free hand held out low with the crumb (or ready to).
+                        other.xRot = -1.15f;
+                        other.zRot = -outward * .12f;
+                        head.xRot += .25f;
+                    }
+                    case POKE -> {
+                        // Down on the heels, one finger out at arm's length and wiggling; no hand goes near the animal.
+                        arm.xRot = -1.45f;
+                        arm.zRot = outward * .1f * Mth.sin(age * .9f);
+                        head.xRot += .2f;
+                    }
+                    case RUN -> {
+                        // A full tilt run: arms thrown wide and pumping, the body leaning forward.
+                        arm.xRot *= 1.6f; other.xRot *= 1.6f;
+                        arm.zRot = outward * .75f; other.zRot = -outward * .75f;
+                        body.xRot = .3f;
+                    }
+                    case SHRUG -> {
+                        // Palms out and the shoulders going up and down once or twice.
+                        float lift = .12f * Mth.sin(age * .5f);
+                        arm.xRot = -.35f; other.xRot = -.35f;
+                        arm.zRot = outward * (.75f + lift); other.zRot = -outward * (.75f + lift);
+                        head.zRot = .12f;
+                    }
+                    case SORRY -> {
+                        // Head down, both hands drawn together in front.
+                        head.xRot += .4f;
+                        arm.xRot = other.xRot = -1.0f;
+                        arm.yRot = outward * .5f; other.yRot = -outward * .5f;
+                    }
+                    default -> {}
                 }
+                hat.copyFrom(head);
             }
             if (n.kicking()) rightLeg.xRot = -.8f;
             if (n.frowning()) { head.zRot = -.13f; head.xRot += .25f; hat.copyFrom(head); }

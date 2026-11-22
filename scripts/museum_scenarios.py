@@ -4083,6 +4083,26 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
            ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
 
+_child_more = 'park_child_more'
+add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '小孩逗油库里：蹲着戳、放饼干、追',
+    '野餐草坪上，一个没有球、空闲手里拿着一个苹果的小孩；近处是胆大爱玩的流浪灵梦，远处是依恋主人的魔理沙，主人站在它身旁。'
+    '小孩会先站到灵梦跟前，蹲下的一秒预告后在三种逗法里挑一种：蹲着从两格外晃手指、把苹果放在地上退开两格、或张开手臂跑过去在两格外停住。'
+    '有点饿的灵梦等小孩退开后去吃苹果，胆大的朝小孩迎上去玩回去，被追时站定；魔理沙先看主人，贴到主人身边不理小孩。小孩的反应是挥手、耸肩或低头道歉。'
+    '重开可看另一种逗法；同一只灵梦被追过一次后不再被追。',
+    '约 1 分钟', [
+        human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
+        + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
+        human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
+        street_trial(_child_more, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, nutrition=45, yaw=0, lead=True,
+                     extra='YukkuriDailyLife:{Boredom:80}'),
+        yk('marisa', 10, -7, 'child_pet', uuid=uid(_child_more, 'child_pet'), boldness=60, attachment=90, grade=1, lead=True, yaw=0,
+           extra='YukkuriPet:{TownRoots:1b}'),
+        f'data modify entity {sel("child_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel("child_pet")} {OWNED}.Owner set from entity {sel("child_owner")} UUID',
+    ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
+    reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读有主人的魔理沙', f'yukkuri status {sel("child_pet")} raw'),
+           ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
