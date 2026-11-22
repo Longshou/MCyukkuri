@@ -203,6 +203,7 @@ PROBE_COMMANDS = {
     'scenario vary': 'yukkuri scenario vary @s {boldness:[40,60]}',
     'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario push': 'yukkuri scenario push @s 0.5 0',
+    'scenario grow': 'yukkuri scenario grow @s 0',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',

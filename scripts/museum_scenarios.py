@@ -6480,22 +6480,42 @@ def _escape_needs_place(window):
     return None
 
 
-def _overload_family(scene, parent, dz, cabin, label, grown=(120000, 210000), **traits):
-    """Saved young below the size their stored nourishment (`grown`, young 2 and 3) already sustains: the ordinary loaded ticks
-    grow them aboard. They start just under the load warning for the ordinary parent (head 0.355 + brim 0.20: 0.83 of capacity;
-    at 0.18 young 2 takes the cabin instead), so her own load rule seats them. By default the head young grows at once to 0.50
-    and young 2 to 0.29, a load over twice the hull's capacity with no warning in between; young 2 stays under that capacity on
-    its own, so the parent that lost its largest stops overloading while the exceptional one keeps all three and overloading.
-    `grown=(84000, 157500)` grows only the head young, to 0.375: the hull sits in its warning (0.96) and never overloads.
-    The hat is empty: these scenes show the load, not the larder (`hat_larder`). `traits` pin the parent's personality."""
+# Nourishment (ticks) at which young 2 and the head young stand at their start sizes 0.20 and 0.355 on the size curve (family.json
+# growth, maturity 336000: 0.25 -> 0.20, then linear to 0.80 at 1.0), so the world's own growth has nothing to add at the start.
+_YOUNG2_NOURISHMENT, _HEAD_NOURISHMENT = 84000, 149100
+# Growth steps for an overload: the head young to 0.50, young 2 to 0.29, then the head young on in 5000-tick steps (each a roll
+# for the hull's load, 10 ticks apart). Nourishment (child index, ticks).
+_OVERLOAD_STEPS = ((3, 210000), (2, 120000), (3, 215000), (3, 220000), (3, 225000), (3, 230000), (3, 235000))
+# One step into the warning only: the head young to 0.375 (load 0.96 of capacity).
+_WARNING_STEPS = ((3, 157500),)
+# The growth steps start after the smoke's chunk-reload check (tick 60 + 400 unloaded ticks) so the saved riders do not change under it.
+_GROWTH_START = 500
+
+
+def _overload_growth(parent, steps):
+    """The overload's cause: each step is one real growth step of a young (its own nourishment curve and collision rule), run at a
+    tick the scene chooses instead of the world's 100-tick interval; a step the box refuses is tried again (Retry)."""
+    return [Retry(f'yukkuri scenario grow {sel(parent + str(child))} {nourishment}', sel(parent + str(child)), tries=4, every=20,
+                  first=_GROWTH_START + 10 * i)
+            for i, (child, nourishment) in enumerate(steps)]
+
+
+def _overload_family(scene, parent, dz, cabin, label, **traits):
+    """Young start at sizes 0.16 (cabin, only with `cabin`), 0.20 and 0.355: just under the load warning for the ordinary parent
+    (head 0.355 + brim 0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them. The
+    growth is then staged by `_overload_growth` (`_OVERLOAD_STEPS`: a load over twice the hull's capacity with no warning in
+    between; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the
+    exceptional one keeps all three and overloading; `_WARNING_STEPS`: only the head young grows, the hull sits in its warning
+    (0.96) and never overloads). The hat is empty: these scenes show the load, not the larder (`hat_larder`). `traits` pin the
+    parent's personality."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid(scene, parent), label=label, **traits, **pair_ready()),
             *[yk('marisa', bank_dx(dz + offset) - 1, dz + offset, parent + str(i), aquatic=True,
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid(scene, parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid(scene, parent))}', label=f'孩子{i}', **pair_ready())
-              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, grown[0], 76000),
-                                                       (3, 1, .355, grown[1], 72000)) if cabin or i != 1],
+              for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, _YOUNG2_NOURISHMENT, 76000),
+                                                       (3, 1, .355, _HEAD_NOURISHMENT, 72000)) if cabin or i != 1],
             afloat_now(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), stick=True)]
 
 
@@ -6940,7 +6960,8 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
      '约 3 分钟，建议倍速',
      [*_overload_family('hat_crowd', 'normal', -3, False, '依恋65·友善20', **_TEARFUL),
       *_overload_family('hat_crowd', 'cold', 3, False, '依恋15·友善20', **_COLD)],
-     late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
+     late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
+           *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS)],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='先看翻船后亲油的表情和台词，再看被舍弃的孩子的回应与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start → overload sibling cries（孩子答话、手足哭）→ parent dismissed child（断亲）→ overload severed（answer）；断亲前她先看着孩子听完回应。'
           '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
@@ -6968,9 +6989,10 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
 pond('hat_load_warning', '载重警戒，亲油靠岸卸人', '载重警戒，亲油靠岸卸人',
      '两位亲油各带孩子：北侧普通亲油看到帽船吃水下沉、多晃（载重警戒）就划回岸边卸下全家，再出航只带载得下的孩子；南侧低智力高友善的亲油不理会警戒，载着全家直到翻船，之后仍认全部孩子',
      '约 5 分钟，建议倍速',
-     [*_overload_family('hat_load_warning', 'early', -4, False, '智55·友善70', grown=(84000, 157500), intelligence=55, friendliness=70),
+     [*_overload_family('hat_load_warning', 'early', -4, False, '智55·友善70', intelligence=55, friendliness=70),
       *_overload_family('hat_load_warning', 'kind', 4, True, '智20·友善80', intelligence=20, friendliness=80)],
-     late=[f'execute as {sel("early")} on vehicle run tag @s add seat_reload'],
+     late=[f'execute as {sel("early")} on vehicle run tag @s add seat_reload',
+           *_overload_growth('early', _WARNING_STEPS), *_overload_growth('kind', _OVERLOAD_STEPS)],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='本场景不断亲：北侧普通亲油演的是「卸人」这一取舍——先看到她皱眉哭一声再划回岸卸人，再出航时载不下的最大孩子留在岸上，她在帽上回头看它一眼，孩子按性格哭、哼或发火（日志 overload beat start … ferry=true → overload left ashore child answers）；南侧不理会警戒、翻船后全认，不演取舍。'
           '日志 [aquatic] load heavy … reason=unload_ashore → come_ashore 结束 DONE → set_out left_ashore（hull_full）；另一位记 capsized cause=too_heavy 与 overload keeps children。'

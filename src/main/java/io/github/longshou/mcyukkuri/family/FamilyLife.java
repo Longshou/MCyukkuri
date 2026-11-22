@@ -1164,6 +1164,12 @@ public final class FamilyLife {
         if(entity.getRootVehicle() instanceof SurfaceHost host)host.loadChanged(entity,"growth");
         if(slept||stage!=Stage.BABY)entity.showReaction("happy","grown",100);return true;
     }
+    /** Scenario hook: the loaded time this body needs to reach {@code reached} nourishment has passed, and the ordinary growth step
+     *  (the same {@link #grow}, with its own size curve and collision refusal) runs now instead of at the next interval. */
+    public boolean growNow(long reached){
+        nourishment=Math.max(nourishment,reached);
+        return grow(false);
+    }
     private static Stage stageForAge(long value) {
         return value<GrowthTiming.BABY_END?Stage.BABY:value<GrowthTiming.ADULT_START?Stage.JUVENILE:Stage.ADULT;
     }

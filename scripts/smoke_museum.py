@@ -371,6 +371,7 @@ def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
         server.run_cmd(st, f'function mcylab:smoke/{scene.id}/start')
     x, z = scene.anchor
     elapsed = 0
+    reload_problems = []
     if 'reload' in scene.smoke:
         elapsed, selector = scene.smoke['reload']
         server.sprint(st, elapsed)
@@ -381,16 +382,22 @@ def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
         for cx, cz in sorted(builder.BY_ID[scene.field].chunks()):
             server.run_cmd(st, f'forceload remove {cx} {cz}')
         server.sprint(st, 400)
-        if 'No entity was found' not in server.run_cmd(st, f'{command} UUID'):
-            raise RuntimeError(f'{scene.id}: reload fixture did not unload')
+        unloaded = 'No entity was found' in server.run_cmd(st, f'{command} UUID')
         load_field(st, builder.BY_ID[scene.field], builder.FEET)
         server.sprint(st, 1)
         after = [server.run_cmd(st, f'{command} {path}') for path in paths]
         normalize = lambda rows: re.sub(r'Yaw: [-+.\deE]+f', 'Yaw: observed', '\n'.join(rows))
         (Path(st['rundir']).parent / f'{scene.id}.reload.txt').write_text('\n'.join(before + after), encoding='utf-8')
-        if normalize(before) != normalize(after) or ('reload_paths' in scene.smoke and any('has the following entity data' not in row for row in before)):
-            raise RuntimeError(f'{scene.id}: required saved entity data changed or was missing on reload ({", ".join(paths)})')
-        print(f'PASS {scene.id}: saved entity data survived chunk reload ({", ".join(paths)})', flush=True)
+        # A failed reload check fails this run only, with the differing rows as the reason; the invocation goes on.
+        if not unloaded:
+            reload_problems.append(('reload fixture did not unload', f'{scene.id}: reload fixture did not unload'))
+        elif normalize(before) != normalize(after) or ('reload_paths' in scene.smoke and any('has the following entity data' not in row for row in before)):
+            diff = '; '.join(f'{path}: {old.strip()} -> {new.strip()}' for path, old, new in zip(paths, before, after)
+                             if normalize([old]) != normalize([new]))
+            reload_problems.append(('saved entity data changed on reload',
+                                    f'{scene.id}: required saved entity data changed or was missing on reload ({", ".join(paths)}): {diff}'))
+        else:
+            print(f'PASS {scene.id}: saved entity data survived chunk reload ({", ".join(paths)})', flush=True)
     readings = []
     for stop in (*scene.smoke.get('readout_at', ()), scene.smoke['ticks']):
         server.sprint(st, stop - elapsed)
@@ -421,6 +428,7 @@ def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
             output.write(f'\nMCYSMOKE_END_TICK {end_tick}\n')
         window = ''.join(legacy) + f'\nMCYSMOKE_END_TICK {end_tick}\n'
         problems = [] if nonempty else [('empty log', 'empty server log window')]
+        problems += reload_problems
         problems += failure(scene.smoke, window, trace, readout)
         problems += fate.fates(window, scene.smoke.get('allow_fate', ()))
         rerun = subprocess.list2cmdline([sys.executable, str(Path(__file__).resolve()), '--worktree',

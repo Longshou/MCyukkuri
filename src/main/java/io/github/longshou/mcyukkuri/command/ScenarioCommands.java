@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -101,6 +102,18 @@ public final class ScenarioCommands {
         tell(source.getLevel(), at.position(), "[试玩场] " + prefix + "没有成功：" + reason, ChatFormatting.RED);
         source.sendFailure(Component.literal(reason));
         return 0;
+    }
+
+    /** One real growth step at a tick the scene chooses: the body has lived to this nourishment, and its own growth rule runs now.
+     *  Succeeds only when the body actually grew (a blocked box or an unchanged size fails, so a late-command retry tries again). */
+    private static int grow(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        var body = yukkuri(context, "target");
+        if (body == null) return 0;
+        float before = body.family().scale();
+        boolean grew = body.family().growNow(LongArgumentType.getLong(context, "nourishment"));
+        GameplayLog.event(body, "scenario", "grow nourishment={} scale={} -> {} result={}", body.family().nourishment(), before,
+                body.family().scale(), grew ? "grew" : "unchanged_or_blocked");
+        return grew ? 1 : 0;
     }
 
     private static int certify(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -289,6 +302,8 @@ public final class ScenarioCommands {
                         .then(Commands.argument("members", EntityArgument.entities())
                                 .executes(c -> community(c, SettlementData.Kind.FOREST))
                                 .then(Commands.literal("bandits").executes(c -> community(c, SettlementData.Kind.BANDITS))))))
+                .then(Commands.literal("grow").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("nourishment", LongArgumentType.longArg(0)).executes(ScenarioCommands::grow))))
                 .then(Commands.literal("push").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("dx", DoubleArgumentType.doubleArg())
                                 .then(Commands.argument("dz", DoubleArgumentType.doubleArg()).executes(c -> {
