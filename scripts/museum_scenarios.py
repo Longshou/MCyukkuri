@@ -5132,11 +5132,11 @@ add('treatment_scars', 'body', '伤口自愈留疤，面粉糊去疤', '伤口�
 add('treatment_care', 'body', '照料员用橙汁、面粉糊治伤', '照料员用橙汁、面粉糊治伤',
     '伤者有三级裂口、血6、旧疤1、感染4、卫生20。NPC先亮擦洗布洗净（感染伤口不洗不给药），再手持橙汁约1秒、挥手交互，随后换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
     '约 10–40 秒', [
-        yk('reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
+        street_trial('treatment_care', 'reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
         set_status('patient', 'health.wound_at', 'front:tear:3'),
         set_status('patient', 'health.health', 6), set_status('patient', 'needs.hygiene', 20), set_status('patient', 'health.infection', 4),
         set_status('patient', 'marks.scars', 0), set_status('patient', 'marks.scars', 1),
-        human('caretaker_brother', 2, 0, 'carer', 0, label='照料员')],
+        human('caretaker_brother', 1, 1, 'carer', 0, label='照料员')],
     env=DAY, vantage=(0, 10), reads=[('读伤者', f'yukkuri status {sel("patient")} raw'),
                                     ('读医疗余量', f'data get entity {sel("carer")} Medicine')])
 
@@ -5190,11 +5190,11 @@ _hook_scene = 'hook_kin_rescue'
 add(_hook_scene, 'body', '亲属走近吊钩尝试救援', '亲属走近吊钩尝试救援',
     '在透明高顶下的孩子身上使用吊钩，然后留在五格内并给亲油让开通路。亲油按胆量、恐惧与友善决定是否上前。这处钩位偏高，观察亲油走到下方、抬头尝试、够不到时含泪退让。够到钩身才会松开钩子。',
     '用吊钩挂起孩子，观察亲油走近后如何尝试', [
-        box(-2,3,-2,2,3,2,'minecraft:glass'),
+        box(-8,3,-8,8,3,8,'minecraft:glass'),
         yk('reimu',0,0,'hook_child',label='孩子',lead=True,
            uuid=uid(_hook_scene,'hook_child'),kin=f'Mother:{uuid_nbt(uid(_hook_scene,"hook_parent"))}'),
         yk('reimu',2,0,'hook_parent',label='亲油',uuid=uid(_hook_scene,'hook_parent'),boldness=100,friendliness=100),
-    ], env=DAY,vantage=(0,8),give=['mcyukkuri:hanging_hook'],
+    ], env=DAY,vantage=(0,-8,0,20,0),give=['mcyukkuri:hanging_hook'],  # on the ground under the glass, not lifted onto it
     reads=[('读孩子状态',f'yukkuri status {sel("hook_child")} raw'),('读亲油状态',f'yukkuri status {sel("hook_parent")} raw')])
 
 add('learned_fire', 'body', '烫伤后看见火会退开', '烫伤后看见火会退开',
@@ -8548,6 +8548,11 @@ _smoke('family_search_pane', 2400, [r'\[family\][^\n]* glass vigil started ', r'
 next(s for s in S if s.id == 'family_search_pane').smoke['verify'] = _family_pane_verify
 _smoke('rain_open', 1200, [r'\[weather\][^\n]* shelter response started', r'\[needs\][^\n]* soaking damage '])
 _smoke('treatment_scars', 1600, [r'\[body\][^\n]* wound healing ', r'\[body\][^\n]* scar (?:formed|not formed) from '])
+_smoke('treatment_care', 900, [
+    rf'\[npc-care\][^\n]* action=prepare_dose target={_uuid_text("treatment_care","patient")} treatment=ORANGE_JUICE\b',
+    rf'\[npc-care\][^\n]* action=treatment target={_uuid_text("treatment_care","patient")} treatment=ORANGE_JUICE [^\n]*result=applied',
+    rf'\[npc-care\][^\n]* action=treatment target={_uuid_text("treatment_care","patient")} treatment=FLOUR_PASTE [^\n]*result=applied',
+])
 _smoke('wound_materials', 400, [], forbid=[r'\[body\][^\n]* death settled'])
 _smoke('wound_sources', 490, [
     r'\[interaction\][^\n]* operation started; [^\n]* pose=PIN duration=untimed reserved_item=mcyukkuri:pin_tool count=1',
