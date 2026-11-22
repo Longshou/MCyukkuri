@@ -1684,14 +1684,16 @@ add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也
     ], env=DAY, vantage=(-2, -8, 0, 15),
     reads=[('读四只的状态', 'yukkuri status @e[tag=scn,distance=..12] raw')])
 
-# A tired Reimu (energy 38: below the 40 warn line, above the 35 drowsy line, so it neither dozes nor leaves for a bed) stands in the open.
+# A tired Reimu (energy 38: below the 40 warn line, above the 35 drowsy line, so it neither dozes nor leaves for a bed) stands in a low fence pen.
 # No nest in the scene: a bed draws every homeless body in sight toward it, the friend included. West: a bonded, friendly, bold Marisa. East: an unknown, timid, unfriendly Chen who must not come.
 _COMPANY = {name: uid('company_visit', name) for name in ('weak', 'friend', 'stranger')}
 add('company_visit', 'meadow', '累了的朋友招来陪伴，陌生的不来', '累了的朋友招来陪伴',
-    '中间的灵梦精力 38（低于 40 的预警线、高于 35 的困倦线，所以不打盹），站在空地上（场上没有窝，免得朋友们都被窝引走）。西边熟识、友善、胆大的魔理沙（精力 90）看见朋友累了，'
+    '中间的灵梦精力 38（低于 40 的预警线、高于 35 的困倦线，所以不打盹），站在一圈矮围栏里（3×3，西面留一格缺口；场上没有窝，免得朋友们都被窝引走）。西边熟识、友善、胆大的魔理沙（精力 90）看见朋友累了，'
     '走到它面前面对面站着闭嘴微笑，灵梦的不安减轻；灵梦恢复、走开或睡着，或满约 30 秒，访问结束，之后 2 分钟内没有谁再来陪它。'
     '东边素不相识、胆小、不友善的橙不会过来。约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
+        # A low fence pen (3x3 inside, one gap facing the friend) keeps the tired guest from wandering off before contact.
+        box(-2, 0, -2, 2, 0, 2, 'minecraft:oak_fence'), box(-1, 0, -1, 1, 0, 1, 'minecraft:air'), block(-2, 0, 0, 'minecraft:air'),
         yk('reimu', 0, 0, 'weak', uuid=_COMPANY['weak'], label='累了·精力38', energy=38, yaw=-90, lead=True),
         yk('marisa', -5, 0, 'friend', uuid=_COMPANY['friend'], label='熟识·友善·胆大', energy=90, friendliness=100,
            attachment=80, boldness=90, yaw=-90),
