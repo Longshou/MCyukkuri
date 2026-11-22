@@ -16,6 +16,7 @@
 | 美术裁定 | [art-arbiter.md](docs/roles/art-arbiter.md) |
 | 生图专员 | [image-liaison.md](docs/roles/image-liaison.md) |
 | 冒烟审核官 | [smoke-approver.md](docs/roles/smoke-approver.md) |
+| 台词与场景核对（DeepSeek） | [dialogue-checker.md](docs/roles/dialogue-checker.md) |
 | 文档、Wiki 与机械活 | [docs.md](docs/roles/docs.md) |
 
 任务说明写明角色；兼任多个角色时读全部对应文件。
