@@ -9502,6 +9502,14 @@ _smoke('pocket_park_rest', 2600, [
            r'action=outing_sit result=taken', r'action=outing_stand reason=move'])
 next(s for s in S if s.id == 'pocket_park_rest').smoke.update(verify=_pocket_rest_verify)
 
+# The dirty infected patient is washed with the real cloth first; the juice then clears wound and infection; the paste removes the scar.
+_smoke('treatment_care', 900, [
+    r'\[npc-care\][^\n]* action=wash_start ',
+    r'\[npc-care\][^\n]* action=wash [^\n]*result=washed',
+    r'\[body\][^\n]* infection \d+ -> 0; orange juice',
+    r'\[npc-care\][^\n]* action=treatment [^\n]*treatment=ORANGE_JUICE [^\n]*result=applied',
+    r'\[npc-care\][^\n]* action=treatment [^\n]*treatment=FLOUR_PASTE [^\n]*result=applied',
+])
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER')],
