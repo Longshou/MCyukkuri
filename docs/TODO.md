@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 场景前提靠运气：PD-13/PD-29/DN-14/PK-06/PK-07/FG-18 | `.worktrees/wp-scene-premise` | scripts/museum_scenarios.py (those scenes) |
 
 
 
