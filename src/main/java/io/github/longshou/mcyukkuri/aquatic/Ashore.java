@@ -280,6 +280,11 @@ final class Ashore implements Intent {
         waterTried = true;
         var e = edge;
         return List.of(() -> SurfaceApproach.arrived(owner, e.stand(owner.getBbWidth())) ? null : new Step.Do(Walk.stand(e.stand(owner.getBbWidth()), 1)),
+                // a child she carries is set down on the dry bank first: it never goes into the water with her
+                () -> {
+                    var held = AquaticLife.carried(owner);
+                    return held == null ? null : new Step.Do(new Release(held));
+                },
                 () -> new Step.Do(new StepIn(Waters.surface(owner.level(), e.water()))),
                 () -> new Step.Sub(new EscapeWater(owner, new HashMap<>())));
     }

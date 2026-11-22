@@ -238,7 +238,10 @@ final class AquaticGoal extends Goal {
                     : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
-            if (AquaticLife.ashore(body) && (!usable || floor(setOut) == 0 || drive().failed("set_out"))) {
+            // A hull she has no way aboard (out of hop and stroke reach from every bank stand) is not set out for: she goes after it
+            // herself (resolve_own_hat), her young set down on dry ground first.
+            boolean boardable = hat == null || !usable || Ferry.canBoard(body, hat);
+            if (AquaticLife.ashore(body) && (!usable || !boardable || floor(setOut) == 0 || drive().failed("set_out"))) {
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
                     out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
                             () -> "head_rider_ashore child=" + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
@@ -250,13 +253,13 @@ final class AquaticGoal extends Goal {
                 if (rider != null) out.add(Desire.of("unload_young", PlayAboard.number("hide_want"),
                         List.of(cell(hat), rider.getUUID()), () -> "aboard child=" + rider.getUUID(), () -> Ashore.come(body)));
             }
-            if (usable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
+            if (usable && boardable) out.add(Desire.of("set_out", floor(setOut), world, () -> String.format(Locale.ROOT,
                     "pull=%.0f hunger=%.0f land_food=%b weather=%.0f breed=%.0f tired=%.0f stick=%b stick_near=%b dusk=%b rain=%b young=%d asleep=%b beyond_gather=%b searching=%b nursery=%b overladen=%b",
                     pull, hunger, landFood, weather, breed, tired, stick, nearStick, dusk, rain, young.size(), asleep, beyondGather, searching, nursery, overladen),
                     () -> new SetOut(body, this::leftAshore)));
             // Newborns ashore go through family loading, never the solo reclaim that may finish aboard without them.
-            if (hat != null && !birth && !nursery && unloadedNewborns.isEmpty() && !beyondGather
-                    && (floor(setOut) == 0 || !AquaticLife.afloat(hat) || drive().failed("set_out")))
+            if (hat != null && !birth && !nursery && (unloadedNewborns.isEmpty() || !boardable) && !beyondGather
+                    && (floor(setOut) == 0 || !boardable || !AquaticLife.afloat(hat) || drive().failed("set_out")))
                 out.add(Desire.of("resolve_own_hat", num("reclaim", 85), List.of(cell(hat), form(hat), young.size()),
                         () -> "hat=" + form(hat), () -> Ashore.reclaim(body)));
             return;

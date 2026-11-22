@@ -215,6 +215,11 @@ final class Waters {
         return null;
     }
 
+    /** Whether {@code body} has a way aboard {@code hat} (the answer of {@code compute}), kept per hat cell and body cell. */
+    static boolean boardable(YukkuriEntity body, PlacedHatEntity hat, Supplier<Boolean> compute) {
+        return kept(body.level(), key(body.level(), "boardable", body.blockPosition(), hat.blockPosition(), body.getBbWidth(), hat.getUUID()), compute);
+    }
+
     /** The nearest roomy bank edge {@code body} can walk to and hop out from over the water, nothing placed there, or null (the
      *  swim fallback of a reclaim, which needs no hop to a seat). */
     static Edge shore(YukkuriEntity body) {

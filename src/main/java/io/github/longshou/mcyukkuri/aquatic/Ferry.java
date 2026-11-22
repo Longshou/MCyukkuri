@@ -150,7 +150,8 @@ final class Ferry {
                 () -> approachHull(body, hat, beckoning),
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
                 () -> beckoning == null || hop.get().check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
-                () -> beckoning != null && beckoning.tried != null ? approachHull(body, hat, null) : null,
+                // after the turn the way aboard is read again from where she now stands (a lip leg, a stroke already paid)
+                () -> approachHull(body, hat, null),
                 () -> {
                     var action = hop.get();
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
@@ -175,11 +176,13 @@ final class Ferry {
         var edges = Waters.edges(body, hat.position(), 4, false);
         var board = new Hop(hat);
         Vec3 strokeStand = null;
+        var walkStands = new ArrayList<Vec3>();
         for (var edge : edges) {
             var centre = Waters.boardingStand(edge, body);
             var aligned = Floor.point(BankStand.alongFace(Floor.vec(centre), Floor.vec(edge.normal()), Floor.vec(hat.position())));
             for (var stand : aligned.equals(centre) ? List.of(centre) : List.of(aligned, centre)) {
                 if (!SurfaceApproach.supported(body, stand)) continue;
+                walkStands.add(stand);
                 // A walk already within its arrival tolerance would leave the refused takeoff unchanged.
                 boolean reachable = !SurfaceApproach.at(body, stand) && board.checkFrom(body, stand, search).ok();
                 if (!reachable && (strokeStand != null || beckoning == null
@@ -193,16 +196,23 @@ final class Ferry {
             var lip = Hop.bankStand(edge.edge(), edge.normal(), hat.position());
             if (SurfaceApproach.at(body, lip)) continue;
             var toLip = new Hop(lip);
-            if (toLip.check(body, search).ok() && board.checkFrom(body, lip, search).ok()) return toLip;
+            if (!board.checkFrom(body, lip, search).ok()) continue;
+            if (toLip.check(body, search).ok()) return toLip;
+            // Too far from the bank corner here: walk to the stand beside it first, and hop there.
+            for (var stand : walkStands)
+                if (!SurfaceApproach.at(body, stand) && SurfaceApproach.canApproach(body, stand)
+                        && toLip.checkFrom(body, stand, search).ok()) return new Walk(stand);
         }
         return strokeStand == null ? null : new Walk(strokeStand);
     }
 
     /** The same direct hop, bank walk or supported corner hop that boarding can actually use. */
     static boolean canBoard(YukkuriEntity body, PlacedHatEntity hat) {
-        // One decision: the hull's place for this young is searched once, not again from every bank stand.
-        var search = Hop.Search.admission();
-        return new Hop(hat).check(body, search).ok() || boardingApproach(body, hat, null, search) != null;
+        return Waters.boardable(body, hat, () -> {
+            // One decision: the hull's place for this young is searched once, not again from every bank stand.
+            var search = Hop.Search.admission();
+            return new Hop(hat).check(body, search).ok() || boardingApproach(body, hat, new Beckoning(), search) != null;
+        });
     }
 
     /** Board to work a young from the hull: walk to the boarding stand, face it, then hop where the braid reaches the young from —
