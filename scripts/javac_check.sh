@@ -24,17 +24,17 @@ mp() { cygpath -m "$1" 2>/dev/null || echo "$1"; }
 echo "-cp \"$CP\"" > "$OUT.args"
 winlist "$W/src/main/java" > "$OUT.src"
 rm -rf "$OUT" "$OUT-test"; mkdir -p "$OUT" "$OUT-test"
-"$JAVAC" -proc:none -nowarn -encoding UTF-8 -Xmaxerrs 300 -d "$(mp "$OUT")" @"$(mp "$OUT.args")" @"$(mp "$OUT.src")" 2>&1 | grep -av "^Note:" | head -"${2:-80}"
+"$JAVAC" -J-Xmx3g -proc:none -nowarn -encoding UTF-8 -Xmaxerrs 300 -d "$(mp "$OUT")" @"$(mp "$OUT.args")" @"$(mp "$OUT.src")" 2>&1 | grep -av "^Note:" | head -"${2:-80}"
 RC=${PIPESTATUS[0]}
 if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   winlist "$W/src/test/java" > "$OUT.tsrc"
-  "$JAVAC" -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON");$(mp "$JOML")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
+  "$JAVAC" -J-Xmx2g -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON");$(mp "$JOML")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
   TRC=${PIPESTATUS[0]}
   echo "test javac exit=$TRC"
   # Tests run WITHOUT Minecraft on the classpath, like CI: a test that loads a Minecraft class fails here too.
   RC=$TRC
   if [ "$TRC" = 0 ]; then
-  "$JAVA" -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
+  "$JAVA" -Xmx1g -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
     --select-package io.github.longshou.mcyukkuri.motor --select-package io.github.longshou.mcyukkuri.intent --select-package io.github.longshou.mcyukkuri.aquatic \
     --select-package io.github.longshou.mcyukkuri.family --select-package io.github.longshou.mcyukkuri.life --select-package io.github.longshou.mcyukkuri.status \
     --select-package io.github.longshou.mcyukkuri.pose --select-package io.github.longshou.mcyukkuri.interaction --select-package io.github.longshou.mcyukkuri.social \

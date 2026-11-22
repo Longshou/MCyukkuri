@@ -147,7 +147,9 @@ def check_tree(tree, scenes):
     changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
     if any(path.endswith('.java') for path in changed):
         print('java changed: javac_check.sh', flush=True)
-        if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
+        serial = MAIN / '.local/tools/javac_serial.py'  # one compile at a time machine-wide (a check peaks near 6 GB)
+        command = [sys.executable, str(serial), str(tree)] if serial.is_file() else ['bash', 'scripts/javac_check.sh', str(tree)]
+        if subprocess.run(command, cwd=tree).returncode:
             raise Fail('javac_check.sh failed')
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
