@@ -60,6 +60,8 @@ public final class MoldExile extends Goal implements MotorOwner {
         Vec3 centre() { return Vec3.atBottomCenterOf(range.pos()); }
         int radius() { return colony ? SettlementLife.COLONY_HOME_RANGE : SettlementLife.FAMILY_HOME_RANGE; }
         boolean includes(Vec3 at) { return at.subtract(centre()).horizontalDistanceSqr() <= radius() * radius(); }
+        /** Blocks {@code at} still lies inside this range; zero or less once it is out. */
+        double leftToLeave(Vec3 at) { return radius() - at.subtract(centre()).horizontalDistance(); }
     }
 
     private enum Appeal {
@@ -429,7 +431,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     @Override public boolean canContinueToUse() {
         if (task == null || !available()) return false;
         return switch (task) {
-            case WITNESS -> ticks < noticeEnd + (harsh ? SCORN_HOLD : WARN_HOLD) + (departing() ? WALK_LIMIT : 0) && peer.isAlive()
+            case WITNESS -> ticks < noticeEnd + (harsh ? SCORN_HOLD : WARN_HOLD) + (driveOffRunning() ? WALK_LIMIT : 0) && peer.isAlive()
                     && peer.body().mold() > 0 && sees(entity, peer);
             case LEAVE -> entity.body().mold() > 0 && (exile != null || home.equals(currentHome()));
             case APPEAL -> exile != null && entity.body().mold() > 0;
@@ -440,6 +442,11 @@ public final class MoldExile extends Goal implements MotorOwner {
     /** The driven one has answered and is on its way out: the drive-off lasts until it is outside or out of reach. */
     private boolean departing() {
         return driving && peer != null && peer.moldExile().task == Task.LEAVE && peer.moldExile().exile == null;
+    }
+
+    /** Our push action is still running: the witness task must not time out under it before the driven one starts leaving. */
+    private boolean driveOffRunning() {
+        return departing() || (pushed && entity.motor().current() instanceof Push);
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
@@ -462,8 +469,9 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50)
                 && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0)) return;
-        // One decision is one continuous drive-off: a shove runs to its own end, then it follows and shoves again until the sick one is out.
-        if (entity.motor().current() instanceof Push) return;
+        // One decision is one continuous drive-off: one push action starts, follows the sick one and keeps its clip until it is out
+        // of the home range; the witness then only watches it go.
+        if (pushed) return;
         if (!canPush()) {
             // A harsh one, having shouted, goes right up to shove it out; the others push only one already within reach.
             // It comes up on the home side of the sick one, so its shove points out of the home.
@@ -476,10 +484,12 @@ public final class MoldExile extends Goal implements MotorOwner {
             return;
         }
         SurfaceApproach.stopWalking(entity);
-        if (entity.motor().run(this, new Push(peer)) && !pushed) {
+        var driven = peer;
+        var address = home;
+        if (entity.motor().run(this, new Push(driven, () -> address.leftToLeave(driven.position())))) {
             pushed = true;
             if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
-            GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", peer.getUUID(), harsh);
+            GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", driven.getUUID(), harsh);
         }
     }
 
@@ -499,6 +509,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private boolean canPush() {
+        if (!home.includes(peer.position())) return false;
         if (!peer.onGround() || peer.isPassenger() || peer.isVehicle() || peer.operations().active()
                 || !ContactGeometry.inMouthReach(entity, peer)
                 || !peer.moldExile().canLeave(home, entity)) return false;
