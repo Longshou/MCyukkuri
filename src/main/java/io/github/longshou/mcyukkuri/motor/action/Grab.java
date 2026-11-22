@@ -218,12 +218,19 @@ public final class Grab implements Action {
         begin(carrier);
     }
 
+    /** A head rider of a captain seated on a host is already within braid reach where she sits (the head is on her own axis, so no
+     *  side is nearer): she lifts it without turning, as the host's cabin has no room for a half turn. */
+    private boolean keepsFacing(YukkuriEntity carrier) {
+        return fromHead && carrier.getVehicle() instanceof SurfaceHost;
+    }
+
     private void begin(YukkuriEntity carrier) {
         begun = true;
         startTick = carrier.level().getGameTime();
         // The one record of the hold (and, on the brim, its spot) starts with the lift; the client's pose reads it.
         ParentCarry.plan(carrier, target, hold, lean, source);
         facing = hold == Hold.BRIM ? ParentCarry.brimYaw(carrier.position(), target.position())
+                : keepsFacing(carrier) ? carrier.bodyYaw()
                 : hold.reach() == Reach.BRAID ? ParentCarry.braidTurn(carrier, target)
                 : (float) Math.toDegrees(Math.atan2(target.getZ() - carrier.getZ(), target.getX() - carrier.getX())) - 90;
         turn = new Face(facing);
@@ -248,7 +255,7 @@ public final class Grab implements Action {
         }
         ticks++;
         if (!target.isAlive()) return Outcome.of(Reason.TARGET_GONE, 0, "target_gone");
-        if (hold.reach() == Reach.BRAID) {
+        if (hold.reach() == Reach.BRAID && !keepsFacing(carrier)) {
             facing = ParentCarry.braidTurn(carrier, target);
             turn = new Face(facing);
             turn.start(carrier);
