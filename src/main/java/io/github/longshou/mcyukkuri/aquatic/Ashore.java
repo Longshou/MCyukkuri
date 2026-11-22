@@ -91,7 +91,9 @@ final class Ashore implements Intent {
         if (owner.motor().current() != null && !owner.motor().current().interruptible()) return false;
         var hat = AquaticLife.hat(owner);
         if (reclaim()) return owner.life().custody().worn() || hat != null && hat.settled(owner);
-        return owner.life().custody().worn() && AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null;
+        // A hungry young set down on the bank is fed from the hull's stores first: the hat stays afloat until it is fed (taking it up spills them).
+        return AquaticLife.ashore(owner) && AquaticLife.carried(owner) == null
+                && (owner.life().custody().worn() || hat != null && owner.getPassengers().isEmpty() && AquaticGoal.feedDue(owner, hat));
     }
 
     @Override public List<Method> methods() {
