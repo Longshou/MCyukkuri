@@ -12,6 +12,7 @@
 | 迎面行走互相堵路：按数值让路 | `.worktrees/wp-give-way-moving` | entity/YukkuriGroundNavigation, motor/action/Walk |
 | 伤口感染：望远镜读数、先擦洗再橙汁、化脓贴图接入 | `.worktrees/wp-wound-infection` | body/BodyLife, BodySigns, client HairWoundRenderer, StatusStrip, HumanNpc, herbal_medicine |
 | EH29 公园小孩滚球，油库里按性格反应 | `.worktrees/wp-eh29-child` | npc/HumanNpc (child type/spawn), HumanWorld, client/HumanRenderer, new ChildPlayGoal, social/YukkuriSocial hook, museum park scene |
+| 饿急流浪油：找得到吃的，或在手边求食后放弃（FG-13） | `.worktrees/wp-forage-fixes` | settlement/ForageGoal, life/MouthOccupancy, life/LifeMeal, FoodNoticeGoal |
 
 
 
