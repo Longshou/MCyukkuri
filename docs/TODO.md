@@ -11,6 +11,7 @@
 | 独占窝与匪帮抢窝改为驱动（WildCards 第 2 步之 6、7） | `.worktrees/wp-wc-group` | event/GroupCards, settlement/ShelterBlockEntity, life/StallTheft neighbour, config |
 | 家里的食物看得见；展示托盘改原版物品展示框 | `.worktrees/wp-item-p3` | house/SupplyPiles, HouseholdEcology, HouseNestBlockEntity, display_tray removal, town templates |
 | 报纸堆来源与垃圾头饰循环 | `.worktrees/wp-item-p4` | item newspaper_stack recipe, corner shop restock, headwear/Headwear junk search |
+| 徽章会馆讲台 | `.worktrees/wp-item-p6` | badge hall template, Podium marker |
 
 
 
