@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 独占窝与匪帮抢窝改为驱动（WildCards 第 2 步之 6、7） | `.worktrees/wp-wc-group` | event/GroupCards, settlement/ShelterBlockEntity, life/StallTheft neighbour, config |
 
 
 
