@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 冒烟修复：场景布置与校验 | `.worktrees/wp-fix-scenes` | scripts/museum_scenarios.py (several scenes), settlement/ForageGoal log rate |
 
 
 
