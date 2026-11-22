@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 独占窝与匪帮抢窝改为驱动（WildCards 第 2 步之 6、7） | `.worktrees/wp-wc-group` | event/GroupCards, settlement/ShelterBlockEntity, life/StallTheft neighbour, config |
+| 家里的食物看得见；展示托盘改原版物品展示框 | `.worktrees/wp-item-p3` | house/SupplyPiles, HouseholdEcology, HouseNestBlockEntity, display_tray removal, town templates |
 
 
 
