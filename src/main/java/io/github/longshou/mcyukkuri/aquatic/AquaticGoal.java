@@ -240,9 +240,11 @@ final class AquaticGoal extends Goal {
             boolean searching = body.family().searchingChild();
             // the young on her head would sink her hull into its load warning: an ordinary parent sets it down first (set_down_young)
             boolean overladen = overladen(body, hat);
-            double setOut = asleep || beyondGather || searching || birth || nursery || overladen ? 0
+            // a hungry young set down on the bank is fed there first (the ground feed takes a portion from the hull's stores beside the bank)
+            boolean feedDue = young.stream().anyMatch(y -> !y.isPassenger() && AquaticLife.ashore(y) && hungryYoung(y, hat));
+            double setOut = asleep || beyondGather || searching || birth || nursery || overladen || feedDue ? 0
                     : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
-            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood);
+            var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood, feedDue);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             // A hull she has no way aboard (out of hop and stroke reach from every bank stand) is not set out for: she goes after it
             // herself (resolve_own_hat), her young set down on dry ground first. When that has no way either (hat out of swim
@@ -253,7 +255,7 @@ final class AquaticGoal extends Goal {
                 // A head rider is set down on dry ground when she cannot set out with it, or when it is hungry and food is to be had:
                 // the ground feed (family care) reaches only a child on the ground.
                 for (var rider : body.family().carry().riders()) if (ParentCarry.hold(body, rider) == ParentCarry.Hold.HEAD) {
-                    boolean feed = hungryHead(rider, hat);
+                    boolean feed = hungryYoung(rider, hat);
                     if (stranded || feed) out.add(Desire.of("set_down_young", PlayAboard.number("hide_want"), List.of(body.blockPosition(), rider.getUUID()),
                             () -> (feed ? "hungry_head_rider_ashore child=" : "head_rider_ashore child=") + rider.getUUID(), () -> new Care.Transfer(body, rider, null)));
                     break;
@@ -332,7 +334,7 @@ final class AquaticGoal extends Goal {
         boolean heavy = overladen(body, hat);
         // A hungry head rider with no free cabin place is out of her mouth's reach: she is fed on dry ground.
         boolean headFeed = young.stream().anyMatch(y -> y.getVehicle() == body && ParentCarry.hold(body, y) == ParentCarry.Hold.HEAD
-                && hat.places(y, SeatTarget.Kind.CABIN, 1).isEmpty() && hungryHead(y, hat));
+                && hat.places(y, SeatTarget.Kind.CABIN, 1).isEmpty() && hungryYoung(y, hat));
         double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, headFeed ? num("head_feed_need", 70) : 0),
                         Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
@@ -355,14 +357,13 @@ final class AquaticGoal extends Goal {
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
     }
 
-    /** A hungry head rider she has food for (her hold, her mouth, or on the bank) and whose feeding her care decision accepted: out of
-     *  mouth reach on her head, it is fed on dry ground. */
-    private boolean hungryHead(YukkuriEntity y, PlacedHatEntity hat) {
+    /** A hungry young she has food for (her hull's stores or her mouth) and whose feeding her care decision accepted. A head rider is out of
+     *  mouth reach, so it is fed on dry ground; set on the ground, it is fed there before she sets out again. */
+    private boolean hungryYoung(YukkuriEntity y, PlacedHatEntity hat) {
         if (!Care.hungry(body, y) || body.family().careDecisions().refused(y, CareDecisionLedger.Need.FEED)) return false;
         var larder = HullLarder.of(hat);
         var held = body.family().carrying();
-        boolean food = larder != null && larder.has(one -> y.life().canReceiveCareFood(one)) || !held.isEmpty() && y.life().canReceiveCareFood(held)
-                || foodAshore(body);
+        boolean food = larder != null && larder.has(one -> y.life().canReceiveCareFood(one)) || !held.isEmpty() && y.life().canReceiveCareFood(held);
         return food && body.family().careDecisions().decide(y, CareDecisionLedger.Need.FEED, y.life().nutrition() < 30 || !y.childhood().firstMealDone()).accepted();
     }
 
