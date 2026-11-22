@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 公园外出：回程寻路失败重试、陶管口让开、游具内部不当普通通路 | `.worktrees/wp-park-outing` | pet/PetOuting, HumanStreet.routeHome, play/PlayLife, play/PlayBlock |
 
 
 
