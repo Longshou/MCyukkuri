@@ -6811,12 +6811,12 @@ def _to_water_chain(sid, may_hop=False):
 
 _FED_NEWBORN = 'Version:2,Newborn:1b,Landed:1b,FirstMealDone:1b,FirstToiletDone:1b,Crawled:0b'
 pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱赤油上帽船',
-     '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，先跳上近侧帽檐，用辫子抓起岸边赤油并降低到前座，最后自己到船尾座位；两只实际入座后出航',
+     '亲油与一只已完成首餐、首便、正在学爬且不会跳的赤油在岸边，附近有木棍：亲油取棍、集合、放帽，用辫子抓起岸边赤油带它跳上近侧帽檐，再降到前座，最后自己到船尾座位；两只实际入座后出航',
      '约 1–2 分钟',
      [yk('marisa', bank_dx(0) - 1, 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid('afloat_family', 'a'), **pair_ready()),
       _aquatic_young('afloat_family', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=_FED_NEWBORN),
       item('minecraft:stick', 1, bank_dx(0) - 1, -1, 'stick')],
-     note='日志：set_out → placed → 亲油 mount → grab reach=braid → carry grip → carry lowering → 赤油 seat landed → 亲油 hop 到座位 → set_out complete aboard=1/1。' + _DESIRE_NOTE,
+     note='日志：set_out → placed → grab reach=braid → carry grip → 亲油 mount → carry lowering → 赤油 seat landed → 亲油 hop 到座位 → set_out complete aboard=1/1。' + _DESIRE_NOTE,
      vantage=(bank_dx(0) - 4, 4, -135, 18),
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
                   views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.15, .55, -.75)),
