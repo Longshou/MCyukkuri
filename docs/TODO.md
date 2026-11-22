@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 公园小孩：滚球被小路挡住、目标走开就冷却三分钟 | `.worktrees/wp-child-roll` | human/ChildPlay, scripts/museum_scenarios.py PK-06/PK-07 |
 
 
 
