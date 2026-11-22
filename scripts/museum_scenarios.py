@@ -1227,7 +1227,9 @@ add('stray_paper_young', 'forage', '流浪：亲油抽报纸先盖赤油，自�
                verify=_paper_young_fire_phases))
 
 # A forest burrow on the family mound with two beds and a stocked store, the way the mold scenes place one: the beds are the
-# whole capacity, so two residents fill it. The pile is a real forage pile the burrow adopts at its store cell.
+# whole capacity, so two residents fill it. The pile is a real forage pile the burrow adopts at its store cell. Lining and
+# branches are preset full: a resident that still wants bedding leaves the burrow to gather grass and its habitat errand holds
+# the body for hundreds of ticks, which keeps a scene that wants it at home (or free for its own drama) from ever catching it in.
 def _den_cell(dx, dz):
     x, z = BY_ID['den'].spots['family']
     return f'{((x + dx) << 38) | (((z + dz) & 0x3ffffff) << 12) | FEET}L'
@@ -1235,7 +1237,7 @@ def _den_cell(dx, dz):
 
 def _two_bed_burrow(stock):
     beds = f'{_den_cell(-1, -3)},{_den_cell(1, -3)}'
-    lines = [block(0, 0, -1, f'mcyukkuri:forest_burrow[facing=south]{{Condition:100,NaturalBeds:[L;{beds}],'
+    lines = [block(0, 0, -1, f'mcyukkuri:forest_burrow[facing=south]{{Condition:100,Lining:4,Branches:3,NaturalBeds:[L;{beds}],'
                    f'NaturalPile:{_den_cell(-2, -4)},NaturalPileStand:{_den_cell(-1, -4)}}}')]
     if stock:
         items = ','.join(f'{{Slot:{slot}b,id:"minecraft:short_grass",count:{stock}}}' for slot in range(3))
@@ -1246,6 +1248,8 @@ def _two_bed_burrow(stock):
 # Two sated residents live in a stocked burrow; a bandit band stands south in the open, in sight of the door. Once the band is made
 # a real bandit group, the raider (nutrition 30 < 45) walks to the door and eats from the store bite by bite, the mate (50, below the
 # gang line 55) follows the same den while the raider is at it, and the fed control (95) does not move on the den at all.
+# The residents are kept at energy 36: under the 40 line they neither dig the crowded cave wider nor move to the bigger den in the
+# next mound, so the burrow stays occupied and stocked, which is what makes it raidable at all (an emptied burrow is not).
 _RAID = {name: uid('den_raid', name) for name in ('raider', 'mate', 'fed', 'host', 'guest')}
 _RAID_MOTHER = uid('den_raid', 'mother')
 _RAID_TXT = {name: _uuid_text('den_raid', name) for name in _RAID}
@@ -1258,9 +1262,9 @@ add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱�
     '约 30–90 秒', [
         *_two_bed_burrow(16),
         box(-8, 0, 3, 8, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
-        yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180,
+        yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=36, friendliness=70, social_wait=0, yaw=180,
            kin=kin_of(Mother=_RAID_MOTHER)),
-        yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180,
+        yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=36, friendliness=70, social_wait=0, yaw=180,
            kin=kin_of(Mother=_RAID_MOTHER)),
         yk('reimu', -2, 8, 'raider', uuid=_RAID['raider'], label='匪帮·饿极30', nutrition=90, energy=100, boldness=70, picky=20, social_wait=0,
            yaw=0, lead=True, also=('band',)),
@@ -1815,22 +1819,24 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
     reads=[('读北边饿的', f'yukkuri status {sel("claimer")} raw'), ('读北边吃饱的', f'yukkuri status {sel("rival")} raw'),
            ('读南边饿的', f'yukkuri status {sel("foe_claimer")} raw'), ('读南边吃饱的', f'yukkuri status {sel("foe_rival")} raw')])
 
-# Three free strays crowding one stack of two apples (smaller than the eaters, so the hunger order applies). All three stand within
-# a step of the pile at the start, so each reaches it before the food can be carried off: the order needs the hungrier rival close
-# and still contesting. West: a timid, dull stray (long inspect pause). East: a bold, clever one (short pause). South: a starving one
-# (below nutrition 30: no pause at all; 30 below the others, so both let it go first). Nutrition 40 keeps the two above the no-pause line.
+# Three free strays around one stack of three apples (one each, so all three really get to the food; the hunger order still
+# applies while the stack is shared). All three stand within a step of the pile at the start, so each reaches it before the
+# food can be carried off: the order needs the hungrier rival close and still contesting. West: a timid, dull stray (long
+# inspect pause). East: a bold, clever one (short pause). South: a starving one (nutrition 5: below 30, so no pause at all,
+# and still below the line after one apple; 35 below the others, so both let it go first). Nutrition 40 keeps the two above
+# the no-pause line.
 _STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
-    '街中间地上一小堆两个苹果，三只流浪的油紧挨着它站着。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
-    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 10，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 30），另两只到苹果旁就让它先取，站着等（头顶中性脸）。'
-    '苹果只有两个、嘴有三张：等的那只等完自己的耐性（20–220 tick）后才会去拿，拿不到就走开，不会一直站着。约 10 秒内发生；一次没看到可在 M 菜单重开',
+    '街中间地上一小堆三个苹果，三只流浪的油紧挨着它站着。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
+    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 5，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 35），另两只到苹果旁就让它先取，站着等（头顶中性脸）。'
+    '苹果刚好三只一人一个，但拿的时候仍按饥饿排先后：等的那只等完自己的耐性（20–220 tick）后才会去拿，不会一直站着。约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
-        item('minecraft:apple', 2, 0, 0, name='strange_apple'),
+        item('minecraft:apple', 3, 0, 0, name='strange_apple'),
         street_stray('stray_strange_food', 'reimu', -1, 0, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
         street_stray('stray_strange_food', 'marisa', 1, 0, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
         # It starts on the apple's own south contact stand (z 0.326): a body's box is wider than the stand offsets, so one that
         # walks in later is shoved out of contact by the other two and wanders off to graze.
-        street_stray('stray_strange_food', 'reimu', 0, 0.326, 'starving', nutrition=10, boldness=50, intelligence=50, label='饿极·营养10'),
+        street_stray('stray_strange_food', 'reimu', 0, 0.326, 'starving', nutrition=5, boldness=50, intelligence=50, label='饿极·营养5'),
     ], env=DAY, spot='street', vantage=(0, 12),
     reads=[('读胆小的', f'yukkuri status {sel("timid")} raw'), ('读胆大的', f'yukkuri status {sel("bold")} raw'),
            ('读饿极的', f'yukkuri status {sel("starving")} raw')],
@@ -4163,15 +4169,17 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
         # Both strays have a home: a vagrant without one keeps a habitat project running and never answers a child's offer.
-        # The bold one beds under the picnic tree (its canopy is the cover); the timid one gets a shed of its own.
-        block(0, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), *shed(11, -5, half=1),
+        # The bold one beds under the picnic tree (its canopy is the cover), four blocks west of where it stands: a nest closer
+        # than the territory radius 3 would make it defend the bed against the child instead of answering the ball. The timid
+        # one gets a shed of its own.
+        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), *shed(11, -5, half=1),
         # Not bored at the start: a leisure song would hold the social goal and the ball would go unanswered. It still plays:
         # the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_ball, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
                      extra='YukkuriDailyLife:{Boredom:0}'),
         street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0,
                      extra='YukkuriDailyLife:{Boredom:0}'),
-        home('child_bold', 0, -5), home('child_timid', 11, -5),
+        home('child_bold', -3, -5), home('child_timid', 11, -5),
     ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
            ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
@@ -4186,8 +4194,9 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
         human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
-        # A home under the picnic tree, or the stray keeps a habitat project running and never answers the tease.
-        block(0, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), home('child_bold', 0, -5),
+        # A home under the picnic tree, or the stray keeps a habitat project running and never answers the tease. Kept four
+        # blocks west of the stray: inside the territory radius 3 it would defend the bed against the child instead of answering.
+        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), home('child_bold', -3, -5),
         # Not bored: a leisure song would hold the social goal and the tease would go unanswered (as in park_child_ball).
         # It still answers playfully: the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_more, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, nutrition=45, yaw=0, lead=True,
@@ -7951,9 +7960,9 @@ _child_bold = _uuid_text(_child_ball, 'child_bold')
 _child_timid = _uuid_text(_child_ball, 'child_timid')
 _smoke(_child_ball, 3200, [
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_bold} ball=[0-9a-f-]{{36}} ',
-    rf'\[social\][^\n]*uuid={_child_bold} [^\n]*child offer response=play ',
+    rf'\[social\][^\n]*uuid={_child_bold} [^\n]*child offer response=PLAY ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_timid} ball=[0-9a-f-]{{36}} ',
-    rf'\[social\][^\n]*uuid={_child_timid} [^\n]*child offer response=flinch ',
+    rf'\[social\][^\n]*uuid={_child_timid} [^\n]*child offer response=FLINCH ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*reaction=played target={_child_bold} ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*ball_recovered ',
 ], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll|approach_timeout|no_stand)'])
@@ -8672,8 +8681,9 @@ _smoke('quarrel_makeup', 2400, [
     rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*reconcile answered peer=(?:{_qn[0]}|{_qn[1]}) accepted=true\b',
     rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*quarrel recorded peer=(?:{_qs[0]}|{_qs[1]})\b',
 ], forbid=[rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*reconcile (?:approach|answered)\b'])
-# The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 10) not at all; the
-# starving one eats first, and at least one of the others waits behind it (the stack of two is smaller than the three eaters).
+# The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 5, below the
+# no-pause line even after its first apple) not at all; the starving one eats first, and at least one of the others waits behind
+# it (once the pile is down to the number of eaters still contesting it, the order applies).
 _strange = {name: _uuid_text('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 _smoke('stray_strange_food', 900, [
     rf'\[meal\][^\n]*uuid={_strange["timid"]} [^\n]*strange_food_pause item=minecraft:apple ticks=(?:[7-9]\d|80) ',
