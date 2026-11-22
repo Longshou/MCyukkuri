@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 冒烟修复：场景布置与校验 | `.worktrees/wp-fix-scenes` | scripts/museum_scenarios.py (several scenes), settlement/ForageGoal log rate |
-| 头上的幼体也能被喂、单独亲油能从停靠帽檐跳上岸 | `.worktrees/wp-head-baby` | aquatic/AquaticGoal care, aquatic/Care, motor/action/Hop + ArcSolver, hat_larder scene |
 
 
 
