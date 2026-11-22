@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 油霉驱逐：单方面断绝关系（共用）；DN-11 驱赶不再反复中断 | `.worktrees/wp-mold-sever` | social/Bonds, family mold exile, colony exile |
-| 伤口感染：望远镜读数、先擦洗再橙汁、化脓贴图接入 | `.worktrees/wp-wound-infection` | body/BodyLife, BodySigns, client HairWoundRenderer, StatusStrip, HumanNpc, herbal_medicine |
 | EH29 公园小孩滚球，油库里按性格反应 | `.worktrees/wp-eh29-child` | npc/HumanNpc (child type/spawn), HumanWorld, client/HumanRenderer, new ChildPlayGoal, social/YukkuriSocial hook, museum park scene |
 | 饿急流浪油：找得到吃的，或在手边求食后放弃（FG-13） | `.worktrees/wp-forage-fixes` | settlement/ForageGoal, life/MouthOccupancy, life/LifeMeal, FoodNoticeGoal |
 | 相撞抽搐、叼草两种画法、母油回来见遗体即哀悼 | `.worktrees/wp-contact-mouth` | PresentationArbiter, YukkuriEntity.aiStep travel, client/YukkuriRenderer carried item, family/KinAbsence |
