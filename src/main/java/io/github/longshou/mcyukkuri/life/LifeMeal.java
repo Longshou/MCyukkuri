@@ -438,7 +438,7 @@ final class LifeMeal {
         if (purpose == Purpose.DUTY) return o.entity().settlement().duties().putDownLoad();
         if (purpose == Purpose.SWADDLE) return o.entity().leafSwaddle().putDownLeaves();
         if (purpose != null && purpose.isFieldCargo()) {
-            if (!occupancy().canSetDownForMeal(o.nutrition())) return false;
+            if (!occupancy().canSetDownForMeal(o.nutrition()) || !occupancy().canReleaseHere()) return false;
             if (occupancy().releaseItems(purpose, 60)) return true;
             GameplayLog.limited(o.entity(), "meal", "cargo_drop_refused", 200,
                     "meal deferred reason=cargo_drop_refused purpose={}", purpose);

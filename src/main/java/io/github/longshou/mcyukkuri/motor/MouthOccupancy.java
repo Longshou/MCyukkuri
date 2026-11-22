@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,8 +26,11 @@ public final class MouthOccupancy {
 
         public boolean isFieldCargo() { return this == HABITAT || this == FORAGE; }
 
-        /** The existing emergency hunger boundary for a loaded forager. */
-        public boolean yieldsToMeal(float nutrition) { return isFieldCargo() && nutrition < 15; }
+        /** When a loaded body puts its cargo down for a meal: nest bedding grass is itself food, so it yields below the urgent
+         *  line; a forage trip keeps its emergency boundary. */
+        public boolean yieldsToMeal(float nutrition) {
+            return this == HABITAT ? nutrition < HungerDrive.URGENT : this == FORAGE && nutrition < 15;
+        }
     }
 
     private record Load(Purpose purpose, List<ItemStack> items, BodyFood.Bite bite) {}
@@ -91,8 +95,12 @@ public final class MouthOccupancy {
 
     public boolean canSetDownForMeal(float nutrition) {
         var purpose = purpose();
-        return purpose != null && purpose.yieldsToMeal(nutrition)
-                && ItemContact.hasReleaseSupport(owner, MouthPlacement.position(owner));
+        return purpose != null && purpose.yieldsToMeal(nutrition);
+    }
+
+    /** The actual set-down needs floor under the lips; only it, not the decision to go looking for food, does. */
+    public boolean canReleaseHere() {
+        return ItemContact.hasReleaseSupport(owner, MouthPlacement.position(owner));
     }
 
     /** Preview the normal paper set-down before another action asks for this mouth. */

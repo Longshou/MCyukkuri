@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -42,6 +44,10 @@ public final class ForageGoal extends Goal {
     private ForageClaims.Claim claim;
     private int elapsed;
     private long scanAfter;
+    /** Ticks spent waiting at a food holder's hand that cannot be asked (counted in the 10-tick attend steps). */
+    private int parked;
+    /** Until this game time a stray that gave up waiting at a hand ignores hands (and the pull toward them). */
+    private long giveUpUntil;
     public ForageGoal(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         // Scan budgeting must not delay ownership of the hunger-driven search.
@@ -53,6 +59,8 @@ public final class ForageGoal extends Goal {
     }
 
     private ServerLevel level() { return (ServerLevel)entity.level(); }
+    /** True while this stray has given up on a hand: no hand, held serving or pull toward one draws it back. */
+    public boolean givenUp() { return entity.level().getGameTime() < giveUpUntil; }
     /** Stay at mouth contact for an edible serving while the donor presents it. */
     public void pauseForBite(ItemStack serving) {
         if (running && entity.life().acceptsFood(serving) && !entity.status().reactions().threat().responding()) {
@@ -76,21 +84,31 @@ public final class ForageGoal extends Goal {
     }
     @Override public boolean canUse() {
         if (entity.isPassenger() || entity.profile().houseBody() || entity.family().awaitingLanding() || entity.life().mealTicks() > 0
-                || !entity.life().canEat() || entity.life().isSleeping() || entity.isInWaterOrBubble()
+                || entity.life().isSleeping() || entity.isInWaterOrBubble()
                 || !EventHooks.canEntityGrief(level(), entity) || !grazes()) return false;
+        if (!entity.life().canEat()) {
+            if (entity.life().nutrition() < HungerDrive.URGENT) {
+                var mouth = entity.component(YukkuriComponents.MOUTH);
+                GameplayLog.limited(entity, "forage", "blocked_cargo", 400, "forage blocked reason=cargo purpose={} support={} nutrition={}",
+                        () -> new Object[]{mouth.purpose(), mouth.canReleaseHere(), entity.life().nutrition()});
+            }
+            return false;
+        }
         if (SettlementSeasons.forageBlocked(entity) || feedsChildFirst() || yieldsToMarch() || entity.forageTrip().provisioningFirst()) return false;
         scanFood();
         if (target == null && (entity.life().nutrition() >= 30 || entity.family().keepsToParent())) return false;
-        elapsed = 0; searchSpot = null;
+        elapsed = 0; searchSpot = null; parked = 0;
         return true;
     }
     private void scanFood() {
         long now = level().getGameTime();
         if (now < scanAfter || !SearchBudget.take(level(), entity, Purpose.FORAGE)) return;
         scanAfter = now + Math.max(1, Math.round(40 / MyonLife.forageScale(entity)));
-        int reach = (int)Math.round(TravelRange.search(entity, 6) * MyonLife.forageScale(entity)
-                * entity.life().personality().exploreMultiplier() * HungerDrive.reachScale(entity.life().nutrition()));
-        findFood(reach);
+        float n = entity.life().nutrition();
+        double scale = MyonLife.forageScale(entity) * entity.life().personality().exploreMultiplier() * HungerDrive.reachScale(n);
+        // An urgent body sees as far as it will sweep (the route cap still bounds what it can walk); beyond the fed reach the scan samples every second column.
+        int near = (int)Math.round(TravelRange.search(entity, 6) * scale);
+        findFood(n < HungerDrive.URGENT ? (int)Math.round(TravelRange.search(entity, 12) * scale) : near, near);
     }
     /**
      * The search is one state: a wander whose purpose is food. Food that shows up during it is acted on at once, not at
@@ -100,10 +118,11 @@ public final class ForageGoal extends Goal {
     private boolean attendFood() {
         Player holder = null;
         for (Player player : level().getEntitiesOfClass(Player.class, entity.getBoundingBox().inflate(TravelRange.search(entity, 12)),
-                p -> p.isAlive() && !p.isSpectator() && entity.life().seeksOfferedFood(p)
+                p -> !givenUp() && p.isAlive() && !p.isSpectator() && entity.life().seeksOfferedFood(p)
                         && entity.hasLineOfSight(p) && entity.life().personality().fear(p.getUUID()) < BondLevels.SOCIAL_FEAR_LIMIT)) {
             if (holder == null || entity.distanceToSqr(player) < entity.distanceToSqr(holder)) holder = player;
         }
+        if (holder == null) parked = 0;
         if (holder != null) {
             if (entity.social().takeFoodApproach(holder)) {
                 stop();
@@ -111,7 +130,23 @@ public final class ForageGoal extends Goal {
             }
             entity.getLookControl().setLookAt(holder, 20, 20);
             if (entity.distanceToSqr(holder) > 2.25) entity.getNavigation().moveTo(holder, 1.15);
-            else entity.getNavigation().stop();
+            else {
+                entity.getNavigation().stop();
+                // Below the social ask's range nothing speaks for the stray: it pleads at the hand, and gives up sooner the hungrier
+                // and the less self-controlled it is (waits ~60..420 ticks), then ignores hands for a while.
+                parked += 10;
+                int selfControl = entity.life().personality().selfControl();
+                float n = entity.life().nutrition();
+                if (parked >= Math.round((120 + 3 * selfControl) * (0.5 + n / 60))) {
+                    giveUpUntil = level().getGameTime() + 600 + 4L * selfControl;
+                    parked = 0;
+                    entity.showReaction("side_teary", "", 60);
+                    GameplayLog.event(entity, "forage", "gave up at hand nutrition={} selfControl={}", n, selfControl);
+                    searchSpot = null;
+                    return false;
+                }
+                if (n < HungerDrive.URGENT && parked % 100 == 10) entity.showReaction(YukkuriAction.BEG, "teary", "human_food_ask", 60);
+            }
             searchSpot = null;
             int suppressed = GameplayLog.admit(entity, "forage", "player_food", 400);
             if (suppressed >= 0) GameplayLog.limitedEvent(entity, "forage", suppressed,
@@ -134,15 +169,17 @@ public final class ForageGoal extends Goal {
      * stay random, so a stray at the plaza still sweeps the lawns around it.
      */
     private Vec3 streetPull() {
-        if (entity.life().nutrition() >= HungerDrive.URGENT || !VillageStrays.walksStreet(entity)
-                || StreetDraw.daylight(level().getDayTime()) == 0) return null;
-        var holder = VillageStrays.holder(entity, TravelRange.search(entity, 12));
-        BlockPos aim = holder != null ? holder.blockPosition() : entity.roaming().onStreetSpell() ? VillageStrays.heart(entity) : null;
+        float n = entity.life().nutrition();
+        boolean spell = VillageStrays.walksStreet(entity) && StreetDraw.daylight(level().getDayTime()) != 0;
+        // A starving rooted stray leans to the village lawns at any hour; the holder and the street spell keep their day gate.
+        if (n >= HungerDrive.URGENT || givenUp() || !(spell || n < 15 && VillageStrays.rooted(entity))) return null;
+        var holder = spell ? VillageStrays.holder(entity, TravelRange.search(entity, 12)) : null;
+        BlockPos aim = holder != null ? holder.blockPosition() : !spell || entity.roaming().onStreetSpell() ? VillageStrays.heart(entity) : null;
         return aim == null || entity.distanceToSqr(Vec3.atBottomCenterOf(aim)) <= PULL_FROM * PULL_FROM ? null : Vec3.atBottomCenterOf(aim);
     }
     private static final int PULL_FROM = 24;
     private double searchSpeed() { return entity.life().nutrition() < 20 ? 1.12 : 1; }
-    private void findFood(int reach) {
+    private void findFood(int reach, int nearReach) {
         var found = new ArrayList<BlockPos>();
         boolean seeksGrass = entity.life().seeksFood(new ItemStack(Items.SHORT_GRASS));
         var centre = entity.blockPosition();
@@ -153,6 +190,7 @@ public final class ForageGoal extends Goal {
         if (seeksGrass) for (int dx = -reach; dx <= reach; dx++) for (int dz = -reach; dz <= reach; dz++) {
             int x = centre.getX() + dx, z = centre.getZ() + dz;
             if (!level.hasChunkAt(x, z)) continue;
+            if (Math.max(Math.abs(dx), Math.abs(dz)) > nearReach && ((dx ^ dz) & 1) != 0) continue;
             int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             for (int y = top; y <= top + 1; y++) {
                 if (Grazing.edible(level.getBlockState(probe.set(x, y, z)))) found.add(probe.immutable());
@@ -160,23 +198,30 @@ public final class ForageGoal extends Goal {
         }
         // A claim from an earlier offer that the goal selector never started would otherwise linger.
         ForageClaims.release(claim);
-        claim = null; target = null; int tests = 0;
+        claim = null; target = null; int tests = 0, skippedNear = 0;
+        var failed = new ArrayList<BlockPos>();
         for (var sites = ForageClaims.plantSites(entity, found).iterator(); sites.hasNext();) {
             var pos = sites.next();
             if (!Reactions.Weather.allowsStep(entity,pos) || !entity.life().dryStand(pos)
                     || !entity.family().allowsForageWalk(Vec3.atBottomCenterOf(pos))) continue;
             if (pos.equals(stalledPlant)) continue;
+            // A failed route rules out its neighbours, so each test samples another pocket instead of the same cliff.
+            if (failed.stream().anyMatch(f -> f.distSqr(pos) < 25)) { skippedNear++; continue; }
             if (++tests > HungerDrive.sweepAttempts(entity.life().nutrition())) break;
             if (entity.life().reachable(pos, false)) {
                 claim = ForageClaims.claim(level(), pos, entity.getUUID());
                 if (claim != null) { target = pos; break; }
             }
+            failed.add(pos);
         }
+        int testedCount = Math.min(tests, HungerDrive.sweepAttempts(entity.life().nutrition())), skipped = skippedNear;
+        GameplayLog.limited(entity, "forage", "scan", 400, "forage scan found={} tested={} skippedNear={} reach={}",
+                () -> new Object[]{found.size(), testedCount, skipped, reach});
         stalledPlant = null;
         if (target != null && tooColdToGraze(target)) { ForageClaims.release(claim); claim = null; target = null; }
     }
     @Override public void start() {
-        running = true;
+        running = true; parked = 0;
         GameplayLog.limited(entity,"forage","start",1200,"food search started target={} nutrition={}",target,entity.life().nutrition());
     }
     @Override public boolean canContinueToUse() {

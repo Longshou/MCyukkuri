@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 
 class MouthOccupancyTest {
     @Test
-    void bothFieldLoadsYieldOnlyToEmergencyHunger() {
-        for (var cargo : new Purpose[] {Purpose.HABITAT, Purpose.FORAGE}) {
-            assertTrue(cargo.yieldsToMeal(14.99f));
-            assertFalse(cargo.yieldsToMeal(15));
-            assertFalse(cargo.yieldsToMeal(40));
-        }
+    void fieldLoadsYieldToHungerPerPurpose() {
+        assertTrue(Purpose.HABITAT.yieldsToMeal(29.99f));
+        assertFalse(Purpose.HABITAT.yieldsToMeal(30));
+        assertTrue(Purpose.FORAGE.yieldsToMeal(14.99f));
+        assertFalse(Purpose.FORAGE.yieldsToMeal(15));
+        assertFalse(Purpose.FORAGE.yieldsToMeal(40));
     }
 
     @Test

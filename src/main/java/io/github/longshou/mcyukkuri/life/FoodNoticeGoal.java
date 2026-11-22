@@ -38,7 +38,7 @@ public final class FoodNoticeGoal extends Goal {
 
     private boolean able() {
         var life = owner.life();
-        return life.widensFoodNotice() && !owner.isPassenger() && !owner.isPanicking() && !life.isSleeping() && life.canEat();
+        return life.widensFoodNotice() && !owner.forage().givenUp() && !owner.isPassenger() && !owner.isPanicking() && !life.isSleeping() && life.canEat();
     }
 
     @Override public boolean canUse() {
