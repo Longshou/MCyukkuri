@@ -10,14 +10,18 @@ import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
 /** Interruptible physical routes. No route teleports the body or advances while unloaded. */
 public final class PlayLife {
+    /** Where a finished pet stands clear of the exit lane: a body width (.8) plus margin beside it and half a body past it, in facility-local blocks. */
+    private static final double ASIDE_X=1.1,ASIDE_Z=.6;
     private final YukkuriEntity entity;
     private PlayBlockEntity facility;
     private List<Vec3> route=List.of();
@@ -97,7 +101,19 @@ public final class PlayLife {
                     new Vec3(0,0,Math.max(1.7,PlayBlock.RIM_RADIUS+entity.getBbWidth()/2.0+.22)));
             case POOL->tub.points().stream().map(p->new Vec3(p[0],p[1],p[2])).toList();
         };
-        var points=local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList();
+        var points=new ArrayList<>(local.stream().map(v->PlayGeometry.world(target.getBlockPos(),target.facing(),v.x,v.y,v.z)).toList());
+        if(target.kind()==PlayBlock.Kind.CERAMIC||target.kind()==PlayBlock.Kind.TRAMPOLINE){
+            // A finished pet steps out and aside so the exit lane is free for the next one; a side with no room is skipped.
+            var exit=local.getLast();int side=(entity.getUUID().hashCode()&1)==0?1:-1;
+            for(int s:new int[]{side,-side}){
+                var aside=PlayGeometry.world(target.getBlockPos(),target.facing(),s*ASIDE_X,exit.y,exit.z+ASIDE_Z);
+                var level=entity.level();
+                if(level.noCollision(entity,entity.getBoundingBox().move(aside.subtract(entity.position())))
+                        &&level.getBlockState(BlockPos.containing(aside).below()).isFaceSturdy(level,BlockPos.containing(aside).below(),Direction.UP)){
+                    points.add(aside);break;
+                }
+            }
+        }
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach())return refuse("blocked");
         if(!target.reserve(entity))return refuse("occupied");

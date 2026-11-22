@@ -74,6 +74,8 @@ import net.minecraft.world.phys.Vec3;
 /** One local encounter, driven by the resident's existing routine goal. */
 final class HumanStreet {
     static final int DAY = 24000, ROUTE_TICKS = 200;
+    /** Vanilla refuses a path outright only while the body is off the ground or mid-step; a grounded body routes within a few ticks, so 20 ticks (1 s) cover a landing. */
+    static final int HOME_ROUTE_WAIT = 20;
     static final byte KICK_EVENT = 91;
     static final byte FROWN_EVENT = 92;
     static final int KICK_POSE_TICKS = 10, FROWN_TICKS = 30;
@@ -735,6 +737,8 @@ final class HumanStreet {
         private List<AABB> homeYards = List.of();
         private final Set<BlockPos> missedHomeStands = new HashSet<>();
         private Path homePath;
+        /** Ticks the keeper has waited for a null route home to open (see {@link #HOME_ROUTE_WAIT}). */
+        private int homeRouteWait;
         private int lagTicks;
         private HumanNpc.DoorExit doorWait;
         private int doorUntil;
@@ -1075,9 +1079,13 @@ final class HumanStreet {
                 homePath = path;
                 last = npc.position();
                 stalled = 0;
+                homeRouteWait = 0;
+            } else if (path == null && homeRouteWait++ < HOME_ROUTE_WAIT) {
+                last = npc.position();
             } else {
-                GameplayLog.event(npc, "npc-care", "action=outing_home_route result=refused stands={} path={}", stands.size(),
-                        path == null ? "none" : path.canReach() ? "not_started" : "partial");
+                GameplayLog.event(npc, "npc-care", "action=outing_home_route result=refused stands={} path={} onGround={} waited={}",
+                        stands.size(), path == null ? "none" : path.canReach() ? "not_started" : "partial", npc.onGround(), homeRouteWait);
+                homeRouteWait = 0;
                 findReturnShelter();
             }
         }

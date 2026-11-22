@@ -71,7 +71,13 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return PlayGeometry.shape(kind,
             state.getValue(FACING),state.getValue(PART));}
     @Override protected VoxelShape getOcclusionShape(BlockState state,BlockGetter level,BlockPos pos){return Shapes.empty();}
-    @Override protected boolean isPathfindable(BlockState state,PathComputationType type){return type==PathComputationType.LAND;}
+    /**
+     * Tunnel shell and trampoline rim/bed are driven by the session route, not the navigator: ordinary walkers plan around them, only
+     * their empty entry and exit cells stay open so a session can still path to its first waypoint.
+     */
+    @Override protected boolean isPathfindable(BlockState state,PathComputationType type){
+        if(type!=PathComputationType.LAND)return false;
+        return (kind!=Kind.CERAMIC&&kind!=Kind.TRAMPOLINE)||PlayGeometry.shape(kind,state.getValue(FACING),state.getValue(PART)).isEmpty();}
 
     public static boolean onTrampolineBed(Entity entity) {
         var pos = entity.getOnPos();
