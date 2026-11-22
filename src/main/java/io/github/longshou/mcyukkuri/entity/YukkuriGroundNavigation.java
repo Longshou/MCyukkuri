@@ -804,7 +804,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** The yielder's ladder: a step to a free side (taken by {@link #stepAside}), else back off along the line it just walked, else nothing (the round then replans). */
     private String giveWayAhead(YukkuriEntity animal, Entity other, Vec3 heading, long now) {
-        if (stepAside(animal, other, heading)) { yieldUntil = now + WINDOW; return "gives_way"; }
+        Vec3 side = right(heading);
+        double away = Math.signum((animal.getX() - other.getX()) * side.x + (animal.getZ() - other.getZ()) * side.z);
+        // A side counts only with a body width of free, supported floor on it (a one-cell lane has none: it backs off instead).
+        if (clearYieldStand(animal, animal.position().add(side.scale((away == 0 ? 1 : away) * animal.getBbWidth())))
+                && stepAside(animal, other, heading)) { yieldUntil = now + WINDOW; return "gives_way"; }
         for (double d = BACK_OFF; d >= .5; d -= .5) {
             var back = animal.position().subtract(heading.scale(d));
             if (clearYieldStand(animal, back)) { backTo = back; yieldUntil = now + YIELD_LIMIT; return "backs_off"; }
