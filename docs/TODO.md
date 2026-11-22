@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 台词核对第 1 批：驱逐、油霉、哀悼、帽船取舍 | `.worktrees/wp-dialogue-check-den` | dialogue selection (ReactionSpeech, event pools), lang dialogue |
 | WT-06：追杀到底、体力慢耗慢回且随种族遗传、疲劳步态与扇翅起伏 | `.worktrees/wp-stamina-chase` | predator/PredatorLife, BodyAbility/stamina, heredity traits, client GaitClock |
+| PD-13/PD-29 取舍演出没有出现 | `.worktrees/wp-pd13-tradeoff-fix` | aquatic/LeaveBehind, AquaticLife overload, AquaticGoal, scripts/museum_scenarios.py hat scenes |
 
 
 
