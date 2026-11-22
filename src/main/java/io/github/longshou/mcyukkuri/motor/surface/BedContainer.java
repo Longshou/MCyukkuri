@@ -32,12 +32,16 @@ public final class BedContainer implements Container {
     private double reach, brim, top;
     private boolean yieldingBrim;
     private final FloorShape floor;
-    private final double floorY,rimY;
+    private final double floorY,rimY,bedding;
 
-    private BedContainer(YukkuriEntity body,CollisionGetter collisions,Vec3 centre,FloorShape floor,double floorY,double rimY){
+    /** {@code bedding}: thickness of collision-less bedding between the ground and {@code floorY} that a sole may sink into. */
+    private BedContainer(YukkuriEntity body,CollisionGetter collisions,Vec3 centre,FloorShape floor,double floorY,double rimY,double bedding){
         this.collisions=collisions;
-        this.body=body;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;
+        this.body=body;this.centre=centre;this.floor=floor;this.floorY=floorY;this.rimY=rimY;this.bedding=bedding;
     }
+
+    /** Whether feet at {@code y} stand on this bed's level floor: on the bedding top or on the ground under it. */
+    public boolean onFloor(double y){return y<=floorY+1e-6&&y>=floorY-bedding-1e-6;}
 
     /** The nest bed at {@code bed}, or null when that block is not a nest bed. */
     public static BedContainer of(YukkuriEntity e,BlockPos bed){
@@ -51,7 +55,7 @@ public final class BedContainer implements Container {
             var centre=care.centre();
             double base=centre.y,floorY=floorAt(e,centre,base);
             return new BedContainer(e,level,centre,hollow.floor(),floorY,
-                    Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())));
+                    Math.max(floorY,base+shellTop(level,care.northWest(),care.largeNest())),0);
         }
         var shelter=ShelterBlock.shelter(level,bed);
         if(shelter==null||!shelter.beds().contains(bed))return null;
@@ -60,16 +64,22 @@ public final class BedContainer implements Container {
 
     public static BedContainer of(YukkuriEntity e,ShelterBlockEntity shelter,BlockPos bed){
         // Bedding drawn on a burrow's real floor has no collision rim (NestResting marks it soft): its floor is its rim.
-        var hollow=shelter.largeBed(bed)?NestResting.LARGE:NestResting.LEAF_BED;
+        boolean large=shelter.largeBed(bed);
+        var hollow=large?NestResting.LARGE:NestResting.LEAF_BED;
         var centre=shelter.restSpot(bed);
-        double floorY=shelter.kind()==ShelterBlock.Kind.BURROW?centre.y:floorAt(e,centre,centre.y);
-        return new BedContainer(e,e.level(),centre,hollow.floor(),floorY,floorY);
+        if(shelter.kind()!=ShelterBlock.Kind.BURROW){
+            double floorY=floorAt(e,centre,centre.y);
+            return new BedContainer(e,e.level(),centre,hollow.floor(),floorY,floorY,0);
+        }
+        // The level floor is the bedding's top; feet touching the ground under it count as the rim plane, as before.
+        double bedding=NestResting.beddingTop(large);
+        return new BedContainer(e,e.level(),centre,hollow.floor(),centre.y+bedding,centre.y,bedding);
     }
 
     /** Probe a proposed bed against its installed shell and surroundings before changing any world blocks. */
     public static BedContainer planned(YukkuriEntity body, CollisionGetter blocks, Vec3 centre, NestResting.Bed bed) {
         var floor = SurfaceApproach.collisionTop(blocks, body, body.getBbWidth(), centre.add(0, .1, 0));
-        return new BedContainer(body, blocks, centre, bed.floor(), floor.y, floor.y);
+        return new BedContainer(body, blocks, centre, bed.floor(), floor.y, floor.y, 0);
     }
 
     /** Spacing applies across the floor and entry rim even where a whole body could not yet lie down. */
@@ -88,10 +98,12 @@ public final class BedContainer implements Container {
             reach=HeadTop.reach(body);brim=HeadTop.brimBottom(body);top=HeadTop.height(body);
             yieldingBrim=body.life().hasAccessory() && HatGeometry.brim(body)!=null;
             double half=((FloorShape.RoundedRect)floor).half()+reach;
-            var bounds=new AABB(centre.x-half,floorY-.001,centre.z-half,centre.x+half,floorY+top,centre.z+half);
+            // Clearance is measured from the ground the feet really stand on, under any collision-less bedding.
+            double ground=floorY-bedding;
+            var bounds=new AABB(centre.x-half,ground-.001,centre.z-half,centre.x+half,ground+top,centre.z+half);
             space=new ArrayList<>();
             for(var shape:collisions.getBlockCollisions(body,bounds))for(var b:shape.toAabbs())
-                space.add(new BedSpace.Box(b.minX-centre.x,b.minY-floorY,b.minZ-centre.z,b.maxX-centre.x,b.maxY-floorY,b.maxZ-centre.z));
+                space.add(new BedSpace.Box(b.minX-centre.x,b.minY-ground,b.minZ-centre.z,b.maxX-centre.x,b.maxY-ground,b.maxZ-centre.z));
         }
         var level=body.level();
         return level.hasChunksAt(BlockPos.containing(centre.x+x-reach,floorY,centre.z+z-reach),

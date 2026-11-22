@@ -533,7 +533,7 @@ final class LiveBirth extends Choreography {
             int steps=Math.max(1,(int)Math.ceil(ideal.distanceTo(centre)/Walk.STAND_ARRIVED));
             for(int i=0;i<=steps;i++){
                 Vec3 at=SurfaceApproach.restingFloor(mother,ideal.lerp(centre,i/(double)steps));
-                if(at==null||at.y!=support.floorY()||!support.standsInside(at.x-centre.x,at.z-centre.z))continue;
+                if(at==null||!support.onFloor(at.y)||!support.standsInside(at.x-centre.x,at.z-centre.z))continue;
                 double slack=SurfaceApproach.ARRIVAL;
                 var body=mother.getBoundingBox().move(at.subtract(mother.position())).inflate(slack,0,slack);
                 if(mother.level().getBlockCollisions(mother,body).iterator().hasNext())continue;

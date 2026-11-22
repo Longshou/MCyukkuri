@@ -53,8 +53,10 @@ public final class ShelterRenderer implements BlockEntityRenderer<ShelterBlockEn
         if(home.kind()==ShelterBlock.Kind.BURROW) {
             var shared=new HashSet<>(home.sharedBeds());
             for(var project:home.nestConstructions())shared.remove(project.bed());
-            shared.removeAll(home.largeBeds());
-            for(var bed:home.largeBeds()){
+            // The large nest mesh covers its whole 3x3 footprint; no second, shared leaf mat inside it.
+            var large=home.largeBeds();
+            shared.removeIf(cell->ShelterGeometry.inLargeFootprint(large,cell));
+            for(var bed:large){
                 var offset=bed.subtract(home.getBlockPos());
                 pose.pushPose();pose.translate(offset.getX()+.5,offset.getY(),offset.getZ()+.5);fitAgainstWalls(home,bed,"large_wild_nest",1,pose);
                 PropModels.render("large_wild_nest",1,pose,buffers,light,overlay);pose.popPose();

@@ -300,7 +300,8 @@ public final class ShelterBlockEntity extends BlockEntity {
                 &&!cluster.contains(beds.get(entry.getValue())))cluster.add(beds.get(entry.getValue()));
         if(cluster.isEmpty())return List.of();
         var free=new ArrayList<BlockPos>();
-        for(int slot=0;slot<beds.size();slot++)if(!residents.containsValue(slot))free.add(beds.get(slot));
+        // A large bed already hosts the whole family and its mesh covers its 3x3 footprint: no extra cell there.
+        for(int slot=0;slot<beds.size();slot++)if(!residents.containsValue(slot)&&!ShelterGeometry.inLargeFootprint(largeBeds,beds.get(slot)))free.add(beds.get(slot));
         free.sort(Comparator.comparingDouble(cell->cluster.stream().mapToDouble(cell::distSqr).min().orElse(0)));
         return List.copyOf(free.subList(0,Math.min(want,free.size())));
     }

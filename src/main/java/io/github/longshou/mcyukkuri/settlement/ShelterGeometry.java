@@ -3,7 +3,9 @@ package io.github.longshou.mcyukkuri.settlement;
 import com.google.gson.JsonParser;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.EnumMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -37,5 +39,9 @@ public final class ShelterGeometry {
         return result;
     }
     public static int turns(Direction facing) { return switch(facing) { case SOUTH->0;case WEST->1;case NORTH->2;default->3; }; }
+    /** Whether {@code cell} lies in the 3x3 footprint of a large bed: its mesh covers the cell, so no shared leaf mat belongs there. */
+    public static boolean inLargeFootprint(Collection<BlockPos> largeBeds, BlockPos cell) {
+        return largeBeds.stream().anyMatch(bed -> bed.getY() == cell.getY() && Math.abs(bed.getX() - cell.getX()) <= 1 && Math.abs(bed.getZ() - cell.getZ()) <= 1);
+    }
     private ShelterGeometry() {}
 }

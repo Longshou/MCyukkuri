@@ -39,6 +39,11 @@ public final class NestResting {
     public static final Bed LEDGE=new Bed(.61,.61,0,true,false);
     /** Loose bedding without a rigid rim can compress by 2.5 model pixels. */
     public static final double RIM_PRESS=2.5/16;
+    /** Bedding laid on a burrow floor has no collision; its sole-level top above the block bottom, in blocks, from the meshes at
+     *  the cell centre: the leaf bed (forest_burrow pad+lining, personal_leaf_nest leaves) 0.4 px, the wild large nest
+     *  (large_wild_nest leaf_floor+lining, art/props/large-nests) 1.0 px. Pet nests have real collision and use none. */
+    private static final double LEAF_BEDDING=.4/16,LARGE_BEDDING=1.0/16;
+    public static double beddingTop(boolean large){return large?LARGE_BEDDING:LEAF_BEDDING;}
     private NestResting(){}
     public static Place choose(YukkuriEntity e,Bed bed,Map<UUID,Place> others,Predicate<Place> supported,boolean centre){
         var body = new Place(0,0,e.getBbWidth(),HeadTop.reach(e));
