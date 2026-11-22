@@ -1709,20 +1709,20 @@ add('company_visit', 'meadow', '累了的朋友招来陪伴，陌生的不来', 
 # (affinity -60 both ways): the record exists but neither is above the hostile line, so neither approaches.
 _QUARREL = {name: uid('quarrel_makeup', name) for name in ('claimer', 'rival', 'foe_claimer', 'foe_rival')}
 add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌对的不来', '抢食吵架后和好',
-    '北边饿着的灵梦（自制极低、友善）一见脚边的苹果就护食抢下，旁边吃饱的灵梦（友善）被抢，双方各记下这次吵架。吃完后它们闲下来，温和的一方会走过去问候，'
+    '北边饿着的灵梦（自制极低、友善）一见脚边的苹果就护食抢下，旁边不太饿、同样自制极低的灵梦（友善）也在抢，先到嘴的护食，另一只被抢，双方各记下这次吵架。吃完后它们闲下来，温和的一方会走过去问候，'
     '另一方好感不低于 -10，回应问候，双方好感回升；若对方不领情则只转头看着、保持距离。每次吵架至多试一次。'
     '南边同样的抢食发生在互相敌对（好感 -60）的两只之间：有吵架记录，但谁也不会走近。约 2 分钟内发生；一次没看到可在 M 菜单重开',
     '约 1–2 分钟', [
-        yk('reimu', -3, -6, 'claimer', uuid=_QUARREL['claimer'], label='饿·自制极低·友善', nutrition=30, self_control=5, friendliness=85,
+        yk('reimu', -3, -8, 'claimer', uuid=_QUARREL['claimer'], label='饿·自制极低·友善', nutrition=30, self_control=5, friendliness=85,
            attachment=70, social_wait=0, yaw=-90, lead=True),
-        item('minecraft:apple', 1, -1, -6, name='apple_north'),
-        yk('reimu', 0, -6, 'rival', uuid=_QUARREL['rival'], label='吃饱·友善', nutrition=95, friendliness=85, attachment=70,
+        item('minecraft:apple', 1, -1, -8, name='apple_north'),
+        yk('reimu', 0, -8, 'rival', uuid=_QUARREL['rival'], label='不太饿·自制极低·友善', nutrition=55, self_control=5, friendliness=85, attachment=70,
            social_wait=0, yaw=90),
         f'yukkuri scenario bond {sel("claimer")} {sel("rival")}',
-        yk('reimu', -3, 6, 'foe_claimer', uuid=_QUARREL['foe_claimer'], label='敌对·饿', nutrition=30, self_control=5, friendliness=85,
+        yk('reimu', -3, 8, 'foe_claimer', uuid=_QUARREL['foe_claimer'], label='敌对·饿', nutrition=30, self_control=5, friendliness=85,
            attachment=70, social_wait=0, yaw=-90),
-        item('minecraft:apple', 1, -1, 6, name='apple_south'),
-        yk('reimu', 0, 6, 'foe_rival', uuid=_QUARREL['foe_rival'], label='敌对·吃饱', nutrition=95, friendliness=85, attachment=70,
+        item('minecraft:apple', 1, -1, 8, name='apple_south'),
+        yk('reimu', 0, 8, 'foe_rival', uuid=_QUARREL['foe_rival'], label='敌对·不太饿', nutrition=55, self_control=5, friendliness=85, attachment=70,
            social_wait=0, yaw=90),
         f'yukkuri status relate {sel("foe_claimer")} {sel("foe_rival")} -60',
         f'yukkuri status relate {sel("foe_rival")} {sel("foe_claimer")} -60',
