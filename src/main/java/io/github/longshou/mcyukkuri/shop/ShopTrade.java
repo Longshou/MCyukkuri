@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.ProduceCrateBlockEntity;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.notebook.SurvivalProgress;
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -429,7 +430,11 @@ public final class ShopTrade {
                 * (1 - SocialDisposition.ramp(personality.friendliness(), 35, 75));
         y.getLookControl().setLookAt(p, 30, 30);
         boolean sad = fondness >= .4, aloof = !sad && composure >= .55;
-        if (sad) { y.playAction("droop"); y.showReaction("cry", "shop_sold_sad", 80); }
+        if (sad) {
+            y.playAction("droop");
+            y.showReaction("cry", "shop_sold_sad", 80);
+            y.mind().feeling().begin(EmotionCourse.Kind.GRIEF, (float)fondness, p.getUUID(), y.blockPosition());
+        }
         else if (aloof) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
         else { y.playAction("bow"); y.showReaction(wary >= .4 ? "flushed_smile" : "closed_smile", "", 40); }
         say(p, shop.kind == ShopKind.ONI ? "sell.accepted_oni" : "sell.accepted", y.getDisplayName(), price);

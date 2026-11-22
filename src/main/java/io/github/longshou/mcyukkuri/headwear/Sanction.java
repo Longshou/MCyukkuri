@@ -236,6 +236,8 @@ public final class Sanction extends Goal {
             if (distance > 9 || !entity.hasLineOfSight(target)) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
             entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", 80);
+            // The anger starts with the declaration and carries through the acts (a huff about the accused, below being scorned).
+            entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, target.getUUID(), entity.blockPosition());
             target.groupInteraction().defense().provoke(entity);
             return;
         }
@@ -304,8 +306,6 @@ public final class Sanction extends Goal {
         target.mind().add(3, "drive_off_attempt");
         PunishmentReaction.peer(target, entity, "drive_off", false);
         GameplayLog.event(entity, "sanction", "drive off attempted target={} response={}", target.getUUID(), resisted ? "counterattack" : "flee");
-        // A short huff about the accused, below the anger of being scorned.
-        entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, target.getUUID(), entity.blockPosition());
         finish(!resisted);
     }
     @Override public void stop() {

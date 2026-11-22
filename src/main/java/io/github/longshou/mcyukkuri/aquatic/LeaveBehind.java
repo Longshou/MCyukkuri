@@ -148,6 +148,7 @@ final class LeaveBehind implements Intent {
     private void answer() {
         var reply = Ousting.answer(child.life().personality().temperament());
         child.mind().felt(EmotionEvent.SOCIAL_HURT);
+        child.mind().feeling().wronged(parent.getUUID(), .6f);
         boolean swimming = child.isInWaterOrBubble();
         boolean shown = switch (reply) {
             case CURSE -> swimming ? child.showReaction("angry", "", 60) : child.showReaction(YukkuriAction.STAMP, "angry", "", 60);

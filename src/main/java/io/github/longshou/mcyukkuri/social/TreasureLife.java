@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -220,7 +221,7 @@ public final class TreasureLife extends Goal {
         held.clear();
         entity.life().personality().treasureTaken(player.getUUID());
         entity.mind().add(15, "treasure_taken");
-        entity.showReaction("sad", "treasure_stolen", 160);
+        entity.showReaction(EmotionCourse.onsetFace(entity.mind().feeling().wrongedKind()), "treasure_stolen", 160);
         entity.mind().feeling().wronged(player.getUUID(), .7f);
         GameplayLog.event(entity, "treasure", "confiscated player={} taken={} held=0", player.getUUID(), taken);
         return taken;
@@ -230,7 +231,7 @@ public final class TreasureLife extends Goal {
         if (victim == entity || victim.treasure().held.isEmpty() || full()) return false;
         held.add(victim.treasure().held.remove(victim.treasure().held.size() - 1));
         victim.mind().add(15, "treasure_stolen");
-        victim.showReaction("sad", "treasure_stolen", 160);
+        victim.showReaction(EmotionCourse.onsetFace(victim.mind().feeling().wrongedKind()), "treasure_stolen", 160);
         victim.mind().feeling().wronged(entity.getUUID(), .7f);
         entity.showReaction("happy", "thing_san", 100);
         YukkuriWorldData.get(level()).relate(victim.getUUID(), entity.getUUID(), -12);

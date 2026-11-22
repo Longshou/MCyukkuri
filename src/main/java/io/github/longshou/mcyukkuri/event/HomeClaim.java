@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.Ousting;
 import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
@@ -438,10 +439,11 @@ public final class HomeClaim {
         if (adults.isEmpty()) return;
         var a=adults.get(ModRandom.world(level).nextInt(adults.size()));
         a.showReaction("angry","mine",60);
+        a.mind().feeling().begin(EmotionCourse.Kind.RAGE,.3f,null,a.blockPosition());
         var others=alive.stream().filter(y -> y!=a).toList();
         if (others.isEmpty()) return;
         var b=others.get(ModRandom.world(level).nextInt(others.size()));
-        if (b.family().adult()) b.showReaction("angry","mine",60);
+        if (b.family().adult()) { b.showReaction("angry","mine",60); b.mind().feeling().begin(EmotionCourse.Kind.RAGE,.3f,null,b.blockPosition()); }
         relations.relate(a.getUUID(),b.getUUID(),-6); relations.relate(b.getUUID(),a.getUUID(),-6); // [original]
     }
     private static void stage(ServerLevel level,Claim claim,Stage next){

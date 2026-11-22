@@ -315,7 +315,12 @@ public final class IndependenceLife extends Goal {
             }
             releaseNuzzle();
         }
-        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) entity.speakCue("farewell_go");
+        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) {
+            entity.speakCue("farewell_go");
+            // The attached leaver carries the parting past the door: it rises here and fades by its own course.
+            if (teary) entity.mind().feeling().begin(EmotionCourse.Kind.PARTING,
+                    .15f + .25f * (entity.life().personality().temperament().attachment() - 55) / 45f, parent.getUUID(), parent.blockPosition());
+        }
         // Close the last gap while the parent answers. The waiting window ends even if the parent stays busy.
         if (nuzzling() && contact >= CLOSE - 20 && contact < closeEnd() && entity.distanceToSqr(parent) > touch * touch) {
             // A moving parent can outwalk the old aim before the teen gets there.

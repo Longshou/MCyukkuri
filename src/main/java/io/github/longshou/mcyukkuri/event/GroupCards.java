@@ -90,6 +90,7 @@ public final class GroupCards {
         var relations = YukkuriWorldData.get(level);
         if (s.phaseTicks == 1 || s.phaseTicks % 200 == 100) {
             owner.showReaction("angry", "mine", 80);
+            owner.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, barredOut.getUUID(), owner.blockPosition());
             barredOut.showReaction("teary", "wait_turn", 80);
             for (int i = 2; i < all.size(); i++) all.get(i).showReaction("neutral", "shy", 60);
         }
@@ -143,7 +144,10 @@ public final class GroupCards {
         if (s.phaseTicks >= 1200) {
             WildEvents.finish(level, s, s.sourceCount > 0 ? Phase.COMPLETE : Phase.INTERRUPTED, s.sourceCount > 0 ? "raided_store" : "raid_timed_out"); return;
         }
-        if (s.phaseTicks == 1) thief.showReaction("angry", "mine", 50);
+        if (s.phaseTicks == 1) {
+            thief.showReaction("angry", "mine", 50);
+            thief.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, null, thief.blockPosition());
+        }
         if (thief.life().mealTicks() > 0 || thief.distanceToSqr(Vec3.atBottomCenterOf(shelter.entrance())) > 6.25) return;
         if (s.sourceCount > 0 && s.phaseTicks - s.responses < 60) return;
         var loot = shelter.raid();

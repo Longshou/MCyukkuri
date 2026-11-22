@@ -7,8 +7,6 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
-import io.github.longshou.mcyukkuri.mind.EmotionCourse;
-import io.github.longshou.mcyukkuri.mind.Ousting;
 import java.util.Comparator;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
@@ -192,8 +190,7 @@ public final class Contempt {
                 target.speak(ReactionSpeech.contempt(sameGroup));
             }
         }
-        // An insult weighs less than being driven from a home (.5).
-        if (!pitPressure && Ousting.fumes(target.life().personality().temperament()))
-            target.mind().feeling().begin(EmotionCourse.Kind.RAGE, .35f, source.getUUID(), target.blockPosition());
+        // An insult weighs less than being driven from a home (.5); a bold one fumes, a meek one is hurt and sad.
+        if (!pitPressure) target.mind().feeling().wronged(source.getUUID(), .35f);
     }
 }

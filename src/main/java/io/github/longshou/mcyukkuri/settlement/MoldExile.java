@@ -110,7 +110,6 @@ public final class MoldExile extends Goal implements MotorOwner {
     private int noticeEnd, answerTicks, lookBacks, lookBackTicks;
     private boolean fond, harsh, resists, pleads, trudging;
     private int turnWaited;
-    private UUID departedBy;
     private Verdict childVerdict;
     private Answer answer;
 
@@ -592,6 +591,9 @@ public final class MoldExile extends Goal implements MotorOwner {
     /** It turns to go, and any young it must leave behind cry after it. */
     private void turnAway() {
         entity.mind().felt(EmotionEvent.SOCIAL_HURT);
+        // Anger or sorrow by character, strongest on the first departure: the course carries the face through the whole trudge.
+        entity.mind().feeling().wronged(exile == null ? peer.getUUID() : exile.refusedBy, exile == null ? 1f : .6f,
+                BlockPos.containing(home.centre()));
         switch (answer) {
             case CURSE -> {
                 if (entity.showReaction(YukkuriAction.STAMP, "angry", "", 60))
@@ -662,7 +664,6 @@ public final class MoldExile extends Goal implements MotorOwner {
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
                     witness == null ? "without answer" : "after refusal", witness, entity.body().mold());
         }
-        departedBy = witness;
         if (first) {
             // The departure is settled; it walks on out of the home's sight before it feels the loss (end).
             trudging = true;
@@ -670,13 +671,12 @@ public final class MoldExile extends Goal implements MotorOwner {
             nextExit = 0;
             return;
         }
-        grieveDeparture();
+        headHome();
         end();
     }
 
-    /** Outside, it feels the loss of its home most strongly on the first departure. */
-    private void grieveDeparture() {
-        entity.mind().feeling().wronged(departedBy, trudging ? 1f : .6f, BlockPos.containing(home.centre()));
+    /** Outside, the loss of its home (felt since it turned away) is over the walk; it looks for a home at once. */
+    private void headHome() {
         entity.habitat().seekHomeNow();
         trudging = false;
     }
@@ -744,7 +744,7 @@ public final class MoldExile extends Goal implements MotorOwner {
 
     private void end() {
         if (task == null) return;
-        if (trudging) grieveDeparture();
+        if (trudging) headHome();
         entity.motor().cancel(this, "mold_exile_end");
         SurfaceApproach.stopWalking(entity);
         task = null;

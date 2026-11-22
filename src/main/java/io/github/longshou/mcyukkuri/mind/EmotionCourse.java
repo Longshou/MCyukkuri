@@ -227,9 +227,17 @@ public final class EmotionCourse {
     }
 
     public boolean wronged(UUID by, float power, BlockPos at) {
-        boolean fumes = Ousting.fumes(entity.life().personality().temperament());
-        return begin(fumes ? Kind.RAGE : Kind.GRIEF, fumes ? power : power * .5f, by, at);
+        boolean fumes = wrongedKind() == Kind.RAGE;
+        return begin(wrongedKind(), fumes ? power : power * .5f, by, at);
     }
+
+    /** The kind {@link #wronged} will begin for this temperament, so a caller's onset face matches the course that follows. */
+    public Kind wrongedKind() {
+        return Ousting.fumes(entity.life().personality().temperament()) ? Kind.RAGE : Kind.GRIEF;
+    }
+
+    /** The face a course of {@code kind} opens with (its onset and peak). */
+    public static String onsetFace(Kind kind) { return Stage.ONSET.face(kind); }
 
     /** A real danger starts the course immediately; panic owns the presentation of the flight. */
     public void frightened(float power) {
