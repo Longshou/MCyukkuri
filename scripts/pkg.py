@@ -16,7 +16,6 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import headless_server as server  # noqa: E402  (git common root, user-client detection)
 import smoke_prune  # noqa: E402
-import smoke_slots  # noqa: E402  (heavy work waits while the user is at the PC)
 
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
@@ -104,7 +103,6 @@ def cmd_start(args):
     git(MAIN, 'add', TODO)
     git(MAIN, 'commit', '-q', '-m', f'TODO: register {name}')
     git(MAIN, 'push', 'origin', 'HEAD:main')
-    smoke_slots.wait_user_away('creating the worktree (about 4 GB, 40k files)')
     git(MAIN, 'worktree', 'add', '-b', name, str(wt), 'origin/main')
     brief = MAIN / '.local/refactor/briefs' / f'{name}.md'
     if not brief.exists():
@@ -131,7 +129,6 @@ def dry_copy(name, wt):
     if tmp.exists():
         raise Fail(f'temp copy already exists: {tmp}')
     tmp.parent.mkdir(parents=True, exist_ok=True)
-    smoke_slots.wait_user_away('creating the dry-run copy')
     git(MAIN, 'worktree', 'add', '--detach', str(tmp), git(wt, 'rev-parse', 'HEAD'))
     return tmp
 
@@ -150,7 +147,6 @@ def check_tree(tree, scenes):
     changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
     if any(path.endswith('.java') for path in changed):
         print('java changed: javac_check.sh', flush=True)
-        smoke_slots.wait_user_away('javac_check.sh')
         if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
             raise Fail('javac_check.sh failed')
     if scenes:
@@ -293,7 +289,6 @@ def cmd_runtime(args):
         print(f'Build run {run["databaseId"]} succeeded; waiting for the museum client to close', flush=True)
         # Running smoke/capture servers keep the runtime dir they started with; the next update removes it once unused.
         server.wait_closed(poll=args.poll)
-        smoke_slots.wait_user_away('the runtime update')
         if args.commit:
             break
         git(MAIN, 'fetch', '-q', 'origin')
