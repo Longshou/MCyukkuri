@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 取食先后与陌生食物迟疑（WildCards 第 2 步之 4）；MD-30 围栏 | `.worktrees/wp-wc-food` | life/YukkuriLife food order, life/LifeMeal, event/WildCards, event/WildEvents, cognition/Cognition, scripts/museum_scenarios.py |
 | 衍生形态的泪水贴图、生态表情检查修复 | `.worktrees/wp-face-export-fixes` | standards/yukkuri-library faces / rare forms exporter, art registries |
 
 
