@@ -1249,7 +1249,7 @@ def _two_bed_burrow(stock):
 _RAID = {name: uid('den_raid', name) for name in ('raider', 'mate', 'fed', 'host', 'guest')}
 _RAID_TXT = {name: _uuid_text('den_raid', name) for name in _RAID}
 add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱的不动', '饿了的匪帮抢存粮的洞',
-    '洞里有两只吃饱的住户和一堆草存粮；南边空地上三只匪帮：最西的灵梦营养 30（低于 45）、旁边的魔理沙营养 50（低于 55、高于 45）、'
+    '洞里有两只吃饱的住户和一堆草存粮；南边空地上三只匪帮：最西的灵梦营养 30（低于 45）且不挑食、旁边的魔理沙营养 50（低于 55、高于 45）、'
     '最东吃饱的魔理沙营养 95。约 20 秒后匪帮被喂饿：饿极的灵梦先看着洞口走过去，在洞口一口一口吃存粮（至多 3 口，每口隔约 3 秒，营养到 65 就停），'
     '住户有的胆大会鼓脸、胆小的会哭，好感都下降；住户里看得见它的会把它赶开，它之后 1 分钟不再走向这个洞。'
     '魔理沙（50）只在灵梦已经在抢时才跟过去，同样一口口吃；吃饱的魔理沙不理这个洞。洞里的存粮真实减少。'
@@ -1259,7 +1259,7 @@ add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱�
         box(-8, 0, 3, 8, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
         yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
         yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
-        yk('reimu', -2, 8, 'raider', uuid=_RAID['raider'], label='匪帮·饿极30', nutrition=90, energy=100, boldness=70, social_wait=0,
+        yk('reimu', -2, 8, 'raider', uuid=_RAID['raider'], label='匪帮·饿极30', nutrition=90, energy=100, boldness=70, picky=20, social_wait=0,
            yaw=0, lead=True, also=('band',)),
         yk('marisa', 0, 9, 'mate', uuid=_RAID['mate'], label='匪帮·营养50', nutrition=90, energy=100, boldness=60, social_wait=0,
            yaw=0, also=('band',)),
@@ -1282,16 +1282,17 @@ add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱�
 # itself is not part of the scene: it uses its own bed as usual. No dice: the scene is there as soon as the two are in the burrow.
 _MONO = {name: uid('den_monopoly', name) for name in ('owner', 'mate')}
 add('den_monopoly', 'den', '自私又累的油占着窝，不让伴侣用', '自私又累的油占窝',
-    '两张床的洞里住着一对：灵梦自私（友善 5、自制 10）、精力 45 低于 50，魔理沙是它的伴侣、友善。两张床都被占，窝挤，'
+    '两张床的洞里住着一对：灵梦自私（友善 5、自制 10）、精力 38 低于 50，魔理沙是它的伴侣、友善。两张床都被占，窝挤，'
+    '两只都累得不够去加挖（精力低于 40），所以谁也不会把家搬走；'
     '灵梦开场后不久（每 5 秒查一次）就占着窝：魔理沙被挡在外面，走到洞口外两格站着等并摆出“等轮到我”的哭脸，'
     '灵梦照常用自己的床，头顶显示“我的”；这期间魔理沙对灵梦的好感缓慢下降。'
     '持续 600 + 3×(100 − 友善) = 885 tick（约 44 秒），或灵梦睡过一觉醒来就结束。结束时若魔理沙对灵梦的好感总和为负，灵梦垂泪道歉、好感回升，魔理沙开心；'
     '否则只是“守住了窝”。之后至少 1 分钟灵梦不再占窝。约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 15–60 秒', [
         *_two_bed_burrow(0),
-        yk('reimu', -1, -3, 'owner', uuid=_MONO['owner'], label='自私·累 精力45', nutrition=100, energy=45, friendliness=5, self_control=10,
+        yk('reimu', -1, -3, 'owner', uuid=_MONO['owner'], label='自私·累 精力38', nutrition=100, energy=38, friendliness=5, self_control=10,
            social_wait=0, yaw=180, lead=True, kin=kin_of(Partner=_MONO['mate'])),
-        yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='伴侣·友善', nutrition=100, energy=95, friendliness=80, social_wait=0,
+        yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='伴侣·友善', nutrition=100, energy=36, friendliness=80, social_wait=0,
            yaw=180, kin=kin_of(Partner=_MONO['owner'])),
         home('owner', 0, -1), home('mate', 0, -1),
     ], env=DAY, spot='family', vantage=(0, 10),
@@ -1808,19 +1809,20 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
     reads=[('读北边饿的', f'yukkuri status {sel("claimer")} raw'), ('读北边吃饱的', f'yukkuri status {sel("rival")} raw'),
            ('读南边饿的', f'yukkuri status {sel("foe_claimer")} raw'), ('读南边吃饱的', f'yukkuri status {sel("foe_rival")} raw')])
 
-# Three free strays on one street, one stack of two apples between them (smaller than the eaters, so the hunger order applies).
-# West: a timid, dull stray (long inspect pause). East: a bold, clever one (short pause). South: a starving one (below nutrition 30:
-# no pause at all; the hungriest, so the other two let it go first). Nutrition 40 keeps the two above the no-pause line.
+# Three free strays crowding one stack of two apples (smaller than the eaters, so the hunger order applies). All three stand within
+# a step of the pile at the start, so each reaches it before the food can be carried off: the order needs the hungrier rival close
+# and still contesting. West: a timid, dull stray (long inspect pause). East: a bold, clever one (short pause). South: a starving one
+# (below nutrition 30: no pause at all; 30 below the others, so both let it go first). Nutrition 40 keeps the two above the no-pause line.
 _STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
-    '街中间地上一小堆两个苹果，三只流浪的油围着它。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
-    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 20，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 25 以上），另两只若同时到了苹果旁就让它先取，站着等（头顶中性脸）。'
+    '街中间地上一小堆两个苹果，三只流浪的油紧挨着它站着。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
+    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 10，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 30），另两只到苹果旁就让它先取，站着等（头顶中性脸）。'
     '苹果只有两个、嘴有三张：等的那只等完自己的耐性（20–220 tick）后才会去拿，拿不到就走开，不会一直站着。约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
         item('minecraft:apple', 2, 0, 0, name='strange_apple'),
-        street_stray('stray_strange_food', 'reimu', -4, 3, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
-        street_stray('stray_strange_food', 'marisa', 4, 3, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
-        street_stray('stray_strange_food', 'reimu', 0, 5, 'starving', nutrition=20, boldness=50, intelligence=50, label='饿极·营养20'),
+        street_stray('stray_strange_food', 'reimu', -1, 0, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
+        street_stray('stray_strange_food', 'marisa', 1, 0, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
+        street_stray('stray_strange_food', 'reimu', 0, 1, 'starving', nutrition=10, boldness=50, intelligence=50, label='饿极·营养10'),
     ], env=DAY, spot='street', vantage=(0, 12),
     reads=[('读胆小的', f'yukkuri status {sel("timid")} raw'), ('读胆大的', f'yukkuri status {sel("bold")} raw'),
            ('读饿极的', f'yukkuri status {sel("starving")} raw')],
@@ -3508,7 +3510,8 @@ def counter_reissue_smoke():
              f'if score #counter_changed museum matches 0 if data {ground_serial} if entity @p[name=MuseumOperator,distance=..40,gamemode=creative] '
              f'if data entity {_COUNTER_PET} YukkuriPet{{Grade:1,Worn:0b}} '
              f'if data entity {_COUNTER_OWNER} Inventory[{{Slot:1b,id:"minecraft:emerald",count:1}}] run say COUNTER_GROUND_DROP'),
-        (34, 'execute if data block ~-1 ~3 ~2 Items[{id:"mcyukkuri:bronze_yukkuri_badge",count:1}] run say COUNTER_TRAY_INTACT'),
+        (34, 'execute positioned ~-0.5 ~4.5 ~2.5 if entity @e[type=minecraft:item_frame,distance=..0.5,'
+             'nbt={Item:{id:"mcyukkuri:bronze_yukkuri_badge",count:1}}] run say COUNTER_TRAY_INTACT'),
         *counter_action(36, 'close', 1),
         (47, f'execute store result score #counter_pickup museum run yukkuri scenario tool_operator pick_up {drop}'),
         (48, f'execute if score #counter_pickup museum matches 0 if entity {drop} run say COUNTER_FULL_PICKUP_REFUSED'),
@@ -4151,8 +4154,10 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
     '约 1 分钟', [
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
+        # Not bored at the start: a leisure song would hold the social goal and the ball would go unanswered. It still plays:
+        # the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_ball, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
-                     extra='YukkuriDailyLife:{Boredom:80}'),
+                     extra='YukkuriDailyLife:{Boredom:0}'),
         street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0),
     ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
@@ -4168,8 +4173,10 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
         human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
+        # Not bored: a leisure song would hold the social goal and the tease would go unanswered (as in park_child_ball).
+        # It still answers playfully: the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_more, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, nutrition=45, yaw=0, lead=True,
-                     extra='YukkuriDailyLife:{Boredom:80}'),
+                     extra='YukkuriDailyLife:{Boredom:0}'),
         yk('marisa', 10, -7, 'child_pet', uuid=uid(_child_more, 'child_pet'), boldness=60, attachment=90, grade=1, lead=True, yaw=0,
            extra='YukkuriPet:{TownRoots:1b}'),
         f'data modify entity {sel("child_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
@@ -5245,8 +5252,11 @@ add('treatment_scars', 'body', '伤口自愈留疤，面粉糊去疤', '伤口�
         ('读一级伤留疤', 'light_tear'), ('读预置疤痕', 'scarred'))])
 
 add('treatment_care', 'body', '照料员用橙汁、面粉糊治伤', '照料员用橙汁、面粉糊治伤',
-    '伤者有三级裂口、血6、旧疤1、感染4、卫生20。NPC先亮擦洗布洗净（感染伤口不洗不给药），再手持橙汁约1秒、挥手交互，随后换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
+    '街上居民把伤重的流浪油圈在街边两格的矮围栏里（2×2，两只都在栏内，伤者不会再走开），自己蹲在旁边照料。伤者有三级裂口、血6、旧疤1、感染4、卫生20。NPC先亮擦洗布洗净（感染伤口不洗不给药），再手持橙汁约1秒、挥手交互，随后换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
     '约 10–40 秒', [
+        # A two-cell fence pen holds the wounded stray and its carer together: a street resident never follows a patient past the two-block care reach.
+        box(-1, 0, -1, 2, 0, -1, 'minecraft:oak_fence'), box(-1, 0, 2, 2, 0, 2, 'minecraft:oak_fence'),
+        box(-1, 0, -1, -1, 0, 2, 'minecraft:oak_fence'), box(2, 0, -1, 2, 0, 2, 'minecraft:oak_fence'),
         street_trial('treatment_care', 'reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
         set_status('patient', 'health.wound_at', 'front:tear:3'),
         set_status('patient', 'health.health', 6), set_status('patient', 'needs.hygiene', 20), set_status('patient', 'health.infection', 4),
@@ -7913,6 +7923,12 @@ _smoke('juice_bath', 1800, [
     rf'uuid={_juice_log} [^\n]*tub soak ended at=[^\n]* used=true juice=3 -> 2 health=4\.0 -> (?!4\.0 )\S+ wounds=1 -> 0 hygiene=(?!20\.0\b)\S+',
 ], forbid=[r'tub soak ended [^\n]* used=false'])
 
+# The idle animal on the magma field takes real hot-floor damage, jumps out of each burn and reaches ordinary ground alive.
+_smoke('magma_sole', 600, [
+    r'\[body\][^\n]* hot floor jump escape=',
+    r'\[body\][^\n]* hot floor escaped health=',
+])
+
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
 # and each answer is logged by the animal itself.
 _child_log = _uuid_text(_child_ball, 'park_child')
@@ -7926,6 +7942,16 @@ _smoke(_child_ball, 3200, [
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*reaction=played target={_child_bold} ',
     rf'\[child\][^\n]*uuid={_child_log} [^\n]*ball_recovered ',
 ], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll|approach_timeout|no_stand)'])
+
+# The child picks one of the three teases the scene promises (a crumb, a poke or a chase) at the near bold stray; the stray answers by
+# its own values and the child answers that, whatever the roll was.
+_more_child = _uuid_text(_child_more, 'park_child')
+_more_bold = _uuid_text(_child_more, 'child_bold')
+_smoke(_child_more, 1600, [
+    rf'\[child\][^\n]*uuid={_more_child} [^\n]*approach gesture=(?:CRUMB|POKE|CHASE) target={_more_bold} ',
+    rf'\[social\][^\n]*uuid={_more_bold} [^\n]*child offer gesture=(?:CRUMB|POKE|CHASE) ',
+    rf'\[child\][^\n]*uuid={_more_child} [^\n]*reaction=(?:NONE|WAVE|SHRUG|SORRY) answer=\w+ gesture=(?:CRUMB|POKE|CHASE) target={_more_bold}\b',
+])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')
@@ -9737,13 +9763,14 @@ next(s for s in S if s.id == 'park_picnic').smoke.update(verify=_picnic_ledger, 
 
 
 def _pocket_rest_verify(window):
-    """The owner sits before the first tunnel session ends and stands after the last one; the bold and the shy pet are both accounted for."""
+    """The owner sits before a tunnel session completes and stands after the last one he watched; a later session is free play
+    back at the tunnel after the walk home, outside the outing, and is not judged. Both pets are accounted for by the expects."""
     sat = re.search(r'action=outing_sit seat=', window)
     stood = re.search(r'action=outing_stand reason=leave', window)
     if not sat or not stood or not sat.start() < stood.start():
         return 'the keeper did not sit and then stand up from the bench'
     sessions = [m for m in re.finditer(r'facility session ended kind=CERAMIC[^\n]*completed=true\b', window)]
-    if not sessions or not all(sat.start() < m.start() < stood.start() for m in sessions):
+    if not any(sat.start() < m.start() < stood.start() for m in sessions):
         return 'no tunnel session was completed while the keeper sat'
     return None
 
@@ -9777,7 +9804,10 @@ _smoke('shop_buy', 1600, [r'\[shop\][^\n]* action=job result=start kind=BUY ', r
                           r'\[shop\][^\n]* action=buy_live result=committed [^\n]* emeralds_used=0\b',
                           r'\[shop\][^\n]* action=buy_live result=delivered [^\n]*placement=counter '],
        forbid=[r'\[shop\][^\n]* action=buy_live result=cancelled', r'\[shop\][^\n]* action=job result=failed '])
+# The witness is only raised when the neighbour is actually seen through the divider. Left to wander, Alice may be inside her nest,
+# whose rim sits above her eye and hides her across the glass, so the pair is put in the clear back row just before the sale.
 next(s for s in S if s.id == 'shop_buy').smoke['commands'] = [
+    (198, f'tp {ALICE} ~17.5 ~2 ~10.5'), (198, f'tp {CHEN} ~13.5 ~2 ~10.5'),
     (200, f'yukkuri human shop buy {SHOP_STAFF} {BOOTH.format("alice", 3)} {_uuid_text("shop_buy", "buyer")}')]
 
 
