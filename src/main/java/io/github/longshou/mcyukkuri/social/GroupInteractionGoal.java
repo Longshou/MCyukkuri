@@ -83,6 +83,7 @@ public final class GroupInteractionGoal extends Goal {
     public boolean challenge(YukkuriEntity peer) {
         if(peer==entity||peer.level()!=entity.level()||cooldown>0||peer.groupInteraction().cooldown>0||active()||peer.groupInteraction().active()
                 ||!available(entity)||!available(peer)||!entity.family().adult()||!peer.family().adult()
+                ||entity.life().faltering()||peer.life().faltering()
                 ||entity.distanceToSqr(peer)>16||!entity.hasLineOfSight(peer)||!challengeSpace(entity)||!challengeSpace(peer))return false;
         var relations=YukkuriWorldData.get(level());
         if(relations.affinity(entity.getUUID(),peer.getUUID())<BondLevels.AFFINITY_ACQUAINTED||relations.affinity(peer.getUUID(),entity.getUUID())<BondLevels.AFFINITY_ACQUAINTED)return false;
