@@ -42,6 +42,8 @@ final class Rescue implements Intent {
     private Ashore landing;
     /** She had the faller in her hold: one ending ashore was set down by her, not climbed out by itself. */
     private boolean held;
+    /** She already left an overloadable hull to take the faller from the bank this rescue. */
+    private boolean fromBank;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
         this.helper = helper;
@@ -119,7 +121,7 @@ final class Rescue implements Intent {
         if (!AquaticLife.aboard(helper, hat)) {
             // On the bank with the faller in a hold's reach of a bank stand (the Grab's own reach): she leans over and takes it out
             // there. Only one out of that reach sends her out on her hull to chase it.
-            var stand = AquaticLife.ashore(helper) ? bankStand() : null;
+            var stand = AquaticLife.ashore(helper) ? bankStand(false) : null;
             if (stand != null) return List.of(() -> SurfaceApproach.arrived(helper, stand) ? null : new Step.Do(Walk.stand(stand, 1)),
                     () -> new Step.Do(new Grab(faller)));
             // An upside-down hull is righted first, then she boards and lifts from it.
@@ -127,12 +129,24 @@ final class Rescue implements Intent {
             return hat == null && !helper.life().custody().worn() ? null
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }
+        // The hull would be overloaded by the faller (her own load rule, the one her choice follows): she does not lift it aboard to
+        // sink the hull under both of them. Where a bank stand reaches it she goes ashore and takes it out from there.
+        // Once per rescue: a bank she then could not reach from sends her back to the hull's lift, not round again.
+        if (!fromBank && hat.loadRefusal(helper, faller) != null && bankStand(true) != null) {
+            fromBank = true;
+            GameplayLog.event(helper, "aquatic", "rescue from bank faller={} incident={} reason=hull_full", faller.getUUID(), incident);
+            return List.of(Ferry.hopAshore(helper), () -> {
+                        var stand = bankStand(false);
+                        return stand == null || SurfaceApproach.arrived(helper, stand) ? null : new Step.Do(Walk.stand(stand, 1));
+                    }, () -> new Step.Do(new Grab(faller)));
+        }
         return Ferry.rescuePickup(helper, hat, faller);
     }
 
     /** A dry bank stand beside the faller's water she can walk to, from which a hold she has for it reaches it where it is now (the
-     *  reach the Grab admits: her braid upright or leaning low, else her mouth), nearest first; null when no bank stand reaches it. */
-    private Vec3 bankStand() {
+     *  reach the Grab admits: her braid upright or leaning low, else her mouth), nearest first; null when no bank stand reaches it.
+     *  From her hull ({@code fromHull}) the walk there starts only after she hops ashore, so its route is read then. */
+    private Vec3 bankStand(boolean fromHull) {
         var holds = ParentCarry.holdsFor(helper, faller);
         boolean braid = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.BRAID);
         boolean mouth = holds.stream().anyMatch(h -> h.reach() == ContactGeometry.Reach.MOUTH);
@@ -144,7 +158,7 @@ final class Rescue implements Intent {
             edges++;
             best = Math.min(best, gap);
             if ((gap <= 0 || mouth && ContactGeometry.inMouthReach(helper, at, faller))
-                    && SurfaceApproach.supported(helper, at) && SurfaceApproach.canApproach(helper, at)) return at;
+                    && SurfaceApproach.supported(helper, at) && (fromHull || SurfaceApproach.canApproach(helper, at))) return at;
         }
         int suppressed = GameplayLog.admit(helper, "aquatic", "rescue.bank_reach", 200);
         if (suppressed >= 0) GameplayLog.limitedEvent(helper, "aquatic", suppressed,

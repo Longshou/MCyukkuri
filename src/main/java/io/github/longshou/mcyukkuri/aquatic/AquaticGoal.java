@@ -409,7 +409,10 @@ final class AquaticGoal extends Goal {
             YukkuriEntity watching = null;
             String watched = null;
             boolean steady = steadyFooting();
-            for (var y : AquaticLife.young(body)) {
+            // The one with the least breath left is decided first (ties keep nearest first): a faller is not left to drown while a
+            // nearer one with breath to spare is taken.
+            var byBreath = AquaticLife.young(body).stream().sorted(Comparator.comparingInt(YukkuriEntity::getAirSupply)).toList();
+            for (var y : byBreath) {
                 String id = y.isInWaterOrBubble() ? ledger.openOf(y.getUUID(), "water") : null;
                 if (id == null) continue;
                 if (!steady) {
