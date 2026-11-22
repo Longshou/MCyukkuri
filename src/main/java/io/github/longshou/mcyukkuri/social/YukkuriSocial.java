@@ -662,7 +662,8 @@ public final class YukkuriSocial implements MotorOwner {
                             peer.social().receiveGreeting(entity, false, why);
                             relations.relate(entity.getUUID(), peer.getUUID(), 2);
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
-                            peer.social().quarrelPeer = null;
+                            // Settle this pair's record only: the peer's record may be of some third body it has not made up with.
+                            if (entity.getUUID().equals(peer.social().quarrelPeer)) peer.social().quarrelPeer = null;
                         } else {
                             peer.getLookControl().setLookAt(entity, 30, 30);
                             peer.showReaction("neutral", "", 60);
