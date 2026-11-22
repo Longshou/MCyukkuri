@@ -6826,6 +6826,7 @@ pond('afloat_family', '亲油用辫子抱赤油上帽船', '亲油用辫子抱�
      smoke=dict(ticks=3600, expect=[r'\[intent\][^\n]* start id=set_out\b', r'\[intent\][^\n]* end id=set_out result=DONE\b',
                                    r'\[aquatic\][^\n]* set_out complete [^\n]*aboard=1/1\b',
                                    r'\[hat\][^\n]* boarded rider=[^\n]*own=true\b[\s\S]*'
+                                   r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down',
                                    r'\[family\][^\n]* carry grip [^\n]*hold=braid\b[\s\S]*'
                                    r'\[family\][^\n]* carry lowering hold=braid\b[\s\S]*'
                                    r'\[body\][^\n]* seat landed [^\n]*cause=braid_set_down'],
