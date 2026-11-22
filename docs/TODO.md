@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 衍生形态的泪水贴图、生态表情检查修复 | `.worktrees/wp-face-export-fixes` | standards/yukkuri-library faces / rare forms exporter, art registries |
 
 
 
