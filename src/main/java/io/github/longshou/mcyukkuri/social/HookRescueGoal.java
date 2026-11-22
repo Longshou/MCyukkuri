@@ -16,7 +16,8 @@ import net.minecraft.world.phys.Vec3;
 
 /** Kin make one bounded approach to the actual hook and free it by contact. */
 public final class HookRescueGoal extends Goal {
-    private static final int RANGE=8, WARNING_TICKS=20, BUDGET=600;
+    // The scan repeats inside the 10 ticks the struck child keeps hurtTime and well before a startled parent has run out of RANGE.
+    private static final int RANGE=8, WARNING_TICKS=20, BUDGET=600, SCAN_TICKS=5;
     private final YukkuriEntity helper;
     private YukkuriEntity target;
     private UUID wound;
@@ -66,7 +67,7 @@ public final class HookRescueGoal extends Goal {
     private boolean findHook() {
         long now=helper.level().getGameTime();
         if(now<nextScan)return false;
-        nextScan=now+WARNING_TICKS;
+        nextScan=now+SCAN_TICKS;
         double best=RANGE*RANGE;
         boolean ready=false;
         var nearby=helper.level().getEntitiesOfClass(YukkuriEntity.class,helper.getBoundingBox().inflate(RANGE),

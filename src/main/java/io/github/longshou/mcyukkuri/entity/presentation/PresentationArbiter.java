@@ -32,8 +32,8 @@ public final class PresentationArbiter {
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
 
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
-    public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive) {
-        // passive: this tick's travel is contact (a shove or separation shift), not the body's own walk.
+    public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive, boolean driven) {
+        // passive: this tick's travel is contact (a shove or separation shift), not the body's own walk; driven: it is the own walk.
         var motion = passive && !walkingClip() ? new Motion(0, 0) : new Motion(travelledX, travelledZ);
         travelTicks = motion.distanceSquared() > 0.000001 ? travelTicks + 1 : 0;
         switch (frame.takeover()) {
@@ -41,13 +41,14 @@ public final class PresentationArbiter {
             case PANIC -> publish("panic", panic(state, frame.panicTicks()));
             case SHELL -> publish("shell", shell(state, motion));
             case AGITATION -> publish("agitation", agitation(state, motion));
-            case NONE -> presentOrdinary(settled(motion));
+            case NONE -> presentOrdinary(driven ? motion : settled(motion));
         }
     }
 
     /**
      * A body that stands in its clip keeps it through a short passive shift (a shove, knockback): the walk clip is
-     * published only once the travel has held three ticks; an already walking body keeps walking without the hold.
+     * published only once the travel has held three ticks; an already walking body keeps walking without the hold. A body's own
+     * drive (steering input) is no shift: it walks from its first step, so no idle pose of a feeling shows while it moves.
      */
     private Motion settled(Motion motion) {
         return travelTicks >= WALK_HOLD || walkingClip() ? motion : new Motion(0, 0);

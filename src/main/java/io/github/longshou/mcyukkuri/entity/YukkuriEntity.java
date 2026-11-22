@@ -896,9 +896,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
         if (reactionTicks > 0 && reactionEvent.equals("need_tell") && !status().reactions().allowsNeedTell()) cancelReaction();
         // A shove or the neighbour-separation shift is contact, not travel: it must not flip a standing clip to the walk.
-        boolean passive = !drivenThisTick && (motor.contact.recoiling() || motor.contact.pushedThisTick(level().getGameTime()));
+        boolean driven = drivenThisTick;
+        boolean passive = !driven && (motor.contact.recoiling() || motor.contact.pushedThisTick(level().getGameTime()));
         drivenThisTick = false;
-        presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ, passive);
+        presentation.tick(YukkuriControl.advance(this), travelledX, travelledZ, passive, driven);
         sync().syncHeldItem();
     }
 
