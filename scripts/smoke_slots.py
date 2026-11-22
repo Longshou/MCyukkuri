@@ -26,6 +26,39 @@ def free_gb():
     return shutil.disk_usage(server.COMMON).free / 2 ** 30
 
 
+# Heavy work (smoke and capture servers, compiles, landings) starts only while the user is away: no keyboard or mouse input
+# on this PC for AWAY_MINUTES. A game in the foreground stutters even beside below-normal-priority servers (11-22).
+# MCY_IGNORE_USER=1 skips the wait, only when the user has said so for this run.
+AWAY_MINUTES = 10
+
+
+def idle_seconds():
+    """Seconds since the last keyboard or mouse input in this Windows session (0 off Windows: never wait there)."""
+    if os.name != 'nt':
+        return float('inf')
+    import ctypes
+
+    class LastInput(ctypes.Structure):
+        _fields_ = [('cbSize', ctypes.c_uint), ('dwTime', ctypes.c_uint)]
+
+    info = LastInput(ctypes.sizeof(LastInput), 0)
+    if not ctypes.windll.user32.GetLastInputInfo(ctypes.byref(info)):
+        return float('inf')
+    return ((ctypes.windll.kernel32.GetTickCount() - info.dwTime) & 0xFFFFFFFF) / 1000
+
+
+def wait_user_away(what):
+    """Block until the user has been away AWAY_MINUTES; one notice while waiting."""
+    if os.environ.get('MCY_IGNORE_USER') == '1':
+        return
+    announced = False
+    while idle_seconds() < AWAY_MINUTES * 60:
+        if not announced:
+            print(f'Waiting: the user is using this PC; {what} starts after {AWAY_MINUTES} min without input', flush=True)
+            announced = True
+        time.sleep(30)
+
+
 def default_slots(now=None):
     now = now or time.localtime()
     return BUSY_SLOTS if now.tm_wday < 5 and 3 <= now.tm_hour < 19 else QUIET_SLOTS
@@ -78,6 +111,7 @@ def slot(kind, label, slots=None):
     announced = pruned = short = False
     try:
         while True:
+            wait_user_away(f'{kind} {label[:60]}')
             if free_gb() < MIN_FREE_GB:
                 if not pruned:
                     removed = smoke_prune.prune(quick=True)

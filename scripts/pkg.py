@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import headless_server as server  # noqa: E402  (git common root, user-client detection)
 import smoke_prune  # noqa: E402
+import smoke_slots  # noqa: E402  (heavy work waits while the user is at the PC)
 
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
@@ -147,6 +148,7 @@ def check_tree(tree, scenes):
     changed = git(tree, 'diff', '--name-only', 'origin/main...HEAD').splitlines()
     if any(path.endswith('.java') for path in changed):
         print('java changed: javac_check.sh', flush=True)
+        smoke_slots.wait_user_away('javac_check.sh')
         if subprocess.run(['bash', 'scripts/javac_check.sh', str(tree)], cwd=tree).returncode:
             raise Fail('javac_check.sh failed')
     if scenes:
@@ -289,6 +291,7 @@ def cmd_runtime(args):
         print(f'Build run {run["databaseId"]} succeeded; waiting for the museum client to close', flush=True)
         # Running smoke/capture servers keep the runtime dir they started with; the next update removes it once unused.
         server.wait_closed(poll=args.poll)
+        smoke_slots.wait_user_away('the runtime update')
         if args.commit:
             break
         git(MAIN, 'fetch', '-q', 'origin')
