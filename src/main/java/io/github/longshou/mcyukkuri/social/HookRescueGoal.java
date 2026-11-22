@@ -145,7 +145,11 @@ public final class HookRescueGoal extends Goal {
         }
         var move=SurfaceApproach.walkResult(helper,stand,target,1.1);
         if(move==SurfaceApproach.Result.BLOCKED){result="blocked";return;}
-        if(move!=SurfaceApproach.Result.ARRIVED)return;
+        // The walk layer asks for an exact stand (.02); a body that has dithered to within a fifth of a block of it is at the hook.
+        if(move!=SurfaceApproach.Result.ARRIVED){
+            if(helper.position().subtract(stand).horizontalDistanceSqr()>.04)return;
+            SurfaceApproach.stopWalking(helper);
+        }
         Motor.face(helper,SurfaceApproach.yaw(helper.position(),point));
         if(++contactTicks==1){
             helper.forceReaction("surprise","",WARNING_TICKS);
