@@ -148,6 +148,14 @@ public final class Cannibalism extends Goal {
         return Bonds.corpseMate(entity, data.hasUUID("Identity") ? data.getUUID("Identity") : null,
                 data.hasUUID("Partner") ? data.getUUID("Partner") : null);
     }
+    /**
+     * Grief outranks the smell of the dead while it lasts, for a body and for a young that sees its parent mourn
+     * (mind/EmotionCourse: the course runs longer the closer and more attached it was). The smell complaint waits until
+     * the course fades; the remains' decay only decides how far the stench then carries.
+     */
+    private boolean mournsDead() {
+        return entity.grieving() || entity.mind().feeling().mourning();
+    }
     private double carrionScore(RemainsEntity remains) {
         var p = entity.life().personality();
         int stage = RemainsRot.stage(remains.data());
@@ -245,7 +253,7 @@ public final class Cannibalism extends Goal {
                 prey = target; return begin(Mode.HUNT, "hunt");
             }
         }
-        if (smellWait == 0 && nutrition >= 8 && !entity.grieving()) {
+        if (smellWait == 0 && nutrition >= 8 && !mournsDead()) {
             var source = RemainsRot.source(level(), entity.position(), remains -> !mateBody(remains));
             var wrap = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(3),
                     other -> other != entity && other.isAlive() && other.leafSwaddle().smells()

@@ -7978,6 +7978,12 @@ def _den_family_verify(log):
         return 'den family: no positive deposit from the mother after her departure'
     if not any(tick > death_tick for tick, _ in events(child, 'meal', r'swallowed item=\S+')):
         return 'den family: child did not eat after father death'
+    # The young grieves its father before it complains about the corpse smell: the complaint may only start after the
+    # course fades (mind/EmotionCourse.mourning() is false from there on).
+    complaints = [tick for tick, _ in events(child, 'cannibal', r'started mode=AVOID\b')]
+    faded = [tick for tick, _ in events(child, 'emotion', r'course stage kind=grief stage=fading\b')]
+    if complaints and (not faded or complaints[0] < faded[0]):
+        return f'den family: child complained about the smell at {complaints[0]} before its grief faded at {faded}'
     return None
 
 
