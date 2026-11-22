@@ -63,7 +63,7 @@ public final class PresentationArbiter {
         publishMoment(id);
         var e = state.owner();
         String leakFace = e.mind().leakFace();
-        state.expression(leakFace.isEmpty() ? expression(id) : leakFace);
+        state.expression(leakFace.isEmpty() ? face(id) : leakFace);
         if (e.level().isClientSide) return;
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
@@ -104,7 +104,7 @@ public final class PresentationArbiter {
     }
 
     /** Physical operation and active performance precede the ordinary expression rules. */
-    private String expression(String source){
+    private String face(String source){
         var e=state.owner();
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
