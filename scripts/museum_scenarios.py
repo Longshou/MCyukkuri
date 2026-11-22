@@ -3402,6 +3402,7 @@ def counter_reissue_smoke():
         (4, f'data modify storage mcylab:counter serial set from entity {_COUNTER_PET} YukkuriPet.Serial'),
         (4, block(19, 0, 0, 'mcyukkuri:exam_podium[facing=east]')),
         (4, human('caretaker_brother', 20, 0, 'decoy_judge', 3)),
+        (4, 'execute if block ~-2 ~2 ~ mcyukkuri:exam_podium[facing=south] run say COUNTER_PODIUM_AT_DESK'),
         *counter_action(6, 'open', 1),
         *counter_action(8, 'certify', 0, 'if score #counter_6 museum matches 1 '),
         *counter_action(10, 'reissue', 0, 'if score #counter_6 museum matches 1 '),
@@ -3443,12 +3444,11 @@ def counter_reissue_smoke():
         (52, 'yukkuri scenario tool_operator leave')],
         expect=[*(f'COUNTER_OK_{tick}' for tick in (6, 8, 10, 14, 16, 30, 32, 36)),
                 'COUNTER_UNFUNDED_INTACT', 'COUNTER_STALE_REFUSED', 'COUNTER_PINNED', 'COUNTER_GROUND_DROP', 'COUNTER_TRAY_INTACT',
-                'COUNTER_FULL_PICKUP_REFUSED', 'COUNTER_PICKED_UP',
-                r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_hall\b',
+                'COUNTER_FULL_PICKUP_REFUSED', 'COUNTER_PICKED_UP', 'COUNTER_PODIUM_AT_DESK',
                 r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_fee\b',
                 r'\[badge\][^\n]*reissued [^\n]*fee=1 [^\n]*grade=BRONZE destination=inventory remaining=0',
                 r'\[badge\][^\n]*reissued [^\n]*fee=1 [^\n]*grade=BRONZE destination=ground remaining=1'],
-        forbid=[r'\[exam\][^\n]*action=start '])
+        forbid=[r'\[exam\][^\n]*action=start ', r'\[exam\][^\n]*action=counter_refused [^\n]*reason=no_hall\b'])
 
 
 _counter_reissue = 'badge_counter_reissue'

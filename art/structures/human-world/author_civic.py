@@ -201,9 +201,9 @@ MEDAL = {(12, 12): 'red_concrete', (13, 12): 'white_concrete', (12, 11): 'yellow
 def badge_hall(p):
     """徽章会馆: the civic hall of the badge system on a two-step plinth in the type's pale wall, a columned portico with a pediment carrying
     a gold medal relief, and in front the exchange plaza: a paved square with a canopied bench ring around a table, a planted bed, lamps
-    and two standing bins flanking the steps. Inside: waiting benches, a notice board, a reception counter with the badge handbook (no
-    lectern), archives and a wall of displayed badges by grade behind the clerk. Vent niches in the portico plinth beside the steps are
-    the wind gaps. The clerk and the hall's caretaker live behind the counter door."""
+    and two standing bins flanking the steps. Inside: waiting benches, a notice board, a low answering podium on the public floor, a
+    reception counter with the badge handbook (no lectern), archives and a wall of displayed badges by grade behind the clerk. Vent
+    niches in the portico plinth beside the steps are the wind gaps. The clerk and the hall's caretaker live behind the counter door."""
     W, H, D = 26, 16, 32
     b = Site(f'village/{p.style}/badge_hall', [W, H, D], p)
     b.box((0, 1, 0), (W - 1, H - 1, D - 1), 'air')
@@ -300,6 +300,8 @@ def badge_hall(p):
     for x in (12, 13):
         for z in range(20, 25): b.block(x, 3, z, 'red_carpet')
     for x0 in (5, 18): furniture(b, 'bench', 3, [(x, 22) for x in range(x0, x0 + 3)])
+    # The answering podium between the benches and the counter, facing the desk; the aisle in front is the public stand for viewers.
+    b.block(8, 3, 23, 'mcyukkuri:exam_podium', {'facing': 'south'})
     notice(b, 8, 4, 20, 'south'); notice(b, 17, 4, 20, 'south')
     for x, z in [(4, 20), (21, 20), (4, 24), (21, 24)]: b.block(x, 3, z, p.pot(x + z))
     # Reception counter across the hall: boards with a slab top (no lectern), the badge handbook and a bronze badge laid out on trays;
@@ -322,7 +324,7 @@ def badge_hall(p):
              {'HumanJob': integer(0), 'HumanAttitude': integer(2), 'SiteRole': string('badge_counter')})
     resident(b, 17, 28, 'caretaker_brother', 2, ['mcy_street_local', 'mcy_street_special'], y=3)   # the hall's caretaker
     marker(b, 18.5, 1, 11.5, 'mcy_badge_hall', {
-        'Clerk': sequence(3, [-12, 2, 15]), 'View': sequence(3, [-8, 2, 11]),
+        'Clerk': sequence(3, [-12, 2, 15]), 'Podium': sequence(3, [-10, 2, 12]), 'View': sequence(3, [-8, 2, 11]),
     })
     for x, z in [(8, 22), (17, 22), (12, 27)]: b.block(x, 7, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     b.strict = False

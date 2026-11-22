@@ -394,12 +394,12 @@ def badge_hall_checks(piece):
             or tuple(marker['pos']) != (18.5, 1, 11.5)
             or marker['nbt']['Rotation'][0] != 180):
         return ['badge hall marker must face north on its plaza cell']
-    for key, at in (('Clerk', post), ('View', view)):
+    for key, at in (('Clerk', post), ('Podium', podium), ('View', view)):
         offset = marker['nbt'].get('data', {}).get(key, ())
         if len(offset) != 3 or add(marker['blockPos'], offset) != at:
             return [f'badge hall marker {key} must resolve to {at}']
-    if 'Podium' in marker['nbt']['data'] or not clear(piece.state(podium)):
-        return ['counter-only hall must leave the future podium site clear and unassigned']
+    if piece.state(podium)[:2] != ('mcyukkuri:exam_podium', {'facing': 'south'}):
+        return ['badge hall podium missing or facing away from the counter']
     if not sturdy(piece.state(add(post, (0, 0, -1)))):
         return ['counter desk is missing from the public side of the post']
 
