@@ -1502,5 +1502,37 @@
       12
     ],
     "sha256": "f7ffbf677443a8c8e0339a176bacf460e3eb168a1cf3bf55a59dc9113d5dd2e1"
+  },
+  "89b28166f5a74f2ee500": {
+    "path": "expressions/parts/89b28166f5a74f2ee500.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "c8fa18b66c06a299de839691b90875fc3502e0e1a0b3773fe123bff001c01f75"
+  },
+  "cc7f301116a1b2824829": {
+    "path": "expressions/parts/cc7f301116a1b2824829.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "ac8afc009efb2b0a0fd681402eb93246e8dd4a44c22a3dc9a673949cadbec107"
+  },
+  "2c79e79d2887d4a1671a": {
+    "path": "expressions/parts/2c79e79d2887d4a1671a.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "1afbbd351c3fc3846a1fbe9fa10d5a2b3542f5ff188c787b7cba47e451aa1e6d"
+  },
+  "ea959c389d55d67c24da": {
+    "path": "expressions/parts/ea959c389d55d67c24da.png",
+    "size": [
+      15,
+      16
+    ],
+    "sha256": "ec76a0032f7ee17015d22331e57bb039f1bfa1b7767406fe1456b4a66472e97a"
   }
 }

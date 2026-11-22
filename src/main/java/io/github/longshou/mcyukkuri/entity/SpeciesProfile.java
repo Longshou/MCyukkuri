@@ -40,7 +40,7 @@ public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.Birt
                         aquatic, !house && !predator, !house && !predator && !aquatic, predator, !predator,
                         variant == YukkuriVariant.MARISA, !house, !house, house ? 4 : 1,
                         house ? BodyConstants.HOUSE_SOURCE_SCALE : 1,
-                        house ? BodyConstants.HOUSE_WOUND_SIZE : 1, SpeciesTraits.of(variant), aquatic ? Diet.AQUATIC : Diet.ORDINARY));
+                        house ? BodyConstants.HOUSE_WOUND_SIZE : 1, SpeciesTraits.of(variant), predator ? Diet.CARNIVORE : aquatic ? Diet.AQUATIC : Diet.ORDINARY));
             }
             profiles.put(variant, forms);
         }

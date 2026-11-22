@@ -47,7 +47,7 @@ final class YukkuriInteractions {
                 return InteractionDispatch.openCutter(server,owner)?InteractionResult.CONSUME:InteractionResult.FAIL;
             return InteractionResult.sidedSuccess(owner.level().isClientSide);
         }
-        boolean food = stack.is(YukkuriEntity.FOOD) || Toxins.dose(stack) > 0 || InfantFood.isMash(stack)
+        boolean food = stack.is(YukkuriEntity.FOOD) && owner.profile().diet().plants() || Toxins.dose(stack) > 0 || InfantFood.isMash(stack)
                 || Consumables.kind(stack) == Consumables.Kind.SPICY || FillingResource.isCore(stack)
                 || owner.profile().diet().eats(stack) || owner.profile().houseBody() && stack.is(ModItems.FOOD_SCRAP.get())
                 || stack.is(ModItems.WASTE.get()) && (owner.level().isClientSide || owner.life().acceptsFood(stack));

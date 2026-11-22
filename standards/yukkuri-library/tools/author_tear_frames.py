@@ -36,9 +36,14 @@ TWO_TONE = dict(trail=lambda n: ['.FF.'] + ['.HF.']*(n-2) + ['..F.'][:n-1], drop
 TALL = 1.5  # B texel height (in A texels) from which the two-row drop is used
 # teary_tongue's own tear is a faint wet line: its spill is a two-texel trail and drop in that line's own colours, and
 # its A line is drawn opaque, on the lower lid and a little wider so the welling reads (user 2026-11-08). WELL names the approved faint line it starts from.
-MATCHED = {'teary_tongue': 'thin'}
+MATCHED = {'teary_tongue': 'thin', 'teary_pant': 'thin'}
 WELL = {'teary_tongue': {'face_tear_left': 'expressions/parts/70d38ef30d920ef604f2.png',
-                         'face_tear_right': 'expressions/parts/dc96140aab738d6ad443.png'}}
+                         'face_tear_right': 'expressions/parts/dc96140aab738d6ad443.png'},
+        'teary_pant': {'face_tear_left': 'expressions/parts/70d38ef30d920ef604f2.png',
+                       'face_tear_right': 'expressions/parts/dc96140aab738d6ad443.png'}}
+# teary_pant's pool is read at flight range, where 1-texel tips and half-transparent texels shimmer as it swaps with
+# its B frame: its A line is also thickened to at least two texels high (user 2026-11-22, predator tear flicker).
+THICK = ('teary_pant',)
 THIN = dict(trail=TWO_TONE['trail'], drop=('.FF.', '.HF.', '.FF.'))
 # Lowest unshifted tile row a drop may reach: lower rows sit past the rounded face front and float below the chin.
 BOTTOM = 12
@@ -110,13 +115,17 @@ def encode(im):
     return name, buf.getvalue()
 
 
-def well(part):
+def well(part, thick=False):
     """The faint wet line drawn opaque in its own colours, one row lower so it sits on the lower lid instead of behind
-    the eye, with its lowest row a texel wider each side: the tear welling in the eye reads."""
+    the eye, with its lowest row a texel wider each side: the tear welling in the eye reads. `thick` also fills the
+    texel under every texel, so no column of the line is a single texel high."""
     im = Image.open(LIB/part).convert('RGBA')
     cells = {(x, y+1): (*v[:3], 255) for x in range(SIZE[0]) for y in range(SIZE[1]-1) if (v := im.getpixel((x, y)))[3]}
     bottom = max(y for _, y in cells); row = sorted(x for x, y in cells if y == bottom)
     cells[(row[0]-1, bottom)] = cells[(row[0], bottom)]; cells[(row[-1]+1, bottom)] = cells[(row[-1], bottom)]
+    if thick:
+        for (x, y), v in list(cells.items()):
+            cells.setdefault((x, y+1), v)
     out = Image.new('RGBA', SIZE)
     for xy, v in cells.items():
         out.putpixel(xy, v)
@@ -132,7 +141,7 @@ def outputs():
         a_id, b_id = animations[ident]['frames']
         a_path = LIB/index['presets'][a_id]; a = read(a_path); b_path = LIB/index['presets'][b_id]; b = read(b_path)
         for slot, base in WELL.get(ident, {}).items():
-            name, data = well(base)
+            name, data = well(base, ident in THICK)
             files[LIB/name] = data
             registry[Path(name).stem] = dict(path=name, size=list(SIZE), sha256=hashlib.sha256(data).hexdigest())
             a['parts'][slot] = name

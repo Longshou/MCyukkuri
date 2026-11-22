@@ -96,6 +96,8 @@ import net.neoforged.neoforge.event.EventHooks;
 public final class PredatorLife implements EcologyRoutine, MotorOwner {
     /** Acquisition stays within a loaded local view; an active hunt uses bounded path segments to continue past it. */
     private static final double HUNT_RANGE = 60;
+    /** Prey this close is taken before carrion; below this nutrition (the same line a foul corpse is still eaten at) carrion comes first. */
+    private static final double NEAR_PREY_RANGE = 24, CARRION_NUTRITION = 15;
     /** Leave margin below the predator-only follow range so a moving target is still reachable by each path search. */
     private static final double FLIGHT_PATH_SEGMENT = 24;
     private static final double PATROL_RADIUS = 60;
@@ -693,6 +695,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                     .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
             if (corpse != null) { food = null; task = Task.SCAVENGE; return true; }
         }
+        // Live prey close by comes first; carrion and cores are the fallback, or the meal of a body too starved to chase.
+        if (wantsHunt() && animal.life().nutrition() >= CARRION_NUTRITION && choosePrey(NEAR_PREY_RANGE)) return true;
         if (animal.life().canEat()) {
             food = level().getEntitiesOfClass(ItemEntity.class, animal.getBoundingBox().inflate(10), this::edibleDrop).stream()
                     .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
@@ -704,19 +708,21 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             corpse = null;
             if (food != null) { task = Task.SCAVENGE; return true; }
         }
-        if (wantsHunt()) {
-            prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(HUNT_RANGE, PerchScore.MAX_HEIGHT + 1, HUNT_RANGE), this::mayHunt).stream()
-                    .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
-                            .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
-                            .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal()
-                                    + (fightsBack(y) ? ARMED_PREY_PENALTY : 0))).orElse(null);
-            if (prey != null) {
-                GameplayLog.event(animal,"predator","prey selected target={} stage={} speed={} slow_child={} range={} distance={}",
-                        prey.getUUID(),prey.family().stage(),prey.getAttributeValue(Attributes.MOVEMENT_SPEED),slowChild(prey),HUNT_RANGE,animal.distanceTo(prey));
-                task = Task.TAKEOFF; return true;
-            }
-        }
-        return false;
+        return wantsHunt() && choosePrey(HUNT_RANGE);
+    }
+    /** The best live yukkuri this hunter makes out within {@code range} (see {@link PreySight}); selecting it starts the hunt. */
+    private boolean choosePrey(double range) {
+        prey = level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(range, PerchScore.MAX_HEIGHT + 1, range),
+                        y -> animal.distanceToSqr(y) <= range * range && mayHunt(y) && PreySight.seen(animal, y)).stream()
+                .min(Comparator.<YukkuriEntity>comparingInt(y -> slowChild(y) ? 0 : 1)
+                        .thenComparingDouble(y -> slowChild(y) ? y.getAttributeValue(Attributes.MOVEMENT_SPEED) : 0)
+                        .thenComparingDouble(y -> animal.distanceToSqr(y) + y.getHealth() - y.mind().preyAppeal()
+                                + (fightsBack(y) ? ARMED_PREY_PENALTY : 0))).orElse(null);
+        if (prey == null) return false;
+        GameplayLog.event(animal,"predator","prey selected target={} stage={} speed={} slow_child={} range={} distance={} covered={}",
+                prey.getUUID(),prey.family().stage(),prey.getAttributeValue(Attributes.MOVEMENT_SPEED),slowChild(prey),range,animal.distanceTo(prey),
+                PreySight.covered(prey));
+        task = Task.TAKEOFF; return true;
     }
     BlockPos broodPad() {
         if (!wildAdult()) return null;

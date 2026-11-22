@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.motor;
 
+import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
@@ -45,17 +46,41 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
         return GrowthSize.movement(family.stage(), family.scale(), body.profile().houseBody());
     }
 
+    /** Energy below this is tired: the sleepy face and the worn gait begin together (see PresentationArbiter). */
+    public static final double TIRED_ENERGY = 25;
+
+    /** A weak or tired body has no pace to spare: no request may ask it past its ordinary walk. */
+    public static boolean worn(YukkuriEntity body) {
+        return body.body().weak() || body.life().energy() < TIRED_ENERGY;
+    }
+
+    /** Slowing of a tired body not already weak (BodyLife slows a weak one): up to a quarter at no energy. */
+    public static double fatigue(YukkuriEntity body) {
+        if (body.body().weak()) return 1;
+        return 1 - .25 * Math.clamp((TIRED_ENERGY - body.life().energy()) / TIRED_ENERGY, 0, 1);
+    }
+
     /** Keep the goal's request intact for repaths. Convert it when vanilla consumes it. */
     public static double groundModifier(YukkuriEntity body, double request) {
         double attribute = body.getAttributeValue(Attributes.MOVEMENT_SPEED);
         if (attribute == 0) return request; // A dying body has no drive.
+        if (worn(body)) request = Math.min(request, 1);
         return Gait.groundControl(attribute * request, temperament(body) * carrying(body)) / attribute;
     }
 
     public static double flightPace(YukkuriEntity body, double request) {
+        if (worn(body)) request = Math.min(request, 1);
         return Gait.flight(body.getAttributeValue(Attributes.FLYING_SPEED), request, growthPace(body), temperament(body))
-                * body.species().stride(request);
+                * body.species().stride(request) * (body.body().weak() ? .6 : fatigue(body)) * wingLift(body);
     }
+
+    /** A predator's wings are built for the chase: up to 1.4 times the common flier's pace, in proportion to its fitness (energy, health, pain), so a spent hunter has none of it. */
+    public static double wingLift(YukkuriEntity body) {
+        return body.profile().ecology() == SpeciesProfile.Ecology.PREDATOR ? 1 + .4 * fitness(body) : 1;
+    }
+
+    /** The highest flight displacement per tick the body can reach: the common flier's ceiling, lifted for a predator. */
+    public static double flightCeiling(YukkuriEntity body) { return Gait.HUMAN_WALK * wingLift(body); }
 
     /** The pace it presses or swims with (blocks a tick): its swim speed in water, its walk speed out of it. */
     public double pace(boolean inWater) { return inWater ? swimSpeed : walkSpeed; }

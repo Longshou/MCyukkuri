@@ -122,6 +122,13 @@ public final class Skills {
         if (passes && !knows(ability)) practise(ability, SkillMath.pointsForGrade(1, ability.graded) - points(ability), "discover");
     }
 
+    /** A wild body's own grade of an ability, set once from its traits: no lesson, no celebration. */
+    public void innate(Ability ability, int grade, String why) {
+        if (!assessed.add(ability)) return;
+        points.put(ability, SkillMath.pointsForGrade(grade, ability.graded));
+        GameplayLog.event(entity, "skill", "discovery ability={} rule={} grade={}", ability, why, grade);
+    }
+
     public double will() {
         var pet = entity.pet();
         boolean companion = pet.isPet();

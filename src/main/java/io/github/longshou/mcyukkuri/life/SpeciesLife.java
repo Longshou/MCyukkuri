@@ -46,6 +46,7 @@ import net.minecraft.world.phys.Vec3;
 public final class SpeciesLife {
     private static final ResourceLocation SPEED_ID = MCYukkuri.id("species_speed");
     private static final ResourceLocation URGENCY_ID = MCYukkuri.id("urgency_speed");
+    private static final ResourceLocation FATIGUE_ID = MCYukkuri.id("fatigue_speed");
     /** Project design: a real emergency lifts walking speed by at most this fraction of the species' own speed. */
     public static final double URGENCY_BOOST = .3;
     private String urgency;
@@ -245,7 +246,11 @@ public final class SpeciesLife {
     private void urgencySpeed() {
         var attribute = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         if (attribute == null) return;
-        String reason = urgentReason();
+        // A worn body has nothing to give: tiredness slows it, and no emergency lifts it past its ordinary walk.
+        double fatigue = BodyAbility.fatigue(entity);
+        if (fatigue < 1) attribute.addOrUpdateTransientModifier(new AttributeModifier(FATIGUE_ID, fatigue - 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        else attribute.removeModifier(FATIGUE_ID);
+        String reason = BodyAbility.worn(entity) ? null : urgentReason();
         if (reason != null) {
             if (!attribute.hasModifier(URGENCY_ID))
                 attribute.addTransientModifier(new AttributeModifier(URGENCY_ID, URGENCY_BOOST, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));

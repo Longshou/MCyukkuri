@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
@@ -21,27 +22,33 @@ import net.minecraft.world.phys.Vec3;
  */
 public enum Diet {
     /** Ordinary species: food lying nearby or in the household store, then a wild land plant (unchanged). */
-    ORDINARY(false, Step.STOCK, Step.PLANT),
+    ORDINARY(false, true, Step.STOCK, Step.PLANT),
     /** Aquatic Marisa: the water plants of her water at its edge, then the portion her own hat keeps, then food lying nearby. */
-    AQUATIC(true, Step.PLANT, Step.LARDER, Step.STOCK);
+    AQUATIC(true, true, Step.PLANT, Step.LARDER, Step.STOCK),
+    /** A predator: no plant, wild or stocked, is its food; only meat (live yukkuri first, remains, a vanilla cut of meat or fish). */
+    CARNIVORE(false, false, Step.STOCK);
 
     /** One step of the feeding search's food selection. */
     public enum Step { STOCK, PLANT, LARDER }
 
-    private final boolean water;
+    private final boolean water, plants;
     private final List<Step> sources;
 
-    Diet(boolean water, Step... sources) {
+    Diet(boolean water, boolean plants, Step... sources) {
         this.water = water;
+        this.plants = plants;
         this.sources = List.of(sources);
     }
+
+    /** Whether plant food (the {@code yukkuri_food} ration and the plants that grow) feeds this diet. */
+    public boolean plants() { return plants; }
 
     /** The sources the feeding search tries, in order. */
     public List<Step> sources() { return sources; }
 
     /** Whether a plant of this diet grows here. */
     public boolean edible(BlockState state) {
-        return water ? state.is(Blocks.SEAGRASS) || state.is(Blocks.KELP) : Grazing.edible(state);
+        return water ? state.is(Blocks.SEAGRASS) || state.is(Blocks.KELP) : plants && Grazing.edible(state);
     }
 
     /** The portion one plant of this diet gives; empty when nothing of this diet grows at {@code state}. */
@@ -68,8 +75,10 @@ public enum Diet {
         return null;
     }
 
-    /** Whether the ration item itself is food for this diet: the water plants feed only the species that picks them. */
-    public boolean eats(ItemStack food) { return water && food.is(YukkuriEntity.WATER_FOOD); }
+    /** Whether the ration item itself is food for this diet: the water plants feed only the species that picks them, vanilla meat and fish only a carnivore. */
+    public boolean eats(ItemStack food) {
+        return water ? food.is(YukkuriEntity.WATER_FOOD) : !plants && (food.is(ItemTags.MEAT) || food.is(ItemTags.FISHES));
+    }
 
     /** Whether a body standing at {@code stand} reaches {@code plant} now: on land it must lie in sight straight ahead, while a
      *  water plant is picked down over the bank edge, whose own block is what that sight line would graze. */

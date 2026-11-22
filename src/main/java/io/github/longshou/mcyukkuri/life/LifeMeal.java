@@ -166,7 +166,7 @@ final class LifeMeal {
                 && !hasMouthFood() && mealTicks == 0;
     }
 
-    boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
+    boolean edible(ItemStack food){return food.is(YukkuriEntity.FOOD)&&o.entity().profile().diet().plants()||o.entity().profile().diet().eats(food)||Toxins.dose(food)>0&&o.nutrition()<Toxins.STARVING||Consumables.kind(food)==Consumables.Kind.SPICY
             ||FillingResource.isCore(food)||o.entity().getVariant().isPredator()&&!InfantFood.preyBite(food).isEmpty()
             ||o.entity().profile().houseBody()&&food.is(ModItems.FOOD_SCRAP.get())
             ||food.is(ModItems.WASTE.get())&&o.entity().settlement().duties().pit().eatsWaste();}

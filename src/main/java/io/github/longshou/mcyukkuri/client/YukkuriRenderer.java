@@ -197,6 +197,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     : entity.level().getGameTime() - entity.getAnimationStartTick() + partialTick;
             float elapsed = Math.max(0, animationTicks / 20f);
             elapsed = WaterMotionClock.seconds(entity, partialTick, elapsed);
+            if (!preview) elapsed = GaitClock.seconds(entity, partialTick, elapsed);
             if (rubMover != null) elapsed = rubMover.peerRubTick() / 20f;
             int overlay = OverlayTexture.pack(0, entity.hurtTicks() > 0 || entity.deathTicks() > 0);
             String expression = expression(entity);

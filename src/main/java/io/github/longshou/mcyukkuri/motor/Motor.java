@@ -154,7 +154,8 @@ public final class Motor {
         }
         Vec3 wanted = controlled;
         double distance = controlled.length();
-        if (distance > Gait.HUMAN_WALK) controlled = controlled.scale(Gait.HUMAN_WALK / distance);
+        double ceiling = BodyAbility.flightCeiling(body);
+        if (distance > ceiling) controlled = controlled.scale(ceiling / distance);
         if (!body.level().isClientSide) controlled = body.predator().clearTerritoryFlightStep(controlled);
         velocity(body, controlled, "predator_flight");
         Vec3 moved = move(body, controlled, "predator_flight");
