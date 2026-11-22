@@ -1299,7 +1299,7 @@ add('den_monopoly', 'den', '自私又累的油占着窝，不让姐妹用', '自
     '持续 600 + 3×(100 − 友善) = 885 tick（约 44 秒），或灵梦睡过一觉醒来就结束。结束时若魔理沙对灵梦的好感总和为负，灵梦垂泪道歉、好感回升，魔理沙开心；'
     '否则只是“守住了窝”。之后至少 1 分钟灵梦不再占窝。约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 15–60 秒', [
-        *_two_bed_burrow(0),
+        *_two_bed_burrow(16),
         yk('reimu', -1, -3, 'owner', uuid=_MONO['owner'], label='自私·累 精力38', nutrition=100, energy=38, friendliness=5, self_control=10,
            social_wait=0, yaw=180, lead=True, kin=kin_of(Mother=_MONO_MOTHER)),
         yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='姐妹·友善', nutrition=100, energy=36, friendliness=80, social_wait=0,
@@ -1819,25 +1819,30 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
     reads=[('读北边饿的', f'yukkuri status {sel("claimer")} raw'), ('读北边吃饱的', f'yukkuri status {sel("rival")} raw'),
            ('读南边饿的', f'yukkuri status {sel("foe_claimer")} raw'), ('读南边吃饱的', f'yukkuri status {sel("foe_rival")} raw')])
 
-# Three free strays around one stack of three apples (one each, so all three really get to the food; the hunger order still
-# applies while the stack is shared). All three stand within a step of the pile at the start, so each reaches it before the
-# food can be carried off: the order needs the hungrier rival close and still contesting. West: a timid, dull stray (long
-# inspect pause). East: a bold, clever one (short pause). South: a starving one (nutrition 5: below 30, so no pause at all,
-# and still below the line after one apple; 35 below the others, so both let it go first). Nutrition 40 keeps the two above
-# the no-pause line.
+# Two piles on the street, far enough apart that nobody at one sees the other's food. The starving stray (nutrition 5, below the
+# 30 line: it never inspects, and a second apple at 25 is still below it) has two apples of its own and eats both: it must not
+# stand at an apple at 30 or more, where its first look would be a forbidden pause, and the pair's single apple is gone before
+# it has finished (the timid one takes it after its long pause). The other pile is one apple between two strays: a stack no
+# larger than the eaters makes a hunger order, so the hungrier one (25 or more below the other) goes first and the other waits.
+# West: a timid, dull stray (long inspect pause) and the hungrier of the two. East: a bold, clever one (short pause); 27 above
+# the timid one, so it is the one that yields (a body at 75 or more is too fed to go for loose food at all). A hedge row stands
+# between the piles: a hungry stray (12-49, and the starving one after its first apple) that sees a peer chewing starts a
+# BEG_BITE arc instead of taking its own turn, so neither group sees the other eat.
 _STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
-    '街中间地上一小堆三个苹果，三只流浪的油紧挨着它站着。西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）才吃；'
-    '东边胆大、聪明的魔理沙只看一眼（不到半秒）；南边饿极（营养 5，低于 30）的灵梦不看直接吃，也是三只里最饿的（比另两只饿 35），另两只到苹果旁就让它先取，站着等（头顶中性脸）。'
-    '苹果刚好三只一人一个，但拿的时候仍按饥饿排先后：等的那只等完自己的耐性（20–220 tick）后才会去拿，不会一直站着。约 10 秒内发生；一次没看到可在 M 菜单重开',
+    '街中间地上一个苹果，胆小的灵梦和胆大的魔理沙各站一侧；南边隔得远的另一小堆两个苹果旁是饿极的灵梦。'
+    '西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）；东边胆大、聪明的魔理沙只看一眼（不到半秒），可它比灵梦饱 27，一个苹果两只抢，'
+    '按饥饿排先后：它让灵梦先拿，站着等（头顶中性脸），灵梦盯完就吃掉。南边饿极（营养 5，低于 30）的灵梦不看直接吃，一只接一只吃掉自己的两个苹果。'
+    '约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
-        item('minecraft:apple', 3, 0, 0, name='strange_apple'),
-        street_stray('stray_strange_food', 'reimu', -1, 0, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
-        street_stray('stray_strange_food', 'marisa', 1, 0, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
-        # It starts on the apple's own south contact stand (z 0.326): a body's box is wider than the stand offsets, so one that
-        # walks in later is shoved out of contact by the other two and wanders off to graze.
-        street_stray('stray_strange_food', 'reimu', 0, 0.326, 'starving', nutrition=5, boldness=50, intelligence=50, label='饿极·营养5'),
-    ], env=DAY, spot='street', vantage=(0, 12),
+        item('minecraft:apple', 1, 0, 0, name='strange_apple'),
+        street_stray('stray_strange_food', 'reimu', -1, 0, 'timid', nutrition=45, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
+        street_stray('stray_strange_food', 'marisa', 1, 0, 'bold', nutrition=72, boldness=95, intelligence=95, label='胆大·聪明'),
+        box(-9, 0, 5, 9, 0, 5, 'minecraft:oak_leaves[persistent=true]'),
+        item('minecraft:apple', 2, 0, 9, name='strange_apple_far'),
+        # It starts on its own pile's north contact stand: only one body stands at that pile.
+        street_stray('stray_strange_food', 'reimu', 0, 8.674, 'starving', nutrition=5, boldness=50, intelligence=50, label='饿极·营养5', yaw=0),
+    ], env=DAY, spot='street', vantage=(0, 16),
     reads=[('读胆小的', f'yukkuri status {sel("timid")} raw'), ('读胆大的', f'yukkuri status {sel("bold")} raw'),
            ('读饿极的', f'yukkuri status {sel("starving")} raw')],
     note='待验证：新场景，尚未冒烟、尚未在游戏里实测。')
@@ -6938,7 +6943,7 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload'],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='先看翻船后亲油的表情和台词，再看被舍弃的孩子的回应与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start → overload sibling cries（孩子答话、手足哭）→ parent dismissed child（断亲）→ overload severed（answer）；断亲前她先看着孩子听完回应。'
-          '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧被舍弃的孩子允许淹死，其余都要活着。',
+          '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
      reads=[('读北侧亲油（含泪）', f'yukkuri status {sel("normal")} raw'),
             ('读南侧亲油（冷淡）', f'yukkuri status {sel("cold")} raw'),
             ('读北侧最大孩子', f'yukkuri status {sel("normal3")} raw'),
@@ -10442,8 +10447,9 @@ _FATES = {
     'cargo': [dict(kind='drown', who=_THROWN, why='the shaken full hat capsizes and throws its owner in'),
               dict(kind='drown', who=_STEPS_IN, why='the empty hat\'s owner starts ashore and wades out to reclaim it')],
     'hat_crowd': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
-                  dict(kind='death', who=f'uuid={_uuid_text("hat_crowd", "cold3")} ', match=r'category=drowned\b',
-                       why='the cold parent drops her largest young into the water; the water decides, the tearful family\'s young must live')],
+                  dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_crowd', f'cold{n}') for n in (2, 3)) + ') ',
+                       match=r'category=drowned\b',
+                       why='the capsize throws the cold family in and the parent drops her largest; the water decides for each of her young, the tearful family\'s young must live')],
     'hat_load_warning': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
                          dict(kind='death', match=r'category=drowned\b', why='the scene keeps real water damage: survival is not guaranteed')],
     'rescue_child': [dict(kind='drown', who=f'uuid=(?:{_uuid_text("rescue_child", "c1")}|{_uuid_text("rescue_child", "k1")}) ',
