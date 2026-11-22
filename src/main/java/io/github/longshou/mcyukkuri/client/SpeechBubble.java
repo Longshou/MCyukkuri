@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import org.joml.Matrix4f;
 
-/** Depth-tested billboard with its own panel, wrapping and lifetime. */
+/** Depth-tested billboard with its own panel, wrapping and lifetime; a faint see-through pass keeps it readable behind blocks. */
 public final class SpeechBubble {
     private static final int MAX_LAYOUTS=128,LINE_WIDTH=150;
     private static final Map<String,Layout> LAYOUTS=new LinkedHashMap<>(MAX_LAYOUTS,.75f,true){
@@ -46,22 +46,42 @@ public final class SpeechBubble {
         pose.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
         pose.scale(.018f, -.018f, .018f);
         Matrix4f matrix = pose.last().pose();
-        var panel = buffers.getBuffer(RenderType.textBackground());
+        Matrix4f panelMatrix = new Matrix4f(matrix);
         int border = ((int)(alpha * 235) << 24) | 0x514536;
         int fill = ((int)(alpha * 245) << 24) | 0xfff8df;
-        quad(panel, matrix, -width/2f-6, top, width/2f+6, bottom, 0, border, light);
-        quad(panel, matrix, -width/2f-5, top+1, width/2f+5, bottom-1, .01f, fill, light);
-        // Tapered pointer uses stacked quads in the same depth-tested pipeline.
-        for (int i=0; i<4; i++) quad(panel, matrix, -4+i, bottom+i, 4-i, bottom+i+1, 0, border, light);
-        for (int i=0; i<3; i++) quad(panel, matrix, -3+i, bottom-1+i, 3-i, bottom+i, .01f, fill, light);
+        // A name tag is drawn twice: a faint see-through pass under the normal one, so a block in front or
+        // overhead leaves the ghost readable. The buffer source draws its one shared buffer in request order,
+        // so asking for the solid panel after the ghost text keeps the open view unchanged.
+        panel(buffers.getBuffer(RenderType.textBackgroundSeeThrough()), matrix, width, top, bottom,
+            fade(border), fade(fill), light);
         pose.translate(0, 0, .03);
         int textColor = ((int)(alpha * 255) << 24) | 0x30271d;
+        int ghostText = fade(textColor);
+        for (int i=0; i<count; i++) {
+            FormattedCharSequence line=layout.lines.get(i);
+            mc.font.drawInBatch(line, -layout.widths[i]/2f,
+                top+4+i*(mc.font.lineHeight+2), ghostText, false, pose.last().pose(), buffers, Font.DisplayMode.SEE_THROUGH, 0, light);
+        }
+        panel(buffers.getBuffer(RenderType.textBackground()), panelMatrix, width, top, bottom, border, fill, light);
         for (int i=0; i<count; i++) {
             FormattedCharSequence line=layout.lines.get(i);
             mc.font.drawInBatch(line, -layout.widths[i]/2f,
                 top+4+i*(mc.font.lineHeight+2), textColor, false, pose.last().pose(), buffers, Font.DisplayMode.NORMAL, 0, light);
         }
         pose.popPose();
+    }
+
+    /** The see-through pass keeps this share of the normal alpha, the faint ghost MomentEmote leaves under a roof. */
+    private static int fade(int argb) {
+        return (((argb >>> 24) * 64 / 255) << 24) | (argb & 0xFFFFFF);
+    }
+
+    /** Bubble panel and its tapered pointer, drawn the same way for both passes. */
+    private static void panel(VertexConsumer out, Matrix4f matrix, float width, float top, float bottom, int border, int fill, int light) {
+        quad(out, matrix, -width/2f-6, top, width/2f+6, bottom, 0, border, light);
+        quad(out, matrix, -width/2f-5, top+1, width/2f+5, bottom-1, .01f, fill, light);
+        for (int i=0; i<4; i++) quad(out, matrix, -4+i, bottom+i, 4-i, bottom+i+1, 0, border, light);
+        for (int i=0; i<3; i++) quad(out, matrix, -3+i, bottom-1+i, 3-i, bottom+i, .01f, fill, light);
     }
 
     private static Layout layout(Font font,YukkuriView entity){
