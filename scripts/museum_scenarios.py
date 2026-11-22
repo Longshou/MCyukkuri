@@ -4171,7 +4171,7 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
     '举球往后拉一秒，再把球贴着灵梦身侧慢慢滚过去。灵梦会追上去拨球，小孩挥手；球玩完后小孩把它捡回，再对魔理沙滚一次，魔理沙缩着身子躲开，小孩只看着或小幅挥手。'
     '两只的反应各看自己的胆量，重开可再看一遍。',
     '约 1 分钟', [
-        human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
+        human('child', 4, 3, 'park_child', 0, attitude=2, yaw=0, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
         # Both strays have a home: a vagrant without one keeps a habitat project running and never answers a child's offer.
         # The bold one beds under the picnic tree (its canopy is the cover), four blocks west of where it stands: a nest closer
@@ -4196,7 +4196,7 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
     '有点饿的灵梦等小孩退开后去吃苹果，胆大的朝小孩迎上去玩回去，被追时站定；魔理沙先看主人，贴到主人身边不理小孩。小孩的反应是挥手、耸肩或低头道歉。'
     '重开可看另一种逗法；同一只灵梦被追过一次后不再被追。',
     '约 1 分钟', [
-        human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
+        human('child', 4, 3, 'park_child', 0, attitude=2, yaw=0, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
         human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
         # A home under the picnic tree, or the stray keeps a habitat project running and never answers the tease. Kept four

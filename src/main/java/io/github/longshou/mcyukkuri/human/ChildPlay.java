@@ -159,7 +159,7 @@ public final class ChildPlay extends Goal {
         long now = level.getGameTime();
         cooldown.values().removeIf(until -> until <= now);
         var candidates = level.getEntitiesOfClass(YukkuriEntity.class, npc.getBoundingBox().inflate(SEE, 2, SEE), this::eligible).stream()
-                .filter(y -> cooldown.getOrDefault(y.getUUID(), 0L) <= now).sorted(Comparator.comparingDouble(npc::distanceToSqr)).toList();
+                .filter(y -> cooldown.getOrDefault(y.getUUID(), 0L) <= now && y.social().readyForChildOffer()).sorted(Comparator.comparingDouble(npc::distanceToSqr)).toList();
         for (var candidate : candidates) {
             var chosen = pick(candidate);
             if (chosen == null) continue;
@@ -280,6 +280,7 @@ public final class ChildPlay extends Goal {
         }
         if (playerNear()) return;   // the gesture pauses while someone is at the child's side
         if (++clock < TELEGRAPH) return;
+        if (!target.social().readyForChildOffer()) { finish("target_busy"); return; }   // busy with its own life: nothing to answer with, try again soon
         switch (gesture) {
             case BALL -> roll();
             case CRUMB -> placeCrumb();

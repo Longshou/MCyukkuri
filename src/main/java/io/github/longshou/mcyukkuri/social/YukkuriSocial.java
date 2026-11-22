@@ -164,6 +164,9 @@ public final class YukkuriSocial implements MotorOwner {
             case OWNER_RETURN -> Behaviors.SEEK_AFFECTION; case PEER -> Behaviors.PEER;
             case TOY -> Behaviors.TOY; case ACCESSORY -> Behaviors.ACCESSORY; case ANSWER -> Behaviors.PEER; case STUDY -> Behaviors.TEACH; }; }
     public boolean active() { return task != Task.NONE; }
+    /** Free to take in a child's gesture now: no task of its own, nothing else holding the social goal (the child reads this before it offers). */
+    public boolean readyForChildOffer() { return task == Task.NONE && entity.childhood().canLearn() && availableForSocial(); }
+
     public boolean humanContact() { return task == Task.PLAYER || task == Task.OWNER_RETURN; }
     public boolean contactWith(Entity person) { return humanContact() && target == person && !retreat; }
     /** The actual completed contact in the current social goal, without probing eligibility. */
