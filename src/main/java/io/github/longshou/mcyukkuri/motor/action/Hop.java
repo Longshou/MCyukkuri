@@ -803,7 +803,7 @@ public final class Hop implements Action {
                           float startYaw, float bearing, BrimClearance brim) {
         AABB base = body.getBoundingBox();
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
-        double lip = anchor == null ? takeoffLip(body, base, from) : 0;
+        double startY = previous.y, lip = takeoffLip(body, base, previous);
         boolean lipSpent = false;
         // a host stand may sit a hair into the bank block beside it: the fall onto it is held up by that lip (see TakeoffLip.lifted)
         double landing = 0, endY = 0;
@@ -834,11 +834,11 @@ public final class Hop implements Action {
             double startLip = lipSpent ? 0 : lip;
             boolean falling = at.y < previous.y;
             AABB startBox = base.move(previous.subtract(body.position())).move(0,
-                    TakeoffLip.lifted(startLip, previous.y - from.y, landing, previous.y - endY, falling), 0);
+                    TakeoffLip.lifted(startLip, previous.y - startY, landing, previous.y - endY, falling), 0);
             AABB cornerBox = base.move(corner.subtract(body.position())).move(0,
-                    TakeoffLip.lifted(startLip, corner.y - from.y, landing, corner.y - endY, falling), 0);
+                    TakeoffLip.lifted(startLip, corner.y - startY, landing, corner.y - endY, falling), 0);
             AABB atBox = base.move(at.subtract(body.position())).move(0,
-                    TakeoffLip.lifted(startLip, at.y - from.y, landing, at.y - endY, falling), 0);
+                    TakeoffLip.lifted(startLip, at.y - startY, landing, at.y - endY, falling), 0);
             var first = startBox.minmax(cornerBox);
             var second = cornerBox.minmax(atBox);
             if (brim != null && !brim.clear(corner, at, first, second)) {
@@ -869,7 +869,7 @@ public final class Hop implements Action {
                 }
             }
             // a descent never takes the lip back
-            if (lip > 0 && at.y - from.y >= lip && at.y >= previous.y) lipSpent = true;
+            if (lip > 0 && at.y - startY >= lip && at.y >= previous.y) lipSpent = true;
             previous = at;
         }
         return true;
