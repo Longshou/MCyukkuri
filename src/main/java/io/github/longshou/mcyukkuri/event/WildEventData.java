@@ -33,7 +33,7 @@ import java.util.function.BooleanSupplier;
 
 /** Event progress only. Ancestry, food and ownership remain in their existing authorities. */
 public final class WildEventData extends SavedData {
-    public enum Kind { CONCERT, ADOPTION, ABANDONMENT, EXPEDITION, CARD, BADGE_ARC }
+    public enum Kind { ADOPTION, ABANDONMENT, EXPEDITION, CARD, BADGE_ARC }
     public enum Phase { APPROACH, WAITING, RESPONDING, SEPARATED, COMPLETE, INTERRUPTED, REFUSED }
     public static final class Scene {
         public final UUID id;
@@ -44,7 +44,6 @@ public final class WildEventData extends SavedData {
         public final Set<UUID> fed = new HashSet<>();
         public UUID player, target;
         public GlobalPos destination;
-        public transient Object concertToken;
         public transient BegBite begging;
         public final EventWatchdog.State supervision = new EventWatchdog.State();
         public Phase phase = Phase.APPROACH;
@@ -77,7 +76,7 @@ public final class WildEventData extends SavedData {
         }
         return null;
     }
-    public Scene controlling(UUID id) { return forMember(id,scene -> scene.kind!=Kind.CONCERT); }
+    public Scene controlling(UUID id) { return forMember(id); }
     public List<Scene> scenes() { return List.copyOf(scenes.values()); }
     public boolean membersFree(List<UUID> members) { return EventReservations.free(server,members); }
     public boolean opportunitySlot(UUID member) {

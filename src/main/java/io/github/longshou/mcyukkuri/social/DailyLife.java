@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.social.PairContact.Pose;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -126,11 +127,6 @@ public final class DailyLife {
         Entity peer = session.leader == entity ? session.companion : session.leader;
         return peer == null ? -1 : peer.getId();
     }
-    public YukkuriEntity songListener() {
-        return active() && session.leader == entity && session.kind == Kind.SING && session.companion instanceof YukkuriEntity peer ? peer : null;
-    }
-    /** Ephemeral identity only; events must not serialize or recreate a daily session from it. */
-    public Object songSessionToken() { return active() && session.leader == entity && session.kind == Kind.SING ? session : null; }
     public String activity() {
         if (!active()) return Behaviors.IDLE;
         return switch (session.kind) {
@@ -229,12 +225,6 @@ public final class DailyLife {
         return true;
     }
     public boolean begin(Kind kind) { return kind != Kind.NUZZLE && begin(kind, null); }
-    public boolean singTo(YukkuriEntity listener) {
-        return listener != entity && listener.level() == entity.level() && available(listener)
-                && !listener.dailyLife().active() && listener.dailyLife().cooldown == 0
-                && entity.distanceToSqr(listener) <= 36 && entity.hasLineOfSight(listener) && closePeer(listener)
-                && begin(Kind.SING, listener);
-    }
     private boolean begin(Kind kind, Entity companion) { return begin(kind, companion, false); }
     private static boolean permitsPerformance(YukkuriEntity leader, Entity companion, Kind kind) {
         boolean optional = kind == Kind.SING || kind == Kind.EXERCISE && !leader.life().constipated();
@@ -623,6 +613,12 @@ public final class DailyLife {
             entity.pet().conscience().witnessedSong();
         if (current.kind == Kind.SING && current.contact % 20 == 1)
             level().sendParticles(ParticleTypes.NOTE, entity.getX(), entity.getEyeY()+.2, entity.getZ(), 1, .15, .05, .15, 0);
+        // The audience answers the singer by how well it knows it: a happy face if acquainted, a neutral one if not.
+        if (current.kind == Kind.SING && current.contact % 40 == 1 && current.companion instanceof YukkuriEntity listener) {
+            boolean known = YukkuriWorldData.get(level()).affinity(listener.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED;
+            listener.showReaction(known ? "happy" : "neutral", "known_peer", 35);
+            level().sendParticles(ParticleTypes.NOTE, listener.getX(), listener.getEyeY() + .1, listener.getZ(), 1, .05, .05, .05, 0);
+        }
         int duration = current.kind == Kind.NUZZLE ? 60 : current.kind == Kind.SING ? 160 : 280;
         if (peerNuzzle ? !current.pair.complete() : current.contact < duration) return;
         complete(current.leader, current.kind);

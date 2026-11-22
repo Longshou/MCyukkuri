@@ -8,6 +8,7 @@ import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.social.Kindness.ShelterReply;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -2020,7 +2021,7 @@ public final class YukkuriLife {
                         entity.pet().lessons().performed(Ability.FOOD_GUARD, false);
                     }
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
-                        for (var rival : rivals) WildCards.competing(entity, rival);
+                        for (var rival : rivals) YukkuriSocial.quarrelled(entity, rival);
                         entity.showReaction("angry", "mine", 80);
                         personality.decided("claim_food");
                         for(var rival:rivals)rival.mind().add(3, "food_competition");

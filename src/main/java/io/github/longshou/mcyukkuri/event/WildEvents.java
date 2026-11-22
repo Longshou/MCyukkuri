@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.BiomeTags;
@@ -42,14 +41,12 @@ public final class WildEvents {
     public static boolean reserved(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return false;
         Scene s=WildEventData.get(level).controlling(e.getUUID());
-        // The existing DailyLife session owns the singer and listener during the concert.
-        return s!=null && s.active() && s.kind!=Kind.CONCERT;
+        return s!=null && s.active();
     }
     public static String activity(YukkuriEntity e) {
         if (!(e.level() instanceof ServerLevel level)) return Behaviors.IDLE;
         var data=WildEventData.get(level);
         Scene s=data.controlling(e.getUUID());
-        if(s==null)s=data.forMember(e.getUUID()); // A lone concert still has its existing display label.
         if(s==null || !s.active())return Behaviors.IDLE;
         return s.kind==Kind.CARD ? Behaviors.event(s.card.replace('-','_'))
                 : s.kind==Kind.BADGE_ARC ? Behaviors.eventBadge(s.card)
@@ -83,7 +80,7 @@ public final class WildEvents {
                 var arc = Arc.byId(card);
                 yield arc != null && arc.optionalPerformance();
             }
-            case CONCERT, EXPEDITION -> true;
+            case EXPEDITION -> true;
             default -> false;
         };
     }
@@ -153,26 +150,18 @@ public final class WildEvents {
                     && all.stream().allMatch(e -> e.life().nutrition()>=40)
                     && first.life().personality().trust(player.getUUID())>0 && first.life().personality().fear(player.getUUID())<BondLevels.AFFECTION_FEAR_LIMIT
                     && !first.life().hasUrgentNeed() && first.life().dryStand(first.blockPosition());
-            case CONCERT -> all.size()==2 && forest(first) && friendly(first,others.getFirst())
-                    && first.life().nutrition()>=40 && first.life().energy()>=35 && level.isDay();
             default -> false;
         };
         if(!valid)return null;
         var data=WildEventData.get(level);var origin=GlobalPos.of(level.dimension(),first.blockPosition());
         List<UUID> ids=all.stream().map(Entity::getUUID).toList();
         if(!data.canStart(origin,ids,level.getGameTime()))return null;
-        // Reserve admission before starting the real song; a failed song publishes no scene.
-        Scene scene=data.start(kind,kind==Kind.CONCERT?"concert-response":kind.name().toLowerCase(Locale.ROOT),
-                origin,ids,player==null?null:player.getUUID(),level.getGameTime(),
-                () -> kind!=Kind.CONCERT || first.dailyLife().singTo(others.getFirst()));
-        if(scene!=null){scene.sourceCount=first.dailyLife().songs();if(kind==Kind.CONCERT)scene.concertToken=first.dailyLife().songSessionToken();for(var e
-                :all){e.setPersistenceRequired();if(kind!=Kind.CONCERT)e.social().stop();}}
+        Scene scene=data.start(kind,kind.name().toLowerCase(Locale.ROOT),origin,ids,player==null?null:player.getUUID(),level.getGameTime());
+        if(scene!=null)for(var e:all){e.setPersistenceRequired();e.social().stop();}
         return scene;
     }
     public static void discover(EntityTickEvent.Post event) {
         if(!(event.getEntity() instanceof YukkuriEntity e)||!(e.level() instanceof ServerLevel level))return;
-        // Observe the single existing leisure scheduler; do not add another random song trigger.
-        if(e.tickCount%10==0 && e.dailyLife().songListener()!=null)attachConcert(e,e.dailyLife().songListener());
         if(Math.floorMod(e.tickCount+e.getId(),100)!=0)return;
         if(HomeClaim.discover(e))return;
         if(!available(e))return;
@@ -187,14 +176,6 @@ public final class WildEvents {
         if(GroupCards.discover(e,peers))return;
         if(Expedition.discover(e,peers)!=null)return;
         WildCards.discover(e,peers);
-    }
-    private static void attachConcert(YukkuriEntity singer,YukkuriEntity listener) {
-        var level=(ServerLevel)singer.level();
-        if(!safe(singer)||!safe(listener)||!singer.hasLineOfSight(listener)||singer.distanceToSqr(listener)>36
-                ||!forest(singer)&&!TownAware.inTown(level, singer.blockPosition()))return;
-        var data=WildEventData.get(level);var s=data.start(Kind.CONCERT,forest(singer)?"concert-response":"street-performance",
-                GlobalPos.of(level.dimension(),singer.blockPosition()),List.of(singer.getUUID(),listener.getUUID()),null,level.getGameTime());
-        if(s!=null){s.sourceCount=singer.dailyLife().songs();s.concertToken=singer.dailyLife().songSessionToken();singer.setPersistenceRequired();listener.setPersistenceRequired();}
     }
     public static void tick(ServerTickEvent.Post event) {
         var data=WildEventData.get(event.getServer().overworld());
@@ -254,18 +235,6 @@ public final class WildEvents {
         }
         if(s.kind==Kind.EXPEDITION){Expedition.advance(level,s,loaded);return;}
         if(s.kind==Kind.CARD){WildCards.advance(level,s,loaded);return;}
-        if(s.kind==Kind.CONCERT) {
-            Object token=loaded.getFirst().dailyLife().songSessionToken();
-            if(s.concertToken==null||token!=null&&token!=s.concertToken){finish(level,s,Phase.INTERRUPTED,"original_song_session_lost");return;}
-            boolean singing=token==s.concertToken;
-            if(singing && s.phaseTicks%40==1) {
-                var audience=loaded.get(1);audience.showReaction("happy","known_peer",35);
-                level.sendParticles(ParticleTypes.NOTE,audience.getX(),audience.getEyeY()+.1,audience.getZ(),1,.05,.05,.05,0);s.responses++;
-            }
-            if(!singing){boolean done=loaded.getFirst().dailyLife().songs()>s.sourceCount;
-                finish(level,s,done?Phase.COMPLETE:Phase.INTERRUPTED,done?"song_and_audience_finished":"song_interrupted");}
-            return;
-        }
         if(s.kind==Kind.ABANDONMENT) {
             var e=loaded.getFirst();boolean attached=e.life().personality().trust(s.player)>=BondLevels.TRUST_FAMILIAR;
             if(s.phaseTicks==1)e.showReaction(attached?"surprise":"happy",attached?"search_family":"hello",70);
@@ -320,7 +289,6 @@ public final class WildEvents {
         boolean arc=s.kind==Kind.BADGE_ARC;
         if(arc && level!=null)BadgeArcs.settle(level,s,phase,result);
         s.begging = null;
-        s.concertToken=null;
         data.finish(s,phase,result,level==null?s.supervision.originTime():level.getGameTime(),cooldown);
         if(level!=null)for(UUID id:s.members)if(level.getEntity(id) instanceof YukkuriEntity e)e.getNavigation().stop();
     }

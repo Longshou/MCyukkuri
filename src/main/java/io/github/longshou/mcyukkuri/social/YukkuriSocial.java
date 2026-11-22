@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.event.WildCards;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.headwear.Contempt;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
@@ -28,6 +27,7 @@ import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.pet.PetStudy;
@@ -125,9 +125,37 @@ public final class YukkuriSocial implements MotorOwner {
     private boolean wasSleeping, morningPending;
     private long morningDay = -1, answerUntil;
     private String greetWhy, answerWhy;
+    /** The last real quarrel (runtime only): the peer and its expiry. A reload forgets it, like the rest of the greeting memory. */
+    private static final int QUARREL_MEMORY = 2400;
+    private UUID quarrelPeer;
+    private long quarrelUntil;
     private boolean answerScorn;
     private int answerDelay;
     public YukkuriSocial(YukkuriEntity entity) { this.entity = entity; }
+    /** A real quarrel (food claim, a bout that ended badly, a peer driven off a home) leaves both bodies a record of each other. */
+    public static void quarrelled(YukkuriEntity a, YukkuriEntity b) {
+        a.social().rememberQuarrel(b);
+        b.social().rememberQuarrel(a);
+    }
+    private void rememberQuarrel(YukkuriEntity peer) {
+        quarrelPeer = peer.getUUID();
+        quarrelUntil = entity.level().getGameTime() + QUARREL_MEMORY;
+        GameplayLog.event(entity, "social", "quarrel recorded peer={} until={}", peer.getUUID(), quarrelUntil);
+    }
+    /** The warm one makes up: a recognised, reachable, not-feared peer of a live quarrel, still above the hostile line. */
+    private YukkuriEntity quarrelToMend() {
+        if (quarrelPeer == null) return null;
+        if (quarrelUntil <= entity.level().getGameTime()) { quarrelPeer = null; return null; }
+        if (!personality().temperament().is(Gate.WARM)) return null;
+        var relations = YukkuriWorldData.get((ServerLevel) entity.level());
+        return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer.getUUID().equals(quarrelPeer)
+                && peer.isAlive() && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
+                && !peer.dailyLife().active() && !peer.social().active() && !WildEvents.reserved(peer)
+                && contactReady(peer) && WildEvents.recognizes(entity, peer) && entity.hasLineOfSight(peer)
+                && relations.affinity(entity.getUUID(), peer.getUUID()) > BondLevels.AFFINITY_RECONCILABLE
+                && SocialDisposition.wariness(entity, relations.relation(entity.getUUID(), peer.getUUID())) < .5
+                && !SettlementSociety.avoids(entity, peer)).stream().findFirst().orElse(null);
+    }
     private YukkuriPersonality personality() { return entity.life().personality(); }
     public String activity() { return switch(task) { case NONE -> Behaviors.NONE; case PLAYER, TOOL -> Behaviors.PLAYER;
             case OWNER_RETURN -> Behaviors.SEEK_AFFECTION; case PEER -> Behaviors.PEER;
@@ -194,7 +222,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         entity.getLookControl().setLookAt(player, 30, 30);
         entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
-        WildCards.talked(entity,player.getUUID(),gentle);
+        quarrelPeer = null;
         entity.pet().contact(player.getUUID(), gentle);
         return true;
     }
@@ -260,6 +288,17 @@ public final class YukkuriSocial implements MotorOwner {
             target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
+        }
+        if (quarrelPeer != null && entity.getRandom().nextFloat() < personality().companionshipProbability()) {
+            target = quarrelToMend();
+            // One attempt per real quarrel: asked or not, the record is spent, so a refusal cannot repeat.
+            if (target != null) {
+                quarrelPeer = null;
+                GameplayLog.event(entity, "social", "reconcile approach peer={} affinity={}", target.getUUID(),
+                        YukkuriWorldData.get((ServerLevel) level).affinity(entity.getUUID(), target.getUUID()));
+                approachPeer("reconcile");
+                return true;
+            }
         }
         if (entity.getRandom().nextFloat() < personality().companionshipProbability()) {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
@@ -603,7 +642,8 @@ public final class YukkuriSocial implements MotorOwner {
                     YukkuriWorldData relations = YukkuriWorldData.get((ServerLevel)entity.level());
                     var bond = relations.relation(entity.getUUID(), peer.getUUID());
                     double wariness = SocialDisposition.wariness(entity, bond);
-                    if (wariness >= .5 || bond.closeness() < BondLevels.AFFINITY_NEUTRAL) {
+                    boolean reconcile = "reconcile".equals(greetWhy);
+                    if (wariness >= .5 || !reconcile && bond.closeness() < BondLevels.AFFINITY_NEUTRAL) {
                         var p = personality();
                         boolean defiant = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(entity), wariness, bond) >= .2;
                         entity.mind().felt(EmotionEvent.REJECTED);
@@ -612,6 +652,22 @@ public final class YukkuriSocial implements MotorOwner {
                     }
                     String why = greetReason(peer, relations);
                     if (why != null && Recognition.unrecognizedHatless(peer, entity)) peer.social().receiveGreeting(entity, true, why);
+                    else if (why != null && reconcile) {
+                        startGreeting(peer, why);
+                        // The other answers only if it does not dislike this one; otherwise it keeps its distance.
+                        boolean accepted = relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_DISLIKED;
+                        GameplayLog.event(entity, "social", "reconcile answered peer={} accepted={} peerAffinity={}", peer.getUUID(),
+                                accepted, relations.affinity(peer.getUUID(), entity.getUUID()));
+                        if (accepted) {
+                            peer.social().receiveGreeting(entity, false, why);
+                            relations.relate(entity.getUUID(), peer.getUUID(), 2);
+                            relations.relate(peer.getUUID(), entity.getUUID(), 1);
+                            peer.social().quarrelPeer = null;
+                        } else {
+                            peer.getLookControl().setLookAt(entity, 30, 30);
+                            peer.showReaction("neutral", "", 60);
+                        }
+                    }
                     else if (why != null) {
                         startGreeting(peer, why);
                         peer.social().receiveGreeting(entity, false, why);
@@ -874,6 +930,7 @@ public final class YukkuriSocial implements MotorOwner {
     private String greetingDue(YukkuriEntity peer, YukkuriWorldData relations) {
         long now = entity.level().getGameTime();
         Long last = lastContact.get(peer.getUUID());
+        if ("reconcile".equals(greetWhy)) return "reunion";
         if ("morning".equals(greetWhy)) return last == null || last / 24000L != now / 24000L ? greetWhy : null;
         // Family is never a stranger: kin met with no contact remembered greet as a reunion.
         if (last == null) return Bonds.careKin(entity, peer) || relations.affinity(entity.getUUID(), peer.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED

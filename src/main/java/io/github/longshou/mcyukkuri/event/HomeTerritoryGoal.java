@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.settlement.DenBarrier;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
+import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
@@ -269,6 +270,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
             }
             if (body.distanceToSqr(peer) < 2.25 && courage > resolve(peer, body)) {
                 peer.fleeFrom(body);
+                YukkuriSocial.quarrelled(body, peer);
                 elapsed = VISIT;
             }
         }

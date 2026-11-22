@@ -1704,6 +1704,32 @@ add('company_visit', 'meadow', '累了的朋友招来陪伴，陌生的不来', 
     reads=[('读累了的灵梦', f'yukkuri status {sel("weak")} raw'), ('读魔理沙', f'yukkuri status {sel("friend")} raw'),
            ('读陌生的橙', f'yukkuri status {sel("stranger")} raw')])
 
+# North: a hungry, patient-less Reimu claims the apple at once beside a sated friend, a real food claim that leaves both a quarrel record;
+# both are warm, so one walks up to make up and the other answers. South: the same claim between two who hold each other in hostility
+# (affinity -60 both ways): the record exists but neither is above the hostile line, so neither approaches.
+_QUARREL = {name: uid('quarrel_makeup', name) for name in ('claimer', 'rival', 'foe_claimer', 'foe_rival')}
+add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌对的不来', '抢食吵架后和好',
+    '北边饿着的灵梦（自制极低、友善）一见脚边的苹果就护食抢下，旁边吃饱的灵梦（友善）被抢，双方各记下这次吵架。吃完后它们闲下来，温和的一方会走过去问候，'
+    '另一方好感不低于 -10，回应问候，双方好感回升；若对方不领情则只转头看着、保持距离。每次吵架至多试一次。'
+    '南边同样的抢食发生在互相敌对（好感 -60）的两只之间：有吵架记录，但谁也不会走近。约 2 分钟内发生；一次没看到可在 M 菜单重开',
+    '约 1–2 分钟', [
+        yk('reimu', -3, -6, 'claimer', uuid=_QUARREL['claimer'], label='饿·自制极低·友善', nutrition=30, self_control=5, friendliness=85,
+           attachment=70, social_wait=0, yaw=-90, lead=True),
+        item('minecraft:apple', 1, -1, -6, name='apple_north'),
+        yk('reimu', 0, -6, 'rival', uuid=_QUARREL['rival'], label='吃饱·友善', nutrition=95, friendliness=85, attachment=70,
+           social_wait=0, yaw=90),
+        f'yukkuri scenario bond {sel("claimer")} {sel("rival")}',
+        yk('reimu', -3, 6, 'foe_claimer', uuid=_QUARREL['foe_claimer'], label='敌对·饿', nutrition=30, self_control=5, friendliness=85,
+           attachment=70, social_wait=0, yaw=-90),
+        item('minecraft:apple', 1, -1, 6, name='apple_south'),
+        yk('reimu', 0, 6, 'foe_rival', uuid=_QUARREL['foe_rival'], label='敌对·吃饱', nutrition=95, friendliness=85, attachment=70,
+           social_wait=0, yaw=90),
+        f'yukkuri status relate {sel("foe_claimer")} {sel("foe_rival")} -60',
+        f'yukkuri status relate {sel("foe_rival")} {sel("foe_claimer")} -60',
+    ], env=DAY, vantage=(0, 16), note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读北边饿的', f'yukkuri status {sel("claimer")} raw'), ('读北边吃饱的', f'yukkuri status {sel("rival")} raw'),
+           ('读南边饿的', f'yukkuri status {sel("foe_claimer")} raw'), ('读南边吃饱的', f'yukkuri status {sel("foe_rival")} raw')])
+
 # Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
 # child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
 _content_ids = {name: uid('meal_content', name) for name in ('adult', 'child', 'composed')}
@@ -7583,7 +7609,7 @@ TOPICS = {
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
@@ -8334,6 +8360,17 @@ _smoke('nuzzle_shapes', 2400, [
     (rf'\[daily\][^\n]*(?:uuid={_step_low} [^\n]*peer rub started partner={_step_high}'
      rf'|uuid={_step_high} [^\n]*peer rub started partner={_step_low}) mode=LEVEL\b'),
 ])
+_smoke('marisa_sumo', 1800, [r'\[social\][^\n]* sumo completed winner='])
+# The north claim leaves both a quarrel record and one of them walks up to make up and is answered; the hostile south pair has its
+# record too but neither approaches.
+_qn = [_uuid_text('quarrel_makeup', n) for n in ('claimer', 'rival')]
+_qs = [_uuid_text('quarrel_makeup', n) for n in ('foe_claimer', 'foe_rival')]
+_smoke('quarrel_makeup', 2400, [
+    rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*quarrel recorded peer=(?:{_qn[0]}|{_qn[1]})\b',
+    rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*reconcile approach peer=(?:{_qn[0]}|{_qn[1]}) affinity=',
+    rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*reconcile answered peer=(?:{_qn[0]}|{_qn[1]}) accepted=true\b',
+    rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*quarrel recorded peer=(?:{_qs[0]}|{_qs[1]})\b',
+], forbid=[rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*reconcile (?:approach|answered)\b'])
 # Marisa keeps the tired Reimu company; the unknown timid Chen gives none.
 _company_friend = _uuid_text('company_visit', 'friend')
 _smoke('company_visit', 900, [

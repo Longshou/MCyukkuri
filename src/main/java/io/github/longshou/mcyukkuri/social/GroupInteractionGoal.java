@@ -172,6 +172,7 @@ public final class GroupInteractionGoal extends Goal {
             if (hit) peer.life().personality().bulliedBy(entity.life().personality());
             GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
             boolean stole = entity.treasure().snatchFrom(peer);
+            if (hit || stole) YukkuriSocial.quarrelled(entity, peer);
             if(stole) {
                 entity.species().narrate("steal");
                 if (!hit) peer.respondToBullying(entity);
@@ -207,7 +208,8 @@ public final class GroupInteractionGoal extends Goal {
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
             entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
             peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
-            if(YukkuriConfig.SUMO_DAMAGE.get())loser.hurtInBout(level().damageSources().mobAttack(winner),1);
+            // A bout that really hurt the loser ends in a quarrel; a clean one is the friendly game it started as.
+            if(YukkuriConfig.SUMO_DAMAGE.get()&&loser.hurtInBout(level().damageSources().mobAttack(winner),1))YukkuriSocial.quarrelled(winner,loser);
             GameplayLog.event(entity, "social", "sumo completed winner={} loser={} winnerHealth={} loserHealth={} contact={}",
                     winner.getUUID(), loser.getUUID(), winner.getHealth(), loser.getHealth(), current.contactTicks);
         }
