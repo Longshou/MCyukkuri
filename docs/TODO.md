@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 朋友累了或中暑时，友善的同伴过来陪伴（WildCards 第 2 步之 2） | `.worktrees/wp-wc-company` | social/Kindness, entity/RoamingGoal, event/WildCards, scripts/museum_scenarios.py new scene |
 | PD-13 抱幼上帽船：统一上船判断，够不到就先去取船 | `.worktrees/wp-pd13-board` | aquatic/Ferry, aquatic/AquaticGoal, aquatic/Ashore |
 
 
