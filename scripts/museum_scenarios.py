@@ -1247,6 +1247,7 @@ def _two_bed_burrow(stock):
 # a real bandit group, the raider (nutrition 30 < 45) walks to the door and eats from the store bite by bite, the mate (50, below the
 # gang line 55) follows the same den while the raider is at it, and the fed control (95) does not move on the den at all.
 _RAID = {name: uid('den_raid', name) for name in ('raider', 'mate', 'fed', 'host', 'guest')}
+_RAID_MOTHER = uid('den_raid', 'mother')
 _RAID_TXT = {name: _uuid_text('den_raid', name) for name in _RAID}
 add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱的不动', '饿了的匪帮抢存粮的洞',
     '洞里有两只吃饱的住户和一堆草存粮；南边空地上三只匪帮：最西的灵梦营养 30（低于 45）且不挑食、旁边的魔理沙营养 50（低于 55、高于 45）、'
@@ -1257,8 +1258,10 @@ add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱�
     '约 30–90 秒', [
         *_two_bed_burrow(16),
         box(-8, 0, 3, 8, 0, 14, 'minecraft:air', 'replace minecraft:short_grass'),
-        yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
-        yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180),
+        yk('reimu', -1, -3, 'host', uuid=_RAID['host'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180,
+           kin=kin_of(Mother=_RAID_MOTHER)),
+        yk('marisa', 1, -3, 'guest', uuid=_RAID['guest'], label='住户', nutrition=100, energy=100, friendliness=70, social_wait=0, yaw=180,
+           kin=kin_of(Mother=_RAID_MOTHER)),
         yk('reimu', -2, 8, 'raider', uuid=_RAID['raider'], label='匪帮·饿极30', nutrition=90, energy=100, boldness=70, picky=20, social_wait=0,
            yaw=0, lead=True, also=('band',)),
         yk('marisa', 0, 9, 'mate', uuid=_RAID['mate'], label='匪帮·营养50', nutrition=90, energy=100, boldness=60, social_wait=0,
@@ -1267,22 +1270,25 @@ add('den_raid', 'den', '饿了的匪帮走到有存粮的洞口抢粮，吃饱�
            yaw=0, also=('band',)),
         home('host', 0, -1), home('guest', 0, -1),
         f'yukkuri scenario community {sel("raider")} {sel_all("band")} bandits',
-    ], late=[Retry(set_status('raider', 'needs.nutrition', 30), sel('raider'), tries=1, first=400),
+    ], late=[Retry(f'tp {sel("raider")} ~-1.5 ~ ~8.5', sel('raider'), tries=1, first=399),
+             Retry(set_status('raider', 'needs.nutrition', 30), sel('raider'), tries=1, first=400),
              Retry(set_status('mate', 'needs.nutrition', 50), sel('mate'), tries=1, first=400)],
     env=DAY, spot='family', vantage=(0, 14),
-    note='待验证：新场景，尚未在游戏里实测。存粮是预置的真实草堆，洞会在开场后收养它；饿是约 20 秒后才写入的初态。',
+    note='待验证：新场景，尚未在游戏里实测。存粮是预置的真实草堆，洞会在开场后收养它；饿是约 20 秒后才写入的初态，同时把逛走的匪帮灵梦放回南边原位（看得见洞口的地方）。',
     reads=[('读洞与存粮', 'data get block ~ ~ ~-1'), ('读饿的灵梦', f'yukkuri status {sel("raider")} raw'),
            ('读营养 50 的魔理沙', f'yukkuri status {sel("mate")} raw'), ('读吃饱的魔理沙', f'yukkuri status {sel("fed")} raw')],
     smoke=dict(ticks=2400, expect=[rf'\[settlement\][^\n]* uuid={_RAID_TXT["raider"]} [^\n]*den raid approach den=',
                                    rf'\[settlement\][^\n]* uuid={_RAID_TXT["raider"]} [^\n]*den raid bite den='],
                forbid=[rf'\[settlement\][^\n]* uuid={_RAID_TXT["fed"]} [^\n]*den raid', r'\[body\][^\n]* invariant\b']))
 
-# A selfish, tired owner and its mate fill a two-bed burrow. The owner (friendliness 5, self control 10: top selfish gate; energy 45 < 50)
-# keeps its mate out of the burrow for 600-900 ticks (600 + 3 * (100 - friendliness) = 885) or until it has slept and woken. The owner
+# A selfish, tired owner and its sister fill a two-bed burrow. The owner (friendliness 5, self control 10: top selfish gate; energy 45 < 50)
+# keeps its sister out of the burrow for 600-900 ticks (600 + 3 * (100 - friendliness) = 885) or until it has slept and woken. The owner
 # itself is not part of the scene: it uses its own bed as usual. No dice: the scene is there as soon as the two are in the burrow.
+# Sisters by a shared mother: the card bars only kin (Bonds.careKin), a partner's kin roster is empty.
 _MONO = {name: uid('den_monopoly', name) for name in ('owner', 'mate')}
-add('den_monopoly', 'den', '自私又累的油占着窝，不让伴侣用', '自私又累的油占窝',
-    '两张床的洞里住着一对：灵梦自私（友善 5、自制 10）、精力 38 低于 50，魔理沙是它的伴侣、友善。两张床都被占，窝挤，'
+_MONO_MOTHER = uid('den_monopoly', 'mother')
+add('den_monopoly', 'den', '自私又累的油占着窝，不让姐妹用', '自私又累的油占窝',
+    '两张床的洞里住着一对姐妹：灵梦自私（友善 5、自制 10）、精力 38 低于 50，魔理沙是它的姐妹、友善。两张床都被占，窝挤，'
     '两只都累得不够去加挖（精力低于 40），所以谁也不会把家搬走；'
     '灵梦开场后不久（每 5 秒查一次）就占着窝：魔理沙被挡在外面，走到洞口外两格站着等并摆出“等轮到我”的哭脸，'
     '灵梦照常用自己的床，头顶显示“我的”；这期间魔理沙对灵梦的好感缓慢下降。'
@@ -1291,13 +1297,13 @@ add('den_monopoly', 'den', '自私又累的油占着窝，不让伴侣用', '自
     '约 15–60 秒', [
         *_two_bed_burrow(0),
         yk('reimu', -1, -3, 'owner', uuid=_MONO['owner'], label='自私·累 精力38', nutrition=100, energy=38, friendliness=5, self_control=10,
-           social_wait=0, yaw=180, lead=True, kin=kin_of(Partner=_MONO['mate'])),
-        yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='伴侣·友善', nutrition=100, energy=36, friendliness=80, social_wait=0,
-           yaw=180, kin=kin_of(Partner=_MONO['owner'])),
+           social_wait=0, yaw=180, lead=True, kin=kin_of(Mother=_MONO_MOTHER)),
+        yk('marisa', 1, -3, 'mate', uuid=_MONO['mate'], label='姐妹·友善', nutrition=100, energy=36, friendliness=80, social_wait=0,
+           yaw=180, kin=kin_of(Mother=_MONO_MOTHER)),
         home('owner', 0, -1), home('mate', 0, -1),
     ], env=DAY, spot='family', vantage=(0, 10),
     note='待验证：新场景，尚未在游戏里实测。',
-    reads=[('读自私的灵梦', f'yukkuri status {sel("owner")} raw'), ('读伴侣', f'yukkuri status {sel("mate")} raw')],
+    reads=[('读自私的灵梦', f'yukkuri status {sel("owner")} raw'), ('读姐妹', f'yukkuri status {sel("mate")} raw')],
     smoke=dict(ticks=1400, expect=[r'\[wild-event\][^\n]*event=started[^\n]*card=nest-monopoly',
                                    r'\[wild-event\][^\n]*event=ended[^\n]*card=nest-monopoly'],
                forbid=[r'\[body\][^\n]* invariant\b']))
@@ -1822,7 +1828,9 @@ add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看�
         item('minecraft:apple', 2, 0, 0, name='strange_apple'),
         street_stray('stray_strange_food', 'reimu', -1, 0, 'timid', nutrition=40, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
         street_stray('stray_strange_food', 'marisa', 1, 0, 'bold', nutrition=40, boldness=95, intelligence=95, label='胆大·聪明'),
-        street_stray('stray_strange_food', 'reimu', 0, 1, 'starving', nutrition=10, boldness=50, intelligence=50, label='饿极·营养10'),
+        # It starts on the apple's own south contact stand (z 0.326): a body's box is wider than the stand offsets, so one that
+        # walks in later is shoved out of contact by the other two and wanders off to graze.
+        street_stray('stray_strange_food', 'reimu', 0, 0.326, 'starving', nutrition=10, boldness=50, intelligence=50, label='饿极·营养10'),
     ], env=DAY, spot='street', vantage=(0, 12),
     reads=[('读胆小的', f'yukkuri status {sel("timid")} raw'), ('读胆大的', f'yukkuri status {sel("bold")} raw'),
            ('读饿极的', f'yukkuri status {sel("starving")} raw')],
@@ -4154,11 +4162,16 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
     '约 1 分钟', [
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
+        # Both strays have a home: a vagrant without one keeps a habitat project running and never answers a child's offer.
+        # The bold one beds under the picnic tree (its canopy is the cover); the timid one gets a shed of its own.
+        block(0, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), *shed(11, -5, half=1),
         # Not bored at the start: a leisure song would hold the social goal and the ball would go unanswered. It still plays:
         # the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_ball, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
                      extra='YukkuriDailyLife:{Boredom:0}'),
-        street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0),
+        street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0,
+                     extra='YukkuriDailyLife:{Boredom:0}'),
+        home('child_bold', 0, -5), home('child_timid', 11, -5),
     ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
            ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
@@ -4173,6 +4186,8 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
         human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
         human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
+        # A home under the picnic tree, or the stray keeps a habitat project running and never answers the tease.
+        block(0, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), home('child_bold', 0, -5),
         # Not bored: a leisure song would hold the social goal and the tease would go unanswered (as in park_child_ball).
         # It still answers playfully: the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
         street_trial(_child_more, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, nutrition=45, yaw=0, lead=True,
@@ -8657,7 +8672,7 @@ _smoke('quarrel_makeup', 2400, [
     rf'\[social\][^\n]*uuid=(?:{_qn[0]}|{_qn[1]}) [^\n]*reconcile answered peer=(?:{_qn[0]}|{_qn[1]}) accepted=true\b',
     rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*quarrel recorded peer=(?:{_qs[0]}|{_qs[1]})\b',
 ], forbid=[rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*reconcile (?:approach|answered)\b'])
-# The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 20) not at all; the
+# The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 10) not at all; the
 # starving one eats first, and at least one of the others waits behind it (the stack of two is smaller than the three eaters).
 _strange = {name: _uuid_text('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 _smoke('stray_strange_food', 900, [

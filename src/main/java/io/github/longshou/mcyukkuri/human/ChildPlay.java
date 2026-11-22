@@ -177,13 +177,13 @@ public final class ChildPlay extends Goal {
     }
 
     /**
-     * The child's own roll for this animal: the ball when it still has one, a crumb when it holds food this animal would take, a poke for a
-     * grown animal, a run only at an adult that looks bold and has not been chased before. Null when nothing fits.
+     * The child's own roll for this animal: with its ball in hand it shows the ball, otherwise a crumb when it holds food this animal would
+     * take, a poke for a grown animal, a run only at an adult that looks bold and has not been chased before. Null when nothing fits.
      */
     private Gesture pick(YukkuriEntity y) {
+        if (npc.getMainHandItem().is(ModItems.TOY.get())) return Gesture.BALL;
         var options = new ArrayList<Gesture>();
         var weights = new ArrayList<Integer>();
-        if (npc.getMainHandItem().is(ModItems.TOY.get())) { options.add(Gesture.BALL); weights.add(4); }
         if (crumbFor(y)) { options.add(Gesture.CRUMB); weights.add(3); }
         boolean grown = y.family().stage() == FamilyLife.Stage.ADULT;
         if (grown) { options.add(Gesture.POKE); weights.add(2); }

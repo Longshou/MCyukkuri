@@ -1292,6 +1292,13 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     # unsupported at the later sample is a bad spawn; obstruction stays strict at both.
     settling = {r.get('u') for r in geo if start is not None and r['t'] - start == 20
                 and r.get('supported') is True}
+    # A body its own logged action throws off the ground is still a fair spawn (the hot-floor scene's actor is jumping on the
+    # magma by +20). Only an actor that stood at +1, jumped within the last 15 ticks and hangs at most a jump above the
+    # floor qualifies; a body that fell off an unsupported spawn is still a failure.
+    standing = {r.get('u') for r in geo if start is not None and r['t'] - start == 1 and r.get('supported') is True}
+    jumping = {r.get('u') for r in records
+               if start is not None and 5 <= r['t'] - start <= 20 and r.get('k') == 'ev' and r.get('cat') == 'body'
+               and 'hot floor jump' in r.get('msg', '')}
     # Loose food may already be gone at +20. Require the matching actual pickup
     # and stationary samples on the collision surface from the first geometry probe.
     early_pickups = {m[1]: r['t'] for r in records
@@ -1327,7 +1334,9 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                 elif not r['supported']:
                     findings.append(result('SPAWN', 'fail', 'invalid hanging attachment', r))
             elif not r['clear'] or (r['drop'] > .0625 and r.get('supported') is not True
-                                    and not (r['t'] - start == 1 and r.get('u') in settling)):
+                                    and not (r['t'] - start == 1 and r.get('u') in settling)
+                                    and not (r['t'] - start == 20 and r['drop'] <= 1.6
+                                             and r.get('u') in jumping and r.get('u') in standing)):
                 # SceneGeometry.supported includes fluid/contact support. Its drop scan can
                 # return the underwater floor before testing that surface; keep the frozen
                 # tolerance for unsupported actors and still reject every obstruction.
