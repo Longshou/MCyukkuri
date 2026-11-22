@@ -1684,6 +1684,25 @@ add('nuzzle_shapes', 'meadow', '大小不同的并排蹭，隔台阶的一对也
     ], env=DAY, vantage=(-2, -8, 0, 15),
     reads=[('读四只的状态', 'yukkuri status @e[tag=scn,distance=..12] raw')])
 
+# A tired Reimu (energy 25, below the 40 warn line) stands in the open; its rest wait is still running, so it has not yet set off for the
+# nest it will head for. West: a bonded, friendly, bold Marisa. East: an unknown, timid, unfriendly Chen who must not come.
+_COMPANY = {name: uid('company_visit', name) for name in ('weak', 'friend', 'stranger')}
+add('company_visit', 'meadow', '累了的朋友招来陪伴，陌生的不来', '累了的朋友招来陪伴',
+    '中间的灵梦精力 25（低于 40 的预警线），站在空地上，北边有它之后要去的窝。西边熟识、友善、胆大的魔理沙（精力 90）看见朋友累了，'
+    '走到它面前面对面站着闭嘴微笑，灵梦的不安减轻；灵梦恢复、走开或睡着，或满约 30 秒，访问结束，之后 2 分钟内没有谁再来陪它。'
+    '东边素不相识、胆小、不友善的橙不会过来。约 10 秒内发生；一次没看到可在 M 菜单重开',
+    '约 10–40 秒', [
+        *shed(0, -5, half=2),
+        yk('reimu', 0, 0, 'weak', uuid=_COMPANY['weak'], label='累了·精力25', energy=25, yaw=-90, lead=True),
+        yk('marisa', -5, 0, 'friend', uuid=_COMPANY['friend'], label='熟识·友善·胆大', energy=90, friendliness=100,
+           attachment=80, boldness=90, yaw=-90),
+        f'yukkuri scenario bond {sel("weak")} {sel("friend")}',
+        yk('chen', 6, 0, 'stranger', uuid=_COMPANY['stranger'], label='陌生·胆小·不友善', energy=90, friendliness=20,
+           attachment=30, boldness=10, yaw=90),
+    ], env=DAY, vantage=(0, 14),
+    reads=[('读累了的灵梦', f'yukkuri status {sel("weak")} raw'), ('读魔理沙', f'yukkuri status {sel("friend")} raw'),
+           ('读陌生的橙', f'yukkuri status {sel("stranger")} raw')])
+
 # Three hungry-ish bodies, each with an apple at its feet: the bite takes each past full (nutrition 60 + 20 > 75). The adult and the
 # child melt in contentment; the composed adult (self-control 95) keeps to the ordinary after-meal face.
 _content_ids = {name: uid('meal_content', name) for name in ('adult', 'child', 'composed')}
@@ -7563,7 +7582,7 @@ TOPICS = {
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
@@ -8314,6 +8333,11 @@ _smoke('nuzzle_shapes', 2400, [
     (rf'\[daily\][^\n]*(?:uuid={_step_low} [^\n]*peer rub started partner={_step_high}'
      rf'|uuid={_step_high} [^\n]*peer rub started partner={_step_low}) mode=LEVEL\b'),
 ])
+# Marisa keeps the tired Reimu company; the unknown timid Chen gives none.
+_company_friend = _uuid_text('company_visit', 'friend')
+_smoke('company_visit', 900, [
+    rf'\[kindness\][^\n]*uuid={_company_friend} [^\n]*kept company peer={_uuid_text("company_visit", "weak")}\b',
+], forbid=[rf'\[kindness\][^\n]*uuid={_uuid_text("company_visit", "stranger")} [^\n]*(?:offer act=COMPANY|kept company)\b'])
 _wide_greeter = _uuid_of(_CLOSE_GREETERS['wide'])
 _bean_greeter = _uuid_of(_CLOSE_GREETERS['bean'])
 _smoke('greet_close', 620, [

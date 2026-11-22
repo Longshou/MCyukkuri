@@ -177,7 +177,7 @@ public final class RoamingGoal extends Goal {
     }
     /**
      * An attached individual (with probability attachment/100) strolls near its mate, else the most trusted friend it sees
-     * within 16, so companions stay within sight of each other instead of drifting apart.
+     * within 16 (a faltering friend ranks before trust), so companions stay within sight of each other instead of drifting apart.
      */
     private BlockPos companionSpot() {
         var p = animal.life().personality();
@@ -188,7 +188,8 @@ public final class RoamingGoal extends Goal {
         return animal.level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(16), peer -> peer != animal
                 && peer.isAlive() && animal.hasLineOfSight(peer) && animal.life().canRecognize(peer) && peer.life().canRecognize(animal)
                 && p.trust(peer.getUUID()) > 0).stream()
-                .max(Comparator.comparingInt((YukkuriEntity peer) -> p.trust(peer.getUUID())))
+                .max(Comparator.comparing((YukkuriEntity peer) -> peer.life().faltering())
+                        .thenComparingInt(peer -> p.trust(peer.getUUID())))
                 .map(YukkuriEntity::blockPosition).orElse(null);
     }
     private BlockPos choose() {

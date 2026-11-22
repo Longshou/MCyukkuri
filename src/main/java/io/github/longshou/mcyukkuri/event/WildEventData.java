@@ -100,11 +100,6 @@ public final class WildEventData extends SavedData {
     private static boolean yieldsTo(Scene s, List<UUID> members) {
         return WildCards.canYield(s) && s.members.stream().anyMatch(members::contains);
     }
-    /** A declined real opportunity reuses the existing event cooldown instead of rerolling each scan. */
-    void deferCard(UUID member, long now, int ticks) {
-        ambientCooldowns.put(member, DeadlineMap.after(now, ticks));
-        ambientCooldowns.prune(now); setDirty();
-    }
     private static boolean near(GlobalPos a, GlobalPos b) {
         return RegionKey.within(a,b,32);
     }

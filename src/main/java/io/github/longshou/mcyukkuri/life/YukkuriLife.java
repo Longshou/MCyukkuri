@@ -428,6 +428,8 @@ public final class YukkuriLife {
                 before, nutrition, cause, task, mealTicks(), energy);
     }
     public float energy() { return energy; }
+    /** Tired past the warn line (energy below 40) or overheated: the two states a friend answers by coming to stand beside it. */
+    public boolean faltering() { return energy < 40 || temperature.hot(); }
     public boolean spendEnergy(float amount) {
         if(!Float.isFinite(amount)||amount<0||energy<amount)return false;energy-=amount;return true;
     }

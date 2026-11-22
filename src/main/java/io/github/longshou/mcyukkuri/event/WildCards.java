@@ -16,15 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
-import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
@@ -39,8 +36,7 @@ public final class WildCards {
         return scene.active() && ambient(scene) && scene.phase == Phase.APPROACH && scene.responses == 0
                 && scene.target == null && scene.fed.isEmpty();
     }
-    private static final List<String> AMBIENT=List.of("weak-escort","deficient-wait","reconcile","group-turn",
-            "street-scraps","forest-find","rain-close","heat-rest");
+    private static final List<String> AMBIENT=List.of("reconcile","group-turn","street-scraps","forest-find");
     public static void discover(YukkuriEntity first,List<YukkuriEntity> peers) {
         int offset=Math.floorMod(first.getUUID().hashCode()+first.tickCount/100,AMBIENT.size());
         for(int i=0;i<AMBIENT.size();i++) {
@@ -49,13 +45,6 @@ public final class WildCards {
         }
     }
     private static boolean close(YukkuriEntity a,YukkuriEntity b,double radius){return a.distanceToSqr(b)<=radius*radius&&a.hasLineOfSight(b);}
-    private static boolean caring(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && WildEvents.recognizes(a,b);
-    }
-    private static boolean familiar(YukkuriEntity a,YukkuriEntity b) {
-        return WildEvents.friendly(a,b) && (Bonds.careKin(a, b)
-                || YukkuriWorldData.get((ServerLevel)a.level()).affinity(a.getUUID(),b.getUUID())>=BondLevels.AFFINITY_CLOSE);
-    }
     private static ItemEntity target(YukkuriEntity e,Predicate<ItemEntity> predicate) {
         return e.level().getEntitiesOfClass(ItemEntity.class,e.getBoundingBox().inflate(4),item -> item.isAlive()
                 && !item.hasPickUpDelay() && e.hasLineOfSight(item) && predicate.test(item)
@@ -73,26 +62,21 @@ public final class WildCards {
             pair.getFirst().getPersistentData().put("WildConflict",memory);
         }
     }
-    private static final Set<String> CARE_CARDS=Set.of("weak-escort","deficient-wait");
     public static Scene begin(String card,YukkuriEntity first,List<YukkuriEntity> peers,Player player) {
         if(!(first.level() instanceof ServerLevel level)||peers.isEmpty()||!WildEvents.available(first))return null;
         var second=peers.getFirst();List<YukkuriEntity> all=new ArrayList<>();all.add(first);all.addAll(peers);
         if(all.stream().distinct().count()!=all.size()||all.size()>6||all.stream().anyMatch(p -> p.life().usingFoundCover())
                 ||peers.stream().anyMatch(p -> p.level()!=level
                 ||!WildEvents.available(p)||!close(first,p,6)||!first.life().reachable(p.blockPosition(),false)))return null;
-        // Everyone in a card, and the carer of a care card, must be well and free (the daily-life gate).
-        if(!(CARE_CARDS.contains(card)?List.of(first):all).stream().allMatch(p -> DailyLife.wellAndFree(p,false)))return null;
-        // Non-care cards happen near home, like songs; care cards go where the one needing care is.
-        if(!CARE_CARDS.contains(card)&&!all.stream().allMatch(TravelRange::nearHomeForLeisure))return null;
+        // Everyone in a card must be well and free (the daily-life gate), and cards happen near home, like songs.
+        if(!all.stream().allMatch(p -> DailyLife.wellAndFree(p,false)))return null;
+        if(!all.stream().allMatch(TravelRange::nearHomeForLeisure))return null;
         var data=WildEventData.get(level);
         if (!data.canStart(GlobalPos.of(level.dimension(),first.blockPosition()), all.stream().map(Entity::getUUID).toList(), level.getGameTime())) return null;
         var relations=YukkuriWorldData.get(level);
         int affinity=relations.affinity(first.getUUID(),second.getUUID());
         ItemEntity resource=null;
         boolean qualified=switch(card) {
-            case "weak-escort" -> second.life().energy()<60 && first.life().energy()>=70 && caring(first,second);
-            case "deficient-wait" -> second.subspecies().congenital()!=SubspeciesLife.Congenital.NORMAL
-                    && caring(first,second) && first.distanceToSqr(second)>4;
             case "reconcile" -> conflict(first,second) && affinity>BondLevels.AFFINITY_RECONCILABLE
                     && first.life().personality().temperament().is(Gate.WARM) && WildEvents.recognizes(first,second);
             case "group-turn" -> Bonds.sameGroupId(first, second)
@@ -104,16 +88,9 @@ public final class WildCards {
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;
             case "forest-find" -> WildEvents.forest(first) && first.life().nutrition()<65 && WildEvents.friendly(first,second)
                     && (resource=target(first,item -> first.life().acceptsFood(item.getItem())))!=null;
-            case "rain-close" -> level.isRainingAt(first.blockPosition())&&level.isRainingAt(second.blockPosition())&&familiar(first,second);
-            case "heat-rest" -> level.isDay() && level.getBiome(first.blockPosition()).value().getBaseTemperature()>=1.0f
-                    && !first.life().covered(first.blockPosition()) && second.life().energy()<50 && caring(first,second);
             default -> false;
         };
         if(!qualified)return null;
-        boolean care = card.equals("weak-escort") || card.equals("deficient-wait") || card.equals("heat-rest");
-        if (care && first.getRandom().nextFloat() >= first.life().personality().helpProbability(familiar(first,second), second.life().hasUrgentNeed())) {
-            data.deferCard(first.getUUID(), level.getGameTime(), 1200); return null;
-        }
         Scene scene=data.start(Kind.CARD,card,GlobalPos.of(level.dimension(),first.blockPosition()),
                 all.stream().map(Entity::getUUID).toList(),player==null?null:player.getUUID(),level.getGameTime());
         if(scene!=null){if(resource!=null)scene.target=resource.getUUID();
@@ -159,14 +136,8 @@ public final class WildCards {
                 WildEvents.finish(level,s,Phase.COMPLETE,"real_action_response_finished");return;
             }
         } else if(s.phaseTicks>=80) {
-            boolean reached=switch(s.card) {
-                case "weak-escort","deficient-wait","rain-close" -> first.distanceToSqr(second)<=4;
-                default -> true;
-            };
-            if(reached) {
-                for(var e:all)e.showReaction("neutral","known_peer",35);
-                WildEvents.finish(level,s,Phase.COMPLETE,"observed_"+s.card);return;
-            }
+            for(var e:all)e.showReaction("neutral","known_peer",35);
+            WildEvents.finish(level,s,Phase.COMPLETE,"observed_"+s.card);return;
         }
         if(s.phaseTicks>=240)WildEvents.finish(level,s,Phase.INTERRUPTED,"scene_timed_out");
     }
@@ -175,18 +146,9 @@ public final class WildCards {
         var level=(ServerLevel)e.level();Entity peer=level.getEntity(s.members.getFirst());
         if(peer==e && s.members.size()>1)peer=level.getEntity(s.members.get(1));if(peer==null)return;
         e.getLookControl().setLookAt(peer,25,25);
-        if(s.card.equals("weak-escort")||s.card.equals("deficient-wait")||s.card.equals("rain-close")) {
-            navigate(e,peer.position(),s,1.5);return;
-        }
         e.getNavigation().stop();
         if (StatusEvents.trace()) GameplayLog.event(e, "wild-event", "stationary wait scene={} phase={} elapsed={}",
                 s.id, s.phase, s.phaseTicks);
-    }
-    private static void navigate(YukkuriEntity e,Vec3 point,Scene s,double distance) {
-        if(e.distanceToSqr(point)<=distance*distance){e.getNavigation().stop();return;}
-        if(s.phaseTicks%20!=0)return;
-        BlockPos goal=BlockPos.containing(point);
-        if(!e.life().dryStand(goal)||!e.life().navigate(goal,.65,false))WildEvents.finish((ServerLevel)e.level(),s,Phase.INTERRUPTED,"unreachable_scene_target");
     }
     private static boolean foodCard(Scene s){return s!=null&&s.kind==Kind.CARD&&(s.card.equals("group-turn")||s.card.equals("forest-find")||s.card.equals("street-scraps"));}
     /** Gates only the claimed physical item. Hunger and every unrelated food retain their normal rules. */

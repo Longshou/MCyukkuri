@@ -52,7 +52,7 @@ public final class Kindness extends Goal {
     private ShelterBlockEntity carton;
     private Vec3 gestureStand;
     private int lookBackAt, gestureDeadline;
-    private int ticks, contact, cooldown, received, nextScan;
+    private int ticks, contact, cooldown, received, nextScan, visited;
     private UUID mealDonor;
     private boolean running, finished, mealSwallowed;
 
@@ -73,6 +73,7 @@ public final class Kindness extends Goal {
         }
         if (cooldown > 0) cooldown--;
         if (nextScan > 0) nextScan--;
+        if (visited > 0) visited--;
         if (received > 0 && --received == 0) mealDonor = null;
         if (act != null && !running && (++ticks >= CUE || !valid())) stop();
         if (act == null && giver.component(YukkuriComponents.MOUTH).purpose() == Purpose.KINDNESS
@@ -128,6 +129,12 @@ public final class Kindness extends Goal {
     private boolean lonely(YukkuriEntity target) {
         return target.pet().waitingAfterAbandonment() || target.life().custody().lost()
                 || target.family().orphaned() && target.hasReaction() && target.mind().unease() > 20;
+    }
+
+    /** Lonely, or a faltering (tired or overheated) one this giver knows and does not dislike, not visited within the receiver rest. */
+    private boolean needsCompany(YukkuriEntity target) {
+        return lonely(target) || target.life().faltering() && of(target).visited == 0 && giver.life().canRecognize(target)
+                && relations().affinity(giver.getUUID(), target.getUUID()) >= BondLevels.AFFINITY_NEUTRAL;
     }
 
     private boolean hungry(YukkuriEntity target) {
@@ -214,7 +221,7 @@ public final class Kindness extends Goal {
                     return true;
                 }
             }
-            if (lonely(target)) return reserve(target, Act.COMPANY);
+            if (needsCompany(target)) return reserve(target, Act.COMPANY);
         }
         return false;
     }
@@ -251,7 +258,7 @@ public final class Kindness extends Goal {
         if (giver.life().mealTicks() > 0) return false;
         return switch (act) {
             case BITE -> hungry(guest) && (pile != null || giver.component(YukkuriComponents.MOUTH).purpose() == Purpose.KINDNESS);
-            case COMPANY -> lonely(guest) && guest.distanceToSqr(companyAt == null ? guestAt : companyAt) <= 2.25;
+            case COMPANY -> needsCompany(guest) && guest.distanceToSqr(companyAt == null ? guestAt : companyAt) <= 2.25;
             case ADOPT -> giver.family().canAdopt(guest) && of(guest).prefersFoster(giver);
         };
     }
@@ -443,6 +450,8 @@ public final class Kindness extends Goal {
         if (act == Act.BITE && !finished && giver.reactionAction() == YukkuriAction.OFFER_BITE)
             giver.showReaction("neutral", "", 0);
         cooldown = Math.max(cooldown, act == Act.COMPANY ? RECEIVER_REST : act == Act.BITE && finished ? CUE : GIVER_REST);
+        // A guest who was really kept company rests from every visitor, so a body that stays weak is not visited in a loop.
+        if (act == Act.COMPANY && companyAt != null) of(guest).visited = RECEIVER_REST;
         if (running) SurfaceApproach.halt(giver);
         running = finished = false;
         guest = null; pile = null; act = null; stand = null; guestAt = null; companyAt = null;
