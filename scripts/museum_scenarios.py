@@ -4054,12 +4054,12 @@ add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
     '举球往后拉一秒，再把球贴着灵梦身侧慢慢滚过去。灵梦会追上去拨球，小孩挥手；球玩完后小孩把它捡回，再对魔理沙滚一次，魔理沙缩着身子躲开，小孩只看着或小幅挥手。'
     '两只的反应各看自己的胆量，重开可再看一遍。',
     '约 1 分钟', [
-        human('child', 0, 0, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
+        human('child', 4, -2, 'park_child', 0, attitude=2, yaw=180, label='小孩')[:-1]
         + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
-        street_trial(_child_ball, 'reimu', -4, -1, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
+        street_trial(_child_ball, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
                      extra='YukkuriDailyLife:{Boredom:80}'),
-        street_trial(_child_ball, 'marisa', 6, 1, 'child_timid', boldness=15, friendliness=50, yaw=0),
-    ], env=DAY, spot='picnic', vantage=(1, 4, 180, 14),
+        street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0),
+    ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
            ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
 
