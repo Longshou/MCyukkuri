@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | PD-13 抱幼上帽船：统一上船判断，够不到就先去取船 | `.worktrees/wp-pd13-board` | aquatic/Ferry, aquatic/AquaticGoal, aquatic/Ashore |
+| 吵架后和好、唱歌的听众反应（WildCards 第 2 步之 3） | `.worktrees/wp-wc-reconcile` | social/YukkuriSocial, social/Quarrel(new), social/GroupInteractionGoal, event/HomeTerritoryGoal, social/DailyLife, event/WildCards, event/WildEvents |
 
 
 
