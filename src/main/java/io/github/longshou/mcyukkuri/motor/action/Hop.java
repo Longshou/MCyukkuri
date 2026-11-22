@@ -775,9 +775,9 @@ public final class Hop implements Action {
         return clear(body, from, anchor, hosts, points, delay, yaw, yaw, null);
     }
 
-    /** How far the start box of a take-off at {@code from} sits sunk in a block it rises out of (see {@link TakeoffLip}), 0 if it does not. */
-    private static double takeoffLip(YukkuriEntity body, AABB base, Vec3 from) {
-        var start = base.move(from.subtract(body.position()));
+    /** How far the box of a stand at {@code at} (take-off or landing) sits sunk in a block it rises out of (see {@link TakeoffLip}), 0 if it does not. */
+    private static double takeoffLip(YukkuriEntity body, AABB base, Vec3 at) {
+        var start = base.move(at.subtract(body.position()));
         double lift = TakeoffLip.lift(l -> body.level().noCollision(body, start.move(0, l, 0)));
         return Math.max(0, lift);
     }
@@ -805,6 +805,15 @@ public final class Hop implements Action {
         Vec3 previous = anchor == null ? from : anchor.frameAfter(delay).toWorld(from.scale(1 / anchor.frame().unit()));
         double lip = anchor == null ? takeoffLip(body, base, from) : 0;
         boolean lipSpent = false;
+        // a host stand may sit a hair into the bank block beside it: the fall onto it is held up by that lip (see TakeoffLip.lifted)
+        double landing = 0, endY = 0;
+        if (anchor != null) {
+            var last = points.getLast();
+            var frame = anchor.frameAfter(delay + points.size() - 1);
+            var end = frame.toWorld(from.add(last.x(), last.y(), last.z()).scale(1 / frame.unit()));
+            landing = takeoffLip(body, base, end);
+            endY = end.y;
+        }
         for (int tick = 0; tick < points.size(); tick++) {
             float yaw = (float) HopHeading.flightYaw(startYaw, bearing, tick, points.size() - 1);
             var point = points.get(tick);
@@ -822,10 +831,14 @@ public final class Hop implements Action {
                 obstruction = "held_world at=" + GameplayLog.at(at); return false;
             }
             // the sunk edge of a take-off stand leaves its block with the first rise (this leg's start still counts as sunk)
-            double held = lip > 0 && !lipSpent ? 1 : 0;
-            AABB startBox = base.move(previous.subtract(body.position())).move(0, held * TakeoffLip.held(lip, previous.y - from.y), 0);
-            AABB cornerBox = base.move(corner.subtract(body.position())).move(0, held * TakeoffLip.held(lip, corner.y - from.y), 0);
-            AABB atBox = base.move(at.subtract(body.position())).move(0, held * TakeoffLip.held(lip, at.y - from.y), 0);
+            double startLip = lipSpent ? 0 : lip;
+            boolean falling = at.y < previous.y;
+            AABB startBox = base.move(previous.subtract(body.position())).move(0,
+                    TakeoffLip.lifted(startLip, previous.y - from.y, landing, previous.y - endY, falling), 0);
+            AABB cornerBox = base.move(corner.subtract(body.position())).move(0,
+                    TakeoffLip.lifted(startLip, corner.y - from.y, landing, corner.y - endY, falling), 0);
+            AABB atBox = base.move(at.subtract(body.position())).move(0,
+                    TakeoffLip.lifted(startLip, at.y - from.y, landing, at.y - endY, falling), 0);
             var first = startBox.minmax(cornerBox);
             var second = cornerBox.minmax(atBox);
             if (brim != null && !brim.clear(corner, at, first, second)) {

@@ -39,4 +39,36 @@ class TakeoffLipTest {
         });
         assertInstanceOf(ArcSolver.Plan.class, plan);
     }
+
+    /** The logged refusal: a hat stop 0.56 away and 0.25 up lies 0.08 under the bank top, its box 0.1 over the bank block's edge. */
+    private static boolean bank(double s, double y) { return s + .4 > .86 && y < .33; }
+
+    @Test void aHostStandSunkIntoTheBankIsLandedOnThroughItsLip() {
+        var from = new Vec(0, 0, 0);
+        var stop = new Vec(.56, .25, 0);
+        double lip = TakeoffLip.lift(l -> !bank(stop.x(), stop.y() + l));
+        assertEquals(.08, lip, 1e-6);
+        assertInstanceOf(ArcSolver.Blocked.class, ArcSolver.lowest(from, stop, .72, .9, 1, points -> {
+            for (var p : points) if (bank(p.x(), p.y())) return false;
+            return true;
+        }), "without the landing lip the last of the fall is in the block");
+        var plan = ArcSolver.lowest(from, stop, .72, .9, 1, points -> {
+            double prev = Double.MAX_VALUE;
+            for (var p : points) {
+                boolean falling = p.y() < prev;
+                if (bank(p.x(), p.y() + TakeoffLip.lifted(0, p.y(), lip, p.y() - stop.y(), falling))) return false;
+                prev = p.y();
+            }
+            return true;
+        });
+        assertInstanceOf(ArcSolver.Plan.class, plan);
+    }
+
+    @Test void aRiseIsNeverHeldUpByTheLandingLipAndADeepStandStillBlocks() {
+        assertEquals(0, TakeoffLip.lifted(0, .1, .08, 0, false), 1e-9);
+        assertEquals(.08, TakeoffLip.lifted(0, .1, .08, 0, true), 1e-9);
+        assertEquals(.03, TakeoffLip.lifted(0, .1, .08, .05, true), 1e-9);
+        assertEquals(.08, TakeoffLip.lifted(.08, 0, .03, 0, true), 1e-9, "the larger of the two lips holds");
+        assertEquals(-1, TakeoffLip.lift(l -> !bank(.56, .0 + l)), "a stand 0.33 under the bank is a wall");
+    }
 }

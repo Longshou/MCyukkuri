@@ -22,4 +22,16 @@ public final class TakeoffLip {
 
     /** How far a box at {@code rise} above the start is still held up by the lip {@code lift}: none once it has risen by it. */
     public static double held(double lift, double rise) { return Math.max(0, lift - rise); }
+
+    /**
+     * The landing side of the same lip: a host stand (a hat stop riding the water) may itself sit a hair below the bank top it lies
+     * beside, and the rider on it is carried, not pushed by the block. A falling box is held up by the landing lip until it stands
+     * on the stand; a rising one never is by it.
+     * @param startLip lip of the take-off still unspent (0 when none), {@code rise} the box's height above the start
+     * @param landing lip of the landing stand, {@code above} the box's height above that stand, {@code descending} whether the box is falling
+     * @return how far the box is held up out of the block this sample
+     */
+    public static double lifted(double startLip, double rise, double landing, double above, boolean descending) {
+        return Math.max(held(startLip, rise), descending ? held(landing, above) : 0);
+    }
 }
