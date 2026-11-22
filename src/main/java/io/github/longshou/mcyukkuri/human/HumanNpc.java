@@ -72,6 +72,9 @@ public final class HumanNpc extends PathfinderMob {
     public enum Look { ONIISAN, BROTHER, SISTER }
     public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER }
     public static final int DOSE_SWING_TICKS = 20, DOSE_TICKS = 30;
+    /** The wash beat before juice: the cloth swings at {@code WASH_SWING_TICKS} and washes at {@code WASH_TICKS} (a bit longer than a dose). */
+    private static final int WASH_SWING_TICKS = 25, WASH_TICKS = 40;
+    private int washTicks;
     public enum Attitude { CRUEL, CARING, NEUTRAL }
     private static final EntityDataAccessor<Integer> JOB = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTITUDE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
@@ -1263,6 +1266,7 @@ public final class HumanNpc extends PathfinderMob {
                 getNavigation().stop();
                 if (careTicks < 0) { careTicks++; return; }
                 if (dose == null && !prepareDose(attention)) { attend(attention); elapsed = 140; return; }
+                if (dose == TreatmentItem.Kind.ORANGE_JUICE && washing(attention)) return;
                 if (++careTicks == DOSE_SWING_TICKS) swing(InteractionHand.MAIN_HAND);
                 if (careTicks < DOSE_TICKS) return;
                 if (!level().isDay() || attitude()!=Attitude.CARING || !mayTend(attention)) {
@@ -1317,6 +1321,32 @@ public final class HumanNpc extends PathfinderMob {
         return true;
     }
 
+    /**
+     * An infected body that is still dirty is washed before the juice: the real wash cloth shows in the off hand (the juice stays
+     * in the main hand), swings, then {@code YukkuriLife.wash} adds its normal hygiene. True while the beat is running;
+     * false when no wash is needed or the wash did not take (the juice is then refused for its real reason).
+     */
+    public boolean washing(YukkuriEntity patient) {
+        if (!patient.body().needsWash()) { stopWashing(); return false; }
+        if (washTicks == 0) {
+            setItemInHand(InteractionHand.OFF_HAND, new ItemStack(ModItems.WASH_CLOTH.get()));
+            setDropChance(EquipmentSlot.OFFHAND, 0);
+            GameplayLog.event(this, "npc-care", "action=wash_start target={} hygiene={}", patient.getUUID(), patient.life().hygiene());
+        }
+        if (++washTicks == WASH_SWING_TICKS) swing(InteractionHand.OFF_HAND);
+        if (washTicks < WASH_TICKS) return true;
+        float before = patient.life().hygiene();
+        boolean washed = patient.life().wash(getUUID());
+        GameplayLog.event(this, "npc-care", "action=wash target={} hygiene={}->{} result={}", patient.getUUID(), before,
+                patient.life().hygiene(), washed ? "washed" : "refused");
+        stopWashing();
+        return washed && patient.body().needsWash();
+    }
+    private void stopWashing() {
+        washTicks = 0;
+        if (getOffhandItem().is(ModItems.WASH_CLOTH.get())) setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+    }
+
     public boolean applyDose(YukkuriEntity patient, TreatmentItem.Kind dose) {
         boolean applied = getMainHandItem().is(TreatmentItem.doseItem(dose)) && TreatmentItem.apply(patient, dose);
         if (applied) getMainHandItem().shrink(1);
@@ -1327,6 +1357,7 @@ public final class HumanNpc extends PathfinderMob {
 
     /** A dose survives saving as equipment. Return it to the same supplies when its job ends or is gone. */
     public void returnUnusedDose() {
+        stopWashing();
         var hand = getMainHandItem();
         if (!isAlive() || !(hand.getItem() instanceof TreatmentItem)) return;
         medicine += hand.getCount();
@@ -1348,7 +1379,7 @@ public final class HumanNpc extends PathfinderMob {
         if (avoidingStreet()) t.putInt("StreetHomePause", routineDelay);
     }
     @Override public void readAdditionalSaveData(CompoundTag t) {
-        super.readAdditionalSaveData(t); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
+        super.readAdditionalSaveData(t); stopWashing(); setJob(Job.values()[Math.clamp(t.getInt("HumanJob"), 0, Job.values().length - 1)]);
         if (t.contains("HumanAttitude")) setAttitude(Attitude.values()[Math.clamp(t.getInt("HumanAttitude"), 0, 2)]);
         siteRole = t.getString("SiteRole"); initialized = t.getBoolean("HumanInitialized");
         home = t.contains("HumanHome") ? BlockPos.of(t.getLong("HumanHome")) : null;

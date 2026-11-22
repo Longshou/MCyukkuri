@@ -5,14 +5,12 @@
     "burial_mound": {"texture": "minecraft:block/dirt", "facing": true, "boxes": [[2,0,2,14,3,14],[4,3,4,12,4,12]]}
   },
   "items": {
-    "food_scrap": "minecraft:item/bread",
-    "herbal_medicine": "minecraft:item/dried_kelp"
+    "food_scrap": "minecraft:item/bread"
   },
   "item_models": {"yukkuri_remains": "art/props/house-care/yukkuri_remains.item.json"},
   "item_models_note": "Selected current RemainsRenderer item configuration; no new art geometry or standard approval.",
   "presentation": {"nest_lining": "minecraft:wheat", "eggs": "minecraft:egg", "egg_scale": 0.22, "egg_count_max": 4},
   "recipes": {
-    "food_scrap": {"ingredients": ["minecraft:bread"], "count": 4},
-    "herbal_medicine": {"ingredients": ["minecraft:dried_kelp","minecraft:sugar","minecraft:glass_bottle"], "count": 1}
+    "food_scrap": {"ingredients": ["minecraft:bread"], "count": 4}
   }
 }

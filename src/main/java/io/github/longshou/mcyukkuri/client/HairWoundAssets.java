@@ -120,11 +120,23 @@ final class HairWoundAssets {
             for (int grade=1;grade<=3;grade++) textures.getTexture(material(shape.id()+"-"+grade));
         }
         for (int grade=1;grade<=3;grade++) textures.getTexture(material("thermal-"+grade));
+        for (var shape : WoundShape.values()) {
+            if (shape.kind()==null || shape.thermal()) continue;
+            for (int grade=1;grade<=3;grade++) textures.getTexture(material(shape.id()+"-"+grade+"-infected"));
+        }
         WoundRenderer.warmTextures(textures);
     }
     static Model model(String id){return MODELS.get(id);}
     private static Palette palette(String id){var model=MODELS.get(id);return model==null?PALETTES.get("generic"):model.palette;}
     static float[] cavityColoursFor(String id,int ring){float[] row=palette(id).cavityColours[ring];return new float[]{row[3],row[4],row[5]};}
+    /** Festering fill (materials.py INFECT_MID rim, INFECT_DEEP below), mixed over the authored cavity colour. */
+    private static final float[] INFECT_RIM={92/255f,54/255f,66/255f},INFECT_DEEP={40/255f,24/255f,26/255f};
+    private static final float INFECT_MIX=.6f;
+    static float[] infectedFill(float[] colour,int ring){
+        float[] target=ring==0?INFECT_RIM:INFECT_DEEP;float[] result=new float[3];
+        for(int i=0;i<3;i++)result[i]=colour[i]+(target[i]-colour[i])*INFECT_MIX;
+        return result;
+    }
     static float[] coreColoursFor(String id,int ring){float[] row=palette(id).coreColours[ring];return new float[]{row[3],row[4],row[5]};}
     static Vector3f coreColourFor(String id){return palette(id).core;}
     static Profile profile(BodyWound wound){var profiles=PROFILES.get(wound.kind()==WoundKind.SCAR?"tear":wound.shape().id());

@@ -1655,7 +1655,7 @@ public final class YukkuriModel {
         var seed=data.hasUUID("Identity")?data.getUUID("Identity"):new UUID(0,0);
         // Decay shows as mould patches (stale: middle tier, rotten: terminal) over the discoloured, sagging body (RemainsRenderer squashes it).
         int rotStage=RemainsRot.stage(data);
-        int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false);
+        int packedSigns=BodySigns.pack(Math.max(body.getInt("Mold"),rotStage==2?8:rotStage==1?4:0),body.getBoolean("FootBurned"),body.getBoolean("CoreHurt"),false,body.getInt("Infection"));
         float foodCapacity=CorpseFood.capacity(data);
         float fullness=foodCapacity<=0?0:Math.clamp(CorpseFood.remaining(data)/foodCapacity,0,1);
         return new RemainsInputs(wounds,seed,rotStage,packedSigns,fullness,data.getInt("SubspeciesFlags"),

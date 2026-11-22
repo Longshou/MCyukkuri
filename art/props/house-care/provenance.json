@@ -1,11 +1,10 @@
 {
   "status": "Minecraft integration draft; not a confirmed standard asset",
   "input": {
-    "recipe.json": "5d8820838db5fe323d0c1489a148148c5be37ea42eb65a82c811c6adc6ea6e6a"
+    "recipe.json": "bde74fb2679372d026758b546129d475ade01ba296eb91118719ed8692f8e288"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/blockstates/burial_mound.json": "8d2d6e8ff790f762a46640243ed5f1c4c244f44f37ba92f52ab01662d4a45213",
-    "src/main/resources/assets/mcyukkuri/models/item/herbal_medicine.json": "784484df4c2b237850fdb9ee0d0411e20212e41f6db0b62bb70c883ecf31c2be",
     "src/main/resources/assets/mcyukkuri/models/item/yukkuri_remains.json": "1b7bc54eeba9b85388378f8672f05108b623873cab460e358fbae38b773a2d02"
   },
   "selected_models": {

@@ -14,12 +14,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 public final class TreatmentItem extends Item {
-    public enum Kind { HERB, ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
+    public enum Kind { ORANGE_JUICE, MOLD_REMOVER, FLOUR_PASTE }
     private final Kind kind;
     public TreatmentItem(Kind kind,Properties properties){super(properties);this.kind=kind;}
     public static Item doseItem(Kind kind) {
         return switch (kind) {
-            case HERB -> ModItems.MEDICINE.get();
             case ORANGE_JUICE -> ModItems.ORANGE_JUICE.get();
             case MOLD_REMOVER -> ModItems.MOLD_REMOVER.get();
             case FLOUR_PASTE -> ModItems.FLOUR_PASTE.get();
@@ -31,13 +30,11 @@ public final class TreatmentItem extends Item {
         var body = patient.body();
         if (!body.treatmentBlockReason().equals("none")) return null;
         if (body.mold() > 0 && body.mold() < BodyLife.MOLD_TERMINAL) return Kind.MOLD_REMOVER;
-        if (body.infection() > 0) return Kind.HERB;
         return body.needsPhysicalRestoration() ? Kind.ORANGE_JUICE : null;
     }
     /** Player items, NPC supplies and diagnostic commands use the same treatment and successful-dose effects. */
     public static boolean apply(YukkuriEntity entity, Kind kind) {
         boolean applied=switch(kind){
-            case HERB -> entity.body().treatInfection();
             case ORANGE_JUICE -> entity.body().restorePhysical();
             case MOLD_REMOVER -> entity.body().removeMold();
             case FLOUR_PASTE -> entity.body().repairScars();
@@ -57,7 +54,8 @@ public final class TreatmentItem extends Item {
             if(!applied){
                 String blocked=entity.body().treatmentBlockReason();
                 String reason=blocked.equals("none")
-                        ? kind==Kind.MOLD_REMOVER&&entity.body().mold()>=8?"terminal_mold":"no_applicable_condition"
+                        ? kind==Kind.MOLD_REMOVER&&entity.body().mold()>=8?"terminal_mold"
+                        : kind==Kind.ORANGE_JUICE&&entity.body().needsWash()?"needs_wash":"no_applicable_condition"
                         : blocked;
                 GameplayLog.limited(entity,"body","treatment_refused:"+player.getUUID()+":"+kind+":"+reason,20,
                         "treatment refused; player={} kind={} reason={} item_count={} health={}/{} wounds={} scars={} infection={} mold={}", () -> new Object[]{
@@ -65,7 +63,7 @@ public final class TreatmentItem extends Item {
                             entity.status().marks().scarCount(),entity.body().infection(),entity.body().mold()});
                 // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
                 if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40); }
-                else InteractionDispatch.refuse(player,entity,"treatment","condition");
+                else InteractionDispatch.refuse(player,entity,"treatment",reason.equals("needs_wash")?"needs_wash":"condition");
                 return InteractionResult.FAIL;
             }
             if(!player.getAbilities().instabuild){

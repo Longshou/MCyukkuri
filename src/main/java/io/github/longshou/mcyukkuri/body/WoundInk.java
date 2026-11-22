@@ -12,6 +12,13 @@ public final class WoundInk {
         return wound.kind()==WoundKind.SCAR?"scar":material(wound.shape(),wound.severity());
     }
 
+    /** Festering shows on mechanical injuries only; scars and burns have no infected art. */
+    public static boolean infectable(BodyWound wound){return wound.kind().injury()&&!wound.shape().thermal();}
+
+    public static String material(BodyWound wound,boolean infected){
+        return infected&&infectable(wound)?material(wound)+"-infected":material(wound);
+    }
+
     public static String material(WoundShape shape,int severity){
         return shape.id()+"-"+severity;
     }

@@ -28,6 +28,8 @@ public final class StatusStrip {
         if (Identity.STOCK.translationKey().equals(view.identityTranslationKey())) {
             var status = view.visibleSyndromePrevention()
                     ? Component.translatable("magnifier.mcyukkuri.syndrome_prevention") : Component.empty();
+            int stockInfection = BodySigns.infectionTierOf(view.visibleSigns());
+            if (stockInfection > 0) status.append(status.getString().isEmpty() ? "" : " · ").append(infection(stockInfection));
             if (view.visibleDisqualified()) status.append(" ").append(Component.translatable("badge.mcyukkuri.profile.owner_state.3"));
             return new Readout(view.getDisplayName(), stage(view), view.identityTranslationKey(), status);
         }
@@ -45,12 +47,18 @@ public final class StatusStrip {
                 .append(health).append(" · ")
                 .append(badge).append(" · ")
                 .append(dirt);
+        int infection = BodySigns.infectionTierOf(view.visibleSigns());
+        if (infection > 0) readouts.append(" · ").append(infection(infection));
         if (view.liveChildCount() > Integer.bitCount(view.liveBornMask())) {
             readouts.append(" · ").append(Component.translatable("magnifier.mcyukkuri.pregnant"));
         }
         if (view.visibleSyndromePrevention())
             readouts.append(" · ").append(Component.translatable("magnifier.mcyukkuri.syndrome_prevention"));
         return new Readout(Component.literal(view.getDisplayName().getString()), stage(view), view.identityTranslationKey(), readouts);
+    }
+
+    private static Component infection(int tier) {
+        return Component.translatable("magnifier.mcyukkuri.infected", Component.translatable("magnifier.mcyukkuri.infected." + tier));
     }
 
     record Readout(Component name, Component stage, String identityKey, Component status) {

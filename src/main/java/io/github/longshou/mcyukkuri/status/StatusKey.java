@@ -130,18 +130,17 @@ public enum StatusKey {
         Float v = number(raw);
         if (v == null) return "need a number";
         for (int i = y.body().infection(); i < Math.min(8, Math.round(v)); i++) y.body().contaminated();
-        return Math.round(v) < y.body().infection() ? "infection only rises by hand; treat it with medicine" : null;
+        return Math.round(v) < y.body().infection() ? "infection only rises by hand; wash, then treat with orange juice" : null;
     }),
-    /** Write-only: apply a real treatment ({@code orange}, {@code paste}, {@code medicine}, {@code mold}). */
+    /** Write-only: apply a real treatment ({@code orange}, {@code paste}, {@code mold}). */
     TREAT("health", "treat", 0, null, (y, raw) -> {
         boolean done = switch (raw.trim().toLowerCase(Locale.ROOT)) {
             case "orange" -> TreatmentItem.apply(y, TreatmentItem.Kind.ORANGE_JUICE);
-            case "medicine" -> TreatmentItem.apply(y, TreatmentItem.Kind.HERB);
             case "mold" -> TreatmentItem.apply(y, TreatmentItem.Kind.MOLD_REMOVER);
             case "paste" -> TreatmentItem.apply(y, TreatmentItem.Kind.FLOUR_PASTE);
             default -> false;
         };
-        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|medicine|mold)";
+        return done ? null : "treatment refused (nothing to treat, panicking, or unknown: orange|paste|mold)";
     }),
     /** Deprecated 0-12 readout scale derived from health; its setter also writes health. */
     FILLING("health", "filling", 0, y -> y.body().filling(), (y, raw) -> {

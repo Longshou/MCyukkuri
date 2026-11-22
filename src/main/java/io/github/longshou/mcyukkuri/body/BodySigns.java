@@ -18,17 +18,24 @@ import net.minecraft.nbt.CompoundTag;
  * never a surface dot. Precise core hits use the shared {@link BodyCavity} mesh and the actual source ray.
  */
 public final class BodySigns {
-    public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64, FACE_MARKS = 128;
+    public static final int MOLD_MASK = 15, FOOT_BURNED = 16, CORE_HURT = 32, DYING = 64, FACE_MARKS = 128,
+            INFECTION_MASK = 768, INFECTION_SHIFT = 8;
     private static final Map<WoundSurface, int[]> SOLE_SITES = new ConcurrentHashMap<>();
 
     private BodySigns() {}
 
-    public static int pack(int mold, boolean footBurned, boolean coreHurt, boolean dying) {
-        return Math.clamp(mold, 0, 15) | (footBurned ? FOOT_BURNED : 0) | (coreHurt ? CORE_HURT : 0) | (dying ? DYING : 0);
+    public static int pack(int mold, boolean footBurned, boolean coreHurt, boolean dying, int infection) {
+        return Math.clamp(mold, 0, 15) | (footBurned ? FOOT_BURNED : 0) | (coreHurt ? CORE_HURT : 0) | (dying ? DYING : 0)
+                | (infectionTier(infection) << INFECTION_SHIFT);
     }
     public static int pack(CompoundTag body) {
-        return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false) | (body.getBoolean("FaceMarks") ? FACE_MARKS : 0);
+        return pack(body.getInt("Mold"), body.getBoolean("FootBurned"), body.getBoolean("CoreHurt"), false, body.getInt("Infection"))
+                | (body.getBoolean("FaceMarks") ? FACE_MARKS : 0);
     }
+    /** Infection level 0-8 to the shown band: 1-2 mild, 3-5 moderate, 6-8 severe. */
+    public static int infectionTier(int infection) { return infection <= 0 ? 0 : infection <= 2 ? 1 : infection <= 5 ? 2 : 3; }
+    /** The band (0-3) carried in synced signs. */
+    public static int infectionTierOf(int packed) { return (packed & INFECTION_MASK) >> INFECTION_SHIFT; }
     /**
      * Low health only changes the silhouette when skin is actually open.  The curve starts below
      * 60% health and reaches the agreed 8% spread / 20% height loss at zero, so intact sick bodies

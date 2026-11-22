@@ -261,9 +261,11 @@ final class HairWoundRenderer {
         private final WoundSurface.Deformer deformer;
         final Vector3f[] posedTriangle={a,b,c};
         final float[] triangleUv=new float[6];
+        /** The body is infected: its injuries draw the festering decals and darken the open cavity fill. */
+        private final boolean infected;
         Prepared(YukkuriModel model,String asset,List<BodyWound> wounds,int signs,int hairLoss,boolean accessory,
                  BodyWound coreWound,boolean corePresent,Prepared donor,boolean simple){
-            this.model=model;this.simple=simple;mesh=WoundSurface.get(asset);tissue=mesh.tissueBone();info=HairWoundAssets.model(asset);deformer=mesh.deformer(wounds);
+            this.model=model;this.simple=simple;infected=BodySigns.infectionTierOf(signs)!=0;mesh=WoundSurface.get(asset);tissue=mesh.tissueBone();info=HairWoundAssets.model(asset);deformer=mesh.deformer(wounds);
             // The expression is already applied to the live vertices and the constructor never changes them.
             source=model.woundVertices();
             display=new Vector3f[source.length/8];
@@ -369,7 +371,7 @@ final class HairWoundRenderer {
                     if(changed){var base=new ArrayList<Triangle>();for(var tri:triangles)base.add(triangle(first,tri,null,1));current.patches.put(first,base);}
                     if(holed&&part.name().equals(info.body))collectRims(first,triangles,pa,pb,pc,part.name());
                     for(var cut:cuts)if(cut.bounds(pa,pb,pc,1.25f,part.name())){
-                        String texture=WoundInk.material(cut.wound);
+                        String texture=WoundInk.material(cut.wound,infected);
                         var layer=layer(HairWoundAssets.material(texture));
                         // Only the outward facing layer receives ink. Original depth testing
                         // resolves actual hair coverage and keeps detached accessories opaque.
@@ -384,8 +386,10 @@ final class HairWoundRenderer {
                 if(sole>whole)thermal(first,part.name(),triangles,sole,true);
             }
         }
+        /** An infected wound's open cavity darkens toward the festering colours (same flag as the decal, no extra state). */
+        private float[] fill(Cut cut,float[] palette,int ring){return infected&&WoundInk.infectable(cut.wound)?HairWoundAssets.infectedFill(palette,ring):palette;}
         private void lid(Cut cut,int first,Bary[] tri){
-            float[] palette=cut.core!=null?HairWoundAssets.coreColoursFor(mesh.assetId,1):HairWoundAssets.cavityColoursFor(mesh.assetId,1);
+            float[] palette=fill(cut,cut.core!=null?HairWoundAssets.coreColoursFor(mesh.assetId,1):HairWoundAssets.cavityColoursFor(mesh.assetId,1),1);
             current.lids.add(new Triangle(lidCorner(first,tri[0]),lidCorner(first,tri[2]),lidCorner(first,tri[1]),palette[0],palette[1],palette[2]));
         }
         private Corner lidCorner(int first,Bary bary){
@@ -653,7 +657,7 @@ final class HairWoundRenderer {
                 float y=cut.skin[edge.j][1]/cut.cutV;
                 for(int i=0;i<=rings;i++){
                     int r=Math.max(i-1,0);var level=levels[r];
-                    float[] palette=core?HairWoundAssets.coreColoursFor(mesh.assetId,r):HairWoundAssets.cavityColoursFor(mesh.assetId,r);
+                    float[] palette=fill(cut,core?HairWoundAssets.coreColoursFor(mesh.assetId,r):HairWoundAssets.cavityColoursFor(mesh.assetId,r),r);
                     float tone=HairWoundAssets.wallTone(r,edge.j,y,level[0]);
                     float[] color={palette[0]*tone,palette[1]*tone,palette[2]*tone};
                     if(i==rings)colored(layer,ra[i],rb[i],apex,color);

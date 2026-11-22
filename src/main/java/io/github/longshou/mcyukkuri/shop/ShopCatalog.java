@@ -50,7 +50,7 @@ public final class ShopCatalog {
         good("velvet_nest", 1, () -> new ItemStack(ModItems.VELVET_NEST.get()), 9, 2, 1, 1),
         good("yukkuri_toilet", 1, () -> new ItemStack(ModItems.TOILET.get()), 3, 4, 2, 0),
         good("mold_remover", 1, () -> new ItemStack(ModItems.MOLD_REMOVER.get()), 3, 4, 2, 0),
-        // Every helping medicine the pet shop can stock; the herbal medicine is not sold here.
+        // Every helping medicine the pet shop can stock.
         good("flour_paste", 1, () -> new ItemStack(ModItems.FLOUR_PASTE.get()), 2, 4, 2, 0),
         good("yogurt_drink", 1, dose(Consumables.Kind.YOGURT), 2, 4, 2, 0),
         good("reproductive_filling", 1, dose(Consumables.Kind.REPRODUCTIVE), 3, 4, 2, 0),
