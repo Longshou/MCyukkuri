@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 台词核对第 1 批：驱逐、油霉、哀悼、帽船取舍 | `.worktrees/wp-dialogue-check-den` | dialogue selection (ReactionSpeech, event pools), lang dialogue |
 
 
 
