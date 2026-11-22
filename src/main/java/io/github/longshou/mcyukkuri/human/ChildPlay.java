@@ -68,7 +68,7 @@ public final class ChildPlay extends Goal {
     private static final int WATCH_SHORT = 60, WATCH_LONG = 160;
     private static final int WAVE_TICKS = 40, WAVE_SHORT = 24;
     /** Interest in one animal lasts 40-100 s from the first gesture; the same pair waits 3-6 min before another. */
-    private static final int ENGAGED_MIN = 800, ENGAGED_SPAN = 1200, COOLDOWN_MIN = 3600, COOLDOWN_SPAN = 3600;
+    private static final int ENGAGED_MIN = 800, ENGAGED_SPAN = 1200, COOLDOWN_MIN = 3600, COOLDOWN_SPAN = 3600, RETRY_PAUSE = 200;
     private static final int OFFER_TICKS = 100;
     /** The crumb lies this far in front of the child (two blocks short of the animal at the 3.5 stand) and the child then steps this far back. */
     private static final double CRUMB_AHEAD = 1.5, BACK_OFF = 2.0;
@@ -211,7 +211,7 @@ public final class ChildPlay extends Goal {
         item = null;
         playing = false;
         parting = "";
-        cooldown.put(target.getUUID(), level.getGameTime() + COOLDOWN_MIN + npc.getRandom().nextInt(COOLDOWN_SPAN));
+        cooldown.put(target.getUUID(), level.getGameTime() + RETRY_PAUSE);   // the long pause starts only once the animal answered (answeredPause)
         npc.getNavigation().moveTo(stand.x, stand.y, stand.z, .9);
         GameplayLog.event(npc, "child", "approach gesture={} target={} identity={} distance={} stand={}", gesture, target.getUUID(),
                 target.status().identity().id(), npc.distanceTo(target), GameplayLog.at(stand));
@@ -414,6 +414,7 @@ public final class ChildPlay extends Goal {
             ticks = WAVE_TICKS * 2;
         } else if (answer == Answer.FLINCH || answer == Answer.OWNER) { pose = Pose.SHRUG; ticks = WAVE_SHORT; }
         else if (answer == Answer.PLAY || eaten) pose = Pose.WAVE;
+        answeredPause(answer);
         GameplayLog.event(npc, "child", "reaction={} answer={} gesture={} target={}", pose, answer, gesture, target.getUUID());
         npc.setChildPose(pose);
         waveLeft = pose == Pose.NONE ? 0 : ticks;
@@ -433,6 +434,7 @@ public final class ChildPlay extends Goal {
             npc.setChildPose(Pose.WAVE);
             waveLeft = reaction.equals("played") ? WAVE_TICKS : WAVE_SHORT;
         }
+        answeredPause(replyOf(target, npc.getUUID()));
         GameplayLog.event(npc, "child", "reaction={} target={} ball={}", reaction, target.getUUID(), item.getUUID());
         phase = Phase.RECOVER;
         clock = 0;
@@ -466,6 +468,12 @@ public final class ChildPlay extends Goal {
             return;
         }
         if (clock % 20 == 1 && !npc.getNavigation().moveTo(item, .9) && !npc.reachesPickup(item)) finish("ball_unreachable");
+    }
+
+    /** A real answered encounter (the animal replied, even only by watching) rests this animal for minutes; an unanswered or moved-away one only for the short retry pause. */
+    private void answeredPause(Answer answer) {
+        if (answer != null && answer != Answer.IGNORE)
+            cooldown.put(target.getUUID(), npc.level().getGameTime() + COOLDOWN_MIN + npc.getRandom().nextInt(COOLDOWN_SPAN));
     }
 
     private void finish(String reason) {
@@ -541,14 +549,19 @@ public final class ChildPlay extends Goal {
         return null;
     }
 
-    /** Dry, open floor for the whole length, so the item neither drops into water nor stops against a block. */
+    /**
+     * Dry, open floor for the whole length, so the item neither drops into water nor stops against a block. A low block in the feet cell
+     * (a path, 15/16 high, the child's own floor) is floor, not an obstacle: only its real collision top above the child's feet blocks.
+     */
     private boolean lineRollable(Vec3 from, Vec3 direction, double length) {
         var level = npc.level();
         for (double t = .4; t <= length; t += .4) {
             var at = from.add(direction.scale(t));
             var feet = new BlockPos(Mth.floor(at.x), npc.getBlockY(), Mth.floor(at.z));
             var below = feet.below();
-            if (!level.getBlockState(feet).getCollisionShape(level, feet).isEmpty() || !level.getFluidState(feet).isEmpty()
+            var shape = level.getBlockState(feet).getCollisionShape(level, feet);
+            boolean blocked = !shape.isEmpty() && feet.getY() + shape.max(Direction.Axis.Y) > npc.getY() + .1;
+            if (blocked || !level.getFluidState(feet).isEmpty()
                     || level.getBlockState(below).getCollisionShape(level, below).isEmpty() || !level.getFluidState(below).isEmpty()) return false;
         }
         return true;
