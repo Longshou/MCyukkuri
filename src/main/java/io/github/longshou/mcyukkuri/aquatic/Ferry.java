@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -149,7 +150,7 @@ final class Ferry {
                 },
                 () -> approachHull(body, hat, beckoning),
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> beckoning == null || hop.get().check(body).reason() != Reason.TOO_FAR ? null : beckoning.step(body, hat),
+                () -> beckoning == null || !drawnToBank(hop.get().check(body)) ? null : beckoning.step(body, hat),
                 // after the turn the way aboard is read again from where she now stands (a lip leg, a stroke already paid)
                 () -> approachHull(body, hat, null),
                 () -> {
@@ -157,6 +158,12 @@ final class Ferry {
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },
                 () -> act(hop.get()));
+    }
+
+    /** A refused landing a hull nearer the bank can change: out of hop reach, or no room because its young cannot leave it from here
+     *  either (their own exit is out of reach too). The braid stroke draws the hull in, once per run; another refusal is not helped. */
+    private static boolean drawnToBank(Feasibility ready) {
+        return ready.reason() == Reason.TOO_FAR || ready.reason() == Reason.NO_ROOM;
     }
 
     private static Step approachHull(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
