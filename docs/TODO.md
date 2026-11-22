@@ -13,6 +13,7 @@
 | 报纸堆来源与垃圾头饰循环 | `.worktrees/wp-item-p4` | item newspaper_stack recipe, corner shop restock, headwear/Headwear junk search |
 | 徽章会馆讲台 | `.worktrees/wp-item-p6` | badge hall template, Podium marker |
 | 公园小孩：带主人的宠物回应、戳/放饼干/追三种逗法 | `.worktrees/wp-eh29-more` | npc/ChildPlay, social/YukkuriSocial child hook, client/HumanRenderer poses, park scene |
+| 情绪过程补齐：伤心、生气、离别有起伏地淡去 | `.worktrees/wp-emotion-courses` | mind/EmotionCourse rows, social/MoldExile, aquatic/LeaveBehind, ShopTrade, Sanction, Contempt, HomeClaim, GroupCards, TreasureLife |
 
 
 
