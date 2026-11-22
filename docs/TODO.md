@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 公园外出：回程寻路失败重试、陶管口让开、游具内部不当普通通路 | `.worktrees/wp-park-outing` | pet/PetOuting, HumanStreet.routeHome, play/PlayLife, play/PlayBlock |
+| 取食先后与陌生食物迟疑（WildCards 第 2 步之 4）；MD-30 围栏 | `.worktrees/wp-wc-food` | life/YukkuriLife food order, life/LifeMeal, event/WildCards, event/WildEvents, cognition/Cognition, scripts/museum_scenarios.py |
 
 
 
