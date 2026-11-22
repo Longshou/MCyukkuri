@@ -278,16 +278,20 @@ public final class Hop implements Action {
                 hosts(body, body.position(), host.frame().toWorld(local)), vec(local.scale(host.frame().unit())), takeoffTicks() - 1) instanceof ArcSolver.Plan;
     }
 
-    /** The same supported entry and arc admission for a planned host and an actual boarding hop. */
+    /** A planned host's nearest entry stop whose own arc from {@code from} is admitted at the pose every admission and takeoff
+     *  reads ({@code takeoffTicks() - 1}: turned to its leg), so the stand that planning picks is the one the hop from it is
+     *  admitted at. */
     public static Vec3 entry(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
-        return new Hop(from).entryFrom(body, from, frame, stops);
+        return new Hop(from).entryFrom(body, from, frame, stops, takeoffTicks() - 1);
     }
 
-    private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops) {
+    /** The nearest stop whose own arc from {@code from} is admitted at the enclosing call's delay: a planned stand and the hop
+     *  from it are weighed in the same pose, a real takeoff (delay 0) in the one the body stands in. */
+    private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops, int delay) {
         return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(entryNear == null ? from : entryNear)))
                 .filter(p -> !body.level().getBlockCollisions(body,
                         body.getBoundingBox().move(frame.toWorld(p).subtract(body.position()))).iterator().hasNext())
-                .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p)), 0) instanceof ArcSolver.Plan)
+                .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p)), delay) instanceof ArcSolver.Plan)
                 .findFirst().orElse(null);
     }
 
@@ -395,7 +399,7 @@ public final class Hop implements Action {
         boolean entering = seatHost != null && anchor == null && target == null && !search.stops(seatHost, body).isEmpty();
         if (entering) {
             var stop = entryFrom(body, from, seatHost.frame(), search.stops(seatHost, body).stream()
-                    .filter(p -> { var at = new SeatTarget(seatHost, p); return at.available(body, arrivalYaw(body, from, at)); }).toList());
+                    .filter(p -> { var at = new SeatTarget(seatHost, p); return at.available(body, arrivalYaw(body, from, at)); }).toList(), delay);
             if (stop == null) return new Flight(Feasibility.of(Reason.TOO_FAR, 0, "no_reachable_brim"), null, null);
             candidate = new SeatTarget(seatHost, stop);
             to = candidate.world();
