@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 油霉驱逐：单方面断绝关系（共用）；DN-11 驱赶不再反复中断 | `.worktrees/wp-mold-sever` | social/Bonds, family mold exile, colony exile |
-| DN-01 子油先哀悼，不先嫌臭 | `.worktrees/wp-dn01-child-grief` | grief / corpse smell reaction |
 | 迎面行走互相堵路：按数值让路 | `.worktrees/wp-give-way-moving` | entity/YukkuriGroundNavigation, motor/action/Walk |
 | 伤口感染：望远镜读数、先擦洗再橙汁、化脓贴图接入 | `.worktrees/wp-wound-infection` | body/BodyLife, BodySigns, client HairWoundRenderer, StatusStrip, HumanNpc, herbal_medicine |
 | EH29 公园小孩滚球，油库里按性格反应 | `.worktrees/wp-eh29-child` | npc/HumanNpc (child type/spawn), HumanWorld, client/HumanRenderer, new ChildPlayGoal, social/YukkuriSocial hook, museum park scene |
