@@ -353,7 +353,7 @@ final class AquaticGoal extends Goal {
 
     /** A hungry young she has food for (her hull's stores or her mouth) and whose feeding her care decision accepted. A head rider is out of
      *  mouth reach, so it is fed on dry ground; set on the ground, it is fed there before she sets out again. */
-    private static boolean hungryYoung(YukkuriEntity parent, YukkuriEntity y, PlacedHatEntity hat) {
+    static boolean hungryYoung(YukkuriEntity parent, YukkuriEntity y, PlacedHatEntity hat) {
         if (!Care.hungry(parent, y) || parent.family().careDecisions().refused(y, CareDecisionLedger.Need.FEED)) return false;
         var larder = HullLarder.of(hat);
         var held = parent.family().carrying();

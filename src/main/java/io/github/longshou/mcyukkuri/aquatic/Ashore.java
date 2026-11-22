@@ -20,6 +20,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
+import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Right;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
@@ -123,6 +124,10 @@ final class Ashore implements Intent {
             // from a hull lying still. One bounded wait per docking; when it ends she goes on.
             if (docked() && !Waters.moored(hat) && settledAt.add(landing.stand()))
                 return List.of(() -> new Step.Wait(() -> Waters.moored(hat), WAIT, Behaviors.BOAT_CALL));
+            // A hungry head rider is out of her mouth's reach and is fed on the bank, where the hull's stores are out of it too: with her
+            // mouth free she takes one portion from the stores now, the care food she lands with (a busy mouth takes none).
+            var portion = headFeedPortion(hat);
+            if (portion != null) return Provision.reach(new Pick(portion, owner.family()::holdCareFood));
             boolean canLand = youngCanLand(hat) && Waters.brimAshore(hat, owner) != null;
             // A young of hers that leaves by its own power goes first, she after it (one at the brim place her own hop leaves from
             // would keep her aboard): with her way off, or docked, she waits while one has its own way ashore or is taking it.
@@ -158,6 +163,16 @@ final class Ashore implements Intent {
         }
         if (youngAboard(hat)) return List.of(() -> new Step.Wait(() -> !youngAboard(hat), WAIT, Behaviors.BOAT_CALL));
         return fromBank(hat, () -> new TakeProp(new HatProp(owner, true, AquaticLife.afloat(hat))));
+    }
+
+    /** The stored portion a hungry head rider of hers could be fed from on the bank, while her mouth is free and holds nothing. */
+    private Pick.Source headFeedPortion(PlacedHatEntity hat) {
+        var larder = HullLarder.of(hat);
+        if (larder == null || owner.family().carry().mouthBusy() || !owner.family().carrying().isEmpty()) return null;
+        for (var child : AquaticLife.young(owner))
+            if (child.getVehicle() == owner && ParentCarry.hold(owner, child) == ParentCarry.Hold.HEAD && AquaticGoal.hungryYoung(owner, child, hat))
+                return larder.source(hat, owner, one -> child.life().canReceiveCareFood(one), "feed");
+        return null;
     }
 
     /** Aboard and no bank in hop reach: paddle the next leg toward a landing over calm water. */
