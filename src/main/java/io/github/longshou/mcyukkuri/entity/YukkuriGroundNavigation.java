@@ -682,7 +682,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var other = blocker.entity();
         long id = blocker.box().id();
         var round = blockers.get(id);
-        boolean oncoming = moving(other);
+        // A yielder holding still for the keeper is still the body walking into it, not a standing one (else the keeper yields too).
+        boolean oncoming = moving(other) || other instanceof Mob m && m.getNavigation() instanceof YukkuriGroundNavigation g && now < g.yieldUntil;
         boolean marked = round != null && round.until() > now;
         // The rank is a pure function of both bodies; a mark from this round keeps the yielder yielding, and a keeper still held
         // up after three windows (the yielder cannot clear the way) takes the yielder's part once per round.
