@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
@@ -122,7 +123,7 @@ public final class LeafSwaddle {
     }
 
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive()) return;
+        if (entity.level().isClientSide || !entity.isAlive() || SceneHold.held(entity)) return; // a scene start hold waits, carry and removal included
         if (pollWait > 0) pollWait--;
         tickCarry();
         if (!wrapped() || soil == 0) changeNeglect(Math.max(0, neglect - RECOVERY_RATE));
