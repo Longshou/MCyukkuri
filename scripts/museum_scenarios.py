@@ -11847,9 +11847,9 @@ def _ring_stray_fates(window):
                 return f'{name} came to {gap:.1f} blocks of the paving; its shyness keeps it at 4 or more'
             if name != 'ring_timid' and gap > 3.8:
                 return f'{name} stopped {gap:.1f} blocks from the paving; its boldness keeps it within 3.8'
-            # The sight scan runs every 2 seconds and needs 2 seconds of dwell; an arrival in the last 20 seconds is not judged.
+            # The sight scan runs every 2 seconds and may fire on the approach into the ring or while standing at it.
             if name in ('ring_cocky', 'ring_voided') and end - int(line[1]) > 400 and not re.search(
-                    rf'uuid={actor} t=(\d+) [^\n]*badge sight subject={holder} ', window[line.start():]):
+                    rf'uuid={actor} t=(\d+) [^\n]*badge sight subject={holder} ', window):
                 return f'{name} stood at the ring and never saw the badge'
     if not arrived:
         return 'no stray reached the ring'
@@ -11861,8 +11861,12 @@ def _ring_stray_fates(window):
         return 'no plaza reaction beat fired'
 
 
-# The scene itself provides the real start via at_spawn plaza_visit; smoke does not inject any extra commands.
-next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, expect=[
+# The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
+# BadgeSocial uses the normal player-audience budget instead of the headless world bucket.
+next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
+    (1, 'execute positioned ~-10 ~ ~-2 run yukkuri scenario tool_operator enter'),
+    (5380, 'yukkuri scenario tool_operator leave'),
+], expect=[
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
