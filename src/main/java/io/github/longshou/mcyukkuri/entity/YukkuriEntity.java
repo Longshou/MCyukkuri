@@ -237,7 +237,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private String reactionEvent = "";
     private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
     private DelayedCue pendingSpeech;
-    private int pendingSpeechTicks;
+    private int pendingSpeechTicks, pendingSpeechFloor;
     // The bridge reads nothing during construction; component instances keep their original timing.
     private final PresentationArbiter presentation = new PresentationArbiter(new PresentationState());
 
@@ -883,11 +883,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!firstReactionTick && pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
             var cue = pendingSpeech;
             pendingSpeech = null;
+            int floor = pendingSpeechFloor;
+            pendingSpeechFloor = 0;
             // A newborn's first words: its kind's childish hello when it has one, else its newborn line (FamilyLife.firstWords).
             if (cue.action() == null) {
                 boolean first = cue.event().equals("newborn");
                 String words = first ? family.firstWords() : cue.event();
-                if (speak(words, first && words.equals("hello") ? "young" : speechTier()) && first) BirthStaging.greeting(this);
+                if (speak(words, first && words.equals("hello") ? "young" : speechTier(), false, null, floor) && first) BirthStaging.greeting(this);
             } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
@@ -932,6 +934,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, null);
     }
 
+    /** As above, with a priority floor for the delayed line, so a beat that must be heard is not swallowed by a competing cue. */
+    public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks, int priorityFloor) {
+        if (showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, null)) pendingSpeechFloor = priorityFloor;
+    }
+
     public boolean showReactionDelayed(YukkuriAction action, String expression, String event, int ticks, int speechDelayTicks,
                                        YukkuriAction follow, java.util.function.Consumer<Boolean> spoken) {
         if (level().isClientSide || held() && !urgent(event)) return false;
@@ -939,6 +946,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         reactionAfter = follow;
         reactionTicks = ticks; reactionHeld = action != null; reactionExpression = expression; reactionEvent = event == null ? "" : event;
         pendingSpeech = new DelayedCue(reactionEvent, action, spoken); pendingSpeechTicks = Math.max(1, speechDelayTicks);
+        pendingSpeechFloor = 0;
         if (action != null) {
             reactionStartedAt = level().getGameTime();
             setAnimation(action, true);

@@ -1687,7 +1687,9 @@ public final class ParentCarry {
                 String.format(Locale.ROOT, "%.3f", volume(child)), String.format(Locale.ROOT, "%.3f", volume(carrier)), carrier.getPassengers().size());
         var hold = hold(carrier, child);
         boolean strained = load(carrier, child, hold, true) >= STRAIN_LOAD;
-        carrier.showReaction(strained ? "tired" : "happy", strained ? "puff" : "gentle", 40);
+        // Only an ordinary lift is glad: a flight with the young is no time for "so happy", and effort is not a refusal.
+        boolean fleeing = purpose == Purpose.PROTECT;
+        carrier.showReaction(strained ? "tired" : fleeing ? "surprise" : "happy", strained || fleeing ? "" : "gentle", 40);
         if (strained) GameplayLog.event(carrier, "family", "carry strain hold={} child={} load={}", hold.key(),
                 child.getUUID(), load(carrier, child, hold, true));
     }

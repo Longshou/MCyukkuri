@@ -225,7 +225,7 @@ public final class Custody {
         float bond = animal.life().personality().attachment() / 100f;
         animal.mind().add(EmotionEvent.FAMILY_DEATH.delta() * bond, "owner_died");
         animal.mind().perform("bereaved", 100);
-        animal.showReaction("teary", "kin_dying", 100);
+        animal.showReaction("teary", "family_died", 100);
         animal.mind().feeling().mourn(owner.getUUID(), owner.blockPosition());
         GameplayLog.event(animal, "custody", "keeper grieved owner={} attachment={} unease={}", owner.getUUID(),
                 animal.life().personality().attachment(), animal.mind().unease());

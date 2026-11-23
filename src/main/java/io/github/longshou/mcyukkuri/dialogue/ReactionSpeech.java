@@ -32,8 +32,8 @@ public final class ReactionSpeech {
     /** Her words to the young her full hull leaves on the bank: no tie is cut, so even the cold one only tells it to stay. */
     public static String leftAshore(boolean cold) { return cold ? "left_ashore_cold" : "left_ashore_warm"; }
 
-    /** The fond kin's apology over the mouldy one: a mate says its own sorrow, which names no child. */
-    public static String moldSorrow(boolean mate) { return mate ? "mold_sorrow_mate" : "mold_sorrow"; }
+    /** The fond kin's apology over the mouldy one: only one with young to protect names a child; a mate, sibling or grown child does not. */
+    public static String moldSorrow(boolean mate, boolean youngToProtect) { return !mate && youngToProtect ? "mold_sorrow" : "mold_sorrow_mate"; }
 
     public static String ousted(Answer answer, boolean byGuardian) {
         return switch (answer) {

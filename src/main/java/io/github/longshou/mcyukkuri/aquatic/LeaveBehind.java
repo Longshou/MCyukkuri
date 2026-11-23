@@ -182,7 +182,7 @@ final class LeaveBehind implements Intent {
     }
 
     /** The child answers by its own temperament while the parent still looks at it; a cut child is hurt and its siblings in sight cry
-     *  after it, a child the hull left ashore only shows what it feels (no voice line, no hurt, nobody else cries). */
+     *  after it, a child the hull left ashore only shows what it feels (no hurt, nobody else cries; only its cry after the hull is voiced). */
     private void answer() {
         if (memo.reply != null) return;
         memo.reply = Ousting.answer(child.life().personality().temperament());
@@ -193,6 +193,8 @@ final class LeaveBehind implements Intent {
             case SHRUG -> child.showReaction("hmph", "", 40);
         };
         if (memo.ferry) {
+            // Only the cry after the departing hull is voiced; the sulk and the stamp stay wordless.
+            if (shown && memo.reply == Ousting.Answer.FAREWELL) child.speakCue("mold_child_cry", null, SAY_PRIORITY);
             GameplayLog.event(child, "family", "overload left ashore child answers parent={} answer={}", parent.getUUID(), memo.reply);
             return;
         }
@@ -200,7 +202,8 @@ final class LeaveBehind implements Intent {
         child.mind().feeling().wronged(parent.getUUID(), .6f);
         // The one severing here is always the child's own parent.
         String cue = ReactionSpeech.ousted(memo.reply, true);
-        if (shown && !cue.isEmpty()) child.speakCue(cue);
+        // The capsized young say water_help every few ticks: the cut child's answer holds the parent's own floor to be heard.
+        if (shown && !cue.isEmpty()) child.speakCue(cue, null, SAY_PRIORITY);
         for (var sibling : AquaticLife.young(parent)) {
             if (sibling == child || !Bonds.parentOf(parent, sibling)) continue;
             String missed = sibling.distanceToSqr(child) > SIBLING_SIGHT * SIBLING_SIGHT ? "out_of_range"
@@ -209,7 +212,7 @@ final class LeaveBehind implements Intent {
                 GameplayLog.event(sibling, "family", "overload child missed departure sibling={} reason={}", child.getUUID(), missed);
                 continue;
             }
-            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20);
+            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY);
             sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
             GameplayLog.event(sibling, "family", "overload sibling cries sibling={}", child.getUUID());
         }

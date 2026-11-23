@@ -1613,7 +1613,8 @@ public final class YukkuriLife {
                     boolean leaving = foundCover.leaveAfterSleep();
                     if (!leaving) foundCover.stop();
                     task = leaving ? Task.FOUND_COVER : Task.NONE; restWait = restInterval(); resetSleep();
-                    if(!entity.family().woke())entity.showReaction("neutral", "awake", 60);
+                    // "Good morning" greets a rested wake only; a hunger, thirst, toilet or child's call that broke the sleep says nothing of it.
+                    if(!entity.family().woke())entity.showReaction("neutral", cause.startsWith("rested") ? "awake" : "", 60);
                 }
             }
             default -> { }

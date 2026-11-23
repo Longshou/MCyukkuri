@@ -208,8 +208,9 @@ final class FamilyFeeding {
         if(!decision.newDecision())return decision.accepted();
         boolean accepted=decision.accepted();
         o.entity().getLookControl().setLookAt(child,20,20);
-        o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"mood_bad",80);
-        child.showReaction(accepted?"happy":"cry",accepted?"caregiver":"hungry",80);
+        // The turn-away is the refusal and the child's glad face the answer: neither borrows a mood or cling line.
+        o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"",80);
+        child.showReaction(accepted?"happy":"cry",accepted?"":"hungry",80);
         BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
         // The refusal is a whole visible turn away at the body's own turn rate (a Face action), not one bounded step.
         if(!accepted){

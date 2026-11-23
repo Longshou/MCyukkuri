@@ -591,7 +591,7 @@ public final class FamilyLife {
         entity.getLookControl().setLookAt(at.x,at.y+.1,at.z,20,20);
     }
     /** A role's intent starts in BirthGoal: the father who notices the labour shows it (project original staging). */
-    public void birthIntentStarted(Conductor.Role role,Intent intent) { if(LiveBirth.CATCHER.equals(role.role())&&"rendezvous".equals(intent.id()))entity.showReaction("surprise","caregiver",50); }
+    public void birthIntentStarted(Conductor.Role role,Intent intent) { if(LiveBirth.CATCHER.equals(role.role())&&"rendezvous".equals(intent.id()))entity.showReaction("surprise","",50); }
     /** BirthGoal stops: only a family task it took over is stopped, so a finished role leaves the next errand no pause. */
     public void stopBirthGoal() { if(task!=Task.NONE)stop(); }
     /** A birth role, or comforting a hurt newborn, comes before ordinary household routines. Pure observation. */

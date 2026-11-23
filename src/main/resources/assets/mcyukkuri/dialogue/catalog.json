@@ -4501,8 +4501,7 @@
     "species": "remilia",
     "age": "adult",
     "events": [
-      "gentle",
-      "caregiver"
+      "gentle"
     ],
     "ticks": 108,
     "sound": "voice.original.remilia.adult.o_gentle"
@@ -5413,8 +5412,7 @@
     "species": "flandre",
     "age": "adult",
     "events": [
-      "gentle",
-      "caregiver"
+      "gentle"
     ],
     "ticks": 92,
     "sound": "voice.original.flandre.adult.o_gentle"
@@ -88875,6 +88873,52 @@
       "remilia.juvenile": "voice.original.confess.remilia.juvenile",
       "remilia.young": "voice.original.confess.remilia.young",
       "remilia.adult": "voice.original.confess.remilia.adult"
+    }
+  },
+  {
+    "id": "confess_mate",
+    "key": "dialogue.mcyukkuri.original.confess_mate",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "confess_mate"
+    ],
+    "ticks": 171,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.confess_mate.alice.baby",
+      "alice.juvenile": "voice.original.confess_mate.alice.juvenile",
+      "alice.young": "voice.original.confess_mate.alice.young",
+      "alice.adult": "voice.original.confess_mate.alice.adult",
+      "chen.baby": "voice.original.confess_mate.chen.baby",
+      "chen.juvenile": "voice.original.confess_mate.chen.juvenile",
+      "chen.young": "voice.original.confess_mate.chen.young",
+      "chen.adult": "voice.original.confess_mate.chen.adult",
+      "flandre.baby": "voice.original.confess_mate.flandre.baby",
+      "flandre.juvenile": "voice.original.confess_mate.flandre.juvenile",
+      "flandre.young": "voice.original.confess_mate.flandre.young",
+      "flandre.adult": "voice.original.confess_mate.flandre.adult",
+      "marisa.baby": "voice.original.confess_mate.marisa.baby",
+      "marisa.juvenile": "voice.original.confess_mate.marisa.juvenile",
+      "marisa.young": "voice.original.confess_mate.marisa.young",
+      "marisa.adult": "voice.original.confess_mate.marisa.adult",
+      "myon.baby": "voice.original.confess_mate.myon.baby",
+      "myon.juvenile": "voice.original.confess_mate.myon.juvenile",
+      "myon.young": "voice.original.confess_mate.myon.young",
+      "myon.adult": "voice.original.confess_mate.myon.adult",
+      "patchouli.baby": "voice.original.confess_mate.patchouli.baby",
+      "patchouli.juvenile": "voice.original.confess_mate.patchouli.juvenile",
+      "patchouli.young": "voice.original.confess_mate.patchouli.young",
+      "patchouli.adult": "voice.original.confess_mate.patchouli.adult",
+      "reimu.baby": "voice.original.confess_mate.reimu.baby",
+      "reimu.juvenile": "voice.original.confess_mate.reimu.juvenile",
+      "reimu.young": "voice.original.confess_mate.reimu.young",
+      "reimu.adult": "voice.original.confess_mate.reimu.adult",
+      "remilia.baby": "voice.original.confess_mate.remilia.baby",
+      "remilia.juvenile": "voice.original.confess_mate.remilia.juvenile",
+      "remilia.young": "voice.original.confess_mate.remilia.young",
+      "remilia.adult": "voice.original.confess_mate.remilia.adult"
     }
   },
   {

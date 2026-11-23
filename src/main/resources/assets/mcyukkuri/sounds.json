@@ -63404,6 +63404,294 @@
       }
     ]
   },
+  "voice.original.confess_mate.alice.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.alice.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.alice.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.alice.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.alice.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.alice.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.alice.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.alice.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.chen.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.chen.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.chen.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.chen.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.chen.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.chen.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.chen.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.chen.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.flandre.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.flandre.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.flandre.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.flandre.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.flandre.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.flandre.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.flandre.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.flandre.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.marisa.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.marisa.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.marisa.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.marisa.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.marisa.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.marisa.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.marisa.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.marisa.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.myon.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.myon.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.myon.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.myon.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.myon.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.myon.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.myon.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.myon.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.patchouli.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.patchouli.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.patchouli.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.patchouli.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.patchouli.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.patchouli.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.patchouli.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.patchouli.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.reimu.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.reimu.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.reimu.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.reimu.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.reimu.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.reimu.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.reimu.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.reimu.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.remilia.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.remilia.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.remilia.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.remilia.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.remilia.young": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.remilia.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.confess_mate.remilia.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.confess_mate",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/confess_mate.remilia.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
   "voice.original.elope_invite.alice.baby": {
     "subtitle": "dialogue.mcyukkuri.original.elope_invite",
     "sounds": [

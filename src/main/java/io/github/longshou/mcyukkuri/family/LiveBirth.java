@@ -289,7 +289,7 @@ final class LiveBirth extends Choreography {
                 var at=FamilyGeometry.toWorld(m,ripeFruit(m,b,i));
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
                 if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null)!=null)
-                    m.showReaction(b.incidentSource==null?"happy":"teary",b.incidentSource==null?"birth":"",100);
+                    m.showReaction(b.incidentSource==null?"happy":"teary","",100); // the child is already out: "about to give birth" is over
             }
             // Start the existing eight-tick stagger when the mother can release ripe fruit.
             if(!b.complete()&&b.elapsed<b.duration+40){
@@ -339,7 +339,7 @@ final class LiveBirth extends Choreography {
                 ClipMarkers.of(cabin.clip()).markers().get("land"),nominal.ticks(),at,nominal.aim(),nominal.velocity());
         deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
-        m.showReaction(pushing>0?"sleepy":"closed_smile","birth",LiveBirthGeometry.REST); // later children come easier but tire her more
+        m.showReaction(pushing>0?"sleepy":"closed_smile","",LiveBirthGeometry.REST); // later children come easier but tire her more
         if(b.complete())o.delivered(b);
         return "";
     }

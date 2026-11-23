@@ -148,7 +148,8 @@ final class ChildCall {
     }
 
     void beginAbsence(UUID relative, Vec3 toward) {
-        beginCall(relative, toward, "lost_parent");
+        // "Where are my parents?" is a young one's cry; a grown one calling for a missing mate or kin says its waiting call.
+        beginCall(relative, toward, o.entity().family().adult() ? "wait_family" : "lost_parent");
         GameplayLog.event(o.entity(), "family", "missing kin call kin={} at={} toward={}",
                 relative, o.entity().blockPosition(), GameplayLog.at(toward));
     }

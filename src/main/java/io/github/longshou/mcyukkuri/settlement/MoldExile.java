@@ -529,8 +529,9 @@ public final class MoldExile extends Goal implements MotorOwner {
         if (ticks == 1 && noticeEnd > 0)
             entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
         if (ticks == answerAt) answer();
-        if (scorn && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50) && entity.skills().knows(Ability.MOLD_LORE))
-            entity.speakCue("mold_scorn");
+        // "Mouldy thing, get out" is for strangers: a cold parent driving its own child only glares and keeps the warning.
+        if (scorn && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50) && childVerdict == null
+                && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0)) return;
         // One decision is one continuous drive-off: one push action starts, follows the sick one and keeps its clip until it is out
         // of the home range; the witness then only watches it go.
@@ -563,12 +564,20 @@ public final class MoldExile extends Goal implements MotorOwner {
                 entity.speakCue(childVerdict == Verdict.KEEP ? "keep_child" : "drive_child_tearful");
         } else if (fond) {
             if (entity.skills().knows(Ability.MOLD_LORE)) {
-                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue(ReactionSpeech.moldSorrow(Bonds.eitherMate(entity, peer) && !Bonds.directParentChild(entity, peer)));
+                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue(ReactionSpeech.moldSorrow(
+                        Bonds.eitherMate(entity, peer) && !Bonds.directParentChild(entity, peer), youngToProtect()));
             } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD);
         } else if (driving) {
             if (entity.showReaction("puff", "", 50)) entity.speakCue(entity.skills().knows(Ability.MOLD_LORE) ? "mold_warn" : "mold_shun_unaware");
         }
         else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 40);
+    }
+
+    /** Whether a healthy young one of its own care stands near: only then is "the little one would get sick too" its reason. */
+    private boolean youngToProtect() {
+        return !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2 * SIGHT),
+                y -> y != entity && y != peer && y.isAlive() && y.body().mold() == 0 && y.childhood().shouldStayWithParents()
+                        && Bonds.careKin(entity, y)).isEmpty();
     }
 
     private boolean canPush() {

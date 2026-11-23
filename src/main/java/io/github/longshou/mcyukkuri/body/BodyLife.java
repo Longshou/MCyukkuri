@@ -315,11 +315,12 @@ public final class BodyLife {
         freezeFood();
         coreHurt=true;dying=DYING_TICKS;dyingCause=cause;dyingSource=source;
         entity.life().interrupt();entity.getNavigation().stop();
-        entity.showReaction("blank_cry","dying",DYING_TICKS);
         entity.mind().spike(ExcitedLeak.Stimulus.DYING);
         updateMobility();entity.syncBody();
         GameplayLog.event(entity,"body","core hurt ({}), dying for {} ticks; health {}/{}",cause,DYING_TICKS,entity.getHealth(),entity.getMaxHealth());
+        // Last words to kin (or an offering) replace the plain "want to stay a little longer" line instead of cutting it short.
         for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
+        if(!entity.reactingTo("dying_kin")&&!entity.reactingTo("offer_give"))entity.showReaction("blank_cry","dying",DYING_TICKS);
     }
     private void finishDying(){
         terminalKill(dyingSource!=null?dyingSource:entity.damageSources().generic(),true,false,dyingCause);

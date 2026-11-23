@@ -82,8 +82,8 @@ public final class GriefLife {
             return;
         }
         if (kin.isEmpty()) return;
-        // The 'dying' line (wanting to take it easy a little longer) is already on its way; the words to the kin follow it.
-        dying.showReactionDelayed("blank_cry", "dying_kin", ticks, 28);
+        // The words to the kin stand in for the plain 'dying' line, from the first tick, so nothing cuts them short.
+        dying.showReactionDelayed("blank_cry", "dying_kin", ticks, 1);
         GameplayLog.event(dying, "grief", "last words kin={} cause={}",
                 kin.stream().limit(4).map(YukkuriEntity::getUUID).toList(), cause);
         int n = 0;
@@ -209,12 +209,15 @@ public final class GriefLife {
             }
             SurfaceApproach.halt(entity);
             SurfaceApproach.face(entity,SurfaceApproach.yaw(entity.position(),challenger.position()));
-            if (++tauntTicks == 1) {
+            boolean first = ++tauntTicks == 1;
+            boolean diverts = challenger.predator().divert(entity,protectedChild);
+            if (first) {
                 decision = "taunting";
-                entity.showReaction("puff_teary","protect_taunt",45);
+                // The one who draws the predator off says so ("I'll lead it away, run!"); a taunt it ignores is only the puff at it.
+                entity.showReaction("puff_teary",diverts ? "sacrifice" : "protect_taunt",45);
                 GameplayLog.event(entity,"grief","protection taunt predator={} child={} distance={}",challenger.getUUID(),protectedChild.getUUID(),entity.distanceTo(challenger));
             }
-            if (challenger.predator().divert(entity,protectedChild)) {
+            if (diverts) {
                 decision = "diverted"; sacrificeWait = 3600;
                 challenger.showReaction("angry","protect_angered",60);
                 int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());

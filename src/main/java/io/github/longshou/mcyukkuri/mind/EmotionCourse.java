@@ -371,15 +371,28 @@ public final class EmotionCourse {
                 if (event != null) return vow(event, lost, GriefVow.style(t.is(Gate.ATTACHED), t.is(Gate.STOIC), t.is(Gate.BOLD)));
             }
         }
+        // Grief for a thing (a lost ornament) has no companion to sob for: only the face shows it.
         String event = switch (kind) {
-            case GRIEF -> peak ? "mourn_sob" : "mourn_miss";
-            case TERROR -> peak ? "shaken_after" : "shaken_check";
+            case GRIEF -> about == null ? "" : peak ? "mourn_sob" : "mourn_miss";
+            case TERROR -> terrorWords(peak);
             case RAGE -> peak ? "fume" : "sulk_huff";
             case JOY -> peak ? "glow" : "glow_hum";
             case PARTING -> "parting_gaze";
         };
         entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, 60);
         return true;
+    }
+
+    /** "Has it gone?" asks after a threat; fear of one's own mold, burn or wound has none, so only the shaking is spoken. */
+    private String terrorWords(boolean peak) {
+        if (peak) return "shaken_after";
+        return about == null ? "" : "shaken_check";
+    }
+
+    private boolean aboutDead() {
+        if (about == null) return false;
+        var person = FamilyData.get((ServerLevel)entity.level()).person(about);
+        return person != null && person.status == FamilyData.Status.DEAD;
     }
 
     private boolean vow(String event, Lost lost, String style) {
@@ -393,7 +406,7 @@ public final class EmotionCourse {
     /** Midway through a fading grief it remembers once: looks around, teary, and says so. */
     private boolean recall() {
         if (!calm()) return false;
-        entity.showReaction("teary", "mourn_recall", 80);
+        entity.showReaction("teary", about == null ? "" : "mourn_recall", 80);
         return true;
     }
 
@@ -402,8 +415,9 @@ public final class EmotionCourse {
         boolean ownChild = kind == Kind.PARTING && about != null
                 && FamilyData.get((ServerLevel)entity.level()).children(entity.getUUID()).contains(about);
         String closing = switch (kind) {
-            case GRIEF -> "mourn_over";
-            case TERROR -> "shaken_over";
+            // The closing vow carries a lost one's share forward: only a confirmed death earns it.
+            case GRIEF -> aboutDead() ? "mourn_over" : null;
+            case TERROR -> about == null ? null : "shaken_over";
             case PARTING -> ownChild ? "parting_over" : null;
             default -> null;
         };

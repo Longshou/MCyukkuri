@@ -29,6 +29,8 @@ public final class ConscienceGoal extends Goal {
     private YukkuriEntity child;
     private Vec3 stand;
     private long confessionAt = -1;
+    /** Whether the one answering the owner bore the brood: only she says "had them in secret"; the father pleads for the little ones. */
+    private boolean bearer;
 
     public ConscienceGoal(YukkuriEntity pet) {
         this.pet = pet;
@@ -61,6 +63,7 @@ public final class ConscienceGoal extends Goal {
         var level = (ServerLevel) pet.level();
         var family = FamilyData.get(level).brood(entry.brood);
         boolean mother = pet.getUUID().equals(family.mother);
+        bearer = mother;
         style = entry.parents.get(mother ? 0 : 1).style();
         if (style == null) return false;
         child = null;
@@ -163,7 +166,7 @@ public final class ConscienceGoal extends Goal {
             if (brood == null) pet.pet().conscience().caught("confession");
             else if (style == ArcStyle.CONFESS) {
                 SurfaceApproach.halt(pet);
-                if (say(YukkuriAction.BOW, "teary", "confess", owner)) {
+                if (say(YukkuriAction.BOW, "teary", bearer ? "confess" : "confess_mate", owner)) {
                     confessionAt = pet.level().getGameTime();
                     return;
                 }

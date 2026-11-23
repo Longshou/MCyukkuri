@@ -170,6 +170,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
                             gatherUntil = owner.level().getGameTime() + GATHER_YOUNG;
+                            owner.speakCue("caregiver"); // the call to the berth is heard, as the land-side call is
                             return new Step.Wait(this::gatherOver, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
                         });
             }

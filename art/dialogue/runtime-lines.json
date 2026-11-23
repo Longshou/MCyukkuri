@@ -6783,8 +6783,7 @@
       "japanese": "うー、もうちょっと そばに いてのだ……くっついて いたい……",
       "chinese": "呜——再陪蕾米莉亚一会儿呀……蕾米莉亚想挨着你……",
       "events": [
-        "gentle",
-        "caregiver"
+        "gentle"
       ],
       "origin": "project-original",
       "source": {
@@ -8065,8 +8064,7 @@
       "japanese": "うー、もうちょっと そばに いてよ……くっついて いたい……",
       "chinese": "呜——再陪芙兰一会儿哦……芙兰想挨着你……",
       "events": [
-        "gentle",
-        "caregiver"
+        "gentle"
       ],
       "origin": "project-original",
       "source": {

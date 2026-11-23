@@ -112,7 +112,7 @@ public final class GroupCards {
         for (var kin : all) regard += relations.affinity(kin.getUUID(), owner.getUUID());
         release(all);
         if (regard < 0) {
-            owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "gentle", 90);
+            owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "", 90); // a tearful apology: no line fits, and "so happy" is not it
             for (var kin : all) relations.relate(kin.getUUID(), owner.getUUID(), 4);
             all.getFirst().showReaction("happy", "share", 70);
             WildEvents.finish(level, s, Phase.COMPLETE, "apologized_and_shared");

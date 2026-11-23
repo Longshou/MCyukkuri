@@ -170,7 +170,9 @@ final class GlassVigil implements MotorOwner {
         int length=EcologyPresentation.duration(Behaviors.GLASS_FAREWELL);
         deadline=family.level().getGameTime()+length;
         parent.forceReaction("teary","",length);
-        boolean spoken=parent.speak("give_up_search");
+        // "Can't get through now" is the giving-up of a wait; pulled away by panic, a need or another task she says nothing of it.
+        boolean pulledAway=reason.equals("danger")||reason.equals("urgent_need")||reason.equals("interrupted");
+        boolean spoken=!pulledAway&&parent.speak("give_up_search");
         GameplayLog.event(parent,"family","glass farewell child={} block={} reason={} spoken={}",child.getUUID(),glass,reason,spoken);
     }
 
