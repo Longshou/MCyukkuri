@@ -4069,12 +4069,12 @@ for _s in (-1, 1):
                       box(-2, 2, 6 * _s, 2, 2, 10 * _s, 'minecraft:oak_planks'),
                       block(0, 0, 8 * _s, f'mcyukkuri:yukkuri_nest[facing={"south" if _s < 0 else "north"}]')]
 add(_corridor, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
-    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧和左（南）侧各有一只疲倦、互不相识的成体，自己的窝在对面巷底的小屋里（开场可能先朝身边的空窝挪一两步，约 2 秒后转身）。两只回窝时在中段迎面顶住：看谁让路——挪进靠你一侧的玻璃侧袋，或沿来路后退——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
+    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧巷口站着一只、左（南）侧玻璃侧袋口站着另一只疲倦、互不相识的成体，各自的窝在对面巷底的小屋里。两只回窝时在侧袋北沿的窄段迎面顶住：看谁让路——沿来路后退、退到侧袋处挪进去——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
     '约 30 秒', [
         *_corridor_set,
-        yk(('reimu', 'marisa'), 0, -4, 'corridor_north', uuid=uid(_corridor, 'corridor_north'), label='北侧回窝的成体',
+        yk(('reimu', 'marisa'), 0, -5, 'corridor_north', uuid=uid(_corridor, 'corridor_north'), label='北端回窝的成体',
            lead=True, yaw=0, energy=30, rest_wait=60, boldness=(20, 90)),
-        yk(('reimu', 'marisa'), 0, 4, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='南侧回窝的成体',
+        yk(('reimu', 'marisa'), 0, -2, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='侧袋口回窝的成体',
            yaw=180, energy=30, rest_wait=60, boldness=(20, 90)),
     ], at_spawn=[home('corridor_north', 0, 8), home('corridor_south', 0, -8)], env=DAY,
     vantage=(10, 0, 90, 8),
