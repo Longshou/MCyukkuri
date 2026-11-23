@@ -7899,6 +7899,39 @@ assert sorted(POND_TOUR) == sorted(scenario.id for scenario in BY_ID['pond'].sce
 BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
 
 
+
+# A weak body (health 30%) crawls to its food; a starving one has an apple only on top of a two-block pillar (a hop it no longer has)
+# and a second one far on the ground; a healthy hungry control has the same pillar.
+_FG = {name: uid('frail_gait', name) for name in ('weak', 'gap', 'gap_ctl')}
+add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '重伤爬行、虚弱不蹦跳',
+    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。右：营养30的健康灵梦同样的石柱，对照能蹦上去',
+    '约 1 分钟', [
+        yk('reimu', -10, 0, 'weak', label='生命3·爬行', nutrition=40, energy=95, uuid=_FG['weak'], lead=True),
+        item('minecraft:apple', 1, -5, 0, 'weak_food'),
+        yk('reimu', -10, 8, 'gap', label='营养5·虚弱', nutrition=5, energy=95, uuid=_FG['gap']),
+        block(-5, 0, 8, 'minecraft:stone'), block(-5, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, -5, 8, 'gap_food', dy=2.05),
+        item('minecraft:apple', 1, -10, 18, 'gap_far'),
+        yk('reimu', 10, 8, 'gap_ctl', label='营养30·健康对照', nutrition=30, energy=95, uuid=_FG['gap_ctl']),
+        block(15, 0, 8, 'minecraft:stone'), block(15, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, 15, 8, 'gap_ctl_food', dy=2.05)],
+    late=[set_status('weak', 'health.health', 3)],
+    env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap', 'gap_ctl')])
+
+
+def _verify_frail_gait(window, trace):
+    weak, gap = _clips(trace, _FG['weak']), _clips(trace, _FG['gap'])
+    if not re.search(rf'\[move\][^\n]* uuid={_FG["weak"]} [^\n]*gait crawl cause=weak\b', window):
+        return 'The weak body never crawled'
+    for name, rows in (('weak', weak), ('gap', gap)):
+        if hops := [row for row in rows if row[2] in _HOP_CLIPS]:
+            return f'The {name} body hopped: {hops[0]}'
+    if not re.search(rf'uuid={_FG["weak"]} [^\n]*swallowed item=minecraft:apple', window):
+        return 'The weak body never reached its apple'
+
+
+next(s for s in S if s.id == 'frail_gait').smoke = dict(
+    ticks=1800, expect=[], forbid=[r'\[body\][^\n]* invariant\b'], verify=_verify_frail_gait, verify_trace=True)
+
+
 def _number_scenes():
     """Give every scene the number the registry holds, and refuse a registry that breaks the append-only rule."""
     codes, numbers = NUMBERS['fields'], NUMBERS['numbers']
@@ -8084,7 +8117,7 @@ TOPICS = {
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5',
-    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
+    'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
@@ -11034,34 +11067,3 @@ _scene_end('family_search_pane', [('pane_parent', _DRY), ('pane_child', _DRY)],
             ('pane_parent', 'seen:action:break id=bash'), ('pane_parent', 'seen:family:glass crossed'),
             ('pane_parent', 'seen:family:child search reunited')])
 
-
-# A weak body (health 30%) crawls to its food; a starving one has an apple only on top of a two-block pillar (a hop it no longer has)
-# and a second one far on the ground; a healthy hungry control has the same pillar.
-_FG = {name: uid('frail_gait', name) for name in ('weak', 'gap', 'gap_ctl')}
-add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '重伤爬行、虚弱不蹦跳',
-    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。右：营养30的健康灵梦同样的石柱，对照能蹦上去',
-    '约 1 分钟', [
-        yk('reimu', -10, 0, 'weak', label='生命3·爬行', nutrition=40, energy=95, uuid=_FG['weak'], lead=True),
-        set_status('weak', 'health.health', 3),
-        item('minecraft:apple', 1, -5, 0, 'weak_food'),
-        yk('reimu', -10, 8, 'gap', label='营养5·虚弱', nutrition=5, energy=95, uuid=_FG['gap']),
-        block(-5, 0, 8, 'minecraft:stone'), block(-5, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, -5, 8, 'gap_food', dy=2.05),
-        item('minecraft:apple', 1, -10, 18, 'gap_far'),
-        yk('reimu', 10, 8, 'gap_ctl', label='营养30·健康对照', nutrition=30, energy=95, uuid=_FG['gap_ctl']),
-        block(15, 0, 8, 'minecraft:stone'), block(15, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, 15, 8, 'gap_ctl_food', dy=2.05)],
-    env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap', 'gap_ctl')])
-
-
-def _verify_frail_gait(window, trace):
-    weak, gap = _clips(trace, _FG['weak']), _clips(trace, _FG['gap'])
-    if not any(row[2] == 'crawl' for row in weak):
-        return 'The weak body never crawled'
-    for name, rows in (('weak', weak), ('gap', gap)):
-        if hops := [row for row in rows if row[2] in _HOP_CLIPS]:
-            return f'The {name} body hopped: {hops[0]}'
-    if not re.search(rf'uuid={_FG["weak"]} [^\n]*swallowed item=minecraft:apple', window):
-        return 'The weak body never reached its apple'
-
-
-next(s for s in S if s.id == 'frail_gait').smoke = dict(
-    ticks=1800, expect=[], forbid=[r'\[body\][^\n]* invariant\b'], verify=_verify_frail_gait, verify_trace=True)

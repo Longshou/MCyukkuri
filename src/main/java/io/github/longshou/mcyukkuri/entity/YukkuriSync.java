@@ -194,7 +194,12 @@ final class YukkuriSync {
     void syncCrawl(boolean active) {
         if (owner.level().isClientSide) return;
         active &= owner.crawler();
-        if (active && !isCrawling()) owner.getEntityData().set(CRAWL_START, owner.level().getGameTime());
+        if (active && !isCrawling()) {
+            owner.getEntityData().set(CRAWL_START, owner.level().getGameTime());
+            if (owner.body().weak() || owner.body().footBurned())
+                GameplayLog.limited(owner, "move", "hurt_crawl", 100, "gait crawl cause={} health={}/{} behavior={}",
+                        owner.body().footBurned() ? "sole" : "weak", owner.getHealth(), owner.getMaxHealth(), owner.getBehaviorId());
+        }
         owner.getEntityData().set(CRAWLING, active);
     }
     String getDialogueKey() { return owner.getEntityData().get(DIALOGUE); }
