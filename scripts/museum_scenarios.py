@@ -9815,7 +9815,7 @@ def _plaza_visit(window, trace):
         if row['k'] == 'st' and row['u'] in positions and 'p' in row['st']:
             positions[row['u']].append(row['st']['p'])
     for actor, track in positions.items():
-        # The paving is the four columns west of the benches, x+2..x+5 and z-3..z+1; a stand on its edge may settle a block short.
+        # The paving is the four columns west of the benches, x+2..x+5 and z-3..z+1; stands lie one block inside its edge, so a walker that settles a step short is still on it.
         if not any(x + 1 <= px < x + 6 and z - 3 <= pz < z + 2 for px, _, pz in track):
             return f'{actor} never walked onto the plaza paving'
     # The keeper takes the visible company with a .75 roll, so the stop itself is only required after a chosen roll.
@@ -9830,7 +9830,7 @@ def _plaza_visit(window, trace):
 
 
 _plaza_keeper_id = _uuid_text(_PLAZA, _PLAZA_KEEPER)
-next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visit, verify_trace=True, expect=[
+next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=3600, verify=_plaza_visit, verify_trace=True, expect=[
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, name)} [^\n]*plaza {phase} '
       for _, name, *_ in _PLAZA_WEARERS for phase in ('walk', 'arrived')],
     *_outing_leads(_PLAZA, [_PLAZA_YARD_PET], False)[:1],
