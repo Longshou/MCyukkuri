@@ -15,6 +15,7 @@
 | TN-48 家规被抓与 TN-57 认罚演出 | `.worktrees/wp-caught-penance` | pet/Conscience、ConscienceGoal、arc 场景 |
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
 | PK-02 院主步速 | `.worktrees/wp-owner-pace` | HumanStreet.followPace、park_walk 场景 |
+| TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
 
 ## 玩法待办
 
