@@ -3359,13 +3359,78 @@ def _rule_owner(mask):
             (11, f'yukkuri scenario house_rules {pet} {mask}')]
 
 
-def _song_discipline(window):
+_PENANCE_BEAT = re.compile(r'\[rules\][^\n]*? t=(\d+) [^\n]*penance beat=(\w+) face=(\S+) declared=(\S+) line=(\S+) spoke=(\w+) '
+                           r'clip=(\S+) declaredClip=(\S+) entrance=(\w+) rule=(\S+)')
+# Faces of pleasure and pout: nothing between the catch (or the bow) and the owner's answer may show one.
+_PLEASED_OR_POUTING = {'happy', 'open_smile', 'satisfied', 'smug', 'closed_smile', 'pursed', 'angry', 'cheek_puff', 'puff', 'sneer',
+                       'hmph', 'blank_happy', 'flushed_smile', 'sukkiri_grin', 'sukkiri_smug'}
+_PENANCE_LINES = {'startle': '-', 'bow': 'confess|confess_mate|exam_sorry', 'mutter': 'sulk_huff', 'afraid': '-', 'plea': 'plea_spare', 'apology': 'caught_guilty',
+                  'prostrate': '-', 'shiver': '-', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'request_thanks', 'withdraw': '-'}
+
+
+def _penance_beats(window, entrance, rule, pet=None):
+    """One pet's penance beats as (tick, name, shown face, declared face, line, spoke, clip, declared clip), in log order."""
+    return [(int(m[1]), *m.groups()[1:8]) for line in window.splitlines()
+            if (pet is None or f'uuid={pet} ' in line) and (m := _PENANCE_BEAT.search(line)) and m[9] == entrance and m[10] == rule]
+
+
+def _penance_problem(beats, first, last):
+    """The beats must start with ``first``, end with one of ``last``, show the face they declared, pair each with its line, and never
+    show a pleased or pouting face (the one logged mutter beat excepted)."""
+    names = [b[1] for b in beats]
+    if names[:len(first)] != first or not names or names[-1] not in last:
+        return f'Penance beats {names} must start {first} and end {last}'
+    for tick, name, shown, declared, line, spoke, clip, declared_clip in beats:
+        if shown != declared:
+            return f'Beat {name} at {tick} declared face {declared} but showed {shown}'
+        if not re.fullmatch(_PENANCE_LINES[name], line):
+            return f'Beat {name} at {tick} carries line {line}, expected {_PENANCE_LINES[name]}'
+        if line != '-' and spoke != 'true':
+            return f'Beat {name} at {tick} line {line} was not voiced'
+        if name != 'mutter' and shown in _PLEASED_OR_POUTING and name != 'forgiven':
+            return f'Beat {name} at {tick} shows {shown}'
+    return None
+
+
+def _answer_tick(window):
+    """The tick the owner's stroke, scold or blow reached the pet: the owner's own hand (a stroke's closed smile) is the answer, not part of the wait."""
+    return int(re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*penance verdict=', window)[1]) - 1
+
+
+def _pleased_between(trace, start, end, pet=None):
+    """The first pleased or pouting face the body really showed in the sampled state between two ticks (or None)."""
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and (pet is None or row['u'] == pet) and start <= row['t'] <= end and row['st'].get('face') in _PLEASED_OR_POUTING:
+            return f'Face {row["st"]["face"]} shown at {row["t"]} between {start} and {end}'
+    return None
+
+
+def _song_discipline(window, trace):
     changes = re.findall(r'\[rules\][^\n]* obedience reason=(caught|scold) [^\n]*shift=(-?\d+) -> (-?\d+)[^\n]*closeness=(-?\d+) fear=(\d+)', window)
     if len(changes) != 2 or [row[0] for row in changes] != ['caught', 'scold']:
         return f'Expected one catch followed by one reprimand, got {changes}'
     caught, scold = changes
     if any(int(row[2]) - int(row[1]) != 4 for row in changes) or caught[2] != scold[1] or caught[3] != scold[3] or int(scold[4]) <= int(caught[4]):
         return f'Wrong learning, closeness or fear after catch and reprimand: {changes}'
+    # The song stops at the catch and nothing pleased follows: no completed session, no welcome, no stranger retreat after it.
+    catch = re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*caught rule=no_singing evidence=sight', window)
+    after = '\n'.join(line for line in window[catch.end():].splitlines()
+                      if (stamp := re.search(r' t=(\d+) ', line)) and int(stamp[1]) <= int(catch[1]) + 400)
+    stopped = re.search(r'\[daily\][^\n]* t=(\d+) [^\n]*session stopped kind=SING', after)
+    if not stopped or int(stopped[1]) - int(catch[1]) > 3:
+        return 'The song must stop within three ticks of the catch'
+    for pattern in (r'session result kind=SING', r'owner return approach', r'human retreat', r'owner return greeted'):
+        if re.search(pattern, after):
+            return f'After the catch the pet must not show {pattern}'
+    # A bold, disobedient pet that does not fear its owner mutters once, stands stiff, then turns afraid when scolded and takes it.
+    beats = _penance_beats(window, 'CAUGHT', 'no_singing')
+    problem = _penance_problem(beats, ['startle', 'mutter', 'stiff'], ['punished'])
+    if problem:
+        return problem
+    if [b[1] for b in beats[-2:]] != ['afraid', 'punished'] or [b[1] for b in beats].count('mutter') != 1:
+        return f'The scold must turn the stiff pet afraid before it takes the punishment: {[b[1] for b in beats]}'
+    return _pleased_between(trace, int(catch[1]) + 4, _answer_tick(window))
 
 
 def _permitted_meal(window):
@@ -3377,23 +3442,28 @@ def _permitted_meal(window):
 
 _rule_pet = sel('rule_pet')
 _rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} away'),
-                               (12, 'scoreboard players set #rule_scold museum 0')]
-# The observer returns during an actual song. The ordinary reprimand becomes available when the singer finishes.
-for _tick in range(100, 4200, 40):
+                               (12, 'scoreboard players set #rule_scold museum 0'), (12, 'scoreboard players set #rule_armed museum 0')]
+# The observer returns during an actual song (the pet has by then broken the rule). The catch is the pet's to show: the scold comes
+# one hundred ticks after the catch is on record (the startle and the mutter are over, the pet stands stiff), then the observer stays
+# through the rest of the penance and leaves 280 ticks after the scold.
+for _tick in range(100, 6400, 20):
     _rule_songs += [
-        (_tick, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick + 1, f'execute if score #rule_scold museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
-        (_tick + 2, 'execute if score #rule_scold museum matches 1 run yukkuri scenario tool_operator leave')]
-_rule_songs.append((4200, 'yukkuri scenario tool_operator leave'))
+        (_tick, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
+        (_tick, f'execute if score #rule_armed museum matches 6.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
+        (_tick + 1, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} run scoreboard players set #rule_armed museum 1'),
+        (_tick + 2, 'execute if score #rule_armed museum matches 1.. run scoreboard players add #rule_armed museum 1'),
+        (_tick + 3, 'execute if score #rule_scold museum matches 1.. run scoreboard players add #rule_scold museum 1'),
+        (_tick + 4, 'execute if score #rule_scold museum matches 15.. run yukkuri scenario tool_operator leave')]
+_rule_songs.append((6450, 'yukkuri scenario tool_operator leave'))
 
 for _sid, _title, _hint, _control in (
         ('rule_song_hold', '禁止唱歌：想唱又憋回去', '在照料菜单的家规中勾选「不准唱歌」，面对灵梦，看它抬头又抿嘴。', 95),
-        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦，等它唱完，在照料菜单里冷言训斥。', 20)):
+        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌愣住，随后认错发抖，等你发落。摸摸它是原谅，照料菜单里冷言训斥或打一下是惩罚，不理它它忐忑地退开。', 20)):
     add(_sid, 'town', _title, _title, _hint, '约 1～3 分钟', [
         *_rule_court, yk('reimu', 0, 1, 'rule_pet', lead=True, intelligence=80, self_control=_control, boldness=85,
-                          extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:180}'),
+                          extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:40}'),
         *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 4),
-        smoke=dict(ticks=4250, commands=_rule_songs, verify=_song_discipline, forbid=[r'\[rules\][^\n]*caught rule=no_singing evidence=confession'],
+        smoke=dict(ticks=6500, commands=_rule_songs, verify=_song_discipline, verify_trace=True, forbid=[r'\[rules\][^\n]*caught rule=no_singing evidence=confession', r'penance abandoned'],
                    expect=[r'\[rules\][^\n]*breach rule=no_singing watched=false', r'\[rules\][^\n]*caught rule=no_singing evidence=sight'])
         if _sid == 'rule_song_sneak' else None)
 
@@ -3409,6 +3479,43 @@ add('rule_eat_wait', 'town', '禁止擅自吃：守着食盆等主人点头', '�
                [(t, 'execute if data block ~ ~ ~2 Items[{Slot:0b,id:"minecraft:apple",count:1}] '
                     f'run yukkuri scenario care_click {_rule_pet} serving') for t in range(20, 640, 5)] +
                [(660, 'yukkuri scenario tool_operator leave')]))
+
+def _eat_caught(window, trace):
+    """An impulsive but attached, middling pet that is caught at the bowl bows its apology, lies low and shivers, and the stroke forgives it."""
+    catch = re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*caught rule=no_eating_unasked evidence=sight', window)
+    beats = _penance_beats(window, 'CAUGHT', 'no_eating_unasked')
+    problem = _penance_problem(beats, ['startle', 'apology'], ['forgiven'])
+    if problem:
+        return problem
+    if re.search(r'\[pet\][^\n]*owner return approach', window[catch.end():]):
+        return 'After the catch the owner-return welcome must not play'
+    # The bite itself keeps its own chewing faces; from the swallow to the forgiveness nothing pleased may show (no savouring).
+    swallow = re.search(r'\[meal\][^\n]* t=(\d+) [^\n]*swallowed item=minecraft:apple', window[catch.end():])
+    if not swallow:
+        return 'The caught bite was never swallowed'
+    return _pleased_between(trace, int(swallow[1]), _answer_tick(window))
+
+
+# The pet is caught breaking the eating rule with the owner in view; a stroke (one to two steps after the catch is on record) forgives it.
+_eat_commands = _rule_owner(9) + [
+    (12, 'scoreboard players set #eat_armed museum 0'), (12, 'scoreboard players set #eat_rub museum 0'),
+    (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
+for _tick in range(40, 2300, 20):
+    _eat_commands += [
+        # The stroke comes about 180 ticks after the catch is on record: the meal is done and the pet is lying low and shivering.
+        (_tick, f'execute if score #eat_armed museum matches 10.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
+        (_tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
+        (_tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
+        (_tick + 3, 'execute if score #eat_rub museum matches 1.. run scoreboard players add #eat_rub museum 1'),
+        (_tick + 4, 'execute if score #eat_rub museum matches 15.. run yukkuri scenario tool_operator leave')]
+add('rule_eat_caught', 'town', '禁止擅自吃：当场被抓', '禁止擅自吃：当场被抓',
+    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它忍不住偷吃被你当场看见，嚼完才愣住，认错发抖等你发落；摸摸它是原谅，训斥是惩罚。', '约 1 分钟', [
+        *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
+        yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=30, self_control=20, boldness=50, attachment=80, intelligence=30),
+        *own('rule_pet'), home('rule_pet', 0, -4)],
+    env=DAY, vantage=(0, 4), give=['minecraft:apple'],
+    smoke=dict(ticks=2400, commands=_eat_commands, verify=_eat_caught, verify_trace=True, forbid=[r'penance abandoned'],
+               expect=[r'\[rules\][^\n]*breach rule=no_eating_unasked watched=true', r'\[rules\][^\n]*caught rule=no_eating_unasked evidence=sight']))
 
 add('rule_yard', 'town', '禁止出院子：走到院边又回头', '不准出院子',
     '在照料菜单里勾选「不准出院子」。窝外八格是界线，看爱散步的魔理沙在边上张望，或趁主人转身时越界。', '约 1～2 分钟',
@@ -3859,15 +3966,27 @@ def arc_confession(log, trace, mother):
     admission = re.search(rf'uuid={mother} t=(\d+) [^\n]*arc spoke=confess\b', log)
     if not admission:
         return 'Missing admission from the mother'
-    saw_bow = False
-    for line in trace:
-        row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] == 'st' and row['u'] == mother and row['t'] >= int(admission[1]):
-            pose = row['st'].get('animation')
-            if pose == 'beg' and saw_bow:
-                return None
-            saw_bow |= pose == 'bow'
-    return 'Missing the mother’s bow and subsequent pleading pose after the admission'
+    # Bow, lie low and shiver, wait for an owner who does nothing, then withdraw: the whole penance, one beat at a time.
+    beats = _penance_beats(log, 'CONFESSION', 'secret_brood', mother)
+    problem = _penance_problem(beats, ['bow', 'prostrate', 'shiver'], ['withdraw'])
+    if problem:
+        return problem
+    withdraw = beats[-1][0]
+    hold = withdraw - int(admission[1])
+    if hold < 160:
+        return f'The mother waited {hold} ticks for the verdict, expected at least eight seconds'
+    # The badge verdict follows the resolution, not the bow.
+    verdicts = [int(t) for t in re.findall(r' t=(\d+) [^\n]*disqualified cause=confession', log)]
+    if not verdicts or min(verdicts) < withdraw - 4:
+        return f'The confession verdict {verdicts} must come with the resolution at {withdraw}, not with the bow'
+    release = re.search(rf'\[duty\][^\n]*uuid={mother} t=(\d+) [^\n]*released kind=RULES end=(\w+) why=(\w+)', log)
+    if not release or release[2] != 'DONE' or release[3] != 'withdrew':
+        return f'The duty must end done with the penance outcome, got {release and release.groups()}'
+    shown = {row['st'].get('animation') for row in (json.loads(l.split('[trace] ', 1)[1]) for l in trace)
+             if row['k'] == 'st' and row['u'] == mother and int(admission[1]) <= row['t'] <= withdraw}
+    if not {'bow', 'tremble'} <= shown or not shown & {'hide_face', 'droop', 'thunder_cower'}:
+        return f'Missing the bow, the low posture and the shiver on the body, saw {sorted(s for s in shown if s)}'
+    return _pleased_between(trace, int(admission[1]), withdraw, mother)
 
 
 for sid, title, description, traits, child_pos in (
@@ -3878,8 +3997,9 @@ for sid, title, description, traits, child_pos in (
 ):
     mother_id = _uuid_text(sid, 'mother')
     hide = sid == 'arc_hide'
-    props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide or sid == 'arc_confess' else []
-    ticks = 600 if hide else 320
+    # The confessing mother wanders a little before the owner is seen: her side of the screen keeps a block of margin from the sight line.
+    props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide else [box(2, 0, -1, 8, 2, -1, 'minecraft:oak_planks')] if sid == 'arc_confess' else []
+    ticks = 600 if hide else 800 if sid == 'arc_confess' else 320
     owner_pos = '~1.5 ~ ~-2.5' if sid == 'arc_naive' else '~0.5 ~ ~-4.5'
     smoke = dict(ticks=ticks,
                  commands=[(1, f'execute positioned {owner_pos} run yukkuri scenario tool_operator enter'),
@@ -3902,10 +4022,17 @@ for sid, title, description, traits, child_pos in (
         style, line, cause = ('CONFESS', 'confess', 'confession') if sid == 'arc_confess' else ('NAIVE', 'sukkiri_naive', 'naive_introduction')
         smoke.update(expect=[rf'uuid={mother_id} .*arc style={style}', rf'uuid={mother_id} .*arc spoke={line}\b',
                              *(rf'disqualified cause={cause} .*parent={_uuid_text(sid, role)} .*observed=40' for role in ('mother', 'father'))],
-                     forbid=[rf'disqualified cause=(?!{cause}\b)'],
+                     forbid=[rf'disqualified cause=(?!{cause}\b)', r'penance abandoned'],
                      verify=lambda log, line=line, cause=cause, mother=mother_id: arc_response(log, line, cause, mother))
         if sid == 'arc_confess':
-            smoke.update(verify_trace=True, verify=lambda log, trace, mother=mother_id: arc_confession(log, trace, mother))
+            # The observer keeps facing the mother while she gets ready to come (as a player watching her would), so the
+            # confession does not depend on where the harness left the observer's view.
+            facing = [(t, f'tp @a[name=MuseumOperator,distance=..32] {owner_pos} facing entity {sel("pet")} eyes') for t in range(13, 261, 10)]
+            # The operator may not be selectable on the very first ticks: the (idempotent) ownership writes are repeated.
+            owning = [(t, f'execute as @a[name=MuseumOperator,distance=..32] run {command}') for t in (6, 10, 20)
+                      for role in ('pet', 'father') for command in own(role)]
+            smoke.update(verify_trace=True, verify=lambda log, trace, mother=mother_id: arc_confession(log, trace, mother),
+                         commands=sorted([*smoke['commands'], *facing, *owning], key=lambda command: command[0]))
     add(sid, 'town', title, title, description, '安静等候约半分钟',
         [box(-5, -1, -6, 14, -1, 7, 'minecraft:grass_block'), box(-5, 0, -6, 14, 3, 7, 'minecraft:air'),
          *props, *shed(0, 5), block(2, 0, 5, 'mcyukkuri:yukkuri_nest'),
@@ -8295,7 +8422,7 @@ TOPICS = {
     'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
-    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
+    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_eat_caught': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

@@ -69,6 +69,7 @@ public final class PetLife {
     private boolean voidBadge, noticeSent, waits, townRoots;
     // Loaded ticks only: positive while away, negative during the welcome window.
     private int ownerAbsence;
+    private long welcomeWaivedUntil;
     private String lockKind;
     private Director director;
     private final PetLessons lessons;
@@ -321,7 +322,7 @@ public final class PetLife {
 
     /** The social goal spends a welcome once when it can choose an approach. Sleep can outlast the window. */
     public LivingEntity takeOwnerWelcome() {
-        if (ownerAbsence >= 0 || !canWelcomeOwner()) return null;
+        if (ownerAbsence >= 0 || now() < welcomeWaivedUntil || !canWelcomeOwner()) return null;
         var person = presentOwner();
         if (person == null || !seesReturningOwner(person)) return null;
         ownerAbsence = 0;
@@ -335,6 +336,15 @@ public final class PetLife {
         animal.life().deferSocial(600);
         GameplayLog.event(animal, "pet", "owner return declined owner={} wariness={} approachChance={}", person.getUUID(), wariness, chance);
         return null;
+    }
+
+    /**
+     * The owner is already here, face to face with a guilty pet: the "owner came home" welcome is spent unplayed, armed or not yet
+     * armed (the owner's return may only be noticed a few ticks after the catch), and stays off for a minute after the penance.
+     */
+    public void waiveWelcome() {
+        if (ownerAbsence < 0) ownerAbsence = 0;
+        welcomeWaivedUntil = now() + 1200;
     }
 
     public String ownerWelcomeClip() {

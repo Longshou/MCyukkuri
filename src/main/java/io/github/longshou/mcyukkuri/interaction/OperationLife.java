@@ -35,6 +35,7 @@ import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
+import io.github.longshou.mcyukkuri.pet.rules.Penance;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Feedback;
 import java.util.Comparator;
 import java.util.List;
@@ -236,7 +237,9 @@ public final class OperationLife {
                         && entity.dailyLife().affectionNeed() >= personality.affectionThreshold())
                     personality.indulged("excess_favor");
                 if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED);
-                entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", 100);
+                // A pet paying penance answers with its own performance, not the generic pleased or startled face.
+                if (!entity.pet().conscience().judged(player, favored ? Penance.Verdict.FORGIVEN : Penance.Verdict.PUNISHED, false))
+                    entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", 100);
                 yield true;
             }
             case LIFT -> {
@@ -248,10 +251,13 @@ public final class OperationLife {
             case RUB -> {
                 if(!begin(player,Pose.RUB,40,null))yield false;
                 entity.life().personality().talk(player.getUUID(),true);
-                entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",100);yield true;
+                entity.mind().felt(EmotionEvent.COMFORTED);
+                if(!entity.pet().conscience().judged(player,Penance.Verdict.FORGIVEN,false))entity.showReaction("happy","gentle",100);
+                yield true;
             }
             case FLICK,PUNCH,SLAP -> {
                 float damage=action==CareAction.PUNCH?2:action==CareAction.FLICK?.5f:1;
+                entity.pet().conscience().judged(player,Penance.Verdict.PUNISHED,true);
                 if(!strike(player,damage,WoundShape.BLUNT))yield false;
                 var away=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
                 Motor.velocity(entity, away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0), "care_knockback");

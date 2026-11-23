@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.pet.rules.Penance;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -213,6 +214,13 @@ public final class YukkuriSocial implements MotorOwner {
                 || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0;
     }
     public boolean talk(Player player, boolean gentle) {
+        if (!gentle && entity.pet().conscience().judged(player, Penance.Verdict.PUNISHED, false)) {
+            // Scolded while paying penance: the lesson lands as for any scold, and the penance answers it, not the stranger retreat.
+            personality().talk(player.getUUID(), false);
+            entity.mind().felt(EmotionEvent.COLD_TREATMENT);
+            entity.pet().contact(player.getUUID(), false);
+            return true;
+        }
         if (busyForTalk()) {
             entity.showReaction("surprise", "busy", 60); return false;
         }

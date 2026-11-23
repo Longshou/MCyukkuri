@@ -4,7 +4,6 @@ import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
-import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
@@ -23,7 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 public final class Discovery {
-    private static final int RESPONSE_WINDOW = 200;
+    private static final int RESPONSE_WINDOW = 200, CONFESSION_WINDOW = 800;
     private final Observation observation = new Observation();
     private List<BadgeConduct.Case> open = List.of();
     private List<HumanNpc> staff = List.of();
@@ -59,7 +58,7 @@ public final class Discovery {
         exchange = entry;
         style = response;
         spokeAt = parent.level().getGameTime();
-        entry.exchange(parent.getUUID(), spokeAt + RESPONSE_WINDOW);
+        entry.exchange(parent.getUUID(), spokeAt + window(response));
         sequence = parent.speechSequence();
         introduced = child;
         calls.clear();
@@ -68,8 +67,26 @@ public final class Discovery {
         for (var npc : nearbyStaff(parent)) if (HumanSight.sees(npc, parent)) heard.add(npc.getId());
     }
 
+    /** A confession stays open through its whole penance (bow, lying low, the owner's answer); the other answers last ten seconds. */
+    private static int window(ArcStyle response) { return response == ArcStyle.CONFESS ? CONFESSION_WINDOW : RESPONSE_WINDOW; }
+
+    /** The goal ended: an exchange that never reached its words, or a confession whose penance did not get to its answer, is dropped. */
     void endApproach(YukkuriEntity parent) {
-        if (spokeAt < 0) abandon(parent);
+        if (exchange != null && (spokeAt < 0 || style == ArcStyle.CONFESS)) abandon(parent);
+    }
+
+    /**
+     * The owner answered the confessing parent's plea (forgave, punished, or left it unanswered): the admission stands now, so the
+     * disqualification and the confession award follow the answer, not the bow.
+     */
+    void admitted(YukkuriEntity parent, LivingEntity owner) {
+        var entry = exchange;
+        if (entry == null || spokeAt < 0 || style != ArcStyle.CONFESS || entry.verdict() != null) return;
+        var level = (ServerLevel) parent.level();
+        exchange = null;
+        var proof = new BadgeConduct.Evidence(new BadgeConduct.Verdict("confession", level.getDayTime() / 24000 + 1, owner.getUUID()),
+                parent.getUUID(), parent.getUUID(), "confession");
+        publish(parent, entry, entry.spoken(proof, level.getGameTime()), null);
     }
 
     public void abandon(YukkuriEntity parent) {
@@ -115,10 +132,8 @@ public final class Discovery {
 
     public void tick(YukkuriEntity parent) {
         var level = (ServerLevel) parent.level();
-        if (exchange != null && (exchange.verdict() != null || BehaviorContinuity.emergency(parent) || parent.hurtTime > 0
-                || spokeAt >= 0 && (level.getGameTime() - spokeAt >= RESPONSE_WINDOW
-                || !hasListener(parent, level)
-                || style == ArcStyle.CONFESS && (sequence != parent.speechSequence() || level.getGameTime() >= parent.speechEnd())))) abandon(parent);
+        if (exchange != null && (exchange.verdict() != null || parent.pet().conscience().endangered()
+                || spokeAt >= 0 && (level.getGameTime() - spokeAt >= window(style) || !hasListener(parent, level)))) abandon(parent);
         if (parent.tickCount % 20 == 0) {
             var cases = PetPrivileges.get(level).conduct().cases(parent.getUUID());
             open = cases.isEmpty() ? List.of() : cases.stream().filter(c -> c.verdict() == null).toList();
@@ -159,9 +174,6 @@ public final class Discovery {
         for (var entry : open) {
             if (entry.verdict() != null) continue;
             boolean witnessed = entry == exchange && spokeAt >= 0 && heard.contains(judge.getId());
-            String admission = Observation.words(witnessed, parent.speechSequence() == sequence && level.getGameTime() < parent.speechEnd(),
-                    style == ArcStyle.CONFESS, false);
-            if (admission != null && record(parent, judge, entry, parent, admission, Kind.ADMISSION, exam, attendee, true)) continue;
             if (attached != null && Observation.pregnancy(entry.brood, attached.id, !attached.complete() && !attached.cancelled,
                     attached.kind == FamilyData.BirthKind.STEM && attached.detachedHolder == null && parent.broodProgress() > 0
                     || attached.kind == FamilyData.BirthKind.LIVE && parent.livePregnancyProgress() > .001f)) {
@@ -175,7 +187,7 @@ public final class Discovery {
                             visibleYoung(child) && HumanSight.sees(judge, child))) {
                         var sign = new Observation.Sign(entry.brood, judge.getId(), child.getId(), false, Kind.YOUNG);
                         String spoken = !witnessed ? null : switch (style) {
-                            case LIE -> Observation.words(true, true, false, calls.contains(sign));
+                            case LIE -> Observation.words(true, true, calls.contains(sign));
                             case NAIVE -> child.getUUID().equals(introduced) ? "naive_introduction" : null;
                             default -> null;
                         };

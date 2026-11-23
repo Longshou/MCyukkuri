@@ -52,7 +52,7 @@ public final class DutyClaim {
 
     public void tick() {
         if (body.level().isClientSide || !claimed()) return;
-        End end = Duty.lapse(now(), deadline, BehaviorContinuity.emergency(body) || body.hurtTime > 0);
+        End end = Duty.lapse(now(), deadline, body.pet().conscience().endangered());
         if (end != null) release(kind, end, end == End.EMERGENCY ? "emergency" : "deadline");
     }
 

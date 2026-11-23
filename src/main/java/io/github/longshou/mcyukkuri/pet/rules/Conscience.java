@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,12 @@ public final class Conscience {
     private long at;
     private boolean caught;
     private long reactAfter;
+    /** Ten seconds: a catch the pet cannot freeze for within this (a long meal, a flight) is lost, not replayed late. */
+    private static final int CATCH_PATIENCE = 200;
+    private long catchAt = -1;
+    private Penance penance;
+    private Penance.Verdict early;
+    private boolean earlyBlow;
     private record Encounter(int owner, BlockPos ownerAt, BlockPos parentAt, BlockPos childAt) {}
     private final Map<BadgeConduct.Case, Encounter> encounters = new HashMap<>();
 
@@ -74,6 +81,8 @@ public final class Conscience {
         at = pet.level().getGameTime();
         guiltOwner = pet.pet().owner();
         caught = false;
+        catchAt = -1;
+        early = null;
         reactAfter = at;
         boolean watched = HumanSight.watching(pet);
         GameplayLog.event(pet, "rules", "breach rule={} watched={} owner={}", rule.key(), watched, guiltOwner);
@@ -142,12 +151,68 @@ public final class Conscience {
         return line;
     }
 
+    /**
+     * The one entry of every house rule: the owner saw or heard the breach, or the pet owned up to it. A catch queues the penance
+     * (the goal runs it as soon as the pet is free); a confession is the goal's own walk and starts its penance on arrival.
+     */
     void caught(String evidence) {
         caught = true;
         pet.pet().caught(guiltOwner);
-        if (evidence.equals("confession")) PetScenes.act(pet, YukkuriAction.BOW, "teary", "exam_sorry", 40, pet.pet().presentOwner());
-        else PetScenes.act(pet, YukkuriAction.BRACE, "horrified", "caught_guilty", 40);
+        pet.pet().waiveWelcome();
+        if (!evidence.equals("confession")) {
+            catchAt = pet.level().getGameTime();
+            early = null;
+        }
         GameplayLog.event(pet, "rules", "caught rule={} evidence={} owner={}", guilt.key(), evidence, guiltOwner);
+    }
+
+    /** A catch waiting for the pet to be free to freeze (it does not wait out a long meal). */
+    public boolean catchPending() {
+        return catchAt >= 0 && pet.level().getGameTime() - catchAt < CATCH_PATIENCE && pet.pet().ownedBy(guiltOwner);
+    }
+
+    LivingEntity guiltyOwner() { return pet.pet().presentOwner(); }
+
+    String guiltRule() { return guilt.key(); }
+
+    void startedPenance(Penance running) {
+        catchAt = -1;
+        penance = running;
+        // An owner who answered before the pet was free to freeze (it was still chewing) is answered once it has.
+        if (early != null) running.judged(early, earlyBlow);
+        early = null;
+    }
+
+    void endedPenance() {
+        if (penance != null) pet.pet().waiveWelcome();
+        penance = null;
+    }
+
+    /** The performance under way (also while the goal waits for the owner's hand to let go), or null. */
+    Penance running() { return penance; }
+
+    /**
+     * The owner's stroke, scold or blow reaches a pet that is paying penance (or about to): true when the performance took it as its
+     * verdict, so the generic reaction (the stranger-wariness retreat, the pleased rub face) stays silent.
+     */
+    public boolean judged(LivingEntity actor, Penance.Verdict verdict, boolean blow) {
+        if (!pet.pet().ownedBy(actor.getUUID())) return false;
+        if (penance != null) return penance.judged(verdict, blow);
+        if (!catchPending()) return false;
+        if (early == null) {
+            early = verdict;
+            earlyBlow = blow;
+        }
+        return true;
+    }
+
+    /**
+     * Danger that ends a short duty. Between the owner's answer and the end of a penance the owner's own hand (the stroke's
+     * contact, a scold's flinch, a blow's panic and hurt) is no emergency: only the world's hazards count.
+     */
+    public boolean endangered() {
+        if (penance != null && penance.ownerHand()) return BehaviorContinuity.hazard(pet, pet.pet().owner());
+        return BehaviorContinuity.emergency(pet) || pet.hurtTime > 0;
     }
 
     public void broodDiscovered(UUID owner) {
@@ -160,6 +225,8 @@ public final class Conscience {
         instruction = new HouseRule.Instruction(null, 0);
         guilt = null;
         guiltOwner = null;
+        catchAt = -1;
+        early = null;
     }
 
     public CompoundTag save() {

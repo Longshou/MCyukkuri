@@ -1060,6 +1060,18 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         forceReaction(expression, dialogue, ticks);
         reactionHeld = true;
     }
+    /** A clip, face and line a bound performance owns for its ticks: it replaces whatever reaction runs, and ordinary reactions
+     *  shown meanwhile are dropped (pain and danger still win). Returns whether the line was voiced. */
+    public boolean holdReaction(YukkuriAction action, String expression, String dialogue, int ticks) {
+        if (level().isClientSide) return false;
+        cancelReaction();
+        startReaction(expression, dialogue, ticks);
+        // A timed cue like the other owner-facing performances (PetScenes.say): it is not refused for a line still fading out.
+        boolean voiced = speakCue(reactionEvent, null, 2);
+        reactionAction = action;
+        reactionHeld = true;
+        return voiced;
+    }
     private boolean held() { return reactionHeld && reactionTicks > 0; }
     /** Pain and danger, the reactions a held one gives way to: the hurt line and the urgent speech classes (wounds, fright, loss). */
     private static boolean urgent(String event) { return event != null && (event.equals("hurt") || NativeDialogue.priority(event) >= 3); }

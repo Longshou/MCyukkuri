@@ -733,10 +733,13 @@ public final class ScenarioCommands {
             var player = c.getSource().getLevel().getPlayerByUUID(TOOL_OPERATOR);
             return player instanceof FakePlayer && InteractionDispatch.perform(player, target, CareAction.DECLINE_EVENT) ? 1 : 0;
         }
-        if (item.equals("cold") || item.equals("serving")) {
+        if (item.equals("cold") || item.equals("serving") || item.equals("rub") || item.equals("flick")) {
             if (!target.pet().ownedBy(TOOL_OPERATOR)) return 0;
             if (!(target.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
             if (item.equals("cold")) return InteractionDispatch.perform(owner, target, CareAction.COLD) ? 1 : 0;
+            // A stroke needs the hand on the body: the observer steps up to arm's length first, as a player would.
+            if (item.equals("rub")) return ownerAt(c, 1) != 0 && InteractionDispatch.perform(owner, target, CareAction.RUB) ? 1 : 0;
+            if (item.equals("flick")) return InteractionDispatch.perform(owner, target, CareAction.FLICK) ? 1 : 0;
             if (!target.life().waitingForServing() || !owner.getMainHandItem().isEmpty() || ownerAt(c, 2) == 0 || !InteractionDispatch.requireReach(owner, target, 5)) return 0;
             return target.interact(owner, InteractionHand.MAIN_HAND).consumesAction() ? 1 : 0;
         }

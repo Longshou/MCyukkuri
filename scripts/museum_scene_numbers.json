@@ -335,6 +335,7 @@
     "den_raid": "DN-13",
     "den_monopoly": "DN-14",
     "street_corridor": "TN-70",
-    "street_dead_end": "TN-71"
+    "street_dead_end": "TN-71",
+    "rule_eat_caught": "TN-72"
   }
 }

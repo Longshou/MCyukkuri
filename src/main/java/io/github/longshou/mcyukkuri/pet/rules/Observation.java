@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /** One loaded parent. Entity IDs distinguish two separate loads of the same witness or child. */
 final class Observation {
-    enum Kind { PREGNANCY, YOUNG, ADMISSION }
+    enum Kind { PREGNANCY, YOUNG }
     record Sign(UUID brood, int judge, int subject, boolean inspection, Kind kind) {}
     private final Map<Sign, ArrayDeque<Long>> ticks = new HashMap<>();
 
@@ -32,9 +32,8 @@ final class Observation {
         return spoken && dependent && brood.equals(birth) && denyingParent.equals(mother);
     }
 
-    static String words(boolean witness, boolean delivered, boolean confession, boolean sawCall) {
-        if (!witness || !delivered) return null;
-        if (confession) return "confession";
-        return sawCall ? "lie_exposed" : null;
+    /** A denial the judge heard to the end is exposed once the judge also saw the child call out for its mother. */
+    static String words(boolean witness, boolean delivered, boolean sawCall) {
+        return witness && delivered && sawCall ? "lie_exposed" : null;
     }
 }

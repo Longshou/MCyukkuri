@@ -22,13 +22,22 @@ import net.minecraft.world.phys.Vec3;
 public final class ConscienceGoal extends Goal {
     private static final double BESIDE_CHILD = 1.5;
     private static final int APPROACH_TICKS = 400;
+    /** Walk up, bow, lie low for at most fifteen seconds, take the answer and close: well inside this. */
+    private static final int PENANCE_TICKS = 1200;
     private final YukkuriEntity pet;
     private LivingEntity owner;
     private BadgeConduct.Case brood;
     private ArcStyle style;
     private YukkuriEntity child;
     private Vec3 stand;
-    private long confessionAt = -1;
+    private Penance penance;
+    /** Caught in the act (the penance starts at once) rather than walking up to confess or answering a secret brood. */
+    private boolean caughtStart;
+    private boolean finished, resuming;
+    /** Three seconds: how long the owner may look elsewhere while the pet is on its way to them. */
+    private static final int GLANCE_AWAY = 60;
+    private long unseenSince = -1;
+    private String lapseReason;
     /** Whether the one answering the owner bore the brood: only she says "had them in secret"; the father pleads for the little ones. */
     private boolean bearer;
 
@@ -39,24 +48,68 @@ public final class ConscienceGoal extends Goal {
 
     @Override public boolean canUse() {
         var conscience = pet.pet().conscience();
-        if (!pet.duty().mayTake(Duty.Kind.RULES)) return false;
-        if (conscience.responseDue() && !pet.pet().discovery().open().isEmpty() && pet.pet().isPet() && freeForBrood()) {
-            owner = pet.pet().presentOwner();
-            if (owner != null && HumanSight.sees(owner, pet)) {
-                for (var entry : pet.pet().discovery().open())
-                    if (entry.verdict() == null && wantsResponse(entry) && conscience.mayApproach(entry, owner, child)) { brood = entry; return true; }
+        var waiting = conscience.running();
+        if (waiting != null) {
+            // The owner's hand took the body (a stroke runs as its own goal) and let go: the performance goes on from where it was.
+            String why = !pet.duty().holds(Duty.Kind.RULES) ? "duty_lapsed" : waiting.lapse();
+            if (why == null) {
+                owner = waiting.owner();
+                resuming = true;
+                return true;
             }
+            waiting.abandon(why);
+            conscience.endedPenance();
+            pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, why);
+        }
+        if (!pet.duty().mayTake(Duty.Kind.RULES)) return false;
+        caughtStart = false;
+        if (conscience.catchPending() && freeToFreeze()) {
+            owner = conscience.guiltyOwner();
+            if (owner != null && pet.distanceToSqr(owner) <= Penance.AUDIENCE_SQ) {
+                brood = null;
+                caughtStart = true;
+                return true;
+            }
+        }
+        if (conscience.responseDue() && !pet.pet().discovery().open().isEmpty() && pet.pet().isPet()) {
+            String why = broodBlock();
+            if (why == null) {
+                owner = pet.pet().presentOwner();
+                if (owner == null) why = "no_owner_present";
+                else if (!HumanSight.sees(owner, pet)) why = "owner_not_looking";
+                else {
+                    for (var entry : pet.pet().discovery().open())
+                        if (entry.verdict() == null && wantsResponse(entry) && conscience.mayApproach(entry, owner, child)) { brood = entry; return true; }
+                    why = "response_not_ready";
+                }
+            }
+            GameplayLog.limited(pet, "rules", "arc_wait." + why, 200, "arc waiting reason={}", why);
         }
         if (!conscience.undiscovered() || !conscience.confesses()) return false;
         owner = conscience.encounter();
         return owner != null;
     }
 
-    private boolean freeForBrood() {
-        return !BehaviorContinuity.emergency(pet) && pet.hurtTime == 0 && !pet.isPassenger() && !pet.isLeashed()
-                && !pet.pet().busy() && !pet.life().protectsStep() && !pet.life().hasUrgentNeed() && !pet.life().isSleeping()
-                && !pet.house().active() && !pet.family().carry().carrying() && pet.family().yieldsToComfort()
-                && !pet.family().hasUrgentlyHungryChild();
+    /** A catch freezes the pet where it stands, but not mid-meal, mid-carry or in a flight. */
+    private boolean freeToFreeze() {
+        return !pet.isPassenger() && !pet.life().isSleeping() && pet.life().mealTicks() == 0 && !pet.pet().busy()
+                && !pet.family().carry().carrying() && pet.hurtTime == 0 && !BehaviorContinuity.emergency(pet);
+    }
+
+    /** Why the pet cannot answer its secret brood just now (null when it can): the first of the body's own commitments. */
+    private String broodBlock() {
+        if (BehaviorContinuity.emergency(pet)) return "emergency";
+        if (pet.hurtTime != 0) return "hurt";
+        if (pet.isPassenger()) return "passenger";
+        if (pet.isLeashed()) return "leashed";
+        if (pet.pet().busy()) return "pet_busy";
+        if (pet.life().protectsStep()) return "protects_step";
+        if (pet.life().hasUrgentNeed()) return "urgent_need";
+        if (pet.life().isSleeping()) return "sleeping";
+        if (pet.house().active()) return "house";
+        if (pet.family().carry().carrying()) return "carrying";
+        if (!pet.family().yieldsToComfort()) return "comfort_task";
+        return pet.family().hasUrgentlyHungryChild() ? "hungry_child" : null;
     }
 
     private boolean wantsResponse(BadgeConduct.Case entry) {
@@ -92,8 +145,23 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public void start() {
-        pet.pet().conscience().reacted();
-        pet.duty().take(Duty.Kind.RULES, APPROACH_TICKS, 600, brood == null ? "confess" : style.name());
+        var conscience = pet.pet().conscience();
+        finished = false;
+        lapseReason = null;
+        unseenSince = -1;
+        if (resuming) {
+            resuming = false;
+            penance = conscience.running();
+            return;
+        }
+        boolean long_ = caughtStart || brood == null || style == ArcStyle.CONFESS;
+        pet.duty().take(Duty.Kind.RULES, long_ ? PENANCE_TICKS : APPROACH_TICKS, 600, caughtStart ? "caught" : brood == null ? "confess" : style.name());
+        if (caughtStart) {
+            // Stop what it was doing (the song ends at once) and freeze: the penance owns the face, the clip and the line from here.
+            pet.dailyLife().stop();
+            begin(Penance.caught(pet, owner, conscience.guiltRule()));
+            return;
+        }
         if (brood == null) return;
         if (style == ArcStyle.LIE || style == ArcStyle.CONFESS || style == ArcStyle.NAIVE)
             pet.pet().discovery().beginExchange(pet, brood, APPROACH_TICKS);
@@ -129,22 +197,52 @@ public final class ConscienceGoal extends Goal {
                 && pet.hasLineOfSight(child) && !GlassSight.clearTo(owner, child.getEyePosition()));
     }
 
-    @Override public boolean canContinueToUse() {
-        if (brood != null) return pet.duty().holds(Duty.Kind.RULES) && (brood.verdict() == null || confessionAt >= 0) && freeForBrood()
-                && pet.pet().ownedBy(owner.getUUID()) && owner.isAlive() && owner.level() == pet.level() && pet.distanceToSqr(owner) <= 256
-                && (style == ArcStyle.HIDE || HumanSight.sees(owner, pet)) && (child == null || child.isAlive() && child.level() == pet.level())
-                && (child == null || child.life().nutrition() >= 30 && !child.isPanicking());
-        return pet.duty().holds(Duty.Kind.RULES) && pet.pet().conscience().undiscovered() && pet.pet().canWelcomeOwner()
-                && pet.distanceToSqr(owner) <= 36 && HumanSight.sees(owner, pet) && pet.hasLineOfSight(owner);
+    @Override public boolean canContinueToUse() { return (lapseReason = lapse()) == null; }
+
+    /** The condition that ends the goal (logged by {@link #stop}), or null while it goes on. */
+    private String lapse() {
+        if (!pet.duty().holds(Duty.Kind.RULES)) return "duty_released";
+        if (penance != null) return penance.lapse();
+        if (brood != null) {
+            if (brood.verdict() != null) return "verdict_given";
+            String blocked = broodBlock();
+            if (blocked != null) return "not_free:" + blocked;
+            if (!pet.pet().ownedBy(owner.getUUID())) return "owner_changed";
+            if (!owner.isAlive() || owner.level() != pet.level()) return "owner_gone";
+            if (pet.distanceToSqr(owner) > 256) return "owner_away";
+            if (style != ArcStyle.HIDE && !watched()) return "owner_not_looking";
+            if (child != null && (!child.isAlive() || child.level() != pet.level())) return "child_gone";
+            if (child != null && (child.life().nutrition() < 30 || child.isPanicking())) return "child_in_need";
+            return null;
+        }
+        if (!pet.pet().conscience().undiscovered()) return "found_out";
+        if (!pet.pet().canWelcomeOwner()) return "not_calm";
+        if (pet.distanceToSqr(owner) > 36) return "owner_far";
+        if (!watched()) return "owner_not_looking";
+        return pet.hasLineOfSight(owner) ? null : "no_line";
+    }
+
+    /** The owner looks at the pet, or looked away only a moment ago (a player turning the camera does not cancel the walk up to them). */
+    private boolean watched() {
+        long now = pet.level().getGameTime();
+        if (HumanSight.sees(owner, pet)) {
+            unseenSince = -1;
+            return true;
+        }
+        if (unseenSince < 0) unseenSince = now;
+        return now - unseenSince < GLANCE_AWAY;
+    }
+
+    private void begin(Penance running) {
+        penance = running;
+        pet.pet().conscience().startedPenance(running);
     }
 
     @Override public void tick() {
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
-        if (confessionAt >= 0) {
-            long elapsed = pet.level().getGameTime() - confessionAt;
-            int bow = YukkuriAction.BOW.durationTicks();
-            if (elapsed == bow) PetScenes.act(pet, YukkuriAction.BEG, "teary", "", YukkuriAction.BEG.durationTicks(), owner);
-            if (elapsed >= bow + YukkuriAction.BEG.durationTicks()) finish(Duty.End.DONE, "confessed");
+        if (penance != null) {
+            penance.tick();
+            if (penance.finished()) finish(Duty.End.DONE, penance.outcome());
             return;
         }
         if (brood != null && (style == ArcStyle.HIDE || style == ArcStyle.LIE)) {
@@ -163,15 +261,23 @@ public final class ConscienceGoal extends Goal {
             return;
         }
         if (pet.distanceToSqr(owner) <= 2.25) {
-            if (brood == null) pet.pet().conscience().caught("confession");
-            else if (style == ArcStyle.CONFESS) {
+            var conscience = pet.pet().conscience();
+            if (brood == null) {
+                conscience.caught("confession");
+                begin(Penance.confession(pet, owner, conscience.guiltRule(), "exam_sorry", () -> {}));
+                return;
+            }
+            if (style == ArcStyle.CONFESS) {
                 SurfaceApproach.halt(pet);
-                if (say(YukkuriAction.BOW, "teary", bearer ? "confess" : "confess_mate", owner)) {
-                    confessionAt = pet.level().getGameTime();
+                String event = bearer ? "confess" : "confess_mate";
+                var opening = Penance.confession(pet, owner, "secret_brood", event, () -> pet.pet().discovery().admitted(pet, owner));
+                if (opening.voiced()) {
+                    spoke(event);
+                    begin(opening);
                     return;
                 }
-            }
-            else say(YukkuriAction.JOY_JUMP, "happy", "sukkiri_naive", child);
+                opening.abandon("unvoiced");
+            } else say(YukkuriAction.JOY_JUMP, "happy", "sukkiri_naive", child);
             finish(Duty.End.DONE, "met_owner");
         } else {
             var stand = SurfaceApproach.beside(pet, owner, 1, .5, 1.5);
@@ -182,26 +288,53 @@ public final class ConscienceGoal extends Goal {
 
     private boolean say(YukkuriAction action, String face, String event, LivingEntity look) {
         if (!PetScenes.say(pet, action, face, event, look)) return false;
-        GameplayLog.event(pet, "rules", "arc spoke={} brood={} owner={}", event, brood.brood, owner.getUUID());
-        if (style != ArcStyle.DEFIANT)
-            pet.pet().discovery().spoke(pet, brood, style, owner, style == ArcStyle.NAIVE ? child.getUUID() : null);
+        spoke(event);
         return true;
     }
 
+    private void spoke(String event) {
+        GameplayLog.event(pet, "rules", "arc spoke={} brood={} owner={}", event, brood.brood, owner.getUUID());
+        if (style != ArcStyle.DEFIANT)
+            pet.pet().discovery().spoke(pet, brood, style, owner, style == ArcStyle.NAIVE ? child.getUUID() : null);
+    }
+
     private void finish(Duty.End end, String reason) {
-        if (brood != null) pet.pet().conscience().approachEnded(brood, owner, child);
+        finished = true;
+        var conscience = pet.pet().conscience();
+        if (brood != null) conscience.approachEnded(brood, owner, child);
+        conscience.reacted();
         pet.duty().release(Duty.Kind.RULES, end, reason);
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void stop() {
+        var conscience = pet.pet().conscience();
+        if (!finished && penance != null && penance.ownerHand() && lapseReason == null) {
+            // Taken by the owner's own hand: the performance, the duty and the brood exchange stay as they are until it lets go.
+            GameplayLog.event(pet, "rules", "conscience goal suspended for the owner's hand mode={} owner={}",
+                    caughtStart ? "caught" : brood == null ? "confess" : style, owner.getUUID());
+            penance = null;
+            SurfaceApproach.stopWalking(pet);
+            return;
+        }
+        String why = finished ? "finished" : lapseReason != null ? lapseReason : "preempted";
+        if (!finished) {
+            // An end that was not the goal's own: say which continue-condition (or which higher goal) took it, and change what
+            // the next start sees so the same encounter is not retried unchanged.
+            GameplayLog.event(pet, "rules", "conscience goal ended reason={} mode={} owner={}", why,
+                    caughtStart ? "caught" : brood == null ? "confess" : style, owner == null ? null : owner.getUUID());
+            if (penance != null) penance.abandon(why);
+            if (brood != null) conscience.approachEnded(brood, owner, child);
+        }
         if (brood != null) pet.pet().discovery().endApproach(pet);
+        conscience.endedPenance();
+        penance = null;
         brood = null;
         stand = null;
         child = null;
-        confessionAt = -1;
+        caughtStart = false;
         SurfaceApproach.stopWalking(pet);
-        pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, "interrupted");
+        pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, why);
     }
 }

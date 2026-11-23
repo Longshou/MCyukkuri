@@ -679,10 +679,12 @@ final class LifeMeal {
                 o.entity().mind().ate(swallowed, treat != null); feeder = null;
                 eater.gameEvent(GameEvent.EAT);
                 boolean harmful = spicy || toxic > 0;
-                String face = harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
+                // Caught breaking the eating rule with this very bite: no relish, no thanks, no hearts over the swallow.
+                boolean guilty = !harmful && eater.pet().conscience().catchPending();
+                String face = guilty ? "ashamed" : harmful ? "surprise" : waste ? "teary" : reluctant ? "squeezed_cry_tears" : grudging ? "pursed"
                         : guarded ? "teary" : grass && !liked ? "teary"
                         : defiant ? "smug" : grateful ? "closed_smile" : liked ? "sparkle" : "happy";
-                String line = harmful ? "hurt" : waste ? "bitter" : reluctant ? "food_reluctant" : grudging ? "food_grudge"
+                String line = guilty ? "" : harmful ? "hurt" : waste ? "bitter" : reluctant ? "food_reluctant" : grudging ? "food_grudge"
                         : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat
                         : liked && fedLine.equals("fed") ? "food_delight" : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)
@@ -691,7 +693,7 @@ final class LifeMeal {
                         && !harmful && !line.isEmpty()) {
                     eater.speakCue(line, line.equals("fed") ? "plain" : null);
                 }
-                if (!harmful && !grass && !waste && !unhappy)
+                if (!harmful && !grass && !waste && !unhappy && !guilty)
                     o.level().sendParticles(ParticleTypes.HEART, eater.getX(), eater.getY()+eater.getBbHeight(), eater.getZ(), 3, .1, .05, .1, 0);
                 if (bowlMeal) { bowlMeal = false; eater.pet().routineCompleted(Ability.FOOD_GUARD); }
                 }
@@ -742,6 +744,9 @@ final class LifeMeal {
     }
 
     private int mealEnd() {
+        // A bite taken against the house rule under the owner's eyes ends with the swallow: no savouring or bliss clip after it,
+        // the bound penance takes the body at once.
+        if (o.entity().pet().conscience().catchPending()) return swallowTick() + SWALLOW_TICKS;
         String after = afterActivity();
         return swallowTick() + SWALLOW_TICKS + (after.equals(Behaviors.MEAL_FINISH) ? 11 : EcologyPresentation.duration(after));
     }

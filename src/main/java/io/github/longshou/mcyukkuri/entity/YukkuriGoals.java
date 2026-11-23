@@ -110,7 +110,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, presentationGoals.bind(PresentationGoals.PREDATOR, new PredatorLife.BehaviorGoal(owner)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.CHILDHOOD, new ChildhoodGoal()));
         goalSelector.addGoal(3, landBinding(PresentationGoals.LIFE, new LifeGoal()));
-        goalSelector.addGoal(3, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
+        // Above the life errands (3) and every daily goal: a pet caught breaking a rule, or owning up to it, is not drawn away.
+        goalSelector.addGoal(2, landBinding(PresentationGoals.CONSCIENCE, new ConscienceGoal(owner)));
         goalSelector.addGoal(TrystGoal.PRIORITY, landBinding(PresentationGoals.TRYST, new TrystGoal(owner)));
         // A strong feeling's peak holds the body above errands; its easing idles listlessly above roaming (mind/EmotionCourse).
         goalSelector.addGoal(3, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 3)));
@@ -343,7 +344,7 @@ final class YukkuriGoals {
         @Override public void stop() { owner.settlement().stop(); }
     }
     private final class PlaygroundGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.playLife().active()); }
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.pet().conscience().catchPending() || !(owner.playLife().active()); }
         PlaygroundGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK,Flag.JUMP));}
         @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued()
                 && io.github.longshou.mcyukkuri.human.ChildPlay.offerTo(owner) == null && owner.playLife().canUse();}   // a child's offer is answered first (SocialGoal), free play waits
@@ -353,7 +354,7 @@ final class YukkuriGoals {
         @Override public void stop(){owner.playLife().stop();}
     }
     private final class GroupGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.groupInteraction().active()); }
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.pet().conscience().catchPending() || !(owner.groupInteraction().active()); }
         GroupGoal(){setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK));}
         @Override public boolean canUse(){return !owner.agitation().hunting() && !owner.mind().feeling().subdued() && owner.groupInteraction().canUse();}
         @Override public boolean canContinueToUse(){return owner.groupInteraction().canContinueToUse();}
@@ -382,7 +383,8 @@ final class YukkuriGoals {
         @Override public void stop() { owner.woundComfort().stop(); }
     }
     private final class DailyGoal extends Goal {
-        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || !(owner.dailyLife().active()); }
+        // A catch the owner just made is the one thing that breaks into a song or a workout (the bound penance takes the body).
+        @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.pet().conscience().catchPending() || !(owner.dailyLife().active()); }
         DailyGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
         @Override public boolean canUse() { return !owner.agitation().hunting() && owner.dailyLife().plan(); }
         @Override public boolean canContinueToUse() { return owner.dailyLife().valid(); }

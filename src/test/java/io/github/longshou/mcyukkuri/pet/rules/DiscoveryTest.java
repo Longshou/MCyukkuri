@@ -39,10 +39,9 @@ class DiscoveryTest {
         assertTrue(sight.seen(sign, 221));
     }
 
-    @Test void onlyAnIntelligibleDeliveredAdmissionCountsForItsWitness() {
-        assertEquals("confession", Observation.words(true, true, true, false));
-        assertNull(Observation.words(true, false, true, false));
-        assertNull(Observation.words(false, true, true, false));
+    @Test void onlyADeliveredDenialSeenByItsWitnessCanBeExposed() {
+        assertNull(Observation.words(true, false, true));
+        assertNull(Observation.words(false, true, true));
     }
 
     @Test void theIdentifyingCallNeedsTheSameBroodAndBiologicalMother() {
@@ -56,10 +55,10 @@ class DiscoveryTest {
 
     @Test void aWitnessedCallCanCompleteTheDecisiveObservation() {
         for (int tick = 1; tick < 40; tick++) assertFalse(sight.seen(sign, tick));
-        assertNull(Observation.words(true, true, false, false)); // denial alone
-        assertNull(Observation.words(false, true, false, true)); // missed the denial
+        assertNull(Observation.words(true, true, false)); // denial alone
+        assertNull(Observation.words(false, true, true)); // missed the denial
         assertTrue(sight.seen(sign, 40));
-        assertEquals("lie_exposed", Observation.words(true, true, false, true));
+        assertEquals("lie_exposed", Observation.words(true, true, true));
     }
     @Test void witnessesSubjectsAndInspectionWindowsCannotPoolAndReloadStartsFresh() {
         var secondJudge = new Observation.Sign(brood, 2, 7, false, Kind.YOUNG);
@@ -78,11 +77,11 @@ class DiscoveryTest {
         assertFalse(sight.seen(sign, 260));
     }
 
-    @Test void seeingPregnancyDoesNotCountTowardHearingTheAdmission() {
+    @Test void seeingPregnancyDoesNotCountTowardSeeingTheYoung() {
         var pregnancy = new Observation.Sign(brood, 1, 7, false, Kind.PREGNANCY);
-        var admission = new Observation.Sign(brood, 1, 7, false, Kind.ADMISSION);
+        var young = new Observation.Sign(brood, 1, 7, false, Kind.YOUNG);
         for (int t = 1; t < 40; t++) assertFalse(sight.seen(pregnancy, t));
-        for (int t = 40; t < 79; t++) assertFalse(sight.seen(admission, t));
-        assertTrue(sight.seen(admission, 79));
+        for (int t = 40; t < 79; t++) assertFalse(sight.seen(young, t));
+        assertTrue(sight.seen(young, 79));
     }
 }
