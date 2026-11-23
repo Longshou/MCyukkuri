@@ -37,6 +37,9 @@ SYNTHETIC = """- **2026-11-22 反馈**（x）：
   - 丙演出：已接入待试玩。FG-01 看挖洞。DN-12 看睡位。
   - 丁演出：已接入待试玩。看一个未指名场景。
 """
+UNLINKED = """- **2026-11-22 反馈**（x）：
+  - 短项：已接入待试玩。看两只在这里撞上。
+"""
 
 
 class RecentRoundsTests(unittest.TestCase):
@@ -71,8 +74,9 @@ class WatchTextTests(unittest.TestCase):
             self.assertNotIn('」', text, sid)
             self.assertLessEqual(len(text), playtest_list.WATCH_MAX, sid)
 
-    def test_hint_keys_are_real_scenes(self):
-        self.assertFalse(set(WATCH) - set(SCENES))
+    def test_hint_keys_are_real_scenes_or_todo_labels(self):
+        labels = {playtest_list.item_label(item) for item in CURRENT}
+        self.assertFalse(set(WATCH) - (set(SCENES) | labels))
 
     def test_row_hint_is_exactly_the_scene_hint(self):
         for sid, row in BY_SCENE.items():
@@ -81,6 +85,8 @@ class WatchTextTests(unittest.TestCase):
     def test_no_misattributed_sentences(self):
         # these once got the MD-17 sentence, the SP-01 text or the process item (清单范围)
         for sid in ('den_mold_child_exile', 'den_mold_keep', 'pred_range', 'pred_perch_hunt'):
+            if sid not in BY_SCENE:  # its item left the two recent rounds
+                continue
             watch = BY_SCENE[sid]['watch']
             for bad in ('漏尿', '清单', 'M 菜单', 'SP-01', '满约'):
                 self.assertNotIn(bad, watch, sid)
@@ -89,6 +95,23 @@ class WatchTextTests(unittest.TestCase):
         with mock.patch.object(playtest_list, 'load_watch', return_value={}):
             rows = playtest_list.menu(playtest_list.todo_items(SYNTHETIC), set(), SCENES, NUMBERS, FIELD_ORDER)
         self.assertEqual(['', ''], [r['watch'] for r in rows])
+
+
+class UnlinkedRowTests(unittest.TestCase):
+    def test_short_label_row_shows_its_own_title_and_watch(self):
+        # the parent's dated bold title must not replace the item's own (short) label
+        with mock.patch.object(playtest_list, 'load_watch', return_value={'短项': '两只撞上时不再抽搐'}):
+            rows = playtest_list.menu(playtest_list.todo_items(UNLINKED), set(), SCENES, NUMBERS, FIELD_ORDER)
+        self.assertEqual([('短项', '两只撞上时不再抽搐')], [(r['title'], r['watch']) for r in rows])
+
+    def test_label_strips_bold_markers(self):
+        self.assertEqual('短标', playtest_list.item_label(('父标题', '**短标**：已接入待试玩。')))
+
+    def test_every_real_unlinked_row_carries_a_hint(self):
+        unlinked = [r for r in ROWS if not r['scenes']]
+        self.assertTrue(unlinked)
+        for row in unlinked:
+            self.assertEqual(WATCH[row['title']], row['watch'])
 
 
 if __name__ == '__main__':

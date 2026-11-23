@@ -151,8 +151,13 @@ def display_name(hit):
     return label if 8 <= len(label) <= 30 and '｜' not in label and not any(s in label for s in STATUSES) else title
 
 
+def item_label(hit):
+    """The item's own name: its text before the first colon, with bold markers stripped."""
+    return hit[1].split('：', 1)[0].replace('**', '').strip()
+
+
 def load_watch():
-    """Scene id -> the short, hand-written 看点 (scripts/playtest_watch.json), the only source of hint text."""
+    """Scene id or item label -> the short, hand-written 看点 (scripts/playtest_watch.json), the only hint source."""
     return json.loads(WATCH_FILE.read_text(encoding='utf-8-sig'))
 
 
@@ -256,7 +261,8 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
         if ids is None:
             continue
         if not ids:
-            rows.append(dict(status=status, title=display_name(item), watch='', fresh=text in fresh_texts, scenes=[]))
+            label = item_label(item)
+            rows.append(dict(status=status, title=label, watch=watch.get(label, ''), fresh=text in fresh_texts, scenes=[]))
             continue
         for sid in ids:
             r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=watch.get(sid, ''), fresh=False,

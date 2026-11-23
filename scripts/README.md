@@ -51,7 +51,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 
-`python scripts/check_doc_refs.py --check [文件...]` 是 Python 3.10+ 标准库的只读死链检查：核对 `docs/`、`AGENTS.md`、`scripts/README.md`、`art/CATALOG.md` 与 `wiki/` 中由 Git 跟踪的 Markdown 相对链接及其标题锚点（含中文标题与显式 `<a id>`），反引号里的 Java 类、成员与包路径、仓库路径，`FEATURES`／`TODO` 的场景编号，以及 `playtest_watch.json` 的场景键；Java 名按文件名或 `src/main/java`、`src/test/java` 中的出现判定，只查单独的类名、类名加成员和包路径加类名三种写法。它只读 `git ls-files` 列出的文件，跳过生成的参考库页面。问题逐条按 `文件:行:` 输出；`--check` 有发现即非零，给出文件时只查这些文件，`--all` 查全部。不查外链与 HTML 链接，散文里的场景 ID 与动作、台词 ID 不作区分，因此场景只按编号核对。`pkg.py land` 在包改动文档或场景登记时用它挡住死链。
+`python scripts/check_doc_refs.py --check [文件...]` 是 Python 3.10+ 标准库的只读死链检查：核对 `docs/`、`AGENTS.md`、`scripts/README.md`、`art/CATALOG.md` 与 `wiki/` 中由 Git 跟踪的 Markdown 相对链接及其标题锚点（含中文标题与显式 `<a id>`），反引号里的 Java 类、成员与包路径、仓库路径，`FEATURES`／`TODO` 的场景编号，以及 `playtest_watch.json` 的看点键（场景 ID 或当前待办条目名）；Java 名按文件名或 `src/main/java`、`src/test/java` 中的出现判定，只查单独的类名、类名加成员和包路径加类名三种写法。它只读 `git ls-files` 列出的文件，跳过生成的参考库页面。问题逐条按 `文件:行:` 输出；`--check` 有发现即非零，给出文件时只查这些文件，`--all` 查全部。不查外链与 HTML 链接，散文里的场景 ID 与动作、台词 ID 不作区分，因此场景只按编号核对。`pkg.py land` 在包改动文档或场景登记时用它挡住死链。
 
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行脚本所列各包的纯 Java 单元测试；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
 
@@ -115,7 +115,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 ## 试玩清单与反馈入档
 
-`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>]` 将两版之间新增或变化的待试玩条目按场地输出为 Markdown，纯外观条目由预览页判定、不列（规则见[总负责人](../docs/roles/lead.md#待办维护)）。默认从最近一场试玩会话和已装运行包取提交，措辞取当前检出的《待办》，用反引号内的场景 ID 或场景编号（`TN-29`、`TN29` 写法均可，紧挨中文或引号也能识别）关联场景。`--menu-json PATH` 改为写出游戏内「待看」清单的 JSON，包含当前所有复测失败与已接入待试玩的玩法条目；同一场景在两种输出中均合为一行，状态取其中最差，只列最近两轮试玩反馈（《待办》里日期最新的两个“反馈”块）提及的场景，未指名场景的条目仅限这两块内的，各一行。看点只取 `scripts/playtest_watch.json`（场景 ID 到一句不超过 30 字、不含引号原话的短描述），没写的场景只显示标题。菜单中任一条为新即标「新」，没有旧会话时不标。`--scenes-json PATH` 输出完整的场景目录，按主题、场地组织，含编号、标签和看点。启动器在每次开场前把 `playtest.json` 与 `scenes.json` 写到同一目录。
+`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>]` 将两版之间新增或变化的待试玩条目按场地输出为 Markdown，纯外观条目由预览页判定、不列（规则见[总负责人](../docs/roles/lead.md#待办维护)）。默认从最近一场试玩会话和已装运行包取提交，措辞取当前检出的《待办》，用反引号内的场景 ID 或场景编号（`TN-29`、`TN29` 写法均可，紧挨中文或引号也能识别）关联场景。`--menu-json PATH` 改为写出游戏内「待看」清单的 JSON，包含当前所有复测失败与已接入待试玩的玩法条目；同一场景在两种输出中均合为一行，状态取其中最差，只列最近两轮试玩反馈（《待办》里日期最新的两个“反馈”块）提及的场景，未指名场景的条目仅限这两块内的，各一行，标题用条目名（第一个「：」前的文字，去掉粗体标记）而不是日期父标题。看点只取 `scripts/playtest_watch.json`（场景 ID 或待办条目名到一句不超过 30 字、不含引号原话的短描述），没写的场景或条目只显示标题。菜单中任一条为新即标「新」，没有旧会话时不标。`--scenes-json PATH` 输出完整的场景目录，按主题、场地组织，含编号、标签和看点。启动器在每次开场前把 `playtest.json` 与 `scenes.json` 写到同一目录。
 
 `<py> scripts/feedback_intake.py [--session <id或前缀>]`：把最近（或指定）会话的 session JSON、该场 stdout／stderr 日志（以及最近一场的 `latest.log`、`debug.log`；更早场次的这两份已被覆盖）复制到 `.local/reports/playtest-<日期>-<时间>/`，原文件不动；按聊天标题 `【<场景标题>】看点：` 识别用户打开过的场景，窗口取到下一次场景启动为止（并排场地的场景会共享窗口），逐场汇总死亡、溺水、`inWall`、饥饿伤害、拒绝（含原因计数）、异常，以及场景 `smoke.expect` 的断言行是否出现（无断言的场景给服务端前缀计数），写成同目录 `summary.md` 并打印。标题已在场景源码里改名的场景标为找不到；日志只含时分秒，日期由会话开始时间逐日推算。
 

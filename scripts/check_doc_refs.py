@@ -23,6 +23,8 @@ import sys
 import urllib.parse
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import playtest_list  # noqa: E402  (same directory; the item-label rule stays in one place)
 DOCS = ('docs/FEATURES.md', 'docs/TODO.md', 'docs/roles/*.md', 'AGENTS.md', 'scripts/README.md',
         'art/CATALOG.md', 'wiki/**/*.md')
 GENERATED = 'wiki/reference-library/'
@@ -206,10 +208,11 @@ class Checks:
                     if found not in known:
                         self.problem(path, number, f'scene number {found} is not in {SCENE_NUMBERS}')
         watch_text = self.text(WATCH)
+        labels = {playtest_list.item_label(item) for item in playtest_list.todo_items(self.text('docs/TODO.md'))}
         for key in json.loads(watch_text):
-            if key not in numbers:
+            if key not in numbers and key not in labels:
                 line = next((n for n, text in enumerate(watch_text.splitlines(), 1) if f'"{key}"' in text), 1)
-                self.problem(WATCH, line, f'watch key {key} is not a scene id in {SCENE_NUMBERS}')
+                self.problem(WATCH, line, f'watch key {key} is not a scene id in {SCENE_NUMBERS} nor a TODO item label')
 
     # --- driver ----------------------------------------------------------------------
 
