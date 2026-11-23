@@ -7928,8 +7928,11 @@ def _verify_frail_gait(window, trace):
     began = re.search(rf'\[body\][^\n]* uuid={_uuid_text("frail_gait", "weak")} t=(\d+) [^\n]*weakness false -> true', window)
     if not began:
         return 'The weak body never became weak'
-    weak = [row for row in weak if row[0] >= int(began[1])]
-    gap = [row for row in gap if row[2] != 'run' or row[0] >= int(began[1])]
+    ended = re.search(rf'\[body\][^\n]* uuid={_uuid_text("frail_gait", "weak")} t=(\d+) [^\n]*weakness true -> false', window)
+    weak = [row for row in weak if int(began[1]) <= row[0] < (int(ended[1]) if ended else 1 << 60)]
+    # It stays frail only while starving: its first swallow lifts it above the starvation line.
+    fed = re.search(rf'\[meal\][^\n]* uuid={_uuid_text("frail_gait", "gap")} t=(\d+) [^\n]*swallowed', window)
+    gap = [row for row in gap if row[0] < (int(fed[1]) if fed else 1 << 60)]
     if not re.search(rf'\[move\][^\n]* uuid={_uuid_text("frail_gait", "weak")} [^\n]*gait crawl cause=weak\b', window):
         return 'The weak body never crawled'
     for name, rows in (('weak', weak), ('gap', gap)):
