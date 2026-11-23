@@ -3557,6 +3557,69 @@ add(_counter_reissue, 'town', '在会馆柜台补发徽章，再给它别上', '
     reads=_CERTIFY_VIEW['reads'], smoke=counter_reissue_smoke())
 
 
+_PLAZA = 'badge_plaza'
+_PLAZA_TITLE = '佩章的油库里逛到广场停一停'
+_PLAZA_KEEPER, _PLAZA_YARD_PET = 'plaza_keeper', 'plaza_yard_pet'
+_PLAZA_WEARERS = [('reimu', 'plaza_reimu', 1, 4), ('marisa', 'plaza_marisa', 7, 3)]
+
+
+def _plaza_pos(x, z):
+    town_x, town_z = BY_ID['town'].anchor
+    return (((town_x + x) & 0x3ffffff) << 38 | ((town_z + z) & 0x3ffffff) << 12 | FEET) - (1 << 64)
+
+
+def _plaza_wearer(kind, name, x, grade, z=-6):
+    serial = uuid_nbt(uid(_PLAZA, name + '_serial'))
+    examiner = uuid_nbt(uid(_PLAZA, 'previous_examiner'))
+    history = ','.join(f'{{Type:8,Time:{g - grade - 1}L,Result:{g},Outcome:0,Examiner:{examiner},Need:""}}'
+                       for g in range(1, grade + 1))
+    return [
+        yk(kind, x, z, name, grade=grade, uuid=uid(_PLAZA, name), friendliness=88, boldness=70, attachment=22,
+           skills=dict.fromkeys(('wait', 'toilet', 'counting', 'food_guard', 'manners', 'greeting'), 9), cap=9,
+           nutrition=100, extra='YukkuriDailyLife:{Boredom:90,Affection:45}')
+        .replace('Worn:1b,IssuedAt:0L,Source:3,Cooldown:0,History:[]',
+                 f'Worn:1b,IssuedAt:-1L,Source:8,Cooldown:0,History:[{history}],Serial:{serial},Issuer:{examiner}'),
+        f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",Owner:{uuid_nbt(uid(_PLAZA, "pet_owner"))}}}',
+        f'execute if entity @s[type=minecraft:player] run {own(name)[1]}',
+    ]
+
+
+def _plaza_yard():
+    return [
+        box(2, 0, -20, 8, 2, -12, 'minecraft:air'),
+        box(2, 0, -20, 8, 0, -20, 'minecraft:oak_fence[east=true,west=true]'),
+        *(box(x, 0, -19, x, 0, -13, 'minecraft:oak_fence[north=true,south=true]') for x in (2, 8)),
+        box(2, 0, -12, 4, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
+        box(6, 0, -12, 8, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
+        block(5, 0, -12, 'minecraft:oak_fence_gate[facing=south,open=true]'),
+        block(4, 0, -18, 'mcyukkuri:food_bowl'),
+        block(6, 0, -18, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        'summon minecraft:marker ~5.5 ~ ~-16.5 {Rotation:[180f,0f],Tags:["mcy_no_carton","mcy_yard_pet_spawned"],'
+        'data:{Low:[-2,-1,-2],High:[2,3,4]}}',
+        human('caretaker_sister', 5, -17, _PLAZA_KEEPER, 0, yaw=0, label='院主')[:-1]
+        + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -17)}L,YardBowl:{_plaza_pos(4, -18)}L}}',
+        yk('reimu', 5, -18, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠', lead=True,
+           nutrition=100, energy=100, boldness=35, attachment=80, extra='YukkuriDailyLife:{Boredom:95,Affection:60}'),
+        f'data modify entity {sel(_PLAZA_YARD_PET)} {OWNED} set value '
+        f'{{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))}}}',
+        f'data modify entity {sel(_PLAZA_YARD_PET)} YukkuriPet.Care merge value '
+        f'{{Harness:1b,WearOwner:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))}}}',
+    ]
+
+
+add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
+    '两只佩章宠物从街巷各自散步，可能在白篷西边停步。院主也可能牵着无章院宠过来，看佩章者的章色，然后各自继续走。',
+    '约 1 分钟', [
+        'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
+        box(1, 0, -4, 7, 1, -4, 'minecraft:stone_bricks'),
+        *_plaza_yard(),
+        *(line for wearer in _PLAZA_WEARERS for line in _plaza_wearer(*wearer)),
+    ], env=DAY, vantage=(-1, 1, -102, 10),
+    reads=[('读灵梦的徽章档案', f'data get entity {sel("plaza_reimu")} YukkuriPet'),
+           ('读魔理沙的徽章档案', f'data get entity {sel("plaza_marisa")} YukkuriPet'),
+           ('读院宠的牵引与状态', f'yukkuri status {sel(_PLAZA_YARD_PET)} raw')])
+
+
 add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章：报名后焦急等结果',
     '右键考官选认证。看灵梦等候时发抖、介绍自己，最后免费领到铜章。',
     '接触后约 10 秒', [*exam_hall(), yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, boldness=25), *own('pet')],
@@ -7916,7 +7979,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
-    'badge_counter_reissue': 'M5',
+    'badge_counter_reissue': 'M5', 'badge_plaza': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
@@ -9701,6 +9764,32 @@ def _outing_leads(scene, names, park):
         ('depart', 'attach'), ('home', 'detach')]
     return [rf'action=outing_lead phase={phase} result={result} pet={_uuid_text(scene, name)}\b'
             for name in names for phase, result in phases]
+
+
+def _plaza_visit(window, trace):
+    wearer_ids = [_uuid_text(_PLAZA, name) for _, name, *_ in _PLAZA_WEARERS]
+    x, z = BY_ID['town'].anchor
+    positions = {actor: [] for actor in wearer_ids}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] in positions and 'p' in row['st']:
+            positions[row['u']].append(row['st']['p'])
+    for actor, track in positions.items():
+        # The paving is the four columns west of the benches, x+2..x+5 and z-3..z+1.
+        if not any(x + 2 <= px < x + 6 and z - 3 <= pz < z + 2 for px, _, pz in track):
+            return f'{actor} never walked onto the plaza paving'
+
+
+_plaza_keeper_id = _uuid_text(_PLAZA, _PLAZA_KEEPER)
+next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visit, verify_trace=True, expect=[
+    *[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, name)} [^\n]*plaza {phase} '
+      for _, name, *_ in _PLAZA_WEARERS for phase in ('walk', 'arrived')],
+    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_depart pets=1 ',
+    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_arrive stand=',
+    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_home\b',
+    *_outing_leads(_PLAZA, [_PLAZA_YARD_PET], False),
+    rf'uuid={_uuid_text(_PLAZA, _PLAZA_YARD_PET)} [^\n]*outing reached home',
+], forbid=[rf'uuid={_plaza_keeper_id} [^\n]*action=outing_park'])
 
 
 _smoke('park_walk', 1100, [

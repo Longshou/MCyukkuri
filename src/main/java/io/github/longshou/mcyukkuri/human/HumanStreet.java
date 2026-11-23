@@ -747,6 +747,8 @@ final class HumanStreet {
         private int glanceAt;
         private long nextOuting;
         private Vec3 resume;
+        private TownMarkers.BadgePlaza plaza;
+        private long plazaUntil;
         private Vec3 parkDestination;
         private PlayBlockEntity facility;
         private Seat seat;
@@ -941,8 +943,10 @@ final class HumanStreet {
             landmarks.sort(Comparator.comparing((Marker m) -> !m.getTags().contains("mcy_park_walk"))
                     .thenComparingDouble(npc::distanceToSqr));
             // As with the companion cover search, bound route probes when several lots overlap.
-            boolean routed = false;
-            for (var marker : landmarks.stream().limit(8).toList()) {
+            int plazaProbes = visitPlaza();
+            boolean routed = plaza != null;
+            for (var marker : landmarks.stream().limit(8 - plazaProbes).toList()) {
+                if (routed) break;
                 if (marker.getTags().contains("mcy_park_walk")) {
                     if (!routePark(marker.position())) continue;
                     parkDestination = marker.position();
@@ -950,7 +954,7 @@ final class HumanStreet {
                 routed = true;
                 break;
             }
-            if (landmarks.isEmpty()) {
+            if (!routed && landmarks.isEmpty()) {
                 var stand = DefaultRandomPos.getPos(npc, 12, 2);
                 routed = stand != null && npc.level().canSeeSky(BlockPos.containing(stand)) && route(stand);
             }
@@ -965,6 +969,39 @@ final class HumanStreet {
                 if (!crateLeg(Leg.TAKE, parkDestination))
                     GameplayLog.event(npc, "npc-care", "action=picnic_take result=unreachable crate={}", npc.yardCrate());
             }
+        }
+
+        private int visitPlaza() {
+            var level = (ServerLevel) npc.level();
+            if (!TownMarkers.plazaLeisure(level) || !companions.stream().allMatch(pet -> pet.outing().readyForPlaza())) return 0;
+            var site = TownMarkers.badgePlaza(level, npc, 18);
+            if (site == null || !npc.isWithinRestriction(site.marker().blockPosition()) || site.paving().contains(npc.position())) return 0;
+            boolean company = !site.company(npc).isEmpty();
+            boolean wearer = companions.stream().anyMatch(pet -> pet.pet().humanRank() != BadgeGrade.NONE);
+            // A single choice from the gate leaves room for the existing park outing, even with company in sight.
+            if ((!company && !wearer) || npc.getRandom().nextDouble() >= (company ? .75 : .45)) return 0;
+            int probes = 0;
+            for (var stand : site.stands(level, npc, companions.size() + 1).filter(npc::isWithinRestriction).limit(2).toList()) {
+                probes++;
+                if (!route(Vec3.atBottomCenterOf(stand))) continue;
+                plaza = site;
+                break;
+            }
+            return probes;
+        }
+
+        private void pauseAtPlaza() {
+            endGlance();
+            npc.getNavigation().stop();
+            plazaUntil = npc.level().getGameTime() + TownMarkers.plazaPause(companions.stream().mapToDouble(pet ->
+                    SocialDisposition.wariness(pet, pet.life().personality().relation(null))).max().orElseThrow());
+            GameplayLog.event(npc, "npc-care", "action=outing_plaza_arrive stand={} pets={}",
+                    GameplayLog.at(destination), companions.stream().map(YukkuriEntity::getUUID).toList());
+        }
+
+        private void clearPlaza() {
+            plaza = null;
+            plazaUntil = 0;
         }
 
         private ProduceCrateBlockEntity crate() {
@@ -1016,6 +1053,7 @@ final class HumanStreet {
             doorWait = null;
             homeward = true;
             lagTicks = 0;
+            clearPlaza();
             clearPark();
             clearLeg();
             if (npc.isUsingItem() && npc.holdsPicnicFood()) npc.stopUsingItem();
@@ -1531,7 +1569,8 @@ final class HumanStreet {
                 for (int i = 0; i < companions.size(); i++) {
                     var pet = companions.get(i);
                     if (!pet.isAlive() || !pet.outing().escorted()
-                            || checkNeeds && !(facility == null ? pet.outing().fit() : pet.outing().sound())) {
+                            || checkNeeds && !(facility == null ? pet.outing().fit() : pet.outing().sound())
+                            || checkNeeds && plaza != null && !pet.outing().readyForPlaza()) {
                         returnHome("companion");
                         return;
                     }
@@ -1543,6 +1582,15 @@ final class HumanStreet {
                     }
                 }
                 if (doorStep()) return;
+                if (plaza != null && checkNeeds && !plaza.present((ServerLevel) npc.level())) {
+                    returnHome("plaza_gone");
+                    return;
+                }
+                if (plazaUntil != 0) {
+                    if (!atDestination() || lagging != null) returnHome("plaza_separated");
+                    else if (npc.level().getGameTime() >= plazaUntil) returnHome("plaza_done");
+                    return;
+                }
                 if (facility != null) {
                     if (facility.isRemoved()) { returnHome("park_done"); return; }
                     if (seat != null && !parkLingering() && npc.tickCount % 10 == 0 && !seatFree(seat)) {
@@ -1609,7 +1657,8 @@ final class HumanStreet {
                 } else if (leg != Leg.NONE) {
                     legBlocked();
                 } else if (!homeward && !companions.isEmpty()) {
-                    if (parkDestination == null) returnHome("destination");
+                    if (plaza != null) pauseAtPlaza();
+                    else if (parkDestination == null) returnHome("destination");
                     else if (BlockPos.containing(destination).equals(BlockPos.containing(parkDestination))) {
                         if (!beginLinger()) returnHome("destination");
                     } else if (!routePark(parkDestination)) blockedOutingLeg();
@@ -1851,6 +1900,7 @@ final class HumanStreet {
             counterBusyUntil = 0;
             doorWait = null;
             standUp("interrupt");
+            clearPlaza();
             clearPark();
             if (leg == Leg.GATE) companions = List.of();
             clearLeg();

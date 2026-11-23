@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayItem;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
@@ -7,6 +8,7 @@ import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Marker;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.pathfinder.Path;
@@ -152,6 +155,84 @@ public final class TownMarkers {
                             offset(marker, data, "View"), rotation(marker).rotate(Direction.NORTH));
                 })
                 .filter(site -> site != null && site.post().equals(post)).findFirst().orElse(null);
+    }
+
+    /** Four walkers fit on the open side of the canopy with room left for through traffic. */
+    private static final int PLAZA_CAPACITY = 4;
+
+    public static boolean plazaLeisure(ServerLevel level) {
+        // Leave the last half-minute of daylight for the walk home.
+        return level.isDay() && !level.isRaining() && Math.floorMod(level.getDayTime(), HumanStreet.DAY) < 11400;
+    }
+
+    public static int plazaPause(double wariness) {
+        // An eight- to sixteen-second pause gives nearby peers time to notice each other.
+        return 320 - (int) (160 * wariness);
+    }
+
+    public record BadgePlaza(Marker marker, AABB paving) {
+        public boolean present(ServerLevel level) {
+            if (marker.isRemoved()) return false;
+            // The two authored three-block benches, east of the clear edge, rotate with the lot.
+            var root = marker.blockPosition();
+            var facing = rotation(marker);
+            for (var offset : BlockPos.betweenClosed(2, 0, -1, 4, 0, 1)) {
+                if (offset.getZ() == 0) continue;
+                var bench = root.offset(offset.rotate(facing));
+                if (level.hasChunkAt(bench) && level.getBlockState(bench).is(HumanWorld.WOODEN_BENCH.get())) return true;
+            }
+            return false;
+        }
+
+        public List<YukkuriEntity> company(PathfinderMob visitor) {
+            return visitor.level().getEntitiesOfClass(YukkuriEntity.class, paving,
+                    y -> y != visitor && y.isAlive() && !y.isPassenger() && !y.life().isSleeping()
+                            && !y.profile().dangerToYukkuri() && visitor.hasLineOfSight(y));
+        }
+
+        public Stream<BlockPos> stands(ServerLevel level, PathfinderMob visitor, int partySize) {
+            // Count bodies and real paths already headed here. The path controllers retain ownership of their destinations.
+            var traffic = level.getEntitiesOfClass(PathfinderMob.class, paving.inflate(30, 4, 30),
+                    mob -> mob != visitor && mob.getLeashHolder() != visitor && mob.isAlive() && !mob.isPassenger()
+                            && (mob instanceof YukkuriEntity || mob instanceof HumanNpc)
+                            && (paving.contains(mob.position()) || aimsAtPlaza(mob)
+                                    || mob.getLeashHolder() instanceof PathfinderMob leader && aimsAtPlaza(leader)));
+            if (traffic.size() + partySize > PLAZA_CAPACITY) return Stream.empty();
+            return BlockPos.betweenClosedStream(BlockPos.containing(paving.minX, paving.minY, paving.minZ),
+                            BlockPos.containing(paving.maxX - 1, paving.minY, paving.maxZ - 1))
+                    .map(BlockPos::immutable)
+                    .filter(pos -> {
+                        if (!level.hasChunkAt(pos) || !level.getFluidState(pos).isEmpty()
+                                || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
+                        var body = visitor.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(visitor.position()));
+                        return level.noCollision(visitor, body) && level.getEntities(visitor, body, entity -> entity.isPickable()).isEmpty()
+                                && traffic.stream().noneMatch(mob -> aimsAtPlaza(mob) && body.intersects(mob.getBoundingBox()
+                                .move(Vec3.atBottomCenterOf(mob.getNavigation().getTargetPos()).subtract(mob.position()))));
+                    })
+                    .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+        }
+
+        private boolean aimsAtPlaza(PathfinderMob mob) {
+            var nav = mob.getNavigation();
+            var target = nav.getTargetPos();
+            return !nav.isDone() && target != null && paving.contains(target.getCenter());
+        }
+    }
+
+    public static BadgePlaza badgePlaza(ServerLevel level, PathfinderMob visitor, int range) {
+        var here = visitor.blockPosition();
+        return level.getEntitiesOfClass(Marker.class, new AABB(here).inflate(range, 3, range),
+                        marker -> marker.getTags().contains("mcy_badge_plaza")
+                                && here.distSqr(marker.blockPosition()) <= range * range).stream()
+                .sorted(Comparator.comparingDouble((Marker marker) -> visitor.distanceToSqr(marker)).thenComparing(Marker::getUUID))
+                .map(marker -> {
+                    var root = marker.blockPosition();
+                    var facing = rotation(marker);
+                    return new BadgePlaza(marker, AABB.encapsulatingFullBlocks(
+                            root.offset(new BlockPos(-3, 0, -3).rotate(facing)),
+                            root.offset(new BlockPos(0, 2, 1).rotate(facing))));
+                })
+                .filter(site -> site.present(level)).findFirst().orElse(null);
     }
 
     private static Rotation rotation(Marker marker) {

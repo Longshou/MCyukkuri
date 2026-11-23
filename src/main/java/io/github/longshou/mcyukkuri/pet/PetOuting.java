@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
@@ -44,13 +45,23 @@ public final class PetOuting extends Goal {
     private double innerDistance() { return 1 + 2 * independence(); }
 
     public boolean sound() {
+        return pet.family().adult() && leisureHealth() && freeOfOtherLead();
+    }
+
+    private boolean leisureHealth() {
         var body = pet.body().condition();
-        return pet.isAlive() && !pet.isNoAi() && pet.family().adult() && pet.family().brood() == null
-                && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle() && freeOfOtherLead()
+        return pet.isAlive() && !pet.isNoAi() && pet.family().brood() == null
+                && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle()
                 && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()
                 && !body.footBurned() && pet.body().toxin() == 0 && !pet.life().temperature().cold()
                 && !pet.life().hasUrgentNeed() && !pet.isPanicking() && !pet.pet().busy() && !pet.operations().active();
+    }
+
+    /** An optional stop can yield earlier than an ordinary escort when the pet would rather eat. */
+    public boolean readyForPlaza() {
+        return leisureHealth() && !tired() && pet.life().nutrition() > picnicBand() && pet.pet().calm()
+                && !BehaviorContinuity.emergency(pet);
     }
 
     public double restBand() { return 45 - 15 * independence(); }

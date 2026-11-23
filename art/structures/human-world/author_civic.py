@@ -323,9 +323,10 @@ def badge_hall(p):
     b.entity(6.5, 3, 26.5, 'mcyukkuri:caretaker_sister',
              {'HumanJob': integer(0), 'HumanAttitude': integer(2), 'SiteRole': string('badge_counter')})
     resident(b, 17, 28, 'caretaker_brother', 2, ['mcy_street_local', 'mcy_street_special'], y=3)   # the hall's caretaker
-    marker(b, 18.5, 1, 11.5, 'mcy_badge_hall', {
-        'Clerk': sequence(3, [-12, 2, 15]), 'Podium': sequence(3, [-10, 2, 12]), 'View': sequence(3, [-8, 2, 11]),
-    })
+    b.entity(18.5, 1, 11.5, 'minecraft:marker', {
+        'Tags': sequence(8, ['mcy_badge_hall', 'mcy_badge_plaza']),
+        'data': compound({'Clerk': sequence(3, [-12, 2, 15]), 'Podium': sequence(3, [-10, 2, 12]), 'View': sequence(3, [-8, 2, 11])}),
+    }, yaw=180.)
     for x, z in [(8, 22), (17, 22), (12, 27)]: b.block(x, 7, z, 'lantern', {'hanging': 'true', 'waterlogged': 'false'})
     b.strict = False
     street_ends(b, W)
