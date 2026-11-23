@@ -144,7 +144,8 @@ final class FamilySeparation {
             lost=expectsParent&&!nearby&&!atHome(e);
             if(lost)pressure(.2f,Math.max(60,100-.4f*p.boldness()),"lost_parent");
             else if(o.stage()==FamilyLife.Stage.BABY&&!sameNest)pressure(.07f,70-.5f*p.selfControl(),"separate_nest");
-            if(lost!=wasLost&&!e.grieving()){
+            // A child driven out of the family neither cries for her nor greets her: the turn from lost to not expecting her is no reunion.
+            if(lost!=wasLost&&!e.grieving()&&!o.disowned()){
                 e.showReaction(lost?"cry":"happy",lost?"lost_parent":"caregiver",100);
                 if(lost)BirthStaging.tears(e);else BirthStaging.affection(e);
                 GameplayLog.event(e,"family","child separation lost={} unease={} boldness={} sameNest={}",lost,e.mind().unease(),p.boldness(),sameNest);

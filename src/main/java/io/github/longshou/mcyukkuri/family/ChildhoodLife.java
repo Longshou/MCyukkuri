@@ -313,7 +313,7 @@ public final class ChildhoodLife {
 
     /** Family-follow and the shared childhood bed apply until the child has this independent capability. */
     public boolean shouldStayWithParents() { return !entity.family().adult() && !canLiveIndependently()
-            && !entity.independence().independent(); }
+            && !entity.independence().independent() && !entity.family().disowned(); }
 
     /** Only a real current action surfaces as activity; identity/state never masks other systems. */
     public String activity() {

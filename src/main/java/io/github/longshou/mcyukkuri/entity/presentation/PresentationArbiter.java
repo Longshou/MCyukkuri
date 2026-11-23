@@ -32,7 +32,16 @@ public final class PresentationArbiter {
     /** A route or steer is still in hand: only then does a tick of zero travel keep the walk clip (a collision bounce, not a stop). */
     private boolean travelling;
 
+    /** A performed beat awaiting the next published face, so its log line can carry the face that was really shown. */
+    private record Beat(String name, String face, String line) {}
+    private final java.util.ArrayDeque<Beat> noted = new java.util.ArrayDeque<>();
+
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
+
+    /** Records one beat of a performance (declared face and line event); the next published frame logs it with the face actually shown. */
+    public void note(String name, String face, String line) {
+        if (noted.size() < 8) noted.add(new Beat(name, face, line.isEmpty() ? "none" : line));
+    }
 
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
     public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive, boolean driven) {
@@ -74,6 +83,8 @@ public final class PresentationArbiter {
         e.life().observeUrge(shown);
         e.status().reactions().weather().observeFace(shown);
         if (e.getNavigation() instanceof YukkuriGroundNavigation nav) nav.observeFace(shown);
+        for (var beat = noted.poll(); beat != null; beat = noted.poll())
+            GameplayLog.event(e, "choreo", "beat={} face={} line={} declared={}", beat.name(), shown, beat.line(), beat.face());
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();

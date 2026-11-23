@@ -253,7 +253,7 @@ public final class HabitatLife {
     /** Wandering bands never settle: no burrow is claimed or dug for them. */
     boolean roaming() { var group=entity.settlement().group();return group!=null&&group.kind==SettlementData.Kind.BANDITS; }
     public Result findHome() { return homes.findHome(); }
-    void seekHomeNow() { wait = 0; homes.seekHomeNow(); }
+    public void seekHomeNow() { wait = 0; homes.seekHomeNow(); }
     void retrySearch() { wait=20; }
     public void tick() {
         if(entity.level().isClientSide)return;

@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.event.HomeTerritoryGoal;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.event.WildEvents;
+import io.github.longshou.mcyukkuri.family.DrivenOut;
 import io.github.longshou.mcyukkuri.settlement.ForageGoal;
 import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.settlement.MoldExile;
@@ -90,6 +91,7 @@ public final class PresentationGoals {
     public static final Source<Goal> DUTIES = state("duties", e -> e.settlement().duties().active() ? e.settlement().duties().activity() : null);
     public static final Source<Goal> PIT_SLAVE = state("pit_slave", e -> e.settlement().duties().pit().activity());
     public static final Source<MoldExile> MOLD_EXILE = observed("mold_exile", MoldExile::activity);
+    public static final Source<DrivenOut> DRIVEN_OUT = observed("driven_out", DrivenOut::activity);
     public static final Source<Goal> EMOTION = state("emotion", e -> e.mind().feeling().activity());
     public static final Source<Goal> SETTLEMENT = state("settlement", e -> e.settlement().active() ? e.settlement().activity() : null);
     public static final Source<Goal> SOCIAL = state("social", e -> e.social().active() ? e.social().activity() : null);

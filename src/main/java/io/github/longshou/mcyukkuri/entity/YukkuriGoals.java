@@ -119,6 +119,8 @@ final class YukkuriGoals {
         goalSelector.addGoal(3, landBinding(PresentationGoals.DEN_SEAL, new DenSeal.FamilyGoal(owner)));
         owner.createMoldExile();
         goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
+        owner.createDrivenOut();
+        goalSelector.addGoal(3, landBinding(PresentationGoals.DRIVEN_OUT, owner.drivenOut()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         homeTerritory = new HomeTerritoryGoal(owner);

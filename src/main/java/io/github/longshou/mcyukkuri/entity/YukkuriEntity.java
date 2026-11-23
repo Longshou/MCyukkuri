@@ -33,6 +33,7 @@ import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.ChildhoodLife;
+import io.github.longshou.mcyukkuri.family.DrivenOut;
 import io.github.longshou.mcyukkuri.cognition.Skills;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.shop.ShopWindow;
@@ -180,9 +181,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private Headwear headwear;
     private Sanction sanction;
     private MoldExile moldExile;
+    private DrivenOut drivenOut;
     public Headwear headwear() { return headwear; }
     public Sanction sanction() { return sanction; }
     public MoldExile moldExile() { return moldExile; }
+    public DrivenOut drivenOut() { return drivenOut; }
     /** Drawn accessory damage and fit (Headwear.visual). */
     public int visibleHeadwear() { return sync().visibleHeadwear(); }
     public void syncHeadwear(int packed) { sync().syncHeadwear(packed); }
@@ -987,6 +990,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public boolean hasReaction() { return reactionTicks > 0 && !reactionEvent.equals("need_tell"); }
+    /** Logs one beat of a performance with the face that is really shown next (declared face and line event; {@code ""} for none). */
+    public void beat(String name, String face, String line) { presentation.note(name, face, line); }
     private YukkuriAction reactionAction, reactionAfter;
     private long reactionStartedAt = -1;
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
@@ -1367,6 +1372,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     void createMyon() { myon = new MyonLife(this); }
     void createSanction() { sanction = new Sanction(this); }
     void createMoldExile() { moldExile = new MoldExile(this); }
+    void createDrivenOut() { drivenOut = new DrivenOut(this); }
     void createHeadwear() { headwear = new Headwear(this); }
     void createForageTrip() { forageTrip = new ForageTrip(this); }
     void createTreasure() { treasure = new TreasureLife(this); }

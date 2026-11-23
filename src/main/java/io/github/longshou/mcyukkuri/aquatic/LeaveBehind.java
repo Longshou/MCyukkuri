@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.DrivenOut;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
 import io.github.longshou.mcyukkuri.intent.Desire;
@@ -11,10 +12,9 @@ import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
-import io.github.longshou.mcyukkuri.mind.EmotionCourse;
-import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.Ousting;
 import io.github.longshou.mcyukkuri.motor.action.Face;
+import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.social.Temperament;
@@ -30,22 +30,25 @@ import net.minecraft.server.level.ServerLevel;
 /**
  * The parent's choice after her hull went over from its load: the child {@link AquaticLife#overloadCapsized} picked is dealt with
  * in view. Once she stands on support (ashore, or on her righted hull) with the child in sight she turns to it and holds the look:
- * a keeper smiles through tears and stays ({@code keep_child}); a tearful driver says her sorry ({@code drive_child_tearful}), and
- * cuts the tie once the child stands ashore; a cold one flicks her face away, says the hat cannot carry it, and cuts at once, the water deciding the child's fate.
- * At the end of her words the child answers by its own temperament ({@link Ousting#answer}) and its siblings in sight cry, she
- * keeps looking a moment, and only then falls the cut ({@link Bonds#sever}), so the one-sided departure is seen in that order.
+ * a keeper smiles through tears and stays ({@code keep_child}); a tearful driver says her sorry ({@code drive_child_tearful}) once
+ * the child stands ashore; a cold one flicks her face away and says the hat cannot carry it at once, the water deciding the child's fate.
+ * At the end of her words she gives the order and the child owns its departure ({@link DrivenOut}: it answers by its own
+ * temperament, walks away, and the tie is cut only when it is truly gone). She watches it go ({@link Watch}) and turns away a pleader who
+ * steps up to her: the cold one shoves it off, the tearful one turns her back.
  * The same look and one short line by her temperament (wait here, or stay), with no cut, is played for the young her full hull leaves on the bank as she sets out ({@link #leftAshore}). A verdict not played out within {@link #MEMO} ticks
  * (child or parent out of reach, an incident stepping in) is dropped without a cut and the next capsize draws a new one.
  */
 final class LeaveBehind implements Intent {
     /** The beat a keeper's or a tearful parent's look lasts; a cold one's (ticks); how far past it the intent may run. */
     private static final int WARM_BEAT = 80, COLD_BEAT = 50, GRACE = 40;
-    /** How long she holds the look after the child answered, before the cut (ticks): the answer and the siblings' cry are seen first. */
-    private static final int HEAR_WARM = 60, HEAR_COLD = 40;
+    /** How long she holds the look after the left-ashore child answered (ticks): its answer is seen first. */
+    private static final int HEAR_WARM = 60;
     /** Speech priority of her verdict words: above the rescue chatter still running as she turns. */
     private static final int SAY_PRIORITY = 4;
     /** How long a drawn verdict waits to be played out (ticks); how many interrupted beats it survives; how far the child may be (blocks). */
-    private static final int MEMO = 3600, TRIES = 2, SIGHT = 16, SIBLING_SIGHT = 12;
+    private static final int MEMO = 3600, TRIES = 2, SIGHT = 16;
+    /** How long she watches a child go (ticks, past the pleader's hold and the walk); how far she shoves a pleader off (blocks). */
+    private static final int WATCH = 5200, SHOVE = 3, PLEA_WAIT = 300;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
     private static final class Memo {
@@ -57,6 +60,8 @@ final class LeaveBehind implements Intent {
         /** Her temperament is the cold one (harsh, not attached): the words she leaves a child ashore with. */
         final boolean coldParent;
         int tries;
+        /** The order is given: the child owns its departure and she only watches it go. */
+        boolean ordered;
         /** The child's answer, once it was shown (a retried beat does not repeat it). */
         Ousting.Answer reply;
 
@@ -83,13 +88,14 @@ final class LeaveBehind implements Intent {
                 !t.is(Temperament.Gate.ATTACHED) && t.is(Temperament.Gate.HARSH)));
     }
 
-    /** The child whose verdict she still owes, or null (and the verdict dropped, with its reason). */
+    /** The child whose verdict she still owes (or whose departure she watches), or null (and the verdict dropped, with its reason). */
     private static YukkuriEntity subject(YukkuriEntity parent, Memo memo) {
         var level = (ServerLevel) parent.level();
         var child = level.getEntity(memo.child) instanceof YukkuriEntity y ? y : null;
         String lapsed = level.getGameTime() > memo.until ? "timeout"
                 : memo.tries >= TRIES ? "interrupted"
                 : child == null || !child.isAlive() ? "child_gone"
+                : memo.ordered ? parent.getUUID().equals(child.drivenOut().driver()) ? null : "departure_over"
                 : !Bonds.parentOf(parent, child) ? "not_acknowledged"
                 : child.getVehicle() instanceof PlacedHatEntity ? "child_aboard" : null;
         if (lapsed == null) return child;
@@ -99,13 +105,20 @@ final class LeaveBehind implements Intent {
     }
 
     /** Offered while a verdict is owed, the parent stands on support and the child is in sight; a tearful driver waits until the
-     *  child stands ashore (the rescue and its own climb bring it there), a keeper or a cold one does not. */
+     *  child stands ashore (the rescue and its own climb bring it there), a keeper or a cold one does not. Once the order is
+     *  given, offered again as the watch over the child's departure, while it is on its way. */
     static void offer(List<Desire> out, YukkuriEntity parent, boolean steady) {
         var memo = MEMOS.get(parent);
         if (memo == null) return;
         var child = subject(parent, memo);
-        if (child == null || !steady || child.isPassenger() || parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child)
-                || memo.verdict == Verdict.DRIVE_TEARFUL && !AquaticLife.ashore(child)) return;
+        if (child == null || !steady || parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child)) return;
+        if (memo.ordered) {
+            if (child.drivenOut().phase() != DrivenOut.Phase.GOING) return;
+            out.add(Desire.of("watch_leave", AquaticGoal.num("leave_want", 100), List.of(memo.child, memo.tries),
+                    () -> "child=" + memo.child, () -> new Watch(parent, child, memo)));
+            return;
+        }
+        if (child.isPassenger() || memo.verdict == Verdict.DRIVE_TEARFUL && !AquaticLife.ashore(child)) return;
         out.add(Desire.of("leave_behind", AquaticGoal.num("leave_want", 100), List.of(memo.child, memo.verdict, memo.tries),
                 () -> "child=" + memo.child + " verdict=" + memo.verdict, () -> new LeaveBehind(parent, child, memo)));
     }
@@ -121,13 +134,27 @@ final class LeaveBehind implements Intent {
         this.memo = memo;
         started = parent.level().getGameTime();
         beat = memo.verdict == Verdict.DRIVE_COLD ? COLD_BEAT : WARM_BEAT;
-        // a kept child (not left ashore by the hull) answers nothing: only a cut or a hull-left child is heard from
-        hear = memo.verdict == Verdict.KEEP && !memo.ferry ? 0 : memo.verdict == Verdict.DRIVE_COLD ? HEAR_COLD : HEAR_WARM;
+        // only a child the hull left ashore answers on the spot; a driven child answers when it stands to go (DrivenOut)
+        hear = memo.ferry ? HEAR_WARM : 0;
+        String face, line;
         switch (memo.verdict) {
-            case KEEP -> { if (parent.showReaction("puff_teary", "", beat)) say(memo.ferry ? ReactionSpeech.leftAshore(memo.coldParent) : "keep_child"); }
-            case DRIVE_TEARFUL -> { if (parent.showReaction("puff_teary", "", beat)) say("drive_child_tearful"); }
-            case DRIVE_COLD -> { if (parent.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", beat)) say("drive_child_cold"); }
+            case KEEP -> {
+                face = "puff_teary";
+                line = memo.ferry ? ReactionSpeech.leftAshore(memo.coldParent) : "keep_child";
+                if (parent.showReaction(face, "", beat)) say(line);
+            }
+            case DRIVE_TEARFUL -> {
+                face = "puff_teary";
+                line = "drive_child_tearful";
+                if (parent.showReaction(face, "", beat)) say(line);
+            }
+            default -> {
+                face = "angry";
+                line = "drive_child_cold";
+                if (parent.showReaction(YukkuriAction.MOOD_FLICK, face, "", beat)) say(line);
+            }
         }
+        parent.beat("verdict", face, line);
         GameplayLog.event(parent, "family", "overload beat start child={} verdict={} ferry={} distance={} child_in_water={}",
                 child.getUUID(), memo.verdict, memo.ferry, Math.round(parent.distanceTo(child)), child.isInWaterOrBubble());
     }
@@ -144,8 +171,8 @@ final class LeaveBehind implements Intent {
 
     private float yaw() { return SurfaceApproach.yaw(parent.position(), child.position()); }
 
-    /** She turns to the child and holds the look; at the end of her words the child answers and its siblings cry, she keeps looking
-     *  a moment, and only then does the intent end (and the cut fall). */
+    /** She turns to the child and holds the look; a child the hull left ashore answers at the end of her words and she keeps looking a
+     *  moment, and only then does the intent end. */
     private List<Supplier<Step>> derive() {
         return List.of(() -> new Step.Do(new Face(yaw())),
                 () -> new Step.Wait(() -> parent.level().getGameTime() - started >= beat, beat + GRACE, null),
@@ -162,59 +189,99 @@ final class LeaveBehind implements Intent {
             GameplayLog.event(parent, "family", "overload beat interrupted child={} result={} tries={}", child.getUUID(), result, memo.tries);
             return;
         }
-        MEMOS.remove(parent);
         if (memo.verdict == Verdict.KEEP) {
+            MEMOS.remove(parent);
             GameplayLog.event(parent, "family", "{} child={} verdict=KEEP", memo.ferry ? "overload leaves child ashore" : "overload keeps", child.getUUID());
             return;
         }
         if (!child.isAlive() || child.getVehicle() instanceof PlacedHatEntity) {
+            MEMOS.remove(parent);
             GameplayLog.event(parent, "family", "overload verdict expired reason={} child={} verdict={}",
                     child.isAlive() ? "child_aboard" : "child_gone", child.getUUID(), memo.verdict);
             return;
         }
-        Bonds.sever(parent, child.getUUID(), "boat_overload");
-        if (memo.verdict == Verdict.DRIVE_TEARFUL) {
-            parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
-            parent.showReaction("teary", "mood_bad", 120);
-        }
-        GameplayLog.event(parent, "family", "overload severed child={} verdict={} answer={} fumes={} in_water={}",
-                child.getUUID(), memo.verdict, memo.reply, memo.reply == Ousting.Answer.CURSE, child.isInWaterOrBubble());
+        // The order is given; from here the child owns its departure and the cut falls only when it is truly gone.
+        memo.ordered = true;
+        memo.tries = 0;
+        child.drivenOut().order(parent, memo.verdict, "boat_overload");
+        GameplayLog.event(parent, "family", "overload orders child out child={} verdict={} in_water={}",
+                child.getUUID(), memo.verdict, child.isInWaterOrBubble());
     }
 
-    /** The child answers by its own temperament while the parent still looks at it; a cut child is hurt and its siblings in sight cry
-     *  after it, a child the hull left ashore only shows what it feels (no hurt, nobody else cries; only its cry after the hull is voiced). */
+    /** A child the hull left ashore answers by its own temperament while the parent still looks at it; nobody cuts and nobody else cries,
+     *  only its cry after the hull is voiced. */
     private void answer() {
         if (memo.reply != null) return;
         memo.reply = Ousting.answer(child.life().personality().temperament());
         boolean swimming = child.isInWaterOrBubble();
         boolean shown = switch (memo.reply) {
             case CURSE -> swimming ? child.showReaction("angry", "", 60) : child.showReaction(YukkuriAction.STAMP, "angry", "", 60);
-            case FAREWELL -> child.showReaction("cry", "", memo.ferry ? 60 : 40);
+            case FAREWELL -> child.showReaction("cry", "", 60);
             case SHRUG -> child.showReaction("hmph", "", 40);
         };
-        if (memo.ferry) {
-            // Only the cry after the departing hull is voiced; the sulk and the stamp stay wordless.
-            if (shown && memo.reply == Ousting.Answer.FAREWELL) child.speakCue("mold_child_cry", null, SAY_PRIORITY);
-            GameplayLog.event(child, "family", "overload left ashore child answers parent={} answer={}", parent.getUUID(), memo.reply);
-            return;
+        // Only the cry after the departing hull is voiced; the sulk and the stamp stay wordless.
+        boolean cry = shown && memo.reply == Ousting.Answer.FAREWELL;
+        if (cry) child.speakCue("mold_child_cry", null, SAY_PRIORITY);
+        child.beat("left_ashore_answer", memo.reply == Ousting.Answer.FAREWELL ? "cry" : memo.reply == Ousting.Answer.SHRUG ? "hmph" : "angry",
+                cry ? "mold_child_cry" : "");
+        GameplayLog.event(child, "family", "overload left ashore child answers parent={} answer={}", parent.getUUID(), memo.reply);
+    }
+
+    /**
+     * She watches the driven child go. A pleader that steps up to her is turned away: the cold parent shoves it off with the same push as
+     * the mould exile, the tearful one turns her back; then she looks after it until it is gone (it is cut at that moment, by the child).
+     */
+    private static final class Watch implements Intent {
+        private final YukkuriEntity parent, child;
+        private final Memo memo;
+        private final long started;
+        private boolean turnedBack;
+
+        Watch(YukkuriEntity parent, YukkuriEntity child, Memo memo) {
+            this.parent = parent;
+            this.child = child;
+            this.memo = memo;
+            started = parent.level().getGameTime();
         }
-        child.mind().felt(EmotionEvent.SOCIAL_HURT);
-        child.mind().feeling().wronged(parent.getUUID(), .6f);
-        // The one severing here is always the child's own parent.
-        String cue = ReactionSpeech.ousted(memo.reply, true);
-        // The capsized young say water_help every few ticks: the cut child's answer holds the parent's own floor to be heard.
-        if (shown && !cue.isEmpty()) child.speakCue(cue, null, SAY_PRIORITY);
-        for (var sibling : AquaticLife.young(parent)) {
-            if (sibling == child || !Bonds.parentOf(parent, sibling)) continue;
-            String missed = sibling.distanceToSqr(child) > SIBLING_SIGHT * SIBLING_SIGHT ? "out_of_range"
-                    : !sibling.hasLineOfSight(child) ? "out_of_sight" : null;
-            if (missed != null) {
-                GameplayLog.event(sibling, "family", "overload child missed departure sibling={} reason={}", child.getUUID(), missed);
-                continue;
+
+        @Override public String id() { return "watch_leave"; }
+        @Override public long deadline() { return started + WATCH; }
+        @Override public Commitment commitment() { return Commitment.HARD; }
+        @Override public boolean satisfied() { return !child.isAlive() || !parent.getUUID().equals(child.drivenOut().driver()); }
+        @Override public List<Method> methods() { return List.of(Plan.of("watch_leave", this::derive)); }
+
+        private List<Supplier<Step>> derive() {
+            return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
+                    () -> new Step.Wait(() -> child.drivenOut().pleaderAtParent() || !child.drivenOut().holding(), PLEA_WAIT, null),
+                    this::rebuff,
+                    () -> new Step.Wait(() -> {
+                        if (!turnedBack) parent.getLookControl().setLookAt(child, 30, 30);
+                        return satisfied();
+                    }, WATCH, null));
+        }
+
+        /** A pleader at her feet is turned away (the child's plea then ends); a child that did not plead needs nothing. */
+        private Step rebuff() {
+            if (!child.drivenOut().pleaderAtParent()) return new Step.Wait(() -> true, 1, null);
+            child.drivenOut().rebuffed();
+            if (memo.verdict == Verdict.DRIVE_COLD) {
+                parent.showReaction("angry", "", 60);
+                parent.beat("rebuff_shove", "angry", "");
+                GameplayLog.event(parent, "family", "overload rebuffs pleader child={} how=shove", child.getUUID());
+                var centre = parent.position();
+                return new Step.Do(new Push(child, () -> SHOVE - child.position().subtract(centre).horizontalDistance()));
             }
-            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY);
-            sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
-            GameplayLog.event(sibling, "family", "overload sibling cries sibling={}", child.getUUID());
+            turnedBack = true;
+            parent.showReaction("cry", "", 80);
+            parent.beat("rebuff_turn_back", "cry", "");
+            GameplayLog.event(parent, "family", "overload rebuffs pleader child={} how=turn_back", child.getUUID());
+            return new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()) + 180));
+        }
+
+        @Override public void ended(IntentRunner.Result result) {
+            MEMOS.remove(parent);
+            GameplayLog.event(parent, "family", "overload watch ended child={} result={} departed={}", child.getUUID(), result,
+                    !parent.getUUID().equals(child.drivenOut().driver()));
         }
     }
 }

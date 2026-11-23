@@ -370,10 +370,21 @@ public final class FamilyLife {
         UUID foster = fosterParent();
         return parent.getUUID().equals(foster) && parent.isAlive() && orphaned() && !absence().gone(foster);
     }
+    /** Whether this young still looks to {@code parent} for care: not once she drove it out (or is driving it out now). */
+    public boolean expectsCare(UUID parent) {
+        return parent != null && !parent.equals(entity.drivenOut().driver())
+                && !FamilyData.get(level()).repudiated(parent, entity.getUUID());
+    }
+    /** The recorded care parents it still expects care from (a driven-out parent's slot is null). */
     public UUID[] caregiverIds() {
         UUID foster = fosterParent();
-        if (foster != null && orphaned() && !absence().gone(foster)) return new UUID[]{mother, father, foster};
-        return new UUID[]{mother, father};
+        UUID m = expectsCare(mother) ? mother : null, f = expectsCare(father) ? father : null;
+        if (foster != null && orphaned() && !absence().gone(foster)) return new UUID[]{m, f, foster};
+        return new UUID[]{m, f};
+    }
+    /** Care parents are recorded, yet none is expected any more: the young was driven out by all of them. */
+    public boolean disowned() {
+        return (mother != null || father != null) && !expectsCare(mother) && !expectsCare(father);
     }
     public boolean careParentOf(YukkuriEntity child) {
         return Bonds.parentOf(entity, child) || child.family().isActiveFoster(entity);

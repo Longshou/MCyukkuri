@@ -7092,27 +7092,71 @@ def _overload_tradeoff(window):
             return f'{parent}: verdict {drawn[3]} for {drawn[2]}, expected {verdict} for the largest young {child}'
         after = window[capsized.start() + drawn.end():]
         beat = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* overload beat start child=' + child + r' verdict=' + verdict, after)
-        cut = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* parent dismissed child=' + child, after)
-        if beat is None or cut is None:
-            return f'{parent}: the verdict was never played out to the cut (beat={beat is not None} cut={cut is not None})'
-        if int(cut[1]) <= int(capsized[1]) or int(cut[1]) < int(beat[1]):
-            return f'{parent}: the cut came before the capsize or before her look at the child'
-        if not re.search(r'\[family\][^\n]*uuid=' + owner + r' t=\d+[^\n]* overload severed child=' + child + r' verdict=' + verdict
-                         + r' answer=(?:CURSE|FAREWELL|SHRUG)\b', after):
-            return f'{parent}: the dropped child gave no answer'
-        if len(re.findall(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=', window)) != 1:
-            return f'{parent}: must cut exactly one child at the one capsize'
-        if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + child, window[capsized.start() + drawn.end() + cut.end():]):
-            return f'{parent}: the dropped child was regathered after the cut'
-        siblings = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*overload (?:sibling cries|child missed departure) sibling=' + child, window)
-        if not siblings:
-            return f'{parent}: no sibling reacted to the dropped child (neither cried nor logged as out of sight)'
-        # the user's order: her words, the child's answer and the siblings' cry, then the cut
-        if any(int(at) >= int(cut[1]) for at in siblings):
-            return f'{parent}: the siblings reacted only at or after the cut'
+        if beat is None:
+            return f'{parent}: the verdict was never played out (no beat start)'
+        failure = _driven_out_order(window, after, parent, verdict, owner, child)
+        if failure:
+            return failure
     return None
 
 
+def _driven_out_order(window, after, parent, verdict, owner, child):
+    """The order of the cut child's departure (FEATURES 超载断亲): her verdict beat -> the order -> the child's answer -> it turns and
+    walks -> it is gone (distance and sight) -> only then the cut and the parting feeling of the parent and the kept siblings. Every
+    beat logged with its declared and its shown face must show the declared one, and the child never calls for the parent it was
+    driven from."""
+    def at(pattern, text=after):
+        found = re.search(pattern, text)
+        return (int(found[1]), found) if found else (None, None)
+    ordered, _ = at(r'\[family\][^\n]*uuid=' + child + r' t=(\d+)[^\n]* driven out ordered parent=' + owner + r' verdict=' + verdict)
+    if ordered is None:
+        return f'{parent}: the child was never ordered out'
+    begins, _ = at(r'\[family\][^\n]*uuid=' + child + r' t=(\d+)[^\n]* driven out begins parent=' + owner)
+    if begins is None:
+        return f'{parent}: the ordered child never began its departure (it drowned, or never stood on dry ground)'
+    turned, _ = at(r'\[choreo\][^\n]*uuid=' + child + r' t=(\d+)[^\n]* beat=turn_away face=')
+    departed, found = at(r'\[family\][^\n]*uuid=' + child + r' t=(\d+)[^\n]* driven out departed parent=' + owner
+                         + r' verdict=' + verdict + r' distance=(\S+) sight=(true|false)')
+    if turned is None or departed is None:
+        return f'{parent}: the child began to leave but never turned and got away (turned={turned} departed={departed})'
+    distance, seen = float(found[2]), found[3] == 'true'
+    if not (begins >= ordered and turned >= begins and departed >= turned):
+        return f'{parent}: wrong order ordered={ordered} begins={begins} turned={turned} departed={departed}'
+    if distance < 8 or seen and distance < 16:
+        return f'{parent}: the cut fell while the child was still near or in sight (distance={distance} sight={seen})'
+    cut, _ = at(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* parent dismissed child=' + child + r'[^\n]* repudiated=true')
+    if cut is None or cut < departed:
+        return f'{parent}: the tie was cut {"never" if cut is None else "before"} the child was gone (cut={cut} departed={departed})'
+    if len(re.findall(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=', window)) != 1:
+        return f'{parent}: must cut exactly one child at the one capsize'
+    later = after[re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out ordered', after).start():]
+    if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + child, later):
+        return f'{parent}: the driven child was regathered after the order'
+    if re.search(r'\[family\][^\n]*uuid=' + child + r'[^\n]*(?:child separation lost=(?:true|false)|missing kin call)', later):
+        return f'{parent}: the driven child called for or looked for the parent that drove it out'
+    # the parting feeling starts from real separation, never before the child is gone
+    for early in re.finditer(r'\[emotion\][^\n]* t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
+        if int(early[1]) < departed:
+            return f'{parent}: someone began the parting feeling at {early[1]}, before the child was gone at {departed}'
+    cries = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*driven out (?:sibling cries|sibling missed departure) child=' + child, later)
+    if not cries:
+        return f'{parent}: no sibling reacted when the child turned to go'
+    if any(int(t) < begins for t in cries):
+        return f'{parent}: a sibling cried before the child began to leave'
+    if verdict == 'DRIVE_TEARFUL':
+        parting, _ = at(r'\[choreo\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* beat=parting_begins face=', later)
+        if parting is None or parting < departed:
+            return f'{parent}: the tearful parent showed no parting feeling after the child was gone (parting={parting})'
+    # each beat's shown face is the declared one: no reaction layer painted over a performance
+    beats = re.findall(r'\[choreo\][^\n]*uuid=(?:' + owner + '|' + child + r') [^\n]* beat=(\w+) face=(\S+) line=\S+ declared=(\S+)', later)
+    wrong = [f'{name} shown={shown} declared={declared}' for name, shown, declared in beats if shown != declared]
+    if wrong:
+        return f'{parent}: a beat showed another face than the declared one: {wrong[:3]}'
+    if not beats:
+        return f'{parent}: no beat was logged'
+    if departed - turned > 80 and not any(name == 'walk_out' for name, _, _ in beats):
+        return f'{parent}: the walk out (beat=walk_out, its face shown) was never logged'
+    return None
 def _load_warning_choice(window):
     """Both kinds of parent at the load warning (FEATURES 载重): the ordinary parent reads her hull's load warning and takes the
     family ashore to unload before it goes over; the keeper (low intelligence, high friendliness) ignores it and keeps going
@@ -7655,21 +7699,21 @@ _TEARFUL = dict(intelligence=55, friendliness=20, attachment=65, self_control=45
 _COLD = dict(intelligence=55, friendliness=20, attachment=15, self_control=40)
 
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
-     '两位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：北侧依恋高的含泪说着道歉的话，等孩子上岸才断绝关系；南侧依恋低的冷脸一瞥就断绝。被舍弃的孩子按自己的性格回应，帽上的兄弟姐妹看见会哭',
+     '两位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：北侧依恋高的含泪说着道歉的话，等孩子上岸再下令；南侧依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求、顶嘴或只是望着，央求的走到亲油脚边被拒（冷淡的推开、含泪的转过身），再转身走远；帽上的兄弟姐妹看见会哭。孩子真走远了（离她十一格外且看不见，或二十格外）才断绝关系，之后含泪的亲油和兄弟姐妹才目送',
      '约 3 分钟，建议倍速',
      [*_overload_family('hat_crowd', 'normal', -3, False, '依恋65·友善20', **_TEARFUL),
       *_overload_family('hat_crowd', 'cold', 3, False, '依恋15·友善20', **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
            *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS)],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
-     note='先看翻船后亲油的表情和台词，再看被舍弃的孩子的回应与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start → overload sibling cries（孩子答话、手足哭）→ parent dismissed child（断亲）→ overload severed（answer）；断亲前她先看着孩子听完回应。'
+     note='先看翻船后亲油的表情和台词，再看被赶孩子上岸后的回应、走远与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start（她的话，[choreo] beat=verdict）→ overload orders child out → driven out begins（孩子 answer、pleads）→ [choreo] beat=plead|resist|stare、overload rebuffs pleader → [choreo] beat=turn_away、driven out sibling cries → driven out departed（distance、sight）→ parent dismissed child（repudiated=true）→ [choreo] beat=parting_begins；断亲只在孩子走远之后，孩子此后不再喊亲亲油。'
           '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
      reads=[('读北侧亲油（含泪）', f'yukkuri status {sel("normal")} raw'),
             ('读南侧亲油（冷淡）', f'yukkuri status {sel("cold")} raw'),
             ('读北侧最大孩子', f'yukkuri status {sel("normal3")} raw'),
             ('读南侧最大孩子', f'yukkuri status {sel("cold3")} raw'),
             ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
-     smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
+     smoke=dict(ticks=9000, reload=(60, '@e[tag=seat_reload,limit=1]'),
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=0\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=BRIM\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',

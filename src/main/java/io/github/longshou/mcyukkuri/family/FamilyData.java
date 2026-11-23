@@ -93,6 +93,8 @@ public final class FamilyData extends SavedData {
         private UUID partner;
         private final List<UUID> partnerHistory = new ArrayList<>();
         private final Set<UUID> dismissedChildren = new HashSet<>();
+        /** The dismissed children the parent drove out (a subset): they no longer look for her, unlike one whose search was only given up. */
+        private final Set<UUID> repudiatedChildren = new HashSet<>();
         /** First acquisition of each badge, used by genealogy and the offspring's shop quote. */
         private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(4);
         public PartnerState partnerState() { return partnerState; }
@@ -422,16 +424,23 @@ public final class FamilyData extends SavedData {
     }
     /** Family treatment follows recorded care parents; incident ancestry alone grants no social relationship. */
     public Set<UUID> dismissedChildren(UUID parent){var person=people.get(parent);return person==null?Set.of():Set.copyOf(person.dismissedChildren);}
+    /** Whether {@code parent} drove {@code child} out: the child stops expecting her, and she does not take it back. */
+    public boolean repudiated(UUID parent, UUID child) {
+        var person=people.get(parent);
+        return person!=null&&person.repudiatedChildren.contains(child);
+    }
     public boolean acknowledgesChild(UUID parent, UUID child) {
         var person=people.get(parent);
         return person==null||!person.dismissedChildren.contains(child);
     }
     /** Callers go through {@code Bonds.sever}. */
-    public void dismissChild(YukkuriEntity parent, UUID child, String reason) {
+    public void dismissChild(YukkuriEntity parent, UUID child, String reason, boolean repudiated) {
         register(parent);
-        if(people.get(parent.getUUID()).dismissedChildren.add(child)){
+        var person=people.get(parent.getUUID());
+        boolean marked=repudiated&&person.repudiatedChildren.add(child);
+        if(person.dismissedChildren.add(child)||marked){
             setDirty();
-            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained reason={}",child,reason);
+            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained reason={} repudiated={}",child,reason,repudiated);
         }
     }
     public boolean socialKin(UUID first, UUID second) {
@@ -911,7 +920,7 @@ public final class FamilyData extends SavedData {
             }
             savePartner(person,value);
             ListTag dismissed=new ListTag();
-            for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);dismissed.add(entry);}
+            for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);entry.putBoolean("Repudiated",person.repudiatedChildren.contains(child));dismissed.add(entry);}
             value.put("DismissedChildren",dismissed);
             ListTag badges = new ListTag();
             for (var acquisition : person.badgeAcquisitions) {
@@ -958,7 +967,7 @@ public final class FamilyData extends SavedData {
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
             if (value.hasUUID("FosterParent")) person.foster = new Foster(value.getUUID("FosterParent"), value.getLong("FosterSince"));
             data.loadPartner(person,value);
-            for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child"))person.dismissedChildren.add(dismissedEntry.getUUID("Child"));}
+            for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child")){person.dismissedChildren.add(dismissedEntry.getUUID("Child"));if(dismissedEntry.getBoolean("Repudiated"))person.repudiatedChildren.add(dismissedEntry.getUUID("Child"));}}
             for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {
                 CompoundTag badge = (CompoundTag) badgeEntry; int grade = badge.getInt("Grade");
                 if (grade >= 1 && grade <= 4 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))

@@ -110,10 +110,11 @@ final class KinAbsence {
             } else for (var id : kin.keySet()) observe(id);
         } else {
             UUID foster = family.fosterParent();
-            kin.keySet().removeIf(id -> !id.equals(family.mother()) && !id.equals(family.father()) && !id.equals(foster));
-            observe(family.mother());
-            observe(family.father());
-            observe(foster);
+            // A parent that drove it out is not waited for or searched for any more.
+            kin.keySet().removeIf(id -> !family.expectsCare(id) || !id.equals(family.mother()) && !id.equals(family.father()) && !id.equals(foster));
+            if (family.expectsCare(family.mother())) observe(family.mother());
+            if (family.expectsCare(family.father())) observe(family.father());
+            if (family.expectsCare(foster)) observe(foster);
         }
         for (var entry : kin.entrySet()) {
             var memory = entry.getValue();
