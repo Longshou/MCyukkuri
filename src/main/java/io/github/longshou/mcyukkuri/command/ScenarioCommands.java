@@ -547,7 +547,12 @@ public final class ScenarioCommands {
         for (var entity : EntityArgument.getOptionalEntities(c, "targets")) {
             if (!(entity instanceof Mob mob) || (on ? mob.isNoAi() : !SceneHold.held(mob))) continue;
             mob.setNoAi(on);
-            if (on) mob.addTag(SceneHold.TAG); else mob.removeTag(SceneHold.TAG);
+            if (on) mob.addTag(SceneHold.TAG);
+            else {
+                // A held body in a current or on a slope gathers velocity it never spends (no travel while NoAI); released, it must not be flung by it.
+                mob.setDeltaMovement(Vec3.ZERO);
+                mob.removeTag(SceneHold.TAG);
+            }
             changed++;
         }
         GameplayLog.world(c.getSource().getLevel(), "scenario", "hold {} mobs={}", on ? "on" : "off", changed);
