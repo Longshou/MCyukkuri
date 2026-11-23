@@ -42,8 +42,9 @@ final class LeaveBehind implements Intent {
     private static final int WARM_BEAT = 80, COLD_BEAT = 50, GRACE = 40;
     /** How long she holds the look after the child answered, before the cut (ticks): the answer and the siblings' cry are seen first. */
     private static final int HEAR_WARM = 60, HEAR_COLD = 40;
-    /** How long a drawn verdict waits to be played out (ticks); how many interrupted beats it survives; how far the child may be (blocks). */
+    /** Speech priority of her verdict words: above the rescue chatter still running as she turns. */
     private static final int SAY_PRIORITY = 4;
+    /** How long a drawn verdict waits to be played out (ticks); how many interrupted beats it survives; how far the child may be (blocks). */
     private static final int MEMO = 3600, TRIES = 2, SIGHT = 16, SIBLING_SIGHT = 12;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
