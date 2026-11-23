@@ -2,7 +2,7 @@
   "status": "pending_user_confirmation",
   "source": "art/props/junk-headwear/build.py",
   "inputs": {
-    "art/props/junk-headwear/build.py": "f536ca56bec21bc17f9219006916133321ec13d0aaa39b85caba4d26d93f110c",
+    "art/props/junk-headwear/build.py": "7d7d51208acdd92fc360834ef09f4ba66422dc59728e37989565cc91634c45d7",
     "standards/yukkuri-library/drafts/care-props/kit.py": "d2f0968a59062a8d0c6d230bf3091a2844d09de59b7fcc63334739e60015a702",
     "art/props/palette.json": "2c0fa3c1f31f2069048f6c3e76b4f39622568515c3f52243bd3ed22ef52bc634",
     "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json": "5f24a7e3b655216fa45e0b686046ce8d008db27a6506d0295aa13ef32c463bde",
@@ -35,9 +35,9 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json": "1dd89f7d1e256403400dd3ef988e9d068c02930b485367f817d43f6080490ce9"
   },
   "outputs": {
-    "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_paper_box.json": "9ef8fca960fba034fb34dda9b9a1d2763c01fea89700befa46b2b0f190c2c19f",
+    "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_paper_box.json": "8f256bcb677a76a655bcf6c3578185e002d95c6d0239db64ffda4017ab3b9715",
     "src/main/resources/assets/mcyukkuri/textures/props/junk_paper_box.png": "afb955b82316cc249bd9af2f4111fb45ed64dd3c481fc9f4ee3a5a6732fcbb7a",
-    "art/props/junk-headwear/assembled/junk_paper_box.bbmodel": "7bcedc912455c37b176b5fb6c92c11f1da6400867b2ef2816182b396203724be",
+    "art/props/junk-headwear/assembled/junk_paper_box.bbmodel": "f267cca95778917b85e033d7f243fbc77e0d701cde8b92b05dfd15c00b028052",
     "src/main/resources/assets/mcyukkuri/yukkuri_props/junk_bottle_cap.json": "d5d6ec4fe17b5665fce0ab42b7f72fedb5b29681d717d4ffed993252bc631cf1",
     "src/main/resources/assets/mcyukkuri/textures/props/junk_bottle_cap.png": "ab869e8dfbaeb9713a681dc7b6f39cfdcb294e0193601bb088537495fa648c25",
     "art/props/junk-headwear/assembled/junk_bottle_cap.bbmodel": "0c04f6d9bf957e315d2dc3490aa64acd0a30f9c87378d77d03bf587708235c97",

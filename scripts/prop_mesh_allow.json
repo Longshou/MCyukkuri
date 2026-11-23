@@ -1,0 +1,386 @@
+{
+  "models": {
+    "accessory_alice": {
+      "coplanar_overlap": 41
+    },
+    "accessory_flandre": {
+      "coplanar_overlap": 92
+    },
+    "accessory_marisa": {
+      "coplanar_overlap": 38
+    },
+    "accessory_marisa_bean": {
+      "coplanar_overlap": 50
+    },
+    "accessory_marisa_face": {
+      "coplanar_overlap": 38
+    },
+    "accessory_marisa_kotatsu": {
+      "coplanar_overlap": 77
+    },
+    "accessory_marisa_sparse": {
+      "coplanar_overlap": 38
+    },
+    "accessory_marisa_tsumuri": {
+      "coplanar_overlap": 7757
+    },
+    "accessory_myon": {
+      "coplanar_overlap": 57
+    },
+    "accessory_myon_redeye": {
+      "coplanar_overlap": 57
+    },
+    "accessory_patchouli": {
+      "coplanar_overlap": 346
+    },
+    "accessory_reimu": {
+      "coplanar_overlap": 84
+    },
+    "accessory_reimu_bean": {
+      "coplanar_overlap": 99
+    },
+    "accessory_reimu_deibu": {
+      "coplanar_overlap": 114
+    },
+    "accessory_reimu_face": {
+      "coplanar_overlap": 84
+    },
+    "accessory_reimu_sparse": {
+      "coplanar_overlap": 81
+    },
+    "accessory_reimu_wasa": {
+      "coplanar_overlap": 84
+    },
+    "accessory_reimu_wasa_deibu": {
+      "coplanar_overlap": 114
+    },
+    "accessory_remilia": {
+      "coplanar_overlap": 92
+    },
+    "alice_headband": {
+      "coplanar_overlap": 104
+    },
+    "aquatic_basin_hat": {
+      "coplanar_overlap": 45
+    },
+    "aquatic_basin_hat_turned": {
+      "coplanar_overlap": 8
+    },
+    "burial_mound": {
+      "boundary_plane": 16
+    },
+    "cardboard_shelter": {
+      "boundary_plane": 10
+    },
+    "care_vibrator": {
+      "coplanar_overlap": 20
+    },
+    "chen_hat": {
+      "coplanar_overlap": 2
+    },
+    "flandre_bonnet": {
+      "coplanar_overlap": 92
+    },
+    "food_bowl": {
+      "boundary_plane": 16
+    },
+    "food_bowl_regular": {
+      "coplanar_overlap": 8
+    },
+    "food_bowl_wheat": {
+      "coplanar_overlap": 5
+    },
+    "forage_pile": {
+      "boundary_plane": 14
+    },
+    "glass_marble": {
+      "coplanar_overlap": 48
+    },
+    "grave_marker": {
+      "coplanar_overlap": 8
+    },
+    "hanging_hook": {
+      "coplanar_overlap": 36
+    },
+    "house_lint_bedding": {
+      "coplanar_overlap": 40
+    },
+    "iron_enclosure_alice": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_chen": {
+      "coplanar_overlap": 32
+    },
+    "iron_enclosure_chen_longtail": {
+      "coplanar_overlap": 32
+    },
+    "iron_enclosure_chen_roundtail": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_flandre": {
+      "coplanar_overlap": 28
+    },
+    "iron_enclosure_house_marisa": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_house_reimu": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa_bean": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa_face": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa_kotatsu": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa_sparse": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_marisa_tsumuri": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_myon": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_myon_redeye": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_patchouli": {
+      "coplanar_overlap": 32
+    },
+    "iron_enclosure_reimu": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_reimu_bean": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_reimu_deibu": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_reimu_face": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_reimu_sparse": {
+      "coplanar_overlap": 34
+    },
+    "iron_enclosure_reimu_wasa": {
+      "coplanar_overlap": 30
+    },
+    "iron_enclosure_reimu_wasa_deibu": {
+      "coplanar_overlap": 28
+    },
+    "iron_enclosure_remilia": {
+      "coplanar_overlap": 28
+    },
+    "large_wild_nest": {
+      "coplanar_overlap": 1
+    },
+    "large_yukkuri_nest": {
+      "boundary_plane": 48
+    },
+    "marisa_hat": {
+      "coplanar_overlap": 44
+    },
+    "marisa_hat_turned": {
+      "coplanar_overlap": 160
+    },
+    "marisa_kotatsu": {
+      "coplanar_overlap": 77
+    },
+    "marisa_shell": {
+      "coplanar_overlap": 7680
+    },
+    "myon_hairband": {
+      "coplanar_overlap": 57
+    },
+    "nest_lint": {
+      "coplanar_overlap": 24
+    },
+    "oil_grain_budget": {
+      "coplanar_overlap": 12
+    },
+    "oil_grain_premium": {
+      "coplanar_overlap": 12
+    },
+    "orange_juice": {
+      "coplanar_overlap": 48
+    },
+    "patchouli_bonnet": {
+      "coplanar_overlap": 346
+    },
+    "personal_leaf_nest": {
+      "coplanar_overlap": 81
+    },
+    "pin_tool": {
+      "coplanar_overlap": 16
+    },
+    "reimu_ribbon": {
+      "coplanar_overlap": 116
+    },
+    "remilia_bonnet": {
+      "coplanar_overlap": 92
+    },
+    "straw_nest": {
+      "boundary_plane": 32
+    },
+    "velvet_nest": {
+      "boundary_plane": 32
+    },
+    "wrap_sling_alice": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_alice_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen_longtail": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen_longtail_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen_roundtail": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_chen_roundtail_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_flandre": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_flandre_bare": {
+      "coplanar_overlap": 6
+    },
+    "wrap_sling_house_marisa": {
+      "coplanar_overlap": 12
+    },
+    "wrap_sling_house_marisa_bare": {
+      "coplanar_overlap": 12
+    },
+    "wrap_sling_house_reimu": {
+      "coplanar_overlap": 20
+    },
+    "wrap_sling_house_reimu_bare": {
+      "coplanar_overlap": 20
+    },
+    "wrap_sling_marisa": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_bean": {
+      "coplanar_overlap": 16
+    },
+    "wrap_sling_marisa_bean_bare": {
+      "coplanar_overlap": 40
+    },
+    "wrap_sling_marisa_face": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_face_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_kotatsu": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_kotatsu_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_sparse": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_sparse_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_tsumuri": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_marisa_tsumuri_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_myon": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_myon_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_myon_redeye": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_myon_redeye_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_patchouli": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_patchouli_bare": {
+      "coplanar_overlap": 16
+    },
+    "wrap_sling_reimu": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_bean": {
+      "coplanar_overlap": 40
+    },
+    "wrap_sling_reimu_bean_bare": {
+      "coplanar_overlap": 40
+    },
+    "wrap_sling_reimu_deibu": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_deibu_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_face": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_face_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_sparse": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_sparse_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_wasa": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_wasa_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_wasa_deibu": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_reimu_wasa_deibu_bare": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_remilia": {
+      "coplanar_overlap": 4
+    },
+    "wrap_sling_remilia_bare": {
+      "coplanar_overlap": 6
+    },
+    "yukkuri_nest": {
+      "boundary_plane": 32
+    },
+    "yukkuri_toilet": {
+      "boundary_plane": 6
+    }
+  },
+  "note": "Baseline allowlist for existing prop mesh defects. Counts may only go down; new models must be 0."
+}

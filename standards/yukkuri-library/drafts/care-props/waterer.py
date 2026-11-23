@@ -20,7 +20,7 @@ SEGS = 16
 SAUCER_FLOOR_Y = 1.0
 SAUCER_FLOOR_R = 4.65
 SAUCER_RIM_Y = 2.0
-SAUCER = [(5.3, 0.0, 7), (5.7, .3, 6), (6.2, .9, 5), (6.7, 1.5, 4), (7.0, 1.8, 4),
+SAUCER = [(5.3, 0.0, 7), (5.7, .3, 6), (6.2, .9, 5), (6.7, 1.5, 4.5), (7.0, 1.8, 4.5),
           (6.9, 2.0, 3), (5.85, 2.0, 2), (5.5, 1.55, 1), (5.0, 1.05, .6), (SAUCER_FLOOR_R, 1.0, 0)]
 COLLAR_R = 2.9
 JAR_R = 2.9
@@ -103,13 +103,12 @@ def waterer():
     dish = b.part('dish')
     revolve(b, dish, o, SAUCER, 'saucer', saucer_band(), smooth=(2, 3, 4, 7, 8), ref=6.3, facet=True)
     cap(b, dish, o, [(SAUCER_FLOOR_R, SAUCER_FLOOR_Y)], 'saucer_floor', saucer_floor(), centre=SAUCER_FLOOR_Y)
-    cap(b, dish, o, [(5.3, 0.0)], 'saucer_foot', canvas(4, 4, CREAM[1]), down=True, centre=0.0)
     cork = b.part('collar')
     revolve(b, cork, o, [(COLLAR_R, 1.0, 0), (COLLAR_R, 2.6, 2), (COLLAR_R - .05, 3.0, 3)], 'cork', cork_band(),
             smooth=(1,), ref=COLLAR_R)
     cap(b, cork, o, [(COLLAR_R - .05, 3.0)], 'cork_top', cork_top(), centre=3.0)
     jar = b.part('jar')
-    revolve(b, jar, o, [(JAR_R, 3.0, 0), (JAR_R, 3.35, 1), (JAR_R, 10.65, 1), (JAR_R, 11.0, 2),
+    revolve(b, jar, o, [(JAR_R, 3.0, 0), (JAR_R, 3.35, 1.5), (JAR_R, 10.65, 1.5), (JAR_R, 11.0, 2),
                         (2.8, 11.35, 3), (2.3, 11.7, 4)], 'glass', glass_band(), smooth=(1, 2, 3, 4), ref=JAR_R)
     cap(b, jar, o, [(2.3, 11.7)], 'glass_roof', glass_roof(), centre=11.9)
     return b.finish()

@@ -71,6 +71,10 @@ TABLE = [
     exporter('ecology-audio', 'scripts/build_ecology_audio.py', ['art/audio/ecology/']),
     exporter('lore-faces', LORE+'/faces.py', [LORE+'/faces.py']),
     exporter('house-ecology', 'art/source/house-ecology-presentation/build.mjs', ['art/source/house-ecology-presentation/']),
+    exporter('prop-mesh-lint', 'scripts/check_prop_meshes.py', [
+        'src/main/resources/assets/mcyukkuri/yukkuri_props/', 'src/main/resources/assets/mcyukkuri/textures/props/',
+        'scripts/prop_mesh_allow.json',
+    ], check=(), args=('--check',), note='Read-only mesh lint for UV boundaries, coplanar overlaps and ground/neighbour planes.'),
 ]
 
 # Package-local authoring commands: kept in their source directories. These have no
@@ -162,6 +166,16 @@ SOURCE_ORDER = {
     'placement-fit': ['standards/yukkuri-library/body-standard/build.py'],
     'motion-corrections': ['standards/yukkuri-library/interactions/marisa-hat-vessel/build.py',
                            'standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py'],
+    'prop-mesh-lint': [
+        'standards/yukkuri-library/drafts/playgrounds/build.py',
+        'standards/yukkuri-library/drafts/care-props/build.py',
+        'standards/yukkuri-library/drafts/care-expansion/build.py',
+        'standards/yukkuri-library/drafts/consumables/build.py',
+        'standards/yukkuri-library/drafts/care-props/large_nests.py',
+        'standards/yukkuri-library/ecology/wild-shelters/build.py',
+        'art/props/junk-headwear/build.py',
+        'art/props/predators/build.py',
+    ],
 }
 for row in TABLE:
     row['after'] = ['source:'+p for p in SOURCE_ORDER.get(row['id'], [])]
@@ -207,6 +221,8 @@ def table():
             row['auto'] = False  # historical recipe refuses the selected rounded models
         if row['id'] == 'ecology-audio':
             row['pythonpath'] = '.local/python-audio'
+        if row['id'] == 'prop-mesh-lint':
+            row['after'] += ['peripheral-assets', 'living-assets', 'family-assets', 'house-assets']
         if row['id'] in INPUT_LEDGERS:
             row['input_ledger'] = INPUT_LEDGERS[row['id']]
             row['sources'] += list(read(ROOT/row['input_ledger'])['inputs'])

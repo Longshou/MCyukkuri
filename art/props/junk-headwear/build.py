@@ -178,7 +178,7 @@ def paper_box():
     grid_face(outer, [-hx, h, -hz], [2 * hx, 0, 0], [0, 0, 2 * hz], 3, 3, planar(A['top'], 0, 2, -hx, -hz, 1, 1), deform, [0, 1, 0])
     # Inside (seen only from below or past the flap) and the board edge round the open end.
     ix, iz, ih = hx - t, hz - t, h - t
-    inner_uv = lambda p: (A['inner'][0] + (p[0] + ix) * 1.4, A['inner'][1] + (p[2] + iz) * 1.8 + p[1] * .3)
+    inner_uv = lambda p: (A['inner'][0] + .5 + (p[0] + ix) * 1.4, A['inner'][1] + .5 + (p[2] + iz) * 1.8 + p[1] * .3)
     inside = prop.part('box_inside')
     grid_face(inside, [-ix, 0, -iz], [2 * ix, 0, 0], [0, ih, 0], 3, 3, inner_uv, deform, [0, 0, 1])
     grid_face(inside, [ix, 0, iz], [-2 * ix, 0, 0], [0, ih, 0], 3, 3, inner_uv, deform, [0, 0, -1])

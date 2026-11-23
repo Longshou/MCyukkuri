@@ -818,14 +818,26 @@ def pressed_rim(prop, part, rng, line, lo, hi, h, inner, outer, foot, layers=3, 
     each wad a little askew, about a third of them old weathered grass. Wads reach `overlap` past lo / hi so stretches
     built separately (the joinable bed pieces) still meet; bias moves every wad inward (-) or outward (+)."""
     span = hi - lo
+    used_s = []
+
+    def distinct_s(val, lo_b, hi_b):
+        for _ in range(12):
+            if all(abs(val - u) >= 0.05 for u in used_s):
+                break
+            val += 0.06 if val + 0.06 <= hi_b else -0.06
+        used_s.append(val)
+        return val
+
     for li, (b, t, w, seg) in enumerate(RIM_LAYERS[:layers]):
         n = max(1, round(span / seg))
         step = span / n
         start = lo + (step / 2 if li == 1 and n > 1 else 0.0)
         count = n - 1 if li == 1 and n > 1 else n
+        clamp_lo = (max(0.0, lo - overlap) if not line.closed else lo - overlap) + li * 0.08
+        clamp_hi = (min(line.length, hi + overlap) if not line.closed else hi + overlap) - li * 0.08
         for k in range(count):
-            s0 = max(lo - overlap, start + k * step - overlap * rng.uniform(.4, 1.0))
-            s1 = min(hi + overlap, start + (k + 1) * step + overlap * rng.uniform(.4, 1.0))
+            s0 = distinct_s(max(clamp_lo, start + k * step - overlap * rng.uniform(.4, 1.0)), clamp_lo, clamp_hi)
+            s1 = distinct_s(min(clamp_hi, start + (k + 1) * step + overlap * rng.uniform(.4, 1.0)), clamp_lo, clamp_hi)
             if li == 2 and n > 1 and rng.random() < .25:
                 continue                                                      # gaps between the top wads
             y0 = foot + (h - foot) * b * rng.uniform(.85, 1.0)

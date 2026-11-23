@@ -103,7 +103,7 @@ class Builder:
             else:
                 x, y, z = a, a * tilt, b
             pts.append([centre[0] + x * math.cos(yaw) - z * math.sin(yaw), centre[1] + y, centre[2] + x * math.sin(yaw) + z * math.cos(yaw)])
-        self.p.quad(part, pts, None, uvs=FULL, double=True, normal=[0, 1, 0])
+        self.p.quad(part, pts, None, uvs=FULL, normal=[0, 1, 0])
 
     def tuft(self, unit, x, z, y, size=4.5, mat=GRASS):
         yaw = self.rng.uniform(0, math.pi)
@@ -416,11 +416,11 @@ def predator_nest(twigs=None):
                 continue
             e = math.hypot(cx, cz) / 9.0
             top = FLOOR - .15 + .35 * e ** 2 + rng.uniform(-.03, .03)
-            b.box(rng.choice((HAY_SIDE, MOSS, PODZOL, PODZOL)), 0, (cx, top - 1.0, cz), (2.0, 1.0, 2.0))
+            b.box(rng.choice((HAY_SIDE, MOSS, PODZOL, PODZOL)), 0, (cx, top - 1.0, cz), (1.96, 1.0, 1.96))
     for i in range(22):
         a = rng.uniform(0, math.tau)
         r = math.sqrt(rng.uniform(0, 1)) * 6.6
-        b.box(LEAF_DRY if i % 3 else LEAF_BIRCH, 0, (math.cos(a) * r, FLOOR + .02 + (i % 4) * .03, math.sin(a) * r), (rng.uniform(1.0, 1.6), .1, rng.uniform(.9, 1.3)), yaw=rng.uniform(0, math.pi))
+        b.box(LEAF_DRY if i % 3 else LEAF_BIRCH, 0, (math.cos(a) * r, FLOOR + .02 + i * .022, math.sin(a) * r), (rng.uniform(1.0, 1.6), .1, rng.uniform(.9, 1.3)), yaw=rng.uniform(0, math.pi))
     for i in range(5):
         a = rng.uniform(0, math.tau)
         r = rng.uniform(1.0, 5.5)

@@ -440,20 +440,24 @@ def ceramic_tunnel():
 
     # Compute exact v positions matching z along TZ0..TZ1
     vs = [max(0.0, min(float(H), z - TZ0)) for z, _ in outer_prof]
-    rows = [[(x, y, z) for x, y in pipe_loop(R, 0.0)] for z, R in outer_prof]
-    n_pts = len(rows[0])
-    # Arc segments (0..PIPE_ARC) take 38 texels, flat bottom (PIPE_ARC..n_pts) takes 10 texels
+    # Open arc over the top (no y=0 flat bottom strip on the ground plane)
+    rows = [[(x, y, z) for x, y in pipe_loop(R, 0.0)[:PIPE_ARC + 1]] for z, R in outer_prof]
+    us_arc = [38.0 * j / PIPE_ARC for j in range(PIPE_ARC + 1)]
+    m.strip(pipe, rows, lambda i, j, c: (c[0], c[1] - CY, 0.0),
+            ext, 'tunnel_ext', closed=False, wrap_x=False, us=us_arc, vs=vs)
+    # Full-loop u coordinates (used by bore and mouth rings)
+    n_pts = len(pipe_loop(RO, 0.0))
     us = [38.0 * j / PIPE_ARC if j <= PIPE_ARC else 38.0 + 10.0 * (j - PIPE_ARC) / (n_pts - PIPE_ARC) for j in range(n_pts + 1)]
-    m.strip(pipe, rows, lambda i, j, c: (c[0], c[1] - CY, 0.0) if j < PIPE_ARC else (0.0, -1.0, 0.0),
-            ext, 'tunnel_ext', closed=True, wrap_x=True, us=us, vs=vs)
 
-    # Symmetric flat cradle foot under the pipe so it sits solidly grounded on y = 0 (z in [-21, 21]).
+    # Symmetric flat cradle foot under the pipe so it sits solidly grounded on y = 0 (z in [-21, 21]);
+    # closed on top (no open slit showing the ground) and open on the y = 0 bottom.
     cradle_side = frame_panel(42, 3, terra, fill=1, top=2, bottom=0, hi=2, dark=0)
     cradle_end = frame_panel(20, 3, terra, fill=1, top=2, bottom=0, hi=2, dark=0)
+    cradle_top = frame_panel(20, 42, terra, fill=1, top=2, bottom=0, hi=2, dark=0)
     m.box(pipe, (-10.0, 0.0, TZ0 + 1.0), (10.0, 2.5, TZ1 - 1.0), {
+        'up': ('cradle_top', cradle_top),
         'north': ('cradle_end', cradle_end), 'south': ('cradle_end', cradle_end),
         'east': ('cradle_side', cradle_side), 'west': ('cradle_side', cradle_side),
-        'down': ('cradle_end', cradle_end),
     })
 
     # Bore: faceted inner arch + flat floor at y = 3, darkening in crisp pixel-art steps from either mouth to the middle.
@@ -574,14 +578,15 @@ def yukkuri_slide():
     back_plate = frame_panel(18, 15, iron, fill=1, top=2, bottom=0, hi=3, dark=0, rivets=True)
     for idx, (z0, top) in enumerate(STEPS):
         z1 = z0 + 8 if idx < 3 else 1
-        # Solid support under step
-        m.box(steps, (-9.0, 0.0, z0), (9.0, top - 1.0, z1), {
+        sup_top = top - 1.5 if idx == 3 else top - 1.0
+        # Solid support under step (open on y = 0 ground plane)
+        m.box(steps, (-9.0, 0.0, z0), (9.0, sup_top, z1), {
             'north': ('step_riser', riser_img),
             'south': ('tower_back', back_plate) if idx == 3 else None,
-            'down': ('step_riser', riser_img),
         })
-        # Proud step tread cap (0.4 overhang at front)
-        m.box(steps, (-9.0, top - 1.0, z0 - .4), (9.0, top, z1), {
+        # Proud step tread cap (0.4 overhang at front); top step ends at DECK[0] where the chute deck starts
+        tread_z1 = DECK[0] if idx == 3 else z1
+        m.box(steps, (-9.0, top - 1.0, z0 - .4), (9.0, top, tread_z1), {
             'up': ('step_tread', tread_img),
             'north': ('step_nose', frame_panel(18, 1, iron, fill=4, top=4, bottom=3, hi=4, dark=2)),
             'down': ('step_riser', riser_img),
@@ -614,7 +619,7 @@ def yukkuri_slide():
             put(panel_img, ru + 1, rv, iron[3])
 
     for s in (-1, 1):
-        x_in, x_out = sorted((s * 9.0, s * 10.2))
+        x_in, x_out = sorted((s * 9.15, s * 10.2))
         for x, sign in ((x_in, -s), (x_out, s)):
             pts3 = [(x, y, z) for z, y in panel_pts]
             m.polygon(panels, pts3, (float(sign), 0.0, 0.0), panel_img,
@@ -624,20 +629,21 @@ def yukkuri_slide():
         post_img = frame_panel(2, 12, iron, fill=3, top=4, bottom=1, hi=4, dark=0)
         cap_img = frame_panel(2, 2, iron, fill=4, top=4, bottom=2, hi=4, dark=1)
         foot_img = frame_panel(3, 2, iron, fill=1, top=2, bottom=0, hi=3, dark=0)
-        for pz, ph in ((-37.0, 10.0), (-21.0, 17.6), (-4.5, 22.0), (0.5, 22.0)):
-            px0, px1 = (s * 9.0, s * 10.5) if s > 0 else (-10.5, -9.0)
+        for pz, ph in ((-37.0, 10.0), (-21.0, 17.6), (-4.5, 22.08), (0.5, 22.08)):
+            px0, px1 = (s * 8.92, s * 10.58) if s > 0 else (-10.58, -8.92)
             m.box(rails, (px0, 0.0, pz - .75), (px1, ph, pz + .75), {
                 'up': ('post_cap', cap_img), 'north': ('post_face', post_img), 'south': ('post_face', post_img),
                 'east': ('post_face', post_img), 'west': ('post_face', post_img),
             })
-            m.box(rails, (px0 - .25, 0.0, pz - 1.0), (px1 + .25, 1.0, pz + 1.0), {
+            fx0, fx1 = (s * 9.05, s * 10.8) if s > 0 else (-10.8, -9.05)
+            m.box(rails, (fx0, 0.0, pz - .92), (fx1, 1.0, pz + .92), {
                 'up': ('foot_cap', foot_img), 'north': ('foot_cap', foot_img), 'south': ('foot_cap', foot_img),
                 'east': ('foot_cap', foot_img), 'west': ('foot_cap', foot_img),
             })
 
         # Crisp square-section handrail along the stair slope and flat over the top step/deck
         rail_pts = [(-37.2, 10.0), (-12.0, 22.0), (-3.8, 22.0)]
-        rx0, rx1 = (9.0, 10.5) if s > 0 else (-10.5, -9.0)
+        rx0, rx1 = (9.08, 10.42) if s > 0 else (-10.42, -9.08)
         rail_top = frame_panel(16, 2, iron, fill=4, top=4, bottom=3, hi=4, dark=2)
         rail_side = frame_panel(16, 2, iron, fill=3, top=4, bottom=1, hi=4, dark=0)
         for (za, ya), (zb, yb) in zip(rail_pts, rail_pts[1:]):
@@ -660,8 +666,8 @@ def yukkuri_slide():
             (-10.5, -1.4), (10.5, -1.4), (10.5, h - .5), (10.0, h), (9.4, h), (9.0, h - .5),
             (9.0, 0.0), (-9.0, 0.0), (-9.0, h - .5), (-9.4, h), (-10.0, h), (-10.5, h - .5),
         ]
-    # Clean piecewise-linear/faceted z stations (crisp Minecraft segments, exact bed height!)
-    zs = [DECK[0], 1.0, 3.0, 9.0, 15.0, 21.0, 27.0, RUN[0], 33.5, 36.0, RUN[1], CHUTE_END]
+    # Clean piecewise-linear/faceted z stations (crisp Minecraft segments, exact bed height; 0.1 inset from z=40 block plane)
+    zs = [DECK[0], 1.0, 3.0, 9.0, 15.0, 21.0, 27.0, RUN[0], 33.5, 36.0, RUN[1], CHUTE_END - 0.1]
     rows = [[(x, chute_y(z) + y, z) for x, y in chute_sec(guard(z))] for z in zs]
     # Pixel-art chute texture: u = around cross-section (48 px), v = along chute (44 px)
     CW, CH = 48, 44
@@ -845,7 +851,7 @@ def yukkuri_trampoline():
             'east': ('tramp_leg', leg_img), 'west': ('tramp_leg', leg_img),
         })
         m.box(frame, (cx - 1.0, 0.0, cz - 1.0), (cx + 1.0, 1.4, cz + 1.0), {
-            'up': ('tramp_foot', foot_img), 'down': ('tramp_foot', foot_img),
+            'up': ('tramp_foot', foot_img),
             'north': ('tramp_foot', foot_img), 'south': ('tramp_foot', foot_img),
             'east': ('tramp_foot', foot_img), 'west': ('tramp_foot', foot_img),
         })
@@ -983,7 +989,7 @@ def yukkuri_pool():
     tub = m.part('tub')
     prof = [
         (-2.5, FLOOR_Y), (WALL_FOOT, FLOOR_Y), (0.0, WALL_TOP), (0.0, RIM_Y),
-        (1.25, RIM_Y), (1.25, 6.0), (.85, 5.8), (-.8, .8), (-1.2, 0.0), (-2.5, 0.0),
+        (1.25, RIM_Y), (1.25, 6.0), (.85, 5.8), (-.8, .8), (-1.2, 0.0),
     ]
     # Painted 1-texel-per-unit band around the tub (perimeter ~128 units -> W = 128, H = 16 rows)
     TW, TH = 128, 16
@@ -1018,7 +1024,7 @@ def yukkuri_pool():
     for a, b in zip(ref, ref[1:] + [ref[0]]):
         acc.append(acc[-1] + math.hypot(b[0] - a[0], b[2] - a[2]))
     us = [TW * s / acc[-1] for s in acc]
-    vs = [0.0, 0.5, 4.8, 5.2, 6.2, 7.2, 8.0, 13.8, 15.0, 16.0]
+    vs = [0.0, 0.5, 4.8, 5.2, 6.2, 7.2, 8.0, 13.8, 15.0]
 
     def tub_facing(i, j, c):
         (o0, y0), (o1, y1) = prof[i], prof[i + 1]
@@ -1043,7 +1049,6 @@ def yukkuri_pool():
                 put(floor_img, u, v, iron[0] if (u + v) % 2 == 0 and r < 1.5 else iron[2] if r < 1.7 else iron[3])
     m.polygon(tub, tub_loop(-2.5, FLOOR_Y), (0.0, 1.0, 0.0), floor_img,
               lambda p: (p[0] + FW / 2, p[2] + FH / 2), 'tub_floor')
-    m.polygon(tub, tub_loop(-2.5, 0.0), (0.0, -1.0, 0.0), canvas(4, 4, navy[0]), lambda p: (2.0, 2.0), 'tub_bottom')
 
     # 2. Inner front bench step (z < -6.5, top y = 3.25): crisp enamel step with bright edge & anti-slip ribs.
     bench = m.part('bench')
@@ -1070,17 +1075,17 @@ def yukkuri_pool():
     lugs = m.part('handles')
     lug_img = frame_panel(4, 2, navy, fill=1, top=2, bottom=0, hi=3, dark=0)
     for s in (-1, 1):
-        # Two short standoff arms rooted cleanly in the outer wall (x=±21.2, zero inner poke-through) + outer grip bar
+        # Two short standoff arms rooted cleanly in the outer wall (x=±21.2..±21.8, stopping at the grip bar) + outer grip bar
         x_wall = s * 21.2
+        x_arm = s * 21.8
         x_out = s * 22.8
-        ax0, ax1 = sorted((x_wall, x_out))
-        gx0, gx1 = sorted((s * 21.8, x_out))
+        ax0, ax1 = sorted((x_wall, x_arm))
+        gx0, gx1 = sorted((x_arm, x_out))
         for sz in (-1, 1):
             z0, z1 = (sz * 2.2, sz * 3.3) if sz > 0 else (-3.3, -2.2)
             m.box(lugs, (ax0, 4.7, z0), (ax1, 5.6, z1), {
                 'up': ('lug', lug_img), 'down': ('lug', lug_img),
                 'north': ('lug', lug_img), 'south': ('lug', lug_img),
-                'east': ('lug', lug_img) if s > 0 else None, 'west': ('lug', lug_img) if s < 0 else None,
             })
         m.box(lugs, (gx0, 4.7, -3.3), (gx1, 5.6, 3.3), {
             'up': ('lug', lug_img), 'down': ('lug', lug_img),

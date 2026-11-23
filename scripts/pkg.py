@@ -170,6 +170,14 @@ def check_tree(tree, scenes):
         print(f'docs changed: check_doc_refs.py on {len(docs)} file(s)', flush=True)
         if subprocess.run([sys.executable, str(tree / DOC_REFS), '--check', *docs], cwd=tree).returncode:
             raise Fail('check_doc_refs.py found dead references')
+    if any(path.startswith(('src/main/resources/assets/mcyukkuri/yukkuri_props/', 'src/main/resources/assets/mcyukkuri/textures/props/',
+                            'art/props/', 'standards/yukkuri-library/drafts/', 'standards/yukkuri-library/ecology/'))
+           or path in ('scripts/check_prop_meshes.py', 'scripts/prop_mesh_allow.json') for path in changed):
+        full_lint = any(path in ('scripts/check_prop_meshes.py', 'scripts/prop_mesh_allow.json') for path in changed)
+        lint_args = ['--check', '--all'] if full_lint else ['--check', '--changed', 'origin/main']
+        print(f'art/models changed: check_prop_meshes.py {" ".join(lint_args)}', flush=True)
+        if subprocess.run([sys.executable, str(tree / 'scripts/check_prop_meshes.py'), *lint_args], cwd=tree).returncode:
+            raise Fail('check_prop_meshes.py found prop mesh defects')
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
         code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode

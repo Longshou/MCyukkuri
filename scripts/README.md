@@ -53,6 +53,8 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `python scripts/check_doc_refs.py --check [文件...]` 是 Python 3.10+ 标准库的只读死链检查：核对 `docs/`、`AGENTS.md`、`scripts/README.md`、`art/CATALOG.md` 与 `wiki/` 中由 Git 跟踪的 Markdown 相对链接及其标题锚点（含中文标题与显式 `<a id>`），反引号里的 Java 类、成员与包路径、仓库路径，`FEATURES`／`TODO` 的场景编号，以及 `playtest_watch.json` 的看点键（场景 ID 或当前待办条目名）；Java 名按文件名或 `src/main/java`、`src/test/java` 中的出现判定，只查单独的类名、类名加成员和包路径加类名三种写法。它只读 `git ls-files` 列出的文件，跳过生成的参考库页面。问题逐条按 `文件:行:` 输出；`--check` 有发现即非零，给出文件时只查这些文件，`--all` 查全部。不查外链与 HTML 链接，散文里的场景 ID 与动作、台词 ID 不作区分，因此场景只按编号核对。`pkg.py land` 在包改动文档或场景登记时用它挡住死链。
 
+`<py> scripts/check_prop_meshes.py --check [--all | --changed [REV] | --model ID ...]` 是道具烘焙网格（`src/main/resources/assets/mcyukkuri/yukkuri_props/*.json`）的只读闪烁与重面检查：逐个检查（1）最近邻采样下 UV 收缩并落在相邻纹素颜色或透明不同的整数纹素边界；（2）同向或反向共面且面积重叠的三角面；（3）放置方块落在地面 `y=0` 或外轮廓邻格平面上的面。历史基线保存在 `scripts/prop_mesh_allow.json`，数量只降不升，新模型或未豁免项超标即非零退出；`export.py`（`prop-mesh-lint`）与 `pkg.py land`（改动道具或模型时）自动调用。反例自测：`<py> scripts/test_prop_mesh_lint.py`。
+
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行脚本所列各包的纯 Java 单元测试；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏，在实际游玩的机器执行；安装并读回配置后删除旧运行包，仍被运行中的冒烟或截图引用的目录保留到下次更新（规则见[总负责人](../docs/roles/lead.md#合入与运行包)）。

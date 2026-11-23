@@ -481,7 +481,7 @@ def tube(b, part, path, key, img, segs=6, closed=False):
     if not closed:
         for end, toward in ((0, 1), (n - 1, n - 2)):
             normal = unit(sub(pts[end], pts[toward]))
-            uv = (ox + W / 2, oy + (.5 if end == 0 else H - .5))
+            uv = (ox + (W // 2) + .5, oy + (.5 if end == 0 else H - .5))
             ring = rings[0 if end == 0 else -1]
             for j in range(segs):
                 b.p.tri(part, [pts[end], ring[j][0], ring[j + 1][0]], [normal] * 3, None, uvs=[uv] * 3)
