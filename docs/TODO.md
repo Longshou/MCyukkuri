@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 逐场景台词审查修复 2：身体、需求、照料、天气与玩耍 | `.worktrees/wp-dlg-fix-body` | life/LifeMeal,YukkuriLife,LeafSwaddle,TemperatureLife,WaterDistress,SpeciesLife,PlayLife; body; headwear; status/Reactions; dialogue corpus/audio |
 
 ## 玩法待办
 
