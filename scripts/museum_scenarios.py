@@ -5024,7 +5024,12 @@ def _verify_leak_scene(window):
 
 
 def _verify_need_tell(window):
-    """Urge -> act at once: the holding face and line start the toilet trip, the act follows within seconds."""
+    """Urge -> act at once: the holding face and line start the toilet trip, the act follows within seconds, in view."""
+    vantage = []
+    for m in re.finditer(r'\[layout\] t=(\d+)[^\n]*MCYGEOMETRY (\{[^\n]*\})', window):
+        row = json.loads(m[2])
+        if row.get('player'):
+            vantage.append((int(m[1]), row))
     for actor, kind, line, face, source, accident, within in (
             ('trained', 'URINE', 'need_toilet_urine', 'pursed', 'facility', None, 500),
             ('untrained', 'STOOL', 'need_toilet', 'squeezed_frown', 'ground', 'true', 160),
@@ -5032,17 +5037,24 @@ def _verify_need_tell(window):
         subject = rf'[^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
         beats = re.findall(r'\[needs\]' + subject + r' beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) kind=(\w+)', window)
         for tick, beat, shown, declared, spoken, _ in beats:
-            if beat in ('urge', 'relief') and shown != declared:
+            if shown != declared:
                 return f'{actor}: beat {beat} at {tick} showed {shown} but declared {declared}'
         urges = [b for b in beats if b[1] == 'urge']
         if not urges or urges[0][2] != face or urges[0][4] != line or urges[0][5] != kind:
             return f'{actor}: expected an urge beat {face}/{line}/{kind}, found {urges[:1]}'
+        if any(b[1] == 'urge' and b[4] == 'leak' for b in beats):
+            return f'{actor}: a leak must be its own beat, not an urge beat'
         relief = [m for m in re.finditer(r'\[needs\]' + subject + rf' relieved source={source} [^\n]*kind={kind}\b[^\n]*', window)]
         if len(relief) != 1 or accident and f'accident={accident}' not in relief[0].group(0):
             return f'{actor}: expected one {source} release, found {[m.group(0) for m in relief]}'
         tick = int(relief[0].group(1))
         if not 0 <= tick - int(urges[0][0]) <= within:
             return f'{actor}: act {tick - int(urges[0][0])} ticks after the urge (limit {within})'
+        # The face and the line are the payoff: the observer on the hay stack must really see each shown beat.
+        for moment, at in (('urge', int(urges[0][0])), ('act', tick)):
+            sample = min(vantage, key=lambda v: abs(v[0] - at), default=None)
+            if sample is None or abs(sample[0] - at) > 20 or not sample[1].get('vis'):
+                return f'{actor}: the vantage does not see the {moment} beat at {at} (vis): {sample}'
         if re.search(r'\[needs\]' + subject + rf' tell need={kind}\b', window):
             return f'{actor}: the stand-alone tell must be gone'
         if re.search(r'\[status\]' + subject + r' behavior\.animation: (?:\w+ -> nervous)\b', window):
@@ -5052,11 +5064,14 @@ def _verify_need_tell(window):
     leaks = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]*toilet leak on the way', window)
     if len(leaks) != 1:
         return f'leaker: expected one leak on the way, found {leaks}'
+    leak_beats = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]* beat=leak face=(\w+) declared=(\w+) line=(\w+)', window)
+    if not leak_beats or leak_beats[0][3] != 'leak':
+        return f'leaker: the leak must log its own beat=leak with line=leak, found {leak_beats}'
     return None
 
 
 add('need_tell', 'meadow', '尿急与便急：表情台词后立刻行动', '尿急与便急：表情台词后立刻行动',
-    '三个围栏各有一只灵梦：左边练过如厕的尿急，露出抿嘴忍耐的表情、说一句后立刻走去沙厕；'
+    '站在草垛上看三个围栏各有一只灵梦：左边练过如厕的尿急，露出抿嘴忍耐的表情、说一句后立刻走去沙厕；'
     '中间没练过的便急，表情更难受，说一句后就在原地拉；右边尿意满了、沙厕要绕过隔栏，走不到就在路上漏出来。'
     '全程没有抖动：只看表情和台词，用望远镜看需求图标在缓解后消失。',
     '开场约 5 秒内各自开始，约 15 秒内各自排完', [
@@ -5064,7 +5079,8 @@ add('need_tell', 'meadow', '尿急与便急：表情台词后立刻行动', '尿
           if x in (-12, -6, 0, 6) or z in (-3, 4)),
         *(block(x, 0, 0, 'minecraft:oak_fence') for x in range(-11, -7)),
         *(block(x, 0, -2, 'mcyukkuri:yukkuri_toilet') for x in (-11, -3, 3)),
-        *(box(-1, 0, z, 1, 10 - z, z, 'minecraft:hay_block') for z in (8, 9, 10)),
+        # The hay stack behind the pens lifts the visitor above the fence, so every pen and its face stays in view.
+        *(box(-4, 0, z, -2, z - 5, z, 'minecraft:hay_block') for z in range(6, 11)),
         yk('reimu', -3, 2, 'trained', label='练过·尿急', uuid=uid('need_tell', 'trained'), urine=50, self_control=80,
            boldness=35, friendliness=70, skills={'toilet': 8}, lead=True),
         yk('reimu', 3, 2, 'untrained', label='没练过·便急', uuid=uid('need_tell', 'untrained'), bladder=75, self_control=15,

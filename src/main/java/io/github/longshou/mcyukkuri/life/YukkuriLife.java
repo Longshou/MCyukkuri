@@ -184,6 +184,7 @@ public final class YukkuriLife {
     private ToiletNeeds.Kind toiletKind;
     private int urgeStage;
     private String shownUrge = "", urgeLine = "";
+    private boolean leaked;
 
     public void selectToiletNeed(ToiletNeeds.Kind kind) { toiletKind = kind; }
     public boolean urinating() { return toiletKind == ToiletNeeds.Kind.URINE; }
@@ -1348,6 +1349,7 @@ public final class YukkuriLife {
         // The urge starts with the real trip (or the decision to go on the spot): one trigger for face, line and movement.
         if (planned) {
             urgeStage = urgeStage();
+            leaked = false;
             sayUrge(toiletKind == ToiletNeeds.Kind.URINE ? "need_toilet_urine" : "need_toilet");
         }
         return planned;
@@ -1388,15 +1390,16 @@ public final class YukkuriLife {
         GameplayLog.event(entity, "needs", "toilet leak on the way pressure={} kind={} self_control={} walked={}",
                 toiletNeeds.pressure(toiletKind), toiletKind, personality.selfControl(), pursuitTicks);
         targetBlock = here; task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
-        toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true;
+        toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true; leaked = true;
         sayUrge("leak");
     }
     /** One log line per beat of the toilet performance with the face the arbiter finally showed next to the declared one. */
     public void observeUrge(String shown) {
         String beat, declared, line;
-        if (walkingToToilet()) { beat = "urge"; declared = urgeFace(); line = urgeLine; }
+        // The release tick still counts its toilet ticks: the relief reaction is the beat the body actually shows.
+        if (entity.reactingTo("toilet_done")) { beat = "relief"; declared = "happy"; line = "toilet_done"; }
+        else if (walkingToToilet()) { beat = leaked ? "leak" : "urge"; declared = urgeFace(); line = urgeLine; }
         else if (toiletTicks > 0) { beat = toiletAccident ? "accident" : "strain"; declared = toiletAccident ? "teary" : "chewing_closed"; line = ""; }
-        else if (entity.reactingTo("toilet_done")) { beat = "relief"; declared = "happy"; line = "toilet_done"; }
         else { shownUrge = ""; urgeLine = ""; return; }
         String key = beat + "/" + shown + "/" + urgeStage + "/" + line;
         if (key.equals(shownUrge)) return;
