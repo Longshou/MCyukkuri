@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
@@ -77,7 +78,7 @@ public final class PlayLife {
         if(active()||cooldown>0)return refuse("cooldown");
         if(!available(target.kind()==PlayBlock.Kind.POOL))return refuse("unfit");
         if(target.getLevel()!=entity.level()||target.isRemoved())return refuse("gone");
-        if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump())return refuse("cannot_jump");
+        if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&(!entity.childhood().canJump()||BodyAbility.cannotSpring(entity)))return refuse("cannot_jump");
         if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return refuse("far");
         JuiceTub.Seat seat=null;
         boolean hurt=false;
@@ -143,7 +144,7 @@ public final class PlayLife {
                 : Math.max(entity.dailyLife().boredom()/100.0,entity.mind().unease()/100.0);
     }
     private boolean refuse(String reason){refused=reason;return false;}
-    private boolean valid(){return active()&&available(facility.kind()==PlayBlock.Kind.POOL)&&elapsed<(facility.kind()==PlayBlock.Kind.POOL?600+JuiceTub.SOAK_TICKS:600)&&!facility.isRemoved()&&facility.getLevel()==entity.level()
+    private boolean valid(){return active()&&available(facility.kind()==PlayBlock.Kind.POOL)&&!(facility.kind()==PlayBlock.Kind.TRAMPOLINE&&BodyAbility.cannotSpring(entity))&&elapsed<(facility.kind()==PlayBlock.Kind.POOL?600+JuiceTub.SOAK_TICKS:600)&&!facility.isRemoved()&&facility.getLevel()==entity.level()
             &&entity.level() instanceof ServerLevel level&&level.hasChunkAt(facility.getBlockPos())&&level.getBlockEntity(facility.getBlockPos())==facility
             &&(!entity.outing().onOuting()||entity.outing().parkFacility()==facility)
             &&entity.distanceToSqr(Vec3.atCenterOf(facility.getBlockPos()))<144&&facility.reserve(entity);}

@@ -226,8 +226,8 @@ public enum YukkuriAction {
     public boolean holdsEndPose() { return id.endsWith("_extend"); }
     /** A clip that carries its own steps: shown as a reaction, it replaces the walk while the body travels. */
     public boolean walks() { return id.startsWith("walk_"); }
-    /** A clip whose body leaves the ground: a frail body does not play it (PresentationArbiter). */
-    public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP; }
+    /** A clip whose body leaves the ground: the hop-run, hops and the joy jump. YukkuriSync writes every clip through one gate that plays idle in place of these for a body that cannot spring. */
+    public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP || this == RUN; }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
     public static Optional<YukkuriAction> byId(String id) {
         return Arrays.stream(values()).filter(action -> action.id.equals(id)).findFirst();

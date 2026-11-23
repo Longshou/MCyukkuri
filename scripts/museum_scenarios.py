@@ -2510,6 +2510,8 @@ def _verify_nutrition_age(window, trace):
         return 'The starving body left no trace samples'
     if hops := [row for row in starving if row[2] in _HOP_CLIPS]:
         return f'The starving body hopped: {hops[0]}'
+    if not re.search(rf'\[body\][^\n]* uuid={_uuid_text("nutrition_age", "starving")} [^\n]*frail body withholds hop beat=frail_clip clip=joy_jump\b', window):
+        return 'The requested joy clip on the starving body was not withheld'
     tired, control = (_clips(trace, _uuid_text('nutrition_age', name)) for name in ('tired', 'tired_ctl'))
     if hops := [row for row in tired if row[2] in _HOP_CLIPS]:
         return f'The exhausted body hopped: {hops[0]}'
@@ -2521,6 +2523,8 @@ def _verify_nutrition_age(window, trace):
 
 next(s for s in S if s.id == 'nutrition_age').smoke = dict(
     ticks=1200, expect=[], forbid=[r'\[body\][^\n]* invariant\b'], verify=_verify_nutrition_age, verify_trace=True,
+    # A requested joy clip (the path pet praise, lessons, badges, shop and owner welcome all use) on the starving body.
+    commands=[(300, f'yukkuri action {sel("starving")} joy_jump')],
     allow_fate=[dict(kind='starve', who=f'uuid={_uuid_text("nutrition_age", "starving")} ',
                      why='the scene starts one body at nutrition 0 to show the starvation damage')])
 
@@ -7908,16 +7912,16 @@ BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
 
 
 # A weak body (health 30%) crawls to its food; a starving one has an apple only on top of a two-block pillar (a hop it no longer has)
-# and a second one far on the ground; a healthy hungry control has the same pillar.
+# and a second one on the ground nearer than the pillar's foot; it turns to that one and eats it.
 _FG = {name: uid('frail_gait', name) for name in ('weak', 'gap')}
 add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '重伤爬行、虚弱不蹦跳',
-    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。远处另一个在地面',
+    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（它不再蹦跳，上不去），身边地面另有一个，看它改去吃地面的那个',
     '约 1 分钟', [
         yk('reimu', -10, 0, 'weak', label='生命3·爬行', nutrition=40, energy=95, uuid=_FG['weak'], lead=True),
         item('minecraft:apple', 1, -7, 0, 'weak_food'),
         yk('reimu', -10, 8, 'gap', label='营养5·虚弱', nutrition=5, energy=95, uuid=_FG['gap']),
         block(-5, 0, 8, 'minecraft:stone'), block(-5, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, -5, 8, 'gap_food', dy=2.05),
-        item('minecraft:apple', 1, -10, 18, 'gap_far'),],
+        item('minecraft:apple', 1, -13, 11, 'gap_ground'),],
     late=[set_status('weak', 'health.health', 3)],
     env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap')])
 
@@ -7940,6 +7944,8 @@ def _verify_frail_gait(window, trace):
             return f'The {name} body hopped: {hops[0]}'
     if not re.search(rf'uuid={_uuid_text("frail_gait", "weak")} [^\n]*swallowed item=minecraft:apple', window):
         return 'The weak body never reached its apple'
+    if not fed:
+        return 'The starving body never ate the ground apple (it cannot reach the pillar apple)'
 
 
 next(s for s in S if s.id == 'frail_gait').smoke = dict(

@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.NestLayout;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Held;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.social.PairContact.Pose;
@@ -361,10 +362,19 @@ final class YukkuriSync {
         GameplayLog.event(owner,"family","stem drain stage {}->{} brood={} unborn={} nutrition={} energy={}",
                 was,now,brood==null?null:brood.id,brood==null?0:brood.unborn(),owner.life().nutrition(),owner.life().energy());
     }
+    /** The one gate every written clip passes (behaviour, requested action, greeting, stance): a body that cannot spring plays idle in place of a hop clip. */
+    private String clipFor(String id) {
+        var action = YukkuriAction.byId(id);
+        if (owner.level().isClientSide || action.isEmpty() || !action.get().hops() || !BodyAbility.cannotSpring(owner)) return id;
+        GameplayLog.limited(owner, "body", "frail_clip", 100, "frail body withholds hop beat=frail_clip clip={} behavior={} face={} line={} energy={} nutrition={} health={}",
+                id, getBehaviorId(), getExpressionId(), getDialogueKey(), owner.life().energy(), owner.life().nutrition(), owner.getHealth());
+        return YukkuriAction.IDLE.id();
+    }
     void setAnimation(YukkuriAction action, boolean restart) {
-        if (restart || !getAnimationId().equals(action.id())) {
+        String id = clipFor(action.id());
+        if (restart || !getAnimationId().equals(id)) {
             owner.getEntityData().set(ANIMATION_START, owner.level().getGameTime());
-            owner.getEntityData().set(ANIMATION, action.id());
+            owner.getEntityData().set(ANIMATION, id);
         }
     }
     void setBehavior(String behavior) {
@@ -526,7 +536,7 @@ final class YukkuriSync {
         sentLiveChildren = null;
         sentHeld.invalidate();
     }
-    void animationId(String value) { owner.getEntityData().set(ANIMATION, value); }
+    void animationId(String value) { owner.getEntityData().set(ANIMATION, clipFor(value)); }
     void animationStart(long value) { owner.getEntityData().set(ANIMATION_START, value); }
     void expression(String value) { owner.getEntityData().set(EXPRESSION, value); }
     void predatorFlight(boolean value) { owner.getEntityData().set(PREDATOR_FLIGHT, value); }
