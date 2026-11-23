@@ -4096,14 +4096,13 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, z, label, values. Placed in the ring band around the paving (x 2..5, z -3..1) in view from the vantage:
-# a hungry friendly stray is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and
-# keeps 4+ blocks off, and the cocky ex-pet wearing a voided badge is a stray like any other.
+# name, kind, x, z, label, values. Placed just outside RING_REACH (9 blocks from paving x 2..5, z -3..1) in view from the
+# vantage, so they do not fill PLAZA_CAPACITY before the keeper arrives and immediately evaluate browseRing once the badged pet lands.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -1, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 0, -4, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -3, -7, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 6, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', 0, -13, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -2, -12, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', 12, -12, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 11, -11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4137,13 +4136,13 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
     '约 5 秒院主出发，8–15 秒落座并开始看章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell and a bed make the lot a village street, so free strays here are rooted in it.
-        block(-5, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
-        block(-8, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-7, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
+        block(-11, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
+        block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
         # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-5, 1, -125, 12),
+    ], env=DAY, vantage=(-8, -1, -118, 10),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
@@ -11900,12 +11899,12 @@ next(s for s in S if s.id == _CONF).smoke = dict(ticks=600, verify=_confiscate_f
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_attached")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_bold")} [^\n]*confiscated by=player [^\n]*reason=void ',
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_timid")} [^\n]*confiscated by=player [^\n]*reason=void ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_proud")} inv_tokens=1 visible=NONE effective=NONE ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_attached")} inv_tokens=2 visible=NONE effective=NONE ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_bold")} inv_tokens=3 visible=NONE effective=NONE ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=4 visible=NONE effective=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_proud")} inv_tokens=1 visible=NONE effective=SILVER rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_attached")} inv_tokens=2 visible=NONE effective=BRONZE rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_bold")} inv_tokens=3 visible=NONE effective=NONE rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=4 visible=NONE effective=NONE rank=NONE ',
     rf'\[interaction\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*interaction refused; [^\n]*action=remove_badge reason=owner\b',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=4 visible=SILVER effective=SILVER ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=4 visible=SILVER effective=SILVER rank=SILVER ',
 ], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*confiscated '])
 
 

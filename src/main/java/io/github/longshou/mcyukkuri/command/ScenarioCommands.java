@@ -764,8 +764,13 @@ public final class ScenarioCommands {
             if (!(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
             if (item.equals("confiscate_badge_own") && !target.pet().owned(player))
                 Custody.assign(target, player.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
-            player.setPos(target.getX() + 1.2, target.getY(), target.getZ());
-            player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+            for (int side = 0; side < 4; side++) {
+                double dx = side == 0 ? 1.2 : side == 1 ? -1.2 : 0;
+                double dz = side == 2 ? 1.2 : side == 3 ? -1.2 : 0;
+                player.setPos(target.getX() + dx, target.getY(), target.getZ() + dz);
+                player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+                if (level.noCollision(player) && player.hasLineOfSight(target)) break;
+            }
             var previous = player.getMainHandItem();
             boolean wasShift = player.isShiftKeyDown();
             var handbook = new ItemStack(HumanWorld.BADGE_HANDBOOK.get());
@@ -782,8 +787,8 @@ public final class ScenarioCommands {
                 var s = player.getInventory().getItem(i);
                 if (s.getItem() instanceof BadgeItem && !s.is(HumanWorld.BADGE_HANDBOOK.get())) tokens += s.getCount();
             }
-            GameplayLog.event(target, "scenario", "action=confiscate_badge target={} inv_tokens={} visible={} effective={} void={}",
-                    target.getUUID(), tokens, target.pet().visibleGrade(), target.pet().effectiveGrade(), target.pet().voidBadge());
+            GameplayLog.event(target, "scenario", "action=confiscate_badge target={} inv_tokens={} visible={} effective={} rank={} void={}",
+                    target.getUUID(), tokens, target.pet().visibleGrade(), target.pet().effectiveGrade(), target.pet().humanRank(), target.pet().voidBadge());
             return 1;
         }
         if (item.equals("cold") || item.equals("serving") || item.equals("rub") || item.equals("flick")) {
