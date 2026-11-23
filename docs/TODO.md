@@ -8,6 +8,8 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 窄通道相遇场景（相撞抽搐、寻路互相堵路） | `.worktrees/wp-scene-corridor` | `scripts/museum_scenarios.py`、`scripts/museum_scene_numbers.json`、`scripts/playtest_watch.json`、`docs/TODO.md` |
+| 预览同步待看（试玩卡可点通过） | `.worktrees/wp-inbox-playtest` | `scripts/serve_review.py`、`scripts/review_verdicts.py`、`scripts/preview.py`、`preview/review/verdicts.js` |
 
 ## 玩法待办
 
