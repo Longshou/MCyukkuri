@@ -12,13 +12,13 @@ import org.joml.Intersectionf;
 import org.joml.Vector3f;
 
 /**
- * Pet harness, cloth swaddle and leaf swaddle as shells derived procedurally from the posed body surface (no per-species authored
+ * Cloth swaddle and leaf swaddle as shells derived procedurally from the posed body surface (no per-species authored
  * attachments, docs/FEATURES.md). The body's skinned vertices are reduced to a radius profile (largest
  * horizontal radius per angle bin and height cell); a shell at any height is read from that profile by interpolating between the nearest
  * samples below and above, so sparse meshes (the rounded bodies have only eight vertex rings) and dense ones alike give a closed shell, and
  * all follow squash, stretch and growth of whatever model and clip is being drawn.
  *
- * <p>The harness is a low belt just above the ground contact with the lead ring on the back. The cloth swaddle is a thin wrap hugging the
+ * <p>The cloth swaddle is a thin wrap hugging the
  * skin of the lower body, whose rim is high at the back and dips under the mouth at the front; each of the eight styles of
  * {@link io.github.longshou.mcyukkuri.item.SwaddleStyle} picks its fabric tile, colours, rim (folded band or lace frill), a crossover
  * front flap with a bow, and fixtures (back initial, tiger mark, rubber sole with strap and pouch, pompoms). The leaf swaddle is one leaf
@@ -29,7 +29,6 @@ import org.joml.Vector3f;
  * Presentation only; the wear state comes from the server. The model's front is -Z, so the back is +Z. Client only.</p>
  */
 final class CareWearRenderer {
-    private static final ResourceLocation TEXTURE = MCYukkuri.id("textures/misc/care_wear.png");
     /** One 32x32 leaf (petiole at u 0, tip at u 1, midrib across the middle) per neglect stage (fresh, soiled, dry, hard; 64 rows each),
      *  clean in the first 32 rows of its stage and stool-stained in the next. */
     private static final ResourceLocation LEAF = MCYukkuri.id("textures/misc/swaddle_leaf_wear.png");
@@ -38,11 +37,9 @@ final class CareWearRenderer {
     private static final ResourceLocation NEWSPAPER_TOP = MCYukkuri.id("textures/block/newspaper_stack_top.png");
     private static final ResourceLocation NEWSPAPER_FOLD = MCYukkuri.id("textures/block/newspaper_stack_fold.png");
     static final int PAPER_COVER = 1 << 13;
-    private static final int BINS = 24, CELLS = 32, HARNESS = 1, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 9;
+    private static final int BINS = 24, CELLS = 32, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 9;
     /** Height cells of the skin table (the lower three quarters of the body: every rim, the leaf and the hair fade above them). */
     private static final int SKIN_CELLS = CELLS * 3 / 4;
-    /** Harness belt centre and half height as fractions of the body height: low, under the mouth line, never across the face. */
-    private static final float BELT_AT = .14f, BELT_HALF = .045f;
     /** Lowest edge of every shell, as a fraction of the body height. */
     private static final float CUP_BASE = .015f;
     /** Nothing worn rises above this height fraction at the front, so the mouth stays free; a front bow is centred no higher than BOW_AT. */
@@ -147,14 +144,12 @@ final class CareWearRenderer {
     /** Stool loads the wear bits can show; at this many the base gets its brown blotch. */
     private static final int MAX_SOIL_SHOWN = 3;
 
-    // colours: harness flat (palette mint 2, gold 2); leaves keep their own texture colour
-    private static final int[] STRAP = {98, 137, 127}, BRASS = {243, 193, 105};
     // client render thread scratch, reused every frame: radius profile (largest radius and its height fraction per height cell and angle bin) and shell rings
     private static final float[] CELL_R = new float[CELLS * BINS], CELL_F = new float[CELLS * BINS], CELL_A = new float[CELLS * BINS];
     /** True angle of the sample radiusAt / radiusNear / radiusLow last returned, and the convex-hull scratch (render thread). */
     private static float sampleAngle;
     private static final float[] ANG = new float[BINS], HX = new float[BINS], HZ = new float[BINS], HULL_X = new float[2 * BINS + 1], HULL_Z = new float[2 * BINS + 1];
-    private static final float[] BELT_LO = new float[BINS], BELT_HI = new float[BINS], TOP = new float[BINS], COPY = new float[BINS], ARC = new float[BINS + 1];
+    private static final float[] TOP = new float[BINS], COPY = new float[BINS], ARC = new float[BINS + 1];
     private static final float[] GRID = new float[(LEAF_ROWS * SWOLLEN_DETAIL + 1) * (ACROSS * SWOLLEN_DETAIL + 1) * 4];
     /** Skin: hull radius per height cell (lower three quarters of the body) and bin, rebuilt for each wrap; cloth, leaf and clearHair read it. */
     private static final float[][] SKIN = new float[SKIN_CELLS][BINS];
@@ -187,9 +182,9 @@ final class CareWearRenderer {
 
     static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
         // A retention swelling alone (bits 9-12, after the leaf is gone) is the body itself (YukkuriModel), nothing worn.
-        if ((wear & (HARNESS | SWADDLE | LEAF_WORN | PAPER_COVER)) == 0) return;
+        if ((wear & (SWADDLE | LEAF_WORN | PAPER_COVER)) == 0) return;
         boolean paper = (wear & (SWADDLE | LEAF_WORN | PAPER_COVER)) == PAPER_COVER;
-        if (paper && (wear & HARNESS) == 0) {
+        if (paper) {
             // The sampled fold already supplies all the geometry that paper uses.
             paperTent(buffers, pose.last(), model.takePaperTent(), light, overlay);
             return;
@@ -201,7 +196,6 @@ final class CareWearRenderer {
         if (frame == null) return;
         float cx = frame[0], cz = frame[1], minY = frame[2], h = frame[3];
         var last = pose.last();
-        float out = .035f * h;
         boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0, open = leaf && (wear & LEAF_OPEN) != 0;
         // Everything is measured from the body skin alone; the hair, sidelocks and braids are lifted over the wrap as the model draws them
         // (clearHair). One buffer at a time: a batched source may flush the previous one when another texture is requested.
@@ -212,9 +206,6 @@ final class CareWearRenderer {
         else if (leaf) leafWrap(buffers.getBuffer(RenderType.entityCutoutNoCull(LEAF)), last, cx, cz, minY, h, wear >> 4 & 3, wear >> 6 & 7,
                 pts, body, (wear >> 9 & 15) / 15f, light, overlay);
         else if (paper) paperTent(buffers, last, model.takePaperTent(), light, overlay);
-        // The harness follows the body itself, so its back ring stays where the lead attaches (YukkuriInteractions.getLeashOffset).
-        if ((wear & HARNESS) != 0) harness(buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE)), last, cx, cz, minY, h,
-                cloth || leaf && !open ? out + .03f * h : .03f * h, light, overlay);
     }
 
     /** Centre x and z, lowest y and height of the posed body points (blocks), or null for a degenerate body. */
@@ -231,7 +222,7 @@ final class CareWearRenderer {
 
     /**
      * Before the model draws a wrapped body: reads its posed skin into the clearance table, so {@link #clearHair} can lift the hair that
-     * would fall inside the cloth or leaf. False when nothing is wrapped (no wear, harness only, the leaf opened for care).
+     * would fall inside the cloth or leaf. False when nothing is wrapped (no wear, the leaf opened for care).
      */
     static boolean prepareClearance(YukkuriModel model, int wear) {
         boolean cloth = (wear & SWADDLE) != 0, leaf = !cloth && (wear & LEAF_WORN) != 0 && (wear & LEAF_OPEN) == 0;
@@ -478,42 +469,6 @@ final class CareWearRenderer {
             if (!hull(table[c], ANG)) return false;
         }
         return true;
-    }
-
-    /** A low belt around the body just above the ground contact (below the mouth), with the lead ring and a small buckle on the back (+Z). */
-    private static void harness(VertexConsumer b, PoseStack.Pose pose, float cx, float cz, float minY, float h, float out,
-                                int light, int overlay) {
-        for (int i = 0; i < BINS; i++) { BELT_LO[i] = radiusNear(BELT_AT - BELT_HALF, i); BELT_HI[i] = radiusNear(BELT_AT + BELT_HALF, i); }
-        if (!fill(BELT_LO) || !fill(BELT_HI)) return;
-        float y0 = minY + (BELT_AT - BELT_HALF) * h, y1 = minY + (BELT_AT + BELT_HALF) * h;
-        for (int i = 0; i < BINS; i++) {
-            int j = (i + 1) % BINS;
-            float a0 = angle(i), a1 = angle(j), am = (a0 + a1) / 2;
-            float c0 = (float) Math.cos(a0), s0 = (float) Math.sin(a0), c1 = (float) Math.cos(a1), s1 = (float) Math.sin(a1);
-            float l0 = BELT_LO[i] + out, l1 = BELT_LO[j] + out, u0 = BELT_HI[i] + out, u1 = BELT_HI[j] + out;
-            flat(b, pose, STRAP, light, overlay, (float) Math.cos(am), 0, (float) Math.sin(am),
-                    cx + c0 * l0, y0, cz + s0 * l0, cx + c1 * l1, y0, cz + s1 * l1, cx + c1 * u1, y1, cz + s1 * u1, cx + c0 * u0, y1, cz + s0 * u0);
-        }
-        // the lead ring stands on the back (+Z) of the belt, a small buckle sits beside it
-        float half = (float) Math.PI / 2, lift = .006f * h;
-        float back = Math.max(Math.max(BELT_LO[17], BELT_LO[18]), Math.max(BELT_HI[17], BELT_HI[18])) + out + lift;
-        frame(b, pose, BRASS, light, overlay, cx, cz, half, back, minY + (BELT_AT + .02f) * h, .05f * h, .05f * h, .028f * h, .028f * h);
-        float side = Math.max(BELT_LO[20], BELT_HI[20]) + out + lift;
-        frame(b, pose, BRASS, light, overlay, cx, cz, half + .62f, side, minY + BELT_AT * h, .045f * h, .052f * h, .022f * h, .028f * h);
-    }
-
-    /** A flat rectangular frame standing on the body at angle `a` and radius `r`, facing outwards; outer and inner half sizes in width and height. */
-    private static void frame(VertexConsumer b, PoseStack.Pose pose, int[] color, int light, int overlay, float cx, float cz,
-                              float a, float r, float yc, float ow, float oh, float iw, float ih) {
-        float nx = (float) Math.cos(a), nz = (float) Math.sin(a), tx = -nz, tz = nx, px = cx + nx * r, pz = cz + nz * r;
-        flat(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + oh, pz - tz * ow, px + tx * ow, yc + oh, pz + tz * ow, px + tx * ow, yc +
-                ih, pz + tz * ow, px - tx * ow, yc + ih, pz - tz * ow);
-        flat(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc - ih, pz - tz * ow, px + tx * ow, yc - ih, pz + tz * ow, px + tx * ow,
-                yc - oh, pz + tz * ow, px - tx * ow, yc - oh, pz - tz * ow);
-        flat(b, pose, color, light, overlay, nx, 0, nz, px - tx * ow, yc + ih, pz - tz * ow, px - tx * iw, yc + ih, pz - tz * iw, px - tx * iw,
-                yc - ih, pz - tz * iw, px - tx * ow, yc - ih, pz - tz * ow);
-        flat(b, pose, color, light, overlay, nx, 0, nz, px + tx * iw, yc + ih, pz + tz * iw, px + tx * ow, yc + ih, pz + tz * ow, px + tx * ow,
-                yc - ih, pz + tz * ow, px + tx * iw, yc - ih, pz + tz * iw);
     }
 
     // ---- cloth swaddle ---------------------------------------------------------------------------------------------------
@@ -1015,15 +970,6 @@ final class CareWearRenderer {
                 quad(underBuf, pose, PAPER_FOLD_SHADE, light, overlay, nx / nl, ny / nl, nz / nl, u0, v0, u1, v0, u1, v1, u0, v1, a, g, e, d);
             }
         }
-    }
-
-    /** Untextured flat colour on the white care_wear texel. */
-    private static void flat(VertexConsumer b, PoseStack.Pose pose, int[] c, int light, int overlay, float nx, float ny, float nz,
-                             float x0, float y0, float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3) {
-        vertex(b, pose, c, .25f, .25f, light, overlay, nx, ny, nz, x0, y0, z0);
-        vertex(b, pose, c, .25f, .25f, light, overlay, nx, ny, nz, x1, y1, z1);
-        vertex(b, pose, c, .25f, .25f, light, overlay, nx, ny, nz, x2, y2, z2);
-        vertex(b, pose, c, .25f, .25f, light, overlay, nx, ny, nz, x3, y3, z3);
     }
 
     /** A quad through four points with their own (u, v). */

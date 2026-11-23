@@ -7,7 +7,7 @@ Props authored here: the three oil-grain bags, food scrap, waste and carrier bas
 through vanilla_props.py (the round food bowl, its heap-only grain / wheat / forage fills and the round waterer from
 bowl.py and waterer.py; the block-style sand toilet clean and dirty from block-props/devices.py; the rounded three grades
 of pet bed and their fitted shapes from placed.py; every non-default dye style, including the 2x2 woven nest's), and the
-block-style forage pile (block-props/forage.py). The four pet-care goods (sweet candy, custard pudding, pet harness,
+block-style forage pile (block-props/forage.py). The three pet-care goods (sweet candy, custard pudding,
 swaddle cloth) are 16x16 item sprites from goods.py, written to art/props/pet-goods/ and shipped by scripts/export_pet_goods_icons.py.
 Food mash is exported by its own package builder, which imports this folder. The self-built nests of wild yukkuri
 (forest_burrow, personal_leaf_nest, bedding_bundle) are authored by wild.py and exported by ecology/wild-shelters/build.py;
@@ -26,7 +26,7 @@ from PIL import Image
 from asset_export_checks import check_output, preserve_equivalent_png
 
 SNAP = ROOT / 'art/props/runtime-peripheral/selected'
-ICONS = ROOT / 'art/props/pet-goods'     # 16x16 item icons for the four pet-care goods; scripts/export_pet_goods_icons.py ships them
+ICONS = ROOT / 'art/props/pet-goods'     # 16x16 item icons for the three pet-care goods; scripts/export_pet_goods_icons.py ships them
 GENERATOR = 'standards/yukkuri-library/drafts/care-props/build.py'
 COLLISION = ROOT / 'src/main/resources/assets/mcyukkuri/yukkuri_presentation/care_collision.json'
 

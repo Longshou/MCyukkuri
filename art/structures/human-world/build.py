@@ -405,7 +405,7 @@ def shop(p=PLAINS,name='yukkuri_shop'):
     b.human(4.5,14.5,'caretaker_sister',1,1,'shop_staff')
     # Goods hang in item frames: two rows behind the counter, toys on the west wall, accessories and dolls on the east wall.
     rows=[(5,['oil_grain_regular','oil_grain_budget','oil_grain_premium','orange_juice','sweet_candy','minecraft:cookie','custard_pudding','food_bowl','waterer','yukkuri_toilet']),
-          (4,['straw_nest','yukkuri_nest','velvet_nest','yukkuri_carrier','wash_cloth','mold_remover','pet_harness','companion_cord','swaddle_cloth'])]
+          (4,['straw_nest','yukkuri_nest','velvet_nest','yukkuri_carrier','wash_cloth','mold_remover','companion_cord','swaddle_cloth'])]
     for y,items in rows:
         for x,item in zip(range(7,17),items): frame(b,x,y,16,item)
     # Side-wall frames stop a cell short of the back wall, so each hangs on exactly one wall.

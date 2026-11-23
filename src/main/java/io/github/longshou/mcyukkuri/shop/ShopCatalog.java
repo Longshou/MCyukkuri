@@ -63,13 +63,12 @@ public final class ShopCatalog {
         good("patchouli_bonnet", 2, () -> new ItemStack(ModItems.PATCHOULI_BONNET.get()), 4, 2, 1, 0),
         good("spyglass", 3, () -> new ItemStack(Items.SPYGLASS), 3, 2, 1, 0),
         good("companion_cord", 4, () -> new ItemStack(ModItems.COMPANION_CORD.get()), 4, 2, 1, 0),
-        // added with the closed care loop: sweets, harness and swaddle, and the soft hats of the predator species (a lost hat could never be replaced)
+        // added with the closed care loop: sweets, the swaddle and the soft hats of the predator species (a lost hat could never be replaced)
         good("sweet_candy", 0, () -> new ItemStack(ModItems.SWEET_CANDY.get(), 6), 1, 8, 4, 0),
         good("cookie", 0, () -> new ItemStack(Items.COOKIE, 4), 2, 6, 3, 0),
         good("custard_pudding", 0, () -> new ItemStack(ModItems.CUSTARD_PUDDING.get()), 3, 3, 1, 2),
         good("remilia_bonnet", 2, () -> new ItemStack(ModItems.REMILIA_BONNET.get()), 4, 2, 1, 0),
         good("flandre_bonnet", 2, () -> new ItemStack(ModItems.FLANDRE_BONNET.get()), 4, 2, 1, 0),
-        good("pet_harness", 3, () -> new ItemStack(ModItems.PET_HARNESS.get()), 5, 3, 1, 1),
         good("swaddle_cloth", 4, () -> new ItemStack(ModItems.SWADDLE_CLOTH.get()), 3, 3, 1, 0),
         // The other real toys (life/Facilities): cheap rolling marbles up to the plush dolls, which need a bronze badge in the buyer's keeping.
         good("glass_marble", 2, () -> new ItemStack(Facilities.ITEMS.get("glass_marble").get()), 1, 6, 3, 0),

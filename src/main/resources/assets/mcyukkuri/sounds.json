@@ -11915,15 +11915,6 @@
       }
     ]
   },
-  "voice.original.reimu.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.reimu.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_harness_tug",
     "sounds": [
@@ -12055,15 +12046,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/reimu.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -12203,15 +12185,6 @@
       }
     ]
   },
-  "voice.original.marisa.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.marisa.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_harness_tug",
     "sounds": [
@@ -12343,15 +12316,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -12491,15 +12455,6 @@
       }
     ]
   },
-  "voice.original.alice.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.alice.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_harness_tug",
     "sounds": [
@@ -12631,15 +12586,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/alice.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -12779,15 +12725,6 @@
       }
     ]
   },
-  "voice.original.chen.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.chen.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_harness_tug",
     "sounds": [
@@ -12919,15 +12856,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/chen.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -13067,15 +12995,6 @@
       }
     ]
   },
-  "voice.original.patchouli.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.patchouli.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_tug",
     "sounds": [
@@ -13207,15 +13126,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/patchouli.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -13355,15 +13265,6 @@
       }
     ]
   },
-  "voice.original.remilia.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.remilia.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_harness_tug",
     "sounds": [
@@ -13495,15 +13396,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -13643,15 +13535,6 @@
       }
     ]
   },
-  "voice.original.flandre.adult.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.flandre.adult.o_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_harness_tug",
     "sounds": [
@@ -13783,15 +13666,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.young.o_mood_bad",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_harness_on",
         "attenuation_distance": 16
       }
     ]
@@ -44252,24 +44126,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.miyo.adult.s_harness_tug": {
     "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_harness_tug",
     "sounds": [
@@ -47200,24 +47056,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.young.s_grown",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_harness_on",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_harness_on": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_harness_on",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_harness_on",
         "attenuation_distance": 16
       }
     ]

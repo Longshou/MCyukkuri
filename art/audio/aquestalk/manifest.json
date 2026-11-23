@@ -21523,30 +21523,6 @@
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "myon.kinbao.young.s_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "ちーんぽ！ ぴったり！ おしゃんぽ いけりゅ！",
-      "phonetics": "ちーんぽ。/ぴったり。/おしゃんぽ/いけりゅ。",
-      "speech_input": "ちーんぽ！ ぴったり！ おしゃんぽ いけりゅ！",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 95,
-        "pitch": 125
-      },
-      "source_sha256": "fbd6fa78ac4edcb572dd0c2bc91c50f1929d6c2e5eaaaa9b476233095d7ce08e",
-      "ogg": "art/audio/aquestalk/ogg/myon.kinbao.young.s_harness_on.ogg",
-      "sha256": "5bf62d12eacca6e34a2df7b295384c36bf364737c5cd744b1eef5a755366d88f",
-      "master": ".local/aquestalk-masters/myon.kinbao.young.s_harness_on.wav",
-      "master_sha256": "504f96dd0eeb632e7143b529bfc927c481e2f38aaeb403721591aa19b1ef1e40",
-      "duration_seconds": 2.8945,
-      "gain": 0.8255923220084106,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "marisa.juvenile.v1_addr_human_owner": {
       "engine": "AquesTalk1",
       "japanese": "かいぬししゃん！ まりちゃ、うれちい！",
@@ -23191,30 +23167,6 @@
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "reimu.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おさんぽ！ もう いけるよ？",
-      "phonetics": "おさんぽ。/もう/いけるよ?",
-      "speech_input": "おさんぽ！ もう いけるよ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 100,
-        "pitch": 100
-      },
-      "source_sha256": "6cdc6c3f2fa408285c55f17052dfd7110ea04cf441c1ad045fe01291a3f0a4ef",
-      "ogg": "art/audio/aquestalk/ogg/reimu.adult.o_harness_on.ogg",
-      "sha256": "d8c4b53b809b413dbfe9723412f7c3e9ca777501e4e7d860ea540c910066cf01",
-      "master": ".local/aquestalk-masters/reimu.adult.o_harness_on.wav",
-      "master_sha256": "31cf86596d99bbeae40d3c5d960054033c9463fa247f3c4b6f7de093a1175b66",
-      "duration_seconds": 2.0845,
-      "gain": 0.7726840990900615,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "reimu.juvenile.s_narrate_steal": {
       "engine": "AquesTalk1",
       "japanese": "ごはんしゃん……こっそり つれちぇいくにぇ……",
@@ -23558,30 +23510,6 @@
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "chen.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おさんぽ！ もう いけるよー？",
-      "phonetics": "おさんぽ。/もう/いけるよー?",
-      "speech_input": "おさんぽ！ もう いけるよー？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 110,
-        "pitch": 115
-      },
-      "source_sha256": "403664a1f622d459e11d5b1562f4750c1dabbfcc905eb3c4213e157b90e4026c",
-      "ogg": "art/audio/aquestalk/ogg/chen.adult.o_harness_on.ogg",
-      "sha256": "e3e35ccd89e19244a8f1ccca845029d986f2da87399479430fbd49b7d6e15592",
-      "master": ".local/aquestalk-masters/chen.adult.o_harness_on.wav",
-      "master_sha256": "47ba50331d7bc20934807e8bb3d3afab1375daacfb45d24686fe8cce4418543c",
-      "duration_seconds": 1.69346875,
-      "gain": 0.8077103440823074,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
     "chen.adult.o_ask_snack": {
@@ -23993,30 +23921,6 @@
       "master_sha256": "d576a9fe69882ebad0447da18cb3ba9d6e3a38122bc92c5cef5062e7e85533bd",
       "duration_seconds": 2.34978125,
       "gain": 0.7404736488565082,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "flandre.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "うー、おしゃんぽ！ いけりゅよぅ？",
-      "phonetics": "うー、おしゃんぽ。/いけりゅよー?",
-      "speech_input": "うー、おしゃんぽ！ いけりゅよぅ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 110,
-        "pitch": 145
-      },
-      "source_sha256": "cde55168890def3f7b2acfe9f8b181951f0848841458b104666c44a54eb44a91",
-      "ogg": "art/audio/aquestalk/ogg/flandre.young.o_harness_on.ogg",
-      "sha256": "dfac131b7c25fc56ad5a7d79cb7960442402e0514cce7a6e3e0d07188d32d89b",
-      "master": ".local/aquestalk-masters/flandre.young.o_harness_on.wav",
-      "master_sha256": "09f29acc9baa8e852f38e28c243b272301e488020f5adb8396184401420326a6",
-      "duration_seconds": 1.546375,
-      "gain": 0.9446920509575051,
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
@@ -25999,30 +25903,6 @@
       "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "flandre.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "うー、おさんぽ！ もう いけるよ？",
-      "phonetics": "うー、おさんぽ。/もう/いけるよ?",
-      "speech_input": "うー、おさんぽ！ もう いけるよ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 110,
-        "pitch": 120
-      },
-      "source_sha256": "f9bc75b9f9e6cd2721c634ad17c0dcec0f967093217519fd9f0e5f1cfde4d399",
-      "ogg": "art/audio/aquestalk/ogg/flandre.adult.o_harness_on.ogg",
-      "sha256": "0d482ccccb785455be8999aacc5c6d11fa9fe46839953a156af03ccd5ae4590c",
-      "master": ".local/aquestalk-masters/flandre.adult.o_harness_on.wav",
-      "master_sha256": "6468d3d05a16c2b5e4bbf0d160774993fcf6f240d745d59e0ece768e369ce161",
-      "duration_seconds": 2.25040625,
-      "gain": 0.8557256378918576,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "beg_chase.back.chen.young": {
       "engine": "AquesTalk1",
       "japanese": "まて！ かえしてよ！",
@@ -27173,30 +27053,6 @@
       "master_sha256": "ba15abb80e12df7769962e5b3fc61b8ded671629dd153bbe82655342e8f0c9e0",
       "duration_seconds": 6.095,
       "gain": 0.6716089672981155,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "remilia.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "うー、おさんぽ！ もう いけるのだ？",
-      "phonetics": "うー、おさんぽ。/もう/いけるのだ?",
-      "speech_input": "うー、おさんぽ！ もう いけるのだ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f2",
-        "speed": 90,
-        "pitch": 85
-      },
-      "source_sha256": "c40fd9c25a6cabc4bc2cb9eedfe3c10442fb9ab679961b4d019710c4a7fadedd",
-      "ogg": "art/audio/aquestalk/ogg/remilia.adult.o_harness_on.ogg",
-      "sha256": "fd4346c993bae9c452c849f5d58ff356753881d81e57d24c50184fd178b3d766",
-      "master": ".local/aquestalk-masters/remilia.adult.o_harness_on.wav",
-      "master_sha256": "0065a15582ac53227492e87237cb711201275fc7b9b09072bf0ece274fcfde9e",
-      "duration_seconds": 3.59471875,
-      "gain": 0.7367913411228705,
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502",
@@ -33076,30 +32932,6 @@
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "marisa.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おさんぽ！ もう いけるのぜ？",
-      "phonetics": "おさんぽ。/もう/いけるのぜ?",
-      "speech_input": "おさんぽ！ もう いけるのぜ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f2",
-        "speed": 100,
-        "pitch": 100
-      },
-      "source_sha256": "c5bc2034eab45adb24864b3ba1920f1bd86a9e25534b2227e1f34dcb2eb8bf2d",
-      "ogg": "art/audio/aquestalk/ogg/marisa.adult.o_harness_on.ogg",
-      "sha256": "bfaa1a94673f8b7ba873c97e306f93aad5ce14e04e2d61566b0727bf3403e589",
-      "master": ".local/aquestalk-masters/marisa.adult.o_harness_on.wav",
-      "master_sha256": "d95f3f943435c812525946af01fd81942a8370ed270f243b356b4d88ff814163",
-      "duration_seconds": 2.2545,
-      "gain": 0.6543921455800877,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "alice.juvenile.s_count_children_2": {
       "engine": "AquesTalk1",
       "japanese": "こどもは……ひとり、ふたり！",
@@ -33277,30 +33109,6 @@
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "myon.miyo.adult.s_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "みょん！ ぴったり！ おさんぽ、いける！",
-      "phonetics": "みょん。/ぴったり。/おさんぽ、いける。",
-      "speech_input": "みょん！ ぴったり！ おさんぽ、いける！",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 95,
-        "pitch": 100
-      },
-      "source_sha256": "b88070d296ae2f105755ecdb51bafe39139902d90a0130651609c3c0f069e596",
-      "ogg": "art/audio/aquestalk/ogg/myon.miyo.adult.s_harness_on.ogg",
-      "sha256": "bde21762ec98d3f8af0251f26b7fc7fca4c1f966f44536156f7d9383de13b884",
-      "master": ".local/aquestalk-masters/myon.miyo.adult.s_harness_on.wav",
-      "master_sha256": "3358797859132203996d238f81fe7aa8bf6a3010cff3451fce125d3de76bcfc4",
-      "duration_seconds": 3.313625,
-      "gain": 0.8241133774805297,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "myon.kinbao.young.s_birth": {
       "engine": "AquesTalk1",
       "japanese": "ちーんぽ！ うみゃれりゅ！",
@@ -33467,30 +33275,6 @@
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "patchouli.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "むきゅ。おしゃんぽ！ いけりゅわ？",
-      "phonetics": "むきゅ。おしゃんぽ。/いけりゅわ?",
-      "speech_input": "むきゅ。おしゃんぽ！ いけりゅわ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 85,
-        "pitch": 112
-      },
-      "source_sha256": "7b2ae8c84d82856179280a930165193d4c8c7954254b2814c3bba02b1cffe4d8",
-      "ogg": "art/audio/aquestalk/ogg/patchouli.young.o_harness_on.ogg",
-      "sha256": "9fb94a6dccf98d0d9e68eed994a53368d04dd73c3daa0706c6a925e9bc0eeb57",
-      "master": ".local/aquestalk-masters/patchouli.young.o_harness_on.wav",
-      "master_sha256": "593f7e40f197e18527be4f66c8b4f02fd011d27f15865b67edba5872dc59a808",
-      "duration_seconds": 2.573875,
-      "gain": 0.7130448697292054,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
     "myon.kinbao.baby.s_airborne": {
@@ -33884,30 +33668,6 @@
       "master_sha256": "2d32b802feb7a91925e2d98054f7b0afd04102825e6c98d1dc7d804c9a2f3e76",
       "duration_seconds": 5.331875,
       "gain": 0.6897701466084979,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "patchouli.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "むきゅ。おさんぽ！ もう いけるわ？",
-      "phonetics": "むきゅ。おさんぽ。/もう/いけるわ?",
-      "speech_input": "むきゅ。おさんぽ！ もう いけるわ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 85,
-        "pitch": 90
-      },
-      "source_sha256": "9acc17185e42c205c3294b33a62318c9429f7d0dead15c18121523bc2d318872",
-      "ogg": "art/audio/aquestalk/ogg/patchouli.adult.o_harness_on.ogg",
-      "sha256": "329137080010ae1ebce2ac6645de0439613da378fd71dc4ec72cb3d38ec6645d",
-      "master": ".local/aquestalk-masters/patchouli.adult.o_harness_on.wav",
-      "master_sha256": "d4a8cab8dbfdb57f721f45a5154f625910e2be4520bf8bce5d9fba571461d213",
-      "duration_seconds": 3.9255625,
-      "gain": 0.7338832909070372,
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
@@ -37981,30 +37741,6 @@
       "species": "myon",
       "age": "young"
     },
-    "alice.adult.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おさんぽ！ もう いけるわ？",
-      "phonetics": "おさんぽ。/もう/いけるわ?",
-      "speech_input": "おさんぽ！ もう いけるわ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 100,
-        "pitch": 105
-      },
-      "source_sha256": "e835fc4323dd2c51a1c319114d3086e5762ded2dddbef4a92c1dfba313dd3188",
-      "ogg": "art/audio/aquestalk/ogg/alice.adult.o_harness_on.ogg",
-      "sha256": "a5a56abb88b154c28cb52923647d09bb50d4091ca37fa0f5cf051ce4533ecf2d",
-      "master": ".local/aquestalk-masters/alice.adult.o_harness_on.wav",
-      "master_sha256": "2e861c9cc1099f52006ccd3c0c2f5354fcf9ced2007a8c0e3036cc286fa9c84d",
-      "duration_seconds": 2.19953125,
-      "gain": 0.715452458804078,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "myon.miyo.adult.s_count_food_1": {
       "engine": "AquesTalk1",
       "japanese": "みょん！ごはんさんは……ひとつ！",
@@ -38604,30 +38340,6 @@
       "shared_id": "sulk_huff.hmph",
       "species": "myon",
       "age": "young"
-    },
-    "marisa.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おしゃんぽ！ いけりゅのじぇ？",
-      "phonetics": "おしゃんぽ。/いけりゅのじぇ?",
-      "speech_input": "おしゃんぽ！ いけりゅのじぇ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f2",
-        "speed": 100,
-        "pitch": 125
-      },
-      "source_sha256": "76ffcba3e13a907c46ed8b125dd1fd72a3bab810c47e7492e4b069aec7d62c87",
-      "ogg": "art/audio/aquestalk/ogg/marisa.young.o_harness_on.ogg",
-      "sha256": "161037fe2635fa7a063ec0f0927a84cabb48566e30cd62641d430edd92cc4216",
-      "master": ".local/aquestalk-masters/marisa.young.o_harness_on.wav",
-      "master_sha256": "4a34e933bb3af8d47973347a392780754c2970678734cc4f6a436edd15bb4c96",
-      "duration_seconds": 1.36559375,
-      "gain": 0.7966982098218227,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
     "flandre.baby.v3_fed": {
       "engine": "AquesTalk1",
@@ -39394,30 +39106,6 @@
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "alice.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おしゃんぽ！ いけりゅわ？",
-      "phonetics": "おしゃんぽ。/いけりゅわ?",
-      "speech_input": "おしゃんぽ！ いけりゅわ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 100,
-        "pitch": 131
-      },
-      "source_sha256": "baf3377fd8b338731d46220dd0cb5e667088a461a3ebcef3fdb8b15e7c1d54d5",
-      "ogg": "art/audio/aquestalk/ogg/alice.young.o_harness_on.ogg",
-      "sha256": "cc8f18ddca8c1cf00dba9ae38ffaeec028b79dd1de7d0ab4160cecdeb44b4dc6",
-      "master": ".local/aquestalk-masters/alice.young.o_harness_on.wav",
-      "master_sha256": "5294d96129a92e5071d9627dda87c47a53f740c78bbc0bddc2423c4c3b4f1c83",
-      "duration_seconds": 1.27253125,
-      "gain": 0.7264384055544111,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "chen.young.o_ask_snack": {
       "engine": "AquesTalk1",
       "japanese": "あみゃあみゃ ほちいよー！ ちょうらいー！",
@@ -39850,54 +39538,6 @@
       "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
       "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
-    "remilia.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "うー、おしゃんぽ！ いけりゅのだ？",
-      "phonetics": "うー、おしゃんぽ。/いけりゅのだ?",
-      "speech_input": "うー、おしゃんぽ！ いけりゅのだ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f2",
-        "speed": 90,
-        "pitch": 110
-      },
-      "source_sha256": "c55bc8e5981624a830c9ca72a6e4d67a430a6f64ae8239ab93c467b3b616b579",
-      "ogg": "art/audio/aquestalk/ogg/remilia.young.o_harness_on.ogg",
-      "sha256": "75eb75cfe9d0e9c4f51b0009912b72d4950d0d62a0c5ddf0632b48e9f2741dda",
-      "master": ".local/aquestalk-masters/remilia.young.o_harness_on.wav",
-      "master_sha256": "526eb8b16b757cc790db2b8cf8aafcbd718ea4e01a87a989d6221cf1c3c1a8dc",
-      "duration_seconds": 2.2206875,
-      "gain": 0.7332957839723521,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "d6dcaaf360434f81af90be96d7bdb2a3b0852ee5d5e7eadd04fb5e96d43be502",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "reimu.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おしゃんぽ！ いけりゅよぉ？",
-      "phonetics": "おしゃんぽ。/いけりゅよー?",
-      "speech_input": "おしゃんぽ！ いけりゅよぉ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 100,
-        "pitch": 125
-      },
-      "source_sha256": "dfa9adf1d910f3abb23eaf61b1196bbc3bc885805fb4edb6b69e8d84013f96d0",
-      "ogg": "art/audio/aquestalk/ogg/reimu.young.o_harness_on.ogg",
-      "sha256": "fefd84e6def9b05edbe8eab190910cd2cdf858112515f80fecade5d7a5a7beae",
-      "master": ".local/aquestalk-masters/reimu.young.o_harness_on.wav",
-      "master_sha256": "2d20b68eb8d8f819ce20ffdc03216900b324e0197052b7061b068f923baffa65",
-      "duration_seconds": 1.28159375,
-      "gain": 0.8302418911759967,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
     "farewell_bless.take_it_easy.myon.young": {
       "engine": "AquesTalk1",
       "japanese": "いってらっしゃい！ ゆっくりしていってね！",
@@ -40094,30 +39734,6 @@
       "master_sha256": "26223fa570186b38f576dac2d090a640e1df789528a5f9361c82481b75779939",
       "duration_seconds": 2.216875,
       "gain": 0.8898170080116703,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "chen.young.o_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "おしゃんぽ！ いけりゅよぅ？",
-      "phonetics": "おしゃんぽ。/いけりゅよー?",
-      "speech_input": "おしゃんぽ！ いけりゅよぅ？",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f1",
-        "speed": 110,
-        "pitch": 144
-      },
-      "source_sha256": "d3d4f34dc13c800ed46c16a9ec1a748102184d19bfade63ab9fc3e8af19b3005",
-      "ogg": "art/audio/aquestalk/ogg/chen.young.o_harness_on.ogg",
-      "sha256": "3e8ce861f0d5fcc7dfd6617a97272dd87f2866212c76f157f1a55367e793e4b5",
-      "master": ".local/aquestalk-masters/chen.young.o_harness_on.wav",
-      "master_sha256": "f232a88f5ef319b08edc8688dfa14d7c525222bc0c3c9216ce7a0304d073245c",
-      "duration_seconds": 1.0045,
-      "gain": 0.8342141673176715,
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "7511221fce3fbd19dcda6bc39edc431375129456c3308932a107c63fb8e2288c",
@@ -43092,30 +42708,6 @@
       "shared_id": "shaken_check.gone",
       "species": "flandre",
       "age": "adult"
-    },
-    "myon.miyo.young.s_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "みょん！ ぴったり！ おしゃんぽ いけりゅ！",
-      "phonetics": "みょん。/ぴったり。/おしゃんぽ/いけりゅ。",
-      "speech_input": "みょん！ ぴったり！ おしゃんぽ いけりゅ！",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 95,
-        "pitch": 125
-      },
-      "source_sha256": "a0e095dce05233d50b6c7716eb86a655cf5e949eb4f5e4842686bc15f0101d58",
-      "ogg": "art/audio/aquestalk/ogg/myon.miyo.young.s_harness_on.ogg",
-      "sha256": "f4cff71123beafd65c24cdc01fc916e2c5cf315392c55cc5a45e29c398fdad7f",
-      "master": ".local/aquestalk-masters/myon.miyo.young.s_harness_on.wav",
-      "master_sha256": "60379b412ca74a69c365fe0224ee4e4aa0085d80ad24b9cc3a8b8e926076f28c",
-      "duration_seconds": 2.6886875,
-      "gain": 0.8244012919452198,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
     },
     "flandre.baby.s_nuzzle": {
       "engine": "AquesTalk1",
@@ -161393,30 +160985,6 @@
       "master_sha256": "b703849bde08677a178efb3e14c9ac7452026ec57588f0fb8327645f63c4a07e",
       "duration_seconds": 1.55815625,
       "gain": 0.7261693876185491,
-      "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
-      "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
-      "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",
-      "recipe_sha256": "521963021da6a0f0c37e201ca17d9e0e2f6b0077e0e34e0b58a62825a4d70cbb"
-    },
-    "myon.kinbao.adult.s_harness_on": {
-      "engine": "AquesTalk1",
-      "japanese": "ちーんぽ！ ぴったり！ おさんぽ、いける！",
-      "phonetics": "ちーんぽ。/ぴったり。/おさんぽ、いける。",
-      "speech_input": "ちーんぽ！ ぴったり！ おさんぽ、いける！",
-      "input_mode": "raw",
-      "origin": "project-original",
-      "profile": {
-        "voice": "f3",
-        "speed": 95,
-        "pitch": 100
-      },
-      "source_sha256": "0deea7e2c0c515e404e1f63e772ee5e6807c808245c5fc6d3ec51d44dd333b53",
-      "ogg": "art/audio/aquestalk/ogg/myon.kinbao.adult.s_harness_on.ogg",
-      "sha256": "ad93a0d6dc16759824c88ed2e7aee88f276a19ca65a28da39430cac41981d772",
-      "master": ".local/aquestalk-masters/myon.kinbao.adult.s_harness_on.wav",
-      "master_sha256": "bb6e0f92e3c503c68654333f72e85a7dcc06ebc5c5d2b23f78d0980040a4f0c6",
-      "duration_seconds": 3.570875,
-      "gain": 0.8241133774805297,
       "player_sha256": "a0d74faa10cc591dde2157b7afdec90c37b36c49effa07d6b17b1043fd97d9ac",
       "preset_sha256": "c37c6cbdc9f0bb56e6c2b4c30c7dbebe890e705e99467d15bb90278171428f98",
       "engine_sha256": "8e11ea034d4111800da11292dd8194eb234e09137c4f220931ee5b309c4183e9",

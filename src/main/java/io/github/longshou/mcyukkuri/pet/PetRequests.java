@@ -99,7 +99,7 @@ public final class PetRequests {
                 && pet.care().snacksToday() < Sweets.DAILY_FREE) return Kind.SNACK;
         if (ready(Kind.WALK) && daily.boredom() >= 50 && level().isDay() && !level().isRaining()
                 && animal.family().adult() && !animal.isLeashed()
-                && (pet.care().harnessed() || ownerHas(owner, new ItemStack(Items.LEAD)))) return Kind.WALK;
+                && ownerHas(owner, new ItemStack(Items.LEAD))) return Kind.WALK;
         return null;
     }
     private boolean ready(Kind kind) { return (expiredNeeds & 1 << kind.ordinal()) == 0; }
@@ -248,7 +248,7 @@ public final class PetRequests {
         resolve(Closure.GIVEN, "own");
         return ownerFed;
     }
-    /** The owner walked the pet on its harness for this many blocks. */
+    /** The owner walked the pet on the lead for this many blocks. */
     public void walked(double metres) { if (pending == Kind.WALK) walked += metres; }
 
     /** How a request ended. Only the owner's own answer (given, or perceived being done) is credited to the owner. */

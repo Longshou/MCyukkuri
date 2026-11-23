@@ -1,10 +1,10 @@
-"""Pet-care shop goods drawn as 16x16 item icons: sweet candy, custard pudding, pet harness and the eight swaddle cloth styles.
+"""Pet-care shop goods drawn as 16x16 item icons: sweet candy, custard pudding and the eight swaddle cloth styles.
 
 These items use the plain item/generated sprite path (no PropItemRenderer registration), which is also what the mouth slot draws
 for them, so the icon is the single art for GUI, hand, ground and mouth; the swaddle cloth's item model picks the style's icon
 through its swaddle_style override. Colours come only from art/props/palette.json (4 steps per material, dark to light), except
 the swaddle cloth, which is drawn like supplies.py with local hue-shifted ramps (outline = darkest step of its own material); light
-falls from the top left, contact edges take the darkest step of their own material, no black outline. The on-body harness and
+falls from the top left, contact edges take the darkest step of their own material, no black outline. The on-body
 swaddle shells are drawn procedurally by client/CareWearRenderer (see README).
 """
 import io, json
@@ -101,35 +101,6 @@ def custard_pudding():
             'y': ('gold', 3), 'u': ('gold', 2), 'v': ('gold', 1), 'w': ('gold', 0),
             'h': ('chili', 3), 'R': ('chili', 2), 'r': ('chili', 1), 'd': ('chili', 0), 'k': ('leaf', 2),
             'D': ('ceramic', 3), 'C': ('ceramic', 2), 'E': ('ceramic', 1), 'F': ('ceramic', 0)}, PUDDING)
-    return i
-
-
-# ---- pet_harness: a flattened mint band loop with a stitched edge, a brass buckle, a small D-ring and a short lead with a clip ---------
-HARNESS = [
-    "............GGgf",
-    "............G..f",
-    "...........bgfee",
-    "..........b.....",
-    ".....GGggfa.....",
-    ".....G...f......",
-    "....nffeefkk....",
-    "..nmmmmmmmmmkj..",
-    ".nmkkkkkkkkkkkj.",
-    "nm............kj",
-    "nm............kj",
-    ".nmmm......mmkj.",
-    "..nmnmnmmGggkj..",
-    "...mmmmmmgkfkj..",
-    "....kkkkkkjj....",
-    "................",
-]
-
-
-def pet_harness():
-    i = Icon('pet_harness')
-    i.rows({'n': ('mint', 3), 'm': ('mint', 2), 'k': ('mint', 1), 'j': ('mint', 0),
-            'G': ('gold', 3), 'g': ('gold', 2), 'f': ('gold', 1), 'e': ('gold', 0),
-            'b': ('berry', 2), 'a': ('berry', 1)}, HARNESS)
     return i
 
 
@@ -272,5 +243,5 @@ def swaddle_icon(style):
 
 
 SWADDLE_STYLES = ('knit', 'frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral')
-GOODS = {'sweet_candy': sweet_candy, 'custard_pudding': custard_pudding, 'pet_harness': pet_harness,
+GOODS = {'sweet_candy': sweet_candy, 'custard_pudding': custard_pudding,
          **{('swaddle_cloth' if s == 'knit' else f'swaddle_cloth_{s}'): (lambda s=s: swaddle_icon(s)) for s in SWADDLE_STYLES}}

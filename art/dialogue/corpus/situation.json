@@ -141,7 +141,6 @@
     {"id":"food_found","event":"food_found","zh":"发现食物","ja":"食事を発見","en":"Food found","basis":["P"],"status":"ready","axis_refs":["common.food_san"]},
     {"id":"gentle","event":"gentle","zh":"温柔互动","ja":"優しい接触","en":"Gentle interaction","basis":["P"],"status":"rule","axis_refs":["common.nuzzle","common.lick_lick"]},
     {"id":"grown","event":"grown","zh":"成长","ja":"成長","en":"Grown","basis":["P"],"status":"rule","axis_refs":["stage.adult_may_keep_baby_talk","stage.stage_not_body_size"]},
-    {"id":"harness_on","event":"harness_on","zh":"系上胸带","ja":"ハーネスをつける","en":"Harness on","basis":["P"],"status":"candidate"},
     {"id":"harness_tug","event":"harness_tug","zh":"牵绳绷紧时表示不愿跟上","ja":"リードが張り、ついて行きたがらない","en":"Resist following on a taut lead","basis":["P"],"status":"candidate"},
     {"id":"hat_drifting","event":"hat_drifting","zh":"头饰漂走","ja":"飾物が流される","en":"Hat drifting away","basis":["P"],"status":"candidate","axis_refs":["common.accessory_san"]},
     {"id":"hat_out_of_reach","event":"hat_out_of_reach","zh":"头饰够不到","ja":"飾物に届かない","en":"Hat out of reach","basis":["P"],"status":"candidate","axis_refs":["common.accessory_san"]},

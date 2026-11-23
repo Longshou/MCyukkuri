@@ -11,7 +11,7 @@ import net.minecraft.server.level.ServerLevel;
 
 /**
  * A resident out walking its own pet on the lead (docs/FEATURES.md). The pet is an ordinary companion owned by the resident
- * (custody Owner = the resident, Use = companion, harness on), so the pet systems treat it as any owner's pet: the lead needs the harness, and the walk
+ * (custody Owner = the resident, Use = companion), so the pet systems treat it as any owner's pet: the lead is a plain vanilla lead, and the walk
  * counts blocks in {@code PetWalk} exactly as it does for a player (boredom, affection, stress, energy; the pet follows through the vanilla lead).
  *
  * An explicit walker request uses vanilla close following. Street outings use the resident's street stroll and the pet's own following goal.
@@ -33,10 +33,9 @@ final class HumanWalk {
     YukkuriEntity pet() {
         return petId != null && npc.level() instanceof ServerLevel level && level.getEntity(petId) instanceof YukkuriEntity y && y.isAlive() ? y : null;
     }
-    /** The resident takes the individual as its own companion and fits the harness. */
+    /** The resident takes the individual as its own companion; a change of owner strips worn gear. */
     void adopt(YukkuriEntity pet) {
-        Custody.assign(pet, npc, Custody.Role.COMPANION); // first: a change of owner strips worn gear
-        pet.pet().care().fitHarnessFor(npc.getUUID());
+        Custody.assign(pet, npc, Custody.Role.COMPANION);
     }
     private boolean fair() {
         return npc.level().isDay() && !npc.level().isRaining() && !npc.resting() && !npc.isTrading() && npc.isAlive();

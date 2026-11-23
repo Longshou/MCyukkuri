@@ -22015,23 +22015,6 @@
       "source_sha256": "de492ec5946160d61134121396368f32f4935274caeffeee816c6bb8ee0374b9"
     },
     {
-      "id": "reimu.adult.o_harness_on",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おさんぽ！ もう いけるよ？",
-      "chinese": "要散步啦！能走了哟？",
-      "english": "A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_harness_on"
-      },
-      "source_sha256": "6cdc6c3f2fa408285c55f17052dfd7110ea04cf441c1ad045fe01291a3f0a4ef"
-    },
-    {
       "id": "reimu.adult.o_harness_tug",
       "species": "reimu",
       "age": "adult",
@@ -22285,23 +22268,6 @@
         "id": "reimu.young.o_mood_bad"
       },
       "source_sha256": "476f3c870a924cdb182a437677d2691087b854c6301c993ffdd6aba5d77b939a"
-    },
-    {
-      "id": "reimu.young.o_harness_on",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おしゃんぽ！ いけりゅよぉ？",
-      "chinese": "散步！能走惹哟？",
-      "english": "Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_harness_on"
-      },
-      "source_sha256": "dfa9adf1d910f3abb23eaf61b1196bbc3bc885805fb4edb6b69e8d84013f96d0"
     },
     {
       "id": "reimu.young.o_harness_tug",
@@ -22559,23 +22525,6 @@
       "source_sha256": "ee13db3c1e30b355ccce63e97295a8870e009de2022c336bba6dda9de28bbab9"
     },
     {
-      "id": "marisa.adult.o_harness_on",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おさんぽ！ もう いけるのぜ？",
-      "chinese": "要散步啦！能走了贼？",
-      "english": "A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_harness_on"
-      },
-      "source_sha256": "c5bc2034eab45adb24864b3ba1920f1bd86a9e25534b2227e1f34dcb2eb8bf2d"
-    },
-    {
       "id": "marisa.adult.o_harness_tug",
       "species": "marisa",
       "age": "adult",
@@ -22829,23 +22778,6 @@
         "id": "marisa.young.o_mood_bad"
       },
       "source_sha256": "7c0b59c0a60724f11fce3a5724c62e2f9658ba0334cfb8d0ab3eba2318a69d9b"
-    },
-    {
-      "id": "marisa.young.o_harness_on",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おしゃんぽ！ いけりゅのじぇ？",
-      "chinese": "散步！能走惹杰？",
-      "english": "Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_harness_on"
-      },
-      "source_sha256": "76ffcba3e13a907c46ed8b125dd1fd72a3bab810c47e7492e4b069aec7d62c87"
     },
     {
       "id": "marisa.young.o_harness_tug",
@@ -23103,23 +23035,6 @@
       "source_sha256": "105c621539f8ec8cc1840d361f214667c0d9e1205e93add086910bc3a43a2632"
     },
     {
-      "id": "alice.adult.o_harness_on",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おさんぽ！ もう いけるわ？",
-      "chinese": "要散步啦！能走了哇？",
-      "english": "A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_harness_on"
-      },
-      "source_sha256": "e835fc4323dd2c51a1c319114d3086e5762ded2dddbef4a92c1dfba313dd3188"
-    },
-    {
       "id": "alice.adult.o_harness_tug",
       "species": "alice",
       "age": "adult",
@@ -23373,23 +23288,6 @@
         "id": "alice.young.o_mood_bad"
       },
       "source_sha256": "10d7841b44964a50cbbd9b534f7f20e75ba28147ba5aa058f598240d729f3b82"
-    },
-    {
-      "id": "alice.young.o_harness_on",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おしゃんぽ！ いけりゅわ？",
-      "chinese": "散步！能走惹哇？",
-      "english": "Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_harness_on"
-      },
-      "source_sha256": "baf3377fd8b338731d46220dd0cb5e667088a461a3ebcef3fdb8b15e7c1d54d5"
     },
     {
       "id": "alice.young.o_harness_tug",
@@ -23647,23 +23545,6 @@
       "source_sha256": "e91b13315c442d8be05df4ffb306e3a1c11dc0a4f0554d36ba6d00f28e805b32"
     },
     {
-      "id": "chen.adult.o_harness_on",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おさんぽ！ もう いけるよー？",
-      "chinese": "要散步啦！能走了哟——？",
-      "english": "A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_harness_on"
-      },
-      "source_sha256": "403664a1f622d459e11d5b1562f4750c1dabbfcc905eb3c4213e157b90e4026c"
-    },
-    {
       "id": "chen.adult.o_harness_tug",
       "species": "chen",
       "age": "adult",
@@ -23917,23 +23798,6 @@
         "id": "chen.young.o_mood_bad"
       },
       "source_sha256": "374b45fe99718ab350c12ec9e5c8e88995d8b127a5832c46a23cda55fb54bde2"
-    },
-    {
-      "id": "chen.young.o_harness_on",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おしゃんぽ！ いけりゅよぅ？",
-      "chinese": "散步！能走惹哟——？",
-      "english": "Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_harness_on"
-      },
-      "source_sha256": "d3d4f34dc13c800ed46c16a9ec1a748102184d19bfade63ab9fc3e8af19b3005"
     },
     {
       "id": "chen.young.o_harness_tug",
@@ -24191,23 +24055,6 @@
       "source_sha256": "9c74035c804ab38843685588849fa4710b6af18921baff1822fd4f5da9481902"
     },
     {
-      "id": "patchouli.adult.o_harness_on",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おさんぽ！ もう いけるわ？",
-      "chinese": "姆啾。要散步啦！能走了哇？",
-      "english": "Mukyu. A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_harness_on"
-      },
-      "source_sha256": "9acc17185e42c205c3294b33a62318c9429f7d0dead15c18121523bc2d318872"
-    },
-    {
       "id": "patchouli.adult.o_harness_tug",
       "species": "patchouli",
       "age": "adult",
@@ -24461,23 +24308,6 @@
         "id": "patchouli.young.o_mood_bad"
       },
       "source_sha256": "655815964838694f3732816e95101fc86336bc65f1e7bf08d0076dea9c5304da"
-    },
-    {
-      "id": "patchouli.young.o_harness_on",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おしゃんぽ！ いけりゅわ？",
-      "chinese": "姆啾。散步！能走惹哇？",
-      "english": "Mukyu. Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_harness_on"
-      },
-      "source_sha256": "7b2ae8c84d82856179280a930165193d4c8c7954254b2814c3bba02b1cffe4d8"
     },
     {
       "id": "patchouli.young.o_harness_tug",
@@ -24735,23 +24565,6 @@
       "source_sha256": "732e4975074dc37080f1afb1c48f9355ca9de9f896a54069616704ed1e096805"
     },
     {
-      "id": "remilia.adult.o_harness_on",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おさんぽ！ もう いけるのだ？",
-      "chinese": "呜——要散步啦！能走了呀？",
-      "english": "Uu... A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_harness_on"
-      },
-      "source_sha256": "c40fd9c25a6cabc4bc2cb9eedfe3c10442fb9ab679961b4d019710c4a7fadedd"
-    },
-    {
       "id": "remilia.adult.o_harness_tug",
       "species": "remilia",
       "age": "adult",
@@ -25005,23 +24818,6 @@
         "id": "remilia.young.o_mood_bad"
       },
       "source_sha256": "298afe7588f02d2582e32e35224d31e056fceacb33f881860ac7d2060d06e035"
-    },
-    {
-      "id": "remilia.young.o_harness_on",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おしゃんぽ！ いけりゅのだ？",
-      "chinese": "呜——散步！能走惹呀？",
-      "english": "Uu... Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_harness_on"
-      },
-      "source_sha256": "c55bc8e5981624a830c9ca72a6e4d67a430a6f64ae8239ab93c467b3b616b579"
     },
     {
       "id": "remilia.young.o_harness_tug",
@@ -25279,23 +25075,6 @@
       "source_sha256": "84ba866ecdf6cb3aef8a846d94fcdfeb8637e2c7d91caabc17182c0f48de05ed"
     },
     {
-      "id": "flandre.adult.o_harness_on",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おさんぽ！ もう いけるよ？",
-      "chinese": "呜——要散步啦！能走了哦？",
-      "english": "Uu... A walk! Can we go now?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_harness_on"
-      },
-      "source_sha256": "f9bc75b9f9e6cd2721c634ad17c0dcec0f967093217519fd9f0e5f1cfde4d399"
-    },
-    {
       "id": "flandre.adult.o_harness_tug",
       "species": "flandre",
       "age": "adult",
@@ -25549,23 +25328,6 @@
         "id": "flandre.young.o_mood_bad"
       },
       "source_sha256": "973dbc88772b7f53928248e2bcf5f22d955f9970d866a23b015ca20a0a23b118"
-    },
-    {
-      "id": "flandre.young.o_harness_on",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おしゃんぽ！ いけりゅよぅ？",
-      "chinese": "呜——散步！能走惹哟？",
-      "english": "Uu... Walkies! Can we go?",
-      "events": [
-        "harness_on"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_harness_on"
-      },
-      "source_sha256": "cde55168890def3f7b2acfe9f8b181951f0848841458b104666c44a54eb44a91"
     },
     {
       "id": "flandre.young.o_harness_tug",

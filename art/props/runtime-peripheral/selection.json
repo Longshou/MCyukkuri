@@ -109,11 +109,6 @@
       "sha256": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
       "generator": "standards/yukkuri-library/drafts/care-props/build.py"
     },
-    "generated:art/props/pet-goods/pet_harness.png": {
-      "snapshot": "art/props/pet-goods/pet_harness.png",
-      "sha256": "52053963719cc8df8eb990a119256efb71b58ef0edff2224fad589d6f030ffcc",
-      "generator": "standards/yukkuri-library/drafts/care-props/build.py"
-    },
     "generated:art/props/pet-goods/swaddle_cloth.png": {
       "snapshot": "art/props/pet-goods/swaddle_cloth.png",
       "sha256": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",

@@ -178,9 +178,6 @@ LINES = {
     'grown': {
         'adult': ("{t}！ おおきく なった！ みて、みて！", "{t}！妖梦长大啦！看、快看！", "{t}! I'm bigger! Look, look!"),
         'young': ('{t}！ おっきくにゃった！', '{t}！长大惹！', '{t}! I gwew!')},
-    'harness_on': {
-        'adult': ('{t}！ ぴったり！ おさんぽ、いける！', '{t}！刚刚好！能去散步了！', '{t}! Perfect fit! Walk time!'),
-        'young': ('{t}！ ぴったり！ おしゃんぽ いけりゅ！', '{t}！刚刚好！能去散步惹！', '{t}! Fits! Walkies!')},
     'harness_tug': {
         'adult': ('いまは、あるきたくない……{t}。まって。', '现在不想走……{t}。等一下。', "Don't want to walk now... {t}. Wait."),
         'young': ('いまは、あるきたくにゃい……{t}。まっちぇ。', '现在不想走……{t}。等等嘛。', "Don't wanna walk... {t}. Wait.")},

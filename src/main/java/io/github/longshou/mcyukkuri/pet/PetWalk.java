@@ -1,22 +1,26 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Entity;
+import java.util.UUID;
 
 /**
- * A walk on the harness (docs/FEATURES.md): while the pet is leashed to its own owner, the owner's horizontal travel adds up
+ * A walk on the lead (docs/FEATURES.md): while the pet is leashed to its own owner, the owner's horizontal travel adds up
  * and the pet's actual travel add up by their smaller distance (teleports, vehicles and elytra flight do not count). Every 64 blocks is one walk unit, at most 4 units a game day take effect: boredom,
  * the need for affection, stress, energy and a little nutrition change. Everything is counted in blocks moved, never in frames.
  * {@link #walking(YukkuriEntity)} is the hook for encounters: a pet on a walk passing wild yukkuri is a natural poise practice.
+ * An unowned individual on a player's lead is not walked for its own good; it answers the pull by its nature.
  */
 public final class PetWalk {
     /** Blocks per walk unit, units per game day that count, ticks between two "I do not want to go" protests. */
@@ -34,6 +38,7 @@ public final class PetWalk {
     private boolean waitsAtTurn;
     private Vec3 turnAside;
     private Boolean manners;
+    private UUID strangerHolder;
 
     public PetWalk(YukkuriEntity animal) { this.animal = animal; }
 
@@ -70,7 +75,7 @@ public final class PetWalk {
             var result = SurfaceApproach.walkResult(animal, turnAside, null, speed);
             if (result == SurfaceApproach.Result.MOVING || result == SurfaceApproach.Result.WAITING) return true;
             if (result == SurfaceApproach.Result.ARRIVED)
-                GameplayLog.event(animal, "lesson", "harness wandered at={} owner={}", GameplayLog.at(animal.position()), holder.getUUID());
+                GameplayLog.event(animal, "lesson", "lead wandered at={} owner={}", GameplayLog.at(animal.position()), holder.getUUID());
         }
         turnAside = null;
         SurfaceApproach.stopWalking(animal);
@@ -81,6 +86,12 @@ public final class PetWalk {
 
     public void tick() {
         var holder = animal.getLeashHolder();
+        // A free individual on someone's lead is no pet walk; it reacts to the pull itself.
+        if (holder instanceof Player player && animal.status().identity().free()) {
+            strangerLead(player);
+            return;
+        }
+        strangerHolder = null;
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
         boolean led = onOwnerLead(holder);
         if (!led) holder = animal.outing().escort();
@@ -117,7 +128,7 @@ public final class PetWalk {
                     turnUntil = nowTick + duration;
                     turnAside = waitsAtTurn ? null : aside(owner);
                     animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", duration);
-                    GameplayLog.event(animal, "lesson", "harness turn owner={} waits={} aside={} will={}",
+                    GameplayLog.event(animal, "lesson", "lead turn owner={} waits={} aside={} will={}",
                             owner.getUUID(), waitsAtTurn, turnAside != null, will);
                 }
                 heading = direction;
@@ -143,6 +154,33 @@ public final class PetWalk {
             tugWait = TUG_INTERVAL;
             animal.showReaction("teary", "harness_tug", 70);
         }
+    }
+
+    /**
+     * An unowned individual on a player's lead (docs/FEATURES.md): it answers the pull by its own nature. A tame, friendly one walks
+     * along quietly; a bold one protests; a timid or fearful one struggles against the pull. The lead is taut when it lags beyond the
+     * vanilla close-follow range, which is when the pull asks for an answer; the first answer comes as soon as the lead is on.
+     */
+    private void strangerLead(Player holder) {
+        boolean first = !holder.getUUID().equals(strangerHolder);
+        if (first) { strangerHolder = holder.getUUID(); tugWait = 0; }
+        if (tugWait > 0) { tugWait--; return; }
+        if (!first && animal.distanceToSqr(holder) <= TURN_RANGE_SQR) return;
+        tugWait = TUG_INTERVAL;
+        var personality = animal.life().personality();
+        var traits = personality.temperament();
+        int fear = personality.fear(holder.getUUID());
+        boolean timid = traits.is(Gate.TIMID), bold = traits.is(Gate.BOLDISH), friendly = personality.friendliness() >= 60;
+        String face, line;
+        if (!timid && fear < 50 && friendly) { face = "none"; line = "none"; } // a tame stray simply comes along
+        else if (!timid && fear < 50 && bold) { face = "cheek_puff"; line = "puff"; }
+        else { face = "teary"; line = "harness_tug"; }
+        boolean answered = line.equals("none") || (line.equals("puff")
+                ? animal.showReaction(YukkuriAction.PUFF, face, line, 70) : animal.showReaction(face, line, 70));
+        if (!answered) return;
+        GameplayLog.event(animal, "lead", "beat={} face={} line={} fear={} timid={} bold={} friendly={} holder={}",
+                line.equals("none") ? "stranger_follow" : line.equals("puff") ? "stranger_protest" : "stranger_pull",
+                face, line, fear, timid, bold, friendly, holder.getUUID());
     }
 
     private Vec3 aside(LivingEntity owner) {

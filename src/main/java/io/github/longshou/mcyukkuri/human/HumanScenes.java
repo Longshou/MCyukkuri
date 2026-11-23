@@ -126,7 +126,7 @@ public final class HumanScenes {
         return y;
     }
 
-    /** A caretaker (aipai) with a pet of its own, out on the lead: the pet is its companion with a harness, and with {@code leashNow} the walk has already begun. */
+    /** A caretaker (aipai) with a pet of its own, out on the lead: the pet is its companion, and with {@code leashNow} the walk has already begun. */
     public static HumanNpc spawnWalker(ServerLevel level, Vec3 at, boolean sister, YukkuriVariant variant, boolean leashNow) {
         var npc = (sister ? HumanWorld.SISTER : HumanWorld.BROTHER).get().spawn(level, BlockPos.containing(at), MobSpawnType.COMMAND);
         if (npc == null) return null;

@@ -63,23 +63,24 @@ public final class InteractionDispatch {
     public static boolean ownsPet(Player player,YukkuriEntity target){
         return target.status().identity()==Identity.PET&&target.pet().owned(player);
     }
-    public static String petRefusal(Player player,YukkuriEntity target){
-        if(!ownsPet(player,target))return "owner";
-        return target.pet().busy() || ExamSession.running(target) ? "busy" : null;
+    /** A player leads its own pets and unowned individuals; another owner's pet refuses. */
+    public static String leashRefusal(Player player,YukkuriEntity target){
+        if(!(ownsPet(player,target)||target.status().identity().free()))return "owner";
+        if(target.pet().busy())return "busy";
+        return target.isPassenger()?"carried":null;
     }
     public static boolean fitWear(Player player,YukkuriEntity target,ItemStack stack,CareAction removal){
         if(!requireReach(player,target,3))return false;
         var wear=target.pet().care();
-        boolean harness=removal==CareAction.REMOVE_HARNESS;
-        if(player.isSecondaryUseActive()&&(harness?wear.harnessed():wear.swaddled())){
+        if(player.isSecondaryUseActive()&&wear.swaddled()){
             return perform(player,target,removal);
         }
-        String reason=harness?petRefusal(player,target):ownsPet(player,target)?null:"owner";
+        String reason=ownsPet(player,target)?null:"owner";
         if(reason!=null){
             refuse(player,target,removal.key(),reason);
             return false;
         }
-        return harness?wear.putOnHarness(player,stack):wear.putOnSwaddle(player,stack);
+        return wear.putOnSwaddle(player,stack);
     }
     public static boolean hangAccessory(Player player,YukkuriEntity target,InteractionHand hand){
         if(!requireReach(player,target,5))return false;
@@ -131,8 +132,7 @@ public final class InteractionDispatch {
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }else if(event.getItemStack().is(Items.LEAD)&&!target.isLeashed()){
-            String reason=!ownsPet(player,target)?"owner":!target.pet().care().harnessed()?"harness"
-                    :target.pet().busy()?"busy":target.isPassenger()?"carried":null;
+            String reason=leashRefusal(player,target);
             if(reason!=null){
                 refuse(player,target,"leash",reason);
                 event.setCanceled(true);
@@ -266,7 +266,7 @@ public final class InteractionDispatch {
         reason=action.shears()?(operation.toolReady(false)?null:"busy"):operationRefusal(target);
         if(reason!=null)return reason;
         if(action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
-        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_BADGE||action==CareAction.REMOVE_HARNESS||action==CareAction.UNWRAP){
+        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_BADGE||action==CareAction.UNWRAP){
             if(!ownsPet(player,target))return "owner";
         }
         if(action==CareAction.ASK&&target.pet().busy())return "busy";
@@ -292,7 +292,6 @@ public final class InteractionDispatch {
             case ABANDON -> WildEvents.canAbandon(target,player)?null:"busy";
             case DECLINE_EVENT -> target.social().canDismissFoodRequest(player) || WildEvents.canDecline(target,player) ? null : "request";
             case SING, EXERCISE -> target.dailyLife().canInvite(player,action==CareAction.SING?DailyLife.Kind.SING:DailyLife.Kind.EXERCISE)?null:"leisure";
-            case REMOVE_HARNESS -> target.pet().care().harnessed()?null:"harness";
             case REMOVE_BADGE -> target.pet().busy() ? "busy" : target.pet().visibleGrade().id() == 0 ? "badge" : null;
             case UNWRAP -> target.pet().care().swaddled()?null:"swaddle";
             case TRIM_HAIR, CUT_LEFT, CUT_RIGHT -> (~target.body().hairLoss()&action.hairParts())!=0?null:"hair";

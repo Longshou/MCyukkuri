@@ -22,7 +22,6 @@ import io.github.longshou.mcyukkuri.item.HouseEggItem;
 import io.github.longshou.mcyukkuri.item.HouseholdSprayItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
 import io.github.longshou.mcyukkuri.interaction.RestraintTableBlock;
-import io.github.longshou.mcyukkuri.item.PetHarnessItem;
 import io.github.longshou.mcyukkuri.item.RemainsItem;
 import io.github.longshou.mcyukkuri.item.SupplyItem;
 import io.github.longshou.mcyukkuri.item.SwaddleItem;
@@ -85,8 +84,6 @@ public final class ModItems {
     public static final DeferredItem<TreatmentItem> FLOUR_PASTE=ITEMS.register("flour_paste",()->new TreatmentItem(TreatmentItem.Kind.FLOUR_PASTE,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<TreatmentItem> MOLD_REMOVER=ITEMS.register("mold_remover",()->new TreatmentItem(TreatmentItem.Kind.MOLD_REMOVER,new Item.Properties().stacksTo(16)));
     public static final DeferredItem<RemainsItem> REMAINS=ITEMS.register("yukkuri_remains",()->new RemainsItem(new Item.Properties().stacksTo(1)));
-    public static final DeferredItem<PetHarnessItem> PET_HARNESS = ITEMS.register("pet_harness",
-            () -> new PetHarnessItem(new Item.Properties().stacksTo(16)));
     public static final DeferredItem<SwaddleItem> SWADDLE_CLOTH = ITEMS.register("swaddle_cloth",
             () -> new SwaddleItem(new Item.Properties().stacksTo(16)));
     public static final DeferredItem<CompanionCordItem> COMPANION_CORD = ITEMS.register("companion_cord",

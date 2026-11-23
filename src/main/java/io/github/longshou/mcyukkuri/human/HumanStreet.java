@@ -926,7 +926,7 @@ final class HumanStreet {
             if (yard == null || npc.attitude() != HumanNpc.Attitude.CARING || npc.level().getGameTime() < nextOuting
                     || npc.level().isRaining() || npc.blockPosition().distSqr(npc.home()) > 100) return List.of();
             return npc.animals(Custody.Role.COMPANION).stream()
-                    .filter(pet -> pet.blockPosition().distSqr(yard) <= 100 && pet.pet().care().harnessed() && pet.outing().wants(npc))
+                    .filter(pet -> pet.blockPosition().distSqr(yard) <= 100 && pet.outing().wants(npc))
                     .limit(2).toList();
         }
 

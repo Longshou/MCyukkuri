@@ -15268,18 +15268,6 @@
     "sound": "voice.original.reimu.adult.o_mood_bad"
   },
   {
-    "id": "reimu.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.reimu.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "reimu",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 57,
-    "sound": "voice.original.reimu.adult.o_harness_on"
-  },
-  {
     "id": "reimu.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.reimu.adult.o_harness_tug",
     "origin": "project-original",
@@ -15458,18 +15446,6 @@
     ],
     "ticks": 58,
     "sound": "voice.original.reimu.young.o_mood_bad"
-  },
-  {
-    "id": "reimu.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.reimu.young.o_harness_on",
-    "origin": "project-original",
-    "species": "reimu",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 45,
-    "sound": "voice.original.reimu.young.o_harness_on"
   },
   {
     "id": "reimu.young.o_harness_tug",
@@ -15652,18 +15628,6 @@
     "sound": "voice.original.marisa.adult.o_mood_bad"
   },
   {
-    "id": "marisa.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.marisa.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "marisa",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 61,
-    "sound": "voice.original.marisa.adult.o_harness_on"
-  },
-  {
     "id": "marisa.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.marisa.adult.o_harness_tug",
     "origin": "project-original",
@@ -15842,18 +15806,6 @@
     ],
     "ticks": 60,
     "sound": "voice.original.marisa.young.o_mood_bad"
-  },
-  {
-    "id": "marisa.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.marisa.young.o_harness_on",
-    "origin": "project-original",
-    "species": "marisa",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 45,
-    "sound": "voice.original.marisa.young.o_harness_on"
   },
   {
     "id": "marisa.young.o_harness_tug",
@@ -16036,18 +15988,6 @@
     "sound": "voice.original.alice.adult.o_mood_bad"
   },
   {
-    "id": "alice.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.alice.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "alice",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 59,
-    "sound": "voice.original.alice.adult.o_harness_on"
-  },
-  {
     "id": "alice.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.alice.adult.o_harness_tug",
     "origin": "project-original",
@@ -16226,18 +16166,6 @@
     ],
     "ticks": 62,
     "sound": "voice.original.alice.young.o_mood_bad"
-  },
-  {
-    "id": "alice.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.alice.young.o_harness_on",
-    "origin": "project-original",
-    "species": "alice",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 45,
-    "sound": "voice.original.alice.young.o_harness_on"
   },
   {
     "id": "alice.young.o_harness_tug",
@@ -16420,18 +16348,6 @@
     "sound": "voice.original.chen.adult.o_mood_bad"
   },
   {
-    "id": "chen.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.chen.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "chen",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 49,
-    "sound": "voice.original.chen.adult.o_harness_on"
-  },
-  {
     "id": "chen.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.chen.adult.o_harness_tug",
     "origin": "project-original",
@@ -16610,18 +16526,6 @@
     ],
     "ticks": 49,
     "sound": "voice.original.chen.young.o_mood_bad"
-  },
-  {
-    "id": "chen.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.chen.young.o_harness_on",
-    "origin": "project-original",
-    "species": "chen",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 45,
-    "sound": "voice.original.chen.young.o_harness_on"
   },
   {
     "id": "chen.young.o_harness_tug",
@@ -16804,18 +16708,6 @@
     "sound": "voice.original.patchouli.adult.o_mood_bad"
   },
   {
-    "id": "patchouli.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "patchouli",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 94,
-    "sound": "voice.original.patchouli.adult.o_harness_on"
-  },
-  {
     "id": "patchouli.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.patchouli.adult.o_harness_tug",
     "origin": "project-original",
@@ -16994,18 +16886,6 @@
     ],
     "ticks": 82,
     "sound": "voice.original.patchouli.young.o_mood_bad"
-  },
-  {
-    "id": "patchouli.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.patchouli.young.o_harness_on",
-    "origin": "project-original",
-    "species": "patchouli",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 67,
-    "sound": "voice.original.patchouli.young.o_harness_on"
   },
   {
     "id": "patchouli.young.o_harness_tug",
@@ -17188,18 +17068,6 @@
     "sound": "voice.original.remilia.adult.o_mood_bad"
   },
   {
-    "id": "remilia.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.remilia.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "remilia",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 87,
-    "sound": "voice.original.remilia.adult.o_harness_on"
-  },
-  {
     "id": "remilia.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.remilia.adult.o_harness_tug",
     "origin": "project-original",
@@ -17378,18 +17246,6 @@
     ],
     "ticks": 79,
     "sound": "voice.original.remilia.young.o_mood_bad"
-  },
-  {
-    "id": "remilia.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.remilia.young.o_harness_on",
-    "origin": "project-original",
-    "species": "remilia",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 60,
-    "sound": "voice.original.remilia.young.o_harness_on"
   },
   {
     "id": "remilia.young.o_harness_tug",
@@ -17572,18 +17428,6 @@
     "sound": "voice.original.flandre.adult.o_mood_bad"
   },
   {
-    "id": "flandre.adult.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.flandre.adult.o_harness_on",
-    "origin": "project-original",
-    "species": "flandre",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 61,
-    "sound": "voice.original.flandre.adult.o_harness_on"
-  },
-  {
     "id": "flandre.adult.o_harness_tug",
     "key": "dialogue.mcyukkuri.original.flandre.adult.o_harness_tug",
     "origin": "project-original",
@@ -17762,18 +17606,6 @@
     ],
     "ticks": 60,
     "sound": "voice.original.flandre.young.o_mood_bad"
-  },
-  {
-    "id": "flandre.young.o_harness_on",
-    "key": "dialogue.mcyukkuri.original.flandre.young.o_harness_on",
-    "origin": "project-original",
-    "species": "flandre",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 46,
-    "sound": "voice.original.flandre.young.o_harness_on"
   },
   {
     "id": "flandre.young.o_harness_tug",
@@ -61300,32 +61132,6 @@
     "quirk": "miyo"
   },
   {
-    "id": "myon.miyo.adult.s_harness_on",
-    "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_harness_on",
-    "origin": "project-original",
-    "species": "myon",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 82,
-    "sound": "voice.original.myon.miyo.adult.s_harness_on",
-    "quirk": "miyo"
-  },
-  {
-    "id": "myon.miyo.young.s_harness_on",
-    "key": "dialogue.mcyukkuri.original.myon.miyo.young.s_harness_on",
-    "origin": "project-original",
-    "species": "myon",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 69,
-    "sound": "voice.original.myon.miyo.young.s_harness_on",
-    "quirk": "miyo"
-  },
-  {
     "id": "myon.miyo.adult.s_harness_tug",
     "key": "dialogue.mcyukkuri.original.myon.miyo.adult.s_harness_tug",
     "origin": "project-original",
@@ -65569,32 +65375,6 @@
     ],
     "ticks": 51,
     "sound": "voice.original.myon.kinbao.young.s_grown",
-    "quirk": "kinbao"
-  },
-  {
-    "id": "myon.kinbao.adult.s_harness_on",
-    "key": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_harness_on",
-    "origin": "project-original",
-    "species": "myon",
-    "age": "adult",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 87,
-    "sound": "voice.original.myon.kinbao.adult.s_harness_on",
-    "quirk": "kinbao"
-  },
-  {
-    "id": "myon.kinbao.young.s_harness_on",
-    "key": "dialogue.mcyukkuri.original.myon.kinbao.young.s_harness_on",
-    "origin": "project-original",
-    "species": "myon",
-    "age": "young",
-    "events": [
-      "harness_on"
-    ],
-    "ticks": 73,
-    "sound": "voice.original.myon.kinbao.young.s_harness_on",
     "quirk": "kinbao"
   },
   {

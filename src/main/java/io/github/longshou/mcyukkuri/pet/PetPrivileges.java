@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /**
  * What a badge is good for in the shop and in the family (docs/FEATURES.md).
  * <ul>
- * <li>bronze: the harness can be bought; a breeding permit can be given (both pets need a badge); resale 60%;</li>
+ * <li>bronze: a breeding permit can be given (both pets need a badge); resale 60%;</li>
  * <li>silver: premium grain and pudding can be bought; matchmaking with the keeper can be booked; resale 70%;</li>
  * <li>gold: the same, resale 80%.</li>
  * </ul>
@@ -33,7 +33,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * a pet's certification or purchase.
  */
 public final class PetPrivileges extends SavedData {
-    public static final int HARNESS = 1, BREEDING = 1, MATCHMAKING = 2;
+    public static final int BREEDING = 1, MATCHMAKING = 2;
     private static final String NAME = "mcyukkuri_pet_privileges";
     private final Map<UUID, Map<UUID, Integer>> records = new HashMap<>();
     private final BadgeConduct conduct = new BadgeConduct();

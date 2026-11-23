@@ -1182,12 +1182,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) { return interactions().mobInteract(player, hand); }
 
-    // pet harness and lead (docs/FEATURES.md): the lead is tied to the harness ring on the back, never to the accessory
+    // worn gear and the lead (docs/FEATURES.md): the lead is tied to the body at the back, never to an accessory
     public int visibleWear() { return sync().visibleWear(); }
-    /** Server: everything worn on the body, as YukkuriView.visibleWear bits (pet harness and cloth swaddle, leaf swaddle, plain-gap paper cover). */
+    /** Server: everything worn on the body, as YukkuriView.visibleWear bits (cloth swaddle, leaf swaddle, plain-gap paper cover). */
     public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits() | life().paperCoverWearBits(); }
     public void syncWear() { sync().setWear(wornBits()); }
-    /** Only a harnessed pet can be led; InteractionDispatch checks who may attach the lead. */
+    /** Only a pet or an unowned individual can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override public boolean handleLeashAtDistance(Entity holder, float distance) {
         // Outings use neither the vanilla moving restriction nor its close-range navigation.

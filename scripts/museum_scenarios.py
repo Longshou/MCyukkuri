@@ -3701,10 +3701,9 @@ def _plaza_yard(with_pet=True):
 
 
 def _plaza_companion(name, line):
-    """The yard keeper's own harnessed companion."""
+    """The yard keeper's own companion."""
     keeper = uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))
-    return [line, f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{keeper}}}',
-            f'data modify entity {sel(name)} YukkuriPet.Care merge value {{Harness:1b,WearOwner:{keeper}}}']
+    return [line, f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{keeper}}}']
 
 
 add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
@@ -3999,11 +3998,37 @@ add('swaddle_worn', 'town', '八款布襁褓穿上并排，可亲手包', '八�
           *[f'minecraft:{dye}_dye 1' for dye in ('white', 'pink', 'red', 'orange', 'light_blue', 'brown', 'blue', 'green')]],
     reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
-add('harness_walk', 'town', '亲手给宠物系胴带牵着走', '亲手给宠物系胴带牵着走',
-    '先用胴带右键宠物，再用拴绳牵引。走动后空手右键解绳，再潜行空手右键选「摘下胴带」；观察拴绳与胴带各归还一次，宠物恢复日常', '随意', [
-        yk('reimu', 0, 0, 'harness_pet', grade=1, lead=True, nutrition=60, energy=100, hygiene=100), *own('harness_pet')],
-    give=['mcyukkuri:pet_harness 1', 'minecraft:lead 1', 'minecraft:apple 6'],
-    reads=[('读牵引宠物', f'yukkuri status {sel("harness_pet")} raw')], vantage=(0, 8))
+add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵引绳：自家的宠物与无主的个体',
+    '手持原版牵引绳依次右键：自家的灵梦会跟着走；无主的流浪油按性情回答拉拽——温顺的跟着走，胆大的鼓腮抗议，胆小的含泪挣扎；'
+    '院主的宠物会拒绝。松开绳子后它们照常生活', '随意', [
+        yk('reimu', -3, 0, 'lead_pet', lead=True, nutrition=60, energy=100, hygiene=100, label='自家的灵梦'), *own('lead_pet'),
+        yk('marisa', 0, 2, 'lead_tame', uuid=uid('lead_walk', 'lead_tame'), identity='STRAY', label='温顺的流浪魔理沙',
+           friendliness=90, boldness=60, nutrition=80),
+        yk('reimu', 3, 2, 'lead_bold', uuid=uid('lead_walk', 'lead_bold'), identity='STRAY', label='胆大的流浪灵梦',
+           friendliness=40, boldness=85, nutrition=80),
+        yk('alice', 6, 2, 'lead_shy', uuid=uid('lead_walk', 'lead_shy'), identity='STRAY', label='胆小的流浪爱丽丝',
+           friendliness=90, boldness=10, nutrition=80),
+        human('caretaker_sister', -3, 7, 'lead_keeper', 0, yaw=0, label='院主'),
+        yk('chen', -3, 4, 'lead_other', uuid=uid('lead_walk', 'lead_other'), label='院主的宠物', nutrition=80),
+        f'data modify entity {sel("lead_other")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
+        f'data modify entity {sel("lead_other")} {OWNED}.Owner set from entity {sel("lead_keeper")} UUID',
+    ], env=DAY,
+    give=['minecraft:lead 6', 'minecraft:apple 6'],
+    reads=[('读胆大的流浪油', f'yukkuri status {sel("lead_bold")} raw')], vantage=(0, 8),
+    smoke=dict(ticks=180, commands=[
+        (10, 'yukkuri scenario tool_operator enter'),
+        (11, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"player"}}'),
+        (12, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED}.Owner set from entity @s UUID'),
+        *((tick, f'execute at {sel(name)} positioned ~1 ~ ~ run yukkuri scenario tool_operator move')
+          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (60, 'lead_bold'), (70, 'lead_shy'))),
+        *((tick + 1, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel(name)}')
+          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (60, 'lead_bold'), (70, 'lead_shy'))),
+        (179, 'yukkuri scenario tool_operator leave'),
+    ], forbid=[], expect=[r'\[interaction\][^\n]*action=leash reason=owner',
+               r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
+               r'\[lead\][^\n]*beat=stranger_follow face=none line=none',
+               r'\[lead\][^\n]*beat=stranger_protest face=cheek_puff line=puff',
+               r'\[lead\][^\n]*beat=stranger_pull face=teary line=harness_tug']))
 
 add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：停等或走偏',
     '两位居民分别带自制力高的灵梦和自制力低的魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [
@@ -4274,8 +4299,6 @@ def _lot_pet(scene, keeper, kind, x, name, **stats):
         yk(kind, x, -1, name, uuid=uid(scene, name), extra='YukkuriDailyLife:{Boredom:95,Affection:20}', grade=1, lead=True, **stats),
         f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
         f'data modify entity {sel(name)} {OWNED}.Owner set from entity {sel(keeper)} UUID',
-        f'data modify entity {sel(name)} YukkuriPet.Care.Harness set value 1b',
-        f'data modify entity {sel(name)} YukkuriPet.Care.WearOwner set from entity {sel(keeper)} UUID',
     ]
 
 
@@ -6333,12 +6356,10 @@ for _kind, _dx, _role, _name, _label in (
                            'FactoryYoung:1b,HoldReason:"nutrition",FactoryCycles:3}}}']
 _custody_lines += [*own('custody_buyer'),
                   f'yukkuri status relate {sel("custody_pet")} {sel("custody_owner")} 30',
-                  f'data modify entity {sel("custody_lost")} YukkuriPet.Care.Harness set value 1b',
-                  f'data modify entity {sel("custody_lost")} YukkuriPet.Care.WearOwner set from entity {sel("custody_owner")} UUID',
                   yk('marisa', 9, 2, 'custody_unknown', label='UNKNOWN旧档',
                      extra='NeoForgeData:{HumanCommerce:{Owner:' + uuid_nbt(uid('custody_death', 'unseen_owner')) + ',Use:"future_use"}}')]
 add('custody_death', 'town', 'NPC主人死了，宠物库存无主', 'NPC主人死了，宠物库存无主',
-    '旧档工厂输入开场解除归属。先用篮子装“可先装篮”，再手动杀死NPC主人：现场宠物和库存转无主，玩家个体与UNKNOWN旧档保留归属。放出篮中个体，胸背带只归还一次，徽章仍保留',
+    '旧档工厂输入开场解除归属。先用篮子装“可先装篮”，再手动杀死NPC主人：现场宠物和库存转无主，玩家个体与UNKNOWN旧档保留归属。放出篮中个体，徽章仍保留',
     '工厂输入开场解除；其余在死亡后或从篮中放出时', _custody_lines, env=DAY, vantage=(0, 14), note=NEW,
     give=['mcyukkuri:yukkuri_carrier 2', 'mcyukkuri:sleep_spray 2', 'minecraft:emerald 16'],
     reads=[('读宠物归属', f'data get entity {sel("custody_pet")} NeoForgeData.HumanCommerce'),
@@ -8181,7 +8202,7 @@ TOPICS = {
     'pred_nest_feeding': 'R2', 'pred_fledging': 'R2', 'pred_tree_territory': 'R2',
     'pred_pad_cleanup': 'R2', 'pred_forage_avoidance': 'R2',
     'house_empty': 'H1', 'resident_house_lint': 'H1', 'house_pair': 'H2', 'house_eggs': 'H3', 'pet_door_return': 'D1',
-    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'harness_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
+    'shop_build': 'M1', 'shop_window': 'M1', 'shop_buy': 'M1', 'shop_browse': 'M1', 'shop_pick': 'M1', 'shop_fetch': 'M1', 'shop_restock': 'M1', 'lead_walk': 'M3', 'swaddle_worn': 'M3', 'feed_wild': 'M3', 'oniisan_prey': 'M4', 'attack_witness': 'M4', 'street_stop': 'M4',
     'wild': 'M5', 'wild_beg_refuse': 'M5', 'wild_beg_snatch': 'M5', 'wild_beg_help': 'M5',
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
@@ -8484,7 +8505,7 @@ def _lead_turns(window):
     its goal depends on the owner's walk, so only the decision is asserted."""
     turns = {'reimu': [], 'marisa': []}
     for line in window.splitlines():
-        found = re.search(r'\[lesson\] (reimu|marisa) #[^\n]* harness turn owner=\S+ waits=(true|false) aside=(true|false)', line)
+        found = re.search(r'\[lesson\] (reimu|marisa) #[^\n]* lead turn owner=\S+ waits=(true|false) aside=(true|false)', line)
         if found is not None:
             turns[found[1]].append((found[2] == 'true', found[3] == 'true'))
     if not turns['reimu']:
@@ -8499,8 +8520,8 @@ def _lead_turns(window):
 
 
 _smoke('training_walk', 2300, [
-    r'\[lesson\] reimu [^\n]*harness turn owner=[^ ]+ waits=true',
-    r'\[lesson\] marisa [^\n]*harness turn owner=[^ ]+ waits=(?:true|false) aside=(?:true|false)',
+    r'\[lesson\] reimu [^\n]*lead turn owner=[^ ]+ waits=true',
+    r'\[lesson\] marisa [^\n]*lead turn owner=[^ ]+ waits=(?:true|false) aside=(?:true|false)',
 ], readout=[f'yukkuri status {sel(n)} raw' for n in ('walk_practised', 'walk_novice')])
 next(s for s in S if s.id == 'training_walk').smoke['verify'] = _lead_turns
 def _counting_experience(window):

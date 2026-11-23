@@ -7,7 +7,6 @@
   "inputs": {
     "art/props/pet-goods/sweet_candy.png": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
     "art/props/pet-goods/custard_pudding.png": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
-    "art/props/pet-goods/pet_harness.png": "52053963719cc8df8eb990a119256efb71b58ef0edff2224fad589d6f030ffcc",
     "art/props/pet-goods/swaddle_cloth.png": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",
     "art/props/pet-goods/swaddle_cloth_frill.png": "5f2bd19eae5a1f56270c5998a9b3dd5b7d9f5dcdc51ba4d658fb897fcfa34aa8",
     "art/props/pet-goods/swaddle_cloth_letter.png": "34c3d410f31c6e8cc1d0172b45904482fdcc2da1f452418de7844d491ed14a63",
@@ -28,7 +27,6 @@
   "outputs": {
     "src/main/resources/assets/mcyukkuri/textures/item/sweet_candy.png": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
     "src/main/resources/assets/mcyukkuri/textures/item/custard_pudding.png": "d3ecc6d8c33f56533cd5638dcbdd6ab552cf932dc5fe1c29f7af9be9f80af8ec",
-    "src/main/resources/assets/mcyukkuri/textures/item/pet_harness.png": "52053963719cc8df8eb990a119256efb71b58ef0edff2224fad589d6f030ffcc",
     "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth.png": "334b5d5f14734a4c80a420b03c956f75a79fe4665fac999af552c0c6d6a5f34f",
     "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth_frill.png": "5f2bd19eae5a1f56270c5998a9b3dd5b7d9f5dcdc51ba4d658fb897fcfa34aa8",
     "src/main/resources/assets/mcyukkuri/textures/item/swaddle_cloth_letter.png": "34c3d410f31c6e8cc1d0172b45904482fdcc2da1f452418de7844d491ed14a63",

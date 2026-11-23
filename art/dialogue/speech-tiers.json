@@ -43753,34 +43753,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_harness_on",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "harness_on"
-   ],
-   "japanese": "みょん！ ぴったり！ おさんぽ、いける！",
-   "chinese": "咪呦！刚刚好！能去散步了！",
-   "english": "Myon! Perfect fit! Walk time!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_harness_on",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "harness_on"
-   ],
-   "japanese": "みょん！ ぴったり！ おしゃんぽ いけりゅ！",
-   "chinese": "咪呦！刚刚好！能去散步惹！",
-   "english": "Myon! Fits! Walkies!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.miyo.adult.s_harness_tug",
    "species": "myon",
    "age": "adult",
@@ -48349,34 +48321,6 @@
    "japanese": "ちーんぽ！ おっきくにゃった！",
    "chinese": "金寶！长大惹！",
    "english": "Chinpo! I gwew!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_harness_on",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "harness_on"
-   ],
-   "japanese": "ちーんぽ！ ぴったり！ おさんぽ、いける！",
-   "chinese": "金寶！刚刚好！能去散步了！",
-   "english": "Chinpo! Perfect fit! Walk time!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_harness_on",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "harness_on"
-   ],
-   "japanese": "ちーんぽ！ ぴったり！ おしゃんぽ いけりゅ！",
-   "chinese": "金寶！刚刚好！能去散步惹！",
-   "english": "Chinpo! Fits! Walkies!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
