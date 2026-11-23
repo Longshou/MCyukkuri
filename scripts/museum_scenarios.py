@@ -7155,9 +7155,11 @@ pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水
      '普通灵梦浑身湿透，还在池边浅水沟的末端。看它自己划上有实地承托的干岸，站稳喘匀后甩一次水，湿度减半。',
      '约 20–40 秒',
      [box(bank_dx(0) - 9, -1, 0, bank_dx(0), -1, 0, 'minecraft:air'),
-      *[block(bank_dx(0) + 1 - level, -1, 0, f'minecraft:water[level={level}]') for level in range(1, 8)],
-      yk('reimu', bank_dx(0) - 6.45, 0, 'a', dy=-1, yaw=90, lead=True, **pair_ready()),
-      set_status('a', 'needs.wetness', 32)], note=NEW, vantage=(bank_dx(0) - 9, 3, -135, 15),
+      *[block(bank_dx(0) + 1 - level, -1, 0, f'minecraft:water[level={level}]') for level in range(1, 8)]],
+     # Reimu falls into the last flowing cell after the start hold: a body held there would be carried out of the water by the current
+     # before the player looks, and the escape from the water is the beat.
+     late=[yk('reimu', bank_dx(0) - 6.45, 0, 'a', dy=-1, yaw=90, lead=True, **pair_ready()),
+           set_status('a', 'needs.wetness', 32)], note=NEW, vantage=(bank_dx(0) - 9, 3, -135, 15),
      reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
      capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
                   follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),

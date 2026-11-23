@@ -21,12 +21,12 @@ class PondShakeStart(unittest.TestCase):
         self.assertIn(f'fill ~{bank - 9} ~-1 ~0 ~{bank} ~-1 ~0 minecraft:air', scene.lines)
         for level in range(1, 8):
             self.assertIn(f'setblock ~{bank + 1 - level} ~-1 ~0 minecraft:water[level={level}]', scene.lines)
-        summon = next(line for line in scene.lines if line.startswith('summon mcyukkuri:reimu '))
+        summon = next(line for line in scene.late if line.startswith('summon mcyukkuri:reimu '))  # after the start hold, so the current cannot carry it out unseen
         feet_x = float(summon.split()[2][1:])
         self.assertGreater(feet_x, bank - 6)
         self.assertLess(feet_x + .75 / 2, bank - 6 + 1)
         self.assertEqual(summon.split()[3:5], ['~-1', '~0.5'])
-        self.assertIn(f'yukkuri status set {sel("a")} needs.wetness 32', scene.lines)
+        self.assertIn(f'yukkuri status set {sel("a")} needs.wetness 32', scene.late)
 
 
 class WindGapStart(unittest.TestCase):
