@@ -14,6 +14,7 @@
 | MD-27 尿急便急表情台词 | `.worktrees/wp-need-urge` | life 如厕规划、need_tell 场景 |
 | TN-48 家规被抓与 TN-57 认罚演出 | `.worktrees/wp-caught-penance` | pet/Conscience、ConscienceGoal、arc 场景 |
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
+| PK-02 院主步速 | `.worktrees/wp-owner-pace` | HumanStreet.followPace、park_walk 场景 |
 
 ## 玩法待办
 
