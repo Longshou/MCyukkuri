@@ -122,6 +122,13 @@ public final class VillageStrays {
         }
     }
 
+    /** Scenario setup: root a scene stray in the bell street it stands in as an arrival is, without the occupied-POI test (a scene has no villagers). */
+    public static void rootInScene(YukkuriEntity body) {
+        var level = (ServerLevel) body.level();
+        var streets = SettlementData.get(level).villageSurvey.at(level, body.blockPosition());
+        if (streets != null && !streets.beds().isEmpty() && streets.contains(body.blockPosition())) settle(body, streets);
+    }
+
     public static boolean hasLocalRoom(ServerLevel level, BlockPos pos, boolean existing) {
         int nearby = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(pos).inflate(32)).size();
         return StrayDensity.hasLocalRoom(nearby, FamilyData.get(level).population(level, pos),

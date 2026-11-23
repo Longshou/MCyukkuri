@@ -29,6 +29,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.house.HouseNestBlockEntity;
 import io.github.longshou.mcyukkuri.settlement.Homes;
+import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -143,7 +144,10 @@ final class ScenarioSetup {
                 }
             }
         });
-        if (identity == SceneIdentity.STRAY) body.pet().markTownRoots();
+        if (identity == SceneIdentity.STRAY) {
+            body.pet().markTownRoots();
+            VillageStrays.rootInScene(body);
+        }
         if (identity == SceneIdentity.WILD_FAMILY) body.pet().leaveTownLife();
         body.body().syncStageHealth();
         GameplayLog.event(body, "scenario", "vary species={} form={} congenital={} identity={} rolled={}",

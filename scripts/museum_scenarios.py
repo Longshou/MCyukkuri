@@ -3633,10 +3633,10 @@ _RING_STRAYS = [
 def _ring_stray(scene, name, kind, x, label, values):
     if name != 'ring_voided':
         return yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40,
-                  extra='YukkuriPet:{TownRoots:1b}', yaw=0, **values)
+                  identity='STRAY', yaw=0, **values)
     # A former companion's badge: still worn and visible, but void since the owner abandoned it.
-    line = yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, yaw=0, **values)
-    return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b,TownRoots:1b}')
+    line = yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, identity='STRAY', yaw=0, **values)
+    return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b}')
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
