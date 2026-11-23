@@ -113,6 +113,7 @@ public final class HumanNpc extends PathfinderMob {
     public boolean strollingWith(YukkuriEntity pet) { return stroll.escorts(pet); }
     public PlayBlockEntity parkFacility() { return stroll().parkFacility(); }
     public boolean parkLingering() { return stroll().parkLingering(); }
+    public net.minecraft.world.phys.AABB plazaPaving() { return stroll().plazaPaving(); }
     public boolean callingPet(YukkuriEntity pet) { return stroll().calling(pet); }
     /** Gives the resident this individual as its companion and fits its harness. */
     public void adoptPet(YukkuriEntity pet) { walk().adopt(pet); }

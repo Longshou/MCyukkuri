@@ -801,6 +801,8 @@ final class HumanStreet {
         }
         boolean parkLingering() { return parkOpened != 0; }
         boolean restingAtPlaza() { return plazaSat; }
+        /** The paving the owner watches from its bench, or null when it is not resting at a plaza. */
+        AABB plazaPaving() { return plazaSat && plaza != null ? plaza.paving() : null; }
         void forcePlaza() { plazaForced = true; }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
 

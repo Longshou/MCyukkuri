@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
 import io.github.longshou.mcyukkuri.pet.rules.OutingPerformance;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -172,10 +173,16 @@ public final class PetOuting extends Goal {
     private boolean shouldFollow(double comfortDistance) {
         if (owner.doorFollowerStand(pet) != null) return true;
         if (owner.callingPet(pet) || wantsPicnic(owner)) return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
+        var paving = owner.plazaPaving();
+        // The owner sits on a bench beside the plaza: the pet stays on the paving, where the strays can see its badge.
+        if (paving != null) return !onPaving(paving, pet.position());
         var facility = owner.parkFacility();
         return (pet.distanceTo(owner) > comfortDistance || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
                 && (facility == null || !nearFacility(facility));
     }
+
+    private static AABB restPaving(AABB paving) { return paving.inflate(-.6, 0, -.6); }
+    private static boolean onPaving(AABB paving, Vec3 at) { return restPaving(paving).contains(at); }
 
     private boolean wantsPicnic(HumanNpc resident) {
         return resident.parkLingering() && resident.holdsPicnicFood() && pet.life().nutrition() <= picnicBand();
@@ -237,6 +244,17 @@ public final class PetOuting extends Goal {
                 return;
             }
             doorwayStand = null;
+            var paving = owner.plazaPaving();
+            if (paving != null) {
+                if (stand == null && pet.tickCount % RESAMPLE_TICKS == 0)
+                    stand = SurfaceApproach.beside(pet, new Vec3(paving.getCenter().x, paving.minY, paving.getCenter().z), 1.2,
+                            at -> onPaving(paving, at));
+                if (stand != null) {
+                    var result = SurfaceApproach.walkResult(pet, stand, null, 1.15);
+                    if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) stand = null;
+                }
+                return;
+            }
             boolean close = owner.callingPet(pet) || wantsPicnic(owner);
             if (!owner.blockPosition().equals(escortAt) || close != closeApproach || stand == null && pet.tickCount % RESAMPLE_TICKS == 0) {
                 escortAt = owner.blockPosition();
