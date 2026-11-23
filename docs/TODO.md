@@ -15,6 +15,7 @@
 | 澡盆等设施选中框按轮廓 | `.worktrees/wp-outline-shape` | PlayBlock、ShelterBlock |
 | 寻路互相堵路（相遇让路） | `.worktrees/wp-encounter` | YukkuriGroundNavigation、让路相关 |
 | 共用目击与感知逻辑（第一包） | `.worktrees/wp-perception` | perception/、PetRequests、LifeHome |
+| 场景开场等玩家就位再起演 | `.worktrees/wp-scene-hold` | scripts/build_museum_full.py、museum_dsl.py、smoke_museum.py、docs/roles/stager.md |
 
 ## 玩法待办
 
