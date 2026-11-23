@@ -12,7 +12,7 @@
 
 - 用户说“探索”只出方向和候选，不开工制作；说“做”才开工。用户给出时间点（如额度重置前）就按时收工。用户说“保存 xx”即认可当前版本，直接写入制作源登记，不重复确认。
 - 工作来自用户需求、反馈和待办，不主动恢复已搁置的补缺计划。
-- 需要用户查看或决定的东西（录像、预览、对比）一完成，就登记到“待你查看”页 `.local/previews/inbox/index.html`（`scripts/preview.py inbox add|remove`，每项写要用户决定什么，处理完即移除），并在回复里给出地址：本机预览服务 `scripts/serve_review.py --port 8766` 保持运行（8765 被用户的其他程序占用），地址为 `http://127.0.0.1:8766/.local/previews/inbox/index.html`。该页的“试玩”区在每次加载页面时读取游戏内待看（`/playtest`，来自主检出的当前待办），已显示的结论每几秒与 `verdicts.jsonl` 同步，用户点“通过／不通过”会向 `.local/reports/verdicts.jsonl` 追加 `playtest.<场景ID>.<运行包提交前 9 位>` 的记录（含场景名与备注）；会话中实时监视该文件，通过的场景把对应条目移出待办，不通过的记下备注并保留。
+- 需要用户查看或决定的东西（录像、预览、对比）一完成，就登记到“待你查看”页 `.local/previews/inbox/index.html`（`scripts/preview.py inbox add|remove`，每项写要用户决定什么，处理完即移除），并在回复里给出地址：本机预览服务 `scripts/serve_review.py --port 8766` 保持运行（8765 被用户的其他程序占用），地址为 `http://127.0.0.1:8766/.local/previews/inbox/index.html`。该页的“试玩”区在每次加载页面时读取游戏内待看（`/playtest`，来自主检出的当前待办），已显示的结论每几秒与 `verdicts.jsonl` 同步，用户点“通过／不通过”会向 `.local/reports/verdicts.jsonl` 追加 `playtest.<场景ID>.<运行包提交前 9 位>` 的记录（含场景名与备注）；不常驻监听，总负责人在接手和每次回复用户前用 `preview.py verdicts` 读新记录，通过的场景把对应条目移出待办，不通过的记下备注并保留。
 - 交付简述改动、提交号、实际做了的检查、缺口与试玩入口（场地与按钮）。
 
 ## 派活
