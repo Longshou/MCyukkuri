@@ -11,6 +11,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.badge.BadgeItem;
 import io.github.longshou.mcyukkuri.badge.BadgeMenu;
 import io.github.longshou.mcyukkuri.body.BodyPart;
 import io.github.longshou.mcyukkuri.entity.SceneHold;
@@ -19,6 +20,7 @@ import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
+import io.github.longshou.mcyukkuri.human.HumanWorld;
 import io.github.longshou.mcyukkuri.item.CarrierContents;
 import io.github.longshou.mcyukkuri.item.CarrierRelease;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
@@ -756,6 +758,33 @@ public final class ScenarioCommands {
         if (item.equals("decline_event")) {
             var player = c.getSource().getLevel().getPlayerByUUID(TOOL_OPERATOR);
             return player instanceof FakePlayer && InteractionDispatch.perform(player, target, CareAction.DECLINE_EVENT) ? 1 : 0;
+        }
+        if (item.equals("confiscate_badge") || item.equals("confiscate_badge_own")) {
+            var level = c.getSource().getLevel();
+            if (!(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+            if (item.equals("confiscate_badge_own") && !target.pet().owned(player))
+                Custody.assign(target, player.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+            player.setPos(target.getX() + 1.2, target.getY(), target.getZ());
+            player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+            var previous = player.getMainHandItem();
+            boolean wasShift = player.isShiftKeyDown();
+            var handbook = new ItemStack(HumanWorld.BADGE_HANDBOOK.get());
+            try {
+                player.setItemInHand(InteractionHand.MAIN_HAND, handbook);
+                player.setShiftKeyDown(true);
+                handbook.interactLivingEntity(player, target, InteractionHand.MAIN_HAND);
+            } finally {
+                player.setShiftKeyDown(wasShift);
+                player.setItemInHand(InteractionHand.MAIN_HAND, previous);
+            }
+            int tokens = 0;
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                var s = player.getInventory().getItem(i);
+                if (s.getItem() instanceof BadgeItem && !s.is(HumanWorld.BADGE_HANDBOOK.get())) tokens += s.getCount();
+            }
+            GameplayLog.event(target, "scenario", "action=confiscate_badge target={} inv_tokens={} visible={} effective={} void={}",
+                    target.getUUID(), tokens, target.pet().visibleGrade(), target.pet().effectiveGrade(), target.pet().voidBadge());
+            return 1;
         }
         if (item.equals("cold") || item.equals("serving") || item.equals("rub") || item.equals("flick")) {
             if (!target.pet().ownedBy(TOOL_OPERATOR)) return 0;

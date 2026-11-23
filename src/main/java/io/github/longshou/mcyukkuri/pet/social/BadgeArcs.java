@@ -193,22 +193,27 @@ public final class BadgeArcs {
         double confidence = SocialDisposition.confidence(esteem);
         boolean kind = Bonds.careKin(holder, peer) || SocialDisposition.ramp(p.friendliness(), 40, 65)
                 + SocialDisposition.ramp(bond.closeness(), 0, 20) >= .6;
-        String reply;
+        String reply, face, line;
         if (wariness >= .5 || envy && confidence < .4 && !kind) {
             holder.mind().felt(EmotionEvent.FRIGHTENED);
-            PetScenes.act(holder, "tremble", "cry", "afraid", 60, peer);
+            face = "cry"; line = "afraid";
+            PetScenes.act(holder, "tremble", face, line, 60, peer);
             Staging.sweat(holder);
             reply = "scared";
         } else if (kind) {
-            PetScenes.act(holder, envy ? "bow" : "greet", "happy", "badge_show_kind", 60, peer);
+            face = "happy"; line = "badge_show_kind";
+            PetScenes.act(holder, envy ? "bow" : "greet", face, line, 60, peer);
             reply = envy ? "comforted" : "kind";
         } else if (confidence * (1 - wariness) >= .55) {
-            PetScenes.act(holder, "proud", "smug", snark ? "badge_plaza_retort" : "badge_proud", 70, peer);
+            face = "smug"; line = snark ? "badge_plaza_retort" : "badge_proud";
+            PetScenes.act(holder, "proud", face, line, 70, peer);
             reply = "proud";
         } else {
-            PetScenes.act(holder, "ignore", "closed_smile", null, 50, peer);
+            face = "closed_smile"; line = "";
+            PetScenes.act(holder, "ignore", face, null, 50, peer);
             reply = "cold";
         }
+        holder.pet().expectBeat("plaza_answer", face, line, reply);
         GameplayLog.event(holder, "badge", "badge answer subject={} reply={} esteem={} wariness={} closeness={}",
                 peer.getUUID(), reply, esteem, wariness, bond.closeness());
         return reply;
@@ -308,8 +313,10 @@ public final class BadgeArcs {
                     sub.showReaction("surprise", "", 50);
                     int speech = o.speechSequence();
                     String cue = snark ? "badge_envy_snark" : "badge_envy";
+                    String face = snark ? "angry" : "envy";
                     // Turned partly aside: the full sulk turn hid the envious glance.
-                    PetScenes.act(o, snark ? "puff" : "ignore", snark ? "angry" : "envy", cue, snark ? 70 : 80, sub);
+                    PetScenes.act(o, snark ? "puff" : "ignore", face, cue, snark ? 70 : 80, sub);
+                    o.pet().expectBeat(snark ? "plaza_snark" : "plaza_envy", face, cue, s.result);
                     if (snark) Staging.anger(level, o.position().add(0, o.getBbHeight(), 0));
                     GameplayLog.event(o, "badge", "badge envy subject={} insistence={} cue={} voiced={}",
                             sub.getUUID(), insistence, cue, o.speechSequence() != speech);
@@ -377,12 +384,19 @@ public final class BadgeArcs {
         int t = since(s);
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) PetScenes.act(o, (String) null, "sneer", "badge_mock", 70, sub);
+                if (t == 1) {
+                    PetScenes.act(o, (String) null, "sneer", "badge_mock", 70, sub);
+                    o.pet().expectBeat("plaza_provoke", "sneer", "badge_mock", "provoke");
+                }
                 if (o.distanceToSqr(sub) <= 6.25) { quiet(o); next(s); }
                 else if (t >= 140) end(level, s, Phase.INTERRUPTED, "provoker_unreached");
             }
             case 1 -> {
-                if (t == 1) { PetScenes.act(o, "puff", "angry", null, 50, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
+                if (t == 1) {
+                    PetScenes.act(o, "puff", "angry", null, 50, sub);
+                    o.pet().expectBeat("plaza_provoke_puff", "angry", "", "provoke");
+                    Staging.anger(level, o.position().add(0, o.getBbHeight(), 0));
+                }
                 if (t >= 40) { quiet(o); next(s); }
             }
             case 2 -> {
@@ -391,14 +405,21 @@ public final class BadgeArcs {
                     var bond = p.relation(o.getUUID());
                     double esteem = SocialDisposition.selfEsteem(sub);
                     double wariness = SocialDisposition.wariness(sub, bond);
+                    String face, line;
                     if (wariness >= .5 || SocialDisposition.confidence(esteem) < .35 && !p.temperament().is(Gate.PATIENT)) {
                         s.result = "flee"; sub.mind().felt(EmotionEvent.FRIGHTENED);
-                        PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub);
+                        face = "cry"; line = "afraid";
+                        PetScenes.act(sub, "tremble", face, line, 60, o); Staging.sweat(sub);
                     } else if (SocialDisposition.insistence(p, esteem, wariness, bond) >= .2) {
-                        s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_plaza_retort", 60, o);
+                        s.result = "retort";
+                        face = "angry"; line = "badge_plaza_retort";
+                        PetScenes.act(sub, "stand_ground", face, line, 60, o);
                     } else {
-                        s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
+                        s.result = "ignore";
+                        face = "closed_smile"; line = "";
+                        PetScenes.act(sub, "ignore", face, null, 50, o);
                     }
+                    sub.pet().expectBeat("plaza_provoke_reply", face, line, s.result);
                 }
                 if (t == 1) ownerScolds(level, o, sub);
                 if (t >= 70) { quiet(sub); next(s); }

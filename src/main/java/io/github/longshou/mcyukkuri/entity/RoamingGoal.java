@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.entity;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
+import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -291,7 +292,8 @@ public final class RoamingGoal extends Goal {
 
     private boolean plazaReady() {
         if (browsing) return VillageStrays.browsesPlaza(animal);
-        return !animal.isLeashed() && animal.pet().humanRank() != BadgeGrade.NONE && animal.outing().readyForPlaza();
+        return !animal.isLeashed() && Custody.view(animal).ownerKind() != Custody.OwnerKind.NPC
+                && animal.pet().humanRank() != BadgeGrade.NONE && animal.outing().readyForPlaza();
     }
 
     /**

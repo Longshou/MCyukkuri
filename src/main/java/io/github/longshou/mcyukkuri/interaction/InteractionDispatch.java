@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Objects;
@@ -266,7 +267,7 @@ public final class InteractionDispatch {
         reason=action.shears()?(operation.toolReady(false)?null:"busy"):operationRefusal(target);
         if(reason!=null)return reason;
         if(action.shears()&&!player.getMainHandItem().is(Tags.Items.TOOLS_SHEAR))return "tool";
-        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.REMOVE_BADGE||action==CareAction.UNWRAP){
+        if(action==CareAction.ASK||action==CareAction.ABANDON||action==CareAction.UNWRAP){
             if(!ownsPet(player,target))return "owner";
         }
         if(action==CareAction.ASK&&target.pet().busy())return "busy";
@@ -292,7 +293,9 @@ public final class InteractionDispatch {
             case ABANDON -> WildEvents.canAbandon(target,player)?null:"busy";
             case DECLINE_EVENT -> target.social().canDismissFoodRequest(player) || WildEvents.canDecline(target,player) ? null : "request";
             case SING, EXERCISE -> target.dailyLife().canInvite(player,action==CareAction.SING?DailyLife.Kind.SING:DailyLife.Kind.EXERCISE)?null:"leisure";
-            case REMOVE_BADGE -> target.pet().busy() ? "busy" : target.pet().visibleGrade().id() == 0 ? "badge" : null;
+            case REMOVE_BADGE -> target.pet().busy() ? "busy"
+                    : target.pet().visibleGrade() == BadgeGrade.NONE ? "badge"
+                    : !(ownsPet(player, target) || target.pet().collectible()) ? "owner" : null;
             case UNWRAP -> target.pet().care().swaddled()?null:"swaddle";
             case TRIM_HAIR, CUT_LEFT, CUT_RIGHT -> (~target.body().hairLoss()&action.hairParts())!=0?null:"hair";
             case STERILIZE -> !target.family().adult()||target.family().sterile()||target.family().stimulation()==0?"condition":null;

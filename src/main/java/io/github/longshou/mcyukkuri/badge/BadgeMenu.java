@@ -3,6 +3,8 @@ package io.github.longshou.mcyukkuri.badge;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.*;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -225,7 +227,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
             return started;
         }
         boolean ok = switch (id) {
-            case ButtonId.DETACH -> b.detach(p);
+            case ButtonId.DETACH -> InteractionDispatch.perform(p, y, CareAction.REMOVE_BADGE);
             case ButtonId.ATTACH -> b.attach(p, p.getMainHandItem());
             case ButtonId.ORDER_PEACEFUL, ButtonId.ORDER_HUNT, ButtonId.ORDER_RETURN -> y.predator().command(p, PredatorLife.Order.values()[id - ButtonId.ORDER_ORDINAL_OFFSET]);
             default -> false;

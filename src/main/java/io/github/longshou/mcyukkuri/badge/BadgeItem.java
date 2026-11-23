@@ -1,6 +1,8 @@
 package io.github.longshou.mcyukkuri.badge;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.interaction.CareAction;
+import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.*;
@@ -23,8 +25,10 @@ public final class BadgeItem extends Item {
     @Override public InteractionResult interactLivingEntity(ItemStack stack, Player p, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof YukkuriEntity y)) return InteractionResult.PASS;
         if (!p.level().isClientSide) {
-            if (handbook) BadgeMenu.open(p, y);
-            else if (!y.pet().attach(p, p.getItemInHand(hand))) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
+            if (handbook) {
+                if (p.isSecondaryUseActive()) InteractionDispatch.perform(p, y, CareAction.REMOVE_BADGE);
+                else BadgeMenu.open(p, y);
+            } else if (!y.pet().attach(p, p.getItemInHand(hand))) p.displayClientMessage(Component.translatable("badge.mcyukkuri.token_refused"), true);
         }
         return InteractionResult.sidedSuccess(p.level().isClientSide);
     }

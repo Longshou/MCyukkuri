@@ -969,7 +969,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     public boolean badgeStaff() { return job() == Job.EXAMINER || job() == Job.SHOPKEEPER; }
     private boolean collectible(YukkuriEntity y) {
-        return y.pet().visibleGrade() != BadgeGrade.NONE && (y.pet().voidBadge() || y.pet().disqualified());
+        return y.pet().collectible();
     }
     public boolean collectBadge(YukkuriEntity y) {
         if (!badgeStaff() || !collectible(y) || !getOffhandItem().isEmpty() || !HumanSight.sees(this, y)
@@ -980,7 +980,7 @@ public final class HumanNpc extends PathfinderMob {
         setDropChance(EquipmentSlot.OFFHAND, 2f);
         y.pet().revoke();
         swing(InteractionHand.OFF_HAND);
-        PetScenes.revoked(y);
+        PetScenes.confiscated(y, this, false);
         GameplayLog.event(this, "badge", "collected pet={} serial={} hand={} distance={} item={}",
                 y.getUUID(), serial, InteractionHand.OFF_HAND, distanceTo(y), getOffhandItem().getItem());
         var near = level().getNearestPlayer(this, 16);

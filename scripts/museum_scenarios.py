@@ -4096,41 +4096,93 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, label, values. The expected ring distance follows from the values (RoamingGoal.browseRing): a hungry friendly stray
-# is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and stops far off, and the cocky
-# ex-pet wearing a voided badge is a stray like any other.
+# name, kind, x, z, label, values. Placed in the ring band around the paving (x 2..5, z -3..1) in view from the vantage:
+# a hungry friendly stray is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and
+# keeps 4+ blocks off, and the cocky ex-pet wearing a voided badge is a stray like any other.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -3, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -13, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', -1, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', 0, -4, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -3, -7, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 6, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
-def _ring_stray(scene, name, kind, x, label, values):
+def _ring_yard():
+    """Yard 5 blocks north of the paving, inside the vantage view, with no bowl or nest to pull strays away."""
+    return [
+        box(2, 0, -13, 8, 2, -8, 'minecraft:air'),
+        box(2, 0, -13, 8, 0, -13, 'minecraft:oak_fence[east=true,west=true]'),
+        *(box(x, 0, -12, x, 0, -9, 'minecraft:oak_fence[north=true,south=true]') for x in (2, 8)),
+        box(2, 0, -8, 3, 0, -8, 'minecraft:oak_fence[east=true,west=true]'),
+        box(7, 0, -8, 8, 0, -8, 'minecraft:oak_fence[east=true,west=true]'),
+        'summon minecraft:marker ~5.5 ~ ~-10.5 {Rotation:[180f,0f],Tags:["mcy_no_carton","mcy_yard_pet_spawned"],'
+        'data:{Low:[-3,-1,-2],High:[3,3,2]}}',
+        human('caretaker_sister', 5, -10, _PLAZA_KEEPER, 0, yaw=0, label='院主')[:-1]
+        + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}',
+    ]
+
+
+def _ring_stray(scene, name, kind, x, z, label, values):
     if name != 'ring_voided':
-        return yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40,
-                  identity='STRAY', yaw=0, **values)
+        return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40,
+                  identity='STRAY', yaw=-60, **values)
     # A former companion's badge: still worn and visible, but void since the owner abandoned it.
-    line = yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, identity='STRAY', yaw=0, **values)
+    line = yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, identity='STRAY', yaw=30, **values)
     return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b}')
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '院主牵着佩章的银章灵梦走到白篷下，坐在长椅上看它。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，院主看到后在长椅上喝止一次，'
-    '再安抚灵梦；胆小的魔理沙远远停住不靠近；戴着作废章的嚣张前宠物和普通流浪一样来看，别油按作废章而非真章对待。',
-    '约 3 分钟', [
+    '开场几秒内院主从北边院子牵银章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
+    '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
+    '约 5 秒院主出发，8–15 秒落座并开始看章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell and a bed make the lot a village street, so free strays here are rooted in it.
         block(-5, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-8, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-7, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
-        *_plaza_yard(with_pet=False),
-        # The badged pet is the keeper's own companion: the keeper takes it to the plaza (the hook only skips the choice roll) and sits.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-15)[0]),
+        *_ring_yard(),
+        # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-1, 1, -102, 10),
+    ], env=DAY, vantage=(-5, 1, -125, 12),
+    at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
-           *((f'读{stray[3]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
+           *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
+
+
+_CONF = 'badge_confiscate'
+_CONF_ACTORS = [
+    ('conf_proud', 'reimu', 3, -2, 2, False, '骄傲的自家宠物', dict(boldness=85, friendliness=60, attachment=25, self_control=20)),
+    ('conf_attached', 'marisa', 3, 0, 1, False, '依恋的自家宠物', dict(boldness=35, friendliness=85, attachment=90, self_control=70)),
+    ('conf_stray_bold', 'reimu', 5, -2, 1, True, '倔强的作废章流浪油', dict(boldness=85, friendliness=20, attachment=30, self_control=20)),
+    ('conf_stray_timid', 'marisa', 5, 0, 1, True, '胆小的作废章流浪油', dict(boldness=15, friendliness=85, attachment=60, self_control=70)),
+]
+
+
+def _conf_actor(name, kind, x, z, grade, stray, label, values):
+    if stray:
+        line = yk(kind, x, z, name, uuid=uid(_CONF, name), label=label, intelligence=55, grade=grade, identity='STRAY', yaw=90, **values)
+        return [line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b}')]
+    serial = uuid_nbt(uid(_CONF, name + '_serial'))
+    examiner = uuid_nbt(uid(_PLAZA, 'previous_examiner'))
+    line = yk(kind, x, z, name, uuid=uid(_CONF, name), label=label, intelligence=55, grade=grade, yaw=90, **values)
+    line = line.replace('Worn:1b,IssuedAt:0L,Source:3,Cooldown:0,History:[]',
+                        f'Worn:1b,IssuedAt:-1L,Source:8,Cooldown:0,History:[],Serial:{serial},Issuer:{examiner}')
+    return [line, *own(name)]
+
+
+add(_CONF, 'town', '没收自家宠物与流浪油的徽章', '没收自家宠物与流浪油的徽章',
+    '手持徽章手册潜行右键（或在照料菜单点摘下徽章）：可没收自家两只宠物和两只作废章流浪油的徽章，徽章立刻进手里/物品栏且头上不再显示；'
+    '骄傲宠物先抗议再赌气、依恋宠物哀求低头、倔强流浪鼓脸后走开、胆小流浪哭着逃开；最南侧他人宠物被拒绝。',
+    '当面操作', [
+        'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
+        human('caretaker_sister', 7, -1, 'conf_keeper', 0, yaw=90, label='他人饲主')[:-1]
+        + f',UUID:{uuid_nbt(uid(_CONF, "conf_keeper"))}}}',
+        *(line for actor in _CONF_ACTORS for line in _conf_actor(*actor)),
+        yk('reimu', 4, 1, 'conf_other', uuid=uid(_CONF, 'conf_other'), label='他人的有效章宠物', grade=2, yaw=90),
+        f'data modify entity {sel("conf_other")} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_CONF, "conf_keeper"))}}}',
+    ], env=DAY, vantage=(-1, 0, -90, 14), give=['mcyukkuri:badge_handbook'],
+    reads=[(f'读{a[6]}', f'yukkuri status {sel(a[0])} raw') for a in _CONF_ACTORS]
+    + [('读他人宠物', f'yukkuri status {sel("conf_other")} raw')])
 
 
 add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章：报名后焦急等结果',
@@ -9251,7 +9303,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
-    'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5',
+    'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5', 'badge_confiscate': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_eat_caught': 'M5', 'rule_eat_struck': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
@@ -11778,7 +11830,11 @@ def _ring_stray_fates(window):
         return (dx * dx + dz * dz) ** .5
 
     arrived = 0
-    end = max(int(t) for t in re.findall(r'uuid=\S+ t=(\d+) ', window))
+    ticks = [int(t) for t in re.findall(r'uuid=\S+ t=(\d+) ', window)]
+    start, end = min(ticks), max(ticks)
+    rest = re.search(rf'uuid={_plaza_keeper_id} t=(\d+) [^\n]*action=outing_plaza_rest ', window)
+    if rest and int(rest[1]) - start > 800:
+        return f'keeper took {int(rest[1]) - start} ticks to reach the plaza bench (expected <= 800)'
     for name, *_ in _RING_STRAYS:
         actor = _uuid_text(_RING, name)
         # The decision logs the ring distance its values give: 1 + 5 * shyness * (1 - .4 * interest), plus a two-block band.
@@ -11798,15 +11854,59 @@ def _ring_stray_fates(window):
                 return f'{name} stood at the ring and never saw the badge'
     if not arrived:
         return 'no stray reached the ring'
+    beats = list(re.finditer(r'\[badge\][^\n]*beat=(plaza_\w+) face=(\S+) declared=(\S+) line=(\S+)', window))
+    for b in beats:
+        if b[2] != b[3]:
+            return f'plaza beat {b[1]} showed face={b[2]} instead of declared={b[3]}'
+    if not beats:
+        return 'no plaza reaction beat fired'
 
 
-# The keeper's outing is the only start: the hook skips just the plaza choice roll, the walk, the bench and the leads are its own.
-next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
-    (1, f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}')], expect=[
+# The scene itself provides the real start via at_spawn plaza_visit; smoke does not inject any extra commands.
+next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, expect=[
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
-], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza ring'])
+], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza (?:walk|ring)'])
+
+
+def _confiscate_fates(window):
+    expected = {
+        'conf_proud': ('proud', 'surprise', 'cheek_puff', 'pursed'),
+        'conf_attached': ('attached', 'surprise', 'teary', 'ashamed'),
+        'conf_stray_bold': ('stray_cling', 'surprise', 'cheek_puff', 'angry'),
+        'conf_stray_timid': ('stray_run', 'surprise', 'cry', 'afraid'),
+    }
+    for name, (style, f1, f2, f3) in expected.items():
+        actor = _uuid_text(_CONF, name)
+        for beat, want in (('confiscate_cause', f1), ('confiscate_react', f2), ('confiscate_end', f3)):
+            m = re.search(rf'\[badge\][^\n]*uuid={actor} [^\n]*beat={beat} face=(\S+) declared=(\S+) line=(\S+) clip=(\S+) style={style}\b', window)
+            if not m:
+                return f'{name} missing {beat} for style={style}'
+            if m[1] != m[2] or m[1] != want:
+                return f'{name} {beat} showed face={m[1]} declared={m[2]} (expected {want})'
+
+
+next(s for s in S if s.id == _CONF).smoke = dict(ticks=600, verify=_confiscate_fates, commands=[
+    (10, 'yukkuri scenario tool_operator enter'),
+    (40, f'yukkuri scenario care_click {sel("conf_proud")} confiscate_badge_own'),
+    (140, f'yukkuri scenario care_click {sel("conf_attached")} confiscate_badge_own'),
+    (240, f'yukkuri scenario care_click {sel("conf_stray_bold")} confiscate_badge'),
+    (340, f'yukkuri scenario care_click {sel("conf_stray_timid")} confiscate_badge'),
+    (440, f'yukkuri scenario care_click {sel("conf_other")} confiscate_badge'),
+    (520, 'yukkuri scenario tool_operator leave'),
+], expect=[
+    rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_proud")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
+    rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_attached")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
+    rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_bold")} [^\n]*confiscated by=player [^\n]*reason=void ',
+    rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_timid")} [^\n]*confiscated by=player [^\n]*reason=void ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_proud")} inv_tokens=1 visible=NONE effective=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_attached")} inv_tokens=2 visible=NONE effective=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_bold")} inv_tokens=3 visible=NONE effective=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=4 visible=NONE effective=NONE ',
+    rf'\[interaction\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*interaction refused; [^\n]*action=remove_badge reason=owner\b',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=4 visible=SILVER effective=SILVER ',
+])
 
 
 _smoke('park_walk', 1100, [

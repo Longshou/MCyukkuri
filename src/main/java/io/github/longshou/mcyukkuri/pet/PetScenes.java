@@ -5,13 +5,17 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.shop.ShopPerformance;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 /** Short owner-facing performances of a pet (badge pinned/taken, breeding permit, held-back courtship). Server only, calm animals only, cooldown per animal. */
 public final class PetScenes {
@@ -84,15 +88,78 @@ public final class PetScenes {
         if (confidence * (1 - SocialDisposition.wariness(y, bond)) >= .55) act(y, "proud", "smug", "badge_pinned", 70, owner);
         else act(y, y.getRandom().nextBoolean() ? "joy_jump" : "bow", "happy", "badge_pinned", 70, owner);
     }
-    /** The owner takes the badge off. */
-    public static void taken(YukkuriEntity y, Player owner) {
-        if (!y.pet().calm() || !ready(y, "take", 100)) return;
-        act(y, "droop", "teary", "badge_taken", 80, owner);
-    }
-    /** Staff took the badge off an abandoned pet: it cries. */
-    public static void revoked(YukkuriEntity y) {
-        if (!y.pet().calm() || !ready(y, "take", 100)) return;
-        act(y, "droop", "cry", "badge_taken", 90, null);
+    /** Complete stat-driven confiscation performance (cause -> reaction -> ending) for own pets and strays. */
+    public static void confiscated(YukkuriEntity y, LivingEntity actor, boolean ownedPet) {
+        if (!(y.level() instanceof ServerLevel) || !y.isAlive() || y.isRemoved() || y.hurtTime > 0 || y.isPanicking()) return;
+        var p = y.life().personality();
+        var bond = p.relation(actor == null ? null : actor.getUUID());
+        int fear = bond.fear();
+        double wariness = SocialDisposition.wariness(y, bond);
+        double esteem = SocialDisposition.selfEsteem(y);
+        int boldness = p.boldness();
+        int obedience = y.pet().obedience();
+        String style;
+        String reactAction, reactFace, reactLine;
+        String endAction, endFace, endLine;
+        boolean stepAway = false;
+        if (ownedPet) {
+            if (fear >= 30 || wariness >= .45) {
+                style = "fearful";
+                reactAction = "tremble"; reactFace = "afraid"; reactLine = "plea_spare";
+                endAction = "thunder_cower"; endFace = "horrified"; endLine = "";
+            } else if (boldness >= 60 && obedience < 50) {
+                style = "proud";
+                reactAction = "puff"; reactFace = "cheek_puff"; reactLine = "badge_taken";
+                endAction = "sulk"; endFace = "pursed"; endLine = "";
+            } else {
+                style = "attached";
+                reactAction = "beg"; reactFace = "teary"; reactLine = "badge_taken";
+                endAction = "droop"; endFace = "ashamed"; endLine = "";
+            }
+        } else {
+            double insistence = SocialDisposition.insistence(p, esteem, wariness, bond);
+            if ((insistence >= .2 || boldness >= 55) && fear < 45) {
+                style = "stray_cling";
+                reactAction = "puff"; reactFace = "cheek_puff"; reactLine = "badge_taken";
+                endAction = "sulk"; endFace = "angry"; endLine = "";
+                stepAway = true;
+            } else {
+                style = "stray_run";
+                reactAction = "droop"; reactFace = "cry"; reactLine = "badge_taken";
+                endAction = "droop"; endFace = "afraid"; endLine = "afraid";
+                stepAway = true;
+            }
+        }
+        // Beat 1 (Cause): brief startle on the moment the badge is taken.
+        act(y, "startle", "surprise", "", 14, actor);
+        y.pet().expectBeat("confiscate_cause", "surprise", "none", style);
+        final String finalStyle = style;
+        final String fReactAction = reactAction, fReactFace = reactFace, fReactLine = reactLine;
+        final String fEndAction = endAction, fEndFace = endFace, fEndLine = endLine;
+        final boolean fStepAway = stepAway;
+        // Beat 2 (Reaction): stat-driven protest / plead / cower / cry.
+        later(y, 12, () -> {
+            if (!y.isAlive() || y.isRemoved() || y.hurtTime > 0 || y.isPanicking()) return;
+            if (finalStyle.equals("stray_run"))
+                y.mind().feeling().begin(EmotionCourse.Kind.GRIEF, .5f, actor == null ? null : actor.getUUID(), y.blockPosition());
+            act(y, fReactAction, fReactFace, fReactLine, 45, actor);
+            y.pet().expectBeat("confiscate_react", fReactFace, fReactLine, finalStyle);
+        });
+        // Beat 3 (Ending): sulk / droop / cower, or turn round and walk/run away for a stray.
+        later(y, 57, () -> {
+            if (!y.isAlive() || y.isRemoved() || y.hurtTime > 0 || y.isPanicking()) return;
+            act(y, fEndAction, fEndFace, fEndLine, 40, fStepAway ? null : actor);
+            y.pet().expectBeat("confiscate_end", fEndFace, fEndLine, finalStyle);
+            if (fStepAway && actor != null && actor.isAlive() && y.distanceToSqr(actor) <= 144) {
+                Vec3 away = y.position().subtract(actor.position()).multiply(1, 0, 1);
+                away = away.lengthSqr() < .01 ? new Vec3(1, 0, 0) : away.normalize();
+                double dist = finalStyle.equals("stray_run") ? 7 : 5;
+                for (double f : new double[] {1, .75, .5}) {
+                    BlockPos goal = BlockPos.containing(y.position().add(away.scale(dist * f)));
+                    if (y.life().dryStand(goal) && y.life().navigate(goal, finalStyle.equals("stray_run") ? 1.0 : .75, false)) break;
+                }
+            }
+        });
     }
 
     /** Both pets within 16 blocks of the owner look at each other and blush; the second one a beat later. */

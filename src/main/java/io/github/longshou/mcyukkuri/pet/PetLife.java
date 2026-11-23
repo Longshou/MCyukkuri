@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -36,6 +37,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
@@ -79,6 +81,19 @@ public final class PetLife {
     private int obedienceShift;
     private Discovery discovery = new Discovery();
     private final Set<UUID> learnedDiscoveries = new HashSet<>();
+    private record PendingBeat(String name, String declared, String line, String style) {}
+    private PendingBeat pendingBeat;
+    public void expectBeat(String name, String declared, String line, String style) {
+        pendingBeat = new PendingBeat(name, declared, line == null || line.isEmpty() ? "none" : line, style == null ? "" : style);
+    }
+    /** Logs each badge or confiscation beat on the same tick with the actual face published by {@code PresentationArbiter}. */
+    public void observeFace(String shown) {
+        if (pendingBeat == null) return;
+        var beat = pendingBeat;
+        pendingBeat = null;
+        GameplayLog.event(animal, "badge", "beat={} face={} declared={} line={} clip={} style={}",
+                beat.name(), shown, beat.declared(), beat.line(), animal.getAnimationId(), beat.style());
+    }
     public Discovery discovery() { return discovery; }
     public void abandonBroodExchange() { discovery.abandon(animal); }
     public PetLife(YukkuriEntity animal) { this.animal = animal; lessons = new PetLessons(animal); care = new PetCare(animal); conscience = new Conscience(animal); }
@@ -102,7 +117,9 @@ public final class PetLife {
     private long now() { return animal.level().getGameTime(); }
     public BadgeGrade grade() { return grade; }
     public boolean disqualified() { return PetPrivileges.get((ServerLevel) animal.level()).conduct().disqualified(animal.getUUID()); }
-    public BadgeGrade effectiveGrade() { return grade == BadgeGrade.NONE || voidBadge || disqualified() ? BadgeGrade.NONE : grade; }
+    public BadgeGrade effectiveGrade() { return grade == BadgeGrade.NONE || voidBadge || owner() == null || disqualified() ? BadgeGrade.NONE : grade; }
+    /** A visible worn badge whose registration no longer holds (void, ownerless stray, or disqualified). */
+    public boolean collectible() { return visibleGrade() != BadgeGrade.NONE && (voidBadge || owner() == null || disqualified()); }
     public int talent() {
         var p = animal.life().personality();
         return BadgeRequirements.talent(p.potential(Trait.INTELLIGENCE), p.potential(Trait.SELF_CONTROL),
@@ -149,11 +166,32 @@ public final class PetLife {
             case PLATINUM -> HumanWorld.PLATINUM_BADGE.get();
         };
     }
-    public boolean detach(Player p) {
-        if (!near(p) || !owned(p) || busy() || ExamSession.running(animal) || !worn || !animal.life().hasAccessory() || grade == BadgeGrade.NONE) return false;
-        if (giveToken(p, token()) == Delivery.REFUSED) return false;
-        worn = false; PetScenes.taken(animal, p);
-        GameplayLog.event(animal, "badge", "detached player={} grade={} serial={}", p.getUUID(), grade, serial);
+    public boolean confiscate(Player p) {
+        if (!near(p) || busy() || ExamSession.running(animal) || visibleGrade() == BadgeGrade.NONE) return false;
+        boolean own = owned(p) && isPet();
+        boolean collect = collectible();
+        if (!own && !collect) return false;
+        BadgeGrade previousGrade = grade;
+        UUID previousSerial = serial;
+        Delivery delivery = giveToken(p, token());
+        if (delivery == Delivery.REFUSED) return false;
+        if (own && !collect) {
+            worn = false;
+            disciplined(p.getUUID(), false, 8);
+            addStress(4);
+            PetScenes.confiscated(animal, p, true);
+            GameplayLog.event(animal, "badge", "confiscated by=player player={} grade={} serial={} reason=owner_removal delivery={}",
+                    p.getUUID(), previousGrade, previousSerial, delivery.name().toLowerCase(Locale.ROOT));
+        } else {
+            String reason = voidBadge ? "void" : disqualified() ? "disqualified" : "stray";
+            revoke();
+            animal.life().personality().confiscated(p.getUUID());
+            LearnedFear.witnessed(animal, p, "badge_confiscate");
+            PetScenes.confiscated(animal, p, false);
+            p.displayClientMessage(Component.translatable("pet.mcyukkuri.abandon.revoked", animal.getDisplayName()), true);
+            GameplayLog.event(animal, "badge", "confiscated by=player player={} grade={} serial={} reason={} delivery={}",
+                    p.getUUID(), previousGrade, previousSerial, reason, delivery.name().toLowerCase(Locale.ROOT));
+        }
         return true;
     }
     public boolean attach(Player p, ItemStack stack) {
@@ -178,6 +216,10 @@ public final class PetLife {
         return delivery;
     }
     private static Delivery giveToken(Player player, ItemStack token) {
+        if (player.getMainHandItem().isEmpty()) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, token);
+            return Delivery.INVENTORY;
+        }
         int slot = player.getInventory().getFreeSlot();
         if (slot >= 0) {
             player.getInventory().setItem(slot, token);
@@ -421,7 +463,7 @@ public final class PetLife {
         formerOwner = former; abandonedAt = now(); abandonedGrade = grade.id(); dropPos = animal.blockPosition().asLong(); abandonStage = 0; searchClock = 0;
         nextVigilCheck = 0;
         vigilOffers.clear();
-        voidBadge = grade != BadgeGrade.NONE && worn && animal.life().hasAccessory();
+        voidBadge = grade != BadgeGrade.NONE;
         waits = animal.life().personality().temperament().is(Gate.WAITS_FOR_OWNER) || !animal.family().adult();
         neglect = 0; neglectClock = 0; ownerAbsence = 0; noticeSent = false;
     }
@@ -438,12 +480,13 @@ public final class PetLife {
         }
         PetPrivileges.note(animal);
     }
-    /** End NPC control while preserving the animal's badge and history. */
+    /** End NPC control while voiding any badge registration (a stray cannot hold a valid badge). */
     public void ownerReleased(UUID former) {
         conscience.forgetOwner();
         animal.outing().forget();
         townRoots = true;
         care.ownerChanged(null);
+        if (grade != BadgeGrade.NONE) voidBadge = true;
         care.walk().tick(); // no owner/lead: clear only the transient walking position
         if (care.requests().pending() != null) care.requests().tick();
         unlock(null);
@@ -455,6 +498,7 @@ public final class PetLife {
         conscience.forgetOwner();
         townRoots = true;
         care.ownerChanged(null);
+        if (grade != BadgeGrade.NONE) voidBadge = true;
         neglect = 0; neglectClock = 0; searchClock = 0; ownerAbsence = 0; noticeSent = false;
         animal.mind().felt(EmotionEvent.SEPARATED);
         animal.showReaction("teary", "lost_parent", 100);
