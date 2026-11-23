@@ -203,18 +203,18 @@ public final class TownMarkers {
                             && !y.profile().dangerToYukkuri() && visitor.hasLineOfSight(y));
         }
 
-        /** Bodies on the paving or on a real path to it, plus strays standing at or heading for the ring outside it. */
-        private List<PathfinderMob> traffic(ServerLevel level, PathfinderMob visitor) {
+        /** Bodies on the paving or on a real path to it, optionally including strays at or heading for the outer ring. */
+        private List<PathfinderMob> traffic(ServerLevel level, PathfinderMob visitor, boolean includeRing) {
             // Count bodies and real paths already headed here. The path controllers retain ownership of their destinations.
             return level.getEntitiesOfClass(PathfinderMob.class, paving.inflate(30, 4, 30),
                     mob -> mob != visitor && mob.getLeashHolder() != visitor && mob.isAlive() && !mob.isPassenger()
                             && (mob instanceof YukkuriEntity || mob instanceof HumanNpc)
-                            && (paving.contains(mob.position()) || aimsAtPlaza(mob) || ringStray(mob)
+                            && (paving.contains(mob.position()) || aimsAtPlaza(mob) || includeRing && ringStray(mob)
                                     || mob.getLeashHolder() instanceof PathfinderMob leader && aimsAtPlaza(leader)));
         }
 
         public Stream<BlockPos> stands(ServerLevel level, PathfinderMob visitor, int partySize) {
-            var traffic = traffic(level, visitor);
+            var traffic = traffic(level, visitor, false);
             if (traffic.size() + partySize > PLAZA_CAPACITY) return Stream.empty();
             return BlockPos.betweenClosedStream(BlockPos.containing(paving.minX, paving.minY, paving.minZ),
                             BlockPos.containing(paving.maxX - 1, paving.minY, paving.maxZ - 1))
@@ -241,7 +241,7 @@ public final class TownMarkers {
 
         /** Room for one more stray at the ring: at most two strays at once, and the shared traffic limit still holds. */
         public boolean strayRoom(ServerLevel level, PathfinderMob visitor) {
-            var traffic = traffic(level, visitor);
+            var traffic = traffic(level, visitor, true);
             return traffic.size() < PLAZA_CAPACITY && traffic.stream().filter(this::ringStray).count() < MAX_STRAYS;
         }
 
