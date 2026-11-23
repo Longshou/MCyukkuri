@@ -151,13 +151,8 @@ def display_name(hit):
     return label if 8 <= len(label) <= 30 and '｜' not in label and not any(s in label for s in STATUSES) else title
 
 
-def item_label(hit):
-    """The item's own name: its text before the first colon, with bold markers stripped."""
-    return hit[1].split('：', 1)[0].replace('**', '').strip()
-
-
 def load_watch():
-    """Scene id or item label -> the short, hand-written 看点 (scripts/playtest_watch.json), the only hint source."""
+    """Scene id -> the short, hand-written 看点 (scripts/playtest_watch.json), the only hint source."""
     return json.loads(WATCH_FILE.read_text(encoding='utf-8-sig'))
 
 
@@ -244,7 +239,7 @@ def build(since, until):
 
 def menu(current, fresh_texts, scenes, numbers, field_order):
     """One row per scene: a performance several items point at shows once, with the worst status of its items,
-    its one hand-written watch text and fresh if any item is fresh. Items without a scene stay one row each."""
+    its one hand-written watch text and fresh if any item is fresh."""
     order = {sid: i for i, sid in enumerate(sid for _, ids in field_order for sid in ids)}
     rows = []
     by_scene = {}
@@ -261,8 +256,6 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
         if ids is None:
             continue
         if not ids:
-            label = item_label(item)
-            rows.append(dict(status=status, title=label, watch=watch.get(label, ''), fresh=text in fresh_texts, scenes=[]))
             continue
         for sid in ids:
             r = by_scene.setdefault(sid, dict(status=status, title=scenes[sid][1], watch=watch.get(sid, ''), fresh=False,
@@ -271,8 +264,7 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
                 r['status'] = status
             r['fresh'] = r['fresh'] or text in fresh_texts
     rows += list(by_scene.values())
-    return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'],
-                                         order[row['scenes'][0]['id']] if row['scenes'] else len(order)))
+    return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'], order[row['scenes'][0]['id']]))
 
 
 def summary(d):
@@ -299,9 +291,8 @@ def markdown(d, since, until, played_from):
             r = d['rows'][i]
             out.append(f"- {d['scenes'][i][1]}｜{r['status']}｜{'；'.join(r['watches'])}")
         out.append('')
-    if d['unnamed'] or d['gone']:
+    if d['gone']:
         out += ['## 其他', '']
-        out += [f'- {t}｜{s}｜{w}' if w else f'- {t}｜{s}' for t, s, w in d['unnamed']]
         out += [f'- 已不存在的场景：{g}（条目「{"、".join(sorted(titles))}」）' for g, titles in d['gone'].items()]
         out.append('')
     return '\n'.join(out) + '\n'
@@ -342,10 +333,12 @@ def main():
         a.menu_json.write_text(json.dumps(dict(format=1, since=since, until=until, items=rows), ensure_ascii=False) + '\n',
                                encoding='utf-8')
         print(f'menu items={len(rows)} scenes={sum(len(row["scenes"]) for row in rows)} '
-              f'fresh={sum(row["fresh"] for row in rows)} unlinked={sum(not row["scenes"] for row in rows)}')
+              f'fresh={sum(row["fresh"] for row in rows)}')
         return
     d = build(since, until)
     print(markdown(d, since, until, played_from), end='')
+    for title, status, _ in d['unnamed']:
+        print(f'待补场景（{status}）：{title}', file=sys.stderr)
     for title in d['skipped']:
         print(f'跳过（当前待办已无对应条目）：{title}', file=sys.stderr)
 

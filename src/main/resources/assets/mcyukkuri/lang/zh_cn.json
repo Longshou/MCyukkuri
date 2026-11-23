@@ -83,7 +83,6 @@
   "viewer.mcyukkuri.todo.summary": "复测失败 %s · 已接入待试玩 %s · 新 %s（上次试玩 %s → 运行包 %s）",
   "viewer.mcyukkuri.todo.missing": "无法读取待看清单，请通过启动器重新启动试玩场。",
   "viewer.mcyukkuri.todo.fresh": "新",
-  "viewer.mcyukkuri.todo.no_scene": "未关联场景",
   "viewer.mcyukkuri.todo.failed": "失败",
   "viewer.mcyukkuri.todo.ready": "待试",
   "viewer.mcyukkuri.todo.world": "当前世界无法跳转到该场景。请进入试玩场，旧试玩场可用 -Fresh 重建。",

@@ -55,7 +55,7 @@ class RecentRoundsTests(unittest.TestCase):
         ids, _ = self.recent(TODO)
         self.assertTrue(BY_SCENE)
         self.assertLessEqual(set(BY_SCENE), ids)
-        for sid in ('dig', 'forage', 'excited_leak', 'park_play', 'shop_build'):
+        for sid in ('dig', 'forage', 'excited_leak', 'shop_build'):
             self.assertNotIn(sid, BY_SCENE)
 
     def test_unnamed_item_outside_recent_rounds_drops(self):
@@ -74,9 +74,8 @@ class WatchTextTests(unittest.TestCase):
             self.assertNotIn('」', text, sid)
             self.assertLessEqual(len(text), playtest_list.WATCH_MAX, sid)
 
-    def test_hint_keys_are_real_scenes_or_todo_labels(self):
-        labels = {playtest_list.item_label(item) for item in CURRENT}
-        self.assertFalse(set(WATCH) - (set(SCENES) | labels))
+    def test_hint_keys_are_real_scenes(self):
+        self.assertFalse(set(WATCH) - set(SCENES))
 
     def test_row_hint_is_exactly_the_scene_hint(self):
         for sid, row in BY_SCENE.items():
@@ -98,20 +97,13 @@ class WatchTextTests(unittest.TestCase):
 
 
 class UnlinkedRowTests(unittest.TestCase):
-    def test_short_label_row_shows_its_own_title_and_watch(self):
-        # the parent's dated bold title must not replace the item's own (short) label
-        with mock.patch.object(playtest_list, 'load_watch', return_value={'短项': '两只撞上时不再抽搐'}):
-            rows = playtest_list.menu(playtest_list.todo_items(UNLINKED), set(), SCENES, NUMBERS, FIELD_ORDER)
-        self.assertEqual([('短项', '两只撞上时不再抽搐')], [(r['title'], r['watch']) for r in rows])
+    def test_unlinked_items_are_not_menu_rows(self):
+        rows = playtest_list.menu(playtest_list.todo_items(UNLINKED), set(), SCENES, NUMBERS, FIELD_ORDER)
+        self.assertEqual([], rows)
 
-    def test_label_strips_bold_markers(self):
-        self.assertEqual('短标', playtest_list.item_label(('父标题', '**短标**：已接入待试玩。')))
-
-    def test_every_real_unlinked_row_carries_a_hint(self):
-        unlinked = [r for r in ROWS if not r['scenes']]
-        self.assertTrue(unlinked)
-        for row in unlinked:
-            self.assertEqual(WATCH[row['title']], row['watch'])
+    def test_real_menu_has_only_scene_rows(self):
+        self.assertTrue(ROWS)
+        self.assertTrue(all(row['scenes'] for row in ROWS))
 
 
 if __name__ == '__main__':

@@ -83,7 +83,6 @@
   "viewer.mcyukkuri.todo.summary": "Retest failed %s · Ready %s · New %s (Last played %s → Runtime %s)",
   "viewer.mcyukkuri.todo.missing": "The playtest list is unavailable. Restart the museum from its launcher.",
   "viewer.mcyukkuri.todo.fresh": "New",
-  "viewer.mcyukkuri.todo.no_scene": "No linked scene",
   "viewer.mcyukkuri.todo.failed": "Retest failed",
   "viewer.mcyukkuri.todo.ready": "Ready for playtest",
   "viewer.mcyukkuri.todo.world": "Scene jump is unavailable in this world. Open the museum or use -Fresh to rebuild an older museum.",

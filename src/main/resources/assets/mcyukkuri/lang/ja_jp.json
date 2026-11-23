@@ -83,7 +83,6 @@
   "viewer.mcyukkuri.todo.summary": "再確認失敗 %s・試遊待ち %s・新着 %s（前回 %s → 実行版 %s）",
   "viewer.mcyukkuri.todo.missing": "試遊リストを読み込めません。ランチャーから試遊場を起動し直してください。",
   "viewer.mcyukkuri.todo.fresh": "新着",
-  "viewer.mcyukkuri.todo.no_scene": "対応シーンなし",
   "viewer.mcyukkuri.todo.failed": "再確認失敗",
   "viewer.mcyukkuri.todo.ready": "試遊待ち",
   "viewer.mcyukkuri.todo.world": "このワールドではシーンに移動できません。試遊場を開くか、古い試遊場を -Fresh で作り直してください。",

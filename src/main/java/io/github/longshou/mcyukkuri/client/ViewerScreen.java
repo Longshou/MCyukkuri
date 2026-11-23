@@ -196,21 +196,20 @@ final class ViewerScreen extends Screen {
 
     private int todoColumns() { return right - left - 3 * PAD >= 300 ? 2 : 1; }
 
-    /** Cards grouped by field in the order of the 场景 page; items without a scene go last. */
+    /** Cards grouped by field in the order of the 场景 page. */
     private List<Slot> todoSlots() {
         var groups = new LinkedHashMap<String, List<Slot>>();
         for (var item : todo.items()) {
-            if (item.scenes().isEmpty()) groups.computeIfAbsent("", k -> new ArrayList<>()).add(new Slot(null, item, null, 0, 0));
             for (var scene : item.scenes()) groups.computeIfAbsent(scene.field(), k -> new ArrayList<>()).add(new Slot(null, item, scene, 0, 0));
         }
         var order = fields.stream().map(MuseumIndex.Field::title).toList();
         var keys = new ArrayList<>(groups.keySet());
-        keys.sort(Comparator.comparingInt(key -> key.isEmpty() ? Integer.MAX_VALUE : order.contains(key) ? order.indexOf(key) : Integer.MAX_VALUE - 1));
+        keys.sort(Comparator.comparingInt(key -> order.contains(key) ? order.indexOf(key) : Integer.MAX_VALUE));
         int columns = todoColumns(), y = 0;
         var placed = new ArrayList<Slot>();
         for (var key : keys) {
             if (y > 0) y += 4;
-            placed.add(new Slot(key.isEmpty() ? tr("todo.no_scene").getString() : key, null, null, 0, y));
+            placed.add(new Slot(key, null, null, 0, y));
             y += LINE + 2;
             var cards = groups.get(key);
             for (int i = 0; i < cards.size(); i++) {
