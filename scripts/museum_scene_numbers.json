@@ -334,6 +334,7 @@
     "stray_strange_food": "FG-18",
     "den_raid": "DN-13",
     "den_monopoly": "DN-14",
-    "street_corridor": "TN-70"
+    "street_corridor": "TN-70",
+    "street_dead_end": "TN-71"
   }
 }

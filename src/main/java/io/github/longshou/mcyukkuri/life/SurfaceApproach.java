@@ -1187,7 +1187,8 @@ public final class SurfaceApproach {
         haltInput(actor);
     }
 
-    private static void haltInput(YukkuriEntity actor){
+    /** Stop walking input and kill the horizontal speed, without ending the walk request (a body holding still on purpose). */
+    public static void haltInput(YukkuriEntity actor){
         stopInput(actor);
         if (actor.onGround()) {
             Vec3 velocity = actor.getDeltaMovement();

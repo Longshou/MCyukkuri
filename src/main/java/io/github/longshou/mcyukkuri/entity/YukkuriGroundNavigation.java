@@ -11,7 +11,6 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
-import io.github.longshou.mcyukkuri.motor.BodyContact;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Passage;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -50,14 +49,14 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * Placed hats and standing bodies are footprints ({@link Detour}): a search keeps the foot off a hat's brim and prefers to
  * miss standing bodies, never closer than the start and the goal leave them; every step heads round the first footprint on
  * the way, on the side it took. The body a walk's goal belongs to and bodies walking themselves are not steered round. A
- * walker held up by one plans round it (solid for a while), then gives way once (two walking into each other: only the one {@link #keepsLine}
- * ranks lower; an idle blocker is asked to move), and plans again when the mark lapses. Bodies never close the path finder for good.
+ * walker held up by one plans round it (solid for a while), then gives way once (an idle blocker is asked to move), and plans again when
+ * the mark lapses. Two bodies walking into each other are an {@link Encounter}, not a stall. Bodies never close the path finder for good.
  */
 public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Stall sample window (ticks); how close (blocks) to where it heads a body counts as arriving, not held up; how far past its
      *  foot (blocks) from the walk's goal a body is the one the goal belongs to; how far round the walker the footprint scan reaches. */
     private static final int WINDOW = 15;
-    private static final double ARRIVING = .3, CONTACT = .3, SCAN = 3;
+    private static final double ARRIVING = .3, CONTACT = .3, SCAN = Encounter.TRIGGER_GAP;
     /** Ticks a blocker stays solid for planning and how many at once; the widest stretch (blocks) a search looks for footprints
      *  over; ticks the footprint scan round a walker is reused, and a side taken round one is kept. */
     private static final int SOLID_TICKS = 100, SOLID_MAX = 8, PLAN_SPAN = 48, SCAN_TICKS = 5, KEEP_TICKS = 40;
@@ -72,9 +71,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private Vec3 observedGround; // Crossing observation only; never drives movement.
     /** The length of the way round to where the last step was aimed. */
     private double way;
-    private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000, goalTick = -1000, scanTick = -1000, yieldUntil;
+    private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000, goalTick = -1000, scanTick = -1000, encounterScan = -1000;
     private int blockedWindows, turnSide, replans, solidPlanned;
     private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
+    /** The encounter this walker is in (as keeper or yielder), the body it waits for, whether it holds for it now, and the tick before which it speaks no encounter line. */
+    Encounter encounter;
+    private Entity waitFor;
+    private boolean holding;
+    long lineAfter;
+    private boolean faceFirst;
+    /** The body whose encounter with this one failed: not met again by encounter until their lines stop crossing. */
+    Entity shunned;
     private List<Footing> planning = List.of();
     private List<Entity> scan = List.of();
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
@@ -450,13 +457,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         doorStep = null;
         if(mob instanceof YukkuriEntity actor){
             if (passage != null) tickPassage(actor);
-            if (backTo != null) backOff(actor);
             if(observedGround!=null&&actor.onGround()&&!actor.isPassenger())
                 NestDoorway.observe(actor,observedGround,actor.position(),level.getGameTime()-steerTick<=1?aimed:null);
             observedGround=actor.onGround()&&!actor.isPassenger()?actor.position():null;
             if(!isDone()&&exitBed(speedModifier)){
                 ++tick;doStuckDetection(actor.position());
                 return;
+            }
+            if (!level.isClientSide) {
+                long now = level.getGameTime();
+                if (encounter == null && now - encounterScan >= SCAN_TICKS) { encounterScan = now; Encounter.scan(this, actor, near()); }
+                // A yielder drives itself to its passing place: the route's own step (and its stuck clocks) wait.
+                if (encounter != null && encounter.tick(this, actor)) return;
             }
         }
         // Path nodes change their centre offset at whole-block body widths. Never follow an old-width route after growth.
@@ -562,10 +574,73 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         return e.getDeltaMovement().horizontalDistanceSqr() > 1e-4 || e instanceof Mob m && m.getNavigation() instanceof YukkuriGroundNavigation g && g.walking();
     }
 
-    /** Walking now: a route or a direct steer in hand, and not holding still to give way. */
+    /** Walking now: a route or a direct steer in hand, and not a yielder (it drives itself, see {@link Encounter}). */
     public boolean walking() {
         long now = level.getGameTime();
-        return now >= yieldUntil && (path != null && !path.isDone() || now - steerTick <= 2);
+        return !yielding() && (path != null && !path.isDone() || now - steerTick <= 2);
+    }
+
+    private boolean yielding() { return encounter != null && encounter.yielder() == mob && encounter.drives(); }
+
+    /** Whether this walker is standing still for the body it waits for right now. */
+    boolean holding() { return holding; }
+
+    /** The body this walker's line crosses in a running encounter (or the one whose encounter it waits out): not steered round, held at while close on its line. */
+    void waitFor(Entity other) { if (waitFor != other) holding = false; waitFor = other; }
+
+    /** The speed the walk asked for last (the yielder gives way at the pace it was hurrying at). */
+    double requestedSpeed() { return Math.max(speedModifier, mob.getMoveControl().getSpeedModifier()); }
+
+    /** A finished encounter lets go of its keeper's wait, but not of a wait that belongs to another. */
+    void stopWaiting(Entity other) { if (waitFor == other) waitFor(null); }
+
+    boolean waits() { return waitFor != null; }
+
+    /** A walk's Walk watchdog window restarts when the encounter decided how the pair passes. */
+    void restarted() { replans++; }
+
+    /** The yielder is back on its own walk: vanilla's stuck clocks forget the time spent giving way and the route is rebuilt from where it stands. */
+    void resumed() {
+        timeoutCachedNode = Vec3i.ZERO; timeoutTimer = 0; timeoutLimit = 0; lastTimeoutCheck = level.getGameTime();
+        resetBlock();
+        faceFirst = true;
+        if (path != null && !path.isDone()) recomputePath();
+    }
+
+    /** The walk is about {@code other}: it stands at the walk's goal (to be fed, met, carried), so the two are not meeting head-on by chance. */
+    boolean walksTo(YukkuriEntity other) {
+        return aimed != null && partner(footprint(other), goal(aimed), Occupancy.foot(mob.getBbWidth()));
+    }
+
+    /** Where the walk's last step heads (unit, level), or the way it is moving; null when it does neither. */
+    Vec3 heading() {
+        Vec3 to = aimed != null && level.getGameTime() - steerTick <= 2 ? aimed.subtract(mob.position()) : mob.getDeltaMovement();
+        double length = Math.hypot(to.x, to.z);
+        return length < .02 ? null : new Vec3(to.x / length, 0, to.z / length);
+    }
+
+    /**
+     * True while this walker holds still for {@link #waitFor}: the yielder always (it drives itself); a waiter once the body ahead on
+     * its line is closer than HOLD, until that body leaves the line or is farther than RELEASE (one stop, not stop and go).
+     */
+    private boolean holds(YukkuriEntity walker) {
+        if (yielding()) return true;
+        if (waitFor == null) return false;
+        if (!(waitFor instanceof YukkuriEntity other) || !other.isAlive() || !(other.directNavigation() instanceof YukkuriGroundNavigation peer) || peer.encounter == null) {
+            waitFor(null);
+            return false;
+        }
+        // Only a yielder standing still on the way is walked into: one walking away or settled at its place is no reason to stop (a keeper
+        // that then does not come is judged by the encounter).
+        if (!peer.encounter.yielderStill()) { holding = false; return false; }
+        Vec3 heading = heading(), offset = other.position().subtract(walker.position()).multiply(1, 0, 1);
+        double along = heading == null ? 0 : offset.dot(heading);
+        double side = heading == null ? 0 : Math.abs(offset.subtract(heading.scale(along)).length());
+        boolean inLine = along > 0 && side < Passage.halfWidth(walker, right(heading)) + Passage.halfWidth(other, right(heading)) + .05;
+        boolean was = holding;
+        holding = inLine && along - Passage.halfWidth(walker, heading) - Passage.halfWidth(other, heading) < (holding ? Encounter.RELEASE : Encounter.HOLD);
+        if (holding && !was && encounter != null) encounter.holdStarted();
+        return holding;
     }
 
     /** The surface approach names the exact point its walk ends at: what the walk's contact partner is judged by. */
@@ -590,7 +665,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         double clear = Occupancy.foot(mob.getBbWidth());
         var out = new ArrayList<Footing>();
         for (var o : obstacles(walker, area.inflate(2), Double.NaN, false))
-            if (o.solid() || !moving(o.entity()) && !partner(o, end, clear)) footing(out, o, o.solid(), at, end, clear);
+            if (o.solid() || !moving(o.entity()) && !partner(o, end, clear) && o.entity() != waitFor) footing(out, o, o.solid(), at, end, clear);
         long now = level.getGameTime();
         blockers.values().removeIf(s -> s.until() <= now);
         for (var s : blockers.values()) footing(out, s.obstacle(), true, at, end, clear);
@@ -615,13 +690,20 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         long now = level.getGameTime();
         if (moving) {
             steerTick = now; aimed = to; way = at.distanceTo(to);
-            if (now < yieldUntil) return at;
+            if (holds(walker)) return at;
+            // A body back on its own walk after giving way turns to its route first and only then steps (never a slide against its facing).
+            if (faceFirst) {
+                double away = Math.hypot(to.x - at.x, to.z - at.z);
+                float toward = SurfaceApproach.yaw(at, to);
+                if (away < .05 || Math.abs(Mth.wrapDegrees(toward - walker.yBodyRot)) <= Encounter.TURN_FIRST) faceFirst = false;
+                else { Motor.face(walker, toward); return at; }
+            }
         }
         double clear = Occupancy.foot(mob.getBbWidth());
         var end = moving ? goal(to) : to;
         var boxes = new ArrayList<Detour.Box>();
         for (var e : near()) {
-            if (!meets(walker, e, at.y)) continue;
+            if (!meets(walker, e, at.y) || e == waitFor) continue;
             var o = footprint(e);
             if (o.solid() || !moving(e) && !partner(o, end, clear)) boxes.add(o.box());
         }
@@ -656,14 +738,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /**
      * Samples progress every WINDOW ticks while walking (a path or a direct steer); only a walker held up by a footprint ahead
-     * escalates, so nothing runs per tick. Against a body walking into it, the one that ranks higher keeps its line and the other gives
-     * way (a step aside, else back off along its own line); otherwise the round is: plan round it (solid SOLID_TICKS), give way once (hold still a window before a walking body,
-     * ask an idle one to move), wait, and plan again once the mark lapses.
+     * escalates, so nothing runs per tick. A body walking into it is an {@link Encounter}, decided once; otherwise the round is: plan
+     * round it (solid SOLID_TICKS), ask an idle one to move, wait, and plan again once the mark lapses.
      */
     private void watch(YukkuriEntity animal) {
         long now = animal.level().getGameTime();
         boolean walking = path != null && !path.isDone() || now - steerTick <= 2;
-        if (!walking || !animal.onGround() || animal.isPassenger() || animal.isCommandPlaying()) {
+        if (!walking || encounter != null || !animal.onGround() || animal.isPassenger() || animal.isCommandPlaying()) {
             resetBlock();
             return;
         }
@@ -671,7 +752,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (now - sampleTick < WINDOW) return;
         double moved = Math.hypot(animal.getX() - sample.x, animal.getZ() - sample.z);
         sample = animal.position(); sampleTick = now;
-        if (now < yieldUntil || moved >= (animal.isCrawling() ? .02 : .12) || aimed == null || animal.position().distanceTo(aimed) < ARRIVING) {
+        if (moved >= (animal.isCrawling() ? .02 : .12) || aimed == null || animal.position().distanceTo(aimed) < ARRIVING) {
             blockedWindows = 0;
             return;
         }
@@ -680,23 +761,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (blocker == null) { blockedWindows = 0; return; }
         int stage = ++blockedWindows;
         var other = blocker.entity();
+        // Two bodies walking into each other are one encounter, decided once (a pair in contact before the scan saw it starts here).
+        if (other instanceof YukkuriEntity peer && moving(other) && Encounter.consider(this, animal, peer)) return;
         long id = blocker.box().id();
         var round = blockers.get(id);
-        // A yielder holding still for the keeper is still the body walking into it, not a standing one (else the keeper yields too).
-        boolean oncoming = moving(other) || other instanceof Mob m && m.getNavigation() instanceof YukkuriGroundNavigation g && now < g.yieldUntil;
         boolean marked = round != null && round.until() > now;
-        // The rank is a pure function of both bodies; a mark from this round keeps the yielder yielding, and a keeper still held
-        // up after three windows (the yielder cannot clear the way) takes the yielder's part once per round.
-        boolean keeps = oncoming && !marked && blockedWindows < KEEPER_WINDOWS
-                && (other instanceof YukkuriEntity peer ? keepsLine(animal, peer) : animal.getId() > other.getId());
         String action;
-        if (keeps) action = "keeps_line";
-        else if (!marked) action = replan(blocker, now) ? "replanned" : "no_alternative";
+        if (!marked) action = replan(blocker, now) ? "replanned" : "no_alternative";
         else if (round.asked()) action = "waiting";
         else {
             blockers.put(id, new Blocker(round.obstacle(), round.until(), true));
-            if (oncoming) action = giveWayAhead(animal, other, heading, now);
-            else if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";
+            if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";
             else action = "waiting";
         }
         int suppressed = GameplayLog.admit(animal, "move", "body_block_" + action, 100);
@@ -769,64 +844,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
     }
     private Yield passage;
-    private Vec3 backTo;
 
     /**
-     * Giving way is a step aside, not only standing still: two bodies that meet on a one-cell shore each stop on the other's line,
-     * the one that keeps its line pushes into a body that only waits, and neither ever gets past (they stood there until they
-     * starved). {@code body} takes one short pace off {@code other}'s line, on the side away from it; the motor makes the move, so
-     * vanilla resolves the collision instead of a body being put into a wall. True when it really moved.
+     * An idle body asked to move out of a walker's way (a standing blocker; two walking bodies are an {@link Encounter}): it takes one
+     * short pace off {@code other}'s line, on the side away from it; the motor makes the move, so vanilla resolves the collision
+     * instead of a body being put into a wall. True when it really moved.
      */
     private static boolean stepAside(YukkuriEntity body, Entity other, Vec3 heading) {
         Vec3 side = right(heading);
         double away = Math.signum((body.getX() - other.getX()) * side.x + (body.getZ() - other.getZ()) * side.z);
         if (away == 0) away = 1;
         return Motor.move(body, side.scale(away * YIELD_PACE), "give_way").lengthSqr() > 1e-6;
-    }
-
-    /** Ticks the keeper may be held up (windows) before it takes the yielder's part; blocks a yielder backs off along its own line, at what pace. */
-    private static final int KEEPER_WINDOWS = 3;
-    private static final double BACK_OFF = 1.5, BACK_PACE = .12;
-
-    /**
-     * Which of two bodies walking into each other keeps its line: the heavier, the one carrying a child, the more urgent (panic,
-     * hunger), the bolder and surer. Each term is a difference, so the score is antisymmetric and both sides reach the same
-     * answer from synced state; inside the dead band the higher id keeps (as before). Exactly one of a pair keeps.
-     */
-    static boolean keepsLine(YukkuriEntity a, YukkuriEntity b) {
-        double score = Math.log(BodyContact.mass(a) / BodyContact.mass(b))
-                + .6 * (BodyAbility.carrying(a) < 1 ? 1 : 0) - .6 * (BodyAbility.carrying(b) < 1 ? 1 : 0)
-                + .3 * (urgency(a) - urgency(b))
-                + .4 * (a.life().personality().boldness() - b.life().personality().boldness()) / 100.0
-                + .3 * (SocialDisposition.confidence(SocialDisposition.selfEsteem(a)) - SocialDisposition.confidence(SocialDisposition.selfEsteem(b)));
-        return Math.abs(score) < .1 ? a.getId() > b.getId() : score > 0;
-    }
-
-    private static double urgency(YukkuriEntity body) { return (body.isPanicking() ? 1 : 0) + (body.life().nutrition() < 30 ? .5 : 0); }
-
-    /** The yielder's ladder: a step to a free side (taken by {@link #stepAside}), else back off along the line it just walked, else nothing (the round then replans). */
-    private String giveWayAhead(YukkuriEntity animal, Entity other, Vec3 heading, long now) {
-        Vec3 side = right(heading);
-        double away = Math.signum((animal.getX() - other.getX()) * side.x + (animal.getZ() - other.getZ()) * side.z);
-        // A side counts only with a body width of free, supported floor on it (a one-cell lane has none: it backs off instead).
-        if (clearYieldStand(animal, animal.position().add(side.scale((away == 0 ? 1 : away) * animal.getBbWidth())))
-                && stepAside(animal, other, heading)) { yieldUntil = now + WINDOW; return "gives_way"; }
-        // The aim is the next waypoint, a little off the lane's axis; backing along that diagonal swings a body that hugs one wall
-        // of a one-cell lane into it. The same retreat along the dominant axis keeps its lateral place, so it is tried second.
-        Vec3 axis = Math.abs(heading.x) >= Math.abs(heading.z) ? new Vec3(Math.signum(heading.x), 0, 0) : new Vec3(0, 0, Math.signum(heading.z));
-        for (double d = BACK_OFF; d >= .5; d -= .5) for (var line : new Vec3[]{heading, axis}) {
-            var back = animal.position().subtract(line.scale(d));
-            if (clearYieldStand(animal, back)) { backTo = back; yieldUntil = now + YIELD_LIMIT; return "backs_off"; }
-        }
-        return "no_room";
-    }
-
-    /** One pace of the back-off a yielder is taking; it ends where it stands when the way back is no longer free. */
-    private void backOff(YukkuriEntity animal) {
-        var delta = backTo.subtract(animal.position()).multiply(1, 0, 1);
-        if (level.getGameTime() >= yieldUntil || delta.lengthSqr() < 1e-4 || !clearYieldStand(animal, backTo)) { backTo = null; return; }
-        var step = delta.normalize().scale(Math.min(delta.length(), BACK_PACE));
-        if (Motor.move(animal, step, "give_way").lengthSqr() < 1e-6) backTo = null;
     }
 
     /** The server player moves via packets. Sample actual positions instead of using server velocity. */
@@ -920,20 +948,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             if (ahead < -.1 || ahead > lead) return false;
         }
         var start = blocker.position();
-        Vec3 stand = Passage.aside(start, offset, side, width, margin, at -> clearYieldStand(blocker, at));
+        Vec3 stand = Passage.aside(start, offset, side, width, margin, at -> Encounter.standFree(blocker, at));
         if (stand != null) {
             blocker.getLookControl().setLookAt(walker, 30, 30);
             if (!blocker.hasReaction()) blocker.showReaction(eagerness > .5 ? "surprise" : "pursed", "", 12);
         }
         nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk);
         return stand != null;
-    }
-
-    private static boolean clearYieldStand(YukkuriEntity body, Vec3 stand) {
-        var box = body.getBoundingBox().move(stand.subtract(body.position()));
-        return SurfaceApproach.clearLastStep(body, stand) && body.level().noCollision(body, box)
-                && body.level().getEntitiesOfClass(LivingEntity.class, box, other -> other != body && other.isAlive()
-                        && !other.isSpectator()).isEmpty();
     }
 
     private void tickPassage(YukkuriEntity body) {
@@ -951,7 +972,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         if (elapsed < passage.notice || !body.onGround()) return;
         var delta = passage.stand.subtract(body.position()).multiply(1, 0, 1);
-        if (!clearYieldStand(body, passage.stand)) {
+        if (!Encounter.standFree(body, passage.stand)) {
             passage.done = true;
             return;
         }

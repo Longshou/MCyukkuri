@@ -4199,32 +4199,60 @@ add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
 # A one-cell lane (z -5..5) between a stone wall (west) and a glass shop front (east, the observer's side): each tired adult starts
-# in the lane, its own nest in the roofed end room beyond the other. The glass pocket half way is exactly one cell (one adult body
-# plus margin) deep, so the yielder can step aside there; elsewhere it can only back off along its line. The end rooms are three
-# cells wide because a Reimu's ribbon needs side room to lie in a nest; the roof covers nest and doorway (a home must be covered).
+# at one end of the lane, its own nest in the roofed end room beyond the other, and walks the lane alone (nutrition 45: neither is
+# fed enough to go and keep the other company, which would end in contact instead of a meeting). The glass pocket in the south half
+# is exactly one cell (one adult body plus margin) deep, so the yielder on that side turns round and walks into it; the other
+# side has only its end room. The end rooms are three cells wide because a Reimu's ribbon needs side room to lie in a nest; the
+# roof covers nest and doorway (a home must be covered).
 _corridor = 'street_corridor'
 _corridor_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
                  box(-1, 0, -5, -1, 1, 5, 'minecraft:stone_bricks'),
-                 box(1, 0, -5, 1, 1, -3, 'minecraft:glass'), box(1, 0, 3, 1, 1, 5, 'minecraft:glass'),
-                 box(2, 0, -2, 2, 1, 2, 'minecraft:glass')]
+                 box(1, 0, -5, 1, 1, 1, 'minecraft:glass'), box(1, 0, 5, 1, 1, 5, 'minecraft:glass'),
+                 box(2, 0, 2, 2, 1, 4, 'minecraft:glass')]
 for _s in (-1, 1):
     _corridor_set += [box(-2, 0, 6 * _s, -2, 1, 9 * _s, 'minecraft:stone_bricks'),
                       box(2, 0, 6 * _s, 2, 1, 9 * _s, 'minecraft:glass'),
                       box(-2, 0, 10 * _s, 2, 1, 10 * _s, 'minecraft:stone_bricks'),
                       box(-2, 2, 6 * _s, 2, 2, 10 * _s, 'minecraft:oak_planks'),
                       block(0, 0, 8 * _s, f'mcyukkuri:yukkuri_nest[facing={"south" if _s < 0 else "north"}]')]
-add(_corridor, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
-    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧巷口站着一只、左（南）侧玻璃侧袋口站着另一只疲倦、互不相识的成体，各自的窝在对面巷底的小屋里。两只回窝时在侧袋北沿的窄段迎面顶住：看谁让路——沿来路后退（退进侧袋或巷底）——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
-    '约 30 秒', [
+add(_corridor, 'town', '窄巷迎面相遇：让路者转身走到会车处', '窄巷迎面相遇：让路者转身走到会车处',
+    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，南半段东侧有一个浅侧袋。两只疲倦、互不相识的成体分别从巷子的北端和南端出发，各自的窝在对面巷底的小屋里，走到巷中迎面相遇：看谁让路——让路者先转身，再走进较近的侧袋（或巷底小屋），另一只走过，然后各自回窝；全程不倒退、不呆站，相遇时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
+    '约 40 秒', [
         *_corridor_set,
         yk(('reimu', 'marisa'), 0, -5, 'corridor_north', uuid=uid(_corridor, 'corridor_north'), label='北端回窝的成体',
-           lead=True, yaw=0, energy=30, rest_wait=60, boldness=(20, 90)),
-        yk(('reimu', 'marisa'), 0, -2, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='侧袋口回窝的成体',
-           yaw=180, energy=30, rest_wait=60, boldness=(20, 90)),
+           lead=True, yaw=0, energy=30, rest_wait=60, boldness=(20, 90), nutrition=45),
+        yk(('reimu', 'marisa'), 0, 5, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='南端回窝的成体',
+           yaw=180, energy=30, rest_wait=60, boldness=(20, 90), nutrition=45),
     ], at_spawn=[home('corridor_north', 0, 8), home('corridor_south', 0, -8)], env=DAY,
     vantage=(10, 0, 90, 8),
     reads=[('读北侧成体', f'yukkuri status {sel("corridor_north")} raw'),
            ('读南侧成体', f'yukkuri status {sel("corridor_south")} raw')])
+
+# A one-cell lane with no pocket: its south end is a closed stub holding the bold marisa's nest (z 7), its north end opens into the
+# timid marisa's roofed room 8 blocks up (z -8..-11). The two start 8 apart and meet near the middle. The timid one (in the stub) has a
+# wall behind it, a known dead end, so it is not sent into it: the bold one, whose way back is open, turns round, walks out to the room
+# and lets it by, then walks back to its own nest. (A hand-over for a dead end beyond the 12-block search reach exists but no scene
+# reaches it.) Neither is fed enough (nutrition 45) to go and keep the other company.
+_dead_end = 'street_dead_end'
+_dead_end_set = [box(-3, -1, -13, 3, -1, 10, 'minecraft:stone_bricks'),
+                 box(-1, 0, -7, -1, 1, 7, 'minecraft:stone_bricks'), box(1, 0, -7, 1, 1, 7, 'minecraft:glass'),
+                 box(-1, 0, 8, 1, 1, 8, 'minecraft:stone_bricks'), box(-1, 2, 4, 1, 2, 8, 'minecraft:oak_planks'),
+                 block(0, 0, 7, 'mcyukkuri:yukkuri_nest[facing=north]'),
+                 box(-2, 0, -11, -2, 1, -8, 'minecraft:stone_bricks'), box(2, 0, -11, 2, 1, -8, 'minecraft:glass'),
+                 box(-2, 0, -12, 2, 1, -12, 'minecraft:stone_bricks'), box(-2, 2, -12, 2, 2, -8, 'minecraft:oak_planks'),
+                 block(0, 0, -10, 'mcyukkuri:yukkuri_nest[facing=south]')]
+add(_dead_end, 'town', '死胡同里迎面相遇：身后有路的一只转身让开', '死胡同里迎面相遇：身后有路的一只转身让开',
+    '镜头朝西：一格宽的窄巷，南端是封死的短巷（里面有大胆的魔理沙的窝），北端 8 格外是胆小的魔理沙的小屋，巷中没有侧袋。两只疲倦的成体从巷子两头出发，在巷中迎面相遇：胆小的一只身后是死胡同，没有地方可让；大胆的一只虽然更强，身后却有路，于是它转身沿巷走回北边小屋口让开，胆小的一只走过去回窝，大胆的一只再走回自己的窝。全程不倒退，也不会把谁送进死胡同又退出来。',
+    '约 60 秒', [
+        *_dead_end_set,
+        yk('marisa', 0, -3, 'dead_north', uuid=uid(_dead_end, 'dead_north'), label='北端回窝的大胆成体',
+           lead=True, yaw=0, energy=30, rest_wait=60, boldness=90, nutrition=45),
+        yk('marisa', 0, 5, 'dead_south', uuid=uid(_dead_end, 'dead_south'), label='死胡同里回窝的胆小成体',
+           yaw=180, energy=30, rest_wait=60, boldness=15, nutrition=45),
+    ], at_spawn=[home('dead_north', 0, 7), home('dead_south', 0, -10)], env=DAY,
+    vantage=(10, -2, 90, 8),
+    reads=[('读北侧成体', f'yukkuri status {sel("dead_north")} raw'),
+           ('读南侧成体', f'yukkuri status {sel("dead_south")} raw')])
 
 _yard_x, _yard_z = BY_ID['town'].anchor
 
@@ -8214,7 +8242,7 @@ TOPICS = {
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1', 'pet_water_away': 'M1', 'pet_food_walled': 'M1', 'pet_food_empty': 'M1',
-    'street_give_way': 'M4', 'street_corridor': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5',
@@ -8288,13 +8316,89 @@ _smoke('magma_sole', 600, [
     r'\[body\][^\n]* hot floor escaped health=',
 ])
 
-# Each nest lies beyond the other body in a one-cell lane, so both sleeping at home proves they got past each other (by a
-# give-way, a back-off, a replanned route through the pocket or a push into it); a blocked-by line of either proves they met
-# head-on, and its action (gives_way, backs_off, keeps_line, ...) names who yielded and how.
+# Each nest lies beyond the other body in a one-cell lane, so both sleeping at home proves they got past each other; the
+# encounter lines (begin, beats, end) of either name who yielded, where, and how long the pass took.
 _corridor_logs = [_uuid_text(_corridor, slot) for slot in ('corridor_north', 'corridor_south')]
-_smoke('street_corridor', 1200, [
-    rf'\[move\][^\n]*uuid=(?:{_corridor_logs[0]}|{_corridor_logs[1]})\b[^\n]*blocked by yukkuri [^\n]* action=(?:gives_way|backs_off)\b',
-    *[rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in _corridor_logs]])
+_dead_logs = [_uuid_text(_dead_end, slot) for slot in ('dead_north', 'dead_south')]
+
+
+def _encounter_smoke(sid, ticks, logs, expect, forbid=()):
+    who = rf'uuid=(?:{logs[0]}|{logs[1]})\b'
+    _smoke(sid, ticks, [
+        *expect,
+        *[rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in logs]],
+        forbid=[rf'\[move\][^\n]*{who}[^\n]* encounter end [^\n]* result=(?:stuck|timeout|aborted)\b',
+                rf'\[move\][^\n]*{who}[^\n]* action=(?:keeps_line|backs_off|gives_way|no_alternative|waiting)\b',
+                rf'\[move\][^\n]*{who}[^\n]* ground path stopped reason=no_progress',
+                rf'\[approach\][^\n]*{who}[^\n]* surface path unavailable', *forbid])
+    return who
+
+
+_corridor_who = rf'uuid=(?:{_corridor_logs[0]}|{_corridor_logs[1]})\b'
+_encounter_smoke('street_corridor', 1500, _corridor_logs, [
+    rf'\[move\][^\n]*{_corridor_who}[^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,\S+\) reason=(?:nearer_place|stronger|tie|no_place) ',
+    rf'\[move\][^\n]*{_corridor_who}[^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed '])
+_dead_who = rf'uuid=(?:{_dead_logs[0]}|{_dead_logs[1]})\b'
+_encounter_smoke('street_dead_end', 2200, _dead_logs, [
+    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,\S+\) reason=nearer_place minor=false ',
+    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed '],
+    forbid=[rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin [^\n]* reason=(?:no_place|dead_end) ',
+            rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end [^\n]* result=no_place'])
+
+
+def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1):
+    """One decision per pair and meeting, begun before the bodies touched (gap > 1.5), no role flip (the only reversal within 300 ticks of
+    an end is the logged dead end), at most one keeper stop, every full yield printed its face and line beat, each encounter ends within
+    ``base_ticks + per_block * len`` of its begin (the trigger gap is 3.5 blocks, so that is first proximity to passing; ``len`` is the
+    yielder's walk to its place), the yielder's walk is at least ``min_len`` (it is not sent into a dead end), and no walker moves more than
+    55 degrees off its facing at any tick from the first begin to 40 ticks after the last end (never backwards, resumed routes included; an
+    ordinary roam start much later, vanilla turning while it sets off, is outside it)."""
+    def verify(window, trace):
+        ended, result, lengths, began, span = {}, {}, {}, 0, [10 ** 9, 0]
+        for line in re.finditer(r'\[move\][^\n]* t=(\d+) [^\n]* encounter (begin|end) keeper=#(\d+) yielder=#(\d+) ([^\n]*)', window):
+            now, kind, keeper, yielder, rest = line.groups()
+            now = int(now)
+            span = [min(span[0], now), max(span[1], now)]
+            pair = (keeper, yielder)
+            if kind == 'begin':
+                began += 1
+                reason = re.search(r'reason=(\w+)', rest).group(1)
+                gap = float(re.search(r' gap=(-?[\d.]+)', rest).group(1))
+                lengths[pair] = float(re.search(r' len=([\d.]+)', rest).group(1))
+                if gap < 1.5 and reason != 'dead_end':
+                    return f'keeper=#{keeper} yielder=#{yielder} began at gap {gap}: the bodies had already touched (a trigger that came too late)'
+                if lengths[pair] < min_len and reason != 'dead_end':
+                    return f'keeper=#{keeper} yielder=#{yielder} walks only {lengths[pair]} blocks (< {min_len}): sent into the dead end'
+                for other in (pair, (yielder, keeper)):
+                    if other in ended and now - ended[other] < 300 and not (other != pair and reason == 'dead_end' and result.get(other) == 'no_place'):
+                        return f'keeper=#{keeper} yielder=#{yielder} decided again {now - ended[other]} ticks after the same pair' + (' with the roles reversed' if other != pair else '')
+                if 'minor=false' in rest and not re.search(rf'encounter beat role=yielder beat=yield_notice face=\w+ line=\w+ keeper=#{keeper} yielder=#{yielder}', window):
+                    return f'no yield_notice beat for keeper=#{keeper} yielder=#{yielder}'
+            else:
+                found = re.search(r'result=(\w+) cause=(\w+) ticks=(\d+) holds=(\d+)', rest)
+                ended[pair] = now
+                result[pair] = found.group(1)
+                max_ticks = base_ticks + per_block * lengths.get(pair, 0)
+                if int(found.group(3)) > max_ticks:
+                    return f'encounter keeper=#{keeper} yielder=#{yielder} took {found.group(3)} ticks (> {max_ticks:.0f}: {base_ticks} + {per_block} per block of its {lengths.get(pair, 0):.1f}-block walk)'
+                if int(found.group(4)) > max_holds:
+                    return f'keeper stopped {found.group(4)} times in one encounter (stop and go)'
+        if not began:
+            return 'no encounter began'
+        for entry in trace:
+            row = json.loads(entry.split('[trace] ', 1)[1])
+            if row['k'] != 'st' or not span[0] <= row['t'] <= span[1] + 40:
+                continue
+            v, yaw = row['st']['v'], math.radians(row['st']['by'])
+            speed = math.hypot(v[0], v[2])
+            if speed > .05 and (v[0] * -math.sin(yaw) + v[2] * math.cos(yaw)) / speed < math.cos(math.radians(55)):
+                return f"{row['u']} moved {speed:.3f} blocks/tick more than 55 degrees off its facing at tick {row['t']} (a backward or sideways slide)"
+        return None
+    return verify
+
+
+for _scene, _verify in (('street_corridor', _encounter_verify(50, 25)), ('street_dead_end', _encounter_verify(50, 25, min_len=5))):
+    next(s for s in S if s.id == _scene).smoke.update(verify=_verify, verify_trace=True)
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
 # and each answer is logged by the animal itself.
