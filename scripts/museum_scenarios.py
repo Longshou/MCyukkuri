@@ -7161,7 +7161,9 @@ pond('shake_ashore', '落水灵梦爬上岸甩水', '落水灵梦爬上岸甩水
      reads=[('读湿度与甩水', f'yukkuri status {sel("a")} raw')],
      capture=dict(shots=(1, 40, 400, 800), sequences=((40, 800, 4),), observe=False,
                   follow='@e[tag=scn_a,limit=1]', offset=(-1.6, 1.0, 2.2)),
-     smoke=dict(ticks=1200, expect=[*_WATER_ESCAPE, r'\[water\][^\n]* escape done [^\n]*support=stand=',
+     # The body has landed in the runnel during the start hold, so its first step out is a walk (a fresh spawn would still be swimming).
+     smoke=dict(ticks=1200, expect=[_WATER_ESCAPE[0], _WATER_ESCAPE[1].replace('id=swim', 'id=(?:swim|walk)'), _WATER_ESCAPE[2],
+                                   r'\[water\][^\n]* escape done [^\n]*support=stand=',
                                    r'\[weather\][^\n]* shaking water off wetness=[^\n]* after=water\b',
                                    r'\[weather\][^\n]* shook the water off wetness='],
                 forbid=_WATER_SMOKE_FORBID, readout=_water_readouts('a')))
