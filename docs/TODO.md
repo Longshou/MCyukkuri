@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 徽章广场 P5：广场与认证门槛的台词与语音 | `.worktrees/wp-plaza-lines` | dialogue corpus; art/audio/aquestalk; lang; pet/social BadgeArcs speech picks; pet/exam examiner line |
 
 ## 玩法待办
 
