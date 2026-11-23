@@ -375,8 +375,8 @@ public final class PresentationArbiter {
         boolean frail = wanted.hops() && state.requestedAction() == null && BodyAbility.frail(e);
         YukkuriAction action = frail ? YukkuriAction.IDLE : wanted;
         if (frail && !e.level().isClientSide)
-            GameplayLog.limited(e, "body", "frail_clip", 100, "frail body withholds hop clip={} behavior={} energy={} nutrition={} health={}",
-                    wanted.id(), behavior, e.life().energy(), e.life().nutrition(), e.getHealth());
+            GameplayLog.limited(e, "body", "frail_clip", 100, "frail body withholds hop beat=frail_clip clip={} behavior={} face={} line={} energy={} nutrition={} health={}",
+                    wanted.id(), behavior, e.getExpressionId(), state.reactionEvent(), e.life().energy(), e.life().nutrition(), e.getHealth());
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;
         if (flightAnimation != null) {
             // The old raw flight write has the reverse order of setAnimation: ID, then start.

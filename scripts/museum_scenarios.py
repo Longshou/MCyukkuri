@@ -2510,6 +2510,13 @@ def _verify_nutrition_age(window, trace):
         return 'The starving body left no trace samples'
     if hops := [row for row in starving if row[2] in _HOP_CLIPS]:
         return f'The starving body hopped: {hops[0]}'
+    tired, control = (_clips(trace, _uuid_text('nutrition_age', name)) for name in ('tired', 'tired_ctl'))
+    if hops := [row for row in tired if row[2] in _HOP_CLIPS]:
+        return f'The exhausted body hopped: {hops[0]}'
+    if not any(row[2] == 'joy_jump' for row in control):
+        return 'The healthy control never hopped for joy'
+    if not re.search(rf'\[body\][^\n]* uuid={_uuid_text("nutrition_age", "tired")} [^\n]*frail body withholds hop beat=frail_clip clip=joy_jump behavior=meal_delight\b', window):
+        return 'The exhausted body\'s joy hop was not withheld in the log'
 
 
 next(s for s in S if s.id == 'nutrition_age').smoke = dict(
@@ -7902,29 +7909,27 @@ BY_ID['pond'].scenarios.sort(key=lambda scenario: POND_TOUR.index(scenario.id))
 
 # A weak body (health 30%) crawls to its food; a starving one has an apple only on top of a two-block pillar (a hop it no longer has)
 # and a second one far on the ground; a healthy hungry control has the same pillar.
-_FG = {name: uid('frail_gait', name) for name in ('weak', 'gap', 'gap_ctl')}
+_FG = {name: uid('frail_gait', name) for name in ('weak', 'gap')}
 add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '重伤爬行、虚弱不蹦跳',
-    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。右：营养30的健康灵梦同样的石柱，对照能蹦上去',
+    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。远处另一个在地面',
     '约 1 分钟', [
         yk('reimu', -10, 0, 'weak', label='生命3·爬行', nutrition=40, energy=95, uuid=_FG['weak'], lead=True),
-        item('minecraft:apple', 1, -5, 0, 'weak_food'),
+        item('minecraft:apple', 1, -7, 0, 'weak_food'),
         yk('reimu', -10, 8, 'gap', label='营养5·虚弱', nutrition=5, energy=95, uuid=_FG['gap']),
         block(-5, 0, 8, 'minecraft:stone'), block(-5, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, -5, 8, 'gap_food', dy=2.05),
-        item('minecraft:apple', 1, -10, 18, 'gap_far'),
-        yk('reimu', 10, 8, 'gap_ctl', label='营养30·健康对照', nutrition=30, energy=95, uuid=_FG['gap_ctl']),
-        block(15, 0, 8, 'minecraft:stone'), block(15, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, 15, 8, 'gap_ctl_food', dy=2.05)],
+        item('minecraft:apple', 1, -10, 18, 'gap_far'),],
     late=[set_status('weak', 'health.health', 3)],
-    env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap', 'gap_ctl')])
+    env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap')])
 
 
 def _verify_frail_gait(window, trace):
-    weak, gap = _clips(trace, _FG['weak']), _clips(trace, _FG['gap'])
-    if not re.search(rf'\[move\][^\n]* uuid={_FG["weak"]} [^\n]*gait crawl cause=weak\b', window):
+    weak, gap = _clips(trace, _uuid_text('frail_gait', 'weak')), _clips(trace, _uuid_text('frail_gait', 'gap'))
+    if not re.search(rf'\[move\][^\n]* uuid={_uuid_text("frail_gait", "weak")} [^\n]*gait crawl cause=weak\b', window):
         return 'The weak body never crawled'
     for name, rows in (('weak', weak), ('gap', gap)):
         if hops := [row for row in rows if row[2] in _HOP_CLIPS]:
             return f'The {name} body hopped: {hops[0]}'
-    if not re.search(rf'uuid={_FG["weak"]} [^\n]*swallowed item=minecraft:apple', window):
+    if not re.search(rf'uuid={_uuid_text("frail_gait", "weak")} [^\n]*swallowed item=minecraft:apple', window):
         return 'The weak body never reached its apple'
 
 
