@@ -10272,8 +10272,8 @@ def _park_play_pet_fates(window):
         return f'heavy timid pet did not sustain bounces (need >=3 at >=0.20b, got {len(heavy_real)}: {heavy[2]})'
     if not (heavy[0] > light[0] and heavy[1] < light[1] and max(heavy[2]) < max(light[2]) and len(heavy[2]) < len(light[2])):
         return f'park rebounds did not follow weight, energy and boldness: heavy={heavy} light={light}'
-    if re.search(r'outing play waiting kind=TRAMPOLINE', window) and not waited:
-        return 'a pet found the trampoline occupied but never waited beside it watching the bouncer'
+    if re.search(r'trampoline wait ended reason=\w+ at=[^\n]* waited=[1-9]\d*/', window) and not waited:
+        return 'a pet held the waiting stand beside the trampoline without logging wait_watch'
     return None
 
 

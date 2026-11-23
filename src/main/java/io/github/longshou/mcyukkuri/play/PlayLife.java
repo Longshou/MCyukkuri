@@ -34,8 +34,9 @@ public final class PlayLife {
     private PlayBlockEntity facility,waitingFor;
     private List<Vec3> route=List.of();
     private Vec3 waitStand;
+    private BlockPos gaveUpMat;
     private int cooldown,scanWait,elapsed,waypoint,bounces,stalled;
-    private int waitTicks,waitLimit,waitCooldown,waitElapsed,lastWaitElapsed;
+    private int waitTicks,waitLimit,waitElapsed,lastWaitElapsed,gaveUpBoredom;
     /** A tub session: the route index of the seat (-1 elsewhere), the ticks soaked there and the state at the start of the soak. */
     private int soakAt=-1,soakTicks;
     private float soakHealth,soakUnease;
@@ -103,7 +104,6 @@ public final class PlayLife {
     public void clock(){
         if(cooldown>0)cooldown--;
         if(scanWait>0)scanWait--;
-        if(waitCooldown>0)waitCooldown--;
         if(active()){
             if(elapsed==lastElapsed||!valid())stop();
             lastElapsed=elapsed;
@@ -129,6 +129,7 @@ public final class PlayLife {
                         if(beginWait(found))return true;
                         continue;
                     }
+                    if(found.getBlockPos().equals(gaveUpMat))gaveUpMat=null;
                 }
                 if(begin(found))return true;
             }
@@ -137,27 +138,34 @@ public final class PlayLife {
     }
     /** Stand beside an occupied trampoline and watch the bouncer without reserving the mat. */
     public boolean beginWait(PlayBlockEntity target){
-        if(active()||waiting()||cooldown>0||waitCooldown>0)return false;
+        if(active()||waiting()||cooldown>0)return false;
         if(target.kind()!=PlayBlock.Kind.TRAMPOLINE||!available(false))return false;
         if(target.getLevel()!=entity.level()||target.isRemoved())return false;
         if(!entity.childhood().canJump()||BodyAbility.cannotSpring(entity)||!wantsTrampolinePlay())return false;
+        if(target.getBlockPos().equals(gaveUpMat)&&entity.dailyLife().boredom()<=gaveUpBoredom+10)return false;
         if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return false;
         Vec3 stand=findWaitStand(target);
         if(stand==null)return false;
+        gaveUpMat=null;
         entity.social().stop();
         waitingFor=target;waitStand=stand;waitTicks=0;waitLimit=waitBudget();
         waitWatching=false;waitFaced=false;waitElapsed=0;lastWaitElapsed=-1;
         return true;
     }
+    private boolean clearOfOthers(Vec3 at){
+        var level=entity.level();
+        var box=entity.getBoundingBox().move(at.subtract(entity.position()));
+        var below=BlockPos.containing(at).below();
+        return level.noCollision(entity,box)
+                &&level.getEntitiesOfClass(YukkuriEntity.class,box.inflate(.1,0,.1),o->o!=entity).isEmpty()
+                &&level.getBlockState(below).isFaceSturdy(level,below,Direction.UP);
+    }
     private Vec3 findWaitStand(PlayBlockEntity target){
         int preferred=(entity.getUUID().hashCode()&1)==0?1:-1;
-        var level=entity.level();
         for(int s:new int[]{preferred,-preferred}){
             for(double z:WAIT_OFFSETS_Z){
                 var candidate=PlayGeometry.world(target.getBlockPos(),target.facing(),s*WAIT_SIDE_X,0,z);
-                var below=BlockPos.containing(candidate).below();
-                if(!level.noCollision(entity,entity.getBoundingBox().move(candidate.subtract(entity.position())))
-                        ||!level.getBlockState(below).isFaceSturdy(level,below,Direction.UP))continue;
+                if(!clearOfOthers(candidate))continue;
                 var path=entity.getNavigation().createPath(BlockPos.containing(candidate),0);
                 if(path!=null&&path.canReach())return candidate;
             }
@@ -178,13 +186,24 @@ public final class PlayLife {
         if(!waitingFor.occupiedByOther(entity)){
             var target=waitingFor;
             stopWait("free");
-            if(!begin(target))waitCooldown=40;
+            if(wantsTrampolinePlay())begin(target);
             return;
         }
         double dist=waitStand.subtract(entity.position()).horizontalDistance();
         if(dist>.35){
             var result=SurfaceApproach.walkResult(entity,waitStand,null,1.0);
-            if(result==SurfaceApproach.Result.BLOCKED){waitCooldown=160;stopWait("blocked");return;}
+            if(result==SurfaceApproach.Result.BLOCKED){
+                gaveUpMat=waitingFor.getBlockPos();gaveUpBoredom=entity.dailyLife().boredom();
+                stopWait("blocked");
+                return;
+            }
+            return;
+        }
+        if(!waitWatching&&!clearOfOthers(waitStand)){
+            Vec3 alt=findWaitStand(waitingFor);
+            if(alt!=null){waitStand=alt;return;}
+            gaveUpMat=waitingFor.getBlockPos();gaveUpBoredom=entity.dailyLife().boredom();
+            stopWait("blocked");
             return;
         }
         SurfaceApproach.stopWalking(entity);
@@ -204,7 +223,8 @@ public final class PlayLife {
         if(++waitTicks>=waitLimit){
             double patient=entity.life().personality().temperament().patient();
             emitBeat("wait_give_up",patient<Temperament.LOW35?"hmph":"dull","mood_bad",60);
-            waitCooldown=400;
+            gaveUpMat=waitingFor.getBlockPos();gaveUpBoredom=entity.dailyLife().boredom();
+            if(entity.outing().onOuting())entity.outing().finishedParkPlay();
             stopWait("patience");
         }
     }
@@ -258,11 +278,7 @@ public final class PlayLife {
             var exit=local.getLast();int side=(entity.getUUID().hashCode()&1)==0?1:-1;
             for(int s:new int[]{side,-side}){
                 var aside=PlayGeometry.world(target.getBlockPos(),target.facing(),s*ASIDE_X,exit.y,exit.z+ASIDE_Z);
-                var level=entity.level();
-                var asideBox=entity.getBoundingBox().move(aside.subtract(entity.position()));
-                if(level.noCollision(entity,asideBox)
-                        &&level.getEntitiesOfClass(YukkuriEntity.class,asideBox.inflate(.1,0,.1),o->o!=entity).isEmpty()
-                        &&level.getBlockState(BlockPos.containing(aside).below()).isFaceSturdy(level,BlockPos.containing(aside).below(),Direction.UP)){
+                if(clearOfOthers(aside)){
                     points.add(aside);break;
                 }
             }
@@ -502,7 +518,7 @@ public final class PlayLife {
                     elapsed,waypoint,bounces,stalled,entity.life().nutrition(),entity.life().energy(),entity.dailyLife().boredom());
         }
         springing=false;peakVoiced=false;stopReason=null;facility=null;route=List.of();soakAt=-1;soakTicks=0;soakHurt=false;soakRule=null;
-        if(!log)pendingBeat=null;
+        if(!log){pendingBeat=null;gaveUpMat=null;gaveUpBoredom=0;}
         entity.getNavigation().stop();
     }
     private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}

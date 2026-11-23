@@ -52,6 +52,10 @@ class TrampolineSpringTest {
         double targetSpeed = TrampolineSpring.reboundForHeight(boldPeak);
         double sustained = TrampolineSpring.activeRebound(.35, lightFit, Ballistic.GRAVITY, hopSpeed, targetSpeed);
         assertEquals(boldPeak, TrampolineSpring.livingHeight(sustained), 1e-3);
+        // Push is capped by hopSpeed, and a target below passive rebound keeps the passive rebound.
+        double passive = TrampolineSpring.rebound(.35, lightFit, Ballistic.GRAVITY);
+        assertEquals(passive + hopSpeed, TrampolineSpring.activeRebound(.35, lightFit, Ballistic.GRAVITY, hopSpeed, 5.0), 1e-9);
+        assertEquals(passive, TrampolineSpring.activeRebound(.35, lightFit, Ballistic.GRAVITY, hopSpeed, passive * .5), 1e-9);
         // A body that cannot hop gets only passive rebound (0 on standing contact).
         assertEquals(0, TrampolineSpring.activeRebound(Ballistic.GRAVITY, lightFit, Ballistic.GRAVITY, 0, targetSpeed));
     }

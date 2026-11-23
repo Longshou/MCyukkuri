@@ -24,15 +24,11 @@ public final class TrampolineMotion {
         return reflect(entity, impact, TrampolineSpring.RESTITUTION, false);
     }
 
-    public static boolean rebound(YukkuriEntity body, double impact, boolean playing) {
+    public static boolean rebound(YukkuriEntity body, double impact) {
         double weight = body.getBbWidth() * (double) body.getBbWidth() * body.getBbHeight();
         double fitness = BodyAbility.fitness(body);
         double restitution = TrampolineSpring.restitution(weight, fitness, body.isBaby());
-        if (!reflect(body, impact, restitution, playing)) return false;
-        if (playing) GameplayLog.event(body, "play", "trampoline rebound weight={} fitness={} energy={} young={} impact={} speed={} height={}",
-                weight, fitness, body.life().energy(), body.isBaby(), impact, body.getDeltaMovement().y,
-                TrampolineSpring.livingHeight(body.getDeltaMovement().y));
-        return true;
+        return reflect(body, impact, restitution, false);
     }
 
     /** Active rebound for a playing yukkuri: re-adds energy up to its own hop ability toward its stat-driven apex. */
