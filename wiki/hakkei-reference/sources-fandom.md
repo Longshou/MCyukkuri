@@ -7,7 +7,7 @@
 - 抓取只走公开 MediaWiki API（`list=categorymembers`、`action=parse&prop=wikitext`），缓存留在 `.local/fandom/`、不入库；`scripts/wiki_fandom.py` 负责抓取与离线核对。
 - 站点图片受 Cloudflare 质询保护，本库**没有取到任何图片**：只从页面源码登记图片文件名与说明文字，不当画格证据、不据此写造型或行为结论。
 - 同一网页条目在多个分类都有时只登记一次。版本栏的 `rev` 是本库读取的页面修订号，用于按需回查。
-- 与 L36 或其他来源不同的写法，游戏已实现的按游戏实现写在[设定差异](lore/conflicts.md)，其余登记到[待办](../../docs/TODO.md#待用户裁决)。
+- 与 L36 或其他来源不同的写法，游戏已实现的与用户已定的取舍写在[设定差异](lore/conflicts.md)。
 
 | 编号 | 页面 | 收录地点 | 版本与范围 |
 | --- | --- | --- | --- |

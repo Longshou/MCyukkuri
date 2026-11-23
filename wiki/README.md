@@ -26,7 +26,7 @@
 | 金银章佩戴、考核与等级态度的漫画、小说依据 | [金银章系统参考](badges.md) |
 | 村庄街道、人类立场、可见情景与鬼威惨商店 | [人类世界：村庄、街道与商店](hakkei-reference/world/human-world.md) · [商店与加工所原作资料](shops-factory-npcs.md) |
 | 油库里题材的起源、油虐题材惯例与外站作者资料（创作史，不作设定） | [社区史与外站资料](fandom-history.md) |
-| 油虐用、饲料用活体的子油生产流程与当前实现缺口 | [工厂生产专项核读](factory-production-review.md) |
+| 油虐用、饲料用活体的作品生产流程 | [工厂生产题材来源](factory-production-review.md) |
 | 日记 APK 的模型、骨骼、表情与 MC 借鉴方案 | [油库里日记实现核读](yukkuri-diary-implementation.md) |
 | 基础介绍与作品背景 | [油库里是什么](hakkei-reference/lore/README.md)（含高优先级常用设定入口 L36） |
 | 种族、亚种与图片 | [种族目录](hakkei-reference/lore/species/README.md) |
