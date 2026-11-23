@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| Wiki 采用说明与现行实现对齐，删过时内容 | `.worktrees/wp-wiki-fresh` | wiki/** |
 | 试玩场景说明、看点与台词语料去过时 | `.worktrees/wp-scene-lines-fresh` | scripts/museum_scenarios.py (text only); scripts/playtest_watch.json; art/dialogue/**; generated lang/sounds |
 | 防腐检查：文档引用、场景与台词死链检查，合入时归档任务说明与报告 | `.worktrees/wp-anti-rot` | scripts/check_doc_refs.py (new); scripts/pkg.py; scripts/README.md; docs/roles/docs.md, lead.md |
 
