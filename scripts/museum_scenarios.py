@@ -4051,25 +4051,33 @@ add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让
            extra='Health:2.8f', **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
-_corridor_south = 'street_corridor'
-add(_corridor_south, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
-    '短窄巷南北两端各有一只没有亲缘的成体油库里，疲倦的它们分别赶往对面的窝。看它们在巷中迎面相遇，一方进入侧袋让路或沿来路后退；相撞时动作与头顶符号应保持连续。',
+# A one-cell lane (z -5..5) between a stone wall (west) and a glass shop front (east, the observer's side): each tired adult starts
+# in the lane, its own nest in the roofed end room beyond the other. The glass pocket half way is exactly one cell (one adult body
+# plus margin) deep, so the yielder can step aside there; elsewhere it can only back off along its line. The end rooms are three
+# cells wide because a Reimu's ribbon needs side room to lie in a nest; the roof covers nest and doorway (a home must be covered).
+_corridor = 'street_corridor'
+_corridor_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
+                 box(-1, 0, -5, -1, 1, 5, 'minecraft:stone_bricks'),
+                 box(1, 0, -5, 1, 1, -3, 'minecraft:glass'), box(1, 0, 3, 1, 1, 5, 'minecraft:glass'),
+                 box(2, 0, -2, 2, 1, 2, 'minecraft:glass')]
+for _s in (-1, 1):
+    _corridor_set += [box(-2, 0, 6 * _s, -2, 1, 9 * _s, 'minecraft:stone_bricks'),
+                      box(2, 0, 6 * _s, 2, 1, 9 * _s, 'minecraft:glass'),
+                      box(-2, 0, 10 * _s, 2, 1, 10 * _s, 'minecraft:stone_bricks'),
+                      box(-2, 2, 6 * _s, 2, 2, 10 * _s, 'minecraft:oak_planks'),
+                      block(0, 0, 8 * _s, f'mcyukkuri:yukkuri_nest[facing={"south" if _s < 0 else "north"}]')]
+add(_corridor, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
+    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧和左（南）侧各有一只疲倦、互不相识的成体，自己的窝在对面巷底的小屋里（开场可能先朝身边的空窝挪一两步，约 2 秒后转身）。两只回窝时在中段迎面顶住：看谁让路——挪进靠你一侧的玻璃侧袋，或沿来路后退——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
     '约 30 秒', [
-        box(-2, -1, -9, 2, -1, 9, 'minecraft:stone_bricks'),
-        box(-1, 0, -9, -1, 2, 9, 'minecraft:stone_bricks'),
-        box(1, 0, -9, 1, 2, -2, 'minecraft:stone_bricks'),
-        box(1, 0, 2, 1, 2, 9, 'minecraft:stone_bricks'),
-        box(2, 0, -1, 2, 2, 1, 'minecraft:stone_bricks'),
-        block(0, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        block(0, 0, 7, 'mcyukkuri:yukkuri_nest[facing=north]'),
-        yk(('reimu', 'marisa'), 0, -5, 'corridor_south', uuid=uid(_corridor_south, 'corridor_south'),
-           label='南端回窝的成体', lead=True, yaw=0, energy=20, rest_wait=0, boldness=(25, 90)),
-        yk(('reimu', 'marisa'), 0, 5, 'corridor_north', uuid=uid(_corridor_south, 'corridor_north'),
-           label='北端回窝的成体', yaw=180, energy=20, rest_wait=0, boldness=(25, 90)),
-    ], late=[home('corridor_south', 0, 7), home('corridor_north', 0, -7)], env=DAY,
-    vantage=(10, 0, 90, 12),
-    reads=[('读南端成体', f'yukkuri status {sel("corridor_south")} raw'),
-           ('读北端成体', f'yukkuri status {sel("corridor_north")} raw')])
+        *_corridor_set,
+        yk(('reimu', 'marisa'), 0, -4, 'corridor_north', uuid=uid(_corridor, 'corridor_north'), label='北侧回窝的成体',
+           lead=True, yaw=0, energy=30, rest_wait=60, boldness=(20, 90)),
+        yk(('reimu', 'marisa'), 0, 4, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='南侧回窝的成体',
+           yaw=180, energy=30, rest_wait=60, boldness=(20, 90)),
+    ], late=[home('corridor_north', 0, 8), home('corridor_south', 0, -8)], env=DAY,
+    vantage=(10, 0, 90, 8),
+    reads=[('读北侧成体', f'yukkuri status {sel("corridor_north")} raw'),
+           ('读南侧成体', f'yukkuri status {sel("corridor_south")} raw')])
 
 _yard_x, _yard_z = BY_ID['town'].anchor
 
@@ -8095,14 +8103,11 @@ _smoke('magma_sole', 600, [
     r'\[body\][^\n]* hot floor escaped health=',
 ])
 
-_corridor_south_log = _uuid_text(_corridor_south, 'corridor_south')
-_corridor_north_log = _uuid_text(_corridor_south, 'corridor_north')
+# Each nest lies beyond the other body in a one-cell lane, so both sleeping at home proves they got past each other (by a
+# give-way, a back-off, a replanned route through the pocket or a push into it; the log names which).
+_corridor_logs = [_uuid_text(_corridor, slot) for slot in ('corridor_north', 'corridor_south')]
 _smoke('street_corridor', 1200, [
-    rf'\[move\][^\n]*uuid={_corridor_south_log}\b[^\n]*blocked by yukkuri [^\n]*action=(?:gives_way|backs_off)\b',
-    rf'\[move\][^\n]*uuid={_corridor_north_log}\b[^\n]*blocked by yukkuri [^\n]*action=(?:gives_way|backs_off)\b',
-    rf'\[sleep\][^\n]*uuid={_corridor_south_log}\b[^\n]*begin source=life',
-    rf'\[sleep\][^\n]*uuid={_corridor_north_log}\b[^\n]*begin source=life',
-])
+    rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in _corridor_logs])
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
 # and each answer is logged by the animal itself.
