@@ -1353,7 +1353,8 @@ public final class YukkuriLife {
         return planned;
     }
 
-    private void sayUrge(String event) { if (entity.speak(event)) urgeLine = event; }
+    /** A performance beat: the urge line is not held back by a neighbour's quiet gap. */
+    private void sayUrge(String event) { if (entity.speakCue(event, null, 2)) urgeLine = event; }
     /** How hard the hold is: the real pressure picks the band, a young body one band harder. */
     private int urgeStage() {
         float pressure = toiletNeeds.pressure(toiletKind);

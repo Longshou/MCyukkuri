@@ -91,8 +91,8 @@ public final class Skills {
         if (ability == Ability.MOLD_LORE) return;
         // "Praise me" is said to someone: not by an owner-less settler, and not over the relief line the same toilet visit just spoke.
         boolean praise = entity.pet().owner() != null;
-        if (ability == Ability.TOILET && entity.reactingTo("toilet_done")) {
-            // the relief reaction keeps its face and line; only the sparkle below marks the grade
+        if (ability == Ability.TOILET && entity.reactingTo("toilet_done") || !entity.activityFace().isEmpty()) {
+            // the relief reaction and an activity that owns the face (a toilet trip, a hunt) keep their face and line; only the sparkle below marks the grade
         } else if (entity.onGround() && entity.life().mealTicks() == 0 && !entity.life().isSleeping()) {
             entity.showReactionCue(YukkuriAction.JOY_JUMP, "sparkle", praise ? "lesson_learned" : "");
         } else if (entity.showReaction("sparkle", "", 60) && praise) {
