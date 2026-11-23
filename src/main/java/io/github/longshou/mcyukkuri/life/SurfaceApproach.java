@@ -1044,7 +1044,7 @@ public final class SurfaceApproach {
                 destination=door;
             }
         }
-        if(navigation instanceof YukkuriGroundNavigation ground)ground.heading(destination);
+        if(navigation instanceof YukkuriGroundNavigation ground)ground.heading(destination, other);
         var target=BlockPos.containing(destination);
         if(TravelRange.keepBabyHome(actor)&&!TravelRange.babyDestination(actor,target))return blocked(actor,"outside_home");
         if(!Reactions.Weather.allowsStep(actor,target))return blocked(actor,"weather");

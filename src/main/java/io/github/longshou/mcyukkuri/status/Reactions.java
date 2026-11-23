@@ -12,7 +12,11 @@ import io.github.longshou.mcyukkuri.life.NeedWarnings.Need;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.Encounter;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.intent.Attempts;
+import io.github.longshou.mcyukkuri.intent.WorldSignature;
+import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
@@ -40,6 +44,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -502,19 +507,34 @@ public final class Reactions {
 
     // ---- shared ground rules for reactions ---------------------------------------------------------------------
 
+    /** Chosen cover stand with its depth under the roof, this body's preferred depth and crowding score. */
+    record CoverChoice(BlockPos pos, int depth, double preferred, double crowd) {}
+
     /**
-     * The one cover query: the nearest reachable covered dry stand of this body's travel range, and farther from the
-     * danger than the body itself when a danger is given. The weather goal and both flight paths use it.
+     * The one cover query: reachable covered dry stands scored by a personality/state-shifted depth interval plus physical
+     * crowding from {@link Encounter#standFree}, and farther from the danger than the body itself when a danger is given.
+     * No claim table or reservation. The weather goal and flight/outing paths share it.
      */
     public static BlockPos findCover(YukkuriEntity y, Vec3 danger, int offset) {
+        var choice = chooseCover(y, danger, offset, pos -> true);
+        return choice == null ? null : choice.pos();
+    }
+
+    static CoverChoice chooseCover(YukkuriEntity y, Vec3 danger, int offset, Predicate<BlockPos> allowed) {
         var level = (ServerLevel) y.level();
         var life = y.life();
+        double preferred = preferredDepth(y, level);
         var home = life.homeStand();
-        if (home != null && life.covered(home) && Sky.at(level, home) == Sky.CLEAR && life.reachable(home, false)
-                && farther(home, y, danger)) return home;
+        if (home != null && allowed.test(home) && life.covered(home) && Sky.at(level, home) == Sky.CLEAR
+                && !Encounter.occupied(y, Vec3.atBottomCenterOf(home)) && life.reachable(home, false)
+                && farther(home, y, danger))
+            return new CoverChoice(home, coverDepth(level, home), preferred, 0);
         var origin = y.blockPosition();
-        var candidates = new ArrayList<BlockPos>();
         int radius = TravelRange.search(y, 16);
+        var nearby = level.getEntitiesOfClass(YukkuriEntity.class, new AABB(origin).inflate(radius + 2, 4, radius + 2),
+                o -> o != y && o.isAlive() && !y.hasPassenger(o) && y.getVehicle() != o);
+        record Scored(BlockPos pos, int depth, double crowd, double score) {}
+        var candidates = new ArrayList<Scored>();
         for (int dx = -radius; dx <= radius; dx++) for (int dz = -radius; dz <= radius; dz++) {
             int x = origin.getX() + dx, z = origin.getZ() + dz;
             if (!level.hasChunkAt(new BlockPos(x, origin.getY(), z))) continue;
@@ -527,19 +547,81 @@ public final class Reactions {
                         || !FoundShelter.streetCoverFree(y, pos)) continue;
                 var owner = ShelterBlock.shelter(level, pos);
                 if (owner != null && !owner.owns(y.getUUID())) continue;
-                if (!farther(pos, y, danger)) continue;
-                candidates.add(pos.immutable());
+                if (!farther(pos, y, danger) || !allowed.test(pos)) continue;
+                Vec3 spot = Vec3.atBottomCenterOf(pos);
+                boolean occupied = Encounter.occupied(y, spot);
+                if (!occupied && !Encounter.standFree(y, spot, spot)) continue;
+                int depth = coverDepth(level, pos);
+                double crowd = coverCrowding(y, spot, occupied, nearby);
+                double diff = depth - preferred;
+                double score = 0.8 * Math.sqrt(pos.distSqr(origin)) + 6.0 * diff * diff + crowd;
+                candidates.add(new Scored(pos.immutable(), depth, crowd, score));
                 break;
             }
         }
-        candidates.sort(Comparator.comparingDouble(p -> p.distSqr(origin)));
+        candidates.sort(Comparator.comparingDouble(Scored::score));
         if (candidates.isEmpty()) return null;
-        // Rotate through candidates: eight unreachable nearby cells must not hide a farther roof forever.
         for (int tried = 0; tried < Math.min(8, candidates.size()); tried++) {
-            var pos = candidates.get(Math.floorMod(offset + tried, candidates.size()));
-            if (life.reachable(pos, false)) return pos;
+            var c = candidates.get(Math.floorMod(offset + tried, candidates.size()));
+            if (life.reachable(c.pos(), false)) return new CoverChoice(c.pos(), c.depth(), preferred, c.crowd());
         }
         return null;
+    }
+
+    /** Preferred cover depth (1..4.5 cells from open sky), shifted continuously by boldness, unease, wetness, storm and baby/carrying. */
+    private static double preferredDepth(YukkuriEntity y, ServerLevel level) {
+        double bold = y.life().personality().boldness() / 100.0;
+        double unease = Math.clamp(y.mind().unease() / 100.0, 0, 1);
+        double wet = Math.clamp(y.life().wetness() / 100.0, 0, 1);
+        boolean storm = level.isThundering();
+        boolean youngOrCarrying = !y.family().adult() || y.family().carry().carrying();
+        return Math.clamp(1.2 + 2.2 * (1.0 - bold) + 1.0 * unease + 0.8 * wet + (storm ? 1.0 : 0) + (youngOrCarrying ? 1.0 : 0), 1.0, 4.5);
+    }
+
+    /** Horizontal Chebyshev steps from {@code pos} to the nearest open-sky cell (1 = roof edge, capped at 5). */
+    private static int coverDepth(ServerLevel level, BlockPos pos) {
+        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+        for (int d = 1; d <= 4; d++) {
+            for (int dx = -d; dx <= d; dx++) {
+                for (int dz = -d; dz <= d; dz++) {
+                    if (Math.abs(dx) != d && Math.abs(dz) != d) continue;
+                    int nx = x + dx, nz = z + dz;
+                    if (!level.hasChunkAt(new BlockPos(nx, y, nz))
+                            || level.getHeight(Heightmap.Types.MOTION_BLOCKING, nx, nz) <= y) return d;
+                }
+            }
+        }
+        return 5;
+    }
+
+    /** Crowding term from live physical occupancy (no reservation): occupied cells are heavily penalised; adjacent kin attract, strangers keep a small gap. */
+    private static double coverCrowding(YukkuriEntity y, Vec3 spot, boolean occupied, List<YukkuriEntity> nearby) {
+        double crowd = occupied ? 60.0 : 0.0;
+        for (var other : nearby) {
+            double dist = spot.subtract(other.position()).horizontalDistance();
+            double spacing = (y.getBbWidth() + other.getBbWidth()) * 0.5 + 0.55;
+            if (dist > 0.01 && dist < spacing) {
+                crowd += kin(y, other) || y.life().personality().trust(other.getUUID()) > 0 ? -2.0 : 2.0;
+            }
+        }
+        return crowd;
+    }
+
+    /** Horizontal yaw facing the nearest rain-open edge from {@code pos}, so a settled body looks out at the rain. */
+    private static float outwardRainYaw(ServerLevel level, BlockPos pos) {
+        int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+        for (int d = 1; d <= 5; d++) {
+            for (int dx = -d; dx <= d; dx++) {
+                for (int dz = -d; dz <= d; dz++) {
+                    if (Math.abs(dx) != d && Math.abs(dz) != d) continue;
+                    int nx = x + dx, nz = z + dz;
+                    if (level.hasChunkAt(new BlockPos(nx, y, nz))
+                            && level.getHeight(Heightmap.Types.MOTION_BLOCKING, nx, nz) <= y)
+                        return SurfaceApproach.yaw(Vec3.atBottomCenterOf(pos), new Vec3(nx + 0.5, y, nz + 0.5));
+                }
+            }
+        }
+        return 0;
     }
 
     /** A flight point only counts when it is clearly farther from the danger than the body is standing now. */
@@ -629,16 +711,22 @@ public final class Reactions {
         static final double HUDDLE_SLACK = .12;
         /** A lightning strike is heard this far off (blocks). */
         static final int THUNDER_HEARD = 96;
+        /** Brief settle under cover looking out at the rain before releasing to routine dry-area life or huddling. */
+        static final int SETTLE_TICKS = 30;
         static final int SHAKE_TICKS = EcologyPresentation.duration(Behaviors.RAIN_SHAKE),
                 STARTLE_TICKS = EcologyPresentation.duration(Behaviors.THUNDER_STARTLE);
         private final YukkuriEntity y;
         private Stage stage = Stage.NONE, planned = Stage.NONE;
         private Sky sky = Sky.CLEAR;
         private BlockPos cover;
-        private long cooldownUntil, searchAfter, stepAfter, shakeAfter, huddleAfter, partnerScanAfter, startled = Long.MIN_VALUE / 2;
+        private CoverChoice chosenCover;
+        private float outwardYaw;
+        /** Shelter approach retry gate: a failed cell or search is not retried until its world signature changes. */
+        private Attempts shelterAttempts = new Attempts();
+        private String pendingBeat, pendingDeclaredFace, pendingLine;
+        private long searchAfter, shakeAfter, huddleAfter, partnerScanAfter, startled = Long.MIN_VALUE / 2;
         private int ticks;
         private boolean spoke;
-        private int searchOffset;
         /** HUDDLE: who it presses beside (null alone), whether it walked over (the other holds still), the tick the pair pressed
          *  together (their shared clip clock, -1 before), which side the partner is on and the way both face. */
         private YukkuriEntity partner, unreachable;
@@ -658,7 +746,7 @@ public final class Reactions {
             if (startledNow() && (stage == Stage.RUN || stage == Stage.SEARCH || stage == Stage.HUDDLE)) return Behaviors.THUNDER_STARTLE;
             return switch (stage) {
                 case RUN, SEARCH, FLOOD -> Behaviors.RAIN_RUN;
-                case WAIT -> Behaviors.RAIN_WAIT;
+                case WAIT -> shaken() ? Behaviors.RAIN_WAIT : Behaviors.IDLE;
                 case SHAKE -> Behaviors.RAIN_SHAKE;
                 case HUDDLE -> pressedAt >= 0 ? partnerLeft ? Behaviors.RAIN_HUDDLE_LEFT : Behaviors.RAIN_HUDDLE_RIGHT
                         : partner != null ? leads ? Behaviors.RAIN_WAIT : Behaviors.IDLE
@@ -676,9 +764,29 @@ public final class Reactions {
                 + " hungryRain=" + (y.life().nutrition() < 20) + (cover == null ? "" : " cover=" + cover.toShortString())
                 + (partner == null ? "" : " partner=#" + partner.getId() + (leads ? " leads" : " holds") + " pressed=" + (pressedAt >= 0)); }
 
+        /** Observes the actual face published by {@code PresentationArbiter} and logs the queued beat with declared vs shown. */
+        public void observeFace(String shown) {
+            if (pendingBeat == null) return;
+            GameplayLog.event(y, "weather", "beat={} declared={} shown={} line={} depth={} preferred={} cover={}",
+                    pendingBeat, pendingDeclaredFace, shown, pendingLine,
+                    chosenCover == null ? 0 : chosenCover.depth(),
+                    chosenCover == null ? "0.00" : String.format(Locale.ROOT, "%.2f", chosenCover.preferred()),
+                    cover == null ? "none" : cover.toShortString());
+            pendingBeat = null;
+        }
+
+        private void queueBeat(String beat, String declaredFace, String line) {
+            pendingBeat = beat;
+            pendingDeclaredFace = declaredFace;
+            pendingLine = line;
+        }
+
         void scan() {
             sky = prey(y) ? Sky.at(y.level(), y.blockPosition()) : Sky.CLEAR;
-            if (sky == Sky.CLEAR && stage == Stage.NONE && !y.level().isRaining()) spoke = false;
+            if (sky == Sky.CLEAR && stage == Stage.NONE && !y.level().isRaining()) {
+                spoke = false;
+                shelterAttempts = new Attempts();
+            }
         }
         public static boolean rainAt(YukkuriEntity animal, BlockPos pos) {
             return Sky.at(animal.level(), pos).wet();
@@ -723,14 +831,14 @@ public final class Reactions {
         boolean wants() {
             if (stage != Stage.NONE) return true;
             long now = y.level().getGameTime();
-            if (now < cooldownUntil || !free(y) || y.isPanicking()) return false;
+            if (!free(y) || y.isPanicking()) return false;
             if (approachingWater(3) != null) { planned = Stage.FLOOD; return true; }
             if (y.life().leavingFoundShelter()) return false;
             if (bothered()) {
                 if (pressing()) return false;
                 if (now >= searchAfter) {
                     if (!SearchBudget.take((ServerLevel) y.level())) return false;
-                    cover = findCover();
+                    pickCover();
                     searchAfter = now + 80;
                 }
                 planned = cover != null ? Stage.RUN : Stage.SEARCH;
@@ -750,7 +858,6 @@ public final class Reactions {
         }
         boolean keeps() {
             if (stage == Stage.NONE) return false;
-            if (stage == Stage.WAIT && !rainAt(y, y.blockPosition())) return false;
             if (!free(y) || y.isPanicking()) return false;
             if (stage == Stage.FLOOD) return true;
             if (pressing()) return false;
@@ -760,8 +867,12 @@ public final class Reactions {
             ticks = 0;
             stage = planned;
             switch (stage) {
-                case SHAKE -> GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}", () -> new Object[]{
+                case SHAKE -> {
+                    y.cancelReaction();
+                    queueBeat("rain_shake", "chewing_closed", "none");
+                    GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}", () -> new Object[]{
                             y.life().wetness(), y.waterDistress().closedWithin(200) ? "water" : y.level().isRaining() ? "rain" : "rain_stopped"});
+                }
                 case HUDDLE -> beginHuddle();
                 default -> {
                     y.life().wakeForDanger("weather");
@@ -769,17 +880,20 @@ public final class Reactions {
                     if (stage != Stage.FLOOD || approachingWater(1) == null)
                         y.family().carry().startFlight(stage == Stage.FLOOD ? "rising_water" : "weather", null);
                     GameplayLog.limited(y, "weather", "start", 1200, "shelter response started sky={} stage={} cover={}", sky, stage, cover);
-                    stepAfter = 0;
+                    if (chosenCover != null) logCoverChosen("chosen");
                     if (!spoke) {
                         spoke = true;
                         boolean storm = sky == Sky.STORM;
                         if (y.life().wetness() > 0 || y.life().temperature().cold()) y.mind().felt(EmotionEvent.CHILLED); // running from rain is not cold
-                        y.showReaction(storm ? "surprise" : "neutral", stage == Stage.FLOOD ? "afraid" : "rain_run", 80);
+                        String runFace = storm ? "surprise" : y.life().personality().boldness() < 40 ? "teary" : "neutral";
+                        String runLine = stage == Stage.FLOOD ? "afraid" : "rain_run";
+                        y.showReaction(runFace, runLine, 80);
+                        queueBeat("rain_run", runFace, runLine);
                     }
                 }
             }
         }
-        void end(int cooldown) {
+        void end() {
             y.family().carry().endFlight();
             if (stage == Stage.SHAKE && ticks < SHAKE_TICKS) shakeAfter = y.level().getGameTime() + SHAKE_TICKS; // cut off: it shakes again soon
             if (stage == Stage.HUDDLE) {
@@ -788,24 +902,80 @@ public final class Reactions {
                 huddleAfter = y.level().getGameTime() + HUDDLE_REST;
                 partner = null; pressedAt = -1;
             } else if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
-                    "shelter response ended stage={} phaseTicks={} cover={} cooldown={}", stage, ticks, cover, cooldown);
-            stage = Stage.NONE; ticks = 0; cover = null;
-            cooldownUntil = y.level().getGameTime() + cooldown;
+                    "shelter response ended stage={} phaseTicks={} cover={} at={}", stage, ticks, cover, y.blockPosition().toShortString());
+            if (!y.level().isRaining() || Sky.at(y.level(), y.blockPosition()) == Sky.CLEAR) shelterAttempts = new Attempts();
+            stage = Stage.NONE; ticks = 0; cover = null; chosenCover = null; pendingBeat = null;
             y.getNavigation().stop();
         }
 
         private void searchOnFoot() {
-            stage = Stage.SEARCH; ticks = 0; cover = null; stepAfter = 0;
+            stage = Stage.SEARCH; ticks = 0; cover = null; chosenCover = null;
             y.getNavigation().stop();
         }
 
-        private BlockPos findCover() {
+        private static String coverKey(BlockPos pos) { return "cover:" + pos.getX() + "," + pos.getY() + "," + pos.getZ(); }
+
+        private WorldSignature shelterSignature(BlockPos target) {
+            Vec3 targetVec = target == null ? null : Vec3.atBottomCenterOf(target);
+            return WorldSignature.of(targetVec, y.position(), Encounter.occupantIds(y, targetVec), y.level().getGameTime());
+        }
+
+        private void pickCover() {
             var parent = ParentCarry.flightEscort(y, null);
             if (parent != null) {
                 var shelter = parent.status().reactions().weather.cover;
-                if (shelter != null && y.life().reachable(shelter, false)) return shelter;
+                if (shelter != null && !Encounter.occupied(y, Vec3.atBottomCenterOf(shelter)) && y.life().reachable(shelter, false)) {
+                    var level = (ServerLevel) y.level();
+                    chosenCover = new CoverChoice(shelter, coverDepth(level, shelter), preferredDepth(y, level), 0);
+                    cover = shelter;
+                    return;
+                }
             }
-            return Reactions.findCover(y, null, searchOffset++);
+            if (shelterAttempts.exhausted()) shelterAttempts = new Attempts();
+            chosenCover = Reactions.chooseCover(y, null, 0, pos -> !shelterAttempts.excluded(coverKey(pos), shelterSignature(pos)));
+            cover = chosenCover == null ? null : chosenCover.pos();
+        }
+
+        private boolean retargetCover(ServerLevel level, Reason reason) {
+            BlockPos previous = cover;
+            if (previous != null) shelterAttempts.fail(coverKey(previous), reason, 0, shelterSignature(previous));
+            pickCover();
+            if (cover != null && !cover.equals(previous) && !Encounter.occupied(y, Vec3.atBottomCenterOf(cover))) {
+                logCoverChosen("retargeted");
+                return true;
+            }
+            return false;
+        }
+
+        private void logCoverChosen(String action) {
+            if (chosenCover == null) return;
+            GameplayLog.event(y, "weather", "cover {} pos={} depth={} preferred={} crowd={} boldness={} unease={} wetness={}",
+                    action, chosenCover.pos().toShortString(), chosenCover.depth(),
+                    String.format(Locale.ROOT, "%.2f", chosenCover.preferred()),
+                    String.format(Locale.ROOT, "%.2f", chosenCover.crowd()),
+                    y.life().personality().boldness(), Math.round(y.mind().unease()), Math.round(y.life().wetness()));
+        }
+
+        private void arriveCover(ServerLevel level) {
+            SurfaceApproach.halt(y);
+            y.family().carry().reachedCover();
+            logStreetCover(level);
+            y.cancelReaction();
+            outwardYaw = outwardRainYaw(level, y.blockPosition());
+            long now = level.getGameTime();
+            if (y.life().wetness() >= SHAKE_WETNESS && now >= shakeAfter) {
+                stage = Stage.SHAKE; ticks = 0;
+                queueBeat("rain_shake", "chewing_closed", "none");
+                GameplayLog.limited(y, "weather", "shake.arrival", 1200,
+                        "shaking the rain off on arrival; wetness={} cover={}", y.life().wetness(), cover);
+            } else {
+                stage = Stage.WAIT; ticks = 0;
+                queueBeat("rain_settle", settleFace(), "none");
+            }
+        }
+
+        private String settleFace() {
+            return y.species().catchingBreath() ? "teary_pant" : shaken() ? "teary" : "neutral";
         }
 
         /** Water at foot level flowing toward this dry stand. Still pools and water below a bank do not start a flight. */
@@ -832,16 +1002,12 @@ public final class Reactions {
             boolean raining = level.isRaining();
             // A thunder clap: it flinches where it is, on the run or pressed under a roof.
             if (startledNow() && stage != Stage.SHAKE) { SurfaceApproach.halt(y); return; }
-            // Reaching any roof ends the run, whether or not it was the chosen one. A soaked body shakes the rain off first.
-            if ((stage == Stage.RUN || stage == Stage.SEARCH) && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
+            // In SEARCH (no chosen target yet), reaching a roof triggers choosing a proper interior cover cell.
+            if (stage == Stage.SEARCH && raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR
                     && life.covered(y.blockPosition()) && FoundShelter.streetCoverFree(y, y.blockPosition()) && ticks > 20) {
-                y.getNavigation().stop();
-                y.family().carry().reachedCover();
-                logStreetCover(level);
-                stage = life.wetness() >= SHAKE_WETNESS ? Stage.SHAKE : Stage.WAIT;
-                ticks = 0;
-                if (stage == Stage.SHAKE) GameplayLog.limited(y, "weather", "shake.arrival", 1200,
-                        "shaking the rain off on arrival; wetness={} cover={}", life.wetness(), cover);
+                pickCover();
+                if (cover != null) { stage = Stage.RUN; ticks = 0; logCoverChosen("chosen"); return; }
+                arriveCover(level);
                 return;
             }
             switch (stage) {
@@ -849,7 +1015,7 @@ public final class Reactions {
                     var water = approachingWater(3);
                     if (water == null) {
                         y.family().carry().reachedCover();
-                        end(40);
+                        end();
                         return;
                     }
                     if (approachingWater(1) != null) y.family().carry().endFlight();
@@ -861,46 +1027,72 @@ public final class Reactions {
                 }
                 case RUN -> {
                     if (cover == null || !life.dryStand(cover) || !FoundShelter.streetCoverFree(y, cover)) {
-                        searchOnFoot(); return;
+                        if (!retargetCover(level, Reason.NO_ROOM)) searchOnFoot();
+                        return;
                     }
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
                     double reach = y.distanceToSqr(spot);
-                    // The path stops up to half a block short; the last step is walked on the supported surface.
-                    if ((reach < .16 || reach < 2.25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR)
-                            && FoundShelter.streetCoverFree(y, y.blockPosition())) {
-                        logStreetCover(level);
-                        SurfaceApproach.halt(y); y.family().carry().reachedCover(); stage = Stage.WAIT; ticks = 0; return;
+                    if (Encounter.occupied(y, spot)) {
+                        if (retargetCover(level, Reason.NO_ROOM)) return;
+                        if (reach < 9) {
+                            var occupant = Encounter.standingOccupant(y, spot);
+                            if (occupant != null && Encounter.makeRoom(occupant, y, occupant.position().subtract(y.position()),
+                                    at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
+                                SurfaceApproach.halt(y);
+                                return;
+                            }
+                        }
+                        if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())
+                                && !Encounter.occupied(y, y.position()) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
+                            arriveCover(level); return;
+                        }
                     }
-                    if (reach < 6.25) SurfaceApproach.walk(y, spot, 1.3);
-                    else if (ticks % 10 == 1 || y.getNavigation().isDone()) {
-                        if (!life.navigate(cover, sky == Sky.STORM ? 1.7 : 1.4, false)) { searchOnFoot(); return; }
+                    double pace = sky == Sky.STORM ? 1.5 : 1.3;
+                    var result = SurfaceApproach.walkResult(y, spot, null, pace);
+                    if ((result == SurfaceApproach.Result.ARRIVED || reach < .25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR)
+                            && !Encounter.occupied(y, spot) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
+                        arriveCover(level);
+                        return;
                     }
-                    if (ticks > 1000) searchOnFoot();
+                    if (result == SurfaceApproach.Result.BLOCKED) {
+                        if (retargetCover(level, Reason.NO_PATH)) return;
+                        if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())
+                                && !Encounter.occupied(y, y.position()) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
+                            arriveCover(level); return;
+                        }
+                        searchOnFoot();
+                    }
                 }
                 case WAIT -> {
-                    y.getNavigation().stop();
+                    SurfaceApproach.halt(y);
+                    SurfaceApproach.face(y, outwardYaw);
                     if (raining && Sky.at(level, y.blockPosition()) != Sky.CLEAR && ticks > 10) {
                         if (cover == null) searchOnFoot(); else { stage = Stage.RUN; ticks = 0; }
                         return;
                     }
-                    if (!raining) { stage = Stage.SHAKE; ticks = 0; }
-                    else end(0); // dry-area planning resumes (a shaken body then huddles); navigation preserves the rain preference
+                    if (!raining) {
+                        if (life.wetness() >= SHAKE_WETNESS && level.getGameTime() >= shakeAfter) {
+                            stage = Stage.SHAKE; ticks = 0;
+                            queueBeat("rain_shake", "chewing_closed", "none");
+                        } else end();
+                    } else if (ticks >= SETTLE_TICKS) end();
                 }
                 case SEARCH -> {
                     long now = level.getGameTime();
                     if (now >= searchAfter && SearchBudget.take(level)) {
-                        cover = findCover();
+                        pickCover();
                         searchAfter = now + 80;
-                        if (cover != null) { stage = Stage.RUN; ticks = 0; return; }
+                        if (cover != null) { stage = Stage.RUN; ticks = 0; logCoverChosen("chosen"); return; }
                     }
-                    if (now >= stepAfter && (y.getNavigation().isDone() || ticks % 80 == 0)) {
-                        stepAfter = now + 20;
+                    var sig = shelterSignature(null);
+                    if ((y.getNavigation().isDone() || ticks % 80 == 0) && !shelterAttempts.excluded("search", sig)) {
                         var next = DefaultRandomPos.getPos(y, TravelRange.search(y, 14), 3);
-                        if (next != null && y.distanceToSqr(next) >= 4 && life.dryStand(BlockPos.containing(next)) && TravelRange.babyDestination(y, BlockPos.containing(next))) {
-                            life.navigate(BlockPos.containing(next), sky == Sky.STORM ? 1.7 : 1.4, false);
-                        }
+                        boolean started = next != null && y.distanceToSqr(next) >= 4
+                                && life.dryStand(BlockPos.containing(next)) && TravelRange.babyDestination(y, BlockPos.containing(next))
+                                && life.navigate(BlockPos.containing(next), sky == Sky.STORM ? 1.7 : 1.4, false);
+                        if (!started) shelterAttempts.fail("search", Reason.NO_PATH, 0, sig);
                     }
-                    if (!raining) { stage = Stage.SHAKE; ticks = 0; }
+                    if (!raining) { stage = Stage.SHAKE; ticks = 0; queueBeat("rain_shake", "chewing_closed", "none"); }
                 }
                 case SHAKE -> {
                     SurfaceApproach.halt(y);
@@ -908,7 +1100,11 @@ public final class Reactions {
                     float before = life.shakeOff();
                     shakeAfter = level.getGameTime() + SHAKE_REST;
                     GameplayLog.limited(y, "weather", "shake.done", 600, "shook the water off wetness={} -> {}", before, life.wetness());
-                    end(0);
+                    if (raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
+                        outwardYaw = outwardRainYaw(level, y.blockPosition());
+                        stage = Stage.WAIT; ticks = 0;
+                        queueBeat("rain_settle", settleFace(), "none");
+                    } else end();
                 }
                 case HUDDLE -> huddle(level);
                 default -> { }
@@ -996,16 +1192,17 @@ public final class Reactions {
                             partner == null ? null : partner.getUUID(), pressedAt >= 0, ticks);
                     partner = null; pressedAt = -1; huddleAfter = now + HUDDLE_REST;
                     stage = Stage.SHAKE; ticks = 0;
-                } else end(0);
+                    queueBeat("rain_shake", "chewing_closed", "none");
+                } else end();
                 return;
             }
-            if (Sky.at(level, y.blockPosition()).wet() && ticks > 20) { end(0); return; } // in the rain again: look for a roof
+            if (Sky.at(level, y.blockPosition()).wet() && ticks > 20) { end(); return; } // in the rain again: look for a roof
             if (partner != null && !paired()) {
                 // The other left (its own need, a fright): a leader still shaken stays put alone, the one that held still is free.
                 partner = null; pressedAt = -1;
-                if (!leads) { end(0); return; }
+                if (!leads) { end(); return; }
             }
-            if (ticks > HUDDLE_LIMIT || leads && ticks > 100 && !shaken()) { end(0); return; }
+            if (ticks > HUDDLE_LIMIT || leads && ticks > 100 && !shaken()) { end(); return; }
             if (partner == null) {
                 // Alone it keeps an eye out: a kin or friend who comes in out of the rain or finishes what it was doing is sought.
                 SurfaceApproach.halt(y);
@@ -1116,6 +1313,6 @@ public final class Reactions {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { if (weather().stage == Weather.Stage.NONE) weather().start(); }
         @Override public void tick() { weather().tick(); }
-        @Override public void stop() { if (weather().stage != Weather.Stage.NONE) weather().end(40); }
+        @Override public void stop() { if (weather().stage != Weather.Stage.NONE) weather().end(); }
     }
 }

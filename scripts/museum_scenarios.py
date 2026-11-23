@@ -2445,11 +2445,83 @@ add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草',
 
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑去远处石顶下躲雨',
-    '石顶在旧16格搜索范围外：观察32格搜索与实际抵达；进入干燥处后释放避雨Goal，恢复普通活动，读behavior.weather和mood.unease。在「实用」页选“雷暴”对照：同样的石顶，反应更强烈',
+    '三只性格各异的油库里在石顶东侧淋雨起跑（旧16格范围外）：胆小灵梦往顶内深处躲，中等魔理沙居于中段，胆大橙停在偏外侧，彼此错格并排；进入遮蔽后先抖水再朝雨外安顿，不卡人也不重放奔跑动作',
     '约 30 秒', [
-        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 2, 3, 'b', yaw=-90), yk('chen', -2, 2, 'c', yaw=-90)],
-    env={'time': 'noon', 'weather': 'rain'}, spot='shelter', vantage=(0, 14),
-    reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')])
+        yk('reimu', 17, -1, 'a', yaw=90, boldness=15, lead=True, uuid=uid('rain_shelter', 'a')),
+        yk('marisa', 18, 1, 'b', yaw=90, boldness=50, uuid=uid('rain_shelter', 'b')),
+        yk('chen', 17, 2, 'c', yaw=90, boldness=85, uuid=uid('rain_shelter', 'c'))],
+    env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(8, 8, 180, 14),
+    reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')],
+    smoke=dict(ticks=700,
+               expect=[r'\[weather\][^\n]* shelter response started ',
+                       r'\[weather\][^\n]* cover chosen [^\n]*depth=\d+ preferred=',
+                       r'\[weather\][^\n]* shelter response ended '],
+               forbid=[r'\[body\][^\n]* invariant\b']))
+
+
+def _verify_rain_shelter(window, trace):
+    actors = {name: _uuid_text('rain_shelter', name) for name in ('a', 'b', 'c')}
+    depths, preferreds, ends, end_ticks, end_cells = {}, {}, {}, {}, {}
+    for name, u in actors.items():
+        m_cover = re.search(rf'\[weather\][^\n]* uuid={u} [^\n]*cover chosen pos=(-?\d+,\s*-?\d+,\s*-?\d+) depth=(\d+) preferred=([0-9.]+)', window)
+        if not m_cover:
+            return f'{name} ({u}) never logged cover chosen'
+        depths[name] = int(m_cover.group(2))
+        preferreds[name] = float(m_cover.group(3))
+        m_end = re.search(rf'\[weather\][^\n]* uuid={u} t=(\d+)[^\n]* shelter response ended [^\n]*at=(-?\d+),\s*(-?\d+),\s*(-?\d+)', window)
+        if not m_end:
+            return f'{name} ({u}) never ended shelter response under cover'
+        end_ticks[name] = int(m_end.group(1))
+        end_cells[name] = (int(m_end.group(2)), int(m_end.group(4)))
+        if not (-326 <= end_cells[name][0] <= -318 and 296 <= end_cells[name][1] <= 304):
+            return f'{name} ended outside the stone roof at {end_cells[name]}'
+        beats = re.findall(rf'\[weather\][^\n]* uuid={u} [^\n]*beat=(\S+) declared=(\S+) shown=(\S+) line=(\S+)', window)
+        if not beats:
+            return f'{name} logged no weather beat'
+        for beat, declared, shown, _line in beats:
+            if shown != declared:
+                return f'{name} beat={beat} face mismatch declared={declared} shown={shown}'
+    if not (preferreds['a'] > preferreds['b'] > preferreds['c']):
+        return f'preferred depth not ordered by boldness: {preferreds}'
+    if not (depths['a'] > depths['c']):
+        return f'timid a did not choose deeper cover than bold c: {depths}'
+    if len(set(end_cells.values())) < 3:
+        return f'two bodies ended in the same cover cell: {end_cells}'
+    # Check trace: no actor left in the rain > 80 ticks after first arrival, and no run-clip restart loop.
+    first_under = None
+    last_in_rain = {}
+    run_starts = {name: 0 for name in actors}
+    prev_anim = {name: None for name in actors}
+    rev = {u: name for name, u in actors.items()}
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] != 'st' or row['u'] not in rev:
+            continue
+        name = rev[row['u']]
+        t = row['t']
+        p = row['st'].get('p')
+        if p:
+            under = -326 <= math.floor(p[0]) <= -318 and 296 <= math.floor(p[2]) <= 304
+            if under:
+                if first_under is None or t < first_under:
+                    first_under = t
+            else:
+                last_in_rain[name] = t
+        beh, anim = row['st'].get('behavior'), row['st'].get('animation')
+        if beh == 'rain_run' and anim == 'run' and prev_anim[name] != 'run':
+            run_starts[name] += 1
+        prev_anim[name] = anim
+    if first_under is None:
+        return 'no actor appeared under the roof in trace'
+    for name, t_rain in last_in_rain.items():
+        if t_rain - first_under > 100:
+            return f'{name} stayed in the rain {t_rain - first_under} ticks after first arrival (t={t_rain}, first={first_under})'
+    for name, starts in run_starts.items():
+        if starts > 3:
+            return f'{name} restarted run clip {starts} times during rain_run (clip restart loop)'
+
+
+next(s for s in S if s.id == 'rain_shelter').smoke.update(verify=_verify_rain_shelter, verify_trace=True)
 
 # No roof in reach: two dry ones search while running; two already near-soaked ones (wetness 97 and 98.5, +3 a second in rain)
 # show the damage that only comes at 100.

@@ -10,8 +10,11 @@ import io.github.longshou.mcyukkuri.motor.geom.YieldRule;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.function.Predicate;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -110,6 +113,61 @@ public final class Encounter {
     public static boolean occupied(YukkuriEntity body, Vec3 stand) {
         return !body.level().getEntitiesOfClass(LivingEntity.class, box(body, stand), other -> other != body && other.isAlive()
                 && !other.isSpectator() && !body.hasPassenger(other) && body.getVehicle() != other).isEmpty();
+    }
+
+    /** Entity ids of living bodies currently overlapping {@code stand} (for {@code WorldSignature} blocker sets). */
+    public static Set<Integer> occupantIds(YukkuriEntity body, Vec3 stand) {
+        if (stand == null) return Set.of();
+        var ids = new LinkedHashSet<Integer>();
+        for (var other : body.level().getEntitiesOfClass(LivingEntity.class, box(body, stand), other -> other != body && other.isAlive()
+                && !other.isSpectator() && !body.hasPassenger(other) && body.getVehicle() != other)) ids.add(other.getId());
+        return ids;
+    }
+
+    /** First standing yukkuri occupying {@code stand}, or null if none. */
+    public static YukkuriEntity standingOccupant(YukkuriEntity body, Vec3 stand) {
+        if (stand == null) return null;
+        for (var other : body.level().getEntitiesOfClass(YukkuriEntity.class, box(body, stand), other -> other != body && other.isAlive()
+                && !body.hasPassenger(other) && body.getVehicle() != other)) return other;
+        return null;
+    }
+
+    /**
+     * Ask a standing {@code occupant} to shift inward (along {@code inward}) to a free stand matching {@code acceptable},
+     * using the shared encounter notice beat and turn-first walk (never backwards). True when the shift started.
+     */
+    public static boolean makeRoom(YukkuriEntity occupant, YukkuriEntity arrival, Vec3 inward, Predicate<Vec3> acceptable) {
+        if (occupant == null || arrival == null || occupant == arrival || !able(occupant) || !canYield(occupant)) return false;
+        if (!(occupant.directNavigation() instanceof YukkuriGroundNavigation occNav)
+                || !(arrival.directNavigation() instanceof YukkuriGroundNavigation arrNav) || occNav.encounter != null) return false;
+        Vec3 dir = inward.multiply(1, 0, 1);
+        if (dir.lengthSqr() < 1e-6) return false;
+        dir = dir.normalize();
+        Vec3 perp = new Vec3(-dir.z, 0, dir.x);
+        double otherHalf = Passage.halfWidth(arrival, perp);
+        double width = Passage.halfWidth(occupant, perp) + otherHalf, margin = Passage.MARGIN + .2;
+        Vec3 previous = occupant.position();
+        Place chosen = null;
+        for (double s = STATION; s <= 4.0; s += STATION) {
+            Vec3 at = occupant.position().add(dir.scale(s));
+            if (!standFree(occupant, previous, at)) break;
+            previous = at;
+            if (acceptable.test(at) && at.distanceToSqr(arrival.position()) > width * width) {
+                chosen = new Place(List.of(at), s);
+                break;
+            }
+            Vec3 side = Passage.aside(at, at.subtract(arrival.position()).multiply(1, 0, 1), perp, width, margin,
+                    to -> acceptable.test(to) && standFree(occupant, at, to));
+            if (side != null) {
+                chosen = new Place(List.of(at, side), s + at.distanceTo(side));
+                break;
+            }
+        }
+        if (chosen == null) return false;
+        var found = new Found(chosen, chosen.legs().getLast(), chosen.length());
+        double gap = occupant.position().subtract(arrival.position()).multiply(1, 0, 1).length() - width;
+        new Encounter(arrNav, arrival, occNav, occupant, dir, found, "make_room", true).open(chosen.length(), 0, gap);
+        return true;
     }
 
     private static AABB box(YukkuriEntity body, Vec3 stand) { return body.getBoundingBox().move(stand.subtract(body.position())); }
@@ -284,6 +342,7 @@ public final class Encounter {
         if (keeper.isCommandPlaying() || yielder.isCommandPlaying()) return fail("aborted", "command");
         if (yielder.isPanicking()) return fail("aborted", "panic");
         if (keeper.level() != yielder.level() || keeper.distanceToSqr(yielder) > ABANDON * ABANDON) return fail("aborted", "apart");
+        if (reason.equals("make_room") && phase == Phase.WATCH) { cause = "room_made"; return "passed"; }
         Vec3 apart = keeper.position().subtract(yielder.position()).multiply(1, 0, 1), keeps = keeperNav.heading();
         double passed = apart.dot(axis), widths = Passage.halfWidth(keeper, axis) + Passage.halfWidth(yielder, axis);
         // Passed: beyond the yielder along the lane, or heading away from it whichever way the keeper has turned.

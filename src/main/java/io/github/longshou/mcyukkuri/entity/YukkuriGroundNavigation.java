@@ -68,6 +68,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private record Blocker(Obstacle obstacle, long until, boolean asked) {}
     /** The last stall sample, where the last step was aimed, the surface approach's exact goal, and the goal of a search running. */
     private Vec3 sample, aimed, goal, planGoal;
+    /** The entity this walk is explicitly approaching for contact (null for non-contact walks to a place/cover/food). */
+    private UUID contactPeer;
+    private boolean entityMove;
     private Vec3 observedGround; // Crossing observation only; never drives movement.
     /** The length of the way round to where the last step was aimed. */
     private double way;
@@ -189,6 +192,13 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     @Override public BlockPos getTargetPos(){return walkingTarget;}
     @Override public boolean isStuck(){return stalled;}
 
+    @Override public boolean moveTo(Entity entity, double speed) {
+        contactPeer = entity == null ? null : entity.getUUID();
+        entityMove = true;
+        try { return super.moveTo(entity, speed); }
+        finally { entityMove = false; }
+    }
+
     /** Reissuing a walk is not progress: preserve the node index and timeout when the route is unchanged. */
     @Override public boolean moveTo(Path requested,double speed){
         return moveTo(requested,speed,false);
@@ -206,6 +216,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     private boolean moveTo(Path requested,double speed,boolean retreat){
         if(requested==null){stop();return false;}
+        if(!entityMove&&level.getGameTime()-goalTick>2)contactPeer=null;
         retreating=retreat;
         var planned=queries.get(requested);
         if(path!=null&&!path.isDone()&&fits(walkingQuery)&&requested.getTarget().equals(walkingTarget)
@@ -225,7 +236,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     @Override public void stop(){
         super.stop();gaitCheckPos=null;gaitCheckTick=0;walkingTarget=null;walkingQuery=null;hasDelayedRecomputation=false;stalled=false;resetBlock();
-        retreating=false;
+        retreating=false;contactPeer=null;
     }
 
     /** Rebuild the installed destination, never the last point inspected by a different goal. */
@@ -643,16 +654,23 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         return holding;
     }
 
-    /** The surface approach names the exact point its walk ends at: what the walk's contact partner is judged by. */
-    public void heading(Vec3 at) { goal = at; goalTick = level.getGameTime(); }
+    /** The surface approach names the exact point its walk ends at and, for contact walks, the peer it approaches. */
+    public void heading(Vec3 at) { heading(at, null); }
+
+    public void heading(Vec3 at, Entity peer) {
+        goal = at; goalTick = level.getGameTime();
+        contactPeer = peer == null ? null : peer.getUUID();
+    }
 
     /** The point the walk ends at: the surface approach's goal, else the route's target, else where this step heads. */
     private Vec3 goal(Vec3 to) {
         return level.getGameTime() - goalTick <= 2 ? goal : path != null && !path.isDone() ? Vec3.atBottomCenterOf(path.getTarget()) : to;
     }
 
-    /** What the walk is about: a body (never a hat) within contact range of its goal is the one the goal belongs to (fed, cared for, met, fought, carried). */
-    private static boolean partner(Obstacle o, Vec3 goal, double clear) { return !o.solid() && o.box().gap(goal.x, goal.z) < clear + CONTACT; }
+    /** Only the named peer of a contact walk is exempt from steering; a body standing in a non-contact goal cell is an obstacle. */
+    private boolean partner(Obstacle o, Vec3 goal, double clear) {
+        return !o.solid() && contactPeer != null && contactPeer.equals(o.entity().getUUID()) && o.box().gap(goal.x, goal.z) < clear + CONTACT;
+    }
 
     /** What a search plans round: hats, standing bodies but the goal's partner, and the blockers it was held up by lately (solid). */
     private List<Footing> planned(Set<BlockPos> targets) {
