@@ -9873,7 +9873,7 @@ def _ring_stray_fates(window):
 
 
 # The keeper's outing is the only start: the hook skips just the plaza choice roll, the walk, the bench and the leads are its own.
-next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=[
+next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
     (1, f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}')], expect=[
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',

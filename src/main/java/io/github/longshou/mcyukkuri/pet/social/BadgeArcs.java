@@ -284,6 +284,13 @@ public final class BadgeArcs {
         }
     }
 
+    /** The owner who sees its badged pet insulted scolds the insulter once (and comforts the pet) when it is free to. */
+    private static void ownerScolds(ServerLevel level, YukkuriEntity insulter, YukkuriEntity pet) {
+        if (pet.pet().owner() != null && level.getEntity(pet.pet().owner()) instanceof HumanNpc keeper && keeper.isAlive()
+                && keeper.distanceToSqr(pet) <= 144 && keeper.hasLineOfSight(pet) && keeper.hasLineOfSight(insulter))
+            keeper.helpPet(pet, insulter);
+    }
+
     /** B2: envy that turns into sulking, a snarl, or (if the holder is kind) a comforting nuzzle. */
     private static void envy(ServerLevel level, Scene s, YukkuriEntity o, YukkuriEntity sub) {
         int t = since(s);
@@ -310,6 +317,7 @@ public final class BadgeArcs {
             case 1 -> {
                 if (t == 1) {
                     s.result += "|" + answerInterest(sub, o, true);
+                    if (s.result.startsWith("snark")) ownerScolds(level, o, sub);
                 }
                 if (t >= 70) { quiet(sub); next(s); }
             }
@@ -390,10 +398,7 @@ public final class BadgeArcs {
                         s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
                     }
                 }
-                // The owner who sees its badged pet insulted scolds the provoker once, in place of the pet's own answer.
-                if (t == 1 && sub.pet().owner() != null && level.getEntity(sub.pet().owner()) instanceof HumanNpc keeper
-                        && keeper.isAlive() && keeper.distanceToSqr(sub) <= 144 && keeper.hasLineOfSight(sub) && keeper.hasLineOfSight(o))
-                    keeper.helpPet(sub, o);
+                if (t == 1) ownerScolds(level, o, sub);
                 if (t >= 70) { quiet(sub); next(s); }
             }
             case 3 -> {
