@@ -284,10 +284,17 @@ public final class HumanNpc extends PathfinderMob {
     BlockPos yardBowl() { return yardBowl; }
     /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
     public boolean helpPet(YukkuriEntity pet, YukkuriEntity stray) {
-        if (isNoAi() || stroll().outing()) return false;
+        if (isNoAi()) return false;
+        if (stroll().restingAtPlaza()) {
+            street.scoldFromPlaza(pet, stray);
+            return true;
+        }
+        if (stroll().outing()) return false;
         street.helpPet(pet, stray);
         return true;
     }
+    /** Scenario hook: the next outing goes to the badge plaza without the choice roll. */
+    public void forcePlaza() { stroll().forcePlaza(); }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
     public int careFood() { return careFood; }

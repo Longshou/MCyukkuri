@@ -441,7 +441,11 @@ final class HumanStreet {
             } else if (!nav.isDone()) return;
         }
         nav.stop();
-        var pet = help.pet();
+        comfort(help.pet());
+        stopHelp();
+    }
+
+    private void comfort(YukkuriEntity pet) {
         if (pet.isAlive() && pet.level() == npc.level() && npc.distanceToSqr(pet) <= 36 && npc.hasLineOfSight(pet)) {
             npc.getLookControl().setLookAt(pet, 30, 30);
             npc.swing(InteractionHand.MAIN_HAND);
@@ -449,7 +453,16 @@ final class HumanStreet {
             pet.life().personality().talk(npc.getUUID(), true);
             GameplayLog.event(npc, "npc-care", "action=pet_comfort pet={} distance={}", pet.getUUID(), npc.distanceTo(pet));
         }
-        stopHelp();
+    }
+
+    /** The owner resting on a plaza bench scolds the insulter from where it sits, then comforts its pet; the stray avoids the spot. */
+    void scoldFromPlaza(YukkuriEntity pet, YukkuriEntity stray) {
+        npc.getLookControl().setLookAt(stray, 30, 30);
+        gesture(npc, "warning");
+        Expulsion.driveOff(stray, npc, stray.blockPosition());
+        GameplayLog.event(npc, "npc-care", "action=pet_help pet={} target={} attitude={} distance={} where=plaza",
+                pet.getUUID(), stray.getUUID(), npc.attitude(), Math.round(npc.distanceTo(stray)));
+        comfort(pet);
     }
 
     void stopHelp() { help = null; helpPath = null; }
@@ -749,6 +762,10 @@ final class HumanStreet {
         private Vec3 resume;
         private TownMarkers.BadgePlaza plaza;
         private long plazaUntil;
+        /** Bound for a bench at the plaza: the owner walks to it, then sits with the leads off while the pets stay about. */
+        private boolean plazaRest, plazaSat;
+        /** Scenario hook: the next outing takes the plaza without the roll. */
+        private boolean plazaForced;
         private Vec3 parkDestination;
         private PlayBlockEntity facility;
         private Seat seat;
@@ -783,6 +800,8 @@ final class HumanStreet {
             return pet.getLeashHolder() == npc && !crossing.cleared(pet);
         }
         boolean parkLingering() { return parkOpened != 0; }
+        boolean restingAtPlaza() { return plazaSat; }
+        void forcePlaza() { plazaForced = true; }
         PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
 
         void save(CompoundTag tag) {
@@ -980,7 +999,8 @@ final class HumanStreet {
             boolean wearer = companions.stream().anyMatch(pet -> pet.pet().humanRank() != BadgeGrade.NONE);
             // A single choice from the gate leaves room for the existing park outing, even with company in sight.
             double chance = company ? .75 : wearer ? .45 : 0;
-            boolean chosen = npc.getRandom().nextDouble() < chance;
+            boolean chosen = plazaForced || npc.getRandom().nextDouble() < chance;
+            plazaForced = false;
             GameplayLog.event(npc, "npc-care", "action=outing_plaza_choice company={} wearer={} chance={} chosen={}",
                     company, wearer, chance, chosen);
             if (!chosen) return 0;
@@ -997,15 +1017,61 @@ final class HumanStreet {
         private void pauseAtPlaza() {
             endGlance();
             npc.getNavigation().stop();
-            plazaUntil = npc.level().getGameTime() + TownMarkers.plazaPause(companions.stream().mapToDouble(pet ->
-                    SocialDisposition.wariness(pet, pet.life().personality().relation(null))).max().orElseThrow());
+            double wariness = companions.stream().mapToDouble(pet ->
+                    SocialDisposition.wariness(pet, pet.life().personality().relation(null))).max().orElseThrow();
             GameplayLog.event(npc, "npc-care", "action=outing_plaza_arrive stand={} pets={}",
                     GameplayLog.at(destination), companions.stream().map(YukkuriEntity::getUUID).toList());
+            // A bench on the plaza lets the owner sit and watch, which keeps the pets about long enough for strays to see them.
+            var paving = plaza.paving().getCenter();
+            var seats = seats(BlockPos.containing(paving.x, plaza.paving().minY, paving.z), new Vec3(paving.x, plaza.paving().minY + .5, paving.z));
+            seatCandidates = seats.size();
+            seat = null;
+            for (var candidate : ParkSeats.order(seats, npc.getUUID().hashCode())) {
+                if (!routeSeat(candidate)) continue;
+                seat = candidate;
+                break;
+            }
+            plazaRest = seat != null;
+            plazaUntil = npc.level().getGameTime() + (plazaRest ? TownMarkers.plazaRest(wariness) : TownMarkers.plazaPause(wariness));
+        }
+
+        /** Walks to the bench, sits with the leads off and watches the pets; the pets' own needs, rain and dusk end it. */
+        private void restAtPlaza() {
+            var level = (ServerLevel) npc.level();
+            if (level.getGameTime() >= plazaUntil) { returnHome("plaza_done"); return; }
+            if (!TownMarkers.plazaLeisure(level)) { returnHome("plaza_dusk"); return; }
+            if (!plazaSat) {
+                if (npc.tickCount % 10 == 0 && !seatFree(seat)) {
+                    GameplayLog.event(npc, "npc-care", "action=outing_sit result=taken seat={}", seat.cell().toShortString());
+                    returnHome("plaza_seat");
+                    return;
+                }
+                if (!atStand()) {
+                    if (!npc.getNavigation().isDone()) return;
+                    if (seatGap() > REACH_SEAT + .3) {
+                        if (!routeSeat(seat)) returnHome("plaza_seat");
+                    } else if (++stalled >= ROUTE_TICKS) {
+                        GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_step seat={}", seat.cell().toShortString());
+                        returnHome("plaza_seat");
+                    } else npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .45);
+                    return;
+                }
+                plazaSat = true;
+                endGlance();
+                detachLeads("plaza");
+                GameplayLog.event(npc, "npc-care", "action=outing_plaza_rest seat={}", seat.cell().toShortString());
+            }
+            npc.getNavigation().stop();
+            stalled = detours = 0;
+            npc.getLookControl().setLookAt(watched());
+            if (seatGap() > SEAT_CENTRE && Math.abs(npc.getY() - seat.top().y) <= .6)
+                npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .3);
         }
 
         private void clearPlaza() {
             plaza = null;
             plazaUntil = 0;
+            plazaRest = plazaSat = false;
         }
 
         private ProduceCrateBlockEntity crate() {
@@ -1174,10 +1240,11 @@ final class HumanStreet {
         }
 
         /** Benches watching the facility, nearest to it first. */
-        private List<Seat> seats(PlayBlockEntity found) {
+        private List<Seat> seats(PlayBlockEntity found) { return seats(found.getBlockPos(), found.getBlockPos().getCenter()); }
+
+        /** Benches within sight of {@code core}, nearest first. */
+        private List<Seat> seats(BlockPos origin, Vec3 core) {
             var level = npc.level();
-            var origin = found.getBlockPos();
-            var core = origin.getCenter();
             var seats = new ArrayList<Seat>();
             for (var cell : BlockPos.betweenClosed(origin.offset(-9, -1, -9), origin.offset(9, 1, 9))) {
                 if (!level.hasChunkAt(cell)) continue;
@@ -1252,7 +1319,7 @@ final class HumanStreet {
 
         /** The one place that decides sitting: resting on the board top, centred on it, with no walk or leg in progress. */
         private void syncSeat() {
-            boolean sit = seat != null && parkLingering() && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()
+            boolean sit = seat != null && (parkLingering() || plazaSat) && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()
                     && npc.onGround() && Math.abs(npc.getY() - seat.top().y) <= .05 && seatGap() <= SEAT_CENTRE;
             if (sit == npc.seated()) return;
             if (!sit) { standUp("move"); return; }
@@ -1473,7 +1540,7 @@ final class HumanStreet {
             var pet = companions.stream().filter(Entity::isAlive)
                     .min(Comparator.comparingInt((YukkuriEntity p) -> p.playLife().active() ? 0 : 1)
                             .thenComparingDouble(npc::distanceToSqr)).orElse(null);
-            return pet == null ? facility.getBlockPos().getCenter() : pet.getEyePosition();
+            return pet != null ? pet.getEyePosition() : facility != null ? facility.getBlockPos().getCenter() : plaza.paving().getCenter();
         }
 
         private void clearPark() {
@@ -1578,7 +1645,7 @@ final class HumanStreet {
                         returnHome("companion");
                         return;
                     }
-                    if (parkLingering()) continue;
+                    if (parkLingering() || plazaRest) continue;
                     double behind = npc.distanceTo(pet) - pet.outing().outerDistance();
                     if (behind > lag) {
                         lagging = pet;
@@ -1590,6 +1657,7 @@ final class HumanStreet {
                     returnHome("plaza_gone");
                     return;
                 }
+                if (plazaRest) { restAtPlaza(); return; }
                 if (plazaUntil != 0) {
                     if (!atDestination() || lagging != null) returnHome("plaza_separated");
                     else if (npc.level().getGameTime() >= plazaUntil) returnHome("plaza_done");

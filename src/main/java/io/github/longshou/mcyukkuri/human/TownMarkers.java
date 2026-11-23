@@ -178,6 +178,11 @@ public final class TownMarkers {
         return 320 - (int) (160 * wariness);
     }
 
+    public static int plazaRest(double wariness) {
+        // An owner on a bench stays three quarters of a minute to a minute and a half, wary pets shortening it.
+        return 1800 - (int) (900 * wariness);
+    }
+
     public record BadgePlaza(Marker marker, AABB paving) {
         public boolean present(ServerLevel level) {
             if (marker.isRemoved()) return false;
@@ -215,6 +220,9 @@ public final class TownMarkers {
                             BlockPos.containing(paving.maxX - 1, paving.minY, paving.maxZ - 1))
                     .map(BlockPos::immutable)
                     .filter(pos -> {
+                        // One block in from every edge: a walker that stops a step short of its stand is still on the paving.
+                        if (pos.getX() + .5 < paving.minX + 1 || pos.getX() + .5 > paving.maxX - 1
+                                || pos.getZ() + .5 < paving.minZ + 1 || pos.getZ() + .5 > paving.maxZ - 1) return false;
                         if (!level.hasChunkAt(pos) || !level.getFluidState(pos).isEmpty()
                                 || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
                         var body = visitor.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(visitor.position()));

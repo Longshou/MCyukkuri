@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
@@ -389,6 +390,10 @@ public final class BadgeArcs {
                         s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
                     }
                 }
+                // The owner who sees its badged pet insulted scolds the provoker once, in place of the pet's own answer.
+                if (t == 1 && sub.pet().owner() != null && level.getEntity(sub.pet().owner()) instanceof HumanNpc keeper
+                        && keeper.isAlive() && keeper.distanceToSqr(sub) <= 144 && keeper.hasLineOfSight(sub) && keeper.hasLineOfSight(o))
+                    keeper.helpPet(sub, o);
                 if (t >= 70) { quiet(sub); next(s); }
             }
             case 3 -> {

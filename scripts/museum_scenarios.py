@@ -3584,7 +3584,7 @@ def _plaza_wearer(kind, name, x, grade, z=-6):
     ]
 
 
-def _plaza_yard():
+def _plaza_yard(with_pet=True):
     return [
         box(2, 0, -20, 8, 2, -12, 'minecraft:air'),
         box(2, 0, -20, 8, 0, -20, 'minecraft:oak_fence[east=true,west=true]'),
@@ -3597,13 +3597,17 @@ def _plaza_yard():
         'data:{Low:[-2,-1,-2],High:[2,3,4]}}',
         human('caretaker_sister', 5, -17, _PLAZA_KEEPER, 0, yaw=0, label='院主')[:-1]
         + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -17)}L,YardBowl:{_plaza_pos(4, -18)}L}}',
-        yk('reimu', 4, -15, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠', lead=True,
-           nutrition=100, energy=100, boldness=35, attachment=80, extra='YukkuriDailyLife:{Boredom:95,Affection:60}'),
-        f'data modify entity {sel(_PLAZA_YARD_PET)} {OWNED} set value '
-        f'{{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))}}}',
-        f'data modify entity {sel(_PLAZA_YARD_PET)} YukkuriPet.Care merge value '
-        f'{{Harness:1b,WearOwner:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))}}}',
+        *(_plaza_companion(_PLAZA_YARD_PET, yk('reimu', 4, -15, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠',
+                                                lead=True, nutrition=100, energy=100, boldness=35, attachment=80,
+                                                extra='YukkuriDailyLife:{Boredom:95,Affection:60}')) if with_pet else []),
     ]
+
+
+def _plaza_companion(name, line):
+    """The yard keeper's own harnessed companion."""
+    keeper = uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))
+    return [line, f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{keeper}}}',
+            f'data modify entity {sel(name)} YukkuriPet.Care merge value {{Harness:1b,WearOwner:{keeper}}}']
 
 
 add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
@@ -3640,14 +3644,16 @@ def _ring_stray(scene, name, kind, x, label, values):
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '佩章的银章灵梦在白篷下。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，胆小的魔理沙远远停住不靠近；'
-    '戴着作废章的嚣张前宠物和普通流浪一样来看，别油按作废章而非真章对待。',
+    '院主牵着佩章的银章灵梦走到白篷下，坐在长椅上看它。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，院主看到后在长椅上喝止一次，'
+    '再安抚灵梦；胆小的魔理沙远远停住不靠近；戴着作废章的嚣张前宠物和普通流浪一样来看，别油按作废章而非真章对待。',
     '约 3 分钟', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell and a bed make the lot a village street, so free strays here are rooted in it.
         block(-5, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-8, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-7, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
-        *_plaza_wearer('reimu', _RING_HOLDER, 3, 2, z=-1),
+        *_plaza_yard(with_pet=False),
+        # The badged pet is the keeper's own companion: the keeper takes it to the plaza (the hook only skips the choice roll) and sits.
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-15)[0]),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-1, 1, -102, 10),
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
@@ -9866,10 +9872,11 @@ def _ring_stray_fates(window):
         return 'no stray reached the ring'
 
 
-# Scaffold: the badged pet's own plaza visits are P2's subject, so it is put back on the paving whenever it has strolled off.
-_ring_hold = [(tick, f'execute positioned ~3.5 ~ ~-0.5 unless entity {sel(_RING_HOLDER, 3)} run tp {sel(_RING_HOLDER)} ~ ~ ~')
-              for tick in range(40, 3600, 80)]
-next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=_ring_hold, expect=[
+# The keeper's outing is the only start: the hook skips just the plaza choice roll, the walk, the bench and the leads are its own.
+next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=[
+    (1, f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}')], expect=[
+    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
+    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
 ], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza ring'])
 

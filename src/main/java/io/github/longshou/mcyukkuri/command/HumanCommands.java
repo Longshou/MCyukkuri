@@ -86,6 +86,11 @@ public final class HumanCommands {
                 .then(Commands.literal("oniisan").then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(c -> oniisan(c, false))
                         .then(Commands.literal("prey").executes(c -> oniisan(c, true)))))
+                .then(Commands.literal("plaza_visit").then(Commands.argument("resident", EntityArgument.entity()).executes(c -> {
+                    if (!(EntityArgument.getEntity(c, "resident") instanceof HumanNpc npc)) { say(c, "resident must be a human"); return 0; }
+                    npc.forcePlaza();
+                    return 1;
+                })))
                 .then(Commands.literal("shop")
                         .then(Commands.literal("list").executes(HumanCommands::list))
                         .then(Commands.literal("test_membership").then(Commands.argument("site", BlockPosArgument.blockPos())
