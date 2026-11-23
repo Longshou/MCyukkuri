@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -268,9 +269,13 @@ public final class PetOuting extends Goal {
             if (!owner.blockPosition().equals(escortAt) || close != closeApproach || stand == null && pet.tickCount % RESAMPLE_TICKS == 0) {
                 escortAt = owner.blockPosition();
                 closeApproach = close;
-                stand = SurfaceApproach.beside(pet, owner, close ? 1.5 : innerDistance(), 1, Double.POSITIVE_INFINITY,
-                        at -> !close && pet.getLeashHolder() != owner || pet.level().clip(new ClipContext(at.add(0, pet.getEyeHeight(), 0),
-                                owner.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet)).getType() == HitResult.Type.MISS);
+                double reach = close ? 1.5 : innerDistance();
+                Predicate<Vec3> sees = at -> !close && pet.getLeashHolder() != owner
+                        || pet.level().clip(new ClipContext(at.add(0, pet.getEyeHeight(), 0),
+                                owner.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pet)).getType() == HitResult.Type.MISS;
+                stand = SurfaceApproach.beside(pet, owner, reach, 1, Double.POSITIVE_INFINITY, sees);
+                if (stand == null && owner.getY() > pet.getY() + .35)
+                    stand = SurfaceApproach.beside(pet, new Vec3(owner.getX(), pet.getY(), owner.getZ()), reach, owner, sees);
             }
             // This leg ends at a fixed stand sampled behind the resident. Moving the resident's body
             // must not invalidate its path between samples.
