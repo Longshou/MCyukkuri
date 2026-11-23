@@ -56,6 +56,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -89,6 +90,7 @@ import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
  * status labels. Entities are spawned by the data pack with ordinary AI; these commands only set real state.
  */
 public final class ScenarioCommands {
+    private static final String SCENE_HOLD = "scn_hold";
     /**
      * Failure text for players standing near a scenario, including commands called from scheduled functions.
      */
@@ -242,6 +244,9 @@ public final class ScenarioCommands {
                 .then(Commands.literal("owner_at").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.literal("watch").executes(c -> ownerAt(c, 4)))
                         .then(Commands.literal("away").executes(c -> ownerAt(c, 30)))))
+                .then(Commands.literal("hold").then(Commands.argument("targets", EntityArgument.entities())
+                        .then(Commands.literal("on").executes(c -> hold(c, true)))
+                        .then(Commands.literal("off").executes(c -> hold(c, false)))))
                 .then(Commands.literal("house_rules").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("mask", IntegerArgumentType.integer(0, (1 << HouseRule.values().length) - 1))
                                 .executes(ScenarioCommands::houseRules))))
@@ -533,6 +538,20 @@ public final class ScenarioCommands {
             if (distance > 16 || level.noCollision(owner) && HumanSight.sees(owner, pet)) return 1;
         }
         return 0;
+    }
+
+    /** Scene start hold: the player is shown the first beat only once in position. Vanilla NoAI stops goals and every `isNoAi` system together
+     *  while gravity, landing and the body still run; a mob that was already NoAI on purpose is never touched, so release returns only what `on` held. */
+    private static int hold(CommandContext<CommandSourceStack> c, boolean on) throws CommandSyntaxException {
+        int changed = 0;
+        for (var entity : EntityArgument.getOptionalEntities(c, "targets")) {
+            if (!(entity instanceof Mob mob) || (on ? mob.isNoAi() : !mob.getTags().contains(SCENE_HOLD))) continue;
+            mob.setNoAi(on);
+            if (on) mob.addTag(SCENE_HOLD); else mob.removeTag(SCENE_HOLD);
+            changed++;
+        }
+        GameplayLog.world(c.getSource().getLevel(), "scenario", "hold {} mobs={}", on ? "on" : "off", changed);
+        return changed;
     }
 
     private static int houseRules(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {

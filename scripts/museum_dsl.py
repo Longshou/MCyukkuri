@@ -18,6 +18,7 @@ from furniture_placement import joined as _joined, state as _state  # noqa: E402
 
 SCN = 'scn'                 # tag carried by every scenario individual, item and prop entity
 OBJ = 'museum'
+HOLD_TICKS = 80             # every scene holds its mobs this long after the player arrives (3-2-1 on the action bar, released at the end); smoke times count from the start, so they carry it
 MATURITY = 336000            # default loaded ticks from birth to maturity (family/GrowthTiming)
 LIFESPAN = 1056000
 # life stage -> (saved family stage, first age, next age, body scale)

@@ -5103,14 +5103,15 @@ add('excited_leak', 'meadow', '短落差受惊：成油漏尿对照', '短落差
         # The transparent pens keep both roaming adults in view between lifts.
         *(box(x, 0, -2, x, 2, 1, 'minecraft:glass_pane[north=true,south=true]') for x in (1, 4, 7)),
         *(box(1, 0, z, 7, 2, z, 'minecraft:glass_pane[east=true,west=true]') for z in (-2, 1)),
-        yk('reimu', -2, 0, 'leak_baby', dy=2.5, stage='baby', yaw=0, label='赤油', self_control=0, urine=65, also=('leak_actor',)),
-        yk('reimu', 0, 0, 'leak_child', dy=2.5, stage='child', yaw=0, label='子油', lead=True, self_control=0, urine=65, also=('leak_actor',)),
-        yk('reimu', 2, 0, 'leak_adult', dy=2.5, yaw=0, label='低自制成油', uuid=uid('excited_leak', 'adult'), self_control=0, urine=65, also=('leak_actor',)),
-        yk('reimu', 5, 0, 'leak_steady', dy=2.5, yaw=0, label='高自制成油', uuid=uid('excited_leak', 'steady'), self_control=100, urine=26, also=('leak_actor',)),
+        yk('reimu', -2, 0, 'leak_baby', stage='baby', yaw=0, label='赤油', self_control=0, urine=65, also=('leak_actor',)),
+        yk('reimu', 0, 0, 'leak_child', stage='child', yaw=0, label='子油', lead=True, self_control=0, urine=65, also=('leak_actor',)),
+        yk('reimu', 2, 0, 'leak_adult', yaw=0, label='低自制成油', uuid=uid('excited_leak', 'adult'), self_control=0, urine=65, also=('leak_actor',)),
+        yk('reimu', 5, 0, 'leak_steady', yaw=0, label='高自制成油', uuid=uid('excited_leak', 'steady'), self_control=100, urine=26, also=('leak_actor',)),
     ], late=[
-        # Leave the full presentation beat between genuine falls, including after a winning roll.
-        *(Retry(f'execute as {sel(actor)} at @s run tp @s ~ ~2.5 ~', sel(actor), tries=1, first=_LEAK_DROP_INTERVAL * n)
-          for n in range(1, _LEAK_DROPS) for actor in ('leak_adult', 'leak_steady')),
+        # The first fall happens after the start hold, in view; leave the full presentation beat between genuine falls, including after a winning roll.
+        *(Retry(f'execute as {sel(actor)} at @s run tp @s ~ ~2.5 ~', sel(actor), tries=1, first=_LEAK_DROP_INTERVAL * n + 1)
+          for n in range(_LEAK_DROPS) for actor in ('leak_adult', 'leak_steady')),
+        *(Retry(f'execute as {sel(actor)} at @s run tp @s ~ ~2.5 ~', sel(actor), tries=1, first=1) for actor in ('leak_baby', 'leak_child')),
     ], env=DAY, vantage=(2, 8, 180, 12),
     smoke=dict(ticks=_LEAK_DROP_INTERVAL * (_LEAK_DROPS - 1) + 220,
                expect=[r'\[leak\][^\n]*stage=(?:baby|juvenile|adult) self_control=0 stimulus=drop result=flow\b',

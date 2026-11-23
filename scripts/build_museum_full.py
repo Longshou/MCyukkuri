@@ -45,7 +45,7 @@ for _base in (ROOT, *ROOT.parents):
         sys.path.insert(0, str(_base / '.local/setup/python'))
         break
 from museum_actions import ACTION_META  # noqa: E402
-from museum_dsl import _text, _q, OBJ  # noqa: E402
+from museum_dsl import _text, _q, OBJ, HOLD_TICKS  # noqa: E402
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, big_fill  # noqa: E402
 import museum_scenarios  # noqa: E402
 
@@ -203,7 +203,7 @@ PROBE_COMMANDS = {
     'scenario vary': 'yukkuri scenario vary @s {boldness:[40,60]}',
     'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario push': 'yukkuri scenario push @s 0.5 0',
-    'scenario grow': 'yukkuri scenario grow @s 0',
+    'scenario grow': 'yukkuri scenario grow @s 0', 'scenario hold': 'yukkuri scenario hold @s on',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
     'scenario sumo': 'yukkuri scenario sumo @s @s', 'scenario badge': 'yukkuri scenario badge @s silver true', 'scenario stud': 'yukkuri scenario stud @s @s',
     'scenario home': 'yukkuri scenario home @s 0 0 0', 'scenario twigs': 'yukkuri scenario twigs @s 2', 'scenario birth': 'yukkuri scenario birth @s @s natural',
@@ -323,6 +323,7 @@ def build_pack(world):
         for scenario in f.scenarios:
             cancel += [f'schedule clear {NS}:smoke/{scenario.id}/{i}'
                        for i, _ in enumerate((scenario.smoke or {}).get('commands', ()))]
+            cancel += [f'schedule clear {NS}:scn/{scenario.id}_{step}' for step in ('hold3', 'hold2', 'hold1', 'go')]
             if scenario.late:
                 cancel.append(f'schedule clear {NS}:scn/{scenario.id}_late')
                 for ri, retry in enumerate(r for r in scenario.late if not isinstance(r, str)):
@@ -370,7 +371,6 @@ def build_pack(world):
                                         f'execute positioned {ax}.0 {FEET} {az}.0 if entity {retry.guard} unless function {NS}:{base}_try run ' + nxt % retry.every]
                                        if nxt else [f'execute positioned {ax}.0 {FEET} {az}.0 if entity {retry.guard} run function {NS}:{base}_try']))
             fn(f'scn/{s.id}_late', late_lines)
-            body = body + [f'schedule function {NS}:scn/{s.id}_late 40t replace']
         fn(f'scn/{s.id}', body)
         clear_fn = f'field/{f.id}/clear_{s.sub}' if s.sub else f'field/{f.id}/clear'
         start = start_guards + [
@@ -378,19 +378,33 @@ def build_pack(world):
             f'function {NS}:{clear_fn}',
         ] + env_commands(s.env)
         start.append(f'execute positioned {ax}.0 {FEET} {az}.0 run function {NS}:scn/{s.id}')
+        # Start hold: the mobs just summoned wait (NoAI, still falling and landing) while the player arrives and reads 3-2-1; the release
+        # then starts the scene's late lines, retries and timed rules, so all of them count from the moment the player is in position.
+        # A mob the scene made NoAI on purpose is skipped by the command and stays as authored.
+        held = f'@e[tag=scn,type=!player,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
+        release = []
+        if s.late:
+            release.append(f'schedule function {NS}:scn/{s.id}_late 40t replace')
+        for windows, base, phase in ((random_tick_windows, 'random_ticks', 'start'), (spawn_windows, 'spawning', 'start')):
+            if s.id in windows:
+                release.append(f'schedule function {NS}:scn/{s.id}_{base}_{phase} {windows[s.id][0]}t replace')
+        fn(f'scn/{s.id}_go', [f'yukkuri scenario hold {held} off'] + release)
+        for count in (3, 2, 1):
+            nxt = f'scn/{s.id}_hold{count - 1}' if count > 1 else f'scn/{s.id}_go'
+            fn(f'scn/{s.id}_hold{count}', [f'execute positioned {ax}.0 {FEET} {az}.0 run title @a[distance=..80] actionbar ' + _text(f'{count}', 'yellow'),
+                                          f'schedule function {NS}:{nxt} 20t replace'])
+        start += [f'yukkuri scenario hold {held} on', f'schedule function {NS}:scn/{s.id}_hold3 {HOLD_TICKS - 60}t replace']
         if s.id in random_tick_windows:
             first, duration, speed = random_tick_windows[s.id]
             base = f'scn/{s.id}_random_ticks'
             fn(f'{base}_start', [f'gamerule randomTickSpeed {speed}', f'schedule function {NS}:{base}_end {duration}t replace'])
             fn(f'{base}_end', ['gamerule randomTickSpeed 3'])
-            start.append(f'schedule function {NS}:{base}_start {first}t replace')
         if s.id in spawn_windows:
             first, duration = spawn_windows[s.id]
             base = f'scn/{s.id}_spawning'
             fn(f'{base}_start', ['gamerule mobGriefing true', 'gamerule doMobSpawning true',
                                  f'schedule function {NS}:{base}_end {duration}t replace'])
             fn(f'{base}_end', ['gamerule doMobSpawning false'])
-            start.append(f'schedule function {NS}:{base}_start {first}t replace')
         vdx, vdz = s.vantage[:2]
         # Two-value views stand north of the anchor and look south. Explicit views keep their signed offset.
         yaw = s.vantage[2] if len(s.vantage) > 2 else 0
