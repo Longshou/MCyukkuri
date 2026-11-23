@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | PD-13 冷淡斥退、PD-29 留岸回望与 mold_sorrow 伴侣台词及语音 | `.worktrees/wp-lines-pd13` | aquatic/LeaveBehind; dialogue corpus; art/audio/aquestalk; lang; FEATURES/TODO rows |
-| 徽章性格门槛：铜章起要求友善（KINDLY） | `.worktrees/wp-badge-kindly` | badge/BadgeRequirements; pet/exam/ExamSession; src/test badge tests; FEATURES 宠物培育 |
 | 徽章广场 P2：佩章者散步停靠广场、院主牵宠停一次 | `.worktrees/wp-plaza-visit` | human/TownMarkers,HumanStreet; entity/RoamingGoal; pet/PetOuting; art/structures/human-world/author_civic.py + badge_hall.nbt; museum_scenarios badge_plaza |
 
 ## 玩法待办
