@@ -7924,6 +7924,12 @@ add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '�
 
 def _verify_frail_gait(window, trace):
     weak, gap = _clips(trace, _uuid_text('frail_gait', 'weak')), _clips(trace, _uuid_text('frail_gait', 'gap'))
+    # The health is set a few seconds after spawn: judge the weak body from the tick its weakness began.
+    began = re.search(rf'\[body\][^\n]* uuid={_uuid_text("frail_gait", "weak")} t=(\d+) [^\n]*weakness false -> true', window)
+    if not began:
+        return 'The weak body never became weak'
+    weak = [row for row in weak if row[0] >= int(began[1])]
+    gap = [row for row in gap if row[2] != 'run' or row[0] >= int(began[1])]
     if not re.search(rf'\[move\][^\n]* uuid={_uuid_text("frail_gait", "weak")} [^\n]*gait crawl cause=weak\b', window):
         return 'The weak body never crawled'
     for name, rows in (('weak', weak), ('gap', gap)):
