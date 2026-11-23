@@ -7,9 +7,10 @@ public final class BadgeRequirements {
     public static final int TALENT = 85;
 
     public record Candidate(int waiting, int toilet, int foodGuard, int manners, int greeting, int cap,
-                            boolean helpful, boolean considerate, int talent) {}
+                            boolean helpful, boolean considerate, int talent, boolean kindly) {}
 
     public enum Need {
+        KINDLY(1, Candidate::kindly),
         WAIT_2(2, c -> c.waiting() >= 2),
         TOILET_2(2, c -> c.toilet() >= 2),
         GREETING_1(2, c -> c.greeting() >= 1),

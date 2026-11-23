@@ -3452,8 +3452,8 @@ def certify_smoke(target, *expected):
                 readout=[f'data get entity {sel("pet")} YukkuriPet.History'])
 
 
-def silver_candidate(wait_points):
-    return yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, attachment=75,
+def silver_candidate(wait_points, friendliness=70):
+    return yk('reimu', 0, 3, 'pet', label='灵梦', lead=True, attachment=75, friendliness=friendliness,
               grade=1, skills={'wait': wait_points, 'toilet': 5, 'greeting': 2, 'counting': 5}, cap=4)
 
 
@@ -3574,11 +3574,11 @@ add('certify_silver_pass', 'town', '银章认证：通过别章', '银章认证�
                         r'[^\n]*old_token=[0-9a-f-]{36} old_token_inventory_delta=1\b'),
     **_CERTIFY_VIEW)
 
-add('certify_silver_fail', 'town', '银章认证：不会等待被说出来', '银章认证：不会等待被说出来',
-    '右键考官选认证。看考官指出等待不够熟练、灵梦低头落泪并保留铜章，公布时支付 4 绿宝石。',
-    '接触后约 10 秒', [*exam_hall(), silver_candidate(2), *own('pet')], give=['minecraft:emerald 4'],
+add('certify_silver_fail', 'town', '银章认证：性格自私被拒', '银章认证：性格自私被拒',
+    '右键考官选认证。技能都够，但灵梦自私：看考官指出性格不够善良、灵梦保留铜章，公布时支付 4 绿宝石。',
+    '接触后约 10 秒', [*exam_hall(), silver_candidate(5, friendliness=10), *own('pet')], give=['minecraft:emerald 4'],
     smoke=certify_smoke('SILVER',
-                        r'\[exam\][^\n]*action=result [^\n]*outcome=2 grade=BRONZE->BRONZE emeralds_used=4 [^\n]*need=WAIT_2\b'),
+                        r'\[exam\][^\n]*action=result [^\n]*outcome=2 grade=BRONZE->BRONZE emeralds_used=4 [^\n]*need=KINDLY\b'),
     **_CERTIFY_VIEW)
 
 add('certify_platinum_talent', 'town', '钻石章：考官夸天分', '钻石章：考官夸天分',

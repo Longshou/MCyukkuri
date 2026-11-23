@@ -141,7 +141,7 @@ public final class ExamSession {
         var t = y.life().personality().temperament();
         return BadgeRequirements.firstMissing(target.id(), new BadgeRequirements.Candidate(
                 s.grade(Ability.WAIT), s.grade(Ability.TOILET), s.grade(Ability.FOOD_GUARD), s.grade(Ability.MANNERS),
-                s.grade(Ability.GREETING), s.cap(), t.is(Gate.WARM), t.is(Gate.DEVOTED), y.pet().talent()));
+                s.grade(Ability.GREETING), s.cap(), t.is(Gate.WARM), t.is(Gate.DEVOTED), y.pet().talent(), t.is(Gate.KINDLY)));
     }
 
     private static boolean eligibleOwner(YukkuriEntity y, Player p) {
