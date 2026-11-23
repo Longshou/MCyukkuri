@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 逐场景台词审查修复 1：情绪、哀伤与亲子 | `.worktrees/wp-dlg-fix-family` | mind/EmotionCourse; settlement/MoldExile; aquatic/LeaveBehind; family/*; social/GroupCards; human/Custody; GriefLife; dialogue corpus/audio |
 
 ## 玩法待办
 
