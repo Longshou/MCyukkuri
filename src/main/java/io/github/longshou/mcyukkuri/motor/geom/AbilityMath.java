@@ -7,7 +7,14 @@ import java.util.Map;
 public final class AbilityMath {
     /** What the body is right now: {@code size} is {@code growthScale * scale} (S before the clamp), {@code energy} the raw need value, {@code load} the host's load in L. */
     public record Inputs(double size, double energy, double health, double maxHealth, double painSeverity,
-                         boolean footBurned, boolean adultOrCanJump, boolean dying, boolean sleeping, double load) {
+                         boolean footBurned, boolean adultOrCanJump, boolean dying, boolean sleeping, double load,
+                         boolean springless) {
+        /** The body can spring unless {@code springless} (frail or a baked sole). */
+        public Inputs(double size, double energy, double health, double maxHealth, double painSeverity,
+                      boolean footBurned, boolean adultOrCanJump, boolean dying, boolean sleeping, double load) {
+            this(size, energy, health, maxHealth, painSeverity, footBurned, adultOrCanJump, dying, sleeping, load, false);
+        }
+
         /** A resting, uninjured adult at full energy: the reference body. */
         public static final Inputs ADULT = new Inputs(1, 80, 20, 20, 0, false, true, false, false, 0);
     }
@@ -89,7 +96,7 @@ public final class AbilityMath {
         double size = Math.sqrt(Math.clamp(in.size(), c.sizeMin(), c.sizeMax()));
         double fitness = fitness(in.energy(), in.health(), in.maxHealth(), in.painSeverity(), in.footBurned(), c, Multipliers.IDENTITY);
         double load = 1 / (1 + Math.max(0, in.load()) / c.loadRef());
-        boolean jumps = in.adultOrCanJump() && in.energy() >= c.minJumpEnergy() && !in.dying() && !in.sleeping();
+        boolean jumps = in.adultOrCanJump() && in.energy() >= c.minJumpEnergy() && !in.dying() && !in.sleeping() && !in.springless();
         return new Values(jumps, size, fitness, load,
                 jumps ? c.hopHeight() * size * fitness : 0, jumps ? c.hopReach() * size * fitness : 0,
                 c.stepUp() * size, c.walkSpeed() * size * fitness * load,

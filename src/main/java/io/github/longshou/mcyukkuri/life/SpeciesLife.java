@@ -253,7 +253,7 @@ public final class SpeciesLife {
         double fatigue = BodyAbility.fatigue(entity);
         if (fatigue < 1) attribute.addOrUpdateTransientModifier(new AttributeModifier(FATIGUE_ID, fatigue - 1, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         else attribute.removeModifier(FATIGUE_ID);
-        String reason = BodyAbility.worn(entity) ? null : urgentReason();
+        String reason = BodyAbility.frail(entity) ? null : urgentReason();
         if (reason != null) {
             if (!attribute.hasModifier(URGENCY_ID))
                 attribute.addTransientModifier(new AttributeModifier(URGENCY_ID, URGENCY_BOOST, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));

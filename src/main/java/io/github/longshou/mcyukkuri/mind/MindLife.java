@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.mind;
 
 import net.minecraft.world.level.biome.Biome;
 
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
@@ -527,7 +528,7 @@ public final class MindLife {
             m.fitClock = 30 + y.getRandom().nextInt(40);
             int roll = y.getRandom().nextInt(4);
             if (roll == 0) m.perform("struggle", 40);
-            else if (roll == 1) m.perform("hop", 32);
+            else if (roll == 1 && !BodyAbility.cannotSpring(y)) m.perform("hop", 32);
             else {
                 var to = DefaultRandomPos.getPos(y, 5, 2);
                 if (to != null) y.getNavigation().moveTo(to.x, to.y, to.z, 1.3);

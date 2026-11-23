@@ -226,6 +226,8 @@ public enum YukkuriAction {
     public boolean holdsEndPose() { return id.endsWith("_extend"); }
     /** A clip that carries its own steps: shown as a reaction, it replaces the walk while the body travels. */
     public boolean walks() { return id.startsWith("walk_"); }
+    /** A clip whose body leaves the ground: a frail body does not play it (PresentationArbiter). */
+    public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP; }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
     public static Optional<YukkuriAction> byId(String id) {
         return Arrays.stream(values()).filter(action -> action.id.equals(id)).findFirst();

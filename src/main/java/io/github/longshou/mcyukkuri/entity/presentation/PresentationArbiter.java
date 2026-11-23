@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity.presentation;
 
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriControl;
@@ -358,7 +359,7 @@ public final class PresentationArbiter {
         if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()
                 && (e.motor().current() == null || e.motor().current().interruptible()))
             pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());
-        YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
+        YukkuriAction wanted = state.requestedAction() != null ? state.requestedAction()
                 : pose != null ? pose.action()
                 : HomeClaim.declaring(e) ? e.reactionAction()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
@@ -370,6 +371,12 @@ public final class PresentationArbiter {
                 ? walking(e, behavior)
                 : actions == Actions.GROUP ? EcologyPresentation.group(behavior)
                 : stationaryAction(state, behavior, actions);
+        // A frail body stands in place of any hopping clip it is given (joy, toy, hat hop); the face and line stay.
+        boolean frail = wanted.hops() && state.requestedAction() == null && BodyAbility.frail(e);
+        YukkuriAction action = frail ? YukkuriAction.IDLE : wanted;
+        if (frail && !e.level().isClientSide)
+            GameplayLog.limited(e, "body", "frail_clip", 100, "frail body withholds hop clip={} behavior={} energy={} nutrition={} health={}",
+                    wanted.id(), behavior, e.life().energy(), e.life().nutrition(), e.getHealth());
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;
         if (flightAnimation != null) {
             // The old raw flight write has the reverse order of setAnimation: ID, then start.

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.motor;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
+import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
@@ -49,9 +50,16 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     /** Energy below this is tired: the sleepy face and the worn gait begin together (see PresentationArbiter). */
     public static final double TIRED_ENERGY = 25;
 
-    /** A weak or tired body has no pace to spare: no request may ask it past its ordinary walk. */
-    public static boolean worn(YukkuriEntity body) {
-        return body.body().weak() || body.life().energy() < TIRED_ENERGY;
+    /** The one authority for a body with nothing to spare: starving (nutrition under {@link YukkuriLife#STARVING_NUTRITION}),
+     *  badly hurt (health at or under a third) or exhausted (energy under {@link #TIRED_ENERGY}). It waddles at its ordinary
+     *  walk at most: no request may ask it faster, and it cannot spring (see {@link #cannotSpring}). Light wounds and a full bowel do not count. */
+    public static boolean frail(YukkuriEntity body) {
+        return body.body().weak() || body.life().energy() < TIRED_ENERGY || body.life().nutrition() < YukkuriLife.STARVING_NUTRITION;
+    }
+
+    /** Whether any hop, run, vanilla step jump or in-place hop clip is shut to this body: frail, or a baked sole. */
+    public static boolean cannotSpring(YukkuriEntity body) {
+        return body.body().footBurned() || frail(body);
     }
 
     /** Slowing of a tired body not already weak (BodyLife slows a weak one): up to a quarter at no energy. */
@@ -64,12 +72,12 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     public static double groundModifier(YukkuriEntity body, double request) {
         double attribute = body.getAttributeValue(Attributes.MOVEMENT_SPEED);
         if (attribute == 0) return request; // A dying body has no drive.
-        if (worn(body)) request = Math.min(request, 1);
+        if (frail(body)) request = Math.min(request, 1);
         return Gait.groundControl(attribute * request, temperament(body) * carrying(body)) / attribute;
     }
 
     public static double flightPace(YukkuriEntity body, double request) {
-        if (worn(body)) request = Math.min(request, 1);
+        if (frail(body)) request = Math.min(request, 1);
         return Gait.flight(body.getAttributeValue(Attributes.FLYING_SPEED), request, growthPace(body), temperament(body))
                 * body.species().stride(request) * (body.body().weak() ? .6 : fatigue(body)) * wingLift(body);
     }
@@ -129,6 +137,6 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
         var condition = body.body();
         return new AbilityMath.Inputs(body.growthScale() * body.getScale(), body.life().energy(), body.getHealth(),
                 body.getMaxHealth(), condition.painSeverity(), condition.footBurned(),
-                body.family().adult() || body.childhood().canJump(), condition.dying(), body.life().isSleeping(), load);
+                body.family().adult() || body.childhood().canJump(), condition.dying(), body.life().isSleeping(), load, cannotSpring(body));
     }
 }

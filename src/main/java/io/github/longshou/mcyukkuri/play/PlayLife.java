@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.play;
 
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -77,7 +78,7 @@ public final class PlayLife {
         if(active()||cooldown>0)return refuse("cooldown");
         if(!available(target.kind()==PlayBlock.Kind.POOL))return refuse("unfit");
         if(target.getLevel()!=entity.level()||target.isRemoved())return refuse("gone");
-        if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&!entity.childhood().canJump())return refuse("cannot_jump");
+        if(target.kind()==PlayBlock.Kind.TRAMPOLINE&&(!entity.childhood().canJump()||BodyAbility.cannotSpring(entity)))return refuse("cannot_jump");
         if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return refuse("far");
         JuiceTub.Seat seat=null;
         boolean hurt=false;

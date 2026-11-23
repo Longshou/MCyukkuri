@@ -54,6 +54,18 @@ class AbilityMathTest {
         return AbilityMath.compute(in, C, NONE);
     }
 
+    @Test void springless_body_cannot_hop_but_keeps_its_walk_and_climb() {
+        var base = AbilityMath.Inputs.ADULT;
+        var frail = new AbilityMath.Inputs(base.size(), base.energy(), base.health(), base.maxHealth(), 0, false, true, false, false, 0, true);
+        var v = AbilityMath.compute(frail, C, null);
+        assertTrue(adult(base).canJump());
+        assertFalse(v.canJump());
+        assertEquals(0, v.hopHeight(), EPS);
+        assertEquals(0, v.hopReach(), EPS);
+        assertEquals(adult(base).walkSpeed(), v.walkSpeed(), EPS);
+        assertEquals(adult(base).climbRise(), v.climbRise(), EPS);
+    }
+
     /** The reference adult with one field replaced. */
     private static AbilityMath.Inputs adultWith(double size, double energy, double health, double pain,
                                                  boolean burned, boolean canJump, boolean dying, boolean sleeping,
