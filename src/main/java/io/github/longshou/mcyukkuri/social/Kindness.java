@@ -98,7 +98,7 @@ public final class Kindness extends Goal {
 
     private boolean ready() {
         var body = giver.body().condition();
-        return available(giver) && !giver.isNoAi() && (giver.family().adult() || giver.family().subadult())
+        return available(giver) && !giver.inert() && (giver.family().adult() || giver.family().subadult())
                 && giver.life().nutrition() >= 50 && received <= GIVER_REST
                 && body.readyForAffection() && body.mold() == 0 && !body.sick() && !body.dying()
                 && !CareBlockEntity.expecting(giver) && !giver.family().laboring() && !giver.family().birthDuty()

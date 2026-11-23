@@ -90,7 +90,7 @@ public final class StatusLife {
         }
         entity.mind().ensureGivenName();
         if (glow > 0) glowTick();
-        if (entity.isNoAi()) return;
+        if (entity.inert()) return;
         int t = entity.tickCount;
         if (PerceptionScan.due(t, entity.getId())) reactions.threat().scan();
         if (t % 5 == 0) reactions.scanWeatherAndNeeds();

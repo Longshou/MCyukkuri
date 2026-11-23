@@ -136,7 +136,7 @@ final class DenRaid {
             resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
             resident.mind().feeling().begin(fights ? EmotionCourse.Kind.RAGE : EmotionCourse.Kind.TERROR, .5f, body.getUUID(), resident.blockPosition());
             YukkuriWorldData.get(level()).relate(resident.getUUID(), body.getUUID(), -3);
-            if (!resident.isNoAi() && !resident.life().isSleeping() && resident.hasLineOfSight(body)
+            if (!resident.inert() && !resident.life().isSleeping() && resident.hasLineOfSight(body)
                     && (witness == null || resident.distanceToSqr(body) < witness.distanceToSqr(body))) witness = resident;
         }
         if (witness != null) Expulsion.driveOff(body, witness, den);

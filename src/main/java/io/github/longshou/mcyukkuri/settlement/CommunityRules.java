@@ -60,7 +60,7 @@ public final class CommunityRules {
         UUID leaderId = group.leader;
         var box = offender.getBoundingBox().inflate(range);
         Predicate<YukkuriEntity> eligible = p -> p != offender && p.isAlive()
-                        && !p.isNoAi() && group.id.equals(p.settlement().groupId()) && SettlementSociety.accepted(p) && !p.life().isSleeping()
+                        && !p.inert() && group.id.equals(p.settlement().groupId()) && SettlementSociety.accepted(p) && !p.life().isSleeping()
                         && p.hasLineOfSight(offender) && p.life().canRecognize(offender);
         ToDoubleFunction<YukkuriEntity> score = p -> (p.getUUID().equals(leaderId) ? -10000 : 0) + p.distanceToSqr(offender);
         if (!(offender.level() instanceof ServerLevel level))
@@ -111,12 +111,12 @@ public final class CommunityRules {
     /** Every ~10 s per accepted, awake member of a ruled community (called from SettlementLife). */
     static void patrol(YukkuriEntity member, SettlementData.Group group) {
         if (!(member.level() instanceof ServerLevel level) || !ruled(group) || !SettlementSociety.accepted(member) || member.life().isSleeping()
-                || member.isPanicking() || member.isNoAi()) return;
+                || member.isPanicking() || member.inert()) return;
         if (member.blockPosition().distSqr(group.center) > TERRITORY * TERRITORY) return;
         long now = level.getGameTime();
         var commons = group.commons;
         var near = level.getEntitiesOfClass(YukkuriEntity.class, member.getBoundingBox().inflate(PATROL_RANGE), other -> other != member && other.isAlive()
-                && !other.isNoAi() && !other.profile().dangerToYukkuri() && other.status().identity().free() && member.hasLineOfSight(other));
+                && !other.inert() && !other.profile().dangerToYukkuri() && other.status().identity().free() && member.hasLineOfSight(other));
         for (var other : near) {
             boolean same = group.id.equals(other.settlement().groupId());
             if (same) {

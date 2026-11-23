@@ -889,7 +889,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     }
 
     private static boolean canGiveWay(YukkuriEntity body) {
-        return body.isAlive() && !body.isNoAi() && !body.isCommandPlaying() && !body.operations().active()
+        return body.isAlive() && !body.inert() && !body.isCommandPlaying() && !body.operations().active()
                 && !body.life().isSleeping() && body.nudgeable() && !body.isPanicking() && !body.pet().busy()
                 && !body.life().protectsStep() && !body.pairedContact() && body.motor().current() == null;
     }

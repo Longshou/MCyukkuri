@@ -69,7 +69,7 @@ public final class CareApproach {
         return parent.getVehicle() instanceof SurfaceHost && sameFloor(parent,child) && parent.family().caresFor(child);
     }
     private static String unsafeReason(YukkuriEntity actor) {
-        return !actor.isAlive()?"not_alive":actor.isNoAi()?"no_ai":actor.isPassenger()&&!(actor.getVehicle() instanceof SurfaceHost)?"passenger":actor.isPanicking()?"panic"
+        return !actor.isAlive()?"not_alive":actor.inert()?"no_ai":actor.isPassenger()&&!(actor.getVehicle() instanceof SurfaceHost)?"passenger":actor.isPanicking()?"panic"
                 :actor.isOnFire()?"fire":actor.isInWaterOrBubble()?"water":actor.isCommandPlaying()?"command"
                 :actor.operations().active()?"operation":actor.life().isSleeping()?"sleeping":null;
     }

@@ -89,7 +89,7 @@ public final class TemperatureLife {
     }
 
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        if (entity.level().isClientSide || !entity.isAlive() || entity.inert()) return;
         if (cooldown > 0) cooldown--;
         if (baskCooldown > 0) baskCooldown--;
         if (initialSample) {
@@ -264,7 +264,7 @@ public final class TemperatureLife {
     private boolean available() {
         var life = entity.life();
         var brood = entity.family().brood();
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !entity.isPassenger()
                 && !entity.family().active() && !entity.family().awaitingLanding()

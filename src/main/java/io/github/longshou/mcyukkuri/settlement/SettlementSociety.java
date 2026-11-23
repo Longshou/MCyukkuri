@@ -79,7 +79,7 @@ public final class SettlementSociety {
                 && relations.affinity(guest.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL;
     }
     private static boolean available(YukkuriEntity member) {
-        return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.isCommandPlaying()
+        return member.isAlive() && !member.inert() && !member.isPanicking() && !member.isCommandPlaying()
                 && !member.operations().active() && !member.life().isSleeping() && !member.life().hasUrgentNeed()
                 && member.life().mealTicks() == 0 && !member.family().active() && !member.isPassenger();
     }

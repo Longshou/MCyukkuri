@@ -211,7 +211,7 @@ public final class SpeciesLife {
     // ---- the clock -------------------------------------------------------------------------------------------
 
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi()) return;
+        if (entity.level().isClientSide || !entity.isAlive() || entity.inert()) return;
         int t = entity.tickCount;
         if (t == 1 || t % 400 == 3) speed();
         if (t % 10 == 4) urgencySpeed();

@@ -142,7 +142,7 @@ public final class HouseLife implements EcologyRoutine {
                 && local.y >= 0 && local.y < .3 && Math.abs(local.x - .5) < .3 && local.z > .02 && local.z < .82;
     }
     public boolean mustExit() {
-        if (entity.tickCount < exitRetryAt || !entity.isAlive() || entity.isNoAi() || entity.isPassenger()
+        if (entity.tickCount < exitRetryAt || !entity.isAlive() || entity.inert() || entity.isPassenger()
                 || entity.isCommandPlaying() || entity.operations().active()) return false;
         var value = nest(); if (value == null) return false;
         if (exiting) return entity.distanceToSqr(Vec3.atBottomCenterOf(value.entrance())) >= .04;
@@ -216,7 +216,7 @@ public final class HouseLife implements EcologyRoutine {
         return !entity.level().isClientSide && EcologyRoutines.house(entity);
     }
     @Override public void passiveTick() {
-        if (entity.isNoAi()) return;
+        if (entity.inert()) return;
         if (wait > 0) wait--;
         if (careWait > 0) careWait--;
         if (startledTicks > 0) startledTicks--;
@@ -297,7 +297,7 @@ public final class HouseLife implements EcologyRoutine {
     private boolean humanTooClose() { return humanDistance < SHY; }
 
     private boolean available() {
-        return EcologyRoutines.house(entity) && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger()
+        return EcologyRoutines.house(entity) && entity.isAlive() && !entity.inert() && !entity.isPassenger()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && entity.life().mealTicks() == 0
                 && entity.life().drugSleep() == 0 && entity.life().sprayDelay() == 0

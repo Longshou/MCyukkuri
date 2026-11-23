@@ -83,7 +83,7 @@ public final class AgitationLife {
     public boolean active() { return phase != Phase.IDLE; }
     public boolean activePresentation() {
         // The completion clip is visible while ordinary family clocks and idle decisions continue.
-        if (phase == Phase.HEAT_RELIEVED) return entity.isAlive()&&!entity.isNoAi()&&!entity.body().dying()
+        if (phase == Phase.HEAT_RELIEVED) return entity.isAlive()&&!entity.inert()&&!entity.body().dying()
                 &&grounded()&&!entity.isPassenger()&&!entity.isVehicle()&&!entity.isPanicking()&&!entity.isOnFire()
                 &&!entity.isInWaterOrBubble()&&!entity.operations().active()&&!entity.isCommandPlaying()
                 &&!entity.life().isSleeping()&&entity.life().mealTicks()==0&&entity.motor().current()==null;
@@ -166,7 +166,7 @@ public final class AgitationLife {
         if (frightCooldown > 0) frightCooldown--;
         if (threatCooldown > 0) threatCooldown--;
         if (phase == Phase.HELD) { tickHeld(); return; }
-        if (!entity.isAlive() || !eligible() || entity.isNoAi()) { stop(); return; }
+        if (!entity.isAlive() || !eligible() || entity.inert()) { stop(); return; }
         if (cooldown > 0) cooldown--;
         if (phase == Phase.IDLE && entity.family().inBreedingPeriod()) beginHeat();
         if (phase == Phase.HEAT) {
@@ -221,7 +221,7 @@ public final class AgitationLife {
     }
 
     private boolean heldAvailable() {
-        return !entity.isNoAi() && !entity.isPassenger() && !entity.isVehicle() && !entity.isInWaterOrBubble()
+        return !entity.inert() && !entity.isPassenger() && !entity.isVehicle() && !entity.isInWaterOrBubble()
                 && !entity.isOnFire() && !entity.operations().active() && !entity.isCommandPlaying()
                 && !entity.pet().busy() && !entity.life().sedated() && !entity.life().isSleeping();
     }
@@ -262,7 +262,7 @@ public final class AgitationLife {
         boolean hunting = phase == Phase.ALICE_APPROACH;
         if (!eligible()) return "ineligible";
         if (!entity.isAlive()) return "dead";
-        if (entity.isNoAi()) return "no_ai";
+        if (entity.inert()) return "no_ai";
         if (entity.isPanicking()) return "panic";
         if (entity.body().dying()) return "dying";
         if (!entity.body().coreIntact()) return "core";
@@ -415,7 +415,7 @@ public final class AgitationLife {
     private boolean validTarget(YukkuriEntity other) {
         return other != entity && other.isAlive() && other.level() == entity.level() && other.family().adult()
                 && !other.body().dying() && other.body().coreIntact()
-                && !other.profile().dangerToYukkuri() && !other.isNoAi() && !other.isPassenger() && !other.isVehicle()
+                && !other.profile().dangerToYukkuri() && !other.inert() && !other.isPassenger() && !other.isVehicle()
                 && !other.isCommandPlaying() && !other.operations().active() && !other.pet().busy()
                 && !other.family().laboring() && !other.family().birthDuty()
                 && !other.life().sedated() && !other.life().isSleeping() && !other.isInWaterOrBubble()

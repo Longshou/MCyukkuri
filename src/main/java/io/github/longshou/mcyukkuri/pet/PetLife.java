@@ -529,7 +529,7 @@ public final class PetLife {
     public Director director() { return director; }
     /** Safety gate shared by every owner-side flow. */
     public boolean readyFor(Player p) {
-        return near(p) && owned(p) && !busy() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking()
+        return near(p) && owned(p) && !busy() && !animal.inert() && !animal.isPassenger() && !animal.isPanicking()
                 && !animal.isCommandPlaying() && !animal.operations().active() && !animal.life().hasUrgentNeed()
                 && animal.life().mealTicks() == 0 && !animal.life().isSleeping() && animal.hurtTime == 0
                 && animal.life().toiletPressure() < 80 && animal.life().hygiene() >= 30;
@@ -540,7 +540,7 @@ public final class PetLife {
     private int faceTicks;
     /** Nothing that a badge performance may interrupt: sleep, meals, sessions, panic, family or daily tasks, command actions. */
     public boolean calm() {
-        return !busy() && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && !animal.isPanicking() && !animal.isCommandPlaying()
+        return !busy() && animal.isAlive() && !animal.inert() && !animal.isPassenger() && !animal.isPanicking() && !animal.isCommandPlaying()
                 && !animal.operations().active() && !animal.life().isSleeping() && !animal.life().hasUrgentNeed() && animal.life().mealTicks() == 0
                 && !animal.dailyLife().active() && !animal.groupInteraction().active() && !animal.playLife().active() && animal.hurtTime == 0
                 && !animal.family().active();

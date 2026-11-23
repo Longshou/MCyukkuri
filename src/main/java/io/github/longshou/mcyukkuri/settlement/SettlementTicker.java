@@ -64,7 +64,7 @@ public final class SettlementTicker {
 
     private static boolean current(ServerLevel level, SettlementData.Group group, YukkuriEntity entity) {
         return level.getServer().getLevel(level.dimension()) == level && entity.level() == level
-                && entity.isAlive() && !entity.isRemoved() && !entity.isNoAi()
+                && entity.isAlive() && !entity.isRemoved() && !entity.inert()
                 && level.getEntity(entity.getUUID()) == entity && entity.settlement().group() == group;
     }
 

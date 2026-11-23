@@ -184,7 +184,7 @@ public final class LeaderSuccession {
                 && member.settlement().group() == group && level.getEntity(member.getUUID()) == member
                 && known != null && known.status == FamilyData.Status.ALIVE
                 && !member.profile().houseBody() && !member.profile().dangerToYukkuri()
-                && member.isAlive() && !member.isRemoved() && !member.isNoAi() && member.family().adult() && member.life().hasAccessory();
+                && member.isAlive() && !member.isRemoved() && !member.inert() && member.family().adult() && member.life().hasAccessory();
     }
 
     /** Strict samples additionally require a nearby, settled, undistracted pair with mutual recognition. */
@@ -259,7 +259,7 @@ public final class LeaderSuccession {
     }
 
     private static boolean liveWitness(YukkuriEntity member) {
-        return member.isAlive() && !member.isRemoved() && !member.isNoAi() && !member.life().isSleeping();
+        return member.isAlive() && !member.isRemoved() && !member.inert() && !member.life().isSleeping();
     }
 
     private static boolean closeToFormer(YukkuriEntity member, SettlementData.Group group) {

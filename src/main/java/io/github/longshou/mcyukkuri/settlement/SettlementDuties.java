@@ -55,7 +55,7 @@ public final class SettlementDuties {
 
     private boolean ready() {
         var brood = entity.family().brood();
-        return entity.isAlive() && entity.status().identity().wild() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
+        return entity.isAlive() && entity.status().identity().wild() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.isPassenger()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !(active() ? entity.life().nutrition() < 15 || entity.life().energy() < 15 : entity.life().hasUrgentNeed())
@@ -73,7 +73,7 @@ public final class SettlementDuties {
         var record = entity.settlement().society().record();
         if (record == null || record.assignedBy == null || record.assignedUntil <= level().getGameTime()) return null;
         var candidate = level().getEntity(record.assignedBy);
-        return candidate instanceof YukkuriEntity member && member.isAlive() && !member.isNoAi()
+        return candidate instanceof YukkuriEntity member && member.isAlive() && !member.inert()
                 && SettlementSociety.sameGroup(entity, member) && SettlementSociety.accepted(member)
                 && entity.distanceToSqr(member) <= 32 * 32 ? member : null;
     }

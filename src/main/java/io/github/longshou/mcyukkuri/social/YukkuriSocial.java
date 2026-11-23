@@ -152,7 +152,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (!personality().temperament().is(Gate.WARM)) return null;
         var relations = YukkuriWorldData.get((ServerLevel) entity.level());
         return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer.getUUID().equals(quarrelPeer)
-                && peer.isAlive() && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
+                && peer.isAlive() && !peer.inert() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
                 && !peer.dailyLife().active() && !peer.social().active() && !WildEvents.reserved(peer)
                 && contactReady(peer) && WildEvents.recognizes(entity, peer) && entity.hasLineOfSight(peer)
                 && relations.affinity(entity.getUUID(), peer.getUUID()) > BondLevels.AFFINITY_RECONCILABLE
@@ -285,7 +285,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (morningPending) {
             morningPending = false;
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), peer -> peer != entity && peer.isAlive()
-                    && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.social().active() && Bonds.careKin(entity, peer)
+                    && !peer.inert() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.social().active() && Bonds.careKin(entity, peer)
                     && !attachedTo(peer) && entity.hasLineOfSight(peer) && !SettlementSociety.avoids(entity, peer))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { approachPeer("morning"); return true; }
@@ -308,7 +308,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (entity.getRandom().nextFloat() < personality().companionshipProbability()) {
             target = level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(5), peer -> peer != entity && peer.isAlive()
-                    && !peer.isNoAi() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
+                    && !peer.inert() && !peer.isPanicking() && !peer.life().isSleeping() && !peer.life().hasUrgentNeed()
                     && !peer.dailyLife().active() && !peer.social().active() && !WildEvents.reserved(peer)
                     && contactReady(peer) && personality().trust(peer.getUUID()) >= 0
                     && !SettlementSociety.avoids(entity,peer) && entity.hasLineOfSight(peer)
@@ -1082,7 +1082,7 @@ public final class YukkuriSocial implements MotorOwner {
                 && !greeter.social().greeted && !greeter.social().retreat;
     }
     private boolean freeToAnswer(YukkuriEntity from) {
-        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking()
+        return !entity.level().isClientSide && entity.isAlive() && !entity.inert() && !entity.life().isSleeping() && !entity.isPanicking()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0 && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.groupInteraction().active() && !entity.playLife().active() && !entity.family().laboring()
                 && !attachedTo(from) && entity.hasLineOfSight(from);

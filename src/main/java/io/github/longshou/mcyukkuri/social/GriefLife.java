@@ -112,7 +112,7 @@ public final class GriefLife {
         if (++sacrificeCheck < 10) return;
         sacrificeCheck = 0;
         if (!YukkuriConfig.SACRIFICE.get() || !entity.isAlive() || !entity.family().adult() || entity.body().dying() || entity.life().isSleeping()
-                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.isNoAi()) {
+                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.inert()) {
             danger = "none"; decision = "unavailable"; chance = 0; physicalBlock = protectBlock(); decided = false;
             return;
         }
@@ -185,7 +185,7 @@ public final class GriefLife {
         ProtectionGoal() { setFlags(EnumSet.of(Flag.MOVE,Flag.LOOK)); }
         @Override public boolean canUse() { return challenger != null && valid(); }
         private boolean valid() {
-            return entity.isAlive() && !entity.isNoAi() && !entity.body().dying() && !entity.isPassenger()
+            return entity.isAlive() && !entity.inert() && !entity.body().dying() && !entity.isPassenger()
                     && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.isCommandPlaying() && !entity.operations().active()
                     && challenger != null && challenger.isAlive() && protectedChild != null && protectedChild.isAlive()
                     && (challenger.predator().threatens(protectedChild) || decision.equals("diverted") && challenger.predator().pursuing(entity)) && protectTicks < 160 && protectBlock().equals("none")

@@ -234,7 +234,7 @@ public final class SubspeciesLife {
     }
     /** The adult result is already locked; this only waits for a safe post-action place to expand the body. */
     private void tickPendingDeibu() {
-        if(!deibuPending||deibu||entity.isNoAi()||!entity.isAlive())return;
+        if(!deibuPending||deibu||entity.inert()||!entity.isAlive())return;
         long now=entity.level().getGameTime();if(now<deibuRetryAt)return;
         long signature=nearbySpaceSignature();boolean changed=deibuCheckedAt==null||!deibuCheckedAt.equals(entity.blockPosition())||signature!=deibuSpaceSignature;
         if(deibuSpaceAttempts>=DEIBU_MAX_SPACE_ATTEMPTS&&!changed){deibuRetryAt=now+20;return;}

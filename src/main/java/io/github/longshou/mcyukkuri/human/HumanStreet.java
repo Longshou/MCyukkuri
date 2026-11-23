@@ -377,7 +377,7 @@ final class HumanStreet {
         var owner = Custody.view(eater).owner();
         if (shop != null && (shop.id.equals(owner) || shop.staff(owner))) return;
         var witness = level.getEntitiesOfClass(HumanNpc.class, eater.getBoundingBox().inflate(12), npc ->
-                !npc.isNoAi() && npc.isAlive() && !npc.walking() && npc.distanceToSqr(eater) <= 144
+                !npc.inert() && npc.isAlive() && !npc.walking() && npc.distanceToSqr(eater) <= 144
                         && !npc.getUUID().equals(owner)
                         && (npc.ownsYardBowl(bowl) || shop != null && shop.staff(npc.getUUID()))
                         && npc.hasLineOfSight(eater) && npc.street.seesSite(bowl))

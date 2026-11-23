@@ -168,7 +168,7 @@ public final class Sanction extends Goal {
     }
     /** A sound, free, harsh adult that would carry it out (see the class comment for who stays out). */
     static boolean executor(YukkuriEntity e, YukkuriEntity target, String reason) {
-        if (e == target || !e.isAlive() || e.isNoAi() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.profile().dangerToYukkuri()
+        if (e == target || !e.isAlive() || e.inert() || !e.family().adult() || !YukkuriStatus.identity(e).free() || e.profile().dangerToYukkuri()
                 || e.profile().houseBody() || e.isPanicking() || e.life().isSleeping() || e.body().dying() || e.body().weak()
                 || e.operations().active() || e.mind().nonYukkuri() || e.isPassenger() || e.body().healthRatio() < .6f
                 || e.sanction().target != null && e.sanction().target != target) return false;
@@ -212,7 +212,7 @@ public final class Sanction extends Goal {
         if (target != null) return valid() || finish(false);
         if (!enabled() || --scanWait > 0 || !(entity.level() instanceof ServerLevel level)) return false;
         scanWait = 200 + entity.getRandom().nextInt(100);
-        if (!entity.family().adult() || entity.isNoAi()) return false;
+        if (!entity.family().adult() || entity.inert()) return false;
         // The hatless and the monstrous are noticed by Contempt; this scan only looks for the non-yukkuri frenzy.
         for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(8),
                 p -> p != entity && eligibleTarget(p) && entity.hasLineOfSight(p) && p.mind().nonYukkuri()

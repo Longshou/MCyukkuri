@@ -37,7 +37,7 @@ public final class PeerDefense extends Goal {
     public void provoke(YukkuriEntity source) {
         long now = entity.level().getGameTime();
         if (source == null || source == entity || !source.isAlive() || source.level() != entity.level()
-                || now < nextPuffResponse || !entity.isAlive() || entity.isNoAi() || entity.life().isSleeping()
+                || now < nextPuffResponse || !entity.isAlive() || entity.inert() || entity.life().isSleeping()
                 || entity.operations().active() || entity.isCommandPlaying() || entity.isPassenger()
                 || entity.distanceToSqr(source) > 36 || !entity.hasLineOfSight(source)) return;
         nextPuffResponse = now + 100;
@@ -127,7 +127,7 @@ public final class PeerDefense extends Goal {
         if (entity.body().weak() || !entity.body().coreIntact()) return "body_unfit";
         if (entity.life().energy() < 15 || entity.life().nutrition() < 15) return "exhausted";
         if (entity.isOnFire() || entity.isInWaterOrBubble()) return "environment_danger";
-        if (entity.isNoAi() || entity.isPassenger() || entity.operations().active() || entity.isCommandPlaying()) return "movement_unavailable";
+        if (entity.inert() || entity.isPassenger() || entity.operations().active() || entity.isCommandPlaying()) return "movement_unavailable";
         return null;
     }
 
@@ -151,7 +151,7 @@ public final class PeerDefense extends Goal {
 
     private boolean valid() {
         return attacker != null && attacker.isAlive() && !attacker.isRemoved() && attacker.level() == entity.level()
-                && entity.isAlive() && !entity.isNoAi() && !entity.body().dying() && !entity.life().isSleeping()
+                && entity.isAlive() && !entity.inert() && !entity.body().dying() && !entity.life().isSleeping()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.isPanicking()
                 && entity.distanceToSqr(attacker) <= 144 && entity.level().getGameTime() < until;
     }

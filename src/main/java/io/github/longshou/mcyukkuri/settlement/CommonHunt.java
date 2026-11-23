@@ -101,7 +101,7 @@ public final class CommonHunt {
         var known = hunt.chief == null ? null : FamilyData.get(level).person(hunt.chief);
         boolean lost = hunt.chief == null || known != null && (known.status == FamilyData.Status.DEAD || known.status == FamilyData.Status.REMOVED)
                 || chief != null && (!group.id.equals(chief.settlement().groupId()) || !hunt.chief.equals(group.leader));
-        boolean unable = chief != null && (chief.isNoAi() || chief.isPanicking() || chief.life().isSleeping()
+        boolean unable = chief != null && (chief.inert() || chief.isPanicking() || chief.life().isSleeping()
                 || chief.life().hasUrgentNeed() || chief.isCommandPlaying() || chief.operations().active());
         boolean missing = chief == null && now >= (hunt.phase == Commons.HuntPhase.MUSTER ? hunt.departAt : hunt.deadline);
         if (hunt.phase != Commons.HuntPhase.RETURN && (lost || unable || missing || now >= hunt.deadline)) {

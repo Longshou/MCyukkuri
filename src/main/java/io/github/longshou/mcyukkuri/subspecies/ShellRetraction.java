@@ -21,7 +21,7 @@ public final class ShellRetraction {
         return entity.subspecies().kind() == SubspeciesLife.Kind.SHELL_MARISA && entity.life().hasAccessory();
     }
     public boolean available() {
-        return hasShell() && entity.isAlive() && !entity.isNoAi() && !entity.isInWaterOrBubble() && !entity.isOnFire()
+        return hasShell() && entity.isAlive() && !entity.inert() && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !entity.isPassenger() && !entity.operations().active() && !entity.isCommandPlaying();
     }
     public boolean exposedRain() {

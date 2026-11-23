@@ -256,7 +256,7 @@ public final class MindLife {
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive()) return;
         leak.tick(entity.level().getGameTime());
-        if (entity.isNoAi()) return;
+        if (entity.inert()) return;
         releaseAction();
         feeling.tick(comforted());
         if (nonYukkuri()) courseTick();

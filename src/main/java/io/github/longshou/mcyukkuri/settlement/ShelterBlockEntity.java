@@ -629,7 +629,7 @@ public final class ShelterBlockEntity extends BlockEntity {
     public boolean beginStoredMeal(YukkuriEntity entity) {
         var pile=pile();
         if(level==null||level.isClientSide||pile==null||entity.level()!=level||!usable(entity)
-                ||entity.isNoAi()||entity.isPassenger()||entity.operations().active()||entity.life().isSleeping()
+                ||entity.inert()||entity.isPassenger()||entity.operations().active()||entity.life().isSleeping()
                 ||entity.isOnFire()||entity.isInWaterOrBubble()||entity.life().drugSleep()>0
                 ||entity.distanceToSqr(pile.standPoint(entity))>=.64
                 ||!entity.life().dryStand(entity.blockPosition()))return false;

@@ -220,7 +220,7 @@ public final class DenSeal {
     }
 
     private boolean available() {
-        return y.isAlive() && !y.isNoAi() && !y.isPassenger() && !y.isOnFire() && !y.isInWaterOrBubble()
+        return y.isAlive() && !y.inert() && !y.isPassenger() && !y.isOnFire() && !y.isInWaterOrBubble()
                 && !y.life().isSleeping() && !y.life().sedated() && !y.operations().active() && !y.body().weak() && !y.body().dying()
                 && !SettlementEvents.shelterBarred(y) && y.habitat().wildLiver()
                 && y.settlement().role() != SettlementData.Role.UNUN_SLAVE;

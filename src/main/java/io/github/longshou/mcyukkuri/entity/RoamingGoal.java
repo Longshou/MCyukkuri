@@ -70,7 +70,7 @@ public final class RoamingGoal extends Goal {
                 + " result=" + result + " origin=" + origin + " destination=" + destination + " detour=" + detour + " stuckTicks=" + stuckTicks;
     }
     private boolean available() {
-        return animal.isAlive() && !animal.isNoAi() && !animal.isPassenger() && animal.childhood().canLearn()
+        return animal.isAlive() && !animal.inert() && !animal.isPassenger() && animal.childhood().canLearn()
                 && !animal.pet().care().walk().onOwnerLead() && !ExamSession.running(animal)
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()

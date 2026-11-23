@@ -77,7 +77,7 @@ public final class SelfOffering extends Goal {
         return entity.status().identity().free();
     }
     private boolean eligible() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying() && free() && entity.family().adult()
                 && !entity.profile().dangerToYukkuri() && !entity.profile().houseBody() && !entity.life().isSleeping() && !entity.body().dying()
                 && !entity.isPassenger()
                 && !entity.operations().active() && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();

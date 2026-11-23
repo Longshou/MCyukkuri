@@ -83,7 +83,7 @@ public final class TreasureLife extends Goal {
                 + " carrying=" + !carried().isEmpty() + " target=" + (target != null);
     }
     private boolean eligible() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.family().adult()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying() && entity.family().adult()
                 && !entity.profile().houseBody() && !entity.pet().isPet() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed()
                 && !entity.operations().active() && !entity.groupInteraction().active() && !entity.dailyLife().active()
                 && !entity.playLife().active() && !entity.family().active() && !entity.isInWaterOrBubble()

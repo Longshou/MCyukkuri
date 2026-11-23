@@ -617,7 +617,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
         if(ticks%200==0)setChanged();
     }
     private boolean healthyCarer(YukkuriEntity entity){
-        return entity.isAlive()&&!entity.isNoAi()&&entity.family().adult()&&entity.life().nutrition()>=40
+        return entity.isAlive()&&!entity.inert()&&entity.family().adult()&&entity.life().nutrition()>=40
                 &&entity.getHealth()>=entity.getMaxHealth()*.5&&entity.body().condition().readyForHouseCare()
                 &&!entity.isOnFire()&&!entity.isInWaterOrBubble()&&!entity.isPanicking()&&usable(entity);
     }

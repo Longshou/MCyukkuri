@@ -22,7 +22,7 @@ final class LifeDoses {
 
     void drink(float relief){o.relieveDryness(relief);spicyTicks=Math.max(0,spicyTicks-Math.round(relief*4));o.drank();}
 
-    boolean canTakeDose(ItemStack dose){return Consumables.oral(dose)&&!o.entity().family().awaitingLanding()&&o.mouth().isEmpty()&&o.mealTicks()==0&&o.entity().isAlive()&&!o.entity().isNoAi()
+    boolean canTakeDose(ItemStack dose){return Consumables.oral(dose)&&!o.entity().family().awaitingLanding()&&o.mouth().isEmpty()&&o.mealTicks()==0&&o.entity().isAlive()&&!o.entity().inert()
             &&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.isSleeping()&&!o.entity().isInWaterOrBubble()&&Consumables.applicable(o.entity(),dose);}
 
     boolean beginDose(ItemStack one,UUID player,boolean returnBottle){
@@ -31,7 +31,7 @@ final class LifeDoses {
         o.entity().getNavigation().stop();o.entity().setPersistenceRequired();return true;
     }
 
-    boolean canSpray(){return o.entity().isAlive()&&!o.entity().isNoAi()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()
+    boolean canSpray(){return o.entity().isAlive()&&!o.entity().inert()&&!o.entity().isPanicking()&&!o.entity().isCommandPlaying()&&!o.entity().operations().active()
             &&!o.isSleeping()&&!o.entity().isInWaterOrBubble()&&!o.entity().isOnFire()&&sprayDelay==0&&drugSleep==0;}
 
     boolean sedated(){return sprayDelay>0||drugSleep>0;}

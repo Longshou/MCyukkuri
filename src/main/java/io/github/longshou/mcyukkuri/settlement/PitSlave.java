@@ -73,7 +73,7 @@ public final class PitSlave {
     private boolean ready() {
         // A slave's post is the pit: its own family errands (a child search, comfort) give way to it, while a birth it is
         // carrying still holds it. Without this the search for a child elsewhere kept it from ever eating again.
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.isPassenger() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.life().isSleeping()
                 && !entity.settlement().underway() && !entity.family().laboring() && !entity.family().birthDuty() && !entity.body().dying();
     }

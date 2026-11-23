@@ -139,7 +139,7 @@ public final class DailyLife {
     public void comfort(int amount) { affection = Math.max(0, affection - Math.max(0, amount)); }
     public void entertained(int amount) { boredom = Math.max(0, boredom - Math.max(0, amount)); }
     public void clock() {
-        if (entity.level().isClientSide || entity.isNoAi() || !entity.isAlive()) return;
+        if (entity.level().isClientSide || entity.inert() || !entity.isAlive()) return;
         if (cooldown > 0) cooldown--;
         if (scanWait > 0) scanWait--;
         invitations.replaceAll((id, ticks) -> ticks - 1);
@@ -158,7 +158,7 @@ public final class DailyLife {
     }
     private static boolean available(YukkuriEntity e) { return available(e, false, false); }
     private static boolean available(YukkuriEntity e, boolean continuing, boolean exercise) {
-        return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.isNoAi()
+        return !WildEvents.reserved(e) && e.isAlive() && !e.isRemoved() && !e.inert()
                 && (!e.mind().feeling().prefersPartingGaze() || exercise && e.life().constipated()
                     || continuing && e.dailyLife().inContact() && e.dailyLife().nuzzlePartnerId() >= 0)
                 // A session under way survives the step down a bank it is walking to (a friend in a hollow); a new one starts on the ground.

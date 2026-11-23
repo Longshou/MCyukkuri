@@ -258,7 +258,7 @@ public final class HabitatLife {
     public void tick() {
         if(entity.level().isClientSide)return;
         if(homes.vagrantPending()&&!ready())homes.cancelVagrantProject();
-        if(entity.isNoAi()||entity.profile().houseBody())return;
+        if(entity.inert()||entity.profile().houseBody())return;
         if(hasNestProject()&&!nestProjectValid())cancelNestProject();
         if(wait>0)wait--;
         homes.clock();
@@ -271,7 +271,7 @@ public final class HabitatLife {
         seasonal.quarrelIfNeeded(value);
     }
     private boolean ready() {
-        return entity.isAlive()&&!entity.isNoAi()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
+        return entity.isAlive()&&!entity.inert()&&!entity.isPassenger()&&!entity.profile().houseBody()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.operations().active()
                 &&!entity.family().active()&&!entity.family().awaitingLanding()
                 &&!entity.life().isSleeping()&&!entity.isInWaterOrBubble()&&!entity.isOnFire()&&entity.life().mealTicks()==0
                 &&migrationAllowsWork()&&!entity.wintering().active()

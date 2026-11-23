@@ -37,7 +37,7 @@ public final class Contempt {
     private Contempt() {}
 
     private static boolean perceives(YukkuriEntity e) {
-        return e.isAlive() && !e.isNoAi() && !e.isRemoved() && !e.life().isSleeping() && !e.isPanicking() && !e.isCommandPlaying()
+        return e.isAlive() && !e.inert() && !e.isRemoved() && !e.life().isSleeping() && !e.isPanicking() && !e.isCommandPlaying()
                 && !e.mind().nonYukkuri() && !e.profile().dangerToYukkuri() && !e.sanction().active() && !e.operations().active()
                 && !e.body().dying();
     }

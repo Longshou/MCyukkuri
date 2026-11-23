@@ -233,7 +233,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     }
 
     private boolean available() {
-        return entity.isAlive() && entity.habitat().wildLiver() && !entity.isNoAi() && !entity.body().dying() && !entity.isPassenger()
+        return entity.isAlive() && entity.habitat().wildLiver() && !entity.inert() && !entity.body().dying() && !entity.isPassenger()
                 && !entity.isPanicking() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.life().isSleeping()
                 && !entity.life().hasUrgentNeed() && entity.life().mealTicks() == 0 && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.family().prioritizesBirth() && !entity.settlement().underway()

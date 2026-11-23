@@ -170,7 +170,7 @@ public final class IndependenceLife extends Goal {
     /** The first thing that keeps the individual from walking off right now, or null. */
     private String block() {
         if (!wild()) return "wild";
-        if (!entity.isAlive() || entity.isNoAi()) return "alive";
+        if (!entity.isAlive() || entity.inert()) return "alive";
         if (entity.isPassenger() || entity.isLeashed()) return "carried";
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.operations().active()) return "busy";
         if (entity.family().active() || entity.family().recovery() != 0) return "family";
@@ -187,7 +187,7 @@ public final class IndependenceLife extends Goal {
     }
     /** Loaded-time clock only; a paused or captured individual never leaves offline. */
     public void clock() {
-        if (entity.level().isClientSide || entity.isNoAi()) return;
+        if (entity.level().isClientSide || entity.inert()) return;
         if (seeing != null && task != Task.SEE_OFF && !attached()) {
             var child = seen();
             if (child == null || !child.isAlive() || coolWindow(child) == FarewellWindow.CLOSED) seeing = null;
@@ -245,7 +245,7 @@ public final class IndependenceLife extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     /** Once on its way the farewell only gives way to real danger or need; picking up a bite of grass or a mild hunger do not call it off. */
     private boolean steady() {
-        return wild() && entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking()
+        return wild() && entity.isAlive() && !entity.inert() && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking()
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.life().hasUrgentNeed() && !entity.life().isSleeping()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.shellRetraction().active();
     }

@@ -135,14 +135,14 @@ public final class Reactions {
     /** An ordinary free-living or kept individual: not a predator, not a house yukkuri. */
     static boolean prey(YukkuriEntity y) {
         return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
-                && !y.isNoAi() && !y.isPassenger();
+                && !y.inert() && !y.isPassenger();
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
     public static boolean free(YukkuriEntity y) {
         return prey(y) && freeToReact(y);
     }
     static boolean freeToReact(YukkuriEntity y) {
-        return !y.isNoAi() && !y.isPassenger() && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
+        return !y.inert() && !y.isPassenger() && !y.isCommandPlaying() && !y.operations().active() && !y.pet().busy()
                 && !y.isInWaterOrBubble() && !y.isOnFire() && !y.waterDistress().active()
                 && !y.family().laboring() && !y.family().birthDuty()
                 && !y.family().awaitingLanding() && y.life().mealTicks() == 0;

@@ -336,7 +336,7 @@ public final class ChildhoodLife {
     }
 
     public boolean canUse() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE) return false;
+        if (entity.level().isClientSide || !entity.isAlive() || entity.inert() || task != Task.NONE) return false;
         if (parentAvailable(entity) && !entity.family().hasUrgentlyHungryChild() && !entity.family().birthDuty()) {
             var child = ((ServerLevel) entity.level()).getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(10),
                     other -> entity.family().caresFor(other) && CareApproach.sameFloor(entity,other) && childAvailable(other)
@@ -487,7 +487,7 @@ public final class ChildhoodLife {
     private boolean shellForm() { return entity.subspecies().kind() == SubspeciesLife.Kind.SHELL_MARISA; }
 
     private boolean safePracticeState() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !entity.life().isSleeping()
                 && entity.life().mealTicks() == 0 && !entity.life().hasUrgentNeed() && !ParentCarry.awaitsCarrier(entity)
                 && !entity.family().gathering() && !kinInWater();
@@ -502,7 +502,7 @@ public final class ChildhoodLife {
     }
 
     static boolean childAvailable(YukkuriEntity child) {
-        return child.isAlive() && !child.isNoAi() && !child.isPanicking() && !child.isCommandPlaying()
+        return child.isAlive() && !child.inert() && !child.isPanicking() && !child.isCommandPlaying()
                 && !child.operations().active() && !child.isOnFire() && !child.isInWaterOrBubble()
                 && !child.life().isSleeping() && child.life().mealTicks() == 0 && !child.family().awaitingLanding();
     }

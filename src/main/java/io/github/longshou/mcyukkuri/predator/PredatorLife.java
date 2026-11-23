@@ -305,7 +305,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
 
     private boolean broodFlightReady() {
-        return canSustainFlight() && !animal.isNoAi() && !animal.isPanicking() && !animal.isCommandPlaying()
+        return canSustainFlight() && !animal.inert() && !animal.isPanicking() && !animal.isCommandPlaying()
                 && !animal.operations().active() && !animal.isOnFire() && !animal.life().isSleeping();
     }
 
@@ -317,13 +317,13 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     /** An interrupted airborne hunt still owns its physical return; water and fright are reasons to land, not to stop flapping. */
     public boolean recoveringFlight() { return task == Task.LAND && animal.predatorFlying() && readyForLanding(); }
     private boolean readyForLanding() {
-        return EcologyRoutines.predator(animal) && canSustainFlight() && !animal.isNoAi()
+        return EcologyRoutines.predator(animal) && canSustainFlight() && !animal.inert()
                 && !animal.isCommandPlaying() && !animal.operations().active() && !animal.pet().busy()
                 && !animal.life().isSleeping() && (!animal.family().active() && animal.family().brood() == null
                 || animal.family().wildStemBrood());
     }
     private boolean readyExceptMeal() {
-        return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.isNoAi() && !animal.isPassenger()
+        return EcologyRoutines.predator(animal) && animal.isAlive() && !animal.inert() && !animal.isPassenger()
                 && !animal.isPanicking() && !animal.isCommandPlaying() && !animal.operations().active()
                 && !animal.pet().busy() && !animal.life().isSleeping()
                 && !animal.family().active() && animal.family().brood() == null
@@ -375,7 +375,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private String blocking() {
         if (!EcologyRoutines.predator(animal)) return "not_predator";
         if (!animal.isAlive()) return "dead";
-        if (animal.isNoAi()) return "no_ai";
+        if (animal.inert()) return "no_ai";
         if (animal.isPassenger()) return "passenger";
         if (animal.isPanicking()) return "panic";
         if (animal.isCommandPlaying()) return "command";
@@ -480,7 +480,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             animal.setPredatorFlying(false);
             stop();
         }
-        if (animal.isNoAi()) { cancelNestSearch(); return; }
+        if (animal.inert()) { cancelNestSearch(); return; }
         if (animal.predatorFlying() && animal.tickCount % 20 == 0)
             animal.life().spendEnergy(Math.min(1, animal.life().energy()));
     }
@@ -514,7 +514,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
 
     private String initialNestRefusal() {
-        if (animal.isNoAi() || animal.isPassenger()) return "body_unavailable";
+        if (animal.inert() || animal.isPassenger()) return "body_unavailable";
         if (playerNear(animal.position())) return "player_near_spawn";
         if (animal.life().home() != null || HumanCommerce.protectedAnimal(animal)) return "protected";
         if (!EventHooks.canEntityGrief(level(), animal)) return "mob_griefing";
@@ -1555,7 +1555,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private boolean canSustainFlight() { return animal.isAlive() && !animal.body().dying() && animal.life().energy() > 0
             && !animal.isPassenger() && animal.childhood().readyToFly(); }
     public boolean canCatchFall() {
-        return EcologyRoutines.predator(animal) && !animal.childhood().nestling() && !animal.isNoAi() && canSustainFlight();
+        return EcologyRoutines.predator(animal) && !animal.childhood().nestling() && !animal.inert() && canSustainFlight();
     }
     public void catchFall() {
         if (animal.predatorFlying() || !canCatchFall()) return;
@@ -2077,7 +2077,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
     private void alertPrey() {
         for (var target : level().getEntitiesOfClass(YukkuriEntity.class, animal.getBoundingBox().inflate(8),
-                y -> !EcologyRoutines.predator(y) && y.isAlive() && !y.isNoAi() && y.hasLineOfSight(animal)))
+                y -> !EcologyRoutines.predator(y) && y.isAlive() && !y.inert() && y.hasLineOfSight(animal)))
             target.frightenFrom(animal);
     }
     /** Prey out of sight for a real interval is lost; any sight of it starts the count again. */

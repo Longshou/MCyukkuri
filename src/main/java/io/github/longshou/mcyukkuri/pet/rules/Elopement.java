@@ -45,7 +45,7 @@ final class Elopement {
         return YukkuriWorldData.get(level(from)).affinity(from.getUUID(), to.getUUID());
     }
     private static boolean free(YukkuriEntity y) {
-        return !BehaviorContinuity.emergency(y) && y.hurtTime == 0 && !y.isNoAi() && !y.isPassenger()
+        return !BehaviorContinuity.emergency(y) && y.hurtTime == 0 && !y.inert() && !y.isPassenger()
                 && !y.isVehicle() && !y.isLeashed() && !y.pet().busy() && !y.operations().active()
                 && !y.life().sedated() && !y.life().isSleeping() && !y.life().protectsStep()
                 && !y.life().hasUrgentNeed() && !y.house().active();

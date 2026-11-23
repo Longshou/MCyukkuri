@@ -45,7 +45,7 @@ public final class WinteringLife extends Goal {
         return group != null && group.migrateTo != null;
     }
     private boolean ready() {
-        return !entity.level().isClientSide && entity.isAlive() && !entity.isNoAi()
+        return !entity.level().isClientSide && entity.isAlive() && !entity.inert()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !entity.isPassenger() && !entity.isLeashed() && !entity.isPanicking() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.shellRetraction().active()
@@ -149,7 +149,7 @@ public final class WinteringLife extends Goal {
     }
     private boolean priorityResident(ShelterBlockEntity home, ItemStack portion) {
         return !level().getEntitiesOfClass(YukkuriEntity.class, home.interior().inflate(1), other ->
-                other != entity && other.isAlive() && !other.isNoAi() && !other.isPassenger()
+                other != entity && other.isAlive() && !other.inert() && !other.isPassenger()
                         && home.owns(other.getUUID()) && other.habitat().shelter() == home && home.usable(other)
                         && other.distanceToSqr(Vec3.atBottomCenterOf(home.bed(other.getUUID()))) < .64
                         && entity.life().canRecognize(other) && entity.hasLineOfSight(other)

@@ -53,7 +53,7 @@ public final class WildEvents {
                 : s.phase==Phase.SEPARATED ? Behaviors.EVENT_SEPARATED : Behaviors.event(s.kind.name().toLowerCase(Locale.ROOT));
     }
     public static boolean safe(YukkuriEntity e) {
-        return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.isCommandPlaying()
+        return e.isAlive() && !e.isRemoved() && !e.inert() && !e.isPanicking() && !e.isCommandPlaying()
                 && e.family().brood()==null && !e.family().awaitingLanding() && !ParentCarry.awaitsCarrier(e)
                 && !e.operations().active() && !e.pet().busy() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.isPassenger()
                 && !e.life().isSleeping() && e.life().energy()>=15 && e.life().nutrition()>=10

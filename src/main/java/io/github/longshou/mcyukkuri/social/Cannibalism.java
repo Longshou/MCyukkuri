@@ -103,7 +103,7 @@ public final class Cannibalism extends Goal {
         return entity.status().identity().free();
     }
     private boolean eligible() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()
+        return entity.isAlive() && !entity.inert() && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.profile().houseBody()
                 && !entity.profile().dangerToYukkuri() && !entity.life().isSleeping() && !entity.body().dying() && !entity.operations().active()
                 && !entity.isPassenger()
                 && !entity.playLife().active() && !entity.isInWaterOrBubble() && !entity.mind().nonYukkuri();

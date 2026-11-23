@@ -161,7 +161,7 @@ public final class ExamSession {
         var pet = y.pet();
         if (pet.disqualified()) return "disqualified";
         if (!eligibleOwner(y, p) || reissue && !pet.owned(p)) return "not_owned";
-        if (y.isPassenger() || pet.busy() || y.isNoAi()) return "not_ready";
+        if (y.isPassenger() || pet.busy() || y.inert()) return "not_ready";
         var grade = pet.grade();
         if (reissue) return grade == BadgeGrade.NONE ? "need_badge" : emeralds(p) < REISSUE_FEE ? "no_fee" : null;
         if (pet.effectiveGrade() != grade) return "not_owned";

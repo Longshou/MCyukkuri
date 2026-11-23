@@ -78,8 +78,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
@@ -540,17 +542,31 @@ public final class ScenarioCommands {
         return 0;
     }
 
-    /** Scene start hold: the player is shown the first beat only once in position. Vanilla NoAI stops goals and every `isNoAi` system together
-     *  while gravity, landing and the body still run; a mob that was already NoAI on purpose is never touched, so release returns only what `on` held. */
+    /** Height of each held mob at the hold tick, so the release can log how far it fell while held (a body hanging in the air would show 0 and not on a support). */
+    private static final Map<Mob, Double> HELD_FROM = new WeakHashMap<>();
+
+    /**
+     * Scene start hold: the player is shown the first beat only once in position. The mod's own bodies are only tagged (see {@link SceneHold}:
+     * no decision starts, physics keep running). A vanilla mob cannot take that, so it becomes NoAI only once it rests on the ground or in
+     * water, else it is left free; its pile-up of velocity is dropped at release. A mob that was already NoAI on purpose is never touched,
+     * so release returns only what `on` held.
+     */
     private static int hold(CommandContext<CommandSourceStack> c, boolean on) throws CommandSyntaxException {
         int changed = 0;
         for (var entity : EntityArgument.getOptionalEntities(c, "targets")) {
-            if (!(entity instanceof Mob mob) || (on ? mob.isNoAi() : !SceneHold.held(mob))) continue;
-            mob.setNoAi(on);
-            if (on) mob.addTag(SceneHold.TAG);
-            else {
-                // A held body in a current or on a slope gathers velocity it never spends (no travel while NoAI); released, it must not be flung by it.
-                mob.setDeltaMovement(Vec3.ZERO);
+            if (!(entity instanceof Mob mob)) continue;
+            boolean own = mob instanceof YukkuriEntity || mob instanceof HumanNpc;
+            if (on) {
+                if (mob.isNoAi() || SceneHold.held(mob) || !own && !mob.onGround() && !mob.isInWaterOrBubble()) continue;
+                if (!own) mob.setNoAi(true);
+                mob.addTag(SceneHold.TAG);
+                HELD_FROM.put(mob, mob.getY());
+            } else {
+                if (!SceneHold.held(mob)) continue;
+                var from = HELD_FROM.remove(mob);
+                GameplayLog.event(mob, "scenario", "hold released fell={} on_ground={} in_water={}",
+                        from == null ? 0 : Math.round((from - mob.getY()) * 100) / 100.0, mob.onGround(), mob.isInWaterOrBubble());
+                if (!own) { mob.setNoAi(false); mob.setDeltaMovement(Vec3.ZERO); }
                 mob.removeTag(SceneHold.TAG);
             }
             changed++;

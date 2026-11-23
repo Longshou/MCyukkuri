@@ -99,7 +99,7 @@ public final class WaterDistress {
                 GameplayLog.at(entity.position()),action==null?"none":action.id(),owner==null?"none":owner.ownerId(),
                 entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()));
         immersionTicks=0;set(Phase.entry(airborneDry,pendingPlunge,entity.isEyeInFluid(FluidTags.WATER)));pendingPlunge=0;
-        if(!entity.isNoAi()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
+        if(!entity.inert()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
     }
     /** Entity-owned server clock, including disabled AI. YukkuriLife alone applies immersion damage. */
     public void tick(){
@@ -116,7 +116,7 @@ public final class WaterDistress {
             immersionTicks=Math.min(24000,immersionTicks+1);
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
-            if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()
+            if(!entity.inert()&&!entity.isCommandPlaying()&&!entity.operations().active()
                     &&callWait==0&&phase!=Phase.IMPACT&&(!wading||phase==Phase.EXHAUSTED)){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
             return;
         }
@@ -150,7 +150,7 @@ public final class WaterDistress {
     /** A short recovery may interrupt leisure, but never an urgent need, threat escape, player command or a young of hers crying
      *  for help in the water. */
     public boolean restingBreath(){
-        return phase==Phase.RECOVER&&phaseTicks<32&&!entity.isNoAi()&&!entity.isCommandPlaying()
+        return phase==Phase.RECOVER&&phaseTicks<32&&!entity.inert()&&!entity.isCommandPlaying()
                 &&!entity.operations().active()&&!realThreat()&&!youngInWater()
                 &&!entity.life().hasUrgentNeed()&&!entity.family().flying()&&!entity.predatorFlying();
     }
@@ -166,7 +166,7 @@ public final class WaterDistress {
      * carrier or host moves it). Updates the phases first.
      */
     public boolean struggles(){
-        if(entity.level().isClientSide||!(escaping()||climbing())||entity.isPassenger()||entity.isNoAi()||entity.isCommandPlaying()
+        if(entity.level().isClientSide||!(escaping()||climbing())||entity.isPassenger()||entity.inert()||entity.isCommandPlaying()
                 ||entity.operations().active()||entity.predatorFlying()||entity.family().flying())return false;
         tick();
         return phase!=Phase.IMPACT||!entity.isInWaterOrBubble();

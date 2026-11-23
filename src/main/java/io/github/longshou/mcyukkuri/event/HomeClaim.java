@@ -516,7 +516,7 @@ public final class HomeClaim {
     // --- movement (used by HomeClaimGoal) ---------------------------------------------------------------------
     public static boolean mayAct(YukkuriEntity y) {
         if (declaring(y)) return false;
-        if (!decisionReady(y) || !y.isAlive() || y.isNoAi() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
+        if (!decisionReady(y) || !y.isAlive() || y.inert() || y.isPanicking() || y.isCommandPlaying() || y.operations().active() || y.life().isSleeping()
                 || y.life().mealTicks()!=0 || y.isInWaterOrBubble() || y.isPassenger()) return false;
         var life=y.life(); // Only hunger may be answered here; other urgent needs go back to their own goals.
         return !life.hasUrgentNeed() || life.nutrition()<30 && life.energy()>=25 && life.wetness()<=40 && !y.isOnFire();

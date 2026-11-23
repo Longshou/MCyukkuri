@@ -114,7 +114,7 @@ public final class MyonLife {
     }
 
     private boolean free() {
-        return !entity.isNoAi() && !entity.life().isSleeping() && !entity.isPanicking() && entity.life().mouth().isEmpty()
+        return !entity.inert() && !entity.life().isSleeping() && !entity.isPanicking() && entity.life().mouth().isEmpty()
                 && !entity.family().stage().equals(FamilyLife.Stage.BABY);
     }
     /** A dropped stick within reach goes into the mouth. */
@@ -277,7 +277,7 @@ public final class MyonLife {
     /** Walk at the remembered foe and strike; ends when the foe is gone, the memory fades or courage fails. */
     private final class FightGoal extends Goal {
         FightGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
-        @Override public boolean canUse() { return myon() && fighting() && brave() && foeEntity() != null && !entity.isNoAi(); }
+        @Override public boolean canUse() { return myon() && fighting() && brave() && foeEntity() != null && !entity.inert(); }
         @Override public boolean canContinueToUse() { return canUse(); }
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void start() { GameplayLog.event(entity,"myon","fight goal started; foe={} health={}",foe,entity.getHealth()); }

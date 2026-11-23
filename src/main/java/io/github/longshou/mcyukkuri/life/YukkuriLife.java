@@ -240,7 +240,7 @@ public final class YukkuriLife {
     public String fatigueDetail() { return "ready="+napReady+" gap="+napCooldown+" ticks="+fatigueTicks+" duration="+fatigueLength+" full="+fullFatigueSleep+" starvation="+starvingTicks; }
     public boolean fatigueActive() { return fatigueTicks > 0; }
     public boolean canFatigueRest() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.onGround()
+        return entity.isAlive() && !entity.inert() && !entity.isPassenger() && entity.onGround()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().awaitingLanding() && !entity.family().laboring() && !entity.family().birthDuty()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
@@ -838,7 +838,7 @@ public final class YukkuriLife {
         if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()) {
             mouth.releaseItems(MouthOccupancy.Purpose.PAPER, 20);
         }
-        if (entity.isNoAi()) return;
+        if (entity.inert()) return;
         ageTicks++;
         personality.tick();
         if(exerciseReliefTicks>0)exerciseReliefTicks--;

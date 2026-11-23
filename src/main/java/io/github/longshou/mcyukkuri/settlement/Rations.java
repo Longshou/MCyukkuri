@@ -193,7 +193,7 @@ public final class Rations {
     }
 
     private static boolean available(YukkuriEntity member) {
-        return member.isAlive() && !member.isNoAi() && !member.isPanicking() && !member.life().isSleeping()
+        return member.isAlive() && !member.inert() && !member.isPanicking() && !member.life().isSleeping()
                 && !member.life().hasUrgentNeed() && member.life().mealTicks() == 0
                 && !member.isCommandPlaying() && !member.operations().active()
                 && !member.family().active() && !member.family().hasHungryChild()

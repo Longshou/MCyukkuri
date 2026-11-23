@@ -137,7 +137,7 @@ final class Courtship {
     }
 
     private static boolean contactReady(YukkuriEntity body) {
-        return body.isAlive()&&!body.isRemoved()&&!body.isNoAi()&&!body.isPanicking()&&!body.isOnFire()
+        return body.isAlive()&&!body.isRemoved()&&!body.inert()&&!body.isPanicking()&&!body.isOnFire()
                 &&!body.isInWaterOrBubble()&&!body.isPassenger()&&!body.isVehicle()
                 &&!body.isCommandPlaying()&&!body.operations().active()&&!body.pet().busy()
                 &&!body.body().dying()&&body.body().coreIntact()&&!body.life().isSleeping()&&!body.life().sedated();
@@ -223,7 +223,7 @@ final class Courtship {
     boolean ready(boolean needHome) {
         return o.entity().status().identity().canConceive()&&o.adult()&&!o.sterile()&&!o.elder()&&o.recovery()==0&&o.entity().isAlive()&&!o.entity().body().dying()&&o.entity().body().coreIntact()&&!o.entity().isPanicking()
                 &&!o.entity().isCommandPlaying()&&!o.entity().operations().active()&&!o.entity().predator().active()&&!o.entity().agitation().blocksCourtship()
-                &&!o.entity().isNoAi()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()&&!o.entity().grieving()
+                &&!o.entity().inert()&&!o.entity().pet().busy()&&!o.entity().life().isSleeping()&&!o.entity().life().sedated()&&!o.entity().grieving()
                 &&!o.entity().life().hasUrgentNeed()&&o.entity().life().nutrition()>=65&&o.entity().life().energy()>=50&&o.entity().life().hygiene()>=40
                 &&o.entity().getHealth()>=o.entity().getMaxHealth()*.8&&o.entity().body().condition().readyForReproduction()&&o.entity().life().mealTicks()==0&&(!needHome
                         ||o.nestStand()!=null);

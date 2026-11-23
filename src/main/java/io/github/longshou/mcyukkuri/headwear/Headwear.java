@@ -485,7 +485,7 @@ public final class Headwear extends Goal implements MotorOwner {
     public String activity() { return target == null ? Behaviors.IDLE : lickTicks > 0 ? Behaviors.SHARD_LICK : Behaviors.SHARD_SEEK; }
     private String inabilityReason() {
         if(!entity.isAlive())return "not_alive";
-        if(entity.isNoAi())return "no_ai";
+        if(entity.inert())return "no_ai";
         if(entity.isPanicking())return "panicking";
         if(entity.isCommandPlaying())return "command";
         if(entity.isPassenger())return "passenger";

@@ -442,11 +442,15 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return getScale() * Math.max(1, growthScale()) * (.7 + .3 * growth)
                 * mobility * BodyAbility.temperament(this) * BodyAbility.carrying(this);
     }
+    /** Decides nothing and starts nothing: deliberately NoAI, or in the scene start hold (see SceneHold). */
+    public boolean inert() { return SceneHold.inert(this); }
+    /** The hold skips the AI step but not travel: the body keeps falling, floating and being pushed. */
+    @Override protected boolean isImmobile() { return super.isImmobile() || SceneHold.held(this); }
     public boolean canCrawlNow() { return !isPassenger() && crawler(); }
     /** The crawl is this body's gait now: on the ground, or riding a host's surface (a hat floor), where the host walk drives it. */
     public boolean crawler() {
         return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && (body.footBurned() || body.weak())) && isAlive() &&
-                !isNoAi() && (!isPassenger() || getVehicle() instanceof SurfaceHost) && !isCommandPlaying()
+                !inert() && (!isPassenger() || getVehicle() instanceof SurfaceHost) && !isCommandPlaying()
                 && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");
     }

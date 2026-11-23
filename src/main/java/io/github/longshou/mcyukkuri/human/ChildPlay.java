@@ -149,7 +149,7 @@ public final class ChildPlay extends Goal {
     @Override public boolean canUse() {
         if (npc.look() != HumanNpc.Look.CHILD || npc.tickCount < nextScan) return false;
         nextScan = npc.tickCount + SCAN;
-        if (!(npc.level() instanceof ServerLevel level) || !npc.isAlive() || npc.isNoAi() || !npc.onGround() || !level.isDay()
+        if (!(npc.level() instanceof ServerLevel level) || !npc.isAlive() || npc.inert() || !npc.onGround() || !level.isDay()
                 || level.isRaining() || npc.resting() || npc.avoidingStreet() || level.getGameTime() < quitUntil || playerNear()) return false;
         if (predatorNear()) {
             npc.goHome(600);
@@ -218,7 +218,7 @@ public final class ChildPlay extends Goal {
     }
 
     @Override public boolean canContinueToUse() {
-        return !done && npc.isAlive() && !npc.isNoAi() && !npc.avoidingStreet() && npc.level().isDay() && !npc.level().isRaining();
+        return !done && npc.isAlive() && !npc.inert() && !npc.avoidingStreet() && npc.level().isDay() && !npc.level().isRaining();
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }

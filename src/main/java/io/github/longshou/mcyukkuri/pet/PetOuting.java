@@ -52,7 +52,7 @@ public final class PetOuting extends Goal {
 
     private boolean leisureHealth(boolean socialOk) {
         var body = pet.body().condition();
-        return pet.isAlive() && !pet.isNoAi() && pet.family().brood() == null
+        return pet.isAlive() && !pet.inert() && pet.family().brood() == null
                 && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle()
                 && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()

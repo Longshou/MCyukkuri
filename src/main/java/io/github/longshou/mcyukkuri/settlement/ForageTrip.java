@@ -150,7 +150,7 @@ public final class ForageTrip extends Goal {
         return entity.status().identity().free();
     }
     private boolean body() {
-        return entity.isAlive() && !entity.isNoAi() && !entity.isPassenger() && entity.family().adult()
+        return entity.isAlive() && !entity.inert() && !entity.isPassenger() && entity.family().adult()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().active() && !entity.family().awaitingLanding() && entity.family().recovery() == 0

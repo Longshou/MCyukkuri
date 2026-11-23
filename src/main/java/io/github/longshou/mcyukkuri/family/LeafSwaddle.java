@@ -350,7 +350,7 @@ public final class LeafSwaddle {
     private static boolean canAssist(YukkuriEntity child) { return child.life().bowel() >= 10 && !child.life().constipated(); }
 
     public boolean canUse() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.isNoAi() || task != Task.NONE || pollWait > 0) return false;
+        if (entity.level().isClientSide || !entity.isAlive() || entity.inert() || task != Task.NONE || pollWait > 0) return false;
         pollWait = 40;
         if (!ChildhoodLife.parentAvailable(entity) || entity.isPassenger() || entity.family().hasUrgentlyHungryChild()
                 || entity.family().birthDuty() || entity.family().active() || entity.childhood().active() || entity.habitat().active()) return false;

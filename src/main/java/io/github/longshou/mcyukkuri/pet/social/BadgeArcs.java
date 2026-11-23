@@ -70,7 +70,7 @@ public final class BadgeArcs {
 
     /** Whether the participant may be pulled into an arc right now; no tasks or sessions that this would break. */
     static boolean usable(YukkuriEntity e) {
-        return e.isAlive() && !e.isRemoved() && !e.isNoAi() && !e.isPanicking() && !e.pet().busy() && !e.operations().active() && !e.isInWaterOrBubble()
+        return e.isAlive() && !e.isRemoved() && !e.inert() && !e.isPanicking() && !e.pet().busy() && !e.operations().active() && !e.isInWaterOrBubble()
                 && !e.isOnFire() && !e.isPassenger() && !e.life().isSleeping() && e.hurtTime == 0 && e.family().brood() == null
                 && !e.duty().holds(Duty.Kind.RULES);
     }

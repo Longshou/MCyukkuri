@@ -553,7 +553,7 @@ public final class FamilyLife {
     private boolean birthFree() {
         boolean staging=stagingStem();
         var life=entity.life();
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||cabinBirth())
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.inert()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&(!entity.isPassenger()||cabinBirth())
                 &&!entity.operations().active()&&!awaitingLanding
                 &&(staging ? !entity.isOnFire()&&!entity.isInWaterOrBubble()&&!life.hotFloor().active()&&!entity.body().dying()
                         : !life.hasUrgentNeed()&&life.mealTicks()==0);
@@ -685,7 +685,7 @@ public final class FamilyLife {
             if(pending!=null&&!pending.cancelled&&!pending.complete())FamilyData.get(level()).cancel(pending,entity,"mother_cannot_reproduce");
             gestation=null;stimulation=sexDrive=0;
         }
-        if(entity.isNoAi()) {
+        if(entity.inert()) {
             // Physics still lands a NoAI body and its own travel judges the contact; confirm it without advancing growth or a birth.
             if(birthId!=null)FamilyData.get(level()).landed(entity);
             return;
@@ -938,7 +938,7 @@ public final class FamilyLife {
     }
     /** Pregnancy can advance aboard; labour and birth roles require her own ground support. */
     private boolean gestationReady(){
-        return !entity.level().isClientSide&&entity.isAlive()&&!entity.isNoAi()&&(supported()||onHost())&&!entity.operations().active()&&!entity.dailyLife().active()
+        return !entity.level().isClientSide&&entity.isAlive()&&!entity.inert()&&(supported()||onHost())&&!entity.operations().active()&&!entity.dailyLife().active()
                 &&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.life().hasUrgentNeed()&&!entity.life().isSleeping()&&entity.life().mealTicks()==0
                 &&entity.body().condition().readyForDelivery();
     }
@@ -1063,7 +1063,7 @@ public final class FamilyLife {
     }
     /** A parent hurries to a newborn that fell hard, worried, nuzzles it and licks it (project original; nuzzling is Wiki E06). */
     public void comfort(YukkuriEntity baby){
-        if(entity.level().isClientSide||baby==null||baby==entity||!adult()||entity.isNoAi()||!entity.isAlive())return;
+        if(entity.level().isClientSide||baby==null||baby==entity||!adult()||entity.inert()||!entity.isAlive())return;
         comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
         entity.showReaction("teary","",40);
     }
@@ -1228,7 +1228,7 @@ public final class FamilyLife {
         entity.setPersistenceRequired(); }
     /** Preconditions of a checked aftermath reservation. Existing pregnancies and partners are never replaced. */
     public boolean canReceiveAftermath() {
-        return !entity.level().isClientSide && entity.status().identity().canConceive() && entity.isAlive() && !entity.isNoAi() && adult() && !sterile() && !elder()
+        return !entity.level().isClientSide && entity.status().identity().canConceive() && entity.isAlive() && !entity.inert() && adult() && !sterile() && !elder()
                 && !entity.body().dying() && entity.body().coreIntact()
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && gestation==null && recovery==0 && !awaitingLanding && !birthDuty();
@@ -1273,7 +1273,7 @@ public final class FamilyLife {
     }
     public boolean readyForAssistance() {
         return !entity.level().isClientSide&&entity.status().identity().canConceive()&&!entity.profile().houseBody()&&!entity.profile().dangerToYukkuri()
-                &&!entity.isNoAi()&&gestation==null&&adult()&&!sterile()&&!elder()&&recovery==0
+                &&!entity.inert()&&gestation==null&&adult()&&!sterile()&&!elder()&&recovery==0
                 &&entity.isAlive()&&!entity.isPanicking()&&!entity.isCommandPlaying()&&!entity.predator().active()
                 &&(!entity.operations().active()||entity.operations().pose()==OperationLife.Pose.ASSIST)
                 &&!entity.dailyLife().active()
@@ -1710,7 +1710,7 @@ public final class FamilyLife {
     /** Water, boarding, delivery and braid work retain their dedicated family paths instead of being taken over by land-child search. */
     static boolean ordinaryLandFree(YukkuriEntity member) {
         var family=member.family();
-        return member.isAlive()&&!member.isNoAi()&&!member.profile().houseBody()&&!member.profile().dangerToYukkuri()
+        return member.isAlive()&&!member.inert()&&!member.profile().houseBody()&&!member.profile().dangerToYukkuri()
                 &&!member.isInWaterOrBubble()&&!member.isPassenger()&&!member.isCommandPlaying()&&!member.operations().active()
                 &&!family.awaitingLanding()&&!family.laboring()&&!family.birthDuty();
     }

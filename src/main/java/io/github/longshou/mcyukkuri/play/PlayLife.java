@@ -72,7 +72,7 @@ public final class PlayLife {
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?(soaking()?Behaviors.JUICE_SOAK:Behaviors.TUB_CLIMB):Behaviors.TUNNEL;}
     private boolean soaking(){return soakAt>=0&&waypoint==soakAt;}
     /** {@code tub}: the juice tub is the one facility a wounded body may use; every other play needs unhurt skin. */
-    private boolean available(boolean tub){return entity.outing().permitsPerformance(true)&&(active() || entity.childhood().canExercise())&&entity.isAlive()&&!entity.isRemoved()&&!entity.isNoAi()&&!entity.isPanicking()&&!entity.isCommandPlaying()
+    private boolean available(boolean tub){return entity.outing().permitsPerformance(true)&&(active() || entity.childhood().canExercise())&&entity.isAlive()&&!entity.isRemoved()&&!entity.inert()&&!entity.isPanicking()&&!entity.isCommandPlaying()
             &&!entity.isPassenger()
             &&!entity.operations().active()&&!entity.groupInteraction().active()
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
@@ -116,7 +116,7 @@ public final class PlayLife {
         if(active())return valid();
         if(waiting())return waitValid();
         if(entity.outing().onOuting())return entity.outing().tryParkPlay();
-        if(cooldown>0||scanWait>0||!available(true)||entity.isNoAi())return false;
+        if(cooldown>0||scanWait>0||!available(true)||entity.inert())return false;
         scanWait=160;
         if(entity.dailyLife().active()||entity.social().active())return false;
         var center=entity.blockPosition();

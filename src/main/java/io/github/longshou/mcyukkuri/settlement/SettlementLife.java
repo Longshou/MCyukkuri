@@ -230,7 +230,7 @@ public final class SettlementLife {
     }
 
     public void tick() {
-        if (entity.level().isClientSide || entity.isNoAi()) return;
+        if (entity.level().isClientSide || entity.inert()) return;
         if (wait > 0) wait--;
         if (navigationRetry > 0) navigationRetry--;
         if (pendingNatural) {

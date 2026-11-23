@@ -97,7 +97,7 @@ public final class WoundComfort {
     /** Why this one cannot take part right now (an emergency or another activity wins); null when calm. */
     private static String busyReason(YukkuriEntity e, boolean hurtOne) {
         if (!e.isAlive() || e.isRemoved()) return "dead";
-        if (e.isNoAi()) return "noai";
+        if (e.inert()) return "noai";
         if (!e.onGround()) return "airborne";
         if (e.isPassenger()) return "passenger";
         if (e.isPanicking()) return "panic";

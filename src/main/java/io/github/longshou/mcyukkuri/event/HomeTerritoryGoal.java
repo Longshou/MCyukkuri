@@ -78,7 +78,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
 
     private boolean available() {
         var identity=body.status().identity();
-        return body.isAlive() && !body.isNoAi() && !body.isPassenger() && !body.isPanicking() && !body.status().reactions().threat().holdingStance()
+        return body.isAlive() && !body.inert() && !body.isPassenger() && !body.isPanicking() && !body.status().reactions().threat().holdingStance()
                 && !body.profile().houseBody() && !body.profile().aquatic() && !body.profile().dangerToYukkuri()
                 && !body.settlement().society().slave() && identity != Identity.STOCK
                 && !body.isCommandPlaying() && !body.operations().active() && body.life().mealTicks() == 0

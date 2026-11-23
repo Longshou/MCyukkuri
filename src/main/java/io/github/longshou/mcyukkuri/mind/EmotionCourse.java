@@ -594,7 +594,7 @@ public final class EmotionCourse {
         }
         private EmotionCourse f() { return y.mind().feeling(); }
         private boolean wanted() {
-            return f().goalPriority() == priority && y.isAlive() && !y.isNoAi() && !y.isPassenger() && !y.isPanicking()
+            return f().goalPriority() == priority && y.isAlive() && !y.inert() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
                     && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)

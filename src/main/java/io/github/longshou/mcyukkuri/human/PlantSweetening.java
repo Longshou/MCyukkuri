@@ -450,7 +450,7 @@ final class PlantSweetening extends Goal {
         var stock = staff.level().getEntitiesOfClass(YukkuriEntity.class, AABB.of(bounds),
                 body -> owns(body) && bounds.isInside(body.blockPosition()) && !body.body().dying());
         for (var parent : stock) {
-            if (approach.witnesses().contains(parent.getUUID()) || parent.isNoAi() || parent.life().isSleeping()
+            if (approach.witnesses().contains(parent.getUUID()) || parent.inert() || parent.life().isSleeping()
                     || parent.distanceToSqr(staff) > 36 || !GlassSight.sees(parent, staff)) continue;
             stock.stream().filter(child -> !child.family().adult() && ProtectivePuff.parentOf(child, parent)
                             && GlassSight.sees(parent, child))

@@ -64,7 +64,7 @@ public final class ProtectivePuff {
 
     /** Alive and able to answer while riding, holding or standing: this response never moves the body. */
     private static boolean able(YukkuriEntity parent) {
-        return parent.isAlive() && !parent.body().dying() && !parent.isNoAi() && !parent.life().isSleeping();
+        return parent.isAlive() && !parent.body().dying() && !parent.inert() && !parent.life().isSleeping();
     }
 
     private ProtectivePuff() {}

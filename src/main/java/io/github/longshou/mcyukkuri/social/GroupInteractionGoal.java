@@ -102,9 +102,9 @@ public final class GroupInteractionGoal extends Goal {
     }
     @Override public boolean canUse() {
         if(active())return valid();
-        if(scanWait>0||cooldown>0||!available(entity)||entity.isNoAi())return false;
+        if(scanWait>0||cooldown>0||!available(entity)||entity.inert())return false;
         scanWait=160;
-        for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.isNoAi())) {
+        for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.inert())) {
             if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
@@ -219,7 +219,7 @@ public final class GroupInteractionGoal extends Goal {
         if(!(victim.level() instanceof ServerLevel level))return;
         var relations=YukkuriWorldData.get(level);
         for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,victim.getBoundingBox().inflate(6),e->e!=victim&&e!=attacker)) {
-            if(!available(witness)||witness.isNoAi()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
+            if(!available(witness)||witness.inert()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
             // A recognised parent answers through the family puff response, which already drew for this same hit.
             if(ProtectivePuff.parentOf(victim, witness))continue;
             witness.mind().felt(EmotionEvent.FRIGHTENED); witness.showReaction("surprise","afraid",100);

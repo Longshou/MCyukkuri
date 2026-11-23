@@ -191,7 +191,7 @@ public final class ShopWindow implements MotorOwner {
 
     /** What keeps it from answering, or null. */
     private String busy() {
-        if (!entity.isAlive() || entity.isNoAi()) return "inactive";
+        if (!entity.isAlive() || entity.inert()) return "inactive";
         if (entity.isPassenger()) return "carried";
         if (entity.isPanicking()) return "panic";
         if (entity.isCommandPlaying()) return "command";

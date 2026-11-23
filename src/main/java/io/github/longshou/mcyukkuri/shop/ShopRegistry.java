@@ -112,7 +112,7 @@ public final class ShopRegistry extends SavedData {
         boolean closed() { return closed; }
         public boolean staff(UUID id) { return staff.contains(id); }
         List<HumanNpc> loadedStaff(ServerLevel level) {
-            return staff.stream().map(level::getEntity).filter(e -> e instanceof HumanNpc npc && npc.isAlive() && !npc.isNoAi())
+            return staff.stream().map(level::getEntity).filter(e -> e instanceof HumanNpc npc && npc.isAlive() && !npc.inert())
                     .map(HumanNpc.class::cast).toList();
         }
         Deposit deposit(UUID animal) { return deposits.get(animal); }

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
+import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
@@ -247,7 +248,7 @@ public final class HumanNpc extends PathfinderMob {
         return home != null && onGround() && distanceToSqr(Vec3.atBottomCenterOf(home)) < .64;
     }
     public boolean counterWorking() {
-        return atBadgeCounter() && !isNoAi() && !avoidingStreet() && !walking() && attention == null
+        return atBadgeCounter() && !inert() && !avoidingStreet() && !walking() && attention == null
                 && getNavigation().isDone() && !street.helping() && !street.shooingCrop();
     }
     boolean avoidingStreet() { return routineDelay < 0; }
@@ -256,7 +257,7 @@ public final class HumanNpc extends PathfinderMob {
         return level().isDay() && residentAvailable();
     }
     private boolean residentAvailable() {
-        return streetResident() && initialized && isAlive() && !isNoAi() && !avoidingStreet()
+        return streetResident() && initialized && isAlive() && !inert() && !avoidingStreet()
                 && !stroll().outing() && !isTrading();
     }
     /** The resident's assigned stand, including at night. The caller checks physical presence. */
@@ -285,7 +286,7 @@ public final class HumanNpc extends PathfinderMob {
     BlockPos yardBowl() { return yardBowl; }
     /** Its own pet ran to its feet about a beggar; the resident answers in its own manner (HumanStreet.helpPet). */
     public boolean helpPet(YukkuriEntity pet, YukkuriEntity stray) {
-        if (isNoAi()) return false;
+        if (inert()) return false;
         if (stroll().restingAtPlaza()) {
             street.scoldFromPlaza(pet, stray);
             return true;
@@ -439,7 +440,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     boolean finishingDoorway() { return ((HumanNavigation) getNavigation()).finishingDoorway(); }
     DoorExit crossedDoorway() { return ((HumanNavigation) getNavigation()).crossedDoorway(); }
-    boolean holdsDoor(BlockPos at) { return isAlive() && !isNoAi() && ((HumanNavigation) getNavigation()).holdsDoor(at); }
+    boolean holdsDoor(BlockPos at) { return isAlive() && !inert() && ((HumanNavigation) getNavigation()).holdsDoor(at); }
     boolean doorWaitingStand(DoorExit door) { return ((HumanNavigation) getNavigation()).doorWaitingStand(door); }
     public Vec3 doorFollowerStand(YukkuriEntity pet) { return stroll().doorFollowerStand(pet); }
 
@@ -702,7 +703,7 @@ public final class HumanNpc extends PathfinderMob {
                     return false;
                 }
                 for (var other : level.getEntitiesOfClass(HumanNpc.class, frame.inflate(3, 0, 3),
-                        candidate -> candidate != mob && candidate.isAlive() && !candidate.isNoAi())) {
+                        candidate -> candidate != mob && candidate.isAlive() && !candidate.inert())) {
                     var nav = (HumanNavigation) other.getNavigation();
                     if (nav.passing != null) continue;
                     var exit = nav.nearbyExit();
@@ -902,6 +903,9 @@ public final class HumanNpc extends PathfinderMob {
         else if (id == HumanStreet.FROWN_EVENT) street.frownPose = HumanStreet.FROWN_TICKS;
         else super.handleEntityEvent(id);
     }
+    /** Decides nothing and starts nothing: deliberately NoAI, or in the scene start hold (see SceneHold). */
+    public boolean inert() { return SceneHold.inert(this); }
+    @Override protected boolean isImmobile() { return super.isImmobile() || SceneHold.held(this); }
     @Override public void aiStep() {
         Vec3 before = position();
         super.aiStep();
@@ -909,7 +913,7 @@ public final class HumanNpc extends PathfinderMob {
         if (street.frownPose > 0) street.frownPose--;
         if (level().isClientSide || !isAlive()) return;
         if (tickCount % 100 == 1) legacyOutput.collect(this);
-        if (isNoAi()) {
+        if (inert()) {
             if (job() == Job.SHOPKEEPER) ShopStaff.cancelWater(this, "no_ai");
             return;
         }
