@@ -286,7 +286,7 @@ public final class RoamingGoal extends Goal {
         if (!(animal.level() instanceof ServerLevel level) || level.getGameTime() < nextPlaza || !VillageStrays.browsesPlaza(animal)
                 || !TownMarkers.plazaLeisure(level)) return null;
         var site = TownMarkers.badgePlaza(level, animal, radius);
-        if (site == null || !site.badged() || !site.strayRoom(level, animal)) return null;
+        if (site == null || site.badged().isEmpty() || !site.strayRoom(level, animal)) return null;
         var personality = animal.life().personality();
         double envy = StreetDraw.hunger(animal.life().nutrition()) * SocialDisposition.ramp(personality.friendliness(), 35, 75);
         double cocky = Math.min(SocialDisposition.confidence(SocialDisposition.selfEsteem(animal)), personality.temperament().cocky());
@@ -423,7 +423,9 @@ public final class RoamingGoal extends Goal {
         var level = (ServerLevel) animal.level();
         boolean arrived = reached && plazaReady() && level.isDay() && !level.isRaining() && plaza.present(level);
         if (arrived) nextWalk = level.getGameTime() + plazaPause;
-        if (arrived && browsing) animal.getLookControl().setLookAt(plaza.paving().getCenter());
+        // The stray gazes at the nearest valid badge for the whole pause, so the sighting rules see it facing the plaza.
+        if (arrived && browsing) plaza.badged().stream().min(Comparator.comparingDouble(animal::distanceToSqr))
+                .ifPresent(wearer -> animal.pet().glanceAt(wearer, plazaPause));
         GameplayLog.event(animal, "badge", "plaza {}{} stand={} grade={}", browsing ? "ring_" : "", arrived ? "arrived" : "left_route",
                 destination.toShortString(), animal.pet().humanRank());
         plaza = null; browsing = false;

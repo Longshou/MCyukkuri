@@ -223,10 +223,10 @@ public final class TownMarkers {
                     .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
         }
 
-        /** A body on the paving wearing a valid, visible badge (a voided badge does not count). */
-        public boolean badged() {
-            return !marker.isRemoved() && !marker.level().getEntitiesOfClass(YukkuriEntity.class, paving,
-                    y -> y.isAlive() && !y.isPassenger() && !y.life().isSleeping() && y.pet().humanRank() != BadgeGrade.NONE).isEmpty();
+        /** Bodies on the paving wearing a valid, visible badge (a voided badge does not count). */
+        public List<YukkuriEntity> badged() {
+            return marker.isRemoved() ? List.of() : marker.level().getEntitiesOfClass(YukkuriEntity.class, paving,
+                    y -> y.isAlive() && !y.isPassenger() && !y.life().isSleeping() && y.pet().humanRank() != BadgeGrade.NONE);
         }
 
         /** Room for one more stray at the ring: at most two strays at once, and the shared traffic limit still holds. */
