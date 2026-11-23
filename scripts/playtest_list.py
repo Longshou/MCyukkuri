@@ -54,6 +54,16 @@ def sessions():
     return [(p.name[:-len(suffix)], json.loads(p.read_text(encoding='utf-8-sig'))) for p in sorted((ROOT / PLAY_DIR).glob('*' + suffix))]
 
 
+def last_played(until):
+    """(session id, runtime commit) of the newest session that ran a runtime other than the installed one, else None.
+    Launching writes a session for the installed runtime, so skipping those keeps what changed since the previous
+    played version marked fresh after the launch too."""
+    for sid, data in reversed(sessions()):
+        if data['runtimeConfig']['commit'] != until:
+            return sid, data['runtimeConfig']['commit']
+    return None
+
+
 def installed_commit():
     return json.loads((ROOT / '.local/experimental-map/museum-runtime.json').read_text(encoding='utf-8-sig'))['commit']
 
@@ -192,7 +202,7 @@ def recent_ids(ids, text, recent):
 
 def build(since, until):
     old = {t for _, t in todo_items(git_show(since, 'docs/TODO.md'))}
-    current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
+    current = todo_items((ROOT / 'docs/TODO.md').read_text(encoding='utf-8'))
     scenes, numbers, field_order = load_museum()
     recent = recent_feedback(current, scenes, numbers)
     watch = load_watch()
@@ -268,13 +278,12 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
 
 
 def menu_payload(since=None, until=None):
-    """The in-game playtest list read from the current TODO: since defaults to the last played session's commit
+    """The in-game playtest list read from the current TODO: since defaults to the newest played session of another runtime
     (none: nothing is fresh), until to the installed runtime commit."""
-    if since is None:
-        found = sessions()
-        since = found[-1][1]['runtimeConfig']['commit'] if found else None
     until = until or installed_commit()
-    current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
+    if since is None and (played := last_played(until)):
+        since = played[1]
+    current = todo_items((ROOT / 'docs/TODO.md').read_text(encoding='utf-8'))
     fresh_texts = {text for _, text in build(since, until)['items']} if since else set()
     return dict(format=1, since=since, until=until, items=menu(current, fresh_texts, *load_museum()))
 
@@ -329,14 +338,12 @@ def main():
         if not a.menu_json:
             return
     since, played_from = a.since, '--since'
-    if not since:
-        found = sessions()
-        if found:
-            sid, data = found[-1]
-            since, played_from = data['runtimeConfig']['commit'], f'会话 {sid}'
-        elif not a.menu_json:
-            sys.exit('no museum session under .local/experimental-map/play-museum; pass --since <commit>')
     until = a.until or installed_commit()
+    if not since:
+        if played := last_played(until):
+            since, played_from = played[1], f'会话 {played[0]}'
+        elif not a.menu_json:
+            sys.exit('no museum session of another runtime under .local/experimental-map/play-museum; pass --since <commit>')
     if a.menu_json:
         payload = menu_payload(since, until)
         rows = payload['items']

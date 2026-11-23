@@ -117,7 +117,7 @@ function showControls(target, record, onChange) {
     target.replaceChildren(row, status, summary, panel);
     render();
     return record => {
-        if (record?.ts === current?.ts) return;
+        if (!record || (current?.ts ?? '') >= record.ts) return; // Only a newer record: an older in-flight GET must not undo a save.
         current = record;
         render();
     };

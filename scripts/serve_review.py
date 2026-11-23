@@ -111,8 +111,10 @@ class Handler(SimpleHTTPRequestHandler):
         import playtest_list
 
         try:
-            self.respond_json(playtest_list.menu_payload())
-        except (OSError, SystemExit) as error:
+            # fields: the field headings in the scenes-catalog order, as the in-game tab sorts them.
+            payload = dict(playtest_list.menu_payload(), fields=[title for title, _ in playtest_list.load_museum()[2]])
+            self.respond_json(payload)
+        except (OSError, SystemExit, ValueError, KeyError) as error:
             self.respond_json({'error': f'无法读取试玩清单：{error}'}, 500)
 
     def do_GET(self):

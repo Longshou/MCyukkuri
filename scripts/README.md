@@ -115,7 +115,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 ## 试玩清单与反馈入档
 
-`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>]` 将两版之间新增或变化的待试玩条目按场地输出为 Markdown，纯外观条目由预览页判定、不列（规则见[总负责人](../docs/roles/lead.md#待办维护)）。默认从最近一场试玩会话和已装运行包取提交，措辞取当前检出的《待办》，用反引号内的场景 ID 或场景编号（`TN-29`、`TN29` 写法均可，紧挨中文或引号也能识别）关联场景。`--menu-json PATH` 改为写出游戏内「待看」清单的 JSON，包含当前所有复测失败与已接入待试玩的玩法条目；同一场景在两种输出中均合为一行，状态取其中最差，只列最近两轮试玩反馈（《待办》里日期最新的两个“反馈”块）提及且已有场景的条目；没有现成场景可展示的条目不写入菜单，运行 Markdown 模式时只在标准错误输出场景提案警告。看点只取 `scripts/playtest_watch.json`（场景 ID 到一句不超过 30 字、不含引号原话的短描述），没写的场景只显示标题。菜单中任一条为新即标「新」，没有旧会话时不标。`--scenes-json PATH` 输出完整的场景目录，按主题、场地组织，含编号、标签和看点。启动器在每次开场前把 `playtest.json` 与 `scenes.json` 写到同一目录。
+`<py> scripts/playtest_list.py [--since <commit>] [--until <commit>]` 将两版之间新增或变化的待试玩条目按场地输出为 Markdown，纯外观条目由预览页判定、不列（规则见[总负责人](../docs/roles/lead.md#待办维护)）。默认从最近一场运行包与已装不同的试玩会话和已装运行包取提交，措辞取主检出的《待办》，用反引号内的场景 ID 或场景编号（`TN-29`、`TN29` 写法均可，紧挨中文或引号也能识别）关联场景。`--menu-json PATH` 改为写出游戏内「待看」清单的 JSON，包含当前所有复测失败与已接入待试玩的玩法条目；同一场景在两种输出中均合为一行，状态取其中最差，只列最近两轮试玩反馈（《待办》里日期最新的两个“反馈”块）提及且已有场景的条目；没有现成场景可展示的条目不写入菜单，运行 Markdown 模式时只在标准错误输出场景提案警告。看点只取 `scripts/playtest_watch.json`（场景 ID 到一句不超过 30 字、不含引号原话的短描述），没写的场景只显示标题。菜单中任一条为新即标「新」，没有旧会话时不标。`--scenes-json PATH` 输出完整的场景目录，按主题、场地组织，含编号、标签和看点。启动器在每次开场前把 `playtest.json` 与 `scenes.json` 写到同一目录。
 
 `<py> scripts/feedback_intake.py [--session <id或前缀>]`：把最近（或指定）会话的 session JSON、该场 stdout／stderr 日志（以及最近一场的 `latest.log`、`debug.log`；更早场次的这两份已被覆盖）复制到 `.local/reports/playtest-<日期>-<时间>/`，原文件不动；按聊天标题 `【<场景标题>】看点：` 识别用户打开过的场景，窗口取到下一次场景启动为止（并排场地的场景会共享窗口），逐场汇总死亡、溺水、`inWall`、饥饿伤害、拒绝（含原因计数）、异常，以及场景 `smoke.expect` 的断言行是否出现（无断言的场景给服务端前缀计数），写成同目录 `summary.md` 并打印。标题已在场景源码里改名的场景标为找不到；日志只含时分秒，日期由会话开始时间逐日推算。
 
@@ -141,7 +141,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 双演员演出可在主角和 `partner` 上填写同一组节拍长度与各自的 `steps`。主角每步的 `stance` 指向递喂、蹭脸、绕后或压制的站位规则。播放器把两只当前的片段和站位阶段送给姿态核心，接触距离和前倾使用游戏计算。
 
-`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮；`--kind motion|art|playtest` 指定类别（缺省按链接与编号推断，无法归类的算美术；动作与美术类显示“通过/不通过”，不通过时可勾选原因并写说明，试玩类静态条目只列出，在游戏里反馈）。页面顶部的“试玩（游戏内待看）”区不走登记：`playtest.js` 在加载时向 `serve_review.py` 的 `GET /playtest`（即 `playtest_list.menu_payload`，读当前待办与已装运行包）取与游戏内相同的行，每行带通过／不通过控件，编号为 `playtest.<场景ID>.<运行包提交前 9 位>`，记录带场景名 `title`；运行包更新后旧版本的结论不再显示为当前状态。审阅页每 5 秒及切回标签页时重读 `/verdicts`，其他标签页的结论自动同步。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果（verdict、reasons、note、ts）。
+`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮；`--kind motion|art|playtest` 指定类别（缺省按链接与编号推断，无法归类的算美术；动作与美术类显示“通过/不通过”，不通过时可勾选原因并写说明，试玩类静态条目只列出，在游戏里反馈）。页面顶部的“试玩（游戏内待看）”区不走登记：`playtest.js` 在加载时向 `serve_review.py` 的 `GET /playtest`（即 `playtest_list.menu_payload`，读当前待办与已装运行包）取与游戏内相同的行（按场地分组，顺序同游戏内待看页；“新”以最近一次不同运行包的试玩会话为起点），每行带通过／不通过控件，编号为 `playtest.<场景ID>.<运行包提交前 9 位>`，记录带场景名 `title`；运行包更新后旧版本的结论不再显示为当前状态。审阅页每 5 秒及切回标签页时重读 `/verdicts`，其他标签页的结论自动同步。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果（verdict、reasons、note、ts，试玩区另有 title）。
 
 总入口调用 `build_preview_library.py` 生成物品缩略图及物品、模型、试玩场景索引 `library.json`。`preview_block_model.py` 渲染原生方块元素，`preview_inventory.py` 从 Java 注册与运行引用识别当前物品。分类与资源缺口写到 `.local/reports/preview-library.json`。
 
