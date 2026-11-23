@@ -6579,11 +6579,6 @@ _HAT = '@e[type=mcyukkuri:placed_hat,distance=..48,limit=1,sort=nearest]'
 _DESIRE_NOTE_EARLY = '读 aquatic.desire 看每个欲望的得分与来由。'
 
 
-def shoved(name, push=.35):
-    """A late shove off the bank into the pond (vanilla Motion, east): the body really falls in."""
-    return f'data merge entity {sel(name)} {{Motion:[{push}d,0.3d,0.0d]}}'
-
-
 def _seat_family(size=.35, nourishment=147000, age=144000):
     """A real saved body and nourishment near a seat boundary; ordinary loaded ticks perform subsequent growth."""
     return f'Version:3,Initialized:1b,Age:{age}L,Nourishment:{nourishment}L,AdultScale:1f,Scale:{size}f'
@@ -7139,13 +7134,16 @@ pond('shake_capsize', '右击晃翻帽子，船主游回扶正', '右击晃翻�
                 verify=water_aftermath, readout=_HULL_READOUT))
 
 pond('self_rescue', '落水后游回自己的帽子', '落水后游回自己的帽子',
-     '水生魔理沙把帽子放在离岸 12 格的水面上，随后被推下岸落水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
+     '水生魔理沙的帽子在离岸 12 格的水面上，她自己下水：她朝自己的帽子游（一阵用力一阵歇，花体力），嘴或辫梢够到帽檐就停，咬住帽檐、按片段节拍把自己拉进帽腔坐好；在帽里不再算落水',
      '约 30 秒',
-     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 12), False)], late=[shoved('a')],
+     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 12), False)],
      note='长泳消耗体力；向帽子游超过 600 tick 或用尽办法才转向近岸。日志：[intent] start id=escape_water → [method] pick method=own_hat → [action] end id=swim … detail=grip → [action] start id=climb（rise、climbRise、grip）→ [body] mount cause=climb → [intent] end result=DONE。读 water.distress 的阶段，读 hat.float 看固定水线与翻覆状态。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=1800, expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=false',
-                                   *_WATER_ESCAPE, r'\[water\][^\n]* phase=\w+ -> RECOVER',
+                                   # After the start hold she reclaims the hat at once (walk in, swim): the same path shore_capsized_far asserts.
+                                   r'\[action\][^\n]* start id=step_in\b', r'\[intent\][^\n]* start id=escape_water\b',
+                                   r'\[action\][^\n]* start id=swim owner=drive:aquatic\b',
+                                   r'\[intent\][^\n]* end id=resolve_own_hat result=DONE\b', r'\[water\][^\n]* phase=\w+ -> RECOVER',
                                    r'\[action\][^\n]* end id=climb outcome=DONE\b',
                                    r'\[method\][^\n]* pick intent=escape_water method=(?:own_hat|right_own_hat)\b'],
                 forbid=_WATER_SMOKE_FORBID, verify=water_aftermath, readout=_water_readouts('a')))

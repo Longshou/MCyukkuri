@@ -385,6 +385,7 @@ def build_pack(world):
         # then starts the scene's late lines, retries and timed rules, so all of them count from the moment the player is in position.
         # A mob the scene made NoAI on purpose is skipped by the command and stays as authored.
         # Every mob of the field, whoever created it (scene summons, shop staff and stock, template residents); the command skips non-mobs and NoAI ones.
+        # The release selects by tag, not by box: a held body that physics pushed out of the box is still released.
         held = f'@e[type=!player,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
         release = []
         if s.late:
@@ -393,7 +394,7 @@ def build_pack(world):
             if s.id in windows:
                 release.append(f'schedule function {NS}:scn/{s.id}_{base}_{phase} {windows[s.id][0]}t replace')
         near = f'execute positioned {ax}.0 {FEET} {az}.0 run title @a[distance=..80] actionbar '
-        fn(f'scn/{s.id}_go', [f'yukkuri scenario hold {held} off', near + _text('')] + release)
+        fn(f'scn/{s.id}_go', [f'yukkuri scenario hold @e[tag=scn_hold] off', near + _text('')] + release)
         for count in (3, 2, 1):  # one digit per COUNTDOWN_STEP ticks; the last digit is followed by the release
             nxt = f'scn/{s.id}_hold{count - 1}' if count > 1 else f'scn/{s.id}_go'
             fn(f'scn/{s.id}_hold{count}', [near + _text(f'{count}', 'yellow'), f'schedule function {NS}:{nxt} {COUNTDOWN_STEP}t replace'])
