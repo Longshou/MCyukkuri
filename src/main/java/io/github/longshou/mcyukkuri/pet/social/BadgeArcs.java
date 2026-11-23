@@ -348,8 +348,10 @@ public final class BadgeArcs {
                     double wariness = SocialDisposition.wariness(o, bond);
                     boolean boastful = SocialDisposition.insistence(p, esteem, wariness, bond) >= .2;
                     s.result = boastful ? "boast" : "humble";
-                    PetScenes.act(o, boastful ? "proud" : "greet", boastful ? "smug" : "closed_smile",
-                            boastful ? "badge_proud" : "badge_humble", 70, sub);
+                    String face = boastful ? "smug" : "closed_smile";
+                    String line = boastful ? "badge_proud" : "badge_humble";
+                    PetScenes.act(o, boastful ? "proud" : "greet", face, line, 70, sub);
+                    o.pet().expectBeat(boastful ? "plaza_boast" : "plaza_humble", face, line, s.result);
                 }
                 if (t >= 60) { quiet(o); next(s); }
             }
@@ -364,11 +366,13 @@ public final class BadgeArcs {
                     else if (boastful && SocialDisposition.insistence(p, SocialDisposition.selfEsteem(sub), wariness, bond) >= .2) reply = "retorted";
                     else reply = "ignored";
                     s.result = s.result + "|" + reply;
+                    String face, line;
                     switch (reply) {
-                        case "admired" -> PetScenes.act(sub, sub.pet().isPet() ? "bow" : "beg", "open_smile", "badge_admire", 60, o);
-                        case "retorted" -> PetScenes.act(sub, "puff", "angry", grade(sub) > 0 ? "badge_plaza_retort" : "badge_retort", 60, o);
-                        default -> PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
+                        case "admired" -> { face = "open_smile"; line = "badge_admire"; PetScenes.act(sub, sub.pet().isPet() ? "bow" : "beg", face, line, 60, o); }
+                        case "retorted" -> { face = "angry"; line = grade(sub) > 0 ? "badge_plaza_retort" : "badge_retort"; PetScenes.act(sub, "puff", face, line, 60, o); }
+                        default -> { face = "closed_smile"; line = ""; PetScenes.act(sub, "ignore", face, null, 50, o); }
                     }
+                    sub.pet().expectBeat("plaza_boast_reply", face, line, reply);
                 }
                 if (t >= 70) {
                     String reply = s.result.substring(s.result.indexOf('|') + 1);

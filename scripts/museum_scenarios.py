@@ -4100,9 +4100,9 @@ _RING_HOLDER = 'ring_holder'
 # vantage, so they do not fill PLAZA_CAPACITY before the keeper arrives and immediately evaluate browseRing once the badged pet lands.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -6, -9, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -4, -11, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', -2, -12, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -8, -5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 13, -10, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 11, -11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4142,7 +4142,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-10, -2, -112, 10),
+    ], env=DAY, vantage=(-5, 1, -125, 12),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
@@ -11864,7 +11864,7 @@ def _ring_stray_fates(window):
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
 # BadgeSocial uses the normal player-audience budget instead of the headless world bucket.
 next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
-    (1, f'execute positioned {BY_ID["town"].anchor[0] - 10} {FEET} {BY_ID["town"].anchor[1] - 2} run yukkuri scenario tool_operator enter'),
+    (1, f'execute positioned {BY_ID["town"].anchor[0] - 5}.5 {FEET} {BY_ID["town"].anchor[1] + 1}.5 run yukkuri scenario tool_operator enter'),
     (5380, 'yukkuri scenario tool_operator leave'),
 ], expect=[
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
