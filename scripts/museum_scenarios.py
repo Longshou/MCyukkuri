@@ -50,7 +50,7 @@ class Retry:
 
 class Scenario:
     def __init__(self, sid, field, title, hint, watch, wait, lines, give=(), env=None, spot=None, retry='按 M，在「实用」里重开',
-                 asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), smoke=None, capture=None):
+                 asks='', note='', sub=None, vantage=(0, 14), reads=(), late=(), at_spawn=(), smoke=None, capture=None):
         self.id, self.field, self.title, self.hint = sid, field, title, hint
         # self.number is set once every scenario exists (``_number_scenes``), so that the pond tour order is known.
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
@@ -58,7 +58,9 @@ class Scenario:
         # settings that need the individuals to stand on the ground (a home, a conception, a boat) run two seconds after the summons
         deferred = [i for i, line in enumerate(self.lines) if line.startswith(LATE_COMMANDS)]
         self.late_lines = [self.lines[i] for i in deferred]
-        self.lines = [line for i, line in enumerate(self.lines) if i not in deferred]
+        # ``at_spawn``: commands run in the same tick as the summons, so the setting is in force before the first plan
+        # (a home a scene gives its bodies, which would otherwise first head for the nearest free nest)
+        self.lines = [line for i, line in enumerate(self.lines) if i not in deferred] + surface_demo_lines(sid, at_spawn)
         f = BY_ID[field]
         self.anchor = f.spots[spot] if spot else f.anchor
         self.plot = f.plot_rect(*self.anchor)
@@ -4074,7 +4076,7 @@ add(_corridor, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相�
            lead=True, yaw=0, energy=30, rest_wait=60, boldness=(20, 90)),
         yk(('reimu', 'marisa'), 0, 4, 'corridor_south', uuid=uid(_corridor, 'corridor_south'), label='南侧回窝的成体',
            yaw=180, energy=30, rest_wait=60, boldness=(20, 90)),
-    ], late=[home('corridor_north', 0, 8), home('corridor_south', 0, -8)], env=DAY,
+    ], at_spawn=[home('corridor_north', 0, 8), home('corridor_south', 0, -8)], env=DAY,
     vantage=(10, 0, 90, 8),
     reads=[('读北侧成体', f'yukkuri status {sel("corridor_north")} raw'),
            ('读南侧成体', f'yukkuri status {sel("corridor_south")} raw')])
@@ -8104,10 +8106,12 @@ _smoke('magma_sole', 600, [
 ])
 
 # Each nest lies beyond the other body in a one-cell lane, so both sleeping at home proves they got past each other (by a
-# give-way, a back-off, a replanned route through the pocket or a push into it; the log names which).
+# give-way, a back-off, a replanned route through the pocket or a push into it); a blocked-by line of either proves they met
+# head-on, and its action (gives_way, backs_off, keeps_line, ...) names who yielded and how.
 _corridor_logs = [_uuid_text(_corridor, slot) for slot in ('corridor_north', 'corridor_south')]
 _smoke('street_corridor', 1200, [
-    rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in _corridor_logs])
+    rf'\[move\][^\n]*uuid=(?:{_corridor_logs[0]}|{_corridor_logs[1]})\b[^\n]*blocked by yukkuri [^\n]* action=',
+    *[rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in _corridor_logs]])
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
 # and each answer is logged by the animal itself.

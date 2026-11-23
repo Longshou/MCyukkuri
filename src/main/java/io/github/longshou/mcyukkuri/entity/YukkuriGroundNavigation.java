@@ -811,8 +811,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         // A side counts only with a body width of free, supported floor on it (a one-cell lane has none: it backs off instead).
         if (clearYieldStand(animal, animal.position().add(side.scale((away == 0 ? 1 : away) * animal.getBbWidth())))
                 && stepAside(animal, other, heading)) { yieldUntil = now + WINDOW; return "gives_way"; }
-        for (double d = BACK_OFF; d >= .5; d -= .5) {
-            var back = animal.position().subtract(heading.scale(d));
+        // The aim is the next waypoint, a little off the lane's axis; backing along that diagonal swings a body that hugs one wall
+        // of a one-cell lane into it. The same retreat along the dominant axis keeps its lateral place, so it is tried second.
+        Vec3 axis = Math.abs(heading.x) >= Math.abs(heading.z) ? new Vec3(Math.signum(heading.x), 0, 0) : new Vec3(0, 0, Math.signum(heading.z));
+        for (double d = BACK_OFF; d >= .5; d -= .5) for (var line : new Vec3[]{heading, axis}) {
+            var back = animal.position().subtract(line.scale(d));
             if (clearYieldStand(animal, back)) { backTo = back; yieldUntil = now + YIELD_LIMIT; return "backs_off"; }
         }
         return "no_room";
