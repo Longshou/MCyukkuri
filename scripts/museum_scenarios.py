@@ -4135,8 +4135,8 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
     '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
     '约 5 秒院主出发，8–15 秒落座并开始看章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        # A bell and a bed make the lot a village street, so free strays here are rooted in it.
-        block(-11, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
+        # A bell by the plaza apron and a bed make the lot a village street, so free strays stay drawn toward the plaza.
+        block(0, 0, -5, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
         # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
