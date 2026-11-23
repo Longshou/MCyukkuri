@@ -244,11 +244,16 @@ def build_pack(builder, pack_root, layout=False):
             (directory / f'{i}.mcfunction').write_text(
                 f'execute positioned {x}.0 {builder.FEET} {z}.0 run {command}\n', encoding='utf-8')
         (directory / 'start.mcfunction').write_text(''.join(
-            f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick + builder.HOLD_TICKS}t\n'
+            f'schedule function {builder.NS}:smoke/{scene.id}/{i} {tick + hold_ticks(builder)}t\n'
             for i, (tick, _) in enumerate(commands)), encoding='utf-8')
     print(json.dumps({'output': str(pack_root), 'fields': len(builder.FIELDS),
                       'scenarios': len(builder.museum_scenarios.S), **checks}, ensure_ascii=False), flush=True)
     return pack
+
+
+def hold_ticks(builder):
+    """The start hold of the scene functions this builder generates; a baseline tree from before the hold has none."""
+    return getattr(builder, 'HOLD_TICKS', 0)
 
 
 def pause(st, fast):
@@ -374,7 +379,7 @@ def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
     reload_problems = []
     if 'reload' in scene.smoke:
         elapsed, selector = scene.smoke['reload']
-        elapsed += builder.HOLD_TICKS  # smoke times count from the scene start, which holds its mobs first
+        elapsed += hold_ticks(builder)  # smoke times count from the scene start, which holds its mobs first
         server.sprint(st, elapsed)
         command = f'execute positioned {x}.0 {builder.FEET} {z}.0 run data get entity {selector}'
         paths = scene.smoke.get('reload_paths', ('Riders', 'Passengers[0].UUID', 'Passengers[1].UUID'))
@@ -400,7 +405,7 @@ def run_scene(st, scene, builder, run_index, seed, pool, jfr=False):
         else:
             print(f'PASS {scene.id}: saved entity data survived chunk reload ({", ".join(paths)})', flush=True)
     readings = []
-    for stop in (*(t + builder.HOLD_TICKS for t in scene.smoke.get('readout_at', ())), scene.smoke['ticks'] + builder.HOLD_TICKS):
+    for stop in (*(t + hold_ticks(builder) for t in scene.smoke.get('readout_at', ())), scene.smoke['ticks'] + hold_ticks(builder)):
         server.sprint(st, stop - elapsed)
         elapsed = stop
         if 'readout_at' in scene.smoke:
@@ -492,7 +497,7 @@ def check_layout(st, builder, scene):
     unsupported = {}
     previous_tick = 0
     geometry_offset = offset
-    for tick in sorted({0, 40, scene.layout_ticks + builder.HOLD_TICKS}):
+    for tick in sorted({0, 40, scene.layout_ticks + hold_ticks(builder)}):
         # Step in short runs: a scene waiting for a guarded summon steps a few hundred ticks, and one long step stops
         # emitting the end-of-step marker.
         while previous_tick < tick:
@@ -544,7 +549,7 @@ def check_layout(st, builder, scene):
     for problem in problems:
         print(f'FAIL {scene.id}: {problem}', flush=True)
     if not problems:
-        print(f'PASS {scene.id}: {len(inspected) - 1} actors/props and player; initialized t={scene.layout_ticks + builder.HOLD_TICKS}', flush=True)
+        print(f'PASS {scene.id}: {len(inspected) - 1} actors/props and player; initialized t={scene.layout_ticks + hold_ticks(builder)}', flush=True)
     return not problems
 
 
