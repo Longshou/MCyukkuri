@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 捕食种追击专用表情（表情「正在做的事」档） | `.worktrees/wp-face-activity` | client/PresentationArbiter、FacePrecedence、predator 行为 |
 
 ## 玩法待办
 
