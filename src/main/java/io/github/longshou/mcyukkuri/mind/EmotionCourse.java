@@ -605,10 +605,12 @@ public final class EmotionCourse {
         }
         private EmotionCourse f() { return y.mind().feeling(); }
         private boolean wanted() {
+            // A parent carrying its young yields movement/look to getting them to safety first; the course still ticks and
+            // shows its facial overlay while walking, then plays its tremble/stroll once the young are set down.
             return f().goalPriority() == priority && y.isAlive() && !y.inert() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
-                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
+                    && !y.family().laboring() && !y.family().carry().carrying() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
                     && (priority != PARTING_PRIORITY || !y.duty().claimed());
         }
         @Override public boolean canUse() { return wanted(); }

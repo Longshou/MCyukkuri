@@ -117,18 +117,19 @@ public final class ParentCarry {
     private static final int GATHER_TICKS = 600;
     /**
      * Flight gathering (project design): the parent's patience to start another child is {@code FLIGHT_BASE + FLIGHT_PER_MARGIN * margin}
-     * ticks, margin = (boldness + attachment) / 2 - (30 + fear / 3), at most {@code FLIGHT_MAX} and never longer than the threat needs
-     * to cover the gap to {@link #IMMEDIATE_DANGER} at its real closing speed. A child already being fetched gets its own travel
-     * (distance at the urgent gait) plus {@code GRAB_ALLOWANCE} for the lift (mouth 14 ticks, brim and braid clips are the longer ones, measured under 60).
+     * ticks, margin = (boldness + attachment) / 2 - (30 + fear / 3), capped at {@code FLIGHT_MAX} for a real threat ({@code SHELTER_GATHER_TICKS}
+     * for rain/flood/relocation) and never longer than the threat needs to cover the gap to {@link #IMMEDIATE_DANGER} at its real closing speed.
+     * A child already being fetched gets its own travel (distance at the urgent gait) plus {@code GRAB_ALLOWANCE} for the lift, also bounded by
+     * the threat's closing time.
      */
-    private static final int FLIGHT_BASE = 10, FLIGHT_PER_MARGIN = 3, FLIGHT_MAX = 160, GRAB_ALLOWANCE = 60;
+    private static final int FLIGHT_BASE = 10, FLIGHT_PER_MARGIN = 3, FLIGHT_MAX = 160, SHELTER_GATHER_TICKS = 80, GRAB_ALLOWANCE = 60;
     /** Walk request of a parent running for a child in danger: at or above {@code Gait.FAST_REQUEST} (1.15), the running gait. */
     private static final double URGENT_GAIT = 1.2;
-    /** A parent who leaves a child behind stops to look back for attachment / {@code CALL_PER_ATTACHMENT} ticks (85 -> 17 ticks). */
-    private static final int CALL_PER_ATTACHMENT = 5, CALL_FACE_TICKS = 40;
+    /** A parent who leaves a child behind stops to look back for {@code CALL_BASE_TICKS} + attachment / {@code CALL_PER_ATTACHMENT} ticks (31 -> 18, 85 -> 29). */
+    private static final int CALL_BASE_TICKS = 12, CALL_PER_ATTACHMENT = 5, CALL_FACE_TICKS = 40;
     /** An attached parent (50 or more) calls to the child; a loosely attached one only cries out in fear. */
     private static final int CALLING_ATTACHMENT = 50;
-    private static final double FLIGHT_GATHER_RANGE = 2.5, IMMEDIATE_DANGER = 4;
+    private static final double FLIGHT_GATHER_RANGE = 6.0, IMMEDIATE_DANGER = 4;
     /** Reimu lets a baby out of her mouth by this clip: it opens, the baby leaves by {@code release} and the lips shut by {@code closed}. */
     public static final String MOUTH_RELEASE = "mouth_release";
     /** Tail seat: the shelf of the curled tail behind and beside the body (model units, idle pose, full curl). */
@@ -197,6 +198,7 @@ public final class ParentCarry {
     /** Flight gathering: no new child is started after {@code flightUntil}; the child being fetched ({@code flightTarget}) has until
      *  {@code childUntil}; {@code callUntil} is the end of the look-back beat of a parent leaving a child behind (0 = no beat). */
     private long flightUntil, flightRetryAt, childUntil, callUntil;
+    private boolean flightThreat, flightRetryThreat;
     private UUID flightTarget;
     /** The last shown beat waiting for the face the presentation arbiter publishes (log only). */
     private String beatName, beatFace, beatLine;
@@ -1572,14 +1574,17 @@ public final class ParentCarry {
         if (!ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab)
             purpose = Purpose.PROTECT;
         long now = carrier.level().getGameTime();
-        if (now < flightRetryAt || flightYoung().isEmpty()) return;
+        boolean hasThreat = threat != null;
+        if (now < flightRetryAt && (flightRetryThreat || !hasThreat) || flightYoung().isEmpty()) return;
         var personality = carrier.life().personality();
         int resolve = (personality.boldness() + personality.attachment()) / 2;
-        int fear = threat == null ? 0 : personality.fear(threat.getUUID());
+        int fear = hasThreat ? personality.fear(threat.getUUID()) : 0;
         int margin = resolve - (30 + fear / 3);
         boolean gather = margin >= 0 && !tooClose(threat);
         long patience = gather ? flightPatience(margin, threat) : 0;
-        flightRetryAt = now + FLIGHT_MAX + GRAB_ALLOWANCE + HOLD_TICKS;
+        flightThreat = hasThreat;
+        flightRetryThreat = hasThreat;
+        flightRetryAt = now + (hasThreat ? FLIGHT_MAX : SHELTER_GATHER_TICKS) + GRAB_ALLOWANCE + HOLD_TICKS;
         GameplayLog.event(carrier, "family", "carry flight choice cause={} gather={} resolve={} fear={} margin={} patience={}",
                 cause, gather, resolve, fear, margin, patience);
         flightUntil = now + patience;
@@ -1588,33 +1593,40 @@ public final class ParentCarry {
         flightTarget = null;
     }
 
-    /** How long this parent keeps starting new children: bold and attached parents longer, never past the threat's arrival. */
-    private long flightPatience(int margin, LivingEntity threat) {
-        long patience = Math.min(FLIGHT_MAX, FLIGHT_BASE + (long) FLIGHT_PER_MARGIN * margin);
-        if (threat == null) return patience;
+    /** Ticks until {@code threat} reaches {@link #IMMEDIATE_DANGER} at its current closing speed, or {@link Long#MAX_VALUE} if not closing. */
+    private long closingTicks(LivingEntity threat) {
+        if (threat == null) return Long.MAX_VALUE;
         double dx = carrier.getX() - threat.getX(), dz = carrier.getZ() - threat.getZ();
         double distance = Math.hypot(dx, dz);
         var motion = threat.getDeltaMovement();
         double closing = distance < 1e-6 ? 0 : (motion.x * dx + motion.z * dz) / distance;
-        if (closing <= 0) return patience;
-        return Math.min(patience, (long) Math.max(0, (distance - IMMEDIATE_DANGER) / closing));
+        if (closing <= 1e-3) return Long.MAX_VALUE;
+        return (long) Math.max(0, (distance - IMMEDIATE_DANGER) / closing);
+    }
+
+    /** How long this parent keeps starting new children: bold and attached parents longer, never past the threat's arrival. */
+    private long flightPatience(int margin, LivingEntity threat) {
+        long cap = threat == null ? SHELTER_GATHER_TICKS : FLIGHT_MAX;
+        long patience = Math.min(cap, FLIGHT_BASE + (long) FLIGHT_PER_MARGIN * margin);
+        return Math.min(patience, closingTicks(threat));
     }
 
     /**
-     * True while this parent's flight is gathering and {@code child} is the one it is reaching for, or one it will still fetch within its
-     * patience: the child stands still for the lift ({@link #bracingForPickup}), so the stand does not move away and nobody runs off
-     * during a long brim lift. A child beyond hand's reach, or after the patience is spent, runs on its own.
+     * True while this parent's threat flight is gathering and {@code child} is the one it is reaching for, or one it will still fetch
+     * within its patience: the child stands still for the lift ({@link #bracingForPickup}), so the stand does not move away and nobody
+     * runs off during a long brim lift. Non-threat callers (rain, flood, relocation) do not pin children.
      */
     public boolean reachingInFlight(YukkuriEntity child) {
-        if (flightUntil == 0 || callUntil != 0) return false;
+        if (!flightThreat || flightUntil == 0 || callUntil != 0) return false;
         if (child.getUUID().equals(flightTarget)) return true;
         return carrier.level().getGameTime() < flightUntil && carrier.distanceToSqr(child) <= FLIGHT_GATHER_RANGE * FLIGHT_GATHER_RANGE
                 && capable(child) && !blocked(child) && !fetchedByOther(child);
     }
 
     /**
-     * Flight gathers one reachable young at a time at the urgent gait. Each child fetched gets its own travel allowance; the parent's
-     * patience only decides whether another child is started. A parent that leaves a child behind plays the look-back beat first.
+     * Flight gathers one reachable young at a time at the urgent gait (for threats) or ordinary approach (for shelter). Each child
+     * fetched gets its own travel allowance bounded by the threat's closing time; the parent's patience only decides whether another
+     * child is started. A parent that leaves a child behind in danger plays the look-back beat first.
      */
     public boolean tickFlight(LivingEntity threat) {
         if (flightUntil == 0) return false;
@@ -1624,6 +1636,7 @@ public final class ParentCarry {
         if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && carrier.hasPassenger(grab.target()))
             return true;
         if (tooClose(threat)) return leaveBehind(threat);
+        long closing = closingTicks(threat);
         if (flightTarget != null && now >= childUntil) return leaveBehind(threat);
         YukkuriEntity next = null;
         if (lifting != null && level.getEntity(lifting) instanceof YukkuriEntity child) next = child;
@@ -1636,11 +1649,13 @@ public final class ParentCarry {
                             .thenComparingDouble(carrier::distanceToSqr)).orElse(null));
         }
         if (next == null) return leaveBehind(threat);
+        double pace = BodyAbility.of(carrier).walkSpeed() * (flightThreat ? URGENT_GAIT : 1.1);
+        long travel = CarryGeometry.motionTicks(carrier.position().distanceTo(next.position()), pace);
+        if (lifting == null && closing < travel) return leaveBehind(threat);
         if (!next.getUUID().equals(flightTarget)) {
             if (now >= flightUntil) return leaveBehind(threat);
             flightTarget = next.getUUID();
-            double pace = BodyAbility.of(carrier).walkSpeed() * URGENT_GAIT;
-            childUntil = now + CarryGeometry.motionTicks(carrier.position().distanceTo(next.position()), pace) + GRAB_ALLOWANCE;
+            childUntil = now + travel + GRAB_ALLOWANCE;
             GameplayLog.event(carrier, "family", "carry flight reaching child={} distance={} until={}", next.getUUID(),
                     String.format(Locale.ROOT, "%.1f", carrier.distanceTo(next)), childUntil - now);
         }
@@ -1649,10 +1664,11 @@ public final class ParentCarry {
         return leaveBehind(threat);
     }
 
-    /** The gathering is over with young still on their own feet: the parent looks back and calls (longer the more attached), then flees. */
+    /** The gathering is over with young still on their own feet: in real danger the parent looks back and calls, then flees. */
     private boolean leaveBehind(LivingEntity threat) {
         cancelUnmountedGrab();
         flightTarget = null;
+        if (!flightThreat || threat == null) { endFlight(); return false; }
         var walkers = leftBehind();
         if (walkers.isEmpty()) { endFlight(); return false; }
         var personality = carrier.life().personality();
@@ -1660,7 +1676,7 @@ public final class ParentCarry {
         boolean calls = attachment >= CALLING_ATTACHMENT;
         String face = calls ? "teary" : "surprise", line = calls ? "protect_child_worry" : "protect_child_flee";
         var left = walkers.stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).get();
-        long hesitation = tooClose(threat) ? 0 : attachment / CALL_PER_ATTACHMENT;
+        long hesitation = tooClose(threat) ? 0 : CALL_BASE_TICKS + attachment / CALL_PER_ATTACHMENT;
         carrier.showReaction(face, line, CALL_FACE_TICKS);
         beatName = "abandon_look"; beatFace = face; beatLine = line;
         GameplayLog.event(carrier, "family", "carry flight leaves child={} left={} aboard={} attachment={} hold={} line={}",
@@ -1688,6 +1704,7 @@ public final class ParentCarry {
     public void endFlight() {
         if (flightUntil == 0) return;
         flightUntil = 0;
+        flightThreat = false;
         callUntil = 0;
         flightTarget = null;
         cancelUnmountedGrab();
@@ -1761,8 +1778,8 @@ public final class ParentCarry {
 
     /** Walk round to the stand beside the child; a stand the ground gives no way to ends the pickup instead of being asked again. */
     private Step approachStand(YukkuriEntity child, Vec3 stand) {
-        // In a flight the parent runs to the child: the running gait, not the ordinary approach.
-        SurfaceApproach.walkAround(carrier, stand, child, flightUntil != 0 ? URGENT_GAIT : 1.1);
+        // In a threat flight the parent runs to the child: the running gait, not the ordinary approach.
+        SurfaceApproach.walkAround(carrier, stand, child, flightUntil != 0 && flightThreat ? URGENT_GAIT : 1.1);
         if (SurfaceApproach.lastResult(carrier, stand) != SurfaceApproach.Result.BLOCKED) return Step.WORKING;
         GameplayLog.event(carrier, "family", "carry pickup stand blocked child={} stand={} why={}", child.getUUID(), GameplayLog.at(stand),
                 SurfaceApproach.why(carrier, stand));

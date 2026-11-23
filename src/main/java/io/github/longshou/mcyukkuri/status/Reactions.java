@@ -409,7 +409,7 @@ public final class Reactions {
             if (now >= noticeUntil && stage == Stage.NONE) { noticeUntil = now + 400; fright(danger, 60); }
         }
 
-        boolean wants() {
+        public boolean wants() {
             if (holdingStance()) return freeToReact(y) && !y.isPanicking();
             var s = source();
             if (s == null || !free(y) || s instanceof HumanNpc && y.isLeashed() || y.grief().protecting()
@@ -444,7 +444,10 @@ public final class Reactions {
         void end(int cooldown) {
             if (stage == Stage.STRUCK) response.clear();
             flight.forgetRoute();
-            y.family().carry().endFlight();
+            // A panic handoff to FleeGoal for the same pursuer continues the active gathering; FleeGoal.stop() closes it.
+            if (!y.isPanicking() || y.getLastHurtByMob() == null || y.shellRetracts() || y.grief().protecting()
+                    || y.isPassenger() || y.family().carry().shelteredFrom(y.getLastHurtByMob()))
+                y.family().carry().endFlight();
             if (!y.isPanicking() || !seal.committedTo(y.getLastHurtByMob())) seal.reset();
             if (stage != Stage.NONE) GameplayLog.limited(y, "threat", "end", 1200,
                     "response ended stage={} phaseTicks={} cooldown={}", stage, ticks, cooldown);
@@ -839,7 +842,7 @@ public final class Reactions {
             return y.life().temperature().cold() || y.mind().unease() >= bearable
                     || Sky.open(y.level(), y.blockPosition()) == Sky.STORM && personality.temperament().is(Gate.TIMID);
         }
-        boolean wants() {
+        public boolean wants() {
             if (stage != Stage.NONE) return true;
             long now = y.level().getGameTime();
             if (!free(y) || y.isPanicking()) return false;

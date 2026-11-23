@@ -270,7 +270,8 @@ final class YukkuriGoals {
             else SurfaceApproach.halt(owner);
         }
         @Override public void stop() {
-            owner.family().carry().endFlight();
+            // A handoff back to ThreatGoal for the same ongoing danger continues the active gathering; Threat.end() closes it.
+            if (!owner.status().reactions().threat().wants()) owner.family().carry().endFlight();
             owner.status().reactions().threat().seal().reset();
             owner.status().reactions().threat().flight().forgetRoute();
             owner.directNavigation().stop();

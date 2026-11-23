@@ -141,7 +141,9 @@ public final class FlightPlanner {
         if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
             return Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing()));
         var home = body.life().homeStand();
-        return home == null ? null : Vec3.atBottomCenterOf(home);
+        if (home == null) return null;
+        // A nest bed cell has no vanilla walk node; a carrier fleeing home routes to its supported doorway stand.
+        return body.family().carry().carrying() ? body.life().homeApproach(home) : Vec3.atBottomCenterOf(home);
     }
 
     boolean hasExit(LivingEntity danger) {
@@ -304,13 +306,14 @@ public final class FlightPlanner {
         checkedDanger = dangerAt;
         plannedAt = now;
         route = den == null ? refuge(danger) : null;
-        if (route == null || route.getTarget().equals(stalled)) route = fan(dangerAt, 9, heading, stalled, shielded);
+        boolean toRefuge = route != null && !route.getTarget().equals(stalled);
+        if (!toRefuge) route = fan(dangerAt, 9, heading, stalled, shielded);
         if (route == null && heading.dot(away) < .99) route = fan(dangerAt, 9, away, stalled, shielded);
         if (route == null || !SurfaceApproach.startRetreat(body, route, body.newbornStage() ? .8 : 1.2)) { noExit(dangerAt, den); return; }
         var end = Vec3.atBottomCenterOf(route.getTarget());
         heading = FlightCourse.awayUnit(end.x, end.z, body.getX(), body.getZ(), Math.toRadians(body.getYRot()));
         route = navigation.getPath();
-        GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={}", () -> new Object[]{
-                    BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body))});
+        GameplayLog.limited(body, "threat", "flight.away", 100, "flight away stand={} danger={} distance={} refuge={}", () -> new Object[]{
+                    BlockPos.containing(end), danger.getUUID(), Math.round(danger.distanceTo(body)), toRefuge});
     }
 }

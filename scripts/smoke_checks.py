@@ -1232,7 +1232,10 @@ def endings(records, samples, end, raw=''):
                         continue
                 chain = context.path(path, {'subject': actor})
                 out.extend(chain)
-                if path.get('autonomous_home') and all(r['verdict'] == 'pass' for r in chain):
+                if all(r['verdict'] == 'pass' for r in chain) and any(
+                        r.get('cat') == 'family' and r['msg'].startswith('carry pickup hold=')
+                        and re.search(r'\bchild=' + re.escape(actor) + r'\b', r['msg'])
+                        for r in context.events):
                     carried.add(actor)
         else:
             out.extend(context.path(path, {}))
