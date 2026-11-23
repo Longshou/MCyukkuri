@@ -50,7 +50,7 @@ public final class ReactionSpeech {
             case "badge_admire", "badge_glance", "badge_ask", "badge_pull_back" -> otherRank > 0 ? event : "";
             case "badge_proud", "badge_show_kind" -> ownRank > 0 ? event : "";
             case "badge_pity" -> otherIdentity != null && otherRank == 0 ? event : "";
-            case "badge_retort" -> otherIdentity != null && otherIdentity.free() ? event : "puff";
+            case "badge_retort", "badge_plaza_retort" -> otherIdentity != null && otherIdentity.free() ? event : "puff";
             case "badge_mock" -> otherIdentity != null && otherIdentity.companion() ? event : "";
             default -> event;
         };

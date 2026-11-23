@@ -183,7 +183,8 @@ public final class BadgeArcs {
         if (flags != 0) ledger.flag(subject.getUUID(), flags, now);
     }
 
-    private static String answerInterest(YukkuriEntity holder, YukkuriEntity peer, boolean envy) {
+    /** {@code snark}: the peer's envy was a sneer, so a holder sure of itself answers it with a firm retort, never an insult. */
+    private static String answerInterest(YukkuriEntity holder, YukkuriEntity peer, boolean envy, boolean snark) {
         var p = holder.life().personality();
         var bond = p.relation(peer.getUUID());
         double esteem = SocialDisposition.selfEsteem(holder);
@@ -201,7 +202,7 @@ public final class BadgeArcs {
             PetScenes.act(holder, envy ? "bow" : "greet", "happy", "badge_show_kind", 60, peer);
             reply = envy ? "comforted" : "kind";
         } else if (confidence * (1 - wariness) >= .55) {
-            PetScenes.act(holder, "proud", "smug", "badge_proud", 70, peer);
+            PetScenes.act(holder, "proud", "smug", snark ? "badge_plaza_retort" : "badge_proud", 70, peer);
             reply = "proud";
         } else {
             PetScenes.act(holder, "ignore", "closed_smile", null, 50, peer);
@@ -269,7 +270,7 @@ public final class BadgeArcs {
                 if (t >= 55) next(s);
             }
             case 3 -> {
-                if (t == 1) s.result = answerInterest(sub, o, false);
+                if (t == 1) s.result = answerInterest(sub, o, false, false);
                 if (t >= 70) { quiet(sub); quiet(o); next(s); }
             }
             case 4 -> {
@@ -316,7 +317,7 @@ public final class BadgeArcs {
             }
             case 1 -> {
                 if (t == 1) {
-                    s.result += "|" + answerInterest(sub, o, true);
+                    s.result += "|" + answerInterest(sub, o, true, s.result.startsWith("snark"));
                     if (s.result.startsWith("snark")) ownerScolds(level, o, sub);
                 }
                 if (t >= 70) { quiet(sub); next(s); }
@@ -357,7 +358,7 @@ public final class BadgeArcs {
                     s.result = s.result + "|" + reply;
                     switch (reply) {
                         case "admired" -> PetScenes.act(sub, sub.pet().isPet() ? "bow" : "beg", "open_smile", "badge_admire", 60, o);
-                        case "retorted" -> PetScenes.act(sub, "puff", "angry", "badge_retort", 60, o);
+                        case "retorted" -> PetScenes.act(sub, "puff", "angry", grade(sub) > 0 ? "badge_plaza_retort" : "badge_retort", 60, o);
                         default -> PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
                     }
                 }
@@ -393,7 +394,7 @@ public final class BadgeArcs {
                         s.result = "flee"; sub.mind().felt(EmotionEvent.FRIGHTENED);
                         PetScenes.act(sub, "tremble", "cry", "afraid", 60, o); Staging.sweat(sub);
                     } else if (SocialDisposition.insistence(p, esteem, wariness, bond) >= .2) {
-                        s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_retort", 60, o);
+                        s.result = "retort"; PetScenes.act(sub, "stand_ground", "angry", "badge_plaza_retort", 60, o);
                     } else {
                         s.result = "ignore"; PetScenes.act(sub, "ignore", "closed_smile", null, 50, o);
                     }

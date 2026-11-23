@@ -49,6 +49,8 @@ public final class RoamingGoal extends Goal {
     private int plazaPause;
     /** The stop is a stray's look from the ring outside the paving, not a pet's visit to a bench stand. */
     private boolean browsing;
+    /** What drew the stray to the ring was its envy (hungry and friendly), not its cockiness: it looks wistfully, it does not sneer. */
+    private boolean browsingEnvy;
     private boolean expedition, active, returning;
     private String result = "none";
     private Vec3 progressPosition;
@@ -308,6 +310,7 @@ public final class RoamingGoal extends Goal {
             if (!animal.life().reachableAndBack(pos)) continue;
             plaza = site;
             browsing = true;
+            browsingEnvy = envy >= cocky;
             plazaPause = TownMarkers.plazaPause(shy) + 160;
             return pos;
         }
@@ -426,6 +429,8 @@ public final class RoamingGoal extends Goal {
         // The stray gazes at the nearest valid badge for the whole pause, so the sighting rules see it facing the plaza.
         if (arrived && browsing) plaza.badged().stream().min(Comparator.comparingDouble(animal::distanceToSqr))
                 .ifPresent(wearer -> animal.pet().glanceAt(wearer, plazaPause));
+        // An envious look murmurs once on arrival; a cocky one stays quiet until the sighting rules let it sneer.
+        if (arrived && browsing && browsingEnvy) animal.speakCue("badge_plaza_gaze");
         GameplayLog.event(animal, "badge", "plaza {}{} stand={} grade={}", browsing ? "ring_" : "", arrived ? "arrived" : "left_route",
                 destination.toShortString(), animal.pet().humanRank());
         plaza = null; browsing = false;

@@ -458,11 +458,15 @@ final class HumanStreet {
     /** The owner resting on a plaza bench scolds the insulter from where it sits, then comforts its pet; the stray avoids the spot. */
     void scoldFromPlaza(YukkuriEntity pet, YukkuriEntity stray) {
         npc.getLookControl().setLookAt(stray, 30, 30);
-        gesture(npc, "warning");
+        gesture(npc, "plaza_scold");
         Expulsion.driveOff(stray, npc, stray.blockPosition());
         GameplayLog.event(npc, "npc-care", "action=pet_help pet={} target={} attitude={} distance={} where=plaza",
                 pet.getUUID(), stray.getUUID(), npc.attitude(), Math.round(npc.distanceTo(stray)));
         comfort(pet);
+        // The kindly words to the pet hang above the scold; a cruel owner only touches it.
+        if (npc.attitude() != HumanNpc.Attitude.CRUEL)
+            Staging.card((ServerLevel) npc.level(), npc.position().add(0, npc.getBbHeight() + .8, 0),
+                    Component.translatable("human.mcyukkuri.street.plaza_comfort"), 40, 1);
     }
 
     void stopHelp() { help = null; helpPath = null; }

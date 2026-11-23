@@ -84194,6 +84194,582 @@
       }
     ]
   },
+  "voice.original.badge_plaza_gaze.pretty.alice.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.alice.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.alice.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.alice.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.alice.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.alice.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.alice.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.alice.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.chen.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.chen.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.chen.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.chen.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.chen.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.chen.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.chen.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.chen.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.flandre.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.flandre.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.flandre.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.flandre.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.flandre.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.flandre.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.flandre.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.flandre.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.marisa.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.marisa.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.marisa.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.marisa.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.marisa.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.marisa.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.marisa.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.marisa.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.myon.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.myon.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.myon.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.myon.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.myon.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.myon.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.myon.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.myon.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.patchouli.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.patchouli.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.patchouli.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.patchouli.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.patchouli.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.patchouli.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.patchouli.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.patchouli.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.reimu.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.reimu.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.reimu.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.reimu.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.reimu.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.reimu.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.reimu.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.reimu.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.remilia.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.remilia.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.remilia.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.remilia.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.remilia.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.remilia.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_gaze.pretty.remilia.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_gaze.pretty",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_gaze.pretty.remilia.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.alice.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.alice.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.alice.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.alice.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.alice.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.alice.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.alice.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.alice.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.chen.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.chen.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.chen.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.chen.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.chen.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.chen.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.chen.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.chen.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.flandre.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.flandre.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.flandre.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.flandre.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.flandre.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.flandre.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.flandre.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.flandre.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.marisa.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.marisa.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.marisa.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.marisa.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.marisa.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.marisa.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.marisa.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.marisa.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.myon.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.myon.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.myon.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.myon.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.myon.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.myon.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.myon.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.myon.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.patchouli.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.patchouli.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.patchouli.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.patchouli.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.patchouli.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.patchouli.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.patchouli.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.patchouli.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.reimu.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.reimu.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.reimu.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.reimu.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.reimu.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.reimu.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.reimu.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.reimu.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.remilia.baby": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.remilia.baby",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.remilia.juvenile": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.remilia.juvenile",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.remilia.young": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.remilia.young",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.badge_plaza_retort.earned.remilia.adult": {
+    "subtitle": "dialogue.mcyukkuri.original.badge_plaza_retort.earned",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/badge_plaza_retort.earned.remilia.adult",
+        "attenuation_distance": 16
+      }
+    ]
+  },
   "voice.original.mold_sorrow_mate.sorry.alice.baby": {
     "subtitle": "dialogue.mcyukkuri.original.mold_sorrow_mate.sorry",
     "sounds": [
