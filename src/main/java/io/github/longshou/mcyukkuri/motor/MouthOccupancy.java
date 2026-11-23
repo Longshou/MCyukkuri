@@ -166,7 +166,7 @@ public final class MouthOccupancy {
     }
 
     public boolean acquireMeal(ItemStack stack) {
-        return acquireMeal(new Load(Purpose.MEAL, List.of(stack), BodyFood.Bite.EMPTY));
+        return acquireMeal(new Load(Purpose.MEAL, new ArrayList<>(List.of(stack)), BodyFood.Bite.EMPTY));
     }
 
     public boolean acquireMeal(BodyFood.Bite bite) {
@@ -183,7 +183,7 @@ public final class MouthOccupancy {
         if (before == null || before.purpose() != source || kitInMouth() || ParentCarry.mouthCarrying(owner)) return false;
         var stack = stack(source);
         if (items(source).size() != 1 || stack.getCount() != 1) return false;
-        return held.replace(before, new Load(Purpose.MEAL, List.of(stack), BodyFood.Bite.EMPTY));
+        return held.replace(before, new Load(Purpose.MEAL, new ArrayList<>(List.of(stack)), BodyFood.Bite.EMPTY));
     }
 
     public boolean releaseMeal(Predicate<ItemStack> item, Predicate<BodyFood.Bite> bite) {
@@ -199,7 +199,7 @@ public final class MouthOccupancy {
     public boolean splitKindnessFood(ItemStack piece, Predicate<ItemStack> accepted) {
         var before = load();
         return before != null && before.purpose() == Purpose.KINDNESS && accepted.test(piece.copy())
-                && held.replace(before, new Load(Purpose.KINDNESS, List.of(piece), BodyFood.Bite.EMPTY));
+                && held.replace(before, new Load(Purpose.KINDNESS, new ArrayList<>(List.of(piece)), BodyFood.Bite.EMPTY));
     }
 
     public boolean prepareKindnessFood() {
