@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 预览同步待看（试玩卡可点通过） | `.worktrees/wp-inbox-playtest` | `scripts/serve_review.py`、`scripts/review_verdicts.py`、`scripts/preview.py`、`preview/review/verdicts.js` |
 
 ## 玩法待办
 
