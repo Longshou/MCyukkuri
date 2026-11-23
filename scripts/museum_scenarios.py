@@ -9833,7 +9833,8 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visi
 
 
 def _ring_stray_fates(window):
-    """Each stray that reached the ring stands at the distance its own values give, and the non-shy ones then see the badge."""
+    """Each decision and arrival matches its own values: the shy marisa keeps far off, the others come close, and the two fed
+    cocky strays (no hunger pulling them away) stay long enough to see the badge. The hungry ones may leave for food at once."""
     x, z = BY_ID['town'].anchor
     holder = _uuid_text(_PLAZA, _RING_HOLDER)
 
@@ -9846,16 +9847,19 @@ def _ring_stray_fates(window):
     end = max(int(t) for t in re.findall(r'uuid=\S+ t=(\d+) ', window))
     for name, *_ in _RING_STRAYS:
         actor = _uuid_text(_RING, name)
+        # The decision logs the ring distance its values give: 1 + 5 * shyness * (1 - .4 * interest), plus a two-block band.
+        for line in re.finditer(rf'uuid={actor} t=\d+ [^\n]*plaza ring decision [^\n]* gap=([\d.]+) ', window):
+            if (name == 'ring_timid') != (float(line[1]) >= 3.9):
+                return f'{name} chose a ring gap of {float(line[1]):.1f}; only the shy marisa keeps 4 blocks or more'
         for line in re.finditer(rf'uuid={actor} t=(\d+) [^\n]*plaza ring_arrived stand=(-?\d+), \d+, (-?\d+)', window):
             arrived += 1
             gap = outside(int(line[2]), int(line[3]))
-            # Ring gaps are 1 + 5 * shyness * (1 - .4 * interest) plus a two-block band: the shy marisa (boldness 15) never gets under 4.
             if name == 'ring_timid' and gap < 3.9:
                 return f'{name} came to {gap:.1f} blocks of the paving; its shyness keeps it at 4 or more'
             if name != 'ring_timid' and gap > 3.8:
                 return f'{name} stopped {gap:.1f} blocks from the paving; its boldness keeps it within 3.8'
             # The sight scan runs every 2 seconds and needs 2 seconds of dwell; an arrival in the last 20 seconds is not judged.
-            if name != 'ring_timid' and end - int(line[1]) > 400 and not re.search(
+            if name in ('ring_cocky', 'ring_voided') and end - int(line[1]) > 400 and not re.search(
                     rf'uuid={actor} t=(\d+) [^\n]*badge sight subject={holder} ', window[line.start():]):
                 return f'{name} stood at the ring and never saw the badge'
     if not arrived:
@@ -9866,7 +9870,7 @@ def _ring_stray_fates(window):
 _ring_hold = [(tick, f'execute positioned ~3.5 ~ ~-0.5 unless entity {sel(_RING_HOLDER, 3)} run tp {sel(_RING_HOLDER)} ~ ~ ~')
               for tick in range(40, 3600, 80)]
 next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=_ring_hold, expect=[
-    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name, *_ in _RING_STRAYS],
+    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
 ], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza ring'])
 
 
