@@ -3623,9 +3623,9 @@ _RING_HOLDER = 'ring_holder'
 # is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and stops far off, and the cocky
 # ex-pet wearing a voided badge is a stray like any other.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -8, '饿而友善的流浪油', dict(nutrition=52, friendliness=90, boldness=60, self_control=70)),
+    ('ring_hungry', 'marisa', -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
     ('ring_cocky', 'reimu', -3, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -13, '胆小的流浪油', dict(nutrition=52, friendliness=80, boldness=15, self_control=70)),
+    ('ring_timid', 'marisa', -13, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
     ('ring_voided', 'reimu', 11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
