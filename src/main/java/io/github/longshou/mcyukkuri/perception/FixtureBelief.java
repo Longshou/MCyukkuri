@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import io.github.longshou.mcyukkuri.pet.PetRequests;
 import net.minecraft.core.BlockPos;
 
 /**
@@ -33,8 +34,16 @@ public final class FixtureBelief {
         var pos = care.getBlockPos();
         var need = need(care.kind());
         long now = body.level().getGameTime();
-        if (Senses.sees(body, pos, need)) looks.put(pos.immutable(), new Belief.Entry(now, stocked(care, body)));
-        return Belief.state(looks.get(pos), now, Belief.decay(Senses.urgency(body, need)));
+        long decay = Belief.decay(Senses.urgency(body, need));
+        if (Senses.sees(body, pos, need)) {
+            boolean stocked = stocked(care, body);
+            var before = Belief.state(looks.get(pos), now, decay);
+            looks.put(pos.immutable(), new Belief.Entry(now, stocked));
+            // Finding stocked what it did not know or thought empty, while it wants it: a beat about the supply itself.
+            if (stocked && before != Belief.State.FULL && Senses.felt(body, need))
+                body.pet().care().requests().found(need == Cue.Need.WATER ? PetRequests.Kind.WATER : PetRequests.Kind.FOOD);
+        }
+        return Belief.state(looks.get(pos), now, decay);
     }
 
     /** The body saw or heard the fixture being filled. */

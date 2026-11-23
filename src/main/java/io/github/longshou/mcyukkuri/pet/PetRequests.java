@@ -179,6 +179,7 @@ public final class PetRequests {
                 && NeedWarnings.insistence(personality.temperament()) >= .75;
         animal.showReaction(demand ? YukkuriAction.STAMP : YukkuriAction.BEG, demand ? "cheek_puff" : face,
                 event, 80); // the insulting demand line is for strays facing strangers; a pet asks its keeper
+        GameplayLog.event(animal,"request","beat=ask face={} line={} kind={}",demand ? "cheek_puff" : face,event,kind);
         dropCard();
         var at = markPos();
         card = switch (kind) {
@@ -219,6 +220,10 @@ public final class PetRequests {
             case WATER -> life.dryness() <= 25 || life.hasDrink(Knowledge.ACTUAL);
             default -> false;
         };
+    }
+    /** The body has just seen a fixture stocked that it did not know, or thought empty, for a need it feels. An open request of that kind closes through {@link #satisfied()}; with none open, only the beat. */
+    public void found(Kind kind) {
+        if (animal.pet().isPet() && pending != kind) pleased(kind, "discovered");
     }
     /** Another source answered the pending request of this kind (a sweet, a gentle word, ...). */
     public void answer(Kind kind) {

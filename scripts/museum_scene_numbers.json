@@ -321,6 +321,7 @@
     "resident_house_lint": "HS-06",
     "pet_water_away": "HS-07",
     "pet_food_walled": "HS-08",
+    "pet_food_empty": "HS-09",
     "shelter_cartons": "TN-63",
     "shelter_cartons_blocked": "TN-64",
     "counter_buy": "TN-65",

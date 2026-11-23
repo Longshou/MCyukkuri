@@ -25,13 +25,8 @@ public final class Sight {
         return Math.cos(Math.toRadians(half * (panicking ? PANIC_CONE : 1)));
     }
 
-    /** An event happening now: awake, within range and in front, or very near. */
+    /** Awake, within range and inside the view cone, or very near. The one sight rule: events and still things alike. */
     public static boolean inView(boolean awake, double distanceSq, double facingDot, double range, double coneCos) {
-        return inRange(awake, distanceSq, range) && (distanceSq <= NEAR * NEAR || facingDot >= coneCos);
-    }
-
-    /** A stationary thing polled over time: the body turns its head between polls, so only range counts. */
-    public static boolean inRange(boolean awake, double distanceSq, double range) {
-        return awake && distanceSq <= range * range;
+        return awake && distanceSq <= range * range && (distanceSq <= NEAR * NEAR || facingDot >= coneCos);
     }
 }

@@ -164,6 +164,8 @@ public final class YukkuriLife {
     private record FailedBoarding(BlockPos bed, Vec3 from, Vec3 stand, UUID blocker, boolean clearStep) {}
     private FailedBoarding failedBoarding;
     private int pursuitTicks, queueTicks, queueBudget, winterNeedCheckAt;
+    /** Approach budget of the current drink or food walk in ticks: a base plus what the straight distance needs at a walking pace. */
+    private int pursuitLimit = 240;
     private boolean useBowlNicely;
     private boolean warnedAtDish;
     private Choice foodChoice;
@@ -1184,7 +1186,8 @@ public final class YukkuriLife {
                 foodChoice = null;
                 permissionWait = 0;
                 foodRoute = targetFood == null ? null : groundFoodRoute(targetFood);
-                task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks(); return true;
+                task = Task.FOOD; pursuitTicks = queueTicks = 0; queueBudget = personality.waitingTicks();
+                budgetPursuit(targetFood != null ? targetFood.position() : Vec3.atCenterOf(targetBlock)); return true;
             }
             if (mayPress && glassFood == null) {
                 double range = foodNoticeRange();
@@ -1683,10 +1686,13 @@ public final class YukkuriLife {
         return refused == null || refused.distanceToSqr(source) >= .16;
     }
 
+    private void budgetPursuit(Vec3 target) { pursuitLimit = 240 + (int) Math.ceil(15 * Math.sqrt(entity.distanceToSqr(target))); }
+
     private void beginDrinkAt(BlockPos water) {
         targetBlock = water;
         task = Task.DRINK;
         drinkTicks = pursuitTicks = queueTicks = 0;
+        budgetPursuit(Vec3.atCenterOf(water));
         warnedAtDish = false;
         queueBudget = personality.waitingTicks();
         bowlStand = null;
@@ -1698,7 +1704,7 @@ public final class YukkuriLife {
         // An empty dish is only known once the body sees it; until then it keeps walking.
         if (source.empty() && Senses.sees(entity, targetBlock, Cue.Need.WATER)) { refuseEmptyDrink(); return; }
         var waterer = source.waterer();
-        if (pursuitTicks > 240) {
+        if (pursuitTicks > pursuitLimit) {
             if (waterer != null) refuseDishRoute("dish_pursuit_expired");
             else stopGoal();
             return;
@@ -2008,7 +2014,7 @@ public final class YukkuriLife {
 
     private void seekFood() {
         if (!canEat() || !EventHooks.canEntityGrief(level(), entity)) { stopGoal(); return; }
-        if (pursuitTicks > 240) {
+        if (pursuitTicks > pursuitLimit) {
             if (targetFood == null && targetBlock != null) refuseDishRoute("dish_pursuit_expired");
             else stopGoal();
             return;
@@ -2059,7 +2065,9 @@ public final class YukkuriLife {
                 approachFood(source, ItemContact.approach(entity, source), source);
             }
         } else if (targetBlock != null && !avoidsField(targetBlock)
-                && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
+                && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl
+                // An empty bowl is only known once the body sees it: until then it keeps walking there (as at a waterer).
+                && (bowl.hasFood(this::seeksFood) || !Senses.sees(entity, targetBlock, Cue.Need.FOOD))) {
             if (!entity.onGround()) { bowlBiteTicks = 0; return; }
             if (bowlBiteTicks == 0 && waitsAtSupply(SupplyGuard.BOWL)) return;
             if (bowlStand == null) {

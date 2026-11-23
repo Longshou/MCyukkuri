@@ -29,10 +29,13 @@ class PerceptionMathTest {
         assertFalse(Sight.inView(true, 2.6 * 2.6, -1, range, cos), "just beyond the near zone is not");
     }
 
-    @Test void polledThingsOnlyNeedRangeAndWakefulness() {
-        assertTrue(Sight.inRange(true, 100, 12));
-        assertFalse(Sight.inRange(true, 145, 12));
-        assertFalse(Sight.inRange(false, 1, 12));
+    @Test void aStillThingFacingAwayIsNotSeenButFacingItIs() {
+        // The same rule serves events and polled fixtures: back turned at 8 blocks sees nothing, front facing sees it.
+        double cos = Sight.coneCos(50, false);
+        assertFalse(Sight.inView(true, 64, -.8, 14, cos));
+        assertTrue(Sight.inView(true, 64, .9, 14, cos));
+        assertTrue(Sight.inView(true, 64, 0, 14, cos), "side on is inside a half angle of ninety degrees");
+        assertTrue(Sight.inView(true, 4, -.8, 14, cos), "within two blocks and a half it does not matter");
     }
 
     @Test void wallsHalveTheRadiusUpToThreeLayers() {
