@@ -11,6 +11,7 @@
 | 捕食种追击专用表情（表情「正在做的事」档） | `.worktrees/wp-face-activity` | client/PresentationArbiter、FacePrecedence、predator 行为 |
 | 虚弱个体不能蹦跳 | `.worktrees/wp-frail-gait` | body/BodyAbility、AbilityMath、步态与原地跳片段 |
 | 牵引绳不需特定装备 | `.worktrees/wp-leash-vanilla` | YukkuriInteractions、牵引装备物品与资源、相关场景 |
+| 网格面闪线检查与修复 | `.worktrees/wp-mesh-lint` | standards 道具制作脚本、scripts/check_prop_meshes.py、docs/roles/art.md |
 
 ## 玩法待办
 
