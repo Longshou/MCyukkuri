@@ -6753,7 +6753,6 @@ _carry_transport_forbid = [r'\[family\][^\n]* carry put down forced\b',
                            r'\[family\][^\n]* cause=carry_release_blocked\b',
                            r'\[family\][^\n]* carry put down [^\n]*cause=carry_fright\b']
 _walk_parent = uid(_walk_home, 'mother')
-_flight_parent = uid(_flight_home, 'mother')
 
 add(_walk_home, 'family', '天晚了，亲油抱赤油和小子油回窝', '天晚了，亲油抱赤油和小子油回窝',
     '魔理沙和两只赤油、一只刚长成的子油离窝几格。看亲油把赤油放回家窝，再把小子油送进旁边的子油窝。',
@@ -6777,21 +6776,56 @@ add(_walk_home, 'family', '天晚了，亲油抱赤油和小子油回窝', '天�
                                   r'[\s\S]*\[action\][^\n]*uuid=\1 [^\n]* end id=hop outcome=DONE [^\n]*legs=1 peak=(?!0\.00)'],
                forbid=_carry_transport_forbid))
 
-add(_flight_home, 'family', '捕食种靠近，亲油抱起赤油躲回窝', '捕食种靠近，亲油抱起赤油躲回窝',
-    '灵梦与两只赤油在窝外，附近有路过的蕾米莉亚。看亲油察觉威胁后就近接抱，随后退回窝边把孩子放到窝里。',
-    '几秒内接抱，约半分钟回窝', [*_carry_nest,
-        yk('reimu', 0, 8, 'mother', uuid=_flight_parent, yaw=180, lead=True, boldness=75, attachment=85),
-        *[yk('reimu', x, 7.5, name, stage='baby', uuid=uid(_flight_home, name),
-             kin=kin_of(Mother=_flight_parent), childhood=CHILDHOOD_HOPPING)
-          for x, name in [(-.45, 'baby_a'), (.65, 'baby_b')]],
-        yk('remilia', 0, 18, 'predator', uuid=uid(_flight_home, 'predator'), yaw=180,
-           label='路过的捕食种', nutrition=100, energy=100),
-        *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
-    env=DAY, spot='carry_home', vantage=(5, 12, 120, 20),
-    reads=[('读威胁反应与幼体承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
-    smoke=dict(ticks=1600, expect=[r'\[family\][^\n]*carry flight choice .*gather=true',
-                                  r'\[family\][^\n]*carry flight pickup ended aboard=[1-9]\d*\b'],
-               forbid=_carry_transport_forbid))
+_FLIGHT_FAM = {'reimu': None, 'marisa': 'Version:2,Initialized:1b,Stage:"ADULT",Age:672000L,Nourishment:672000L,Maturity:336000L,Lifespan:1056000L,AdultScale:1.2f,Scale:1.2f'}
+
+
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note=''):
+    """One household outside its nest, the predator ahead; the parent's own stats decide who is gathered. The observer stands
+    east of the nest line (x=13) looking west, so the nest, the family and the predator all lie in the view."""
+    parent = uid(sid, 'mother')
+    fam = _FLIGHT_FAM[kind]
+    add(sid, 'family', title, title, watch, wait, [*_carry_nest,
+            yk(kind, 0, 8, 'mother', uuid=parent, yaw=180, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
+            *[yk(kind, x, 7.5, name, stage='baby', uuid=uid(sid, name),
+                 kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
+              for x, name in [(-.45, 'baby_a'), (.65, 'baby_b')]],
+            yk('remilia', 0, 18, 'predator', uuid=uid(sid, 'predator'), yaw=180,
+               label='路过的捕食种', nutrition=100, energy=100),
+            *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
+        env=DAY, spot='carry_home', vantage=(13, 9, 90, 20), note=note,
+        reads=[('读威胁反应与幼体承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
+        smoke=dict(ticks=1600, expect=expect, forbid=_carry_transport_forbid))
+
+
+# A beat line pairs the face the presentation arbiter showed with the face the beat declared (they must be equal).
+_FLIGHT_BEAT = r'\[family\][^\n]* beat=%s face=(\w+) declared=\1 line=%s\b'
+_flight_timid = 'family_flight_timid'
+_flight_hat = 'family_flight_hat'
+_flight_scene(_flight_home, 'reimu', '捕食种靠近，亲油抱起赤油躲回窝',
+    '灵梦与两只赤油在窝外，附近有路过的蕾米莉亚。看亲油察觉威胁后跑向最近的赤油、张口含进嘴里，再不减速地跑向第二只，随后退回窝边把孩子放到窝里。',
+    '几秒内接抱，约半分钟回窝', 75, 85,
+    [r'\[family\][^\n]*carry flight choice .*gather=true',
+     r'\[family\][^\n]*carry pickup hold=mouth purpose=PROTECT\b',
+     r'\[family\][^\n]*carry flight pickup ended aboard=2 follow=\[\]',
+     r'\[family\][^\n]*carry set down started reason=reached_nest\b',
+     _FLIGHT_BEAT % ('pickup', 'none')],
+    note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：看跑向第二只时不减速、要抱的孩子站住等着；到窝边放下（reached_nest）。')
+_flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带走一只',
+    '灵梦与两只赤油在窝外，路过的蕾米莉亚靠近。亲油胆小又不太依恋（胆量与依恋 31），只来得及含起一只，就回头喊一声再逃，另一只自己跟着跑。',
+    '几秒内接抱，约半分钟回窝', 31, 31,
+    [r'\[family\][^\n]*carry flight choice .*gather=true',
+     r'\[family\][^\n]*carry flight leaves child=\S+ left=1 aboard=1 attachment=31\b',
+     r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
+     _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间按依恋算（31 约 6 tick）；留下的孩子自己跟着跑。')
+_flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
+    '魔理沙与两只赤油在窝外，路过的蕾米莉亚靠近。亲油用辫子把赤油托上帽檐，一只接一只，然后退回窝边放下。',
+    '几秒内接抱，约半分钟回窝', 75, 85,
+    [r'\[family\][^\n]*carry flight choice .*gather=true',
+     r'\[family\][^\n]*carry pickup hold=brim purpose=PROTECT\b',
+     r'\[family\][^\n]*carry flight pickup ended aboard=2 follow=\[\]',
+     _FLIGHT_BEAT % ('pickup', 'none')],
+    note='帽檐路线：辫子托上帽檐后同样不减速地跑向下一只，到窝边放下。')
 
 # ====================================================================================================== which concern each scenario answers
 # Fresh NPC UUID on every start: confirmed death records are intentionally never reset by scene cleanup.
@@ -8748,7 +8782,7 @@ TOPICS = {
     'kindness_adoption': 'F4',
     'home_pane': 'W7', 'home_open': 'W7',
     'balance_traits': 'N1', 'balance_relation': 'N1', 'balance_forms': 'N1', 'balance_deibu': 'N1',
-    'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4',
+    'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4', 'family_flight_timid': 'F4', 'family_flight_hat': 'F4',
     'choice_nest': 'D1', 'choice_food': 'D1', 'choice_tool': 'D1', 'choice_snatch': 'D1', 'choice_toilet': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
     'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
@@ -11909,13 +11943,15 @@ _scene_end(_walk_home, [(child, _ASHORE) for child in ('baby_a', 'baby_b', 'smal
                ('mother', r'seen:family:^carry pickup .*purpose=RETRIEVE child=$subject\b'),
                ('mother', r'seen:family:carry put down .*cause=release purpose=RETRIEVE child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
                post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')]))
-_scene_end(_flight_home, [(child, _DRY) for child in ('baby_a', 'baby_b')],
-           *[dict(each=child, autonomous_home=True, steps=[
-               ('mother', rf'seen:family:^carry pickup .*purpose=PROTECT child=$subject\b'),
-               ('mother', rf'seen:family:carry put down .*cause=release purpose=PROTECT child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
-               post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
-             for child in ('baby_a', 'baby_b')])
-next(s for s in S if s.id == _flight_home).smoke['end']['carried_min'] = 1
+# Everyone ends dry. A gathered child is carried to the nest and set down inside; a child the parent left behind walks there by itself.
+for _flight_id, _carried in ((_flight_home, 2), (_flight_hat, 2), (_flight_timid, 1)):
+    _scene_end(_flight_id, [(child, _DRY) for child in ('baby_a', 'baby_b')],
+               *[dict(each=child, autonomous_home=_carried < 2, steps=[
+                   ('mother', rf'seen:family:^carry pickup .*purpose=PROTECT child=$subject\b'),
+                   ('mother', rf'seen:family:carry put down .*cause=release purpose=PROTECT child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
+                   post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')])
+                 for child in ('baby_a', 'baby_b')])
+    next(s for s in S if s.id == _flight_id).smoke['end']['carried_min'] = _carried
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],
            [('hat_of:fast', 'seen:hat:capsized cause=impact .*count=1')],
            forbid=[('hat_of:a', 'seen:hat:capsized')])

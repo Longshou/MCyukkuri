@@ -340,6 +340,8 @@
     "street_corridor": "TN-70",
     "street_dead_end": "TN-71",
     "rule_eat_caught": "TN-72",
-    "rule_eat_struck": "TN-73"
+    "rule_eat_struck": "TN-73",
+    "family_flight_timid": "FM-28",
+    "family_flight_hat": "FM-29"
   }
 }

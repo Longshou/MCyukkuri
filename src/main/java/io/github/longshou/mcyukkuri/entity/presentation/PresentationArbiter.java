@@ -85,6 +85,7 @@ public final class PresentationArbiter {
         if (e.getNavigation() instanceof YukkuriGroundNavigation nav) nav.observeFace(shown);
         for (var beat = noted.poll(); beat != null; beat = noted.poll())
             GameplayLog.event(e, "choreo", "beat={} face={} line={} declared={}", beat.name(), shown, beat.line(), beat.face());
+        e.family().carry().observeFace(shown);
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();

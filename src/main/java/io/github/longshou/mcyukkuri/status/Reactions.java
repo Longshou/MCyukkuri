@@ -462,6 +462,8 @@ public final class Reactions {
             ticks++;
             var s = source();
             long now = y.level().getGameTime();
+            // A parent with a child aboard that no longer knows the danger does not wait in the open: the carry's own walk takes it home.
+            if (s == null && y.family().carry().carrying()) { end(0); return; }
             if (s != null) y.getLookControl().setLookAt(s, 30, 30);
             else if (seal.active()) seal.abort("danger_lost");
             if (s == null || s.distanceToSqr(y) > 576) { if (lostSince == 0) lostSince = now; } else lostSince = 0;

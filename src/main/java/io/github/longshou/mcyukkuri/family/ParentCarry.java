@@ -115,8 +115,19 @@ public final class ParentCarry {
     /** A retrieval takes the dependents this close before it leaves, for at most this many ticks of its walk (project design). */
     private static final double GATHER_RANGE = 8;
     private static final int GATHER_TICKS = 600;
-    /** One nearby gathering beat, long enough to approach and complete the brim lift while the threat is still distant. */
-    private static final int FLIGHT_GATHER_TICKS = 80;
+    /**
+     * Flight gathering (project design): the parent's patience to start another child is {@code FLIGHT_BASE + FLIGHT_PER_MARGIN * margin}
+     * ticks, margin = (boldness + attachment) / 2 - (30 + fear / 3), at most {@code FLIGHT_MAX} and never longer than the threat needs
+     * to cover the gap to {@link #IMMEDIATE_DANGER} at its real closing speed. A child already being fetched gets its own travel
+     * (distance at the urgent gait) plus {@code GRAB_ALLOWANCE} for the lift (mouth 14 ticks, brim and braid clips are the longer ones, measured under 60).
+     */
+    private static final int FLIGHT_BASE = 10, FLIGHT_PER_MARGIN = 3, FLIGHT_MAX = 160, GRAB_ALLOWANCE = 60;
+    /** Walk request of a parent running for a child in danger: at or above {@code Gait.FAST_REQUEST} (1.15), the running gait. */
+    private static final double URGENT_GAIT = 1.2;
+    /** A parent who leaves a child behind stops to look back for attachment / {@code CALL_PER_ATTACHMENT} ticks (85 -> 17 ticks). */
+    private static final int CALL_PER_ATTACHMENT = 5, CALL_FACE_TICKS = 40;
+    /** An attached parent (50 or more) calls to the child; a loosely attached one only cries out in fear. */
+    private static final int CALLING_ATTACHMENT = 50;
     private static final double FLIGHT_GATHER_RANGE = 2.5, IMMEDIATE_DANGER = 4;
     /** Reimu lets a baby out of her mouth by this clip: it opens, the baby leaves by {@code release} and the lips shut by {@code closed}. */
     public static final String MOUTH_RELEASE = "mouth_release";
@@ -183,7 +194,12 @@ public final class ParentCarry {
     /** The dependent this retrieval goes for next, recomputed every tick while it still has holds for one (no reservation: the
      *  child's own wait for a carrying parent reads it, {@link #awaitsCarrier}). */
     private UUID gathering;
-    private long flightUntil, flightRetryAt;
+    /** Flight gathering: no new child is started after {@code flightUntil}; the child being fetched ({@code flightTarget}) has until
+     *  {@code childUntil}; {@code callUntil} is the end of the look-back beat of a parent leaving a child behind (0 = no beat). */
+    private long flightUntil, flightRetryAt, childUntil, callUntil;
+    private UUID flightTarget;
+    /** The last shown beat waiting for the face the presentation arbiter publishes (log only). */
+    private String beatName, beatFace, beatLine;
     private Release settingDown;
     /** The last set-down of one of her children that failed, whoever ran it; an ended intent's handoff inherits it. */
     private Release failedRelease;
@@ -1247,9 +1263,12 @@ public final class ParentCarry {
         if (!(child.level() instanceof ServerLevel level) || child.family().adult() || !FamilyLife.ordinaryLandFree(child)
                 || child.isOnFire() || child.hurtTime > 0) return false;
         for (var id : child.family().caregiverIds())
-            if (id != null && level.getEntity(id) instanceof YukkuriEntity parent
-                    && parent.motor().current() instanceof Grab grab && grab.target() == child
-                    && (!child.isPanicking() || parent.family().carry().protectiveGrip(child))) return true;
+            if (id != null && level.getEntity(id) instanceof YukkuriEntity parent) {
+                var carry = parent.family().carry();
+                boolean reaching = parent.motor().current() instanceof Grab grab && grab.target() == child;
+                // A parent running for this child in a flight is reaching for it from the first step: the stand must not move away.
+                if (reaching && (!child.isPanicking() || carry.protectiveGrip(child)) || carry.reachingInFlight(child)) return true;
+            }
         return false;
     }
 
@@ -1554,57 +1573,149 @@ public final class ParentCarry {
             purpose = Purpose.PROTECT;
         long now = carrier.level().getGameTime();
         if (now < flightRetryAt || flightYoung().isEmpty()) return;
-        flightRetryAt = now + FLIGHT_GATHER_TICKS + HOLD_TICKS;
         var personality = carrier.life().personality();
         int resolve = (personality.boldness() + personality.attachment()) / 2;
         int fear = threat == null ? 0 : personality.fear(threat.getUUID());
-        boolean gather = resolve >= 30 + fear / 3 && !tooClose(threat);
-        GameplayLog.event(carrier, "family", "carry flight choice cause={} gather={} resolve={} fear={}", cause, gather, resolve, fear);
-        flightUntil = gather ? now + FLIGHT_GATHER_TICKS : now;
+        int margin = resolve - (30 + fear / 3);
+        boolean gather = margin >= 0 && !tooClose(threat);
+        long patience = gather ? flightPatience(margin, threat) : 0;
+        flightRetryAt = now + FLIGHT_MAX + GRAB_ALLOWANCE + HOLD_TICKS;
+        GameplayLog.event(carrier, "family", "carry flight choice cause={} gather={} resolve={} fear={} margin={} patience={}",
+                cause, gather, resolve, fear, margin, patience);
+        flightUntil = now + patience;
+        childUntil = 0;
+        callUntil = 0;
+        flightTarget = null;
     }
 
-    /** Flight can wait for one reachable young at a time, within the original decision's window. */
+    /** How long this parent keeps starting new children: bold and attached parents longer, never past the threat's arrival. */
+    private long flightPatience(int margin, LivingEntity threat) {
+        long patience = Math.min(FLIGHT_MAX, FLIGHT_BASE + (long) FLIGHT_PER_MARGIN * margin);
+        if (threat == null) return patience;
+        double dx = carrier.getX() - threat.getX(), dz = carrier.getZ() - threat.getZ();
+        double distance = Math.hypot(dx, dz);
+        var motion = threat.getDeltaMovement();
+        double closing = distance < 1e-6 ? 0 : (motion.x * dx + motion.z * dz) / distance;
+        if (closing <= 0) return patience;
+        return Math.min(patience, (long) Math.max(0, (distance - IMMEDIATE_DANGER) / closing));
+    }
+
+    /**
+     * True while this parent's flight is gathering and {@code child} is the one it is reaching for, or one it will still fetch within its
+     * patience: the child stands still for the lift ({@link #bracingForPickup}), so the stand does not move away and nobody runs off
+     * during a long brim lift. A child beyond hand's reach, or after the patience is spent, runs on its own.
+     */
+    public boolean reachingInFlight(YukkuriEntity child) {
+        if (flightUntil == 0 || callUntil != 0) return false;
+        if (child.getUUID().equals(flightTarget)) return true;
+        return carrier.level().getGameTime() < flightUntil && carrier.distanceToSqr(child) <= FLIGHT_GATHER_RANGE * FLIGHT_GATHER_RANGE
+                && capable(child) && !blocked(child) && !fetchedByOther(child);
+    }
+
+    /**
+     * Flight gathers one reachable young at a time at the urgent gait. Each child fetched gets its own travel allowance; the parent's
+     * patience only decides whether another child is started. A parent that leaves a child behind plays the look-back beat first.
+     */
     public boolean tickFlight(LivingEntity threat) {
         if (flightUntil == 0) return false;
+        if (callUntil != 0) return tickLookBack(threat);
+        var level = (ServerLevel) carrier.level();
+        long now = level.getGameTime();
         if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && carrier.hasPassenger(grab.target()))
             return true;
-        if (carrier.level().getGameTime() >= flightUntil || tooClose(threat)) {
-            endFlight();
-            return false;
+        if (tooClose(threat)) return leaveBehind(threat);
+        if (flightTarget != null && now >= childUntil) return leaveBehind(threat);
+        YukkuriEntity next = null;
+        if (lifting != null && level.getEntity(lifting) instanceof YukkuriEntity child) next = child;
+        else {
+            var fetchable = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child)).toList();
+            // The child being fetched stays the one until it is aboard or given up: the order of the others does not flip the target.
+            next = fetchable.stream().filter(child -> child.getUUID().equals(flightTarget)).findFirst()
+                    .orElseGet(() -> fetchable.stream().min(Comparator.<YukkuriEntity>comparingDouble(ParentCarry::volume)
+                            .thenComparingDouble(child -> BodyAbility.of(child).walkSpeed())
+                            .thenComparingDouble(carrier::distanceToSqr)).orElse(null));
         }
-        if (lifting != null && ((ServerLevel) carrier.level()).getEntity(lifting) instanceof YukkuriEntity child) {
-            if (tickPickup(child, Purpose.PROTECT) == Step.WORKING) return true;
+        if (next == null) return leaveBehind(threat);
+        if (!next.getUUID().equals(flightTarget)) {
+            if (now >= flightUntil) return leaveBehind(threat);
+            flightTarget = next.getUUID();
+            double pace = BodyAbility.of(carrier).walkSpeed() * URGENT_GAIT;
+            childUntil = now + CarryGeometry.motionTicks(carrier.position().distanceTo(next.position()), pace) + GRAB_ALLOWANCE;
+            GameplayLog.event(carrier, "family", "carry flight reaching child={} distance={} until={}", next.getUUID(),
+                    String.format(Locale.ROOT, "%.1f", carrier.distanceTo(next)), childUntil - now);
         }
-        var next = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child))
-                .min(Comparator.<YukkuriEntity>comparingDouble(ParentCarry::volume)
-                        .thenComparingDouble(child -> BodyAbility.of(child).walkSpeed())
-                        .thenComparingDouble(carrier::distanceToSqr)).orElse(null);
-        if (next != null && tickPickup(next, Purpose.PROTECT) == Step.WORKING) return true;
-        endFlight();
-        return false;
+        if (tickPickup(next, Purpose.PROTECT) == Step.WORKING) return true;
+        flightTarget = null;
+        return leaveBehind(threat);
+    }
+
+    /** The gathering is over with young still on their own feet: the parent looks back and calls (longer the more attached), then flees. */
+    private boolean leaveBehind(LivingEntity threat) {
+        cancelUnmountedGrab();
+        flightTarget = null;
+        var walkers = leftBehind();
+        if (walkers.isEmpty()) { endFlight(); return false; }
+        var personality = carrier.life().personality();
+        int attachment = personality.attachment();
+        boolean calls = attachment >= CALLING_ATTACHMENT;
+        String face = calls ? "teary" : "surprise", line = calls ? "protect_child_worry" : "protect_child_flee";
+        var left = walkers.stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).get();
+        long hesitation = tooClose(threat) ? 0 : attachment / CALL_PER_ATTACHMENT;
+        carrier.showReaction(face, line, CALL_FACE_TICKS);
+        beatName = "abandon_look"; beatFace = face; beatLine = line;
+        GameplayLog.event(carrier, "family", "carry flight leaves child={} left={} aboard={} attachment={} hold={} line={}",
+                left.getUUID(), walkers.size(), ours().size(), attachment, hesitation, line);
+        if (hesitation == 0) { endFlight(); return false; }
+        callUntil = carrier.level().getGameTime() + hesitation;
+        return tickLookBack(threat);
+    }
+
+    private boolean tickLookBack(LivingEntity threat) {
+        var walkers = leftBehind();
+        if (carrier.level().getGameTime() >= callUntil || walkers.isEmpty() || tooClose(threat)) { endFlight(); return false; }
+        SurfaceApproach.halt(carrier);
+        carrier.getLookControl().setLookAt(walkers.get(0), 30, 30);
+        return true;
+    }
+
+    private void cancelUnmountedGrab() {
+        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && !carrier.hasPassenger(grab.target())) {
+            carrier.motor().cancel(owner, "flight_departing");
+            lifting = null;
+        }
     }
 
     public void endFlight() {
         if (flightUntil == 0) return;
         flightUntil = 0;
-        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && !carrier.hasPassenger(grab.target())) {
-            carrier.motor().cancel(owner, "flight_departing");
-            lifting = null;
-        }
-        var walkers = flightYoung();
-        if (!walkers.isEmpty()) carrier.speak("afraid");
+        callUntil = 0;
+        flightTarget = null;
+        cancelUnmountedGrab();
         GameplayLog.event(carrier, "family", "carry flight pickup ended aboard={} follow={}", ours().size(),
-                walkers.stream().map(Entity::getUUID).toList());
+                leftBehind().stream().map(Entity::getUUID).toList());
+    }
+
+    /** Presentation hook: logs the face actually shown for the last flight beat (declared and shown side by side). */
+    public void observeFace(String shown) {
+        if (beatName == null) return;
+        GameplayLog.event(carrier, "family", "beat={} face={} declared={} line={}", beatName, shown, beatFace, beatLine);
+        beatName = null;
     }
 
     private boolean tooClose(LivingEntity threat) {
         return threat != null && carrier.distanceToSqr(threat) < IMMEDIATE_DANGER * IMMEDIATE_DANGER;
     }
 
-    private List<YukkuriEntity> flightYoung() {
-        return carrier.level().getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(FLIGHT_GATHER_RANGE),
+    /** Young at hand to be gathered. */
+    private List<YukkuriEntity> flightYoung() { return youngWithin(FLIGHT_GATHER_RANGE); }
+
+    /** Young the parent still sees on their own feet when it leaves (the look-back and the follow call reach farther than a lift). */
+    private List<YukkuriEntity> leftBehind() { return youngWithin(GATHER_RANGE); }
+
+    private List<YukkuriEntity> youngWithin(double range) {
+        return carrier.level().getEntitiesOfClass(YukkuriEntity.class, carrier.getBoundingBox().inflate(range),
                 child -> dependentYoung(child) && FamilyLife.ordinaryLandFree(child) && carrier.family().careParentOf(child)
-                        && carrier.distanceToSqr(child) <= FLIGHT_GATHER_RANGE * FLIGHT_GATHER_RANGE
+                        && carrier.distanceToSqr(child) <= range * range
                         && !FamilyNest.atAssignedNest(child) && carrier.life().canRecognize(child));
     }
 
@@ -1650,7 +1761,8 @@ public final class ParentCarry {
 
     /** Walk round to the stand beside the child; a stand the ground gives no way to ends the pickup instead of being asked again. */
     private Step approachStand(YukkuriEntity child, Vec3 stand) {
-        SurfaceApproach.walkAround(carrier, stand, child, 1.1);
+        // In a flight the parent runs to the child: the running gait, not the ordinary approach.
+        SurfaceApproach.walkAround(carrier, stand, child, flightUntil != 0 ? URGENT_GAIT : 1.1);
         if (SurfaceApproach.lastResult(carrier, stand) != SurfaceApproach.Result.BLOCKED) return Step.WORKING;
         GameplayLog.event(carrier, "family", "carry pickup stand blocked child={} stand={} why={}", child.getUUID(), GameplayLog.at(stand),
                 SurfaceApproach.why(carrier, stand));
@@ -1689,7 +1801,10 @@ public final class ParentCarry {
         boolean strained = load(carrier, child, hold, true) >= STRAIN_LOAD;
         // Only an ordinary lift is glad: a flight with the young is no time for "so happy", and effort is not a refusal.
         boolean fleeing = purpose == Purpose.PROTECT;
-        carrier.showReaction(strained ? "tired" : fleeing ? "surprise" : "happy", strained || fleeing ? "" : "gentle", 40);
+        String face = strained ? "tired" : fleeing ? "surprise" : "happy";
+        carrier.showReaction(face, strained || fleeing ? "" : "gentle", 40);
+        if (fleeing) { beatName = "pickup"; beatFace = face; beatLine = "none"; }
+        if (child.getUUID().equals(flightTarget)) flightTarget = null;
         if (strained) GameplayLog.event(carrier, "family", "carry strain hold={} child={} load={}", hold.key(),
                 child.getUUID(), load(carrier, child, hold, true));
     }
@@ -1780,7 +1895,7 @@ public final class ParentCarry {
         if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
         if (purpose == Purpose.RETRIEVE && failedDestination(child)) return "home_unreachable";
         if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
-                : carrier.status().reactions().threat().source())) return "arrived_home";
+                : carrier.status().reactions().threat().source())) return "reached_nest";
         if (purpose == Purpose.NEST_RIM) return "nest_rim_to_cushion";
         return null;
     }

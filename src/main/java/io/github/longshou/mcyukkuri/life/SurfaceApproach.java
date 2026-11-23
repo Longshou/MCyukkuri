@@ -1166,6 +1166,8 @@ public final class SurfaceApproach {
         // Ground travel multiplies forward input by speed again; keep the last few centimetres from slowing quadratically.
         double movement=actor.getAttributeValue(Attributes.MOVEMENT_SPEED);
         double modifier=Math.sqrt(Math.min(.02,remaining*.20))/Math.max(.0001,movement);
+        // A running request (a parent racing to a child in danger) does not dock slowly: it keeps its gait until the last half block.
+        if(Gait.fast(speed)&&remaining>.5)modifier=speed;
         actor.getMoveControl().setWantedPosition(aim.x,aim.y,aim.z,Math.min(speed,modifier));
         return true;
     }
