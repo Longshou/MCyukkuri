@@ -361,7 +361,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      * What this body is doing right now, as a face ("" when no activity declares one). A behavior opts in by exposing an
      * activityFace() here; the arbiter shows it above the weakness faces and below dying, leak, pain and the emotion course.
      */
-    public String activityFace() { return predator.activityFace(); }
+    public String activityFace() {
+        String face = predator.activityFace();
+        return face.isEmpty() ? playLife.activityFace() : face;
+    }
     public boolean predatorFlying() { return sync().predatorFlying(); }
     public void setPredatorFlying(boolean flying) {
         if (level().isClientSide || variant == null || !SpeciesProfile.of(variant).dangerToYukkuri() || predatorFlying() == flying) return;

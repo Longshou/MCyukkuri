@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 
-/** The ordinary hop starts a session. Thereafter the mat reflects each actual landing. */
+/** The ordinary hop starts a session. Passive landings decay; a playing body pushes off on each contact. */
 public final class TrampolineMotion {
     private TrampolineMotion() {}
 
@@ -32,6 +32,24 @@ public final class TrampolineMotion {
         if (playing) GameplayLog.event(body, "play", "trampoline rebound weight={} fitness={} energy={} young={} impact={} speed={} height={}",
                 weight, fitness, body.life().energy(), body.isBaby(), impact, body.getDeltaMovement().y,
                 TrampolineSpring.livingHeight(body.getDeltaMovement().y));
+        return true;
+    }
+
+    /** Active rebound for a playing yukkuri: re-adds energy up to its own hop ability toward its stat-driven apex. */
+    public static boolean activeRebound(YukkuriEntity body, double impact, int bounceIndex) {
+        double weight = body.getBbWidth() * (double) body.getBbWidth() * body.getBbHeight();
+        double fitness = BodyAbility.fitness(body);
+        double restitution = TrampolineSpring.restitution(weight, fitness, body.isBaby());
+        double hopHeight = BodyAbility.of(body).hopHeight();
+        double hopSpeed = ArcSolver.vyFor(hopHeight);
+        double boldness = body.life().personality().boldness() / 100.0;
+        double targetApex = TrampolineSpring.targetApex(hopHeight, restitution, boldness, bounceIndex);
+        double targetSpeed = TrampolineSpring.reboundForHeight(targetApex);
+        double speed = TrampolineSpring.activeRebound(impact, restitution, body.getGravity(), hopSpeed, targetSpeed);
+        if (speed == 0) return false;
+        Motor.velocity(body, new Vec3(0, speed, 0), "trampoline_rebound");
+        GameplayLog.event(body, "play", "trampoline rebound weight={} fitness={} energy={} young={} impact={} speed={} height={}",
+                weight, fitness, body.life().energy(), body.isBaby(), impact, speed, TrampolineSpring.livingHeight(speed));
         return true;
     }
 

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
@@ -90,17 +91,22 @@ public final class PetOuting extends Goal {
         return pet.distanceToSqr(facility.getBlockPos().getCenter()) <= 64;
     }
 
+    public boolean calledByOwner() {
+        var resident = escort();
+        return resident == null || resident.callingPet(pet) || wantsPicnic(resident);
+    }
+
     public boolean tryParkPlay() {
         var resident = escort();
         var facility = resident == null ? null : resident.parkFacility();
         if (facility == null || onEscortLead() || tired() || !wantsParkPlay() || wantsPicnic(resident)
                 || !nearFacility(facility)) return false;
+        var play = pet.playLife();
         if (facility.occupiedByOther(pet)) {
             GameplayLog.limited(pet, "pet", "park_occupied", 600, "outing play waiting kind={} at={}",
                     facility.kind(), facility.getBlockPos());
-            return false;
+            return facility.kind() == PlayBlock.Kind.TRAMPOLINE && play.beginWait(facility);
         }
-        var play = pet.playLife();
         if (play.begin(facility)) return true;
         playAvailable = false;
         GameplayLog.event(pet, "pet", "outing play refused reason={} kind={} at={}",
@@ -115,8 +121,8 @@ public final class PetOuting extends Goal {
     public void finishedParkPlay() { playAvailable = false; }
 
     public boolean doneAtPark() {
-        return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active() && !tired()
-                && !wantsParkPlay();
+        return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active()
+                && !pet.playLife().waiting() && !tired() && !wantsParkPlay();
     }
 
     public boolean wants(HumanNpc resident) {
@@ -160,7 +166,8 @@ public final class PetOuting extends Goal {
     private boolean free() {
         return home != null && freeOfOtherLead() && !pet.isPassenger() && !pet.isPanicking()
                 && !pet.operations().active() && !pet.isCommandPlaying() && !pet.pet().busy()
-                && !pet.life().isSleeping() && pet.life().mealTicks() == 0 && !pet.playLife().active();
+                && !pet.life().isSleeping() && pet.life().mealTicks() == 0 && !pet.playLife().active()
+                && !pet.playLife().waiting();
     }
 
     @Override public boolean canUse() {

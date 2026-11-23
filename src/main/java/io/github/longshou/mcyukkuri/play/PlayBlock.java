@@ -110,8 +110,15 @@ public final class PlayBlock extends Block implements EntityBlock {
                 && !(entity instanceof ServerPlayer)) {
             boolean rebounded;
             if (entity instanceof YukkuriEntity body) {
-                boolean playing = body.playLife().springingAt(root(pos, state));
-                rebounded = TrampolineMotion.rebound(body, impact, playing);
+                var root = root(pos, state);
+                if (body.playLife().stoppingAt(root)) {
+                    super.updateEntityAfterFallOn(level, entity);
+                    return;
+                }
+                boolean playing = body.playLife().springingAt(root);
+                rebounded = playing
+                        ? TrampolineMotion.activeRebound(body, impact, body.playLife().bounces())
+                        : TrampolineMotion.rebound(body, impact, false);
                 if (rebounded && playing) body.playLife().trampolineBounced();
             } else rebounded = TrampolineMotion.rebound(entity, impact);
             if (rebounded) {

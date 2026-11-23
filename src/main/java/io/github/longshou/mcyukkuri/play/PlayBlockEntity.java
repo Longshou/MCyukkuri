@@ -56,6 +56,9 @@ public final class PlayBlockEntity extends BlockEntity {
     @Override public void onDataPacket(Connection connection,ClientboundBlockEntityDataPacket packet,HolderLookup.Provider registries){
         handleUpdateTag(packet.getTag(),registries);
     }
+    public UUID occupant(){
+        return player!=null&&level!=null&&leaseUntil>=level.getGameTime()?player:null;
+    }
     public boolean occupiedByOther(YukkuriEntity e){
         return player!=null&&!player.equals(e.getUUID())&&leaseUntil>=level.getGameTime();
     }

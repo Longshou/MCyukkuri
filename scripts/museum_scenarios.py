@@ -10227,29 +10227,53 @@ next(s for s in S if s.id == 'park_walk').smoke.update(verify=_outing_crossings,
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_HOME_LEADS_OFF'),
 ])
 def _park_play_pet_fates(window):
-    """Both pets rebound; before returning each finishes playing or rests and wakes."""
+    """Both pets sustain real trampoline bounces by stat; beats match shown face and one waits its turn."""
     at_stand = re.search(r'action=outing_park_wait stand=(\([^\n]+\))', window)
     left = re.search(r'action=outing_park_leave stand=(\([^\n]+\)) gap=([\d.]+)', window)
     if not at_stand or not left or at_stand[1] != left[1] or float(left[2]) >= .5:
         return 'the keeper did not finish waiting at her park stand'
-    first = []
+    stats = []
+    waited = False
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('park_play', name)
         played = re.search(rf'uuid={actor} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b', window)
-        rest = re.search(rf'uuid={actor} [^\n]*outing rest begin ', window)
-        woke = re.search(rf'uuid={actor} [^\n]*end source=life cause=rested ', window)
-        if not (played or (rest and woke and rest.start() < woke.start())):
-            return f'{name} neither finished a trampoline session nor rested and woke'
-        if not at_stand.end() < (played or woke).start() < left.start():
+        if not played:
+            return f'{name} did not finish a trampoline session'
+        if not at_stand.end() < played.start() < left.start():
             return f'{name} finished outside the keeper’s wait at the park stand'
-        bounce = re.search(rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
-                           r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)
-        if not bounce:
+        rebounds = [tuple(map(float, m.groups())) for m in re.finditer(
+            rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
+            r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)]
+        if not rebounds:
             return f'{name} had no measured trampoline rebound'
-        first.append(tuple(map(float, bounce.groups())))
-    heavy, light = first
-    if not (heavy[0] > light[0] and heavy[1] < light[1] and 0 < heavy[2] < light[2]):
-        return f'park rebound height did not follow weight and energy: {first}'
+        beats = re.findall(rf'uuid={actor} [^\n]*trampoline beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+        if not beats:
+            return f'{name} logged no trampoline beats'
+        for beat, shown, declared, _ in beats:
+            if shown != declared:
+                return f'{name} beat {beat} showed face={shown} instead of declared={declared}'
+        beat_names = {b[0] for b in beats}
+        for req in ('mount', 'bounce', 'peak', 'dismount'):
+            if req not in beat_names:
+                return f'{name} missed trampoline beat {req} (saw {sorted(beat_names)})'
+        if not any(b[0] == 'peak' and b[3] == 'glow' for b in beats):
+            return f'{name} peak beat did not voice glow'
+        if not any(b[0].startswith('stop_') for b in beats):
+            return f'{name} missed a need-driven stop beat'
+        if 'wait_watch' in beat_names:
+            waited = True
+        stats.append((rebounds[0][0], rebounds[0][1], [r[2] for r in rebounds]))
+    heavy, light = stats
+    heavy_real = [h for h in heavy[2] if h >= .20]
+    light_real = [h for h in light[2] if h >= .45]
+    if len(light_real) < 8:
+        return f'light bold pet did not sustain bounces (need >=8 at >=0.45b, got {len(light_real)}: {light[2]})'
+    if len(heavy_real) < 3:
+        return f'heavy timid pet did not sustain bounces (need >=3 at >=0.20b, got {len(heavy_real)}: {heavy[2]})'
+    if not (heavy[0] > light[0] and heavy[1] < light[1] and max(heavy[2]) < max(light[2]) and len(heavy[2]) < len(light[2])):
+        return f'park rebounds did not follow weight, energy and boldness: heavy={heavy} light={light}'
+    if not waited:
+        return 'neither pet waited beside the trampoline watching the bouncer'
     return None
 
 

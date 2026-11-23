@@ -5,14 +5,17 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,10 +26,16 @@ import net.minecraft.world.phys.Vec3;
 public final class PlayLife {
     /** Where a finished pet stands clear of the exit lane: a body width (.8) plus margin beside it and half a body past it, in facility-local blocks. */
     private static final double ASIDE_X=1.1,ASIDE_Z=.6;
+    /** Side stands beside the trampoline mat for a waiter, clear of both the north entry and south exit lanes. */
+    private static final double WAIT_SIDE_X=2.1;
+    private static final double[] WAIT_OFFSETS_Z={0,-.8,.8};
+    private record Beat(String name,String declared,String line) {}
     private final YukkuriEntity entity;
-    private PlayBlockEntity facility;
+    private PlayBlockEntity facility,waitingFor;
     private List<Vec3> route=List.of();
-    private int cooldown,scanWait,elapsed,waypoint,bounces,stalled,bounceLimit;
+    private Vec3 waitStand;
+    private int cooldown,scanWait,elapsed,waypoint,bounces,stalled;
+    private int waitTicks,waitLimit,waitCooldown,waitElapsed,lastWaitElapsed;
     /** A tub session: the route index of the seat (-1 elsewhere), the ticks soaked there and the state at the start of the soak. */
     private int soakAt=-1,soakTicks;
     private float soakHealth,soakUnease;
@@ -35,14 +44,29 @@ public final class PlayLife {
     private boolean soakHurt;
     private HouseRule soakRule;
     private int lastElapsed;
-    private String refused;
+    private String refused,stopReason;
+    private Beat pendingBeat;
     private double lastDistance=Double.MAX_VALUE;
-    private boolean completed,springing;
+    private boolean completed,springing,peakVoiced,waitWatching,waitFaced;
     public PlayLife(YukkuriEntity entity){this.entity=entity;}
     public boolean active(){return facility!=null;}
+    public boolean waiting(){return waitingFor!=null;}
     public boolean completed(){return completed;}
     public int bounces(){return bounces;}
     public String refused(){return refused;}
+    public String activityFace(){
+        if(waiting()&&waitWatching)return entity.dailyLife().boredom()>=75?"sparkle":"dull";
+        return "";
+    }
+    /** Logs each trampoline beat on the same tick with the actual face published by {@code PresentationArbiter}. */
+    public void observeFace(String shown){
+        if(pendingBeat==null)return;
+        var beat=pendingBeat;
+        pendingBeat=null;
+        GameplayLog.event(entity,"play","trampoline beat={} face={} declared={} line={} clip={} bounces={} energy={} boredom={} unease={}",
+                beat.name(),shown,beat.declared(),beat.line(),entity.getAnimationId(),bounces,
+                entity.life().energy(),entity.dailyLife().boredom(),entity.mind().unease());
+    }
     public String activity(){return !active()?Behaviors.IDLE:facility.kind()==PlayBlock.Kind.SLIDE?(waypoint>=6?Behaviors.SLIDE_DOWN:Behaviors.SLIDE_CLIMB):
             facility.kind()==PlayBlock.Kind.TRAMPOLINE?Behaviors.TRAMPOLINE:facility.kind()==PlayBlock.Kind.POOL?(soaking()?Behaviors.JUICE_SOAK:Behaviors.TUB_CLIMB):Behaviors.TUNNEL;}
     private boolean soaking(){return soakAt>=0&&waypoint==soakAt;}
@@ -53,16 +77,44 @@ public final class PlayLife {
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
             &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&(tub||entity.body().condition().readyForPlay())
             &&!entity.family().active()&&!entity.house().active();}
+    private int playBoredomFloor(){
+        double timid=entity.life().personality().temperament().timid();
+        return Math.max(10,(int)Math.round(15+20*timid)-(entity.family().adult()?0:5));
+    }
+    private double stopEnergy(){
+        return entity.outing().onOuting()?Math.max(35,entity.outing().restBand()):35;
+    }
+    private double scareCeiling(){
+        return 75-45*entity.life().personality().temperament().timid();
+    }
+    private boolean wantsTrampolinePlay(){
+        return entity.dailyLife().boredom()>playBoredomFloor()&&entity.life().energy()>=stopEnergy()
+                &&entity.mind().unease()<scareCeiling();
+    }
+    private int waitBudget(){
+        var personality=entity.life().personality();
+        return Math.max(60,(int)Math.round(personality.waitingTicks()*(1.5+personality.temperament().patient())));
+    }
+    private void emitBeat(String name,String declaredFace,String line,int holdTicks){
+        entity.showReaction(declaredFace,"",holdTicks);
+        if(!"none".equals(line))entity.speakCue(line);
+        pendingBeat=new Beat(name,declaredFace,line);
+    }
     public void clock(){
         if(cooldown>0)cooldown--;
         if(scanWait>0)scanWait--;
+        if(waitCooldown>0)waitCooldown--;
         if(active()){
             if(elapsed==lastElapsed||!valid())stop();
             lastElapsed=elapsed;
+        }else if(waiting()){
+            if(waitElapsed==lastWaitElapsed||!waitValid())stopWait("interrupted");
+            lastWaitElapsed=waitElapsed;
         }
     }
     public boolean canUse(){
         if(active())return valid();
+        if(waiting())return waitValid();
         if(entity.outing().onOuting())return entity.outing().tryParkPlay();
         if(cooldown>0||scanWait>0||!available(true)||entity.isNoAi())return false;
         scanWait=160;
@@ -70,9 +122,107 @@ public final class PlayLife {
         var center=entity.blockPosition();
         for(var pos:BlockPos.betweenClosed(center.offset(-6,-1,-6),center.offset(6,1,6))){
             if(!entity.level().hasChunkAt(pos))continue;
-            if(entity.level().getBlockEntity(pos) instanceof PlayBlockEntity found&&begin(found))return true;
+            if(entity.level().getBlockEntity(pos) instanceof PlayBlockEntity found){
+                if(found.kind()==PlayBlock.Kind.TRAMPOLINE){
+                    if(!wantsTrampolinePlay())continue;
+                    if(found.occupiedByOther(entity)){
+                        if(beginWait(found))return true;
+                        continue;
+                    }
+                }
+                if(begin(found))return true;
+            }
         }
         return false;
+    }
+    /** Stand beside an occupied trampoline and watch the bouncer without reserving the mat. */
+    public boolean beginWait(PlayBlockEntity target){
+        if(active()||waiting()||cooldown>0||waitCooldown>0)return false;
+        if(target.kind()!=PlayBlock.Kind.TRAMPOLINE||!available(false))return false;
+        if(target.getLevel()!=entity.level()||target.isRemoved())return false;
+        if(!entity.childhood().canJump()||BodyAbility.cannotSpring(entity)||!wantsTrampolinePlay())return false;
+        if(entity.distanceToSqr(Vec3.atCenterOf(target.getBlockPos()))>81)return false;
+        Vec3 stand=findWaitStand(target);
+        if(stand==null)return false;
+        entity.social().stop();
+        waitingFor=target;waitStand=stand;waitTicks=0;waitLimit=waitBudget();
+        waitWatching=false;waitFaced=false;waitElapsed=0;lastWaitElapsed=-1;
+        return true;
+    }
+    private Vec3 findWaitStand(PlayBlockEntity target){
+        int preferred=(entity.getUUID().hashCode()&1)==0?1:-1;
+        var level=entity.level();
+        for(int s:new int[]{preferred,-preferred}){
+            for(double z:WAIT_OFFSETS_Z){
+                var candidate=PlayGeometry.world(target.getBlockPos(),target.facing(),s*WAIT_SIDE_X,0,z);
+                var below=BlockPos.containing(candidate).below();
+                if(!level.noCollision(entity,entity.getBoundingBox().move(candidate.subtract(entity.position())))
+                        ||!level.getBlockState(below).isFaceSturdy(level,below,Direction.UP))continue;
+                var path=entity.getNavigation().createPath(BlockPos.containing(candidate),0);
+                if(path!=null&&path.canReach())return candidate;
+            }
+        }
+        return null;
+    }
+    private boolean waitValid(){
+        return waiting()&&available(false)&&!BodyAbility.cannotSpring(entity)&&!waitingFor.isRemoved()
+                &&waitingFor.getLevel()==entity.level()
+                &&entity.level() instanceof ServerLevel level&&level.hasChunkAt(waitingFor.getBlockPos())
+                &&level.getBlockEntity(waitingFor.getBlockPos())==waitingFor
+                &&(!entity.outing().onOuting()||(entity.outing().parkFacility()==waitingFor&&!entity.outing().calledByOwner()&&!entity.outing().tired()))
+                &&entity.distanceToSqr(Vec3.atCenterOf(waitingFor.getBlockPos()))<144;
+    }
+    private void tickWait(){
+        if(!waitValid()){stopWait("interrupted");return;}
+        waitElapsed++;
+        if(!waitingFor.occupiedByOther(entity)){
+            var target=waitingFor;
+            stopWait("free");
+            if(!begin(target))waitCooldown=40;
+            return;
+        }
+        double dist=waitStand.subtract(entity.position()).horizontalDistance();
+        if(dist>.35){
+            var result=SurfaceApproach.walkResult(entity,waitStand,null,1.0);
+            if(result==SurfaceApproach.Result.BLOCKED){waitCooldown=160;stopWait("blocked");return;}
+            return;
+        }
+        SurfaceApproach.stopWalking(entity);
+        Vec3 focus=watchFocus(waitingFor);
+        entity.getLookControl().setLookAt(focus.x,focus.y,focus.z,30,35);
+        if(!waitFaced){
+            Vec3 toFocus=focus.subtract(entity.position()).multiply(1,0,1);
+            if(toFocus.lengthSqr()>1e-4)face(toFocus.normalize());
+            waitFaced=true;
+        }
+        if(!waitWatching){
+            waitWatching=true;
+            String face=entity.dailyLife().boredom()>=75?"sparkle":"dull";
+            String line=entity.life().personality().temperament().patient()>=Temperament.TOP35?"wait_turn":"none";
+            emitBeat("wait_watch",face,line,50);
+        }
+        if(++waitTicks>=waitLimit){
+            double patient=entity.life().personality().temperament().patient();
+            emitBeat("wait_give_up",patient<Temperament.LOW35?"hmph":"dull","mood_bad",60);
+            waitCooldown=400;
+            stopWait("patience");
+        }
+    }
+    private Vec3 watchFocus(PlayBlockEntity target){
+        UUID occupant=target.occupant();
+        if(occupant!=null&&entity.level() instanceof ServerLevel server&&server.getEntity(occupant) instanceof YukkuriEntity bouncer&&bouncer.isAlive()){
+            return bouncer.getEyePosition();
+        }
+        return target.getBlockPos().getCenter().add(0,PlayBlock.BED_HEIGHT+.5,0);
+    }
+    private void stopWait(String reason){
+        if(waitingFor!=null&&reason!=null){
+            GameplayLog.limited(entity,"play","wait_ended:"+reason,600,
+                    "trampoline wait ended reason={} at={} waited={}/{} boredom={}",
+                    reason,waitingFor.getBlockPos(),waitTicks,waitLimit,entity.dailyLife().boredom());
+        }
+        waitingFor=null;waitStand=null;waitTicks=waitLimit=waitElapsed=0;lastWaitElapsed=-1;waitWatching=waitFaced=false;
+        SurfaceApproach.stopWalking(entity);
     }
     public boolean begin(PlayBlockEntity target){
         if(active()||cooldown>0)return refuse("cooldown");
@@ -118,11 +268,12 @@ public final class PlayLife {
         var start=points.getFirst();var path=entity.getNavigation().createPath(BlockPos.containing(start),0);
         if(path==null||!path.canReach())return refuse("blocked");
         if(!target.reserve(entity))return refuse("occupied");
-        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;completed=springing=false;soakAt=seatAt;soakTicks=0;soakHurt=hurt;bounceLimit=entity.life().personality().workSegments();cooldown=1600;
+        entity.social().stop();facility=target;route=points;elapsed=waypoint=bounces=stalled=0;lastDistance=Double.MAX_VALUE;
+        completed=springing=peakVoiced=false;stopReason=null;soakAt=seatAt;soakTicks=0;soakHurt=hurt;cooldown=1600;
         lastElapsed=-1;
         entity.getNavigation().moveTo(path,.8);
-        GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} bounceLimit={}",
-                target.kind(),target.getBlockPos(),entity.life().energy(),bounceLimit);
+        GameplayLog.limited(entity,"play","started",1200,"facility session started kind={} at={} energy={} boredom={}",
+                target.kind(),target.getBlockPos(),entity.life().energy(),entity.dailyLife().boredom());
         return true;
     }
     /** A pet weighs its master's ban on the tub before climbing in; a wild or stray body has no master to obey. */
@@ -148,20 +299,60 @@ public final class PlayLife {
             &&entity.level() instanceof ServerLevel level&&level.hasChunkAt(facility.getBlockPos())&&level.getBlockEntity(facility.getBlockPos())==facility
             &&(!entity.outing().onOuting()||entity.outing().parkFacility()==facility)
             &&entity.distanceToSqr(Vec3.atCenterOf(facility.getBlockPos()))<144&&facility.reserve(entity);}
-    public boolean canContinue(){return valid();}
+    public boolean canContinue(){return active()?valid():waitValid();}
 
     boolean springingAt(BlockPos root) {
-        return springing && facility.getBlockPos().equals(root);
+        return springing && stopReason == null && facility != null && facility.getBlockPos().equals(root);
+    }
+
+    boolean stoppingAt(BlockPos root) {
+        return springing && stopReason != null && facility != null && facility.getBlockPos().equals(root);
+    }
+
+    private String trampolineStopReason() {
+        if (BodyAbility.cannotSpring(entity)) return "frail";
+        if (entity.outing().onOuting() && (entity.outing().parkFacility() != facility || entity.outing().calledByOwner())) return "called";
+        if (entity.life().energy() < stopEnergy()) return "tired";
+        if (entity.mind().unease() >= scareCeiling()) return "scared";
+        if (entity.dailyLife().boredom() <= playBoredomFloor()) return "enough";
+        return null;
+    }
+
+    private void markTrampolineStop(String reason) {
+        if (stopReason != null) return;
+        stopReason = reason;
+        String face = switch (reason) {
+            case "enough" -> "satisfied";
+            case "tired" -> "sleepy";
+            case "scared" -> "afraid";
+            case "called" -> "surprise";
+            default -> "teary";
+        };
+        String line = "scared".equals(reason) ? "uneasy" : "none";
+        emitBeat("stop_" + reason, face, line, 50);
     }
 
     void trampolineBounced() {
         bounces++;
         entity.life().spendEnergy(2);
+        entity.dailyLife().entertained(4);
+        double timid = entity.life().personality().temperament().timid();
+        if (timid >= Temperament.TOP35) entity.mind().add((float) (timid * 5), "trampoline_height");
         entity.mind().felt(EmotionEvent.PLAYED);
-        entity.showReaction("happy","",45); // joy face only: "I want to play too" is a request to join, not a bounce cry
+        String reason = trampolineStopReason();
+        if (reason != null) {
+            markTrampolineStop(reason);
+        } else if (bounces == 3 && !peakVoiced) {
+            peakVoiced = true;
+            String peakFace = entity.life().personality().temperament().is(Temperament.Gate.BOLD) ? "open_smile" : "happy";
+            emitBeat("peak", peakFace, "glow", 50);
+        } else {
+            emitBeat("bounce", "happy", "none", 45);
+        }
     }
 
     public void tickGoal(){
+        if(waiting()){tickWait();return;}
         if(!valid()){stop();return;}elapsed++;
         Vec3 target=route.get(waypoint);double distance=target.subtract(entity.position()).horizontalDistance();
         entity.getLookControl().setLookAt(target.x,entity.getEyeY(),target.z,25,25);
@@ -172,14 +363,20 @@ public final class PlayLife {
         }
         if (trampoline && waypoint == 1) {
             if (springing) {
-                boolean enough = bounces >= bounceLimit || entity.life().energy() < 35
-                        || entity.outing().onOuting() && entity.outing().tired();
-                if (!entity.onGround() || entity.getDeltaMovement().y > 0 && !enough) {
-                    TrampolineMotion.steady(entity);
+                if (stopReason == null) {
+                    String liveStop = trampolineStopReason();
+                    if ("called".equals(liveStop) || "frail".equals(liveStop)) markTrampolineStop(liveStop);
+                }
+                if (!entity.onGround() || stopReason == null) {
+                    if (entity.onGround() && entity.getDeltaMovement().y <= 0 && stopReason == null) {
+                        TrampolineMotion.hop(entity);
+                    } else {
+                        TrampolineMotion.steady(entity);
+                    }
                     return;
                 }
                 springing = false;
-                // Take the last rebound toward the exit. If the spring has settled, hop toward it from the bed.
+                // Hop cleanly off the settled bed toward the exit waypoint.
                 if (entity.getDeltaMovement().y <= 0) TrampolineMotion.hop(entity);
                 waypoint++;lastDistance=Double.MAX_VALUE;stalled=0;
                 target=route.get(waypoint);distance=target.subtract(entity.position()).horizontalDistance();
@@ -187,7 +384,11 @@ public final class PlayLife {
                 entity.getNavigation().stop();
                 if (entity.motor().current() == null) {
                     springing = true;
+                    stopReason = null;
+                    peakVoiced = false;
                     TrampolineMotion.hop(entity);
+                    String mountFace = entity.life().personality().temperament().timid() >= Temperament.TOP35 ? "confused" : "happy";
+                    emitBeat("mount", mountFace, "none", 40);
                 }
                 return;
             }
@@ -203,9 +404,22 @@ public final class PlayLife {
             if(waypoint>=route.size()){
                 completed=!trampoline||bounces>0;
                 if(completed){
-                    entity.dailyLife().entertained(Math.min(30,20+2*bounces));
-                    if(entity.outing().onOuting())entity.outing().finishedParkPlay();
-                    entity.mind().felt(EmotionEvent.PLAYED);entity.showReaction("happy","",70);
+                    if(trampoline){
+                        entity.dailyLife().entertained(5);
+                        if(entity.outing().onOuting())entity.outing().finishedParkPlay();
+                        entity.mind().felt(EmotionEvent.PLAYED);
+                        String dismountFace = switch (stopReason == null ? "" : stopReason) {
+                            case "enough" -> "satisfied";
+                            case "tired" -> "sleepy";
+                            case "scared" -> "teary";
+                            default -> "happy";
+                        };
+                        emitBeat("dismount", dismountFace, "none", 70);
+                    }else{
+                        entity.dailyLife().entertained(Math.min(30,20+2*bounces));
+                        if(entity.outing().onOuting())entity.outing().finishedParkPlay();
+                        entity.mind().felt(EmotionEvent.PLAYED);entity.showReaction("happy","",70);
+                    }
                 }
                 stop();return;
             }
@@ -276,15 +490,18 @@ public final class PlayLife {
     }
     public void stop(){stop(true);}
     private void stop(boolean log){
+        if(waitingFor!=null)stopWait(log?"interrupted":null);
         if(facility!=null){
             if(soaking()&&soakTicks>0&&soakTicks<JuiceTub.SOAK_TICKS)soakEnded(false);
             facility.release(entity);
             if(log)GameplayLog.limited(entity,"play","ended",1200,
-                    "facility session ended kind={} at={} completed={} elapsed={} waypoint={} bounces={} stalled={} nutrition={} energy={} boredom={}",
-                    facility.kind(),facility.getBlockPos(),completed,elapsed,waypoint,bounces,stalled,entity.life().nutrition(),
-                    entity.life().energy(),entity.dailyLife().boredom());
+                    "facility session ended kind={} at={} completed={} reason={} elapsed={} waypoint={} bounces={} stalled={} nutrition={} energy={} boredom={}",
+                    facility.kind(),facility.getBlockPos(),completed,stopReason==null?(completed?"done":"interrupted"):stopReason,
+                    elapsed,waypoint,bounces,stalled,entity.life().nutrition(),entity.life().energy(),entity.dailyLife().boredom());
         }
-        springing=false;facility=null;route=List.of();soakAt=-1;soakTicks=0;soakHurt=false;soakRule=null;entity.getNavigation().stop();
+        springing=false;peakVoiced=false;stopReason=null;facility=null;route=List.of();soakAt=-1;soakTicks=0;soakHurt=false;soakRule=null;
+        if(!log)pendingBeat=null;
+        entity.getNavigation().stop();
     }
     private void face(Vec3 direction){Motor.face(entity,(float)(Math.atan2(-direction.x,direction.z)*180/Math.PI));}
     public CompoundTag save(){var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag;}
