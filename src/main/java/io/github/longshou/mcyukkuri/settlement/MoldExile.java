@@ -563,7 +563,7 @@ public final class MoldExile extends Goal implements MotorOwner {
                 entity.speakCue(childVerdict == Verdict.KEEP ? "keep_child" : "drive_child_tearful");
         } else if (fond) {
             if (entity.skills().knows(Ability.MOLD_LORE)) {
-                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue("mold_sorrow");
+                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue(ReactionSpeech.moldSorrow(Bonds.eitherMate(entity, peer) && !Bonds.directParentChild(entity, peer)));
             } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD);
         } else if (driving) {
             if (entity.showReaction("puff", "", 50)) entity.speakCue(entity.skills().knows(Ability.MOLD_LORE) ? "mold_warn" : "mold_shun_unaware");

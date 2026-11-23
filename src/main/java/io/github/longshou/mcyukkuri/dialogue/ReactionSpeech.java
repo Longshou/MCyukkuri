@@ -29,6 +29,12 @@ public final class ReactionSpeech {
     /** Only a weakened animal is too tired to do more than say no to the basket. */
     public static String basketRefusal(boolean weary) { return weary ? "basket_refuse_weary" : "basket_refuse"; }
 
+    /** Her words to the young her full hull leaves on the bank: no tie is cut, so even the cold one only tells it to stay. */
+    public static String leftAshore(boolean cold) { return cold ? "left_ashore_cold" : "left_ashore_warm"; }
+
+    /** The fond kin's apology over the mouldy one: a mate says its own sorrow, which names no child. */
+    public static String moldSorrow(boolean mate) { return mate ? "mold_sorrow_mate" : "mold_sorrow"; }
+
     public static String ousted(Answer answer, boolean byGuardian) {
         return switch (answer) {
             case CURSE -> byGuardian ? "child_curse_parent" : "driven_curse";
