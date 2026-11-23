@@ -1715,7 +1715,7 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
     '12秒比较代谢；至少60秒看饥饿掉血', [
         *[yk('reimu', -9+6*i, 0, 'age_'+stage, label=label, stage=stage, nutrition=50, energy=95, lead=i==0)
           for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
-        yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95),
+        yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95, uuid=uid('nutrition_age', 'starving')),
         yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95)],
     env=DAY, give=['minecraft:apple 4', 'minecraft:spyglass'], vantage=(0, 16),
     reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
@@ -2461,14 +2461,55 @@ add('rain_open', 'weather', '空地淋雨找掩体，湿透掉血', '空地淋�
            ('读湿度98.5的雨伤', f'yukkuri status {sel("wet_control")} raw')])
 
 add('pred_watch', 'weather', '不饿的捕食种在旁，普通油后退', '不饿的捕食种在旁，普通油后退',
-    '蕾米莉亚（不饿）在 12 格外：普通个体还没挨打就开始后退（threat:retreat），离开威胁后躲藏；不饿的捕食者不会主动追猎',
+    '蕾米莉亚（不饿）在 12 格外：普通个体还没挨打就开始后退（threat:retreat），离开威胁后躲藏；不饿的捕食者不会主动追猎。营养5的虚弱灵梦同样后退，但只蹒跚走，不用蹦跳跑姿',
     '约 1 分钟', [
-        yk('reimu', 0, 0, 'a', yaw=-90, lead=True), yk('marisa', 0, 2, 'b', yaw=-90),
+        yk('reimu', 0, 0, 'a', yaw=-90, lead=True, uuid=uid('pred_watch', 'a')), yk('marisa', 0, 2, 'b', yaw=-90),
+        yk('reimu', 0, -2, 'weak', label='营养5·虚弱', yaw=-90, nutrition=5, energy=90, uuid=uid('pred_watch', 'weak')),
         yk('remilia', 12, 0, 'pred', yaw=90, nutrition=100, energy=100)],
     env=DAY, spot='pred', vantage=(6, 14), reads=[('读反应', f'yukkuri status {sel("a")} raw')],
     smoke=dict(ticks=1200, expect=[r'\[species\] remilia #\d+ uuid=(?P<pred>[0-9a-f-]{36})\b[\s\S]*?'
                                    r'\[threat\] reimu #\d+ [^\n]* response started source=(?P=pred) stage=RETREAT\b'],
                forbid=[r'\[body\][^\n]* invariant\b']))
+
+_HOP_CLIPS = ('run', 'hop', 'hop_leg', 'joy_jump', 'hat_hop_up')
+
+
+def _clips(trace, actor):
+    """Every (tick, behavior, animation) the dense trace sampled for one actor."""
+    rows = []
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] == actor:
+            rows.append((row['t'], row['st']['behavior'], row['st']['animation']))
+    return rows
+
+
+def _verify_pred_watch_gait(window, trace):
+    weak, ordinary = _clips(trace, _uuid_text('pred_watch', 'weak')), _clips(trace, _uuid_text('pred_watch', 'a'))
+    retreats = [row for row in weak if row[1] == 'threat_retreat']
+    if not retreats:
+        return 'The frail body never retreated from the predator'
+    if hops := [row for row in weak if row[2] in _HOP_CLIPS]:
+        return f'The frail body hopped: {hops[0]}'
+    if not any(row[1] == 'threat_retreat' and row[2] == 'run' for row in ordinary):
+        return 'The healthy control did not retreat with the hop-run gait'
+    if not any(row[1] == 'threat_retreat' and row[2] == 'waddle' for row in weak):
+        return 'The frail body did not retreat on the waddle gait'
+
+
+next(s for s in S if s.id == 'pred_watch').smoke.update(verify=_verify_pred_watch_gait, verify_trace=True)
+
+
+def _verify_nutrition_age(window, trace):
+    starving = _clips(trace, _uuid_text('nutrition_age', 'starving'))
+    if not starving:
+        return 'The starving body left no trace samples'
+    if hops := [row for row in starving if row[2] in _HOP_CLIPS]:
+        return f'The starving body hopped: {hops[0]}'
+
+
+next(s for s in S if s.id == 'nutrition_age').smoke.update(verify=_verify_nutrition_age, verify_trace=True)
+
 
 def _range_pursuit(window, trace):
     lock = re.search(r'\[predator\] flandre #\d+ uuid=([\da-f-]+) [^\n]* prey selected target=([\da-f-]+) [^\n]* distance=(?:4[2-9]|5[0-4])\.', window)
@@ -6981,7 +7022,7 @@ def _ledge_spit():
 pond('ledge_spit', '沙洲上的饿帕秋莉够堤上的苹果', '沙洲上的饿帕秋莉够堤上的苹果',
      '饿着的帕秋莉站在水中一块 3×5 的沙洲上，三面是水，东面是比沙洲高一格的堤岸，堤上有一个苹果。看她直接走到堤边、踏上堤岸去吃苹果，而不是在沙洲上原地"没有路"地发呆',
      '约 10–20 秒',
-     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=18, energy=90, boldness=55)],
+     [*_ledge_spit(), yk('patchouli', bank_dx(0) + 4, 0, 'a', yaw=-90, nutrition=5, energy=90, boldness=55)],
      note=NEW, vantage=(bank_dx(0) - 3, 3, -90, 15),
      reads=[('读营养与体力', f'yukkuri status {sel("a")} raw')],
      smoke=dict(ticks=1200, expect=[r'\[meal\][^\n]* swallowed item=minecraft:apple '],
