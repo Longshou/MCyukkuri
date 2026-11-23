@@ -2517,7 +2517,7 @@ def _verify_nutrition_age(window, trace):
         return f'The exhausted body hopped: {hops[0]}'
     if not any(row[2] == 'joy_jump' for row in control):
         return 'The healthy control never hopped for joy'
-    if not re.search(rf'\[body\][^\n]* uuid={_uuid_text("nutrition_age", "tired")} [^\n]*frail body withholds hop beat=frail_clip clip=joy_jump behavior=meal_delight\b', window):
+    if not re.search(rf'\[body\][^\n]* uuid={_uuid_text("nutrition_age", "tired")} [^\n]*frail body withholds hop beat=frail_clip clip=joy_jump [^\n]*face=\S+ line=\S*food_delight\b', window):
         return 'The exhausted body\'s joy hop was not withheld in the log'
 
 
