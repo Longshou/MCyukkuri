@@ -2508,8 +2508,10 @@ def _verify_nutrition_age(window, trace):
         return f'The starving body hopped: {hops[0]}'
 
 
-next(s for s in S if s.id == 'nutrition_age').smoke = dict(ticks=1200, expect=[], forbid=[r'\[body\][^\n]* invariant\b'],
-                                                              verify=_verify_nutrition_age, verify_trace=True)
+next(s for s in S if s.id == 'nutrition_age').smoke = dict(
+    ticks=1200, expect=[], forbid=[r'\[body\][^\n]* invariant\b'], verify=_verify_nutrition_age, verify_trace=True,
+    allow_fate=[dict(kind='starve', who=f'uuid={_uuid_text("nutrition_age", "starving")} ',
+                     why='the scene starts one body at nutrition 0 to show the starvation damage')])
 
 
 def _range_pursuit(window, trace):
