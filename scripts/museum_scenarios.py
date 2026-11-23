@@ -11906,7 +11906,7 @@ next(s for s in S if s.id == _CONF).smoke = dict(ticks=600, verify=_confiscate_f
     rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=4 visible=NONE effective=NONE ',
     rf'\[interaction\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*interaction refused; [^\n]*action=remove_badge reason=owner\b',
     rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=4 visible=SILVER effective=SILVER ',
-])
+], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*confiscated '])
 
 
 _smoke('park_walk', 1100, [
