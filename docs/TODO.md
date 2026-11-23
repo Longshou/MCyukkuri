@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| PD-13 冷淡斥退、PD-29 留岸回望与 mold_sorrow 伴侣台词及语音 | `.worktrees/wp-lines-pd13` | aquatic/LeaveBehind; dialogue corpus; art/audio/aquestalk; lang; FEATURES/TODO rows |
 
 ## 玩法待办
 
