@@ -4099,10 +4099,10 @@ _RING_HOLDER = 'ring_holder'
 # name, kind, x, z, label, values. Placed just outside RING_REACH (9 blocks from paving x 2..5, z -3..1) in view from the
 # vantage, so they do not fill PLAZA_CAPACITY before the keeper arrives and immediately evaluate browseRing once the badged pet lands.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', 0, -13, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -2, -12, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', 12, -12, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 11, -11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', -6, -9, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -4, -11, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -8, -5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 13, -10, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4142,7 +4142,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-8, -1, -118, 10),
+    ], env=DAY, vantage=(-10, -2, -112, 10),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
