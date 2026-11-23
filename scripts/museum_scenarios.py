@@ -9832,7 +9832,7 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visi
 
 
 
-def _ring_stray_fates(window, trace):
+def _ring_stray_fates(window):
     """Each stray that reached the ring stands at the distance its own values give, and the non-shy ones then see the badge."""
     x, z = BY_ID['town'].anchor
     holder = _uuid_text(_PLAZA, _RING_HOLDER)
