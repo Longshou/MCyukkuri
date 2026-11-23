@@ -68,7 +68,6 @@ def main():
     cavity_controls = palette_outputs['generic']['cavity_controls']
     core_levels = palette_outputs['generic']['core_levels']
     for name in [*(f'{style}-{g}' for style in recipe['grades'] for g in (1,2,3)),
-                 *(f'{style}-{g}-infected' for style in recipe['grades'] for g in (1,2,3)),
                  *(f'thermal-{g}' for g in (1,2,3)), 'scar']:
         path = HERE / f'assembled/{name}.png'
         snapshot(path)

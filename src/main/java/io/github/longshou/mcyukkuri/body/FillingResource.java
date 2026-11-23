@@ -50,7 +50,6 @@ public final class FillingResource {
     public static boolean acceptable(YukkuriEntity eater, ItemStack stack) { return isCore(stack); }
 
     public static void swallowed(YukkuriEntity eater, ItemStack stack) {
-        if (odor(stack) >= 40) eater.body().contaminated();
         if (isCore(stack)) eater.body().ateCore(Math.clamp(data(stack).getInt("Sweetness"), 0, 100));
     }
 }

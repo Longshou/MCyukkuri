@@ -4388,15 +4388,13 @@ _care_feeder = '@e[type=mcyukkuri:caretaker_sister,nbt={SiteRole:"shop_staff"},d
 _care_toy = '@e[type=minecraft:item,nbt={Item:{id:"mcyukkuri:yarn_ball"}},distance=..0.5,limit=1]'
 _care_bowl = '~12 ~2 ~12'
 add('shop_care', 'shop', '店员照料：带伤、长霉和拥挤的食盆', '店员照料：带伤、长霉和拥挤的食盆',
-    '先看橙的单间：橙站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和后院又脏又感染的灵梦（店员先亮擦洗布洗净，再给橙汁）。',
+    '先看橙的单间：橙站在空食盆的入口，带粮的店员请它侧让后添粮。另一位店员带着药，照料受伤的爱丽丝、长霉的蕾米莉亚和后院受伤的灵梦。',
     '约半分钟看治疗与添粮', [
         PET_SHOP,
         shop_animal('reimu', 8.5, -3.5, 'care_yard'),
         f'yukkuri status set {ALICE} health.wound_at front:tear:2',
         f'yukkuri status set {BOOTH.format("remilia", 2)} health.mold 2',
         set_status('care_yard', 'health.wound_at', 'front:tear:2'),
-        set_status('care_yard', 'needs.hygiene', 20),
-        set_status('care_yard', 'health.infection', 3),
         f'data modify entity {_care_feeder} Medicine set value 0',
         f'tp {_care_feeder} ~13.5 ~2 ~8.0',
         f'tp {CHEN} ~13.5 ~2 ~10.5',
@@ -5122,16 +5120,10 @@ for i,(species,extra,label) in enumerate((('reimu',{'congenital':'BEAN_BODY'},'�
 _wound_materials += [*[yk('reimu',-8+4*i,-8,f'part{i}',yaw=0,label=label,**pair_ready()) for i,(label,_) in enumerate(_parts)],
     *[set_status(f'part{i}','marks.scars',0) for i in range(5)],
     *[set_status(f'part{i}','health.wound_at',f'{part}:scratch:2:thorn') for i,(_,part) in enumerate(_parts)]]
-# Infection row: three dirty Reimu with infection 1 / 4 / 7 (mild, moderate, severe) and a clean control, each with a front tear and a back dent.
-for i,(label,level) in enumerate((('感染轻度',1),('感染中度',4),('感染重度',7),('对照·无感染',0))):
-    name=f'infected{i+1}' if level else 'infected_control'
-    _wound_materials += [yk('reimu',-6+4*i,12,name,label=label,nutrition=60,energy=95,hygiene=20 if level else 100),
-        set_status(name,'marks.scars',0),set_status(name,'health.wound_at','front:tear:2'),set_status(name,'health.wound_at','back:dent:3'),
-        *([set_status(name,'health.infection',level)] if level else [])]
 add('wound_materials','body','伤口外观：八伤型、五部位与发面','伤口外观：八伤型、五部位与发面',
-    '中排八种伤型每只正面一级、侧面二级、背面三级；北排五只分别在头顶、正面、背面、侧面、底面有二级细刺伤，比较锚点和动作贴合；南排豆形、先天稀发、多毛及水生大帽对照；最南一排三只脏灵梦感染 1／4／7，旁边一只干净对照，用望远镜看读数应为“伤口感染·轻度／中度／重度”，伤口呈化脓；不洗直接喂橙汁会被拒绝，先用擦洗布洗再喂橙汁，伤口与感染一并清除。绕行看皮面、发面和断发边，移动时看蒙皮；用橙汁闭伤后看同锚点留疤，再用面粉糊。三级裂口继续漏血，及时治疗。本场是外观初态，实际来源另看真实伤因场景',
+    '中排八种伤型每只正面一级、侧面二级、背面三级；北排五只分别在头顶、正面、背面、侧面、底面有二级细刺伤，比较锚点和动作贴合；南排豆形、先天稀发、多毛及水生大帽对照；绕行看皮面、发面和断发边，移动时看蒙皮；用橙汁闭伤后看同锚点留疤，再用面粉糊。三级裂口继续漏血，及时治疗。本场是外观初态，实际来源另看真实伤因场景',
     '先看后背三级，再看侧面与正面；可清场重开',_wound_materials,env=DAY,vantage=(0,15),
-    give=['mcyukkuri:orange_juice 16','mcyukkuri:flour_paste 16','mcyukkuri:wash_cloth','minecraft:spyglass'],
+    give=['mcyukkuri:orange_juice 16','mcyukkuri:flour_paste 16','minecraft:spyglass'],
     reads=[('读八类伤型与锚点',f'execute as {sel_all("wound_shapes")} run yukkuri status @s raw')]
         + [(f'读{label}伤口',f'yukkuri status {sel(f"part{i}")} raw') for i,(label,_) in enumerate(_parts)]
         + [(f'读{label}',f'yukkuri status {sel(f"hair{i}")} raw') for i,label in enumerate(('豆形','先天稀发','多毛后发','水生大帽'))])
@@ -5281,14 +5273,14 @@ add('treatment_scars', 'body', '伤口自愈留疤，面粉糊去疤', '伤口�
         ('读一级伤留疤', 'light_tear'), ('读预置疤痕', 'scarred'))])
 
 add('treatment_care', 'body', '照料员用橙汁、面粉糊治伤', '照料员用橙汁、面粉糊治伤',
-    '街上居民把伤重的流浪油圈在街边两格的矮围栏里（2×2，两只都在栏内，伤者不会再走开），自己蹲在旁边照料。伤者有三级裂口、血6、旧疤1、感染4、卫生20。NPC先亮擦洗布洗净（感染伤口不洗不给药），再手持橙汁约1秒、挥手交互，随后换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
+    '街上居民把伤重的流浪油圈在街边两格的矮围栏里（2×2，两只都在栏内，伤者不会再走开），自己蹲在旁边照料。伤者有三级裂口、血6、旧疤1。NPC手持橙汁约1秒、挥手交互，随后换面粉糊重复；清伤回血留疤后去疤。每剂先从库存预留到手上，成功消耗，未用完归还，最终余量8→6；可在举药时轻击伤者核对中断不误耗',
     '约 10–40 秒', [
         # A two-cell fence pen holds the wounded stray and its carer together: a street resident never follows a patient past the two-block care reach.
         box(-1, 0, -1, 2, 0, -1, 'minecraft:oak_fence'), box(-1, 0, 2, 2, 0, 2, 'minecraft:oak_fence'),
         box(-1, 0, -1, -1, 0, 2, 'minecraft:oak_fence'), box(2, 0, -1, 2, 0, 2, 'minecraft:oak_fence'),
         street_trial('treatment_care', 'reimu', 0, 0, 'patient', label='伤者', lead=True, **pair_ready()),
         set_status('patient', 'health.wound_at', 'front:tear:3'),
-        set_status('patient', 'health.health', 6), set_status('patient', 'needs.hygiene', 20), set_status('patient', 'health.infection', 4),
+        set_status('patient', 'health.health', 6),
         set_status('patient', 'marks.scars', 0), set_status('patient', 'marks.scars', 1),
         human('caretaker_brother', 1, 1, 'carer', 0, label='照料员')],
     env=DAY, vantage=(0, 10), reads=[('读伤者', f'yukkuri status {sel("patient")} raw'),
@@ -9849,10 +9841,6 @@ next(s for s in S if s.id == 'pocket_park_rest').smoke.update(verify=_pocket_res
 _smoke('shop_care', 1100, [
     *[rf'\[npc-care\][^\n]* action=treatment [^\n]*treatment={kind} [^\n]*result=applied'
       for kind in ('ORANGE_JUICE', 'MOLD_REMOVER')],
-    # The dirty infected stock is washed with the real cloth first, then the juice clears its wound and infection.
-    r'\[npc-care\][^\n]* action=wash_start ',
-    r'\[npc-care\][^\n]* action=wash [^\n]*result=washed',
-    r'\[body\][^\n]* infection \d+ -> 0; orange juice',
     r'\[shop\][^\n]* action=job result=asked_way kind=FEED ',
     r'\[move\][^\n]* action=give_way ',
     rf'\[npc-care\][^\n]* action=refill_bowl target={BY_ID["shop"].anchor[0] + 12}, {FEET + 2}, {BY_ID["shop"].anchor[1] + 12} transferred=4 ',

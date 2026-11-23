@@ -1,7 +1,6 @@
 """Pixel-authored mechanical injury decals and continuous thermal material."""
 import io
 import math
-import zlib
 import numpy as np
 from PIL import Image, ImageDraw
 import preview as source
@@ -29,20 +28,6 @@ LIGHT=(235,205,151,255)
 BRUISE=(105,79,60,72)
 SCAR_SHADOW=(147,113,83,150)
 SCAR_LIGHT=(232,207,158,235)
-# Festering variant: the same line work recoloured to a bruised purple-brown
-# rim with a darker opening, sickly yellow-green pus and dried crust chips.
-INFECT_DEEP=(40,24,26,255)
-INFECT_INK=(54,30,36,255)
-INFECT_MID=(92,54,66,255)
-INFECT_EDGE=(118,66,84,255)
-INFECT_DOUGH=(134,84,92,255)
-INFECT_LIGHT=(150,104,100,255)
-INFECT_SWELL=(104,62,78,160)
-INFECT_PUS=(204,206,78,255)
-INFECT_PUS_DARK=(150,160,56,255)
-INFECT_CRUST=(112,78,36,255)
-INFECT_MAP={DEEP[:3]:INFECT_DEEP,INK[:3]:INFECT_INK,MID[:3]:INFECT_MID,EDGE[:3]:INFECT_EDGE,
-            DOUGH[:3]:INFECT_DOUGH,LIGHT[:3]:INFECT_LIGHT}
 
 
 def png(image):
@@ -78,46 +63,7 @@ def lip(draw,points,width=1):
     line(draw,points,DEEP,width)
 
 
-def fester(image,kind,grade):
-    """Recolour a clean decal and swell its rim by one pixel; adds pus and crust."""
-    rgba=np.asarray(image,dtype=np.int16).copy()
-    alpha=rgba[...,3]>0
-    neighbours=sum(np.roll(np.roll(alpha,dy,0),dx,1).astype(np.int8) for dy in (-1,0,1) for dx in (-1,0,1) if dy or dx)
-    lone=alpha&(neighbours==0)
-    rim_mask=np.zeros_like(alpha)
-    for dy in (-1,0,1):
-        for dx in (-1,0,1):
-            rim_mask|=np.roll(np.roll((rgba[...,3]==255)&~lone,dy,0),dx,1)
-    rim_mask&=~alpha
-    rim_mask[[0,-1],:]=False;rim_mask[:,[0,-1]]=False
-    deep=np.zeros_like(alpha)
-    ramp=[INFECT_DEEP,INFECT_MID,INFECT_EDGE,INFECT_LIGHT]
-    for y,x in zip(*np.nonzero(alpha)):
-        r,g,b,a=(int(v) for v in rgba[y,x])
-        target=INFECT_MAP.get((r,g,b))
-        if target is None:
-            # Translucent pressure patches and odd chips follow their luminance.
-            level=min(3,max(0,round(((r*.3+g*.59+b*.11)-60)/50)))
-            target=ramp[level]
-        rgba[y,x,:3]=target[:3]
-        rgba[y,x,3]=max(a,min(255,a+40)) if a<255 else 255
-        deep[y,x]=(r,g,b) in (DEEP[:3],INK[:3])
-    rgba[rim_mask]=INFECT_SWELL
-    # Lone debris pixels become dried crust instead of swelling into blocks.
-    rgba[lone]=INFECT_CRUST
-    # Pus sits in the opening (dark incision pixels), crust chips on the swollen rim.
-    rng=np.random.default_rng(zlib.crc32(f'{kind}-{grade}'.encode()))
-    for mask,share,colours in [(deep,.38,(INFECT_PUS,INFECT_PUS,INFECT_PUS_DARK)),(rim_mask,.10,(INFECT_CRUST,))]:
-        ys,xs=np.nonzero(mask)
-        if not len(ys):continue
-        count=max(2,round(len(ys)*share))
-        for i in rng.choice(len(ys),size=min(count,len(ys)),replace=False):
-            rgba[ys[i],xs[i]]=colours[int(rng.integers(len(colours)))]
-    rgba[rgba[...,3]==0,:3]=0
-    return Image.fromarray(rgba.astype(np.uint8),'RGBA')
-
-
-def mechanical(kind,grade,size,infected=False):
+def mechanical(kind,grade,size):
     image,d=canvas()
     if kind=='scratch':
         # Uneven bundles share one friction direction; they are not short hairs.
@@ -234,7 +180,6 @@ def mechanical(kind,grade,size,infected=False):
         line(d,[(.20,.06),(.27,-.07)],SCAR_SHADOW,1)
     else:
         raise ValueError(kind)
-    if infected:image=fester(image,kind,grade)
     if size!=GRID:image=image.resize((size,size),Image.Resampling.NEAREST)
     return png(image)
 
@@ -273,6 +218,6 @@ def thermal(grade,size):
     return png(Image.fromarray(rgba))
 
 
-def material(kind,grade=1,size=512,infected=False):
+def material(kind,grade=1,size=512):
     if kind=='thermal':return thermal(grade,size)
-    return mechanical(kind,grade,size,infected)
+    return mechanical(kind,grade,size)

@@ -53,7 +53,7 @@ import net.minecraft.world.phys.Vec3;
 public final class BodyLife {
     private static final int MAX_WOUNDS=8;
     private final YukkuriEntity entity;
-    private int wound,infection,ticks;
+    private int wound,ticks;
     private int mold,moldExposure,moldContact,noticedMoldTier;
     private int burns,hairLoss;
     private final ArrayList<BodyWound> wounds=new ArrayList<>();
@@ -128,11 +128,10 @@ public final class BodyLife {
     }
     private void freezeFood(){if(deathFood<0)deathFood=BodyFood.capacity(entity)*healthRatio();}
     public BodyCondition condition() {
-        return new BodyCondition(wound, burns, infection, mold, filling(), weak(), dying(), sick(), footBurned);
+        return new BodyCondition(wound, burns, mold, filling(), weak(), dying(), sick(), footBurned);
     }
     public int wound(){return wound;}
     public int painSeverity() { return BodyCondition.painSeverity(wound, burns); }
-    public int infection(){return infection;}
     public int mold(){return mold;}
     public int burns(){return burns;}
     public boolean remembersBurn(){
@@ -167,7 +166,7 @@ public final class BodyLife {
     public List<BodyPart> deepParts(){if(wounds.isEmpty())return List.of();var mesh=WoundSurface.get(entity.subspecies().assetId());return wounds.stream().filter(w->mesh.valid(w)&&
             BodySigns.deep(w)).map(w->BodyPart.of(mesh,w)).distinct().toList();}
     /** Lasting states drawn on the skin (synced): mould stage, baked sole, broken core, dying. */
-    public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0,infection) | (faceMarks ? BodySigns.FACE_MARKS : 0);}
+    public int signs(){return BodySigns.pack(mold,footBurned,coreHurt,dying>0) | (faceMarks ? BodySigns.FACE_MARKS : 0);}
     private boolean faceMarks;
     public boolean faceMarks(){return faceMarks;}
     public void faceMarks(boolean value){faceMarks=value;entity.syncBody();entity.syncMarks(Marks.write(entity.status().marks().visible()));}
@@ -186,9 +185,6 @@ public final class BodyLife {
     public boolean canAnchorTool(){return !dying()&&wounds.size()<MAX_WOUNDS;}
     private void refreshWounds(){wound=Math.min(8,wounds.stream().filter(w->injury(w)&&w.kind()!=WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());burns=
             Math.min(8,wounds.stream().filter(w->w.kind()==WoundKind.SCORCH).mapToInt(BodyWound::severity).sum());
-        // Infection lives in a wound: it ends with the last injury, however that wound went (juice, lick, soak, natural healing).
-        if(infection>0&&wounds.stream().noneMatch(BodyLife::injury)){
-            GameplayLog.event(entity,"body","infection {} -> 0; last injury wound gone",infection);infection=0;}
         entity.syncBody();}
     public boolean cutHair(int parts,Player player){
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
@@ -203,11 +199,8 @@ public final class BodyLife {
                 || tag.getInt("Wound") > 0 || tag.getInt("Burns") > 0 || WoundTags.read(tag).stream().anyMatch(BodyLife::injury);
     }
     private static boolean severe(BodyWound w){return injury(w)&&w.severity()>=3;}
-    /** An infected body must be washed to {@link #INFECTION_WASHED_HYGIENE} before orange juice can clear it. */
-    public boolean needsWash(){return infection>0&&entity.life().hygiene()<INFECTION_WASHED_HYGIENE;}
-    public static final int INFECTION_WASHED_HYGIENE=45;
     public boolean needsPhysicalRestoration() {
-        return infection > 0 || footBurned || footScorch > 0 || entity.getHealth() < entity.getMaxHealth()
+        return footBurned || footScorch > 0 || entity.getHealth() < entity.getMaxHealth()
                 || wounds.stream().anyMatch(BodyLife::injury);
     }
 
@@ -217,9 +210,8 @@ public final class BodyLife {
     public boolean hasJuiceTreatableWound(){return wounds.stream().anyMatch(BodyLife::juiceTreats);}
     /** Orange juice heals every injury grade and sole damage; existing scars are repaired with flour paste. */
     public boolean restorePhysical() {
-        if(!treatmentAllowed() || !needsPhysicalRestoration() || needsWash())return false;
+        if(!treatmentAllowed() || !needsPhysicalRestoration())return false;
         if(!entity.operations().releasePinForTreatment())return false;
-        int infectionBefore=infection;infection=0;
         int cleared=wounds.size();boolean mended=footBurned||footScorch>0;
         float before=entity.getHealth();
         for(var healed:List.copyOf(wounds))if(juiceTreats(healed))entity.status().marks().healed(healed);
@@ -229,7 +221,6 @@ public final class BodyLife {
         int scars=entity.status().marks().scarCount()+(int)wounds.stream().filter(w->w.kind()==WoundKind.SCAR).count();
         GameplayLog.event(entity,"body","orange juice cleared {} wound(s){}; health {}/{} (before {}); scars remaining {}",
                 cleared,mended?" and mended the sole":"",entity.getHealth(),entity.getMaxHealth(),before,scars);
-        if(infectionBefore>0)GameplayLog.event(entity,"body","infection {} -> 0; orange juice, hygiene={}",infectionBefore,entity.life().hygiene());
         entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",80);return true;
     }
     /** Remove healed scars without changing open wounds, health or dirt, including scars in old wound lists. */
@@ -272,12 +263,6 @@ public final class BodyLife {
         if(entity.isInWaterOrBubble())return "in_water";
         if(entity.isOnFire())return "on_fire";
         return "none";
-    }
-    /** Contamination only takes in an injury: infection lives in a wound. */
-    public void contaminated(){
-        if(wounds.stream().noneMatch(BodyLife::injury))return;
-        int before=infection;infection=Math.min(8,infection+1);
-        if(BodySigns.infectionTier(before)!=BodySigns.infectionTier(infection))entity.syncBody();
     }
     /** Eating a centre filling restores health and eases unease (project design). */
     public void ateCore(int sweetness){
@@ -532,7 +517,7 @@ public final class BodyLife {
         if(entity.level().isClientSide||!entity.isAlive())return;
         if(dying>0){entity.getNavigation().stop();if(--dying==0)finishDying();else if(dying%20==0)entity.syncBody();return;}
         if(entity.isNoAi())return;if(ticks++%200==0)WoundSurface.warm(entity.subspecies().assetId());
-        int previousInfection=infection,previousToxin=toxin;
+        int previousToxin=toxin;
         var life=entity.life();
         if(life.wetness()>40&&life.hygiene()<40){
             if(++moldExposure>=1200){advanceMold("wet_dirty_skin");moldExposure=0;entity.syncBody();}
@@ -563,20 +548,11 @@ public final class BodyLife {
                 }
                 if(!entity.isAlive())return;
             }
-            if(open&&life.hygiene()<40)infection=Math.min(8,infection+1);
         }
         // Severe wounds do not heal naturally; orange juice treats all grades.
-        if(wound>0&&infection==0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
-        if(infection>0&&ticks%400==0){
-            if(!open&&life.hygiene()>=INFECTION_WASHED_HYGIENE&&life.nutrition()>=30)infection--;
-            else damage(.5f,"infection");
-        }
-        if(!open&&infection==0&&mold<3&&!sick()&&ticks%600==0&&life.nutrition()>50&&entity.getHealth()<entity.getMaxHealth()){
+        if(wound>0&&ticks%400==0&&life.nutrition()>=30&&life.hygiene()>=30)healMild();
+        if(!open&&mold<3&&!sick()&&ticks%600==0&&life.nutrition()>50&&entity.getHealth()<entity.getMaxHealth()){
             if(life.spendNutrition(4))entity.heal(1);
-        }
-        if(previousInfection!=infection){
-            GameplayLog.event(entity,"body","infection {} -> {}; open_wound={} hygiene={}",previousInfection,infection,open,life.hygiene());
-            if(BodySigns.infectionTier(previousInfection)!=BodySigns.infectionTier(infection))entity.syncBody();
         }
         if(previousToxin>=SICK_TOXIN&&toxin<SICK_TOXIN)GameplayLog.event(entity,"body","toxin sickness cleared; toxin {} -> {}",previousToxin,toxin);
     }
@@ -739,7 +715,7 @@ public final class BodyLife {
                 stem.brood(),stem.progress(),stem.count(),stem.absentMask(),placedBody?"body":"item");
     }
     public CompoundTag save(){var tag=WoundTags.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
-            WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);tag.putInt("Infection",infection);
+            WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);
         tag.putInt("Ticks",ticks);tag.putBoolean("Settled",settled);
         if(deathFood>=0)tag.putFloat("PendingFood",deathFood);
         if(entryFood>=0)tag.putFloat("EntryFood",entryFood);
@@ -763,7 +739,7 @@ public final class BodyLife {
     }
     public void load(CompoundTag tag){wound=Math.clamp(tag.getInt("Wound"),0,BodyConstants.WOUND_CAP);
         // Old Bandage time is deliberately ignored: loading a save must not restore the removed treatment.
-        infection=Math.clamp(tag.getInt("Infection"),0,8);ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
+        ticks=Math.max(0,tag.getInt("Ticks"));settled=tag.getBoolean("Settled");
         faceMarks=tag.getBoolean("FaceMarks");
         lastBurnAt=tag.contains("LastBurnAt")?tag.getLong("LastBurnAt"):-1;
         mold=Math.clamp(tag.getInt("Mold"),0,8);moldExposure=Math.clamp(tag.getInt("MoldExposure"),0,1199);

@@ -55,15 +55,15 @@ public final class TreatmentItem extends Item {
                 String blocked=entity.body().treatmentBlockReason();
                 String reason=blocked.equals("none")
                         ? kind==Kind.MOLD_REMOVER&&entity.body().mold()>=8?"terminal_mold"
-                        : kind==Kind.ORANGE_JUICE&&entity.body().needsWash()?"needs_wash":"no_applicable_condition"
+                        : "no_applicable_condition"
                         : blocked;
                 GameplayLog.limited(entity,"body","treatment_refused:"+player.getUUID()+":"+kind+":"+reason,20,
-                        "treatment refused; player={} kind={} reason={} item_count={} health={}/{} wounds={} scars={} infection={} mold={}", () -> new Object[]{
+                        "treatment refused; player={} kind={} reason={} item_count={} health={}/{} wounds={} scars={} mold={}", () -> new Object[]{
                             player.getUUID(),kind,reason,before,entity.getHealth(),entity.getMaxHealth(),entity.body().wounds().size(),
-                            entity.status().marks().scarCount(),entity.body().infection(),entity.body().mold()});
+                            entity.status().marks().scarCount(),entity.body().mold()});
                 // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
                 if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40); }
-                else InteractionDispatch.refuse(player,entity,"treatment",reason.equals("needs_wash")?"needs_wash":"condition");
+                else InteractionDispatch.refuse(player,entity,"treatment","condition");
                 return InteractionResult.FAIL;
             }
             if(!player.getAbilities().instabuild){

@@ -789,7 +789,6 @@ final class LifeMeal {
         GameplayLog.event(o.entity(),"meal","swallowed bodyFood portions={} odor={} nutrition={} -> {}",swallowed.portions(),swallowed.odor(),nutritionBefore,o.nutrition());
         o.entity().childhood().firstMealSwallowed();
         sated(nutritionBefore, swallowed.odor() < 40, false, false, false);
-        if (swallowed.odor() >= 40) o.entity().body().contaminated();
         o.entity().pet().contact(null, true);
         WildEvents.fed(o.entity(), null);
         o.entity().mind().ate(swallowed);

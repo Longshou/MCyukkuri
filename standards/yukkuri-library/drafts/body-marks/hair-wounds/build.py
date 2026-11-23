@@ -94,7 +94,6 @@ def main():
             if len(colour)!=3 or any(not isinstance(v,(int,float)) or not 0<=v<=255 for v in colour):
                 raise ValueError(f'Invalid RGB filling palette: {palette_name}/{key}')
     textures={f'{kind}-{grade}.png':material(kind,grade,RECIPE['texture_size']) for kind in KINDS for grade in [1,2,3]}
-    textures.update({f'{kind}-{grade}-infected.png':material(kind,grade,RECIPE['texture_size'],infected=True) for kind in KINDS for grade in [1,2,3]})
     textures['scar.png']=material('scar',size=RECIPE['texture_size'])
     textures.update({f'thermal-{g}.png':material('thermal',g,RECIPE['texture_size']) for g in [1,2,3]})
     face_samples={};texture_inputs=[]
@@ -108,8 +107,8 @@ def main():
                 buf=io.BytesIO();image.save(buf,format='PNG');textures[name]=buf.getvalue()
                 face_samples[name]=dict(model=model,expression=path.stem,grade=grade,scope='whole_body',boxes=boxes)
     for kind in KINDS:
-        for grade,suffix in [(g,s) for g in [1,2,3] for s in ['','-infected']]:
-            pixels=np.asarray(Image.open(io.BytesIO(textures[f'{kind}-{grade}{suffix}.png'])))
+        for grade in [1,2,3]:
+            pixels=np.asarray(Image.open(io.BytesIO(textures[f'{kind}-{grade}.png'])))
             alpha=pixels[...,3]
             if np.any(alpha[[0,-1],:]) or np.any(alpha[:,[0,-1]]) or np.any(pixels[alpha==0,:3]):raise ValueError('Opaque or dirty exterior: '+kind)
     meshes=mesh_jobs();thermal_specs={f'{model}-{scope}-{g}':dict(model=model,scope=scope,severity=g,cause='hot_floor' if scope=='sole' else 'body_fire',damage=sample_damage(g,False,RULES)) for model in RECIPE['models'] for scope in ['sole','whole_body'] for g in [1,2,3]}
@@ -148,7 +147,7 @@ def main():
       coverage=dict(injury_types=['scratch','tear','dent','scorch'],visual_styles=KINDS,grades=[1,2,3],core_causes=CORE_KINDS,core_states=['intact'],
                     filling_palettes=list(RECIPE['filling_palettes']),
                     receivers=['reimu:hair','marisa:hair','reimu:skin'],mesh_count=len(meshes),texture_count=len(textures),dry_face_count=len(face_samples),thermal_scopes=['sole','whole_body'],thermal_sample_count=len(thermal_specs),minecraft_sources=47,source_grade_entries=141),
-      derived_marks=dict(scar='assembled/scar.png; healed mark, not an active injury',infected='assembled/<style>-<grade>-infected.png; festering recolour of the same line work, used while the body is infected',
+      derived_marks=dict(scar='assembled/scar.png; healed mark, not an active injury',
          dirt='../export_wounds.py: dirt_1..3',mold='../export_wounds.py: mold_1..4',char='../export_wounds.py: char (whole sole)',
          paste='Ordinary filling in every open wound, never a surface dot',core='Derived from authored large grade-three cut/crush/bite/blast; narrow punctures excluded; never an independent round hole'),
       provenance='sources.json; sample.spec.cause is mandatory',
@@ -219,8 +218,6 @@ def make_preview(node,preview_root,meshes,thermal_specs,coverage):
     yy,xx=np.indices((512,512));board=np.where(((xx//32+yy//32)%2)[...,None],np.array([207,212,213,255]),np.array([239,242,241,255])).astype(np.uint8)
     cards=[(LABELS[k]+f' · {g}级','棋盘格表示透明区域；创腔另由真实几何表现',Image.alpha_composite(Image.fromarray(board),Image.open(OUT/f'{k}-{g}.png').convert('RGBA'))) for k in KINDS for g in [1,2,3]]
     source.sheet('透明贴图 · 无肤色底','所有机械伤三级的 RGBA 贴图；外围透明，不覆盖原有眼睛或头发。',cards,3,(450,310),footer).save(output/'transparent-decals.png')
-    cards=[(LABELS[k]+f' · {g}级 · 感染','同线稿；紫褐肿缘、黄绿脓点与痂屑',Image.alpha_composite(Image.fromarray(board),Image.open(OUT/f'{k}-{g}-infected.png').convert('RGBA'))) for k in KINDS for g in [1,2,3]]
-    source.sheet('感染伤口 · 化脓变体','身体感染时替换同形同级的机械伤贴图；感染程度由望远镜文字说明，不另分画面。',cards,3,(450,310),footer).save(output/'transparent-decals-infected.png')
     cards=[(f'{LABELS[kind]} · 侧向','腔壁与残留头发真实遮挡中枢',images[f'side-{kind}']) for kind in ['tear','dent']]
     source.sheet('保留发缘 · 侧面检查','毛束仍与外侧头发连接，深处中枢不会移到发面上。',cards,3,(450,360),footer).save(output/'sides.png')
     for model in RECIPE['models']:
@@ -232,7 +229,7 @@ def make_preview(node,preview_root,meshes,thermal_specs,coverage):
     source.sheet('全身烧伤 · 保持高度的干瘦','按高度分布收窄脸颊与下脸，头发贴合；头饰跟随挂点，保持自身尺寸。',cards,4,(350,350),footer).save(output/'thermal-size.png')
     cards=[(('灵梦' if model=='reimu' else '魔理沙')+(' · 健康' if grade==0 else f' · 干枯 {grade}级'),'炭化、短干纹与暗淡唇色；无下巴描线',images[f'{model}-dry-front-{grade}']) for model in RECIPE['models'] for grade in [0,1,2,3]]
     source.sheet('干瘦脸部 · 正面同高对照','参考灵胖的分部位像素画法；不复制灵胖体型，各表情分别派生。',cards,4,(350,350),footer).save(output/'dry-face.png')
-    names=['thermal-size','dry-face','first-grade','damage-thresholds','eye-overlap','mechanisms','reimu-hair-grades','marisa-hair-grades','reimu-skin-grades','transparent-decals','transparent-decals-infected','current','reimu-hair-core','marisa-hair-core','reimu-skin-core','sides','reimu-thermal','marisa-thermal']
+    names=['thermal-size','dry-face','first-grade','damage-thresholds','eye-overlap','mechanisms','reimu-hair-grades','marisa-hair-grades','reimu-skin-grades','transparent-decals','current','reimu-hair-core','marisa-hair-core','reimu-skin-core','sides','reimu-thermal','marisa-thermal']
     for name in ['reimu.png','marisa.png','details.png','impact.png']:
         p=(output/name).resolve()
         if p.parent!=output.resolve():raise ValueError('Preview outside topic')

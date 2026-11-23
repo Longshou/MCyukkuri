@@ -126,12 +126,6 @@ public enum StatusKey {
     MAX_HEALTH("health", "max_health", 0, y -> Math.round(y.getMaxHealth() * 10) / 10f, null),
     WOUND("health", "wound", 0, y -> y.body().wound(), (y, raw) -> wound(y, raw, false)),
     BURNS("health", "burns", 0, y -> y.body().burns(), (y, raw) -> wound(y, raw, true)),
-    INFECTION("health", "infection", 0, y -> y.body().infection(), (y, raw) -> {
-        Float v = number(raw);
-        if (v == null) return "need a number";
-        for (int i = y.body().infection(); i < Math.min(8, Math.round(v)); i++) y.body().contaminated();
-        return Math.round(v) < y.body().infection() ? "infection only rises by hand; wash, then treat with orange juice" : null;
-    }),
     /** Write-only: apply a real treatment ({@code orange}, {@code paste}, {@code mold}). */
     TREAT("health", "treat", 0, null, (y, raw) -> {
         boolean done = switch (raw.trim().toLowerCase(Locale.ROOT)) {

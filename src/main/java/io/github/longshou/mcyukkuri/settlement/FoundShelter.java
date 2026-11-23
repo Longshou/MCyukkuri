@@ -193,7 +193,7 @@ public final class FoundShelter implements MotorOwner {
                 && !y.isPassenger() && !y.isVehicle() && !y.isLeashed() && !y.isInWaterOrBubble()
                 && !y.profile().aquatic() && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
                 && !y.settlement().settlementMember() && !y.settlement().society().slave()
-                && !y.operations().active() && !y.body().sick() && y.body().mold() == 0 && y.body().infection() == 0
+                && !y.operations().active() && !y.body().sick() && y.body().mold() == 0
                 && y.body().wounds().isEmpty() && !y.body().footBurned() && !y.body().dying()
                 && y.family().brood() == null && !y.family().birthDuty();
     }

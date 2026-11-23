@@ -167,7 +167,7 @@ public final class ExamSession {
         if (pet.effectiveGrade() != grade) return "not_owned";
         if (y.profile().aquatic() || y.profile().dangerToYukkuri() || y.profile().houseBody()) return "not_ready";
         if (y.family().laboring() || y.family().birthDuty()) return "labor";
-        if (y.body().mold() > 0 || y.body().toxin() > 0 || y.body().condition().infection() > 0 || y.mind().nonYukkuri()
+        if (y.body().mold() > 0 || y.body().toxin() > 0 || y.mind().nonYukkuri()
                 || y.getHealth() <= y.getMaxHealth() * .3f) return "sick";
         if (y.mind().sweetness() >= 60 || y.mind().unease() >= 60) return "uneasy";
         if (y.life().personality().fear(examiner.getUUID()) >= 50) return "scared";

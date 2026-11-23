@@ -49,7 +49,7 @@ public final class SocialDisposition {
         double loss = !hat.lost() ? 0 : hat.since() == 0 && hat.cause().isEmpty() ? 1 : ramp(now - hat.since(), 0, DAY);
         var body = entity.body().condition();
         double illness = Math.max(ramp(body.painSeverity(), 0, 3),
-                Math.max(ramp(Math.max(body.infection(), body.mold()), 0, 3), body.sick() ? 1 : 0));
+                Math.max(ramp(body.mold(), 0, 3), body.sick() ? 1 : 0));
         boolean slave = entity.settlement().society().slave();
         long freed = entity.settlement().lastFreedAt();
         double recovery = slave || freed < 0 ? 0 : 1 - ramp(now - freed, 0, DAY);

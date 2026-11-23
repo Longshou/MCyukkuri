@@ -39,7 +39,7 @@ public final class HookRescueGoal extends Goal {
                 && !helper.operations().active() && !helper.family().birthDuty() && !helper.family().laboring()
                 && helper.family().brood()==null && !helper.pet().busy() && helper.life().mealTicks()==0
                 && !helper.isVehicle() && !helper.isCommandPlaying()
-                && body.wound()==0 && body.burns()==0 && body.infection()==0 && body.mold()==0
+                && body.wound()==0 && body.burns()==0 && body.mold()==0
                 && helper.component(YukkuriComponents.MOUTH).purpose()==null;
     }
 

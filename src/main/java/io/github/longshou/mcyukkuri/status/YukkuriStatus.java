@@ -176,7 +176,6 @@ public final class YukkuriStatus {
         if ((boolean) get(y, StatusKey.AFTERMATH)) text.append(" 事后茎负担");
         if ((int) get(y, StatusKey.WOUND) > 0) text.append(" 伤").append(get(y, StatusKey.WOUND));
         if ((int) get(y, StatusKey.BURNS) > 0) text.append(" 灼").append(get(y, StatusKey.BURNS));
-        if ((int) get(y, StatusKey.INFECTION) > 0) text.append(" 感染").append(get(y, StatusKey.INFECTION));
         if ((int) get(y, StatusKey.DIRT) > 0) text.append(" 脏").append(get(y, StatusKey.DIRT));
         if ((int) get(y, StatusKey.SCARS) > 0) text.append(" 疤").append(get(y, StatusKey.SCARS));
         var mind = y.mind();

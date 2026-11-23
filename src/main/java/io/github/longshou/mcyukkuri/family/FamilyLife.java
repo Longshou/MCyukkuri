@@ -2044,7 +2044,7 @@ public final class FamilyLife {
         var liked = visibleLikedAdult();
         boolean healthy = entity.getHealth() >= entity.getMaxHealth() * .8 && body.condition().readyForReproduction();
         float rate = PentUpMath.rate(life.nutrition() >= 65, healthy, entity.mind().stage() != MindLife.Stage.CALM,
-                life.nutrition() < 40, body.mold() > 0 || body.toxin() > 0 || body.infection() > 0,
+                life.nutrition() < 40, body.mold() > 0 || body.toxin() > 0,
                 liked != null, entity.getVariant() == YukkuriVariant.ALICE);
         pentUp = PentUpMath.add(pentUp, 20 * rate);
         if (entity.tickCount % 300 == 0 && !entity.agitation().active() && !inBreedingPeriod()

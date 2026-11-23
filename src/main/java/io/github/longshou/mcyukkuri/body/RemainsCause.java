@@ -38,7 +38,7 @@ public final class RemainsCause {
         if (detail.startsWith("core_")) return VIOLENT;
         switch (detail) {
             case "old_age", "offering" -> { return NATURAL; }
-            case "poison", "mold", "non_yukkuri", "infection", "toxin" -> { return SICK; }
+            case "poison", "mold", "non_yukkuri", "toxin" -> { return SICK; }
             // A neglected leaf swaddle that hardened and held the stool in (family/LeafSwaddle): the swollen body in its leaf.
             case LeafSwaddle.RETENTION -> { return RETAINED; }
             case "leak" -> { return VIOLENT; }

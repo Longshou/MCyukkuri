@@ -679,7 +679,6 @@ public final class ShopStaff {
         staff.getLookControl().setLookAt(point.x, point.y, point.z, 30, 30);
         ++job.timer;
         if (job.kind == Kind.TREAT) {
-            if (job.dose == TreatmentItem.Kind.ORANGE_JUICE && staff.washing(y)) { job.timer = 0; return; }
             if (job.timer == HumanNpc.DOSE_SWING_TICKS) staff.swing(InteractionHand.MAIN_HAND);
             if (job.timer < HumanNpc.DOSE_TICKS) return;
             if (staff.applyDose(y, job.dose)) end(staff, job, "treated");
