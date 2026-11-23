@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 虚弱个体不能蹦跳 | `.worktrees/wp-frail-gait` | body/BodyAbility、AbilityMath、步态与原地跳片段 |
 | 牵引绳不需特定装备 | `.worktrees/wp-leash-vanilla` | YukkuriInteractions、牵引装备物品与资源、相关场景 |
 | 寻路互相堵路（相遇让路） | `.worktrees/wp-encounter` | YukkuriGroundNavigation、让路相关 |
 | 共用目击与感知逻辑（第一包） | `.worktrees/wp-perception` | perception/、PetRequests、LifeHome |
