@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 防腐检查：文档引用、场景与台词死链检查，合入时归档任务说明与报告 | `.worktrees/wp-anti-rot` | scripts/check_doc_refs.py (new); scripts/pkg.py; scripts/README.md; docs/roles/docs.md, lead.md |
 
 ## 玩法待办
 
