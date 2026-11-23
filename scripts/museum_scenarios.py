@@ -3998,9 +3998,21 @@ add('swaddle_worn', 'town', '八款布襁褓穿上并排，可亲手包', '八�
           *[f'minecraft:{dye}_dye 1' for dye in ('white', 'pink', 'red', 'orange', 'light_blue', 'brown', 'blue', 'green')]],
     reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
+def lead_walk_check(window):
+    """The refused lead is tried once, not in a loop; every stray answered all three beats."""
+    refusals = re.findall(r'\[interaction\][^\n]*action=leash reason=', window)
+    if len(refusals) > 1: return f'the refused lead was tried {len(refusals)} times'
+    for beat in ('stranger_leashed', 'stranger_pulled', 'stranger_released'):
+        found = len(re.findall(rf'\[lead\][^\n]*beat={beat} ', window))
+        if found < 3: return f'only {found} of the three strays answered {beat}'
+    if not re.search(r'\[lead\][^\n]*beat=stranger_release_look ', window): return 'the frightened stray never looked back'
+    return None
+
+
 add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵引绳：自家的宠物与无主的个体',
-    '手持原版牵引绳依次右键：自家的灵梦会跟着走；无主的流浪油按性情回答拉拽——温顺的跟着走，胆大的鼓腮抗议，胆小的含泪挣扎；'
-    '院主的宠物会拒绝。松开绳子后它们照常生活', '随意', [
+    '手持原版牵引绳依次右键：自家的灵梦会跟着走；无主的流浪油按性情演三段——刚拴上时胆小的惊吓、胆大的鼓腮抗议、温顺的只是吃惊，'
+    '拉紧时胆小的含泪挣扎、胆大的顶住抱怨、温顺的跟着走，松开后胆小的跑开几步回头看、胆大的哼一声走开、温顺的留在原地；'
+    '院主的宠物会拒绝。', '随意', [
         yk('reimu', -3, 0, 'lead_pet', lead=True, nutrition=60, energy=100, hygiene=100, label='自家的灵梦'), *own('lead_pet'),
         yk('marisa', 0, 2, 'lead_tame', uuid=uid('lead_walk', 'lead_tame'), identity='STRAY', label='温顺的流浪魔理沙',
            friendliness=90, boldness=60, nutrition=80),
@@ -4015,20 +4027,33 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
     ], env=DAY,
     give=['minecraft:lead 6', 'minecraft:apple 6'],
     reads=[('读胆大的流浪油', f'yukkuri status {sel("lead_bold")} raw')], vantage=(0, 8),
-    smoke=dict(ticks=180, commands=[
+    smoke=dict(ticks=340, verify=lead_walk_check, commands=[
         (10, 'yukkuri scenario tool_operator enter'),
         (11, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"player"}}'),
         (12, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED}.Owner set from entity @s UUID'),
-        *((tick, f'execute at {sel(name)} positioned ~1 ~ ~ run yukkuri scenario tool_operator move')
-          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (60, 'lead_bold'), (70, 'lead_shy'))),
+        *((tick, f'execute at {sel(name)} positioned ~{away} ~ ~ run yukkuri scenario tool_operator move')
+          for tick, name, away in ((30, 'lead_other', 1), (40, 'lead_pet', 1), (50, 'lead_tame', 1), (60, 'lead_tame', 5),
+                                   (66, 'lead_tame', 1), (80, 'lead_bold', 1), (90, 'lead_bold', 5), (96, 'lead_bold', 1),
+                                   (110, 'lead_shy', 1), (120, 'lead_shy', 5), (126, 'lead_shy', 1))),
         *((tick + 1, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel(name)}')
-          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (60, 'lead_bold'), (70, 'lead_shy'))),
-        (179, 'yukkuri scenario tool_operator leave'),
-    ], forbid=[], expect=[r'\[interaction\][^\n]*action=leash reason=owner',
-               r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
-               r'\[lead\][^\n]*beat=stranger_follow face=none line=none',
-               r'\[lead\][^\n]*beat=stranger_protest face=cheek_puff line=puff',
-               r'\[lead\][^\n]*beat=stranger_pull face=teary line=harness_tug']))
+          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (80, 'lead_bold'), (110, 'lead_shy'))),
+        *((tick, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
+          for tick, name in ((45, 'lead_pet'), (70, 'lead_tame'), (100, 'lead_bold'), (130, 'lead_shy'))),
+        (330, 'yukkuri scenario tool_operator leave'),
+    ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
+        expect=[r'\[interaction\][^\n]*action=leash reason=owner',
+                r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
+                r'\[scenario\][^\n]*action=unleash player=',
+                r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=wait_turn',
+                r'\[lead\][^\n]*beat=stranger_leashed face=puff line=sulk_huff',
+                r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=harness_tug',
+                r'\[lead\][^\n]*beat=stranger_pulled face=happy line=walk_enjoy',
+                r'\[lead\][^\n]*beat=stranger_pulled face=puff line=harness_tug',
+                r'\[lead\][^\n]*beat=stranger_pulled face=horrified line=afraid',
+                r'\[lead\][^\n]*beat=stranger_released face=happy line=glow_hum',
+                r'\[lead\][^\n]*beat=stranger_released face=hmph line=sulk_huff',
+                r'\[lead\][^\n]*beat=stranger_released face=horrified line=narrate_flee',
+                r'\[lead\][^\n]*beat=stranger_release_look face=teary line=shaken_after']))
 
 add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：停等或走偏',
     '两位居民分别带自制力高的灵梦和自制力低的魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [

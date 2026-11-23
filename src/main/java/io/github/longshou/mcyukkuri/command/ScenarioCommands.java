@@ -237,6 +237,8 @@ public final class ScenarioCommands {
                         .then(Commands.argument("item", StringArgumentType.word()).executes(ScenarioCommands::careClick))))
                 .then(Commands.literal("leash").then(Commands.argument("target", EntityArgument.entity())
                         .executes(ScenarioCommands::leash)))
+                .then(Commands.literal("unleash").then(Commands.argument("target", EntityArgument.entity())
+                        .executes(ScenarioCommands::unleash)))
                 .then(Commands.literal("owner_at").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.literal("watch").executes(c -> ownerAt(c, 4)))
                         .then(Commands.literal("away").executes(c -> ownerAt(c, 30)))))
@@ -660,7 +662,6 @@ public final class ScenarioCommands {
         return done ? 1 : 0;
     }
 
-    /** Drives the real held-item boundary on a dedicated smoke server. */
     /** Smoke helper: the scenario player attaches a vanilla lead as the right-click would, through the shared leash refusal. */
     private static int leash(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var target = yukkuri(c, "target");
@@ -673,6 +674,17 @@ public final class ScenarioCommands {
         return 1;
     }
 
+    /** Smoke helper: the scenario player lets go of a lead by the right-click the game answers (dropLeash and the item return). */
+    private static int unleash(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        var player = c.getSource().getPlayer();
+        if (target == null || player == null || target.getLeashHolder() != player) return 0;
+        var result = player.interactOn(target, InteractionHand.MAIN_HAND);
+        GameplayLog.event(target, "scenario", "action=unleash player={} result={}", player.getUUID(), result);
+        return result.consumesAction() && target.getLeashHolder() == null ? 1 : 0;
+    }
+
+    /** Drives the real held-item boundary on a dedicated smoke server. */
     private static int careClick(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var target = yukkuri(c, "target");
         if (target == null) return 0;

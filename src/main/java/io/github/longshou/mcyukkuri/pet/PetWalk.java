@@ -27,6 +27,9 @@ public final class PetWalk {
     public static final double UNIT = 64;
     public static final int UNITS_PER_DAY = 4, TUG_INTERVAL = 400;
     private static final double TURN_RANGE_SQR = 16;
+    /** Blocks a released body puts between itself and the lead holder, and ticks the leaving may take before it ends. */
+    private static final double LEAVE_DISTANCE = 3;
+    private static final int LEAVE_TICKS = 120;
     private final YukkuriEntity animal;
     private Vec3 last, lastPet;
     private boolean moving;
@@ -39,6 +42,10 @@ public final class PetWalk {
     private Vec3 turnAside;
     private Boolean manners;
     private UUID strangerHolder;
+    private Vec3 strangerPoint, strangerTarget;
+    private boolean strangerAttached, strangerLeashed, strangerAnswered;
+    private int strangerLeave;
+    private long strangerUntil;
 
     public PetWalk(YukkuriEntity animal) { this.animal = animal; }
 
@@ -86,12 +93,13 @@ public final class PetWalk {
 
     public void tick() {
         var holder = animal.getLeashHolder();
-        // A free individual on someone's lead is no pet walk; it reacts to the pull itself.
+        // A free individual on someone's lead is no pet walk; it answers the lead itself, beat by beat.
         if (holder instanceof Player player && animal.status().identity().free()) {
             strangerLead(player);
             return;
         }
-        strangerHolder = null;
+        if (strangerAttached) strangerReleased(holder);
+        strangerLeaveTick();
         // The owner is a player, or a resident (HumanNpc) walking its own pet: both count the same blocks.
         boolean led = onOwnerLead(holder);
         if (!led) holder = animal.outing().escort();
@@ -157,30 +165,123 @@ public final class PetWalk {
     }
 
     /**
-     * An unowned individual on a player's lead (docs/FEATURES.md): it answers the pull by its own nature. A tame, friendly one walks
-     * along quietly; a bold one protests; a timid or fearful one struggles against the pull. The lead is taut when it lags beyond the
-     * vanilla close-follow range, which is when the pull asks for an answer; the first answer comes as soon as the lead is on.
+     * An unowned individual on a player's lead (docs/FEATURES.md): three beats, each answered by its own temperament. The lead
+     * snaps on (a timid or fearful body startles, a bold one protests, a friendly one is merely surprised), the taut rope pulls
+     * (the fearful strains, the bold digs in, the friendly walks along), and the lead comes off (the fearful bolts and looks
+     * back, the bold huffs off, the friendly lingers). The lead is taut when it lags beyond the vanilla close-follow range, and
+     * only then does the pull ask again. Every beat ends: the pull waits {@link #TUG_INTERVAL}, the leaving walk ends on
+     * arrival, a blocked step or {@link #LEAVE_TICKS}.
      */
     private void strangerLead(Player holder) {
-        boolean first = !holder.getUUID().equals(strangerHolder);
-        if (first) { strangerHolder = holder.getUUID(); tugWait = 0; }
+        if (!strangerAttached || !holder.getUUID().equals(strangerHolder)) {
+            if (strangerLeave != 0) SurfaceApproach.stopWalking(animal); // a new lead ends an unfinished leave
+            strangerHolder = holder.getUUID();
+            strangerAttached = true; strangerLeashed = false; strangerAnswered = false;
+            strangerLeave = 0; strangerTarget = null; tugWait = 0;
+        }
+        strangerPoint = holder.position();
+        if (!strangerLeashed) {
+            // A refused answer (a held reaction) is not burned: the snap-on answer is asked again next tick.
+            if (answer(holder, "stranger_leashed")) strangerLeashed = true;
+            return;
+        }
         if (tugWait > 0) { tugWait--; return; }
-        if (!first && animal.distanceToSqr(holder) <= TURN_RANGE_SQR) return;
-        tugWait = TUG_INTERVAL;
+        if (animal.distanceToSqr(holder) <= TURN_RANGE_SQR) return;
+        if (answer(holder, "stranger_pulled")) tugWait = TUG_INTERVAL;
+    }
+
+    /** One visible answer to the lead; false when a held reaction refused it, so the caller asks again next tick. */
+    private boolean answer(Player holder, String beat) {
         var personality = animal.life().personality();
         var traits = personality.temperament();
         int fear = personality.fear(holder.getUUID());
-        boolean timid = traits.is(Gate.TIMID), bold = traits.is(Gate.BOLDISH), friendly = personality.friendliness() >= 60;
+        boolean scared = traits.is(Gate.TIMID) || fear >= 50;
+        boolean friendly = personality.friendliness() >= 60;
+        boolean bold = !friendly && traits.is(Gate.BOLDISH);
+        YukkuriAction action;
         String face, line;
-        if (!timid && fear < 50 && friendly) { face = "none"; line = "none"; } // a tame stray simply comes along
-        else if (!timid && fear < 50 && bold) { face = "cheek_puff"; line = "puff"; }
-        else { face = "teary"; line = "harness_tug"; }
-        boolean answered = line.equals("none") || (line.equals("puff")
-                ? animal.showReaction(YukkuriAction.PUFF, face, line, 70) : animal.showReaction(face, line, 70));
-        if (!answered) return;
+        if (beat.equals("stranger_leashed")) {
+            if (scared) { action = YukkuriAction.STARTLE; face = "surprise"; line = "harness_tug"; }
+            else if (bold) { action = YukkuriAction.PUFF; face = "puff"; line = "sulk_huff"; }
+            else { action = YukkuriAction.STARTLE; face = "surprise"; line = "wait_turn"; }
+        } else if (scared) { action = YukkuriAction.STRUGGLE; face = "horrified"; line = "afraid"; }
+        else if (bold) { action = YukkuriAction.PUFF; face = "puff"; line = "harness_tug"; }
+        else { action = YukkuriAction.TURN; face = "happy"; line = "walk_enjoy"; }
+        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40))) return false;
         GameplayLog.event(animal, "lead", "beat={} face={} line={} fear={} timid={} bold={} friendly={} holder={}",
-                line.equals("none") ? "stranger_follow" : line.equals("puff") ? "stranger_protest" : "stranger_pull",
-                face, line, fear, timid, bold, friendly, holder.getUUID());
+                beat, face, line, fear, traits.is(Gate.TIMID), traits.is(Gate.BOLDISH), friendly, holder.getUUID());
+        return true;
+    }
+
+    /** The lead came off (right-click, a broken lead or a pick-up): the last beat, then the body leaves or lingers. */
+    private void strangerReleased(Entity holder) {
+        strangerAttached = false;
+        tugWait = 0;
+        if (holder instanceof Player) { strangerLeave = 0; strangerHolder = null; return; } // ownership took the lead over
+        var personality = animal.life().personality();
+        var traits = personality.temperament();
+        int fear = strangerHolder == null ? 0 : personality.fear(strangerHolder);
+        boolean scared = traits.is(Gate.TIMID) || fear >= 50;
+        boolean friendly = personality.friendliness() >= 60;
+        boolean bold = !friendly && traits.is(Gate.BOLDISH);
+        strangerLeave = scared ? 1 : bold ? 2 : 3;
+        strangerAnswered = false;
+        strangerTarget = strangerLeave == 3 ? null : awayStand();
+        strangerUntil = animal.level().getGameTime() + LEAVE_TICKS;
+    }
+
+    /** A supported stand about {@link #LEAVE_DISTANCE} blocks from where the holder last stood, the way away first. */
+    private Vec3 awayStand() {
+        if (strangerPoint == null) return null;
+        var away = animal.position().subtract(strangerPoint).multiply(1, 0, 1);
+        if (away.lengthSqr() < .01) away = new Vec3(1, 0, 0);
+        for (double angle : new double[]{0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2,
+                3 * Math.PI / 4, -3 * Math.PI / 4, Math.PI}) {
+            var direction = new Vec3(away.x * Math.cos(angle) - away.z * Math.sin(angle), 0,
+                    away.x * Math.sin(angle) + away.z * Math.cos(angle)).normalize();
+            var stand = SurfaceApproach.floor(animal, animal.position().add(direction.scale(LEAVE_DISTANCE)));
+            if (stand != null) return stand;
+        }
+        return null;
+    }
+
+    /** The last beat in progress: its answer, then a few blocks of fleeing or walking off, or just lingering. */
+    private void strangerLeaveTick() {
+        if (strangerLeave == 0) return;
+        long now = animal.level().getGameTime();
+        if (!strangerAnswered) {
+            if (strangerAnswer()) { strangerAnswered = true; return; }
+            if (now >= strangerUntil) { strangerLeave = 0; strangerHolder = null; }
+            return;
+        }
+        if (strangerLeave == 3) { strangerLeave = 0; strangerHolder = null; return; } // it lingers where it is
+        boolean walking = strangerTarget != null && animal.onGround() && !animal.isPassenger() && now < strangerUntil
+                && SurfaceApproach.walkResult(animal, strangerTarget, null, 1) != SurfaceApproach.Result.ARRIVED;
+        if (walking) return;
+        SurfaceApproach.stopWalking(animal);
+        boolean look = strangerLeave == 1;
+        strangerLeave = 0;
+        strangerHolder = null;
+        if (look) lookBack();
+    }
+
+    private boolean strangerAnswer() {
+        YukkuriAction action;
+        String face, line;
+        if (strangerLeave == 1) { action = YukkuriAction.FLEE; face = "horrified"; line = "narrate_flee"; }
+        else if (strangerLeave == 2) { action = YukkuriAction.PUFF; face = "hmph"; line = "sulk_huff"; }
+        else { action = YukkuriAction.LOOK_AROUND; face = "happy"; line = "glow_hum"; }
+        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40))) return false;
+        GameplayLog.event(animal, "lead", "beat=stranger_released face={} line={} leave={}", face, line, strangerLeave);
+        return true;
+    }
+
+    /** The frightened one stops a few blocks away and looks back at where the holder last stood. */
+    private void lookBack() {
+        if (strangerPoint != null)
+            animal.getLookControl().setLookAt(strangerPoint.x, strangerPoint.y + animal.getEyeHeight(), strangerPoint.z, 30, 30);
+        if (!animal.showReaction(YukkuriAction.LOOK_AROUND, "teary", "shaken_after", YukkuriAction.LOOK_AROUND.durationTicks())) return;
+        GameplayLog.event(animal, "lead", "beat=stranger_release_look face={} line={}", "teary", "shaken_after");
     }
 
     private Vec3 aside(LivingEntity owner) {
