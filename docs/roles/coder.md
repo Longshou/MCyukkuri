@@ -20,7 +20,7 @@
 
 - 每项修复注明场景及应观察的状态／数值；新增或改名的试玩场景在交付时写明所在场地与按钮名。“清空本场地”后重开须恢复实体、账本和地形初态，提供合适群系、真实有限物资和链路阶段读数；场景出错先修场景。清场与场景边界见[功能说明](../FEATURES.md#试玩场与动作博物馆)。
 - 场景只提供被测行为所需的真实起点，不指定 Goal 或直接完成被测环节，不绕过碰撞、护幼或性格条件。后半段行为可用已有帽船、库存和乘员作为初态，但准备成功不算行为成功；一个场景一条真实路径，按钮名就是玩家看到的内容；参数不同的重复按钮合并，真实路径不同的边界保留。
-- 场景、读数和按钮源在 `scripts/museum_*.py`。场景准备命令依赖落地的须在召唤后 2 秒执行；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录。
+- 场景、读数和按钮源在 `scripts/museum_*.py`。场景准备命令依赖落地的须在召唤后 2 秒执行（`Scenario(at_spawn=...)` 在召唤同一 tick 执行，只给不需落地的命令，如家）；`/tick` 需等级 3，函数和命令方块仅等级 2；直接 `/function mcylab:scn/<id>` 不清场；`build_museum_full.py --pack-only --output` 须为 `.local/experimental-map/` 或 `.local/smoke/` 下不存在的新目录。
 
 ## 3. 日志留痕
 

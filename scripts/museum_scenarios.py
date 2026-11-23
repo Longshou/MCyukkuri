@@ -55,7 +55,8 @@ class Scenario:
         # self.number is set once every scenario exists (``_number_scenes``), so that the pond tour order is known.
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
         self.lines, self.give, self.env = surface_demo_lines(sid,lines), list(give), env or {}
-        # settings that need the individuals to stand on the ground (a home, a conception, a boat) run two seconds after the summons
+        # settings that need the individuals to stand on the ground (a conception, a boat, a landing-dependent survey) run two seconds after the summons;
+        # `at_spawn` is only for commands that need no grounded body (a home works on a just-summoned one)
         deferred = [i for i, line in enumerate(self.lines) if line.startswith(LATE_COMMANDS)]
         self.late_lines = [self.lines[i] for i in deferred]
         # ``at_spawn``: commands run in the same tick as the summons, so the setting is in force before the first plan
@@ -4069,7 +4070,7 @@ for _s in (-1, 1):
                       box(-2, 2, 6 * _s, 2, 2, 10 * _s, 'minecraft:oak_planks'),
                       block(0, 0, 8 * _s, f'mcyukkuri:yukkuri_nest[facing={"south" if _s < 0 else "north"}]')]
 add(_corridor, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
-    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧巷口站着一只、左（南）侧玻璃侧袋口站着另一只疲倦、互不相识的成体，各自的窝在对面巷底的小屋里。两只回窝时在侧袋北沿的窄段迎面顶住：看谁让路——沿来路后退、退到侧袋处挪进去——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
+    '镜头朝西：石墙与玻璃橱窗夹出一格宽的窄巷，右（北）侧巷口站着一只、左（南）侧玻璃侧袋口站着另一只疲倦、互不相识的成体，各自的窝在对面巷底的小屋里。两只回窝时在侧袋北沿的窄段迎面顶住：看谁让路——沿来路后退（退进侧袋或巷底）——另一只走过；相撞时动作与头顶符号应保持连续。谁让路随体型与胆量变化，可重开对比。',
     '约 30 秒', [
         *_corridor_set,
         yk(('reimu', 'marisa'), 0, -5, 'corridor_north', uuid=uid(_corridor, 'corridor_north'), label='北端回窝的成体',
@@ -8110,7 +8111,7 @@ _smoke('magma_sole', 600, [
 # head-on, and its action (gives_way, backs_off, keeps_line, ...) names who yielded and how.
 _corridor_logs = [_uuid_text(_corridor, slot) for slot in ('corridor_north', 'corridor_south')]
 _smoke('street_corridor', 1200, [
-    rf'\[move\][^\n]*uuid=(?:{_corridor_logs[0]}|{_corridor_logs[1]})\b[^\n]*blocked by yukkuri [^\n]* action=',
+    rf'\[move\][^\n]*uuid=(?:{_corridor_logs[0]}|{_corridor_logs[1]})\b[^\n]*blocked by yukkuri [^\n]* action=(?:gives_way|backs_off)\b',
     *[rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in _corridor_logs]])
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
