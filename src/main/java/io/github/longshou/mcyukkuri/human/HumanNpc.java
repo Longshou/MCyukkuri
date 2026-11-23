@@ -550,6 +550,11 @@ public final class HumanNpc extends PathfinderMob {
                 else mob.getMoveControl().setWantedPosition(stand.x, stand.y, stand.z, speedModifier);
                 return;
             }
+            if (stroll().waitingForCompanion()) {
+                lastTimeoutCheck = level.getGameTime();
+                Motor.waitOnFoot(mob);
+                return;
+            }
             super.tick();
         }
 

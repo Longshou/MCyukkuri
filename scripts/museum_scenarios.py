@@ -10135,7 +10135,31 @@ _smoke('yard_stray_scold', 1200, [
 ], readout=['yukkuri homeclaim status', f'data get entity {sel("yard_stray")} Pos', 'data get block ~5 ~ ~2 Items'])
 
 
+def _verify_outing_pace(window, min_speed=1.1, max_speed=2.4, max_leash=6.0):
+    if not re.search(r'action=outing_pace mode=\w+ cause=\w+ req=[\d.]+ target=[\d.]+ ', window):
+        return 'no outing_pace change log found'
+    legs = re.findall(
+        r'action=outing_leg_pace phase=(\w+) ticks=(\d+) dist=([\d.]+) speed=([\d.]+) '
+        r'mean_req=([\d.]+) max_gap=([\d.]+) slow_ticks=(\d+) wait_ticks=(\d+) cap=(\w+)', window)
+    if not legs:
+        return 'no outing_leg_pace summary logged'
+    depart_legs = [row for row in legs if row[0] == 'depart' and int(row[1]) >= 20]
+    if not depart_legs:
+        return f'no depart leg pace summary with >=20 ticks (saw {legs})'
+    depart_speed = float(depart_legs[0][3])
+    if not (min_speed <= depart_speed <= max_speed):
+        return f'owner depart mean speed {depart_speed:.2f} b/s outside [{min_speed:.2f}, {max_speed:.2f}] ({depart_legs[0]})'
+    for row in legs:
+        gap = float(row[5])
+        if gap >= max_leash:
+            return f'leash stretched to {gap:.2f}b (>= {max_leash:.2f}b drag limit) on {row[0]} leg ({row})'
+    return None
+
+
 def _outing_crossings(window, trace):
+    pace_err = _verify_outing_pace(window)
+    if pace_err:
+        return pace_err
     departed = re.search(r' t=(\d+) [^\n]*action=outing_depart pets=2 ', window)
     if not departed:
         return 'the resident never left with both pets'
@@ -10306,7 +10330,7 @@ def _park_play_pet_fates(window):
         return f'park rebounds did not follow weight, energy and boldness: heavy={heavy} light={light}'
     if re.search(r'trampoline wait ended reason=\w+ at=[^\n]* waited=[1-9]\d*/', window) and not waited:
         return 'a pet held the waiting stand beside the trampoline without logging wait_watch'
-    return None
+    return _verify_outing_pace(window)
 
 
 # The park's facilities are terrain (the field writes the blocks PlayItem.place sets), so no marker placement is logged: the start

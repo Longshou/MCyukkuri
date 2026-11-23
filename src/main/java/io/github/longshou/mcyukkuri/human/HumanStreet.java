@@ -14,7 +14,9 @@ import io.github.longshou.mcyukkuri.life.Expulsion;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.StallTheft;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
+import io.github.longshou.mcyukkuri.motor.geom.OutingPace;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -36,6 +38,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -760,6 +763,12 @@ final class HumanStreet {
         private HumanNpc.DoorExit doorWait;
         private int doorUntil;
         private double pace;
+        private OutingPace.Mode paceMode = OutingPace.Mode.CRUISE;
+        private String legPhase;
+        private Vec3 paceLastPos;
+        private int legTicks, legSlowTicks, legWaitTicks;
+        private double legDist, legReqSum, legMaxGap;
+        private String legLastCap = "cruise";
         private YukkuriEntity glance;
         private int glanceAt;
         private long nextOuting;
@@ -795,6 +804,10 @@ final class HumanStreet {
         boolean calling(YukkuriEntity pet) { return called == pet; }
         boolean escorts(YukkuriEntity pet) { return companions.contains(pet) && pet.pet().ownedBy(npc.getUUID()); }
         HumanNpc.DoorExit doorWait() { return doorWait; }
+        boolean waitingForCompanion() {
+            return outing() && !parkLingering() && !plazaRest && called == null && doorWait == null
+                    && paceMode == OutingPace.Mode.WAIT;
+        }
         Vec3 doorFollowerStand(YukkuriEntity pet) {
             return doorWait != null && doorWait.keeperInPlace(npc) && trailing(doorWait, pet)
                     ? doorWait.stand(false) : null;
@@ -968,6 +981,7 @@ final class HumanStreet {
             landmarks.sort(Comparator.comparing((Marker m) -> !m.getTags().contains("mcy_park_walk"))
                     .thenComparingDouble(npc::distanceToSqr));
             // As with the companion cover search, bound route probes when several lots overlap.
+            pace = initialPace();
             int plazaProbes = visitPlaza();
             boolean routed = plaza != null;
             for (var marker : landmarks.stream().limit(8 - plazaProbes).toList()) {
@@ -985,9 +999,9 @@ final class HumanStreet {
             }
             if (!routed) { returnHome("destination_unreachable"); return; }
             lagTicks = 0;
-            pace = .55;
             glanceAt = npc.tickCount;
             GameplayLog.event(npc, "npc-care", "action=outing_depart pets={} destination={}", companions.size(), GameplayLog.at(destination));
+            beginPaceLeg("depart");
             var crate = crate();
             if (parkDestination != null && npc.getMainHandItem().isEmpty() && crate != null && PicnicFood.apple(crate.frontItem())
                     && companions.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand() + 15)) {
@@ -1021,6 +1035,7 @@ final class HumanStreet {
         }
 
         private void pauseAtPlaza() {
+            endPaceLeg();
             endGlance();
             npc.getNavigation().stop();
             double wariness = companions.stream().mapToDouble(pet ->
@@ -1124,6 +1139,7 @@ final class HumanStreet {
         }
 
         private void returnHome(String reason) {
+            endPaceLeg();
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             endGlance();
             doorWait = null;
@@ -1149,6 +1165,10 @@ final class HumanStreet {
             var bowl = npc.yardBowl();
             homeYards = bowl == null ? List.of() : TownMarkers.yards((ServerLevel) npc.level(), bowl).toList();
             missedHomeStands.clear();
+            if (!companions.isEmpty()) {
+                pace = initialPace();
+                beginPaceLeg("return");
+            }
             if (returningToYard()) {
                 homePath = null;
                 last = npc.position();
@@ -1189,7 +1209,7 @@ final class HumanStreet {
                 stands.remove(homePath.getTarget());
                 path = stands.isEmpty() ? null : npc.yardPath(stands, blocker);
             }
-            if (path != null && path.canReach() && nav.moveTo(path, .65)) {
+            if (path != null && path.canReach() && nav.moveTo(path, moveSpeed())) {
                 homePath = path;
                 last = npc.position();
                 stalled = 0;
@@ -1307,7 +1327,7 @@ final class HumanStreet {
                 var stand = target.cell().relative(side);
                 if (!standable(stand)) continue;
                 var path = nav.createPath(stand, 0);
-                if (path != null && path.canReach() && nav.moveTo(path, .65)) return true;
+                if (path != null && path.canReach() && nav.moveTo(path, moveSpeed())) return true;
             }
             return false;
         }
@@ -1565,6 +1585,7 @@ final class HumanStreet {
         }
 
         private void finishReturn(String result) {
+            endPaceLeg();
             GameplayLog.event(npc, "npc-care", "action=outing_{}", result);
             if (npc.holdsPicnicFood()) {
                 npc.startUsingItem(InteractionHand.MAIN_HAND);
@@ -1635,6 +1656,11 @@ final class HumanStreet {
                 return;
             }
             if (homeward && doorStep()) return;
+            if (homeward && !companions.isEmpty() && !sheltering && leg == Leg.NONE) {
+                if (returningToYard() && arriveInYard(Vec3.atBottomCenterOf(npc.home()))) return;
+                if (followPace()) { finishReturn("return_lagging"); return; }
+                if (paceMode == OutingPace.Mode.WAIT) return;
+            }
             if (!homeward && !companions.isEmpty()) {
                 if (!npc.level().isDay()) { returnHome("night"); return; }
                 if (npc.level().isRaining()) { returnHome("rain"); return; }
@@ -1653,7 +1679,7 @@ final class HumanStreet {
                         return;
                     }
                     if (parkLingering() || plazaRest) continue;
-                    double behind = npc.distanceTo(pet) - pet.outing().outerDistance();
+                    double behind = npc.distanceTo(pet) - OutingPace.followComfort(pet.outing().outerDistance(), pet.getLeashHolder() == npc);
                     if (behind > lag) {
                         lagging = pet;
                         lag = behind;
@@ -1692,6 +1718,7 @@ final class HumanStreet {
                     if (leg == Leg.NONE && resume == null) {
                         if (atStand()) {
                             if (!parkLingering()) {
+                                endPaceLeg();
                                 endGlance();
                                 parkOpened = npc.level().getGameTime();
                                 detachLeads("park");
@@ -1707,7 +1734,10 @@ final class HumanStreet {
                         }
                     }
                 }
-                if (!parkLingering() && followPace(lagging)) { returnHome("lagging"); return; }
+                if (!parkLingering()) {
+                    if (followPace()) { returnHome("lagging"); return; }
+                    if (paceMode == OutingPace.Mode.WAIT) return;
+                }
             }
             if (homeward && leg == Leg.NONE && !sheltering && collectForHome()) return;
             if (legStep()) return;
@@ -1890,13 +1920,104 @@ final class HumanStreet {
             }
         }
 
-        private boolean followPace(YukkuriEntity lagging) {
-            // Half a stride of clearance before speeding back up. Ramp over roughly half a second.
-            if (lagging != null || lagTicks > 0 && companions.stream()
-                    .anyMatch(pet -> npc.distanceTo(pet) > pet.outing().outerDistance() - .75)) lagTicks++;
+        private double ownerBasePace() {
+            double unit = ((npc.getUUID().getLeastSignificantBits() & 0xFFFFL) / 32767.5) - 1.0;
+            return OutingPace.baseRequest(npc.attitude().ordinal(), unit);
+        }
+
+        private List<OutingPace.Companion> paceCompanions() {
+            var list = new ArrayList<OutingPace.Companion>(companions.size());
+            for (var pet : companions) {
+                if (!pet.isAlive()) continue;
+                list.add(new OutingPace.Companion(npc.distanceTo(pet), pet.outing().outerDistance(),
+                        BodyAbility.of(pet).walkSpeed(), pet.getLeashHolder() == npc));
+            }
+            return list;
+        }
+
+        private double initialPace() {
+            return OutingPace.evaluate(ownerBasePace(), paceCompanions(), false).cruise();
+        }
+
+        private double moveSpeed() { return outing() && pace > 0 ? pace : .65; }
+
+        private void beginPaceLeg(String phase) {
+            endPaceLeg();
+            legPhase = phase;
+            legTicks = legSlowTicks = legWaitTicks = 0;
+            legDist = legReqSum = legMaxGap = 0;
+            paceLastPos = npc.position();
+            var sample = OutingPace.evaluate(ownerBasePace(), paceCompanions(), false);
+            pace = sample.mode() == OutingPace.Mode.WAIT ? 0 : sample.target();
+            paceMode = sample.mode();
+            legLastCap = sample.cause();
+            logPaceChange(phase + "_" + sample.cause(), sample, 0);
+        }
+
+        private void endPaceLeg() {
+            if (legPhase == null || legTicks == 0) {
+                legPhase = null;
+                paceMode = OutingPace.Mode.CRUISE;
+                return;
+            }
+            double meanSpeed = legDist / (legTicks / 20.0);
+            double meanReq = legReqSum / legTicks;
+            String cap = legWaitTicks > legTicks / 3 ? "taut_wait" : legSlowTicks > legTicks / 3 ? "lag" : legLastCap;
+            GameplayLog.event(npc, "npc-care",
+                    "action=outing_leg_pace phase={} ticks={} dist={} speed={} mean_req={} max_gap={} slow_ticks={} wait_ticks={} cap={}",
+                    legPhase, legTicks, fmt2(legDist), fmt2(meanSpeed), fmt2(meanReq), fmt2(legMaxGap),
+                    legSlowTicks, legWaitTicks, cap);
+            legPhase = null;
+            paceMode = OutingPace.Mode.CRUISE;
+        }
+
+        private void logPaceChange(String cause, OutingPace.Sample sample, double speed) {
+            GameplayLog.event(npc, "npc-care",
+                    "action=outing_pace mode={} cause={} req={} target={} cruise={} floor={} gap={} slowest={} speed={}",
+                    sample.mode().name().toLowerCase(Locale.ROOT), cause, fmt2(pace), fmt2(sample.target()),
+                    fmt2(sample.cruise()), fmt2(sample.floor()), fmt2(sample.maxLeashedGap()),
+                    fmt2(sample.slowestWalk() * 20), fmt2(speed));
+        }
+
+        private static String fmt2(double value) { return String.format(Locale.ROOT, "%.2f", value); }
+
+        private boolean followPace() {
+            var list = new ArrayList<OutingPace.Companion>(companions.size());
+            var alive = new ArrayList<YukkuriEntity>(companions.size());
+            for (var pet : companions) {
+                if (!pet.isAlive()) continue;
+                alive.add(pet);
+                list.add(new OutingPace.Companion(npc.distanceTo(pet), pet.outing().outerDistance(),
+                        BodyAbility.of(pet).walkSpeed(), pet.getLeashHolder() == npc));
+            }
+            var sample = OutingPace.evaluate(ownerBasePace(), list, paceMode == OutingPace.Mode.WAIT);
+            pace = OutingPace.step(pace, sample);
+            if (sample.mode() != OutingPace.Mode.WAIT) npc.getNavigation().setSpeedModifier(pace);
+            if (sample.mode() == OutingPace.Mode.WAIT) lagTicks++;
             else lagTicks = 0;
-            pace += Math.clamp((lagTicks == 0 ? .55 : .30) - pace, -.025, .025);
-            npc.getNavigation().setSpeedModifier(pace);
+
+            double stepSpeed = 0;
+            if (legPhase != null) {
+                var nowPos = npc.position();
+                if (paceLastPos != null) {
+                    double step = Math.hypot(nowPos.x - paceLastPos.x, nowPos.z - paceLastPos.z);
+                    if (step <= 1.0) { legDist += step; stepSpeed = step * 20; }
+                }
+                paceLastPos = nowPos;
+                legTicks++;
+                legReqSum += pace;
+                if (sample.maxLeashedGap() > legMaxGap) legMaxGap = sample.maxLeashedGap();
+                if (sample.mode() == OutingPace.Mode.SLOW) legSlowTicks++;
+                else if (sample.mode() == OutingPace.Mode.WAIT) legWaitTicks++;
+                else legLastCap = sample.cause();
+            }
+            if (sample.mode() != paceMode) {
+                paceMode = sample.mode();
+                logPaceChange(sample.cause(), sample, stepSpeed);
+            }
+
+            YukkuriEntity lagging = sample.laggingIndex() >= 0 && sample.laggingIndex() < alive.size()
+                    ? alive.get(sample.laggingIndex()) : null;
             if (glance != null && npc.tickCount >= glanceAt + 24) endGlance();
             if (glance == null && lagging != null && npc.tickCount >= glanceAt) {
                 glance = lagging;
@@ -1904,6 +2025,7 @@ final class HumanStreet {
                 GameplayLog.event(npc, "npc-care", "action=outing_glance result=start pet={}", glance.getUUID());
             }
             if (glance != null) npc.getLookControl().setLookAt(glance, 12, 12);
+            else if (sample.mode() == OutingPace.Mode.WAIT && lagging != null) npc.getLookControl().setLookAt(lagging, 12, 12);
             return lagTicks >= ROUTE_TICKS;
         }
 
@@ -1935,7 +2057,7 @@ final class HumanStreet {
             var nav = npc.getNavigation();
             last = npc.position(); stalled = 0; destination = to;
             if (path == null || !path.canReach() || strollSite != null && !strollSite.allowsWalk(npc, path)
-                    || !nav.moveTo(path, .65)) {
+                    || !nav.moveTo(path, moveSpeed())) {
                 nav.stop();
                 return false;
             }
@@ -1949,7 +2071,7 @@ final class HumanStreet {
                 var end = Vec3.atBottomCenterOf(path.getEndNode().asBlockPos());
                 // A partial path may spend another search budget only after walking closer by at least a block.
                 if ((path.canReach() || end.distanceTo(to) + 1 <= npc.position().distanceTo(to))
-                        && nav.moveTo(path, .65)) {
+                        && nav.moveTo(path, moveSpeed())) {
                     last = npc.position();
                     stalled = 0;
                     destination = path.canReach() ? to : end;
@@ -1967,12 +2089,13 @@ final class HumanStreet {
             if (!standable(stand)) return false;
             var nav = npc.getNavigation();
             var path = nav.createPath(stand, 0);
-            if (path == null || !path.canReach() || !nav.moveTo(path, .65)) return false;
+            if (path == null || !path.canReach() || !nav.moveTo(path, moveSpeed())) return false;
             last = npc.position(); stalled = 0; destination = Vec3.atBottomCenterOf(stand);
             return true;
         }
 
         @Override public void stop() {
+            endPaceLeg();
             endGlance();
             counter = null;
             counterArrived = false;

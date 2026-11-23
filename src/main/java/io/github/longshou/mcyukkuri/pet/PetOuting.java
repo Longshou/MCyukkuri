@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.geom.OutingPace;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -184,7 +185,8 @@ public final class PetOuting extends Goal {
         // The owner sits on a bench beside the plaza: the pet stays on the paving, where the strays can see its badge.
         if (paving != null) return !onPaving(paving, pet.position());
         var facility = owner.parkFacility();
-        return (pet.distanceTo(owner) > comfortDistance || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
+        double limit = OutingPace.followComfort(comfortDistance, onEscortLead());
+        return (pet.distanceTo(owner) > limit || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
                 && (facility == null || !nearFacility(facility));
     }
 
