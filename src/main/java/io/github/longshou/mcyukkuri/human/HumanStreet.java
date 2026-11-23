@@ -451,6 +451,10 @@ final class HumanStreet {
             npc.swing(InteractionHand.MAIN_HAND);
             pet.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);
             pet.life().personality().talk(npc.getUUID(), true);
+            // The kindly words to the pet hang above the head; a cruel owner only touches it.
+            if (npc.attitude() != HumanNpc.Attitude.CRUEL)
+                Staging.card((ServerLevel) npc.level(), npc.position().add(0, npc.getBbHeight() + .8, 0),
+                        Component.translatable("human.mcyukkuri.street.plaza_comfort"), 40, 1);
             GameplayLog.event(npc, "npc-care", "action=pet_comfort pet={} distance={}", pet.getUUID(), npc.distanceTo(pet));
         }
     }
@@ -463,10 +467,6 @@ final class HumanStreet {
         GameplayLog.event(npc, "npc-care", "action=pet_help pet={} target={} attitude={} distance={} where=plaza",
                 pet.getUUID(), stray.getUUID(), npc.attitude(), Math.round(npc.distanceTo(stray)));
         comfort(pet);
-        // The kindly words to the pet hang above the scold; a cruel owner only touches it.
-        if (npc.attitude() != HumanNpc.Attitude.CRUEL)
-            Staging.card((ServerLevel) npc.level(), npc.position().add(0, npc.getBbHeight() + .8, 0),
-                    Component.translatable("human.mcyukkuri.street.plaza_comfort"), 40, 1);
     }
 
     void stopHelp() { help = null; helpPath = null; }

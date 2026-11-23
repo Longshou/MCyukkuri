@@ -114,10 +114,12 @@ public enum JunkHeadwear {
             return true;
         }
         if (!equip(animal, giver, contact.esteem(), band, giver == null ? "ground" : "offer")) return false;
+        // Thanks go to a giver: a piece picked up off the ground has none, so the wearer only bows or trembles.
+        String thanks = giver == null ? "" : line(animal, "junk_thanks", "request_thanks");
         if (slave(animal))
-            animal.showReaction(YukkuriAction.TREMBLE, "teary", line(animal, "junk_thanks", "request_thanks"));
+            animal.showReaction(YukkuriAction.TREMBLE, "teary", thanks);
         else
-            animal.showReaction(YukkuriAction.BOW, "closed_smile", line(animal, "junk_thanks", "request_thanks"));
+            animal.showReaction(YukkuriAction.BOW, "closed_smile", thanks);
         return true;
     }
 

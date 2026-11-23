@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.function.BooleanSupplier;
@@ -474,7 +475,7 @@ public final class BadgeArcs {
                 if (t >= 55) { quiet(o); next(s); }
             }
             default -> {
-                if (t == 1) { if (scorn) PetScenes.act(sub, "tremble", "cry", null, 60, o); else PetScenes.act(sub, "droop", "teary", null, 60, o); }
+                if (t == 1) { if (scorn) PetScenes.act(sub, "tremble", "cry", ReactionSpeech.contempt(false), 60, o); else PetScenes.act(sub, "droop", "teary", null, 60, o); }
                 if (t >= 60) end(level, s, Phase.COMPLETE, scorn ? "scorn_hurt" : "pity_comforted");
             }
         }

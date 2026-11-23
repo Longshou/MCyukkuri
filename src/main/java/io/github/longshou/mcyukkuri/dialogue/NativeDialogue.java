@@ -117,9 +117,9 @@ public final class NativeDialogue {
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",
                  "badge_thanks", "badge_mock", "badge_retort", "badge_plaza_retort", "pet_report_hurt", "plea_sad",
-                 "badge_pity", "elder_warn", "elder_kind",
+                 "badge_pity", "elder_warn", "elder_kind", "caught_guilty", "scolded",
                  // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
-                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
+                 "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_water", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
                  "human_food_ask", "human_food_demand", "food_complain", "food_delight", "food_grudge",
                  "food_reluctant", "food_spit", "uneasy", "bitter", "glow",
                          "mood_ok", "mood_bad", "harness_on", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
@@ -130,7 +130,7 @@ public final class NativeDialogue {
             // A junk headwear being put on, refused, mocked or taken off answers the person handling the wearer right now.
             case "junk_thanks", "junk_unsure", "junk_indignant", "junk_afraid" -> 2;
             // The dead and the smell of them: the stench, the taboo meal and the hunt of a hatless monster answer something happening right now.
-            case "stench", "eat_kin", "hunt_sweet" -> 2;
+            case "stench", "eat_kin", "hunt_sweet", "pit_order" -> 2;
             // Settlement calls and headwear beats: a hunt call, a ration, a scolding or a torn / mended ornament answers something that just happened.
             case "accessory_torn", "famine" -> 3;
             // The farewell's and the mould exile's beats are in step with their poses: none may be swallowed by chatter.

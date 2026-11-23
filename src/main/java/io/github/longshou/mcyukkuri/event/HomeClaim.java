@@ -364,7 +364,7 @@ public final class HomeClaim {
         }
         c.declared=true; stage(level,c,Stage.HOLD);
         declareHome(first, c.site.pos());
-        for (var y:alive) if (y!=first) y.showReaction("happy","known_peer",80);
+        for (var y:alive) if (y!=first) y.showReaction("happy","",80); // the family seeing the home declared: a glad face, not a stranger's greeting
     }
     public static void declareHome(YukkuriEntity speaker, BlockPos site) {
         String style = speaker.speechStyle();

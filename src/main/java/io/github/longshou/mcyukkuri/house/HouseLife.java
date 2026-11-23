@@ -551,7 +551,7 @@ public final class HouseLife implements EcologyRoutine {
     private void hide(HouseNestBlockEntity value) {
         count(Stat.HIDDEN); movement.stop(); entity.getNavigation().stop();
         hideUntil = entity.tickCount + 120; hurry = true; scoutTarget = null; clearSource();
-        entity.showReaction("surprise", "house_startled", 30);
+        entity.showReaction("surprise", "", 30); // a person walking up makes no noise: face only (house_startled is the cleaning noise)
         if (value != null && value.usable(entity)) { tending = false; restPosition = null; sleepTicks = 0; phase(Phase.APPROACH); }
         else { denRest = false; phase(Phase.HIDE); }
     }

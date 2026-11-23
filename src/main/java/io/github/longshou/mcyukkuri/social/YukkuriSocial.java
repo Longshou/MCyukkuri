@@ -227,7 +227,7 @@ public final class YukkuriSocial implements MotorOwner {
             retreat = !gentle;
         }
         entity.getLookControl().setLookAt(player, 30, 30);
-        entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "cold", 100);
+        entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "scolded", 100);
         quarrelPeer = null;
         entity.pet().contact(player.getUUID(), gentle);
         return true;
@@ -917,8 +917,10 @@ public final class YukkuriSocial implements MotorOwner {
     private void askForFood(double wariness, YukkuriWorldData.Relation relation) {
         double esteem = SocialDisposition.selfEsteem(entity);
         double chance = SocialDisposition.demandProbability(personality(), esteem, wariness, relation, entity.life().nutrition());
-        boolean demand = entity.getRandom().nextDouble() < chance;
-        String line = demand ? "human_food_demand" : "human_food_ask";
+        // A kept pet asks its own keeper in the pet's words (ask_food); the stranger-facing demand and "Mr. Human" are for everyone else.
+        boolean keeper = entity.pet().ownedBy(target.getUUID());
+        boolean demand = !keeper && entity.getRandom().nextDouble() < chance;
+        String line = keeper ? "ask_food" : demand ? "human_food_demand" : "human_food_ask";
         entity.showReaction(demand ? "cheek_puff" : "teary", "", 80);
         // A presentation cue: the demand may take over the ambient address that brought the animal near, instead of being swallowed by it.
         boolean spoken = entity.speakCue(line);

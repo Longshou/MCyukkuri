@@ -5879,8 +5879,8 @@
       "id": "marisa.adult.o_settlement_drive",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ここはおまえのおうちじゃないのぜ！",
-      "chinese": "这里不是你的家贼！",
+      "japanese": "ここから でていけなのぜ！",
+      "chinese": "从这里出去贼！",
       "events": [
         "settlement_drive"
       ],
@@ -5889,8 +5889,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_settlement_drive"
       },
-      "source_sha256": "2306f632c9fc79113954be50a8b49c2bf1178f95718bbe6e53aba37e2255d83b",
-      "english": "This isn't your home!"
+      "source_sha256": "2b6c629b0b8bb95e4fe400cf7cde63c1f1ac069c44153a2b604de2236f761dbe",
+      "english": "Get out of here!"
     },
     {
       "id": "marisa.adult.o_settlement_assign",
@@ -6837,8 +6837,8 @@
       "id": "remilia.adult.o_treated",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、さっきより いたくないのだ……ありがと……",
-      "chinese": "呜——没那么痛了呀……谢谢……",
+      "japanese": "うー、ありがと……なおしてくれたのだ……",
+      "chinese": "呜——谢谢……治好了呀……",
       "events": [
         "treated"
       ],
@@ -6847,8 +6847,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.adult.o_treated"
       },
-      "source_sha256": "e813539216bfb0ebf1edbdb9e1da3359f613ca3f4ccc7144198cf078512ccf9a",
-      "english": "Uu... it doesn't hurt as much now... thank you..."
+      "source_sha256": "95fd9f8e58dce7fb9c7e5cadb7777d4ac67c25bf4434e00229618f46f041a9ad",
+      "english": "Uu... thank you... you fixed me..."
     },
     {
       "id": "remilia.adult.o_lost",
@@ -7478,8 +7478,8 @@
       "id": "remilia.young.o_treated",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、さっきより いたくにゃいのだ……ありがちょ……",
-      "chinese": "呜——没那么痛惹呀……蟹蟹……",
+      "japanese": "うー、ありがちょ……なおしてくれたのだ……",
+      "chinese": "呜——蟹蟹……治好惹呀……",
       "events": [
         "treated"
       ],
@@ -7488,8 +7488,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "remilia.young.o_treated"
       },
-      "source_sha256": "e09249dc842b592b8a29c982bf2a3ede0db342881fb324520e88dd4f2cb02ac0",
-      "english": "Uu... doesn't huwt as much... fank you..."
+      "source_sha256": "9ff5c116580a56ffd6ee7f18dd0e9be735e87956fc53d1f1434fbf74075a389e",
+      "english": "Uu... fank you... you fixed me..."
     },
     {
       "id": "remilia.young.o_lost",
@@ -8118,8 +8118,8 @@
       "id": "flandre.adult.o_treated",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、さっきより いたくないよ……ありがと……",
-      "chinese": "呜——没那么痛了哦……谢谢……",
+      "japanese": "うー、ありがと……なおしてくれたよ……",
+      "chinese": "呜——谢谢……治好了哦……",
       "events": [
         "treated"
       ],
@@ -8128,8 +8128,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.adult.o_treated"
       },
-      "source_sha256": "26607fbee5b55b4a95242febae367d47b6da628fedf3636179b250b5ede54364",
-      "english": "Uu... it doesn't hurt as much now... thank you..."
+      "source_sha256": "deb74b7dbfeec35ed89bab5484c8ea421690da83b947444f02ccdebb9e687d0c",
+      "english": "Uu... thank you... you fixed me..."
     },
     {
       "id": "flandre.adult.o_lost",
@@ -8759,8 +8759,8 @@
       "id": "flandre.young.o_treated",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、さっきより いたくにゃいよぅ……ありがちょ……",
-      "chinese": "呜——没那么痛惹哟……蟹蟹……",
+      "japanese": "うー、ありがちょ……なおしてくれたよぅ……",
+      "chinese": "呜——蟹蟹……治好惹哟……",
       "events": [
         "treated"
       ],
@@ -8769,8 +8769,8 @@
         "file": "art/dialogue/species-original.json",
         "id": "flandre.young.o_treated"
       },
-      "source_sha256": "79a372d005aa9b306c3d97b67f52e701da1a0af355b1853020abab7c80a123c2",
-      "english": "Uu... doesn't huwt as much... fank you..."
+      "source_sha256": "3bcfe7be956e2f5dd9ac49b0120217ade221f3b5364171d8518f8e8715aa2417",
+      "english": "Uu... fank you... you fixed me..."
     },
     {
       "id": "flandre.young.o_lost",

@@ -67,6 +67,7 @@ public final class FoodNoticeGoal extends Goal {
     @Override public void start() {
         waited = 0;
         crowded = reached = false;
+        owner.speakCue("food_found"); // the first sight of a serving it wants
     }
 
     @Override public void stop() {

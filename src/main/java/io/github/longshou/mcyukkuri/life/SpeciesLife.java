@@ -308,6 +308,9 @@ public final class SpeciesLife {
                 : bond.closeness() >= BondLevels.TRUST_FAMILIAR ? SpeechAddress.HumanRelation.FRIEND
                 : best instanceof HumanNpc npc && npc.attitude() == HumanNpc.Attitude.CRUEL ? SpeechAddress.HumanRelation.HOSTILE
                 : SpeechAddress.HumanRelation.STRANGER;
+        // The friendly "big brother / big sister" is for the grown-up residents; a child NPC is greeted as an ordinary person.
+        if (relation == SpeechAddress.HumanRelation.FRIEND && best instanceof HumanNpc kid && kid.look() == HumanNpc.Look.CHILD)
+            relation = SpeechAddress.HumanRelation.STRANGER;
         if (!chat && relation != SpeechAddress.HumanRelation.HOSTILE) return;
         // Resident looks identify a brother or sister. Player presentation has no sex or age metadata.
         int h = best.getUUID().hashCode();

@@ -4540,7 +4540,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 95,
+    "ticks": 86,
     "sound": "voice.original.remilia.adult.o_treated"
   },
   {
@@ -4996,7 +4996,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 78,
+    "ticks": 71,
     "sound": "voice.original.remilia.young.o_treated"
   },
   {
@@ -5451,7 +5451,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 71,
+    "ticks": 58,
     "sound": "voice.original.flandre.adult.o_treated"
   },
   {
@@ -5907,7 +5907,7 @@
     "events": [
       "treated"
     ],
-    "ticks": 64,
+    "ticks": 53,
     "sound": "voice.original.flandre.young.o_treated"
   },
   {
@@ -22473,7 +22473,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 77,
+    "ticks": 90,
     "sound": "voice.original.reimu.adult.s_hunt_sweet"
   },
   {
@@ -24675,7 +24675,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 84,
+    "ticks": 97,
     "sound": "voice.original.marisa.adult.s_hunt_sweet"
   },
   {
@@ -26877,7 +26877,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 78,
+    "ticks": 91,
     "sound": "voice.original.alice.adult.s_hunt_sweet"
   },
   {
@@ -29079,7 +29079,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 66,
+    "ticks": 76,
     "sound": "voice.original.chen.adult.s_hunt_sweet"
   },
   {
@@ -31569,7 +31569,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 120,
+    "ticks": 136,
     "sound": "voice.original.patchouli.adult.s_hunt_sweet"
   },
   {
@@ -34059,7 +34059,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 117,
+    "ticks": 134,
     "sound": "voice.original.remilia.adult.s_hunt_sweet"
   },
   {
@@ -36261,7 +36261,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 75,
+    "ticks": 86,
     "sound": "voice.original.flandre.adult.s_hunt_sweet"
   },
   {
@@ -38603,7 +38603,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 100,
+    "ticks": 114,
     "sound": "voice.original.myon.miyo.adult.s_hunt_sweet",
     "quirk": "miyo"
   },
@@ -40988,7 +40988,7 @@
     "events": [
       "hunt_sweet"
     ],
-    "ticks": 105,
+    "ticks": 119,
     "sound": "voice.original.myon.kinbao.adult.s_hunt_sweet",
     "quirk": "kinbao"
   },
@@ -42909,7 +42909,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 52,
+    "ticks": 51,
     "sound": "voice.original.reimu.adult.v3_wounded",
     "variant": "plain"
   },
@@ -44389,7 +44389,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 55,
+    "ticks": 54,
     "sound": "voice.original.marisa.adult.v3_wounded",
     "variant": "plain"
   },
@@ -45869,7 +45869,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 54,
+    "ticks": 52,
     "sound": "voice.original.alice.adult.v3_wounded",
     "variant": "plain"
   },
@@ -48829,7 +48829,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 87,
+    "ticks": 85,
     "sound": "voice.original.patchouli.adult.v3_wounded",
     "variant": "plain"
   },
@@ -50309,7 +50309,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 81,
+    "ticks": 79,
     "sound": "voice.original.remilia.adult.v3_wounded",
     "variant": "plain"
   },
@@ -51789,7 +51789,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 56,
+    "ticks": 54,
     "sound": "voice.original.flandre.adult.v3_wounded",
     "variant": "plain"
   },
@@ -53373,7 +53373,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 73,
+    "ticks": 70,
     "sound": "voice.original.myon.miyo.adult.v3_wounded",
     "quirk": "miyo",
     "variant": "plain"
@@ -54966,7 +54966,7 @@
     "events": [
       "hurt_tame_plea"
     ],
-    "ticks": 78,
+    "ticks": 76,
     "sound": "voice.original.myon.kinbao.adult.v3_wounded",
     "quirk": "kinbao",
     "variant": "plain"
@@ -62634,7 +62634,7 @@
     "events": [
       "settlement_drive"
     ],
-    "ticks": 99,
+    "ticks": 65,
     "sound": "voice.original.myon.miyo.adult.s_settlement_drive",
     "quirk": "miyo"
   },
@@ -66906,7 +66906,7 @@
     "events": [
       "settlement_drive"
     ],
-    "ticks": 104,
+    "ticks": 70,
     "sound": "voice.original.myon.kinbao.adult.s_settlement_drive",
     "quirk": "kinbao"
   },
@@ -88953,6 +88953,190 @@
       "remilia.juvenile": "voice.original.rain_run.remilia.juvenile",
       "remilia.young": "voice.original.rain_run.remilia.young",
       "remilia.adult": "voice.original.rain_run.remilia.adult"
+    }
+  },
+  {
+    "id": "caught_guilty",
+    "key": "dialogue.mcyukkuri.original.caught_guilty",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "caught_guilty"
+    ],
+    "ticks": 83,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.caught_guilty.alice.baby",
+      "alice.juvenile": "voice.original.caught_guilty.alice.juvenile",
+      "alice.young": "voice.original.caught_guilty.alice.young",
+      "alice.adult": "voice.original.caught_guilty.alice.adult",
+      "chen.baby": "voice.original.caught_guilty.chen.baby",
+      "chen.juvenile": "voice.original.caught_guilty.chen.juvenile",
+      "chen.young": "voice.original.caught_guilty.chen.young",
+      "chen.adult": "voice.original.caught_guilty.chen.adult",
+      "flandre.baby": "voice.original.caught_guilty.flandre.baby",
+      "flandre.juvenile": "voice.original.caught_guilty.flandre.juvenile",
+      "flandre.young": "voice.original.caught_guilty.flandre.young",
+      "flandre.adult": "voice.original.caught_guilty.flandre.adult",
+      "marisa.baby": "voice.original.caught_guilty.marisa.baby",
+      "marisa.juvenile": "voice.original.caught_guilty.marisa.juvenile",
+      "marisa.young": "voice.original.caught_guilty.marisa.young",
+      "marisa.adult": "voice.original.caught_guilty.marisa.adult",
+      "myon.baby": "voice.original.caught_guilty.myon.baby",
+      "myon.juvenile": "voice.original.caught_guilty.myon.juvenile",
+      "myon.young": "voice.original.caught_guilty.myon.young",
+      "myon.adult": "voice.original.caught_guilty.myon.adult",
+      "patchouli.baby": "voice.original.caught_guilty.patchouli.baby",
+      "patchouli.juvenile": "voice.original.caught_guilty.patchouli.juvenile",
+      "patchouli.young": "voice.original.caught_guilty.patchouli.young",
+      "patchouli.adult": "voice.original.caught_guilty.patchouli.adult",
+      "reimu.baby": "voice.original.caught_guilty.reimu.baby",
+      "reimu.juvenile": "voice.original.caught_guilty.reimu.juvenile",
+      "reimu.young": "voice.original.caught_guilty.reimu.young",
+      "reimu.adult": "voice.original.caught_guilty.reimu.adult",
+      "remilia.baby": "voice.original.caught_guilty.remilia.baby",
+      "remilia.juvenile": "voice.original.caught_guilty.remilia.juvenile",
+      "remilia.young": "voice.original.caught_guilty.remilia.young",
+      "remilia.adult": "voice.original.caught_guilty.remilia.adult"
+    }
+  },
+  {
+    "id": "scolded",
+    "key": "dialogue.mcyukkuri.original.scolded",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "scolded"
+    ],
+    "ticks": 75,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.scolded.alice.baby",
+      "alice.juvenile": "voice.original.scolded.alice.juvenile",
+      "alice.young": "voice.original.scolded.alice.young",
+      "alice.adult": "voice.original.scolded.alice.adult",
+      "chen.baby": "voice.original.scolded.chen.baby",
+      "chen.juvenile": "voice.original.scolded.chen.juvenile",
+      "chen.young": "voice.original.scolded.chen.young",
+      "chen.adult": "voice.original.scolded.chen.adult",
+      "flandre.baby": "voice.original.scolded.flandre.baby",
+      "flandre.juvenile": "voice.original.scolded.flandre.juvenile",
+      "flandre.young": "voice.original.scolded.flandre.young",
+      "flandre.adult": "voice.original.scolded.flandre.adult",
+      "marisa.baby": "voice.original.scolded.marisa.baby",
+      "marisa.juvenile": "voice.original.scolded.marisa.juvenile",
+      "marisa.young": "voice.original.scolded.marisa.young",
+      "marisa.adult": "voice.original.scolded.marisa.adult",
+      "myon.baby": "voice.original.scolded.myon.baby",
+      "myon.juvenile": "voice.original.scolded.myon.juvenile",
+      "myon.young": "voice.original.scolded.myon.young",
+      "myon.adult": "voice.original.scolded.myon.adult",
+      "patchouli.baby": "voice.original.scolded.patchouli.baby",
+      "patchouli.juvenile": "voice.original.scolded.patchouli.juvenile",
+      "patchouli.young": "voice.original.scolded.patchouli.young",
+      "patchouli.adult": "voice.original.scolded.patchouli.adult",
+      "reimu.baby": "voice.original.scolded.reimu.baby",
+      "reimu.juvenile": "voice.original.scolded.reimu.juvenile",
+      "reimu.young": "voice.original.scolded.reimu.young",
+      "reimu.adult": "voice.original.scolded.reimu.adult",
+      "remilia.baby": "voice.original.scolded.remilia.baby",
+      "remilia.juvenile": "voice.original.scolded.remilia.juvenile",
+      "remilia.young": "voice.original.scolded.remilia.young",
+      "remilia.adult": "voice.original.scolded.remilia.adult"
+    }
+  },
+  {
+    "id": "ask_water",
+    "key": "dialogue.mcyukkuri.original.ask_water",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "ask_water"
+    ],
+    "ticks": 87,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.ask_water.alice.baby",
+      "alice.juvenile": "voice.original.ask_water.alice.juvenile",
+      "alice.young": "voice.original.ask_water.alice.young",
+      "alice.adult": "voice.original.ask_water.alice.adult",
+      "chen.baby": "voice.original.ask_water.chen.baby",
+      "chen.juvenile": "voice.original.ask_water.chen.juvenile",
+      "chen.young": "voice.original.ask_water.chen.young",
+      "chen.adult": "voice.original.ask_water.chen.adult",
+      "flandre.baby": "voice.original.ask_water.flandre.baby",
+      "flandre.juvenile": "voice.original.ask_water.flandre.juvenile",
+      "flandre.young": "voice.original.ask_water.flandre.young",
+      "flandre.adult": "voice.original.ask_water.flandre.adult",
+      "marisa.baby": "voice.original.ask_water.marisa.baby",
+      "marisa.juvenile": "voice.original.ask_water.marisa.juvenile",
+      "marisa.young": "voice.original.ask_water.marisa.young",
+      "marisa.adult": "voice.original.ask_water.marisa.adult",
+      "myon.baby": "voice.original.ask_water.myon.baby",
+      "myon.juvenile": "voice.original.ask_water.myon.juvenile",
+      "myon.young": "voice.original.ask_water.myon.young",
+      "myon.adult": "voice.original.ask_water.myon.adult",
+      "patchouli.baby": "voice.original.ask_water.patchouli.baby",
+      "patchouli.juvenile": "voice.original.ask_water.patchouli.juvenile",
+      "patchouli.young": "voice.original.ask_water.patchouli.young",
+      "patchouli.adult": "voice.original.ask_water.patchouli.adult",
+      "reimu.baby": "voice.original.ask_water.reimu.baby",
+      "reimu.juvenile": "voice.original.ask_water.reimu.juvenile",
+      "reimu.young": "voice.original.ask_water.reimu.young",
+      "reimu.adult": "voice.original.ask_water.reimu.adult",
+      "remilia.baby": "voice.original.ask_water.remilia.baby",
+      "remilia.juvenile": "voice.original.ask_water.remilia.juvenile",
+      "remilia.young": "voice.original.ask_water.remilia.young",
+      "remilia.adult": "voice.original.ask_water.remilia.adult"
+    }
+  },
+  {
+    "id": "pit_order",
+    "key": "dialogue.mcyukkuri.original.pit_order",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "pit_order"
+    ],
+    "ticks": 56,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.pit_order.alice.baby",
+      "alice.juvenile": "voice.original.pit_order.alice.juvenile",
+      "alice.young": "voice.original.pit_order.alice.young",
+      "alice.adult": "voice.original.pit_order.alice.adult",
+      "chen.baby": "voice.original.pit_order.chen.baby",
+      "chen.juvenile": "voice.original.pit_order.chen.juvenile",
+      "chen.young": "voice.original.pit_order.chen.young",
+      "chen.adult": "voice.original.pit_order.chen.adult",
+      "flandre.baby": "voice.original.pit_order.flandre.baby",
+      "flandre.juvenile": "voice.original.pit_order.flandre.juvenile",
+      "flandre.young": "voice.original.pit_order.flandre.young",
+      "flandre.adult": "voice.original.pit_order.flandre.adult",
+      "marisa.baby": "voice.original.pit_order.marisa.baby",
+      "marisa.juvenile": "voice.original.pit_order.marisa.juvenile",
+      "marisa.young": "voice.original.pit_order.marisa.young",
+      "marisa.adult": "voice.original.pit_order.marisa.adult",
+      "myon.baby": "voice.original.pit_order.myon.baby",
+      "myon.juvenile": "voice.original.pit_order.myon.juvenile",
+      "myon.young": "voice.original.pit_order.myon.young",
+      "myon.adult": "voice.original.pit_order.myon.adult",
+      "patchouli.baby": "voice.original.pit_order.patchouli.baby",
+      "patchouli.juvenile": "voice.original.pit_order.patchouli.juvenile",
+      "patchouli.young": "voice.original.pit_order.patchouli.young",
+      "patchouli.adult": "voice.original.pit_order.patchouli.adult",
+      "reimu.baby": "voice.original.pit_order.reimu.baby",
+      "reimu.juvenile": "voice.original.pit_order.reimu.juvenile",
+      "reimu.young": "voice.original.pit_order.reimu.young",
+      "reimu.adult": "voice.original.pit_order.reimu.adult",
+      "remilia.baby": "voice.original.pit_order.remilia.baby",
+      "remilia.juvenile": "voice.original.pit_order.remilia.juvenile",
+      "remilia.young": "voice.original.pit_order.remilia.young",
+      "remilia.adult": "voice.original.pit_order.remilia.adult"
     }
   },
   {

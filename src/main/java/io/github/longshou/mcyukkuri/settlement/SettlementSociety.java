@@ -162,7 +162,7 @@ public final class SettlementSociety {
     /**
      * A member has just let go at the pit bank. Any 嗯嗯奴隶 of the group in sight of it is jeered at by the harsh members who can
      * see it (up to three, including this one): their angry reaction and a small, real drop of their regard for it; the slave
-     * feels submitted and is splashed (hygiene). Project design; the lines wait for the dialogue pass.
+     * feels submitted and is splashed (hygiene). Project design; one witness gives a short order (pit_order), the rest and the slave only show faces.
      */
     public void pitExcreted() {
         var group = entity.settlement().group();
@@ -176,15 +176,18 @@ public final class SettlementSociety {
             var witnesses = new ArrayList<>(LoadedGroupMembers.query(level(), group.id, slave.getBoundingBox().inflate(6),
                     peer -> peer != slave && peer.isAlive() && accepted(peer) && peer.life().personality().temperament().is(Gate.HARSH) && peer.hasLineOfSight(slave)));
             if (witnesses.size() > 3) witnesses.subList(3, witnesses.size()).clear();
+            boolean ordered = false;
             for (var witness : witnesses) {
                 witness.getLookControl().setLookAt(slave, 25, 25);
-                witness.showReaction("angry", "settlement_assign", 80);
+                // The assignment speech was made once, when the slave was appointed; each excretion gets one short order from one witness.
+                witness.showReaction("angry", ordered ? "" : "pit_order", 80);
+                ordered = true;
                 YukkuriWorldData.get(level()).relate(witness.getUUID(), slave.getUUID(), -1);
             }
             float before = slave.life().hygiene();
             slave.life().changeHygiene(-3);
             slave.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
-            slave.showReaction("teary", "settlement_submit", 100);
+            slave.showReaction("teary", "", 100); // it already answered the assignment
             GameplayLog.event(slave, "settlement", "pit mockery witnesses={} excretor={} hygiene={} -> {}", witnesses.size(), entity.getUUID(),
                     before, slave.life().hygiene());
         }

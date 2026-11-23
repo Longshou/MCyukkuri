@@ -332,7 +332,7 @@ LINES = {
         'adult': ('{t}！ うんうんどれい、おといれをそうじしろ！', '{t}！嗯嗯奴隶，去打扫厕所！', '{t}! Poo-slave, clean the toilet!'),
         'young': ('{t}！ うんうん、あっちに どけちぇ！', '{t}！介个嗯嗯，搬那边！', '{t}! Move the poo over dere!')},
     'settlement_drive': {
-        'adult': ('{t}！ ここは、おまえのおうちじゃない！ でていけ！', '{t}！这里不是你的家！出去！', "{t}! This isn't your home! Get out!"),
+        'adult': ('{t}！ ここから、でていけ！', '{t}！从这里出去！', '{t}! Get out of here!'),
         'young': ('{t}！ ここ、らめ！ あっちいっちぇ！', '{t}！介里不行！去那边！', '{t}! Not hewe! Go away!')},
     'settlement_hurt': {
         'adult': ('わたしも みんなと いっしょに いたい……{t}……', '妖梦也想跟大家待在一起……{t}……', 'Myon wants to stay with everyone too... {t}...'),

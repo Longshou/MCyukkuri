@@ -121,7 +121,7 @@ public final class Expedition {
                 if(s.sourceCount==3){
                     if(distant){report(level,s);captain.showReaction("happy","hello",60);}
                     WildEvents.finish(level,s,Phase.COMPLETE,distant?"crossed_biome_and_returned":"real_squad_reported_and_returned");
-                } else {if(distant)captain.showReaction("surprise","food_found",70);s.sourceCount=2;s.responses=0;WildEventData.get(level).phase(s,Phase.RESPONDING);}
+                } else {if(distant)captain.showReaction("surprise","",70);s.sourceCount=2;s.responses=0;WildEventData.get(level).phase(s,Phase.RESPONDING);}
             }
         }
         if(distant?s.ticks>=4600:s.ticks>=2400)WildEvents.finish(level,s,Phase.INTERRUPTED,distant?"biome_expedition_timed_out":"local_expedition_timed_out");

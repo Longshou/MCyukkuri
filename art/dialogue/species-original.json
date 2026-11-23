@@ -1178,13 +1178,13 @@
       "id": "marisa.adult.o_settlement_drive",
       "species": "marisa",
       "age": "adult",
-      "japanese": "ここはおまえのおうちじゃないのぜ！",
-      "chinese": "这里不是你的家贼！",
+      "japanese": "ここから でていけなのぜ！",
+      "chinese": "从这里出去贼！",
       "events": [
         "settlement_drive"
       ],
       "basis": "项目原创社会对白；失饰识别与疏远参考 N05/L17 正文（作者后记前）、world/personality-social.md；清扫职责与阈值为项目设计。幼体版本使用同义清楚短句，非八景幼语引文。",
-      "english": "This isn't your home!"
+      "english": "Get out of here!"
     },
     {
       "id": "marisa.adult.o_settlement_assign",
@@ -1873,14 +1873,14 @@
       "id": "remilia.adult.o_treated",
       "species": "remilia",
       "age": "adult",
-      "japanese": "うー、さっきより いたくないのだ……ありがと……",
-      "chinese": "呜——没那么痛了呀……谢谢……",
+      "japanese": "うー、ありがと……なおしてくれたのだ……",
+      "chinese": "呜——谢谢……治好了呀……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... it doesn't hurt as much now... thank you..."
+      "english": "Uu... thank you... you fixed me..."
     },
     {
       "id": "remilia.adult.o_lost",
@@ -2366,14 +2366,14 @@
       "id": "remilia.young.o_treated",
       "species": "remilia",
       "age": "young",
-      "japanese": "うー、さっきより いたくにゃいのだ……ありがちょ……",
-      "chinese": "呜——没那么痛惹呀……蟹蟹……",
+      "japanese": "うー、ありがちょ……なおしてくれたのだ……",
+      "chinese": "呜——蟹蟹……治好惹呀……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... doesn't huwt as much... fank you..."
+      "english": "Uu... fank you... you fixed me..."
     },
     {
       "id": "remilia.young.o_lost",
@@ -2858,14 +2858,14 @@
       "id": "flandre.adult.o_treated",
       "species": "flandre",
       "age": "adult",
-      "japanese": "うー、さっきより いたくないよ……ありがと……",
-      "chinese": "呜——没那么痛了哦……谢谢……",
+      "japanese": "うー、ありがと……なおしてくれたよ……",
+      "chinese": "呜——谢谢……治好了哦……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... it doesn't hurt as much now... thank you..."
+      "english": "Uu... thank you... you fixed me..."
     },
     {
       "id": "flandre.adult.o_lost",
@@ -3351,14 +3351,14 @@
       "id": "flandre.young.o_treated",
       "species": "flandre",
       "age": "young",
-      "japanese": "うー、さっきより いたくにゃいよぅ……ありがちょ……",
-      "chinese": "呜——没那么痛惹哟……蟹蟹……",
+      "japanese": "うー、ありがちょ……なおしてくれたよぅ……",
+      "chinese": "呜——蟹蟹……治好惹哟……",
       "events": [
         "treated"
       ],
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
-      "english": "Uu... doesn't huwt as much... fank you..."
+      "english": "Uu... fank you... you fixed me..."
     },
     {
       "id": "flandre.young.o_lost",

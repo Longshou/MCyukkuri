@@ -188,7 +188,7 @@ JUVENILE_OFFER_GRIEF = (
     '{p}Mama, Papa... sowwy... I will go on living...')
 DEATH_ADULT = {
     'eat_kin': ("{p}くさい……おなか、すいた{e}……ごめんね……", "{p}好臭……好饿{e}……对不起……", "{p}It stinks... I'm hungry... I'm sorry..."),
-    'hunt_sweet': ('{p}かいぶつ{e}……でも、おなか すいた{e}……', '{p}是怪物{e}……可彭彭好饿{e}……', '{p}A monster... but I am so hungry...'),
+    'hunt_sweet': ('{p}かざりが ない{e}……でも、おなか すいた{e}……', '{p}没有头饰{e}……可彭彭好饿{e}……', '{p}No ornament... but I am so hungry...'),
     # "please eat me" (social/SelfOffering): the parent's side, a chain of its own beside the ordinary last words
     'offer_ask': ("{p}{n}を……たべて くれる{e}……？", "{p}来……把{n}吃了吧{e}……", "{p}Here... eat {N}..."),
     'offer_insist': ("{p}{n}を たべて……いきてね……", "{p}把{n}吃了……要活下去{e}……", "{p}Eat {N}... and live..."),

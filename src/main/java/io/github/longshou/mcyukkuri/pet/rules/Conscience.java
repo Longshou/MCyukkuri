@@ -127,7 +127,7 @@ public final class Conscience {
         if (pet.pet().obedience() < 40 && pet.life().personality().temperament().is(Gate.BOLD)) {
             var away = pet.position().scale(2).subtract(owner.position());
             pet.getLookControl().setLookAt(away.x, pet.getEyeY(), away.z);
-            PetScenes.act(pet, YukkuriAction.TURN, "pursed", "exam_unsure", 30);
+            PetScenes.act(pet, YukkuriAction.TURN, "pursed", "caught_guilty", 30);
         } else PetScenes.act(pet, YukkuriAction.TREMBLE, "afraid", "", 30);
     }
 
@@ -146,7 +146,7 @@ public final class Conscience {
         caught = true;
         pet.pet().caught(guiltOwner);
         if (evidence.equals("confession")) PetScenes.act(pet, YukkuriAction.BOW, "teary", "exam_sorry", 40, pet.pet().presentOwner());
-        else PetScenes.act(pet, YukkuriAction.BRACE, "horrified", pet.life().personality().temperament().clever() >= .5 ? "exam_unsure" : "plea_sad", 40);
+        else PetScenes.act(pet, YukkuriAction.BRACE, "horrified", "caught_guilty", 40);
         GameplayLog.event(pet, "rules", "caught rule={} evidence={} owner={}", guilt.key(), evidence, guiltOwner);
     }
 

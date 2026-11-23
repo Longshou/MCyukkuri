@@ -180,7 +180,7 @@ public final class PetRequests {
         boolean demand = (kind == Kind.FOOD || kind == Kind.SNACK) && wary < .5
                 && NeedWarnings.insistence(personality.temperament()) >= .75;
         animal.showReaction(demand ? YukkuriAction.STAMP : YukkuriAction.BEG, demand ? "cheek_puff" : face,
-                demand ? "human_food_demand" : event, 80);
+                event, 80); // the insulting demand line is for strays facing strangers; a pet asks its keeper
         dropCard();
         var at = markPos();
         card = switch (kind) {
