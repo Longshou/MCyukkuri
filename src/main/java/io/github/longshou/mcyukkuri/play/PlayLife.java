@@ -259,7 +259,9 @@ public final class PlayLife {
             for(int s:new int[]{side,-side}){
                 var aside=PlayGeometry.world(target.getBlockPos(),target.facing(),s*ASIDE_X,exit.y,exit.z+ASIDE_Z);
                 var level=entity.level();
-                if(level.noCollision(entity,entity.getBoundingBox().move(aside.subtract(entity.position())))
+                var asideBox=entity.getBoundingBox().move(aside.subtract(entity.position()));
+                if(level.noCollision(entity,asideBox)
+                        &&level.getEntitiesOfClass(YukkuriEntity.class,asideBox.inflate(.1,0,.1),o->o!=entity).isEmpty()
                         &&level.getBlockState(BlockPos.containing(aside).below()).isFaceSturdy(level,BlockPos.containing(aside).below(),Direction.UP)){
                     points.add(aside);break;
                 }
@@ -335,7 +337,7 @@ public final class PlayLife {
     void trampolineBounced() {
         bounces++;
         entity.life().spendEnergy(2);
-        entity.dailyLife().entertained(4);
+        entity.dailyLife().entertained(5);
         double timid = entity.life().personality().temperament().timid();
         if (timid >= Temperament.TOP35) entity.mind().add((float) (timid * 5), "trampoline_height");
         entity.mind().felt(EmotionEvent.PLAYED);
