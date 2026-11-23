@@ -9833,24 +9833,39 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visi
 
 
 def _ring_stray_fates(window, trace):
-    """No stray ever stands on the paving, and each one that decided to come stands in its own ring."""
+    """Each stray that reached the ring stands at the distance its own values give, and the non-shy ones then see the badge."""
     x, z = BY_ID['town'].anchor
+    holder = _uuid_text(_PLAZA, _RING_HOLDER)
+
+    def outside(px, pz):
+        dx = max(x + 2 - (px + .5), (px + .5) - (x + 6), 0)
+        dz = max(z - 3 - (pz + .5), (pz + .5) - (z + 2), 0)
+        return (dx * dx + dz * dz) ** .5
+
+    arrived = 0
     for _, name, *_ in _RING_STRAYS:
         actor = _uuid_text(_RING, name)
-        for line in trace:
-            row = json.loads(line.split('[trace] ', 1)[1])
-            if row['k'] == 'st' and row['u'] == actor and 'p' in row['st']:
-                px, _, pz = row['st']['p']
-                if x + 2 <= px < x + 6 and z - 3 <= pz < z + 2:
-                    return f'{name} stepped onto the plaza paving'
+        for line in re.finditer(rf'uuid={actor} t=(\d+) [^\n]*plaza ring_arrived stand=(-?\d+), \d+, (-?\d+)', window):
+            arrived += 1
+            gap = outside(int(line[2]), int(line[3]))
+            # Ring gaps are 1 + 5 * shyness * (1 - .4 * interest) plus a two-block band: the shy marisa (boldness 15) never gets under 4.
+            if name == 'ring_timid' and gap < 3.9:
+                return f'{name} came to {gap:.1f} blocks of the paving; its shyness keeps it at 4 or more'
+            if name != 'ring_timid' and gap > 3.8:
+                return f'{name} stopped {gap:.1f} blocks from the paving; its boldness keeps it within 3.8'
+            if name != 'ring_timid' and not re.search(
+                    rf'uuid={actor} t=(\d+) [^\n]*badge sight subject={holder} ', window[line.start():]):
+                return f'{name} stood at the ring and never saw the badge'
+    if not arrived:
+        return 'no stray reached the ring'
 
 
 # Scaffold: the badged pet's own plaza visits are P2's subject, so it is put back on the paving whenever it has strolled off.
 _ring_hold = [(tick, f'execute positioned ~3.5 ~ ~-0.5 unless entity {sel(_RING_HOLDER, 3)} run tp {sel(_RING_HOLDER)} ~ ~ ~')
               for tick in range(40, 3600, 80)]
-next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, verify_trace=True, commands=_ring_hold, expect=[
-    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for _, name, *_ in _RING_STRAYS[:1]],
-], forbid=[])
+next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=_ring_hold, expect=[
+    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for _, name, *_ in _RING_STRAYS],
+], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza ring'])
 
 
 _smoke('park_walk', 1100, [
