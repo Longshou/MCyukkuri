@@ -4051,6 +4051,26 @@ add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让
            extra='Health:2.8f', **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
+_corridor_south = 'street_corridor'
+add(_corridor_south, 'town', '窄巷迎面相遇：侧让或后退', '窄巷迎面相遇：侧让或后退',
+    '短窄巷南北两端各有一只没有亲缘的成体油库里，疲倦的它们分别赶往对面的窝。看它们在巷中迎面相遇，一方进入侧袋让路或沿来路后退；相撞时动作与头顶符号应保持连续。',
+    '约 30 秒', [
+        box(-2, -1, -9, 2, -1, 9, 'minecraft:stone_bricks'),
+        box(-1, 0, -9, -1, 2, 9, 'minecraft:stone_bricks'),
+        box(1, 0, -9, 1, 2, -2, 'minecraft:stone_bricks'),
+        box(1, 0, 2, 1, 2, 9, 'minecraft:stone_bricks'),
+        box(2, 0, -1, 2, 2, 1, 'minecraft:stone_bricks'),
+        block(0, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(0, 0, 7, 'mcyukkuri:yukkuri_nest[facing=north]'),
+        yk(('reimu', 'marisa'), 0, -5, 'corridor_south', uuid=uid(_corridor_south, 'corridor_south'),
+           label='南端回窝的成体', lead=True, yaw=0, energy=20, rest_wait=0, boldness=(25, 90)),
+        yk(('reimu', 'marisa'), 0, 5, 'corridor_north', uuid=uid(_corridor_south, 'corridor_north'),
+           label='北端回窝的成体', yaw=180, energy=20, rest_wait=0, boldness=(25, 90)),
+    ], late=[home('corridor_south', 0, 7), home('corridor_north', 0, -7)], env=DAY,
+    vantage=(10, 0, 90, 12),
+    reads=[('读南端成体', f'yukkuri status {sel("corridor_south")} raw'),
+           ('读北端成体', f'yukkuri status {sel("corridor_north")} raw')])
+
 _yard_x, _yard_z = BY_ID['town'].anchor
 
 
@@ -8001,7 +8021,7 @@ TOPICS = {
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
-    'street_give_way': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'street_give_way': 'M4', 'street_corridor': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5',
@@ -8073,6 +8093,15 @@ _smoke('juice_bath', 1800, [
 _smoke('magma_sole', 600, [
     r'\[body\][^\n]* hot floor jump escape=',
     r'\[body\][^\n]* hot floor escaped health=',
+])
+
+_corridor_south_log = _uuid_text(_corridor_south, 'corridor_south')
+_corridor_north_log = _uuid_text(_corridor_south, 'corridor_north')
+_smoke('street_corridor', 1200, [
+    rf'\[move\][^\n]*uuid={_corridor_south_log}\b[^\n]*blocked by yukkuri [^\n]*action=(?:gives_way|backs_off)\b',
+    rf'\[move\][^\n]*uuid={_corridor_north_log}\b[^\n]*blocked by yukkuri [^\n]*action=(?:gives_way|backs_off)\b',
+    rf'\[sleep\][^\n]*uuid={_corridor_south_log}\b[^\n]*begin source=life',
+    rf'\[sleep\][^\n]*uuid={_corridor_north_log}\b[^\n]*begin source=life',
 ])
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
