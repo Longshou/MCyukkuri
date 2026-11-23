@@ -9843,7 +9843,7 @@ def _ring_stray_fates(window):
         return (dx * dx + dz * dz) ** .5
 
     arrived = 0
-    for _, name, *_ in _RING_STRAYS:
+    for name, *_ in _RING_STRAYS:
         actor = _uuid_text(_RING, name)
         for line in re.finditer(rf'uuid={actor} t=(\d+) [^\n]*plaza ring_arrived stand=(-?\d+), \d+, (-?\d+)', window):
             arrived += 1
@@ -9864,7 +9864,7 @@ def _ring_stray_fates(window):
 _ring_hold = [(tick, f'execute positioned ~3.5 ~ ~-0.5 unless entity {sel(_RING_HOLDER, 3)} run tp {sel(_RING_HOLDER)} ~ ~ ~')
               for tick in range(40, 3600, 80)]
 next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, commands=_ring_hold, expect=[
-    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for _, name, *_ in _RING_STRAYS],
+    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name, *_ in _RING_STRAYS],
 ], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza ring'])
 
 
