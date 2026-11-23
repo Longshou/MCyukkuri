@@ -47,6 +47,7 @@ import java.util.Map;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
@@ -820,7 +821,9 @@ public final class YukkuriLife {
         if (entity.level().isClientSide || !entity.isAlive()) return;
         // Body contact with water hurts every species, even with AI disabled.
         // The soak timer only clears after 40 continuous dry ticks, so the dry ticks of a climb cannot cancel drowning damage.
-        if (!entity.isInWaterOrBubble()) { if (++dryTicks >= DRY_RESET_TICKS) immersionTicks = 0; }
+        // A scene start hold (SceneHold) freezes the soak clock too, so the body leaves the countdown with the health it was summoned with.
+        if (SceneHold.held(entity)) { /* clock and damage wait for the release */ }
+        else if (!entity.isInWaterOrBubble()) { if (++dryTicks >= DRY_RESET_TICKS) immersionTicks = 0; }
         else {
             dryTicks = 0;
             if (++immersionTicks >= immersionInterval()) {

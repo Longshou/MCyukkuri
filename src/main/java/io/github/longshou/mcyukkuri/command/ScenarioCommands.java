@@ -13,6 +13,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.badge.BadgeMenu;
 import io.github.longshou.mcyukkuri.body.BodyPart;
+import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -90,7 +91,6 @@ import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
  * status labels. Entities are spawned by the data pack with ordinary AI; these commands only set real state.
  */
 public final class ScenarioCommands {
-    private static final String SCENE_HOLD = "scn_hold";
     /**
      * Failure text for players standing near a scenario, including commands called from scheduled functions.
      */
@@ -545,9 +545,9 @@ public final class ScenarioCommands {
     private static int hold(CommandContext<CommandSourceStack> c, boolean on) throws CommandSyntaxException {
         int changed = 0;
         for (var entity : EntityArgument.getOptionalEntities(c, "targets")) {
-            if (!(entity instanceof Mob mob) || (on ? mob.isNoAi() : !mob.getTags().contains(SCENE_HOLD))) continue;
+            if (!(entity instanceof Mob mob) || (on ? mob.isNoAi() : !SceneHold.held(mob))) continue;
             mob.setNoAi(on);
-            if (on) mob.addTag(SCENE_HOLD); else mob.removeTag(SCENE_HOLD);
+            if (on) mob.addTag(SceneHold.TAG); else mob.removeTag(SceneHold.TAG);
             changed++;
         }
         GameplayLog.world(c.getSource().getLevel(), "scenario", "hold {} mobs={}", on ? "on" : "off", changed);

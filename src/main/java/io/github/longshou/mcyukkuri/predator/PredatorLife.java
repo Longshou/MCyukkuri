@@ -32,6 +32,7 @@ import io.github.longshou.mcyukkuri.body.CorpseFood;
 import io.github.longshou.mcyukkuri.body.FillingResource;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
+import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -457,7 +458,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         return !animal.level().isClientSide && EcologyRoutines.predator(animal);
     }
     @Override public void passiveTick() {
-        if (naturalSpawn) {
+        if (naturalSpawn && !SceneHold.held(animal)) { // a scene hold defers the one-shot nest request until release
             naturalSpawn = false;
             placeInitialNest();
         }

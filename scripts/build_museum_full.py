@@ -46,6 +46,9 @@ for _base in (ROOT, *ROOT.parents):
         break
 from museum_actions import ACTION_META  # noqa: E402
 from museum_dsl import _text, _q, OBJ, HOLD_TICKS  # noqa: E402
+COUNTDOWN_STEP = 20                      # ticks per digit of the start countdown 3-2-1
+COUNTDOWN_TICKS = 3 * COUNTDOWN_STEP     # the digits end with the release; the lead-in before '3' is the rest of HOLD_TICKS (teleport and chunk load)
+assert HOLD_TICKS > COUNTDOWN_TICKS
 from museum_fields import FIELDS, BY_ID, GROUPS, GROUND, FEET, big_fill  # noqa: E402
 import museum_scenarios  # noqa: E402
 
@@ -388,12 +391,12 @@ def build_pack(world):
         for windows, base, phase in ((random_tick_windows, 'random_ticks', 'start'), (spawn_windows, 'spawning', 'start')):
             if s.id in windows:
                 release.append(f'schedule function {NS}:scn/{s.id}_{base}_{phase} {windows[s.id][0]}t replace')
-        fn(f'scn/{s.id}_go', [f'yukkuri scenario hold {held} off'] + release)
-        for count in (3, 2, 1):
+        near = f'execute positioned {ax}.0 {FEET} {az}.0 run title @a[distance=..80] actionbar '
+        fn(f'scn/{s.id}_go', [f'yukkuri scenario hold {held} off', near + _text('')] + release)
+        for count in (3, 2, 1):  # one digit per COUNTDOWN_STEP ticks; the last digit is followed by the release
             nxt = f'scn/{s.id}_hold{count - 1}' if count > 1 else f'scn/{s.id}_go'
-            fn(f'scn/{s.id}_hold{count}', [f'execute positioned {ax}.0 {FEET} {az}.0 run title @a[distance=..80] actionbar ' + _text(f'{count}', 'yellow'),
-                                          f'schedule function {NS}:{nxt} 20t replace'])
-        start += [f'yukkuri scenario hold {held} on', f'schedule function {NS}:scn/{s.id}_hold3 {HOLD_TICKS - 60}t replace']
+            fn(f'scn/{s.id}_hold{count}', [near + _text(f'{count}', 'yellow'), f'schedule function {NS}:{nxt} {COUNTDOWN_STEP}t replace'])
+        start += [f'yukkuri scenario hold {held} on', f'schedule function {NS}:scn/{s.id}_hold3 {HOLD_TICKS - COUNTDOWN_TICKS}t replace']
         if s.id in random_tick_windows:
             first, duration, speed = random_tick_windows[s.id]
             base = f'scn/{s.id}_random_ticks'

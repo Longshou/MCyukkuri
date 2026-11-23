@@ -55,7 +55,7 @@ class Scenario:
         # self.number is set once every scenario exists (``_number_scenes``), so that the pond tour order is known.
         self.watch, self.wait, self.retry, self.asks, self.note = watch, wait, retry, asks, note
         self.lines, self.give, self.env = surface_demo_lines(sid,lines), list(give), env or {}
-        # settings that need the individuals to stand on the ground (a conception, a boat, a landing-dependent survey) run two seconds after the summons;
+        # settings that need the individuals to stand on the ground (a conception, a boat, a landing-dependent survey) run two seconds after the start hold is released;
         # `at_spawn` is only for commands that need no grounded body (a home works on a just-summoned one)
         deferred = [i for i, line in enumerate(self.lines) if line.startswith(LATE_COMMANDS)]
         self.late_lines = [self.lines[i] for i in deferred]
@@ -72,7 +72,7 @@ class Scenario:
         if field == 'pond' and self.smoke is not None:
             self.smoke = {**self.smoke, 'forbid': [*self.smoke.get('forbid', ()), _POND_SMOKE_FORBID]}
         self.capture = capture if capture is not None else dict(shots=(1, 40, 200, 600), sequences=((60, 160, 2),))
-        self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the start
+        self.late = self.late_lines + surface_demo_lines(sid,late)   # commands that need the individuals to stand on the ground first: run two seconds after the release
         self.layout_ticks = max([40] + [40 + r.first + (r.tries - 1) * 20 for r in self.late if isinstance(r, Retry) and r.command.startswith('summon ')])
 
     @property
