@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayItem;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -159,6 +161,10 @@ public final class TownMarkers {
 
     /** Four walkers fit on the open side of the canopy with room left for through traffic. */
     private static final int PLAZA_CAPACITY = 4;
+    /** At most two strays gather outside one plaza at once; their stands lie 1 to 8 blocks outside the paving. */
+    private static final int MAX_STRAYS = 2;
+    private static final double RING_BAND = 2, RING_REACH = 9;
+    public static final double RING_NEAR = 1, RING_FAR = 6;
 
     public static boolean plazaLeisure(ServerLevel level) {
         // Leave the last half-minute of daylight for the walk home.
@@ -190,13 +196,18 @@ public final class TownMarkers {
                             && !y.profile().dangerToYukkuri() && visitor.hasLineOfSight(y));
         }
 
-        public Stream<BlockPos> stands(ServerLevel level, PathfinderMob visitor, int partySize) {
+        /** Bodies on the paving or on a real path to it, plus strays standing at or heading for the ring outside it. */
+        private List<PathfinderMob> traffic(ServerLevel level, PathfinderMob visitor) {
             // Count bodies and real paths already headed here. The path controllers retain ownership of their destinations.
-            var traffic = level.getEntitiesOfClass(PathfinderMob.class, paving.inflate(30, 4, 30),
+            return level.getEntitiesOfClass(PathfinderMob.class, paving.inflate(30, 4, 30),
                     mob -> mob != visitor && mob.getLeashHolder() != visitor && mob.isAlive() && !mob.isPassenger()
                             && (mob instanceof YukkuriEntity || mob instanceof HumanNpc)
-                            && (paving.contains(mob.position()) || aimsAtPlaza(mob)
+                            && (paving.contains(mob.position()) || aimsAtPlaza(mob) || ringStray(mob)
                                     || mob.getLeashHolder() instanceof PathfinderMob leader && aimsAtPlaza(leader)));
+        }
+
+        public Stream<BlockPos> stands(ServerLevel level, PathfinderMob visitor, int partySize) {
+            var traffic = traffic(level, visitor);
             if (traffic.size() + partySize > PLAZA_CAPACITY) return Stream.empty();
             return BlockPos.betweenClosedStream(BlockPos.containing(paving.minX, paving.minY, paving.minZ),
                             BlockPos.containing(paving.maxX - 1, paving.minY, paving.maxZ - 1))
@@ -210,6 +221,49 @@ public final class TownMarkers {
                                 .move(Vec3.atBottomCenterOf(mob.getNavigation().getTargetPos()).subtract(mob.position()))));
                     })
                     .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+        }
+
+        /** A body on the paving wearing a valid, visible badge (a voided badge does not count). */
+        public boolean badged() {
+            return !marker.isRemoved() && !marker.level().getEntitiesOfClass(YukkuriEntity.class, paving,
+                    y -> y.isAlive() && !y.isPassenger() && !y.life().isSleeping() && y.pet().humanRank() != BadgeGrade.NONE).isEmpty();
+        }
+
+        /** Room for one more stray at the ring: at most two strays at once, and the shared traffic limit still holds. */
+        public boolean strayRoom(ServerLevel level, PathfinderMob visitor) {
+            var traffic = traffic(level, visitor);
+            return traffic.size() < PLAZA_CAPACITY && traffic.stream().filter(this::ringStray).count() < MAX_STRAYS;
+        }
+
+        /** Open stands on a band two blocks wide whose inner edge is {@code gap} blocks outside the paving, nearest to the visitor first. */
+        public Stream<BlockPos> ring(ServerLevel level, PathfinderMob visitor, double gap) {
+            int reach = (int) Math.ceil(gap + RING_BAND);
+            return BlockPos.betweenClosedStream(BlockPos.containing(paving.minX - reach, paving.minY, paving.minZ - reach),
+                            BlockPos.containing(paving.maxX + reach, paving.minY, paving.maxZ + reach))
+                    .map(BlockPos::immutable)
+                    .filter(pos -> {
+                        double out = outside(Vec3.atBottomCenterOf(pos));
+                        if (out < gap || out > gap + RING_BAND || !level.hasChunkAt(pos) || !level.getFluidState(pos).isEmpty()
+                                || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
+                        var body = visitor.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(visitor.position()));
+                        return level.noCollision(visitor, body) && level.getEntities(visitor, body, entity -> entity.isPickable()).isEmpty();
+                    })
+                    .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
+        }
+
+        /** Horizontal distance from a point to the paving rectangle (0 on it). */
+        private double outside(Vec3 point) {
+            double dx = Math.max(Math.max(paving.minX - point.x, point.x - paving.maxX), 0);
+            double dz = Math.max(Math.max(paving.minZ - point.z, point.z - paving.maxZ), 0);
+            return Math.sqrt(dx * dx + dz * dz);
+        }
+
+        private boolean ringStray(PathfinderMob mob) {
+            if (!(mob instanceof YukkuriEntity y) || y.status().identity() != Identity.STRAY) return false;
+            var nav = y.getNavigation();
+            var target = nav.getTargetPos();
+            return !paving.contains(y.position()) && outside(y.position()) <= RING_REACH
+                    || !nav.isDone() && target != null && !paving.contains(target.getCenter()) && outside(target.getCenter()) <= RING_REACH;
         }
 
         private boolean aimsAtPlaza(PathfinderMob mob) {

@@ -3617,6 +3617,46 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
            ('读魔理沙的徽章档案', f'data get entity {sel("plaza_marisa")} YukkuriPet'),
            ('读院宠的牵引与状态', f'yukkuri status {sel(_PLAZA_YARD_PET)} raw')])
 
+_RING = 'badge_plaza_stray'
+_RING_HOLDER, _RING_KEEPER = 'ring_holder', 'ring_keeper'
+# name, kind, x, label, values. The expected ring distance follows from the values (RoamingGoal.browseRing): a hungry friendly stray
+# is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and stops far off, and the cocky
+# ex-pet wearing a voided badge is a stray like any other.
+_RING_STRAYS = [
+    ('ring_hungry', 'marisa', -8, '饿而友善的流浪油', dict(nutrition=52, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -3, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -13, '胆小的流浪油', dict(nutrition=52, friendliness=80, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+]
+
+
+def _ring_stray(scene, name, kind, x, label, values):
+    if name != 'ring_voided':
+        return yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40,
+                  extra='YukkuriPet:{TownRoots:1b}', yaw=0, **values)
+    # A former companion's badge: still worn and visible, but void since the owner abandoned it.
+    line = yk(kind, x, -6, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, yaw=0, **values)
+    return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b,TownRoots:1b}')
+
+
+add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
+    '院主的佩章灵梦站在白篷下。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，胆小的魔理沙远远停住不靠近；'
+    '戴着作废章的嚣张前宠物和普通流浪一样来看，别油按作废章而非真章对待。',
+    '约 3 分钟', [
+        'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
+        (human('caretaker_sister', 4, -1, _RING_KEEPER, 0, yaw=0, label='院主')[:-1]
+         + f',NoAI:1b,UUID:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}'),
+        _plaza_wearer('reimu', _RING_HOLDER, 3, 2, z=-1)[0].replace(
+            'PersistenceRequired:1b', f'PersistenceRequired:1b,leash:{{UUID:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}', 1),
+        f'data modify entity {sel(_RING_HOLDER)} {OWNED} set value '
+        f'{{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}',
+        f'data modify entity {sel(_RING_HOLDER)} YukkuriPet.Care merge value '
+        f'{{Harness:1b,WearOwner:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}',
+        *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
+    ], env=DAY, vantage=(-1, 1, -102, 10),
+    reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
+           *((f'读{stray[3]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
+
 
 add('certify_bronze', 'town', '领铜章：报名后焦急等结果', '领铜章：报名后焦急等结果',
     '右键考官选认证。看灵梦等候时发抖、介绍自己，最后免费领到铜章。',
@@ -7977,7 +8017,7 @@ TOPICS = {
     'badge': 'M5', 'training_bowl': 'M5', 'training_toilet': 'M5', 'training_bed': 'M5', 'training_walk': 'M5', 'training_study': 'M5', 'skills_magnifier': 'M5', 'skills_got_it': 'M5',
     'date': 'M5', 'transport': 'M5', 'custody_death': 'M5', 'social_identity': 'M5',
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
-    'badge_counter_reissue': 'M5', 'badge_plaza': 'M5',
+    'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
@@ -9793,6 +9833,27 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visi
       for _, name, *_ in _PLAZA_WEARERS for phase in ('walk', 'arrived')],
     *_outing_leads(_PLAZA, [_PLAZA_YARD_PET], False)[:1],
 ], forbid=[rf'uuid={_plaza_keeper_id} [^\n]*action=outing_park'])
+
+
+
+def _ring_stray_fates(window, trace):
+    """No stray ever stands on the paving, and each one that decided to come stands in its own ring."""
+    x, z = BY_ID['town'].anchor
+    for _, name, *_ in _RING_STRAYS:
+        actor = _uuid_text(_RING, name)
+        for line in trace:
+            row = json.loads(line.split('[trace] ', 1)[1])
+            if row['k'] == 'st' and row['u'] == actor and 'p' in row['st']:
+                px, _, pz = row['st']['p']
+                if x + 2 <= px < x + 6 and z - 3 <= pz < z + 2:
+                    return f'{name} stepped onto the plaza paving'
+
+
+next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, verify_trace=True, expect=[
+    *[rf'\[badge\][^
+]*uuid={_uuid_text(_RING, name)} [^
+]*plaza ring_decision' for _, name, *_ in _RING_STRAYS[:1]],
+])
 
 
 _smoke('park_walk', 1100, [

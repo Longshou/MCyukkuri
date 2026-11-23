@@ -57,6 +57,11 @@ public final class VillageStrays {
                 && !temperature.cold() && !temperature.hot();
     }
 
+    /** The one eligibility for a stray's optional stop at the badge plaza: a street walker that is also free to travel, awake and unthreatened. */
+    public static boolean browsesPlaza(YukkuriEntity body) {
+        return walksStreet(body) && FoundShelter.invitationTraveler(body) && !body.life().isSleeping();
+    }
+
     /** The bell of the village this stray is rooted in (its roots, not its feet, pick the village); null with no bell standing. */
     public static BlockPos heart(YukkuriEntity body) {
         var level = (ServerLevel) body.level();

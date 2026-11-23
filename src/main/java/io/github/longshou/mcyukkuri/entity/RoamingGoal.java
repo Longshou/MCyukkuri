@@ -47,6 +47,8 @@ public final class RoamingGoal extends Goal {
     private long nextWalk, nextExpedition, nextPlaza;
     private TownMarkers.BadgePlaza plaza;
     private int plazaPause;
+    /** The stop is a stray's look from the ring outside the paving, not a pet's visit to a bench stand. */
+    private boolean browsing;
     private boolean expedition, active, returning;
     private String result = "none";
     private Vec3 progressPosition;
@@ -86,7 +88,7 @@ public final class RoamingGoal extends Goal {
         nextWalk = now + 80 + animal.getRandom().nextInt(80);
         origin = animal.blockPosition().immutable();
         radius = TravelRange.stroll(animal);
-        plaza = null;
+        plaza = null; browsing = false;
         expedition = false; returning = false; failures = elapsed = 0;
         if (now >= nextExpedition && qualifies()) {
             nextExpedition = now + 1200;
@@ -246,6 +248,8 @@ public final class RoamingGoal extends Goal {
                 }
             }
         }
+        var look = !baby && !expedition && !outside && !animal.settlement().underway() ? browseRing(allowed, anchor) : null;
+        if (look != null) return look;
         for (int attempt = 0; attempt < 16; attempt++) {
             Vec3 point = outside ? LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(anchor))
                     : companion == null ? LandRandomPos.getPos(animal, radius, 3)
@@ -269,14 +273,52 @@ public final class RoamingGoal extends Goal {
     }
 
     private boolean plazaReady() {
+        if (browsing) return VillageStrays.browsesPlaza(animal);
         return !animal.isLeashed() && animal.pet().humanRank() != BadgeGrade.NONE && animal.outing().readyForPlaza();
+    }
+
+    /**
+     * A stray that may walk the street is drawn to a stand ring outside the plaza paving while a valid badge is on it. Interest is the
+     * larger of envy (hunger times friendliness) and provocation (self-esteem and cockiness); the ring distance grows with shyness
+     * (low boldness) and shrinks with interest, so a hungry friendly stray comes close, a cocky one walks up and a timid one stops far off.
+     */
+    private BlockPos browseRing(java.util.function.Predicate<BlockPos> allowed, BlockPos anchor) {
+        if (!(animal.level() instanceof ServerLevel level) || level.getGameTime() < nextPlaza || !VillageStrays.browsesPlaza(animal)
+                || !TownMarkers.plazaLeisure(level)) return null;
+        var site = TownMarkers.badgePlaza(level, animal, radius);
+        if (site == null || !site.badged() || !site.strayRoom(level, animal)) return null;
+        var personality = animal.life().personality();
+        double envy = StreetDraw.hunger(animal.life().nutrition()) * SocialDisposition.ramp(personality.friendliness(), 35, 75);
+        double cocky = Math.min(SocialDisposition.confidence(SocialDisposition.selfEsteem(animal)), personality.temperament().cocky());
+        double interest = Math.max(envy, cocky);
+        double shy = 1 - SocialDisposition.ramp(personality.boldness(), 20, 70);
+        double gap = TownMarkers.RING_NEAR + (TownMarkers.RING_FAR - TownMarkers.RING_NEAR) * shy * (1 - .4 * interest);
+        double chance = (.10 + .50 * interest) * (.5 + .5 * (1 - shy));
+        double roll = animal.getRandom().nextDouble();
+        GameplayLog.limited(animal, "badge", "ring_decision", 600,
+                "plaza ring decision envy={} cocky={} shy={} interest={} gap={} chance={} roll={}",
+                envy, cocky, shy, interest, gap, chance, roll);
+        if (roll >= chance) return null;
+        nextPlaza = level.getGameTime() + PLAZA_INTERVAL;
+        for (var pos : site.ring(level, animal, gap).filter(p -> allowed.test(p) && origin.distSqr(p) <= radius * radius
+                && (anchor == null || p.distSqr(anchor) <= homeRadius * homeRadius)
+                && animal.family().allowsIdleWalk(Vec3.atBottomCenterOf(p)) && outsideFoundShelter(p)
+                && animal.life().dryStand(p) && RemainsRot.source(level, Vec3.atBottomCenterOf(p)) == null)
+                .limit(PATH_PROBES / 2).toList()) {
+            if (!animal.life().reachableAndBack(pos)) continue;
+            plaza = site;
+            browsing = true;
+            plazaPause = TownMarkers.plazaPause(shy) + 160;
+            return pos;
+        }
+        return null;
     }
 
     @Override public void start() {
         active = true; result = "outbound";
         progressPosition = animal.position(); detour = null; stuckTicks = detourTicks = 0;
         if (expedition) GameplayLog.event(animal,"explore","started origin={} destination={} radius={}",origin,destination,radius);
-        if (plaza != null) GameplayLog.event(animal, "badge", "plaza walk origin={} stand={} grade={}",
+        if (plaza != null) GameplayLog.event(animal, "badge", "plaza {} origin={} stand={} grade={}", browsing ? "ring_walk" : "walk",
                 origin.toShortString(), destination.toShortString(), animal.pet().humanRank());
         if (!animal.life().navigate(destination,1,false)) failures++;
     }
@@ -381,8 +423,9 @@ public final class RoamingGoal extends Goal {
         var level = (ServerLevel) animal.level();
         boolean arrived = reached && plazaReady() && level.isDay() && !level.isRaining() && plaza.present(level);
         if (arrived) nextWalk = level.getGameTime() + plazaPause;
-        GameplayLog.event(animal, "badge", "plaza {} stand={} grade={}", arrived ? "arrived" : "left_route",
+        if (arrived && browsing) animal.getLookControl().setLookAt(plaza.paving().getCenter());
+        GameplayLog.event(animal, "badge", "plaza {}{} stand={} grade={}", browsing ? "ring_" : "", arrived ? "arrived" : "left_route",
                 destination.toShortString(), animal.pet().humanRank());
-        plaza = null;
+        plaza = null; browsing = false;
     }
 }

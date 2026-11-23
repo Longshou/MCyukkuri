@@ -291,13 +291,18 @@ public final class BadgeArcs {
                 if (t == 1) {
                     var p = o.life().personality();
                     var bond = p.relation(sub.getUUID());
-                    boolean snark = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(o),
-                            SocialDisposition.wariness(o, bond), bond) >= .2;
+                    double insistence = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(o),
+                            SocialDisposition.wariness(o, bond), bond);
+                    boolean snark = insistence >= .2;
                     s.result = snark ? "snark" : "sulk";
                     sub.showReaction("surprise", "", 50);
-                    if (snark) { PetScenes.act(o, "puff", "angry", "badge_envy_snark", 70, sub); Staging.anger(level, o.position().add(0, o.getBbHeight(), 0)); }
+                    int speech = o.speechSequence();
+                    String cue = snark ? "badge_envy_snark" : "badge_envy";
                     // Turned partly aside: the full sulk turn hid the envious glance.
-                    else PetScenes.act(o, "ignore", "envy", "badge_envy", 80, sub);
+                    PetScenes.act(o, snark ? "puff" : "ignore", snark ? "angry" : "envy", cue, snark ? 70 : 80, sub);
+                    if (snark) Staging.anger(level, o.position().add(0, o.getBbHeight(), 0));
+                    GameplayLog.event(o, "badge", "badge envy subject={} insistence={} cue={} voiced={}",
+                            sub.getUUID(), insistence, cue, o.speechSequence() != speech);
                 }
                 if (t >= 70) { quiet(o); next(s); }
             }
