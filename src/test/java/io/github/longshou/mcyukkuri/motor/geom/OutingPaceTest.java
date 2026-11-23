@@ -41,18 +41,25 @@ class OutingPaceTest {
         assertEquals(0, slow.laggingIndex());
         assertTrue(slow.target() < slow.cruise() && slow.target() > slow.floor());
 
-        // Bold pet (outerDistance = 5.8) on lead: comfort capped at 4.6 and wait at 5.1 (< 6.0 elastic drag).
+        // Bold pet (outerDistance = 5.8) on lead: comfort capped at 3.6 and wait at 5.1 (< 6.0 elastic drag).
+        assertEquals(OutingPace.LEAD_COMFORT_CAP, OutingPace.followComfort(5.8, true), 1e-6);
+        // Shy pet (2.2) at 3.8 slows smoothly rather than halting prematurely in a doorway.
+        var shySlow = OutingPace.evaluate(base, List.of(new OutingPace.Companion(3.8, 2.2, .095, true)), false);
+        assertEquals(OutingPace.Mode.SLOW, shySlow.mode());
+
         var boldWait = OutingPace.evaluate(base, List.of(new OutingPace.Companion(5.15, 5.8, .10, true)), false);
         assertEquals(OutingPace.Mode.WAIT, boldWait.mode());
         assertEquals(0.0, boldWait.target());
         assertEquals("taut_wait", boldWait.cause());
         assertTrue(OutingPace.waitDistance(OutingPace.followComfort(5.8, true), true) < OutingPace.LEASH_ELASTIC_DIST);
 
-        // Wait hysteresis: still waiting at 4.8 (> 5.1 - 0.5), released at 4.5.
+        // Wait hysteresis: still waiting at 4.8 (> 5.1 - 0.5), released at 4.5 (still SLOW above 3.6, CRUISE below 3.6).
         var stillWait = OutingPace.evaluate(base, List.of(new OutingPace.Companion(4.8, 5.8, .10, true)), true);
         assertEquals(OutingPace.Mode.WAIT, stillWait.mode());
         var released = OutingPace.evaluate(base, List.of(new OutingPace.Companion(4.5, 5.8, .10, true)), true);
-        assertEquals(OutingPace.Mode.CRUISE, released.mode());
+        assertEquals(OutingPace.Mode.SLOW, released.mode());
+        var backToCruise = OutingPace.evaluate(base, List.of(new OutingPace.Companion(3.4, 5.8, .10, true)), true);
+        assertEquals(OutingPace.Mode.CRUISE, backToCruise.mode());
     }
 
     @Test void stepHaltsImmediatelyOnWaitAndResumesFromFloor() {

@@ -25,9 +25,9 @@ public final class OutingPace {
     public static final double MIN_SHARE = .35, MAX_SHARE = 1.10;
     /** Vanilla elastic leash pull starts at 6.0 blocks; cap leashed follow comfort and wait distance safely below it. */
     public static final double LEASH_ELASTIC_DIST = 6.0;
-    public static final double LEAD_COMFORT_CAP = 4.6;
+    public static final double LEAD_COMFORT_CAP = 3.6;
     public static final double LEAD_WAIT_CAP = 5.1;
-    public static final double WAIT_BAND = 1.5;
+    public static final double UNLEASHED_WAIT_BAND = 2.5;
     public static final double WAIT_RELEASE_MARGIN = .5;
     public static final double RAMP_STEP = .03;
 
@@ -70,8 +70,7 @@ public final class OutingPace {
 
     /** Distance at which the owner stops and waits rather than stretching the lead taut. */
     public static double waitDistance(double comfort, boolean onLead) {
-        double raw = comfort + WAIT_BAND;
-        return onLead ? Math.min(raw, LEAD_WAIT_CAP) : raw;
+        return onLead ? LEAD_WAIT_CAP : comfort + UNLEASHED_WAIT_BAND;
     }
 
     /** Theoretical dry-ground speed (blocks/s) for a vanilla Mob with {@code attribute} and {@code request}. */
