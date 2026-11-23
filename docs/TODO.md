@@ -13,6 +13,7 @@
 | 共用目击与感知逻辑（第一包） | `.worktrees/wp-perception` | perception/、PetRequests、LifeHome |
 | 场景开场等玩家就位再起演 | `.worktrees/wp-scene-hold` | scripts/build_museum_full.py、museum_dsl.py、smoke_museum.py、docs/roles/stager.md |
 | FM-22 带崽逃跑 | `.worktrees/wp-flight-carry` | family/ParentCarry、Reactions 威胁逃跑、family_flight_home 场景 |
+| PD-13 断亲离开演出 | `.worktrees/wp-severance-leave` | social/Bonds、aquatic/LeaveBehind、FamilySeparation、ChildCall、hat_crowd 场景 |
 
 ## 玩法待办
 
