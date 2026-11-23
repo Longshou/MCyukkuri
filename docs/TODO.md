@@ -13,7 +13,6 @@
 | PD-13 断亲离开演出 | `.worktrees/wp-severance-leave` | social/Bonds、aquatic/LeaveBehind、FamilySeparation、ChildCall、hat_crowd 场景 |
 | MD-27 尿急便急表情台词 | `.worktrees/wp-need-urge` | life 如厕规划、need_tell 场景 |
 | TN-48 家规被抓与 TN-57 认罚演出 | `.worktrees/wp-caught-penance` | pet/Conscience、ConscienceGoal、arc 场景 |
-| 蹦床续跳与等位 | `.worktrees/wp-trampoline` | play/PlayLife、TrampolineMotion、park_play 场景 |
 
 ## 玩法待办
 
