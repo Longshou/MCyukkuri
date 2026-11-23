@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 捕食种追击专用表情（表情「正在做的事」档） | `.worktrees/wp-face-activity` | client/PresentationArbiter、FacePrecedence、predator 行为 |
 | 虚弱个体不能蹦跳 | `.worktrees/wp-frail-gait` | body/BodyAbility、AbilityMath、步态与原地跳片段 |
+| 牵引绳不需特定装备 | `.worktrees/wp-leash-vanilla` | YukkuriInteractions、牵引装备物品与资源、相关场景 |
 
 ## 玩法待办
 
