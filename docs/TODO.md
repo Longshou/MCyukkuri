@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 徽章广场 P3：流浪油走到广场边看章，按数值羡慕或辱骂 | `.worktrees/wp-plaza-strays` | entity/RoamingGoal (stray side); human/TownMarkers; pet/social/BadgeArcs; settlement street eligibility; museum_scenarios badge_plaza_stray |
 
 ## 玩法待办
 
