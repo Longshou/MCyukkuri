@@ -979,7 +979,11 @@ final class HumanStreet {
             boolean company = !site.company(npc).isEmpty();
             boolean wearer = companions.stream().anyMatch(pet -> pet.pet().humanRank() != BadgeGrade.NONE);
             // A single choice from the gate leaves room for the existing park outing, even with company in sight.
-            if ((!company && !wearer) || npc.getRandom().nextDouble() >= (company ? .75 : .45)) return 0;
+            double chance = company ? .75 : wearer ? .45 : 0;
+            boolean chosen = npc.getRandom().nextDouble() < chance;
+            GameplayLog.event(npc, "npc-care", "action=outing_plaza_choice company={} wearer={} chance={} chosen={}",
+                    company, wearer, chance, chosen);
+            if (!chosen) return 0;
             int probes = 0;
             for (var stand : site.stands(level, npc, companions.size() + 1).filter(npc::isWithinRestriction).limit(2).toList()) {
                 probes++;

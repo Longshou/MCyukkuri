@@ -3589,16 +3589,15 @@ def _plaza_yard():
         box(2, 0, -20, 8, 2, -12, 'minecraft:air'),
         box(2, 0, -20, 8, 0, -20, 'minecraft:oak_fence[east=true,west=true]'),
         *(box(x, 0, -19, x, 0, -13, 'minecraft:oak_fence[north=true,south=true]') for x in (2, 8)),
-        box(2, 0, -12, 4, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
-        box(6, 0, -12, 8, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
-        block(5, 0, -12, 'minecraft:oak_fence_gate[facing=south,open=true]'),
+        box(2, 0, -12, 3, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
+        box(7, 0, -12, 8, 0, -12, 'minecraft:oak_fence[east=true,west=true]'),
         block(4, 0, -18, 'mcyukkuri:food_bowl'),
         block(6, 0, -18, 'mcyukkuri:yukkuri_nest[facing=south]'),
         'summon minecraft:marker ~5.5 ~ ~-16.5 {Rotation:[180f,0f],Tags:["mcy_no_carton","mcy_yard_pet_spawned"],'
         'data:{Low:[-2,-1,-2],High:[2,3,4]}}',
         human('caretaker_sister', 5, -17, _PLAZA_KEEPER, 0, yaw=0, label='院主')[:-1]
         + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -17)}L,YardBowl:{_plaza_pos(4, -18)}L}}',
-        yk('reimu', 5, -18, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠', lead=True,
+        yk('reimu', 4, -15, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠', lead=True,
            nutrition=100, energy=100, boldness=35, attachment=80, extra='YukkuriDailyLife:{Boredom:95,Affection:60}'),
         f'data modify entity {sel(_PLAZA_YARD_PET)} {OWNED} set value '
         f'{{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))}}}',
@@ -3611,7 +3610,6 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
     '两只佩章宠物从街巷各自散步，可能在白篷西边停步。院主也可能牵着无章院宠过来，看佩章者的章色，然后各自继续走。',
     '约 1 分钟', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        box(1, 0, -4, 7, 1, -4, 'minecraft:stone_bricks'),
         *_plaza_yard(),
         *(line for wearer in _PLAZA_WEARERS for line in _plaza_wearer(*wearer)),
     ], env=DAY, vantage=(-1, 1, -102, 10),
@@ -9775,20 +9773,25 @@ def _plaza_visit(window, trace):
         if row['k'] == 'st' and row['u'] in positions and 'p' in row['st']:
             positions[row['u']].append(row['st']['p'])
     for actor, track in positions.items():
-        # The paving is the four columns west of the benches, x+2..x+5 and z-3..z+1.
-        if not any(x + 2 <= px < x + 6 and z - 3 <= pz < z + 2 for px, _, pz in track):
+        # The paving is the four columns west of the benches, x+2..x+5 and z-3..z+1; a stand on its edge may settle a block short.
+        if not any(x + 1 <= px < x + 6 and z - 3 <= pz < z + 2 for px, _, pz in track):
             return f'{actor} never walked onto the plaza paving'
+    # The keeper takes the visible company with a .75 roll, so the stop itself is only required after a chosen roll.
+    keeper, pet = _uuid_text(_PLAZA, _PLAZA_KEEPER), _uuid_text(_PLAZA, _PLAZA_YARD_PET)
+    if not re.search(rf'uuid={keeper} [^\n]*action=outing_plaza_choice company=true wearer=false chance=0\.75 chosen=(?:true|false)', window):
+        return 'the keeper never weighed the plaza with a wearer in sight'
+    if 'chosen=true' in window:
+        for need in (rf'uuid={keeper} [^\n]*action=outing_plaza_arrive stand=', rf'uuid={keeper} [^\n]*action=outing_home\b',
+                     rf'action=outing_lead phase=home result=detach pet={pet}\b', rf'uuid={pet} [^\n]*outing reached home'):
+            if not re.search(need, window):
+                return f'the chosen plaza visit did not finish: missing {need}'
 
 
 _plaza_keeper_id = _uuid_text(_PLAZA, _PLAZA_KEEPER)
 next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=1900, verify=_plaza_visit, verify_trace=True, expect=[
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, name)} [^\n]*plaza {phase} '
       for _, name, *_ in _PLAZA_WEARERS for phase in ('walk', 'arrived')],
-    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_depart pets=1 ',
-    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_arrive stand=',
-    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_home\b',
-    *_outing_leads(_PLAZA, [_PLAZA_YARD_PET], False),
-    rf'uuid={_uuid_text(_PLAZA, _PLAZA_YARD_PET)} [^\n]*outing reached home',
+    *_outing_leads(_PLAZA, [_PLAZA_YARD_PET], False)[:1],
 ], forbid=[rf'uuid={_plaza_keeper_id} [^\n]*action=outing_park'])
 
 
