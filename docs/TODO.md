@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 徽章广场 P4：院主带佩章宠物坐广场长椅，被骂时喝止一次 | `.worktrees/wp-plaza-keeper` | human/HumanStreet (plaza bench rest); pet/social BegBite owner scold; museum_scenarios badge_plaza*, badge_plaza_keeper |
 
 ## 玩法待办
 
