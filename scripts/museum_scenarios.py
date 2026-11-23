@@ -4175,7 +4175,7 @@ add(_CONF, 'town', '没收自家宠物与流浪油的徽章', '没收自家宠�
     '骄傲宠物先抗议再赌气、依恋宠物哀求低头、倔强流浪鼓脸后走开、胆小流浪哭着逃开；最南侧他人宠物被拒绝。',
     '当面操作', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        human('caretaker_sister', 7, -1, 'conf_keeper', 0, yaw=90, label='他人饲主')[:-1]
+        human('caretaker_sister', 5, 1, 'conf_keeper', 0, yaw=90, label='他人饲主')[:-1]
         + f',UUID:{uuid_nbt(uid(_CONF, "conf_keeper"))}}}',
         *(line for actor in _CONF_ACTORS for line in _conf_actor(*actor)),
         yk('reimu', 4, 1, 'conf_other', uuid=uid(_CONF, 'conf_other'), label='他人的有效章宠物', grade=2, yaw=90),
