@@ -83,29 +83,28 @@ public final class NativeDialogue {
     public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }
     public static int priority(String event) {
         return switch (event) {
-            case "family_alarm_call", "family_alarm_answer" -> 4;
             case "wounded", "hurt_flee", "hurt_defy", "hurt_freeze", "hurt_endure", "hurt_tame_plea",
                     "hurt_plea", "plea_spare", "afraid", "lost_accessory", "family_died", "lost_parent", "birth", "non_yukkuri", "renamed_upset",
                     "dying_kin", "kin_dying", "sacrifice",
                     "offer_ask", "offer_insist", "offer_give", "offer_refuse", "offer_eat", "offer_grief", "offer_spared",
-                    "boat_rock_startle", "family_alarm_flee", "water_help",
+                    "boat_rock_startle", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "braid_rescue_mouth_grip",
                     "self_rescue_hat", "self_rescue_hat_seek", "self_rescue_grip",
                     "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach", "hurt" -> 3;
             case "airborne", "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
-                    "family_alarm_calm", "braid_rescue_safe", "braid_rescue_safe_ashore", "self_rescue_safe", "hat_recovered",
+                    "braid_rescue_safe", "braid_rescue_safe_ashore", "self_rescue_safe", "hat_recovered",
                     "glass_wait", "glass_child_answer", "glass_ram", "search_family" -> 2;
             case "give_up_search" -> 3;
             // Period onset, the staged sukkiri completion, its unmet ending and the aftermath realization
             // are one-off state beats; they must not be swallowed by ordinary chatter.
             case "heat_start", "heat_relief_1", "heat_relief_2", "heat_relief_3", "heat_unmet", "aftermath_realize",
                  "heat_refuse", "rapem_hunt", "rapem_act", "rapem_moan", "rapem_review_good", "rapem_review_bad", "rapem_buffet" -> 2;
-            // The hunted victim's alarm, flight and struggle outrank everything but alarms and wounds.
+            // The hunted victim's alarm, flight and struggle rank with wounds, above everything else.
             case "rapem_alarm", "rapem_flee", "rapem_victim", "rapem_victim_climax", "rapem_victim_safe" -> 3;
-            // Exam, shop and wild-role performances interrupt ordinary chatter but never urgent distress.
-            case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail", "exam_promise_wait", "exam_promise_fail",
-                 "exam_report", "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
-                 "shop_sold_sad", "shop_sold_proud", "wild_role_beg", "wild_role_provoke",
+            // Exam and shop performances interrupt ordinary chatter but never urgent distress.
+            case "exam_nervous", "exam_answer", "exam_unsure", "exam_hide_fail",
+                 "exam_sorry", "exam_pass", "exam_fail", "badge_proud", "shop_appeal", "shop_bought",
+                 "shop_sold_sad", "shop_sold_proud",
                  "beg_ask", "beg_offer", "beg_refuse", "beg_plead_again", "beg_pester", "beg_cry", "beg_thanks",
                  "beg_robbed", "beg_chase", "beg_grudge", "beg_help", "beg_curse",
                  // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
@@ -116,7 +115,7 @@ public final class NativeDialogue {
                  "predator_restrain", "predator_obey", "predator_defy", "predator_screech",
                  // Badge social arcs: every beat's line must stay in step with its animation, so none may be swallowed by the quiet-gap rule.
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",
-                 "badge_beg", "badge_share_offer", "badge_share_refuse", "badge_thanks", "badge_mock", "badge_retort", "badge_plaza_retort", "pet_report_hurt", "plea_sad",
+                 "badge_thanks", "badge_mock", "badge_retort", "badge_plaza_retort", "pet_report_hurt", "plea_sad",
                  "badge_pity", "elder_warn", "elder_kind",
                  // Treats, requests to the owner, mood, harness walks and the swaddle answer something the owner just did or ask for something now.
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",

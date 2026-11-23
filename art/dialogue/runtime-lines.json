@@ -385,7 +385,6 @@
       "source_sha256": "73152c4d4ef6cdf22fe16f95764d69669006dc9b77347b9bbc7b9139c3c180cf",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll do my best and take it easy!"
@@ -945,7 +944,6 @@
       "source_sha256": "8bb8eee84e49ba4df9ef032527c22df6706651fad5d2e6ece4882e2ea8698c3b",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll twy my best!"
@@ -1509,7 +1507,6 @@
       "source_sha256": "65fc2f73a0cc2a8a74c9b4b22ecc68d7120e032af6bad3402aac5698d85006ee",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll do my best and take it easy!"
@@ -2069,7 +2066,6 @@
       "source_sha256": "e39bc6cc65e9858edec2fbf42cdcf4cf00231d7c42716e23283fe48224f51f8b",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll twy my best!"
@@ -2820,7 +2816,6 @@
       "source_sha256": "a27741f52429eac3b07188383318a20354247dc1f624f1609403ac92a0b93600",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll do my best and take it easy!"
@@ -3448,7 +3443,6 @@
       "source_sha256": "bc5787a7024795fa7f6de8a183b92de0427b9e2e641ad57f75e71f6becfa460b",
       "events": [
         "exercise",
-        "lesson_progress",
         "lesson_start"
       ],
       "english": "I'll twy my best!"
@@ -4463,7 +4457,6 @@
       "chinese": "要油库里地努力哟——。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "origin": "project-original",
@@ -4829,7 +4822,6 @@
       "chinese": "要油库气地努腻哟——。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "origin": "project-original",
@@ -5195,7 +5187,6 @@
       "chinese": "姆啾，要油库里地努力哇。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "origin": "project-original",
@@ -5561,7 +5552,6 @@
       "chinese": "姆啾，要油库气地努腻哇。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "origin": "project-original",
@@ -6977,23 +6967,6 @@
       "english": "Uu... Practice! Remilia will try!"
     },
     {
-      "id": "remilia.adult.o_progress",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、できた……もういっかいのだ！",
-      "chinese": "呜——会了……再来一次呀！",
-      "events": [
-        "lesson_progress"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_progress"
-      },
-      "source_sha256": "3d1c2595f82fcdb64c60338771befeb826f821844503da1633210300c5896662",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "remilia.adult.o_learned",
       "species": "remilia",
       "age": "adult",
@@ -7633,23 +7606,6 @@
       },
       "source_sha256": "abd67c42cb21003ab02dda0b3a32e904c7cdaa7c84c2760771914ef6d3af4fee",
       "english": "Uu... Practice! I'll try!"
-    },
-    {
-      "id": "remilia.young.o_progress",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、できちゃ……もういっかいのだ！",
-      "chinese": "呜——会惹……再来一次呀！",
-      "events": [
-        "lesson_progress"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_progress"
-      },
-      "source_sha256": "6c64ecfd9d60cf8312334006204a31bc0f1c911b7306ad8c0edf81482cef7c2f",
-      "english": "Uu... I did it... one more time!"
     },
     {
       "id": "remilia.young.o_learned",
@@ -8293,23 +8249,6 @@
       "english": "Uu... Practice! Flandre will try!"
     },
     {
-      "id": "flandre.adult.o_progress",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、できた……もういっかいよ！",
-      "chinese": "呜——会了……再来一次哦！",
-      "events": [
-        "lesson_progress"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_progress"
-      },
-      "source_sha256": "f1e35ef58aaf2e7f9b649a591fb46ebb28899e9b4131457214f19b5fa48ed5ba",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "flandre.adult.o_learned",
       "species": "flandre",
       "age": "adult",
@@ -8951,23 +8890,6 @@
       "english": "Uu... Practice! I'll try!"
     },
     {
-      "id": "flandre.young.o_progress",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、できちゃ……もういっかいよぅ！",
-      "chinese": "呜——会惹……再来一次哟！",
-      "events": [
-        "lesson_progress"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_progress"
-      },
-      "source_sha256": "a23be893edd1ede8f340102d7bfdb65174e36c70853481eb1ec64019d09baae0",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "flandre.young.o_learned",
       "species": "flandre",
       "age": "young",
@@ -9482,91 +9404,6 @@
       "english": "Reimu isn't here! Nobody's here!"
     },
     {
-      "id": "reimu.adult.o_exam_promise_wait",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつよ……",
-      "chinese": "点心先生……等、等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "d0ebfac38412284eb15769ce3d815dc673e19ad344bb0714a94527a22af5e93b",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_wait2",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "2de39590fb5f792341f1e6bd43f5e98968b383bb6bc6beb0759e14a095b92735",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_fail",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ずるいよ！ どうしてれいむじゃないの！",
-      "chinese": "耍赖哟！灵梦的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "79f9e09e6285e679fbde6a74bc249a089f6eee115e4393e1e47def9a7098590a",
-      "english": "Unfair! Why not Reimu?!"
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_fail2",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "点心先生，灵梦也在等哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "fb681fdfd3639fcc068f7e613f9b86b2fa0c7656d7a77f71a3b3d234303813b7",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "reimu.adult.o_exam_report",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたよ！",
-      "chinese": "人类先生！这道题灵梦做完了哟！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_exam_report"
-      },
-      "source_sha256": "1e08b9518f3d79d0822c01c495ab05fcdbb3817db28e2f50555e1e38441654bc",
-      "english": "Mr. Human! I finished the test task!"
-    },
-    {
       "id": "reimu.adult.o_exam_sorry",
       "species": "reimu",
       "age": "adult",
@@ -9754,40 +9591,6 @@
       "english": "Reimu is going somewhere even easier!"
     },
     {
-      "id": "reimu.adult.o_wild_role_beg",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おいしいもの、ちょうだい！ ここ、あけてね！",
-      "chinese": "把好吃的给灵梦！把这里打开哦！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_wild_role_beg"
-      },
-      "source_sha256": "124b5752c74c9c6722dd21c9b752a004a5804b52833ff73dbe04a7c0470ea973",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "reimu.adult.o_wild_role_provoke",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "8db03dcc446cf77ffd69f4b45e4af9b0e99a3534a0001fdc94b003bf7256dd15",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "reimu.adult.o_lesson_praised",
       "species": "reimu",
       "age": "adult",
@@ -9820,23 +9623,6 @@
       },
       "source_sha256": "d9e9984a9c9d2efdbcd388a9f126883e9cfc908ea2aed90ec7178538556a2f44",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "reimu.adult.o_lesson_scolded",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねよ……",
-      "chinese": "油呜……灵梦错了哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_lesson_scolded"
-      },
-      "source_sha256": "61b6310fcb34d4bb427792ad4d81ca0536764becbfb5f9530d874312301bfd9a",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "reimu.adult.o_badge_envy",
@@ -9956,91 +9742,6 @@
       },
       "source_sha256": "64587681234ec85684e88b67c38f101fb399f58be2b2401626604b6d653e0c84",
       "english": "Reimu isn't here! Nobody's here!"
-    },
-    {
-      "id": "reimu.young.o_exam_promise_wait",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅよぉ……",
-      "chinese": "点心鲜笋……窝等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_exam_promise_wait"
-      },
-      "source_sha256": "4aeb7a0ea4265819575fe2546cefb46b62f30c0f7a6c77cc5f4842f25414bca4",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "reimu.young.o_exam_promise_wait2",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "d2b9447095f0d60f403073453d686801cf90bc40a522b9218b6c07dfe34f2b6a",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "reimu.young.o_exam_promise_fail",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ずるいよぉ！ れいみゅのばんだよぉ！",
-      "chinese": "耍赖哟！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_exam_promise_fail"
-      },
-      "source_sha256": "dba27349ad7ec09fbae9ea202f333334b54b10ba2a3456240129be169fe929fc",
-      "english": "Unfair! Why not Reimu?!"
-    },
-    {
-      "id": "reimu.young.o_exam_promise_fail2",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたよぉ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "bc5750cf71406625011687fc4650e9083671a5c75df228f5457dd5c99021df22",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "reimu.young.o_exam_report",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃよぉ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哟！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_exam_report"
-      },
-      "source_sha256": "aaa0ab6ebb3b8687900c273ab674126e98c64fc91f43bf8be9f5aba6b5fd94c0",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "reimu.young.o_exam_sorry",
@@ -10230,40 +9931,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "reimu.young.o_wild_role_beg",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "あまあま、ちょうだい！ あけちぇね！",
-      "chinese": "给窝甜甜惹哟！快打开惹哟！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_wild_role_beg"
-      },
-      "source_sha256": "9a3119da9a3e400b4ba353d06593a044bb910bc73dbb084267e6ca7631dcd862",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "reimu.young.o_wild_role_provoke",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_wild_role_provoke"
-      },
-      "source_sha256": "99b64a76436f015aeb93dae1a61e92d102a4e555adbc4e2a56d9929d627eee7a",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "reimu.young.o_lesson_praised",
       "species": "reimu",
       "age": "young",
@@ -10296,23 +9963,6 @@
       },
       "source_sha256": "6bf6fc1aa53f59fba77e9da4d3bbfe3310ebc51e3886714ae0b01cf6ab092fd9",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "reimu.young.o_lesson_scolded",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_lesson_scolded"
-      },
-      "source_sha256": "4394c9282327bd388faf020b38a4c03d4c3b81c4cf4462fe94d876770a14d59d",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "reimu.young.o_badge_envy",
@@ -10432,91 +10082,6 @@
       },
       "source_sha256": "1ed213b1e3b3b46d742db767c2e7bf2c8ec5c5fd34a2c7971c3b28f987415907",
       "english": "Marisa isn't here! Nobody's here!"
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_wait",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつのぜ……",
-      "chinese": "点心先生……等、等贼……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "ae460bec85b1a4e196a7d40d063308640e28db33082aa065979b884311604e55",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_wait2",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来贼……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "2de39590fb5f792341f1e6bd43f5e98968b383bb6bc6beb0759e14a095b92735",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_fail",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
-      "chinese": "耍赖贼！魔理沙的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "b6d9d3a7207b8377324a43ecd875dc8b33f9907d5b26f05273e2e7bb96991d77",
-      "english": "Unfair! Why not Marisa?!"
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_fail2",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたのぜ！ ぷくーっ！",
-      "chinese": "点心先生，魔理沙也在等贼！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "1327bd740f585f57b36d4527edb373dbec8b2aaab751ca1299843ec8e840fd6b",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "marisa.adult.o_exam_report",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたのぜ！",
-      "chinese": "人类先生！这道题魔理沙做完了贼！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_exam_report"
-      },
-      "source_sha256": "4626be05a2ae3016581df917abaf55fbab727541132dccaefcdbec01e5d828ff",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "marisa.adult.o_exam_sorry",
@@ -10706,40 +10271,6 @@
       "english": "Mr. Body is rounder than Mr. Moon!"
     },
     {
-      "id": "marisa.adult.o_wild_role_beg",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "あまあまを よこすのぜ！ ここをあけるのぜ！",
-      "chinese": "把甜甜交出来贼！把这里打开贼！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_wild_role_beg"
-      },
-      "source_sha256": "c4e2ada0672a1f88d42473b989c8aa14e9e96aa756de927543340857386f997f",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "marisa.adult.o_wild_role_provoke",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起贼！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "8db03dcc446cf77ffd69f4b45e4af9b0e99a3534a0001fdc94b003bf7256dd15",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "marisa.adult.o_lesson_praised",
       "species": "marisa",
       "age": "adult",
@@ -10772,23 +10303,6 @@
       },
       "source_sha256": "1d934dff09bb9aa05dfc2c17eb81590d9fc3bd82a0afb5a093fcd21e5109f46f",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "marisa.adult.o_lesson_scolded",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねのぜ……",
-      "chinese": "油呜……魔理沙错了贼……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_lesson_scolded"
-      },
-      "source_sha256": "c6af43eac6bbb09ac3c3cb3bf66a34ea312e5498d23f79d8d04617b288c2e1b6",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "marisa.adult.o_badge_envy",
@@ -10908,91 +10422,6 @@
       },
       "source_sha256": "278b65923fd3060592a646413641610b5a0df4c50cc010ac785a47f0859c2927",
       "english": "Marisa isn't here! Nobody's here!"
-    },
-    {
-      "id": "marisa.young.o_exam_promise_wait",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅのじぇ……",
-      "chinese": "点心鲜笋……窝等惹杰……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_exam_promise_wait"
-      },
-      "source_sha256": "a412abaaa14690a2422ba7c187182893bd9c75c05289f7b7b42b24def775ab88",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "marisa.young.o_exam_promise_wait2",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来惹杰……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "d2b9447095f0d60f403073453d686801cf90bc40a522b9218b6c07dfe34f2b6a",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "marisa.young.o_exam_promise_fail",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ずるいのじぇぇ！ まりちゃのばんなのじぇぇ！",
-      "chinese": "耍赖诺贼！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_exam_promise_fail"
-      },
-      "source_sha256": "f4d29f211fc7db5c4ede33d21ba050e3480078259b898f801449ba328d8b93d5",
-      "english": "Unfair! Why not Marisa?!"
-    },
-    {
-      "id": "marisa.young.o_exam_promise_fail2",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたのじぇ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋诺贼！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "5fe649644a220e2e5c839d85075f81eb0b5d00fdeef3963580811fad51a45e77",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "marisa.young.o_exam_report",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃのじぇ！",
-      "chinese": "人类鲜笋！这道题窝做完惹诺贼！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_exam_report"
-      },
-      "source_sha256": "dba91eb509f0c0e007f435c8ca031abd91850ef4e8151c45e4bb1fc90872afeb",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "marisa.young.o_exam_sorry",
@@ -11182,40 +10611,6 @@
       "english": "Mr. Body is rounder than Mr. Moon!"
     },
     {
-      "id": "marisa.young.o_wild_role_beg",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "あまあま、ちょうだいなのじぇ！ あけちぇなのじぇ！",
-      "chinese": "给窝甜甜惹杰！快打开惹杰！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_wild_role_beg"
-      },
-      "source_sha256": "16b091d1701cf25434f4cf9c93452d53463070ba89f1f2bef0baa5228d07d8d3",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "marisa.young.o_wild_role_provoke",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起惹杰！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_wild_role_provoke"
-      },
-      "source_sha256": "99b64a76436f015aeb93dae1a61e92d102a4e555adbc4e2a56d9929d627eee7a",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "marisa.young.o_lesson_praised",
       "species": "marisa",
       "age": "young",
@@ -11248,23 +10643,6 @@
       },
       "source_sha256": "c7293321aa806ba732e14b7f542d222cfec8b5fc280ec02d62a28fe5194f0faf",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "marisa.young.o_lesson_scolded",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹杰……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_lesson_scolded"
-      },
-      "source_sha256": "4394c9282327bd388faf020b38a4c03d4c3b81c4cf4462fe94d876770a14d59d",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "marisa.young.o_badge_envy",
@@ -11384,91 +10762,6 @@
       },
       "source_sha256": "3dd61341a6067e9b5cc8424bacea33c48f84df1357da6432aeb2d2445e9a3c10",
       "english": "Alice isn't here! Nobody's here!"
-    },
-    {
-      "id": "alice.adult.o_exam_promise_wait",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつわ……",
-      "chinese": "点心先生……等、等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "1a1dff9e253c8970b5404e6d1bea2a68683e4709fbd198eec67dcd81f740f9f0",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "alice.adult.o_exam_promise_wait2",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "2de39590fb5f792341f1e6bd43f5e98968b383bb6bc6beb0759e14a095b92735",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "alice.adult.o_exam_promise_fail",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ずるいわ！ ありすのぶんはどこなの！",
-      "chinese": "耍赖哇！爱丽丝的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "78ec9433e04201ee4dd1d1613cfedd3ba4893734f153b4c3d1143d692657275e",
-      "english": "Unfair! Why not Alice?!"
-    },
-    {
-      "id": "alice.adult.o_exam_promise_fail2",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "点心先生，爱丽丝也在等哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "b3b192fe44c72497236c20be4cda89100f66ed3b3a73318c309abe565d99f566",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "alice.adult.o_exam_report",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたわ！",
-      "chinese": "人类先生！这道题爱丽丝做完了哇！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_exam_report"
-      },
-      "source_sha256": "324105424e267e7b0f1d92d787cf66a62034387a2ca3faf4b80a1cea962c175b",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "alice.adult.o_exam_sorry",
@@ -11658,40 +10951,6 @@
       "english": "Alice is going somewhere even easier!"
     },
     {
-      "id": "alice.adult.o_wild_role_beg",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "あまあまを ちょうだい！ ここをあけてちょうだい！",
-      "chinese": "把甜甜给爱丽丝！把这里打开哇！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_wild_role_beg"
-      },
-      "source_sha256": "9af3ca083600be24ab908684fadac88b812318c74ace88c509754781525a60db",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "alice.adult.o_wild_role_provoke",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "8db03dcc446cf77ffd69f4b45e4af9b0e99a3534a0001fdc94b003bf7256dd15",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "alice.adult.o_lesson_praised",
       "species": "alice",
       "age": "adult",
@@ -11724,23 +10983,6 @@
       },
       "source_sha256": "2052faabc7fc51579fd782f0b5eebbd81a21eb3acf8d187f074635fd7e4f0455",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "alice.adult.o_lesson_scolded",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねわ……",
-      "chinese": "油呜……爱丽丝错了哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_lesson_scolded"
-      },
-      "source_sha256": "afdc4a5ca8b9f386fdeaa922cbff8764f136f052ba921410153959fe39c47a52",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "alice.adult.o_badge_envy",
@@ -11860,91 +11102,6 @@
       },
       "source_sha256": "17514660323ed79a3bed7a0911a15b0093549c2dc0098fd8057c74aa721b3b32",
       "english": "Alice isn't here! Nobody's here!"
-    },
-    {
-      "id": "alice.young.o_exam_promise_wait",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅわ……",
-      "chinese": "点心鲜笋……窝等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_exam_promise_wait"
-      },
-      "source_sha256": "ae0578c98d9e7cb4dc1ce325e1e2812676a50ba3a274a77eae50ea66dcf1d388",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "alice.young.o_exam_promise_wait2",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "d2b9447095f0d60f403073453d686801cf90bc40a522b9218b6c07dfe34f2b6a",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "alice.young.o_exam_promise_fail",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ずるいわぁ！ ありちゅのばんよぉ！",
-      "chinese": "耍赖哇！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_exam_promise_fail"
-      },
-      "source_sha256": "b87ccab608e1b741928f122934e200a240591f72b8fb49da01abc5f97cf881e6",
-      "english": "Unfair! Why not Alice?!"
-    },
-    {
-      "id": "alice.young.o_exam_promise_fail2",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたわよぉ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "783c27f916f2b5ebff8d9293871c7032cff6bcc3022bfb7713b4549195aece6b",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "alice.young.o_exam_report",
-      "species": "alice",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃわよぉ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哇！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_exam_report"
-      },
-      "source_sha256": "119001b94083c26642ffecf8f1caedd13974a0c1701bfebac830d2b044527d48",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "alice.young.o_exam_sorry",
@@ -12134,40 +11291,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "alice.young.o_wild_role_beg",
-      "species": "alice",
-      "age": "young",
-      "japanese": "あまあま、ちょうだい！ あけちぇ！",
-      "chinese": "给窝甜甜哇！快打开哇！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_wild_role_beg"
-      },
-      "source_sha256": "de04be7561857066bdb1bfa713b81563765f99606640cbdbee4aa8e65d4300f9",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "alice.young.o_wild_role_provoke",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_wild_role_provoke"
-      },
-      "source_sha256": "99b64a76436f015aeb93dae1a61e92d102a4e555adbc4e2a56d9929d627eee7a",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "alice.young.o_lesson_praised",
       "species": "alice",
       "age": "young",
@@ -12200,23 +11323,6 @@
       },
       "source_sha256": "ad6b2dd15cb396f711ff6281ab9bdb0989f03fda1dadf7457a454a81fdbf7404",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "alice.young.o_lesson_scolded",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_lesson_scolded"
-      },
-      "source_sha256": "4394c9282327bd388faf020b38a4c03d4c3b81c4cf4462fe94d876770a14d59d",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "alice.young.o_badge_envy",
@@ -12336,91 +11442,6 @@
       },
       "source_sha256": "5b29fd1873ce86cf154fbd876efb66f662e16d8e7dd4bea7241603167a2cc7bb",
       "english": "Chen isn't here! Nobody's here!"
-    },
-    {
-      "id": "chen.adult.o_exam_promise_wait",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつよー……",
-      "chinese": "点心先生……等、等哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "0c316fb034c36dc5e5fbfc35b3c1fe1a6b9d5197a32927239eca03d71994474b",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "chen.adult.o_exam_promise_wait2",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "2de39590fb5f792341f1e6bd43f5e98968b383bb6bc6beb0759e14a095b92735",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "chen.adult.o_exam_promise_fail",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
-      "chinese": "耍赖哟——！橙的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "e726b39c9343f345dcc71f808ce54bfba2f5fa2a7d1526f06a75d6cd022ef2d2",
-      "english": "Unfair! Why not Chen?!"
-    },
-    {
-      "id": "chen.adult.o_exam_promise_fail2",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたよー！ ぷくーっ！",
-      "chinese": "点心先生，橙也在等哟——！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "60fd8a55d6c48bb66163738f62e9b02640a0999f461e6388a61777b746951d5b",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "chen.adult.o_exam_report",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたよー！",
-      "chinese": "人类先生！这道题橙做完了哟——！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_exam_report"
-      },
-      "source_sha256": "59a7aa6aa2de31aed4985902dc88615fe53f9996b7a6873648abac993c5e4f97",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "chen.adult.o_exam_sorry",
@@ -12610,40 +11631,6 @@
       "english": "Chen is going somewhere even easier!"
     },
     {
-      "id": "chen.adult.o_wild_role_beg",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "あまあま、ちょうだいー！ ここ、あけてよー！",
-      "chinese": "给橙甜甜——！把这里打开哟——！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_wild_role_beg"
-      },
-      "source_sha256": "74ffd6baeefb6c8604e9b26b1a4e850d8b77e524ed9344b04241b2ae0d988c30",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "chen.adult.o_wild_role_provoke",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哟——！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "8db03dcc446cf77ffd69f4b45e4af9b0e99a3534a0001fdc94b003bf7256dd15",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "chen.adult.o_lesson_praised",
       "species": "chen",
       "age": "adult",
@@ -12676,23 +11663,6 @@
       },
       "source_sha256": "564b51b8de75894aa429ea6103c57ae4882249260e93db396b8b898c675343bc",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "chen.adult.o_lesson_scolded",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねよー……",
-      "chinese": "油呜……橙错了哟——……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_lesson_scolded"
-      },
-      "source_sha256": "30842dffe340264f1165e5d9484d109cda711c80047a0858a89e88e1f35c6dcd",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "chen.adult.o_badge_envy",
@@ -12812,91 +11782,6 @@
       },
       "source_sha256": "77c11e120d61e0f16541c80facecc9ef2e43fa60634a6212dca0101c3000d5cc",
       "english": "Chen isn't here! Nobody's here!"
-    },
-    {
-      "id": "chen.young.o_exam_promise_wait",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅよぅ……",
-      "chinese": "点心鲜笋……窝等哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_exam_promise_wait"
-      },
-      "source_sha256": "dbe63c0141d655c82462ed13bb1c8ad56ece9032cec040e161ce6c6095558c16",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "chen.young.o_exam_promise_wait2",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "d2b9447095f0d60f403073453d686801cf90bc40a522b9218b6c07dfe34f2b6a",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "chen.young.o_exam_promise_fail",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ずるいよぉー！ ちぇんのばんだよぉー！",
-      "chinese": "耍赖哟——！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_exam_promise_fail"
-      },
-      "source_sha256": "9d01281a569885dcb20db865b0dda4c0e39d53c307046abc18b0a3aecd136aa7",
-      "english": "Unfair! Why not Chen?!"
-    },
-    {
-      "id": "chen.young.o_exam_promise_fail2",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたよぅ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哟——！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "6def0cbc08a8bbf61016d339c3b2bce65a5b478fa87b58e27597bc9de0fafad0",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "chen.young.o_exam_report",
-      "species": "chen",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃよぅ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哟——！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_exam_report"
-      },
-      "source_sha256": "16130ad727e95cf81620fb9782ec54fb833347463cbb3dda917eeae6b8e4c21e",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "chen.young.o_exam_sorry",
@@ -13086,40 +11971,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "chen.young.o_wild_role_beg",
-      "species": "chen",
-      "age": "young",
-      "japanese": "あまあま、ちょうだいー！ あけちぇー！",
-      "chinese": "给橙甜甜——！快打开——！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_wild_role_beg"
-      },
-      "source_sha256": "a7e53836ef6e5b56d9351349860eb71eafd973b31a2027871595421d78908765",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "chen.young.o_wild_role_provoke",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哟——！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_wild_role_provoke"
-      },
-      "source_sha256": "99b64a76436f015aeb93dae1a61e92d102a4e555adbc4e2a56d9929d627eee7a",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "chen.young.o_lesson_praised",
       "species": "chen",
       "age": "young",
@@ -13152,23 +12003,6 @@
       },
       "source_sha256": "7780a768f425023643a2c95b845a091e8a1fe93476e1f7f08cdccb05e25ae264",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "chen.young.o_lesson_scolded",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哟——……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_lesson_scolded"
-      },
-      "source_sha256": "4394c9282327bd388faf020b38a4c03d4c3b81c4cf4462fe94d876770a14d59d",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "chen.young.o_badge_envy",
@@ -13288,91 +12122,6 @@
       },
       "source_sha256": "c0232182d34f162bf0742f46ecb0c9c3d48dc3a6fa75ab542e29b19d41d2e9ab",
       "english": "Mukyu... Patchouli isn't here! Nobody's here!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_wait",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん……まつ、まつわ……",
-      "chinese": "姆啾。点心先生……等、等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "a91bed81c6356bcbd69425147241362a23f85fa27f8b90732c25748f648b527d",
-      "english": "Mukyu. Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_wait2",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん……はやく、きて……",
-      "chinese": "姆啾。点心先生……快来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "c96a2b124874f2788ac8cae6cdcc489f48903736ea2754fe1510e21c269fb85a",
-      "english": "Mukyu. Mr. Snack... come soon..."
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_fail",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
-      "chinese": "姆啾！耍赖哇！帕秋莉的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "06454449dead7195eb7d25e8cfa84ca440772717acb0b418cfa62f27edb32bc8",
-      "english": "Mukyu... Unfair! Why not Patchouli?!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_fail2",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "姆啾。点心先生，帕秋莉也在等哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "fde669bc2607929d87b11bcf6f0fc9061393caaf5226744564fba012d4bfa441",
-      "english": "Mukyu. I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_report",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。にんげんさん！ このもんだい、できたわ！",
-      "chinese": "姆啾。人类先生！这道题帕秋莉做完了哇！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_exam_report"
-      },
-      "source_sha256": "59f2e9e686cc1ca7bf33a25aa0ee765dd6c350fdca1e1e72807640e73e30bee5",
-      "english": "Mukyu. Mr. Human! I finished the test task!"
     },
     {
       "id": "patchouli.adult.o_exam_sorry",
@@ -13562,40 +12311,6 @@
       "english": "Mukyu. Patchouli is going somewhere even easier!"
     },
     {
-      "id": "patchouli.adult.o_wild_role_beg",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ！ あまあまを ちょうだい！ ここを あけてちょうだい！",
-      "chinese": "姆啾！把甜甜给帕秋莉！把这里打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_wild_role_beg"
-      },
-      "source_sha256": "e133812c8595e67e02f5d3c1d4f6e663b5836877fedb9fbbeea945457a97791b",
-      "english": "Mukyu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "patchouli.adult.o_wild_role_provoke",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。バッジなんか！ ぷくーっ！",
-      "chinese": "姆啾。徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "4b9804f75f78b1110d4dc8c62ee9daf9cda247dfe64565b846141731fd8af816",
-      "english": "Mukyu. What's so great about a badge? Puff!"
-    },
-    {
       "id": "patchouli.adult.o_lesson_praised",
       "species": "patchouli",
       "age": "adult",
@@ -13628,23 +12343,6 @@
       },
       "source_sha256": "1ff7fb3c7699568b892f35215b1a4c08b583351fde2c872c2e0a67bde175f3f7",
       "english": "Mukyu. Thank you! I'll do it again!"
-    },
-    {
-      "id": "patchouli.adult.o_lesson_scolded",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。ゆぅ……ごめんねわ……",
-      "chinese": "姆啾。油呜……帕秋莉错了哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_lesson_scolded"
-      },
-      "source_sha256": "c7cc9f8e0a7374ab8dc2a8607b7a70ee06687dd4e70ee617814c35876ef77b42",
-      "english": "Mukyu. Yuu... I'm sorry..."
     },
     {
       "id": "patchouli.adult.o_badge_envy",
@@ -13764,91 +12462,6 @@
       },
       "source_sha256": "5e21020cf854ab0f175a6a47d628beb8dcf77310a9040f4832547694342dfc4e",
       "english": "Mukyu... Patchouli isn't here! Nobody's here!"
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_wait",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやちゅしゃん……まちゅわ……",
-      "chinese": "姆啾。点心鲜笋……窝等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_exam_promise_wait"
-      },
-      "source_sha256": "01acadcc1bf73af9e156827e45376caab0d7bd42611ceea73d4063297f846359",
-      "english": "Mukyu. Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_wait2",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "姆啾。点心鲜笋……怪过来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "90bb765fd48b2ce2bb51d555cc4b68860316cab0a96417738c0bda4e5c74a961",
-      "english": "Mukyu. Mr. Snack... come soon..."
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_fail",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅー！ ずるいわぁ！ ぱちゅのばんよぉ！",
-      "chinese": "姆啾！耍赖哇！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_exam_promise_fail"
-      },
-      "source_sha256": "96777c749d4e0f86313fd203cede36404baa0015c247f383d7ee300bb0d08db0",
-      "english": "Mukyu... Unfair! Why not Patchouli?!"
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_fail2",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやつしゃん、わたちも まっちぇたわ！ ぷきゅーっ！",
-      "chinese": "姆啾。窝也在等点心鲜笋哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "89e79b2d0757a3a39786436c9b1a0fd0370a2f0e6b545d522e019eba9da22f15",
-      "english": "Mukyu. I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "patchouli.young.o_exam_report",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。にんげんしゃん！ このもんだい、できちゃわ！",
-      "chinese": "姆啾。人类鲜笋！这道题窝做完惹哇！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_exam_report"
-      },
-      "source_sha256": "4507cf3d2f96feccc8c4a442f020a16728d1b7d0e3d52daf01f22a19e38be0a6",
-      "english": "Mukyu. Mr. Human! I finished the test task!"
     },
     {
       "id": "patchouli.young.o_exam_sorry",
@@ -14038,40 +12651,6 @@
       "english": "Mukyu. I'm going somewhere even easier!"
     },
     {
-      "id": "patchouli.young.o_wild_role_beg",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅー！ あまあま、ちょうだい！ あけちぇ！",
-      "chinese": "姆啾——！给帕秋甜甜！快打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_wild_role_beg"
-      },
-      "source_sha256": "23af801f852b9b818cb4a3b4b07a99ea9c716a46c720093219db8986710345d4",
-      "english": "Mukyu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "patchouli.young.o_wild_role_provoke",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。ばっじなんか！ ぷきゅーっ！",
-      "chinese": "姆啾。徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_wild_role_provoke"
-      },
-      "source_sha256": "8dfd6f643e95dbea126898b1eb53a6e965afff28a9805db56c7cb491c6e5707a",
-      "english": "Mukyu. What's so great about a badge? Puff!"
-    },
-    {
       "id": "patchouli.young.o_lesson_praised",
       "species": "patchouli",
       "age": "young",
@@ -14104,23 +12683,6 @@
       },
       "source_sha256": "5cc8cfd2b631131dc2fe188fb1f9dbb8f45920c8076c1e542ddd12f131a309d3",
       "english": "Mukyu. Fank you! One more time!"
-    },
-    {
-      "id": "patchouli.young.o_lesson_scolded",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。ゆぅ……ごめにゃしゃい……",
-      "chinese": "姆啾。油呜……窝错惹哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_lesson_scolded"
-      },
-      "source_sha256": "9c2761dfddf08dd73aa606005887f805769a638eee027abc825f61e0ff2741db",
-      "english": "Mukyu. Yuu... I'm sowwy..."
     },
     {
       "id": "patchouli.young.o_badge_envy",
@@ -14240,91 +12802,6 @@
       },
       "source_sha256": "4cb55d0a278ad7a995b68eb5370d7dc3f423d19e73c03872c009998e52f775a3",
       "english": "Uu... Remilia isn't here! Nobody's here!"
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_wait",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん……まつ、まつのだ……",
-      "chinese": "呜——点心先生……等、等呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "284cc74a848a2890922aa43720e821dee8d9b966d81f52c88fbd55efb389927b",
-      "english": "Uu... Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_wait2",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん……はやく、きて……",
-      "chinese": "呜——点心先生……快来呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "09fc2e890ff0fe7c96a737a5881eb93e724c3cc8c77045e94b349633e7e89230",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_fail",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
-      "chinese": "呜——耍赖呀！蕾米莉亚的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "a3958392e1c08ef1d2cb137124fb7362e19c4286e570cd5be51617116c283450",
-      "english": "Uu... Unfair! Why not Remilia?!"
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_fail2",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん、わたしも まってたのだ！ ぷくーっ！",
-      "chinese": "呜——点心先生，蕾米莉亚也在等呀！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "1d9521bac9bd96c0f1a32f83c25a32ac3298c4577bb437680d9074bd3f878ebf",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "remilia.adult.o_exam_report",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、にんげんさん！ このもんだい、できたのだ！",
-      "chinese": "呜——人类先生！这道题蕾米莉亚做完了呀！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_exam_report"
-      },
-      "source_sha256": "c5ecdbecfbc8f59532c599d0d0ad61fa41c16c05faf82815ef680ec434d13736",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "remilia.adult.o_exam_sorry",
@@ -14514,40 +12991,6 @@
       "english": "Uu... Remilia is going somewhere even easier!"
     },
     {
-      "id": "remilia.adult.o_wild_role_beg",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー！ あまあまを ちょうだいなのだ！ ここを あけるのだ！",
-      "chinese": "呜——！把甜甜给蕾米莉亚呀！把这里打开呀！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_wild_role_beg"
-      },
-      "source_sha256": "5cc45c3c212d169a7f41fb697a3806deab2e79e051620e1af96b3f853e2d4084",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "remilia.adult.o_wild_role_provoke",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、バッジなんか！ ぷくーっ！",
-      "chinese": "呜——徽章有什么了不起呀！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "e197cf140d7fc38da00649cc22820a47616f8b467985a345ac4e06f0854831d8",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "remilia.adult.o_lesson_praised",
       "species": "remilia",
       "age": "adult",
@@ -14580,23 +13023,6 @@
       },
       "source_sha256": "f59b5b7236025cee155c6d6f46201991dd4afc1640b2a7516986e7c2066b8988",
       "english": "Uu... Thank you! I'll do it again!"
-    },
-    {
-      "id": "remilia.adult.o_lesson_scolded",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、ゆぅ……ごめんねのだ……",
-      "chinese": "呜——油呜……蕾米莉亚错了呀……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_lesson_scolded"
-      },
-      "source_sha256": "3581a04169a88465260ae78a499c43f244b75e723fb78a3a1d841a089c42c4a5",
-      "english": "Uu... Yuu... I'm sorry..."
     },
     {
       "id": "remilia.adult.o_badge_envy",
@@ -14716,91 +13142,6 @@
       },
       "source_sha256": "7dcb4ea83380021e4d6c2dad6e697292249c180c883731b546cc20885637c55f",
       "english": "Uu... Remilia isn't here! Nobody's here!"
-    },
-    {
-      "id": "remilia.young.o_exam_promise_wait",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……まちゅのだ……",
-      "chinese": "呜——点心鲜笋……窝等呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_exam_promise_wait"
-      },
-      "source_sha256": "f099fc05513c6a5dba9f6318d9fe9b9b8dae594ebfee8f45063c50317c99c854",
-      "english": "Uu... Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "remilia.young.o_exam_promise_wait2",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "呜——点心鲜笋……怪过来呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "e48e89c8c058d563d00174cb63b7d84d431787c4dad2c50be1eab0db4c9819b6",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "remilia.young.o_exam_promise_fail",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー！ ずるいのだぁ！ れみぃのばんなのだぁ！",
-      "chinese": "呜——耍赖呀！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_exam_promise_fail"
-      },
-      "source_sha256": "16edaf2e0505655cf285191df20b3b3db802f71a1c977084ff541d549e8753de",
-      "english": "Uu... Unfair! Why not Remilia?!"
-    },
-    {
-      "id": "remilia.young.o_exam_promise_fail2",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやつしゃん、わたちも まっちぇたのだ！ ぷきゅーっ！",
-      "chinese": "呜——窝也在等点心鲜笋呀！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "03576a6519946ca6769b9c1300544a4ddf3c74a4a1040594ba8f55628bc6f8cd",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "remilia.young.o_exam_report",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、にんげんしゃん！ このもんだい、できちゃのだ！",
-      "chinese": "呜——人类鲜笋！这道题窝做完惹呀！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_exam_report"
-      },
-      "source_sha256": "45f1cad83db409744b8ebf6a1bad41bdcbde7f68dd718fa8936b4707721b535e",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "remilia.young.o_exam_sorry",
@@ -14990,40 +13331,6 @@
       "english": "Uu... I'm going somewhere even easier!"
     },
     {
-      "id": "remilia.young.o_wild_role_beg",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー！ あまあま、ちょうだいなのだ！ あけちぇなのだ！",
-      "chinese": "呜——！给蕾米甜甜呀！快打开呀！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_wild_role_beg"
-      },
-      "source_sha256": "8eabdeaff65178696177d63f4d9edc91601d8b6ca748d38fdc89a14dcc7cbae8",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "remilia.young.o_wild_role_provoke",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、ばっじなんか！ ぷきゅーっ！",
-      "chinese": "呜——徽章有什么了不起呀！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_wild_role_provoke"
-      },
-      "source_sha256": "af685516b0be68a216900223cfd8a7925c2e27a2258e72f55daab2015287c654",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "remilia.young.o_lesson_praised",
       "species": "remilia",
       "age": "young",
@@ -15056,23 +13363,6 @@
       },
       "source_sha256": "e37cc79370dcc1c73db076d8dd1a0442f30fc1baff23573295aed1c08c620301",
       "english": "Uu... Fank you! One more time!"
-    },
-    {
-      "id": "remilia.young.o_lesson_scolded",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、ゆぅ……ごめにゃしゃい……",
-      "chinese": "呜——油呜……窝错惹呀……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_lesson_scolded"
-      },
-      "source_sha256": "b2e0d9ab028b74dd03439ee028b307b982ce8b643601e411b3e738aa1560ceff",
-      "english": "Uu... Yuu... I'm sowwy..."
     },
     {
       "id": "remilia.young.o_badge_envy",
@@ -15192,91 +13482,6 @@
       },
       "source_sha256": "9ef619981ba45729b333cdc4556ece603f64ef79373c9b70ce97a79e536a2066",
       "english": "Uu... Flandre isn't here! Nobody's here!"
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_wait",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん……まつ、まつよ……",
-      "chinese": "呜——点心先生……等、等哦……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_exam_promise_wait"
-      },
-      "source_sha256": "46e9c5cb05f04327e2bc2623e8ff3353365b1b1c4200e2b9e3e7919f1a73e558",
-      "english": "Uu... Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_wait2",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん……はやく、きて……",
-      "chinese": "呜——点心先生……快来哦……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_exam_promise_wait2"
-      },
-      "source_sha256": "09fc2e890ff0fe7c96a737a5881eb93e724c3cc8c77045e94b349633e7e89230",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_fail",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
-      "chinese": "呜——耍赖哦！芙兰的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_exam_promise_fail"
-      },
-      "source_sha256": "6ab3561971d999f66839742d615a60144dc81acfbde65c850c6c2b6f306d5ed1",
-      "english": "Uu... Unfair! Why not Flandre?!"
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_fail2",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "呜——点心先生，芙兰也在等哦！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_exam_promise_fail2"
-      },
-      "source_sha256": "39b83d0f96e71aeb1c2e662f4aa7e85b05d1e9cc6010fee2aec14caf30a10301",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "flandre.adult.o_exam_report",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、にんげんさん！ このもんだい、できたよ！",
-      "chinese": "呜——人类先生！这道题芙兰做完了哦！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_exam_report"
-      },
-      "source_sha256": "cf12432fbb2c82fb375096da0a8a8539db5811c04e7d78d931dc8a2e0e276600",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "flandre.adult.o_exam_sorry",
@@ -15466,40 +13671,6 @@
       "english": "Uu... Flandre is going somewhere even easier!"
     },
     {
-      "id": "flandre.adult.o_wild_role_beg",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー！ あまあまちょうだい！ ここ、あけて！",
-      "chinese": "呜——！把甜甜给芙兰！把这里打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_wild_role_beg"
-      },
-      "source_sha256": "d390d49c94b7789a1e45f52da107dd229b1f1776634098e646ffe82d8170b642",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "flandre.adult.o_wild_role_provoke",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、バッジなんか！ ぷくーっ！",
-      "chinese": "呜——徽章有什么了不起哦！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_wild_role_provoke"
-      },
-      "source_sha256": "e197cf140d7fc38da00649cc22820a47616f8b467985a345ac4e06f0854831d8",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "flandre.adult.o_lesson_praised",
       "species": "flandre",
       "age": "adult",
@@ -15532,23 +13703,6 @@
       },
       "source_sha256": "0f7f6cb335993fb277abf3f0c7479ea14825e2440c2294a7462ae650f8ec5bb4",
       "english": "Uu... Thank you! I'll do it again!"
-    },
-    {
-      "id": "flandre.adult.o_lesson_scolded",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、ゆぅ……ごめんねよ……",
-      "chinese": "呜——油呜……芙兰错了哦……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_lesson_scolded"
-      },
-      "source_sha256": "479ea802f02a4209dcdb9c3ee4c1c3fc6ce3f87159f5a2615473b7888f756eac",
-      "english": "Uu... Yuu... I'm sorry..."
     },
     {
       "id": "flandre.adult.o_badge_envy",
@@ -15668,91 +13822,6 @@
       },
       "source_sha256": "57ba3a9b874cf0d8075af2c4bd3ef7fdc5e244aec515a6d9fda8963bbadec9c7",
       "english": "Uu... Flandre isn't here! Nobody's here!"
-    },
-    {
-      "id": "flandre.young.o_exam_promise_wait",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……まちゅよぅ……",
-      "chinese": "呜——点心鲜笋……窝等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_exam_promise_wait"
-      },
-      "source_sha256": "652c73cefd90c35a614245d044f9089ce0ac803623289c0c7cf041d39653b69c",
-      "english": "Uu... Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "flandre.young.o_exam_promise_wait2",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "呜——点心鲜笋……怪过来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_exam_promise_wait2"
-      },
-      "source_sha256": "e48e89c8c058d563d00174cb63b7d84d431787c4dad2c50be1eab0db4c9819b6",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "flandre.young.o_exam_promise_fail",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー！ ずるいよぉ！ ふりゃんのばんだよぉ！",
-      "chinese": "呜——耍赖哟！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_exam_promise_fail"
-      },
-      "source_sha256": "f5f8440ca3a9b9beea2737389f6e4be6e4a995264ffa8ff71dc7d39f125d39ba",
-      "english": "Uu... Unfair! Why not Flandre?!"
-    },
-    {
-      "id": "flandre.young.o_exam_promise_fail2",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやつしゃん、わたちも まっちぇたよぅ！ ぷきゅーっ！",
-      "chinese": "呜——窝也在等点心鲜笋哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_exam_promise_fail2"
-      },
-      "source_sha256": "e2638f480ca611e53b9111f6394a13a0f1e99ef45d8e2fa43515dc0a21e6aaf0",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "flandre.young.o_exam_report",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、にんげんしゃん！ このもんだい、できちゃよぅ！",
-      "chinese": "呜——人类鲜笋！这道题窝做完惹哟！",
-      "events": [
-        "exam_report"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_exam_report"
-      },
-      "source_sha256": "3f2436417a9c82b7e8f7354501dff59df482f8f955210c5427969dc10cacea46",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "flandre.young.o_exam_sorry",
@@ -15942,40 +14011,6 @@
       "english": "Uu... I'm going somewhere even easier!"
     },
     {
-      "id": "flandre.young.o_wild_role_beg",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー！ あまあまちょうだい！ あけちぇ！",
-      "chinese": "呜——！给芙呀甜甜！快打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_wild_role_beg"
-      },
-      "source_sha256": "8e17c258425407e5d1dfa10eece8e40cbaf5d65a4e6811334a0cca50a1b5eb6c",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "flandre.young.o_wild_role_provoke",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、ばっじなんか！ ぷきゅーっ！",
-      "chinese": "呜——徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_wild_role_provoke"
-      },
-      "source_sha256": "af685516b0be68a216900223cfd8a7925c2e27a2258e72f55daab2015287c654",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "flandre.young.o_lesson_praised",
       "species": "flandre",
       "age": "young",
@@ -16008,23 +14043,6 @@
       },
       "source_sha256": "53bce4c9a48576ae74d6b0e3e6f8585a784879d13c721f684de234908ec89b22",
       "english": "Uu... Fank you! One more time!"
-    },
-    {
-      "id": "flandre.young.o_lesson_scolded",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、ゆぅ……ごめにゃしゃい……",
-      "chinese": "呜——油呜……窝错惹哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_lesson_scolded"
-      },
-      "source_sha256": "b2e0d9ab028b74dd03439ee028b307b982ce8b643601e411b3e738aa1560ceff",
-      "english": "Uu... Yuu... I'm sowwy..."
     },
     {
       "id": "flandre.young.o_badge_envy",
@@ -19642,74 +17660,6 @@
       "source_sha256": "45339d6fe3dcb9f7db63e30da766ac44e532b80e780b4e7138e481fff300d808"
     },
     {
-      "id": "marisa.adult.o_family_alarm_call",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ちびたち、こっちへ くるのぜ！",
-      "chinese": "孩子们，快到这边来！",
-      "english": "Little ones, come over here!",
-      "events": [
-        "family_alarm_call"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_family_alarm_call"
-      },
-      "source_sha256": "f98f3debd2b0ea5b87ef2d15fe1d7819a453eb9548d9d68c54f1106faf63ceae"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_answer",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "いま そっちへ いくのぜ！",
-      "chinese": "这就过来！",
-      "english": "Coming to you!",
-      "events": [
-        "family_alarm_answer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_family_alarm_answer"
-      },
-      "source_sha256": "efa2158009fec45807afe30481f1125b83c05a58eb0d985a8998cc833d12d295"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_flee",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ここは あぶない、はなれるのぜ！",
-      "chinese": "这里危险，快离远一点！",
-      "english": "It is dangerous here. Move away!",
-      "events": [
-        "family_alarm_flee"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_family_alarm_flee"
-      },
-      "source_sha256": "4cf9bef94c68fe1d8fd71e5db2a882124c559cce7b3df11d39427898dc5b8ad9"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_calm",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "はあ……もう だいじょうぶなのぜ。",
-      "chinese": "呼……已经安全了。",
-      "english": "Whew... we are safe now.",
-      "events": [
-        "family_alarm_calm"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_family_alarm_calm"
-      },
-      "source_sha256": "326e2abc5a24849921a1c22d7f14ebc0c1231eebc0118b95868f0ff0073d4e37"
-    },
-    {
       "id": "marisa.adult.o_water_help",
       "species": "marisa",
       "age": "adult",
@@ -19929,74 +17879,6 @@
         "id": "marisa.young.o_boat_rock_startle"
       },
       "source_sha256": "ce738111a134867cadf84debfe66154b2e25e1571479a0deed4505e54a04ec62"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_call",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ちびたち、こっちへ くるのじぇ！",
-      "chinese": "孩子们，快到这边来！",
-      "english": "Little ones, come over here!",
-      "events": [
-        "family_alarm_call"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_family_alarm_call"
-      },
-      "source_sha256": "2246323cfdcf9eccc28e6ef7dd5730b82723bfb317b403ed910a2f4d7aeb861e"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_answer",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "いま そっちへ いくのじぇ！",
-      "chinese": "这就过来！",
-      "english": "Coming to you!",
-      "events": [
-        "family_alarm_answer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_family_alarm_answer"
-      },
-      "source_sha256": "1d8bd8d04f664da3d8065c583046c072ee4e4c190a6f52d8e013c8f7e98064fc"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_flee",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ここは あぶない、はなれるのじぇ！",
-      "chinese": "这里危险，快离远一点！",
-      "english": "It is dangerous here. Move away!",
-      "events": [
-        "family_alarm_flee"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_family_alarm_flee"
-      },
-      "source_sha256": "d3ca81a661c15fe69af2b78a1c151f80ff31b554cd32affe8678ef765e91ead3"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_calm",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "はあ……もう だいじょうぶなのじぇ。",
-      "chinese": "呼……已经安全了。",
-      "english": "Whew... we are safe now.",
-      "events": [
-        "family_alarm_calm"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_family_alarm_calm"
-      },
-      "source_sha256": "cf0f1fcb89483d0bed5993eb296f29befb27e592cd340788be7dc4c29f7bb16f"
     },
     {
       "id": "marisa.young.o_water_help",
@@ -22037,720 +19919,6 @@
       },
       "source_sha256": "117d6e82e9717b4ce80ebd7d333d44dd800d42d943faf2aa20c44061fdd49e09",
       "english": "Uu... I still need to practice..."
-    },
-    {
-      "id": "reimu.adult.o_badge_beg",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ひとくち だけで いいから、わけてほしいな……。",
-      "chinese": "只要一口就好，分灵梦一点吧……",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_badge_beg"
-      },
-      "source_sha256": "ed7dcf3473da778ee4ef7e11ef6cb140f0d71163d38ece8ce031a106c45b2dab",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "reimu.young.o_badge_beg",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ひとくち だけでいいから、ちょうだいにぇ……。",
-      "chinese": "只要一口就好，给窝一点惹……",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_badge_beg"
-      },
-      "source_sha256": "63e6bad4cf20069136861c9f9d3ffb3863aa7594decc051b624cfc3a2ac05234",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "marisa.adult.o_badge_beg",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ひとくちだけ ほしいのぜ……わけてほしいのぜ。",
-      "chinese": "就想要一口贼……分魔理沙一点贼。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_badge_beg"
-      },
-      "source_sha256": "a8490333d7a93398db940d0d4d9805c987c6ee2f5d6c0e9fce40c50a3da55160",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "marisa.young.o_badge_beg",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ひとくちだけ ほちいのじぇ……ちょうだいなのじぇ。",
-      "chinese": "就想要一口惹杰……给窝一点惹杰。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_badge_beg"
-      },
-      "source_sha256": "13bc59cb59a9be52618e56977e10ff9702fb79b831ca7ec4dacd7dd1c0b1b37f",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "alice.adult.o_badge_beg",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ひとくちだけ いただけないかしら……。",
-      "chinese": "能分爱丽丝一口吗哇……",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_badge_beg"
-      },
-      "source_sha256": "d7ac8f270db68332f953f3dbb528291feb11bb9c858dfeecba8151ca14ad21b7",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "alice.young.o_badge_beg",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ひとくちだけ ちょうだい……おねがい。",
-      "chinese": "就一口给窝吧哇……拜托。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_badge_beg"
-      },
-      "source_sha256": "aae3eb0d5eba6ebb7dcf0341225cf65d87b0562753a7cb4c1e4cc994b3364663",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "chen.adult.o_badge_beg",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ひとくちだけ ほしいよー……わけてー。",
-      "chinese": "就想要一口哟——……分橙一点——。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_badge_beg"
-      },
-      "source_sha256": "76ddc730d3930f78ba5a0d1db48f9cf4370fff77c33b90ee110d199c65868193",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "chen.young.o_badge_beg",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ひとくちだけ ほちいよー……ちょうだいー。",
-      "chinese": "就想要一口哟——……给橙一点——。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_badge_beg"
-      },
-      "source_sha256": "19337916788ee55393b5c1343563f97e9174f02408f797c89a1dfc839fe08230",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "patchouli.adult.o_badge_beg",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ……ひとくちだけ、わけてもらえないかしら。",
-      "chinese": "姆啾……能分帕秋莉一口吗。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_badge_beg"
-      },
-      "source_sha256": "92e24cd1cc76efdbe9093fb48bd7aa3b923edf8746327a4c318dc4eb2f56ebbc",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "patchouli.young.o_badge_beg",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ……ひとくちだけ、ちょうだい。",
-      "chinese": "姆啾……就一口，给帕秋吧。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_badge_beg"
-      },
-      "source_sha256": "d21fc8d24982c0f7ad760169466587cd651ef1916add304094f2dfac0798bba6",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "remilia.adult.o_badge_beg",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー……ひとくちだけ ほしいのだ。わけてほしいのだ。",
-      "chinese": "呜——……就想要一口呀。分蕾米莉亚一点呀。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_badge_beg"
-      },
-      "source_sha256": "ddec6bb4d3559cb5225ac53d677b6a455db7cbf9c5e967a51ce5033809d70dde",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "remilia.young.o_badge_beg",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー……ひとくちだけ ほちいのだ。ちょうだいなのだ。",
-      "chinese": "呜——……就想要一口呀。给蕾米一点呀。",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_badge_beg"
-      },
-      "source_sha256": "30f38e506b2109a5fbbed5e09467529ec10ce565cb684d09388c55e9c10e8ffc",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "flandre.adult.o_badge_beg",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー……ひとくちだけ ほしいな。わけてくれる？",
-      "chinese": "呜——……就想要一口。能分芙兰一点吗？",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_badge_beg"
-      },
-      "source_sha256": "46172dec852bdc2cc6a7ce75e8d4a9fa4f0ca9256b51c221f2a0fe53f2395b4d",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "flandre.young.o_badge_beg",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー……ひとくちだけ ほちい。ちょうだい？",
-      "chinese": "呜——……就想要一口。给芙呀一点？",
-      "events": [
-        "badge_beg"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_badge_beg"
-      },
-      "source_sha256": "8aad09d6caa07028c821b32cfb959e24ca038b6434f8c62563e005d33070dfea",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "reimu.adult.o_badge_share_offer",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
-      "chinese": "分一半吧。油库里地吃哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_badge_share_offer"
-      },
-      "source_sha256": "0fe0e8a0e63a7757ff22b9811f453dde50fcd2b831421942eee5de0e4a01a939",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "reimu.young.o_badge_share_offer",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "はんぶんこ ちようにぇ。ゆっくち たべちぇにぇ。",
-      "chinese": "分一半惹哟。油库气地粗惹哟。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_badge_share_offer"
-      },
-      "source_sha256": "cb45017300ed30f406e257c4ce6d527beb1bfaafba7664629cae9ca0dab6bc8a",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "marisa.adult.o_badge_share_offer",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "はんぶんこ なのぜ。ゆっくり たべるのぜ。",
-      "chinese": "分一半贼。油库里地吃贼。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_badge_share_offer"
-      },
-      "source_sha256": "00a99b2ebd7fdb9787278563a32ca4e48be81041b73faa9760e822506d5f3587",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "marisa.young.o_badge_share_offer",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "はんぶんこ なのじぇ。ゆっくち たべるのじぇ。",
-      "chinese": "分一半惹杰。油库气地粗惹杰。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_badge_share_offer"
-      },
-      "source_sha256": "9d5439dbfd14b0e04abe6c8b543aefdb6c0a44e9012cd6ea15ff28da1658aa56",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "alice.adult.o_badge_share_offer",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "はんぶんこ しましょう。ゆっくり めしあがれ。",
-      "chinese": "分一半吧哇。油库里地享用哇。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_badge_share_offer"
-      },
-      "source_sha256": "2414a4d3769c1813f81304d7fc846536380f15836429630c76b5e5e5f0595616",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "alice.young.o_badge_share_offer",
-      "species": "alice",
-      "age": "young",
-      "japanese": "はんぶんこ ちましょ。ゆっくち たべちぇね。",
-      "chinese": "分一半吧哇。油库气地粗哇。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_badge_share_offer"
-      },
-      "source_sha256": "72f366ec248b0416ba3aef38e52396e4b7c61096d9b12f9a61678239d09b9af4",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "chen.adult.o_badge_share_offer",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "はんぶんこ だよー。ゆっくり たべてねー。",
-      "chinese": "分一半哟——。油库里地吃哦——。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_badge_share_offer"
-      },
-      "source_sha256": "02b4f2ba68b8dd63204f9095d4791d039c6769a71d9ef551c838ff2826a2e976",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "chen.young.o_badge_share_offer",
-      "species": "chen",
-      "age": "young",
-      "japanese": "はんぶんこ だよー。ゆっくち たべちぇねー。",
-      "chinese": "分一半哟——。油库气地粗哦——。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_badge_share_offer"
-      },
-      "source_sha256": "473f7d3d7a7e667a15444adc32b6f9a13c56ff467a4d9c548a964bff755ab634",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "patchouli.adult.o_badge_share_offer",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ、はんぶんこ しましょう。ゆっくり おあがりなさい。",
-      "chinese": "姆啾，分一半吧。油库里地吃。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_badge_share_offer"
-      },
-      "source_sha256": "869d2fea8961a3e7b9fbe67c3126056b3d8bca62ba71f17b5ddc34f7ef5349fc",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "patchouli.young.o_badge_share_offer",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ、はんぶんこ ちましょ。ゆっくち たべちぇ。",
-      "chinese": "姆啾，分一半吧。油库气地粗。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_badge_share_offer"
-      },
-      "source_sha256": "eb21ccf6baf1e096b2a21566279599869f4deec97c01cc1654cb2df9d50639c8",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "remilia.adult.o_badge_share_offer",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、はんぶんこ なのだ。ゆっくり たべるのだ。",
-      "chinese": "呜——，分一半呀。油库里地吃呀。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_badge_share_offer"
-      },
-      "source_sha256": "cec70b6a73b1cb1abc997b02d1dd20867376534036ae4eafb16a002bbbad6d93",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "remilia.young.o_badge_share_offer",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、はんぶんこ なのだ。ゆっくち たべるのだ。",
-      "chinese": "呜——，分一半呀。油库气地粗呀。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_badge_share_offer"
-      },
-      "source_sha256": "7b95baa3eae0d59fa9ceba7a3108276ee5a123905bdda886043596aae7c99651",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "flandre.adult.o_badge_share_offer",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、はんぶんこ しよう。ゆっくり たべてね。",
-      "chinese": "呜——，分一半吧。油库里地吃哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_badge_share_offer"
-      },
-      "source_sha256": "d5c3b42d18cb4946a5a94710553e0511dcc24829aabe2a56b63f78313ced8bd6",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "flandre.young.o_badge_share_offer",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、はんぶんこ ちよう。ゆっくち たべちぇね。",
-      "chinese": "呜——，分一半吧。油库气地粗哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_badge_share_offer"
-      },
-      "source_sha256": "12e651758cbd860dbf111a8bef5739655ff49f66ba29efcb324c5b39eb11554c",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "reimu.adult.o_badge_share_refuse",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "これは れいむの ごはんだよ……ごめんね。",
-      "chinese": "这是灵梦的饭……对不起哦。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "d28fe3d8e71e447a79e64c52c96588f5fb8dcc86d617fb172363a5f0f1afda2d",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "reimu.young.o_badge_share_refuse",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "これは れいみゅの ごはんだよ……ごみぇんにぇ。",
-      "chinese": "这是窝的饭惹……对不起惹哟。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_badge_share_refuse"
-      },
-      "source_sha256": "88083c001b4cd8b223f85b9f82dc46a1ed7807f501603ef5bae1004fd95ecd51",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "marisa.adult.o_badge_share_refuse",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "これは まりさの ごはんなのぜ。やらないのぜ。",
-      "chinese": "这是魔理沙的饭贼。不给贼。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "c4a16a051eec1c180d5ba7e03cbf66841318777cfbdd5755d1e724144334683e",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "marisa.young.o_badge_share_refuse",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "これは まりちゃの ごはんなのじぇ。あげにゃいのじぇ。",
-      "chinese": "这是窝的饭惹杰。不给惹杰。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_badge_share_refuse"
-      },
-      "source_sha256": "3f77858f835d44f744c60342569df3ba3a575c1b2014dc944c326d9f379b9246",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "alice.adult.o_badge_share_refuse",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "これは ありすの ごはんなの……ごめんなさいね。",
-      "chinese": "这是爱丽丝的饭哇……对不起哇。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "29a89257f36ad93c11dd43ee853ef045a2b95e8d75eedcd2ec37dec7b1eb19d9",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "alice.young.o_badge_share_refuse",
-      "species": "alice",
-      "age": "young",
-      "japanese": "これは ありちゅの ごはんなの……ごめんにゃさい。",
-      "chinese": "这是窝的饭哇……对不起哇。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_badge_share_refuse"
-      },
-      "source_sha256": "d75ae58e370920caed3d3d5460344c98c4e47e9da8661a9cba849006ab079c6b",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "chen.adult.o_badge_share_refuse",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "これは ちぇんの ごはんだよー……ごめんねー。",
-      "chinese": "这是橙的饭哟——……对不起哦——。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "9bd1e0f80f9a18991add6dbc295f7e3fe8916cc21fa9bcc10df6abbb2ca57306",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "chen.young.o_badge_share_refuse",
-      "species": "chen",
-      "age": "young",
-      "japanese": "これは ちぇんの ごはんだよー……ごめんにぇー。",
-      "chinese": "这是橙的饭哟——……对不起哦——。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_badge_share_refuse"
-      },
-      "source_sha256": "c6b1652a75b7d54485ef31050b7a8fa5d2e15e421f4005ee83620d508b123ab2",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "patchouli.adult.o_badge_share_refuse",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ……これは ぱちゅりーの ごはんなの。ごめんなさい。",
-      "chinese": "姆啾……这是帕秋莉的饭。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "273bdfb8d8e3f3c8b475139d7c989b25107d7b686870ec43b9a74bd296970c63",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "patchouli.young.o_badge_share_refuse",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ……これは ぱちゅの ごはんなの。ごめんにゃしゃい。",
-      "chinese": "姆啾……这是帕秋的饭。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_badge_share_refuse"
-      },
-      "source_sha256": "739f56fa1124c4436c83f8b1980e0fd0b55ae23cdb21fc7b528adab5aff2332f",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "remilia.adult.o_badge_share_refuse",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー……これは れみりあの ごはんなのだ。やらないのだ。",
-      "chinese": "呜——……这是蕾米莉亚的饭呀。不给呀。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "e1f9848f12fa156460c3ba3b18238374ee54915c3fcf7822063ff63f25e5f448",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "remilia.young.o_badge_share_refuse",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー……これは れみぃの ごはんなのだ。あげにゃいのだ。",
-      "chinese": "呜——……这是蕾米的饭呀。不给呀。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_badge_share_refuse"
-      },
-      "source_sha256": "6eb150cb413fc7ae4177d8a8429b1e5b75a99d3b1708ce75dca72c9bf32491eb",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "flandre.adult.o_badge_share_refuse",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー……これは ふらんの ごはんだよ。ごめんね。",
-      "chinese": "呜——……这是芙兰的饭哦。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_badge_share_refuse"
-      },
-      "source_sha256": "98de8c4811026cff857da79f255448c2b990fd37e51a07d72871aa82a7d142a1",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "flandre.young.o_badge_share_refuse",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー……これは ふりゃんの ごはんだよ。ごめんにぇ。",
-      "chinese": "呜——……这是芙呀的饭哦。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_badge_share_refuse"
-      },
-      "source_sha256": "a6d08c3fe770948daec9505a043365d12759e393f9bf9349df8104d0a7ec59ff",
-      "english": "This is my meal... sorry."
     },
     {
       "id": "reimu.adult.o_badge_thanks",

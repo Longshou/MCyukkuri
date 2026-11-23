@@ -3977,15 +3977,6 @@
       }
     ]
   },
-  "voice.original.remilia.adult.o_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.remilia.adult.o_learned": {
     "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_learned",
     "sounds": [
@@ -4315,15 +4306,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.young.o_start",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_progress",
         "attenuation_distance": 16
       }
     ]
@@ -4661,15 +4643,6 @@
       }
     ]
   },
-  "voice.original.flandre.adult.o_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.flandre.adult.o_learned": {
     "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_learned",
     "sounds": [
@@ -5003,15 +4976,6 @@
       }
     ]
   },
-  "voice.original.flandre.young.o_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.flandre.young.o_learned": {
     "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_learned",
     "sounds": [
@@ -5282,51 +5246,6 @@
       }
     ]
   },
-  "voice.original.reimu.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_exam_report",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.reimu.adult.o_exam_sorry": {
     "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_exam_sorry",
     "sounds": [
@@ -5426,24 +5345,6 @@
       }
     ]
   },
-  "voice.original.reimu.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.reimu.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_lesson_praised",
     "sounds": [
@@ -5458,15 +5359,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/reimu.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -5530,51 +5422,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/reimu.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -5678,24 +5525,6 @@
       }
     ]
   },
-  "voice.original.reimu.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.reimu.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_lesson_praised",
     "sounds": [
@@ -5710,15 +5539,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/reimu.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -5782,51 +5602,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -5930,24 +5705,6 @@
       }
     ]
   },
-  "voice.original.marisa.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.marisa.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_lesson_praised",
     "sounds": [
@@ -5962,15 +5719,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -6034,51 +5782,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -6182,24 +5885,6 @@
       }
     ]
   },
-  "voice.original.marisa.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.marisa.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_lesson_praised",
     "sounds": [
@@ -6214,15 +5899,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -6286,51 +5962,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/alice.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -6434,24 +6065,6 @@
       }
     ]
   },
-  "voice.original.alice.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.alice.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_lesson_praised",
     "sounds": [
@@ -6466,15 +6079,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/alice.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -6538,51 +6142,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/alice.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -6686,24 +6245,6 @@
       }
     ]
   },
-  "voice.original.alice.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.alice.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.alice.young.o_lesson_praised",
     "sounds": [
@@ -6718,15 +6259,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/alice.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -6790,51 +6322,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/chen.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -6938,24 +6425,6 @@
       }
     ]
   },
-  "voice.original.chen.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.chen.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_lesson_praised",
     "sounds": [
@@ -6970,15 +6439,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/chen.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -7042,51 +6502,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/chen.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -7190,24 +6605,6 @@
       }
     ]
   },
-  "voice.original.chen.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.chen.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.chen.young.o_lesson_praised",
     "sounds": [
@@ -7222,15 +6619,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/chen.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -7294,51 +6682,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -7442,24 +6785,6 @@
       }
     ]
   },
-  "voice.original.patchouli.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.patchouli.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_lesson_praised",
     "sounds": [
@@ -7474,15 +6799,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/patchouli.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -7546,51 +6862,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/patchouli.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -7694,24 +6965,6 @@
       }
     ]
   },
-  "voice.original.patchouli.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.patchouli.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_lesson_praised",
     "sounds": [
@@ -7726,15 +6979,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/patchouli.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -7798,51 +7042,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -7946,24 +7145,6 @@
       }
     ]
   },
-  "voice.original.remilia.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.remilia.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_lesson_praised",
     "sounds": [
@@ -7978,15 +7159,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -8050,51 +7222,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -8198,24 +7325,6 @@
       }
     ]
   },
-  "voice.original.remilia.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.remilia.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_lesson_praised",
     "sounds": [
@@ -8230,15 +7339,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/remilia.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -8302,51 +7402,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.adult.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -8450,24 +7505,6 @@
       }
     ]
   },
-  "voice.original.flandre.adult.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.flandre.adult.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_lesson_praised",
     "sounds": [
@@ -8482,15 +7519,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.adult.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -8554,51 +7582,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.young.o_exam_hide_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_exam_promise_wait2": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_exam_promise_wait2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_exam_promise_wait2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_exam_promise_fail2": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_exam_promise_fail2",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_exam_promise_fail2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_exam_report",
         "attenuation_distance": 16
       }
     ]
@@ -8702,24 +7685,6 @@
       }
     ]
   },
-  "voice.original.flandre.young.o_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.flandre.young.o_lesson_praised": {
     "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_lesson_praised",
     "sounds": [
@@ -8734,15 +7699,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.young.o_lesson_praised2",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -10646,42 +9602,6 @@
       }
     ]
   },
-  "voice.original.marisa.adult.o_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_flee",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_family_alarm_calm",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.marisa.adult.o_water_help": {
     "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_water_help",
     "sounds": [
@@ -10795,42 +9715,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/marisa.young.o_boat_rock_startle",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_flee",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_family_alarm_calm",
         "attenuation_distance": 16
       }
     ]
@@ -11911,384 +10795,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/flandre.young.o_badge_humble",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.reimu.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.reimu.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/reimu.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.marisa.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.marisa.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/marisa.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.alice.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.alice.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/alice.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.chen.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.chen.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/chen.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.patchouli.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.patchouli.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/patchouli.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.remilia.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.remilia.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/remilia.young.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.adult.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.adult.o_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.flandre.young.o_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.flandre.young.o_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/flandre.young.o_badge_share_refuse",
         "attenuation_distance": 16
       }
     ]
@@ -44936,24 +43442,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.miyo.adult.s_badge_envy": {
     "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_badge_envy",
     "sounds": [
@@ -45130,42 +43618,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.miyo.young.s_badge_retort",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_badge_share_refuse",
         "attenuation_distance": 16
       }
     ]
@@ -45638,60 +44090,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_exam_report",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_exam_report",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.miyo.adult.s_exam_sorry": {
     "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_exam_sorry",
     "sounds": [
@@ -45760,78 +44158,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.miyo.young.s_expecting",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_family_alarm_calm",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_family_alarm_calm",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_family_alarm_flee",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_family_alarm_flee",
         "attenuation_distance": 16
       }
     ]
@@ -46358,24 +44684,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_lesson_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_lesson_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_lesson_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_lesson_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_lesson_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_lesson_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.miyo.adult.s_lesson_refused": {
     "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_lesson_refused",
     "sounds": [
@@ -46390,24 +44698,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.miyo.young.s_lesson_refused",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_lesson_scolded",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -47402,42 +45692,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.adult.s_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.miyo.adult.s_wounded": {
     "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_wounded",
     "sounds": [
@@ -47996,42 +46250,6 @@
       }
     ]
   },
-  "voice.original.myon.miyo.adult.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.adult.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.juvenile.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.young.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.young.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.young.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.miyo.baby.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.baby.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.miyo.baby.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.kinbao.adult.s_afraid": {
     "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_afraid",
     "sounds": [
@@ -48172,24 +46390,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.young.s_badge_ask",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_badge_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_badge_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_badge_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_badge_beg",
         "attenuation_distance": 16
       }
     ]
@@ -48370,42 +46570,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.young.s_badge_retort",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_badge_share_offer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_badge_share_offer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_badge_share_offer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_badge_share_refuse",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_badge_share_refuse": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_badge_share_refuse",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_badge_share_refuse",
         "attenuation_distance": 16
       }
     ]
@@ -48878,60 +47042,6 @@
       }
     ]
   },
-  "voice.original.myon.kinbao.adult.s_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_exam_promise_fail": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_exam_promise_fail",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_exam_promise_fail",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_exam_promise_wait": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_exam_promise_wait",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_exam_promise_wait",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_exam_report",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_exam_report": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_exam_report",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_exam_report",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.kinbao.adult.s_exam_sorry": {
     "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_exam_sorry",
     "sounds": [
@@ -49000,78 +47110,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.young.s_expecting",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_family_alarm_answer": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_family_alarm_answer",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_family_alarm_answer",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_family_alarm_call": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_family_alarm_call",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_family_alarm_call",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_family_alarm_calm",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_family_alarm_calm": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_family_alarm_calm",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_family_alarm_calm",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_family_alarm_flee",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_family_alarm_flee": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_family_alarm_flee",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_family_alarm_flee",
         "attenuation_distance": 16
       }
     ]
@@ -49598,24 +47636,6 @@
       }
     ]
   },
-  "voice.original.myon.kinbao.adult.s_lesson_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_lesson_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_lesson_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_lesson_progress": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_lesson_progress",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_lesson_progress",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.kinbao.adult.s_lesson_refused": {
     "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_lesson_refused",
     "sounds": [
@@ -49630,24 +47650,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.young.s_lesson_refused",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_lesson_scolded",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_lesson_scolded": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_lesson_scolded",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_lesson_scolded",
         "attenuation_distance": 16
       }
     ]
@@ -50642,42 +48644,6 @@
       }
     ]
   },
-  "voice.original.myon.kinbao.adult.s_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_wild_role_beg": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_wild_role_beg",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_wild_role_beg",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_wild_role_provoke": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_wild_role_provoke",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_wild_role_provoke",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "voice.original.myon.kinbao.adult.s_wounded": {
     "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_wounded",
     "sounds": [
@@ -51232,42 +49198,6 @@
     "sounds": [
       {
         "name": "mcyukkuri:voice/original/myon.kinbao.baby.s_kanroken_lost",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.adult.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.adult.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.juvenile.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.young.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.young.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.young.s_forage_proud",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "voice.original.myon.kinbao.baby.s_forage_proud": {
-    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.baby.s_forage_proud",
-    "sounds": [
-      {
-        "name": "mcyukkuri:voice/original/myon.kinbao.baby.s_forage_proud",
         "attenuation_distance": 16
       }
     ]

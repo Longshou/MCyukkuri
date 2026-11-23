@@ -42489,34 +42489,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_badge_beg",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "badge_beg"
-   ],
-   "japanese": "みょん……ひとくちだけ、わけてほしい……",
-   "chinese": "咪呦……就一口，分妖梦一点……",
-   "english": "Myon... just one bite for Myon...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_badge_beg",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "badge_beg"
-   ],
-   "japanese": "みょん……ひとくちだけ、ちょうらい……",
-   "chinese": "咪呦……就一口，给窝嘛……",
-   "english": "Myon... just one bite, pwease...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.miyo.adult.s_badge_envy",
    "species": "myon",
    "age": "adult",
@@ -42793,62 +42765,6 @@
    "japanese": "みょん！ のらは、あっちいっちぇ！",
    "chinese": "咪呦！野良去那边！",
    "english": "Myon! Stway, go away!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_badge_share_offer",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "badge_share_offer"
-   ],
-   "japanese": "はんぶんこ。みょん。ゆっくりたべて。",
-   "chinese": "分一半。咪呦。油库里地吃吧。",
-   "english": "Half each. Myon. Eat slowly.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_badge_share_offer",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "badge_share_offer"
-   ],
-   "japanese": "はんぶんこ！ みょん！ ゆっくち たべちぇ！",
-   "chinese": "分一半！咪呦！油库气地粗！",
-   "english": "Half each! Myon! Eat swowly!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_badge_share_refuse",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "badge_share_refuse"
-   ],
-   "japanese": "これは、わたしのごはん。だめ。みょん。",
-   "chinese": "这是妖梦的饭。不行。咪呦。",
-   "english": "This is my food. No. Myon.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_badge_share_refuse",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "badge_share_refuse"
-   ],
-   "japanese": "これ、わたちの ごはん！ らめ！ みょん！",
-   "chinese": "这是窝的饭！不给！咪呦！",
-   "english": "Dis my food! No! Myon!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -43585,90 +43501,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_exam_promise_fail",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "exam_promise_fail"
-   ],
-   "japanese": "ずるい！ わたしの おやつは？ みょん！",
-   "chinese": "耍赖！妖梦的点心呢？咪呦！",
-   "english": "Not fair! Where is Myon's snack? Myon!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_exam_promise_fail",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "exam_promise_fail"
-   ],
-   "japanese": "じゅるい！ わたちの おやつは？ みょん！ ぷきゅーっ！",
-   "chinese": "耍赖！窝的点心呢？咪呦！噗咕——！",
-   "english": "No fair! Where is my snack? Myon! Hmph!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_exam_promise_wait",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "exam_promise_wait"
-   ],
-   "japanese": "おやつさん……がまん、がまん。みょん……",
-   "chinese": "点心先生……忍住，忍住。咪呦……",
-   "english": "Mr. Snack... must wait. Myon...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_exam_promise_wait",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "exam_promise_wait"
-   ],
-   "japanese": "がまん、がまん……みょん……まだかにゃ……",
-   "chinese": "忍耐，忍耐……咪呦……还没好吗……",
-   "english": "Wait, wait... Myon... not yet...?",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_exam_report",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "exam_report"
-   ],
-   "japanese": "みょん！ にんげんさん！ このもんだい、できた！",
-   "chinese": "咪呦！人类先生！这道题妖梦做完了！",
-   "english": "Myon! Mr. Human! Myon finished the test task!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_exam_report",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "exam_report"
-   ],
-   "japanese": "みょん！ にんげんしゃん！ このもんだい、できちゃ！",
-   "chinese": "咪呦！人类鲜笋！这道题窝做完惹！",
-   "english": "Myon! Mr. Human! I finished the test task!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.miyo.adult.s_exam_sorry",
    "species": "myon",
    "age": "adult",
@@ -43777,118 +43609,6 @@
    "japanese": "ゆわぁぁ♪ みょん♪",
    "chinese": "油哇啊啊♪咪呦♪",
    "english": "Yuwaaa! Myon!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_family_alarm_answer",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_answer"
-   ],
-   "japanese": "みょん！ いまいく！",
-   "chinese": "咪呦！这就过来！",
-   "english": "Myon! Coming now!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_family_alarm_answer",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_answer"
-   ],
-   "japanese": "みょん！ いま いくぅ！",
-   "chinese": "咪呦！窝这就来！",
-   "english": "Myon! Comin!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_family_alarm_call",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_call"
-   ],
-   "japanese": "みょん！ ちびたち、こっち！ うしろにかくれて！",
-   "chinese": "咪呦！孩子们，到这边！躲到妖梦后面！",
-   "english": "Myon! Little ones, here! Hide behind me!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_family_alarm_call",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_call"
-   ],
-   "japanese": "みょん！ こっち、こっち！ はやく！",
-   "chinese": "咪呦！这边，这边！快点！",
-   "english": "Myon! Hewe, hewe! Huwwy!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_family_alarm_calm",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_calm"
-   ],
-   "japanese": "ふぅ……だいじょうぶ、だいじょうぶ。みょん……",
-   "chinese": "呼……没事啦，没事啦。咪呦……",
-   "english": "Phew... you're safe, you're safe. Myon...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_family_alarm_calm",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_calm"
-   ],
-   "japanese": "ふう……もう だいじょぶ。みょん。",
-   "chinese": "呼……没事惹。咪呦。",
-   "english": "Phew... safe now. Myon.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_family_alarm_flee",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_flee"
-   ],
-   "japanese": "ここは、あぶない！ はなれる！ みょん！",
-   "chinese": "这里危险！快离开！咪呦！",
-   "english": "It's dangerous here! Move away! Myon!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_family_alarm_flee",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "family_alarm_flee"
-   ],
-   "japanese": "ここ、あぶにゃい！ にげりゅ！ みょん！",
-   "chinese": "这里危险！快跑！咪呦！",
-   "english": "Dangewous! Wun! Myon!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -44705,34 +44425,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_lesson_progress",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "lesson_progress"
-   ],
-   "japanese": "みょん。ゆっくり、がんばる。",
-   "chinese": "咪呦。要油库里地努力。",
-   "english": "Myon. Slow and steady.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_lesson_progress",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "lesson_progress"
-   ],
-   "japanese": "みょん。ゆっくち がんばりゅ。",
-   "chinese": "咪呦。油库气地努腻。",
-   "english": "Myon. Twying.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.miyo.adult.s_lesson_refused",
    "species": "myon",
    "age": "adult",
@@ -44757,34 +44449,6 @@
    "japanese": "ぷきゅーっ！ やらにゃい！ みょん！",
    "chinese": "噗啾——！不要！咪呦！",
    "english": "Puff! Won't! Myon!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_lesson_scolded",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "lesson_scolded"
-   ],
-   "japanese": "ごめんなさい……ちゃんと、なおす。みょん……",
-   "chinese": "对不起……会好好改正。咪呦……",
-   "english": "Sorry... I'll fix it properly. Myon...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_lesson_scolded",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "lesson_scolded"
-   ],
-   "japanese": "ごめんにゃしゃい……なおしゅ……みょん……",
-   "chinese": "对不起……窝会改……咪呦……",
-   "english": "Sowwy... will fix... Myon...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -46329,62 +45993,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_wild_role_beg",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "wild_role_beg"
-   ],
-   "japanese": "みょん！ あまあま、ちょうだい！ ここ、あけて！",
-   "chinese": "咪呦！给妖梦甜甜！把这里打开！",
-   "english": "Myon! Sweets for Myon! Open up!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_wild_role_beg",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "wild_role_beg"
-   ],
-   "japanese": "みょん！ あまあま、ちょうらい！ あけちぇ！",
-   "chinese": "咪呦！给窝甜甜！快打开！",
-   "english": "Myon! Sweeties! Open up!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.adult.s_wild_role_provoke",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "wild_role_provoke"
-   ],
-   "japanese": "みょん！ バッジなんか、いらない！ しょうぶしろ！",
-   "chinese": "咪呦！什么徽章，不需要！来决斗！",
-   "english": "Myon! Who needs a badge! Fight me!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_wild_role_provoke",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "wild_role_provoke"
-   ],
-   "japanese": "みょん！ ばっじ、いらにゃい！ しょうぶ！",
-   "chinese": "咪呦！徽章才不要！来比试！",
-   "english": "Myon! Don't need badge! Fight!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.miyo.adult.s_wounded",
    "species": "myon",
    "age": "adult",
@@ -47255,62 +46863,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.miyo.adult.s_forage_proud",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "miyo",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "みょん！ ごはんさん、もってきた！ みて、みて！",
-   "chinese": "咪呦！饭先生带回来啦！快看、快看！",
-   "english": "Myon! Brought Mr. Food back! Look, look!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.juvenile.s_forage_proud",
-   "species": "myon",
-   "age": "juvenile",
-   "quirk": "miyo",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "みょん！ ごはんしゃん、もってきた！",
-   "chinese": "咪呦！窝把饭鲜笋带回来了！",
-   "english": "Myon! I brought Mr. Food back!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.young.s_forage_proud",
-   "species": "myon",
-   "age": "young",
-   "quirk": "miyo",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "みょん！ ごはんしゃん、もっちぇきちゃ！",
-   "chinese": "咪呦！窝带饭鲜笋肥来惹！",
-   "english": "Myon! I brought Mr. Food back!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.miyo.baby.s_forage_proud",
-   "species": "myon",
-   "age": "baby",
-   "quirk": "miyo",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "みょ、みょん♪ まんま！ まんま！",
-   "chinese": "咪、咪呦♪ 饭饭！饭饭！",
-   "english": "Myo, myon! Food! Food!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.kinbao.adult.s_afraid",
    "species": "myon",
    "age": "adult",
@@ -47533,34 +47085,6 @@
    "japanese": "ばっじ、ぴかぴか！ しゃわっても いい？ ちーんぽ？",
    "chinese": "徽章好亮！窝能摸摸吗？金寶？",
    "english": "Your badge is shiny! Can I touch it? Chinpo?",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_badge_beg",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "badge_beg"
-   ],
-   "japanese": "ちーんぽ……ひとくちだけ、わけてほしい……",
-   "chinese": "金寶……就一口，分妖梦一点……",
-   "english": "Chinpo... just one bite for Myon...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_badge_beg",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "badge_beg"
-   ],
-   "japanese": "ちーんぽ……ひとくちだけ、ちょうらい……",
-   "chinese": "金寶……就一口，给窝嘛……",
-   "english": "Chinpo... just one bite, pwease...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -47841,62 +47365,6 @@
    "japanese": "ちーんぽ！ のらは、あっちいっちぇ！",
    "chinese": "金寶！野良去那边！",
    "english": "Chinpo! Stway, go away!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_badge_share_offer",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "badge_share_offer"
-   ],
-   "japanese": "はんぶんこ。ちーんぽ。ゆっくりたべて。",
-   "chinese": "分一半。金寶。油库里地吃吧。",
-   "english": "Half each. Chinpo. Eat slowly.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_badge_share_offer",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "badge_share_offer"
-   ],
-   "japanese": "はんぶんこ！ ちーんぽ！ ゆっくち たべちぇ！",
-   "chinese": "分一半！金寶！油库气地粗！",
-   "english": "Half each! Chinpo! Eat swowly!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_badge_share_refuse",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "badge_share_refuse"
-   ],
-   "japanese": "これは、わたしのごはん。だめ。ちーんぽ。",
-   "chinese": "这是妖梦的饭。不行。金寶。",
-   "english": "This is my food. No. Chinpo.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_badge_share_refuse",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "badge_share_refuse"
-   ],
-   "japanese": "これ、わたちの ごはん！ らめ！ ちーんぽ！",
-   "chinese": "这是窝的饭！不给！金寶！",
-   "english": "Dis my food! No! Chinpo!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -48633,90 +48101,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.kinbao.adult.s_exam_promise_fail",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "exam_promise_fail"
-   ],
-   "japanese": "ずるい！ わたしの おやつは？ ちーんぽ！",
-   "chinese": "耍赖！妖梦的点心呢？金寶！",
-   "english": "Not fair! Where is Myon's snack? Chinpo!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_exam_promise_fail",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "exam_promise_fail"
-   ],
-   "japanese": "じゅるい！ わたちの おやつは？ ちーんぽ！ ぷきゅーっ！",
-   "chinese": "耍赖！窝的点心呢？金寶！噗咕——！",
-   "english": "No fair! Where is my snack? Chinpo! Hmph!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_exam_promise_wait",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "exam_promise_wait"
-   ],
-   "japanese": "おやつさん……がまん、がまん。ちーんぽ……",
-   "chinese": "点心先生……忍住，忍住。金寶……",
-   "english": "Mr. Snack... must wait. Chinpo...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_exam_promise_wait",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "exam_promise_wait"
-   ],
-   "japanese": "がまん、がまん……ちーんぽ……まだかにゃ……",
-   "chinese": "忍耐，忍耐……金寶……还没好吗……",
-   "english": "Wait, wait... Chinpo... not yet...?",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_exam_report",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "exam_report"
-   ],
-   "japanese": "ちーんぽ！ にんげんさん！ このもんだい、できた！",
-   "chinese": "金寶！人类先生！这道题妖梦做完了！",
-   "english": "Chinpo! Mr. Human! Myon finished the test task!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_exam_report",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "exam_report"
-   ],
-   "japanese": "ちーんぽ！ にんげんしゃん！ このもんだい、できちゃ！",
-   "chinese": "金寶！人类鲜笋！这道题窝做完惹！",
-   "english": "Chinpo! Mr. Human! I finished the test task!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.kinbao.adult.s_exam_sorry",
    "species": "myon",
    "age": "adult",
@@ -48825,118 +48209,6 @@
    "japanese": "ゆわぁぁ♪ ちーんぽ♪",
    "chinese": "油哇啊啊♪金寶♪",
    "english": "Yuwaaa! Chinpo!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_family_alarm_answer",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_answer"
-   ],
-   "japanese": "ちーんぽ！ いまいく！",
-   "chinese": "金寶！这就过来！",
-   "english": "Chinpo! Coming now!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_family_alarm_answer",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_answer"
-   ],
-   "japanese": "ちーんぽ！ いま いくぅ！",
-   "chinese": "金寶！窝这就来！",
-   "english": "Chinpo! Comin!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_family_alarm_call",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_call"
-   ],
-   "japanese": "ちーんぽ！ ちびたち、こっち！ うしろにかくれて！",
-   "chinese": "金寶！孩子们，到这边！躲到妖梦后面！",
-   "english": "Chinpo! Little ones, here! Hide behind me!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_family_alarm_call",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_call"
-   ],
-   "japanese": "ちーんぽ！ こっち、こっち！ はやく！",
-   "chinese": "金寶！这边，这边！快点！",
-   "english": "Chinpo! Hewe, hewe! Huwwy!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_family_alarm_calm",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_calm"
-   ],
-   "japanese": "ふぅ……だいじょうぶ、だいじょうぶ。ちーんぽ……",
-   "chinese": "呼……没事啦，没事啦。金寶……",
-   "english": "Phew... you're safe, you're safe. Chinpo...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_family_alarm_calm",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_calm"
-   ],
-   "japanese": "ふう……もう だいじょぶ。ちーんぽ。",
-   "chinese": "呼……没事惹。金寶。",
-   "english": "Phew... safe now. Chinpo.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_family_alarm_flee",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_flee"
-   ],
-   "japanese": "ここは、あぶない！ はなれる！ ちーんぽ！",
-   "chinese": "这里危险！快离开！金寶！",
-   "english": "It's dangerous here! Move away! Chinpo!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_family_alarm_flee",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "family_alarm_flee"
-   ],
-   "japanese": "ここ、あぶにゃい！ にげりゅ！ ちーんぽ！",
-   "chinese": "这里危险！快跑！金寶！",
-   "english": "Dangewous! Wun! Chinpo!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -49753,34 +49025,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.kinbao.adult.s_lesson_progress",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "lesson_progress"
-   ],
-   "japanese": "ちーんぽ。ゆっくり、がんばる。",
-   "chinese": "金寶。要油库里地努力。",
-   "english": "Chinpo. Slow and steady.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_lesson_progress",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "lesson_progress"
-   ],
-   "japanese": "ちーんぽ。ゆっくち がんばりゅ。",
-   "chinese": "金寶。油库气地努腻。",
-   "english": "Chinpo. Twying.",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.kinbao.adult.s_lesson_refused",
    "species": "myon",
    "age": "adult",
@@ -49805,34 +49049,6 @@
    "japanese": "ぷきゅーっ！ やらにゃい！ ちーんぽ！",
    "chinese": "噗啾——！不要！金寶！",
    "english": "Puff! Won't! Chinpo!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_lesson_scolded",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "lesson_scolded"
-   ],
-   "japanese": "ごめんなさい……ちゃんと、なおす。ちーんぽ……",
-   "chinese": "对不起……会好好改正。金寶……",
-   "english": "Sorry... I'll fix it properly. Chinpo...",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_lesson_scolded",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "lesson_scolded"
-   ],
-   "japanese": "ごめんにゃしゃい……なおしゅ……ちーんぽ……",
-   "chinese": "对不起……窝会改……金寶……",
-   "english": "Sowwy... will fix... Chinpo...",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
@@ -51377,62 +50593,6 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
-   "id": "myon.kinbao.adult.s_wild_role_beg",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "wild_role_beg"
-   ],
-   "japanese": "ちーんぽ！ あまあま、ちょうだい！ ここ、あけて！",
-   "chinese": "金寶！给妖梦甜甜！把这里打开！",
-   "english": "Chinpo! Sweets for Myon! Open up!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_wild_role_beg",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "wild_role_beg"
-   ],
-   "japanese": "ちーんぽ！ あまあま、ちょうらい！ あけちぇ！",
-   "chinese": "金寶！给窝甜甜！快打开！",
-   "english": "Chinpo! Sweeties! Open up!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_wild_role_provoke",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "wild_role_provoke"
-   ],
-   "japanese": "ちーんぽ！ バッジなんか、いらない！ しょうぶしろ！",
-   "chinese": "金寶！什么徽章，不需要！来决斗！",
-   "english": "Chinpo! Who needs a badge! Fight me!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_wild_role_provoke",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "wild_role_provoke"
-   ],
-   "japanese": "ちーんぽ！ ばっじ、いらにゃい！ しょうぶ！",
-   "chinese": "金寶！徽章才不要！来比试！",
-   "english": "Chinpo! Don't need badge! Fight!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
    "id": "myon.kinbao.adult.s_wounded",
    "species": "myon",
    "age": "adult",
@@ -52299,62 +51459,6 @@
    "japanese": "ぼー……にゃい……ちん、ちーんぽーっ！",
    "chinese": "棒棒……没有了……金、金寶——！",
    "english": "Stick... gone... Chin, chinpo!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.adult.s_forage_proud",
-   "species": "myon",
-   "age": "adult",
-   "quirk": "kinbao",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "ちーんぽ！ ごはんさん、もってきた！ みて、みて！",
-   "chinese": "金寶！饭先生带回来啦！快看、快看！",
-   "english": "Chinpo! Brought Mr. Food back! Look, look!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.juvenile.s_forage_proud",
-   "species": "myon",
-   "age": "juvenile",
-   "quirk": "kinbao",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "ちーんぽ！ ごはんしゃん、もってきた！",
-   "chinese": "金寶！窝把饭鲜笋带回来了！",
-   "english": "Chinpo! I brought Mr. Food back!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.young.s_forage_proud",
-   "species": "myon",
-   "age": "young",
-   "quirk": "kinbao",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "ちーんぽ！ ごはんしゃん、もっちぇきちゃ！",
-   "chinese": "金寶！窝带饭鲜笋肥来惹！",
-   "english": "Chinpo! I brought Mr. Food back!",
-   "origin": "project-original",
-   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
-  },
-  {
-   "id": "myon.kinbao.baby.s_forage_proud",
-   "species": "myon",
-   "age": "baby",
-   "quirk": "kinbao",
-   "events": [
-    "forage_proud"
-   ],
-   "japanese": "ちん、ちーんぽ♪ まんま！ まんま！",
-   "chinese": "金、金寶♪ 饭饭！饭饭！",
-   "english": "Chin, chinpo! Food! Food!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },

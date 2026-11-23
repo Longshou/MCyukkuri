@@ -159,7 +159,6 @@
       "chinese": "要油库里地努力哟——。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
@@ -420,7 +419,6 @@
       "chinese": "要油库气地努腻哟——。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
@@ -681,7 +679,6 @@
       "chinese": "姆啾，要油库里地努力哇。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
@@ -942,7 +939,6 @@
       "chinese": "姆啾，要油库气地努腻哇。",
       "events": [
         "lesson_start",
-        "lesson_progress",
         "exercise"
       ],
       "basis": "该种原生短表缺此事件；沿用已核读的种族口吻另写，非原版引文。",
@@ -1967,19 +1963,6 @@
       "english": "Uu... Practice! Remilia will try!"
     },
     {
-      "id": "remilia.adult.o_progress",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、できた……もういっかいのだ！",
-      "chinese": "呜——会了……再来一次呀！",
-      "events": [
-        "lesson_progress"
-      ],
-      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "remilia.adult.o_learned",
       "species": "remilia",
       "age": "adult",
@@ -2471,19 +2454,6 @@
       "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Practice! I'll try!"
-    },
-    {
-      "id": "remilia.young.o_progress",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、できちゃ……もういっかいのだ！",
-      "chinese": "呜——会惹……再来一次呀！",
-      "events": [
-        "lesson_progress"
-      ],
-      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I did it... one more time!"
     },
     {
       "id": "remilia.young.o_learned",
@@ -2979,19 +2949,6 @@
       "english": "Uu... Practice! Flandre will try!"
     },
     {
-      "id": "flandre.adult.o_progress",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、できた……もういっかいよ！",
-      "chinese": "呜——会了……再来一次哦！",
-      "events": [
-        "lesson_progress"
-      ],
-      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "flandre.adult.o_learned",
       "species": "flandre",
       "age": "adult",
@@ -3485,19 +3442,6 @@
       "english": "Uu... Practice! I'll try!"
     },
     {
-      "id": "flandre.young.o_progress",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、できちゃ……もういっかいよぅ！",
-      "chinese": "呜——会惹……再来一次哟！",
-      "events": [
-        "lesson_progress"
-      ],
-      "basis": "项目原创；E03《观察游戏》页面仅参考该版本的うー短鸣与日常语气，EH02-004仅参考个体日常反应；非原文引句。年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I did it... one more time!"
-    },
-    {
       "id": "flandre.young.o_learned",
       "species": "flandre",
       "age": "young",
@@ -3880,71 +3824,6 @@
       "english": "Reimu isn't here! Nobody's here!"
     },
     {
-      "id": "reimu.adult.o_exam_promise_wait",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつよ……",
-      "chinese": "点心先生……等、等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_wait2",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_fail",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ずるいよ！ どうしてれいむじゃないの！",
-      "chinese": "耍赖哟！灵梦的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Reimu?!"
-    },
-    {
-      "id": "reimu.adult.o_exam_promise_fail2",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "点心先生，灵梦也在等哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "reimu.adult.o_exam_report",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたよ！",
-      "chinese": "人类先生！这道题灵梦做完了哟！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
-    },
-    {
       "id": "reimu.adult.o_exam_sorry",
       "species": "reimu",
       "age": "adult",
@@ -4088,32 +3967,6 @@
       "english": "Reimu is going somewhere even easier!"
     },
     {
-      "id": "reimu.adult.o_wild_role_beg",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おいしいもの、ちょうだい！ ここ、あけてね！",
-      "chinese": "把好吃的给灵梦！把这里打开哦！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "reimu.adult.o_wild_role_provoke",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "reimu.adult.o_lesson_praised",
       "species": "reimu",
       "age": "adult",
@@ -4138,19 +3991,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "reimu.adult.o_lesson_scolded",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねよ……",
-      "chinese": "油呜……灵梦错了哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "reimu.adult.o_badge_envy",
@@ -4242,71 +4082,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Reimu isn't here! Nobody's here!"
-    },
-    {
-      "id": "reimu.young.o_exam_promise_wait",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅよぉ……",
-      "chinese": "点心鲜笋……窝等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "reimu.young.o_exam_promise_wait2",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "reimu.young.o_exam_promise_fail",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ずるいよぉ！ れいみゅのばんだよぉ！",
-      "chinese": "耍赖哟！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Reimu?!"
-    },
-    {
-      "id": "reimu.young.o_exam_promise_fail2",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたよぉ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "reimu.young.o_exam_report",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃよぉ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哟！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "reimu.young.o_exam_sorry",
@@ -4452,32 +4227,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "reimu.young.o_wild_role_beg",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "あまあま、ちょうだい！ あけちぇね！",
-      "chinese": "给窝甜甜惹哟！快打开惹哟！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "reimu.young.o_wild_role_provoke",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "reimu.young.o_lesson_praised",
       "species": "reimu",
       "age": "young",
@@ -4502,19 +4251,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "reimu.young.o_lesson_scolded",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "reimu.young.o_badge_envy",
@@ -4606,71 +4342,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Marisa isn't here! Nobody's here!"
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_wait",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつのぜ……",
-      "chinese": "点心先生……等、等贼……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_wait2",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来贼……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_fail",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ずるいのぜ！ まりさのぶんが ないのぜ！",
-      "chinese": "耍赖贼！魔理沙的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Marisa?!"
-    },
-    {
-      "id": "marisa.adult.o_exam_promise_fail2",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたのぜ！ ぷくーっ！",
-      "chinese": "点心先生，魔理沙也在等贼！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "marisa.adult.o_exam_report",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたのぜ！",
-      "chinese": "人类先生！这道题魔理沙做完了贼！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "marisa.adult.o_exam_sorry",
@@ -4816,32 +4487,6 @@
       "english": "Mr. Body is rounder than Mr. Moon!"
     },
     {
-      "id": "marisa.adult.o_wild_role_beg",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "あまあまを よこすのぜ！ ここをあけるのぜ！",
-      "chinese": "把甜甜交出来贼！把这里打开贼！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "marisa.adult.o_wild_role_provoke",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起贼！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "marisa.adult.o_lesson_praised",
       "species": "marisa",
       "age": "adult",
@@ -4866,19 +4511,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "marisa.adult.o_lesson_scolded",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねのぜ……",
-      "chinese": "油呜……魔理沙错了贼……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "marisa.adult.o_badge_envy",
@@ -4970,71 +4602,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Marisa isn't here! Nobody's here!"
-    },
-    {
-      "id": "marisa.young.o_exam_promise_wait",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅのじぇ……",
-      "chinese": "点心鲜笋……窝等惹杰……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "marisa.young.o_exam_promise_wait2",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来惹杰……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "marisa.young.o_exam_promise_fail",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ずるいのじぇぇ！ まりちゃのばんなのじぇぇ！",
-      "chinese": "耍赖诺贼！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Marisa?!"
-    },
-    {
-      "id": "marisa.young.o_exam_promise_fail2",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたのじぇ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋诺贼！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "marisa.young.o_exam_report",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃのじぇ！",
-      "chinese": "人类鲜笋！这道题窝做完惹诺贼！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "marisa.young.o_exam_sorry",
@@ -5180,32 +4747,6 @@
       "english": "Mr. Body is rounder than Mr. Moon!"
     },
     {
-      "id": "marisa.young.o_wild_role_beg",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "あまあま、ちょうだいなのじぇ！ あけちぇなのじぇ！",
-      "chinese": "给窝甜甜惹杰！快打开惹杰！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "marisa.young.o_wild_role_provoke",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起惹杰！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "marisa.young.o_lesson_praised",
       "species": "marisa",
       "age": "young",
@@ -5230,19 +4771,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "marisa.young.o_lesson_scolded",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹杰……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "marisa.young.o_badge_envy",
@@ -5334,71 +4862,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Alice isn't here! Nobody's here!"
-    },
-    {
-      "id": "alice.adult.o_exam_promise_wait",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつわ……",
-      "chinese": "点心先生……等、等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "alice.adult.o_exam_promise_wait2",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "alice.adult.o_exam_promise_fail",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ずるいわ！ ありすのぶんはどこなの！",
-      "chinese": "耍赖哇！爱丽丝的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Alice?!"
-    },
-    {
-      "id": "alice.adult.o_exam_promise_fail2",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "点心先生，爱丽丝也在等哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "alice.adult.o_exam_report",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたわ！",
-      "chinese": "人类先生！这道题爱丽丝做完了哇！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "alice.adult.o_exam_sorry",
@@ -5544,32 +5007,6 @@
       "english": "Alice is going somewhere even easier!"
     },
     {
-      "id": "alice.adult.o_wild_role_beg",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "あまあまを ちょうだい！ ここをあけてちょうだい！",
-      "chinese": "把甜甜给爱丽丝！把这里打开哇！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "alice.adult.o_wild_role_provoke",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "alice.adult.o_lesson_praised",
       "species": "alice",
       "age": "adult",
@@ -5594,19 +5031,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "alice.adult.o_lesson_scolded",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねわ……",
-      "chinese": "油呜……爱丽丝错了哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "alice.adult.o_badge_envy",
@@ -5698,71 +5122,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Alice isn't here! Nobody's here!"
-    },
-    {
-      "id": "alice.young.o_exam_promise_wait",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅわ……",
-      "chinese": "点心鲜笋……窝等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "alice.young.o_exam_promise_wait2",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "alice.young.o_exam_promise_fail",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ずるいわぁ！ ありちゅのばんよぉ！",
-      "chinese": "耍赖哇！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Alice?!"
-    },
-    {
-      "id": "alice.young.o_exam_promise_fail2",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたわよぉ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "alice.young.o_exam_report",
-      "species": "alice",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃわよぉ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哇！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "alice.young.o_exam_sorry",
@@ -5908,32 +5267,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "alice.young.o_wild_role_beg",
-      "species": "alice",
-      "age": "young",
-      "japanese": "あまあま、ちょうだい！ あけちぇ！",
-      "chinese": "给窝甜甜哇！快打开哇！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "alice.young.o_wild_role_provoke",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "alice.young.o_lesson_praised",
       "species": "alice",
       "age": "young",
@@ -5958,19 +5291,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "alice.young.o_lesson_scolded",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "alice.young.o_badge_envy",
@@ -6062,71 +5382,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Chen isn't here! Nobody's here!"
-    },
-    {
-      "id": "chen.adult.o_exam_promise_wait",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん……まつ、まつよー……",
-      "chinese": "点心先生……等、等哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "chen.adult.o_exam_promise_wait2",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん……はやく、きて……",
-      "chinese": "点心先生……快来哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "chen.adult.o_exam_promise_fail",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ずるいよー！ ちぇんのぶんがないよー！",
-      "chinese": "耍赖哟——！橙的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Chen?!"
-    },
-    {
-      "id": "chen.adult.o_exam_promise_fail2",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おやつさん、わたしも まってたよー！ ぷくーっ！",
-      "chinese": "点心先生，橙也在等哟——！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "chen.adult.o_exam_report",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "にんげんさん！ このもんだい、できたよー！",
-      "chinese": "人类先生！这道题橙做完了哟——！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "chen.adult.o_exam_sorry",
@@ -6272,32 +5527,6 @@
       "english": "Chen is going somewhere even easier!"
     },
     {
-      "id": "chen.adult.o_wild_role_beg",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "あまあま、ちょうだいー！ ここ、あけてよー！",
-      "chinese": "给橙甜甜——！把这里打开哟——！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "chen.adult.o_wild_role_provoke",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "バッジなんか！ ぷくーっ！",
-      "chinese": "徽章有什么了不起哟——！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "chen.adult.o_lesson_praised",
       "species": "chen",
       "age": "adult",
@@ -6322,19 +5551,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Thank you! I'll do it again!"
-    },
-    {
-      "id": "chen.adult.o_lesson_scolded",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ゆぅ……ごめんねよー……",
-      "chinese": "油呜……橙错了哟——……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sorry..."
     },
     {
       "id": "chen.adult.o_badge_envy",
@@ -6426,71 +5642,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Chen isn't here! Nobody's here!"
-    },
-    {
-      "id": "chen.young.o_exam_promise_wait",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやちゅしゃん……まちゅよぅ……",
-      "chinese": "点心鲜笋……窝等哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "chen.young.o_exam_promise_wait2",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "点心鲜笋……怪过来哟——……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Snack... come soon..."
-    },
-    {
-      "id": "chen.young.o_exam_promise_fail",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ずるいよぉー！ ちぇんのばんだよぉー！",
-      "chinese": "耍赖哟——！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Unfair! Why not Chen?!"
-    },
-    {
-      "id": "chen.young.o_exam_promise_fail2",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おやつしゃん、わたちも まっちぇたよぅ！ ぷきゅーっ！",
-      "chinese": "窝也在等点心鲜笋哟——！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "chen.young.o_exam_report",
-      "species": "chen",
-      "age": "young",
-      "japanese": "にんげんしゃん！ このもんだい、できちゃよぅ！",
-      "chinese": "人类鲜笋！这道题窝做完惹哟——！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mr. Human! I finished the test task!"
     },
     {
       "id": "chen.young.o_exam_sorry",
@@ -6636,32 +5787,6 @@
       "english": "I'm going somewhere even easier!"
     },
     {
-      "id": "chen.young.o_wild_role_beg",
-      "species": "chen",
-      "age": "young",
-      "japanese": "あまあま、ちょうだいー！ あけちぇー！",
-      "chinese": "给橙甜甜——！快打开——！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Give me something yummy! Open this!"
-    },
-    {
-      "id": "chen.young.o_wild_role_provoke",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ばっじなんか！ ぷきゅーっ！",
-      "chinese": "徽章有什么了不起哟——！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "What's so great about a badge? Puff!"
-    },
-    {
       "id": "chen.young.o_lesson_praised",
       "species": "chen",
       "age": "young",
@@ -6686,19 +5811,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Fank you! One more time!"
-    },
-    {
-      "id": "chen.young.o_lesson_scolded",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ゆぅ……ごめにゃしゃい……",
-      "chinese": "油呜……窝错惹哟——……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Yuu... I'm sowwy..."
     },
     {
       "id": "chen.young.o_badge_envy",
@@ -6790,71 +5902,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Mukyu... Patchouli isn't here! Nobody's here!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_wait",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん……まつ、まつわ……",
-      "chinese": "姆啾。点心先生……等、等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_wait2",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん……はやく、きて……",
-      "chinese": "姆啾。点心先生……快来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Snack... come soon..."
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_fail",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ！ ずるいわ！ ぱちゅりーのぶんが ないじゃない！",
-      "chinese": "姆啾！耍赖哇！帕秋莉的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu... Unfair! Why not Patchouli?!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_promise_fail2",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おやつさん、わたしも まってたわ！ ぷくーっ！",
-      "chinese": "姆啾。点心先生，帕秋莉也在等哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "patchouli.adult.o_exam_report",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。にんげんさん！ このもんだい、できたわ！",
-      "chinese": "姆啾。人类先生！这道题帕秋莉做完了哇！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Human! I finished the test task!"
     },
     {
       "id": "patchouli.adult.o_exam_sorry",
@@ -7000,32 +6047,6 @@
       "english": "Mukyu. Patchouli is going somewhere even easier!"
     },
     {
-      "id": "patchouli.adult.o_wild_role_beg",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ！ あまあまを ちょうだい！ ここを あけてちょうだい！",
-      "chinese": "姆啾！把甜甜给帕秋莉！把这里打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "patchouli.adult.o_wild_role_provoke",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。バッジなんか！ ぷくーっ！",
-      "chinese": "姆啾。徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. What's so great about a badge? Puff!"
-    },
-    {
       "id": "patchouli.adult.o_lesson_praised",
       "species": "patchouli",
       "age": "adult",
@@ -7050,19 +6071,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Mukyu. Thank you! I'll do it again!"
-    },
-    {
-      "id": "patchouli.adult.o_lesson_scolded",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。ゆぅ……ごめんねわ……",
-      "chinese": "姆啾。油呜……帕秋莉错了哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Yuu... I'm sorry..."
     },
     {
       "id": "patchouli.adult.o_badge_envy",
@@ -7154,71 +6162,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Mukyu... Patchouli isn't here! Nobody's here!"
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_wait",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやちゅしゃん……まちゅわ……",
-      "chinese": "姆啾。点心鲜笋……窝等哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_wait2",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "姆啾。点心鲜笋……怪过来哇……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Snack... come soon..."
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_fail",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅー！ ずるいわぁ！ ぱちゅのばんよぉ！",
-      "chinese": "姆啾！耍赖哇！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu... Unfair! Why not Patchouli?!"
-    },
-    {
-      "id": "patchouli.young.o_exam_promise_fail2",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おやつしゃん、わたちも まっちぇたわ！ ぷきゅーっ！",
-      "chinese": "姆啾。窝也在等点心鲜笋哇！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "patchouli.young.o_exam_report",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。にんげんしゃん！ このもんだい、できちゃわ！",
-      "chinese": "姆啾。人类鲜笋！这道题窝做完惹哇！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Mr. Human! I finished the test task!"
     },
     {
       "id": "patchouli.young.o_exam_sorry",
@@ -7364,32 +6307,6 @@
       "english": "Mukyu. I'm going somewhere even easier!"
     },
     {
-      "id": "patchouli.young.o_wild_role_beg",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅー！ あまあま、ちょうだい！ あけちぇ！",
-      "chinese": "姆啾——！给帕秋甜甜！快打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "patchouli.young.o_wild_role_provoke",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。ばっじなんか！ ぷきゅーっ！",
-      "chinese": "姆啾。徽章有什么了不起哇！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. What's so great about a badge? Puff!"
-    },
-    {
       "id": "patchouli.young.o_lesson_praised",
       "species": "patchouli",
       "age": "young",
@@ -7414,19 +6331,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Mukyu. Fank you! One more time!"
-    },
-    {
-      "id": "patchouli.young.o_lesson_scolded",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。ゆぅ……ごめにゃしゃい……",
-      "chinese": "姆啾。油呜……窝错惹哇……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Mukyu. Yuu... I'm sowwy..."
     },
     {
       "id": "patchouli.young.o_badge_envy",
@@ -7518,71 +6422,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Remilia isn't here! Nobody's here!"
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_wait",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん……まつ、まつのだ……",
-      "chinese": "呜——点心先生……等、等呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_wait2",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん……はやく、きて……",
-      "chinese": "呜——点心先生……快来呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_fail",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー！ ずるいのだ！ れみりあのぶんがないのだ！",
-      "chinese": "呜——耍赖呀！蕾米莉亚的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Unfair! Why not Remilia?!"
-    },
-    {
-      "id": "remilia.adult.o_exam_promise_fail2",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おやつさん、わたしも まってたのだ！ ぷくーっ！",
-      "chinese": "呜——点心先生，蕾米莉亚也在等呀！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "remilia.adult.o_exam_report",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、にんげんさん！ このもんだい、できたのだ！",
-      "chinese": "呜——人类先生！这道题蕾米莉亚做完了呀！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "remilia.adult.o_exam_sorry",
@@ -7728,32 +6567,6 @@
       "english": "Uu... Remilia is going somewhere even easier!"
     },
     {
-      "id": "remilia.adult.o_wild_role_beg",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー！ あまあまを ちょうだいなのだ！ ここを あけるのだ！",
-      "chinese": "呜——！把甜甜给蕾米莉亚呀！把这里打开呀！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "remilia.adult.o_wild_role_provoke",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、バッジなんか！ ぷくーっ！",
-      "chinese": "呜——徽章有什么了不起呀！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "remilia.adult.o_lesson_praised",
       "species": "remilia",
       "age": "adult",
@@ -7778,19 +6591,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Thank you! I'll do it again!"
-    },
-    {
-      "id": "remilia.adult.o_lesson_scolded",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、ゆぅ……ごめんねのだ……",
-      "chinese": "呜——油呜……蕾米莉亚错了呀……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Yuu... I'm sorry..."
     },
     {
       "id": "remilia.adult.o_badge_envy",
@@ -7882,71 +6682,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Remilia isn't here! Nobody's here!"
-    },
-    {
-      "id": "remilia.young.o_exam_promise_wait",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……まちゅのだ……",
-      "chinese": "呜——点心鲜笋……窝等呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "remilia.young.o_exam_promise_wait2",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "呜——点心鲜笋……怪过来呀……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "remilia.young.o_exam_promise_fail",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー！ ずるいのだぁ！ れみぃのばんなのだぁ！",
-      "chinese": "呜——耍赖呀！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Unfair! Why not Remilia?!"
-    },
-    {
-      "id": "remilia.young.o_exam_promise_fail2",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おやつしゃん、わたちも まっちぇたのだ！ ぷきゅーっ！",
-      "chinese": "呜——窝也在等点心鲜笋呀！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "remilia.young.o_exam_report",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、にんげんしゃん！ このもんだい、できちゃのだ！",
-      "chinese": "呜——人类鲜笋！这道题窝做完惹呀！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "remilia.young.o_exam_sorry",
@@ -8092,32 +6827,6 @@
       "english": "Uu... I'm going somewhere even easier!"
     },
     {
-      "id": "remilia.young.o_wild_role_beg",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー！ あまあま、ちょうだいなのだ！ あけちぇなのだ！",
-      "chinese": "呜——！给蕾米甜甜呀！快打开呀！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "remilia.young.o_wild_role_provoke",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、ばっじなんか！ ぷきゅーっ！",
-      "chinese": "呜——徽章有什么了不起呀！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "remilia.young.o_lesson_praised",
       "species": "remilia",
       "age": "young",
@@ -8142,19 +6851,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Fank you! One more time!"
-    },
-    {
-      "id": "remilia.young.o_lesson_scolded",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、ゆぅ……ごめにゃしゃい……",
-      "chinese": "呜——油呜……窝错惹呀……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Yuu... I'm sowwy..."
     },
     {
       "id": "remilia.young.o_badge_envy",
@@ -8246,71 +6942,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Flandre isn't here! Nobody's here!"
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_wait",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん……まつ、まつよ……",
-      "chinese": "呜——点心先生……等、等哦……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... wait, wait..."
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_wait2",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん……はやく、きて……",
-      "chinese": "呜——点心先生……快来哦……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_fail",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー！ ずるいよ！ ふらんのぶんがないよ！",
-      "chinese": "呜——耍赖哦！芙兰的点心先生呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Unfair! Why not Flandre?!"
-    },
-    {
-      "id": "flandre.adult.o_exam_promise_fail2",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おやつさん、わたしも まってたよ！ ぷくーっ！",
-      "chinese": "呜——点心先生，芙兰也在等哦！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "flandre.adult.o_exam_report",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、にんげんさん！ このもんだい、できたよ！",
-      "chinese": "呜——人类先生！这道题芙兰做完了哦！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "flandre.adult.o_exam_sorry",
@@ -8456,32 +7087,6 @@
       "english": "Uu... Flandre is going somewhere even easier!"
     },
     {
-      "id": "flandre.adult.o_wild_role_beg",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー！ あまあまちょうだい！ ここ、あけて！",
-      "chinese": "呜——！把甜甜给芙兰！把这里打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "flandre.adult.o_wild_role_provoke",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、バッジなんか！ ぷくーっ！",
-      "chinese": "呜——徽章有什么了不起哦！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "flandre.adult.o_lesson_praised",
       "species": "flandre",
       "age": "adult",
@@ -8506,19 +7111,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Thank you! I'll do it again!"
-    },
-    {
-      "id": "flandre.adult.o_lesson_scolded",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、ゆぅ……ごめんねよ……",
-      "chinese": "呜——油呜……芙兰错了哦……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Yuu... I'm sorry..."
     },
     {
       "id": "flandre.adult.o_badge_envy",
@@ -8610,71 +7202,6 @@
       "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Flandre isn't here! Nobody's here!"
-    },
-    {
-      "id": "flandre.young.o_exam_promise_wait",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……まちゅよぅ……",
-      "chinese": "呜——点心鲜笋……窝等哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... I'll wait..."
-    },
-    {
-      "id": "flandre.young.o_exam_promise_wait2",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやちゅしゃん……はやく、きちぇ……",
-      "chinese": "呜——点心鲜笋……怪过来哟……",
-      "events": [
-        "exam_promise_wait"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Snack... come soon..."
-    },
-    {
-      "id": "flandre.young.o_exam_promise_fail",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー！ ずるいよぉ！ ふりゃんのばんだよぉ！",
-      "chinese": "呜——耍赖哟！窝的点心鲜笋呢？",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Unfair! Why not Flandre?!"
-    },
-    {
-      "id": "flandre.young.o_exam_promise_fail2",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おやつしゃん、わたちも まっちぇたよぅ！ ぷきゅーっ！",
-      "chinese": "呜——窝也在等点心鲜笋哟！噗咕——！",
-      "events": [
-        "exam_promise_fail"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... I was waiting for Mr. Snack too! Puff!"
-    },
-    {
-      "id": "flandre.young.o_exam_report",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、にんげんしゃん！ このもんだい、できちゃよぅ！",
-      "chinese": "呜——人类鲜笋！这道题窝做完惹哟！",
-      "events": [
-        "exam_report"
-      ],
-      "basis": "项目原创；考试场景参考 M02 母题与 EH25 结果反应（紧张、答题、失败哭泣、合格喜悦），台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Mr. Human! I finished the test task!"
     },
     {
       "id": "flandre.young.o_exam_sorry",
@@ -8820,32 +7347,6 @@
       "english": "Uu... I'm going somewhere even easier!"
     },
     {
-      "id": "flandre.young.o_wild_role_beg",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー！ あまあまちょうだい！ あけちぇ！",
-      "chinese": "呜——！给芙呀甜甜！快打开！",
-      "events": [
-        "wild_role_beg"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Give me something yummy! Open this!"
-    },
-    {
-      "id": "flandre.young.o_wild_role_provoke",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、ばっじなんか！ ぷきゅーっ！",
-      "chinese": "呜——徽章有什么了不起哟！噗咕——！",
-      "events": [
-        "wild_role_provoke"
-      ],
-      "basis": "项目原创；宠物店展示、买卖与野良役乞讨参考 R2 商店母题及 M02 考试场景，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... What's so great about a badge? Puff!"
-    },
-    {
       "id": "flandre.young.o_lesson_praised",
       "species": "flandre",
       "age": "young",
@@ -8870,19 +7371,6 @@
       "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced",
       "english": "Uu... Fank you! One more time!"
-    },
-    {
-      "id": "flandre.young.o_lesson_scolded",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、ゆぅ……ごめにゃしゃい……",
-      "chinese": "呜——油呜……窝错惹哟……",
-      "events": [
-        "lesson_scolded"
-      ],
-      "basis": "项目原创；课程表扬与责骂参考 M02 母题与 EH25 结果反应，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，幼语逐句按 dialogue/growth-stages.md 与 species-variants.md 的本库规则另写，不由成体句改写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced",
-      "english": "Uu... Yuu... I'm sowwy..."
     },
     {
       "id": "flandre.young.o_badge_envy",
@@ -11655,54 +10143,6 @@
       "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
     },
     {
-      "id": "marisa.adult.o_family_alarm_call",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ちびたち、こっちへ くるのぜ！",
-      "chinese": "孩子们，快到这边来！",
-      "english": "Little ones, come over here!",
-      "events": [
-        "family_alarm_call"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_answer",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "いま そっちへ いくのぜ！",
-      "chinese": "这就过来！",
-      "english": "Coming to you!",
-      "events": [
-        "family_alarm_answer"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_flee",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ここは あぶない、はなれるのぜ！",
-      "chinese": "这里危险，快离远一点！",
-      "english": "It is dangerous here. Move away!",
-      "events": [
-        "family_alarm_flee"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.adult.o_family_alarm_calm",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "はあ……もう だいじょうぶなのぜ。",
-      "chinese": "呼……已经安全了。",
-      "english": "Whew... we are safe now.",
-      "events": [
-        "family_alarm_calm"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
       "id": "marisa.adult.o_water_help",
       "species": "marisa",
       "age": "adult",
@@ -11855,54 +10295,6 @@
       "english": "The boat is rocking!",
       "events": [
         "boat_rock_startle"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_call",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ちびたち、こっちへ くるのじぇ！",
-      "chinese": "孩子们，快到这边来！",
-      "english": "Little ones, come over here!",
-      "events": [
-        "family_alarm_call"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_answer",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "いま そっちへ いくのじぇ！",
-      "chinese": "这就过来！",
-      "english": "Coming to you!",
-      "events": [
-        "family_alarm_answer"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_flee",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ここは あぶない、はなれるのじぇ！",
-      "chinese": "这里危险，快离远一点！",
-      "english": "It is dangerous here. Move away!",
-      "events": [
-        "family_alarm_flee"
-      ],
-      "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
-    },
-    {
-      "id": "marisa.young.o_family_alarm_calm",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "はあ……もう だいじょうぶなのじぇ。",
-      "chinese": "呼……已经安全了。",
-      "english": "Whew... we are safe now.",
-      "events": [
-        "family_alarm_calm"
       ],
       "basis": "水上真实事件专用原创台词：只在对应呼救、接触、用力、滑脱、落稳或帽子回收阶段触发；不借用运动、失饰或轮流事件。"
     },
@@ -13429,552 +11821,6 @@
       "basis": "项目原创：徽章社交弧线（B3 谦让）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
       "audio_status": "unvoiced",
       "english": "Uu... I still need to practice..."
-    },
-    {
-      "id": "reimu.adult.o_badge_beg",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "ひとくち だけで いいから、わけてほしいな……。",
-      "chinese": "只要一口就好，分灵梦一点吧……",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "reimu.young.o_badge_beg",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "ひとくち だけでいいから、ちょうだいにぇ……。",
-      "chinese": "只要一口就好，给窝一点惹……",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "marisa.adult.o_badge_beg",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "ひとくちだけ ほしいのぜ……わけてほしいのぜ。",
-      "chinese": "就想要一口贼……分魔理沙一点贼。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "marisa.young.o_badge_beg",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "ひとくちだけ ほちいのじぇ……ちょうだいなのじぇ。",
-      "chinese": "就想要一口惹杰……给窝一点惹杰。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "alice.adult.o_badge_beg",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "ひとくちだけ いただけないかしら……。",
-      "chinese": "能分爱丽丝一口吗哇……",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "alice.young.o_badge_beg",
-      "species": "alice",
-      "age": "young",
-      "japanese": "ひとくちだけ ちょうだい……おねがい。",
-      "chinese": "就一口给窝吧哇……拜托。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "chen.adult.o_badge_beg",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "ひとくちだけ ほしいよー……わけてー。",
-      "chinese": "就想要一口哟——……分橙一点——。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "chen.young.o_badge_beg",
-      "species": "chen",
-      "age": "young",
-      "japanese": "ひとくちだけ ほちいよー……ちょうだいー。",
-      "chinese": "就想要一口哟——……给橙一点——。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "patchouli.adult.o_badge_beg",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ……ひとくちだけ、わけてもらえないかしら。",
-      "chinese": "姆啾……能分帕秋莉一口吗。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "patchouli.young.o_badge_beg",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ……ひとくちだけ、ちょうだい。",
-      "chinese": "姆啾……就一口，给帕秋吧。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "remilia.adult.o_badge_beg",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー……ひとくちだけ ほしいのだ。わけてほしいのだ。",
-      "chinese": "呜——……就想要一口呀。分蕾米莉亚一点呀。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "remilia.young.o_badge_beg",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー……ひとくちだけ ほちいのだ。ちょうだいなのだ。",
-      "chinese": "呜——……就想要一口呀。给蕾米一点呀。",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "flandre.adult.o_badge_beg",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー……ひとくちだけ ほしいな。わけてくれる？",
-      "chinese": "呜——……就想要一口。能分芙兰一点吗？",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "flandre.young.o_badge_beg",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー……ひとくちだけ ほちい。ちょうだい？",
-      "chinese": "呜——……就想要一口。给芙呀一点？",
-      "events": [
-        "badge_beg"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 讨一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Just one bite... could you share a little?"
-    },
-    {
-      "id": "reimu.adult.o_badge_share_offer",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "はんぶんこ しようね。ゆっくり たべてね。",
-      "chinese": "分一半吧。油库里地吃哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "reimu.young.o_badge_share_offer",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "はんぶんこ ちようにぇ。ゆっくち たべちぇにぇ。",
-      "chinese": "分一半惹哟。油库气地粗惹哟。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "marisa.adult.o_badge_share_offer",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "はんぶんこ なのぜ。ゆっくり たべるのぜ。",
-      "chinese": "分一半贼。油库里地吃贼。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "marisa.young.o_badge_share_offer",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "はんぶんこ なのじぇ。ゆっくち たべるのじぇ。",
-      "chinese": "分一半惹杰。油库气地粗惹杰。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "alice.adult.o_badge_share_offer",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "はんぶんこ しましょう。ゆっくり めしあがれ。",
-      "chinese": "分一半吧哇。油库里地享用哇。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "alice.young.o_badge_share_offer",
-      "species": "alice",
-      "age": "young",
-      "japanese": "はんぶんこ ちましょ。ゆっくち たべちぇね。",
-      "chinese": "分一半吧哇。油库气地粗哇。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "chen.adult.o_badge_share_offer",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "はんぶんこ だよー。ゆっくり たべてねー。",
-      "chinese": "分一半哟——。油库里地吃哦——。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "chen.young.o_badge_share_offer",
-      "species": "chen",
-      "age": "young",
-      "japanese": "はんぶんこ だよー。ゆっくち たべちぇねー。",
-      "chinese": "分一半哟——。油库气地粗哦——。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "patchouli.adult.o_badge_share_offer",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ、はんぶんこ しましょう。ゆっくり おあがりなさい。",
-      "chinese": "姆啾，分一半吧。油库里地吃。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "patchouli.young.o_badge_share_offer",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ、はんぶんこ ちましょ。ゆっくち たべちぇ。",
-      "chinese": "姆啾，分一半吧。油库气地粗。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "remilia.adult.o_badge_share_offer",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、はんぶんこ なのだ。ゆっくり たべるのだ。",
-      "chinese": "呜——，分一半呀。油库里地吃呀。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "remilia.young.o_badge_share_offer",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、はんぶんこ なのだ。ゆっくち たべるのだ。",
-      "chinese": "呜——，分一半呀。油库气地粗呀。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "flandre.adult.o_badge_share_offer",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、はんぶんこ しよう。ゆっくり たべてね。",
-      "chinese": "呜——，分一半吧。油库里地吃哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "flandre.young.o_badge_share_offer",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、はんぶんこ ちよう。ゆっくち たべちぇね。",
-      "chinese": "呜——，分一半吧。油库气地粗哦。",
-      "events": [
-        "badge_share_offer"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 递出一口）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "Let us split it. Eat slowly."
-    },
-    {
-      "id": "reimu.adult.o_badge_share_refuse",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "これは れいむの ごはんだよ……ごめんね。",
-      "chinese": "这是灵梦的饭……对不起哦。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "reimu.young.o_badge_share_refuse",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "これは れいみゅの ごはんだよ……ごみぇんにぇ。",
-      "chinese": "这是窝的饭惹……对不起惹哟。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；灵梦口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "marisa.adult.o_badge_share_refuse",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "これは まりさの ごはんなのぜ。やらないのぜ。",
-      "chinese": "这是魔理沙的饭贼。不给贼。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "marisa.young.o_badge_share_refuse",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "これは まりちゃの ごはんなのじぇ。あげにゃいのじぇ。",
-      "chinese": "这是窝的饭惹杰。不给惹杰。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；魔理沙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "alice.adult.o_badge_share_refuse",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "これは ありすの ごはんなの……ごめんなさいね。",
-      "chinese": "这是爱丽丝的饭哇……对不起哇。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "alice.young.o_badge_share_refuse",
-      "species": "alice",
-      "age": "young",
-      "japanese": "これは ありちゅの ごはんなの……ごめんにゃさい。",
-      "chinese": "这是窝的饭哇……对不起哇。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；爱丽丝口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "chen.adult.o_badge_share_refuse",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "これは ちぇんの ごはんだよー……ごめんねー。",
-      "chinese": "这是橙的饭哟——……对不起哦——。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "chen.young.o_badge_share_refuse",
-      "species": "chen",
-      "age": "young",
-      "japanese": "これは ちぇんの ごはんだよー……ごめんにぇー。",
-      "chinese": "这是橙的饭哟——……对不起哦——。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；橙口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "patchouli.adult.o_badge_share_refuse",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ……これは ぱちゅりーの ごはんなの。ごめんなさい。",
-      "chinese": "姆啾……这是帕秋莉的饭。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "patchouli.young.o_badge_share_refuse",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ……これは ぱちゅの ごはんなの。ごめんにゃしゃい。",
-      "chinese": "姆啾……这是帕秋的饭。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；帕秋莉口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "remilia.adult.o_badge_share_refuse",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー……これは れみりあの ごはんなのだ。やらないのだ。",
-      "chinese": "呜——……这是蕾米莉亚的饭呀。不给呀。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "remilia.young.o_badge_share_refuse",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー……これは れみぃの ごはんなのだ。あげにゃいのだ。",
-      "chinese": "呜——……这是蕾米的饭呀。不给呀。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；蕾米莉亚口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "flandre.adult.o_badge_share_refuse",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー……これは ふらんの ごはんだよ。ごめんね。",
-      "chinese": "呜——……这是芙兰的饭哦。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，成体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
-    },
-    {
-      "id": "flandre.young.o_badge_share_refuse",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー……これは ふりゃんの ごはんだよ。ごめんにぇ。",
-      "chinese": "呜——……这是芙呀的饭哦。对不起。",
-      "events": [
-        "badge_share_refuse"
-      ],
-      "basis": "项目原创：徽章社交弧线（B4 护食拒绝）。依据 L19 的羡慕场景与 N16、N20 野良遇见宠物的母题，台词为项目自拟，不冒充八景原句；芙兰口吻按 dialogue/species-variants.md，幼体按 growth-stages.md 改写；已按对应角色与成长阶段配音，待听审。",
-      "audio_status": "unvoiced",
-      "english": "This is my meal... sorry."
     },
     {
       "id": "reimu.adult.o_badge_thanks",
