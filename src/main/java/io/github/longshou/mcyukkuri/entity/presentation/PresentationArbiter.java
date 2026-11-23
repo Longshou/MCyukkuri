@@ -63,8 +63,10 @@ public final class PresentationArbiter {
         result.publish();
         publishMoment(id);
         var e = state.owner();
-        state.expression(face(id));
+        String shown = face(id);
+        state.expression(shown);
         if (e.level().isClientSide) return;
+        e.predator().observeFace(shown);
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();
@@ -140,6 +142,9 @@ public final class PresentationArbiter {
             String mood = e.mind().face("neutral");
             if (!mood.equals("neutral")) return mood;
         }
+        // What the body is doing right now keeps its own face; hunger, tiredness and mild injury do not repaint it.
+        String activity = e.activityFace();
+        if (!activity.isEmpty()) return activity;
         // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
         if(e.aftermathDrain()>0)switch(e.getBehaviorId()) {
             case Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,
@@ -408,7 +413,7 @@ public final class PresentationArbiter {
         }
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.
         state.behavior(behavior);
-        state.expression("predator_bite".equals(flightAnimation) ? "biting" : EcologyPresentation.expression(e,
+        state.expression(EcologyPresentation.expression(e,
                 state.reactionTicks() > 0 && !state.reactionExpression().isEmpty() ? state.reactionExpression()
                         : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
                         e.settlement().society().dejected() ? "teary" : "neutral")));

@@ -8231,9 +8231,17 @@ def _alice_share_home(window):
 
 _smoke('alice_chores', 600, [r'\[habitat\] alice [^\n]* home chosen', r'\[habitat\] reimu [^\n]* home chosen'])
 next(s for s in S if s.id == 'alice_chores').smoke['verify'] = _alice_share_home
-_smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry'])
+# A hunting body keeps its hunt face: no teary face is ever shown for a hunt beat, and the chase beat shows the stare.
+_HUNT_NOT_TEARY = [r'\[predator\][^\n]* beat=predator_\w+ face=teary']
+_smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=protect_child_worry',
+                           r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none'],
+       forbid=_HUNT_NOT_TEARY)
 _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
-                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true'])
+                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true',
+                            r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none',
+                            r'\[predator\][^\n]* beat=predator_dive face=biting line=none',
+                            r'\[predator\][^\n]* beat=predator_feed face=(?:open_drool|satisfied) line=none'],
+       forbid=_HUNT_NOT_TEARY)
 next(s for s in S if s.id == 'pred_range').smoke.update(verify=_range_pursuit, verify_trace=True)
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):

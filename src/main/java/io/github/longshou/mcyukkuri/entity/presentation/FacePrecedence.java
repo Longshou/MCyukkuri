@@ -18,6 +18,8 @@ public enum FacePrecedence {
     PAIN,
     /** The published emotion course or mind face (grief, rage, joy, frenzy, withering). */
     COURSE,
+    /** The authored face of what the body is doing right now (a hunt phase); the hunger and tiredness that drive it never repaint it. */
+    ACTIVITY,
     /** The after-effect drain face (teary or neutral) of a finished scene. */
     AFTERMATH,
     /** A weak or dejected body shows teary; low energy shows sleepy. */

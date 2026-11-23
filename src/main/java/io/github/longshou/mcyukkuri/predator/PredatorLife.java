@@ -148,6 +148,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private YukkuriEntity followUp;
     private String restReason = "";
     private boolean contactHold;
+    /** The current withdraw follows a stoop that found no bite (blocked or missed), not a landed strike. */
+    private boolean thwarted;
+    private String shownBeat = "";
     private Vec3 withdrawGoal;
     /** The current direct flight command, consumed by travel after the engine has updated its controls. */
     private Vec3 flightGoal;
@@ -192,6 +195,35 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             case FOUND -> nestBuild.activity();
             default -> Behaviors.IDLE;
         };
+    }
+    /**
+     * The face of what the hunt is doing right now (the ACTIVITY rank of the face precedence), or "" outside a hunt.
+     * A pure function of the current phase and the body's boldness, nutrition and health, so it holds for the whole phase
+     * and releases when the phase ends. Fatigue and hunger never turn it teary: they are the reason for the hunt.
+     */
+    public String activityFace() {
+        return switch (task) {
+            case TAKEOFF, CHASE -> prey == null ? "" : pass == Pass.WITHDRAW && thwarted ? "hmph"
+                    : strained() ? "down_angry" : animal.life().personality().boldness() < 35 ? "angry" : "angry_stare";
+            case DIVE, THREAT_DIVE -> "biting";
+            case SCAVENGE, EAT -> animal.life().nutrition() >= 75 ? "satisfied" : "open_drool";
+            default -> biteTicks > 0 ? "biting" : "";
+        };
+    }
+    /** A starving or badly hurt hunter still presses on but its stare is strained. */
+    private boolean strained() {
+        return animal.life().nutrition() < 10 || animal.getHealth() < animal.getMaxHealth() * .5f;
+    }
+    /** Logs each hunt beat once with the face the arbiter finally showed; the hunter speaks no line. */
+    public void observeFace(String shown) {
+        String face = activityFace();
+        if (face.isEmpty()) { shownBeat = ""; return; }
+        String beat = activity();
+        String key = beat + "/" + shown;
+        if (key.equals(shownBeat)) return;
+        shownBeat = key;
+        GameplayLog.event(animal, "predator", "beat={} face={} line=none declared={} boldness={} nutrition={} health={}/{}",
+                beat, shown, face, animal.life().personality().boldness(), animal.life().nutrition(), animal.getHealth(), animal.getMaxHealth());
     }
     public String animation() {
         if (task == Task.WARN || task == Task.YIELD_TERRITORY) return Behaviors.PREDATOR_FLAP;
@@ -1915,7 +1947,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         double free = hit.getType() == HitResult.Type.MISS ? SWOOP_HEIGHT : hit.getLocation().y - start.y;
         return Math.max(1.2, Math.min(SWOOP_HEIGHT, free + animal.getBbHeight() - .5));
     }
-    private void setPass(Pass next) { pass = next; passTicks = 0; }
+    private void setPass(Pass next) { pass = next; passTicks = 0; thwarted = false; }
     private double mouthReach() { return .10 * animal.getScale() * animal.growthScale() + .12 * animal.getBbWidth(); }
     private Vec3 nearestBodyPoint(YukkuriEntity target, Vec3 point) {
         AABB body = target.getBoundingBox();
@@ -1949,7 +1981,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 && level().clip(new ClipContext(mouth, contact, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, animal)).getType() == HitResult.Type.MISS;
     }
     private void withdraw(String reason, YukkuriEntity target, Vec3 goal) {
-        contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW);
+        contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW); thwarted = true;
         GameplayLog.limited(animal, "predator", "stoop." + reason, 100,
                 "stoop ended reason={} prey={} feet={} mouth={} contactGoal={} water={} energy={}", () -> new Object[]{reason, target.getUUID(),
                 animal.position(), MouthPlacement.position(animal), goal, animal.isInWaterOrBubble(), animal.life().energy()});
