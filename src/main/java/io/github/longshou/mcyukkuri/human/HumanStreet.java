@@ -1767,7 +1767,15 @@ final class HumanStreet {
                     legBlocked();
                 } else if (!homeward && !companions.isEmpty()) {
                     if (plaza != null) pauseAtPlaza();
-                    else if (parkDestination == null) returnHome("destination");
+                    else if (parkDestination == null) {
+                        endPaceLeg();
+                        if (companions.stream().anyMatch(pet -> npc.distanceTo(pet) > OutingPace.followComfort(pet.outing().outerDistance(), pet.getLeashHolder() == npc))
+                                && ++stalled < ROUTE_TICKS) {
+                            npc.getNavigation().stop();
+                            return;
+                        }
+                        returnHome("destination");
+                    }
                     else if (BlockPos.containing(destination).equals(BlockPos.containing(parkDestination))) {
                         if (!beginLinger()) returnHome("destination");
                     } else if (!routePark(parkDestination)) blockedOutingLeg();
