@@ -21,6 +21,8 @@ MAIN = server.COMMON
 TODO = 'docs/TODO.md'
 SECTION = '## 进行中'
 PUSH_ATTEMPTS = 5
+DOC_REFS = 'scripts/check_doc_refs.py'
+DOC_TRIGGERS = ('scripts/museum_scene_numbers.json', 'scripts/playtest_watch.json')
 
 
 class Fail(SystemExit):
@@ -157,6 +159,12 @@ def check_tree(tree, scenes):
         for check in (['-c', 'import museum_scenarios'], [str(tree / 'scripts/check_museum_pack.py')]):
             if subprocess.run([sys.executable, *check], cwd=tree / 'scripts').returncode:
                 raise Fail('museum scene check failed: ' + ' '.join(check))
+    docs = [path for path in changed if path.endswith('.md') or path in DOC_TRIGGERS]
+    if docs:
+        # Only the package's own documents: dead links elsewhere are someone else's package (--all checks the whole repo).
+        print(f'docs changed: check_doc_refs.py on {len(docs)} file(s)', flush=True)
+        if subprocess.run([sys.executable, str(tree / DOC_REFS), '--check', *docs], cwd=tree).returncode:
+            raise Fail('check_doc_refs.py found dead references')
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
         code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode
@@ -172,6 +180,28 @@ def row_removed_in_head(tree, name):
         return False
     print(f'{name}: row already removed by {subject}; continuing that landing', flush=True)
     return True
+
+
+def archive_notes(name):
+    """Move this package's brief and report (with their -review files) into the monthly archive, never overwriting."""
+    if name.startswith('_'):
+        return []
+    month = time.strftime('%Y-%m')
+    moved = []
+    for folder in ('briefs', 'reports'):
+        for suffix in ('', '-review'):
+            path = MAIN / '.local/refactor' / folder / f'{name}{suffix}.md'
+            if not path.is_file():
+                continue
+            target = MAIN / '.local/archive/refactor' / month / folder
+            target.mkdir(parents=True, exist_ok=True)
+            dest, serial = target / path.name, 2
+            while dest.exists():
+                dest = target / f'{path.stem}-{serial}{path.suffix}'
+                serial += 1
+            path.rename(dest)
+            moved.append(dest)
+    return moved
 
 
 def sync_main(tree):
@@ -252,6 +282,9 @@ def cmd_land(args):
     if not removed:
         print(f'pkg: worktree directory left over (locked?): {wt}', file=sys.stderr)
     git(MAIN, 'branch', '-d', name)
+    notes = archive_notes(name)
+    if notes:
+        print(f'archived {len(notes)} package note(s) to {notes[0].parent.parent.relative_to(MAIN)}')
     print(f'landed {name}: pushed {pushed}')
     print(f'shed the large files of {smoke_prune.prune(quick=True)} old uncited smoke/capture runs')
 
