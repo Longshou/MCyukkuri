@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 逐场景台词审查修复 3：社交、宠物、人类与聚落 | `.worktrees/wp-dlg-fix-social` | pet/*; social/YukkuriSocial,HomeClaim; settlement/SettlementSociety,JunkHeadwear; house/HouseLife; pet/social/BadgeArcs; human/HumanStreet; Expedition; status/Reactions; dialogue corpus/audio |
 
 ## 玩法待办
 
