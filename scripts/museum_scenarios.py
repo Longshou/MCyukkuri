@@ -3618,7 +3618,7 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
            ('读院宠的牵引与状态', f'yukkuri status {sel(_PLAZA_YARD_PET)} raw')])
 
 _RING = 'badge_plaza_stray'
-_RING_HOLDER, _RING_KEEPER = 'ring_holder', 'ring_keeper'
+_RING_HOLDER = 'ring_holder'
 # name, kind, x, label, values. The expected ring distance follows from the values (RoamingGoal.browseRing): a hungry friendly stray
 # is drawn by envy and comes close, a cocky one by provocation and walks up, a timid one is shy and stops far off, and the cocky
 # ex-pet wearing a voided badge is a stray like any other.
@@ -3640,18 +3640,14 @@ def _ring_stray(scene, name, kind, x, label, values):
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '院主的佩章灵梦站在白篷下。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，胆小的魔理沙远远停住不靠近；'
+    '佩章的银章灵梦在白篷下。饿而友善的流浪魔理沙会走近看章，嚣张的流浪灵梦走近后冷嘲，胆小的魔理沙远远停住不靠近；'
     '戴着作废章的嚣张前宠物和普通流浪一样来看，别油按作废章而非真章对待。',
     '约 3 分钟', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        (human('caretaker_sister', 4, -1, _RING_KEEPER, 0, yaw=0, label='院主')[:-1]
-         + f',NoAI:1b,UUID:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}'),
-        _plaza_wearer('reimu', _RING_HOLDER, 3, 2, z=-1)[0].replace(
-            'PersistenceRequired:1b', f'PersistenceRequired:1b,leash:{{UUID:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}', 1),
-        f'data modify entity {sel(_RING_HOLDER)} {OWNED} set value '
-        f'{{Use:"companion",OwnerKind:"npc",Owner:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}',
-        f'data modify entity {sel(_RING_HOLDER)} YukkuriPet.Care merge value '
-        f'{{Harness:1b,WearOwner:{uuid_nbt(uid(_RING, _RING_KEEPER))}}}',
+        # A bell and a bed make the lot a village street, so free strays here are rooted in it.
+        block(-5, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
+        block(-8, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-7, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
+        *_plaza_wearer('reimu', _RING_HOLDER, 3, 2, z=-1),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-1, 1, -102, 10),
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
@@ -9849,7 +9845,10 @@ def _ring_stray_fates(window, trace):
                     return f'{name} stepped onto the plaza paving'
 
 
-next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, verify_trace=True, expect=[
+# Scaffold: the badged pet's own plaza visits are P2's subject, so it is put back on the paving whenever it has strolled off.
+_ring_hold = [(tick, f'execute positioned ~3.5 ~ ~-0.5 unless entity {sel(_RING_HOLDER, 3)} run tp {sel(_RING_HOLDER)} ~ ~ ~')
+              for tick in range(40, 3600, 80)]
+next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, verify_trace=True, commands=_ring_hold, expect=[
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for _, name, *_ in _RING_STRAYS[:1]],
 ], forbid=[])
 
