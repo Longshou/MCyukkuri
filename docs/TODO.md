@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | Wiki 采用说明与现行实现对齐，删过时内容 | `.worktrees/wp-wiki-fresh` | wiki/** |
+| 试玩场景说明、看点与台词语料去过时 | `.worktrees/wp-scene-lines-fresh` | scripts/museum_scenarios.py (text only); scripts/playtest_watch.json; art/dialogue/**; generated lang/sounds |
 
 ## 玩法待办
 
