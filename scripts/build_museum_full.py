@@ -384,7 +384,8 @@ def build_pack(world):
         # Start hold: the mobs just summoned wait (NoAI, still falling and landing) while the player arrives and reads 3-2-1; the release
         # then starts the scene's late lines, retries and timed rules, so all of them count from the moment the player is in position.
         # A mob the scene made NoAI on purpose is skipped by the command and stays as authored.
-        held = f'@e[tag=scn,type=!player,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
+        # Every mob of the field, whoever created it (scene summons, shop staff and stock, template residents); the command skips non-mobs and NoAI ones.
+        held = f'@e[type=!player,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
         release = []
         if s.late:
             release.append(f'schedule function {NS}:scn/{s.id}_late 40t replace')
