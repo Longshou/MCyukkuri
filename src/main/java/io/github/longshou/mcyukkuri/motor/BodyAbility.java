@@ -3,7 +3,6 @@ package io.github.longshou.mcyukkuri.motor;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.GrowthSize;
-import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.motor.geom.AbilityMath;
 import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Ballistic;
@@ -50,11 +49,11 @@ public record BodyAbility(boolean canJump, double hopHeight, double hopReach, do
     /** Energy below this is tired: the sleepy face and the worn gait begin together (see PresentationArbiter). */
     public static final double TIRED_ENERGY = 25;
 
-    /** The one authority for a body with nothing to spare: starving (nutrition under {@link YukkuriLife#STARVING_NUTRITION}),
+    /** The one authority for a body with nothing to spare: starving (YukkuriLife.starving, the Weakness-effect state),
      *  badly hurt (health at or under a third) or exhausted (energy under {@link #TIRED_ENERGY}). It waddles at its ordinary
      *  walk at most: no request may ask it faster, and it cannot spring (see {@link #cannotSpring}). Light wounds and a full bowel do not count. */
     public static boolean frail(YukkuriEntity body) {
-        return body.body().weak() || body.life().energy() < TIRED_ENERGY || body.life().nutrition() < YukkuriLife.STARVING_NUTRITION;
+        return body.body().weak() || body.life().energy() < TIRED_ENERGY || body.life().starving();
     }
 
     /** Whether any hop, run, vanilla step jump or in-place hop clip is shut to this body: frail, or a baked sole. */

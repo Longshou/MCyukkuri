@@ -1716,7 +1716,11 @@ add('nutrition_age', 'body', '各年龄饿得快慢，饿到0变虚弱', '各年
         *[yk('reimu', -9+6*i, 0, 'age_'+stage, label=label, stage=stage, nutrition=50, energy=95, lead=i==0)
           for i,(stage,label) in enumerate((('baby','赤油'),('child','子油'),('teen','亚成体'),('adult','成体')))],
         yk('reimu', -5, 7, 'starving', label='营养0·虚弱缓慢', nutrition=0, energy=95, uuid=uid('nutrition_age', 'starving')),
-        yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95)],
+        yk('reimu', 5, 7, 'fed', label='营养100·同种对照', nutrition=100, energy=95),
+        yk('reimu', -12, 14, 'tired', label='精力18·虚弱', nutrition=40, energy=18, uuid=uid('nutrition_age', 'tired')),
+        item('minecraft:apple', 1, -12, 12, 'tired_food'),
+        yk('reimu', 12, 14, 'tired_ctl', label='精力95·健康对照', nutrition=40, energy=95, uuid=uid('nutrition_age', 'tired_ctl')),
+        item('minecraft:apple', 1, 12, 12, 'tired_ctl_food')],
     env=DAY, give=['minecraft:apple 4', 'minecraft:spyglass'], vantage=(0, 16),
     reads=[(f'读{stage}',f'yukkuri status {sel("age_"+stage)} raw') for stage in ('baby','child','teen','adult')]
         + [('读饥饿者',f'yukkuri status {sel("starving")} raw'),('读同种对照',f'yukkuri status {sel("fed")} raw'),('读原版效果',f'data get entity {sel("starving")} active_effects')])
@@ -11029,3 +11033,35 @@ _scene_end('family_search_pane', [('pane_parent', _DRY), ('pane_child', _DRY)],
            [('pane_parent', 'seen:family:glass vigil started'), ('pane_child', 'seen:family:glass child at stand'),
             ('pane_parent', 'seen:action:break id=bash'), ('pane_parent', 'seen:family:glass crossed'),
             ('pane_parent', 'seen:family:child search reunited')])
+
+
+# A weak body (health 30%) crawls to its food; a starving one has an apple only on top of a two-block pillar (a hop it no longer has)
+# and a second one far on the ground; a healthy hungry control has the same pillar.
+_FG = {name: uid('frail_gait', name) for name in ('weak', 'gap', 'gap_ctl')}
+add('frail_gait', 'body', '重伤爬着去吃，饿虚弱的够不到高处', '重伤爬行、虚弱不蹦跳',
+    '左：生命3/10的灵梦离苹果5格，改用爬行走过去吃。中：营养5的虚弱灵梦只有两格高石柱顶上有苹果（跳不上去），远处地面另有一个。右：营养30的健康灵梦同样的石柱，对照能蹦上去',
+    '约 1 分钟', [
+        yk('reimu', -10, 0, 'weak', label='生命3·爬行', nutrition=40, energy=95, uuid=_FG['weak'], lead=True),
+        set_status('weak', 'health.health', 3),
+        item('minecraft:apple', 1, -5, 0, 'weak_food'),
+        yk('reimu', -10, 8, 'gap', label='营养5·虚弱', nutrition=5, energy=95, uuid=_FG['gap']),
+        block(-5, 0, 8, 'minecraft:stone'), block(-5, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, -5, 8, 'gap_food', dy=2.05),
+        item('minecraft:apple', 1, -10, 18, 'gap_far'),
+        yk('reimu', 10, 8, 'gap_ctl', label='营养30·健康对照', nutrition=30, energy=95, uuid=_FG['gap_ctl']),
+        block(15, 0, 8, 'minecraft:stone'), block(15, 1, 8, 'minecraft:stone'), item('minecraft:apple', 1, 15, 8, 'gap_ctl_food', dy=2.05)],
+    env=DAY, vantage=(0, 16), reads=[(f'读{n}', f'yukkuri status {sel(n)} raw') for n in ('weak', 'gap', 'gap_ctl')])
+
+
+def _verify_frail_gait(window, trace):
+    weak, gap = _clips(trace, _FG['weak']), _clips(trace, _FG['gap'])
+    if not any(row[2] == 'crawl' for row in weak):
+        return 'The weak body never crawled'
+    for name, rows in (('weak', weak), ('gap', gap)):
+        if hops := [row for row in rows if row[2] in _HOP_CLIPS]:
+            return f'The {name} body hopped: {hops[0]}'
+    if not re.search(rf'uuid={_FG["weak"]} [^\n]*swallowed item=minecraft:apple', window):
+        return 'The weak body never reached its apple'
+
+
+next(s for s in S if s.id == 'frail_gait').smoke = dict(
+    ticks=1800, expect=[], forbid=[r'\[body\][^\n]* invariant\b'], verify=_verify_frail_gait, verify_trace=True)

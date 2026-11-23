@@ -432,13 +432,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         double growth = BodyAbility.growthPace(this);
         double mobility = getAttributeValue(Attributes.MOVEMENT_SPEED)
                 / Math.max(.0001, getAttributeBaseValue(Attributes.MOVEMENT_SPEED) * Math.sqrt(growth));
+        // The crawl's own stroke is the slowdown of a weak body or baked sole: its walk penalty is not applied a second time.
+        double hurt = body.mobility();
+        if (hurt > 0) mobility /= hurt;
         return getScale() * Math.max(1, growthScale()) * (.7 + .3 * growth)
                 * mobility * BodyAbility.temperament(this) * BodyAbility.carrying(this);
     }
     public boolean canCrawlNow() { return !isPassenger() && crawler(); }
     /** The crawl is this body's gait now: on the ground, or riding a host's surface (a hat floor), where the host walk drives it. */
     public boolean crawler() {
-        return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && body.footBurned()) && isAlive() &&
+        return (SpeciesProfile.of(variant).houseBody() || childhood != null && !childhood.canJump() || body != null && (body.footBurned() || body.weak())) && isAlive() &&
                 !isNoAi() && (!isPassenger() || getVehicle() instanceof SurfaceHost) && !isCommandPlaying()
                 && !isInWaterOrBubble() && !isOnFire() && hurtTime == 0
                 && contactPose().equals("NONE");

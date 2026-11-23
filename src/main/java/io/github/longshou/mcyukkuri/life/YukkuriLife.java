@@ -523,6 +523,8 @@ public final class YukkuriLife {
     public static final float WEAKNESS_WARNING = .20f;
     /** Nutrition under this is starvation: the Weakness effect begins and the body can no longer spring (BodyAbility.frail). */
     public static final float STARVING_NUTRITION = 10;
+    /** The starvation-weak state: the one the Weakness effect and Slowness below follow, and the one BodyAbility.frail reads. */
+    public boolean starving() { return nutrition < STARVING_NUTRITION; }
     /** Existing urgent-need bands contribute together. An active harmful effect alone exceeds basket resistance. */
     public float weakness() {
         for (var effect : entity.getActiveEffects()) {
@@ -849,8 +851,8 @@ public final class YukkuriLife {
             GameplayLog.event(entity,"needs","starvation damage accepted={} health={} -> {}",accepted,before,entity.getHealth());
         }
         if (ageTicks % 20 == 0) {
-            if(nutrition < STARVING_NUTRITION)entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,40,0,false,false,true));
-            boolean slow = nutrition < STARVING_NUTRITION || energy <= 25 || dryness >= SEVERE_THIRST;
+            if(starving())entity.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,40,0,false,false,true));
+            boolean slow = starving() || energy <= 25 || dryness >= SEVERE_THIRST;
             if(slow)entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN,40,1,false,false,true));
             if(slow != observedNeedSlowness) {
                 observedNeedSlowness = slow;

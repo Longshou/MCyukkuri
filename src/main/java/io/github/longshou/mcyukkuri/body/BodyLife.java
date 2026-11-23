@@ -495,6 +495,8 @@ public final class BodyLife {
             updateMobility();
         }
     }
+    /** Share of its walk this body keeps: none dying, 0.3 with a baked sole, 0.6 weak. A crawling body already crawls at its own pace and divides this out (YukkuriEntity.crawlScale). */
+    public double mobility(){return dying>0?0:(footBurned?.3:1)*(weak()?.6:1);}
     private void updateMobility(){
         var speed=entity.getAttribute(Attributes.MOVEMENT_SPEED);if(speed==null)return;
         boolean currentWeak=weak();
@@ -502,7 +504,7 @@ public final class BodyLife {
         if(observedWeak!=null&&observedWeak!=currentWeak)
             GameplayLog.event(entity,"body","weakness {} -> {}; health {}/{} threshold={}",observedWeak,currentWeak,entity.getHealth(),entity.getMaxHealth(),WEAK_HEALTH_RATIO);
         observedWeak=currentWeak;
-        double factor=dying>0?0:(footBurned?.3:1)*(weak()?.6:1);
+        double factor=mobility();
         if(factor>=1)speed.removeModifier(MOBILITY);
         else speed.addOrUpdateTransientModifier(new AttributeModifier(MOBILITY,factor-1,AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
