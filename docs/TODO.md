@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 徽章广场 P2：佩章者散步停靠广场、院主牵宠停一次 | `.worktrees/wp-plaza-visit` | human/TownMarkers,HumanStreet; entity/RoamingGoal; pet/PetOuting; art/structures/human-world/author_civic.py + badge_hall.nbt; museum_scenarios badge_plaza |
 
 ## 玩法待办
 
