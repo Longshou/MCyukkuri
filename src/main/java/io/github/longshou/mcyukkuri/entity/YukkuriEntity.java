@@ -363,7 +363,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      */
     public String activityFace() {
         String face = predator.activityFace();
-        return face.isEmpty() ? playLife.activityFace() : face;
+        if (face.isEmpty()) face = playLife.activityFace();
+        return face.isEmpty() ? life.urgeFace() : face;
     }
     public boolean predatorFlying() { return sync().predatorFlying(); }
     public void setPredatorFlying(boolean flying) {

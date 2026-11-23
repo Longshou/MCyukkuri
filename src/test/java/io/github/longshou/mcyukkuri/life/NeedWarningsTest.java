@@ -14,7 +14,7 @@ class NeedWarningsTest {
         var simultaneous = sample(30, 30, 30, 40, 50, 1, true);
         assertEquals(URINE.bit() | STOOL.bit() | THIRST.bit() | SLEEP.bit() | HUNGER.bit() | COLD.bit() | BREEDING.bit(),
                 simultaneous.mask());
-        assertEquals(URINE, simultaneous.leading());
+        assertEquals(THIRST, simultaneous.leading());
         assertEquals(0, sample(29, 29, 29, 41, 51, 1.01, false).mask());
         assertEquals(OVERHEATING.bit(), sample(0, 0, 0, 80, 70, 9, false).mask());
         assertEquals(BREEDING.bit(), sample(0, 0, 0, 80, 70, 8.99, true).mask());
@@ -23,8 +23,6 @@ class NeedWarningsTest {
     }
 
     @Test void severityKeepsIncreasingBeyondTheActionPoint() {
-        assertEquals(URINE, sample(40, 40, 40, 25, 30, 0, true).leading());
-        assertEquals(STOOL, sample(40, 48, 40, 25, 30, 0, false).leading());
         assertEquals(THIRST, sample(40, 40, 49, 25, 30, 0, false).leading());
         assertEquals(SLEEP, sample(40, 40, 40, 12, 30, 0, false).leading());
         assertEquals(HUNGER, sample(40, 40, 40, 25, 14, 0, false).leading());
@@ -38,12 +36,16 @@ class NeedWarningsTest {
     }
 
     @Test void ongoingWarningsStayOnTheHudAndYieldTheNextTell() {
-        int told = URINE.bit();
-        var mixed = NeedWarnings.sample(69, 40, 0, 80, 70, 5, 0, 10, false, told);
-        assertEquals(URINE.bit() | STOOL.bit(), mixed.mask());
-        assertEquals(STOOL, mixed.leading());
-        assertNull(NeedWarnings.sample(69, 40, 0, 80, 70, 5, 0, 10, false, mixed.mask()).leading());
-        told &= sample(0, 40, 0, 80, 70, 5, false).mask();
-        assertEquals(URINE, NeedWarnings.sample(39, 0, 0, 80, 70, 5, 0, 10, false, told).leading());
+        int told = THIRST.bit();
+        var mixed = NeedWarnings.sample(69, 40, 40, 80, 70, 5, 0, 10, false, told);
+        assertEquals(URINE.bit() | STOOL.bit() | THIRST.bit(), mixed.mask());
+        assertNull(mixed.leading());
+        assertEquals(SLEEP, NeedWarnings.sample(69, 40, 40, 20, 70, 5, 0, 10, false, told).leading());
+    }
+
+    @Test void theToiletUrgeHasNoStandAloneTell() {
+        var full = sample(100, 100, 0, 80, 70, 5, false);
+        assertEquals(URINE.bit() | STOOL.bit(), full.mask());
+        assertNull(full.leading());
     }
 }

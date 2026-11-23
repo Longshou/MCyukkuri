@@ -125,7 +125,7 @@ public final class Reactions {
                 && !entity.life().protectsStep() && !entity.life().isSleeping() && !entity.life().temperature().active()
                 && !entity.family().active() && !entity.childhood().active() && !entity.agitation().active()
                 && entity.mind().leakFace().isEmpty()
-                && (entity.getBehaviorId().equals(Behaviors.IDLE) || entity.getBehaviorId().equals(Behaviors.SEEK_TOILET)
+                && (entity.getBehaviorId().equals(Behaviors.IDLE)
                 || entity.getBehaviorId().equals(Behaviors.SEEK_WATER) || entity.getBehaviorId().equals(Behaviors.SEEK_FOOD));
     }
     void stop() { threat.response.clear(); threat.seal.abort("response_stopped"); threat.seal.reset(); threat.stage = Threat.Stage.NONE; weather.stage = Weather.Stage.NONE; }

@@ -5024,44 +5024,59 @@ def _verify_leak_scene(window):
 
 
 def _verify_need_tell(window):
-    for actor, need, face, before, after, volume in (
-            ('fidget', 'URINE', 'pursed', 40, 0, '0.0'), ('strain', 'STOOL', 'chewing_closed', 55, 15, '')):
+    """Urge -> act at once: the holding face and line start the toilet trip, the act follows within seconds."""
+    for actor, kind, line, face, source, accident, within in (
+            ('trained', 'URINE', 'need_toilet_urine', 'pursed', 'facility', None, 500),
+            ('untrained', 'STOOL', 'need_toilet', 'squeezed_frown', 'ground', 'true', 160),
+            ('leaker', 'URINE', 'need_toilet_urine', 'pressed_teary', 'ground', 'true', 400)):
         subject = rf'[^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
-        tells = re.findall(r'\[needs\]' + subject + rf' tell need={need}\b', window)
-        relief = re.findall(r'\[needs\]' + subject + rf' relieved source=facility [^\n]*kind={need} pressure=(\S+) -> (\S+) volume=(\S+)', window)
-        if len(tells) != 1 or len(relief) != 1:
-            return f'{actor}: expected one {need} warning and one facility release, found {tells} and {relief}'
-        tick, start, end, stored = relief[0]
-        faces = re.findall(r'\[status\]' + subject + rf' behavior\.expression: (?:{face} -> \w+|\w+ -> {face})\b', window)
-        if not any(int(tells[0]) <= int(at) < int(tick) for at in faces):
-            return f'{actor}: expected a published {face} before release'
-        practice = re.findall(r'\[skill\]' + subject + r' practice ability=TOILET\b', window)
-        if practice != [tick]:
-            return f'{actor}: expected one toilet practice credit at {tick}, found {practice}'
-        if float(start) != before or abs(float(end) - after) > .01:
-            return f'{actor}: wrong order or pressure delta {relief}'
-        if (volume and stored != volume) or (not volume and float(stored) <= 0):
-            return f'{actor}: unexpected solid inventory {stored}'
+        beats = re.findall(r'\[needs\]' + subject + r' beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) kind=(\w+)', window)
+        for tick, beat, shown, declared, spoken, _ in beats:
+            if beat in ('urge', 'relief') and shown != declared:
+                return f'{actor}: beat {beat} at {tick} showed {shown} but declared {declared}'
+        urges = [b for b in beats if b[1] == 'urge']
+        if not urges or urges[0][2] != face or urges[0][4] != line or urges[0][5] != kind:
+            return f'{actor}: expected an urge beat {face}/{line}/{kind}, found {urges[:1]}'
+        relief = [m for m in re.finditer(r'\[needs\]' + subject + rf' relieved source={source} [^\n]*kind={kind}\b[^\n]*', window)]
+        if len(relief) != 1 or accident and f'accident={accident}' not in relief[0].group(0):
+            return f'{actor}: expected one {source} release, found {[m.group(0) for m in relief]}'
+        tick = int(relief[0].group(1))
+        if not 0 <= tick - int(urges[0][0]) <= within:
+            return f'{actor}: act {tick - int(urges[0][0])} ticks after the urge (limit {within})'
+        if re.search(r'\[needs\]' + subject + rf' tell need={kind}\b', window):
+            return f'{actor}: the stand-alone tell must be gone'
+        if re.search(r'\[status\]' + subject + r' behavior\.animation: (?:\w+ -> nervous)\b', window):
+            return f'{actor}: a shake clip was shown as an urge cue'
+        if actor == 'trained' and not any(b[1] == 'relief' and b[2] == 'happy' for b in beats):
+            return f'{actor}: no relief beat with happy face'
+    leaks = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]*toilet leak on the way', window)
+    if len(leaks) != 1:
+        return f'leaker: expected one leak on the way, found {leaks}'
     return None
 
 
-add('need_tell', 'meadow', '尿急与便急的预兆', '尿急与便急的预兆',
-    '两栏各有一个沙厕。左边性急的灵梦先扭动，一分钟后尿意自然涨到够用沙厕，留意尿流。'
-    '右边沉稳的灵梦便急，先绷紧身体再去排便。用望远镜看各自的需求图标何时消失，用手册对照余量。',
-    '右栏约十秒，左栏约一分钟', [
-        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-6, 7) for z in range(-3, 5)
-          if x in (-6, 0, 6) or z in (-3, 4)),
-        *(block(x, 0, -2, 'mcyukkuri:yukkuri_toilet') for x in (-3, 3)),
+add('need_tell', 'meadow', '尿急与便急：表情台词后立刻行动', '尿急与便急：表情台词后立刻行动',
+    '三个围栏各有一只灵梦：左边练过如厕的尿急，露出抿嘴忍耐的表情、说一句后立刻走去沙厕；'
+    '中间没练过的便急，表情更难受，说一句后就在原地拉；右边尿意满了、沙厕要绕过隔栏，走不到就在路上漏出来。'
+    '全程没有抖动：只看表情和台词，用望远镜看需求图标在缓解后消失。',
+    '开场约 5 秒内各自开始，约 15 秒内各自排完', [
+        *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-12, 7) for z in range(-3, 5)
+          if x in (-12, -6, 0, 6) or z in (-3, 4)),
+        *(block(x, 0, 0, 'minecraft:oak_fence') for x in range(-11, -7)),
+        *(block(x, 0, -2, 'mcyukkuri:yukkuri_toilet') for x in (-11, -3, 3)),
         *(box(-1, 0, z, 1, 10 - z, z, 'minecraft:hay_block') for z in (8, 9, 10)),
-        yk('reimu', -3, 2, 'fidget', label='尿急', uuid=uid('need_tell', 'fidget'), urine=39, self_control=15,
-           boldness=80, friendliness=20, lead=True),
-        yk('reimu', 3, 2, 'strain', label='便急', uuid=uid('need_tell', 'strain'), bladder=55, self_control=85,
-           boldness=35, friendliness=70)],
-    env=DAY, vantage=(0, 8, 180, 27), give=['minecraft:spyglass', 'mcyukkuri:field_notebook'],
-    reads=[('读左栏尿意', f'data get entity {sel("fidget")} YukkuriLife.Urine'),
-           ('读右栏便意', f'data get entity {sel("strain")} YukkuriLife.Bladder')],
-    smoke=dict(ticks=1720, expect=[r'\[needs\][^\n]*tell need=URINE', r'\[needs\][^\n]*tell need=STOOL'],
-               forbid=[r'\[body\][^\n]* death settled\b'], verify=_verify_need_tell))
+        yk('reimu', -3, 2, 'trained', label='练过·尿急', uuid=uid('need_tell', 'trained'), urine=50, self_control=80,
+           boldness=35, friendliness=70, skills={'toilet': 8}, lead=True),
+        yk('reimu', 3, 2, 'untrained', label='没练过·便急', uuid=uid('need_tell', 'untrained'), bladder=75, self_control=15,
+           boldness=80, friendliness=20, skills={'toilet': 0}),
+        yk('reimu', -11, 2, 'leaker', label='憋不住·尿急', uuid=uid('need_tell', 'leaker'), urine=100, self_control=65,
+           boldness=50, friendliness=50, skills={'toilet': 0})],
+    env=DAY, vantage=(-3, 10, 180, 27), give=['minecraft:spyglass', 'mcyukkuri:field_notebook'],
+    reads=[('读左栏尿意', f'data get entity {sel("trained")} YukkuriLife.Urine'),
+           ('读中栏便意', f'data get entity {sel("untrained")} YukkuriLife.Bladder'),
+           ('读右栏尿意', f'data get entity {sel("leaker")} YukkuriLife.Urine')],
+    smoke=dict(ticks=900, expect=[r'\[needs\][^\n]* beat=urge face=\w+ declared=\w+ line=need_toilet'],
+               forbid=[r'\[body\][^\n]* death settled\b', r'\[needs\][^\n]* tell need=(?:URINE|STOOL)\b'], verify=_verify_need_tell))
 
 
 add('excited_leak', 'meadow', '短落差受惊：成油漏尿对照', '短落差受惊：成油漏尿对照',

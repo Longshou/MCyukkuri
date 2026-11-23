@@ -35,8 +35,7 @@ public final class EcologyPresentation {
         var need = needs.leading();
         double intensity = NeedWarnings.insistence(entity.life().personality().temperament());
         YukkuriAction action = switch (need) {
-            case URINE -> YukkuriAction.NERVOUS;
-            case STOOL -> YukkuriAction.BRACE;
+            case URINE, STOOL -> throw new IllegalStateException("The toilet urge is shown by the toilet trip itself");
             case THIRST -> YukkuriAction.IDLE;
             case SLEEP -> YukkuriAction.DOZE_OFF;
             case HUNGER -> YukkuriAction.DROOP;
@@ -45,8 +44,7 @@ public final class EcologyPresentation {
             case BREEDING -> throw new IllegalStateException("Heat has its own courtship presentation");
         };
         String face = switch (need) {
-            case URINE -> "pursed";
-            case STOOL -> "chewing_closed";
+            case URINE, STOOL -> throw new IllegalStateException();
             case THIRST -> "licking";
             case SLEEP -> "yawn";
             case HUNGER -> intensity < Temperament.LOW35 ? "look_down" : "drool";

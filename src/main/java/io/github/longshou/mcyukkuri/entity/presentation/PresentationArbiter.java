@@ -68,6 +68,7 @@ public final class PresentationArbiter {
         if (e.level().isClientSide) return;
         e.predator().observeFace(shown);
         e.playLife().observeFace(shown);
+        e.life().observeUrge(shown);
         e.mind().feeling().observeActivity(id.equals(EMOTION_GOAL) ? e.getBehaviorId() : null);
         String behavior = e.family().laboring() || e.getBehaviorId().equals(Behaviors.POSTPARTUM) ? e.getBehaviorId() : null;
         String clip = e.getAnimationId();

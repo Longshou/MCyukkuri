@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.shop.ShopKind;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
+import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
@@ -181,6 +182,8 @@ public final class YukkuriLife {
     private int exerciseReliefTicks;
     private boolean toiletAccident;
     private ToiletNeeds.Kind toiletKind;
+    private int urgeStage;
+    private String shownUrge = "", urgeLine = "";
 
     public void selectToiletNeed(ToiletNeeds.Kind kind) { toiletKind = kind; }
     public boolean urinating() { return toiletKind == ToiletNeeds.Kind.URINE; }
@@ -196,6 +199,8 @@ public final class YukkuriLife {
     private int pitEdgeTicks;
     /** A pit trip may cross the whole site; a trip to nearby ground gives up much sooner. */
     private static final int PIT_TRIP_TICKS = 900, GROUND_TRIP_TICKS = 240;
+    /** The holding face is shown this long before a body lets go where it stands (1.5 s: readable, far inside a tolerable hold). */
+    private static final int URGE_TICKS = 30;
     private final HotFloorEscape hotFloor;
     private int starvingTicks, fatigueTicks, fatigueLength;
     private boolean observedNeedSlowness;
@@ -1340,9 +1345,64 @@ public final class YukkuriLife {
         var first = leadingToiletNeed();
         var other = first == ToiletNeeds.Kind.STOOL ? ToiletNeeds.Kind.URINE : ToiletNeeds.Kind.STOOL;
         boolean planned = planToilet(first) || planToilet(other);
-        // The urge is announced once, when the trip starts; an accident (no trip, nowhere to go) has nothing to announce.
-        if (planned && !toiletAccident) entity.speak(toiletKind == ToiletNeeds.Kind.URINE ? "need_toilet_urine" : "need_toilet");
+        // The urge starts with the real trip (or the decision to go on the spot): one trigger for face, line and movement.
+        if (planned) {
+            urgeStage = urgeStage();
+            sayUrge(toiletKind == ToiletNeeds.Kind.URINE ? "need_toilet_urine" : "need_toilet");
+        }
         return planned;
+    }
+
+    private void sayUrge(String event) { if (entity.speak(event)) urgeLine = event; }
+    /** How hard the hold is: the real pressure picks the band, a young body one band harder. */
+    private int urgeStage() {
+        float pressure = toiletNeeds.pressure(toiletKind);
+        int stage = pressure < 60 ? 0 : pressure < 85 ? 1 : 2;
+        return Math.min(2, entity.family().adult() ? stage : stage + 1);
+    }
+    private boolean walkingToToilet() { return (task == Task.TOILET || task == Task.GROUND_TOILET) && toiletTicks == 0; }
+    /** The holding face of the walk (ACTIVITY rank), "" when the body is not on a toilet trip. */
+    public String urgeFace() {
+        if (!walkingToToilet() || entity.isPassenger()) return "";
+        return switch (urgeStage()) {
+            case 0 -> "pursed";
+            case 1 -> personality.selfControl() < 50 ? "squeezed_frown" : "endure";
+            default -> "pressed_teary";
+        };
+    }
+    private void tickUrge() {
+        holdOrLeak();
+        int stage = urgeStage();
+        if (stage <= urgeStage || !walkingToToilet()) return;
+        urgeStage = stage; // a bolder body announces each harder band again; a timid one only squirms
+        if (NeedWarnings.insistence(personality.temperament()) >= Temperament.LOW35)
+            sayUrge(toiletKind == ToiletNeeds.Kind.URINE ? "need_toilet_urine" : "need_toilet");
+    }
+    /** A body that is holding a full load and cannot reach its place lets go where it stands, after a self-control wait. */
+    private void holdOrLeak() {
+        if (toiletNeeds.pressure(toiletKind) < 100 || toiletAccident && task == Task.GROUND_TOILET && entity.blockPosition().equals(targetBlock)) return;
+        if (pursuitTicks < 20 + personality.selfControl()) return;
+        var here = entity.blockPosition();
+        if (!dryStand(here)) return;
+        GameplayLog.event(entity, "needs", "toilet leak on the way pressure={} kind={} self_control={} walked={}",
+                toiletNeeds.pressure(toiletKind), toiletKind, personality.selfControl(), pursuitTicks);
+        targetBlock = here; task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
+        toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true;
+        sayUrge("leak");
+    }
+    /** One log line per beat of the toilet performance with the face the arbiter finally showed next to the declared one. */
+    public void observeUrge(String shown) {
+        String beat, declared, line;
+        if (walkingToToilet()) { beat = "urge"; declared = urgeFace(); line = urgeLine; }
+        else if (toiletTicks > 0) { beat = toiletAccident ? "accident" : "strain"; declared = toiletAccident ? "teary" : "chewing_closed"; line = ""; }
+        else if (entity.reactingTo("toilet_done")) { beat = "relief"; declared = "happy"; line = "toilet_done"; }
+        else { shownUrge = ""; urgeLine = ""; return; }
+        String key = beat + "/" + shown + "/" + urgeStage + "/" + line;
+        if (key.equals(shownUrge)) return;
+        shownUrge = key;
+        GameplayLog.event(entity, "needs", "beat={} face={} declared={} line={} kind={} pressure={} self_control={} adult={}",
+                beat, shown, declared, line.isEmpty() ? "none" : line, toiletKind, toiletKind == null ? 0 : toiletNeeds.pressure(toiletKind),
+                personality.selfControl(), entity.family().adult());
     }
 
     private boolean planToilet(ToiletNeeds.Kind kind) {
@@ -1411,6 +1471,7 @@ public final class YukkuriLife {
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         if (guardingDish()) { SurfaceApproach.halt(entity); return; }
         pursuitTicks++;
+        if (walkingToToilet()) tickUrge();
         switch (task) {
             case SHELTER_REPLY -> replyToShelter();
             case SHELTER_DECLINED -> SurfaceApproach.halt(entity);
@@ -1526,7 +1587,7 @@ public final class YukkuriLife {
                     return;
                 }
                 if (toiletPit && toiletPitCell != null && !pitBankReady()) { toiletTicks = 0; return; }
-                if (toiletPit && toiletPitCell != null || entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
+                if (toiletPit && toiletPitCell != null || pursuitTicks >= URGE_TICKS && entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) {
                         if (toiletPit) GameplayLog.event(entity,"needs","toilet pit edge reached stand={} pit={} portions={}",targetBlock,toiletPitCell,

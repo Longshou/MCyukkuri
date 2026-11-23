@@ -32,7 +32,7 @@ public record NeedWarnings(int mask, Need leading) {
             };
             if (severity < 0) continue;
             mask |= need.bit();
-            if (need != Need.BREEDING && (alreadyTold & need.bit()) == 0 && severity > strongest) {
+            if (need != Need.BREEDING && need != Need.URINE && need != Need.STOOL && (alreadyTold & need.bit()) == 0 && severity > strongest) {
                 leading = need;
                 strongest = severity;
             }
