@@ -88,6 +88,7 @@ import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.FixtureBelief;
 import io.github.longshou.mcyukkuri.perception.Knowledge;
 import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.rare.RareForms;
@@ -1832,7 +1833,14 @@ public final class YukkuriLife {
         return null;
     }
 
+    /** The body is looking at its dish: keep what it holds before the walk stops, so turning away does not lose the look. */
+    private void lookAtDish() {
+        if (targetBlock != null && level().getBlockEntity(targetBlock) instanceof CareBlockEntity dish && dish.kind() != CareBlock.Kind.NEST
+                && Senses.sees(entity, targetBlock, FixtureBelief.need(dish.kind()))) entity.component(YukkuriComponents.FIXTURE_BELIEF).noticed(dish);
+    }
+
     private void refuseEmptyDrink() {
+        lookAtDish();
         GameplayLog.limited(entity, "needs", "water_empty", 200, "drink refused source={} reason=source_empty dryness={}", targetBlock, dryness);
         stopGoal();
         replanNow();
@@ -2115,7 +2123,7 @@ public final class YukkuriLife {
                     targetBlock = null;
                 } else stopGoal();
             }
-        } else stopGoal();
+        } else { lookAtDish(); stopGoal(); }
     }
     private boolean handBowlFood(CareBlockEntity bowl, Predicate<ItemStack> receiver, String holder) {
         if (bowl.isRemoved()) return false;

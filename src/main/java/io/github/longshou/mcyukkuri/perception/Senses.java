@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -124,6 +125,7 @@ public final class Senses {
 
     private static boolean wall(Level level, BlockPos pos) {
         var state = level.getBlockState(pos);
-        return state.isCollisionShapeFullBlock(level, pos) || state.getBlock() instanceof DoorBlock && !state.getValue(DoorBlock.OPEN);
+        return state.isCollisionShapeFullBlock(level, pos) || state.getBlock() instanceof DoorBlock && !state.getValue(DoorBlock.OPEN)
+                || state.getBlock() instanceof FenceGateBlock && !state.getValue(FenceGateBlock.OPEN);
     }
 }

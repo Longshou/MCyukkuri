@@ -3077,12 +3077,14 @@ add('pet_water', 'house', '宠物渴了求水，玩家用水桶加满饮水器',
     reads=[('读饮水器余水', 'data get block ~3 ~ ~ Water'), ('读灵梦的口渴与请求', f'yukkuri status {sel("water_pet")} raw')])
 
 _away_pet = _uuid_text('pet_water_away', 'away_pet')
-add('pet_water_away', 'house', '宠物在屋外渴了，玩家抢先给饮水器加水，它回来才发现', '宠物在屋外渴了，玩家抢先给饮水器加水，它回来才发现',
-    '灵梦在屋外南边的墙后，渴了，从没看过屋里的饮水器，会自己绕到屋口走进去看。你站在屋里的空饮水器旁，趁它还没回来用水桶把它加满：'
-    '灵梦在墙外看不见也听不见，没有反应。等它走进屋口看见满水，不会谢你，只露出满意的样子，然后自己去喝。',
-    '约十几秒走回来；看见满水后几秒喝水', [
+add('pet_water_away', 'house', '宠物渴了被关在屋外，玩家先加水再开门，它进屋才发现', '宠物渴了被关在屋外，玩家先加水再开门，它进屋才发现',
+    '灵梦渴了，被屋口三扇关着的栅栏门挡在屋外，从没看过屋里的饮水器，只在门外等着往屋里看。你站在屋里的空饮水器旁，先用水桶把它加满，'
+    '再去把门打开：灵梦在门外看不见也听不见加水，没有反应。门一开它自己走进来，看见满水，不会谢你，只露出满意的样子，然后自己去喝。',
+    '加水和开门随你；开门后几秒喝水', [
+        *(block(x, 0, 7, 'minecraft:oak_fence_gate[facing=south]') for x in (-1, 0, 1)),
+        box(-1, 1, 7, 1, 2, 7, 'minecraft:oak_planks'),
         block(3, 0, 0, 'mcyukkuri:waterer'),
-        yk('reimu', 8, 11, 'away_pet', uuid=uid('pet_water_away', 'away_pet'), lead=True, yaw=180),
+        yk('reimu', 0, 10, 'away_pet', uuid=uid('pet_water_away', 'away_pet'), lead=True, yaw=180),
         set_status('away_pet', 'needs.dryness', 50), *own('away_pet'),
     ], give=['minecraft:water_bucket'],
     env=DAY, vantage=(2, 1, 190, 25, 0),
@@ -10413,9 +10415,9 @@ _smoke('pet_food_walled', 900, [rf'\[meal\][^\n]* uuid={_walled_pet} [^\n]* swal
 _smoke('pet_food_empty', 700, [rf'\[request\][^\n]* uuid={_empty_pet} [^\n]* started kind=FOOD ', rf'\[request\][^\n]* uuid={_empty_pet} [^\n]* beat=ask face=\S+ line=ask_food kind=FOOD'],
        forbid=[rf'\[request\][^\n]* uuid={_empty_pet} [^\n]* expired '], readout=[f'yukkuri status {sel("empty_pet")} raw'])
 next(s for s in S if s.id == 'pet_food_empty').smoke.update(commands=[
-    (1, 'execute positioned ~1 ~ ~-1 run yukkuri scenario tool_operator enter'),
+    (1, 'execute positioned ~-3 ~ ~2 run yukkuri scenario tool_operator enter'),
     (2, f'yukkuri scenario owner_at {sel("empty_pet")} watch'),
-    (3, 'execute positioned ~1 ~ ~-1 run yukkuri scenario tool_operator move'),
+    (3, 'execute positioned ~-3 ~ ~2 run yukkuri scenario tool_operator move'),
     (680, 'yukkuri scenario tool_operator leave'),
 ])
 _away_fill = r'\[interaction\][^\n]* waterer filled player=MuseumOperator [^\n]* water=0 -> 8'
@@ -10430,8 +10432,8 @@ def _verify_pet_water_away(window):
         return 'Expected the refill nobody perceived, then the pet finding the full waterer and the sip, in order'
 
 
-# The pet walks home from outside the south wall (no sight line, beyond earshot) and the owner pours before it gets there: no witness,
-# no thanks; it learns by looking and its pleased beat is about the water. No teleport anywhere.
+# The pet is shut out behind closed gates (no sight line, wall-muffled sound) while the owner pours, then the gates open and it walks in:
+# no witness, no thanks; it learns by looking and its pleased beat is about the water. No teleport anywhere.
 _smoke('pet_water_away', 700, [_away_fill, _away_unseen, _away_found, _away_drink],
        forbid=[rf'\[perception\][^\n]* uuid={_away_pet} [^\n]* noticed ', rf'\[request\][^\n]* uuid={_away_pet} [^\n]* beat=thanks',
                rf'\[request\][^\n]* uuid={_away_pet} [^\n]* satisfied kind=WATER [^\n]* via=(?:saw|heard|own)',
@@ -10443,8 +10445,9 @@ next(s for s in S if s.id == 'pet_water_away').smoke.update(verify=_verify_pet_w
     (3, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator move'),
     (4, f'gamemode survival {_water_operator}'),
     (5, f'item replace entity {_water_operator} weapon.mainhand with minecraft:water_bucket'),
-    # The owner pours well before the pet has walked round to the doorway.
+    # The owner pours first (the pet is shut out behind the gates), then opens them; the pet comes in by itself.
     (60, 'yukkuri scenario shop_block_click ~3 ~ ~'),
+    *((120, f'setblock ~{x} ~ ~7 minecraft:oak_fence_gate[facing=south,open=true]') for x in (-1, 0, 1)),
     (680, 'yukkuri scenario tool_operator leave'),
 ])
 next(s for s in S if s.id == 'pet_water').smoke.update(verify=_verify_pet_water, commands=[
