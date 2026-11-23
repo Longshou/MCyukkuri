@@ -9850,9 +9850,7 @@ def _ring_stray_fates(window, trace):
 
 
 next(s for s in S if s.id == _RING).smoke = dict(ticks=3600, verify=_ring_stray_fates, verify_trace=True, expect=[
-    *[rf'\[badge\][^
-]*uuid={_uuid_text(_RING, name)} [^
-]*plaza ring decision' for _, name, *_ in _RING_STRAYS[:1]],
+    *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for _, name, *_ in _RING_STRAYS[:1]],
 ])
 
 
