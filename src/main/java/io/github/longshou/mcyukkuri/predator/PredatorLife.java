@@ -218,7 +218,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     public void observeFace(String shown) {
         String face = activityFace();
         if (face.isEmpty()) { shownBeat = ""; return; }
-        String beat = activity();
+        String beat = pass == Pass.WITHDRAW && thwarted && (task == Task.CHASE || task == Task.TAKEOFF) ? "thwarted" : activity();
         String key = beat + "/" + shown;
         if (key.equals(shownBeat)) return;
         shownBeat = key;

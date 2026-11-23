@@ -298,7 +298,7 @@ public final class BodyLife {
         float energyBefore=entity.life().energy();
         entity.life().spendEnergy(Math.min(2,entity.life().energy()));
         BodyEffects.emit(entity,"vomit",1,MouthPlacement.position(entity));
-        witnessInjury(100);
+        witnessInjury(100,null);
         GameplayLog.limited(entity,"body","vomit",200,"vomited energy={} -> {} toxin={}",energyBefore,entity.life().energy(),toxin);
         return true;
     }
@@ -415,7 +415,7 @@ public final class BodyLife {
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
             if(entity.isAlive())entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
             // Human staff never break a bystander by their own violence; the player still can.
-            witnessInjury(hit.source().getEntity() instanceof HumanNpc ? Naming.NAMING_CEILING : 100);
+            witnessInjury(hit.source().getEntity() instanceof HumanNpc ? Naming.NAMING_CEILING : 100,hit.source().getEntity());
         }
         if(outcome!=InjuryModel.Outcome.NONE){
             coreHurt=true;
@@ -448,12 +448,13 @@ public final class BodyLife {
         if(!entity.profile().houseBody())BodyEffects.emit(entity,reason,loss/Math.max(1,entity.getMaxHealth()),
                 WoundPlacement.outlet(entity,outlet),WoundPlacement.outward(entity,outlet));
     }
-    private void witnessInjury(float ceiling){
+    /** Every awake yukkuri in sight but the victim and the one who inflicted it reacts (an attacker does not witness its own blow). */
+    private void witnessInjury(float ceiling,net.minecraft.world.entity.Entity attacker){
         if(!(entity.level() instanceof ServerLevel level))return;
         long now=level.getGameTime();
         if(lastWitness!=Long.MIN_VALUE&&now-lastWitness<200)return;
         lastWitness=now;
-        for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(8),other->other!=entity&&other.isAlive()
+        for(var witness:level.getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(8),other->other!=entity&&other!=attacker&&other.isAlive()
                 &&!other.life().isSleeping()&&other.distanceToSqr(entity)<=64&&other.hasLineOfSight(entity))){
             witness.mind().feltBelow(EmotionEvent.WOUND_DISTRESS, ceiling);witness.showReaction("surprise","",60);
         }

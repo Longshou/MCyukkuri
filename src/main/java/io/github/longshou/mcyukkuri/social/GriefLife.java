@@ -219,7 +219,7 @@ public final class GriefLife {
             }
             if (diverts) {
                 decision = "diverted"; sacrificeWait = 3600;
-                challenger.showReaction("angry","protect_angered",60);
+                challenger.showReaction("angry","protect_angered",25);
                 int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());
                 var t = protectedChild.life().personality().temperament();
                 String response = affinity >= 40 && !t.is(Gate.HARSH) ? "protect_child_worry"

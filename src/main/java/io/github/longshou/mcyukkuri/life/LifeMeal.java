@@ -56,6 +56,8 @@ import net.minecraft.world.phys.Vec3;
 /** Delegated life state; persistence stays in the original YukkuriLife compound. */
 final class LifeMeal {
     private final YukkuriLife o;
+    /** A meal face only decorates the moment: a body whose activity declares its own face (a hunting predator) keeps that face. */
+    private String decorate(String face) { return o.entity().activityFace().isEmpty() ? face : ""; }
     LifeMeal(YukkuriLife o) { this.o = o; }
 
     /** Project design: one portion of droppings feeds this much, and soils the eater this much hygiene. */
@@ -371,7 +373,7 @@ final class LifeMeal {
         o.beginConsumption();
         o.entity().getNavigation().stop();
         o.entity().setPersistenceRequired();
-        o.entity().showReaction("happy", "take_food", 60);
+        o.entity().showReaction(decorate("happy"), "take_food", 60);
         return true;
     }
 
@@ -684,7 +686,7 @@ final class LifeMeal {
                         : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat
                         : liked && fedLine.equals("fed") ? "food_delight" : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)
-                        && eater.showReaction(face, harmful ? line : "",
+                        && eater.showReaction(eater.activityFace().isEmpty() || harmful ? face : "", harmful ? line : "",
                             harmful || waste || grass && !liked && !unhappy || preparedMeal ? 100 : SWALLOW_TICKS)
                         && !harmful && !line.isEmpty()) {
                     eater.speakCue(line, line.equals("fed") ? "plain" : null);
@@ -696,12 +698,12 @@ final class LifeMeal {
             }
             if (mealTicks == swallowAt + SWALLOW_TICKS && !coughing()) {
                 // The after-meal clip now carries the face: this individual's melt, or the composed adult's restraint over the finish.
-                if (meltFace != null) o.entity().showReaction(meltFace, "", EcologyPresentation.duration(Behaviors.MEAL_CONTENT));
-                else if (finishFace != null) o.entity().showReaction(finishFace, "", mealEnd() - mealTicks);
+                if (meltFace != null) o.entity().showReaction(decorate(meltFace), "", EcologyPresentation.duration(Behaviors.MEAL_CONTENT));
+                else if (finishFace != null) o.entity().showReaction(decorate(finishFace), "", mealEnd() - mealTicks);
             }
             if (mealTicks >= mealEnd()) {
                 clearTransfer(); content = false;
-                if (meltTail != null && !coughing()) o.entity().showReaction(meltTail, "", MELT_TAIL_TICKS);
+                if (meltTail != null && !coughing()) o.entity().showReaction(decorate(meltTail), "", MELT_TAIL_TICKS);
                 meltFace = meltTail = finishFace = null;
                 o.finishConsumption();
             }
@@ -796,7 +798,7 @@ final class LifeMeal {
         o.entity().gameEvent(GameEvent.EAT);
         // A corpse eaten from grief or need already had its apology line; a rotten bite is a bad taste, not a blow.
         boolean carrion = o.entity().cannibalism().eatingCarrion();
-        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 || carrion ? "teary" : "happy",
+        if (!coughing()) o.entity().showReaction(decorate(swallowed.odor() >= 40 || carrion ? "teary" : "happy"),
                 carrion ? "" : swallowed.odor() >= 40 ? "bitter" : "fed", content ? SWALLOW_TICKS : 100);
         if (bowlMeal) { bowlMeal = false; o.entity().pet().routineCompleted(Ability.FOOD_GUARD); }
     }
