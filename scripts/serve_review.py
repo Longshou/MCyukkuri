@@ -106,10 +106,22 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             self.respond_json(record)
 
+    def get_playtest(self):
+        # The in-game 待看 rows read from the current TODO on every request, so the page never shows a stale copy.
+        import playtest_list
+
+        try:
+            self.respond_json(playtest_list.menu_payload())
+        except (OSError, SystemExit) as error:
+            self.respond_json({'error': f'无法读取试玩清单：{error}'}, 500)
+
     def do_GET(self):
         parsed = urlsplit(self.path)
         if parsed.path == '/review-health':
             self.respond_json({'project':'MCyukkuri','root':str(ROOT),'review':1})
+            return
+        if parsed.path == '/playtest':
+            self.get_playtest()
             return
         if parsed.path == '/verdicts':
             self.respond_json(review_verdicts.latest(review_verdicts.LOG))

@@ -141,7 +141,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 双演员演出可在主角和 `partner` 上填写同一组节拍长度与各自的 `steps`。主角每步的 `stance` 指向递喂、蹭脸、绕后或压制的站位规则。播放器把两只当前的片段和站位阶段送给姿态核心，接触距离和前倾使用游戏计算。
 
-`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮；`--kind motion|art|playtest` 指定类别（缺省按链接与编号推断，无法归类的算美术；动作与美术类显示“通过/不通过”，不通过时可勾选原因并写说明，试玩类只列出，在游戏里反馈）。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果（verdict、reasons、note、ts）。
+`<py> scripts/preview.py inbox add <ID> --title <标题> --decision <决定>` 搭配 `--entry <条目编号>` 登记放映室的纯外观条目，搭配 `--url ../<主题>/index.html` 登记专项页或试玩指引。独立纯外观页面可加 `--look-only` 显示审阅按钮；`--kind motion|art|playtest` 指定类别（缺省按链接与编号推断，无法归类的算美术；动作与美术类显示“通过/不通过”，不通过时可勾选原因并写说明，试玩类静态条目只列出，在游戏里反馈）。页面顶部的“试玩（游戏内待看）”区不走登记：`playtest.js` 在加载时向 `serve_review.py` 的 `GET /playtest`（即 `playtest_list.menu_payload`，读当前待办与已装运行包）取与游戏内相同的行，每行带通过／不通过控件，编号为 `playtest.<场景ID>.<运行包提交前 9 位>`，记录带场景名 `title`；运行包更新后旧版本的结论不再显示为当前状态。审阅页每 5 秒及切回标签页时重读 `/verdicts`，其他标签页的结论自动同步。`inbox remove <ID>` 移除已处理的条目，`verdicts` 以 JSON 输出每个条目的最新审阅结果（verdict、reasons、note、ts）。
 
 总入口调用 `build_preview_library.py` 生成物品缩略图及物品、模型、试玩场景索引 `library.json`。`preview_block_model.py` 渲染原生方块元素，`preview_inventory.py` 从 Java 注册与运行引用识别当前物品。分类与资源缺口写到 `.local/reports/preview-library.json`。
 

@@ -49,3 +49,7 @@ body.inbox { font: 16px/1.6 "Segoe UI", "Microsoft YaHei", system-ui, sans-serif
 .inbox .card [data-verdict-id] { margin: .2rem 0 0; }
 .inbox.only-pending .card[data-reviewable]:not([data-status="pending"]) { display: none; }
 @media (max-width: 520px) { .inbox .filter { margin-left: 0; } .inbox .cards { grid-template-columns: 1fr; } }
+.inbox .cards .field { grid-column: 1 / -1; margin: .6rem 0 0; font-size: 1rem; color: #aab; }
+.inbox .chip-status, .inbox .chip-new { padding: 0 .6rem; border-radius: 999px; font-size: .85rem; background: #3a3f45; color: #dde; }
+.inbox .chip-status.retest { background: #5a2b2b; color: #f3c5c5; }
+.inbox .chip-new { background: #1f4a6b; color: #bde3ff; }

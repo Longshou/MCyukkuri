@@ -733,14 +733,18 @@ def write_inbox_page(target, items, entries=()):
         sections.append(f'<section class="kind" data-kind="{kind}"><h2>{name}<small>{count}</small></h2>'
                         f'<div class="cards">{cards}</div></section>')
     pending = sum(1 for item in items if (item.get('kind') or infer_kind(item)) in REVIEWABLE)
-    body = ''.join(sections) or '<p>暂无待查看事项。</p>'
+    # The in-game 待看 rows are filled in by playtest.js from the server's /playtest at page load.
+    sections.insert(0, '<section class="kind" id="playtest-live" data-kind="playtest"><h2>试玩（游戏内待看）<small>读取中…</small></h2>'
+                       '<div class="cards"></div></section>')
+    body = ''.join(sections)
     head = (f'<header><h1>待你查看</h1><span>待审 <b id="pending-total">{pending}</b> 项</span>'
             '<label class="filter"><input type="checkbox" id="only-pending"> 只看待审</label>'
             '<a href="../index.html">预览总入口</a></header>')
     doc = ('<!doctype html><html lang="zh-CN"><meta charset="utf-8">'
            '<meta name="viewport" content="width=device-width,initial-scale=1"><title>待你查看</title>'
            f'<link rel="stylesheet" href="/preview/review/verdicts.css"><body class="inbox">{head}<main>{body}</main>'
-           '<script type="module" src="/preview/review/verdicts.js"></script></body></html>')
+           '<script type="module" src="/preview/review/verdicts.js"></script>'
+           '<script type="module" src="/preview/review/playtest.js"></script></body></html>')
     (target/'index.html').write_text(doc, encoding='utf-8')
 
 

@@ -267,6 +267,18 @@ def menu(current, fresh_texts, scenes, numbers, field_order):
     return sorted(rows, key=lambda row: (RANK[row['status']], not row['fresh'], order[row['scenes'][0]['id']]))
 
 
+def menu_payload(since=None, until=None):
+    """The in-game playtest list read from the current TODO: since defaults to the last played session's commit
+    (none: nothing is fresh), until to the installed runtime commit."""
+    if since is None:
+        found = sessions()
+        since = found[-1][1]['runtimeConfig']['commit'] if found else None
+    until = until or installed_commit()
+    current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
+    fresh_texts = {text for _, text in build(since, until)['items']} if since else set()
+    return dict(format=1, since=since, until=until, items=menu(current, fresh_texts, *load_museum()))
+
+
 def summary(d):
     n = {s: sum(1 for _, t in d['items'] if status_of(t) == s) for s in STATUSES if any(status_of(t) == s for _, t in d['items'])}
     parts = [f"{len(d['fields'])} 个场地 · {sum(len(s) for _, s in d['fields'])} 个场景 · {len(d['items'])} 条条目"]
@@ -326,12 +338,10 @@ def main():
             sys.exit('no museum session under .local/experimental-map/play-museum; pass --since <commit>')
     until = a.until or installed_commit()
     if a.menu_json:
-        current = todo_items((HERE.parent / 'docs/TODO.md').read_text(encoding='utf-8'))
-        fresh_texts = {text for _, text in build(since, until)['items']} if since else set()
-        rows = menu(current, fresh_texts, *load_museum())
+        payload = menu_payload(since, until)
+        rows = payload['items']
         a.menu_json.parent.mkdir(parents=True, exist_ok=True)
-        a.menu_json.write_text(json.dumps(dict(format=1, since=since, until=until, items=rows), ensure_ascii=False) + '\n',
-                               encoding='utf-8')
+        a.menu_json.write_text(json.dumps(payload, ensure_ascii=False) + '\n', encoding='utf-8')
         print(f'menu items={len(rows)} scenes={sum(len(row["scenes"]) for row in rows)} '
               f'fresh={sum(row["fresh"] for row in rows)}')
         return

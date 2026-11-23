@@ -27,6 +27,7 @@ export function formatTime(ts) {
 
 function showControls(target, record, onChange) {
     const id = target.dataset.verdictId;
+    const title = target.dataset.title;
     const reasonList = reasonSets[target.dataset.kind] ?? reasonSets.motion;
     let current = record;
 
@@ -93,7 +94,7 @@ function showControls(target, record, onChange) {
         status.textContent = '正在保存…';
         try {
             current = await api('/verdict', {method: 'POST',
-                headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, ...body})});
+                headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id, ...(title && {title}), ...body})});
             status.textContent = '';
             panel.hidden = true;
             render();
@@ -115,6 +116,11 @@ function showControls(target, record, onChange) {
     failButton.setAttribute('aria-expanded', 'false');
     target.replaceChildren(row, status, summary, panel);
     render();
+    return record => {
+        if (record?.ts === current?.ts) return;
+        current = record;
+        render();
+    };
 }
 
 function updateCard(target, record) {
@@ -133,19 +139,41 @@ function updateCard(target, record) {
     if (total) total.textContent = document.querySelectorAll('.card[data-status="pending"]').length;
 }
 
+const mounted = new Map();
+const POLL_MS = 5000;
+
+const recordIn = (records, id) => (Object.hasOwn(records, id) ? records[id] : undefined);
+
 export async function mountVerdicts(targets) {
     if (!targets.length) return;
     try {
         const records = await api('/verdicts');
         for (const target of targets) {
-            const id = target.dataset.verdictId;
-            showControls(target, Object.hasOwn(records, id) ? records[id] : undefined,
-                record => updateCard(target, record));
+            mounted.set(target, showControls(target, recordIn(records, target.dataset.verdictId),
+                record => updateCard(target, record)));
         }
     } catch {
         for (const target of targets) target.textContent = '无法读取审阅记录，请检查本地预览服务。';
     }
 }
+
+// Pick up verdicts saved from other tabs (or the player page) while this page stays open.
+async function refreshVerdicts() {
+    if (document.hidden || !mounted.size) return;
+    let records;
+    try {
+        records = await api('/verdicts');
+    } catch {
+        return; // The server is briefly unreachable; the next poll retries.
+    }
+    for (const [target, setRecord] of mounted) {
+        setRecord(recordIn(records, target.dataset.verdictId));
+    }
+}
+
+setInterval(refreshVerdicts, POLL_MS);
+document.addEventListener('visibilitychange', refreshVerdicts);
+window.addEventListener('focus', refreshVerdicts);
 
 const filter = document.querySelector('#only-pending');
 if (filter) {

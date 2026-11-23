@@ -30,9 +30,14 @@ def append(value, path):
     if (not isinstance(reasons, list) or len(reasons) > 20
             or not all(isinstance(r, str) and 0 < len(r) <= 40 for r in reasons)):
         raise ValueError('原因须为最多 20 个短文本。')
+    title = value.get('title')
+    if title is not None and (not isinstance(title, str) or not 0 < len(title) <= 80):
+        raise ValueError('标题须为最多 80 字的文本。')
     with LOCK:
         record = dict(id=ident, verdict=verdict, reasons=reasons, note=note,
                       ts=datetime.now(timezone.utc).isoformat(timespec='milliseconds'))
+        if title is not None:
+            record['title'] = title
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open('a', encoding='utf-8') as stream:
             stream.write(json.dumps(record, ensure_ascii=False) + '\n')

@@ -260,6 +260,8 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         self.assertIn('Misc &lt;b&gt;', markup)
         self.assertIn('待审 <span class="pending-count">3</span> / 共 3', markup)
         self.assertIn('<b id="pending-total">4</b>', markup)
+        self.assertIn('<section class="kind" id="playtest-live"', markup)
+        self.assertIn('src="/preview/review/playtest.js"', markup)
 
     def test_verdict_reasons_round_trip(self):
         import review_verdicts
@@ -277,6 +279,13 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
         for bad in ('x', ['a'] * 21, [1], ['']):
             with self.assertRaises(ValueError):
                 review_verdicts.append(dict(id='bad', verdict='fail', reasons=bad), log)
+        titled = review_verdicts.append(dict(id='playtest.hat_crowd.229582efa', verdict='fail', title='PD-13 超载翻船'), log)
+        self.assertEqual(review_verdicts.latest(log)['playtest.hat_crowd.229582efa']['title'], 'PD-13 超载翻船')
+        self.assertNotIn('title', latest['plain'])
+        self.assertEqual(titled['title'], 'PD-13 超载翻船')
+        for bad in ('', 'x' * 81, 7):
+            with self.assertRaises(ValueError):
+                review_verdicts.append(dict(id='bad', verdict='pass', title=bad), log)
 
     def test_refresh_preserves_handwritten_inbox(self):
         from preview import refresh_inbox
