@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 移除伤口感染与化脓（机制、贴图、管线、场景） | `.worktrees/wp-no-infection` | body/BodyCondition,BodyLife,BodySigns,WoundInk; client/HairWound*,StatusStrip; item/TreatmentItem; status/*; lang; scripts/museum_scenarios.py; hair-wounds pipeline; art registry; docs/FEATURES.md |
 
 ## 玩法待办
 
