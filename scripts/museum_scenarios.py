@@ -11864,7 +11864,7 @@ def _ring_stray_fates(window):
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
 # BadgeSocial uses the normal player-audience budget instead of the headless world bucket.
 next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
-    (1, 'execute positioned ~-10 ~ ~-2 run yukkuri scenario tool_operator enter'),
+    (1, f'execute positioned {BY_ID["town"].anchor[0] - 10} {FEET} {BY_ID["town"].anchor[1] - 2} run yukkuri scenario tool_operator enter'),
     (5380, 'yukkuri scenario tool_operator leave'),
 ], expect=[
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
