@@ -1640,8 +1640,9 @@ final class HumanStreet {
                 for (int i = 0; i < companions.size(); i++) {
                     var pet = companions.get(i);
                     if (!pet.isAlive() || !pet.outing().escorted()
-                            || checkNeeds && !(facility == null ? pet.outing().fit() : pet.outing().sound())
-                            || checkNeeds && plaza != null && !pet.outing().readyForPlaza()) {
+                            || checkNeeds && !(plazaSat ? pet.outing().restsAtPlaza()
+                                    : facility == null ? pet.outing().fit() : pet.outing().sound())
+                            || checkNeeds && plaza != null && !plazaSat && !pet.outing().readyForPlaza()) {
                         returnHome("companion");
                         return;
                     }

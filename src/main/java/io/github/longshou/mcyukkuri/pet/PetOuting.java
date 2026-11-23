@@ -45,23 +45,29 @@ public final class PetOuting extends Goal {
     private double innerDistance() { return 1 + 2 * independence(); }
 
     public boolean sound() {
-        return pet.family().adult() && leisureHealth() && freeOfOtherLead();
+        return pet.family().adult() && leisureHealth(false) && freeOfOtherLead();
     }
 
-    private boolean leisureHealth() {
+    private boolean leisureHealth(boolean socialOk) {
         var body = pet.body().condition();
         return pet.isAlive() && !pet.isNoAi() && pet.family().brood() == null
                 && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle()
                 && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()
                 && !body.footBurned() && pet.body().toxin() == 0 && !pet.life().temperature().cold()
-                && !pet.life().hasUrgentNeed() && !pet.isPanicking() && !pet.pet().busy() && !pet.operations().active();
+                && !pet.life().hasUrgentNeed() && !pet.isPanicking() && (socialOk || !pet.pet().busy()) && !pet.operations().active();
     }
 
     /** An optional stop can yield earlier than an ordinary escort when the pet would rather eat. */
     public boolean readyForPlaza() {
-        return leisureHealth() && !tired() && pet.life().nutrition() > picnicBand() && pet.pet().calm()
+        return leisureHealth(false) && !tired() && pet.life().nutrition() > picnicBand() && pet.pet().calm()
                 && !BehaviorContinuity.emergency(pet);
+    }
+
+    /** Resting at the plaza the pet may be mid-way through a badge exchange with a passer-by; only its body and needs end the visit. */
+    public boolean restsAtPlaza() {
+        return pet.family().adult() && leisureHealth(true) && freeOfOtherLead() && !pet.life().isSleeping() && !tired()
+                && pet.life().nutrition() > picnicBand() && !BehaviorContinuity.emergency(pet);
     }
 
     public double restBand() { return 45 - 15 * independence(); }
