@@ -3076,6 +3076,28 @@ add('pet_water', 'house', '宠物渴了求水，玩家用水桶加满饮水器',
     env=DAY, vantage=(2, 1, 190, 25, 0),
     reads=[('读饮水器余水', 'data get block ~3 ~ ~ Water'), ('读灵梦的口渴与请求', f'yukkuri status {sel("water_pet")} raw')])
 
+_away_pet = _uuid_text('pet_water_away', 'away_pet')
+add('pet_water_away', 'house', '宠物在院外渴了，玩家在屋里加水，它回来才发现', '宠物在院外渴了，玩家在屋里加水，它回来才发现',
+    '灵梦在屋里渴了向你求水，先看见空饮水器。用牵绳把它牵到屋外南边远处、墙挡住的地方，回屋给饮水器加满水：它看不见也听不见，没有任何反应。'
+    '再让它走回屋口，看它见到满水后不道谢，只露出满意的样子自己去喝。',
+    '求水约几秒；回屋后几秒喝水', [
+        block(3, 0, 0, 'mcyukkuri:waterer'),
+        yk('reimu', 2, -1, 'away_pet', uuid=uid('pet_water_away', 'away_pet'), lead=True, yaw=0),
+        set_status('away_pet', 'needs.dryness', 50), *own('away_pet'),
+    ], give=['minecraft:water_bucket'],
+    env=DAY, vantage=(2, 1, 190, 25, 0),
+    reads=[('读饮水器余水', 'data get block ~3 ~ ~ Water'), ('读灵梦的口渴与请求', f'yukkuri status {sel("away_pet")} raw')])
+
+_walled_pet = _uuid_text('pet_food_walled', 'walled_pet')
+add('pet_food_walled', 'house', '饿坏的宠物看不见墙后的食盆，自己绕过去吃', '饿坏的宠物看不见墙后的食盆，自己绕过去吃',
+    '灵梦很饿，屋子西北角的墙后有一只装着苹果的食盆，从它站的地方看不见。看它不求食，自己走到墙边绕过去，看见食盆后吃苹果。',
+    '约十几秒到半分钟', [
+        box(-4, 0, 0, -3, 2, 0, 'minecraft:oak_planks'), box(-4, 0, -1, -4, 2, -1, 'minecraft:oak_planks'),
+        block(-3, 0, -1, 'mcyukkuri:food_bowl{Items:[{Slot:0b,id:"minecraft:apple",count:8}]}'),
+        yk('reimu', -3, 3, 'walled_pet', uuid=uid('pet_food_walled', 'walled_pet'), lead=True, yaw=180, nutrition=20), *own('walled_pet'),
+    ], env=DAY, vantage=(-3, 5, 180, 25, 0),
+    reads=[('读灵梦营养与请求', f'yukkuri status {sel("walled_pet")} raw')])
+
 _return_pet = _uuid_text('pet_door_return', 'return_pet')
 add('pet_door_return', 'house', '困倦的院宠穿门回屋睡觉', '困倦的院宠穿门回屋睡觉',
     '灵梦在南门外，自己的窝在屋里。看它从斜侧走到敞开的橡木门前，挪进门缝，再走进自己的窝睡下。', '约半分钟', [
@@ -8132,7 +8154,7 @@ TOPICS = {
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
-    'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1',
+    'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1', 'pet_water_away': 'M1', 'pet_food_walled': 'M1',
     'street_give_way': 'M4', 'street_corridor': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
@@ -10373,6 +10395,41 @@ def _verify_pet_water(window):
 _smoke('pet_water', 480, [_water_beg, _water_fill, _water_answer, _water_drink, r'MCY_PET_WATER_BUCKET_RETURN'],
        readout=['data get block ~3 ~ ~ Water', f'yukkuri status {sel("water_pet")} raw'])
 _water_operator = '@p[name=MuseumOperator,distance=..32]'
+_smoke('pet_food_walled', 900, [rf'\[meal\][^\n]* uuid={_walled_pet} [^\n]* swallowed item=minecraft:apple'],
+       forbid=[rf'\[request\][^\n]* uuid={_walled_pet} [^\n]* started kind=FOOD ', rf'\[request\][^\n]* uuid={_walled_pet} [^\n]* expired '],
+       readout=[f'yukkuri status {sel("walled_pet")} raw'])
+_away_beg = rf'\[request\][^\n]* uuid={_away_pet} [^\n]* started kind=WATER '
+_away_fill = r'\[interaction\][^\n]* waterer filled player=MuseumOperator [^\n]* water=0 -> 8'
+_away_found = rf'\[request\][^\n]* uuid={_away_pet} [^\n]* satisfied kind=WATER [^\n]* via=discovered'
+_away_drink = rf'\[needs\][^\n]* uuid={_away_pet} [^\n]* drink [^\n]* kind=waterer water=8 -> 7 '
+
+
+def _verify_pet_water_away(window):
+    events = [re.search(pattern, window) for pattern in (_away_beg, _away_fill, _away_found, _away_drink)]
+    if not all(events) or sorted(event.start() for event in events) != [event.start() for event in events]:
+        return 'Expected the request, the refill out of its senses, its discovery of the full waterer and the sip in order'
+
+
+# The pet is outside the house beyond sight and hearing when the waterer is filled: no witness, no thanks, no sulk; it learns by looking.
+_smoke('pet_water_away', 700, [_away_beg, _away_fill, _away_found, _away_drink],
+       forbid=[rf'\[perception\][^\n]* uuid={_away_pet} [^\n]* noticed ', rf'\[request\][^\n]* uuid={_away_pet} [^\n]* beat=thanks',
+               rf'\[request\][^\n]* uuid={_away_pet} [^\n]* satisfied kind=WATER [^\n]* via=(?:saw|heard|own)',
+               rf'\[request\][^\n]* uuid={_away_pet} [^\n]* expired '],
+       readout=['data get block ~3 ~ ~ Water', f'yukkuri status {sel("away_pet")} raw'])
+next(s for s in S if s.id == 'pet_water_away').smoke.update(verify=_verify_pet_water_away, commands=[
+    (1, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator enter'),
+    (2, f'yukkuri scenario owner_at {sel("away_pet")} watch'),
+    (3, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator move'),
+    (4, f'gamemode survival {_water_operator}'),
+    (5, f'item replace entity {_water_operator} weapon.mainhand with minecraft:water_bucket'),
+    # The request is open (it looked at the empty waterer). Stands in for being led out: the pet is outside the south wall, out of
+    # sight and out of earshot of the waterer, while the owner pours.
+    (200, f'tp {sel("away_pet")} ~10 ~ ~10'),
+    (215, 'yukkuri scenario shop_block_click ~3 ~ ~'),
+    # If it has not wandered back by itself, lead it to the doorway: it still has to see the water for itself.
+    (420, f'execute positioned ~1 ~ ~9 as {sel("away_pet")} if entity @s[distance=7..] run tp @s ~ ~ ~'),
+    (680, 'yukkuri scenario tool_operator leave'),
+])
 next(s for s in S if s.id == 'pet_water').smoke.update(verify=_verify_pet_water, commands=[
     (1, 'execute positioned ~2.5 ~ ~1.5 run yukkuri scenario tool_operator enter'),
     (2, f'yukkuri scenario owner_at {sel("water_pet")} watch'),

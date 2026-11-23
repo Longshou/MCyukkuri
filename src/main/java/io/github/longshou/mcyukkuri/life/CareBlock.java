@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.perception.Cue;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -177,6 +178,7 @@ public class CareBlock extends Block implements EntityBlock {
         level.playSound(null, pos, bucket ? SoundEvents.BUCKET_EMPTY : SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1, 1);
         GameplayLog.event(player, "interaction", "waterer filled player={} target={} item={} returned={} water={} -> {}",
                 player.getScoreboardName(), pos, used, creative ? used : returned, before, care.water());
+        care.announce(bucket ? Cue.POUR_BUCKET : Cue.POUR_BOTTLE, player);
         return ItemInteractionResult.CONSUME;
     }
     private String id(){return BuiltInRegistries.BLOCK.getKey(this).getPath();}

@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.item.TreatmentItem;
 import io.github.longshou.mcyukkuri.life.CareBlock;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestOccupancy;
+import io.github.longshou.mcyukkuri.perception.Cue;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
@@ -619,6 +620,7 @@ public final class ShopStaff {
             staff.swing(InteractionHand.MAIN_HAND);
             GameplayLog.event(staff, "npc-care", "action=refill_water target={} water={} -> {}",
                     job.target.toShortString(), before, waterer.water());
+            waterer.announce(Cue.POUR_BUCKET, staff);
             end(staff, job, "watered");
         }
     }

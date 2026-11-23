@@ -87,6 +87,9 @@ import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Knowledge;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.rare.RareForms;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -649,7 +652,7 @@ public final class YukkuriLife {
     public boolean hasUrgentNonFoodNeed() { return energy < 25 || toiletPressure() >= 90 || entity.isInWaterOrBubble() || entity.isOnFire() || wetness > 40; }
     /** Thirst at the threshold the daytime plan drinks by (dryness 40 or something spicy in the mouth), and only with a drink really in reach. */
     private boolean needsDrink() { return dryness >= THIRST_THRESHOLD || spicyTicks() > 0; }
-    private boolean thirstUrgent() { return needsDrink() && hasReachableDrink(); }
+    private boolean thirstUrgent() { return needsDrink() && hasDrink(Knowledge.WORTH_A_LOOK); }
     /** Actionable toilet pressure at {@link #hasUrgentNeed()}'s threshold, and only when the daytime toilet plan has somewhere to go, so waking always ends in relief. */
     private boolean toiletUrgent() {
         return toiletPressure() >= 90 && !entity.isPassenger() && !entity.leafSwaddle().wrapped()
@@ -1137,7 +1140,7 @@ public final class YukkuriLife {
                 && (nutrition <= 10 || level().getGameTime() >= foodRuleAfter || !entity.pet().conscience().binds(HouseRule.NO_EATING_UNASKED))) {
             boolean canCollect = EventHooks.canEntityGrief(level(), entity);
             var offered = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(TravelRange.search(entity,8)), item ->
-                    item.isAlive() && seeksFood(item.getItem()));
+                    item.isAlive() && seeksFood(item.getItem()) && Senses.sees(entity, item, Cue.Need.FOOD));
             // One pass in the species' own order (taste, then nearness): the first portion it can really walk to is the meal, and
             // when none is, the same pass has already counted why each was passed over for the readout below.
             boolean ignoresScraps = entity.pet().care().walk().ignoresScraps();
@@ -1692,7 +1695,8 @@ public final class YukkuriLife {
     private void tickDrink() {
         var source = home.drinkSource(targetBlock);
         if (source == null) { stopGoal(); return; }
-        if (source.empty()) { refuseEmptyDrink(); return; }
+        // An empty dish is only known once the body sees it; until then it keeps walking.
+        if (source.empty() && Senses.sees(entity, targetBlock, Cue.Need.WATER)) { refuseEmptyDrink(); return; }
         var waterer = source.waterer();
         if (pursuitTicks > 240) {
             if (waterer != null) refuseDishRoute("dish_pursuit_expired");
@@ -2274,7 +2278,10 @@ public final class YukkuriLife {
     public boolean quietSite(BlockPos site) { return quietSites(site, 0).test(site); }
     private boolean maintainHome(){ return home.maintainHome(); }
     private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood){ return home.nearestCare(kind, requireFood); }
-    public boolean hasReachableDrink() { return home.nearestDrink(true) != null; }
+    /** Whether a drink is reachable under this reading of what the body knows (belief, or the world's truth for scoring only). */
+    public boolean hasDrink(Knowledge knowledge) { return home.nearestDrink(true, knowledge) != null; }
+    public boolean hasBowlFood(Knowledge knowledge) { return nearestCare(CareBlock.Kind.BOWL, true, knowledge) != null; }
+    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, Knowledge knowledge) { return home.nearestCare(kind, requireFood, knowledge); }
     private boolean wantsStreetRinse() {
         return hygiene < 60 && nutrition >= 30 && !rainOutside() && FoundShelter.streetUser(entity)
                 && level().getGameTime() >= streetDrinkAfter;

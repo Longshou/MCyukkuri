@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.perception.Knowledge;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
@@ -433,7 +434,7 @@ public final class TemperatureLife {
     private boolean waterTakesPriority() {
         var life = entity.life();
         // When there is no reachable water, thirst must not strand an animal in direct sun.
-        return (life.dryness() >= 40 || life.spicyTicks() > 0) && life.hasReachableDrink();
+        return (life.dryness() >= 40 || life.spicyTicks() > 0) && life.hasDrink(Knowledge.WORTH_A_LOOK);
     }
     public boolean tickGoal() {
         if (!canContinue()) { stop(); return false; }

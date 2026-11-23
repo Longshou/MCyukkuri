@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
+import io.github.longshou.mcyukkuri.perception.FixtureBelief;
 import io.github.longshou.mcyukkuri.pet.PetLife;
 import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.interaction.OperationLife;
@@ -96,6 +97,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<PlayLife> PLAY_LIFE = new ComponentKey<>("playLife", PlayLife.class);
     public static final ComponentKey<DailyLife> DAILY_LIFE = new ComponentKey<>("dailyLife", DailyLife.class);
     public static final ComponentKey<WoundComfort> WOUND_COMFORT = new ComponentKey<>("woundComfort", WoundComfort.class);
+    public static final ComponentKey<FixtureBelief> FIXTURE_BELIEF = new ComponentKey<>("fixtureBelief", FixtureBelief.class);
     public static final ComponentKey<PredatorLife> PREDATOR = new ComponentKey<>("predator", PredatorLife.class);
     public static final ComponentKey<StatusLife> STATUS = new ComponentKey<>("status", StatusLife.class);
     public static final ComponentKey<SpeciesLife> SPECIES = new ComponentKey<>("species", SpeciesLife.class);
@@ -261,6 +263,7 @@ public final class YukkuriComponents {
                 .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 60, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 30, (c, ctx) -> c.stop())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 30, (c, ctx) -> c.stop()).build(),
+        ComponentSpec.ready(FIXTURE_BELIEF, FixtureBelief::new).build(),
         ComponentSpec.ready(PREDATOR, YukkuriEntity::predator)
                 .tick(230, EcologyRoutines::tick)
                 .interrupt(Interrupt.HURT, InterruptPhase.AFTER_ATTACK_NOTIFICATIONS, 95, (c, ctx) -> c.interruptFounding())

@@ -5,20 +5,21 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
-import io.github.longshou.mcyukkuri.life.CareBlock;
-import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.NeedWarnings;
+import io.github.longshou.mcyukkuri.perception.Belief;
+import io.github.longshou.mcyukkuri.perception.Knowledge;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -68,7 +69,10 @@ public final class PetRequests {
                         pending,animal.pet().owner(),animal.isAlive(),left);
                 clear(); return;
             }
-            if (animal.tickCount % 10 == 3 && satisfied()) { resolve(); return; }
+            if (animal.tickCount % 10 == 3) {
+                var how = satisfied();
+                if (how != null) { resolve(how, how == Closure.FOUND ? "discovered" : "own"); return; }
+            }
             if (--left <= 0) expire();
             return;
         }
@@ -76,13 +80,6 @@ public final class PetRequests {
     }
 
     // choosing a need
-    private boolean bowlHasFood() {
-        var origin = animal.blockPosition();
-        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-8, -2, -8), origin.offset(8, 2, 8)))
-            if (level().hasChunkAt(pos) && level().getBlockEntity(pos) instanceof CareBlockEntity care && care.kind() == CareBlock.Kind.BOWL
-                    && care.hasFood(animal.life()::acceptsFood)) return true;
-        return false;
-    }
     private boolean ownerHas(Player owner, ItemStack match) {
         var inv = owner.getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) if (inv.getItem(i).is(match.getItem())) return true;
@@ -91,8 +88,9 @@ public final class PetRequests {
     private Kind pick(Player owner) {
         var life = animal.life(); var daily = animal.dailyLife(); var pet = animal.pet();
         if (ready(Kind.FOOD) && life.nutrition() < 45
-                && animal.family().canEatIndependently() && animal.childhood().canEatSolid() && !bowlHasFood()) return Kind.FOOD;
-        if (ready(Kind.WATER) && life.dryness() >= YukkuriLife.THIRST_THRESHOLD && !life.hasReachableDrink()) return Kind.WATER;
+                && animal.family().canEatIndependently() && animal.childhood().canEatSolid() && !life.hasBowlFood(Knowledge.WORTH_A_LOOK)) return Kind.FOOD;
+        // A body checks its own fixtures before it begs: a bowl or waterer it believes stocked, or has not looked at, is worth a walk first.
+        if (ready(Kind.WATER) && life.dryness() >= YukkuriLife.THIRST_THRESHOLD && !life.hasDrink(Knowledge.WORTH_A_LOOK)) return Kind.WATER;
         if (ready(Kind.WARM) && life.temperature().cold() && !pet.care().swaddled()) return Kind.WARM;
         if (ready(Kind.NUZZLE) && daily.affectionNeed() >= 65) return Kind.NUZZLE;
         if (ready(Kind.PLAY) && daily.boredom() >= 65) return Kind.PLAY;
@@ -106,7 +104,7 @@ public final class PetRequests {
     }
     private boolean ready(Kind kind) { return (expiredNeeds & 1 << kind.ordinal()) == 0; }
     private void relieved(Kind kind) { expiredNeeds &= ~(1 << kind.ordinal()); }
-    private static boolean waterAnswered(YukkuriLife life) { return life.dryness() <= 25 || life.hasReachableDrink(); }
+    private static boolean waterAnswered(YukkuriLife life) { return life.dryness() <= 25 || life.hasDrink(Knowledge.KNOWN_STOCKED); }
 
     /** Sample the existing need values at the request cadence, even during cooldown or while the owner is away. */
     private void observeRelief() {
@@ -196,23 +194,45 @@ public final class PetRequests {
     private void dropCard() { if (card != null) Staging.removeCard(level(), card); card = null; }
     private void clear() { pending = null; left = 0; dropCard(); }
 
-    /** The state that ends the request: food or water in reach, warmth, comfort, play, a treat or the walk. */
-    private boolean satisfied() {
+    /**
+     * How the request ended, if it has: food or water the body now knows is in reach (it saw the fixture stocked), warmth, comfort, play,
+     * a treat or the walk. Null while it is still open.
+     */
+    private Closure satisfied() {
         var life = animal.life(); var daily = animal.dailyLife();
         return switch (pending) {
-            case FOOD -> life.nutrition() >= 60 || bowlHasFood();
-            case WATER -> waterAnswered(life);
-            case WARM -> !life.temperature().cold() || animal.pet().care().swaddled();
-            case NUZZLE -> daily.affectionNeed() <= baseAffection - 15;
-            case PLAY -> daily.boredom() <= baseBoredom - 15;
-            case WALK -> walked >= WALK_METERS;
-            case SNACK -> false; // answered by the sweet itself (PetCare.snackEaten)
+            case FOOD -> life.nutrition() >= 60 ? Closure.MET : life.hasBowlFood(Knowledge.KNOWN_STOCKED) ? Closure.FOUND : null;
+            case WATER -> life.dryness() <= 25 ? Closure.MET : life.hasDrink(Knowledge.KNOWN_STOCKED) ? Closure.FOUND : null;
+            case WARM -> !life.temperature().cold() || animal.pet().care().swaddled() ? Closure.GIVEN : null;
+            case NUZZLE -> daily.affectionNeed() <= baseAffection - 15 ? Closure.GIVEN : null;
+            case PLAY -> daily.boredom() <= baseBoredom - 15 ? Closure.GIVEN : null;
+            case WALK -> walked >= WALK_METERS ? Closure.GIVEN : null;
+            case SNACK -> null; // answered by the sweet itself (PetCare.snackEaten)
+        };
+    }
+
+    /** Whether the need behind a water or food request is met in the world, seen or not: scores the owner, never moves the body. */
+    private boolean metUnseen(Kind kind) {
+        var life = animal.life();
+        return switch (kind) {
+            case FOOD -> life.nutrition() >= 60 || life.hasBowlFood(Knowledge.ACTUAL);
+            case WATER -> life.dryness() <= 25 || life.hasDrink(Knowledge.ACTUAL);
+            default -> false;
         };
     }
     /** Another source answered the pending request of this kind (a sweet, a gentle word, ...). */
     public void answer(Kind kind) {
         relieved(kind);
-        if (pending == kind) resolve();
+        if (pending == kind) resolve(Closure.GIVEN, "own");
+    }
+    /**
+     * The body saw or heard its water or food being put out (CareBlockEntity). Heard counts as seen: the owner is thanked as if it had
+     * been in view; a pour by someone else, or none, is only the body's own pleasure at the supply.
+     */
+    public void witnessed(Kind kind, Entity actor, Senses.Via via) {
+        if (pending != kind) return;
+        boolean owner = actor != null && animal.pet().ownedBy(actor.getUUID());
+        resolve(owner ? Closure.THANKED : Closure.FOUND, via.name().toLowerCase(Locale.ROOT));
     }
     /** Mouth occupancy and nutrition have already committed; only that meal writes its feeder's relationship. */
     public boolean swallowed(UUID feeder, boolean ordinaryFood) {
@@ -220,27 +240,59 @@ public final class PetRequests {
         if (animal.life().nutrition() >= 55) relieved(Kind.FOOD);
         boolean ownerFed = animal.pet().ownedBy(feeder);
         if (pending != Kind.FOOD || !ownerFed && animal.life().nutrition() < 60) return false;
-        resolve();
+        resolve(Closure.GIVEN, "own");
         return ownerFed;
     }
     /** The owner walked the pet on its harness for this many blocks. */
     public void walked(double metres) { if (pending == Kind.WALK) walked += metres; }
 
-    private void resolve() {
+    /** How a request ended. Only the owner's own answer (given, or perceived being done) is credited to the owner. */
+    private enum Closure {
+        /** The owner answered it. */ GIVEN,
+        /** The body saw or heard the owner put the water or food out. */ THANKED,
+        /** The body found the supply stocked (or heard it filled by no one it knows): pleased at the supply, nothing owed. */ FOUND,
+        /** The need was met some other way (it drank, it ate, rain): quiet relief. */ MET
+    }
+
+    private void resolve(Closure how, String via) {
         var owner = animal.pet().owner();
         var kind=pending; int remaining=left,stressBefore=animal.pet().stress();
         clear(); answered++;
         var pet = animal.pet();
-        boolean meal = kind == Kind.FOOD || kind == Kind.SNACK;
-        if (owner != null && !meal) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
+        boolean meal = kind == Kind.FOOD || kind == Kind.SNACK, credited = how == Closure.GIVEN || how == Closure.THANKED;
+        if (credited && owner != null && !meal) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
         pet.addStress(-2);
-        if (!meal) animal.showReaction("happy", "request_thanks", 70);
-        Staging.sparkle(level(), markPos());
-        GameplayLog.event(animal,"request","satisfied kind={} owner={} remainingTicks={} walked={} answeredToday={} stress={} -> {}",
-                kind,owner,remaining,walked,answered,stressBefore,pet.stress());
+        if (credited && !meal) {
+            animal.showReaction("happy", "request_thanks", 70);
+            GameplayLog.event(animal,"request","beat=thanks face=happy line=request_thanks kind={} via={}",kind,via);
+        }
+        if (credited) Staging.sparkle(level(), markPos());
+        if (how == Closure.FOUND) pleased(kind, via);
+        GameplayLog.event(animal,"request","satisfied kind={} owner={} remainingTicks={} walked={} answeredToday={} stress={} -> {} via={}",
+                kind,owner,remaining,walked,answered,stressBefore,pet.stress(),via);
+    }
+
+    /**
+     * The pleased beat of a body that found its water or food stocked: about the supply, not about the owner. A hungry body drools
+     * and cheers the food; a mild thirst is content, a parched one only sighs with relief (no existing water line fits it).
+     */
+    private void pleased(Kind kind, String via) {
+        var life = animal.life();
+        boolean food = kind == Kind.FOOD;
+        boolean pressing = (food ? Belief.foodUrgency(life.nutrition()) : Belief.waterUrgency(life.dryness())) >= .5;
+        String face = food ? pressing ? "drool" : "happy" : pressing ? "closed_smile" : "happy";
+        String line = food ? "food_found" : pressing ? "" : "mood_good";
+        animal.showReaction(face, line, 60);
+        GameplayLog.event(animal,"request","beat=discovered face={} line={} kind={} via={}",face,line.isEmpty() ? "-" : line,kind,via);
     }
     private void expire() {
         var kind=pending; int stressBefore=animal.pet().stress();
+        if (metUnseen(kind)) {
+            // Filled behind its back: the owner did answer, so no ignored count, no sulk and no stress.
+            clear();
+            GameplayLog.event(animal,"request","expired kind={} owner={} outcome=answered_unseen stress={}",kind,animal.pet().owner(),stressBefore);
+            return;
+        }
         clear();
         expiredNeeds |= 1 << kind.ordinal();
         var pet = animal.pet();

@@ -1,6 +1,10 @@
 package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Knowledge;
+import io.github.longshou.mcyukkuri.perception.Senses;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -21,10 +25,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /** Delegated life state; persistence stays in the original YukkuriLife compound. */
@@ -265,14 +267,19 @@ final class LifeHome {
             .thenComparingInt(BlockPos::getY).thenComparingInt(BlockPos::getX);
 
     BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood) {
-        return nearestCare(kind, requireFood, TravelRange.search(o.entity(), 8), kind == CareBlock.Kind.TOILET ? o.leadingToiletNeed() : null);
+        return nearestCare(kind, requireFood, Knowledge.WORTH_A_LOOK);
+    }
+
+    /** Waterers and food bowls count by what the body believes they hold, not by what they hold. */
+    BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, Knowledge knowledge) {
+        return nearestCare(kind, requireFood, TravelRange.search(o.entity(), 8), kind == CareBlock.Kind.TOILET ? o.leadingToiletNeed() : null, knowledge);
     }
 
     BlockPos nearestToilet(ToiletNeeds.Kind need) {
-        return nearestCare(CareBlock.Kind.TOILET, false, TravelRange.search(o.entity(), 8), need);
+        return nearestCare(CareBlock.Kind.TOILET, false, TravelRange.search(o.entity(), 8), need, Knowledge.WORTH_A_LOOK);
     }
 
-    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, int radius, ToiletNeeds.Kind need) {
+    private BlockPos nearestCare(CareBlock.Kind kind, boolean requireFood, int radius, ToiletNeeds.Kind need, Knowledge knowledge) {
         var level = o.level();
         var entity = o.entity();
         var here = entity.blockPosition();
@@ -296,11 +303,11 @@ final class LifeHome {
         for (BlockPos scan : candidates) {
             if (!TravelRange.babyDestination(entity, scan) || !level.hasChunkAt(scan)
                     || !(level.getBlockEntity(scan) instanceof CareBlockEntity care) || care.kind() != kind) continue;
-            if (requireFood && (o.avoidsField(scan) || !care.hasFood(o::seeksFood))
-                    || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())
-                    || kind == CareBlock.Kind.WATERER && care.water() == 0) continue;
+            if (requireFood && o.avoidsField(scan) || kind == CareBlock.Kind.NEST && !care.canClaim(o.entity())) continue;
             double candidate = o.entity().distanceToSqr(Vec3.atCenterOf(scan));
             if (candidate < distance) {
+                boolean supply = kind == CareBlock.Kind.WATERER || kind == CareBlock.Kind.BOWL && requireFood;
+                if (supply && !entity.component(YukkuriComponents.FIXTURE_BELIEF).counts(care, knowledge)) continue;
                 boolean access = switch (kind) {
                     case BOWL, WATERER -> o.servingRouteAvailable(Vec3.atBottomCenterOf(scan)) && ItemContact.bowlStand(entity, scan) != null;
                     case TOILET -> ToiletContact.facilitySeat(o.entity(), scan, need) != null && o.reachable(scan.above(), false);
@@ -318,9 +325,7 @@ final class LifeHome {
 
     boolean seesWater(BlockPos water){
         var surface=new Vec3(water.getX()+.5,water.getY()+o.level().getFluidState(water).getHeight(o.level(),water)+.05,water.getZ()+.5);
-        var hit=o.level().clip(new ClipContext(o.entity().getEyePosition(),surface,
-                ClipContext.Block.COLLIDER,ClipContext.Fluid.NONE,o.entity()));
-        return hit.getType()==HitResult.Type.MISS||hit.getBlockPos().equals(water);
+        return GlassSight.clearTo(o.entity(),surface,water);
     }
 
     BlockPos drinkStand(BlockPos water){
@@ -351,23 +356,30 @@ final class LifeHome {
         return water.is(FluidTags.WATER) && (!FoundShelter.streetUser(o.entity()) || water.isSource());
     }
 
-    BlockPos nearestDrink(boolean includeWaterers) {
+    BlockPos nearestDrink(boolean includeWaterers) { return nearestDrink(includeWaterers, Knowledge.WORTH_A_LOOK); }
+
+    /** A waterer counts by belief; open water is geography and always a place to drink, except that a known one must be in sight. */
+    BlockPos nearestDrink(boolean includeWaterers, Knowledge knowledge) {
         var here = o.entity().blockPosition();
         int radius = TravelRange.search(o.entity(), 6);
-        BlockPos best = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius, null) : null;
+        BlockPos best = includeWaterers ? nearestCare(CareBlock.Kind.WATERER, false, radius, null, knowledge) : null;
         double distance = best == null ? Double.POSITIVE_INFINITY : o.entity().distanceToSqr(Vec3.atCenterOf(best));
         for(var water:BlockPos.betweenClosed(here.offset(-radius,-2,-radius),here.offset(radius,1,radius))){
             if(!TravelRange.babyDestination(o.entity(),water)||!o.level().hasChunkAt(water)||!drinkableWater(water))continue;
             double d=o.entity().distanceToSqr(Vec3.atCenterOf(water));
-            if(d<distance&&drinkStand(water)!=null){best=water.immutable();distance=d;}
+            if(d<distance&&drinkStand(water)!=null&&inSight(water,knowledge)){best=water.immutable();distance=d;}
         }
         // A known settlement pool extends the search to 32 blocks, under the same drinking rules.
         var site = SiteLife.of(o.entity());
         var water = site == null ? null : SiteLife.water(site, here);
         if (water != null && water.distSqr(here) <= 32 * 32 && o.entity().distanceToSqr(Vec3.atCenterOf(water)) < distance
                 && TravelRange.babyDestination(o.entity(), water) && o.level().hasChunkAt(water)
-                && drinkableWater(water) && drinkStand(water) != null) return water;
+                && drinkableWater(water) && drinkStand(water) != null && inSight(water, knowledge)) return water;
         return best;
+    }
+
+    private boolean inSight(BlockPos water, Knowledge knowledge) {
+        return knowledge != Knowledge.KNOWN_STOCKED || Senses.sees(o.entity(), water, Cue.Need.WATER);
     }
     void save(CompoundTag tag) {
         var failed = new net.minecraft.nbt.ListTag();

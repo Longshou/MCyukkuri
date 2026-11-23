@@ -1,6 +1,11 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
+import io.github.longshou.mcyukkuri.pet.PetRequests;
+import net.minecraft.world.entity.Entity;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import java.util.UUID;
@@ -109,6 +114,20 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     public double waste() { return wasteVolume; }
     public int water() { return water; }
     public boolean refillWater(boolean bucket) { return changeWater(WaterPortions.refill(water, bucket)); }
+    /** Tell every body that saw or heard {@code actor} pour the cue's supply here (call after the pour is logged); others learn when they next look. */
+    public void announce(Cue cue, Entity actor) {
+        if (!(level instanceof ServerLevel server)) return;
+        var witnesses = Senses.witnesses(server, worldPosition, cue);
+        GameplayLog.world(server, "perception", "event cue={} at={} actor={} witnesses={}", cue, worldPosition.toShortString(),
+                actor == null ? "-" : actor.getUUID(), witnesses.size());
+        var kind = cue.need == Cue.Need.WATER ? PetRequests.Kind.WATER : PetRequests.Kind.FOOD;
+        for (var witness : witnesses) {
+            var body = witness.body();
+            body.component(YukkuriComponents.FIXTURE_BELIEF).noticed(this);
+            GameplayLog.event(body, "perception", "noticed cue={} via={} at={}", cue, witness.via(), worldPosition.toShortString());
+            body.pet().care().requests().witnessed(kind, actor, witness.via());
+        }
+    }
     public boolean spendWater() { return changeWater(WaterPortions.spend(water)); }
     private boolean changeWater(int portions) {
         if (water == portions) return false;
@@ -307,7 +326,11 @@ public final class CareBlockEntity extends BlockEntity implements Container {
         ItemStack result = ContainerHelper.removeItem(items, slot, count); if (!result.isEmpty()) changed(); return result;
     }
     @Override public ItemStack removeItemNoUpdate(int slot) { return ContainerHelper.takeItem(items, slot); }
-    @Override public void setItem(int slot, ItemStack stack) { items.set(slot, stack); stack.limitSize(getMaxStackSize(stack)); changed(); }
+    @Override public void setItem(int slot, ItemStack stack) {
+        boolean stocked = kind() == CareBlock.Kind.BOWL && hasFood();
+        items.set(slot, stack); stack.limitSize(getMaxStackSize(stack)); changed();
+        if (kind() == CareBlock.Kind.BOWL && !stocked && hasFood()) announce(Cue.FOOD_IN_BOWL, null);
+    }
     @Override public boolean stillValid(Player player) { return Container.stillValidBlockEntity(this, player); }
     @Override public void clearContent() { items.clear(); changed(); }
 }
