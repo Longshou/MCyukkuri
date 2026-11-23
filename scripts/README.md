@@ -181,6 +181,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 | `build_aquestalk_dialogue.py` | 读取选句与配方，调用本机 AquesTalkPlayer，逐条输出 WAV／OGG、发音符号及试听页，并按原版或原创标注 | Windows 本机制作；`--work-directory` 隔离工具副本，匹配文本、参数和指纹时复用录音；`--ids-json` 只做指定条目；不打包程序、字典或 DLL |
 | `export_dialogue.py` | 核对原句／原创来源与录音文本，导出台词、语言资源、OGG、时长及声音索引，保留其他任务条目 | 默认写运行资源；`--stage` 先导出到指定待核对目录；`--check` 只读检查，不启动游戏 |
 | `check_speech_corpus.py` | 检查分轴语料的 JSON、必填字段、ID、物种与全部现有情境事件映射 | `--check` 只读；语料尚未接入对白生成器，不写现有选句或运行资源 |
+| `check_dialogue_live.py` | 找出没有任何 Java 调用处能播的台词事件：生成目录里的事件须在 `src/main/java`（`NativeDialogue` 的优先级表不算）以字符串出现，或由说话行上的拼接前缀、`dialogue` 包里的字符串常量拼出 | `--check` 只读，有死事件即非零；`pkg.py land` 在改了 Java 或台词时自动运行；死事件经台词导出脚本删除台词与配音，或接回调用处 |
 | `export_runtime_models.py` | 旧七模型批量接入配方；当前圆润选用存在时拒绝执行，避免覆盖模型 | 当前圆润形态用 `export_rounded_runtime.py`；家油定向导出仍复用其函数，见对应制作包 |
 | `runtime_house_interactions.py` | 供模型导出器调用；制作家油俯身夹取、短辫持物、放下与蠕动曲线，登记辫梢挂点 | 无独立启动入口，不改标准造型 |
 | `runtime_waddle.py` | 供模型导出器调用；将家油走动适配至实际连续身体截面，增强五种普通角色的油菊摆动 | 不写文件，不改标准造型，保留 1.2 秒周期 |

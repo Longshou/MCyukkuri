@@ -159,6 +159,11 @@ def check_tree(tree, scenes):
         for check in (['-c', 'import museum_scenarios'], [str(tree / 'scripts/check_museum_pack.py')]):
             if subprocess.run([sys.executable, *check], cwd=tree / 'scripts').returncode:
                 raise Fail('museum scene check failed: ' + ' '.join(check))
+    if any(path.endswith('.java') or path.startswith('art/dialogue/') or path.endswith('dialogue/catalog.json') for path in changed):
+        # A removed cue leaves its lines and voices behind; a new pool without a cue is never heard.
+        print('java or dialogue changed: check_dialogue_live.py', flush=True)
+        if subprocess.run([sys.executable, str(tree / 'scripts/check_dialogue_live.py'), '--check'], cwd=tree).returncode:
+            raise Fail('check_dialogue_live.py found dialogue events no code can cue')
     docs = [path for path in changed if path.endswith('.md') or path in DOC_TRIGGERS]
     if docs:
         # Only the package's own documents: dead links elsewhere are someone else's package (--all checks the whole repo).
