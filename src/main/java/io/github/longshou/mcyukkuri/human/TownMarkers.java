@@ -240,6 +240,7 @@ public final class TownMarkers {
         /** Open stands on a band two blocks wide whose inner edge is {@code gap} blocks outside the paving, nearest to the visitor first. */
         public Stream<BlockPos> ring(ServerLevel level, PathfinderMob visitor, double gap) {
             int reach = (int) Math.ceil(gap + RING_BAND);
+            var wearers = badged();
             return BlockPos.betweenClosedStream(BlockPos.containing(paving.minX - reach, paving.minY, paving.minZ - reach),
                             BlockPos.containing(paving.maxX + reach, paving.minY, paving.maxZ + reach))
                     .map(BlockPos::immutable)
@@ -249,17 +250,16 @@ public final class TownMarkers {
                                 || !level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
                         var body = visitor.getBoundingBox().move(Vec3.atBottomCenterOf(pos).subtract(visitor.position()));
                         return level.noCollision(visitor, body) && level.getEntities(visitor, body, entity -> entity.isPickable()).isEmpty()
-                                && seesPaving(level, visitor, pos);
+                                && seesPaving(level, visitor, pos, wearers);
                     })
                     .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
         }
 
-        /** A stand behind the benches or the hall wall gazes at nothing: the paving must lie in the open from there. */
-        private boolean seesPaving(ServerLevel level, PathfinderMob visitor, BlockPos pos) {
+        /** A stand behind the benches or the hall wall gazes at nothing: a badge on the paving must lie in the open from there. */
+        private boolean seesPaving(ServerLevel level, PathfinderMob visitor, BlockPos pos, List<YukkuriEntity> wearers) {
             var eye = Vec3.atBottomCenterOf(pos).add(0, visitor.getEyeHeight(), 0);
-            var target = paving.getCenter().with(Direction.Axis.Y, paving.minY + visitor.getEyeHeight());
-            return level.clip(new ClipContext(eye, target, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, visitor)).getType()
-                    == HitResult.Type.MISS;
+            return wearers.stream().anyMatch(wearer -> level.clip(new ClipContext(eye, wearer.getEyePosition(),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, visitor)).getType() == HitResult.Type.MISS);
         }
 
         /** Horizontal distance from a point to the paving rectangle (0 on it). */
