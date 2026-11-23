@@ -1285,6 +1285,10 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
     geo = [r for r in records if r['k'] == 'geo']
     starts = [r['t'] for r in records if r['k'] == 'win']
     start = min(starts) if starts else None
+    # A scene holds its mobs for the start countdown (no travel, so a body spawned above the ground hovers); spawn is judged from the release.
+    released = [r['t'] for r in records if r.get('k') == 'ev' and r.get('cat') == 'scenario' and r.get('msg', '').startswith('hold off')]
+    if released:
+        start = released[0]
     startup = actor_samples([r for r in samples if start is not None and 0 <= r['t'] - start <= 40])
     # An actor still falling at the first sample can be legitimately supported by the later
     # one (the scene's loose food settles onto its pond): ordinary settling during
