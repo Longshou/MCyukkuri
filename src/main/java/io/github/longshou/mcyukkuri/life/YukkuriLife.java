@@ -1328,7 +1328,10 @@ public final class YukkuriLife {
         if (entity.isPassenger() || entity.leafSwaddle().wrapped()) return false;
         var first = leadingToiletNeed();
         var other = first == ToiletNeeds.Kind.STOOL ? ToiletNeeds.Kind.URINE : ToiletNeeds.Kind.STOOL;
-        return planToilet(first) || planToilet(other);
+        boolean planned = planToilet(first) || planToilet(other);
+        // The urge is announced once, when the trip starts; an accident (no trip, nowhere to go) has nothing to announce.
+        if (planned && !toiletAccident) entity.speak(toiletKind == ToiletNeeds.Kind.URINE ? "need_toilet_urine" : "need_toilet");
+        return planned;
     }
 
     private boolean planToilet(ToiletNeeds.Kind kind) {
@@ -1486,7 +1489,7 @@ public final class YukkuriLife {
                         || pursuitTicks > 240) { stopGoal(); return; }
                 if (toiletTicks < ToiletContact.DROP_TICKS && (toiletNeeds.pressure(toiletKind) < 40 || ToiletContact.facilitySeat(entity, targetBlock, toiletKind) == null)) { stopGoal(); return; }
                 if (toiletTicks >= ToiletContact.DROP_TICKS || ToiletContact.approachFacility(entity, targetBlock, toiletKind)) {
-                    if (++toiletTicks == 1) entity.speak("need_toilet");
+                    toiletTicks++;
                     // The stool leaves the anus at the end of the second push; the clip then relaxes for a few ticks.
                     if (toiletTicks == ToiletContact.DROP_TICKS) {
                         float before = toiletNeeds.pressure(toiletKind);
@@ -1515,7 +1518,6 @@ public final class YukkuriLife {
                 if (toiletPit && toiletPitCell != null || entity.onGround() && SurfaceApproach.supported(entity, entity.position()) && entity.distanceToSqr(Vec3.atBottomCenterOf(targetBlock)) <= .25) {
                     SurfaceApproach.halt(entity);
                     if (++toiletTicks == 1) {
-                        entity.speak("need_toilet");
                         if (toiletPit) GameplayLog.event(entity,"needs","toilet pit edge reached stand={} pit={} portions={}",targetBlock,toiletPitCell,
                                 GroupPits.waste((ServerLevel)level(),toiletPitCell));
                     }
@@ -1531,7 +1533,7 @@ public final class YukkuriLife {
                                 hygiene = Math.max(0,hygiene-20);
                                 entity.pet().lessons().performed(Ability.TOILET, false);
                             }
-                            entity.showReaction(toiletAccident?"teary":"happy", "toilet_done",60);
+                            entity.showReaction(toiletAccident?"teary":"happy", toiletAccident?"":"toilet_done",60); // an accident is not relief
                             if (toiletPit) {
                                 entity.settlement().society().pitExcreted();
                                 entity.skills().practise(Ability.TOILET, 1, "daily");

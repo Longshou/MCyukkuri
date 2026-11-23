@@ -204,6 +204,8 @@ public final class Cannibalism extends Goal {
         return accepted;
     }
     /** Only actual running approach/feeding counts as a threat, not a candidate discovered by canUse. */
+    /** Eating a corpse, offered or not: the apology already said what it feels, so the swallow stays quiet. */
+    public boolean eatingCarrion() { return running && mode == Mode.CARRION; }
     private boolean eatingBody(RemainsEntity remains) { return running && mode == Mode.CARRION && body == remains; }
     private boolean beginGuard() {
         if (guardCooldown > 0 || !free() || !entity.family().adult()) return false;
@@ -340,7 +342,7 @@ public final class Cannibalism extends Goal {
             away = entity.getNavigation().getPath();
         }
         else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);
-        else if (mode == Mode.GUARD && !guardAttacks) entity.showReaction("angry", "puff", 80);
+        else if (mode == Mode.GUARD) entity.showReaction("angry", "puff", 80);
         GameplayLog.limited(entity, "cannibal", "start." + mode, 200, "started mode={} body={} prey={} nutrition={}",
                 mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), entity.life().nutrition());
     }

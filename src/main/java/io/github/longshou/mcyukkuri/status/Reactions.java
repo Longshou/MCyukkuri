@@ -766,7 +766,7 @@ public final class Reactions {
                     if (!spoke) {
                         spoke = true;
                         boolean storm = sky == Sky.STORM;
-                        y.mind().felt(EmotionEvent.CHILLED); y.showReaction(storm ? "surprise" : "neutral", "cold", 80);
+                        y.mind().felt(EmotionEvent.CHILLED); y.showReaction(storm ? "surprise" : "neutral", stage == Stage.FLOOD ? "afraid" : "rain_run", 80);
                     }
                 }
             }

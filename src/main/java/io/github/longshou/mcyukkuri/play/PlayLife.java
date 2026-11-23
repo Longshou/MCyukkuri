@@ -157,7 +157,7 @@ public final class PlayLife {
         bounces++;
         entity.life().spendEnergy(2);
         entity.mind().felt(EmotionEvent.PLAYED);
-        entity.showReaction("happy","toy",45);
+        entity.showReaction("happy","",45); // joy face only: "I want to play too" is a request to join, not a bounce cry
     }
 
     public void tickGoal(){
@@ -204,7 +204,7 @@ public final class PlayLife {
                 if(completed){
                     entity.dailyLife().entertained(Math.min(30,20+2*bounces));
                     if(entity.outing().onOuting())entity.outing().finishedParkPlay();
-                    entity.mind().felt(EmotionEvent.PLAYED);entity.showReaction("happy","toy",70);
+                    entity.mind().felt(EmotionEvent.PLAYED);entity.showReaction("happy","",70);
                 }
                 stop();return;
             }

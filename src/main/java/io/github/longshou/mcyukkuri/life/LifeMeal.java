@@ -794,8 +794,10 @@ final class LifeMeal {
         o.entity().mind().ate(swallowed);
         // Same rule as an item meal: a melting body keeps the swallow face only to the end of the swallow.
         o.entity().gameEvent(GameEvent.EAT);
-        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 ? "teary" : "happy",
-                swallowed.odor() >= 40 ? "hurt" : "fed", content ? SWALLOW_TICKS : 100);
+        // A corpse eaten from grief or need already had its apology line; a rotten bite is a bad taste, not a blow.
+        boolean carrion = o.entity().cannibalism().eatingCarrion();
+        if (!coughing()) o.entity().showReaction(swallowed.odor() >= 40 || carrion ? "teary" : "happy",
+                carrion ? "" : swallowed.odor() >= 40 ? "bitter" : "fed", content ? SWALLOW_TICKS : 100);
         if (bowlMeal) { bowlMeal = false; o.entity().pet().routineCompleted(Ability.FOOD_GUARD); }
     }
     boolean preparedMeal() { return preparedMeal; }

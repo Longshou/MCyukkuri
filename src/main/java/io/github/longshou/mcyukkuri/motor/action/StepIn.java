@@ -47,6 +47,7 @@ public final class StepIn implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
+        body.waterDistress().wade();
         pace = BodyAbility.of(body).walkSpeed() * BodyAbility.carrying(body);
         from = body.position();
     }

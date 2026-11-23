@@ -38,6 +38,8 @@ public final class WaterDistress {
     private final YukkuriEntity entity;
     private Phase phase=Phase.IDLE;
     private int phaseTicks, immersionTicks, callWait, pendingPlunge, drySupportTicks;
+    /** Set by a deliberate step into the water (a swim to the hat): nobody is asked for help until it is worn out or back ashore. */
+    private boolean wading;
     /** The last dry tick had her off the ground (a fall, a missed hop): the tick she meets water she falls in. */
     private boolean airborneDry;
     private long lastTick=Long.MIN_VALUE, closedTick=Long.MIN_VALUE;
@@ -65,6 +67,7 @@ public final class WaterDistress {
         return "phase="+phase+" phaseTicks="+phaseTicks+" immersion="+immersionTicks+" energy="+entity.life().energy()+" air="+entity.getAirSupply();
     }
     /** Called where a body really falls in: it shows the plunge pose until it touches the water. */
+    public void wade(){wading=true;}
     public void plunge(){
         if(entity.level().isClientSide)return;
         pendingPlunge=12;
@@ -114,9 +117,10 @@ public final class WaterDistress {
             if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
             if(!entity.isNoAi()&&!entity.isCommandPlaying()&&!entity.operations().active()
-                    &&callWait==0&&phase!=Phase.IMPACT){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
+                    &&callWait==0&&phase!=Phase.IMPACT&&(!wading||phase==Phase.EXHAUSTED)){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
             return;
         }
+        if(wading&&immersionTicks>0)wading=false;
         airborneDry=!entity.onGround()&&!entity.isPassenger();
         // An upward flight or airborne tumble is not a completed rescue; standing on dry ground or aboard (a dry hat, a carrier) is.
         if(phase==Phase.IMPACT||phase==Phase.STRUGGLE||phase==Phase.EXHAUSTED){

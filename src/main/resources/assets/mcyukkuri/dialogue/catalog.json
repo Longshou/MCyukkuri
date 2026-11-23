@@ -178,8 +178,7 @@
       "wait_family",
       "lost_parent",
       "family_died",
-      "afraid",
-      "cold"
+      "afraid"
     ],
     "ticks": 48,
     "sound": "voice.native.marisa.adult.l0596"
@@ -541,8 +540,7 @@
       "wait_family",
       "lost_parent",
       "family_died",
-      "afraid",
-      "cold"
+      "afraid"
     ],
     "ticks": 45,
     "sound": "voice.native.marisa.young.l0596"
@@ -904,8 +902,7 @@
       "wait_family",
       "lost_parent",
       "family_died",
-      "afraid",
-      "cold"
+      "afraid"
     ],
     "ticks": 48,
     "sound": "voice.native.reimu.adult.l0596"
@@ -1267,8 +1264,7 @@
       "wait_family",
       "lost_parent",
       "family_died",
-      "afraid",
-      "cold"
+      "afraid"
     ],
     "ticks": 45,
     "sound": "voice.native.reimu.young.l0596"
@@ -1724,7 +1720,6 @@
     "age": "adult",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -2111,7 +2106,6 @@
     "age": "young",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -2392,7 +2386,6 @@
     "species": "chen",
     "age": "adult",
     "events": [
-      "wounded",
       "hurt_flee"
     ],
     "ticks": 53,
@@ -2406,7 +2399,6 @@
     "age": "adult",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -2485,7 +2477,6 @@
     "species": "chen",
     "age": "young",
     "events": [
-      "wounded",
       "hurt_flee"
     ],
     "ticks": 45,
@@ -2499,7 +2490,6 @@
     "age": "young",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -2592,7 +2582,6 @@
     "age": "adult",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -2685,7 +2674,6 @@
     "age": "young",
     "events": [
       "afraid",
-      "cold",
       "family_died",
       "lost_parent",
       "wait_family"
@@ -12216,7 +12204,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 54,
+    "ticks": 61,
     "sound": "voice.original.marisa.adult.o_self_rescue_hat"
   },
   {
@@ -12372,7 +12360,7 @@
     "events": [
       "self_rescue_hat"
     ],
-    "ticks": 46,
+    "ticks": 52,
     "sound": "voice.original.marisa.young.o_self_rescue_hat"
   },
   {
@@ -88828,6 +88816,144 @@
     "ticks": 125,
     "sound": "voice.original.myon.kinbao.adult.retest_protect_taunt",
     "quirk": "kinbao"
+  },
+  {
+    "id": "cold.seek_warmth",
+    "key": "dialogue.mcyukkuri.original.cold.seek_warmth",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "cold"
+    ],
+    "ticks": 115,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.cold.seek_warmth.alice.baby",
+      "alice.juvenile": "voice.original.cold.seek_warmth.alice.juvenile",
+      "alice.young": "voice.original.cold.seek_warmth.alice.young",
+      "alice.adult": "voice.original.cold.seek_warmth.alice.adult",
+      "chen.baby": "voice.original.cold.seek_warmth.chen.baby",
+      "chen.juvenile": "voice.original.cold.seek_warmth.chen.juvenile",
+      "chen.young": "voice.original.cold.seek_warmth.chen.young",
+      "chen.adult": "voice.original.cold.seek_warmth.chen.adult",
+      "flandre.baby": "voice.original.cold.seek_warmth.flandre.baby",
+      "flandre.juvenile": "voice.original.cold.seek_warmth.flandre.juvenile",
+      "flandre.young": "voice.original.cold.seek_warmth.flandre.young",
+      "flandre.adult": "voice.original.cold.seek_warmth.flandre.adult",
+      "marisa.baby": "voice.original.cold.seek_warmth.marisa.baby",
+      "marisa.juvenile": "voice.original.cold.seek_warmth.marisa.juvenile",
+      "marisa.young": "voice.original.cold.seek_warmth.marisa.young",
+      "marisa.adult": "voice.original.cold.seek_warmth.marisa.adult",
+      "myon.baby": "voice.original.cold.seek_warmth.myon.baby",
+      "myon.juvenile": "voice.original.cold.seek_warmth.myon.juvenile",
+      "myon.young": "voice.original.cold.seek_warmth.myon.young",
+      "myon.adult": "voice.original.cold.seek_warmth.myon.adult",
+      "patchouli.baby": "voice.original.cold.seek_warmth.patchouli.baby",
+      "patchouli.juvenile": "voice.original.cold.seek_warmth.patchouli.juvenile",
+      "patchouli.young": "voice.original.cold.seek_warmth.patchouli.young",
+      "patchouli.adult": "voice.original.cold.seek_warmth.patchouli.adult",
+      "reimu.baby": "voice.original.cold.seek_warmth.reimu.baby",
+      "reimu.juvenile": "voice.original.cold.seek_warmth.reimu.juvenile",
+      "reimu.young": "voice.original.cold.seek_warmth.reimu.young",
+      "reimu.adult": "voice.original.cold.seek_warmth.reimu.adult",
+      "remilia.baby": "voice.original.cold.seek_warmth.remilia.baby",
+      "remilia.juvenile": "voice.original.cold.seek_warmth.remilia.juvenile",
+      "remilia.young": "voice.original.cold.seek_warmth.remilia.young",
+      "remilia.adult": "voice.original.cold.seek_warmth.remilia.adult"
+    }
+  },
+  {
+    "id": "need_toilet_urine",
+    "key": "dialogue.mcyukkuri.original.need_toilet_urine",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "need_toilet_urine"
+    ],
+    "ticks": 52,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.need_toilet_urine.alice.baby",
+      "alice.juvenile": "voice.original.need_toilet_urine.alice.juvenile",
+      "alice.young": "voice.original.need_toilet_urine.alice.young",
+      "alice.adult": "voice.original.need_toilet_urine.alice.adult",
+      "chen.baby": "voice.original.need_toilet_urine.chen.baby",
+      "chen.juvenile": "voice.original.need_toilet_urine.chen.juvenile",
+      "chen.young": "voice.original.need_toilet_urine.chen.young",
+      "chen.adult": "voice.original.need_toilet_urine.chen.adult",
+      "flandre.baby": "voice.original.need_toilet_urine.flandre.baby",
+      "flandre.juvenile": "voice.original.need_toilet_urine.flandre.juvenile",
+      "flandre.young": "voice.original.need_toilet_urine.flandre.young",
+      "flandre.adult": "voice.original.need_toilet_urine.flandre.adult",
+      "marisa.baby": "voice.original.need_toilet_urine.marisa.baby",
+      "marisa.juvenile": "voice.original.need_toilet_urine.marisa.juvenile",
+      "marisa.young": "voice.original.need_toilet_urine.marisa.young",
+      "marisa.adult": "voice.original.need_toilet_urine.marisa.adult",
+      "myon.baby": "voice.original.need_toilet_urine.myon.baby",
+      "myon.juvenile": "voice.original.need_toilet_urine.myon.juvenile",
+      "myon.young": "voice.original.need_toilet_urine.myon.young",
+      "myon.adult": "voice.original.need_toilet_urine.myon.adult",
+      "patchouli.baby": "voice.original.need_toilet_urine.patchouli.baby",
+      "patchouli.juvenile": "voice.original.need_toilet_urine.patchouli.juvenile",
+      "patchouli.young": "voice.original.need_toilet_urine.patchouli.young",
+      "patchouli.adult": "voice.original.need_toilet_urine.patchouli.adult",
+      "reimu.baby": "voice.original.need_toilet_urine.reimu.baby",
+      "reimu.juvenile": "voice.original.need_toilet_urine.reimu.juvenile",
+      "reimu.young": "voice.original.need_toilet_urine.reimu.young",
+      "reimu.adult": "voice.original.need_toilet_urine.reimu.adult",
+      "remilia.baby": "voice.original.need_toilet_urine.remilia.baby",
+      "remilia.juvenile": "voice.original.need_toilet_urine.remilia.juvenile",
+      "remilia.young": "voice.original.need_toilet_urine.remilia.young",
+      "remilia.adult": "voice.original.need_toilet_urine.remilia.adult"
+    }
+  },
+  {
+    "id": "rain_run",
+    "key": "dialogue.mcyukkuri.original.rain_run",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "rain_run"
+    ],
+    "ticks": 79,
+    "sound": "",
+    "voices": {
+      "alice.baby": "voice.original.rain_run.alice.baby",
+      "alice.juvenile": "voice.original.rain_run.alice.juvenile",
+      "alice.young": "voice.original.rain_run.alice.young",
+      "alice.adult": "voice.original.rain_run.alice.adult",
+      "chen.baby": "voice.original.rain_run.chen.baby",
+      "chen.juvenile": "voice.original.rain_run.chen.juvenile",
+      "chen.young": "voice.original.rain_run.chen.young",
+      "chen.adult": "voice.original.rain_run.chen.adult",
+      "flandre.baby": "voice.original.rain_run.flandre.baby",
+      "flandre.juvenile": "voice.original.rain_run.flandre.juvenile",
+      "flandre.young": "voice.original.rain_run.flandre.young",
+      "flandre.adult": "voice.original.rain_run.flandre.adult",
+      "marisa.baby": "voice.original.rain_run.marisa.baby",
+      "marisa.juvenile": "voice.original.rain_run.marisa.juvenile",
+      "marisa.young": "voice.original.rain_run.marisa.young",
+      "marisa.adult": "voice.original.rain_run.marisa.adult",
+      "myon.baby": "voice.original.rain_run.myon.baby",
+      "myon.juvenile": "voice.original.rain_run.myon.juvenile",
+      "myon.young": "voice.original.rain_run.myon.young",
+      "myon.adult": "voice.original.rain_run.myon.adult",
+      "patchouli.baby": "voice.original.rain_run.patchouli.baby",
+      "patchouli.juvenile": "voice.original.rain_run.patchouli.juvenile",
+      "patchouli.young": "voice.original.rain_run.patchouli.young",
+      "patchouli.adult": "voice.original.rain_run.patchouli.adult",
+      "reimu.baby": "voice.original.rain_run.reimu.baby",
+      "reimu.juvenile": "voice.original.rain_run.reimu.juvenile",
+      "reimu.young": "voice.original.rain_run.reimu.young",
+      "reimu.adult": "voice.original.rain_run.reimu.adult",
+      "remilia.baby": "voice.original.rain_run.remilia.baby",
+      "remilia.juvenile": "voice.original.rain_run.remilia.juvenile",
+      "remilia.young": "voice.original.rain_run.remilia.young",
+      "remilia.adult": "voice.original.rain_run.remilia.adult"
+    }
   },
   {
     "id": "confess",

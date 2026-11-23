@@ -148,7 +148,7 @@ public final class LeafSwaddle {
                 // The cost follows the soiled stage the wrap shows (wearBits), not the raw volume: a newborn's wrap is as unpleasant as a child's.
                 float stage = (float)Math.ceil(soil) + neglectStage() - 1;
                 life.changeHygiene(-stage); entity.mind().add(stage, "soiled_swaddle");
-                if (!life.isSleeping()) entity.showReaction("teary", "leak", 60);
+                if (!life.isSleeping()) entity.showReaction("teary", "", 60); // nothing new leaked: discomfort only, the "leaked" line belongs to the soiling
             }
             GameplayLog.limited(entity, "family", "leaf_swaddle.wear", 2400,
                     "leaf swaddle wear soil={} hygiene={} -> {} unease={} -> {} friendliness={}", soil, hygiene, life.hygiene(),

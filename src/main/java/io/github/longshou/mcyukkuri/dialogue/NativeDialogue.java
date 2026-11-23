@@ -90,7 +90,8 @@ public final class NativeDialogue {
                     "boat_rock_startle", "water_help",
                     "braid_rescue_offer", "braid_rescue_grip", "braid_rescue_mouth_grip",
                     "self_rescue_hat", "self_rescue_hat_seek", "self_rescue_grip",
-                    "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach", "hurt" -> 3;
+                    "self_rescue_climb", "self_rescue_slip", "hat_drifting", "hat_out_of_reach", "hurt",
+                    "sole_burned" -> 3; // sole_burned: the hot-foot cry must not be cut by the same hit's wounded
             case "airborne", "fed", "returned_accessory", "treated", "newborn", "hatched", "awake", "lesson_learned",
                     "braid_rescue_safe", "braid_rescue_safe_ashore", "self_rescue_safe", "hat_recovered",
                     "glass_wait", "glass_child_answer", "glass_ram", "search_family" -> 2;

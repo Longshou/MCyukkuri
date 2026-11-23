@@ -10156,9 +10156,9 @@
       "id": "marisa.adult.o_self_rescue_hat",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……抖掉……",
-      "english": "My hat... shake it off...",
+      "japanese": "おぼうし…… みずに おくのぜ……。",
+      "chinese": "帽帽……放到水上……",
+      "english": "My hat... putting it on the water...",
       "events": [
         "self_rescue_hat"
       ],
@@ -10312,9 +10312,9 @@
       "id": "marisa.young.o_self_rescue_hat",
       "species": "marisa",
       "age": "young",
-      "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……抖掉……",
-      "english": "My hat... shake it off...",
+      "japanese": "おぼうし…… みずに おくのじぇ……。",
+      "chinese": "帽帽……放到水上……",
+      "english": "My hat... putting it on the water...",
       "events": [
         "self_rescue_hat"
       ],

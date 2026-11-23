@@ -247,7 +247,7 @@ public final class BodyLife {
             entity.skills().practise(Ability.MOLD_LORE, SkillMath.pointsForGrade(1, Ability.MOLD_LORE.graded), "cured");
             entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);
         }
-        else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","hurt",80);}
+        else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","treated",80);} // partial relief: thanks, not a blow's pain
         entity.syncBody();GameplayLog.event(entity,"body","mold remover changed stage {} -> {}",before,mold);return true;
     }
     public void setMold(int level){mold=Math.clamp(level,0,MOLD_TERMINAL);moldSpread=0;entity.syncBody();}

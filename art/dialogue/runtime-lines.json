@@ -288,8 +288,7 @@
         "wait_family",
         "lost_parent",
         "family_died",
-        "afraid",
-        "cold"
+        "afraid"
       ],
       "english": "Take it easy... take it eaaasy!"
     },
@@ -847,8 +846,7 @@
         "wait_family",
         "lost_parent",
         "family_died",
-        "afraid",
-        "cold"
+        "afraid"
       ],
       "english": "Chake it eashy... chake it eaaashy!"
     },
@@ -1410,8 +1408,7 @@
         "wait_family",
         "lost_parent",
         "family_died",
-        "afraid",
-        "cold"
+        "afraid"
       ],
       "english": "Take it easy... take it eaaasy!"
     },
@@ -1969,8 +1966,7 @@
         "wait_family",
         "lost_parent",
         "family_died",
-        "afraid",
-        "cold"
+        "afraid"
       ],
       "english": "Chake it eashy... chake it eaaashy!"
     },
@@ -2712,7 +2708,6 @@
       "source_sha256": "b63f9240cab81b5159e7285459191ca8673a0bcafe9523cd027e141c6653ec83",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -3339,7 +3334,6 @@
       "source_sha256": "f89e1240915194e5cbf6dc93cc0f8175e0b72d118464fcf7e2b9ee32f89871e3",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -3788,7 +3782,6 @@
       },
       "source_sha256": "61439448d6d2726b1a95a45096dac90b7b8cb597ee4267dff0a50a0100368803",
       "events": [
-        "wounded",
         "hurt_flee"
       ],
       "english": "It hurts! Do you get it?!"
@@ -3810,7 +3803,6 @@
       "source_sha256": "84f7b1b0e60af1b1eebfddec33c42a88fe471c74906a505ebe08fda7604bd33b",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -3929,7 +3921,6 @@
       },
       "source_sha256": "0f455341bf7c6568555996d52c0287a069be193bd5107b08b647e4ed1f30969c",
       "events": [
-        "wounded",
         "hurt_flee"
       ],
       "english": "It huwts! Do you get it?!"
@@ -3951,7 +3942,6 @@
       "source_sha256": "a12b6ce377d4ebdd6ea6382aa8ae9731c4bb21f684af74d7ccc668c936fcaab7",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -4092,7 +4082,6 @@
       "source_sha256": "84f7b1b0e60af1b1eebfddec33c42a88fe471c74906a505ebe08fda7604bd33b",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -4233,7 +4222,6 @@
       "source_sha256": "a12b6ce377d4ebdd6ea6382aa8ae9731c4bb21f684af74d7ccc668c936fcaab7",
       "events": [
         "afraid",
-        "cold",
         "family_died",
         "lost_parent",
         "wait_family"
@@ -17678,9 +17666,9 @@
       "id": "marisa.adult.o_self_rescue_hat",
       "species": "marisa",
       "age": "adult",
-      "japanese": "おぼうし…… ふりおとすのぜ……。",
-      "chinese": "帽帽……抖掉……",
-      "english": "My hat... shake it off...",
+      "japanese": "おぼうし…… みずに おくのぜ……。",
+      "chinese": "帽帽……放到水上……",
+      "english": "My hat... putting it on the water...",
       "events": [
         "self_rescue_hat"
       ],
@@ -17689,7 +17677,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.adult.o_self_rescue_hat"
       },
-      "source_sha256": "13a6a67da8fb9f149afb8c6c9bb5585513e55cfebe0cc615d6fa32200de9a5b9"
+      "source_sha256": "524353b69ea8ff998be233d9d105e97db8a6ec8268a176244bc9d97ab5ea7990"
     },
     {
       "id": "marisa.adult.o_self_rescue_grip",
@@ -17899,9 +17887,9 @@
       "id": "marisa.young.o_self_rescue_hat",
       "species": "marisa",
       "age": "young",
-      "japanese": "おぼうし…… ふりおとすのじぇ……。",
-      "chinese": "帽帽……抖掉……",
-      "english": "My hat... shake it off...",
+      "japanese": "おぼうし…… みずに おくのじぇ……。",
+      "chinese": "帽帽……放到水上……",
+      "english": "My hat... putting it on the water...",
       "events": [
         "self_rescue_hat"
       ],
@@ -17910,7 +17898,7 @@
         "file": "art/dialogue/species-original.json",
         "id": "marisa.young.o_self_rescue_hat"
       },
-      "source_sha256": "dd0b15cdc583e2782695ceb3a277904b4a7f39ae619fd6b528b30bd9bdbf4e4c"
+      "source_sha256": "bbd0bcd8efaec7bf294093527a1ed3a3c500ad4a021649d208f9a7156c1968c1"
     },
     {
       "id": "marisa.young.o_self_rescue_grip",

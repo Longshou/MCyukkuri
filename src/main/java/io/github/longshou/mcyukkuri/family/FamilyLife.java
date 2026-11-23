@@ -776,7 +776,7 @@ public final class FamilyLife {
             else if(brood.emptyAt<0)brood.emptyAt=elapsed;
             if(!brood.id.equals(stemWarningBrood)&&stemDepletionWarning()){
                 stemWarningBrood=brood.id;
-                entity.speakCue("wounded");
+                entity.speakCue("hungry"); // a starving cry for help, not a wound
                 for(var player:level().getEntitiesOfClass(ServerPlayer.class,entity.getBoundingBox().inflate(12)))
                     player.displayClientMessage(Component.translatable("stem.mcyukkuri.help",entity.getName()),true);
                 GameplayLog.event(entity,"family","stem depletion warning brood={} elapsed={} duration={} nutrition={} health={}",

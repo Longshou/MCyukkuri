@@ -632,7 +632,7 @@ public final class YukkuriSocial implements MotorOwner {
                     boolean rolls=Facilities.rollingToy(toy.getItem());
                     toy.setDeltaMovement(direction.scale(rolls?.14:.025).add(0,rolls?.06:0,0));toy.hurtMarked=true;toyContact=0;toyTouches++;
                     if(toyTouches==1){entity.dailyLife().entertained(15);}
-                    entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy","toy",60);
+                    entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy",toyTouches==1?"toy":"",60); // asks to join once, on the first touch
                 }
             }
             return;

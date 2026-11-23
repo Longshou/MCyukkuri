@@ -5790,7 +5790,7 @@ def kotatsu(sid, title, hint, biome, watch, roofed=False):
 kotatsu('kotatsu_winter', '暖桌魔理沙在雪原不怕冷', '暖桌魔理沙在雪原不怕冷', 'minecraft:snowy_plains',
         '雪原：普通魔理沙觉得冷（needs.temperature=cold），暖桌魔理沙不冷、也不进洞冬居（identity.kotatsu=winter_active），时不时说“暖和”')
 kotatsu('kotatsu_summer', '暖桌魔理沙在沙漠躲热', '暖桌魔理沙在沙漠躲热', 'minecraft:desert',
-        '沙漠：暖桌魔理沙嫌热，白天也回棚下睡（先避暑）；普通魔理沙照常活动，时不时说“热”', roofed=True)
+        '沙漠：暖桌魔理沙嫌热，白天也回棚下睡（先避暑）；普通魔理沙照常活动，不另说话', roofed=True)
 
 # A clear cold (autumn taiga) noon on the kotatsu plot with no heat source: the chilled one settles in its own sunny spot.
 add('sunbathe', 'species', '寒冷晴天怕冷的魔理沙晒太阳', '寒冷晴天怕冷的魔理沙晒太阳',

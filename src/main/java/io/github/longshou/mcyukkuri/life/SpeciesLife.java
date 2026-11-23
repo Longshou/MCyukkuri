@@ -204,7 +204,7 @@ public final class SpeciesLife {
             entity.mind().add(3, "vomit_" + cause);
             entity.mind().felt(EmotionEvent.BITTER_TASTE);
         }
-        entity.showReaction(YukkuriAction.COUGH_MUKYU, "teary", "bitter", 80);
+        entity.showReaction(YukkuriAction.COUGH_MUKYU, "teary", "", 80); // gulping hungry made it sick, not a bitter taste
         return true;
     }
 
