@@ -9,6 +9,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -18,11 +19,17 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /** Only a committed stem-cut operation creates this holder; breaking it ends its unborn brood. */
 public final class DetachedStemBlock extends Block implements EntityBlock {
     public final boolean bottled;
-    public DetachedStemBlock(boolean bottled,Properties properties){super(properties);this.bottled=bottled;}
+    /** The cut stalk or brood bottle standing at the cell centre; the arched stalk and its fruit leave the cell and cannot be picked. */
+    private final VoxelShape outline;
+    public DetachedStemBlock(boolean bottled,Properties properties){super(properties);this.bottled=bottled;
+        this.outline=bottled?box(4,0,4,12,10,12):box(4,0,4,12,9,12);}
+    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return outline;}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return new DetachedStemBlockEntity(pos,state);}
     @Override protected RenderShape getRenderShape(BlockState state){return RenderShape.ENTITYBLOCK_ANIMATED;}
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level,BlockState state,BlockEntityType<T> type){

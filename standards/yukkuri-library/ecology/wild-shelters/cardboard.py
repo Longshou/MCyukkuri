@@ -6,7 +6,7 @@ Only the dry shell gives collision. The soaked profile sags into the empty openi
 """
 from hashlib import sha256
 from itertools import combinations
-import json, random, uuid, zlib
+import json, random, sys, uuid, zlib
 from PIL import Image
 
 PAL = {'k0': (0x78, 0x5c, 0x3f), 'k1': (0x96, 0x73, 0x4e), 'k2': (0xb1, 0x8b, 0x58), 'k3': (0xd4, 0xbc, 0x84),
@@ -222,6 +222,8 @@ def build(level=0):
 
 def check(root):
     """Check the three generated shapes, texture pixels, collision and copies against the authoring source."""
+    sys.path.insert(0, str(root / 'scripts'))
+    from facility_outline import facility_outline
     source = root / 'standards/yukkuri-library/ecology/wild-shelters'
     snapshot = root / 'art/props/wild-shelters'
     runtime = root / 'src/main/resources'
@@ -267,7 +269,7 @@ def check(root):
                     expect(saved.size == image.size and saved.convert('RGBA').tobytes() == image.tobytes(), file)
         if level == 0:
             collision = runtime / 'data/mcyukkuri/shelters/cardboard_shelter.json'
-            expect(json.loads(collision.read_bytes()) == {'units_per_block': 16, 'collision': carton.collision}, collision)
+            expect(json.loads(collision.read_bytes()) == {'units_per_block': 16, 'outline': facility_outline(carton.collision, 2, qx=1), 'collision': carton.collision}, collision)
     if errors:
         raise SystemExit('Carton exports differ: ' + ', '.join(errors))
     print('Carton exports match all three stages and dry collision.')

@@ -66,8 +66,8 @@ public final class PlayBlock extends Block implements EntityBlock {
     @Override protected void createBlockStateDefinition(StateDefinition.Builder<Block,BlockState> builder){builder.add(PART,FACING);}
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state){return state.getValue(PART)==CORE?new PlayBlockEntity(pos,state):null;}
     @Override protected RenderShape getRenderShape(BlockState state){return RenderShape.INVISIBLE;}
-    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){var shape=getCollisionShape(state,level,pos,context);
-            return shape.isEmpty()?box(0,0,0,16,1,16):shape;}
+    @Override protected VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return PlayGeometry.outline(kind,
+            state.getValue(FACING),state.getValue(PART));}
     @Override protected VoxelShape getCollisionShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context){return PlayGeometry.shape(kind,
             state.getValue(FACING),state.getValue(PART));}
     @Override protected VoxelShape getOcclusionShape(BlockState state,BlockGetter level,BlockPos pos){return Shapes.empty();}

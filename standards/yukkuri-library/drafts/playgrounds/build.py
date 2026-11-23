@@ -31,6 +31,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from asset_export_checks import check_output, fingerprints, preserve_equivalent_png, preserve_negative_zero_mesh_json, provenance
+from facility_outline import facility_outline
 
 
 def _load(name, path):
@@ -1178,6 +1179,8 @@ def yukkuri_pool_juice():
 PROPS = {'ceramic_tunnel': ceramic_tunnel, 'yukkuri_slide': yukkuri_slide, 'yukkuri_trampoline': yukkuri_trampoline,
          'yukkuri_pool': yukkuri_pool, 'yukkuri_pool_juice': yukkuri_pool_juice}
 PLACED = ('ceramic_tunnel', 'yukkuri_slide', 'yukkuri_trampoline', 'yukkuri_pool')
+# Cells PlayBlock spreads each facility over (x -1..1, y 0..1, z -depth..depth); the data outline uses the same grid.
+DEPTHS = {'ceramic_tunnel': 1, 'yukkuri_slide': 2, 'yukkuri_trampoline': 1, 'yukkuri_pool': 1}
 LABELS = {'ceramic_tunnel': ['陶管', 'Ceramic tunnel'], 'yukkuri_slide': ['油库里滑梯', 'Yukkuri slide'],
           'yukkuri_trampoline': ['油库里蹦床', 'Yukkuri trampoline'], 'yukkuri_pool': ['橙汁澡盆', 'Orange juice tub']}
 INGREDIENTS = {'ceramic_tunnel': ['brick'] * 6, 'yukkuri_slide': ['iron_ingot'] * 4 + ['stick'] * 2,
@@ -1233,7 +1236,7 @@ def outputs():
         emit(ASSETS / f'blockstates/{name}.json', {'variants': {'': {'model': f'mcyukkuri:block/{name}'}}})
         emit(ASSETS / f'models/block/{name}.json', {'textures': {'particle': f'mcyukkuri:props/{name}'}, 'elements': []})
         emit(DATA / f'loot_table/blocks/{name}.json', {'type': 'minecraft:block', 'pools': []})
-        emit(DATA / f'playgrounds/{name}.json', {'collision': collision} | ({'tub': tub_data()} if name == 'yukkuri_pool' else {}))
+        emit(DATA / f'playgrounds/{name}.json', {'outline': facility_outline(collision, DEPTHS[name]), 'collision': collision} | ({'tub': tub_data()} if name == 'yukkuri_pool' else {}))
         emit(DATA / f'recipe/{name}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc', 'ingredients': [{'item': 'minecraft:' + x} for x in INGREDIENTS[name]], 'result': {'id': 'mcyukkuri:' + name, 'count': 1}})
     emit(HERE / 'recipe.json', {'status': 'pending-review', 'units_per_block': 16, 'style': 'faceted pixel-art props', 'props': recipe})
     emit(ASSETS / 'yukkuri_props/playgrounds-index.json', index)

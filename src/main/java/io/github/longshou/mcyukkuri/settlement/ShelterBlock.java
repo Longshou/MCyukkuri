@@ -110,8 +110,7 @@ public final class ShelterBlock extends Block implements EntityBlock {
     }
     @Override protected RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape collision=getCollisionShape(state,level,pos,context);
-        return collision.isEmpty() ? box(0,0,0,16,1,16) : collision;
+        return ShelterGeometry.outline(kind,state.getValue(FACING),state.getValue(PART));
     }
     @Override protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return kind==Kind.BURROW?Shapes.empty():ShelterGeometry.shape(kind,state.getValue(FACING),state.getValue(PART));

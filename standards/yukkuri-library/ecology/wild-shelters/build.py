@@ -7,6 +7,8 @@ from PIL import Image, ImageDraw, ImageFont
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
 import sys
+sys.path.insert(0,str(ROOT/'scripts'))
+from facility_outline import facility_outline
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--check',action='store_true',help='verify the authored carton exports without writing files')
 args=parser.parse_args()
@@ -109,7 +111,9 @@ for i,(a,b,r) in enumerate([((-5.8,0,-7),(-8.1,9,-8.1),.24),((5.8,0,-7),(8.1,7,-
     boundary.beam('loose_twig_'+str(i),a,b,r,'bark')
     name,points,faces,mat,_=boundary.meshes[-1];boundary.meshes[-1]=(name,points,faces,mat,i+1)
 models.append(boundary)
-write(RUN/'data/mcyukkuri/shelters/forest_burrow.json',{'units_per_block':16,'collision':[]})
+# The leaf bed is the only visible surface of the burrow inside the core cell; the twig rim leaves it. No collision.
+BURROW_FLOOR=[[-8,0,-8,8,1,8]]
+write(RUN/'data/mcyukkuri/shelters/forest_burrow.json',{'units_per_block':16,'outline':facility_outline(BURROW_FLOOR,2),'collision':[]})
 # Self-built nests (wild yukkuri) are authored in the care-props kit with vanilla texture references (wild.py).
 
 import wild as care_wild
@@ -135,7 +139,7 @@ def export_carton(level):
     for suffix in ('.json','.bbmodel','.png'):shutil.copy2(OUT/(name+suffix),SNAP/(name+suffix))
     shutil.copy2(OUT/(name+'.json'),RUN/'assets/mcyukkuri/yukkuri_props'/(name+'.json'))
     save_image(image,RUN/'assets/mcyukkuri/textures/props'/(name+'.png'))
-    if level==0:write(RUN/'data/mcyukkuri/shelters'/(name+'.json'),{'units_per_block':16,'collision':carton.collision})
+    if level==0:write(RUN/'data/mcyukkuri/shelters'/(name+'.json'),{'units_per_block':16,'outline':facility_outline(carton.collision,2,qx=1),'collision':carton.collision})
     return mesh
 for _level,_name in enumerate(('cardboard_shelter','cardboard_shelter_damp','cardboard_shelter_soaked')):exports[_name]=export_carton(_level)
 for _name in KIT_NESTS:exports[_name]=export_kit(care_wild.WILD[_name]())
