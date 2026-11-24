@@ -1800,7 +1800,6 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 // A fight that ended in a kill leaves the winner settled beside the body, not chasing the next target. A body
                 // that could not go on leaves by air instead of dropping at the victor's feet.
                 if (retaliation && prey != null && (!prey.isAlive() || prey.body().dying())) rest(KILL_PAUSE, "combat_kill");
-                else if (!retaliation && prey != null && !prey.isAlive() && eatFallen(prey)) return;
                 else landAvoidingFoe();
                 return;
             }
@@ -1901,17 +1900,6 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         boolean taken = !bite.isEmpty() && animal.life().acceptBodyFood(bite);
         GameplayLog.event(animal,"predator","remains feeding via={} remains={} accepted={} portions={} remaining={} -> {} nutrition={}",
                 via,remains.getUUID(),taken,bite.portions(),before,CorpseFood.remaining(remains.data()),animal.life().nutrition());
-    }
-    /** A hunted prey that bled out of the hunter's wounds lies where it fell: the hunter goes to those remains and eats, as after a kill by its own bite. */
-    private boolean eatFallen(YukkuriEntity fallen) {
-        var remains = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(24),
-                        r -> fallen.getUUID().equals(r.identity()) && edibleCorpse(r)).stream().findFirst().orElse(null);
-        if (remains == null || !animal.life().canAcceptBodyFood()) return false;
-        GameplayLog.event(animal,"predator","hunted prey fell of its wounds; going to its remains prey={} remains={} distance={} nutrition={}",
-                fallen.getUUID(),remains.getUUID(),animal.distanceTo(remains),animal.life().nutrition());
-        prey = null; food = null; corpse = remains; task = Task.SCAVENGE;
-        start();
-        return true;
     }
     /** Stay and eat where the bite or the kill happened; land first if still in the air. */
     private void rest(int ticks, String reason) {
