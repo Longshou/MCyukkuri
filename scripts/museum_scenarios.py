@@ -4826,6 +4826,72 @@ add('park_recall_play', 'park', '主人天黑召回正在玩的宠物', '主人�
     spot='yard', vantage=(*_lot_spot('trampoline', -1, 5), -169, 15),
     reads=[('读魔理沙', f'yukkuri status {sel("recall_bold")} raw')])
 
+add('park_slide', 'park', '滑梯：胆大油反复滑，胆小油不上去', '滑梯：胆大油反复滑，胆小油不上去',
+    '滑梯与陶管北侧草坪上有两只无聊的流浪油。左前方胆大好奇的魔理沙爬上滑梯滑下、意犹未尽再来一轮；右侧胆小的灵梦不上滑梯，转去钻旁边的陶管。',
+    '约 1 分钟', [
+        block(3, 0, -6, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(7, 0, -6, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('park_slide', 'marisa', 3, -4, 'slide_bold', boldness=95, intelligence=95,
+                     adult_scale=.95, nutrition=95, energy=95, yaw=35, label='胆大好奇魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        street_trial('park_slide', 'reimu', 6, -4, 'slide_timid', boldness=5, intelligence=20,
+                     adult_scale=1.05, nutrition=95, energy=90, yaw=0, label='胆小灵梦',
+                     extra='YukkuriDailyLife:{Boredom:90,Affection:20}'),
+        home('slide_bold', 3, -6), home('slide_timid', 7, -6),
+    ], env=DAY, spot='slide', vantage=(1, 6, -164, 12),
+    reads=[('读魔理沙', f'yukkuri status {sel("slide_bold")} raw'),
+           ('读灵梦', f'yukkuri status {sel("slide_timid")} raw')])
+
+add('park_tube', 'park', '陶管：胆小流浪油穿管并折返再来', '陶管：胆小流浪油穿管并折返再来',
+    '公园陶管北侧有一只无聊且胆小的流浪灵梦。看它从北口钻进陶管穿过，南口出来让开后仍想玩，再折返从南口钻回，玩够后满意停下。',
+    '约 1 分钟', [
+        block(3, 0, -4, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('park_tube', 'reimu', 0, -4, 'tube_timid', boldness=5, intelligence=30,
+                     adult_scale=1.0, nutrition=95, energy=90, yaw=0, label='胆小流浪灵梦',
+                     extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        home('tube_timid', 3, -4),
+    ], env=DAY, spot='tunnel', vantage=(2, 5, 162, 14),
+    reads=[('读灵梦', f'yukkuri status {sel("tube_timid")} raw')])
+
+add('park_rolling_toys', 'park', '滚球与弹珠：草坪上的滚动玩具', '滚球与弹珠：草坪上的滚动玩具',
+    '公园凉亭南侧草坪上放着毛线球和玻璃弹珠，旁有三只性格与精力不同的流浪油：左侧魔理沙与右侧橙精力足，走近拱动并追着滚动的毛线球和弹珠玩；中间精力低的灵梦不理它们。',
+    '约 1 分钟', [
+        *shed(-1, 5, half=1),
+        *shed(3, 5, half=1),
+        *shed(7, 5, half=1),
+        item('mcyukkuri:yarn_ball', 1, -1, 7, 'toy_yarn'),
+        item('mcyukkuri:glass_marble', 1, 7, 7, 'toy_marble'),
+        street_trial('park_rolling_toys', 'marisa', -1, 8, 'toy_playful_a', boldness=90, attachment=95, friendliness=20,
+                     nutrition=95, energy=95, social_wait=0, yaw=180, label='爱玩魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:30,Affection:10}'),
+        street_trial('park_rolling_toys', 'chen', 7, 8, 'toy_playful_b', boldness=80, attachment=95, friendliness=20,
+                     nutrition=95, energy=95, social_wait=0, yaw=180, label='爱玩橙',
+                     extra='YukkuriDailyLife:{Boredom:30,Affection:10}'),
+        street_trial('park_rolling_toys', 'reimu', 3, 8, 'toy_low_drive', boldness=20, attachment=15, friendliness=20,
+                     nutrition=95, energy=32, social_wait=0, yaw=180, label='没精神灵梦',
+                     extra='YukkuriDailyLife:{Boredom:30,Affection:10}'),
+    ], at_spawn=[home('toy_playful_a', -1, 5), home('toy_playful_b', 7, 5), home('toy_low_drive', 3, 5)],
+    env=DAY, spot='pavilion', vantage=(3, 13, 180, 16),
+    reads=[('读魔理沙', f'yukkuri status {sel("toy_playful_a")} raw'),
+           ('读橙', f'yukkuri status {sel("toy_playful_b")} raw'),
+           ('读灵梦', f'yukkuri status {sel("toy_low_drive")} raw')])
+
+add('park_trampoline_contrast', 'park', '蹦床对照：轻巧胆大与沉重胆小', '蹦床对照：轻巧胆大与沉重胆小',
+    '蹦床西侧有两只无聊的流浪油：轻巧胆大的魔理沙连续高跳多下，沉重胆小的灵梦在旁等候后上床，跳得更少也更低，很快因受惊或疲惫停下。',
+    '约 1 分钟', [
+        block(-5, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(-6, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('park_trampoline_contrast', 'marisa', -3, -3, 'tramp_bold', boldness=95, intelligence=10,
+                     self_control=95, adult_scale=.85, nutrition=95, energy=100, yaw=-45, label='轻巧胆大魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:98,Affection:20}'),
+        street_trial('park_trampoline_contrast', 'reimu', -4, -1, 'tramp_timid', boldness=10, intelligence=15,
+                     self_control=95, adult_scale=1.2, nutrition=95, energy=55, yaw=-75, label='沉重胆小灵梦',
+                     extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        home('tramp_bold', -5, -5), home('tramp_timid', -6, -2),
+    ], env=DAY, spot='trampoline', vantage=(-1, 5, -165, 14),
+    reads=[('读魔理沙', f'yukkuri status {sel("tramp_bold")} raw'),
+           ('读灵梦', f'yukkuri status {sel("tramp_timid")} raw')])
+
 add('park_picnic', 'park', '主人在公园长椅上分苹果', '主人在公园长椅上分苹果',
     '院子货箱里有一个苹果。院主先取苹果，再带饿了的魔理沙进公园，坐到蹦床旁的长椅上掰开苹果，一半放到魔理沙面前，一半自己吃，吃完回院。'
     '街上饿着的流浪橙也可能进来讨食。',
@@ -9027,7 +9093,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -11515,6 +11581,100 @@ def _park_recall_verify(window):
     return _verify_outing_pace(window)
 
 
+def _park_slide_verify(window):
+    """Bold curious stray completes >=2 slide rounds with matching faces and slide clips; timid stray stays off the slide."""
+    bold = _uuid_text('park_slide', 'slide_bold')
+    timid = _uuid_text('park_slide', 'slide_timid')
+    bold_sessions = [int(m[1]) for m in re.finditer(
+        rf'uuid={bold} [^\n]*facility session ended kind=SLIDE[^\n]*completed=true[^\n]*rounds=(\d+)', window)]
+    if not bold_sessions or sum(bold_sessions) < 2:
+        return f'slide_bold did not complete >=2 SLIDE rounds (saw {bold_sessions})'
+    bold_beats = re.findall(
+        rf'uuid={bold} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+) kind=(\S+) clip=(\S+)', window)
+    if not bold_beats:
+        return 'slide_bold logged no play beats'
+    for beat, shown, declared, _, _, _ in bold_beats:
+        if shown != declared:
+            return f'slide_bold beat {beat} showed face={shown} instead of declared={declared}'
+    names = {b[0] for b in bold_beats}
+    for req in ('choose_facility', 'play', 'go_again', 'had_enough'):
+        if req not in names:
+            return f'slide_bold missed beat {req} (saw {sorted(names)})'
+    if re.search(rf'uuid={timid} [^\n]*facility session started kind=SLIDE\b', window):
+        return 'slide_timid started a SLIDE session'
+    timid_beats = re.findall(
+        rf'uuid={timid} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+    for beat, shown, declared, _ in timid_beats:
+        if shown != declared:
+            return f'slide_timid beat {beat} showed face={shown} instead of declared={declared}'
+    return None
+
+
+def _park_tube_verify(window):
+    """Timid stray completes >=2 ceramic tube rounds on the park field with matching faces."""
+    timid = _uuid_text('park_tube', 'tube_timid')
+    sessions = [int(m[1]) for m in re.finditer(
+        rf'uuid={timid} [^\n]*facility session ended kind=CERAMIC[^\n]*completed=true[^\n]*rounds=(\d+)', window)]
+    if not sessions or sum(sessions) < 2:
+        return f'tube_timid did not complete >=2 CERAMIC rounds (saw {sessions})'
+    beats = re.findall(
+        rf'uuid={timid} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+    if not beats:
+        return 'tube_timid logged no play beats'
+    for beat, shown, declared, _ in beats:
+        if shown != declared:
+            return f'tube_timid beat {beat} showed face={shown} instead of declared={declared}'
+    names = {b[0] for b in beats}
+    for req in ('choose_facility', 'play', 'go_again', 'had_enough'):
+        if req not in names:
+            return f'tube_timid missed beat {req} (saw {sorted(names)})'
+    return None
+
+
+def _park_rolling_toys_verify(window):
+    """Playful strays nudge and roll the yarn ball and glass marble; low-drive stray logs no toy session."""
+    low = _uuid_text('park_rolling_toys', 'toy_low_drive')
+    if re.search(rf'uuid={low} [^\n]*toy session started\b', window):
+        return 'toy_low_drive started a toy session'
+    for name, expected_item in (('toy_playful_a', 'yarn_ball'), ('toy_playful_b', 'glass_marble')):
+        actor = _uuid_text('park_rolling_toys', name)
+        if not re.search(rf'uuid={actor} [^\n]*toy session started [^\n]*item=[^\s]*{expected_item}\b', window):
+            return f'{name} did not start a toy session on {expected_item}'
+        touches = [int(m[1]) for m in re.finditer(
+            rf'uuid={actor} [^\n]*toy session stopped [^\n]*touches=(\d+)', window)]
+        if not touches or max(touches) < 1:
+            return f'{name} did not nudge/roll its toy (touches={touches})'
+    return None
+
+
+def _park_trampoline_contrast_verify(window):
+    """Light bold stray bounces many times and high; heavy timid stray bounces fewer and lower on the trampoline."""
+    bold = _uuid_text('park_trampoline_contrast', 'tramp_bold')
+    timid = _uuid_text('park_trampoline_contrast', 'tramp_timid')
+    stats = {}
+    for name, actor in (('tramp_bold', bold), ('tramp_timid', timid)):
+        beats = re.findall(rf'uuid={actor} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+        if not beats:
+            return f'{name} logged no play beats'
+        for beat, shown, declared, _ in beats:
+            if shown != declared:
+                return f'{name} beat {beat} showed face={shown} instead of declared={declared}'
+        rebounds = [tuple(map(float, m.groups())) for m in re.finditer(
+            rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
+            r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)]
+        if not rebounds:
+            return f'{name} logged no trampoline rebounds'
+        stats[name] = (len(rebounds), max(r[2] for r in rebounds), rebounds[0][0],
+                       len([r[2] for r in rebounds if r[2] >= .45]))
+    b_n, b_max, b_w, b_real = stats['tramp_bold']
+    t_n, t_max, t_w, _ = stats['tramp_timid']
+    if b_real < 8 or b_w >= 0.50:
+        return f'tramp_bold weak: real={b_real} weight={b_w:.3f}'
+    if t_w <= b_w or t_n >= b_n or t_max >= b_max:
+        return f'contrast not shown: bold=(n={b_n},max={b_max:.3f},w={b_w:.3f}) timid=(n={t_n},max={t_max:.3f},w={t_w:.3f})'
+    return None
+
+
 # The park's facilities are terrain (the field writes the blocks PlayItem.place sets), so no marker placement is logged: the start
 # checks every facility's core block instead, and a field clear must stand the trampoline up again without dropping it as an item.
 _SIT = r'action=outing_sit seat=-?\d+, -?\d+, -?\d+ facing=\w+ candidates=[1-9]'
@@ -11571,6 +11731,43 @@ _smoke('park_recall_play', 2400, [
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
            r'result=separated', r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
 next(s for s in S if s.id == 'park_recall_play').smoke.update(verify=_park_recall_verify)
+_smoke('park_slide', 1800, [
+    rf'uuid={_uuid_text("park_slide", "slide_bold")} [^\n]*facility session started kind=SLIDE\b',
+    rf'uuid={_uuid_text("park_slide", "slide_bold")} [^\n]*play beat=play face=open_smile declared=open_smile line=glow kind=SLIDE\b',
+    rf'uuid={_uuid_text("park_slide", "slide_bold")} [^\n]*play beat=go_again\b',
+    rf'uuid={_uuid_text("park_slide", "slide_bold")} [^\n]*facility session ended kind=SLIDE[^\n]*completed=true[^\n]*rounds=[2-9]\b',
+    rf'uuid={_uuid_text("park_slide", "slide_bold")} [^\n]*play beat=had_enough\b',
+], forbid=[
+    rf'uuid={_uuid_text("park_slide", "slide_timid")} [^\n]*facility session started kind=SLIDE\b',
+    r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b',
+])
+next(s for s in S if s.id == 'park_slide').smoke.update(verify=_park_slide_verify)
+_smoke('park_tube', 1800, [
+    rf'uuid={_uuid_text("park_tube", "tube_timid")} [^\n]*facility session started kind=CERAMIC\b',
+    rf'uuid={_uuid_text("park_tube", "tube_timid")} [^\n]*play beat=play face=happy declared=happy line=none kind=CERAMIC\b',
+    rf'uuid={_uuid_text("park_tube", "tube_timid")} [^\n]*play beat=go_again\b',
+    rf'uuid={_uuid_text("park_tube", "tube_timid")} [^\n]*facility session ended kind=CERAMIC[^\n]*completed=true[^\n]*rounds=[2-9]\b',
+    rf'uuid={_uuid_text("park_tube", "tube_timid")} [^\n]*play beat=had_enough\b',
+], forbid=[r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
+next(s for s in S if s.id == 'park_tube').smoke.update(verify=_park_tube_verify)
+_smoke('park_rolling_toys', 1400, [
+    rf'uuid={_uuid_text("park_rolling_toys", "toy_playful_a")} [^\n]*toy session started [^\n]*yarn_ball\b',
+    rf'uuid={_uuid_text("park_rolling_toys", "toy_playful_a")} [^\n]*toy session stopped [^\n]*touches=[1-9]\d*\b',
+    rf'uuid={_uuid_text("park_rolling_toys", "toy_playful_b")} [^\n]*toy session started [^\n]*glass_marble\b',
+    rf'uuid={_uuid_text("park_rolling_toys", "toy_playful_b")} [^\n]*toy session stopped [^\n]*touches=[1-9]\d*\b',
+], forbid=[
+    rf'uuid={_uuid_text("park_rolling_toys", "toy_low_drive")} [^\n]*toy session started\b',
+    r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b',
+])
+next(s for s in S if s.id == 'park_rolling_toys').smoke.update(verify=_park_rolling_toys_verify)
+_smoke('park_trampoline_contrast', 1800, [
+    rf'uuid={_uuid_text("park_trampoline_contrast", "tramp_bold")} [^\n]*facility session started kind=TRAMPOLINE\b',
+    rf'uuid={_uuid_text("park_trampoline_contrast", "tramp_bold")} [^\n]*play beat=peak\b',
+    rf'uuid={_uuid_text("park_trampoline_contrast", "tramp_bold")} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b',
+    rf'uuid={_uuid_text("park_trampoline_contrast", "tramp_timid")} [^\n]*facility session started kind=TRAMPOLINE\b',
+    rf'uuid={_uuid_text("park_trampoline_contrast", "tramp_timid")} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b',
+], forbid=[r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
+next(s for s in S if s.id == 'park_trampoline_contrast').smoke.update(verify=_park_trampoline_contrast_verify)
 _picnic_pet = _uuid_text('park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',

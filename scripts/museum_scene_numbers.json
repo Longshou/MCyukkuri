@@ -350,6 +350,10 @@
     "doll_talk_giveup": "PK-12",
     "park_stray_play": "PK-13",
     "park_wait_switch": "PK-14",
-    "park_recall_play": "PK-15"
+    "park_recall_play": "PK-15",
+    "park_slide": "PK-16",
+    "park_tube": "PK-17",
+    "park_rolling_toys": "PK-18",
+    "park_trampoline_contrast": "PK-19"
   }
 }
