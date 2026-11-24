@@ -607,6 +607,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     boolean waits() { return waitFor != null; }
 
+    /** True while this body is participating in or waiting on an active {@link Encounter}. */
+    public boolean inEncounter() { return encounter != null || waitFor != null; }
+
+    /** Forwards the arbiter's actual published face so an active encounter can log declared vs shown. */
+    public void observeFace(String shown) { if (encounter != null) encounter.observeFace((YukkuriEntity) mob, shown); }
+
     /** A walk's Walk watchdog window restarts when the encounter decided how the pair passes. */
     void restarted() { replans++; }
 

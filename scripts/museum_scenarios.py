@@ -2447,12 +2447,12 @@ add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草',
 add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑去远处石顶下躲雨',
     '三只性格各异的油库里在石顶东侧淋雨起跑（旧16格范围外）：胆小灵梦往顶内深处躲，中等魔理沙居于中段，胆大橙停在偏外侧，彼此错格并排；进入遮蔽后先抖水再朝雨外安顿，不卡人也不重放奔跑动作',
     '约 30 秒', [
-        yk('reimu', 17, -1, 'a', yaw=90, boldness=15, lead=True, uuid=uid('rain_shelter', 'a')),
+        yk('reimu', 17, -1, 'a', yaw=90, boldness=5, lead=True, uuid=uid('rain_shelter', 'a')),
         yk('marisa', 18, 1, 'b', yaw=90, boldness=50, uuid=uid('rain_shelter', 'b')),
-        yk('chen', 17, 2, 'c', yaw=90, boldness=85, uuid=uid('rain_shelter', 'c'))],
-    env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(8, 8, 180, 14),
+        yk('chen', 17, 2, 'c', yaw=90, boldness=90, uuid=uid('rain_shelter', 'c'))],
+    env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(11, 6, 180, 12),
     reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')],
-    smoke=dict(ticks=700,
+    smoke=dict(ticks=750,
                expect=[r'\[weather\][^\n]* shelter response started ',
                        r'\[weather\][^\n]* cover chosen [^\n]*depth=\d+ preferred=',
                        r'\[weather\][^\n]* shelter response ended '],
@@ -2461,7 +2461,7 @@ add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑�
 
 def _verify_rain_shelter(window, trace):
     actors = {name: _uuid_text('rain_shelter', name) for name in ('a', 'b', 'c')}
-    depths, preferreds, ends, end_ticks, end_cells = {}, {}, {}, {}, {}
+    depths, preferreds, end_ticks, end_cells = {}, {}, {}, {}
     for name, u in actors.items():
         m_cover = re.search(rf'\[weather\][^\n]* uuid={u} [^\n]*cover chosen pos=(-?\d+,\s*-?\d+,\s*-?\d+) depth=(\d+) preferred=([0-9.]+)', window)
         if not m_cover:
@@ -2483,15 +2483,17 @@ def _verify_rain_shelter(window, trace):
                 return f'{name} beat={beat} face mismatch declared={declared} shown={shown}'
     if not (preferreds['a'] > preferreds['b'] > preferreds['c']):
         return f'preferred depth not ordered by boldness: {preferreds}'
-    if not (depths['a'] > depths['c']):
-        return f'timid a did not choose deeper cover than bold c: {depths}'
+    if not (depths['a'] > depths['b'] > depths['c']):
+        return f'chosen depths not strictly ordered timid > mid > bold: {depths}'
     if len(set(end_cells.values())) < 3:
         return f'two bodies ended in the same cover cell: {end_cells}'
-    # Check trace: no actor left in the rain > 80 ticks after first arrival, and no run-clip restart loop.
+    # Check trace: no actor left in the rain > 100 ticks after first arrival, no run-clip restart loop, and no idle while moving.
     first_under = None
     last_in_rain = {}
     run_starts = {name: 0 for name in actors}
     prev_anim = {name: None for name in actors}
+    prev_pos = {name: None for name in actors}
+    idle_while_moving = []
     rev = {u: name for name, u in actors.items()}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
@@ -2500,14 +2502,19 @@ def _verify_rain_shelter(window, trace):
         name = rev[row['u']]
         t = row['t']
         p = row['st'].get('p')
+        beh, anim = row['st'].get('behavior'), row['st'].get('animation')
         if p:
             under = -326 <= math.floor(p[0]) <= -318 and 296 <= math.floor(p[2]) <= 304
             if under:
                 if first_under is None or t < first_under:
                     first_under = t
-            else:
+            elif t <= end_ticks[name]:
                 last_in_rain[name] = t
-        beh, anim = row['st'].get('behavior'), row['st'].get('animation')
+            if prev_pos[name] is not None and row['st'].get('g') and beh == 'rain_run':
+                step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
+                if step > 0.015 and anim == 'idle':
+                    idle_while_moving.append((name, t, round(step, 4)))
+            prev_pos[name] = p
         if beh == 'rain_run' and anim == 'run' and prev_anim[name] != 'run':
             run_starts[name] += 1
         prev_anim[name] = anim
@@ -2516,12 +2523,77 @@ def _verify_rain_shelter(window, trace):
     for name, t_rain in last_in_rain.items():
         if t_rain - first_under > 100:
             return f'{name} stayed in the rain {t_rain - first_under} ticks after first arrival (t={t_rain}, first={first_under})'
+    if idle_while_moving:
+        return f'idle clip shown while moving during rain_run: {idle_while_moving[:5]}'
     for name, starts in run_starts.items():
-        if starts > 3:
+        if starts > 2:
             return f'{name} restarted run clip {starts} times during rain_run (clip restart loop)'
 
 
 next(s for s in S if s.id == 'rain_shelter').smoke.update(verify=_verify_rain_shelter, verify_trace=True)
+
+
+add('rain_shelter_full', 'weather', '满顶躲雨：先到者往里让位，无位者另找掩体', '满顶躲雨让位与另找掩体',
+    '两格深的一格宽石檐下：先到的大胆橙停在入口格，后到的灵梦请它往里挪（遭遇表情台词＋转身进内格，不倒退），第三只魔理沙见两格已满则跑去北侧备用小顶躲雨而不滞留雨中',
+    '约 30 秒', [
+        # 2-cell deep, 1-cell wide stone alcove open to the east (+x): covered stands at (0,0) and (-1,0)
+        box(-2, 0, -1, 0, 1, -1, 'minecraft:stone_bricks'),
+        box(-2, 0, 1, 0, 1, 1, 'minecraft:stone_bricks'),
+        box(-2, 0, 0, -2, 1, 0, 'minecraft:stone_bricks'),
+        box(-1, 2, 0, 0, 2, 0, 'minecraft:stone_bricks'),
+        # Backup 3x3 roof 14 blocks north so the 3rd body that finds no room in the full alcove shelters there instead of soaking.
+        box(-1, 2, -15, 1, 2, -13, 'minecraft:stone_bricks'),
+        box(-1, 0, -15, -1, 1, -15, 'minecraft:stone_brick_wall'),
+        box(1, 0, -15, 1, 1, -15, 'minecraft:stone_brick_wall'),
+        box(-1, 0, -13, -1, 1, -13, 'minecraft:stone_brick_wall'),
+        box(1, 0, -13, 1, 1, -13, 'minecraft:stone_brick_wall'),
+        yk('chen', 2, 0, 'front', yaw=90, boldness=90, lead=True, uuid=uid('rain_shelter_full', 'front')),
+        yk('reimu', 5, 0, 'second', yaw=90, boldness=85, uuid=uid('rain_shelter_full', 'second')),
+        yk('marisa', 9, 0, 'third', yaw=90, boldness=50, uuid=uid('rain_shelter_full', 'third'))],
+    env={'time': 'noon', 'weather': 'rain'}, spot='open', vantage=(4, 7, 180, 14),
+    reads=[('读让位与避雨状态', 'yukkuri status @e[tag=scn,distance=..32] raw')],
+    smoke=dict(ticks=700,
+               expect=[r'\[move\][^\n]* encounter begin [^\n]*reason=make_room\b',
+                       r'\[move\][^\n]* encounter face [^\n]*reason=make_room\b',
+                       r'\[move\][^\n]* encounter end [^\n]*result=passed cause=room_made\b'],
+               forbid=[r'\[body\][^\n]* invariant\b']))
+
+
+def _verify_rain_shelter_full(window, trace):
+    front = _uuid_text('rain_shelter_full', 'front')
+    second = _uuid_text('rain_shelter_full', 'second')
+    third = _uuid_text('rain_shelter_full', 'third')
+    m_face = re.search(rf'\[move\][^\n]* uuid={front} [^\n]*encounter face [^\n]*declared=(\S+) shown=(\S+) [^\n]*reason=make_room\b', window)
+    if not m_face:
+        return f'front ({front}) never logged make_room encounter face'
+    if m_face.group(1) != m_face.group(2):
+        return f'make_room face mismatch declared={m_face.group(1)} shown={m_face.group(2)}'
+    if not re.search(rf'\[weather\][^\n]* uuid={second} [^\n]*shelter response ended ', window):
+        return f'second ({second}) never finished sheltering after make_room'
+    if not re.search(rf'\[weather\][^\n]* uuid={third} [^\n]*shelter response ended ', window):
+        return f'third ({third}) never reached alternate cover after full alcove'
+    # Verify no idle while moving during rain_run.
+    rev = {front: 'front', second: 'second', third: 'third'}
+    prev_pos = {k: None for k in rev.values()}
+    idle_moving = []
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] != 'st' or row['u'] not in rev:
+            continue
+        name = rev[row['u']]
+        p = row['st'].get('p')
+        beh, anim = row['st'].get('behavior'), row['st'].get('animation')
+        if p and prev_pos[name] is not None and row['st'].get('g') and beh == 'rain_run':
+            step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
+            if step > 0.015 and anim == 'idle':
+                idle_moving.append((name, row['t'], round(step, 4)))
+        if p:
+            prev_pos[name] = p
+    if idle_moving:
+        return f'idle clip shown while moving in rain_shelter_full: {idle_moving[:5]}'
+
+
+next(s for s in S if s.id == 'rain_shelter_full').smoke.update(verify=_verify_rain_shelter_full, verify_trace=True)
 
 # No roof in reach: two dry ones search while running; two already near-soaked ones (wetness 97 and 98.5, +3 a second in rain)
 # show the damage that only comes at 100.
@@ -8562,7 +8634,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
-    'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
+    'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_shelter_full': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
     'pred_nest_feeding': 'R2', 'pred_fledging': 'R2', 'pred_tree_territory': 'R2',
     'pred_pad_cleanup': 'R2', 'pred_forage_avoidance': 'R2',

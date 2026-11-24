@@ -14,6 +14,7 @@ import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.Encounter;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.intent.Attempts;
 import io.github.longshou.mcyukkuri.intent.WorldSignature;
 import io.github.longshou.mcyukkuri.motor.Reason;
@@ -516,11 +517,11 @@ public final class Reactions {
      * No claim table or reservation. The weather goal and flight/outing paths share it.
      */
     public static BlockPos findCover(YukkuriEntity y, Vec3 danger, int offset) {
-        var choice = chooseCover(y, danger, offset, pos -> true);
+        var choice = chooseCover(y, danger, offset, pos -> true, true);
         return choice == null ? null : choice.pos();
     }
 
-    static CoverChoice chooseCover(YukkuriEntity y, Vec3 danger, int offset, Predicate<BlockPos> allowed) {
+    static CoverChoice chooseCover(YukkuriEntity y, Vec3 danger, int offset, Predicate<BlockPos> allowed, boolean allowOccupied) {
         var level = (ServerLevel) y.level();
         var life = y.life();
         double preferred = preferredDepth(y, level);
@@ -550,6 +551,7 @@ public final class Reactions {
                 if (!farther(pos, y, danger) || !allowed.test(pos)) continue;
                 Vec3 spot = Vec3.atBottomCenterOf(pos);
                 boolean occupied = Encounter.occupied(y, spot);
+                if (occupied && !allowOccupied) continue;
                 if (!occupied && !Encounter.standFree(y, spot, spot)) continue;
                 int depth = coverDepth(level, pos);
                 double crowd = coverCrowding(y, spot, occupied, nearby);
@@ -575,7 +577,7 @@ public final class Reactions {
         double wet = Math.clamp(y.life().wetness() / 100.0, 0, 1);
         boolean storm = level.isThundering();
         boolean youngOrCarrying = !y.family().adult() || y.family().carry().carrying();
-        return Math.clamp(1.2 + 2.2 * (1.0 - bold) + 1.0 * unease + 0.8 * wet + (storm ? 1.0 : 0) + (youngOrCarrying ? 1.0 : 0), 1.0, 4.5);
+        return Math.clamp(0.8 + 2.8 * (1.0 - bold) + 1.0 * unease + 0.8 * wet + (storm ? 1.0 : 0) + (youngOrCarrying ? 1.0 : 0), 1.0, 4.5);
     }
 
     /** Horizontal Chebyshev steps from {@code pos} to the nearest open-sky cell (1 = roof edge, capped at 5). */
@@ -920,7 +922,16 @@ public final class Reactions {
             return WorldSignature.of(targetVec, y.position(), Encounter.occupantIds(y, targetVec), y.level().getGameTime());
         }
 
-        private void pickCover() {
+        private void recordShelterFailure(BlockPos cell, Reason reason) {
+            if (cell == null) return;
+            String key = coverKey(cell);
+            var sig = shelterSignature(cell);
+            if (!shelterAttempts.excluded(key, sig)) shelterAttempts.fail(key, reason, 0, sig);
+        }
+
+        private void pickCover() { pickCover(true); }
+
+        private void pickCover(boolean allowOccupied) {
             var parent = ParentCarry.flightEscort(y, null);
             if (parent != null) {
                 var shelter = parent.status().reactions().weather.cover;
@@ -931,17 +942,32 @@ public final class Reactions {
                     return;
                 }
             }
-            if (shelterAttempts.exhausted()) shelterAttempts = new Attempts();
-            chosenCover = Reactions.chooseCover(y, null, 0, pos -> !shelterAttempts.excluded(coverKey(pos), shelterSignature(pos)));
+            if (shelterAttempts.exhausted()) { chosenCover = null; cover = null; return; }
+            chosenCover = Reactions.chooseCover(y, null, 0, pos -> !shelterAttempts.excluded(coverKey(pos), shelterSignature(pos)), allowOccupied);
             cover = chosenCover == null ? null : chosenCover.pos();
         }
 
         private boolean retargetCover(ServerLevel level, Reason reason) {
+            return retargetCover(level, reason, Double.POSITIVE_INFINITY);
+        }
+
+        private boolean retargetCover(ServerLevel level, Reason reason, double maxDistFromCurrent) {
             BlockPos previous = cover;
-            if (previous != null) shelterAttempts.fail(coverKey(previous), reason, 0, shelterSignature(previous));
-            pickCover();
-            if (cover != null && !cover.equals(previous) && !Encounter.occupied(y, Vec3.atBottomCenterOf(cover))) {
-                logCoverChosen("retargeted");
+            recordShelterFailure(previous, reason);
+            if (shelterAttempts.exhausted()) return false;
+            double limitSqr = Double.isFinite(maxDistFromCurrent) ? maxDistFromCurrent * maxDistFromCurrent : Double.POSITIVE_INFINITY;
+            var next = Reactions.chooseCover(y, null, 0,
+                    pos -> !shelterAttempts.excluded(coverKey(pos), shelterSignature(pos))
+                            && (previous == null || !Double.isFinite(limitSqr) || pos.distSqr(previous) <= limitSqr),
+                    false);
+            if (next != null && !next.pos().equals(previous)) {
+                chosenCover = next;
+                cover = next.pos();
+                GameplayLog.event(y, "weather", "cover retargeted from={} pos={} reason={} depth={} preferred={} crowd={} boldness={} unease={} wetness={}",
+                        previous == null ? "none" : previous.toShortString(), chosenCover.pos().toShortString(), reason,
+                        chosenCover.depth(), String.format(Locale.ROOT, "%.2f", chosenCover.preferred()),
+                        String.format(Locale.ROOT, "%.2f", chosenCover.crowd()),
+                        y.life().personality().boldness(), Math.round(y.mind().unease()), Math.round(y.life().wetness()));
                 return true;
             }
             return false;
@@ -1026,6 +1052,10 @@ public final class Reactions {
                     }
                 }
                 case RUN -> {
+                    if (y.getNavigation() instanceof YukkuriGroundNavigation g && g.inEncounter()) {
+                        SurfaceApproach.halt(y);
+                        return;
+                    }
                     if (cover == null || !life.dryStand(cover) || !FoundShelter.streetCoverFree(y, cover)) {
                         if (!retargetCover(level, Reason.NO_ROOM)) searchOnFoot();
                         return;
@@ -1033,28 +1063,58 @@ public final class Reactions {
                     Vec3 spot = Vec3.atBottomCenterOf(cover);
                     double reach = y.distanceToSqr(spot);
                     if (Encounter.occupied(y, spot)) {
-                        if (retargetCover(level, Reason.NO_ROOM)) return;
+                        if (retargetCover(level, Reason.NO_ROOM, 6.0)) return;
                         if (reach < 9) {
                             var occupant = Encounter.standingOccupant(y, spot);
-                            if (occupant != null && Encounter.makeRoom(occupant, y, occupant.position().subtract(y.position()),
+                            if (occupant != null && Encounter.makeRoom(occupant, y, spot, occupant.position().subtract(y.position()),
                                     at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
                                 SurfaceApproach.halt(y);
                                 return;
                             }
                         }
+                        if (retargetCover(level, Reason.NO_ROOM)) return;
                         if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())
                                 && !Encounter.occupied(y, y.position()) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
                             arriveCover(level); return;
                         }
+                        // No free cell and occupant could not make room: look for other cover instead of standing in the rain.
+                        if (reach < 9) { searchOnFoot(); return; }
+                    }
+                    // Before walking into a standing body that blocks a narrow covered entrance on the way to spot, ask it to shift deeper.
+                    if (reach > .25 && reach < 9) {
+                        Vec3 stepDir = spot.subtract(y.position()).multiply(1, 0, 1);
+                        if (stepDir.lengthSqr() > 1e-6) {
+                            Vec3 dir = stepDir.normalize();
+                            var ahead = Encounter.standingOccupant(y, y.position().add(dir.scale(1.1)));
+                            if (ahead != null && Sky.at(level, ahead.blockPosition()) == Sky.CLEAR && life.covered(ahead.blockPosition())
+                                    && ahead.getNavigation().isDone()
+                                    && Encounter.makeRoom(ahead, y, ahead.position(), dir,
+                                            at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
+                                SurfaceApproach.halt(y);
+                                return;
+                            }
+                        }
                     }
                     double pace = sky == Sky.STORM ? 1.5 : 1.3;
                     var result = SurfaceApproach.walkResult(y, spot, null, pace);
-                    if ((result == SurfaceApproach.Result.ARRIVED || reach < .25 && Sky.at(level, y.blockPosition()) == Sky.CLEAR)
+                    if ((result == SurfaceApproach.Result.ARRIVED || reach < .04 && Sky.at(level, y.blockPosition()) == Sky.CLEAR)
                             && !Encounter.occupied(y, spot) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
                         arriveCover(level);
                         return;
                     }
                     if (result == SurfaceApproach.Result.BLOCKED) {
+                        if (retargetCover(level, Reason.NO_PATH, 6.0)) return;
+                        if (reach < 9) {
+                            Vec3 stepDir = spot.subtract(y.position()).multiply(1, 0, 1);
+                            Vec3 ahead = stepDir.lengthSqr() > 1e-6 ? y.position().add(stepDir.normalize()) : spot;
+                            var blocker = Encounter.standingOccupant(y, ahead);
+                            if (blocker == null) blocker = Encounter.standingOccupant(y, spot);
+                            if (blocker != null && Encounter.makeRoom(blocker, y, blocker.position(), blocker.position().subtract(y.position()),
+                                    at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
+                                SurfaceApproach.halt(y);
+                                return;
+                            }
+                        }
                         if (retargetCover(level, Reason.NO_PATH)) return;
                         if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())
                                 && !Encounter.occupied(y, y.position()) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
@@ -1080,7 +1140,7 @@ public final class Reactions {
                 case SEARCH -> {
                     long now = level.getGameTime();
                     if (now >= searchAfter && SearchBudget.take(level)) {
-                        pickCover();
+                        pickCover(false);
                         searchAfter = now + 80;
                         if (cover != null) { stage = Stage.RUN; ticks = 0; logCoverChosen("chosen"); return; }
                     }

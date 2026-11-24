@@ -76,6 +76,8 @@ public final class Encounter {
     private int keeperIdle, holds;
     private long keeperTick;
     private Vec3 keeperAt;
+    private String pendingBeatRole, pendingBeatName, pendingBeatDeclared, pendingBeatLine;
+    private YukkuriEntity pendingBeatBody;
 
     private Encounter(YukkuriGroundNavigation keeperNav, YukkuriEntity keeper, YukkuriGroundNavigation yielderNav, YukkuriEntity yielder,
                       Vec3 axis, Found found, String reason, boolean deadEnd) {
@@ -133,10 +135,11 @@ public final class Encounter {
     }
 
     /**
-     * Ask a standing {@code occupant} to shift inward (along {@code inward}) to a free stand matching {@code acceptable},
-     * using the shared encounter notice beat and turn-first walk (never backwards). True when the shift started.
+     * Ask a standing {@code occupant} to shift inward (along {@code inward}) to a free stand clear of {@code spot} and
+     * matching {@code acceptable}, using the shared encounter notice beat and turn-first walk (never backwards).
+     * True when the shift started.
      */
-    public static boolean makeRoom(YukkuriEntity occupant, YukkuriEntity arrival, Vec3 inward, Predicate<Vec3> acceptable) {
+    public static boolean makeRoom(YukkuriEntity occupant, YukkuriEntity arrival, Vec3 spot, Vec3 inward, Predicate<Vec3> acceptable) {
         if (occupant == null || arrival == null || occupant == arrival || !able(occupant) || !canYield(occupant)) return false;
         if (!(occupant.directNavigation() instanceof YukkuriGroundNavigation occNav)
                 || !(arrival.directNavigation() instanceof YukkuriGroundNavigation arrNav) || occNav.encounter != null) return false;
@@ -146,18 +149,19 @@ public final class Encounter {
         Vec3 perp = new Vec3(-dir.z, 0, dir.x);
         double otherHalf = Passage.halfWidth(arrival, perp);
         double width = Passage.halfWidth(occupant, perp) + otherHalf, margin = Passage.MARGIN + .2;
+        double clearDistSqr = (width + .1) * (width + .1);
         Vec3 previous = occupant.position();
         Place chosen = null;
-        for (double s = STATION; s <= 4.0; s += STATION) {
+        for (double s = .5; s <= 4.0; s += .5) {
             Vec3 at = occupant.position().add(dir.scale(s));
             if (!standFree(occupant, previous, at)) break;
             previous = at;
-            if (acceptable.test(at) && at.distanceToSqr(arrival.position()) > width * width) {
+            if (acceptable.test(at) && at.distanceToSqr(spot) >= clearDistSqr) {
                 chosen = new Place(List.of(at), s);
                 break;
             }
-            Vec3 side = Passage.aside(at, at.subtract(arrival.position()).multiply(1, 0, 1), perp, width, margin,
-                    to -> acceptable.test(to) && standFree(occupant, at, to));
+            Vec3 side = Passage.aside(at, at.subtract(spot).multiply(1, 0, 1), perp, width, margin,
+                    to -> acceptable.test(to) && to.distanceToSqr(spot) >= clearDistSqr && standFree(occupant, at, to));
             if (side != null) {
                 chosen = new Place(List.of(at, side), s + at.distanceTo(side));
                 break;
@@ -312,6 +316,21 @@ public final class Encounter {
         if (shown && speak) nav.lineAfter = now + LINE_REST;
         GameplayLog.event(body, "move", "encounter beat role={} beat={} face={} line={} keeper=#{} yielder=#{}",
                 role, name, shown ? face : "none", shown && speak ? line : "none", keeper.getId(), yielder.getId());
+        if (shown && role.equals("yielder")) {
+            pendingBeatBody = body;
+            pendingBeatRole = role;
+            pendingBeatName = name;
+            pendingBeatDeclared = face;
+            pendingBeatLine = speak ? line : "none";
+        }
+    }
+
+    /** Logs the actual face published by {@code PresentationArbiter} on the queued encounter beat. */
+    void observeFace(YukkuriEntity body, String shown) {
+        if (pendingBeatBody == null || body != pendingBeatBody) return;
+        GameplayLog.event(body, "move", "encounter face role={} beat={} declared={} shown={} line={} keeper=#{} yielder=#{} reason={}",
+                pendingBeatRole, pendingBeatName, pendingBeatDeclared, shown, pendingBeatLine, keeper.getId(), yielder.getId(), reason);
+        pendingBeatBody = null;
     }
 
     // ----------------------------------------------------------------------------------------------------------------- the tick
@@ -348,17 +367,19 @@ public final class Encounter {
         // Passed: beyond the yielder along the lane, or heading away from it whichever way the keeper has turned.
         if (passed > widths + Passage.MARGIN) { cause = "axis"; return "passed"; }
         if (keeps != null && apart.dot(keeps) > widths + Passage.MARGIN) { cause = "heading"; return "passed"; }
-        keeperIdle = keeperNav.walking() ? 0 : keeperIdle + 1;
-        if (keeperIdle >= IDLE) {
-            // A keeper that stopped for good (its goal is here) beside the yielder, clear of its line, is no longer in the way: the pass is done.
-            Vec3 perp = new Vec3(-axis.z, 0, axis.x);
-            if (Math.abs(apart.dot(perp)) >= Passage.halfWidth(keeper, perp) + Passage.halfWidth(yielder, perp) + Passage.MARGIN) { cause = "keeper_arrived"; return "passed"; }
-            return fail("aborted", "keeper_idle");
-        }
-        // A keeper that walks but does not move (and is not holding for us) is not coming.
-        if (keeperAt == null || now - keeperTick >= STALL) {
-            if (keeperAt != null && !keeperNav.holding() && keeper.position().subtract(keeperAt).multiply(1, 0, 1).length() < .1) return fail("aborted", "keeper_stalled");
-            keeperAt = keeper.position(); keeperTick = now;
+        if (!reason.equals("make_room")) {
+            keeperIdle = keeperNav.walking() ? 0 : keeperIdle + 1;
+            if (keeperIdle >= IDLE) {
+                // A keeper that stopped for good (its goal is here) beside the yielder, clear of its line, is no longer in the way: the pass is done.
+                Vec3 perp = new Vec3(-axis.z, 0, axis.x);
+                if (Math.abs(apart.dot(perp)) >= Passage.halfWidth(keeper, perp) + Passage.halfWidth(yielder, perp) + Passage.MARGIN) { cause = "keeper_arrived"; return "passed"; }
+                return fail("aborted", "keeper_idle");
+            }
+            // A keeper that walks but does not move (and is not holding for us) is not coming.
+            if (keeperAt == null || now - keeperTick >= STALL) {
+                if (keeperAt != null && !keeperNav.holding() && keeper.position().subtract(keeperAt).multiply(1, 0, 1).length() < .1) return fail("aborted", "keeper_stalled");
+                keeperAt = keeper.position(); keeperTick = now;
+            }
         }
         if (stuck) return fail("stuck", "yielder_blocked");
         return now >= deadline ? fail("timeout", "deadline") : null;
