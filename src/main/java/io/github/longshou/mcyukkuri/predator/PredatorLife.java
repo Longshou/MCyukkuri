@@ -637,6 +637,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             return true;
         }
         if (cooldown == 0 && chooseTerritoryWarning()) return true;
+        // A hungry hunter eats the kill at hand before it flies back to its roost: the meal the hunt was for is never skipped.
+        if (cooldown == 0 && order() != Order.RETURN && chooseCarrion()) return true;
         if (!hasAirExit()) return false;
         var home = animal.life().homeStand();
         boolean wildAdult = wildAdult();
@@ -752,6 +754,23 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
     private double firstFlightLift() {
         return flightAcceleration() * Math.sqrt(animal.childhood().wingPractice()) * BodyAbility.fitness(animal);
+    }
+    /** Remains a hungry hunter can see at hand, taken before it flies back home: the kill it had to rest on is still its meal. */
+    private boolean chooseCarrion() {
+        if (!animal.life().canEat() || animal.life().nutrition() >= huntLine()) return false;
+        var remains = level().getEntitiesOfClass(RemainsEntity.class, animal.getBoundingBox().inflate(10), this::edibleCorpse).stream()
+                .min(Comparator.comparingDouble(animal::distanceToSqr)).orElse(null);
+        if (remains == null) return false;
+        if (dryLanded() && animal.distanceToSqr(remains) <= 9 && animal.hasLineOfSight(remains)) {
+            // On the ground beside the kill the hunter walks the last steps and eats where it stands, however spent it is.
+            rest(EAT_PAUSE, "carrion");
+            return true;
+        }
+        if (!hasAirExit() || Task.SCAVENGE.needsLanding(animal.life().energy())) return false;
+        corpse = remains;
+        food = null;
+        task = Task.SCAVENGE;
+        return true;
     }
     private boolean chooseFeeding() {
         if (wantsHunt() && provisionChild() != null) {
@@ -1248,7 +1267,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
     private void start() {
         if (task != Task.CLEAR_PAD) endPadPush();
-        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = 0; unseenTicks = 0; missedStoops = 0;
+        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; unseenTicks = 0; missedStoops = 0;
+        if (task != Task.EAT) restTicks = 0; // a meal begun while choosing keeps its clock
         if (task != Task.LAND) pendingRest = 0;
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
@@ -1278,7 +1298,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 retaliation,animal.life().nutrition(),animal.life().energy(),destination);
         if (task == Task.SCAVENGE && animal.childhood().nestling()) return;
         if (task == Task.CLEAR_PAD && dryLanded() && SurfaceApproach.at(animal, destination)) return;
-        if (task != Task.FOUND && (task != Task.SCAVENGE || CanopySite.tree(level().getBlockState(animal.blockPosition().below()))
+        if (task != Task.FOUND && task != Task.EAT && (task != Task.SCAVENGE || CanopySite.tree(level().getBlockState(animal.blockPosition().below()))
                 || (corpse != null ? corpse.getY() : food.getY()) > animal.getY() + 1))
             beginFlight();
     }
@@ -1942,13 +1962,12 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (wantsMore) {
             double reach = (animal.getBbWidth() + eatRemains.getBbWidth()) * .5 + .18;
             if (animal.distanceToSqr(eatRemains) > reach * reach) {
-                // The kill fell out of mouth reach: the ordinary scavenge flight carries the hunter to it and takes the mouthfuls.
-                corpse = eatRemains; food = null; task = Task.SCAVENGE;
-                start();
-                return;
+                // A kill that fell just out of mouth reach: the hunter steps to it and goes on eating where it landed.
+                approachCarcass(eatRemains);
+            } else {
+                animal.getNavigation().stop();
+                if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
             }
-            animal.getNavigation().stop();
-            if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
             restTicks = Math.max(restTicks, 1);
         } else animal.getNavigation().stop();
         if (--restTicks <= 0) {
