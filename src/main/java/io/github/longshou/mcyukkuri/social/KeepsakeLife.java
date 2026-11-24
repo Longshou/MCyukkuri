@@ -75,7 +75,7 @@ public final class KeepsakeLife implements MotorOwner {
 
     public KeepsakeLife(YukkuriEntity entity) {
         this.entity = entity;
-        this.scanWait = 20 + entity.getRandom().nextInt(40);
+        this.scanWait = 15 + entity.getRandom().nextInt(20);
     }
 
     @Override public String ownerId() { return "keepsake"; }

@@ -4689,39 +4689,39 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
 
 _doll_carry = 'doll_carry'
 add(_doll_carry, 'park', '无聊的魔理沙把布偶叼回窝边', '无聊的魔理沙把布偶叼回窝边',
-    '野餐草坪上放着一只魔理沙布偶。右边无聊且爱玩的魔理沙（依恋 70）离布偶 3 格，自己的窝在左边树下 8 格处；前景另一只低兴致、低依恋的灵梦（依恋 20）只看一眼便走开。'
+    '公园凉亭南侧的草坪上放着一只魔理沙布偶。右边无聊且爱玩的魔理沙（依恋 70）离布偶 3 格，自己的窝在左边 8 格处；前景另一只低兴致、低依恋的灵梦（依恋 20）只看一眼便走开。'
     '看魔理沙亮眼发现布偶、走近叼起、一路带回窝沿外的干地上放下。',
     '约半分钟', [
-        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        *shed(10, -5, half=1),
-        item('mcyukkuri:marisa_doll', 1, 2, -5, 'doll_target'),
-        street_trial(_doll_carry, 'marisa', 5, -5, 'doll_marisa', boldness=80, attachment=70, friendliness=60,
+        *shed(-2, 5, half=1),
+        *shed(9, 5, half=1),
+        item('mcyukkuri:marisa_doll', 1, 3, 5, 'doll_target'),
+        street_trial(_doll_carry, 'marisa', 6, 5, 'doll_marisa', boldness=80, attachment=70, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='无聊的魔理沙',
                      extra='YukkuriDailyLife:{Boredom:42}'),
-        street_trial(_doll_carry, 'reimu', 2, -2, 'doll_reimu', boldness=60, attachment=20, friendliness=60,
+        street_trial(_doll_carry, 'reimu', 3, 8, 'doll_reimu', boldness=60, attachment=20, friendliness=60,
                      nutrition=95, energy=95, yaw=180, label='低兴致的灵梦',
                      extra='YukkuriDailyLife:{Boredom:5}'),
-    ], at_spawn=[home('doll_marisa', -3, -5), home('doll_reimu', 10, -5)],
-    env=DAY, spot='picnic', vantage=(2, 4, 180, 18),
+    ], at_spawn=[home('doll_marisa', -2, 5), home('doll_reimu', 9, 5)],
+    env=DAY, spot='pavilion', vantage=(3, 12, 180, 18),
     reads=[('读魔理沙', f'yukkuri status {sel("doll_marisa")} raw'),
            ('读灵梦', f'yukkuri status {sel("doll_reimu")} raw')])
 
 _doll_interrupt = 'doll_carry_interrupt'
 add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '叼布偶途中受惊与饥饿时原地放下',
-    '野餐草坪上两只无聊的魔理沙各自叼起布偶回窝。左边一只途中遇到路过的捕食种受惊，立即原地放下布偶逃开，平静后再次回来叼回窝边；右边一只途中变饿（营养低于 50）也原地放下布偶。',
+    '公园凉亭南侧草坪上两只无聊的魔理沙各自叼起布偶回窝。左边一只途中遇到路过的捕食种受惊，立即原地放下布偶逃开，平静后再次回来叼回窝边；右边一只途中变饿（营养低于 50）也原地放下布偶。',
     '约 1 分钟', [
-        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        *shed(10, -5, half=1),
-        item('mcyukkuri:marisa_doll', 1, 2, -5, 'doll_fright'),
-        item('mcyukkuri:marisa_doll', 1, 5, -1, 'doll_hungry'),
-        street_trial(_doll_interrupt, 'marisa', 5, -5, 'int_fright', boldness=60, attachment=75, friendliness=60,
+        *shed(-2, 5, half=1),
+        *shed(12, 4, half=1),
+        item('mcyukkuri:marisa_doll', 1, 3, 5, 'doll_fright'),
+        item('mcyukkuri:marisa_doll', 1, 7, 8, 'doll_hungry'),
+        street_trial(_doll_interrupt, 'marisa', 6, 5, 'int_fright', boldness=60, attachment=75, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='受惊的魔理沙',
                      extra='YukkuriDailyLife:{Boredom:42}'),
-        street_trial(_doll_interrupt, 'marisa', 8, -1, 'int_hungry', boldness=80, attachment=75, friendliness=60,
+        street_trial(_doll_interrupt, 'marisa', 10, 8, 'int_hungry', boldness=80, attachment=75, friendliness=60,
                      nutrition=95, energy=95, yaw=90, label='变饿的魔理沙',
                      extra='YukkuriDailyLife:{Boredom:42}'),
-    ], at_spawn=[home('int_fright', -3, -5), home('int_hungry', 10, -5)],
-    env=DAY, spot='picnic', vantage=(3, 5, 180, 18),
+    ], at_spawn=[home('int_fright', -2, 5), home('int_hungry', 12, 4)],
+    env=DAY, spot='pavilion', vantage=(4, 13, 180, 20),
     reads=[('读受惊魔理沙', f'yukkuri status {sel("int_fright")} raw'),
            ('读变饿魔理沙', f'yukkuri status {sel("int_hungry")} raw')])
 
@@ -8753,10 +8753,10 @@ _smoke(_doll_interrupt, 1600, [
 next(s for s in S if s.id == _doll_interrupt).smoke.update(
     verify=_verify_doll_interrupt,
     commands=[
-        (210, yk('remilia', 0, -5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
-        (240, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
-        (241, f'tp {sel("tmp_pred")} ~ ~50 ~'),
-        (215, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
+        (195, yk('remilia', 0, 5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
+        (225, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
+        (226, f'tp {sel("tmp_pred")} ~ ~50 ~'),
+        (200, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
     ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
