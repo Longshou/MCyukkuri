@@ -4099,7 +4099,7 @@ _RING_HOLDER = 'ring_holder'
 # name, kind, x, z, label, values. ring_cocky and ring_voided start beside the paving watching the holder arrive (leaving
 # strayRoom open for both under MAX_STRAYS=2); ring_hungry and ring_timid start just outside RING_REACH (9) in view from the vantage.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -8, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_hungry', 'marisa', -6, -9, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
     ('ring_cocky', 'reimu', -1, -4, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -8, -5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
     ('ring_voided', 'reimu', 7, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
