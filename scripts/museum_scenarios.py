@@ -7304,15 +7304,20 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight reaching child=\S+ distance=\d',
      r'\[family\][^\n]*carry flight leaves child=\S+ left=1 aboard=1 attachment=31\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
-     _ROOST_ASSIGNED, _PREDATOR_LEAVES,
+     _ROOST_ASSIGNED,
+     # The hunt ends either with the hunter flying back to its own roost, or with the mother stepping in front of it (taunt): a real
+     # defender stop that turns the chase into a fight with her.
+     r'\[predator\] remilia [^\n]*(?:activity started; task=(?:RETURN|PERCH)\b|taunt accepted [^\n]*shield=)',
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。捕食种精力 100（其余飞行场景 38）：这一幕要看完全程追猎，饥饿的捕食种得有力气咬死并吃掉留下的那只。',
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。捕食种精力 100（其余飞行场景 38）：这一幕要看完全程追猎，饥饿的捕食种得有力气咬死并吃掉留下的那只。若亲油放下孩子后回头挡在追猎前（taunt），捕食种转为战斗去驱赶她：这是真实的阻止，留下的孩子可能被救下或只被咬伤后失血死，亲油自己也可能被杀。',
     # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it. The second baby lies beyond the first, on
     # the predator's side and ~10.5 blocks from the nest (~3.6 from her, ~10.7 from the predator: inside the 6-block gather range and
     # the 8-block look-back), so the hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
     mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')], pred_energy=100,
-    allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
-                     why='left-behind young in timid flight is at real risk from the hunting predator')])
+    allow_fate=[dict(kind='death', who=f'uuid={_uuid_text(_flight_timid, "baby_b")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
+                     why='the left-behind young is the hunt\'s prey: it dies of the hunter\'s bite or the bleeding wound'),
+                dict(kind='death', who=f'uuid={_uuid_text(_flight_timid, "mother")} ', match=r'cause=mob\b',
+                     why='the mother who steps in front of the hunt to shield the left-behind young may be killed driving it off')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
     '魔理沙与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油用辫子把赤油托上帽檐，一只接一只（若俯冲打断第二只抬升，会走已声明的第二趟回接或由留下的赤油自行回窝），然后径直退回窝边放下。',
     '约 5 秒开始接抱，20 秒内回窝放下', 75, 85,
@@ -7323,8 +7328,8 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b', _FLIGHT_ORDER % ('brim', '')],
     mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
-    allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_hat, "baby_b")} ', match=r'cause=mob\b',
-                     why='young left behind by a brim lift that the dive cut short is at real risk from the hunting predator')],
+    allow_fate=[dict(kind='death', who=f'uuid={_uuid_text(_flight_hat, "baby_b")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
+                     why='young left behind by a brim lift that the dive cut short is at real risk from the hunting predator: it dies of the bite or the bleeding wound')],
     note='帽檐路线：辫子托上帽檐（一只约 4.5 秒）后同样不减速地跑向下一只，抱齐后直奔窝口放下；俯冲落在抬升途中时，没抱上的一只自己走回或亲油二趟接回。', pred_z=21)
 
 # ====================================================================================================== which concern each scenario answers
@@ -10196,8 +10201,8 @@ _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=
                            r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none'],
        forbid=_HUNT_NOT_TEARY)
 _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
-                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true',
-                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* alive=false',
+                            r'\[predator\] flandre [^\n]* prey bite [^\n]* accepted=true',
+                            r'\[predator\] flandre [^\n]* prey bite [^\n]* alive=false',
                             r'\[predator\] flandre [^\n]* remains feeding via=eat_pause [^\n]* accepted=true',
                             r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none',
                             r'\[predator\][^\n]* beat=predator_dive face=(\w+) line=none declared=\1 ',
@@ -10205,8 +10210,8 @@ _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* d
        forbid=_HUNT_NOT_TEARY)
 next(s for s in S if s.id == 'pred_range').smoke.update(
     verify=_range_pursuit, verify_trace=True,
-    allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_range", "range_prey")} ', match=r'cause=mob\b',
-                     why='the far hunt in this scene ends with the prey killed and eaten by the predator')])
+    allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_range", "range_prey")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
+                     why='the far hunt in this scene ends with the prey killed by the predator\'s bite or the wound it left, then eaten')])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
     # The exile mourns its lost home (a grief course) before it comes back to ask: the refusal comes later than before.
