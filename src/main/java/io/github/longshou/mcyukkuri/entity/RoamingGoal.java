@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.human.Custody;
+import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -299,7 +300,8 @@ public final class RoamingGoal extends Goal {
     /**
      * A stray that may walk the street is drawn to a stand ring outside the plaza paving while a valid badge is on it. Interest is the
      * larger of envy (hunger times friendliness) and provocation (self-esteem and cockiness); the ring distance grows with shyness
-     * (low boldness) and shrinks with interest, so a hungry friendly stray comes close, a cocky one walks up and a timid one stops far off.
+     * (low boldness) and shrinks with interest. The drive to walk over is that interest suppressed by the stray's wariness of the human
+     * standing at the plaza, so a bold stray walks up, a hungry friendly one is kept off by the keeper, and a timid one stops far off.
      */
     private BlockPos browseRing(java.util.function.Predicate<BlockPos> allowed, BlockPos anchor) {
         if (!(animal.level() instanceof ServerLevel level) || level.getGameTime() < nextPlaza || !VillageStrays.browsesPlaza(animal)
@@ -312,12 +314,12 @@ public final class RoamingGoal extends Goal {
         double interest = Math.max(envy, cocky);
         double shy = 1 - SocialDisposition.ramp(personality.boldness(), 20, 70);
         double gap = TownMarkers.RING_NEAR + (TownMarkers.RING_FAR - TownMarkers.RING_NEAR) * shy * (1 - .4 * interest);
-        double chance = (.10 + .50 * interest) * (.5 + .5 * (1 - shy));
-        double roll = animal.getRandom().nextDouble();
+        double wary = humanWariness(level, site);
+        double drive = interest * (1 - wary);
         GameplayLog.limited(animal, "badge", "ring_decision", 600,
-                "plaza ring decision envy={} cocky={} shy={} interest={} gap={} chance={} roll={}",
-                envy, cocky, shy, interest, gap, chance, roll);
-        if (roll >= chance) return null;
+                "plaza ring decision envy={} cocky={} shy={} interest={} gap={} wary={} drive={}",
+                envy, cocky, shy, interest, gap, wary, drive);
+        if (drive <= shy) return null;
         nextPlaza = level.getGameTime() + PLAZA_INTERVAL;
         for (var pos : site.ring(level, animal, gap).filter(p -> allowed.test(p) && origin.distSqr(p) <= radius * radius
                 && (anchor == null || p.distSqr(anchor) <= homeRadius * homeRadius)
@@ -332,6 +334,14 @@ public final class RoamingGoal extends Goal {
             return pos;
         }
         return null;
+    }
+
+    /** How wary this stray is of the nearest human standing at the plaza; an empty plaza leaves the drive unsuppressed. */
+    private double humanWariness(ServerLevel level, TownMarkers.BadgePlaza site) {
+        var personality = animal.life().personality();
+        return level.getEntitiesOfClass(HumanNpc.class, site.paving().inflate(4, 2, 4)).stream()
+                .mapToDouble(human -> SocialDisposition.humanWariness(animal, human, personality.relation(human.getUUID())))
+                .max().orElse(0);
     }
 
     /**

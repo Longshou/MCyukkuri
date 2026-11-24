@@ -727,6 +727,8 @@ final class HumanStreet {
     /** Selects ordinary reachable street stands; a blocked leg tries the other side, then heads home. */
     static final class Stroll extends Goal {
         private static final int OUTING_INTERVAL = 3000;
+        /** A wearer seen on the paving this recently still counts as the plaza's visible company at the gate. */
+        private static final int COMPANY_MEMORY = 200;
         private enum Leg { NONE, GATE, TAKE, COLLECT, STOW }
         /** A bench cell, the board top the feet rest on, and the long side the sitter faces. */
         private record Seat(BlockPos cell, Vec3 top, Direction facing) {}
@@ -778,6 +780,8 @@ final class HumanStreet {
         private Vec3 resume;
         private TownMarkers.BadgePlaza plaza;
         private long plazaUntil;
+        /** Last tick a wearer was seen on a plaza paving (the choice may use the seconds before the gate, not one sample). */
+        private long plazaCompanyAt = Long.MIN_VALUE;
         private double plazaWariness;
         /** Bound for a bench at the plaza: the owner walks to it, then sits with the leads off while the pets stay about. */
         private boolean plazaRest, plazaSat;
@@ -847,9 +851,17 @@ final class HumanStreet {
         }
 
         @Override public boolean canUse() {
+            if (npc.tickCount % 10 == 0) noticePlazaCompany();
             // Ground navigation cannot create a path during the first airborne tick after a spawn.
             return npc.onGround() && npc.tickCount >= nextAt && !npc.leadingWalk() && !npc.isUsingItem()
                     && (homeward || npc.streetResident() && npc.holdsPicnicFood() ? !npc.isTrading() : npc.streetActive());
+        }
+
+        /** Reads the plaza's company before the outing: a wearer seen on the paving stays in the keeper's mind for a few seconds. */
+        private void noticePlazaCompany() {
+            if (!(npc.level() instanceof ServerLevel level) || !TownMarkers.plazaLeisure(level)) return;
+            var site = TownMarkers.badgePlaza(level, npc, 18);
+            if (site != null && !site.company(npc).isEmpty()) plazaCompanyAt = level.getGameTime();
         }
 
         @Override public void start() {
@@ -1026,7 +1038,8 @@ final class HumanStreet {
             if (!TownMarkers.plazaLeisure(level) || !companions.stream().allMatch(pet -> pet.outing().readyForPlaza())) return 0;
             var site = TownMarkers.badgePlaza(level, npc, 18);
             if (site == null || !npc.isWithinRestriction(site.marker().blockPosition()) || site.paving().contains(npc.position())) return 0;
-            boolean company = !site.company(npc).isEmpty();
+            boolean company = !site.company(npc).isEmpty()
+                    || plazaCompanyAt != Long.MIN_VALUE && level.getGameTime() - plazaCompanyAt <= COMPANY_MEMORY;
             boolean wearer = companions.stream().anyMatch(pet -> pet.pet().humanRank() != BadgeGrade.NONE);
             // A single choice from the gate leaves room for the existing park outing, even with company in sight.
             double chance = company ? .75 : wearer ? .45 : 0;
@@ -1038,7 +1051,7 @@ final class HumanStreet {
             int probes = 0;
             for (var stand : site.stands(level, npc, companions.size() + 1).filter(npc::isWithinRestriction).limit(2).toList()) {
                 probes++;
-                if (!route(Vec3.atBottomCenterOf(stand))) continue;
+                if (!route(Vec3.atBottomCenterOf(stand), npc.standPath(stand))) continue;
                 plaza = site;
                 break;
             }
@@ -1818,8 +1831,9 @@ final class HumanStreet {
                     var next = resume;
                     resume = null;
                     if (route(next)) return;
-                    if (leg == Leg.NONE) blockedOutingLeg();
-                    else legBlocked();
+                    if (leg != Leg.NONE) { legBlocked(); return; }
+                    // A side stand that did not open the way keeps the outing: the detour allowance tries again from here.
+                    return;
                 } else if (leg != Leg.NONE) {
                     legBlocked();
                 } else if (!homeward && !companions.isEmpty()) {

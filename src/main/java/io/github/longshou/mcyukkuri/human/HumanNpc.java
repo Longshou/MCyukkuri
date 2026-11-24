@@ -430,6 +430,7 @@ public final class HumanNpc extends PathfinderMob {
         var nav = (HumanNavigation) getNavigation();
         return nav.pathAround(stands, blocker);
     }
+    Path standPath(BlockPos stand) { return ((HumanNavigation) getNavigation()).pathTo(stand); }
     boolean finishingDoorway() { return ((HumanNavigation) getNavigation()).finishingDoorway(); }
     DoorExit crossedDoorway() { return ((HumanNavigation) getNavigation()).crossedDoorway(); }
     boolean holdsDoor(BlockPos at) { return isAlive() && !inert() && ((HumanNavigation) getNavigation()).holdsDoor(at); }
@@ -479,6 +480,14 @@ public final class HumanNpc extends PathfinderMob {
             routeBlocker = blocker;
             try { return createPath(stands, 8, false, 0, range); }
             finally { routeBlocker = null; resetMaxVisitedNodesMultiplier(); }
+        }
+
+        /** A walk that must end on the cell itself: the eight-block slack of an ordinary route can leave a stand six blocks short. */
+        private Path pathTo(BlockPos stand) {
+            float range = TravelRange.PATH_RANGE;
+            setMaxVisitedNodesMultiplier(range / (float) HumanNpc.this.getAttributeValue(Attributes.FOLLOW_RANGE));
+            try { return createPath(Set.of(stand), 0, false, 0, range); }
+            finally { resetMaxVisitedNodesMultiplier(); }
         }
 
         @Override public boolean shouldRecomputePath(BlockPos at) {

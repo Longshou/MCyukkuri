@@ -4034,7 +4034,7 @@ add(_counter_reissue, 'town', '在会馆柜台补发徽章，再给它别上', '
 _PLAZA = 'badge_plaza'
 _PLAZA_TITLE = '佩章的油库里逛到广场停一停'
 _PLAZA_KEEPER, _PLAZA_YARD_PET = 'plaza_keeper', 'plaza_yard_pet'
-_PLAZA_WEARERS = [('reimu', 'plaza_reimu', 1, 4), ('marisa', 'plaza_marisa', 7, 3)]
+_PLAZA_WEARERS = [('reimu', 'plaza_reimu', 2, 4, -2), ('marisa', 'plaza_marisa', 2, 3, 0)]
 
 
 def _plaza_pos(x, z):
@@ -4073,7 +4073,7 @@ def _plaza_yard(with_pet=True):
         + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -17)}L,YardBowl:{_plaza_pos(4, -18)}L}}',
         *(_plaza_companion(_PLAZA_YARD_PET, yk('reimu', 4, -15, _PLAZA_YARD_PET, uuid=uid(_PLAZA, _PLAZA_YARD_PET), label='院宠',
                                                 lead=True, nutrition=100, energy=100, boldness=35, attachment=80,
-                                                extra='YukkuriDailyLife:{Boredom:95,Affection:60}')) if with_pet else []),
+                                                extra='YukkuriDailyLife:{Boredom:95,Affection:60,Cooldown:2400}')) if with_pet else []),
     ]
 
 
@@ -4097,13 +4097,13 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
 # name, kind, x, z, label, values. ring_cocky and ring_voided start just outside the south edge of the paving facing the east
-# bench (and beside the bell) so they stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, roll
-# plaza ring decision as soon as the keeper sits, and see the holder arrive; ring_hungry and ring_timid start on the west side.
+# bench (and beside the bell) so they stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, and their own
+# numbers send them to a ring stand the moment the keeper's badge enters the paving. ring_hungry and ring_timid start on the west side.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
     ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=60)),
 ]
 
 
@@ -4144,7 +4144,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         *_ring_yard(),
         # The badged pet starts inside the yard gate beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-11)[0]
-                          .replace('Boldness:70', 'Boldness:35').replace('Attachment:22', 'Attachment:80')
+                          .replace('Innate:[I;55,88,70,22,70]', 'Innate:[I;55,88,35,80,70]')
                           .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-9, 6, -125, 12),
