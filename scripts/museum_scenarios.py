@@ -4145,7 +4145,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         # The badged pet starts inside the yard gate beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-11)[0]
                           .replace('Boldness:70', 'Boldness:35').replace('Attachment:22', 'Attachment:80')
-                          .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:600')),
+                          .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-6, 6, -135, 12),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],

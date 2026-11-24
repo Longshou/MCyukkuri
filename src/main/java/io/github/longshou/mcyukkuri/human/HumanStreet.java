@@ -1851,12 +1851,13 @@ final class HumanStreet {
             if (npc.finishingDoorway()) return;
             if (npc.position().distanceToSqr(last) > .25) { last = npc.position(); stalled = 0; }
             if (!npc.getNavigation().isDone() && ++stalled < ROUTE_TICKS) {
+                if (resume != null) return;
                 var toward = destination.subtract(npc.position()).multiply(1, 0, 1).normalize();
                 AABB ahead = npc.getBoundingBox().move(toward.scale(.65)).deflate(.04);
                 if (npc.level().getEntitiesOfClass(YukkuriEntity.class, ahead, obstacle).isEmpty()
                         && npc.level().getEntitiesOfClass(Player.class, ahead, player -> !player.isSpectator()).isEmpty()) return;
             }
-            if (++detours == 1 && !npc.level().isRaining()) {
+            if (++detours <= 3 && !npc.level().isRaining()) {
                 Vec3 side = destination.subtract(npc.position()).multiply(1, 0, 1).normalize().yRot((float) (Math.PI / 2));
                 var next = destination;
                 if (trySide(side) || trySide(side.scale(-1))) {
