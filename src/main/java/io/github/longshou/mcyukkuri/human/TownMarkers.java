@@ -179,8 +179,8 @@ public final class TownMarkers {
     }
 
     public static int plazaRest(double wariness) {
-        // An owner on a bench stays three quarters of a minute to a minute and a half, wary pets shortening it.
-        return 1800 - (int) (900 * wariness);
+        // An owner on a bench stays one to two minutes, wary pets shortening it.
+        return 2400 - (int) (1200 * wariness);
     }
 
     public record BadgePlaza(Marker marker, AABB paving) {

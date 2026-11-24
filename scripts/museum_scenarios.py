@@ -4101,9 +4101,9 @@ _RING_HOLDER = 'ring_holder'
 # plaza ring decision as soon as the keeper sits, and see the holder arrive; ring_hungry and ring_timid start on the west side.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=65, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=65, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
