@@ -13,11 +13,12 @@ public final class SpeechTiming {
         // A synchronized performance beat may take over another priority-two line.
         if (now < end && (incomingPriority < priority
                 || incomingPriority == priority && !(timedCue && incomingPriority == 2))) return false;
-        if (now >= end && now < next && incomingPriority < 2) return false;
+        if (now >= end && now < next && (incomingPriority < 2 || incomingPriority <= priority)) return false;
         return true;
     }
 
-    /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. */
+    /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. Inside the gap after a performance line
+     *  only a line of a higher priority speaks; a refused beat line is dropped, not queued (it would come stale). */
     public boolean canSpeak(YukkuriEntity speaker, long now, int incomingPriority, boolean timedCue) {
         if (!available(now, incomingPriority, timedCue)) return false;
         if (incomingPriority < 2 && !speaker.level().getEntitiesOfClass(YukkuriEntity.class,
@@ -40,7 +41,12 @@ public final class SpeechTiming {
     public void begin(long now, int duration, int incomingPriority) {
         priority = incomingPriority;
         end = now + duration;
-        next = end + (incomingPriority == 0 ? 200 : incomingPriority == 1 ? 120 : 30);
+        next = end + gap(duration, incomingPriority);
+    }
+
+    /** The quiet after a line before the next ordinary or beat line; a performance line (priority two) leaves a gap that grows with its length. */
+    static int gap(int duration, int priority) {
+        return priority == 0 ? 200 : priority == 1 ? 120 : 30 + duration / 2;
     }
     public long end() { return end; }
     public void interrupt() { end = next = 0; priority = -1; }

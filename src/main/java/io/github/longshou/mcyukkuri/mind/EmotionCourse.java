@@ -63,13 +63,13 @@ public final class EmotionCourse {
                     case TERROR -> "horrified";
                     case RAGE -> "angry";
                     case JOY -> "happy";
-                    case PARTING -> "teary_smile";
+                    case PARTING -> "teary";
                 };
                 case EASING -> switch (kind) {
-                    case GRIEF -> "side_teary";
+                    case GRIEF, PARTING -> "side_teary";
                     case TERROR -> "teary";
                     case RAGE -> "down_angry";
-                    case JOY, PARTING -> "closed_smile";
+                    case JOY -> "closed_smile";
                 };
                 case FADING -> switch (kind) {
                     case GRIEF -> "pursed";

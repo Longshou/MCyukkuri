@@ -11,6 +11,10 @@ public interface PresentationAccess {
     int reactionTicks();
     String reactionEvent();
     String reactionExpression();
+    /** The face the REACTION rank offers now ("" when none, or a decorative reaction yielding to a declared activity face). */
+    String reactionFace();
+    /** The face of a finished reaction whose line is still being spoken ("" when none). */
+    String lingerFace();
     void behavior(String behavior);
     void animation(YukkuriAction action);
     void animationId(String animation);

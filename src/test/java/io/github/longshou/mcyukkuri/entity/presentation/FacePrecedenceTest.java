@@ -9,8 +9,22 @@ import org.junit.jupiter.api.Test;
 
 class FacePrecedenceTest {
     @Test void orderIsDeclaredOnce() {
-        assertEquals(List.of(OPERATION, CLIP, REACTION, DYING, LEAK, PAIN, COURSE, ACTIVITY, AFTERMATH, WEAKNESS, REST),
+        assertEquals(List.of(OPERATION, CLIP, REACTION, DYING, LEAK, PAIN, LINGER, COURSE, ACTIVITY, AFTERMATH, WEAKNESS, REST),
                 List.of(values()));
+    }
+
+    @Test void decorativeReactionYieldsToActivityButSignalDoesNot() {
+        assertEquals(true, reactionOffers(false, true));
+        assertEquals(false, reactionOffers(true, true));
+        assertEquals(true, reactionOffers(true, false));
+        assertEquals(true, reactionOffers(false, false));
+    }
+
+    @Test void signalReactionAndCourseOutrankActivity() {
+        assertEquals(REACTION, winner(EnumSet.of(REACTION, ACTIVITY)));
+        assertEquals(COURSE, winner(EnumSet.of(COURSE, ACTIVITY)));
+        assertEquals(LINGER, winner(EnumSet.of(LINGER, COURSE, ACTIVITY, WEAKNESS)));
+        assertEquals(PAIN, winner(EnumSet.of(PAIN, LINGER)));
     }
 
     @Test void courseBeatsAftermathAndWeakness() {

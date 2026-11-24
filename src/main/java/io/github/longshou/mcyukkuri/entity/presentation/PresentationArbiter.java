@@ -152,11 +152,14 @@ public final class PresentationArbiter {
         if (HomeClaim.declaring(e) && clip.equals(e.reactionAction().id()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "smug");
         if(e.getBehaviorId().equals(Behaviors.ALICE_WATCH)||e.getBehaviorId().equals(Behaviors.ALICE_APPROACH))return e.getExpressionId();
-        if(state.reactionTicks()>0&&!state.reactionExpression().isEmpty())return state.reactionExpression();
+        String reaction=state.reactionFace();
+        if(!reaction.isEmpty())return reaction;
         if(e.body().dying())return "blank_cry";
         String leakFace=e.mind().leakFace();
         if(!leakFace.isEmpty())return leakFace;
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        String linger=state.lingerFace();
+        if(!linger.isEmpty())return linger;
         // The published emotion row and the last frame of a flight precede the drain, weakness and resting faces.
         if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
             String mood = e.mind().face("neutral");
@@ -448,7 +451,7 @@ public final class PresentationArbiter {
         // EcologyPresentation.expression reads this new behavior/start; keep fallback evaluation here.
         state.behavior(behavior);
         state.expression(EcologyPresentation.expression(e,
-                state.reactionTicks() > 0 && !state.reactionExpression().isEmpty() ? state.reactionExpression()
+                !state.reactionFace().isEmpty() ? state.reactionFace()
                         : e.body().dying() ? "blank_cry" : e.mind().face(e.body().weak() ||
                         e.settlement().society().dejected() ? "teary" : "neutral")));
     }

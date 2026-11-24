@@ -35,7 +35,7 @@ class EmotionCourseTest {
                 {"horrified", "teary", "confused_small"},
                 {"angry", "down_angry", "hmph"},
                 {"happy", "closed_smile", null},
-                {"teary_smile", "closed_smile", null}
+                {"teary", "side_teary", null}
         };
         for (Kind kind : Kind.values()) {
             String[] expected = faces[kind.ordinal()];

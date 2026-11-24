@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
 import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.entity.presentation.FacePrecedence;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationAccess;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
@@ -239,6 +240,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private final List<String> recentSpeech = new ArrayList<>();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
+    /** The running reaction is a decorative flourish (see {@link FacePrecedence}): its face yields to a declared activity face. */
+    private boolean reactionDecorative;
+    /** The face of the last signal reaction, kept until its line has finished (the arbiter's LINGER rank). */
+    private String lingerFace = "";
+    private long lingerUntil;
     private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
     private DelayedCue pendingSpeech;
     private int pendingSpeechTicks, pendingSpeechFloor;
@@ -958,6 +964,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void bereave(EmotionEvent loss, UUID lost, BlockPos where) {
         if (level().isClientSide) return;
         reactionTicks = 100; reactionHeld = true; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
+        reactionDecorative = false; lingerUntil = 0;
         reactionAction = reactionAfter = null;
         pendingSpeech = new DelayedCue("family_died", null, null); pendingSpeechTicks = 32;
         mind.feeling().mourn(lost, where);
@@ -986,6 +993,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         reactionAction = action;
         reactionAfter = follow;
         reactionTicks = ticks; reactionHeld = action != null; reactionExpression = expression; reactionEvent = event == null ? "" : event;
+        reactionDecorative = false; lingerUntil = 0;
         pendingSpeech = new DelayedCue(reactionEvent, action, spoken); pendingSpeechTicks = Math.max(1, speechDelayTicks);
         pendingSpeechFloor = 0;
         if (action != null) {
@@ -1008,7 +1016,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
     public boolean reactingTo(String event) { return reactionTicks > 0 && reactionEvent.equals(event); }
     public void cancelReaction() {
-        reactionTicks = 0;
+        reactionTicks = 0; lingerUntil = 0;
         reactionAction = reactionAfter = null;
     }
 
@@ -1029,6 +1037,31 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         startReaction(expression, event, action.durationTicks());
         reactionAction = action;
         speakCue(event);
+    }
+
+    /**
+     * A decorative reaction (an ambient flourish, see {@link FacePrecedence}): dropped, face and line, while an activity face is
+     * declared, and its face yields if one is declared later. Returns whether it was published.
+     */
+    public boolean showAmbient(String expression, String dialogue, int ticks) {
+        if (ambientDropped(expression)) return false;
+        if (!showReaction(expression, dialogue, ticks)) return false;
+        reactionDecorative = true;
+        return true;
+    }
+
+    /** As {@link #showAmbient(String, String, int)}, as a clip with a timed line at its start. */
+    public boolean showAmbientCue(YukkuriAction action, String expression, String event) {
+        if (ambientDropped(expression) || level().isClientSide || held() && !urgent(event)) return false;
+        showReactionCue(action, expression, event);
+        reactionDecorative = true;
+        return true;
+    }
+
+    private boolean ambientDropped(String expression) {
+        if (FacePrecedence.reactionOffers(true, !activityFace().isEmpty())) return false;
+        GameplayLog.limited(this, "face", "ambient_dropped", 200, "decorative reaction dropped face={} activity={}", expression, activityFace());
+        return true;
     }
 
     /** A newborn's first wake after it landed (the first_wake clip and its first greeting). */
@@ -1072,6 +1105,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private void startReaction(String expression, String dialogue, int ticks) {
         reactionAction = reactionAfter = null;
         reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
+        reactionDecorative = false; lingerUntil = 0;
     }
     public void forceReaction(YukkuriAction action, String expression, String dialogue) {
         forceReaction(expression, dialogue, action.durationTicks());
@@ -1181,6 +1215,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     private void showSpeech(String event, String key, String tier, long now) {
+        // A beat's face holds at least until the line spoken over it has finished (the LINGER rank), then the course or rest face takes over.
+        if (reactionTicks > 0 && !reactionDecorative && !reactionExpression.isEmpty()) {
+            lingerFace = reactionExpression;
+            lingerUntil = speechTiming.end();
+        }
         recentSpeech.remove(key);
         if (recentSpeech.size() == SPEECH_MEMORY) recentSpeech.removeFirst();
         recentSpeech.add(key);
@@ -1321,6 +1360,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         @Override public int reactionTicks() { return reactionTicks; }
         @Override public String reactionEvent() { return reactionEvent; }
         @Override public String reactionExpression() { return reactionExpression; }
+        @Override public String reactionFace() {
+            return reactionTicks > 0 && !reactionExpression.isEmpty()
+                    && FacePrecedence.reactionOffers(reactionDecorative, !activityFace().isEmpty()) ? reactionExpression : "";
+        }
+        @Override public String lingerFace() { return reactionTicks == 0 && level().getGameTime() < lingerUntil ? lingerFace : ""; }
         @Override public void behavior(String behavior) { setBehavior(behavior); }
         @Override public void animation(YukkuriAction action) { setAnimation(action, false); }
         @Override public void animationId(String animation) { sync().animationId(animation); }

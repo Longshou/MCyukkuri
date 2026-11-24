@@ -1047,7 +1047,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 stand = Passage.aside(start, offset, side, width, margin, at -> Encounter.standFree(blocker, at));
         if (stand != null) {
             blocker.getLookControl().setLookAt(walker, 30, 30);
-            if (!blocker.hasReaction()) blocker.showReaction(eagerness > .5 ? "surprise" : "pursed", "", 12);
+            if (!blocker.hasReaction()) blocker.showAmbient(eagerness > .5 ? "surprise" : "pursed", "", 12);
         }
         nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk);
         return stand != null;
