@@ -11807,7 +11807,8 @@ _smoke('park_play', 3200, [
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
            r'action=outing_sit result=taken', r'action=outing_stand reason=move',
-           r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'],
+           r'facility route stalled', r'facility session ended [^\n]*reason=interrupted\b',
+           r'\[body\][^\n]*accepted damage cause=fall\b'],
     readout=[
         f'execute {_park_bed} run say MCY_PARK_FACILITY_BEFORE_CLEAR',
         'function mcylab:field/park/clear',

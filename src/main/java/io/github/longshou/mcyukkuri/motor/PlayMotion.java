@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.motor.geom.ArcSolver;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayGeometry;
+import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -23,6 +24,8 @@ public final class PlayMotion {
     private static final double SLIDE_TURN_DEG = 45.0;
     /** How far in front of the mouth the ground navigation stops, a little over a body width of open ground. */
     private static final double STANDOFF = 1.0;
+    /** A blocked waypoint at least this far below the feet is a step down off the standing rim or lip. */
+    private static final double STEP_DOWN = 0.02;
 
     private PlayMotion() {}
 
@@ -56,18 +59,24 @@ public final class PlayMotion {
             }
             addIfClear(body, out, PlayGeometry.world(root, facing, side * padW, 0, outerLocal.z));
         }
-        out.add(PlayGeometry.world(root, facing, outerLocal.x, outerLocal.y, outerLocal.z));
+        Vec3 standoff = PlayGeometry.world(root, facing, outerLocal.x, outerLocal.y, outerLocal.z);
+        if (!addIfClear(body, out, standoff) && out.isEmpty()) {
+            // Scenery occupies the standoff and no detour was left: the body's own clear ground ends the approach.
+            out.add(body.position());
+        }
         return out;
     }
 
-    private static void addIfClear(YukkuriEntity body, List<Vec3> out, Vec3 candidate) {
+    private static boolean addIfClear(YukkuriEntity body, List<Vec3> out, Vec3 candidate) {
         var level = body.level();
         BlockPos pos = BlockPos.containing(candidate);
-        if (!level.hasChunkAt(pos)) return;
-        if (!level.getFluidState(pos).isEmpty()) return;
-        if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return;
+        if (!level.hasChunkAt(pos)) return false;
+        if (!level.getFluidState(pos).isEmpty()) return false;
+        if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
         var box = body.getBoundingBox().move(candidate.subtract(body.position()));
-        if (level.noCollision(body, box)) out.add(candidate);
+        if (!level.noCollision(body, box)) return false;
+        out.add(candidate);
+        return true;
     }
 
     /** 2D Liang-Barsky slab intersection of segment (x0,z0)->(x1,z1) with [-hx,+hx] x [-hz,+hz]. */
@@ -90,8 +99,9 @@ public final class PlayMotion {
 
     /**
      * One tick along an authored interior facility route: turns to face {@code target} first (never strafes or slides
-     * backwards) and moves at the body's own walk speed scaled by {@code effort}. Assists low-lip step-up when needed.
-     * Returns {@code true} while still turning in place before stepping forward.
+     * backwards) and moves at the body's own walk speed scaled by {@code effort}. A blocked step onto a higher lip hops
+     * up; a blocked step onto a lower waypoint hops down off the standing rim or lip by the same gait. Returns
+     * {@code true} while still turning in place before stepping forward.
      */
     public static boolean routeStep(YukkuriEntity body, Vec3 target, double effort) {
         body.getNavigation().stop();
@@ -112,9 +122,14 @@ public final class PlayMotion {
         double speed = Math.min(Math.min(pace, Gait.HUMAN_WALK), dist);
         Vec3 step = delta.scale(speed / dist);
         body.motor().propulsion(step.x, 0, step.z, Math.min(pace, Gait.HUMAN_WALK));
-        if (body.onGround() && body.horizontalCollision && target.y > body.getY() - 0.02 && !BodyAbility.cannotSpring(body)) {
+        if (body.onGround() && body.horizontalCollision && !BodyAbility.cannotSpring(body)) {
             double rise = Math.clamp((target.y - body.getY()) + 0.22, 0.22, BodyAbility.of(body).hopHeight());
-            Motor.takeoff(body, new Vec3(step.x, ArcSolver.vyFor(rise), step.z), "play_step_up");
+            boolean down = target.y <= body.getY() - STEP_DOWN;
+            Motor.takeoff(body, new Vec3(step.x, ArcSolver.vyFor(rise), step.z), down ? "play_step_down" : "play_step_up");
+            if (down) {
+                GameplayLog.limited(body, "play", "step_down", 600, "facility step down at={} target={} rise={}",
+                        GameplayLog.at(body.position()), GameplayLog.at(target), rise);
+            }
             return false;
         }
         Motor.velocity(body, new Vec3(step.x, body.getDeltaMovement().y, step.z), "play_route");
