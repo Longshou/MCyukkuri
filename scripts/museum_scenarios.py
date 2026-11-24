@@ -4140,7 +4140,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
     '开场约 5 秒院主牵着白金章灵梦从北边院子出发，约 13 秒停在白篷长椅边、约 15 秒坐上长椅；南侧两只嚣张流浪油（其中一只戴着作废章）'
     '看见章色后走到广场外圈，先到的一只盯着章气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚；'
     '饿而友善的魔理沙也走到圈上羡慕地盯着章，另一只嚣张流浪在圈上张望，胆小魔理沙远远站住；作废章读作无章。',
-    '约 5 秒院主出发，13–15 秒落座；流浪随即走到圈上，先到的一只冷嘲（实测落座后 1–40 秒），院主喝止安抚，友善的流浪在圈上羡慕地盯着章', [
+    '约 5 秒院主出发，13–15 秒落座；流浪随即走到圈上，先到的一只冷嘲（实测院主到长椅边后 0–42 秒），院主喝止安抚，友善的流浪在圈上羡慕地盯着章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the cocky strays near the benches.
         block(6, 0, 3, 'minecraft:bell[attachment=floor,facing=north]'),
