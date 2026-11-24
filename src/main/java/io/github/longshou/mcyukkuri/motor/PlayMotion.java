@@ -125,10 +125,12 @@ public final class PlayMotion {
         double speed = Math.min(Math.min(pace, Gait.HUMAN_WALK), dist);
         Vec3 step = delta.scale(speed / dist);
         body.motor().propulsion(step.x, 0, step.z, Math.min(pace, Gait.HUMAN_WALK));
-        if (body.onGround() && body.horizontalCollision && blockedByGeometry(body, step)
+        boolean down = target.y <= body.getY() - STEP_DOWN;
+        boolean rim = down && !SurfaceApproach.stands(body, body.position().add(step.x, 0, step.z));
+        if (body.onGround() && body.horizontalCollision && (rim || blockedByGeometry(body, step))
                 && !BodyAbility.cannotSpring(body)) {
+            // On a rim or lip the walk is refused, but the body cannot stand where its next waypoint lies: step down to it.
             double rise = Math.clamp((target.y - body.getY()) + 0.22, 0.22, BodyAbility.of(body).hopHeight());
-            boolean down = target.y <= body.getY() - STEP_DOWN;
             Motor.takeoff(body, new Vec3(step.x, ArcSolver.vyFor(rise), step.z), down ? "play_step_down" : "play_step_up");
             if (down) {
                 GameplayLog.limited(body, "play", "step_down", 600, "facility step down at={} target={} rise={}",
