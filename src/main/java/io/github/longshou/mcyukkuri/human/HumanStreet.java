@@ -20,6 +20,8 @@ import io.github.longshou.mcyukkuri.motor.geom.OutingPace;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.shop.ShopStaff;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.rules.ParkSeats;
 import io.github.longshou.mcyukkuri.pet.rules.YardArrival;
@@ -450,7 +452,7 @@ final class HumanStreet {
     }
 
     private void comfort(YukkuriEntity pet) {
-        if (pet.isAlive() && pet.level() == npc.level() && npc.distanceToSqr(pet) <= 36 && npc.hasLineOfSight(pet)) {
+        if (pet.isAlive() && pet.level() == npc.level() && Senses.perceives(npc, pet, Cue.INSULT) != null) {
             npc.getLookControl().setLookAt(pet, 30, 30);
             npc.swing(InteractionHand.MAIN_HAND);
             pet.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);

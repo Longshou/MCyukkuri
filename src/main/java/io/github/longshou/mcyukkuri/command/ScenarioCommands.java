@@ -759,11 +759,15 @@ public final class ScenarioCommands {
             var player = c.getSource().getLevel().getPlayerByUUID(TOOL_OPERATOR);
             return player instanceof FakePlayer && InteractionDispatch.perform(player, target, CareAction.DECLINE_EVENT) ? 1 : 0;
         }
-        if (item.equals("confiscate_badge") || item.equals("confiscate_badge_own")) {
+        if (item.equals("confiscate_badge") || item.equals("confiscate_badge_own") || item.equals("confiscate_badge_fearful")) {
             var level = c.getSource().getLevel();
             if (!(level.getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
-            if (item.equals("confiscate_badge_own") && !target.pet().owned(player))
+            if ((item.equals("confiscate_badge_own") || item.equals("confiscate_badge_fearful")) && !target.pet().owned(player))
                 Custody.assign(target, player.getUUID(), Custody.OwnerKind.PLAYER, Custody.Role.COMPANION);
+            if (item.equals("confiscate_badge_fearful")) {
+                int current = target.life().personality().fear(player.getUUID());
+                if (current < 50) target.life().personality().relationshipChanged(player.getUUID(), 0, 50 - current);
+            }
             for (int side = 0; side < 4; side++) {
                 double dx = side == 0 ? 1.2 : side == 1 ? -1.2 : 0;
                 double dz = side == 2 ? 1.2 : side == 3 ? -1.2 : 0;

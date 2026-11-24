@@ -4096,13 +4096,13 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, z, label, values. Placed just outside RING_REACH (9 blocks from paving x 2..5, z -3..1) in view from the
-# vantage, so they do not fill PLAZA_CAPACITY before the keeper arrives and immediately evaluate browseRing once the badged pet lands.
+# name, kind, x, z, label, values. ring_cocky and ring_voided start beside the paving watching the holder arrive (leaving
+# strayRoom open for both under MAX_STRAYS=2); ring_hungry and ring_timid start just outside RING_REACH (9) in view from the vantage.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -6, -9, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -2, -12, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', -8, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -1, -4, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -8, -5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 11, -11, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 7, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4152,6 +4152,7 @@ _CONF = 'badge_confiscate'
 _CONF_ACTORS = [
     ('conf_proud', 'reimu', 3, -2, 2, False, '骄傲的自家宠物', dict(boldness=85, friendliness=60, attachment=25, self_control=20)),
     ('conf_attached', 'marisa', 3, 0, 1, False, '依恋的自家宠物', dict(boldness=35, friendliness=85, attachment=90, self_control=70)),
+    ('conf_fearful', 'reimu', 3, 1, 1, False, '怕主人的自家宠物', dict(boldness=15, friendliness=50, attachment=40, self_control=50)),
     ('conf_stray_bold', 'reimu', 5, -2, 1, True, '倔强的作废章流浪油', dict(boldness=85, friendliness=20, attachment=30, self_control=20)),
     ('conf_stray_timid', 'marisa', 5, 0, 1, True, '胆小的作废章流浪油', dict(boldness=15, friendliness=85, attachment=60, self_control=70)),
 ]
@@ -4170,8 +4171,8 @@ def _conf_actor(name, kind, x, z, grade, stray, label, values):
 
 
 add(_CONF, 'town', '没收自家宠物与流浪油的徽章', '没收自家宠物与流浪油的徽章',
-    '手持徽章手册潜行右键（或在照料菜单点摘下徽章）：可没收自家两只宠物和两只作废章流浪油的徽章，徽章立刻进手里/物品栏且头上不再显示；'
-    '骄傲宠物先抗议再赌气、依恋宠物哀求低头、倔强流浪鼓脸后走开、胆小流浪哭着逃开；最南侧他人宠物被拒绝。',
+    '手持徽章手册潜行右键（或在照料菜单点摘下徽章）：可没收自家三只宠物和两只作废章流浪油的徽章，徽章立刻进手里/物品栏且头上不再显示；'
+    '骄傲宠物先抗议再赌气、依恋宠物哀求低头、怕主人的宠物发抖缩身、倔强流浪鼓脸后走开、胆小流浪哭着逃开；最南侧他人宠物被拒绝。',
     '当面操作', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         human('caretaker_sister', 5, 1, 'conf_keeper', 0, yaw=90, label='他人饲主')[:-1]
@@ -11853,12 +11854,14 @@ def _ring_stray_fates(window):
                 return f'{name} stood at the ring and never saw the badge'
     if not arrived:
         return 'no stray reached the ring'
-    beats = list(re.finditer(r'\[badge\][^\n]*beat=(plaza_\w+) face=(\S+) declared=(\S+) line=(\S+)', window))
+    beats = list(re.finditer(r'\[badge\][^\n]*t=(\d+) [^\n]*beat=(plaza_\w+) face=(\S+) declared=(\S+) line=(\S+)', window))
     for b in beats:
-        if b[2] != b[3]:
-            return f'plaza beat {b[1]} showed face={b[2]} instead of declared={b[3]}'
+        if b[3] != b[4]:
+            return f'plaza beat {b[2]} showed face={b[3]} instead of declared={b[4]}'
     if not beats:
         return 'no plaza reaction beat fired'
+    if rest and int(beats[0][1]) - int(rest[1]) > 400:
+        return f'first plaza reaction beat came {int(beats[0][1]) - int(rest[1])} ticks after outing_plaza_rest (expected <= 400)'
 
 
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
@@ -11870,13 +11873,19 @@ next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
     rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
-], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza (?:walk|ring)'])
+    rf'uuid={_plaza_keeper_id} [^\n]*action=pet_help pet={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*where=plaza\b',
+    rf'uuid={_plaza_keeper_id} [^\n]*action=pet_comfort pet={_uuid_text(_PLAZA, _RING_HOLDER)} ',
+], forbid=[
+    rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza (?:walk|ring)',
+    rf'\[badge\][^\n]*badge sight subject={_uuid_text(_RING, "ring_voided")} grade=[1-4]\b',
+])
 
 
 def _confiscate_fates(window):
     expected = {
         'conf_proud': ('proud', 'surprise', 'cheek_puff', 'pursed'),
         'conf_attached': ('attached', 'surprise', 'teary', 'ashamed'),
+        'conf_fearful': ('fearful', 'surprise', 'afraid', 'horrified'),
         'conf_stray_bold': ('stray_cling', 'surprise', 'cheek_puff', 'angry'),
         'conf_stray_timid': ('stray_run', 'surprise', 'cry', 'afraid'),
     }
@@ -11893,22 +11902,25 @@ def _confiscate_fates(window):
 next(s for s in S if s.id == _CONF).smoke = dict(ticks=600, verify=_confiscate_fates, commands=[
     (10, 'yukkuri scenario tool_operator enter'),
     (40, f'yukkuri scenario care_click {sel("conf_proud")} confiscate_badge_own'),
-    (140, f'yukkuri scenario care_click {sel("conf_attached")} confiscate_badge_own'),
-    (240, f'yukkuri scenario care_click {sel("conf_stray_bold")} confiscate_badge'),
-    (340, f'yukkuri scenario care_click {sel("conf_stray_timid")} confiscate_badge'),
+    (120, f'yukkuri scenario care_click {sel("conf_attached")} confiscate_badge_own'),
+    (200, f'yukkuri scenario care_click {sel("conf_fearful")} confiscate_badge_fearful'),
+    (280, f'yukkuri scenario care_click {sel("conf_stray_bold")} confiscate_badge'),
+    (360, f'yukkuri scenario care_click {sel("conf_stray_timid")} confiscate_badge'),
     (440, f'yukkuri scenario care_click {sel("conf_other")} confiscate_badge'),
     (520, 'yukkuri scenario tool_operator leave'),
 ], expect=[
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_proud")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_attached")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
+    rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_fearful")} [^\n]*confiscated by=player [^\n]*reason=owner_removal ',
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_bold")} [^\n]*confiscated by=player [^\n]*reason=void ',
     rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_stray_timid")} [^\n]*confiscated by=player [^\n]*reason=void ',
     rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_proud")} inv_tokens=1 visible=NONE effective=SILVER rank=NONE ',
     rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_attached")} inv_tokens=2 visible=NONE effective=BRONZE rank=NONE ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_bold")} inv_tokens=3 visible=NONE effective=NONE rank=NONE ',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=4 visible=NONE effective=NONE rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_fearful")} inv_tokens=3 visible=NONE effective=BRONZE rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_bold")} inv_tokens=4 visible=NONE effective=NONE rank=NONE ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_stray_timid")} inv_tokens=5 visible=NONE effective=NONE rank=NONE ',
     rf'\[interaction\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*interaction refused; [^\n]*action=remove_badge reason=owner\b',
-    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=4 visible=SILVER effective=SILVER rank=SILVER ',
+    rf'\[scenario\][^\n]*action=confiscate_badge target={_uuid_text(_CONF, "conf_other")} inv_tokens=5 visible=SILVER effective=SILVER rank=SILVER ',
 ], forbid=[rf'\[badge\][^\n]*uuid={_uuid_text(_CONF, "conf_other")} [^\n]*confiscated '])
 
 

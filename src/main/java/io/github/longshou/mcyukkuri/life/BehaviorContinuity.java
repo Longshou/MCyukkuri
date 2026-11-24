@@ -8,7 +8,12 @@ public final class BehaviorContinuity {
     private BehaviorContinuity() {}
 
     public static boolean emergency(YukkuriEntity entity) {
-        return entity.isPanicking() || entity.isCommandPlaying() || entity.operations().controlling() || hazard(entity, null);
+        return entity.isCommandPlaying() || danger(entity);
+    }
+
+    /** Real danger or physical incapacitation, excluding ordinary command-played performance clips (such as a badge bow). */
+    public static boolean danger(YukkuriEntity entity) {
+        return entity.isPanicking() || entity.operations().controlling() || hazard(entity, null);
     }
 
     /**

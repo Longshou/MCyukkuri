@@ -7,7 +7,7 @@ package io.github.longshou.mcyukkuri.perception;
  */
 public enum Cue {
     POUR_BUCKET(8, Need.WATER, false), POUR_BOTTLE(6, Need.WATER, false), FOOD_IN_BOWL(6, Need.FOOD, false),
-    DEPARTURE_CRY(12, null, false), PICKUP_ITEM(5, null, false);
+    DEPARTURE_CRY(12, null, false), PICKUP_ITEM(5, null, false), INSULT(12, null, false);
 
     public enum Need { WATER, FOOD, PLAY }
 

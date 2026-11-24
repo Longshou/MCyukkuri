@@ -23,6 +23,8 @@ import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -291,10 +293,10 @@ public final class BadgeArcs {
         }
     }
 
-    /** The owner who sees its badged pet insulted scolds the insulter once (and comforts the pet) when it is free to. */
+    /** The owner who sees or hears its badged pet insulted scolds the insulter once (and comforts the pet) when it is free to. */
     private static void ownerScolds(ServerLevel level, YukkuriEntity insulter, YukkuriEntity pet) {
         if (pet.pet().owner() != null && level.getEntity(pet.pet().owner()) instanceof HumanNpc keeper && keeper.isAlive()
-                && keeper.distanceToSqr(pet) <= 144 && keeper.hasLineOfSight(pet) && keeper.hasLineOfSight(insulter))
+                && Senses.perceives(keeper, insulter, Cue.INSULT) != null)
             keeper.helpPet(pet, insulter);
     }
 

@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.event.WildEventData;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.social.BadgeArcPolicy.Arc;
 import io.github.longshou.mcyukkuri.settlement.Rumours;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
@@ -28,7 +29,11 @@ import net.minecraft.world.phys.Vec3;
 /** Sightings of badges (and of lost ones), turned into silent ledger records, rare one-liners or multi-beat arcs. Server only, driven by PetLife's 2-second
  *  tick; nothing here depends on rendering. Redesign of the old poll-and-perform scan: docs/FEATURES.md */
 public final class BadgeSocial {
-    public static BadgeGrade visibleRank(YukkuriEntity subject) { return subject.pet().visibleGrade(); }
+    /** Social and arc rank: a void or ownerless badge on a stray is not envied as a real grade; a disqualified pet badge still reacts as an item. */
+    public static BadgeGrade visibleRank(YukkuriEntity subject) {
+        var pet = subject.pet();
+        return pet.voidBadge() || pet.owner() == null ? BadgeGrade.NONE : pet.visibleGrade();
+    }
 
     public static String reactionLine(YukkuriEntity speaker, String event, Entity subject) {
         if (subject instanceof YukkuriEntity peer && peer.isAlive() && peer.level() == speaker.level())
@@ -91,14 +96,6 @@ public final class BadgeSocial {
         return p != null && p.isAlive() && !p.isSpectator() && p.distanceToSqr(pet) <= radius * radius ? p : null;
     }
 
-    private static boolean inFront(YukkuriEntity o, YukkuriEntity y) {
-        Vec3 to = y.position().subtract(o.position()).multiply(1, 0, 1);
-        if (o.distanceToSqr(y) <= NEAR_SIGHT_SQR) return true;
-        Vec3 look = o.getLookAngle().multiply(1, 0, 1);
-        if (look.lengthSqr() < 1.0e-4) return true;
-        return look.normalize().dot(to.normalize()) > .5; // about 120 degrees in front
-    }
-
     /** Called every 2 seconds for each individual (PetLife.tickPerformance): only newly visible badge-holders produce a sighting. */
     public static void scan(YukkuriEntity o) {
         if (!enabled() || !(o.level() instanceof ServerLevel level) || o.profile().dangerToYukkuri() || o.profile().houseBody()) return;
@@ -112,7 +109,7 @@ public final class BadgeSocial {
         List<YukkuriEntity> seen = new ArrayList<>();
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, o.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != o && peer.isAlive() && !peer.isRemoved()
                 && !peer.isPassenger() && !peer.profile().houseBody() && !peer.life().isSleeping())) {
-            if (!o.hasLineOfSight(y) || !inFront(o, y)) continue;
+            if (!Senses.sees(o, y)) continue;
             int theirs = visibleRank(y).id();
             var known = ledger.get(y.getUUID(), now);
             // Relevant: a badge to notice, a badge of my own to show off, or a badge I remember that is gone.
@@ -146,7 +143,7 @@ public final class BadgeSocial {
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
                 && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
-            if (!inFront(o, subject) || BadgeArcs.check(level, Arc.BEG_BITE, o, subject, viewer, null) != null) continue;
+            if (!Senses.sees(o, subject) || BadgeArcs.check(level, Arc.BEG_BITE, o, subject, viewer, null) != null) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);
             if (subject.life().mealTicks() == 0) return true; // the admitted pair now owns the carried serving
         }

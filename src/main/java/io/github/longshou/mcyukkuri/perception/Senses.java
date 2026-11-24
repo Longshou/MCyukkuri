@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DoorBlock;
@@ -120,8 +121,19 @@ public final class Senses {
         return found;
     }
 
+    /** How a human or other living listener perceived a spoken cue from {@code speaker}: line of sight within loudness, or heard through walls. */
+    public static Via perceives(LivingEntity listener, Entity speaker, Cue cue) {
+        if (!listener.isAlive() || listener.isSleeping() && !cue.loud || listener.level() != speaker.level()) return null;
+        var at = speaker.getEyePosition();
+        double distance = listener.distanceToSqr(at);
+        if (!listener.isSleeping() && distance <= cue.loudness * cue.loudness && listener.hasLineOfSight(speaker)) return Via.SAW;
+        if (!Hearing.audible(Hearing.radius(cue.loudness, 50, false, listener.isSleeping(), false, 0), distance)) return null;
+        int layers = layers(listener.level(), at, null, listener);
+        return Hearing.audible(Hearing.radius(cue.loudness, 50, false, listener.isSleeping(), false, layers), distance) ? Via.HEARD : null;
+    }
+
     /** Solid cells (full blocks, glass, shut doors) on the straight line from the source to the listener's ear. */
-    private static int layers(Level level, Vec3 at, BlockPos accept, YukkuriEntity body) {
+    private static int layers(Level level, Vec3 at, BlockPos accept, LivingEntity body) {
         var source = BlockPos.containing(at);
         var ear = BlockPos.containing(body.getEyePosition());
         int[] walls = {0};

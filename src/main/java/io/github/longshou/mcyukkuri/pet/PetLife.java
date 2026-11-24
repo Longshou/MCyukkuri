@@ -12,6 +12,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.YukkuriStatus;
@@ -47,6 +49,7 @@ import io.github.longshou.mcyukkuri.human.HumanNpc;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 
@@ -81,16 +84,17 @@ public final class PetLife {
     private int obedienceShift;
     private Discovery discovery = new Discovery();
     private final Set<UUID> learnedDiscoveries = new HashSet<>();
-    private record PendingBeat(String name, String declared, String line, String style) {}
+    private record PendingBeat(String name, String declared, String line, String style, long tick) {}
     private PendingBeat pendingBeat;
     public void expectBeat(String name, String declared, String line, String style) {
-        pendingBeat = new PendingBeat(name, declared, line == null || line.isEmpty() ? "none" : line, style == null ? "" : style);
+        pendingBeat = new PendingBeat(name, declared, line == null || line.isEmpty() ? "none" : line, style == null ? "" : style, now());
     }
-    /** Logs each badge or confiscation beat on the same tick with the actual face published by {@code PresentationArbiter}. */
+    /** Logs each badge or confiscation beat on the same/next tick with the actual face published by {@code PresentationArbiter}; stale entries are dropped. */
     public void observeFace(String shown) {
         if (pendingBeat == null) return;
         var beat = pendingBeat;
         pendingBeat = null;
+        if (now() - beat.tick() > 1) return;
         GameplayLog.event(animal, "badge", "beat={} face={} declared={} line={} clip={} style={}",
                 beat.name(), shown, beat.declared(), beat.line(), animal.getAnimationId(), beat.style());
     }
@@ -605,7 +609,12 @@ public final class PetLife {
     private void tickPerformance() {
         if (faceTicks > 0) {
             faceTicks--;
-            if (((ServerLevel)animal.level()).getEntity(faceAt) instanceof YukkuriEntity y) animal.getLookControl().setLookAt(y.getX(), y.getEyeY(), y.getZ(), 30, 30);
+            if (((ServerLevel)animal.level()).getEntity(faceAt) instanceof YukkuriEntity y) {
+                animal.getLookControl().setLookAt(y.getX(), y.getEyeY(), y.getZ(), 30, 30);
+                if (animal.getNavigation().isDone() && !animal.isPassenger() && animal.motor().current() == null)
+                    Motor.face(animal, Mth.approachDegrees(animal.getYRot(), SurfaceApproach.yaw(animal.position(), y.position()),
+                            (float) BodyAbility.of(animal).turnRate()));
+            }
         }
         if (animal.tickCount % 40 == 7) BadgeSocial.scan(animal);
     }

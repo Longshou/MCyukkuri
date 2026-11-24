@@ -70,10 +70,10 @@ public final class PetOuting extends Goal {
                 && !BehaviorContinuity.emergency(pet);
     }
 
-    /** Resting at the plaza the pet may be mid-way through a badge exchange with a passer-by; only its body and needs end the visit. */
+    /** Resting at the plaza the pet may be mid-way through a badge exchange with a passer-by; only its body and real danger end the visit. */
     public boolean restsAtPlaza() {
         return pet.family().adult() && leisureHealth(true) && freeOfOtherLead() && !pet.life().isSleeping() && !tired()
-                && pet.life().nutrition() > picnicBand() && !BehaviorContinuity.emergency(pet);
+                && pet.life().nutrition() > picnicBand() && !BehaviorContinuity.danger(pet);
     }
 
     public double restBand() { return 45 - 15 * independence(); }
