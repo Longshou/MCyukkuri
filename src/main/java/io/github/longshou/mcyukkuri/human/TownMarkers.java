@@ -263,11 +263,12 @@ public final class TownMarkers {
                     .sorted(Comparator.comparingDouble(pos -> visitor.distanceToSqr(Vec3.atBottomCenterOf(pos))));
         }
 
-        /** A stand behind the benches or the hall wall gazes at nothing: a badge on the paving must lie in the open from there. */
+        /** A stand behind the benches or the hall wall gazes at nothing: a badge on the paving must lie in the open within sight range. */
         private boolean seesPaving(ServerLevel level, PathfinderMob visitor, BlockPos pos, List<YukkuriEntity> wearers) {
             var eye = Vec3.atBottomCenterOf(pos).add(0, visitor.getEyeHeight(), 0);
-            return wearers.stream().anyMatch(wearer -> level.clip(new ClipContext(eye, wearer.getEyePosition(),
-                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, visitor)).getType() == HitResult.Type.MISS);
+            return wearers.stream().anyMatch(wearer -> eye.distanceToSqr(wearer.getEyePosition()) <= 64
+                    && level.clip(new ClipContext(eye, wearer.getEyePosition(),
+                            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, visitor)).getType() == HitResult.Type.MISS);
         }
 
         /** Horizontal distance from a point to the paving rectangle (0 on it). */

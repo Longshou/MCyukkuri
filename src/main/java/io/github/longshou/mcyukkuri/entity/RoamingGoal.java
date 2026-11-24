@@ -472,7 +472,7 @@ public final class RoamingGoal extends Goal {
             if (++detourTicks > 100 || animal.distanceToSqr(Vec3.atBottomCenterOf(detour)) < .5) { detour = null; stuckTicks = 0; }
             else { if (elapsed % 10 == 0) animal.life().navigate(detour,1,false); return; }
         }
-        boolean reached = animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) < 1;
+        boolean reached = animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) < (plaza != null ? .36 : 1);
         if (playground != null && (reached || animal.distanceToSqr(playground.getBlockPos().getCenter()) <= 36)) {
             animal.playLife().resetScan();
             result = "arrived";
