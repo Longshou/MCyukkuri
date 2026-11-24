@@ -1,6 +1,6 @@
 # 美术与动作制作者
 
-适用于模型、贴图、道具、动作片段与表情的制作者。通用规则见 [AGENTS.md](../../AGENTS.md)；造型与动作约束（无脖子圆球、俯仰与横滚合计约 12°）见[制作约定](../../standards/yukkuri-library/AGENTS.md)；动作接进玩法代码时同样遵守 [coder.md](coder.md) 的红线。
+适用于模型、贴图、道具、动作片段与表情的制作者。通用规则见 [AGENTS.md](../../AGENTS.md)；造型与动作约束（无脖子圆球、俯仰与横滚合计约 12°）见[制作约定](../../standards/yukkuri-library/AGENTS.md)；动作接进玩法代码时同样遵守 [coder.md](coder.md) 的红线；碰辫子或其他种族发束的动作、接触与持物按[辫子动作制作技能](../../standards/yukkuri-library/BRAID.md)做，并把新经验补回该页。
 
 ## 复用与资源
 
