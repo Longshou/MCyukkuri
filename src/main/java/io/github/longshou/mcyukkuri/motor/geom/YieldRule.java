@@ -54,10 +54,10 @@ public final class YieldRule {
     }
 
     /**
-     * A walk given up for a body is asked again only after a real change: the walk goes elsewhere, or that body is gone, dead or
-     * moved away from where it stood. Time alone never lifts it.
+     * A walk given up for a body is asked again only after a real change: that body is gone, dead or moved away from where it
+     * stood. Time alone never lifts it, and a walk to another place is not the refused one, so it goes without lifting this.
      */
-    public static boolean refusalLifted(boolean sameTarget, boolean present, boolean alive, double moved) {
-        return !sameTarget || !present || !alive || moved > STAYED;
+    public static boolean refusalLifted(boolean present, boolean alive, double moved) {
+        return !present || !alive || moved > STAYED;
     }
 }

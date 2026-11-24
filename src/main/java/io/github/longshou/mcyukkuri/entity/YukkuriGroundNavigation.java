@@ -651,9 +651,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /**
      * The walk in hand is dropped because {@code blocker} holds it up and the ordinary ways did not clear it: it stops, the owning goal
-     * sees a finished walk, and the same target is not routed again (the request fails) until the walk or that body really changes
-     * ({@link YieldRule#refusalLifted}); time alone never lifts it. A body asked for the same errand again is refused the same way, so it
-     * chooses another.
+     * sees a finished walk, and the same target is not routed again (the request fails) until that body is gone, dead or has moved away
+     * from where it stood ({@link YieldRule#refusalLifted}); time alone never lifts it, and a walk to another place leaves the refusal
+     * standing. A body asked for the same errand again is refused the same way, so it chooses another.
      */
     void giveUp(Vec3 errand, Entity blocker) {
         stop();
@@ -668,14 +668,18 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Gave up a walk within the last {@code ticks}. */
     boolean gaveUpWithin(int ticks) { return level.getGameTime() - gaveUpAt <= ticks; }
 
-    /** The walk given up, while the body that held it up is alive and on the spot where it stood (a goal within 2 blocks is the same walk). */
+    /**
+     * The walk given up, while the body that held it up is alive and on the spot where it stood (a goal within 2 blocks is the same
+     * walk). A walk to another place goes without lifting the refusal, so coming back to the refused target is still refused.
+     */
     private boolean declines(Vec3 walk) {
         var d = declined;
         if (d == null) return false;
+        if (walk.subtract(d.errand()).multiply(1, 0, 1).lengthSqr() > 4) return false;
         var blocker = level.getEntity(d.blocker());
         boolean present = blocker != null;
         double moved = present ? blocker.position().distanceTo(d.at()) : Double.POSITIVE_INFINITY;
-        if (YieldRule.refusalLifted(walk.subtract(d.errand()).multiply(1, 0, 1).lengthSqr() <= 4, present, present && blocker.isAlive(), moved)) {
+        if (YieldRule.refusalLifted(present, present && blocker.isAlive(), moved)) {
             declined = null;
             declinedTold = false;
             return false;

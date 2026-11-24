@@ -68,12 +68,11 @@ class YieldRuleTest {
     }
 
     @Test void a_given_up_walk_returns_only_after_a_real_change_not_on_the_clock() {
-        // The same target and the same body standing where it was: refused however much time passes (the rule has no time input).
-        assertFalse(YieldRule.refusalLifted(true, true, true, 0));
-        assertFalse(YieldRule.refusalLifted(true, true, true, YieldRule.STAYED));
-        assertTrue(YieldRule.refusalLifted(false, true, true, 0));
-        assertTrue(YieldRule.refusalLifted(true, false, true, 0));
-        assertTrue(YieldRule.refusalLifted(true, true, false, 0));
-        assertTrue(YieldRule.refusalLifted(true, true, true, YieldRule.STAYED + .01));
+        // The body standing where it was: refused however much time passes (the rule has no time input).
+        assertFalse(YieldRule.refusalLifted(true, true, 0));
+        assertFalse(YieldRule.refusalLifted(true, true, YieldRule.STAYED));
+        assertTrue(YieldRule.refusalLifted(false, true, 0));
+        assertTrue(YieldRule.refusalLifted(true, false, 0));
+        assertTrue(YieldRule.refusalLifted(true, true, YieldRule.STAYED + .01));
     }
 }
