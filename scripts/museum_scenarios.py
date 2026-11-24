@@ -9916,19 +9916,20 @@ def _verify_doll_snatch(window):
             return f'{thief}: kept carrying the doll home after the puff that interrupted it'
         drops = [int(m[1]) for m in re.finditer(
             rf'\[body\][^\n]*uuid={thief} t=(\d+)[^\n]*mouth drop item=mcyukkuri:reimu_doll count=1 purpose=KEEPSAKE ', window)]
-        if len(drops) != 1:
-            return f'{thief}: expected one interrupted doll drop, saw {len(drops)}'
-        if not 0 < drops[0] - answer[0] <= 40:
-            return f'{thief}: put the doll down {drops[0] - answer[0]} ticks after the answer (expected within 40)'
-        # What it does with the dropped doll later (notices it, takes it home) is its own business, once.
-        late = [r for r in mine if r[1] in ('notice', 'pick_up', 'carry', 'set_down')]
+        prompt = [d for d in drops if 0 < d - answer[0] <= 40]
+        if len(prompt) != 1:
+            return f'{thief}: expected one interrupted doll drop within 40 ticks of the answer, saw {len(prompt)} of {len(drops)}'
+        # What it does with the dropped doll later (notices it, takes it home, or loses its grip again when it gets too hungry to
+        # carry) is its own business: only the take-home beats and their order are checked.
+        order = {name: i for i, name in enumerate(('notice', 'pick_up', 'carry', 'set_down'))}
+        late = [r for r in mine if r[1] in order]
         names = [r[1] for r in late]
-        if names != ['notice', 'pick_up', 'carry', 'set_down'][:len(names)]:
-            return f'{thief}: beats after the drop are not one take-home: {names}'
-        if late and (late[0][0] <= drops[0] or [r[0] for r in late] != sorted(r[0] for r in late)):
-            return f'{thief}: the take-home after the drop is out of order: {[r[0] for r in late]}'
-        if len(names) == 4:
-            down = late[-1]
+        if any(order[b] < order[a] for a, b in zip(names, names[1:])):
+            return f'{thief}: the take-home beats after the drop are out of order: {names}'
+        if late and late[0][0] <= prompt[0]:
+            return f'{thief}: a {late[0][1]} beat came before the drop'
+        down = next((r for r in late if r[1] == 'set_down'), None)
+        if down is not None:
             if (down[2], down[3], down[4]) != ('satisfied', 'thing_san', 'bed'):
                 return f'{thief}: set_down is not the doll left at its own nest: {down}'
             return _keepsake_set_down_problem(down[5])
