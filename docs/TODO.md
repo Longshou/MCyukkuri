@@ -14,7 +14,6 @@
 | 捕食种追击专用表情 | `.worktrees/wp-face-yield` | PresentationArbiter,FacePrecedence,反应表情调用处 |
 | 寻路互相堵路 | `.worktrees/wp-yield-deadlock` | Encounter,YieldRule,YukkuriGroundNavigation,强制互堵场景 |
 | PK-02 公园玩耍 | `.worktrees/wp-facility-step` | motor/PlayMotion,park_play 与 pocket_park_rest 冒烟 |
-| 公园其他游具演示 | `.worktrees/wp-toy-demos` | museum_scenarios.py 新场景,museum_scene_numbers.json,playtest_watch.json |
 
 ## 玩法待办
 
