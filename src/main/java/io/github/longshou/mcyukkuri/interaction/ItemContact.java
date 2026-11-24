@@ -66,6 +66,9 @@ public final class ItemContact {
         // The stand lies at the target's own height: food on a bank a block above the body is reached by stepping up to it, not by a
         // stand sunk into that bank at the body's height (which no route reaches). Only a target with no ground under it keeps the body's level.
         var ground=SurfaceApproach.floor(actor,new Vec3(stand.x,target.y,stand.z));
+        if(ground!=null&&Math.abs(ground.y-target.y)<=.15)return ground;
+        var beside=SurfaceApproach.beside(actor,target,Math.max(.04,offset),at->Math.abs(at.y-target.y)<=.15);
+        if(beside!=null)return beside;
         return ground!=null?ground:new Vec3(stand.x,actor.getY(),stand.z);
     }
 

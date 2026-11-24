@@ -83,7 +83,7 @@ public final class RoamingGoal extends Goal {
     }
     private boolean available() {
         return animal.isAlive() && !animal.inert() && !animal.isPassenger() && animal.childhood().canLearn()
-                && !animal.pet().care().walk().onOwnerLead() && !ExamSession.running(animal)
+                && !animal.pet().care().walk().onOwnerLead() && !animal.outing().waitingForPicnic() && !ExamSession.running(animal)
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
@@ -355,11 +355,16 @@ public final class RoamingGoal extends Goal {
                 best = found;
             }
         }
-        if (best == null) return null;
+        if (best == null) {
+            GameplayLog.limited(animal, "play", "stray_walk_no_seen", 200, "stray playground walk skipped reason=no_seen");
+            return null;
+        }
         double boredomShare = Math.clamp((animal.dailyLife().boredom() - PlayWant.boredomFloor(animal)) / 60.0, 0, 1);
         double chance = Math.clamp(0.35 + 0.60 * boredomShare * bestScore, 0.35, 0.98);
         if (animal.getRandom().nextDouble() >= chance) {
             nextPlayground = level.getGameTime() + 40;
+            GameplayLog.limited(animal, "play", "stray_walk_roll", 200, "stray playground walk skipped reason=roll_missed kind={} chance={}",
+                    best.kind(), String.format(Locale.ROOT, "%.2f", chance));
             return null;
         }
         nextPlayground = level.getGameTime() + PLAYGROUND_INTERVAL;
@@ -376,9 +381,16 @@ public final class RoamingGoal extends Goal {
                     && PlayBlock.facility(level, p) == null
                     && RemainsRot.source(level, at) == null;
         });
-        if (stand == null) return null;
+        if (stand == null) {
+            GameplayLog.limited(animal, "play", "stray_walk_no_stand", 200, "stray playground walk skipped reason=no_stand kind={}", best.kind());
+            return null;
+        }
         BlockPos dest = BlockPos.containing(stand).immutable();
-        if (!animal.life().reachable(dest, false)) return null;
+        if (!animal.life().reachable(dest, false)) {
+            GameplayLog.limited(animal, "play", "stray_walk_unreachable", 200, "stray playground walk skipped reason=unreachable kind={} dest={}",
+                    best.kind(), dest.toShortString());
+            return null;
+        }
         playground = best;
         GameplayLog.event(animal, "play", "stray playground walk kind={} at={} stand={} score={}",
                 best.kind(), best.getBlockPos(), dest.toShortString(), String.format(Locale.ROOT, "%.2f", bestScore));

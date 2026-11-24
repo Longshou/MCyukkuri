@@ -1570,7 +1570,7 @@ final class HumanStreet {
                 playing |= atPlay;
                 anyoneWants |= atPlay || !petDone && PlayWant.wants(pet);
                 waitingForRest |= pet.outing().tired() && !pet.life().isSleeping() && !atPlay;
-                done &= petDone || offered && !atPlay && !pet.life().isSleeping() && !pet.outing().tired();
+                done &= petDone;
             }
             tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
             long lingerTicks = npc.level().getGameTime() - parkOpened;

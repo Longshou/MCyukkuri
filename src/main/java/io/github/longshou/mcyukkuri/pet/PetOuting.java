@@ -120,7 +120,8 @@ public final class PetOuting extends Goal {
 
     public boolean doneAtPark() {
         var facilities = parkFacilities();
-        return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active()
+        return !pet.life().isSleeping() && !pet.life().outingResting() && pet.life().mealTicks() == 0
+                && !pet.species().catchingBreath() && !pet.playLife().active()
                 && !pet.playLife().waiting()
                 && (tired() || !PlayWant.wants(pet) || pet.playLife().parkExhausted(facilities));
     }
@@ -192,6 +193,11 @@ public final class PetOuting extends Goal {
 
     private static AABB restPaving(AABB paving) { return paving.inflate(-.6, 0, -.6); }
     private static boolean onPaving(AABB paving, Vec3 at) { return restPaving(paving).contains(at); }
+
+    public boolean waitingForPicnic() {
+        var resident = escort();
+        return resident != null && wantsPicnic(resident);
+    }
 
     private boolean wantsPicnic(HumanNpc resident) {
         return resident.parkLingering() && (resident.holdsPicnicFood() || resident.picnicActive())
