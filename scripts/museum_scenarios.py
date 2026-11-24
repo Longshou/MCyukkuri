@@ -4101,7 +4101,7 @@ _RING_HOLDER = 'ring_holder'
 # for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -1, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
     ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
@@ -4123,7 +4123,7 @@ def _ring_yard():
 
 
 def _ring_stray(scene, name, kind, x, z, label, values):
-    yaw = -150 if name == 'ring_cocky' else 180 if name == 'ring_voided' else -95
+    yaw = -135 if name == 'ring_cocky' else -160 if name == 'ring_voided' else -95
     att = 5 if name in ('ring_cocky', 'ring_voided') else 40
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=att,
@@ -4134,9 +4134,9 @@ def _ring_stray(scene, name, kind, x, z, label, values):
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '开场几秒内院主从北边院子牵白金章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
+    '开场约 5 秒内院主从北边院子牵白金章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
     '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
-    '约 5 秒院主出发，8–15 秒落座并开始看章', [
+    '约 5 秒院主出发，15–20 秒落座，20–30 秒内开始围观与喝止安抚', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the cocky strays near the benches.
         block(6, 0, 3, 'minecraft:bell[attachment=floor,facing=north]'),
@@ -11867,6 +11867,13 @@ def _ring_stray_fates(window):
         return 'no plaza reaction beat fired'
     if rest and int(beats[0][1]) - int(rest[1]) > 400:
         return f'first plaza reaction beat came {int(beats[0][1]) - int(rest[1])} ticks after outing_plaza_rest (expected <= 400)'
+    # Gating lock-up / no-progress check: no pair may stay mutually blocked in a wait-expire-wait loop.
+    blocked_lines = re.findall(r'\[move\][^\n]*blocked by yukkuri ', window)
+    if len(blocked_lines) > 12:
+        return f'mutual block loop: {len(blocked_lines)} "blocked by yukkuri" lines (expected <= 12)'
+    stalled_lines = re.findall(r'\[move\][^\n]*ground path stopped reason=no_progress ', window)
+    if len(stalled_lines) > 2:
+        return f'walk no_progress loop: {len(stalled_lines)} "ground path stopped reason=no_progress" lines (expected <= 2)'
 
 
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
