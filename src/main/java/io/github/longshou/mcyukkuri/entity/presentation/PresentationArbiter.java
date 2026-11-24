@@ -27,8 +27,10 @@ public final class PresentationArbiter {
     private long lastGameTick;
     private String lastBirthBehavior;
     private String lastBirthClip;
-    private static final int WALK_HOLD = 3, STILL_HOLD = 6;
+    private static final int WALK_HOLD = 3, STILL_HOLD = 2;
     private int travelTicks, stillTicks;
+    /** A route or steer is still in hand: only then does a tick of zero travel keep the walk clip (a collision bounce, not a stop). */
+    private boolean travelling;
 
     public PresentationArbiter(PresentationAccess state) { this.state = state; }
 
@@ -39,12 +41,13 @@ public final class PresentationArbiter {
         boolean moving = motion.distanceSquared() > 0.000001 && state.owner().onGround();
         travelTicks = motion.distanceSquared() > 0.000001 ? travelTicks + 1 : 0;
         stillTicks = moving ? 0 : stillTicks + 1;
+        travelling = state.owner().getNavigation() instanceof YukkuriGroundNavigation ground && ground.walking();
         switch (frame.takeover()) {
             case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
             case PANIC -> publish("panic", panic(state, frame.panicTicks()));
             case SHELL -> publish("shell", shell(state, motion));
             case AGITATION -> publish("agitation", agitation(state, motion));
-            case NONE -> presentOrdinary(driven || !passive ? motion : settled(motion));
+            case NONE -> presentOrdinary(driven ? motion : settled(motion));
         }
     }
 
@@ -260,7 +263,7 @@ public final class PresentationArbiter {
     }
 
     private void publishOrdinary(String id, Motion motion, String behavior, Actions actions) {
-        publish(id, new Presentation(() -> ordinary(state, motion, behavior, actions, walkingClip(), stillTicks)));
+        publish(id, new Presentation(() -> ordinary(state, motion, behavior, actions, travelling && stillTicks < STILL_HOLD)));
     }
 
     private static Presentation waterDistress(PresentationAccess state, Motion m) {
@@ -350,7 +353,7 @@ public final class PresentationArbiter {
     }
 
     /** One common action/start/expression tail for the selected ordinary behavior. */
-    private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions, boolean wasWalking, int stillTicks) {
+    private static void ordinary(PresentationAccess state, Motion m, String behavior, Actions actions, boolean holdWalk) {
         var e = state.owner();
         var court=state.requestedAction()==null&&behavior.equals(Behaviors.PAIRING)?e.family().courtContactAction():null;
         // Contact locks its clip to the real shared clock. Commands retain their own pose.
@@ -368,10 +371,11 @@ public final class PresentationArbiter {
             pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());
         YukkuriAction stationary = actions == Actions.GROUP ? EcologyPresentation.group(behavior) : stationaryAction(state, behavior, actions);
         // Decide walk/idle by actual travel: any translation on the ground shows the walk clip even when pressed against a wall/body;
-        // while already walking, hold the clip for STILL_HOLD ticks of zero travel so brief collision pauses do not flicker run <-> idle.
+        // while still travelling (a route or steer in hand), hold the clip through STILL_HOLD ticks of zero travel against one-tick flicker;
+        // a body that has stopped shows its standing clip at once.
         boolean showWalk = !e.life().isSleeping() && (
                 m.distanceSquared() > 0.000001 && e.onGround()
-                || wasWalking && stillTicks < STILL_HOLD && stationary == YukkuriAction.IDLE);
+                || holdWalk && stationary == YukkuriAction.IDLE);
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
                 : pose != null ? pose.action()
                 : HomeClaim.declaring(e) ? e.reactionAction()

@@ -883,6 +883,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     private boolean drivenThisTick;
 
+    /** The motor stepped this body toward a goal this tick: it is its own walk, shown from the first step (not a shove or a slide). */
+    public void markDriven() { drivenThisTick = true; }
+
     @Override
     public void aiStep() {
         if (!level().isClientSide && !crawler()) syncCrawl(false);

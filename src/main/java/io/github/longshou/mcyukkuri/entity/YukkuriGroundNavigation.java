@@ -607,8 +607,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     boolean waits() { return waitFor != null; }
 
-    /** True while this body is participating in or waiting on an active {@link Encounter}. */
-    public boolean inEncounter() { return encounter != null || waitFor != null; }
+    /** True while this body is a party of a {@code make_room} encounter (the arrival asking, or the occupant making room): a rain runner holds only for that. */
+    public boolean makingRoom() { return encounter != null && encounter.makesRoom(); }
+
+    /** True while an encounter is open on this body: it owns the face (a beat of its own shows) until it ends. */
+    public boolean encountering() { return encounter != null; }
 
     /** Forwards the arbiter's actual published face so an active encounter can log declared vs shown. */
     public void observeFace(String shown) { if (encounter != null) encounter.observeFace((YukkuriEntity) mob, shown); }

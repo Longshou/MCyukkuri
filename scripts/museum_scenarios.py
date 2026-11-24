@@ -2449,7 +2449,9 @@ add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑�
     '约 30 秒', [
         yk('reimu', 17, -1, 'a', yaw=90, boldness=5, lead=True, uuid=uid('rain_shelter', 'a')),
         yk('marisa', 18, 1, 'b', yaw=90, boldness=50, uuid=uid('rain_shelter', 'b')),
-        yk('chen', 17, 2, 'c', yaw=90, boldness=90, uuid=uid('rain_shelter', 'c'))],
+        yk('chen', 17, 2, 'c', yaw=90, boldness=90, uuid=uid('rain_shelter', 'c')),
+        # Already damp from the rain, so each arrival under the roof shakes the water off before it settles.
+        set_status('a', 'needs.wetness', 15), set_status('b', 'needs.wetness', 15), set_status('c', 'needs.wetness', 15)],
     env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(11, 6, 180, 12),
     reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')],
     smoke=dict(ticks=750,
@@ -2478,6 +2480,8 @@ def _verify_rain_shelter(window, trace):
         beats = re.findall(rf'\[weather\][^\n]* uuid={u} [^\n]*beat=(\S+) declared=(\S+) shown=(\S+) line=(\S+)', window)
         if not beats:
             return f'{name} logged no weather beat'
+        if not any(beat == 'rain_shake' for beat, *_ in beats):
+            return f'{name} arrived damp but never shook the water off (beats={[b[0] for b in beats]})'
         for beat, declared, shown, _line in beats:
             if shown != declared:
                 return f'{name} beat={beat} face mismatch declared={declared} shown={shown}'
@@ -2534,7 +2538,7 @@ next(s for s in S if s.id == 'rain_shelter').smoke.update(verify=_verify_rain_sh
 
 
 add('rain_shelter_full', 'weather', '满顶躲雨：先到者往里让位，无位者另找掩体', '满顶躲雨让位与另找掩体',
-    '两格深的一格宽石檐下：先到的大胆橙停在入口格，后到的灵梦请它往里挪（遭遇表情台词＋转身进内格，不倒退），第三只魔理沙见两格已满则跑去北侧备用小顶躲雨而不滞留雨中',
+    '两格深的一格宽石檐下：先到的大胆橙停在入口格；后到的灵梦要进入口格，请它往里挪（让位表情台词，橙转身后走进内格、不倒退），灵梦接着站进入口格；第三只魔理沙见两格都占满，才跑去北侧备用小顶躲雨，不滞留雨中',
     '约 30 秒', [
         # 2-cell deep, 1-cell wide stone alcove open to the east (+x): covered stands at (0,0) and (-1,0)
         box(-2, 0, -1, 0, 1, -1, 'minecraft:stone_bricks'),
@@ -2568,14 +2572,27 @@ def _verify_rain_shelter_full(window, trace):
         return f'front ({front}) never logged make_room encounter face'
     if m_face.group(1) != m_face.group(2):
         return f'make_room face mismatch declared={m_face.group(1)} shown={m_face.group(2)}'
-    if not re.search(rf'\[weather\][^\n]* uuid={second} [^\n]*shelter response ended ', window):
-        return f'second ({second}) never finished sheltering after make_room'
-    if not re.search(rf'\[weather\][^\n]* uuid={third} [^\n]*shelter response ended ', window):
-        return f'third ({third}) never reached alternate cover after full alcove'
+    # Who ends where: the first body went deeper into the back cell, the arrival took the cell it left, the third found no room and sheltered on the backup roof.
+    ends = {}
+    for name, u in (('front', front), ('second', second), ('third', third)):
+        m_end = re.search(rf'\[weather\][^\n]* uuid={u} [^\n]* shelter response ended [^\n]*at=(-?\d+),\s*(-?\d+),\s*(-?\d+)', window)
+        if not m_end:
+            return f'{name} ({u}) never ended its shelter response under cover'
+        ends[name] = (int(m_end.group(1)), int(m_end.group(3)))
+        beats = re.findall(rf'\[weather\][^\n]* uuid={u} [^\n]*beat=(\S+) declared=(\S+) shown=(\S+) line=(\S+)', window)
+        if not beats:
+            return f'{name} logged no weather beat'
+        for beat, declared, shown, _line in beats:
+            if shown != declared:
+                return f'{name} weather beat={beat} face mismatch declared={declared} shown={shown}'
+    if ends['front'] != (-275, 294) or ends['second'] != (-274, 294):
+        return f'make_room did not give the arrival the freed cell: ends={ends} (want front=(-275, 294) second=(-274, 294))'
+    if not (-277 <= ends['third'][0] <= -271 and ends['third'][1] <= 285):
+        return f'third ended at {ends["third"]}, not under the backup roof'
     # Verify no idle while moving during rain_run.
     rev = {front: 'front', second: 'second', third: 'third'}
     prev_pos = {k: None for k in rev.values()}
-    idle_moving = []
+    idle_moving, run_on_spot, still_run = [], [], {k: 0 for k in rev.values()}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
         if row['k'] != 'st' or row['u'] not in rev:
@@ -2583,14 +2600,20 @@ def _verify_rain_shelter_full(window, trace):
         name = rev[row['u']]
         p = row['st'].get('p')
         beh, anim = row['st'].get('behavior'), row['st'].get('animation')
-        if p and prev_pos[name] is not None and row['st'].get('g') and beh == 'rain_run':
+        if p and prev_pos[name] is not None and row['st'].get('g'):
             step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
-            if step > 0.015 and anim == 'idle':
+            if beh == 'rain_run' and step > 0.015 and anim == 'idle':
                 idle_moving.append((name, row['t'], round(step, 4)))
+            # A body that has stopped (or only turns on the spot) shows a standing clip within two ticks, never a run clip on the spot.
+            still_run[name] = still_run[name] + 1 if step <= 0.001 and anim in ('run', 'waddle') else 0
+            if still_run[name] > 2:
+                run_on_spot.append((name, row['t']))
         if p:
             prev_pos[name] = p
     if idle_moving:
         return f'idle clip shown while moving in rain_shelter_full: {idle_moving[:5]}'
+    if run_on_spot:
+        return f'walk clip shown on the spot after a stop in rain_shelter_full: {run_on_spot[:5]}'
 
 
 next(s for s in S if s.id == 'rain_shelter_full').smoke.update(verify=_verify_rain_shelter_full, verify_trace=True)

@@ -726,6 +726,8 @@ public final class Reactions {
         /** Shelter approach retry gate: a failed cell or search is not retried until its world signature changes. */
         private Attempts shelterAttempts = new Attempts();
         private String pendingBeat, pendingDeclaredFace, pendingLine;
+        /** The queued beat found an encounter open and waits for it to end (the encounter's face is cleared then, so the beat shows as declared). */
+        private boolean beatWaits;
         private long searchAfter, shakeAfter, huddleAfter, partnerScanAfter, startled = Long.MIN_VALUE / 2;
         private int ticks;
         private boolean spoke;
@@ -742,6 +744,8 @@ public final class Reactions {
         Weather(YukkuriEntity y) { this.y = y; }
 
         public Stage stage() { return stage; }
+        /** Still on its way to cover (running or searching), not yet standing in one. */
+        boolean running() { return stage == Stage.RUN || stage == Stage.SEARCH; }
         public Sky sky() { return sky; }
         /** Behavior id of the running response (PresentationGoals.WEATHER, EcologyPresentation). */
         public String activity() {
@@ -769,6 +773,8 @@ public final class Reactions {
         /** Observes the actual face published by {@code PresentationArbiter} and logs the queued beat with declared vs shown. */
         public void observeFace(String shown) {
             if (pendingBeat == null) return;
+            // While an encounter is open it owns the face: the beat waits and is shown (and logged) once the encounter has ended.
+            if (y.getNavigation() instanceof YukkuriGroundNavigation g && g.encountering()) { beatWaits = true; return; }
             GameplayLog.event(y, "weather", "beat={} declared={} shown={} line={} depth={} preferred={} cover={}",
                     pendingBeat, pendingDeclaredFace, shown, pendingLine,
                     chosenCover == null ? 0 : chosenCover.depth(),
@@ -779,6 +785,7 @@ public final class Reactions {
 
         private void queueBeat(String beat, String declaredFace, String line) {
             pendingBeat = beat;
+            beatWaits = false;
             pendingDeclaredFace = declaredFace;
             pendingLine = line;
         }
@@ -906,7 +913,7 @@ public final class Reactions {
             } else if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
                     "shelter response ended stage={} phaseTicks={} cover={} at={}", stage, ticks, cover, y.blockPosition().toShortString());
             if (!y.level().isRaining() || Sky.at(y.level(), y.blockPosition()) == Sky.CLEAR) shelterAttempts = new Attempts();
-            stage = Stage.NONE; ticks = 0; cover = null; chosenCover = null; pendingBeat = null;
+            stage = Stage.NONE; ticks = 0; cover = null; chosenCover = null; pendingBeat = null; beatWaits = false;
             y.getNavigation().stop();
         }
 
@@ -963,14 +970,37 @@ public final class Reactions {
             if (next != null && !next.pos().equals(previous)) {
                 chosenCover = next;
                 cover = next.pos();
-                GameplayLog.event(y, "weather", "cover retargeted from={} pos={} reason={} depth={} preferred={} crowd={} boldness={} unease={} wetness={}",
-                        previous == null ? "none" : previous.toShortString(), chosenCover.pos().toShortString(), reason,
-                        chosenCover.depth(), String.format(Locale.ROOT, "%.2f", chosenCover.preferred()),
-                        String.format(Locale.ROOT, "%.2f", chosenCover.crowd()),
-                        y.life().personality().boldness(), Math.round(y.mind().unease()), Math.round(y.life().wetness()));
+                logRetarget(previous, reason);
                 return true;
             }
             return false;
+        }
+
+        private void logRetarget(BlockPos previous, Reason reason) {
+            GameplayLog.event(y, "weather", "cover retargeted from={} pos={} reason={} depth={} preferred={} crowd={} boldness={} unease={} wetness={}",
+                    previous == null ? "none" : previous.toShortString(), chosenCover.pos().toShortString(), reason,
+                    chosenCover.depth(), String.format(Locale.ROOT, "%.2f", chosenCover.preferred()),
+                    String.format(Locale.ROOT, "%.2f", chosenCover.crowd()),
+                    y.life().personality().boldness(), Math.round(y.mind().unease()), Math.round(y.life().wetness()));
+        }
+
+        /**
+         * Asks the settled body standing in {@code cell} (its own cell, the one this body wants or must pass through) to shift to a free
+         * covered stand clear of that cell, by the shared {@link Encounter#makeRoom}: it turns, then walks; this body then takes the cell.
+         * False when there is no such body or stand (a body still walking in is not asked), and this body looks for another cover.
+         */
+        private boolean askRoom(ServerLevel level, YukkuriEntity occupant, BlockPos cell) {
+            if (occupant == null || occupant.status().reactions().weather.running()) return false;
+            if (!Encounter.makeRoom(occupant, y, Vec3.atBottomCenterOf(cell), occupant.position().subtract(y.position()),
+                    at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && y.life().covered(BlockPos.containing(at)))) return false;
+            if (!cell.equals(cover)) {
+                var previous = cover;
+                cover = cell;
+                chosenCover = new CoverChoice(cell, coverDepth(level, cell), preferredDepth(y, level), 0);
+                logRetarget(previous, Reason.NO_ROOM);
+            }
+            SurfaceApproach.halt(y);
+            return true;
         }
 
         private void logCoverChosen(String action) {
@@ -1026,6 +1056,12 @@ public final class Reactions {
             var level = (ServerLevel) y.level();
             var life = y.life();
             boolean raining = level.isRaining();
+            // A make-room exchange at the cover (asking, or being asked) is walked by the encounter alone; any other encounter on the way is
+            // the encounter's own business and the rain run goes on walking.
+            if (y.getNavigation() instanceof YukkuriGroundNavigation g) {
+                if (g.makingRoom()) { SurfaceApproach.halt(y); return; }
+                if (beatWaits && !g.encountering()) { beatWaits = false; y.cancelReaction(); }
+            }
             // A thunder clap: it flinches where it is, on the run or pressed under a roof.
             if (startledNow() && stage != Stage.SHAKE) { SurfaceApproach.halt(y); return; }
             // In SEARCH (no chosen target yet), reaching a roof triggers choosing a proper interior cover cell.
@@ -1052,10 +1088,6 @@ public final class Reactions {
                     }
                 }
                 case RUN -> {
-                    if (y.getNavigation() instanceof YukkuriGroundNavigation g && g.inEncounter()) {
-                        SurfaceApproach.halt(y);
-                        return;
-                    }
                     if (cover == null || !life.dryStand(cover) || !FoundShelter.streetCoverFree(y, cover)) {
                         if (!retargetCover(level, Reason.NO_ROOM)) searchOnFoot();
                         return;
@@ -1064,14 +1096,7 @@ public final class Reactions {
                     double reach = y.distanceToSqr(spot);
                     if (Encounter.occupied(y, spot)) {
                         if (retargetCover(level, Reason.NO_ROOM, 6.0)) return;
-                        if (reach < 9) {
-                            var occupant = Encounter.standingOccupant(y, spot);
-                            if (occupant != null && Encounter.makeRoom(occupant, y, spot, occupant.position().subtract(y.position()),
-                                    at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
-                                SurfaceApproach.halt(y);
-                                return;
-                            }
-                        }
+                        if (reach < 9 && askRoom(level, Encounter.standingOccupant(y, spot), cover)) return;
                         if (retargetCover(level, Reason.NO_ROOM)) return;
                         if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())
                                 && !Encounter.occupied(y, y.position()) && FoundShelter.streetCoverFree(y, y.blockPosition())) {
@@ -1086,13 +1111,10 @@ public final class Reactions {
                         if (stepDir.lengthSqr() > 1e-6) {
                             Vec3 dir = stepDir.normalize();
                             var ahead = Encounter.standingOccupant(y, y.position().add(dir.scale(1.1)));
+                            // The body in the lane holds the cell this one would pass through: that cell becomes the target, and the body
+                            // is asked to shift to the free covered stand beyond it (the old target).
                             if (ahead != null && Sky.at(level, ahead.blockPosition()) == Sky.CLEAR && life.covered(ahead.blockPosition())
-                                    && ahead.getNavigation().isDone()
-                                    && Encounter.makeRoom(ahead, y, ahead.position(), dir,
-                                            at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
-                                SurfaceApproach.halt(y);
-                                return;
-                            }
+                                    && ahead.getNavigation().isDone() && askRoom(level, ahead, ahead.blockPosition())) return;
                         }
                     }
                     double pace = sky == Sky.STORM ? 1.5 : 1.3;
@@ -1109,11 +1131,7 @@ public final class Reactions {
                             Vec3 ahead = stepDir.lengthSqr() > 1e-6 ? y.position().add(stepDir.normalize()) : spot;
                             var blocker = Encounter.standingOccupant(y, ahead);
                             if (blocker == null) blocker = Encounter.standingOccupant(y, spot);
-                            if (blocker != null && Encounter.makeRoom(blocker, y, blocker.position(), blocker.position().subtract(y.position()),
-                                    at -> Sky.at(level, BlockPos.containing(at)) == Sky.CLEAR && life.covered(BlockPos.containing(at)))) {
-                                SurfaceApproach.halt(y);
-                                return;
-                            }
+                            if (blocker != null && askRoom(level, blocker, blocker.blockPosition())) return;
                         }
                         if (retargetCover(level, Reason.NO_PATH)) return;
                         if (Sky.at(level, y.blockPosition()) == Sky.CLEAR && life.covered(y.blockPosition())

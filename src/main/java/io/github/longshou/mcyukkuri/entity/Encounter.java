@@ -44,6 +44,8 @@ public final class Encounter {
     private static final double FLOOR_PACE = .03;
     private static final int TURN_ALLOWANCE = 40;
     private static final double ARRIVED = .05, ABANDON = 8;
+    /** The reason of an arrival asking a standing body to shift inward under a roof (the arrival keeps, the occupant yields). */
+    private static final String MAKE_ROOM = "make_room";
 
     /** The way to a passing place: waypoints (the last is the stand) and their length. */
     public record Place(List<Vec3> legs, double length) {}
@@ -170,7 +172,7 @@ public final class Encounter {
         if (chosen == null) return false;
         var found = new Found(chosen, chosen.legs().getLast(), chosen.length());
         double gap = occupant.position().subtract(arrival.position()).multiply(1, 0, 1).length() - width;
-        new Encounter(arrNav, arrival, occNav, occupant, dir, found, "make_room", true).open(chosen.length(), 0, gap);
+        new Encounter(arrNav, arrival, occNav, occupant, dir, found, MAKE_ROOM, true).open(chosen.length(), 0, gap);
         return true;
     }
 
@@ -336,6 +338,7 @@ public final class Encounter {
     // ----------------------------------------------------------------------------------------------------------------- the tick
 
     YukkuriEntity yielder() { return yielder; }
+    boolean makesRoom() { return reason.equals(MAKE_ROOM); }
     /** The yielder is still driven by the encounter (a veer hands it back to its own walk once it is aside). */
     boolean drives() { return !released; }
     /** The yielder is standing in place on the way (noticing, turning), not walking away or settled: the keeper must not walk into it. */
@@ -361,13 +364,13 @@ public final class Encounter {
         if (keeper.isCommandPlaying() || yielder.isCommandPlaying()) return fail("aborted", "command");
         if (yielder.isPanicking()) return fail("aborted", "panic");
         if (keeper.level() != yielder.level() || keeper.distanceToSqr(yielder) > ABANDON * ABANDON) return fail("aborted", "apart");
-        if (reason.equals("make_room") && phase == Phase.WATCH) { cause = "room_made"; return "passed"; }
+        if (makesRoom() && phase == Phase.WATCH) { cause = "room_made"; return "passed"; }
         Vec3 apart = keeper.position().subtract(yielder.position()).multiply(1, 0, 1), keeps = keeperNav.heading();
         double passed = apart.dot(axis), widths = Passage.halfWidth(keeper, axis) + Passage.halfWidth(yielder, axis);
         // Passed: beyond the yielder along the lane, or heading away from it whichever way the keeper has turned.
         if (passed > widths + Passage.MARGIN) { cause = "axis"; return "passed"; }
         if (keeps != null && apart.dot(keeps) > widths + Passage.MARGIN) { cause = "heading"; return "passed"; }
-        if (!reason.equals("make_room")) {
+        if (!makesRoom()) {
             keeperIdle = keeperNav.walking() ? 0 : keeperIdle + 1;
             if (keeperIdle >= IDLE) {
                 // A keeper that stopped for good (its goal is here) beside the yielder, clear of its line, is no longer in the way: the pass is done.
