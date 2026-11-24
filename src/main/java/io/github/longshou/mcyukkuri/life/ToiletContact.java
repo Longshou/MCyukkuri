@@ -255,9 +255,8 @@ public final class ToiletContact {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
         if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP
                 || !actor.level().getFluidState(hit.getBlockPos()).isEmpty() || !ground && !hit.getBlockPos().equals(stand)) return false;
-        float amount = actor.life().urine();
-        stream(actor, outlet, hit.getLocation(), amount);
-        if (ground) BodyEffects.emit(actor, "urine_puddle", actor.getBbWidth() * amount / 100, hit.getLocation(), forward);
+        // No droplet particle trail; a ground release leaves the wet puddle trace.
+        if (ground) BodyEffects.emit(actor, "urine_puddle", actor.getBbWidth() * actor.life().urine() / 100, hit.getLocation(), forward);
         return true;
     }
 
