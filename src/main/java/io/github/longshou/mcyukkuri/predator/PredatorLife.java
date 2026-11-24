@@ -2079,9 +2079,10 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         phase(Task.DIVE);
         GameplayLog.limited(animal, "predator", "finishing", 400, "finishing wounded prey on foot prey={} health={} energy={} distance={} flying={}",
                 () -> new Object[]{target.getUUID(), target.getHealth(), animal.life().energy(), animal.distanceTo(target), animal.predatorFlying()});
-        if (mouthTouches(target) && cooled && biteTicks == 0 && animal.hasLineOfSight(target)) { hit(target); return; }
-        if (!dryLanded()) { fly(target.position(), 1); return; }
+        // Straight down first (the stamina left is for the walk, not for chasing in the air), then every bite is from the ground.
+        if (!dryLanded()) { directFlight(new Vec3(animal.getX(), target.getY(), animal.getZ()), 1); return; }
         animal.setPredatorFlying(false);
+        if (mouthTouches(target) && cooled && biteTicks == 0 && animal.hasLineOfSight(target)) { hit(target); return; }
         if (SurfaceApproach.walkResult(animal, target.position(), target, 1.2) == SurfaceApproach.Result.BLOCKED) stop();
     }
     /** One bite or combat strike at the end of a stoop; returns true when a kill moved on to its eat pause. */

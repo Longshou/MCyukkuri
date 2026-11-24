@@ -7334,7 +7334,9 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
      r'\[family\][^\n]*carry set down started reason=reached_nest\b', _FLIGHT_ORDER % ('brim', '')],
     mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
     allow_fate=[dict(kind='death', who=f'uuid={_uuid_text(_flight_hat, "baby_b")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
-                     why='young left behind by a brim lift that the dive cut short is at real risk from the hunting predator: it dies of the bite or the bleeding wound')],
+                     why='young left behind by a brim lift that the dive cut short is at real risk from the hunting predator: it dies of the bite or the bleeding wound'),
+                dict(kind='death', who=f'uuid={_uuid_text(_flight_hat, "mother")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
+                     why='the hunter that finished the young and ate it is still hungry and rested after its meal: it may hunt the mother next, a real new hunt')],
     note='帽檐路线：辫子托上帽檐（一只约 4.5 秒）后同样不减速地跑向下一只，抱齐后直奔窝口放下；俯冲落在抬升途中时，没抱上的一只自己走回或亲油二趟接回。', pred_z=21)
 
 # ====================================================================================================== which concern each scenario answers
