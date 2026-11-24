@@ -8264,7 +8264,7 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
                  r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b']
 
 
-def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, far_sibling=False):
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False):
     actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits, **parent_traits)]
     far_actor = None
     if far_sibling:
@@ -8285,7 +8285,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
     families = ((parent, verdict, branch, far_actor),)
     pond(sid, title, title, watch, '约 2 分钟，建议倍速', actors,
          late=[f'execute as {sel(parent)} on vehicle run tag @s add seat_reload',
-               *_overload_growth(parent, _CROWD_OVERLOAD_STEPS, first=120)],
+               *_overload_growth(parent, _CROWD_OVERLOAD_STEPS, first=first)],
          vantage=(-7, 7, -135, 16),
          capture=dict(shots=(1, 300, 1800, 4600), sequences=((200, 4600, 200), (800, 2000, 4))),
          note='单户超载断亲：西岸直岸居中，右侧水面翻船，左侧干地走远。日志依次 overload verdict -> overload beat start -> driven out ordered -> driven out begins -> 分支 beat -> turn_away -> departed -> parent dismissed -> parting_begins（含泪亲油）。',
@@ -8304,7 +8304,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
 
 _severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
                  '翻船后含泪亲油赶走最大孩子，孩子哀求被转身拒绝后走远断亲，墙后远手足无反应',
-                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=4.5, far_sibling=True)
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True)
 _severance_scene('hat_sever_cold', '超载断亲：冷淡推开',
                  '翻船后冷淡亲油赶走最大孩子，孩子哀求被推开后转身走远断亲',
                  'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead')
