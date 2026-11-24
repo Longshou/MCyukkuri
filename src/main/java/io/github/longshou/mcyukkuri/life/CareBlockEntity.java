@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Arrays;
 import net.minecraft.server.level.ServerLevel;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.shop.ShopKind;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
@@ -80,7 +81,7 @@ public final class CareBlockEntity extends BlockEntity implements Container {
     /** Bed grade (CareBlock.grade): 1 straw or wild, 2 cushion or woven, 3 velvet; 0 for other facilities. */
     public int grade(){return ((CareBlock)getBlockState().getBlock()).grade();}
     public boolean canClaim(YukkuriEntity entity){
-        if(kind()!=CareBlock.Kind.NEST||!entity.moldExile().allowsAddress(worldPosition))return false;
+        if(kind()!=CareBlock.Kind.NEST||!Departure.allowsAddress(entity,worldPosition))return false;
         if (level instanceof ServerLevel server && Custody.view(entity).role() == Custody.Role.STOCK) {
             var shop = ShopRegistry.get(server).shopAt(server, worldPosition.getCenter());
             if (shop != null && shop.kind == ShopKind.PET) return shop.acceptsStock(server, this, entity);

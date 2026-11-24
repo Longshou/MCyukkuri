@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.SiteLife;
+import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.world.SearchBudget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -105,6 +106,7 @@ final class LifeHome {
 
     boolean assignHome(GlobalPos selected) {
         if (!selected.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(selected.pos())
+                || !Departure.allowsAddress(o.entity(), selected.pos())
                 || o.entity().distanceToSqr(Vec3.atCenterOf(selected.pos())) > 64 * 64) return false;
         var wild=ShelterBlock.shelter(o.level(),selected.pos());
         if(wild!=null&&!(o.level().getBlockEntity(selected.pos()) instanceof CareBlockEntity))return o.entity().habitat().choose(wild);
@@ -153,7 +155,7 @@ final class LifeHome {
     }
 
     boolean canAssignNaturalHome(BlockPos selected) {
-        if (!o.quietSite(selected)) return false;
+        if (!o.quietSite(selected) || !Departure.allowsAddress(o.entity(), selected)) return false;
         var shelter=ShelterBlock.shelter(o.level(),selected);
         if(shelter!=null&&!shelter.owns(o.entity().getUUID()))return false;
         return o.entity().distanceToSqr(Vec3.atBottomCenterOf(selected)) <= 64 * 64 && dryStand(selected)
@@ -186,6 +188,7 @@ final class LifeHome {
         if(provider.homeStand(o.entity())!=null)return provider.homeStand(o.entity());
         if (home == null || !home.dimension().equals(o.level().dimension()) || !o.level().hasChunkAt(home.pos())) return null;
         if (naturalHome) return ShelterBlock.shelter(o.level(),home.pos())==null
+                && Departure.allowsAddress(o.entity(), home.pos())
                 && o.quietSite(home.pos()) && dryStand(home.pos()) && covered(home.pos()) ? home.pos() : null;
         if (o.level().getBlockEntity(home.pos()) instanceof CareBlockEntity care && care.owns(o.entity().getUUID())) return home.pos();
         return null;
@@ -217,7 +220,7 @@ final class LifeHome {
         int radius = TravelRange.search(o.entity(),8);
         var allowed = o.quietSites(centre, radius);
         for (BlockPos scan : BlockPos.betweenClosed(centre.offset(-radius,-2,-radius), centre.offset(radius,2,radius))) {
-            if (!allowed.test(scan) || !dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
+            if (!allowed.test(scan) || !Departure.allowsAddress(o.entity(), scan) || !dryStand(scan) || !covered(scan) || ShelterBlock.shelter(o.level(),scan)!=null) continue;
             found.add(scan.immutable());
         }
         BlockPos best = nearestReachable(found);

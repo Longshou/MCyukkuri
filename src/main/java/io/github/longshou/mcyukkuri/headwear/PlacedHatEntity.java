@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 
@@ -568,9 +569,16 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
     }
 
     // ---------------------------------------------------------------- bodies, authority and admission
-    /** The owner's own young (as mother or father), not yet adult. */
+    /** The owner's own acknowledged young (as mother or father), not yet adult and not being driven out. */
     public boolean young(YukkuriEntity y) {
-        return ownerYukkuri() != null && (ownerYukkuri().equals(y.family().mother()) || ownerYukkuri().equals(y.family().father())) && !y.family().adult();
+        UUID owner = ownerYukkuri();
+        if (owner == null || y.family().adult()) return false;
+        if (!owner.equals(y.family().mother()) && !owner.equals(y.family().father())) return false;
+        if (level() instanceof ServerLevel server) {
+            if (!FamilyData.get(server).acknowledgesChild(owner, y.getUUID())) return false;
+            if (owner.equals(y.drivenOut().driver())) return false;
+        }
+        return true;
     }
     /** Physical boarding authority: the birth family of the owner, and only while the load still carries the young boarding herself
      *  (a young a carer holds is weighed by that carer's own placement instead). A cradle grants no other relation. */

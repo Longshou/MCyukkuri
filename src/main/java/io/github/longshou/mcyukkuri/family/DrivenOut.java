@@ -4,12 +4,19 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -33,6 +40,8 @@ public final class DrivenOut extends Goal {
 
     private final YukkuriEntity entity;
     private final Departure departure;
+    private final Set<UUID> witnessed = new HashSet<>();
+    private Departure.BannedRange banned;
     private UUID driver;
     private Verdict verdict;
     private String reason = "";
@@ -68,6 +77,19 @@ public final class DrivenOut extends Goal {
         return driver != null && level().getEntity(driver) instanceof YukkuriEntity p && p.isAlive() ? p : null;
     }
 
+    /** Whether {@code pos} is outside the home range this child was permanently driven out of. */
+    public boolean allowsAddress(BlockPos pos) {
+        return banned == null || banned.allows(entity.level(), pos);
+    }
+
+    public void save(CompoundTag tag) {
+        if (banned != null) banned.save(tag, "DrivenOutBanned");
+    }
+
+    public void load(CompoundTag tag) {
+        banned = Departure.BannedRange.load(tag, "DrivenOutBanned");
+    }
+
     /** The parent's order: it is no longer hers from here on; it leaves as soon as it stands on dry ground. */
     public void order(YukkuriEntity parent, Verdict verdict, String reason) {
         driver = parent.getUUID();
@@ -77,6 +99,7 @@ public final class DrivenOut extends Goal {
         deadline = level().getGameTime() + WINDOW;
         centre = parent.position();
         begun = false;
+        witnessed.clear();
         GameplayLog.event(entity, "family", "driven out ordered parent={} verdict={} in_water={} distance={}",
                 driver, verdict, entity.isInWaterOrBubble(), Math.round(entity.distanceTo(parent)));
     }
@@ -91,6 +114,7 @@ public final class DrivenOut extends Goal {
         verdict = null;
         phase = Phase.NONE;
         begun = false;
+        witnessed.clear();
         SurfaceApproach.halt(entity);
     }
 
@@ -142,21 +166,22 @@ public final class DrivenOut extends Goal {
         return new Departure.Terms("family", "driven out", centre, RANGE, parent(), driver, 1f, false, true, true, null, this::siblingsCry);
     }
 
-    /** It turns to go: the siblings that see it cry after it (their parting feeling waits until it is gone). */
+    /** It turns to go: only siblings that actually perceived it (saw or heard via {@link Senses}) cry after it and later get PARTING. */
     private void siblingsCry(Answer answer) {
         var parent = parent();
         if (parent == null) return;
         for (var sibling : level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                 y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y))) {
-            String missed = sibling.distanceToSqr(entity) > SIBLING_SIGHT * SIBLING_SIGHT ? "out_of_range"
-                    : !sibling.hasLineOfSight(entity) ? "out_of_sight" : null;
-            if (missed != null) {
+            var via = Senses.perceives(sibling, entity.getEyePosition(), null, Cue.DEPARTURE_CRY);
+            if (via == null) {
+                String missed = sibling.distanceToSqr(entity) > SIBLING_SIGHT * SIBLING_SIGHT ? "out_of_range" : "not_perceived";
                 GameplayLog.event(sibling, "family", "driven out sibling missed departure child={} reason={}", entity.getUUID(), missed);
                 continue;
             }
+            witnessed.add(sibling.getUUID());
             sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY);
             sibling.beat("sibling_cry", "cry", "mold_child_cry");
-            GameplayLog.event(sibling, "family", "driven out sibling cries child={}", entity.getUUID());
+            GameplayLog.event(sibling, "family", "driven out sibling cries child={} via={}", entity.getUUID(), via);
         }
     }
 
@@ -179,14 +204,16 @@ public final class DrivenOut extends Goal {
         }
     }
 
-    /** Truly gone: now the tie is cut, the child is a stray, and the ones left behind feel it. */
+    /** Truly gone: now the tie is cut (even if the parent is unloaded or dead), the old range is banned permanently, the child is a stray,
+     *  and only the ones left behind that perceived it feel the parting. */
     private void departed(YukkuriEntity parent, double distance, boolean seen) {
         GameplayLog.event(entity, "family", "driven out departed parent={} verdict={} distance={} sight={} answer={}",
                 driver, verdict, Math.round(distance * 10) / 10.0, seen, departure.answer());
+        banned = new Departure.BannedRange(GlobalPos.of(level().dimension(), BlockPos.containing(centre)), GONE_FAR);
+        Departure.parted(level(), driver, parent, entity, verdict, reason);
         if (parent != null) {
-            Departure.parted(parent, entity, verdict, reason);
             for (var sibling : level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
-                    y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y))) {
+                    y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y) && witnessed.contains(y.getUUID()))) {
                 sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
                 Departure.parting(sibling);
                 GameplayLog.event(sibling, "family", "driven out sibling parts child={}", entity.getUUID());

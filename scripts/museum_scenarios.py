@@ -7071,11 +7071,16 @@ def _overload_hull(window, scene, parent, exceptional):
 
 
 def _overload_tradeoff(window):
-    """The overloaded boat (FEATURES 载重, 超载断亲): after the real overload capsize the parent weighs the largest young by her
-    own temperament and plays the verdict out in view before the cut. The `normal` family (attached, not harsh) is tearful: her
-    look and line, the cut only once the child stands ashore, the child's answer and the siblings' cry, no rescue after. The
-    `cold` family (harsh, detached) cuts after one cold look at once. A run without the capsize did not exercise the premise."""
-    for parent, verdict in (('normal', 'DRIVE_TEARFUL'), ('cold', 'DRIVE_COLD')):
+    """The overloaded boat (FEATURES 载重, 超载断亲): four families exercise both verdicts (DRIVE_TEARFUL / DRIVE_COLD) and all
+    three child response branches (plead-and-approach, freeze/stare, sulk/shrug). Every beat logs shown==declared, unaware
+    siblings never get PARTING, and cut children never settle back inside the 16-block banned range."""
+    families = (
+        ('normal', 'DRIVE_TEARFUL', 'plead'),
+        ('cold', 'DRIVE_COLD', 'plead'),
+        ('freeze', 'DRIVE_TEARFUL', 'stare'),
+        ('sulk', 'DRIVE_COLD', 'sulk'),
+    )
+    for parent, verdict, branch in families:
         failure, owner, boats, overloaded_growth = _overload_hull(window, 'hat_crowd', parent, False)
         if failure:
             return failure
@@ -7091,20 +7096,21 @@ def _overload_tradeoff(window):
         if drawn[2] != child or drawn[3] != verdict:
             return f'{parent}: verdict {drawn[3]} for {drawn[2]}, expected {verdict} for the largest young {child}'
         after = window[capsized.start() + drawn.end():]
-        beat = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* overload beat start child=' + child + r' verdict=' + verdict, after)
+        beat = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+) dim=\S+ pos=([^,]+), [^,]+, (\S+) overload beat start child=' + child + r' verdict=' + verdict, after)
         if beat is None:
             return f'{parent}: the verdict was never played out (no beat start)'
-        failure = _driven_out_order(window, after, parent, verdict, owner, child)
+        centre = (int(beat[2]), int(beat[3]))
+        failure = _driven_out_order(window, after, parent, verdict, branch, owner, child, centre)
         if failure:
             return failure
     return None
 
 
-def _driven_out_order(window, after, parent, verdict, owner, child):
-    """The order of the cut child's departure (FEATURES 超载断亲): her verdict beat -> the order -> the child's answer -> it turns and
-    walks -> it is gone (distance and sight) -> only then the cut and the parting feeling of the parent and the kept siblings. Every
-    beat logged with its declared and its shown face must show the declared one, and the child never calls for the parent it was
-    driven from."""
+def _driven_out_order(window, after, parent, verdict, branch, owner, child, centre):
+    """The order of the cut child's departure (FEATURES 超载断亲): her verdict beat -> the order -> the child's stat branch
+    (plead / stare / sulk) -> it turns and walks -> it is gone (distance and sight) -> only then the cut and the parting feeling
+    of the parent and perceiving siblings. Every beat logged with its declared and its shown face must show the declared one, the
+    child never calls for the parent it was driven from, and never settles back inside the banned range."""
     def at(pattern, text=after):
         found = re.search(pattern, text)
         return (int(found[1]), found) if found else (None, None)
@@ -7136,6 +7142,13 @@ def _driven_out_order(window, after, parent, verdict, owner, child):
         return f'{parent}: the driven child called for or looked for the parent that drove it out'
     if re.search(r'\[speech\][^\n]*uuid=' + child + r'[^\n]* line event=(?:lost_parent|caregiver|wait_family)\b', later):
         return f'{parent}: the driven child spoke a parent-seeking line (lost_parent/caregiver/wait_family) after the order'
+    # stat branch proof
+    if branch == 'plead' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
+        return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
+    if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
+        return f'{parent}: freeze child did not play beat=stare face=teary line=none'
+    if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=none declared=hmph', later):
+        return f'{parent}: sulk child did not play beat=turn_away face=hmph line=none'
     # the parting feeling and its "cannot see" lines start from real separation, never before the child is gone
     for early in re.finditer(r'\[emotion\][^\n]* t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
         if int(early[1]) < departed:
@@ -7149,6 +7162,18 @@ def _driven_out_order(window, after, parent, verdict, owner, child):
         return f'{parent}: no sibling reacted when the child turned to go'
     if any(int(t) < begins for t in cries):
         return f'{parent}: a sibling cried before the child began to leave'
+    # witness rule: a sibling that missed the departure must never get PARTING about this child
+    for missed in re.finditer(r'\[family\][^\n]*uuid=(\S+) t=\d+[^\n]* driven out sibling missed departure child=' + child, later):
+        sib = missed[1]
+        if re.search(r'\[family\][^\n]*uuid=' + sib + r'[^\n]* driven out sibling parts child=' + child, later) \
+                or re.search(r'\[emotion\][^\n]*uuid=' + sib + r'[^\n]* course begun kind=parting[^\n]* about=' + child, later):
+            return f'{parent}: sibling {sib} missed departure yet received PARTING about {child}'
+    # banned range: once departed, the cut child must never claim a home/roof within 16 blocks of the family's home
+    after_dep = later[re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out departed', later).start():]
+    for home in re.finditer(r'\[home\][^\n]*uuid=' + child + r'[^\n]* assigned kind=\w+[^\n]*home=GlobalPos\[[^,]+, BlockPos\{x=(-?\d+), y=-?\d+, z=(-?\d+)\}\]', after_dep):
+        dx, dz = int(home[1]) - centre[0], int(home[2]) - centre[1]
+        if dx * dx + dz * dz < 16 * 16:
+            return f'{parent}: cut child assigned home ({home[1]},{home[2]}) within 16 blocks of old home {centre}'
     if verdict == 'DRIVE_TEARFUL':
         parting, _ = at(r'\[choreo\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* beat=parting_begins face=', later)
         if parting is None or parting < departed:
@@ -7244,23 +7269,24 @@ def _overload_growth(parent, steps):
             for i, (child, nourishment) in enumerate(steps)]
 
 
-def _overload_family(scene, parent, dz, cabin, label, **traits):
+def _overload_family(scene, parent, dz, cabin, label, out=6, child3_traits=None, **traits):
     """Young start at sizes 0.16 (cabin, only with `cabin`), 0.20 and 0.355: just under the load warning for the ordinary parent
     (head 0.355 + brim 0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them. The
     growth is then staged by `_overload_growth` (`_OVERLOAD_STEPS`: a load over twice the hull's capacity with no warning in
     between; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the
     exceptional one keeps all three and overloading; `_WARNING_STEPS`: only the head young grows, the hull sits in its warning
     (0.96) and never overloads). The hat is empty: these scenes show the load, not the larder (`hat_larder`). `traits` pin the
-    parent's personality."""
+    parent's personality; `child3_traits` optionally pin the largest child's personality."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid(scene, parent), label=label, **traits, **pair_ready()),
             *[yk('marisa', bank_dx(dz + offset) - 1, dz + offset, parent + str(i), aquatic=True,
                  fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
                  uuid=uid(scene, parent + str(i)), also=(parent + '_crew',),
-                 kin=f'Mother:{uuid_nbt(uid(scene, parent))}', label=f'孩子{i}', **pair_ready())
+                 kin=f'Mother:{uuid_nbt(uid(scene, parent))}', label=f'孩子{i}',
+                 **(child3_traits if i == 3 and child3_traits else {}), **pair_ready())
               for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, _YOUNG2_NOURISHMENT, 76000),
                                                        (3, 1, .355, _HEAD_NOURISHMENT, 72000)) if cabin or i != 1],
-            afloat_now(parent, water_at(dz, 6), True, sel_all(parent + '_crew'), stick=True)]
+            afloat_now(parent, water_at(dz, out), True, sel_all(parent + '_crew'), stick=True)]
 
 
 def _babies():
@@ -7703,14 +7729,20 @@ pond('cargo', '帽里存粮取食，空帽打下', '帽里存粮取食，空帽�
 
 _TEARFUL = dict(intelligence=55, friendliness=20, attachment=65, self_control=45)
 _COLD = dict(intelligence=55, friendliness=20, attachment=15, self_control=40)
+_PLEAD_KID = dict(attachment=75, friendliness=60, boldness=45, self_control=70)
+_FREEZE_KID = dict(attachment=45, friendliness=60, boldness=35, self_control=70)
+_SULK_KID = dict(attachment=20, friendliness=60, boldness=45, self_control=70)
 
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
-     '两位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：北侧依恋高的含泪说着道歉的话，等孩子上岸再下令；南侧依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求、顶嘴或只是望着，央求的走到亲油脚边被拒（冷淡的推开、含泪的转过身），再转身走远；帽上的兄弟姐妹看见会哭。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后含泪的亲油和兄弟姐妹才目送',
+     '四位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：依恋高的含泪说着道歉的话，等孩子上岸再下令；依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求并走近（含泪的转过身、冷淡的推开）、僵住凝望或冷淡哼一声直接转身走远；亲眼看见或听见的兄弟姐妹会哭并在走远后目送，未感知到的不目送。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后成为永久流浪幼体，不再喊亲亲油、也不回旧家范围安家',
      '约 3 分钟，建议倍速',
-     [*_overload_family('hat_crowd', 'normal', -3, False, '依恋65·友善20', **_TEARFUL),
-      *_overload_family('hat_crowd', 'cold', 3, False, '依恋15·友善20', **_COLD)],
+     [*_overload_family('hat_crowd', 'normal', -6, False, '含泪·央求', out=2.0, child3_traits=_PLEAD_KID, **_TEARFUL),
+      *_overload_family('hat_crowd', 'cold', -2, False, '冷淡·央求', out=2.0, child3_traits=_PLEAD_KID, **_COLD),
+      *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=2.0, child3_traits=_FREEZE_KID, **_TEARFUL),
+      *_overload_family('hat_crowd', 'sulk', 6, False, '冷淡·哼走', out=2.0, child3_traits=_SULK_KID, **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
-           *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS)],
+           *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS),
+           *_overload_growth('freeze', _OVERLOAD_STEPS), *_overload_growth('sulk', _OVERLOAD_STEPS)],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='先看翻船后亲油的表情和台词，再看被赶孩子上岸后的回应、走远与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start（她的话，[choreo] beat=verdict）→ overload orders child out → driven out begins（孩子 answer、pleads）→ [choreo] beat=plead|resist|stare、overload rebuffs pleader → [choreo] beat=turn_away、driven out sibling cries → driven out departed（distance、sight）→ parent dismissed child（repudiated=true）→ [choreo] beat=parting_begins；断亲只在孩子走远之后，孩子此后不再喊亲亲油。'
           '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
@@ -11633,9 +11665,9 @@ _FATES = {
     'cargo': [dict(kind='drown', who=_THROWN, why='the shaken full hat capsizes and throws its owner in'),
               dict(kind='drown', who=_STEPS_IN, why='the empty hat\'s owner starts ashore and wades out to reclaim it')],
     'hat_crowd': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
-                  dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_crowd', f'cold{n}') for n in (2, 3)) + ') ',
+                  dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_crowd', f'{p}{n}') for p in ('cold', 'sulk') for n in (2, 3)) + ') ',
                        match=r'category=drowned\b',
-                       why='the capsize throws the cold family in and the parent drops her largest; the water decides for each of her young, the tearful family\'s young must live')],
+                       why='the capsize throws the cold families in and each drops her largest; the water decides for each of her young, the tearful families\' young must live')],
     'hat_load_warning': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
                          dict(kind='death', match=r'category=drowned\b', why='the scene keeps real water damage: survival is not guaranteed')],
     'rescue_child': [dict(kind='drown', who=f'uuid=(?:{_uuid_text("rescue_child", "c1")}|{_uuid_text("rescue_child", "k1")}) ',
@@ -11872,10 +11904,13 @@ _scene_end('shore_capsized', [('a', _DRY)],
                 post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
 # Overloaded families retain real risk; no prescribed survival for a deliberate capsize. Surviving young
 # must still be safe (ORPHAN remains independent); the load response itself is the observable path.
-_scene_end('hat_crowd', [('normal', 'alive=true and distress=false'), ('normal3', 'alive=true')],
+_scene_end('hat_crowd', [('normal', 'alive=true and distress=false'), ('normal3', 'alive=true'),
+                         ('freeze', 'alive=true and distress=false'), ('freeze3', 'alive=true')],
            [('normal', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('normal', 'seen:family:overload beat start .*verdict=DRIVE_TEARFUL'),
             ('normal', 'seen:family:parent dismissed child=')],
-           [('cold', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('cold', 'seen:family:parent dismissed child=')])
+           [('cold', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('cold', 'seen:family:parent dismissed child=')],
+           [('freeze', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('freeze', 'seen:family:parent dismissed child=')],
+           [('sulk', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('sulk', 'seen:family:parent dismissed child=')])
 _scene_end('hat_load_warning', [('early', _DRY), ('kind', 'alive=true and distress=false')],
            [('early', 'seen:aquatic:load heavy .*reason=unload_ashore'),
             ('early', 'seen:intent:end id=come_ashore result=DONE')],

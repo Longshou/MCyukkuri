@@ -47,8 +47,8 @@ final class LeaveBehind implements Intent {
     private static final int SAY_PRIORITY = 4;
     /** How long a drawn verdict waits to be played out (ticks); how many interrupted beats it survives; how far the child may be (blocks). */
     private static final int MEMO = 3600, TRIES = 2, SIGHT = 16;
-    /** How long she watches a child go (ticks, past the pleader's hold and the walk); how far she shoves a pleader off (blocks). */
-    private static final int WATCH = 5200, SHOVE = 3, PLEA_WAIT = 300;
+    /** How long she watches a child go (ticks, bounded to the plea and early walk); how far she shoves a pleader off (blocks). */
+    private static final int WATCH = 1200, SHOVE = 3, PLEA_WAIT = 300;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
     private static final class Memo {
@@ -246,8 +246,12 @@ final class LeaveBehind implements Intent {
 
         @Override public String id() { return "watch_leave"; }
         @Override public long deadline() { return started + WATCH; }
-        @Override public Commitment commitment() { return Commitment.HARD; }
-        @Override public boolean satisfied() { return !child.isAlive() || !parent.getUUID().equals(child.drivenOut().driver()); }
+        @Override public Commitment commitment() { return child.drivenOut().holding() ? Commitment.HARD : Commitment.SOFT; }
+        @Override public boolean satisfied() {
+            return !child.isAlive() || !parent.getUUID().equals(child.drivenOut().driver())
+                    || child.drivenOut().phase() == DrivenOut.Phase.NONE
+                    || !child.drivenOut().holding() && (parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child));
+        }
         @Override public List<Method> methods() { return List.of(Plan.of("watch_leave", this::derive)); }
 
         private List<Supplier<Step>> derive() {

@@ -13,6 +13,7 @@ import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.season.Seasons;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Departure;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -377,7 +378,7 @@ public final class ShelterBlockEntity extends BlockEntity {
         if (kind().found()) return claimFound(entity);
         if(owns(entity.getUUID()))return true;
         if(!(level instanceof ServerLevel server)||!sound()||entity.profile().houseBody())return false;
-        if(!entity.moldExile().allowsAddress(worldPosition))return false;
+        if(!Departure.allowsAddress(entity,worldPosition))return false;
         var families=FamilyData.get(server);
         var person=families.person(entity.getUUID());
         boolean reservedChild=person!=null&&person.status==FamilyData.Status.UNBORN

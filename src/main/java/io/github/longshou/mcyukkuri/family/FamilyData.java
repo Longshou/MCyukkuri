@@ -433,7 +433,7 @@ public final class FamilyData extends SavedData {
         var person=people.get(parent);
         return person==null||!person.dismissedChildren.contains(child);
     }
-    /** Callers go through {@code Bonds.sever}. */
+    /** Callers go through {@code Bonds.sever} or {@code Bonds.repudiate}. */
     public void dismissChild(YukkuriEntity parent, UUID child, String reason, boolean repudiated) {
         register(parent);
         var person=people.get(parent.getUUID());
@@ -441,6 +441,15 @@ public final class FamilyData extends SavedData {
         if(person.dismissedChildren.add(child)||marked){
             setDirty();
             GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained reason={} repudiated={}",child,reason,repudiated);
+        }
+    }
+    /** Cut when the parent entity is unloaded or dead: still records the dismissal and repudiation in the ledger. */
+    public void dismissChild(ServerLevel level, UUID parentId, UUID child, String reason, boolean repudiated) {
+        var person=people.computeIfAbsent(parentId,id->new Person(id,"",null));
+        boolean marked=repudiated&&person.repudiatedChildren.add(child);
+        if(person.dismissedChildren.add(child)||marked){
+            setDirty();
+            GameplayLog.world(level,"family","parent dismissed parent={} child={} direction=parent_to_child child_recognition=retained reason={} repudiated={}",parentId,child,reason,repudiated);
         }
     }
     public boolean socialKin(UUID first, UUID second) {

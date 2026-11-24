@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.GriefVow.Lost;
+import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
@@ -184,10 +185,12 @@ public final class EmotionCourse {
     }
 
     /** Whether the one this parting is about is truly gone: absent, far (>= 8 blocks), or out of sight. */
-    private boolean partedFromAbout() {
+    private boolean partedFromAbout() { return partedFromAbout(8); }
+
+    private boolean partedFromAbout(int distance) {
         if (about == null || !(entity.level() instanceof ServerLevel level)) return true;
         if (!(level.getEntity(about) instanceof YukkuriEntity other) || !other.isAlive()) return true;
-        return entity.distanceToSqr(other) >= 8 * 8 || !entity.hasLineOfSight(other);
+        return entity.distanceToSqr(other) >= (double) distance * distance || !entity.hasLineOfSight(other);
     }
 
     /** Observes the selected presentation row after the arbiter publishes it. */
@@ -365,7 +368,7 @@ public final class EmotionCourse {
     /** A stage's own line: sobs at the peak of grief, a sigh of missing later; the shaking, the huff and the glow likewise. */
     private boolean voice(Stage stage) {
         if (stage != Stage.PEAK && (stage != Stage.EASING || kind == Kind.PARTING)) return true;
-        if (kind == Kind.PARTING && !partedFromAbout()) return false;
+        if (kind == Kind.PARTING && !partedFromAbout(16)) return false;
         if (!calm()) return false;
         boolean peak = stage == Stage.PEAK;
         if (kind == Kind.GRIEF && !peak && elapsed - easingStart() < VOW_WINDOW && about != null) {
@@ -426,7 +429,7 @@ public final class EmotionCourse {
             // The closing vow carries a lost one's share forward: only a confirmed death earns it.
             case GRIEF -> aboutDead() ? "mourn_over" : null;
             case TERROR -> about == null ? null : "shaken_over";
-            case PARTING -> ownChild && partedFromAbout() ? "parting_over" : null;
+            case PARTING -> ownChild && partedFromAbout(16) ? "parting_over" : null;
             default -> null;
         };
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";
@@ -539,7 +542,7 @@ public final class EmotionCourse {
             var body = remains != null && !remains.isRemoved() ? remains : null;
             double stop = y.getBbWidth() / 2 + (body == null ? .5 : body.getBbWidth() / 2 + .3);
             if (attached && distance > stop && distance <= 6) {
-                Predicate<Vec3> allowed = at -> y.moldExile().allowsAddress(BlockPos.containing(at));
+                Predicate<Vec3> allowed = at -> Departure.allowsAddress(y, BlockPos.containing(at));
                 stand = body == null ? SurfaceApproach.beside(y, point, stop, allowed)
                         : SurfaceApproach.beside(y, point, stop, body, allowed);
                 if (stand != null) walkUntil = now + 200;
@@ -668,7 +671,7 @@ public final class EmotionCourse {
             if (f.kind == Kind.RAGE) return;
             // Never back into a home it was driven out of (settlement/MoldExile).
             var to = LandRandomPos.getPos(y, 4, 2);
-            if (to != null && y.moldExile().allowsAddress(BlockPos.containing(to))) stroll = BlockPos.containing(to);
+            if (to != null && Departure.allowsAddress(y, BlockPos.containing(to))) stroll = BlockPos.containing(to);
         }
         @Override public void stop() {
             if (watched != null) watched.stop(y);

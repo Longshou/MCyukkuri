@@ -70,7 +70,7 @@ final class ChildCall {
     ChildCall(FamilyLife owner) { o = owner; }
 
     YukkuriEntity denyingMother() {
-        if (o.mother() == null || !(o.level().getEntity(o.mother()) instanceof YukkuriEntity mother)
+        if (o.mother() == null || !o.expectsCare(o.mother()) || !(o.level().getEntity(o.mother()) instanceof YukkuriEntity mother)
                 || !mother.isAlive() || !o.entity().life().canRecognize(mother)) return null;
         return mother.pet().discovery().denialHeard(mother, o.entity()) > answeredDenial ? mother : null;
     }

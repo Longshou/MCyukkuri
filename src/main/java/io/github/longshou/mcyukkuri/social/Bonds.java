@@ -51,6 +51,10 @@ public final class Bonds {
     public static void repudiate(YukkuriEntity parent, UUID child, String reason) {
         FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child, reason, true);
     }
+    /** As {@link #repudiate(YukkuriEntity, UUID, String)} when the parent entity is unloaded or dead. */
+    public static void repudiate(ServerLevel level, UUID parentId, UUID child, String reason) {
+        FamilyData.get(level).dismissChild(level, parentId, child, reason, true);
+    }
     /** Recorded entity parents, without the ledger's sibling or incident-source expansion; a child she is driving out is no longer hers. */
     public static boolean parentOf(YukkuriEntity parent, YukkuriEntity child) {
         return (parent.getUUID().equals(child.family().mother()) || parent.getUUID().equals(child.family().father()))

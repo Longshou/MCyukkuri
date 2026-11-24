@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
@@ -18,6 +19,10 @@ import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -80,8 +85,10 @@ public final class Departure {
         pleads = !resists && terms.driver() != null && !t.is(Gate.HARSH) && (t.is(Gate.ATTACHED)
                 || YukkuriWorldData.get((net.minecraft.server.level.ServerLevel) entity.level())
                         .affinity(entity.getUUID(), terms.driver().getUUID()) >= BondLevels.AFFINITY_CLOSE);
-        answerTicks = resists ? 50 + t.boldness() / 3 : pleads ? 50 + t.attachment() / 2 : 0;
         answer = Ousting.answer(t);
+        answerTicks = resists ? 50 + t.boldness() / 3
+                : pleads ? 50 + t.attachment() / 2
+                : !terms.repeat() && answer != Answer.SHRUG ? 40 + (100 - t.boldness()) / 3 : 0;
         lookBacks = answer == Answer.FAREWELL ? t.is(Gate.DEVOTED_KIN) ? 2 : 1 : 0;
         if (terms.repeat() && terms.driver() == null) {
             ticks = answerTicks + 1;
@@ -213,7 +220,7 @@ public final class Departure {
     private void hold(YukkuriEntity driver) {
         if (driver != null) entity.getLookControl().setLookAt(driver, 30, 30);
         if (ticks == 1 && !terms.repeat()) {
-            String line = resists ? terms.resistLine() == null ? "" : terms.resistLine() : "mold_plea";
+            String line = resists ? terms.resistLine() == null ? "" : terms.resistLine() : pleads ? "mold_plea" : "";
             String face = resists ? "angry" : "teary";
             entity.showReaction(face, line, Math.max(answerTicks, 1));
             entity.beat(resists ? "resist" : pleads ? "plead" : "stare", face, line);
@@ -272,10 +279,43 @@ public final class Departure {
      * not take it back), and a tearful one is left with the parting feeling, which watches the road it took.
      */
     public static void parted(YukkuriEntity parent, YukkuriEntity child, Verdict verdict, String reason) {
-        Bonds.repudiate(parent, child.getUUID(), reason);
-        if (verdict != Verdict.DRIVE_TEARFUL) return;
+        parted((ServerLevel) parent.level(), parent.getUUID(), parent, child, verdict, reason);
+    }
+
+    /** As {@link #parted(YukkuriEntity, YukkuriEntity, Verdict, String)}, still cutting the bond when the parent is unloaded or dead. */
+    public static void parted(ServerLevel level, UUID parentId, YukkuriEntity parent, YukkuriEntity child, Verdict verdict, String reason) {
+        if (parent != null) Bonds.repudiate(parent, child.getUUID(), reason);
+        else if (parentId != null) Bonds.repudiate(level, parentId, child.getUUID(), reason);
+        if (parent == null || verdict != Verdict.DRIVE_TEARFUL) return;
         parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
         parting(parent);
+    }
+
+    /** A home range this individual was driven out of and must not claim, nest in, or stroll back into. */
+    public record BannedRange(GlobalPos centre, int radius) {
+        public boolean allows(Level level, BlockPos pos) {
+            if (!centre.dimension().equals(level.dimension())) return true;
+            return Vec3.atBottomCenterOf(pos).subtract(Vec3.atBottomCenterOf(centre.pos())).horizontalDistanceSqr() > (double) radius * radius;
+        }
+
+        public void save(CompoundTag tag, String key) {
+            var nbt = new CompoundTag();
+            FamilyData.putPosition(nbt, "Centre", centre);
+            nbt.putInt("Radius", radius);
+            tag.put(key, nbt);
+        }
+
+        public static BannedRange load(CompoundTag tag, String key) {
+            if (!tag.contains(key)) return null;
+            var nbt = tag.getCompound(key);
+            var pos = FamilyData.position(nbt, "Centre");
+            return pos == null ? null : new BannedRange(pos, Math.max(1, nbt.getInt("Radius")));
+        }
+    }
+
+    /** One choke point for every home, roof, nest, shelter, and mourn-stroll check: neither a mould exile nor a repudiated child settles back in its old range. */
+    public static boolean allowsAddress(YukkuriEntity entity, BlockPos pos) {
+        return entity.moldExile().allowsAddress(pos) && entity.drivenOut().allowsAddress(pos);
     }
 
     /** The one who stays shows the parting face at once (over whatever a passing reaction still wears) and the beat records what is shown. */

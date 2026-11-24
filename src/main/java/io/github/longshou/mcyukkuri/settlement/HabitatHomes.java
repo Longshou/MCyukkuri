@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
+import io.github.longshou.mcyukkuri.social.Departure;
 
 import static io.github.longshou.mcyukkuri.world.SearchBudget.generation;
 import static io.github.longshou.mcyukkuri.world.SearchBudget.cancel;
@@ -313,7 +314,7 @@ final class HabitatHomes {
                 while(search.cells.hasNext()&&light<1445) {
                     pos=search.cells.next().immutable();
                     SearchBudget.probe(level());
-                    if(o.entity().moldExile().allowsAddress(pos)&&NaturalShelter.enclosed(level(),pos)) {
+                    if(Departure.allowsAddress(o.entity(),pos)&&NaturalShelter.enclosed(level(),pos)) {
                         if(light>0) { search.pendingCell=pos; return Result.DEFERRED; }
                         break;
                     }
@@ -383,7 +384,7 @@ final class HabitatHomes {
         }
         var sites = new ArrayList<SurfaceSite>();
         for (var pos : BlockPos.betweenClosed(around.offset(-SURFACE_SEARCH, -1, -SURFACE_SEARCH), around.offset(SURFACE_SEARCH, 1, SURFACE_SEARCH))) {
-            if (!refusedSurfaceSites.contains(pos) && entity.moldExile().allowsAddress(pos) && ShelterPlacement.surfaceGround(level(), pos))
+            if (!refusedSurfaceSites.contains(pos) && Departure.allowsAddress(entity, pos) && ShelterPlacement.surfaceGround(level(), pos))
                 sites.add(new SurfaceSite(pos.immutable(), ShelterPlacement.surfaceCovered(level(), pos)));
         }
         // Under cover first (a canopy or an overhang over the whole bed), then the nearest open patch.
@@ -505,7 +506,7 @@ final class HabitatHomes {
         var faces=Burrowing.faces(level(),origin,DIG_SEARCH);
         var plans=new ArrayList<Burrowing.Plan>();
         for(var face:faces) {
-            if(!o.entity().moldExile().allowsAddress(face))continue;
+            if(!Departure.allowsAddress(o.entity(),face))continue;
             Burrowing.Plan atFace=null;
             for(var direction:Direction.Plane.HORIZONTAL) {
                 if(!Burrowing.soft(level(),face.relative(direction)))continue;

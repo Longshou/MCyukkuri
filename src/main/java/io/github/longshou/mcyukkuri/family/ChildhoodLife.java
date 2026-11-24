@@ -521,9 +521,9 @@ public final class ChildhoodLife {
     private boolean hungryForCare() { return entity.life().canReceiveCareFood() && (!firstMealDone || entity.life().nutrition() < 45); }
 
     private YukkuriEntity availableParent() {
-        var mother = person(entity.family().mother());
+        var mother = entity.family().expectsCare(entity.family().mother()) ? person(entity.family().mother()) : null;
         if (parentAvailable(mother) && CareApproach.sameFloor(mother,entity) && entity.distanceToSqr(mother) <= 144) return mother;
-        var father = person(entity.family().father());
+        var father = entity.family().expectsCare(entity.family().father()) ? person(entity.family().father()) : null;
         return parentAvailable(father) && CareApproach.sameFloor(father,entity) && entity.distanceToSqr(father) <= 144 ? father : null;
     }
 

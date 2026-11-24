@@ -2091,6 +2091,7 @@ public final class FamilyLife {
         tag.put("CareDecisions",careDecisions.save());tag.put("Carry",carry.save());
         feeding.save(tag);
         separation.save(tag);
+        entity.drivenOut().save(tag);
         if(mother!=null)tag.putUUID("Mother",mother);if(father!=null)tag.putUUID("Father",father);if(birthId!=null)tag.putUUID("BirthId",birthId);
         UUID partner=partner();
         if(gestation!=null)tag.putUUID("Gestation",gestation);if(partner!=null)tag.putUUID("Partner",partner);return tag;
@@ -2115,6 +2116,7 @@ public final class FamilyLife {
         careDecisions.load(tag.getCompound("CareDecisions"));carry.load(tag.getCompound("Carry"));
         feeding.load(tag);
         separation.load(tag);
+        entity.drivenOut().load(tag);
         mother=tag.hasUUID("Mother")?tag.getUUID("Mother"):null;father=tag.hasUUID("Father")?tag.getUUID("Father"):null;
         birthId=tag.hasUUID("BirthId")?tag.getUUID("BirthId"):null;gestation=tag.hasUUID("Gestation")?tag.getUUID("Gestation"):null;partner=tag.hasUUID("Partner")?tag.getUUID("Partner"):null;
         if(!entity.level().isClientSide&&!entity.status().identity().canConceive()){
