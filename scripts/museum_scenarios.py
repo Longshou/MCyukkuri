@@ -5183,7 +5183,7 @@ _SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 # Grime is a random roll that lowers self-esteem enough to turn a bold child's puff into flight; the shown pair starts clean.
 _SNATCH_CLEAN = 'YukkuriStatus:{Marks:{Rolled:1b,Grime:0,Soil:0,Rain:0}},'
 # Loneliness would send a pinned body nuzzling and shove its pair past the bout's contact reach before the claim; no affection
-# need and no fondness for dolls leaves the bully bout as the pair's only drive.
+# need leaves the bully bout as the pair's first drive.
 _SNATCH_CALM = 'YukkuriDailyLife:{Boredom:0,Affection:0},'
 
 _doll_snatch = 'doll_snatch'
@@ -5202,13 +5202,13 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         item('mcyukkuri:reimu_doll', 1, 7.65, 8.65, 'snatch_doll_a'),
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
         yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
-           boldness=75, friendliness=0, self_control=0, attachment=20, yaw=-90, lead=True,
+           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
            label='蛮横的魔理沙', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_STILL),
         yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
            stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
            label='胆大的灵梦', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_CLEAN + _SNATCH_STILL),
         yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
-           boldness=75, friendliness=0, self_control=0, attachment=20, yaw=-90,
+           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
            label='蛮横的魔理沙', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_STILL),
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
@@ -9841,7 +9841,8 @@ _snatch_victim_b = _uuid_text(_doll_snatch, 'snatch_victim_b')
 
 def _verify_doll_snatch(window):
     """Both lanes: the taker claims, takes the doll it may not take in its mouth, walks off and puts it down; the robbed body
-    shows the reaction of its own temper and answers by its own nature. One beat each, no second grab, faces as declared."""
+    shows the reaction of its own temper and answers by its own nature. One snatch beat each, no second grab, faces as declared;
+    whatever either body does with the doll afterwards (a nuzzle at the nest) is its own business."""
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
         return 'no [keepsake] beat lines logged'
@@ -9865,8 +9866,6 @@ def _verify_doll_snatch(window):
             rows = [r for r in theirs if r[1] == name]
             if len(rows) != 1:
                 return f'{victim}: expected one {name} beat, saw {[r[1] for r in theirs]}'
-        if len(mine) != 4 or len(theirs) != 2:
-            return f'{thief}/{victim}: unexpected extra beats {[r[1] for r in mine]} / {[r[1] for r in theirs]}'
         claim, grab, leave, down = (next(r for r in mine if r[1] == n) for n in ('claim', 'grab', 'leave', 'set_down'))
         robbed, answer = (next(r for r in theirs if r[1] == n) for n in ('robbed', 'answer'))
         if not claim[0] < grab[0] <= robbed[0] < answer[0] < leave[0] < down[0]:
