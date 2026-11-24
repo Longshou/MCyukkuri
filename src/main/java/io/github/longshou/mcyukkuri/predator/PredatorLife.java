@@ -105,11 +105,16 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     public enum Order { NATURAL, PEACEFUL, HUNT, RETURN }
     /** One attack run: climb above the target, stoop onto it, pull away, circle back (project design, after the Phantom's swoop). */
     private enum Pass { APPROACH, STOOP, WITHDRAW }
-    /** A feeding bite and a combat strike hurt less than the former 2.0 so a blocker survives several passes (project design). */
-    private static final float BITE_DAMAGE = 1.5f, COMBAT_DAMAGE = 1.5f;
+    /** A combat strike (driving off a blocker) hurts 1.5 so the blocker survives several passes (project design). The tearing bite of a
+     *  hunt hurts 2.5: four bites fell a healthy adult, which is what a hungry hunter has to finish before it eats. */
+    private static final float BITE_DAMAGE = 2.5f, COMBAT_DAMAGE = 1.5f;
+    /** A feeding bite on living prey swallows one mouthful and leaves the rest of the wound on the body (the remains after the kill):
+     *  a tenth of a portion (~5 nutrition on fresh flesh), whatever the prey's size. Otherwise one bite of an adult (0.9 portions, 45)
+     *  fills the hunter before the prey is dead and the corpse is never eaten (playtest 11-25, WT-06). */
+    private static final float MOUTHFUL = .1f;
     /** Ticks a predator stays and eats after one feeding bite, and stays settled after a combat kill (project design). */
     private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
-    /** The pause after a bite that leaves living prey and an unsated hunter: long enough to swallow the mouthful (about 15 ticks), then the chase goes on. */
+    /** The pause after a bite that leaves the prey alive: long enough to swallow the mouthful (about 15 ticks), then the chase goes on. */
     private static final int CHEW_PAUSE = 40;
     private static final int SWOOP_GAP = 40, CONTACT_HOLD = 5;
     /** A 6-block pull-away with up to 4.5 blocks of lift needs time to accelerate and brake. */
@@ -145,7 +150,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private boolean retaliation;
     private Pass pass = Pass.APPROACH;
     private int passTicks, lastHit = -SWOOP_GAP, hits, restTicks, pendingRest, unseenTicks;
-    /** The living prey a bite left behind while the hunter chews; the chase resumes on it unless the hunter is sated or has lost it. */
+    /** Stoops since the last landed bite that pulled away without one; each one moves the next approach to the other side. */
+    private int missedStoops;
+    /** The living prey a bite left behind while the hunter chews; the chase resumes on it unless it is gone or the hunter must land. */
     private YukkuriEntity followUp;
     private String restReason = "";
     private boolean contactHold;
@@ -329,17 +336,29 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 && !animal.family().active() && animal.family().brood() == null
                 && !animal.isInWaterOrBubble() && !animal.isOnFire();
     }
-    public boolean wantsHunt() { return wantsHunt(false); }
-    /** A hunter already in pursuit goes on until it is truly sated, not only until it is no longer hungry enough to start. */
-    private boolean wantsHunt(boolean pursuing) {
-        if (!ready() || !animal.family().adult() || animal.life().energy() < 30 || !CombatCourage.willing(animal)) return false;
-        if (order() == Order.PEACEFUL || order() == Order.RETURN) return false;
+    public boolean wantsHunt() {
+        return huntAllowed(30) && animal.life().nutrition() < huntLine();
+    }
+    /**
+     * A hunt already under way does not end on food already swallowed or on hunger: the hunter sees the kill through, then eats it.
+     * Only the real stops end it: a prey it can no longer see (lostPrey), a refuge or a defender (huntable), a broken will or a new
+     * order (here), and its own stamina (the landing in PredatorFlight at its rest line).
+     */
+    private boolean stillHunting() {
+        return huntAllowed(PredatorFlight.REST_ENERGY);
+    }
+    /** Everything hunting needs besides hunger; stamina below the given floor is where the hunter must land instead. */
+    private boolean huntAllowed(double energy) {
+        return ready() && animal.family().adult() && animal.life().energy() >= energy
+                && CombatCourage.willing(animal) && order() != Order.PEACEFUL && order() != Order.RETURN;
+    }
+    /** Nutrition under which a new hunt is worth starting; being fed by the prey does not raise it (see stillHunting). */
+    private double huntLine() {
         boolean midday = wildAdult() && PerchScore.midday(level().getDayTime(), !level().isRaining());
         double threshold = order() == Order.HUNT ? 75 : PerchScore.huntThreshold(animal.life().personality().trait(Trait.BOLDNESS), midday);
         if (provisionChild() != null) threshold += 75 + 10 * animal.life().personality().temperament().caring()
                 - PerchScore.huntThreshold(animal.life().personality().trait(Trait.BOLDNESS), false);
-        if (pursuing) threshold = Math.max(threshold, PerchScore.satedLine(animal.life().personality().trait(Trait.BOLDNESS)));
-        return animal.life().nutrition() < threshold;
+        return threshold;
     }
     /**
      * Starts an ordinary pursuit against the individual that just physically hurt this predator.
@@ -383,7 +402,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (animal.life().isSleeping() || animal.life().mealTicks() != 0) return "life";
         if (!animal.family().adult()) return "not_adult";
         if (!CombatCourage.willing(animal)) return "courage_or_health";
-        if (animal.life().energy() < 20) return "energy";
+        if (animal.life().energy() < PredatorFlight.REST_ENERGY) return "energy";
         if (order() == Order.PEACEFUL || order() == Order.RETURN) return "order_" + order().name().toLowerCase();
         if (!active() && cooldown > 0) return "cooldown";
         return "none";
@@ -1225,7 +1244,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
     private void start() {
         if (task != Task.CLEAR_PAD) endPadPush();
-        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = 0; unseenTicks = 0;
+        ticks = 0; pass = Pass.APPROACH; passTicks = 0; lastHit = -SWOOP_GAP; hits = 0; restTicks = 0; unseenTicks = 0; missedStoops = 0;
         if (task != Task.LAND) pendingRest = 0;
         contactHold = false; withdrawGoal = null; flightGoal = null;
         animal.life().interrupt(); animal.social().stop(); animal.groupInteraction().stop(); animal.playLife().stop();
@@ -1781,7 +1800,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (task == Task.EAT) { eat(); return; }
         if (task.pursuit()) {
             boolean lost = prey != null && lostPrey();
-            if (!(retaliation ? retaliationReady() : wantsHunt(true)) || prey == null || !huntable(prey, true) || lost) {
+            if (!(retaliation ? retaliationReady() : stillHunting()) || prey == null || !huntable(prey, true) || lost) {
                 GameplayLog.event(animal,"predator","pursuit ended; prey={} prey_alive={} lost={} retaliation={} energy={} nutrition={} health={}",
                         prey==null?"none":prey.getUUID(),prey!=null&&prey.isAlive(),lost,retaliation,animal.life().energy(),animal.life().nutrition(),animal.getHealth());
                 // A fight that ended in a kill leaves the winner settled beside the body, not chasing the next target. A body
@@ -1931,11 +1950,11 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             if (!resumeChase()) stop();
         }
     }
-    /** After a chewed bite the hunter takes off after the same prey while it is still huntable, in range and the hunter unsated. */
+    /** After a chewed bite the hunter takes off after the same prey while it is still huntable, in range and on its feet. */
     private boolean resumeChase() {
         var target = followUp;
         followUp = null;
-        if (target == null || !huntable(target, true) || !wantsHunt(true)
+        if (target == null || !huntable(target, true) || !stillHunting()
                 || animal.distanceToSqr(target) > HUNT_RANGE * HUNT_RANGE) return false;
         GameplayLog.event(animal,"predator","chase resumed after bite; prey={} distance={} nutrition={} energy={}",
                 target.getUUID(),animal.distanceTo(target),animal.life().nutrition(),animal.life().energy());
@@ -1983,7 +2002,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 && level().clip(new ClipContext(mouth, contact, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, animal)).getType() == HitResult.Type.MISS;
     }
     private void withdraw(String reason, YukkuriEntity target, Vec3 goal) {
-        contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW); thwarted = true;
+        contactHold = false; withdrawGoal = null; setPass(Pass.WITHDRAW); thwarted = true; missedStoops++;
         GameplayLog.limited(animal, "predator", "stoop." + reason, 100,
                 "stoop ended reason={} prey={} feet={} mouth={} contactGoal={} water={} energy={}", () -> new Object[]{reason, target.getUUID(),
                 animal.position(), MouthPlacement.position(animal), goal, animal.isInWaterOrBubble(), animal.life().energy()});
@@ -1998,9 +2017,21 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         boolean cooled = ticks - lastHit >= SWOOP_GAP;
         switch (pass) {
             case APPROACH -> {
-                double height = clearHeight(at);
+                // A stoop that ended without a bite meets the prey on the other side next time instead of repeating the same run.
+                double offset = missedStoops == 0 ? 0
+                        : (missedStoops % 2 == 1 ? 1 : -1) * Math.min(4, 1.5 * missedStoops);
+                Vec3 aim = at;
+                if (offset != 0) {
+                    Vec3 side = horizontal < 1e-4 ? new Vec3(1, 0, 0) : new Vec3(-dz, 0, dx).normalize();
+                    aim = at.add(side.scale(offset));
+                    if (passTicks == 1)
+                        GameplayLog.limited(animal, "predator", "approach shifted", 100,
+                                "approach shifted after misses={} side={} offset={} prey={}",
+                                missedStoops, offset > 0 ? "right" : "left", Math.abs(offset), target.getUUID());
+                }
+                double height = clearHeight(aim);
                 phase(Task.CHASE);
-                fly(at.add(0, height, 0), 1.2);
+                fly(aim.add(0, height, 0), 1.2);
                 if (task != Task.CHASE || prey != target) return;
                 boolean high = animal.getY() >= at.y + Math.min(height, 2.5) - .3;
                 if (cooled && animal.hasLineOfSight(target)
@@ -2014,8 +2045,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                     directFlight(animal.position().add(0, .8, 0), .85);
                     return;
                 }
-                if (mouthTouches(target) && biteTicks == 0 && animal.hasLineOfSight(target)
-                        && (retaliation || animal.life().canAcceptBodyFood())) {
+                if (mouthTouches(target) && biteTicks == 0 && animal.hasLineOfSight(target)) {
                     if (hit(target)) return;
                     contactHold = true; withdrawGoal = null; setPass(Pass.WITHDRAW);
                 } else if (horizontal > 100 || stoop.stalled(passTicks, animal.position().distanceTo(contact), mouthReach())) {
@@ -2051,6 +2081,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private boolean hit(YukkuriEntity target) {
         biteTicks = 16;
         int since = ticks - lastHit; lastHit = ticks; hits++;
+        missedStoops = 0;
         float before = target.getHealth();
         if (retaliation) {
             // Combat wounds but never creates a mouthful or alters nutrition.
@@ -2062,15 +2093,15 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         }
         BodyFood.Bite bite = target.hurtBite(level().damageSources().mobAttack(animal), BITE_DAMAGE);
         if (target.getHealth() < before) { bittenPrey = target; bittenAt = level().getGameTime(); }
-        boolean taken = !bite.isEmpty() && animal.life().acceptBodyFood(bite);
-        GameplayLog.event(animal,"predator","feeding bite target=#{} uuid={} mouthful_accepted={} damage={} health={} -> {} alive={} pass={} since_last={}",
-                target.getId(),target.getUUID(),taken,BITE_DAMAGE,before,target.getHealth(),target.isAlive(),hits,since);
+        BodyFood.Bite mouthful = bite.portions() > MOUTHFUL
+                ? new BodyFood.Bite(MOUTHFUL, MOUTHFUL * bite.nutrition() / bite.portions(), bite.odor(), bite.taste()) : bite;
+        boolean taken = !mouthful.isEmpty() && animal.life().acceptBodyFood(mouthful);
+        GameplayLog.event(animal,"predator","feeding bite target=#{} uuid={} mouthful_accepted={} portions={} nutrition={} damage={} health={} -> {} alive={} pass={} since_last={}",
+                target.getId(),target.getUUID(),taken,mouthful.portions(),mouthful.nutrition(),BITE_DAMAGE,before,target.getHealth(),target.isAlive(),hits,since);
         if (!taken) return false;
         animal.life().spendEnergy(2);
-        // The damage result supplied this one mouthful; it stays and eats before looking for anything else. Living prey
-        // and a hunter still short of sated (counting the mouthful it holds) only swallow, then the chase resumes.
-        boolean goesOn = target.isAlive() && !target.body().dying()
-                && animal.life().nutrition() + bite.nutrition() < PerchScore.satedLine(animal.life().personality().trait(Trait.BOLDNESS));
+        // The damage result supplied this one mouthful; a living prey is chewed on and chased again, a dead one is eaten.
+        boolean goesOn = target.isAlive() && !target.body().dying();
         cooldown = 25;
         followUp = goesOn ? target : null;
         rest(goesOn ? CHEW_PAUSE : EAT_PAUSE, "feeding_bite");

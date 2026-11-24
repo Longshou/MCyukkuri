@@ -19,11 +19,6 @@ final class PerchScore {
         return clear && time >= 3500 && time < 8500;
     }
 
-    /** Nutrition at which a hunter already in pursuit is truly sated: 80 for a timid one up to 95 for a bold one. */
-    static double satedLine(int boldness) {
-        return 80 + .15 * Math.clamp(boldness, 0, 100);
-    }
-
     /** Ticks a hunter keeps after prey it can no longer see before the prey is lost: 160 up to 360 with boldness. */
     static int lostAfter(int boldness) {
         return 160 + 2 * Math.clamp(boldness, 0, 100);

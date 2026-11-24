@@ -2749,9 +2749,9 @@ def _range_pursuit(window, trace):
 
 
 add('pred_range', 'weather', '饥饿芙兰远远飞来追猎灵梦', '饥饿芙兰远远飞来追猎灵梦',
-    '芙兰与灵梦相距 48 格：芙兰站稳后开始饥饿，观察远处发现、起飞追击、猎物逃跑和接触咬击；一口咽完仍饿时继续觅食',
+    '芙兰与灵梦相距 48 格：芙兰站稳后开始饥饿，观察远处发现、起飞追击、猎物逃跑和接触咬击，咬到灵梦倒下，再吃她的遗体',
     '约 1–2 分钟', [
-        yk('reimu', -24, 0, 'range_prey', yaw=-90, **pair_ready()),
+        yk('reimu', -24, 0, 'range_prey', uuid=uid('pred_range', 'range_prey'), yaw=-90, **pair_ready()),
         yk('flandre', 24, 0, 'range_pred', yaw=90, lead=True, nutrition=100, energy=100)],
     late=[set_status('range_pred', 'needs.nutrition', 10)],
     env=DAY, spot='pred', vantage=(0, 18),
@@ -7234,7 +7234,8 @@ _FLIGHT_FAM = {'reimu': None, 'marisa': None}
 _FLIGHT_ROOST = (14, 34)
 
 
-def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9, mother_z=5.0, babies=None):
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9, mother_z=5.0,
+                  babies=None, pred_energy=38):
     """One household at its nest (homes known at the summon): in the default home scene the mother stands 5.0 blocks from the nest and
     each baby ~2.4 blocks to her side (inside the 4-block retrieve distance, clear of the shed's removed front posts and roof) with the
     hungry predator summoned 15 blocks from her (20 from the nest). In timid/hat the mother stands 7.5 blocks out with baby_a ~2.4 from
@@ -7264,7 +7265,7 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
               for x, z, name in (babies or [(-baby_x, 3.5, 'baby_a'), (baby_x, 3.5, 'baby_b')])],
             yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
-               label='饥饿的捕食种', nutrition=36, energy=38, boldness=40)],
+               label='饥饿的捕食种', nutrition=36, energy=pred_energy, boldness=40)],
         at_spawn=[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')],
         late=[Retry(f'yukkuri scenario home {sel("predator")} ~{px} ~8 ~{pz}', sel('predator'), tries=8, every=20, first=3)],
         env=DAY, spot='carry_home', vantage=(13, 9, 90, 20), note=note,
@@ -7305,11 +7306,11 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。捕食种精力 100（其余飞行场景 38）：这一幕要看完全程追猎，饥饿的捕食种得有力气咬死并吃掉留下的那只。',
     # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it. The second baby lies beyond the first, on
     # the predator's side and ~10.5 blocks from the nest (~3.6 from her, ~10.7 from the predator: inside the 6-block gather range and
     # the 8-block look-back), so the hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
-    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
+    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')], pred_energy=100,
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
@@ -10196,11 +10197,16 @@ _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=
        forbid=_HUNT_NOT_TEARY)
 _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
                             r'\[predator\] flandre [^\n]* feeding bite [^\n]* mouthful_accepted=true',
+                            r'\[predator\] flandre [^\n]* feeding bite [^\n]* alive=false',
+                            r'\[predator\] flandre [^\n]* remains feeding via=eat_pause [^\n]* accepted=true',
                             r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none',
                             r'\[predator\][^\n]* beat=predator_dive face=(\w+) line=none declared=\1 ',
                             r'\[predator\][^\n]* beat=predator_feed face=(\w+) line=none declared=\1 '],
        forbid=_HUNT_NOT_TEARY)
-next(s for s in S if s.id == 'pred_range').smoke.update(verify=_range_pursuit, verify_trace=True)
+next(s for s in S if s.id == 'pred_range').smoke.update(
+    verify=_range_pursuit, verify_trace=True,
+    allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_range", "range_prey")} ', match=r'cause=mob\b',
+                     why='the far hunt in this scene ends with the prey killed and eaten by the predator')])
 _smoke('colony_hunt', 2400, [r'\[settlement\][^\n]* event=hunt_call [^\n]*detail=party \d+ dest '])
 for _exile_scene, _scope in (('colony_mold_exile', 'colony'), ('den_mold_exile', 'family')):
     # The exile mourns its lost home (a grief course) before it comes back to ask: the refusal comes later than before.

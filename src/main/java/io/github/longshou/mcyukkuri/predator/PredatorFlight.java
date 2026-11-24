@@ -5,12 +5,15 @@ import java.util.function.BooleanSupplier;
 
 final class PredatorFlight {
     static final int OTHER_TASK_LIMIT = 800;
+    /** The hunter's own rest line: below it a flying task lands, because only rest brings the energy back. A hunt in progress is
+     *  allowed down to this line and no further (PredatorLife.stillHunting). */
+    static final int REST_ENERGY = 15;
     enum Task {
         NONE, TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, LAND, PATROL, EAT, FOUND, PERCH, FLAP, BRANCH_HOP, FIRST_FLIGHT, BROOD_FLIGHT, DELIVER, VISIT_YOUNG,
         WARN, THREAT_APPROACH, THREAT_DIVE, YIELD_TERRITORY, CLEAR_PAD;
 
         boolean needsLanding(double energy) {
-            return energy < 15 && switch (this) {
+            return energy < REST_ENERGY && switch (this) {
                 case TAKEOFF, CHASE, DIVE, SCAVENGE, RETURN, PATROL, BROOD_FLIGHT, DELIVER, VISIT_YOUNG,
                         THREAT_APPROACH, THREAT_DIVE, CLEAR_PAD -> true;
                 default -> false;
