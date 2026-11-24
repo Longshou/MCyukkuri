@@ -245,6 +245,8 @@ public final class KeepsakeLife implements MotorOwner {
 
     private boolean tryStartTalk() {
         if (talkCooldown > 0 || entity.family().adult()) return false;
+        // The turn to the doll is the first beat: a body whose motor another action holds would wait out the whole talk.
+        if (entity.motor().current() != null) return false;
         if (!baseEligible(false) || entity.life().hasUrgentNeed()
                 || entity.life().nutrition() < 30 || entity.life().mealTicks() > 0) return false;
         if (!Keepsakes.wantsComfort(entity)) return false;
@@ -318,10 +320,14 @@ public final class KeepsakeLife implements MotorOwner {
         }
         talkTicks++;
         if (talkTicks >= TALK_TICKS) {
-            int attachment = entity.life().personality().attachment();
-            talkCooldown = 600 + Math.round((100 - attachment) * 6f);
+            talkCooldown = talkRepeatGap();
             finish();
         }
+    }
+
+    /** How long a child waits before it speaks to a doll again; the same after a talk it never got to give. */
+    private int talkRepeatGap() {
+        return 600 + Math.round((100 - entity.life().personality().attachment()) * 6f);
     }
 
     private void tickFetch() {
@@ -550,6 +556,12 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     private void finish() {
+        if (phase == Phase.TALK && !talkAddressed) {
+            // A talk that never reached the doll waits the same gap: re-entering as soon as the body is free again is a loop beside it.
+            talkCooldown = talkRepeatGap();
+            GameplayLog.limited(entity, "keepsake", "talk_given_up", 200,
+                    "talk gave up unaddressed elapsed={} gap={}", elapsed, talkCooldown);
+        }
         phase = Phase.IDLE;
         target = null;
         dropSpot = null;

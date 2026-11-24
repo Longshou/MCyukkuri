@@ -4976,10 +4976,49 @@ add(_doll_talk, 'park', '孤单的子油对布偶说话并递出一口', '孤单
         Retry(set_status('talk_reimu', 'needs.nutrition', 55), sel('talk_reimu'), tries=1, first=80),
         Retry(set_status('clever_marisa', 'needs.nutrition', 55), sel('clever_marisa'), tries=1, first=80),
         Retry(set_status('dull_marisa', 'needs.nutrition', 55), sel('dull_marisa'), tries=1, first=80),
-    ], env=DAY, spot='pavilion', vantage=(3, 13, 180, 18),
+    ], env=DAY, spot='pavilion', vantage=(-5, 2, 0, 22),
     reads=[('读聪慧灵梦子油', f'yukkuri status {sel("talk_reimu")} raw'),
            ('读聪慧魔理沙子油', f'yukkuri status {sel("clever_marisa")} raw'),
            ('读迟钝魔理沙子油', f'yukkuri status {sel("dull_marisa")} raw')])
+
+_friend_scene = 'doll_comfort_friend'
+add(_friend_scene, 'park', '蹭布偶时熟识同伴露面，转而去找同伴', '蹭布偶时熟识同伴露面，转而去找同伴',
+    '草地上孤单的灵梦（依恋 85、亲近需求 80）身边看得见的只有灵梦布偶，先走过去蹭脸。'
+    '隔壁房间的门打开后，熟识的魔理沙出现在门口：灵梦当场停下布偶这一场，转身向魔理沙打招呼并进门去蹭它，'
+    '布偶这一场没有付给它安抚。',
+    '约半分钟', [
+        box(-7, 0, -10, 7, 2, 6, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(2, 0, -2, 2, 2, 2, 'minecraft:oak_planks'),
+        *(block(2, dy, 0, f'minecraft:oak_door[facing=west,hinge=left,half={half},open=false]')
+          for dy, half in ((0, 'lower'), (1, 'upper'))),
+        box(6, 0, -2, 6, 2, 2, 'minecraft:oak_planks'),
+        box(2, 0, -2, 6, 2, -2, 'minecraft:oak_planks'),
+        box(2, 0, 2, 6, 2, 2, 'minecraft:oak_planks'),
+        item('mcyukkuri:reimu_doll', 1, 0, -9, 'friend_doll'),
+        yk('reimu', 0, 0, 'friend_reimu', uuid=uid(_friend_scene, 'friend_reimu'), yaw=180,
+           label='孤单的灵梦', attachment=85, boldness=40, friendliness=70, affection=80,
+           nutrition=95, energy=95, rest_wait=1200),
+        yk('marisa', 4, 0, 'friend_marisa', uuid=uid(_friend_scene, 'friend_marisa'), yaw=270,
+           label='熟识的魔理沙', attachment=100, boldness=50, friendliness=80, affection=0,
+           nutrition=95, energy=95, rest_wait=1200),
+        f'yukkuri scenario bond {sel("friend_reimu")} {sel("friend_marisa")}',
+    ], env=DAY, spot='pavilion', vantage=(-4, 0, -90, 18),
+    reads=[('读孤单灵梦', f'yukkuri status {sel("friend_reimu")} raw'),
+           ('读熟识魔理沙', f'yukkuri status {sel("friend_marisa")} raw')])
+
+_giveup = 'doll_talk_giveup'
+add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油转身去对布偶说话时被饥饿打断',
+    '草地上孤单的灵梦子油（依恋 80、亲近需求 80）背对灵梦布偶，先转身过去开口。'
+    '刚转到一半就饿了：它当场放弃这次搭话，隔一阵（依恋越高等得越短）才会再试，不会在布偶旁边反复重来。',
+    '约半分钟', [
+        box(-5, 0, -4, 4, 1, 6, 'minecraft:air', 'replace minecraft:short_grass'),
+        item('mcyukkuri:reimu_doll', 1, 0, -1, 'giveup_doll'),
+        yk('reimu', 0, 0, 'giveup_kid', uuid=uid(_giveup, 'giveup_kid'), stage='child', yaw=0,
+           label='对布偶说话的子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=80,
+           nutrition=80, energy=95, rest_wait=1200,
+           extra='YukkuriDailyLife:{Affection:80,Boredom:20,Cooldown:900}'),
+    ], env=DAY, spot='pavilion', vantage=(-3, 2, -124, 15),
+    reads=[('读子油', f'yukkuri status {sel("giveup_kid")} raw')])
 
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
@@ -8931,7 +8970,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_talk': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -9232,10 +9271,10 @@ def _verify_doll_comfort_sleep(window):
     if not beats:
         return 'no [keepsake] beat lines logged'
     # Verify that no actor ever starts a doll nuzzle (beat=ask) when its own companion choice had eligible > 0.
-    choice_re = re.compile(r'\[daily\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*companion choice [^\n]*eligible=(\d+)\b')
+    choice_re = re.compile(r'\[daily\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*companion choice [^\n]*checked=\[([^\]]*)\][^\n]*eligible=(\d+)\b')
     eligible_at = {}
     for cm in choice_re.finditer(window):
-        eligible_at[(cm[1], int(cm[2]))] = int(cm[3])
+        eligible_at[(cm[1], int(cm[2]))] = (cm[3].strip(), int(cm[4]))
     reimu_beats = []
     done_ok = False
     sleep_ok = False
@@ -9247,8 +9286,16 @@ def _verify_doll_comfort_sleep(window):
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u == _bold_reimu:
             return f'bold unattached Reimu unexpectedly performed keepsake beat={beat}'
-        if beat == 'ask' and eligible_at.get((u, int(t)), 0) > 0:
-            return f'actor {u} started doll nuzzle while eligible peer count={eligible_at[(u, int(t))]}'
+        if beat == 'ask':
+            # The ask must carry the actor's own same-tick peer scan: a missing or empty scan is no evidence that no peer was eligible.
+            scan = eligible_at.get((u, int(t)))
+            if scan is None:
+                return f'actor {u} doll ask at t={t} has no same-tick companion choice line'
+            checked, eligible = scan
+            if not checked:
+                return f'actor {u} doll ask at t={t} has an empty checked= peer scan'
+            if eligible > 0:
+                return f'actor {u} started doll nuzzle while eligible peer count={eligible}'
         if u == _paired_marisa and beat in ('ask', 'rub', 'done'):
             return f'paired Marisa nuzzled doll instead of eligible peer (beat={beat})'
         if u == _comfort_reimu:
@@ -9343,6 +9390,92 @@ _smoke(_doll_talk, 1200, [
     rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=eat_on face=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
 ])
 next(s for s in S if s.id == _doll_talk).smoke.update(verify=_verify_doll_talk)
+
+_friend_reimu = _uuid_text(_friend_scene, 'friend_reimu')
+_friend_marisa = _uuid_text(_friend_scene, 'friend_marisa')
+
+
+def _verify_doll_comfort_friend(window):
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    rubs, asks, dones = [], [], []
+    for m in beats:
+        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
+        if face != declared:
+            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        if int(dolls) != 1:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+        if u != _friend_reimu:
+            continue
+        if beat == 'rub':
+            rubs.append(int(t))
+        elif beat == 'ask':
+            asks.append(int(t))
+        elif beat == 'done':
+            dones.append(int(t))
+    hand = list(re.finditer(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' t=(\d+)[^\n]*'
+                            r'doll comfort interrupted friend=' + _friend_marisa
+                            + r' contactTicks=(\d+) affectionNeed=\d+ handedOver=true\b', window))
+    if len(hand) != 1:
+        return f'expected one doll-comfort handover to the friend, saw {len(hand)}'
+    at, contacts = int(hand[0][1]), int(hand[0][2])
+    if contacts >= 60:
+        return f'the doll comfort ran to completion before the friend was noticed: contactTicks={contacts}'
+    if not any(t < at for t in rubs):
+        return f'the doll was never rubbed before the friend appeared at t={at}'
+    if any(t < at for t in dones):
+        return f'the doll comfort paid out before the friend appeared (done at {min(dones)} < {at})'
+    if not any(t > at for t in asks):
+        return 'the body never asked the friend after dropping the doll'
+    if not re.search(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' [^\n]*session reserved kind=NUZZLE companion='
+                     + _friend_marisa + r'\b', window):
+        return 'no NUZZLE session with the friend was reserved'
+    if not re.search(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' [^\n]*greet face turn to='
+                     + _friend_marisa + r'\b', window):
+        return 'the body never turned to the friend'
+
+
+_smoke(_friend_scene, 1200, [
+    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask face=teary_smile declared=teary_smile line=want_nuzzle where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=1\b',
+    rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*doll comfort interrupted friend={_friend_marisa} contactTicks=\d+ affectionNeed=\d+ handedOver=true\b',
+    rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*session reserved kind=NUZZLE companion={_friend_marisa}\b',
+    rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*greet face turn to={_friend_marisa} ',
+])
+next(s for s in S if s.id == _friend_scene).smoke.update(
+    verify=_verify_doll_comfort_friend,
+    commands=[
+        (30, block(2, 0, 0, 'minecraft:oak_door[facing=west,hinge=left,half=lower,open=true]')),
+        (30, block(2, 1, 0, 'minecraft:oak_door[facing=west,hinge=left,half=upper,open=true]')),
+    ])
+
+_giveup_kid = _uuid_text(_giveup, 'giveup_kid')
+
+
+def _verify_doll_talk_giveup(window):
+    giveups = list(re.finditer(r'\[keepsake\][^\n]*uuid=' + _giveup_kid
+                               + r' t=(\d+)[^\n]*talk gave up unaddressed elapsed=(\d+) gap=(\d+)\b', window))
+    if len(giveups) != 1:
+        return f'expected exactly one unaddressed talk give-up, saw {len(giveups)}'
+    elapsed, gap = int(giveups[0][2]), int(giveups[0][3])
+    if not 1 <= elapsed < 15:
+        return f'the talk was given up at elapsed={elapsed}, not while it was still turning to the doll'
+    if gap != 720:
+        return f'the repeat gap after the unaddressed exit was {gap}, expected 720 at attachment 80'
+    if re.search(r'\[keepsake\][^\n]*uuid=' + _giveup_kid + r' [^\n]*beat=address\b', window):
+        return 'the child addressed the doll again inside the window'
+
+
+_smoke(_giveup, 400, [
+    rf'\[keepsake\][^\n]*uuid={_giveup_kid} [^\n]*talk gave up unaddressed elapsed=\d+ gap=720\b',
+])
+next(s for s in S if s.id == _giveup).smoke.update(
+    verify=_verify_doll_talk_giveup,
+    commands=[
+        (6, f'execute as {sel("giveup_kid")} run yukkuri status set @s needs.nutrition 25'),
+        (44, f'execute as {sel("giveup_kid")} run yukkuri status set @s needs.nutrition 75'),
+    ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')

@@ -156,6 +156,20 @@ public final class DailyLife {
             if (entity.body().weak() && entity.life().activity().equals(Behaviors.IDLE) && !entity.isCommandPlaying())
                 entity.mind().perform("droop", 80);
         }
+        // Keyed on the world clock, not on the session's own elapsed: a doll comfort is interrupted while the body is still rubbing.
+        if (active() && session.kind == Kind.NUZZLE && session.companion instanceof ItemEntity
+                && level().getGameTime() % 20 == 0) {
+            YukkuriEntity friend = eligiblePeer();
+            if (friend != null) {
+                int contacts = session.contactTicks();
+                stop();
+                // The doll was only a stand-in: the friend it just noticed is asked instead, and the rub pays nothing.
+                cooldown = 0;
+                GameplayLog.event(entity, "daily",
+                        "doll comfort interrupted friend={} contactTicks={} affectionNeed={} handedOver={}",
+                        friend.getUUID(), contacts, affection, nuzzle(friend));
+            }
+        }
         if (active() && !valid()) stop();
     }
     private static boolean available(YukkuriEntity e) { return available(e, false, false); }
@@ -410,9 +424,13 @@ public final class DailyLife {
         return (actor.getBbWidth() + companion.getBbWidth()) * .5 + gap;
     }
 
-    private boolean hasEligiblePeer() {
-        return !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NUZZLE_SIGHT),
-                peer -> peer != entity && companionRefusal(peer) == null).isEmpty();
+    /** The friend to yield a doll to, picked the way {@link #plan()} picks one: most trusted, then nearest. */
+    private YukkuriEntity eligiblePeer() {
+        var peers = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(NUZZLE_SIGHT),
+                peer -> peer != entity && companionRefusal(peer) == null);
+        peers.sort(Comparator.comparingInt((YukkuriEntity peer) -> entity.life().personality().trust(peer.getUUID())).reversed()
+                .thenComparingDouble(entity::distanceToSqr));
+        return peers.isEmpty() ? null : peers.getFirst();
     }
 
     private static int approachBudget(YukkuriEntity mover, double distance, double reach) {
@@ -436,8 +454,7 @@ public final class DailyLife {
                     && Keepsakes.fond(session.leader, doll.getItem())
                     && session.leader.keepsake().comfortEligible(true)
                     && session.leader.distanceToSqr(doll) <= 100
-                    && (session.leader.distanceToSqr(doll) <= 4 || Senses.sees(session.leader, doll))
-                    && (session.elapsed % 20 != 0 || !session.leader.dailyLife().hasEligiblePeer());
+                    && (session.leader.distanceToSqr(doll) <= 4 || Senses.sees(session.leader, doll));
         }
         if (session.leader.distanceToSqr(other) > (session.kind == Kind.NUZZLE ? NUZZLE_SIGHT * NUZZLE_SIGHT : 36)
                 || session.leader.distanceToSqr(other) > 4 && !session.leader.hasLineOfSight(other)) return false;

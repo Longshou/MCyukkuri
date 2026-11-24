@@ -345,6 +345,8 @@
     "family_flight_hat": "FM-29",
     "rain_shelter_family": "WT-16",
     "doll_comfort_sleep": "HS-10",
-    "doll_talk": "PK-10"
+    "doll_talk": "PK-10",
+    "doll_comfort_friend": "PK-11",
+    "doll_talk_giveup": "PK-12"
   }
 }
