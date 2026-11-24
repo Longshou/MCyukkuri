@@ -27,6 +27,10 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.StepIn;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
+import io.github.longshou.mcyukkuri.perception.Sight;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -299,10 +303,12 @@ public final class YukkuriSocial implements MotorOwner {
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
             if (target != null) { approachPeer("morning"); return true; }
         }
-        if (entity.getRandom().nextFloat() < .5f) {
-            target = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(6), item -> item.isAlive() && Facilities.toy(item.getItem()))
+        if (PlayWant.wants(entity)) {
+            double sight = Sight.range(personality().intelligence(), true);
+            var toy = level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(sight, 3, sight),
+                    item -> item.isAlive() && Facilities.toy(item.getItem()) && Senses.sees(entity, item, Cue.Need.PLAY))
                     .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if (target instanceof ItemEntity toy && beginPlay(toy)) return true;
+            if (toy != null && beginPlay(toy)) return true;
         }
         if (quarrelPeer != null && entity.getRandom().nextFloat() < personality().companionshipProbability()) {
             target = quarrelToMend();

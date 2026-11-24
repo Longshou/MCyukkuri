@@ -380,8 +380,9 @@ public final class PresentationArbiter {
         YukkuriAction stationary = actions == Actions.GROUP ? EcologyPresentation.group(behavior) : stationaryAction(state, behavior, actions);
         // Decide walk/idle by actual travel: any translation on the ground shows the walk clip even when pressed against a wall/body;
         // while still travelling (a route or steer in hand), hold the clip through STILL_HOLD ticks of zero travel against one-tick flicker;
-        // a body that has stopped shows its standing clip at once.
-        boolean showWalk = !e.life().isSleeping() && (
+        // a body that has stopped shows its standing clip at once. A facility movement is not the body's walk: the facility's declared
+        // behaviour keeps its own clip for the whole movement.
+        boolean showWalk = !e.life().isSleeping() && !e.playLife().inFacilityMovement() && (
                 m.distanceSquared() > 0.000001 && e.onGround()
                 || holdWalk && stationary == YukkuriAction.IDLE);
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()

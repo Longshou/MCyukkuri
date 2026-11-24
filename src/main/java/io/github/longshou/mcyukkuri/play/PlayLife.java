@@ -70,6 +70,18 @@ public final class PlayLife {
     public PlayLife(YukkuriEntity entity) { this.entity = entity; }
 
     public boolean active() { return facility != null; }
+    /**
+     * The facility itself carries the body through its own interior now (the slide chute, the tunnel, the trampoline bed, the tub
+     * route), not the walk to it: its authored clip holds for that movement instead of the ground walk clip.
+     */
+    public boolean inFacilityMovement() {
+        if (facility == null || waypoint <= entryAt) return false;
+        return switch (facility.kind()) {
+            case SLIDE -> waypoint - interiorAt == 6;
+            case CERAMIC, POOL -> true;
+            case TRAMPOLINE -> springing;
+        };
+    }
     public boolean waiting() { return waitingFor != null; }
     public boolean isWaitingFor(PlayBlockEntity target) { return waitingFor != null && waitingFor == target; }
     public boolean completed() { return completed; }
