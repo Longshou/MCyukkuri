@@ -4100,10 +4100,10 @@ _RING_HOLDER = 'ring_holder'
 # stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, yet see the holder arrive and leave strayRoom open
 # for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -6, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', -9, -6, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -7, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 6, 4, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4137,8 +4137,8 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
     '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
     '约 5 秒院主出发，8–15 秒落座并开始看章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        # A bell north of the plaza and a bed make the lot a village street, keeping strays in the plaza's neighbourhood.
-        block(-2, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
+        # A bell at the plaza edge and a bed make the lot a village street whose heart is the plaza, keeping strays in the neighbourhood.
+        block(-5, 0, -3, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
         # The badged pet starts inside the yard beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
