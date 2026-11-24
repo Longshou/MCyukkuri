@@ -215,7 +215,8 @@ final class AquaticGoal extends Goal {
             GameplayLog.event(body, "aquatic", "birth shore return brood={} remaining={} aboard={} reason=birth_lead lead={}",
                     brood.id, brood.duration - brood.elapsed, aboard, body.family().currentShoreBirthLead());
         }
-        LeaveBehind.offer(out, body, steadyFooting());
+        boolean saving = saving();
+        LeaveBehind.offer(out, body, steadyFooting() && !saving);
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.
         var unloadedNewborns = young.stream().filter(y -> !y.isPassenger() && y.family().stage() == FamilyLife.Stage.BABY && y.childhood().isNewborn()
@@ -329,7 +330,7 @@ final class AquaticGoal extends Goal {
         // A hungry head rider with no free cabin place is out of her mouth's reach: she is fed on dry ground.
         boolean headFeed = young.stream().anyMatch(y -> y.getVehicle() == body && ParentCarry.hold(body, y) == ParentCarry.Hold.HEAD
                 && hat.places(y, SeatTarget.Kind.CABIN, 1).isEmpty() && hungryYoung(body, y, hat));
-        boolean verdictAshore = LeaveBehind.wantsAshore(body);
+        boolean verdictAshore = !saving && LeaveBehind.wantsAshore(body);
         double pull = Math.max(verdictAshore ? num("leave_want", 100) : 0,
                 Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, headFeed ? num("head_feed_need", 70) : 0),
@@ -438,6 +439,15 @@ final class AquaticGoal extends Goal {
             if (drive().runner() != null && drive().runner().intent() instanceof Rescue.Watch w) out.add(watch(w.faller(), w.incident()));
             else if (watching != null) out.add(watch(watching, watched));
         }
+    }
+
+    /** One of her young is in the water with its incident open, or her rescue of it is running: saving it comes before any verdict, which
+     *  is neither pulled ashore for nor played out until it is safe. */
+    private boolean saving() {
+        var runner = drive().runner();
+        if (runner != null && (runner.intent() instanceof Rescue || runner.intent() instanceof Rescue.Watch)) return true;
+        var ledger = AskLedger.server();
+        return AquaticLife.young(body).stream().anyMatch(y -> y.isInWaterOrBubble() && ledger.openOf(y.getUUID(), "water") != null);
     }
 
     /** Footing she can act from: dry ground, or a seat on a hull lying upright and still (not rocking hard, going over or being

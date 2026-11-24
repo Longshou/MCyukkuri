@@ -47,8 +47,8 @@ final class LeaveBehind implements Intent {
     private static final int SAY_PRIORITY = 4;
     /** How long a drawn verdict waits to be played out (ticks); how many interrupted beats it survives; how far the child may be (blocks). */
     private static final int MEMO = 3600, TRIES = 2, SIGHT = 16;
-    /** How long she watches a child go (ticks, bounded to the plea and early walk); how far she shoves a pleader off (blocks). */
-    private static final int WATCH = 1200, SHOVE = 3, PLEA_WAIT = 300;
+    /** How long she watches a child go (ticks: the plea, in which a pleader may take up to a minute to reach her, and the early walk); how far she shoves a pleader off (blocks). */
+    private static final int WATCH = 2400, SHOVE = 3, PLEA_WAIT = 1500;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
     private static final class Memo {

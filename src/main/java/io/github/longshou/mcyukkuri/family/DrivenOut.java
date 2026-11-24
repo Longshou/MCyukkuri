@@ -70,8 +70,6 @@ public final class DrivenOut extends Goal {
     /** She turned it away: its plea ends. */
     public void rebuffed() { departure.rebuff(); }
     public String activity() { return phase == Phase.GOING ? departure.activity() : null; }
-    /** The face of the walk out (see {@link Departure#walkFace}); none when it is not leaving. */
-    public String walkFace() { return phase == Phase.GOING ? departure.walkFace() : ""; }
 
     private YukkuriEntity parent() {
         return driver != null && level().getEntity(driver) instanceof YukkuriEntity p && p.isAlive() ? p : null;
@@ -180,8 +178,8 @@ public final class DrivenOut extends Goal {
                 continue;
             }
             witnessed.add(sibling.getUUID());
-            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY);
-            sibling.beat("sibling_cry", "cry", "mold_child_cry");
+            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY,
+                    spoken -> sibling.beat("sibling_cry", "cry", spoken ? "mold_child_cry" : ""));
             GameplayLog.event(sibling, "family", "driven out sibling cries child={} via={}", entity.getUUID(), via);
         }
     }

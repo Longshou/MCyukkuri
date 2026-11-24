@@ -43,9 +43,12 @@ public final class Departure {
                         boolean repeat, boolean byGuardian, boolean approach, String resistLine, Consumer<Answer> onTurn) {}
 
     /** Ticks it keeps walking beyond the range once a caller extends it; ticks a turned-away pleader still stands after a rebuff. */
-    private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, MAX_APPROACH = 160, REBUFF_WAIT = 40;
+    private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, REBUFF_WAIT = 40;
+    /** A pleader keeps closing in on its driver while it gains {@link #PROGRESS} blocks within {@link #APPROACH_STALL} ticks (a young one
+     *  crawls about 0.4 blocks a second) and for {@link #APPROACH_CAP} ticks in all (60 s: the 16 blocks she watches it from); then it gives up and turns to go. */
+    private static final int APPROACH_STALL = 60, APPROACH_CAP = 1200;
     /** Ticks its turning-away face is kept before a look back may replace it; blocks it must walk before looking back. */
-    private static final int TURN_SHOW = 40;
+    private static final int TURN_SHOW = 40, WALK_FACE = 40;
     private static final double LOOK_BACK_WALK = 2.0;
     /** Speech priority for the turning-away line so it is not muted by the plea that just ended. */
     private static final int SAY_PRIORITY = 4;
@@ -59,8 +62,8 @@ public final class Departure {
     private final BooleanSupplier myTurn;
     private Terms terms;
     private Vec3 destination, outward, turnPos;
-    private int ticks, nextExit, extra, answerTicks, lookBacks, lookBackTicks, atDriver, stall, turnedAt = -TURN_SHOW;
-    private double best;
+    private int ticks, nextExit, extra, answerTicks, lookBacks, lookBackTicks, atDriver, approachStall, stall, turnedAt = -TURN_SHOW;
+    private double best, approachBest = Double.MAX_VALUE;
     private boolean resists, pleads, turned, rebuffed, walkNoted;
     private Answer answer;
     private String failure = "";
@@ -75,8 +78,9 @@ public final class Departure {
     public void begin(Terms terms) {
         this.terms = terms;
         var t = entity.life().personality().temperament();
-        ticks = nextExit = extra = lookBackTicks = atDriver = stall = 0;
+        ticks = nextExit = extra = lookBackTicks = atDriver = approachStall = stall = 0;
         best = 0;
+        approachBest = Double.MAX_VALUE;
         turned = rebuffed = walkNoted = false;
         turnedAt = -TURN_SHOW;
         failure = "";
@@ -102,8 +106,9 @@ public final class Departure {
         this.terms = terms;
         ticks = turned ? answerTicks : 0;
         turnedAt = -TURN_SHOW;
-        nextExit = lookBackTicks = atDriver = stall = 0;
+        nextExit = lookBackTicks = atDriver = approachStall = stall = 0;
         best = 0;
+        approachBest = Double.MAX_VALUE;
         destination = null;
         aim();
     }
@@ -193,9 +198,11 @@ public final class Departure {
             GameplayLog.event(entity, terms.category(), "{} looked back left={} out={}", terms.label(), lookBacks, Math.round(out * 100) / 100.0);
             return Status.RUNNING;
         }
-        if (turned && !walkNoted && ticks - turnedAt >= TURN_SHOW + 4) {
+        // The walk's face is a held reaction (above the running course and every activity face), renewed as it lapses.
+        String face = walkFace();
+        if (!face.isEmpty() && !entity.hasReaction() && entity.showReaction(face, "", WALK_FACE) && !walkNoted) {
             walkNoted = true;
-            entity.beat("walk_out", walkFace(), "");
+            entity.beat("walk_out", face, "");
         }
         int clear = clearRange();
         if (entity.position().subtract(terms.centre()).horizontalDistanceSqr() >= clear * clear
@@ -232,16 +239,26 @@ public final class Departure {
     private void stepUp(YukkuriEntity driver) {
         if (ContactGeometry.inMouthReach(driver, entity)) {
             SurfaceApproach.stopWalking(entity);
-            atDriver++;
+            if (++atDriver == 1) GameplayLog.event(entity, terms.category(), "{} pleader at parent driver={} distance={}", terms.label(),
+                    driver.getUUID(), Math.round(entity.distanceTo(driver) * 100) / 100.0);
             if (atDriver <= REBUFF_WAIT && ticks >= answerTicks) answerTicks = ticks + 1;
             return;
         }
         atDriver = 0;
+        double distance = entity.distanceTo(driver);
+        if (distance < approachBest - PROGRESS) {
+            approachBest = distance;
+            approachStall = 0;
+        } else if (++approachStall > APPROACH_STALL) {
+            if (approachStall == APPROACH_STALL + 1) GameplayLog.event(entity, terms.category(), "{} pleader gave up short of parent driver={} distance={}",
+                    terms.label(), driver.getUUID(), Math.round(distance * 100) / 100.0);
+            return;
+        }
         double spacing = (entity.getBbWidth() + driver.getBbWidth()) * .5 + .1;
         var stand = SurfaceApproach.beside(entity, driver, spacing, ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY);
         if (stand != null) {
             SurfaceApproach.walkToContact(entity, stand, driver, 1);
-            if (ticks < MAX_APPROACH && ticks >= answerTicks) answerTicks = ticks + 1;
+            if (ticks < APPROACH_CAP && ticks >= answerTicks) answerTicks = ticks + 1;
         }
     }
 

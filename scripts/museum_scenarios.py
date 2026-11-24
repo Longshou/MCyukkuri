@@ -7146,10 +7146,14 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     if branch == 'plead':
         if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
             return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
-        ordered_ashore = re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out ordered parent=' + owner + r' verdict=' + verdict + r' in_water=false', after)
+        # the rebuff is asserted on the pleader really standing at her (within mouth reach), never on where it was ordered from
+        reached = re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out pleader at parent driver=' + owner + r' distance=(\S+)', later)
+        if reached is None:
+            gave_up = re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out pleader gave up short of parent[^\n]*', later)
+            return f'{parent}: the pleader never reached her ({gave_up[0][-60:] if gave_up else "no pleader at parent line"})'
         rebuff_beat = 'rebuff_shove face=angry line=none declared=angry' if verdict == 'DRIVE_COLD' else 'rebuff_turn_back face=cry line=none declared=cry'
-        if (verdict == 'DRIVE_TEARFUL' or ordered_ashore) and not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later):
-            return f'{parent}: parent did not rebuff ashore pleader ({rebuff_beat})'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later[reached.end():]):
+            return f'{parent}: parent did not rebuff the pleader standing at her ({rebuff_beat}, reached at distance {reached[1]})'
     if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
         return f'{parent}: freeze child did not play beat=stare face=teary line=none'
     if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=none declared=hmph', later):
@@ -7169,6 +7173,13 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
         return f'{parent}: no sibling reacted when the child turned to go'
     if any(int(t) < begins for t in cries):
         return f'{parent}: a sibling cried before the child began to leave'
+    # the staged far sibling (beyond sight and hearing, out of her family range) misses the departure and stays silent about it
+    if parent == 'normal':
+        far = _uuid_text('hat_crowd', 'normal_far')
+        if not re.search(r'\[family\][^\n]*uuid=' + far + r' t=\d+[^\n]* driven out sibling missed departure child=' + child + r' reason=out_of_range', later):
+            return f'{parent}: the far sibling did not log missing the departure (out_of_range)'
+        if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts)|beat=sibling_cry|beat=parting_begins|course begun kind=parting)', later):
+            return f'{parent}: the far sibling reacted to a departure it never perceived'
     # witness rule: a sibling that missed the departure must never get PARTING about this child
     for missed in re.finditer(r'\[family\][^\n]*uuid=(\S+) t=\d+[^\n]* driven out sibling missed departure child=' + child, later):
         sib = missed[1]
@@ -7744,6 +7755,11 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
      '四位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：依恋高的含泪说着道歉的话，等孩子上岸再下令；依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求并走近（含泪的转过身、冷淡的推开）、僵住凝望或冷淡哼一声直接转身走远；亲眼看见或听见的兄弟姐妹会哭并在走远后目送，未感知到的不目送。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后成为永久流浪幼体，不再喊亲亲油、也不回旧家范围安家',
      '约 3 分钟，建议倍速',
      [*_overload_family('hat_crowd', 'normal', -4, False, '含泪·央求', out=3.0, stick=True, child3_traits=_PLEAD_KID, **_TEARFUL),
+      # her third young, 16 blocks west of the bank behind a short wall and beyond her 16-block family range: it cannot see or hear the departing child
+      yk('marisa', bank_dx(-4) - 16, -4, 'normal_far', aquatic=True, fam=_seat_family(.20, _YOUNG2_NOURISHMENT, 76000),
+         childhood=CHILDHOOD_CRAWLING_READY, uuid=uid('hat_crowd', 'normal_far'), kin=f'Mother:{uuid_nbt(uid("hat_crowd", "normal"))}',
+         label='远处的孩子', extra='NoAI:1b', **pair_ready()),
+      box(bank_dx(-4) - 14, 0, -6, bank_dx(-4) - 14, 2, -2, 'minecraft:stone'),
       *_overload_family('hat_crowd', 'cold', -1, False, '冷淡·央求', out=3.0, stick=True, child3_traits=_PLEAD_KID, **_COLD),
       *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=3.0, stick=True, child3_traits=_FREEZE_KID, **_TEARFUL),
       *_overload_family('hat_crowd', 'sulk', 6, False, '冷淡·哼走', out=5.0, stick=True, child3_traits=_SULK_KID, **_COLD)],

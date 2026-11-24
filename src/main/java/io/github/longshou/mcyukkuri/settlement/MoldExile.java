@@ -136,8 +136,6 @@ public final class MoldExile extends Goal implements MotorOwner {
             case VISIT -> null;
         };
     }
-    /** The face of the walk out (see {@link Departure#walkFace}); none when it is not leaving. */
-    public String walkFace() { return task == Task.LEAVE ? departure.walkFace() : ""; }
     @Override public String ownerId() { return "mold_exile"; }
     @Override public boolean active() { return task != null; }
     private ServerLevel level() { return (ServerLevel)entity.level(); }

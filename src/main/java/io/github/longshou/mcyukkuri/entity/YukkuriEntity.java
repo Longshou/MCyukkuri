@@ -919,7 +919,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             if (cue.action() == null) {
                 boolean first = cue.event().equals("newborn");
                 String words = first ? family.firstWords() : cue.event();
-                if (speak(words, first && words.equals("hello") ? "young" : speechTier(), false, null, floor) && first) BirthStaging.greeting(this);
+                boolean said = speak(words, first && words.equals("hello") ? "young" : speechTier(), false, null, floor);
+                if (said && first) BirthStaging.greeting(this);
+                if (cue.result() != null) cue.result().accept(said);
             } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
@@ -966,7 +968,13 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** As above, with a priority floor for the delayed line, so a beat that must be heard is not swallowed by a competing cue. */
     public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks, int priorityFloor) {
-        if (showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, null)) pendingSpeechFloor = priorityFloor;
+        showReactionDelayed(expression, event, ticks, speechDelayTicks, priorityFloor, null);
+    }
+
+    /** As above, told whether the delayed line was spoken when it comes due. */
+    public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks, int priorityFloor,
+                                    java.util.function.Consumer<Boolean> spoken) {
+        if (showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, spoken)) pendingSpeechFloor = priorityFloor;
     }
 
     public boolean showReactionDelayed(YukkuriAction action, String expression, String event, int ticks, int speechDelayTicks,
