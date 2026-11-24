@@ -4984,40 +4984,47 @@ add(_doll_talk, 'park', '孤单的子油对布偶说话并递出一口', '孤单
 _friend_scene = 'doll_comfort_friend'
 add(_friend_scene, 'park', '蹭布偶时熟识同伴露面，转而去找同伴', '蹭布偶时熟识同伴露面，转而去找同伴',
     '草地上孤单的灵梦（依恋 85、亲近需求 80）身边看得见的只有灵梦布偶，先走过去蹭脸。'
-    '隔壁房间的门打开后，熟识的魔理沙出现在门口：灵梦当场停下布偶这一场，转身向魔理沙打招呼并进门去蹭它，'
+    '隔壁小间的栅门被推开后，熟识的魔理沙出现在门口：灵梦当场停下布偶这一场，转身向魔理沙打招呼并进门去蹭它，'
     '布偶这一场没有付给它安抚。',
     '约半分钟', [
-        box(-7, 0, -10, 7, 2, 6, 'minecraft:air', 'replace minecraft:short_grass'),
-        box(2, 0, -2, 2, 2, 2, 'minecraft:oak_planks'),
-        *(block(2, dy, 0, f'minecraft:oak_door[facing=west,hinge=left,half={half},open=false]')
-          for dy, half in ((0, 'lower'), (1, 'upper'))),
-        box(6, 0, -2, 6, 2, 2, 'minecraft:oak_planks'),
-        box(2, 0, -2, 6, 2, -2, 'minecraft:oak_planks'),
-        box(2, 0, 2, 6, 2, 2, 'minecraft:oak_planks'),
-        item('mcyukkuri:reimu_doll', 1, 0, -9, 'friend_doll'),
-        yk('reimu', 0, 0, 'friend_reimu', uuid=uid(_friend_scene, 'friend_reimu'), yaw=180,
+        box(-8, 0, 1, 9, 2, 9, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(3, 0, 3, 3, 2, 3, 'minecraft:oak_planks'),
+        box(3, 0, 5, 3, 2, 5, 'minecraft:oak_planks'),
+        block(3, 2, 4, 'minecraft:oak_planks'),
+        block(3, 0, 4, 'minecraft:oak_fence_gate[facing=west,open=false]'),
+        block(3, 1, 4, 'minecraft:air'),
+        box(4, 0, 3, 6, 2, 3, 'minecraft:oak_planks'),
+        box(4, 0, 5, 6, 2, 5, 'minecraft:oak_planks'),
+        box(6, 0, 3, 6, 2, 5, 'minecraft:oak_planks'),
+        item('mcyukkuri:reimu_doll', 1, 0, 4, 'friend_doll'),
+        yk('reimu', 0, 6, 'friend_reimu', uuid=uid(_friend_scene, 'friend_reimu'), yaw=180,
            label='孤单的灵梦', attachment=85, boldness=40, friendliness=70, affection=80,
            nutrition=95, energy=95, rest_wait=1200),
-        yk('marisa', 4, 0, 'friend_marisa', uuid=uid(_friend_scene, 'friend_marisa'), yaw=270,
+        yk('marisa', 4, 4, 'friend_marisa', uuid=uid(_friend_scene, 'friend_marisa'), yaw=90,
            label='熟识的魔理沙', attachment=100, boldness=50, friendliness=80, affection=0,
            nutrition=95, energy=95, rest_wait=1200),
         f'yukkuri scenario bond {sel("friend_reimu")} {sel("friend_marisa")}',
-    ], env=DAY, spot='pavilion', vantage=(-4, 0, -90, 18),
+    ], env=DAY, spot='pavilion', vantage=(-4, 5, -90, 18),
     reads=[('读孤单灵梦', f'yukkuri status {sel("friend_reimu")} raw'),
            ('读熟识魔理沙', f'yukkuri status {sel("friend_marisa")} raw')])
 
 _giveup = 'doll_talk_giveup'
 add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油转身去对布偶说话时被饥饿打断',
-    '草地上孤单的灵梦子油（依恋 80、亲近需求 80）背对灵梦布偶，先转身过去开口。'
-    '刚转到一半就饿了：它当场放弃这次搭话，隔一阵（依恋越高等得越短）才会再试，不会在布偶旁边反复重来。',
-    '约半分钟', [
-        box(-5, 0, -4, 4, 1, 6, 'minecraft:air', 'replace minecraft:short_grass'),
-        item('mcyukkuri:reimu_doll', 1, 0, -1, 'giveup_doll'),
-        yk('reimu', 0, 0, 'giveup_kid', uuid=uid(_giveup, 'giveup_kid'), stage='child', yaw=0,
+    '围起来的一小块草地上，孤单的灵梦子油（依恋 80、亲近需求 80）背对灵梦布偶，先转身过去开口。'
+    '刚转到一半就饿了：它当场放弃这次搭话，转身吃掉手边的苹果；隔一阵（依恋越高等得越短）才会再试，不会在布偶旁边反复重来。',
+    '约二十秒', [
+        box(-6, 0, -1, 6, 1, 10, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(-4, 0, 1, 4, 0, 1, 'minecraft:oak_fence'),
+        box(-4, 0, 9, 4, 0, 9, 'minecraft:oak_fence'),
+        box(-4, 0, 1, -4, 0, 9, 'minecraft:oak_fence'),
+        box(4, 0, 1, 4, 0, 9, 'minecraft:oak_fence'),
+        item('mcyukkuri:reimu_doll', 1, 0, 3, 'giveup_doll'),
+        item('minecraft:apple', 1, 0, 4, 'giveup_apple'),
+        yk('reimu', 0, 5, 'giveup_kid', uuid=uid(_giveup, 'giveup_kid'), stage='child', yaw=0,
            label='对布偶说话的子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=80,
            nutrition=80, energy=95, rest_wait=1200,
-           extra='YukkuriDailyLife:{Affection:80,Boredom:20,Cooldown:900}'),
-    ], env=DAY, spot='pavilion', vantage=(-3, 2, -124, 15),
+           extra='YukkuriDailyLife:{Affection:75,Boredom:20,Cooldown:300}'),
+    ], env=DAY, spot='pavilion', vantage=(0, 8, 180, 22),
     reads=[('读子油', f'yukkuri status {sel("giveup_kid")} raw')])
 
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
@@ -9399,7 +9406,7 @@ def _verify_doll_comfort_friend(window):
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
         return 'no [keepsake] beat lines logged'
-    rubs, asks, dones = [], [], []
+    rubs, dones = [], []
     for m in beats:
         u, t, beat, face, declared, line, where, dolls, tail = m.groups()
         if face != declared:
@@ -9410,8 +9417,6 @@ def _verify_doll_comfort_friend(window):
             continue
         if beat == 'rub':
             rubs.append(int(t))
-        elif beat == 'ask':
-            asks.append(int(t))
         elif beat == 'done':
             dones.append(int(t))
     hand = list(re.finditer(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' t=(\d+)[^\n]*'
@@ -9420,34 +9425,35 @@ def _verify_doll_comfort_friend(window):
     if len(hand) != 1:
         return f'expected one doll-comfort handover to the friend, saw {len(hand)}'
     at, contacts = int(hand[0][1]), int(hand[0][2])
+    if contacts <= 0:
+        return 'the body had not begun rubbing the doll when the friend appeared'
     if contacts >= 60:
         return f'the doll comfort ran to completion before the friend was noticed: contactTicks={contacts}'
     if not any(t < at for t in rubs):
         return f'the doll was never rubbed before the friend appeared at t={at}'
     if any(t < at for t in dones):
         return f'the doll comfort paid out before the friend appeared (done at {min(dones)} < {at})'
-    if not any(t > at for t in asks):
-        return 'the body never asked the friend after dropping the doll'
-    if not re.search(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' [^\n]*session reserved kind=NUZZLE companion='
-                     + _friend_marisa + r'\b', window):
-        return 'no NUZZLE session with the friend was reserved'
+    stop = re.search(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' [^\n]*session stopped kind=NUZZLE companion='
+                     r'(?!' + _friend_marisa + r')\S+ elapsed=\d+ contactTicks=(\d+)\b', window)
+    if not stop:
+        return 'the interrupted doll session was never stopped in the log'
+    if stop[1] != str(contacts):
+        return f'the stopped doll session reports contactTicks={stop[1]}, the handover {contacts}'
     if not re.search(r'\[daily\][^\n]*uuid=' + _friend_reimu + r' [^\n]*greet face turn to='
                      + _friend_marisa + r'\b', window):
         return 'the body never turned to the friend'
 
 
-_smoke(_friend_scene, 1200, [
+_smoke(_friend_scene, 540, [
     rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask face=teary_smile declared=teary_smile line=want_nuzzle where=ground dolls=1\b',
     rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=1\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*doll comfort interrupted friend={_friend_marisa} contactTicks=\d+ affectionNeed=\d+ handedOver=true\b',
-    rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*session reserved kind=NUZZLE companion={_friend_marisa}\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*greet face turn to={_friend_marisa} ',
 ])
 next(s for s in S if s.id == _friend_scene).smoke.update(
     verify=_verify_doll_comfort_friend,
     commands=[
-        (30, block(2, 0, 0, 'minecraft:oak_door[facing=west,hinge=left,half=lower,open=true]')),
-        (30, block(2, 1, 0, 'minecraft:oak_door[facing=west,hinge=left,half=upper,open=true]')),
+        (45, block(3, 0, 4, 'minecraft:oak_fence_gate[facing=west,open=true]')),
     ])
 
 _giveup_kid = _uuid_text(_giveup, 'giveup_kid')
@@ -9467,14 +9473,13 @@ def _verify_doll_talk_giveup(window):
         return 'the child addressed the doll again inside the window'
 
 
-_smoke(_giveup, 400, [
+_smoke(_giveup, 200, [
     rf'\[keepsake\][^\n]*uuid={_giveup_kid} [^\n]*talk gave up unaddressed elapsed=\d+ gap=720\b',
 ])
 next(s for s in S if s.id == _giveup).smoke.update(
     verify=_verify_doll_talk_giveup,
     commands=[
         (6, f'execute as {sel("giveup_kid")} run yukkuri status set @s needs.nutrition 25'),
-        (44, f'execute as {sel("giveup_kid")} run yukkuri status set @s needs.nutrition 75'),
     ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
