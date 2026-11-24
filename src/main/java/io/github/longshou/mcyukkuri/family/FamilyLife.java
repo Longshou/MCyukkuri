@@ -1584,7 +1584,7 @@ public final class FamilyLife {
     private YukkuriEntity closestParent() {
         if(familyTravelling())return migrationEscort();
         var parent = level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(12),other->other.isAlive()
-                &&(other.getUUID().equals(mother)||other.getUUID().equals(father))&&entity.life().canRecognize(other)
+                &&expectsCare(other.getUUID())&&entity.life().canRecognize(other)
                 &&!other.moldExile().leavesCareToResident(entity)&&!entity.moldExile().exiledFrom(other))
                 .stream().sorted(Comparator.comparingDouble(entity::distanceToSqr))
                 .filter(other->ParentCarry.needsCarry(entity)||gatherAt(other)!=null||entity.life().reachable(other.blockPosition(),false)).findFirst().orElse(null);
@@ -1598,7 +1598,7 @@ public final class FamilyLife {
     /** Use the same real parent for a travelling child's follow and the parents' search decisions. */
     YukkuriEntity migrationEscort() {
         YukkuriEntity first=null,second=null;
-        for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
+        for(var id:new UUID[]{mother(),father()})if(id!=null&&expectsCare(id)&&level().getEntity(id) instanceof YukkuriEntity parent
                 &&ordinaryLandFree(parent)&&parent.family().adult()&&ParentCarry.mayEscort(parent,entity)
                 &&(parent.settlement().familyMarching()||entity.settlement().returningToSettledParent(parent))
                 &&entity.distanceToSqr(parent)<FAMILY_SEARCH_RANGE*FAMILY_SEARCH_RANGE
@@ -1744,7 +1744,7 @@ public final class FamilyLife {
     public boolean familyTravelling() {
         if(entity.settlement().migrating())return entity.settlement().familyMarching();
         if(entity.settlement().familyMarching())return true;
-        for(var id:new UUID[]{mother(),father()})if(id!=null&&level().getEntity(id) instanceof YukkuriEntity parent
+        for(var id:new UUID[]{mother(),father()})if(id!=null&&expectsCare(id)&&level().getEntity(id) instanceof YukkuriEntity parent
                 &&parent.isAlive()&&parent.settlement().familyMarching())return true;
         return false;
     }
