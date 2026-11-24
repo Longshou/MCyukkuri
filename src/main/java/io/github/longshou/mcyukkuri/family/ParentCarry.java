@@ -1696,7 +1696,7 @@ public final class ParentCarry {
         if (lifting != null && level.getEntity(lifting) instanceof YukkuriEntity child) next = child;
         else {
             var fetchable = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child)
-                    && (trips == 1 || purposeFor(child) == Purpose.RETRIEVE)).toList();
+                    && (trips <= 1 || purposeFor(child) == Purpose.RETRIEVE)).toList();
             // The child being fetched stays the one until it is aboard or given up: the order of the others does not flip the target.
             next = fetchable.stream().filter(child -> child.getUUID().equals(flightTarget)).findFirst()
                     .orElseGet(() -> fetchable.stream().min(Comparator.<YukkuriEntity>comparingDouble(ParentCarry::volume)
