@@ -1944,11 +1944,13 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (wantsMore) {
             double reach = (animal.getBbWidth() + eatRemains.getBbWidth()) * .5 + .18;
             if (animal.distanceToSqr(eatRemains) > reach * reach) {
-                SurfaceApproach.walkResult(animal, eatRemains.position(), eatRemains, 1);
-            } else {
-                animal.getNavigation().stop();
-                if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
+                // The kill fell out of mouth reach: the ordinary scavenge flight carries the hunter to it and takes the mouthfuls.
+                corpse = eatRemains; food = null; task = Task.SCAVENGE;
+                start();
+                return;
             }
+            animal.getNavigation().stop();
+            if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
             restTicks = Math.max(restTicks, 1);
         } else animal.getNavigation().stop();
         if (--restTicks <= 0) {

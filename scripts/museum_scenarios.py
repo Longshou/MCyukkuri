@@ -10208,7 +10208,7 @@ _smoke('sacrifice', 1200, [r'\[grief\][^\n]* protection diverted [^\n]*response=
 _smoke('pred_range', 1800, [r'\[predator\] flandre [^\n]* prey selected [^\n]* distance=(?:4[2-9]|5[0-4])\.',
                             r'\[predator\] flandre [^\n]* prey bite [^\n]* accepted=true',
                             r'\[predator\] flandre [^\n]* prey bite [^\n]* alive=false',
-                            r'\[predator\] flandre [^\n]* remains feeding via=eat_pause [^\n]* accepted=true',
+                            r'\[predator\] flandre [^\n]* remains feeding via=(?:eat_pause|scavenge) [^\n]* accepted=true',
                             r'\[predator\][^\n]* beat=predator_chase face=(?:angry_stare|down_angry|angry) line=none',
                             r'\[predator\][^\n]* beat=predator_dive face=(\w+) line=none declared=\1 ',
                             r'\[predator\][^\n]* beat=predator_feed face=(\w+) line=none declared=\1 '],
