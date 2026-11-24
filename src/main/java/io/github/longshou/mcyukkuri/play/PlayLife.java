@@ -40,7 +40,7 @@ public final class PlayLife {
     /** Approach stall budget (~1.25 s) before giving up and switching to another facility; interior safety bound (~2.5 s). */
     private static final int APPROACH_STALL_TICKS = 25;
     private static final int INTERIOR_STALL_TICKS = 50;
-    /** Within this distance of the facility mouth the body's own gait takes over from ground navigation: the mouth point lies outside the shell, so the straight last stretch is clear, while the navigation's last step refuses it next to the shell. */
+    /** Within this distance of the mouth point (outside the shell, so the straight last stretch is clear) a refused navigation hands over to the body's own gait. */
     private static final double MOUTH_REACH = 2.0;
     /** A walk that ends within three blocks of the owner is not routed round the owner's body (its stand lies beside it). */
     private static final double OWNER_BERTH_SQR = 9;
@@ -67,7 +67,7 @@ public final class PlayLife {
     private String refused, stopReason;
     private Beat pendingBeat;
     private double lastDistance = Double.MAX_VALUE;
-    private boolean completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced;
+    private boolean mouthDrive, completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced;
 
     public PlayLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -419,6 +419,7 @@ public final class PlayLife {
         var approach = PlayMotion.approachWaypoints(entity, target.getBlockPos(), target.facing(),
                 halfWidth(target.kind()), halfDepth(target.kind()), local.getFirst());
         entryAt = approach.size() - 1;
+        mouthDrive = false;
         var points = new ArrayList<Vec3>(approach);
         Vec3 firstWorld = PlayGeometry.world(target.getBlockPos(), target.facing(),
                 local.getFirst().x, local.getFirst().y, local.getFirst().z);
@@ -710,11 +711,11 @@ public final class PlayLife {
         if (entity.horizontalCollision || entity.motor().contact.pushedThisTick(entity.level().getGameTime()) || stalled >= 5) {
             askToYield(target);
         }
-        // Approach phase (until the last metre of the facility mouth): walk via ground navigation around the shell, giving the
-        // escorting owner's body a berth (ground navigation plans round yukkuri bodies only). The last metre is the body's own
-        // gait below, which turns first and steps up a lip. Progress is measured by actual displacement so curving round a shell
-        // or bench never false-stalls.
-        if (waypoint < entryAt || waypoint == entryAt && distance >= MOUTH_REACH) {
+        // Approach phase (up to the facility mouth): walk via ground navigation around the shell, giving the escorting owner's body
+        // a berth (ground navigation plans round yukkuri bodies only). When navigation refuses the last stretch of the mouth, the
+        // body's own gait below finishes it: it turns first and steps up a lip. Progress is measured by actual displacement so
+        // curving round a shell or bench never false-stalls.
+        if (waypoint <= entryAt && !mouthDrive) {
             if (lastPos == null || entity.position().distanceToSqr(lastPos) > 0.04) {
                 stalled = 0;
                 lastPos = entity.position();
@@ -724,6 +725,12 @@ public final class PlayLife {
             var res = SurfaceApproach.walkResult(entity, target, routeAroundOwner(target), 1.0);
             int approachLimit = BodyAbility.of(entity).walkSpeed() < 0.06 ? 50 : APPROACH_STALL_TICKS;
             if (res == SurfaceApproach.Result.BLOCKED || stalled > approachLimit) {
+                if (waypoint == entryAt && distance < MOUTH_REACH) {
+                    mouthDrive = true;
+                    stalled = 0;
+                    lastDistance = Double.MAX_VALUE;
+                    return;
+                }
                 rememberSkip(refusedAt, facility.getBlockPos());
                 stopReason = "unreachable";
                 stop();
