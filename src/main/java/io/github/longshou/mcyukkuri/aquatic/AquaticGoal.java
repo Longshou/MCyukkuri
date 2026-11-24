@@ -216,6 +216,7 @@ final class AquaticGoal extends Goal {
                     brood.id, brood.duration - brood.elapsed, aboard, body.family().currentShoreBirthLead());
         }
         boolean saving = saving();
+        if (saving) LeaveBehind.keep(body);
         LeaveBehind.offer(out, body, steadyFooting() && !saving);
         var young = AquaticLife.young(body);
         // Finish the first meal/toilet care ashore; a crawling child can gather for a braid lift without learning to jump.

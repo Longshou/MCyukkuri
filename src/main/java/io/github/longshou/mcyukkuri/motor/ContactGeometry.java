@@ -25,6 +25,10 @@ public final class ContactGeometry {
     public static final double GRAB_MARGIN = .35;
     /** The height window of the grab rule, in blocks of difference between the two bodies. */
     public static final double GRAB_HEIGHT = 1.2;
+    /** How far (blocks) a hold may have slipped between the swim that closed on a rim or edge ({@link #canGrip}, the first tick the
+     *  mouth holds it) and the climb that starts from there: the body still turns and drifts a hair in the water, so a climb
+     *  reads the grip with this much give (observed slips 0 to 0.1) and the pull itself starts from where the body is. */
+    public static final double GRIP_SETTLE = .1;
 
     /** The two ways one body holds another: in the mouth, or at a Marisa's braid tip. */
     public enum Reach { MOUTH, BRAID }

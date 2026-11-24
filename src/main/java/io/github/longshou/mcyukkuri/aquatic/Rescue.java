@@ -44,6 +44,8 @@ final class Rescue implements Intent {
     private boolean held;
     /** She already left an overloadable hull to take the faller from the bank this rescue. */
     private boolean fromBank;
+    /** She went into the water after her own hull because no bank stand reaches the faller or the hull: the swim is this rescue's. */
+    private boolean goingIn;
 
     Rescue(YukkuriEntity helper, YukkuriEntity faller, String incident) {
         this.helper = helper;
@@ -86,7 +88,7 @@ final class Rescue implements Intent {
         return hat != null && hat.restSpot(faller) != null && hat.loadRefusal(helper, faller) == null;
     }
     /** Her own hull in the water belongs to this rescue: a body aboard its hat is not swimming, whatever the water state says. */
-    @Override public boolean ownsBodyInWater() { return AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
+    @Override public boolean ownsBodyInWater() { return goingIn || AquaticLife.aboard(helper, AquaticLife.hat(helper)); }
 
     /** Meet the actual approach while there is breath for both bodies to close the gap and the braid to grip. */
     @Override public Vec3 rescueApproach(String request) {
@@ -126,6 +128,14 @@ final class Rescue implements Intent {
                     () -> new Step.Do(new Grab(faller)));
             // An upside-down hull is righted first, then she boards and lifts from it.
             if (hat != null && hat.upsideDown()) return List.of(() -> new Step.Do(new Right(hat, "rescue")));
+            // Her hull lies where no bank stand lets her hop or stroke it in: waiting at the bank for it to drift in cannot reach the
+            // faller, so she goes in after it and lifts from it (the plan's own reach, not her strength, was the shortfall).
+            if (hat != null && helper.childhood().canSail() && !Ferry.canBoard(helper, hat)) {
+                GameplayLog.event(helper, "aquatic", "rescue goes in faller={} incident={} reason=hull_out_of_bank_reach hat_distance={} faller_distance={}",
+                        faller.getUUID(), incident, Math.round(hat.distanceTo(helper) * 10) / 10.0, Math.round(helper.distanceTo(faller) * 10) / 10.0);
+                goingIn = true;
+                return List.of(() -> new Step.Sub(Ashore.swimOut(helper)));
+            }
             return hat == null && !helper.life().custody().worn() ? null
                     : List.of(() -> new Step.Sub(new SetOut.Launch(helper, deadline())));
         }

@@ -35,7 +35,7 @@ import net.minecraft.server.level.ServerLevel;
  * At the end of her words she gives the order and the child owns its departure ({@link DrivenOut}: it answers by its own
  * temperament, walks away, and the tie is cut only when it is truly gone). She watches it go ({@link Watch}) and turns away a pleader who
  * steps up to her: the cold one shoves it off, the tearful one turns her back.
- * The same look and one short line by her temperament (wait here, or stay), with no cut, is played for the young her full hull leaves on the bank as she sets out ({@link #leftAshore}). A verdict not played out within {@link #MEMO} ticks
+ * The same look and one short line by her temperament (wait here, or stay), with no cut, is played for the young her full hull leaves on the bank as she sets out ({@link #leftAshore}). A verdict not played out within {@link #MEMO} ticks (not counted while she saves her young, {@link #keep})
  * (child or parent out of reach, an incident stepping in) is dropped without a cut and the next capsize draws a new one.
  */
 final class LeaveBehind implements Intent {
@@ -54,7 +54,7 @@ final class LeaveBehind implements Intent {
     private static final class Memo {
         final UUID child;
         final Verdict verdict;
-        final long until;
+        long until;
         /** A child her full hull left standing on the bank (no cut: her face, her line and its own answer only). */
         final boolean ferry;
         /** Her temperament is the cold one (harsh, not attached): the words she leaves a child ashore with. */
@@ -86,6 +86,14 @@ final class LeaveBehind implements Intent {
         var t = parent.life().personality().temperament();
         MEMOS.putIfAbsent(parent, new Memo(child.getUUID(), Verdict.KEEP, parent.level().getGameTime() + MEMO, true,
                 !t.is(Temperament.Gate.ATTACHED) && t.is(Temperament.Gate.HARSH)));
+    }
+
+    /** She is saving her young: a verdict still owed waits for them and does not run out meanwhile (the rescue's own deadlines bound
+     *  it), so it is played out once they are safe. */
+    static void keep(YukkuriEntity parent) {
+        var memo = MEMOS.get(parent);
+        long now = parent.level().getGameTime();
+        if (memo != null && now <= memo.until) memo.until = Math.max(memo.until, now + MEMO / 2);
     }
 
     /** The child whose verdict she still owes (or whose departure she watches), or null (and the verdict dropped, with its reason). */

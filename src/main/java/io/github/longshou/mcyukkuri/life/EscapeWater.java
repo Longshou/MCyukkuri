@@ -90,9 +90,12 @@ public final class EscapeWater implements Intent {
         this.avoid = avoid;
         GameplayLog.event(body, "water", "escape start at={} support={}", GameplayLog.at(body.position()), support());
         var hat = PlacedHatEntity.find(body);
-        GameplayLog.event(body, "water", "own hat ways own_hat={} right_own_hat={} hat_boat={}",
+        var nearest = stands();
+        GameplayLog.event(body, "water", "own hat ways own_hat={} right_own_hat={} hat_boat={} hat_distance={} bank_distance={}",
                 readout(hat(hat, false)), readout(hat(hat, true)),
-                boatSpot() == null ? readout(boatRefusal()) : "available");
+                boatSpot() == null ? readout(boatRefusal()) : "available",
+                hat == null ? "none" : String.format(Locale.ROOT, "%.1f", hat.distanceTo(body)),
+                nearest.isEmpty() ? "none" : String.format(Locale.ROOT, "%.1f", Math.sqrt(body.distanceToSqr(nearest.getFirst()))));
     }
 
     /** The world its runs are keyed on: where the body and its own hat are. */

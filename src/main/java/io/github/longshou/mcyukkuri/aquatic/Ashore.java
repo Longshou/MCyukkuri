@@ -73,8 +73,17 @@ final class Ashore implements Intent {
         this.started = owner.level().getGameTime();
     }
 
+    /** Only the water way of a reclaim: a rescuer on a bank her hull cannot be boarded from goes in after it (hop and stroke out of reach
+     *  from every bank stand), so she is aboard to lift from. */
+    private boolean swimOnly;
+
     static Ashore come(YukkuriEntity owner) { return new Ashore(owner, Purpose.COME); }
     static Ashore reclaim(YukkuriEntity owner) { return new Ashore(owner, Purpose.RECLAIM); }
+    static Ashore swimOut(YukkuriEntity owner) {
+        var out = new Ashore(owner, Purpose.RECLAIM);
+        out.swimOnly = true;
+        return out;
+    }
     private boolean reclaim() { return purpose == Purpose.RECLAIM; }
 
     /** An unsailed young only asks for its hat when it can do something from a reachable stand. */
@@ -102,7 +111,8 @@ final class Ashore implements Intent {
         var land = reclaim() ? Plan.of("take_back", this::beckonable, this::derive) : Plan.of("land", this::derive);
         if (!reclaim()) return List.of(land);
         if (waterTried) return List.of();
-        return List.of(land, new Plan("swim_to_hat", this::swimmable, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR), this::swim));
+        var swim = new Plan("swim_to_hat", this::swimmable, Set.of(Reason.NO_PROGRESS, Reason.NO_CONTACT, Reason.TOO_FAR), this::swim);
+        return swimOnly ? List.of(swim) : List.of(land, swim);
     }
 
     /** A reachable stand with a real contact or stroke; otherwise the water method is considered immediately. */
@@ -133,6 +143,13 @@ final class Ashore implements Intent {
             // would keep her aboard): with her way off, or docked, she waits while one has its own way ashore or is taking it.
             if ((canLand || docked()) && youngLeaving(hat))
                 return List.of(() -> new Step.Wait(() -> !youngLeaving(hat), WAIT, Behaviors.BOAT_CALL));
+            // No bank in hop reach: the hull is paddled in, with a stick or a free braid. A child hanging in her braid (carried through a
+            // capsize, say) keeps it busy, so it is set down on the hull first; with no place for it the Release fails for its real reason.
+            if (!canLand && held != null && new Paddle(hat.position(), ARRIVE).check(owner).reason() == Reason.NO_TOOL) {
+                GameplayLog.limited(owner, "aquatic", "land.release_held", WAIT,
+                        "land sets down held child={} reason=no_free_braid", held.getUUID());
+                return List.of(() -> new Step.Do(new Release(held, hat)));
+            }
             if (!canLand) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.
             if (dependent != null && carryProblem == null) return Ferry.grabAboard(owner, hat, dependent);

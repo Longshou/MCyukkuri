@@ -57,7 +57,7 @@ public final class Climb implements Action {
         if (host != null && host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
         Vec3 grip = host == null ? edge : ContactGeometry.nearestRim(body, host).orElse(null);
         if (grip == null) return Feasibility.of(Reason.NO_CONTACT, 0, "no_rim");
-        double gap = ContactGeometry.gripGap(body, grip);
+        double gap = ContactGeometry.gripGap(body, grip) - ContactGeometry.GRIP_SETTLE;
         if (gap > 0) return Feasibility.of(Reason.NO_CONTACT, gap, "edge=" + GameplayLog.at(grip));
         String slip = slip();
         if (slip != null) return Feasibility.of(Reason.SLIPPED, 0, slip);
