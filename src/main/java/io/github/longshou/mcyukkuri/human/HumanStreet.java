@@ -778,6 +778,7 @@ final class HumanStreet {
         private Vec3 resume;
         private TownMarkers.BadgePlaza plaza;
         private long plazaUntil;
+        private double plazaWariness;
         /** Bound for a bench at the plaza: the owner walks to it, then sits with the leads off while the pets stay about. */
         private boolean plazaRest, plazaSat;
         /** Scenario hook: the next outing takes the plaza without the roll. */
@@ -1066,6 +1067,7 @@ final class HumanStreet {
             // A bench on the plaza lets the owner sit and watch, which keeps the pets about long enough for strays to see them.
             seat = pickPlazaSeat(null);
             plazaRest = seat != null;
+            plazaWariness = wariness;
             plazaUntil = npc.level().getGameTime() + (plazaRest ? TownMarkers.plazaRest(wariness) : TownMarkers.plazaPause(wariness));
         }
 
@@ -1093,6 +1095,7 @@ final class HumanStreet {
                     return;
                 }
                 plazaSat = true;
+                plazaUntil = level.getGameTime() + TownMarkers.plazaRest(plazaWariness);
                 endGlance();
                 detachLeads("plaza");
                 GameplayLog.event(npc, "npc-care", "action=outing_plaza_rest seat={}", seat.cell().toShortString());

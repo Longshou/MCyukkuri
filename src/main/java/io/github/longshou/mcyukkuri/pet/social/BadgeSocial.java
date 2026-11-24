@@ -127,10 +127,13 @@ public final class BadgeSocial {
             v.last = now;
             if (!v.reported && (o.distanceToSqr(y) <= NEAR_SIGHT_SQR || now - v.since >= DWELL_TICKS)) {
                 v.reported = true;
-                v.nextRoll = now + ROLL_EVERY;
-                sighted(level, o, y, viewer, seen, now, true);
+                boolean busy = sighted(level, o, y, viewer, seen, now, true);
+                v.nextRoll = now + (busy ? 80 : ROLL_EVERY);
             }
-            else if (v.reported && now >= v.nextRoll) { v.nextRoll = now + ROLL_EVERY + o.getRandom().nextInt(100); sighted(level, o, y, viewer, seen, now, false); }
+            else if (v.reported && now >= v.nextRoll) {
+                boolean busy = sighted(level, o, y, viewer, seen, now, false);
+                v.nextRoll = now + (busy ? 80 : ROLL_EVERY + o.getRandom().nextInt(100));
+            }
         }
     }
 
@@ -151,11 +154,11 @@ public final class BadgeSocial {
         return false;
     }
 
-    private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge) {
-        sighted(level, o, s, viewer, seen, now, edge, false);
+    private static boolean sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge) {
+        return sighted(level, o, s, viewer, seen, now, edge, false);
     }
 
-    private static void sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, boolean meal) {
+    private static boolean sighted(ServerLevel level, YukkuriEntity o, YukkuriEntity s, Player viewer, List<YukkuriEntity> seen, long now, boolean edge, boolean meal) {
         var ledger = o.pet().badgeLedger();
         int grade = visibleRank(s).id();
         BadgeLedger.Sighting sight;
@@ -185,15 +188,15 @@ public final class BadgeSocial {
         }
         else {
             double chance = BadgeArcPolicy.begBiteChance(observer, subject, relation);
-            if (chance == 0) return;
+            if (chance == 0) return false;
             double roll = o.getRandom().nextDouble();
             GameplayLog.limited(o, "badge", "bite." + s.getUUID(), 100,
                     "badge bite subject={} grade={} nutrition={} esteem={} wariness={} closeness={} chance={} roll={}",
                     s.getUUID(), grade, observer.nutrition(), esteem, wariness, bond.closeness(), chance, roll);
-            if (roll >= chance) return;
+            if (roll >= chance) return false;
             choice = new BadgeArcPolicy.Choice(Arc.BEG_BITE, "");
         }
-        if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return; }
+        if (choice.silent()) { glance(o, s, edge && (sight.first() || sight.changed())); return false; }
         var arc = choice.arc();
         UUID viewerId = viewer == null ? null : viewer.getUUID();
         // Begging acts on a real bite. Its existing pair memory and the held meal govern repeats.
@@ -202,14 +205,15 @@ public final class BadgeSocial {
             if (verdict != BadgeBudget.Verdict.OK) {
                 GameplayLog.limited(o, "badge", "budget." + arc.id, 100, "badge arc deferred arc={} reason={}", arc.id, verdict);
                 glance(o, s, edge);
-                return;
+                return verdict == BadgeBudget.Verdict.TARGET_COOLDOWN;
             }
         }
         YukkuriEntity extra = extraFor(arc, o, s, seen);
         var scene = BadgeArcs.start(level, arc, choice.variant(), o, s, viewer, extra);
-        if (scene == null) { glance(o, s, edge); return; }
+        if (scene == null) { glance(o, s, edge); return true; }
         if (arc != Arc.BEG_BITE) budget().commit(viewerId, arc.cost, o.getUUID(), s.getUUID());
         if (arc != Arc.BEG_BITE) ledger.arc(s.getUUID(), arc.id, now);
+        return false;
     }
 
     private static void glance(YukkuriEntity o, YukkuriEntity s, boolean worthIt) {
