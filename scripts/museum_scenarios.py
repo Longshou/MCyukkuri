@@ -5188,7 +5188,10 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
     '两组反应不同只看各自的胆量与本事，重开可再看一遍。',
     '约 25 秒', [
         # Clear the working lawn and the flower bed between it and the view (blocking foliage would hide a child's doll and feet).
-        box(-2, 0, 3, 22, 3, 15, 'minecraft:air'),
+        # The fountain's rim one row north of the east lane stays: clearing it lets the basin run into the lawn and the timid
+        # child spends the scene fleeing rising water instead of answering the theft.
+        box(-2, 0, 3, 18, 3, 15, 'minecraft:air'),
+        box(-2, 0, 4, 22, 3, 15, 'minecraft:air'),
         *shed(7, 4, half=1), *shed(17, 4, half=1),
         item('mcyukkuri:reimu_doll', 1, 7.65, 8.65, 'snatch_doll_a'),
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
