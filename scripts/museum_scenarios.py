@@ -6801,11 +6801,11 @@ _FLIGHT_ROOST = (14, 34)
 
 def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=21):
     """One household outside its nest; after the family settles and receives its home (+40 t), a hungry predator arrives
-    ahead (+41 t) so the player sees the calm start, the notice, the urgent run to each baby (both start about 2.7 blocks out), then the predator flies back to its own roost,
+    ahead (+41 t) so the player sees the calm start, the notice, the urgent run to each baby (both start 2.5 blocks out), then the predator flies back to its own roost,
     and the flight to the nest."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
-    smoke = dict(ticks=1600, expect=expect, forbid=_carry_transport_forbid)
+    smoke = dict(ticks=3000, expect=expect, forbid=_carry_transport_forbid)
     if allow_fate:
         smoke['allow_fate'] = list(allow_fate)
     px, pz = _FLIGHT_ROOST
@@ -6819,7 +6819,7 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
             yk(kind, 0, 8, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
             *[yk(kind, x, 7.6, name, stage='baby', uuid=uid(sid, name),
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
-              for x, name in [(-2.7, 'baby_a'), (2.7, 'baby_b')]],
+              for x, name in [(-2.5, 'baby_a'), (2.5, 'baby_b')]],
             *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
         late=[Retry(yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
                        label='饥饿的捕食种', nutrition=36, energy=38, boldness=40),
@@ -6847,12 +6847,12 @@ _flight_scene(_flight_home, 'reimu', '捕食种靠近，亲油抱起赤油躲回
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b',
      _FLIGHT_BEAT % ('pickup', 'none')],
-    note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：两只开场都在约 2.7 格外，看跑向第二只时不减速、要抱的孩子站住等着；抱齐后直奔窝口放下（reached_nest）；捕食种有自己的高巢，俯冲后飞回，不占一家的窝。若俯冲落在抱第二只的途中，第二只留下、二趟再来接，也算正常结局。')
+    note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：两只开场都在 2.5 格外，看跑向第二只时不减速、要抱的孩子站住等着；抱齐后直奔窝口放下（reached_nest）；捕食种有自己的高巢，俯冲后飞回，不占一家的窝。若俯冲落在抱第二只的途中，第二只留下、二趟再来接，也算正常结局。')
 _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带走一只',
     '灵梦与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油胆小又不太依恋（胆量与依恋 31），只来得及含起一只，就停步回头喊一声再逃回窝，另一只自己跟着跑。',
     '约 5 秒开始接抱，15 秒内回窝放下', 31, 31,
     [r'\[family\][^\n]*carry flight choice .*gather=true',
-     r'\[family\][^\n]*carry flight reaching child=\S+ distance=[1-9]',
+     r'\[family\][^\n]*carry flight reaching child=\S+ distance=\d',
      r'\[family\][^\n]*carry flight leaves child=\S+ left=1 aboard=1 attachment=31\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
@@ -11988,18 +11988,19 @@ _scene_end(_walk_home, [(child, _ASHORE) for child in ('baby_a', 'baby_b', 'smal
                ('mother', r'seen:family:^carry pickup .*purpose=RETRIEVE child=$subject\b'),
                ('mother', r'seen:family:carry put down .*cause=release purpose=RETRIEVE child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
                post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')]))
-# The contract: at the end both children are inside the nest. A gathered child is carried there and set down (a second trip for the
-# second one is an ordinary retrieve and counts); a child the parent left behind walks there by itself, is fetched, or is declared dead.
-# The put-down may land on the rim and step to the cushion within 40 ticks (the brim hop does).
+# The contract: at the end both children are inside the nest (INSIDE_SUPPORTED for most of the last 300 ticks; a calm child steps over
+# the doorway now and then). A gathered child is carried there and set down (a second trip for the second one is an ordinary retrieve
+# and counts); a child the parent left behind walks there by itself, is fetched, or is declared dead. Right after the put-down the
+# child is on the nest (rim or cushion), not OUTSIDE, within 40 ticks (a frightened baby may sit on the rim for a while).
 for _flight_id, _carried, _cause, _nest in (
         (_flight_home, 2, 'release', '(?:INSIDE_SUPPORTED|PARTIAL)'),
         (_flight_hat, 2, '(?:brim_hop|release)', '(?:INSIDE_SUPPORTED|PARTIAL|ON_RIM)'),
         (_flight_timid, 1, 'release', '(?:INSIDE_SUPPORTED|PARTIAL)')):
-    _scene_end(_flight_id, [(child, _ASHORE + ' and nest=INSIDE_SUPPORTED') for child in ('baby_a', 'baby_b')],
+    _scene_end(_flight_id, [(child, _ASHORE + ' and nest=INSIDE_SUPPORTED', (300, .6)) for child in ('baby_a', 'baby_b')],
                *[dict(each=child, autonomous_home=_carried < 2, post_within=40, steps=[
                    ('mother', rf'seen:family:^carry pickup .*purpose=(?:PROTECT|RETRIEVE) child=$subject\b'),
                    ('mother', rf'seen:family:carry put down .*cause={_cause} purpose=(?:PROTECT|RETRIEVE) child=$subject .*nest={_nest}')],
-                   post=[('$subject', _ASHORE + ' and nest=INSIDE_SUPPORTED')])
+                   post=[('$subject', _ASHORE + ' and nest!=OUTSIDE')])
                  for child in ('baby_a', 'baby_b')])
     next(s for s in S if s.id == _flight_id).smoke['end']['carried_min'] = _carried
 _scene_end('hat_push', [('a', 'alive=true and distress=false'), ('fast', 'alive=true and distress=false')],

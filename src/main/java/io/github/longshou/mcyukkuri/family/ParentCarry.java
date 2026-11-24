@@ -1673,7 +1673,8 @@ public final class ParentCarry {
     private boolean leaveBehind(LivingEntity threat) {
         cancelUnmountedGrab();
         flightTarget = null;
-        if (!flightThreat || threat == null) { endFlight(); return false; }
+        // Only a flight a real threat began calls back; a threat out of sight this tick (null) is still the danger being fled.
+        if (!flightThreat) { endFlight(); return false; }
         var walkers = leftBehind();
         if (walkers.isEmpty()) { endFlight(); return false; }
         var personality = carrier.life().personality();

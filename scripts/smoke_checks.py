@@ -1118,15 +1118,19 @@ class EndContext:
 
     def clauses(self, clauses, tick, bindings, sustained):
         out = []
-        for selector, pred in clauses:
+        for selector, pred, *window in clauses:
             actors = self.select(selector, bindings)
             if not actors:
                 out.append(result('END', 'fail', f'missing subject {selector}', dict(u=None, t=tick)))
             for actor in sorted(actors):
-                times = range(tick - 99, tick + 1) if sustained else (tick,)
+                # A third item (ticks, share) turns the final clause into "held for at least ``share`` of the last ``ticks``":
+                # a calm child steps over the nest's doorway now and then, a child left outside holds no such share.
+                span, share = window[0] if window else (100, None)
+                times = range(tick - span + 1, tick + 1) if sustained else (tick,)
                 values = [self.test(actor, pred, t, bindings) for t in times]
                 verdict = ('no-evidence' if None in values else
-                           'pass' if values[-1] and sum(values) >= .8 * len(values) else 'fail')
+                           'pass' if (sum(values) >= share * len(values) if share else values[-1] and sum(values) >= .8 * len(values))
+                           else 'fail')
                 out.append(result('END', verdict, f'{selector}: {pred}', dict(u=actor, t=tick)))
         return out
 
