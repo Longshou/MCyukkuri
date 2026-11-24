@@ -24,10 +24,10 @@ final class HumanFolk {
                 return;
             }
         }
-        String mood = npc.look() == HumanNpc.Look.CHILD ? "child" : npc.attitude() == HumanNpc.Attitude.CRUEL ? "cruel"
+        String mood = npc.attitude() == HumanNpc.Attitude.CRUEL ? "cruel"
                 : npc.attitude() == HumanNpc.Attitude.NEUTRAL ? "passing"
                 : npc.walking() ? "walk" : npc.walkPetId() != null ? "pet" : "friendly";
-        int variants = mood.equals("passing") || mood.equals("child") ? 1 : mood.equals("cruel") ? 2 : 3;
+        int variants = mood.equals("passing") ? 1 : mood.equals("cruel") ? 2 : 3;
         player.sendSystemMessage(Component.translatable("human.mcyukkuri.talk.say", npc.getDisplayName(),
                 Component.translatable("human.mcyukkuri.talk." + mood + "." + npc.getRandom().nextInt(variants))));
     }

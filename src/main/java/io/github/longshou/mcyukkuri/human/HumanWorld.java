@@ -72,8 +72,6 @@ public final class HumanWorld {
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> ONIISAN = type("oniisan", HumanNpc.Look.ONIISAN);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> BROTHER = type("caretaker_brother", HumanNpc.Look.BROTHER);
     public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> SISTER = type("caretaker_sister", HumanNpc.Look.SISTER);
-    /** The park lodge's child: placed only by structure or summon, with no natural spawn, spawn egg or placement rule. */
-    public static final DeferredHolder<EntityType<?>, EntityType<HumanNpc>> CHILD = type("child", HumanNpc.Look.CHILD, .5f, 1.25f, 1.08f);
     public static final DeferredItem<DeferredSpawnEggItem> ONIISAN_EGG = egg("oniisan", ONIISAN, 0x333b48, 0xa24e42);
     public static final DeferredItem<DeferredSpawnEggItem> BROTHER_EGG = egg("caretaker_brother", BROTHER, 0x486f66, 0xebd6ad);
     public static final DeferredItem<DeferredSpawnEggItem> SISTER_EGG = egg("caretaker_sister", SISTER, 0xad596b, 0xf0d4aa);
@@ -97,11 +95,8 @@ public final class HumanWorld {
         SPEC = b.build();
     }
     private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look) {
-        return type(id, look, .6f, 1.8f, 1.62f);
-    }
-    private static DeferredHolder<EntityType<?>, EntityType<HumanNpc>> type(String id, HumanNpc.Look look, float width, float height, float eye) {
         return ENTITIES.register(id, () -> EntityType.Builder.<HumanNpc>of((type, level) -> new HumanNpc(type, level, look), MobCategory.CREATURE)
-                .sized(width, height).eyeHeight(eye).clientTrackingRange(10).build(MCYukkuri.id(id).toString()));
+                .sized(.6f, 1.8f).eyeHeight(1.62f).clientTrackingRange(10).build(MCYukkuri.id(id).toString()));
     }
     private static DeferredBlock<FactoryStationBlock> station(String id) {
         return simple(id, () -> new FactoryStationBlock(id, stationProperties()));
@@ -121,7 +116,7 @@ public final class HumanWorld {
     }
     public static void attributes(EntityAttributeCreationEvent e) {
         e.put(TRAY.get(), FactoryTray.attributes().build());
-        for (var type : List.of(ONIISAN, BROTHER, SISTER, CHILD)) e.put(type.get(), HumanNpc.attributes().build());
+        for (var type : List.of(ONIISAN, BROTHER, SISTER)) e.put(type.get(), HumanNpc.attributes().build());
     }
     public static void placements(RegisterSpawnPlacementsEvent e) {
         for (var type : List.of(ONIISAN, BROTHER, SISTER))

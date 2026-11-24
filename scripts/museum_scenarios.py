@@ -5011,55 +5011,6 @@ add('juice_bath', 'park', '受伤的灵梦爬进橙汁澡盆泡澡', '受伤的�
         set_status('soaker', 'health.wound_at', 'front:tear:2'),
     ], give=['mcyukkuri:orange_juice 2'], env=DAY, spot='pool', vantage=(2, -7, 20, 22),
     reads=[('读澡盆橙汁', 'data get block ~ ~ ~ Juice'), ('读灵梦', f'yukkuri status {sel("soaker")} raw')])
-_child_ball = 'park_child_ball'
-add(_child_ball, 'park', '小孩逗油库里', '小孩逗油库里',
-    '野餐草坪上，一个拿着毛线球的小孩，左边近处是胆大爱玩的流浪灵梦，右边稍远处是胆小的流浪魔理沙。开场几秒内小孩走到离灵梦三四格处站定，'
-    '举球往后拉一秒，再把球贴着灵梦身侧慢慢滚过去。灵梦会追上去拨球，小孩挥手；球玩完后小孩把它捡回，再对魔理沙滚一次，魔理沙缩着身子躲开，小孩只看着或小幅挥手。'
-    '两只的反应各看自己的胆量，重开可再看一遍。',
-    '约 1 分钟', [
-        human('child', 4, 3, 'park_child', 0, attitude=2, yaw=0, label='小孩')[:-1]
-        + f',UUID:{uuid_nbt(uid(_child_ball, "park_child"))},HandItems:[{{id:"mcyukkuri:yarn_ball",count:1}},{{}}]}}',
-        # Both strays have a home: a vagrant without one keeps a habitat project running and never answers a child's offer.
-        # The bold one beds under the picnic tree (its canopy is the cover), four blocks west of where it stands: a nest closer
-        # than the territory radius 3 would make it defend the bed against the child instead of answering the ball. The timid
-        # one gets a shed of its own.
-        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), *shed(11, -5, half=1),
-        # Not bored at the start: a leisure song would hold the social goal and the ball would go unanswered. It still plays:
-        # the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
-        street_trial(_child_ball, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, yaw=0, lead=True,
-                     extra='YukkuriDailyLife:{Boredom:0}'),
-        street_trial(_child_ball, 'marisa', 10, -3, 'child_timid', boldness=15, friendliness=50, yaw=0,
-                     extra='YukkuriDailyLife:{Boredom:0}'),
-        home('child_bold', -3, -5), home('child_timid', 11, -5),
-    ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
-    reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读胆小的魔理沙', f'yukkuri status {sel("child_timid")} raw'),
-           ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
-
-_child_more = 'park_child_more'
-add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '小孩逗油库里：蹲着戳、放饼干、追',
-    '野餐草坪上，一个没有球、空闲手里拿着一个苹果的小孩；近处是胆大爱玩的流浪灵梦，远处是依恋主人的魔理沙，主人站在它身旁。'
-    '小孩会先站到灵梦跟前，蹲下的一秒预告后在三种逗法里挑一种：蹲着从两格外晃手指、把苹果放在地上退开两格、或张开手臂跑过去在两格外停住。'
-    '有点饿的灵梦等小孩退开后去吃苹果，胆大的朝小孩迎上去玩回去，被追时站定；魔理沙先看主人，贴到主人身边不理小孩。小孩的反应是挥手、耸肩或低头道歉。'
-    '重开可看另一种逗法；同一只灵梦被追过一次后不再被追。',
-    '约 1 分钟', [
-        human('child', 4, 3, 'park_child', 0, attitude=2, yaw=0, label='小孩')[:-1]
-        + f',UUID:{uuid_nbt(uid(_child_more, "park_child"))},HandItems:[{{}},{{id:"minecraft:apple",count:1}}]}}',
-        human('caretaker_sister', 9, -7, 'child_owner', 0, yaw=0, label='魔理沙的主人'),
-        # A home under the picnic tree, or the stray keeps a habitat project running and never answers the tease. Kept four
-        # blocks west of the stray: inside the territory radius 3 it would defend the bed against the child instead of answering.
-        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'), home('child_bold', -3, -5),
-        # Not bored: a leisure song would hold the social goal and the tease would go unanswered (as in park_child_ball).
-        # It still answers playfully: the play drive is its curiosity (boldness 85, intelligence 55), not boredom.
-        street_trial(_child_more, 'reimu', 1, -5, 'child_bold', boldness=85, friendliness=90, nutrition=45, yaw=0, lead=True,
-                     extra='YukkuriDailyLife:{Boredom:0}'),
-        yk('marisa', 10, -7, 'child_pet', uuid=uid(_child_more, 'child_pet'), boldness=60, attachment=90, grade=1, lead=True, yaw=0,
-           extra='YukkuriPet:{TownRoots:1b}'),
-        f'data modify entity {sel("child_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
-        f'data modify entity {sel("child_pet")} {OWNED}.Owner set from entity {sel("child_owner")} UUID',
-    ], env=DAY, spot='picnic', vantage=(5, 4, 180, 14),
-    reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读有主人的魔理沙', f'yukkuri status {sel("child_pet")} raw'),
-           ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
-
 _doll_carry = 'doll_carry'
 add(_doll_carry, 'park', '无聊的魔理沙把布偶叼回窝边', '无聊的魔理沙把布偶叼回窝边',
     '公园凉亭南侧的草坪上放着一只魔理沙布偶。右边无聊且爱玩的魔理沙（依恋 70）离布偶 3 格，自己的窝在左边 8 格处；前景另一只低兴致、低依恋的灵梦（依恋 20）只看一眼便走开。'
@@ -9111,8 +9062,8 @@ def _number_scenes():
         assert match and match[1] in field_of, (sid, number, 'a number is a known field code, a dash and two digits')
         assert number not in used, (sid, number, 'two scenes share a number', used.get(number))
         used[number] = sid
-        assert int(match[2]) == last[field_of[match[1]]] + 1, \
-            (sid, number, 'numbers are append-only: an entry takes the next free index of its field')
+        assert int(match[2]) > last[field_of[match[1]]], \
+            (sid, number, 'numbers are append-only: an entry takes a new index after the ones before it')
         last[field_of[match[1]]] = int(match[2])
     for scenario in S:
         assert scenario.id in numbers, f'scene {scenario.id} has no number in museum_scene_numbers.json'
@@ -9281,7 +9232,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5', 'bully_strike': 'M5', 'treasure_bully': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5', 'bully_strike': 'M5', 'treasure_bully': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -9517,36 +9468,6 @@ next(s for s in S if s.id == _lock_lane).smoke.update(verify=_lock_verify, verif
 for _scene, _verify in (('street_corridor', _encounter_verify(50, 25, who=_corridor_who)),
                         ('street_dead_end', _encounter_verify(50, 25, min_len=5, who=_dead_who))):
     next(s for s in S if s.id == _scene).smoke.update(verify=_verify, verify_trace=True)
-
-# One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
-# and each answer is logged by the animal itself.
-_child_log = _uuid_text(_child_ball, 'park_child')
-_child_bold = _uuid_text(_child_ball, 'child_bold')
-_child_timid = _uuid_text(_child_ball, 'child_timid')
-_smoke(_child_ball, 3200, [
-    rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_bold} ball=[0-9a-f-]{{36}} ',
-    rf'\[social\][^\n]*uuid={_child_bold} [^\n]*child offer response=PLAY ',
-    rf'\[child\][^\n]*uuid={_child_log} [^\n]*roll target={_child_timid} ball=[0-9a-f-]{{36}} ',
-    rf'\[social\][^\n]*uuid={_child_timid} [^\n]*child offer response=FLINCH ',
-    rf'\[child\][^\n]*uuid={_child_log} [^\n]*reaction=played target={_child_bold} ',
-    rf'\[child\][^\n]*uuid={_child_log} [^\n]*ball_recovered ',
-], forbid=[rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:release_refused|no_clear_roll)'])
-
-# no_stand and approach_timeout are honest retries (a short pause follows); a real loop would repeat them every pause (200 ticks, 16 in the 3200-tick window).
-def _child_retry_bound(window):
-    n = len(re.findall(rf'\[child\][^\n]*uuid={_child_log} [^\n]*end reason=(?:approach_timeout|no_stand|target_busy)', window))
-    return f'the child retried {n} times (more than 12): a retry loop' if n > 12 else None
-next(s for s in S if s.id == _child_ball).smoke.update(verify=_child_retry_bound)
-
-# The child picks one of the three teases the scene promises (a crumb, a poke or a chase) at the near bold stray; the stray answers by
-# its own values and the child answers that, whatever the roll was.
-_more_child = _uuid_text(_child_more, 'park_child')
-_more_bold = _uuid_text(_child_more, 'child_bold')
-_smoke(_child_more, 1600, [
-    rf'\[child\][^\n]*uuid={_more_child} [^\n]*approach gesture=(?:CRUMB|POKE|CHASE) target={_more_bold} ',
-    rf'\[social\][^\n]*uuid={_more_bold} [^\n]*child offer gesture=(?:CRUMB|POKE|CHASE) ',
-    rf'\[child\][^\n]*uuid={_more_child} [^\n]*reaction=(?:NONE|WAVE|SHRUG|SORRY) answer=\w+ gesture=(?:CRUMB|POKE|CHASE) target={_more_bold}\b',
-])
 
 _doll_marisa = _uuid_text(_doll_carry, 'doll_marisa')
 _doll_reimu = _uuid_text(_doll_carry, 'doll_reimu')

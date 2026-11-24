@@ -70,8 +70,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 public final class HumanNpc extends PathfinderMob {
-    /** CHILD is a park resident: it plays by itself (ChildPlay) and is outside every adult service and street duty. */
-    public enum Look { ONIISAN, BROTHER, SISTER, CHILD }
+    public enum Look { ONIISAN, BROTHER, SISTER }
     public enum Job { RESIDENT, SHOPKEEPER, FACTORY, EXAMINER }
     public static final int DOSE_SWING_TICKS = 20, DOSE_TICKS = 30;
     public enum Attitude { CRUEL, CARING, NEUTRAL }
@@ -81,8 +80,6 @@ public final class HumanNpc extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> STREET_GRAIN = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
     /** 0 standing, else the horizontal direction (2D data value + 1) the owner faces while sitting on a bench board. Derived each tick, not saved. */
     private static final EntityDataAccessor<Integer> SEAT = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
-    /** The child's gesture pose drawn by the client: see {@link ChildPlay.Pose}. */
-    private static final EntityDataAccessor<Integer> CHILD_POSE = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
     private final Look look;
     private BlockPos home;
     private String siteRole = "";
@@ -190,21 +187,15 @@ public final class HumanNpc extends PathfinderMob {
 
     public HumanNpc(EntityType<? extends HumanNpc> type, Level level, Look look) {
         super(type, level); this.look = look;
-        setAttitude(look == Look.ONIISAN ? Attitude.CRUEL : look == Look.CHILD ? Attitude.NEUTRAL : Attitude.CARING);
+        setAttitude(look == Look.ONIISAN ? Attitude.CRUEL : Attitude.CARING);
         setPersistenceRequired();
-        // The yarn ball and the bite of food it holds are real items: they fall where the child falls.
-        if (look == Look.CHILD) { setDropChance(EquipmentSlot.MAINHAND, 2.0f); setDropChance(EquipmentSlot.OFFHAND, 2.0f); }
     }
     public static AttributeSupplier.Builder attributes() { return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 24)
             .add(Attributes.MOVEMENT_SPEED, .26).add(Attributes.FOLLOW_RANGE, 24); }
     @Override protected void defineSynchedData(SynchedEntityData.Builder b) {
         super.defineSynchedData(b); ModRandom.construct(this); b.define(JOB, 0); b.define(ATTITUDE, 1); b.define(RESTING, false); b.define(STREET_GRAIN, false);
-        b.define(SEAT, 0); b.define(CHILD_POSE, 0);
+        b.define(SEAT, 0);
     }
-    public ChildPlay.Pose childPose() { return ChildPlay.Pose.values()[entityData.get(CHILD_POSE)]; }
-    void setChildPose(ChildPlay.Pose pose) { entityData.set(CHILD_POSE, pose.ordinal()); }
-    /** Sends the child back to its home cell for this long: the street's own go-home pause, which rain and predators use alike. */
-    void goHome(int ticks) { routineDelay = Math.min(routineDelay, -ticks); }
     /** Sitting on a bench board: the pose is drawn by the client. The body turns across the bench, the head still follows what it watches. */
     @Override protected BodyRotationControl createBodyControl() {
         return new BodyRotationControl(this) {
@@ -245,8 +236,7 @@ public final class HumanNpc extends PathfinderMob {
     public boolean frowning() { return street.frownPose > 0; }
     public boolean badgeCounter() { return job() == Job.RESIDENT && siteRole.equals("badge_counter"); }
     public boolean examAuthority() { return job() == Job.EXAMINER || badgeCounter(); }
-    /** A child is no street resident: no scolding, tending, grain, witness duty or stroll. It only plays and goes home. */
-    boolean streetResident() { return look != Look.CHILD && job() == Job.RESIDENT && (siteRole.isEmpty() || badgeCounter()); }
+    boolean streetResident() { return job() == Job.RESIDENT && (siteRole.isEmpty() || badgeCounter()); }
     public boolean atBadgeCounter() {
         return home != null && onGround() && distanceToSqr(Vec3.atBottomCenterOf(home)) < .64;
     }
@@ -344,7 +334,7 @@ public final class HumanNpc extends PathfinderMob {
     @Override public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
             MobSpawnType reason, SpawnGroupData data) {
         var result = super.finalizeSpawn(level, difficulty, reason, data);
-        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) && look != Look.ONIISAN && look != Look.CHILD && job() == Job.RESIDENT && getRandom().nextInt(100) < 45)
+        if ((reason == MobSpawnType.NATURAL || reason == MobSpawnType.CHUNK_GENERATION) && look != Look.ONIISAN && job() == Job.RESIDENT && getRandom().nextInt(100) < 45)
             HumanScenes.givePet(this, level.getLevel());
         return result;
     }
@@ -368,7 +358,6 @@ public final class HumanNpc extends PathfinderMob {
         goalSelector.addGoal(3, new ShelterCartons(this));
         goalSelector.addGoal(3, walk().goal());
         goalSelector.addGoal(3, new StaffDoorGoal());
-        goalSelector.addGoal(4, new ChildPlay(this));
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, .85) {
             @Override public boolean canUse() { return !stroll().outing() && super.canUse(); }
         });
@@ -937,7 +926,7 @@ public final class HumanNpc extends PathfinderMob {
         if (!initialized) {
             initialized = true;
             if (getTags().contains("mcy_street_local")) street.assignVillageAttitude();
-            careFood = look == Look.CHILD ? 0 : streetResident() ? attitude() == Attitude.CARING ? Math.min(8, HumanWorld.CARE_SUPPLIES.get()) : 0
+            careFood = streetResident() ? attitude() == Attitude.CARING ? Math.min(8, HumanWorld.CARE_SUPPLIES.get()) : 0
                     : HumanWorld.CARE_SUPPLIES.get();
             if (yardBowl != null) restockCareFood();
             nextRestock = level().getGameTime() + HumanStreet.DAY;
@@ -953,7 +942,6 @@ public final class HumanNpc extends PathfinderMob {
         if (walk().walking()) walk().tick();
         entityData.set(RESTING, !level().isDay());
         if (routineDelay != 0) routineDelay -= Integer.signum(routineDelay);
-        if (look == Look.CHILD && level().isRaining()) goHome(200);
         street.tick();
         if (attendingKiosk() && !counterBusy() && level().getGameTime() >= nextNewspaper) {
             nextNewspaper = level().getGameTime() + HumanStreet.DAY;
@@ -962,7 +950,7 @@ public final class HumanNpc extends PathfinderMob {
         street.pickUpGrain();
         entityData.set(STREET_GRAIN, streetResident() && attitude() == Attitude.CARING && careFood > 0);
         if (tickCount % 100 == 0 && !resting() && !isTrading()) serviceFacilities();
-        if (tickCount % 40 == 17 && look != Look.CHILD && tickCount >= nextBadgeGreeting && !resting() && !isTrading() && !avoidingStreet()
+        if (tickCount % 40 == 17 && tickCount >= nextBadgeGreeting && !resting() && !isTrading() && !avoidingStreet()
                 && !ExamSession.active(this)) greetBadge();
         if (job() == Job.SHOPKEEPER && tickCount % 20 == 3) ShopStaff.tick(this);
     }

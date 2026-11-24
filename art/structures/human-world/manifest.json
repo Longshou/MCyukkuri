@@ -7,7 +7,7 @@
       33
     ],
     "blocks": 11949,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -18,7 +18,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -29,7 +29,7 @@
       41
     ],
     "blocks": 12300,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -40,7 +40,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -51,7 +51,7 @@
       41
     ],
     "blocks": 12433,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -62,7 +62,7 @@
       41
     ],
     "blocks": 12308,
-    "entities": 59,
+    "entities": 58,
     "source": "art/structures/human-world/build.py"
   },
   {
@@ -315,7 +315,7 @@
       27
     ],
     "blocks": 8073,
-    "entities": 5,
+    "entities": 4,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -381,7 +381,7 @@
       27
     ],
     "blocks": 8073,
-    "entities": 5,
+    "entities": 4,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -447,7 +447,7 @@
       27
     ],
     "blocks": 8073,
-    "entities": 5,
+    "entities": 4,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -513,7 +513,7 @@
       27
     ],
     "blocks": 8071,
-    "entities": 5,
+    "entities": 4,
     "source": "art/structures/human-world/author_civic.py"
   },
   {
@@ -579,7 +579,7 @@
       27
     ],
     "blocks": 8073,
-    "entities": 5,
+    "entities": 4,
     "source": "art/structures/human-world/author_civic.py"
   },
   {

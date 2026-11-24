@@ -208,7 +208,7 @@ def shop_pen_errors(b, pen):
     return errors
 
 def shop_marker_errors(b):
-    """Verify the pet shop's 32 goods frames (backed by a solid wall) and its mcy_shop_family nest marker."""
+    """Verify the pet shop's 29 goods frames (backed by a solid wall) and its mcy_shop_family nest marker."""
     errors = []; frames = []; families = []
     for ent in b.entities:
         nbt = ent['nbt'][1]
@@ -226,8 +226,8 @@ def shop_marker_errors(b):
             if nest_name != 'mcyukkuri:yukkuri_nest': errors.append(f'mcy_shop_family at {(cx, cy, cz)} is not on a yukkuri_nest ({nest_name})')
             elif any(props.get(d) == 'true' for d in ('north', 'east', 'south', 'west')):
                 errors.append(f'mcy_shop_family nest at {(cx, cy, cz)} is pressed flat and cannot fit two children')
-    if len(frames) != 30 or len(set(frames)) != 30:
-        errors.append(f'expected 30 distinct mcy_shop_frame goods, found {len(frames)} ({len(set(frames))} distinct)')
+    if len(frames) != 29 or len(set(frames)) != 29:
+        errors.append(f'expected 29 distinct mcy_shop_frame goods, found {len(frames)} ({len(set(frames))} distinct)')
     if len(families) != 1:
         errors.append(f'expected 1 mcy_shop_family marker, found {families}')
     return errors
