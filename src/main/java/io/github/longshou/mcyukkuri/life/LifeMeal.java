@@ -566,6 +566,8 @@ final class LifeMeal {
         if (Keepsakes.hasAwakePeerNear(o.level(), donor, 6.0)) return;
         ItemEntity doll = Keepsakes.nearestVisibleDoll(o.level(), donor, 3.0, true);
         if (doll == null) return;
+        // End any remaining braid-handover tail so OFFER_BITE and its happy face are not overwritten by braid_eat.
+        tuftMeal = null;
         Motor.face(donor, SurfaceApproach.yaw(donor.position(), doll.position()));
         int full = ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).length();
         int hold = Math.max(10, Math.round(full * (0.45f + 0.55f * (o.personality().selfControl() / 100f))));
