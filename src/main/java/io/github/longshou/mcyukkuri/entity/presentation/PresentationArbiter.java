@@ -37,11 +37,11 @@ public final class PresentationArbiter {
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
     public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive, boolean driven) {
         // passive: this tick's travel is contact (a shove or separation shift), not the body's own walk; driven: it is the own walk.
-        var motion = passive && !walkingClip() ? new Motion(0, 0) : new Motion(travelledX, travelledZ);
+        travelling = state.owner().getNavigation() instanceof YukkuriGroundNavigation ground && ground.walking();
+        var motion = passive && !travelling ? new Motion(0, 0) : new Motion(travelledX, travelledZ);
         boolean moving = motion.distanceSquared() > 0.000001 && state.owner().onGround();
         travelTicks = motion.distanceSquared() > 0.000001 ? travelTicks + 1 : 0;
         stillTicks = moving ? 0 : stillTicks + 1;
-        travelling = state.owner().getNavigation() instanceof YukkuriGroundNavigation ground && ground.walking();
         switch (frame.takeover()) {
             case WATER_DISTRESS -> publish("water_distress", waterDistress(state, motion));
             case PANIC -> publish("panic", panic(state, frame.panicTicks()));
@@ -53,16 +53,12 @@ public final class PresentationArbiter {
 
     /**
      * A body that stands in its clip keeps it through a short passive shift (a shove, knockback): the walk clip is
-     * published only once the travel has held three ticks; an already walking body keeps walking without the hold. A body's own
+     * published only once the travel has held three ticks; a body still walking by its own route or steer keeps walking without the hold
+     * (one that has stopped and is only pushed shows its standing clip). A body's own
      * drive (steering input) is no shift: it walks from its first step, so no idle pose of a feeling shows while it moves.
      */
     private Motion settled(Motion motion) {
-        return travelTicks >= WALK_HOLD || walkingClip() ? motion : new Motion(0, 0);
-    }
-
-    private boolean walkingClip() {
-        String clip = state.owner().getAnimationId();
-        return clip.equals(YukkuriAction.WADDLE.id()) || clip.equals(YukkuriAction.RUN.id());
+        return travelTicks >= WALK_HOLD || travelling ? motion : new Motion(0, 0);
     }
 
     private void publish(String id, Presentation result) {
