@@ -6799,7 +6799,7 @@ _FLIGHT_FAM = {'reimu': None, 'marisa': None}
 _FLIGHT_ROOST = (14, 34)
 
 
-def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9):
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9, mother_z=5.0, babies=None):
     """One household at its nest (homes known at the summon): the mother stands 4.5 blocks from the nest and each baby 2.4 blocks to
     her side, inside the 4-block retrieve distance (no ordinary retrieve starts) and clear of the shed's front posts (removed here)
     and its roof. The hungry predator is summoned with them, 15 blocks from her: homes known the whole time make the babies hop to
@@ -6821,10 +6821,10 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
             block(px, 8, pz, 'mcyukkuri:predator_nest'),
             block(px - 1, 7, pz, 'minecraft:oak_log[axis=x]'),
             box(px - 1, 9, pz - 1, px, 9, pz, 'minecraft:oak_leaves[persistent=true]'),
-            yk(kind, 0, 5.0, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
-            *[yk(kind, x, 3.5, name, stage='baby', uuid=uid(sid, name),
+            yk(kind, 0, mother_z, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
+            *[yk(kind, x, z, name, stage='baby', uuid=uid(sid, name),
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
-              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]],
+              for x, z, name in (babies or [(-baby_x, 3.5, 'baby_a'), (baby_x, 3.5, 'baby_b')])],
             yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
                label='饥饿的捕食种', nutrition=36, energy=38, boldness=40)],
         at_spawn=[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')],
@@ -6867,9 +6867,11 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 3.8 格（各距亲油约 2.4 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
-    # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it, and the 3.8-block spacing stays inside the
-    # 6-block gather range and the 8-block look-back.
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；第一只在亲油身边约 2.4 格，第二只在它外侧、亲油南面约 4.7 格（离窝 8 格，在捕食种一侧），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
+    # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it. The second baby lies beyond the first, on
+    # the predator's side and 8 blocks from the nest (4.7 from her: inside the 6-block gather range and the 8-block look-back), so the
+    # hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
+    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
@@ -6881,6 +6883,9 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
      r'\[family\][^\n]*carry flight pickup ended aboard=\d\b',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b', _FLIGHT_ORDER % ('brim', '')],
+    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
+    allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_hat, "baby_b")} ', match=r'cause=mob\b',
+                     why='young left behind by a brim lift that the dive cut short is at real risk from the hunting predator')],
     note='帽檐路线：辫子托上帽檐（一只约 4.5 秒）后同样不减速地跑向下一只，抱齐后直奔窝口放下；俯冲落在抬升途中时，没抱上的一只自己走回或亲油二趟接回。', pred_z=21)
 
 # ====================================================================================================== which concern each scenario answers

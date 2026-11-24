@@ -1606,7 +1606,7 @@ public final class ParentCarry {
         long now = carrier.level().getGameTime();
         var who = threat == null ? null : threat.getUUID();
         if (Objects.equals(who, decidedFor) && now - decidedAt < DECISION_MEMORY) return;
-        if (flightYoung().isEmpty()) {
+        if (flightYoung().isEmpty() && leftBehind().isEmpty()) {
             if (!ours().isEmpty() && threat != null) bind(threat, Leg.RUN, cause, 1);
             return;
         }
