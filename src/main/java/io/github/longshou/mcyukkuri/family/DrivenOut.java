@@ -120,6 +120,7 @@ public final class DrivenOut extends Goal {
 
     private boolean available() {
         return entity.isAlive() && !entity.isNoAi() && !entity.body().dying() && !entity.isPassenger() && !entity.isInWaterOrBubble()
+                && !entity.species().catchingBreath()
                 && entity.onGround() && !entity.isPanicking() && !entity.isOnFire() && !entity.isCommandPlaying()
                 && !entity.operations().active() && !entity.life().isSleeping() && !entity.life().hasUrgentNeed();
     }
