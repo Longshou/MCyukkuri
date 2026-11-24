@@ -4708,13 +4708,14 @@ add(_doll_carry, 'park', '无聊的魔理沙把布偶叼回窝边', '无聊的�
 
 _doll_interrupt = 'doll_carry_interrupt'
 add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '叼布偶途中受惊与饥饿时原地放下',
-    '公园凉亭南侧草坪上两只无聊的魔理沙各自叼起布偶回窝。左边胆小的魔理沙途中受惊，立即原地放下布偶逃开，平静后再次回来叼回窝边；右边一只途中变饿（营养低于 50）也原地放下布偶。',
+    '公园凉亭南侧草坪上两只无聊的魔理沙各自叼起布偶回窝。左边一只途中遇到路过的捕食种受惊，立即原地放下布偶逃开；右边一只途中变饿（营养低于 50）原地放下布偶，吃下身旁苹果恢复后再次叼起布偶带回窝边。',
     '约 1 分钟', [
         *shed(-2, 5, half=1),
         *shed(12, 4, half=1),
         item('mcyukkuri:marisa_doll', 1, 3, 5, 'doll_fright'),
         item('mcyukkuri:marisa_doll', 1, 7, 8, 'doll_hungry'),
-        street_trial(_doll_interrupt, 'marisa', 6, 5, 'int_fright', boldness=20, attachment=85, friendliness=60,
+        item('minecraft:apple', 1, 8, 6, 'snack_apple'),
+        street_trial(_doll_interrupt, 'marisa', 6, 5, 'int_fright', boldness=80, attachment=80, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='受惊的魔理沙',
                      extra='YukkuriDailyLife:{Boredom:43}'),
         street_trial(_doll_interrupt, 'marisa', 10, 8, 'int_hungry', boldness=80, attachment=80, friendliness=60,
@@ -8735,26 +8736,28 @@ def _verify_doll_interrupt(window):
             return f'face mismatch on {beat}: shown={face} declared={declared}'
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
-    fright_picks = [int(m[2]) for m in beats if m[1] == _int_fright and m[3] == 'pick_up']
-    if len(fright_picks) < 2:
-        return f'expected frightened carrier to re-fetch after panic (>=2 pick_up), saw {len(fright_picks)}'
-    fright_sets = [int(m[2]) for m in beats if m[1] == _int_fright and m[3] == 'set_down']
-    if not fright_sets:
-        return 'frightened carrier never completed set_down after re-fetching'
+    hungry_picks = [int(m[2]) for m in beats if m[1] == _int_hungry and m[3] == 'pick_up']
+    if len(hungry_picks) < 2:
+        return f'expected interrupted carrier to re-fetch after recovery (>=2 pick_up), saw {len(hungry_picks)}'
+    hungry_sets = [int(m[2]) for m in beats if m[1] == _int_hungry and m[3] == 'set_down']
+    if not hungry_sets:
+        return 'interrupted carrier never completed set_down after re-fetching'
 
 
 _smoke(_doll_interrupt, 1600, [
     rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=pick_up ',
     rf'\[body\][^\n]*uuid={_int_fright} [^\n]*mouth drop item=mcyukkuri:marisa_doll count=1 purpose=KEEPSAKE ',
-    rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=set_down ',
     rf'\[keepsake\][^\n]*uuid={_int_hungry} [^\n]*beat=pick_up ',
     rf'\[body\][^\n]*uuid={_int_hungry} [^\n]*mouth drop item=mcyukkuri:marisa_doll count=1 purpose=KEEPSAKE ',
+    rf'\[keepsake\][^\n]*uuid={_int_hungry} [^\n]*beat=set_down ',
 ])
 next(s for s in S if s.id == _doll_interrupt).smoke.update(
     verify=_verify_doll_interrupt,
     commands=[
         (90, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
-        (100, f'damage {sel("int_fright")} 0 minecraft:mob_attack by @p'),
+        (100, yk('remilia', 0, 9, 'tmp_pred', yaw=180, nutrition=100, energy=100)),
+        (115, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
+        (116, f'tp {sel("tmp_pred")} ~ ~50 ~'),
     ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
