@@ -7133,7 +7133,7 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     cut, _ = at(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* parent dismissed child=' + child + r'[^\n]* repudiated=true')
     if cut is None or cut < departed:
         return f'{parent}: the tie was cut {"never" if cut is None else "before"} the child was gone (cut={cut} departed={departed})'
-    if len(re.findall(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=', window)) != 1:
+    if len(re.findall(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=[^\n]* reason=boat_overload', window)) != 1:
         return f'{parent}: must cut exactly one child at the one capsize'
     later = after[re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out ordered', after).start():]
     if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* rescue start faller=' + child, later):
