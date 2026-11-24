@@ -4139,8 +4139,10 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         block(-2, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
-        # The badged pet is the keeper's own companion: the keeper takes it to the plaza and sits.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]),
+        # The badged pet is the keeper's own companion: boredom 55 is enough to want the outing without starting a solo song on arrival.
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]
+                          .replace('Boldness:70', 'Boldness:50').replace('Attachment:22', 'Attachment:80')
+                          .replace('Boredom:90', 'Boredom:55')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-5, 1, -125, 12),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],

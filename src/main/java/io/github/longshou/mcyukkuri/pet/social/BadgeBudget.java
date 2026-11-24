@@ -35,7 +35,8 @@ public final class BadgeBudget {
     public void configure(Settings next) { settings = next; }
     public void reset() { players.clear(); world = null; observers.clear(); micro.clear(); pairs.clear(); targets.clear(); targetCooldowns.clear(); }
     public void forget(Set<UUID> ids) {
-        players.keySet().removeAll(ids);
+        players.clear();
+        world = null;
         targets.keySet().removeAll(ids);
         for (UUID id : ids) { observers.remove(id); micro.remove(id); targetCooldowns.remove(id); }
         for (var pair : pairs.snapshot().keySet())
