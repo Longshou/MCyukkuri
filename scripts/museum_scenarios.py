@@ -3430,7 +3430,7 @@ def _song_discipline(window, trace):
         return problem
     if [b[1] for b in beats[-2:]] != ['afraid', 'punished'] or [b[1] for b in beats].count('mutter') != 1:
         return f'The scold must turn the stiff pet afraid before it takes the punishment: {[b[1] for b in beats]}'
-    return _pleased_between(trace, int(catch[1]) + 4, _answer_tick(window))
+    return _pleased_between(trace, int(catch[1]), _answer_tick(window))
 
 
 def _permitted_meal(window):
@@ -3489,11 +3489,43 @@ def _eat_caught(window, trace):
         return problem
     if re.search(r'\[pet\][^\n]*owner return approach', window[catch.end():]):
         return 'After the catch the owner-return welcome must not play'
-    # The bite itself keeps its own chewing faces; from the swallow to the forgiveness nothing pleased may show (no savouring).
-    swallow = re.search(r'\[meal\][^\n]* t=(\d+) [^\n]*swallowed item=minecraft:apple', window[catch.end():])
-    if not swallow:
+    # The bite is swallowed as before, but from the catch tick on no chewing or savouring face may show.
+    if not re.search(r'\[meal\][^\n]* t=(\d+) [^\n]*swallowed item=minecraft:apple', window[catch.end():]):
         return 'The caught bite was never swallowed'
-    return _pleased_between(trace, int(swallow[1]), _answer_tick(window))
+    return _pleased_between(trace, int(catch[1]), _answer_tick(window))
+
+
+def _eat_struck(window, trace):
+    """A timid pet caught at the bowl and hit twice by its owner cowers and pleads, takes the blows as its punishment (no flight, no angry puff), shows the punished beat."""
+    catch = re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*caught rule=no_eating_unasked evidence=sight', window)
+    beats = _penance_beats(window, 'CAUGHT', 'no_eating_unasked')
+    problem = _penance_problem(beats, ['startle', 'plea'], ['punished'])
+    if problem:
+        return problem
+    if not re.search(r'penance begin entrance=CAUGHT [^\n]*posture=cower ', window):
+        return 'A timid pet must cower and plead (posture=cower)'
+    if not re.search(r'penance verdict=PUNISHED by=blow', window) or not re.search(r'penance end outcome=punished_blow', window):
+        return 'The blow must be the verdict and the penance must end punished_blow'
+    taken = re.findall(r'\[threat\][^\n]*struck stance=TAKEN [^\n]*cause=penance', window)
+    if len(taken) != 2:
+        return f'Both blows must be taken as punishment, got {len(taken)}'
+    return _pleased_between(trace, int(catch[1]), _answer_tick(window))
+
+
+def _eat_struck_commands():
+    commands = _rule_owner(9) + [
+        (12, 'scoreboard players set #eat_armed museum 0'), (12, 'scoreboard players set #eat_blow museum 0'),
+        (12, 'scoreboard players set #eat_blow2 museum 0'), (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
+    for tick in range(40, 2300, 20):
+        commands += [
+            # The first blow comes about 100 ticks after the catch is on record (the pet lies low), the second 60 ticks later.
+            (tick, f'execute if score #eat_armed museum matches 5.. if score #eat_blow museum matches 0 store result score #eat_blow museum run yukkuri scenario care_click {_rule_pet} flick'),
+            (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 store result score #eat_blow2 museum run yukkuri scenario care_click {_rule_pet} flick'),
+            (tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
+            (tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
+            (tick + 3, 'execute if score #eat_blow museum matches 1.. run scoreboard players add #eat_blow museum 1'),
+            (tick + 4, 'execute if score #eat_blow museum matches 15.. run yukkuri scenario tool_operator leave')]
+    return commands
 
 
 # The pet is caught breaking the eating rule with the owner in view; a stroke (one to two steps after the catch is on record) forgives it.
@@ -3509,12 +3541,22 @@ for _tick in range(40, 2300, 20):
         (_tick + 3, 'execute if score #eat_rub museum matches 1.. run scoreboard players add #eat_rub museum 1'),
         (_tick + 4, 'execute if score #eat_rub museum matches 15.. run yukkuri scenario tool_operator leave')]
 add('rule_eat_caught', 'town', '禁止擅自吃：当场被抓', '禁止擅自吃：当场被抓',
-    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它忍不住偷吃被你当场看见，嚼完才愣住，认错发抖等你发落；摸摸它是原谅，训斥是惩罚。', '约 1 分钟', [
+    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它忍不住偷吃被你当场看见，立刻吓住（那一口咽下去），随后认错发抖等你发落；摸摸它是原谅，训斥是惩罚。', '约 1 分钟', [
         *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
         yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=30, self_control=20, boldness=50, attachment=80, intelligence=30),
         *own('rule_pet'), home('rule_pet', 0, -4)],
     env=DAY, vantage=(0, 4), give=['minecraft:apple'],
     smoke=dict(ticks=2400, commands=_eat_commands, verify=_eat_caught, verify_trace=True, forbid=[r'penance abandoned'],
+               expect=[r'\[rules\][^\n]*breach rule=no_eating_unasked watched=true', r'\[rules\][^\n]*caught rule=no_eating_unasked evidence=sight']))
+
+add('rule_eat_struck', 'town', '禁止擅自吃：被抓后挨打', '禁止擅自吃：被抓后挨打',
+    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它被你当场看见后，在照料菜单里打它一下（再打一下）：它不逃不鼓脸，吓得缩成一团、当作惩罚老实受着，服从和恐惧上升。', '约 1 分钟', [
+        *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
+        yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=30, self_control=20, boldness=10, attachment=80, intelligence=30),
+        *own('rule_pet'), home('rule_pet', 0, -4)],
+    env=DAY, vantage=(0, 4), give=['minecraft:apple'],
+    smoke=dict(ticks=2400, commands=_eat_struck_commands(), verify=_eat_struck, verify_trace=True,
+               forbid=[r'penance abandoned', r'\[threat\][^\n]*struck stance=(?!TAKEN)'],
                expect=[r'\[rules\][^\n]*breach rule=no_eating_unasked watched=true', r'\[rules\][^\n]*caught rule=no_eating_unasked evidence=sight']))
 
 add('rule_yard', 'town', '禁止出院子：走到院边又回头', '不准出院子',
@@ -8422,7 +8464,7 @@ TOPICS = {
     'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
     'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
-    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_eat_caught': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
+    'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_eat_caught': 'M5', 'rule_eat_struck': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',

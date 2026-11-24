@@ -349,6 +349,13 @@ public final class Reactions {
             if (y.body().dying()) return;
             if (human && loss > 0) y.mind().felt(EmotionEvent.FRIGHTENED);
             SurfaceApproach.halt(y);
+            if (human && y.pet().conscience().taking(actor)) {
+                // The owner's blow on a caught pet is its punishment, taken like the scold: no flight, no angry puff; the penance answers it.
+                response.clear();
+                y.setPanicTicks(0);
+                GameplayLog.event(y, "threat", "struck stance=TAKEN attacker={} loss={} cause=penance", actor.getUUID(), loss);
+                return;
+            }
             if (y.shellRetracts()) {
                 response.clear();
                 y.setPanicTicks(112);

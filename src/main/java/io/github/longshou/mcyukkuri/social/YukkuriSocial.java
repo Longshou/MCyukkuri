@@ -216,7 +216,8 @@ public final class YukkuriSocial implements MotorOwner {
     public boolean talk(Player player, boolean gentle) {
         if (!gentle && entity.pet().conscience().judged(player, Penance.Verdict.PUNISHED, false)) {
             // Scolded while paying penance: the lesson lands as for any scold, and the penance answers it, not the stranger retreat.
-            personality().talk(player.getUUID(), false);
+            // On the talk cooldown the scold still teaches (obedience and fear); talk() would have given the same on a free turn.
+            if (!personality().talk(player.getUUID(), false)) entity.pet().disciplined(player.getUUID(), false, 8);
             entity.mind().felt(EmotionEvent.COLD_TREATMENT);
             entity.pet().contact(player.getUUID(), false);
             return true;

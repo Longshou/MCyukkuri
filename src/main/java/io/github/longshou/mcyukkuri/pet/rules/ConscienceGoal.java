@@ -61,6 +61,7 @@ public final class ConscienceGoal extends Goal {
             conscience.endedPenance();
             pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, why);
         }
+        conscience.expireCatch();
         if (!pet.duty().mayTake(Duty.Kind.RULES)) return false;
         caughtStart = false;
         if (conscience.catchPending() && freeToFreeze()) {

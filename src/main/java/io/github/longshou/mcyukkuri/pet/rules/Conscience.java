@@ -162,6 +162,8 @@ public final class Conscience {
         if (!evidence.equals("confession")) {
             catchAt = pet.level().getGameTime();
             early = null;
+            // The face is the pet's from this very tick (the song's or the chewing's face is cut); the goal takes over once the pet is free.
+            pet.holdReaction("horrified", "", CATCH_PATIENCE);
         }
         GameplayLog.event(pet, "rules", "caught rule={} evidence={} owner={}", guilt.key(), evidence, guiltOwner);
     }
@@ -169,6 +171,20 @@ public final class Conscience {
     /** A catch waiting for the pet to be free to freeze (it does not wait out a long meal). */
     public boolean catchPending() {
         return catchAt >= 0 && pet.level().getGameTime() - catchAt < CATCH_PATIENCE && pet.pet().ownedBy(guiltOwner);
+    }
+
+    /**
+     * A catch that was never answered (the pet stayed busy or the owner changed) is dropped, not replayed late: the pet shows
+     * its ordinary life again once the held startle face runs out, and the memory page keeps "caught". Logs why, once.
+     */
+    void expireCatch() {
+        if (catchAt < 0 || catchPending()) return;
+        boolean owned = pet.pet().ownedBy(guiltOwner);
+        GameplayLog.event(pet, "rules", "catch expired reason={} waited={} rule={}", owned ? "patience" : "owner_changed",
+                pet.level().getGameTime() - catchAt, guilt.key());
+        catchAt = -1;
+        early = null;
+        pet.cancelReaction();
     }
 
     LivingEntity guiltyOwner() { return pet.pet().presentOwner(); }
@@ -196,14 +212,21 @@ public final class Conscience {
      * verdict, so the generic reaction (the stranger-wariness retreat, the pleased rub face) stays silent.
      */
     public boolean judged(LivingEntity actor, Penance.Verdict verdict, boolean blow) {
-        if (!pet.pet().ownedBy(actor.getUUID())) return false;
+        if (!taking(actor)) return false;
         if (penance != null) return penance.judged(verdict, blow);
-        if (!catchPending()) return false;
         if (early == null) {
             early = verdict;
             earlyBlow = blow;
         }
         return true;
+    }
+
+    /**
+     * The one gate of the owner's scold and blow: the owner's hand on a pet that is caught or paying penance is its punishment,
+     * so the generic answers (the stranger retreat, the flight or angry puff of a struck pet) stay silent.
+     */
+    public boolean taking(LivingEntity actor) {
+        return pet.pet().ownedBy(actor.getUUID()) && (penance != null && !penance.finished() || catchPending());
     }
 
     /**
