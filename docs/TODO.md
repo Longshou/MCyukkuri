@@ -14,6 +14,7 @@
 | 断亲双方生效与身份 | `.worktrees/wp-severance-mutual` | family/,social/SeveranceVerdict,social/Departure,FamilyLife,家谱界面 |
 | 捕食种完成捕杀 | `.worktrees/wp-pred-kill` | predator/,捕食追猎 |
 | 对人让路与家规 | `.worktrees/wp-yield-humans` | YukkuriGroundNavigation.giveWay,pet/rules/HouseRule,CareScreen |
+| FM-29 辫子回归 | `.worktrees/wp-braid-regress` | 辫子动作与绑定（待定位） |
 
 ## 玩法待办
 
