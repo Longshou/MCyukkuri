@@ -37,12 +37,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 /**
@@ -514,12 +514,13 @@ public final class KeepsakeLife implements MotorOwner {
      * A player picks up a doll this body keeps. If it sees or hears the take it answers at once: its own owner gets only a
      * teary look, a stranger costs it regard; a body that perceived nothing finds out when it next looks for the doll.
      */
-    public static void pickingUp(ItemEntityPickupEvent.Pre event) {
-        if (event.canPickup() == TriState.FALSE || !(event.getItemEntity().level() instanceof ServerLevel level)) return;
+    public static void pickingUp(ItemEntityPickupEvent.Post event) {
+        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
+        var level = player.serverLevel();
         var item = event.getItemEntity();
-        var player = event.getPlayer();
+        ItemStack original = event.getOriginalStack();
         for (var body : level.getEntitiesOfClass(YukkuriEntity.class, item.getBoundingBox().inflate(Keepsakes.WITH_RADIUS),
-                b -> b.isAlive() && !b.inert() && Keepsakes.fond(b, item.getItem()))) {
+                b -> b.isAlive() && !b.inert() && Keepsakes.fond(b, original))) {
             if (Senses.perceives(body, item.position(), null, Cue.PICKUP_ITEM) != null) body.keepsake().tookDoll(player);
             else body.keepsake().missedPickup(item.blockPosition());
         }

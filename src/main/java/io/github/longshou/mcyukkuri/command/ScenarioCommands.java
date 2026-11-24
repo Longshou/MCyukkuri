@@ -259,6 +259,7 @@ public final class ScenarioCommands {
                                 .executes(ScenarioCommands::selectToolOperatorSlot)))
                         .then(Commands.literal("pick_up").then(Commands.argument("item", EntityArgument.entity())
                                 .executes(ScenarioCommands::toolOperatorPickup)))
+                        .then(Commands.literal("drop").executes(ScenarioCommands::toolOperatorDrop))
                         .then(Commands.literal("break").then(Commands.argument("pos", BlockPosArgument.blockPos())
                                 .executes(ScenarioCommands::toolOperatorBreak)))
                         .then(Commands.literal("leave").executes(context->toolOperator(context.getSource(),false))))
@@ -609,6 +610,21 @@ public final class ScenarioCommands {
                 || !(EntityArgument.getEntity(c, "item") instanceof ItemEntity item) || player.distanceToSqr(item) > 1) return 0;
         item.playerTouch(player);
         return item.isRemoved() ? 1 : 0;
+    }
+
+    /** The scripted visitor lets go of everything it holds through the vanilla drop path, so the items stay in the world. */
+    private static int toolOperatorDrop(CommandContext<CommandSourceStack> c) {
+        var source = c.getSource();
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        int dropped = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) continue;
+            player.drop(stack.copy(), false);
+            player.getInventory().setItem(slot, ItemStack.EMPTY);
+            dropped++;
+        }
+        return dropped;
     }
 
     private static int toolOperatorBreak(CommandContext<CommandSourceStack> c) {

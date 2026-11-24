@@ -220,7 +220,7 @@ public final class CommonRegistration {
                 YukkuriGroundNavigation::playerPassage);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ItemEntityPickupEvent.Pre.class, ShopTrade::pickingUp);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, BadgeItem::pickingUp);
-        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, KeepsakeLife::pickingUp);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Post.class, KeepsakeLife::pickingUp);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
 
 

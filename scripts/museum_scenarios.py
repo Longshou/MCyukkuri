@@ -5175,15 +5175,14 @@ add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油
 # A doll is a keepsake only while the body beside it keeps it, and only a body with a nest of its own and a free mouth can take
 # one over (KeepsakeLife.canSnatch), so every taker gets a shed while no victim gets one: a bedless victim never picks its own
 # doll up before the scene does. A taker's nest stands five blocks behind it, outside the home-territory radius 3, or the taker
-# would warn the visitor off the nest instead of bullying it. Every body stands pinned beside its doll with no affection or boredom
-# drive until the doll really changes mouths: a lonely body would nuzzle and shove its pair out of the bout's contact reach before
-# the claim. The guarded release then frees that side's two bodies (the taker walks its carry home, the robbed one answers) and a
-# pair that never gets its bout stays put rather than drifting apart.
+# would warn the visitor off the nest instead of bullying it. The snatch pair starts inside the bout's own contact reach with no
+# affection or boredom need, so the doll is the pair's first drive: the harsh adult claims at its first scan, before either body
+# can wander off. The other doll scenes pin their cast, which only keeps a comparison scene still.
 _SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 # Grime is a random roll that lowers self-esteem enough to turn a bold child's puff into flight; the shown pair starts clean.
 _SNATCH_CLEAN = 'YukkuriStatus:{Marks:{Rolled:1b,Grime:0,Soil:0,Rain:0}},'
-# Loneliness would send a pinned body nuzzling and shove its pair past the bout's contact reach before the claim; no affection
-# need leaves the bully bout as the pair's first drive.
+# Loneliness would send a body nuzzling and shove its pair past the bout's contact reach before the claim; no affection need
+# leaves the bully bout as the pair's first drive.
 _SNATCH_CALM = 'YukkuriDailyLife:{Boredom:0,Affection:0},'
 
 _doll_snatch = 'doll_snatch'
@@ -5203,24 +5202,21 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
         yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
            boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
-           label='蛮横的魔理沙', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_STILL),
+           label='蛮横的魔理沙', also=('snatch_a',), extra=_SNATCH_CALM),
         yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
            stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
-           label='胆大的灵梦', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_CLEAN + _SNATCH_STILL),
+           label='胆大的灵梦', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_CLEAN),
         yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
            boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
-           label='蛮横的魔理沙', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_STILL),
+           label='蛮横的魔理沙', also=('snatch_b',), extra=_SNATCH_CALM),
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
-           label='胆小的灵梦', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_CLEAN + _SNATCH_STILL),
+           label='胆小的灵梦', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_CLEAN),
     ], at_spawn=[home('snatch_thief_a', 7, 4), home('snatch_thief_b', 17, 4),
                  # The pairs are on visiting terms with the other group, above the bully gate's neutral affinity: a freed thief
                  # roams once its doll is home and never crosses to rob the other side's child.
                  f'yukkuri scenario relate {sel("snatch_thief_a")} {sel("snatch_victim_b")} 8',
                  f'yukkuri scenario relate {sel("snatch_thief_b")} {sel("snatch_victim_a")} 8'],
-    late=[Retry(f'execute as @e[tag={tag("snatch_" + side)}] run attribute @s minecraft:generic.movement_speed base set 0.18',
-                f'@e[tag={tag("snatch_thief_" + side)},nbt={{YukkuriMouth:{{Purpose:"KEEPSAKE"}}}}]', tries=400, first=20)
-          for side in ('a', 'b')],
     env=DAY, spot='pavilion', vantage=(13, 18, 180, 10),
     reads=[('读胆大的灵梦', f'yukkuri status {sel("snatch_victim_a")} raw'),
            ('读胆小的灵梦', f'yukkuri status {sel("snatch_victim_b")} raw'),
@@ -9246,8 +9242,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5',
-    'bully_strike': 'M5', 'treasure_bully': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5', 'bully_strike': 'M5', 'treasure_bully': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -9842,10 +9837,16 @@ _snatch_victim_b = _uuid_text(_doll_snatch, 'snatch_victim_b')
 def _verify_doll_snatch(window):
     """Both lanes: the taker claims, takes the doll it may not take in its mouth, walks off and puts it down; the robbed body
     shows the reaction of its own temper and answers by its own nature. One snatch beat each, no second grab, faces as declared;
-    whatever either body does with the doll afterwards (a nuzzle at the nest) is its own business."""
+    whatever either body does with the doll afterwards (a nuzzle at the nest) is its own business. The pair's own numbers start
+    the bout: the claim comes at the first scan after the start hold, not half a minute later."""
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
         return 'no [keepsake] beat lines logged'
+    releases = [int(m[1]) for m in re.finditer(r'\[scenario\][^\n]*\bt=(\d+)[^\n]*\bhold released\b', window)
+                if any(u in m[0] for u in (_snatch_thief_a, _snatch_victim_a, _snatch_thief_b, _snatch_victim_b))]
+    if not releases:
+        return 'no hold release line to time the claim'
+    released = max(releases)
     for m in beats:
         u, _, beat, face, declared, _, _, dolls, _ = m.groups()
         if face != declared:
@@ -9870,6 +9871,8 @@ def _verify_doll_snatch(window):
         robbed, answer = (next(r for r in theirs if r[1] == n) for n in ('robbed', 'answer'))
         if not claim[0] < grab[0] <= robbed[0] < answer[0] < leave[0] < down[0]:
             return f'{thief}/{victim}: beat order {[r[0] for r in (claim, grab, robbed, answer, leave, down)]} is not claim/grab/answer/leave/set_down'
+        if not 0 <= claim[0] - released <= 200:
+            return f'{thief}: claimed {claim[0] - released} ticks after the hold release, expected within 200'
         if grab[0] - claim[0] > 240:
             return f'{thief}: the bout took {grab[0] - claim[0]} ticks from claim to grab (>240)'
         if not 40 <= leave[0] - grab[0] <= 50:
@@ -9908,16 +9911,8 @@ _smoke(_doll_snatch, 6400, [
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed face=teary declared=teary line=treasure_stolen where=ground ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
     rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
-], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike ',
-           'SNATCH_VICTIM_A_PINNED', 'SNATCH_VICTIM_B_PINNED', 'SNATCH_THIEF_A_PINNED', 'SNATCH_THIEF_B_PINNED'])
-next(s for s in S if s.id == _doll_snatch).smoke.update(
-    verify=_verify_doll_snatch,
-    commands=[
-        (6300, f'execute if data entity {sel("snatch_victim_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_A_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_victim_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_B_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_A_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_B_PINNED'),
-    ])
+], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike '])
+next(s for s in S if s.id == _doll_snatch).smoke.update(verify=_verify_doll_snatch)
 
 _take_sleep_a = _uuid_text(_doll_take, 'take_sleep_a')
 _take_sleep_b = _uuid_text(_doll_take, 'take_sleep_b')
@@ -9963,19 +9958,20 @@ _smoke(_doll_take, 1200, [
     rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=pickup_missed face=confused declared=confused line=none where=ground dolls=0 ',
     rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*beat=pickup_owner face=teary declared=teary line=none where=ground dolls=1 ',
     rf'\[keepsake\][^\n]*uuid={_take_stray} [^\n]*beat=pickup_taken face=angry declared=angry line=treasure_stolen where=ground dolls=0 ',
-], forbid=[r'TAKE_LEFT_BEHIND_', rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
+], forbid=[rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
 _take_commands = [(100, 'execute positioned ~2.6 ~ ~6.5 run yukkuri scenario tool_operator enter'),
                   *((101, f'execute as @p[name=MuseumOperator,distance=..48] run {line}') for line in own('take_owner'))]
 # The operator stands where the doll really lies: a doll left beside a body is nudged by that body, so a fixed spot can end up
-# more than one block away and the pick refuses.
+# more than one block away and the pick refuses. Each take is dropped again at once 34 blocks off the row, inside the field but
+# outside every sleeper's 32-block count: the dolls stay real items (the smoke ledger sees the same total) and the sleepers still
+# find nothing beside them when they wake.
 for _i, _name in enumerate(('take_doll_a', 'take_doll_b', 'take_doll_c', 'take_doll_d')):
-    _take_commands += [(140 + 10 * _i, f'execute at {sel(_name)} run yukkuri scenario tool_operator move'),
-                       (141 + 10 * _i, f'yukkuri scenario tool_operator pick_up {sel(_name)}'),
-                       (142 + 10 * _i, f'execute if entity {sel(_name)} run say TAKE_LEFT_BEHIND_{_i}')]
-# The two sleepers wake only after the takes: the operator keeps the dolls until then, then leaves with them far from the row so
-# the dropped stack is out of the sleepers' counting radius and they see the dolls gone.
-_take_commands += [(240, 'execute positioned ~20 ~40 ~100 run yukkuri scenario tool_operator move'),
-                   (241, 'yukkuri scenario tool_operator leave')]
+    _base = 140 + 10 * _i
+    _take_commands += [(_base, f'execute at {sel(_name)} run yukkuri scenario tool_operator move'),
+                       (_base + 1, f'yukkuri scenario tool_operator pick_up {sel(_name)}'),
+                       (_base + 2, f'execute at {sel("take_sleep_a")} positioned ~34 ~ ~34 run yukkuri scenario tool_operator move'),
+                       (_base + 3, 'yukkuri scenario tool_operator drop')]
+_take_commands += [(240, 'yukkuri scenario tool_operator leave')]
 next(s for s in S if s.id == _doll_take).smoke.update(verify=_verify_doll_take, commands=_take_commands)
 
 # The two regressions under the snatch scene use the same bout and strike without a doll or a held treasure.

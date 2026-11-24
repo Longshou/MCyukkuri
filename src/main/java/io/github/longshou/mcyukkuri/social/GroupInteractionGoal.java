@@ -120,7 +120,8 @@ public final class GroupInteractionGoal extends Goal {
                     &&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
             {
                 cooldown = 600;
-                if (entity.getRandom().nextInt(100) >= personality.escalationScore()) return false;
+                // A doll the peer keeps is a stronger motive than a mood: the snatch does not wait on the escalation roll.
+                if (!keepsake && entity.getRandom().nextInt(100) >= personality.escalationScore()) return false;
                 Choice choice = Choice.ALLOW;
                 if (peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner())) {
                     choice = entity.pet().conscience().tempted(HouseRule.NO_BULLYING, personality.escalationScore() / 100.0, 1);
@@ -173,23 +174,23 @@ public final class GroupInteractionGoal extends Goal {
             entity.life().personality().decided("bully_peer");
             stop();
             // A keepsake the victim keeps is what this bout was fought over: the doll changes holders and nobody is hit.
-            if(entity.keepsake().beginSnatch(peer)) {
-                if (current.rule.breached(true) && peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner()))
-                    entity.pet().conscience().breach(HouseRule.NO_BULLYING);
-                return;
+            boolean snatched = entity.keepsake().beginSnatch(peer);
+            boolean hit = false, stole = false;
+            if (!snatched) {
+                float healthBefore = peer.getHealth();
+                hit = peer.hurt(level().damageSources().mobAttack(entity),1);
+                if (hit) peer.life().personality().bulliedBy(entity.life().personality());
+                GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
+                stole = entity.treasure().snatchFrom(peer);
+                if (hit || stole) YukkuriSocial.quarrelled(entity, peer);
+                if(stole) {
+                    entity.species().narrate("steal");
+                    if (!hit) peer.respondToBullying(entity);
+                }
             }
-            float healthBefore = peer.getHealth();
-            boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
-            if (hit) peer.life().personality().bulliedBy(entity.life().personality());
-            GameplayLog.event(entity, "social", "bully strike peer={} accepted={} health={} -> {}", peer.getUUID(), hit, healthBefore, peer.getHealth());
-            boolean stole = entity.treasure().snatchFrom(peer);
-            if (hit || stole) YukkuriSocial.quarrelled(entity, peer);
-            if(stole) {
-                entity.species().narrate("steal");
-                if (!hit) peer.respondToBullying(entity);
-            }
-            if (current.rule.breached(hit || stole) && peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner()))
+            if (current.rule.breached(snatched || hit || stole) && peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner()))
                 entity.pet().conscience().breach(HouseRule.NO_BULLYING);
+            if (snatched) return;
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){
                 peer.mind().addSlavePressure(6,"bullied_hatless");peer.mind().feltSlavePressure(EmotionEvent.SOCIAL_HURT);
                 if (!peer.isPanicking() && !peer.groupInteraction().defense().active()
