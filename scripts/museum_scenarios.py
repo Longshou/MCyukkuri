@@ -4146,8 +4146,8 @@ def _ring_stray(scene, name, kind, x, z, label, values):
 
 
 add(_RING, 'town', '流浪油在广场边盯上佩章的宠物', '流浪油盯着广场边佩章的宠物',
-    '开场院主在白篷下的长椅边坐下，白金章灵梦伏在长椅西边的石板上。西北、东北两只嚣张流浪油（东北那只戴着作废章）看见章色后走到广场外圈盯住灵梦，'
-    '胆小的魔理沙远远站住；先到的一只气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚。',
+    '开场院主在白篷下的长椅边坐下，白金章灵梦伏在长椅西边的石板上。西北、东北两只嚣张流浪油（东北那只戴着作废章）就在广场外圈，看见章色后盯住灵梦，'
+    '胆小的魔理沙远远站住；其中一只气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚。',
     '开场约 2 秒院主落座；约 4 秒流浪油站上外圈，约 6 秒冷嘲，约 10 秒院主喝止并安抚灵梦；约 2 分钟后院主带灵梦从北边走回院子。', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the strays near the benches.
