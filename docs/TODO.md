@@ -12,7 +12,6 @@
 | 公园其他游具演示 | `.worktrees/wp-doll-snatch` | GroupInteractionGoal,TreasureLife,KeepsakeLife.snatch,拾取监听,doll_snatch 场景 |
 | PD-13 断亲离开 | `.worktrees/wp-capsize-rescue` | aquatic 登船与落水自救,救援站位,LeaveBehind.wantsAshore,hat_crowd 场景 |
 | 捕食种追击专用表情 | `.worktrees/wp-face-yield` | PresentationArbiter,FacePrecedence,反应表情调用处 |
-| PK-02 公园玩耍 | `.worktrees/wp-facility-step` | motor/PlayMotion,park_play 与 pocket_park_rest 冒烟 |
 
 ## 玩法待办
 
