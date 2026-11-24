@@ -10135,22 +10135,31 @@ _smoke('yard_stray_scold', 1200, [
 ], readout=['yukkuri homeclaim status', f'data get entity {sel("yard_stray")} Pos', 'data get block ~5 ~ ~2 Items'])
 
 
-def _verify_outing_pace(window, min_speed=1.1, max_speed=2.4, max_leash=6.0):
+def _verify_outing_pace(window, max_leash=6.0):
     if not re.search(r'action=outing_pace mode=\w+ cause=\w+ req=[\d.]+ target=[\d.]+ ', window):
         return 'no outing_pace change log found'
     legs = re.findall(
         r'action=outing_leg_pace phase=(\w+) ticks=(\d+) dist=([\d.]+) speed=([\d.]+) '
-        r'mean_req=([\d.]+) max_gap=([\d.]+) slow_ticks=(\d+) wait_ticks=(\d+) cap=(\w+)', window)
+        r'mean_req=([\d.]+) slowest=([\d.]+) max_gap=([\d.]+) slow_ticks=(\d+) wait_ticks=(\d+) cap=(\w+)', window)
     if not legs:
         return 'no outing_leg_pace summary logged'
     depart_legs = [row for row in legs if row[0] == 'depart' and int(row[1]) >= 20]
     if not depart_legs:
         return f'no depart leg pace summary with >=20 ticks (saw {legs})'
     depart_speed = float(depart_legs[0][3])
-    if not (min_speed <= depart_speed <= max_speed):
-        return f'owner depart mean speed {depart_speed:.2f} b/s outside [{min_speed:.2f}, {max_speed:.2f}] ({depart_legs[0]})'
+    mean_req = float(depart_legs[0][4])
+    slowest_bps = float(depart_legs[0][5])
+    # Key speed band to the logged predicted dry-ground speed from mean_req and slowest companion walk speed.
+    ground_travel = 0.98 / (1.0 - 0.60 * 0.91)
+    predicted = ((0.26 * mean_req) ** 2) * ground_travel * 20.0
+    share = max(0.35, min(1.10, (slowest_bps / 20.0) / 0.10))
+    min_floor = max(0.42, 0.55 * (share ** 0.5)) - 0.03
+    if mean_req < min_floor:
+        return f'owner depart mean_req {mean_req:.2f} below companion-scaled floor {min_floor:.2f} (slowest={slowest_bps:.2f} b/s)'
+    if not (0.65 * predicted <= depart_speed <= 1.35 * predicted):
+        return f'owner depart mean speed {depart_speed:.2f} b/s outside [0.65, 1.35]x predicted {predicted:.2f} b/s ({depart_legs[0]})'
     for row in legs:
-        gap = float(row[5])
+        gap = float(row[6])
         if gap >= max_leash:
             return f'leash stretched to {gap:.2f}b (>= {max_leash:.2f}b drag limit) on {row[0]} leg ({row})'
     return None
@@ -10413,7 +10422,7 @@ def _pocket_rest_verify(window):
     sessions = [m for m in re.finditer(r'facility session ended kind=CERAMIC[^\n]*completed=true\b', window)]
     if not any(sat.start() < m.start() < stood.start() for m in sessions):
         return 'no tunnel session was completed while the keeper sat'
-    return None
+    return _verify_outing_pace(window)
 
 
 _smoke('pocket_park_rest', 2600, [

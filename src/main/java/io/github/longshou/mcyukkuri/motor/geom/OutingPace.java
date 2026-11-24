@@ -15,8 +15,6 @@ public final class OutingPace {
 
     /** Reference adult walk speed (blocks/tick) from {@link AbilityMath.Coefficients#DEFAULTS}. */
     public static final double REF_WALK = AbilityMath.Coefficients.DEFAULTS.walkSpeed();
-    /** Vanilla Mob ground-speed travel constant, matching {@link Gait}. */
-    private static final double GROUND_TRAVEL = .98 / (1 - .60 * Ballistic.AIR_DRAG);
     /** Base stroll requests by owner attitude (ordinal: 0=CRUEL, 1=CARING, 2=NEUTRAL), within 0.75-0.90. */
     public static final double BASE_CRUEL = .88, BASE_CARING = .80, BASE_NEUTRAL = .85;
     public static final double INDIVIDUAL_SPREAD = .02;
@@ -76,7 +74,7 @@ public final class OutingPace {
     /** Theoretical dry-ground speed (blocks/s) for a vanilla Mob with {@code attribute} and {@code request}. */
     public static double groundSpeedPerSecond(double attribute, double request) {
         double control = attribute * Math.max(0, request);
-        return control * control * GROUND_TRAVEL * 20;
+        return control * control * Gait.GROUND_TRAVEL * 20;
     }
 
     public static Sample evaluate(double baseRequest, List<Companion> companions, boolean currentlyWaiting) {

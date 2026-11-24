@@ -6,7 +6,7 @@ public final class Gait {
     private static final double FAST_REQUEST = 1.15;
     public static final double GROUND_ATTRIBUTE = .18, FLIGHT_ATTRIBUTE = .30;
     /** Ordinary dry ground: vanilla uses the control value for both acceleration and forward input. */
-    private static final double GROUND_TRAVEL = .98 / (1 - .60 * Ballistic.AIR_DRAG);
+    static final double GROUND_TRAVEL = .98 / (1 - .60 * Ballistic.AIR_DRAG);
     private static final double FLIGHT_CRUISE = .16;
 
     private Gait() {}
