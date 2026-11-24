@@ -3314,14 +3314,15 @@ add(_doll_comfort, 'house', '孤单宠物蹭布偶并面向它入睡', '孤单�
     '走到窝旁的灵梦布偶边蹭脸得到少许安抚，随后回窝面向布偶睡下；同侧另一只胆大低依恋的灵梦不理会布偶。'
     '右侧有伴的魔理沙身旁既有布偶也有熟识同伴，只去蹭真实同伴而不蹭布偶。',
     '约半分钟', [
-        box(0, 0, -3, 0, 2, 3, 'minecraft:oak_planks'),
-        block(-3, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
-        item('mcyukkuri:reimu_doll', 1, -3, -1, 'comfort_doll'),
-        yk('reimu', -3, 1, 'comfort_reimu', uuid=uid(_doll_comfort, 'comfort_reimu'), yaw=180, lead=True,
+        box(0, 0, -2, 0, 2, 3, 'minecraft:oak_planks'),
+        *(block(x, 0, 7, 'minecraft:oak_fence_gate[facing=south]') for x in (-1, 0, 1)),
+        block(-2, 0, -1, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        item('mcyukkuri:reimu_doll', 1, -3, 0, 'comfort_doll'),
+        yk('reimu', -3, 2, 'comfort_reimu', uuid=uid(_doll_comfort, 'comfort_reimu'), yaw=180, lead=True,
            label='孤单的灵梦', attachment=85, boldness=40, friendliness=70, affection=80,
            nutrition=95, energy=45, rest_wait=260),
         *own('comfort_reimu'),
-        yk('reimu', -4, 2, 'bold_reimu', uuid=uid(_doll_comfort, 'bold_reimu'), yaw=180,
+        yk('reimu', -4, 3, 'bold_reimu', uuid=uid(_doll_comfort, 'bold_reimu'), yaw=180,
            label='胆大低依恋灵梦', attachment=15, boldness=90, friendliness=40, affection=80,
            nutrition=95, energy=95, rest_wait=1200),
         item('mcyukkuri:marisa_doll', 1, 4, -1, 'pair_doll'),
@@ -3334,8 +3335,8 @@ add(_doll_comfort, 'house', '孤单宠物蹭布偶并面向它入睡', '孤单�
            nutrition=95, energy=95, rest_wait=1200),
         *own('paired_peer'),
         f'yukkuri scenario bond {sel("paired_marisa")} {sel("paired_peer")}',
-    ], at_spawn=[home('comfort_reimu', -3, -2)],
-    env={'time': 'dusk'}, vantage=(0, 5, 180, 20, 0),
+    ], at_spawn=[home('comfort_reimu', -2, -1)],
+    env={'time': 'dusk'}, vantage=(-2, 5, 180, 20, 0),
     reads=[('读孤单灵梦', f'yukkuri status {sel("comfort_reimu")} raw'),
            ('读有伴魔理沙', f'yukkuri status {sel("paired_marisa")} raw'),
            ('读胆大灵梦', f'yukkuri status {sel("bold_reimu")} raw')])
@@ -4944,27 +4945,31 @@ add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '�
 
 _doll_talk = 'doll_talk'
 add(_doll_talk, 'park', '孤单的子油对布偶说话并递出一口', '孤单的子油对布偶说话并递出一口',
-    '公园凉亭南侧草坪上三只独处（相隔 8 格）的子油各自守着一只灵梦布偶。'
+    '公园凉亭南侧草坪上三只独处（相隔 8 格）的子油各自守着一只灵梦布偶，身旁各有一只苹果。'
     '左边聪慧的灵梦子油（智力 70、自制力 85）认出同种布偶，先转身对它说话，随后吃到苹果时向布偶递出一口停留片刻再自己吃下；'
     '中间聪慧的魔理沙子油（智力 70）面对异种布偶既不搭话也不递食；'
     '右边迟钝的魔理沙子油（智力 25、自制力 20）把异种布偶也当作同类，会搭话并在进食时短暂递出一口。',
     '约半分钟', [
+        box(-7, 0, 1, 14, 1, 8, 'minecraft:air', 'replace minecraft:short_grass'),
         item('mcyukkuri:reimu_doll', 1, -5, 3, 'talk_doll_left'),
         item('mcyukkuri:reimu_doll', 1, 3, 3, 'talk_doll_mid'),
         item('mcyukkuri:reimu_doll', 1, 11, 3, 'talk_doll_right'),
+        item('minecraft:apple', 1, -4, 4, 'apple_reimu'),
+        item('minecraft:apple', 1, 4, 4, 'apple_clever'),
+        item('minecraft:apple', 1, 12, 4, 'apple_dull'),
         yk('reimu', -5, 5, 'talk_reimu', uuid=uid(_doll_talk, 'talk_reimu'), stage='child', yaw=180, lead=True,
            label='聪慧灵梦子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=85,
-           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+           nutrition=80, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
         yk('marisa', 3, 5, 'clever_marisa', uuid=uid(_doll_talk, 'clever_marisa'), stage='child', yaw=180,
            label='聪慧魔理沙子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=80,
-           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+           nutrition=80, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
         yk('marisa', 11, 5, 'dull_marisa', uuid=uid(_doll_talk, 'dull_marisa'), stage='child', yaw=180,
            label='迟钝魔理沙子油', intelligence=25, attachment=80, boldness=50, friendliness=70, self_control=20,
-           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+           nutrition=80, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
     ], late=[
-        Retry(item('minecraft:apple', 1, -4, 4, 'apple_reimu'), sel('talk_reimu'), tries=1, first=160),
-        Retry(item('minecraft:apple', 1, 4, 4, 'apple_clever'), sel('clever_marisa'), tries=1, first=160),
-        Retry(item('minecraft:apple', 1, 12, 4, 'apple_dull'), sel('dull_marisa'), tries=1, first=160),
+        Retry(set_status('talk_reimu', 'needs.nutrition', 55), sel('talk_reimu'), tries=1, first=160),
+        Retry(set_status('clever_marisa', 'needs.nutrition', 55), sel('clever_marisa'), tries=1, first=160),
+        Retry(set_status('dull_marisa', 'needs.nutrition', 55), sel('dull_marisa'), tries=1, first=160),
     ], env=DAY, spot='pavilion', vantage=(3, 13, 180, 18),
     reads=[('读聪慧灵梦子油', f'yukkuri status {sel("talk_reimu")} raw'),
            ('读聪慧魔理沙子油', f'yukkuri status {sel("clever_marisa")} raw'),
