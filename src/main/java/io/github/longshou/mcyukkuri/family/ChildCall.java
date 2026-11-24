@@ -291,7 +291,7 @@ final class ChildCall {
         var e = o.entity();
         if (o.adult() || phase != Phase.NONE && (!waitingAtGlass() || ticks<=length(Behaviors.ANSWER_CALL))
                 || e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return null;
-        for (UUID id : new UUID[]{o.mother(), o.father()}) {
+        for (UUID id : o.caregiverIds()) {
             if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
             var call = parent.family().call();
             if (call.audible() && e.getUUID().equals(call.called) && !answered(id, call.callStart) && e.distanceToSqr(parent) <= EARSHOT * EARSHOT

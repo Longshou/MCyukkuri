@@ -225,7 +225,7 @@ public final class FamilyNest {
         boolean canopyYoung = e.getVariant().isPredator() && !e.family().adult() && !e.family().subadult();
         boolean needsBed = c == null && e.family().stage() == FamilyLife.Stage.BABY;
         if ((canopyYoung || needsBed) && !e.family().awaitingLanding() && !e.isPassenger()) {
-            var parents = canopyYoung ? e.family().caregiverIds() : new UUID[]{e.family().mother(), e.family().father()};
+            var parents = e.family().caregiverIds();
             for (var id : parents) if (id != null && ((ServerLevel)e.level()).getEntity(id) instanceof YukkuriEntity parent) {
                 var nest = care(parent);
                 if (nest == null || nest == c) continue;

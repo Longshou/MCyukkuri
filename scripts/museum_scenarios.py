@@ -7134,10 +7134,16 @@ def _driven_out_order(window, after, parent, verdict, owner, child):
         return f'{parent}: the driven child was regathered after the order'
     if re.search(r'\[family\][^\n]*uuid=' + child + r'[^\n]*(?:child separation lost=(?:true|false)|missing kin call)', later):
         return f'{parent}: the driven child called for or looked for the parent that drove it out'
-    # the parting feeling starts from real separation, never before the child is gone
+    if re.search(r'\[speech\][^\n]*uuid=' + child + r'[^\n]* line event=(?:lost_parent|caregiver|wait_family)\b', later):
+        return f'{parent}: the driven child spoke a parent-seeking line (lost_parent/caregiver/wait_family) after the order'
+    # the parting feeling and its "cannot see" lines start from real separation, never before the child is gone
     for early in re.finditer(r'\[emotion\][^\n]* t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
         if int(early[1]) < departed:
             return f'{parent}: someone began the parting feeling at {early[1]}, before the child was gone at {departed}'
+    family_uuids = '|'.join([owner] + [_uuid_text('hat_crowd', parent + str(i)) for i in (1, 2)])
+    for early in re.finditer(r'\[speech\][^\n]*uuid=(?:' + family_uuids + r') t=(\d+)[^\n]* line event=parting_(?:gaze|over)\b', after):
+        if int(early[1]) < departed:
+            return f'{parent}: parting line fired at {early[1]}, before the child was gone at {departed}'
     cries = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*driven out (?:sibling cries|sibling missed departure) child=' + child, later)
     if not cries:
         return f'{parent}: no sibling reacted when the child turned to go'
@@ -7147,8 +7153,8 @@ def _driven_out_order(window, after, parent, verdict, owner, child):
         parting, _ = at(r'\[choreo\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* beat=parting_begins face=', later)
         if parting is None or parting < departed:
             return f'{parent}: the tearful parent showed no parting feeling after the child was gone (parting={parting})'
-    # each beat's shown face is the declared one: no reaction layer painted over a performance
-    beats = re.findall(r'\[choreo\][^\n]*uuid=(?:' + owner + '|' + child + r') [^\n]* beat=(\w+) face=(\S+) line=\S+ declared=(\S+)', later)
+    # each beat's shown face is the declared one (including verdict): no reaction layer painted over a performance
+    beats = re.findall(r'\[choreo\][^\n]*uuid=(?:' + owner + '|' + child + r') [^\n]* beat=(\w+) face=(\S+) line=\S+ declared=(\S+)', after)
     wrong = [f'{name} shown={shown} declared={declared}' for name, shown, declared in beats if shown != declared]
     if wrong:
         return f'{parent}: a beat showed another face than the declared one: {wrong[:3]}'
@@ -7699,7 +7705,7 @@ _TEARFUL = dict(intelligence=55, friendliness=20, attachment=65, self_control=45
 _COLD = dict(intelligence=55, friendliness=20, attachment=15, self_control=40)
 
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
-     '两位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：北侧依恋高的含泪说着道歉的话，等孩子上岸再下令；南侧依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求、顶嘴或只是望着，央求的走到亲油脚边被拒（冷淡的推开、含泪的转过身），再转身走远；帽上的兄弟姐妹看见会哭。孩子真走远了（离她十一格外且看不见，或二十格外）才断绝关系，之后含泪的亲油和兄弟姐妹才目送',
+     '两位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：北侧依恋高的含泪说着道歉的话，等孩子上岸再下令；南侧依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求、顶嘴或只是望着，央求的走到亲油脚边被拒（冷淡的推开、含泪的转过身），再转身走远；帽上的兄弟姐妹看见会哭。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后含泪的亲油和兄弟姐妹才目送',
      '约 3 分钟，建议倍速',
      [*_overload_family('hat_crowd', 'normal', -3, False, '依恋65·友善20', **_TEARFUL),
       *_overload_family('hat_crowd', 'cold', 3, False, '依恋15·友善20', **_COLD)],

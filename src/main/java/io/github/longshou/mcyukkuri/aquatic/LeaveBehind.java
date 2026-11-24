@@ -113,7 +113,7 @@ final class LeaveBehind implements Intent {
         var child = subject(parent, memo);
         if (child == null || !steady || parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child)) return;
         if (memo.ordered) {
-            if (child.drivenOut().phase() != DrivenOut.Phase.GOING) return;
+            if (child.drivenOut().phase() == DrivenOut.Phase.NONE || child.isInWaterOrBubble()) return;
             out.add(Desire.of("watch_leave", AquaticGoal.num("leave_want", 100), List.of(memo.child, memo.tries),
                     () -> "child=" + memo.child, () -> new Watch(parent, child, memo)));
             return;
@@ -252,7 +252,8 @@ final class LeaveBehind implements Intent {
 
         private List<Supplier<Step>> derive() {
             return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
-                    () -> new Step.Wait(() -> child.drivenOut().pleaderAtParent() || !child.drivenOut().holding(), PLEA_WAIT, null),
+                    () -> new Step.Wait(() -> child.drivenOut().pleaderAtParent()
+                            || child.drivenOut().phase() == DrivenOut.Phase.GOING && !child.drivenOut().holding(), PLEA_WAIT, null),
                     this::rebuff,
                     () -> new Step.Wait(() -> {
                         if (!turnedBack) parent.getLookControl().setLookAt(child, 30, 30);
@@ -279,9 +280,9 @@ final class LeaveBehind implements Intent {
         }
 
         @Override public void ended(IntentRunner.Result result) {
-            MEMOS.remove(parent);
-            GameplayLog.event(parent, "family", "overload watch ended child={} result={} departed={}", child.getUUID(), result,
-                    !parent.getUUID().equals(child.drivenOut().driver()));
+            boolean departed = !parent.getUUID().equals(child.drivenOut().driver());
+            if (result == IntentRunner.Result.DONE || departed) MEMOS.remove(parent);
+            GameplayLog.event(parent, "family", "overload watch ended child={} result={} departed={}", child.getUUID(), result, departed);
         }
     }
 }

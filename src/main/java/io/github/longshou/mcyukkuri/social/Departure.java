@@ -38,9 +38,12 @@ public final class Departure {
                         boolean repeat, boolean byGuardian, boolean approach, String resistLine, Consumer<Answer> onTurn) {}
 
     /** Ticks it keeps walking beyond the range once a caller extends it; ticks a turned-away pleader still stands after a rebuff. */
-    private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10;
-    /** Ticks its turning-away face is kept before a look back may replace it. */
+    private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, MAX_APPROACH = 160, REBUFF_WAIT = 40;
+    /** Ticks its turning-away face is kept before a look back may replace it; blocks it must walk before looking back. */
     private static final int TURN_SHOW = 40;
+    private static final double LOOK_BACK_WALK = 2.0;
+    /** Speech priority for the turning-away line so it is not muted by the plea that just ended. */
+    private static final int SAY_PRIORITY = 4;
     /** A walk is judged by its progress, not a clock: a weak or grieving body crawls (a young one covers about 0.4 blocks a second), so it
      *  fails only after this long without gaining {@link #PROGRESS} blocks, or after {@link #WALK_CAP} ticks in all. */
     private static final int STALL = 800, WALK_CAP = 4000;
@@ -50,7 +53,7 @@ public final class Departure {
     private final YukkuriEntity entity;
     private final BooleanSupplier myTurn;
     private Terms terms;
-    private Vec3 destination, outward;
+    private Vec3 destination, outward, turnPos;
     private int ticks, nextExit, extra, answerTicks, lookBacks, lookBackTicks, atDriver, stall, turnedAt = -TURN_SHOW;
     private double best;
     private boolean resists, pleads, turned, rebuffed, walkNoted;
@@ -170,9 +173,10 @@ public final class Departure {
             lookBackTicks--;
             return Status.RUNNING;
         }
-        // Looks back at about half way and near the edge of the range (attached ones), the goodbye at the last.
+        // Looks back at about half way and near the edge of the range (attached ones), the goodbye at the last, once it has actually walked.
         double out = Math.sqrt(entity.position().subtract(terms.centre()).horizontalDistanceSqr()) / terms.radius();
-        if (lookBacks > 0 && ticks - turnedAt >= TURN_SHOW && out >= (lookBacks == 2 ? .45 : .8)) {
+        boolean walked = turnPos == null || entity.position().subtract(turnPos).horizontalDistanceSqr() >= LOOK_BACK_WALK * LOOK_BACK_WALK;
+        if (lookBacks > 0 && walked && ticks - turnedAt >= TURN_SHOW && out >= (lookBacks == 2 ? .45 : .8)) {
             lookBacks--;
             lookBackTicks = 40 + entity.life().personality().attachment() / 4;
             SurfaceApproach.stopWalking(entity);
@@ -222,22 +226,25 @@ public final class Departure {
         if (ContactGeometry.inMouthReach(driver, entity)) {
             SurfaceApproach.stopWalking(entity);
             atDriver++;
+            if (atDriver <= REBUFF_WAIT && ticks >= answerTicks) answerTicks = ticks + 1;
             return;
         }
         atDriver = 0;
         double spacing = (entity.getBbWidth() + driver.getBbWidth()) * .5 + .1;
         var stand = SurfaceApproach.beside(entity, driver, spacing, ContactGeometry.GRAB_HEIGHT, Double.POSITIVE_INFINITY);
-        if (stand != null) SurfaceApproach.walkToContact(entity, stand, driver, 1);
+        if (stand != null) {
+            SurfaceApproach.walkToContact(entity, stand, driver, 1);
+            if (ticks < MAX_APPROACH && ticks >= answerTicks) answerTicks = ticks + 1;
+        }
     }
 
     /** It turns to go: the hurt of it, by character, and whatever the caller does with the answer (an onlooker's cry). */
     private void turnAway() {
         turned = true;
         turnedAt = ticks;
+        turnPos = entity.position();
         SurfaceApproach.stopWalking(entity);
         entity.mind().felt(EmotionEvent.SOCIAL_HURT);
-        // Anger or sorrow by character, strongest on the first departure: the course carries the face through the whole walk.
-        entity.mind().feeling().wronged(terms.about(), terms.power(), BlockPos.containing(terms.centre()));
         String face = switch (answer) {
             case CURSE -> "angry";
             case FAREWELL -> "cry";
@@ -249,10 +256,15 @@ public final class Departure {
             case FAREWELL -> entity.showReaction("cry", "", 40);
             case SHRUG -> entity.showReaction("hmph", "", 40);
         };
-        if (answer == Answer.CURSE && shown) entity.speakCue(line);
-        entity.beat("turn_away", face, answer == Answer.CURSE ? line : "");
+        boolean spoken = !line.isEmpty() && shown && entity.speakCue(line, null, SAY_PRIORITY);
+        entity.beat("turn_away", face, spoken ? line : "");
         GameplayLog.event(entity, terms.category(), "{} answer={} fumes={}", terms.label(), answer, answer == Answer.CURSE);
         terms.onTurn().accept(answer);
+    }
+
+    /** After it has truly left sight, the grief or anger course begins (never before, so it neither pins nor slows the walk out). */
+    public void feltLoss() {
+        if (terms != null) entity.mind().feeling().wronged(terms.about(), terms.power(), BlockPos.containing(terms.centre()));
     }
 
     /**

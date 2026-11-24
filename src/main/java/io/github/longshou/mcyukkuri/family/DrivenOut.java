@@ -195,6 +195,7 @@ public final class DrivenOut extends Goal {
         entity.habitat().release();
         entity.life().releaseHome();
         entity.settlement().exile();
+        departure.feltLoss();
         clear();
         entity.habitat().seekHomeNow();
     }

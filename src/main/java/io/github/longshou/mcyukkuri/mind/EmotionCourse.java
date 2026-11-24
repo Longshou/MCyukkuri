@@ -179,8 +179,15 @@ public final class EmotionCourse {
             case TERROR -> peak ? Behaviors.SHAKEN : Behaviors.SHAKEN_WARY;
             case RAGE -> Behaviors.FUME;
             case JOY -> null;
-            case PARTING -> Behaviors.PARTING_GAZE;
+            case PARTING -> partedFromAbout() ? Behaviors.PARTING_GAZE : null;
         };
+    }
+
+    /** Whether the one this parting is about is truly gone: absent, far (>= 8 blocks), or out of sight. */
+    private boolean partedFromAbout() {
+        if (about == null || !(entity.level() instanceof ServerLevel level)) return true;
+        if (!(level.getEntity(about) instanceof YukkuriEntity other) || !other.isAlive()) return true;
+        return entity.distanceToSqr(other) >= 8 * 8 || !entity.hasLineOfSight(other);
     }
 
     /** Observes the selected presentation row after the arbiter publishes it. */
@@ -358,6 +365,7 @@ public final class EmotionCourse {
     /** A stage's own line: sobs at the peak of grief, a sigh of missing later; the shaking, the huff and the glow likewise. */
     private boolean voice(Stage stage) {
         if (stage != Stage.PEAK && (stage != Stage.EASING || kind == Kind.PARTING)) return true;
+        if (kind == Kind.PARTING && !partedFromAbout()) return false;
         if (!calm()) return false;
         boolean peak = stage == Stage.PEAK;
         if (kind == Kind.GRIEF && !peak && elapsed - easingStart() < VOW_WINDOW && about != null) {
@@ -418,7 +426,7 @@ public final class EmotionCourse {
             // The closing vow carries a lost one's share forward: only a confirmed death earns it.
             case GRIEF -> aboutDead() ? "mourn_over" : null;
             case TERROR -> about == null ? null : "shaken_over";
-            case PARTING -> ownChild ? "parting_over" : null;
+            case PARTING -> ownChild && partedFromAbout() ? "parting_over" : null;
             default -> null;
         };
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";

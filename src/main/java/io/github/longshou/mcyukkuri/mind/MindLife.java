@@ -384,7 +384,7 @@ public final class MindLife {
         put("lonely", rate);
         if (!lonely) {
             lonely = true;
-            entity.showReaction("cry", pick("lost_parent", "afraid"), 100);
+            entity.showReaction("cry", entity.family().disowned() ? "afraid" : pick("lost_parent", "afraid"), 100);
             GameplayLog.limited(entity, "mind", "lonely", 24000, "alone {} ticks, lonely +{}/min (unease {})",
                     aloneTicks, Math.round(rate * 10) / 10f, Math.round(unease));
         }

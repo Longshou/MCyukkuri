@@ -647,6 +647,7 @@ public final class MoldExile extends Goal implements MotorOwner {
                     home.colony() ? "colony" : "family", home.group(), home.den(), entity.blockPosition(), witness, entity.body().mold());
         } else {
             exile = new Exile(home, Appeal.WITHDREW);
+            departure.feltLoss();
             GameplayLog.event(entity, "settlement", "mold exile withdrew {} witness={} stage={}",
                     witness == null ? "without answer" : "after refusal", witness, entity.body().mold());
         }
@@ -660,10 +661,13 @@ public final class MoldExile extends Goal implements MotorOwner {
         end();
     }
 
-    /** Outside, the loss of its home (felt since it turned away) is over the walk; it looks for a home at once. */
+    /** Outside, out of the home's sight, it feels the loss and looks for a home at once. */
     private void headHome() {
+        if (trudging) {
+            trudging = false;
+            departure.feltLoss();
+        }
         entity.habitat().seekHomeNow();
-        trudging = false;
     }
 
     private boolean arrivedAtHome() {
