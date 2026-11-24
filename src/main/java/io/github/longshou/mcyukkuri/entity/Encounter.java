@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -245,7 +246,10 @@ public final class Encounter {
     }
 
     /** A body in a bound flight carry is not its own to turn aside (as with FRIGHT at {@code YukkuriEntity}); it waits or keeps as before. */
-    private static boolean canYield(YukkuriEntity body) { return !body.isLeashed() && !body.isPanicking() && !body.family().carry().bound(); }
+    private static boolean canYield(YukkuriEntity body) {
+        return !body.isLeashed() && !body.isPanicking() && !body.family().carry().bound()
+                && body.getAttributeValue(Attributes.MOVEMENT_SPEED) > 0;
+    }
 
     /** Looks for oncoming bodies round a walker; the first whose line crosses starts an encounter (or makes the walker wait for one running). */
     static void scan(YukkuriGroundNavigation nav, YukkuriEntity me, List<Entity> near) {
