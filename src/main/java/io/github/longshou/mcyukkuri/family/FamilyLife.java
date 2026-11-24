@@ -1173,7 +1173,7 @@ public final class FamilyLife {
         scale=desired;
         entity.syncFamily();
         if(entity.getRootVehicle() instanceof SurfaceHost host)host.loadChanged(entity,"growth");
-        if(slept||stage!=Stage.BABY)entity.showReaction("happy","grown",100);return true;
+        if((slept||stage!=Stage.BABY)&&entity.drivenOut().phase()!=DrivenOut.Phase.GOING&&!entity.moldExile().active()&&!entity.mind().feeling().mourning())entity.showReaction("happy","grown",100);return true;
     }
     /** Scenario hook: the loaded time this body needs to reach {@code reached} nourishment has passed, and the ordinary growth step
      *  (the same {@link #grow}, with its own size curve and collision refusal) runs now instead of at the next interval. */
@@ -1190,7 +1190,7 @@ public final class FamilyLife {
         Stage previous = stage;
         stage=next;entity.syncFamily();
         GameplayLog.event(entity, "growth", "stage={} -> {} age={} nourishment={} scale={}", previous, stage, age, nourishment, scale);
-        if(next!=Stage.BABY)entity.showReaction("happy","grown",100);
+        if(next!=Stage.BABY&&entity.drivenOut().phase()!=DrivenOut.Phase.GOING&&!entity.moldExile().active()&&!entity.mind().feeling().mourning())entity.showReaction("happy","grown",100);
         return next==Stage.ADULT;
     }
     /** Scenario and natural-population setup use a real age, rather than writing a stage label by itself. */

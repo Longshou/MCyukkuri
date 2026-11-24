@@ -104,9 +104,15 @@ final class LeaveBehind implements Intent {
         return null;
     }
 
-    /** Offered while a verdict is owed, the parent stands on support and the child is in sight; a tearful driver waits until the
-     *  child stands ashore (the rescue and its own climb bring it there), a keeper or a cold one does not. Once the order is
-     *  given, offered again as the watch over the child's departure, while it is on its way. */
+    /** Whether this afloat parent holds a capsize drive verdict that must be played out on dry ground. */
+    static boolean wantsAshore(YukkuriEntity parent) {
+        var memo = MEMOS.get(parent);
+        return memo != null && !memo.ferry && memo.verdict != Verdict.KEEP && !memo.ordered && subject(parent, memo) != null;
+    }
+
+    /** Offered while a verdict is owed, the parent stands on support (dry ground for capsize drive verdicts so the child can step up and
+     *  be rebuffed) and the child is in sight; a tearful driver waits until the child stands ashore, a keeper or a cold one does not. Once
+     *  the order is given, offered again as the watch over the child's departure, while it is on its way. */
     static void offer(List<Desire> out, YukkuriEntity parent, boolean steady) {
         var memo = MEMOS.get(parent);
         if (memo == null) return;
@@ -118,7 +124,8 @@ final class LeaveBehind implements Intent {
                     () -> "child=" + memo.child, () -> new Watch(parent, child, memo)));
             return;
         }
-        if (child.isPassenger() || memo.verdict == Verdict.DRIVE_TEARFUL && !AquaticLife.ashore(child)) return;
+        if (child.isPassenger() || !memo.ferry && memo.verdict != Verdict.KEEP && !AquaticLife.ashore(parent)
+                || memo.verdict == Verdict.DRIVE_TEARFUL && !AquaticLife.ashore(child)) return;
         out.add(Desire.of("leave_behind", AquaticGoal.num("leave_want", 100), List.of(memo.child, memo.verdict, memo.tries),
                 () -> "child=" + memo.child + " verdict=" + memo.verdict, () -> new LeaveBehind(parent, child, memo)));
     }

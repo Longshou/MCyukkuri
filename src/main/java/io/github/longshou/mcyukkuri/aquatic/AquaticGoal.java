@@ -329,12 +329,14 @@ final class AquaticGoal extends Goal {
         // A hungry head rider with no free cabin place is out of her mouth's reach: she is fed on dry ground.
         boolean headFeed = young.stream().anyMatch(y -> y.getVehicle() == body && ParentCarry.hold(body, y) == ParentCarry.Hold.HEAD
                 && hat.places(y, SeatTarget.Kind.CABIN, 1).isEmpty() && hungryYoung(body, y, hat));
-        double pull = Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
+        boolean verdictAshore = LeaveBehind.wantsAshore(body);
+        double pull = Math.max(verdictAshore ? num("leave_want", 100) : 0,
+                Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, headFeed ? num("head_feed_need", 70) : 0),
-                        Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0))));
+                        Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)))));
         // Where she lies is the hull's four-cell region, not its cell: a landing that failed (its dock paddles the hull cell to cell) is not
         // offered again on the same facts until she has really moved on, and then the next bank is another try.
-        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood, headFeed);
+        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood, headFeed, verdictAshore);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f head_feed=%b",
                 hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired, headFeed);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
