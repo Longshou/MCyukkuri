@@ -7280,10 +7280,10 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
 _ROOST_ASSIGNED = r'\[home\] remilia [^\n]*assigned kind=care\b'
 _PREDATOR_LEAVES = r'\[predator\] remilia [^\n]*activity started; task=(?:RETURN|PERCH)\b'
 # A hunt that bit the left young ends in one of its visible stops: the kill and the meal, the mother stepping in front of it (taunt:
-# a defender who turns the chase into a fight), the hunter's own exhaustion (it comes down at its rest line, energy 10-14), or the
-# flight back to its roost.
+# a defender who turns the chase into a fight), the hunter's own exhaustion (it comes down at its rest line, energy 0-14, also after finishing a wounded prey
+# it stooped at below the line), or the flight back to its roost.
 _HUNT_ENDS = (r'\[predator\] remilia [^\n]*(?:activity started; task=(?:RETURN|PERCH)\b|taunt accepted [^\n]*shield='
-              r'|eat pause started; reason=prey_kill\b|landing started; previous_task=(?:CHASE|DIVE) [^\n]*energy=1[0-4]\.)')
+              r'|eat pause started; reason=prey_kill\b|landing started; previous_task=(?:CHASE|DIVE) [^\n]*energy=(?:1[0-4]|\d)\.)')
 # A beat line pairs the face the presentation arbiter showed with the face the beat declared (they must be equal).
 _FLIGHT_BEAT = r'\[family\][^\n]* beat=%s face=(\w+) declared=\1 line=%s\b'
 # The bound flight in order: armed at the decision, the pickup, (the look-back for a child left), the set-down inside the nest.

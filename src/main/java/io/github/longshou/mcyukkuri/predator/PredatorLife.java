@@ -112,9 +112,9 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     /** Ticks a predator stays and eats after the kill, and stays settled after a combat kill (project design). */
     private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
     private static final int SWOOP_GAP = 40, CONTACT_HOLD = 5;
-    /** Horizontal reach (blocks) inside which a hunter out of flight stamina still finishes a prey it has already wounded: a few seconds of
-     *  low stooping at a wounded young's pace, and inside the 10-block limit of one stoop (project design). Beyond it the exhaustion end applies. */
-    private static final double FINISH_REACH = 8;
+    /** Horizontal reach (blocks) inside which a hunter below its rest line still finishes a prey it has already wounded: the 6-block pull-away
+     *  after a bite plus a wounded young's flight meanwhile (project design). Beyond it the exhaustion end applies. */
+    private static final double FINISH_REACH = 12;
     /** A 6-block pull-away with up to 4.5 blocks of lift needs time to accelerate and brake. */
     private static final int WITHDRAW_LIMIT = 64;
     private static final double SWOOP_HEIGHT = 4.5;
