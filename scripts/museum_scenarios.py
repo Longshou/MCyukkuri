@@ -7568,18 +7568,17 @@ def _overload_hull(window, scene, parent, exceptional):
     return None, owner, boats, overloaded_growth
 
 
-def _overload_tradeoff(window):
-    """The overloaded boat (FEATURES 载重, 超载断亲): four families exercise both verdicts (DRIVE_TEARFUL / DRIVE_COLD) and all
-    three child response branches (plead-and-approach, freeze/stare, sulk/shrug). Every beat logs shown==declared, unaware
-    siblings never get PARTING, and cut children never settle back inside the 16-block banned range."""
-    families = (
-        ('normal', 'DRIVE_TEARFUL', 'plead'),
-        ('cold', 'DRIVE_COLD', 'plead'),
-        ('freeze', 'DRIVE_TEARFUL', 'stare'),
-        ('sulk', 'DRIVE_COLD', 'sulk'),
-    )
-    for parent, verdict, branch in families:
-        failure, owner, boats, overloaded_growth = _overload_hull(window, 'hat_crowd', parent, False)
+def _overload_tradeoff(window, scene='hat_crowd', families=None):
+    """The overloaded boat (FEATURES 载重, 超载断亲): checks each staged family's verdict (DRIVE_TEARFUL / DRIVE_COLD) and
+    child response branch (plead / stare / sulk). Every beat logs shown==declared, unaware siblings never get PARTING,
+    and cut children never settle back inside the 16-block banned range."""
+    if families is None:
+        families = (
+            ('normal', 'DRIVE_TEARFUL', 'plead', None),
+            ('cold', 'DRIVE_COLD', 'plead', None),
+        )
+    for parent, verdict, branch, far_actor in families:
+        failure, owner, boats, overloaded_growth = _overload_hull(window, scene, parent, False)
         if failure:
             return failure
         if not overloaded_growth:
@@ -7587,7 +7586,7 @@ def _overload_tradeoff(window):
         capsized = re.search(r'\[hat\][^\n]*uuid=' + boats + r' t=(\d+)[^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]', window)
         if capsized is None:
             return f'{parent}: no overload capsize in this random run (premise not exercised)'
-        child = _uuid_text('hat_crowd', parent + '3')
+        child = _uuid_text(scene, parent + '3')
         drawn = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* overload verdict child=(\S+) verdict=(\w+) ', window[capsized.start():])
         if drawn is None:
             return f'{parent}: no overload verdict after the capsize'
@@ -7598,13 +7597,13 @@ def _overload_tradeoff(window):
         if beat is None:
             return f'{parent}: the verdict was never played out (no beat start)'
         centre = (int(beat[2]), int(beat[3]))
-        failure = _driven_out_order(window, after, parent, verdict, branch, owner, child, centre)
+        failure = _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=far_actor)
         if failure:
             return failure
     return None
 
 
-def _driven_out_order(window, after, parent, verdict, branch, owner, child, centre):
+def _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=None):
     """The order of the cut child's departure (FEATURES 超载断亲): her verdict beat -> the order -> the child's stat branch
     (plead / stare / sulk) -> it turns and walks -> it is gone (distance and sight) -> only then the cut and the parting feeling
     of the parent and perceiving siblings. Every beat logged with its declared and its shown face must show the declared one, the
@@ -7660,11 +7659,11 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     for early in re.finditer(r'\[emotion\][^\n]* t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
         if int(early[1]) < departed:
             return f'{parent}: someone began the parting feeling at {early[1]}, before the child was gone at {departed}'
-    family_uuids = '|'.join([owner] + [_uuid_text('hat_crowd', parent + str(i)) for i in (1, 2)])
+    family_uuids = '|'.join([owner] + [_uuid_text(scene, parent + str(i)) for i in (1, 2)])
     for early in re.finditer(r'\[speech\][^\n]*uuid=(?:' + family_uuids + r') t=(\d+)[^\n]* line event=parting_(?:gaze|over)\b', after):
         if int(early[1]) < departed:
             return f'{parent}: parting line fired at {early[1]}, before the child was gone at {departed}'
-    sib2 = _uuid_text('hat_crowd', parent + '2')
+    sib2 = _uuid_text(scene, parent + '2')
     sib2_dead = re.search(r'\[body\][^\n]*uuid=' + sib2 + r' t=(\d+)[^\n]* death settled', window)
     cries = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*driven out (?:sibling cries|sibling missed departure) child=' + child, later)
     if not cries and not (sib2_dead and int(sib2_dead[1]) <= turned):
@@ -7672,8 +7671,8 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     if any(int(t) < begins for t in cries):
         return f'{parent}: a sibling cried before the child began to leave'
     # the staged far sibling (beyond sight and hearing, out of her family range) misses the departure and stays silent about it
-    if parent == 'normal':
-        far = _uuid_text('hat_crowd', 'normal_far')
+    if far_actor:
+        far = _uuid_text(scene, far_actor)
         if not re.search(r'\[family\][^\n]*uuid=' + far + r' t=\d+[^\n]* driven out sibling missed departure child=' + child + r' reason=out_of_range', later):
             return f'{parent}: the far sibling did not log missing the departure (out_of_range)'
         if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts)|beat=sibling_cry|beat=parting_begins|course begun kind=parting)', later):
@@ -7771,9 +7770,11 @@ _YOUNG2_NOURISHMENT, _HEAD_NOURISHMENT = 84000, 149100
 # Growth steps for an overload: the head young to 0.50, young 2 to 0.29, then the head young on in 5000-tick steps (each a roll
 # for the hull's load, 10 ticks apart). Nourishment (child index, ticks).
 _OVERLOAD_STEPS = ((3, 210000), (2, 120000), (3, 215000), (3, 220000), (3, 225000), (3, 230000), (3, 235000))
-# Heavier juvenile growth steps for hat_crowd: child 3 to 0.71..0.79 (load ratio 5.86..8.00, chance 0.83..0.88 per step,
-# >99.9998% across 7 rolls) while child 2 stays at 0.29 (0.37 of capacity on its own after child 3 is cut).
-_CROWD_OVERLOAD_STEPS = ((3, 300000), (2, 120000), (3, 306000), (3, 312000), (3, 318000), (3, 324000), (3, 330000))
+# Reliable juvenile growth steps for overload severance: child 3 to 0.500..0.524 (load ratio 2.09..2.65, chance 0.52..0.62
+# per step, >99.98% across 10 rolls, while staying <= 0.524 so ParentCarry never refuses too_big even when tired); child 2
+# stays at 0.286 (0.37 of capacity on its own after child 3 is cut).
+_CROWD_OVERLOAD_STEPS = ((3, 210000), (2, 120000), (3, 211250), (3, 212500), (3, 213750), (3, 215000),
+                         (3, 216250), (3, 217500), (3, 218750), (3, 220000))
 # One step into the warning only: the head young to 0.375 (load 0.96 of capacity).
 _WARNING_STEPS = ((3, 157500),)
 # The growth steps start after the smoke's chunk-reload check (tick 60 + 400 unloaded ticks) so the saved riders do not change under it.
@@ -8252,51 +8253,91 @@ _PLEAD_KID = dict(attachment=75, friendliness=60, boldness=45, self_control=70)
 _FREEZE_KID = dict(attachment=45, friendliness=60, boldness=35, self_control=70)
 _SULK_KID = dict(attachment=20, friendliness=60, boldness=45, self_control=70)
 
+_SEVER_FORBID = [r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
+                 r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
+                 r'\[needs\][^\n]* starvation damage accepted=true',
+                 r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))']
+_SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=0\b',
+                 r'\[hat\][^\n]* scenario place [^\n]*place=BRIM\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
+                 r'\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
+                 r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b']
+
+
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=4.0, far_sibling=False):
+    actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits, **parent_traits)]
+    far_actor = None
+    if far_sibling:
+        far_actor = 'normal_far'
+        # Third young 16 blocks west of the straight west bank (inside parent's 24-block search, beyond 12-block sight and
+        # behind a 3-high stone wall) with water and apples so it stays put and misses the departure.
+        actors += [
+            yk('marisa', bank_dx(0) - 16, 0, far_actor, aquatic=True, fam=_seat_family(.20, _YOUNG2_NOURISHMENT, 76000),
+               childhood=CHILDHOOD_CRAWLING_READY, uuid=uid(sid, far_actor), kin=f'Mother:{uuid_nbt(uid(sid, parent))}',
+               label='远处的孩子', **pair_ready()),
+            box(bank_dx(0) - 14, 0, -2, bank_dx(0) - 14, 2, 2, 'minecraft:stone'),
+            box(bank_dx(0) - 17, 0, -1, bank_dx(0) - 17, 1, 1, 'minecraft:oak_fence'),
+            box(bank_dx(0) - 17, 0, -2, bank_dx(0) - 15, 1, -2, 'minecraft:oak_fence'),
+            box(bank_dx(0) - 17, 0, 2, bank_dx(0) - 15, 1, 2, 'minecraft:oak_fence'),
+            block(bank_dx(0) - 16, 0, -1, 'mcyukkuri:waterer{Water:8}'),
+            item('minecraft:apple', 2, bank_dx(0) - 16, 1, 'far_food'),
+        ]
+    families = ((parent, verdict, branch, far_actor),)
+    pond(sid, title, title, watch, '约 2 分钟，建议倍速', actors,
+         late=[f'execute as {sel(parent)} on vehicle run tag @s add seat_reload',
+               *_overload_growth(parent, _CROWD_OVERLOAD_STEPS)],
+         vantage=(-7, 7, -135, 16),
+         capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
+         note='单户超载断亲：西岸直岸居中，右侧水面翻船，左侧干地走远。日志依次 overload verdict -> overload beat start -> driven out ordered -> driven out begins -> 分支 beat -> turn_away -> departed -> parent dismissed -> parting_begins（含泪亲油）。',
+         reads=[(f'读亲油（{label}）', f'yukkuri status {sel(parent)} raw'),
+                ('读最大孩子', f'yukkuri status {sel(parent + "3")} raw'),
+                ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
+         smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
+                    expect=list(_SEVER_EXPECT),
+                    forbid=list(_SEVER_FORBID),
+                    verify=lambda window, s=sid, f=families: _overload_tradeoff(window, s, f) or _escape_needs_place(window) or _bank_pickup_retries(window),
+                    readout=[f'yukkuri status {sel(who)} raw' for who in (parent, parent + '2', parent + '3')]
+                            + ['data get entity @e[tag=seat_reload,limit=1] Riders',
+                               'data get entity @e[tag=seat_reload,limit=1] Motion',
+                               'data get entity @e[tag=seat_reload,limit=1] Inverted']))
+
+
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
-     '四位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：依恋高的含泪说着道歉的话，等孩子上岸再下令；依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求并走近（含泪的转过身、冷淡的推开）、僵住凝望或冷淡哼一声直接转身走远；亲眼看见或听见的兄弟姐妹会哭并在走远后目送，未感知到的不目送。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后成为永久流浪幼体，不再喊亲亲油、也不回旧家范围安家',
-     '约 3 分钟，建议倍速',
-     [*_overload_family('hat_crowd', 'normal', -4, False, '含泪·央求', out=7.0, stick=True, child3_traits=_PLEAD_KID, **_TEARFUL),
-      # her third young, 16 blocks west of the bank and beyond her 16-block family range: a pen of its own (two-high oak fence west,
-      # north and south, the stone wall closing the east side) with an apple and a full waterer inside, so it stays put and
-      # neither sees nor hears the departing child
-      yk('marisa', bank_dx(-4) - 16, -4, 'normal_far', aquatic=True, fam=_seat_family(.20, _YOUNG2_NOURISHMENT, 76000),
-         childhood=CHILDHOOD_CRAWLING_READY, uuid=uid('hat_crowd', 'normal_far'), kin=f'Mother:{uuid_nbt(uid("hat_crowd", "normal"))}',
-         label='远处的孩子', **pair_ready()),
-      box(bank_dx(-4) - 14, 0, -6, bank_dx(-4) - 14, 2, -2, 'minecraft:stone'),
-      box(bank_dx(-4) - 17, 0, -5, bank_dx(-4) - 17, 1, -3, 'minecraft:oak_fence'),
-      box(bank_dx(-4) - 17, 0, -6, bank_dx(-4) - 15, 1, -6, 'minecraft:oak_fence'),
-      box(bank_dx(-4) - 17, 0, -2, bank_dx(-4) - 15, 1, -2, 'minecraft:oak_fence'),
-      block(bank_dx(-4) - 16, 0, -5, 'mcyukkuri:waterer{Water:8}'),
-      item('minecraft:apple', 2, bank_dx(-4) - 16, -3, 'far_food'),
-      *_overload_family('hat_crowd', 'cold', -1, False, '冷淡·央求', out=3.0, stick=True, child3_traits=_PLEAD_KID, **_COLD),
-      *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=3.0, stick=True, child3_traits=_FREEZE_KID, **_TEARFUL),
-      *_overload_family('hat_crowd', 'sulk', 6, False, '冷淡·哼走', out=5.0, stick=True, child3_traits=_SULK_KID, **_COLD)],
+     '北侧含泪、南侧冷淡两户翻船后各赶走最大孩子，哀求分别被转身拒绝和推开，走远才断亲',
+     '约 2 分钟，建议倍速',
+     [*_overload_family('hat_crowd', 'normal', -8, False, '含泪·央求', out=4.0, stick=True, child3_traits=_PLEAD_KID, **_TEARFUL),
+      *_overload_family('hat_crowd', 'cold', 4, False, '冷淡·央求', out=4.0, stick=True, child3_traits=_PLEAD_KID, **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
-           *_overload_growth('normal', _CROWD_OVERLOAD_STEPS), *_overload_growth('cold', _CROWD_OVERLOAD_STEPS),
-           *_overload_growth('freeze', _CROWD_OVERLOAD_STEPS), *_overload_growth('sulk', _CROWD_OVERLOAD_STEPS)],
+           *_overload_growth('normal', _CROWD_OVERLOAD_STEPS), *_overload_growth('cold', _CROWD_OVERLOAD_STEPS)],
+     vantage=(-10, 0, -90, 14),
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
-     note='先看翻船后亲油的表情和台词，再看被赶孩子上岸后的回应、走远与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start（她的话，[choreo] beat=verdict）→ overload orders child out → driven out begins（孩子 answer、pleads）→ [choreo] beat=plead|resist|stare、overload rebuffs pleader → [choreo] beat=turn_away、driven out sibling cries → driven out departed（distance、sight）→ parent dismissed child（repudiated=true）→ [choreo] beat=parting_begins；断亲只在孩子走远之后，孩子此后不再喊亲亲油。'
-          '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
+     note='北侧含泪与南侧冷淡两户间隔 12 格以上对照；其余分支见 PD-31..34 单户场景。',
      reads=[('读北侧亲油（含泪）', f'yukkuri status {sel("normal")} raw'),
             ('读南侧亲油（冷淡）', f'yukkuri status {sel("cold")} raw'),
             ('读北侧最大孩子', f'yukkuri status {sel("normal3")} raw'),
             ('读南侧最大孩子', f'yukkuri status {sel("cold3")} raw'),
             ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
      smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
-                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=0\b',
-                        r'\[hat\][^\n]* scenario place [^\n]*place=BRIM\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
-                        r'\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
-                        r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b'],
-                forbid=[r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
-                        r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
-                        r'\[needs\][^\n]* starvation damage accepted=true',
-                        r'\[body\][^\n]* death settled[^\n]*cause=(?!.*(?:drown|water))'],
+                expect=list(_SEVER_EXPECT),
+                forbid=list(_SEVER_FORBID),
                 verify=lambda window: _overload_tradeoff(window) or _escape_needs_place(window) or _bank_pickup_retries(window),
                 readout=[f'yukkuri status {sel(who)} raw'
                          for who in ('normal', 'cold', 'normal2', 'normal3', 'cold2', 'cold3')]
                         + ['data get entity @e[tag=seat_reload,limit=1] Riders',
                            'data get entity @e[tag=seat_reload,limit=1] Motion',
                            'data get entity @e[tag=seat_reload,limit=1] Inverted']))
+
+_severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
+                 '翻船后含泪亲油赶走最大孩子，孩子哀求被转身拒绝后走远断亲，墙后远手足无反应',
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=6.0, far_sibling=True)
+_severance_scene('hat_sever_cold', '超载断亲：冷淡推开',
+                 '翻船后冷淡亲油赶走最大孩子，孩子哀求被推开后转身走远断亲',
+                 'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead')
+_severance_scene('hat_sever_freeze', '超载断亲：僵住凝望',
+                 '翻船后含泪亲油赶走最大孩子，孩子僵住凝望后转身走远断亲',
+                 'freeze', '含泪·僵望', _TEARFUL, _FREEZE_KID, 'DRIVE_TEARFUL', 'stare')
+_severance_scene('hat_sever_sulk', '超载断亲：赌气哼走',
+                 '翻船后冷淡亲油赶走最大孩子，孩子赌气哼一声转身走远断亲',
+                 'sulk', '冷淡·哼走', _COLD, _SULK_KID, 'DRIVE_COLD', 'sulk')
 
 pond('hat_load_warning', '载重警戒，亲油靠岸卸人', '载重警戒，亲油靠岸卸人',
      '两位亲油各带孩子：北侧普通亲油看到帽船吃水下沉、多晃（载重警戒）就划回岸边卸下全家，再出航只带载得下的孩子；南侧低智力高友善的亲油不理会警戒，载着全家直到翻船，之后仍认全部孩子',
@@ -9028,7 +9069,8 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
 POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo', 'hat_larder',
     'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
-    'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim', 'hat_crowd', 'hat_load_warning',
+    'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim', 'hat_crowd',
+    'hat_sever_tearful', 'hat_sever_cold', 'hat_sever_freeze', 'hat_sever_sulk', 'hat_load_warning',
     'self_rescue', 'shake_ashore', 'ledge_spit', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
     'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
     'hat_swap', 'shake_capsize', 'hat_push', 'hat_current',
@@ -9285,7 +9327,7 @@ TOPICS = {
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
-    'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_larder': 'A2', 'hat_crowd': 'A3', 'hat_load_warning': 'A3', 'shake_capsize': 'A4',
+    'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_larder': 'A2', 'hat_crowd': 'A3', 'hat_sever_tearful': 'A3', 'hat_sever_cold': 'A3', 'hat_sever_freeze': 'A3', 'hat_sever_sulk': 'A3', 'hat_load_warning': 'A3', 'shake_capsize': 'A4',
     'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shake_ashore': 'A5', 'ledge_spit': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
@@ -12956,9 +12998,19 @@ _FATES = {
     'cargo': [dict(kind='drown', who=_THROWN, why='the shaken full hat capsizes and throws its owner in'),
               dict(kind='drown', who=_STEPS_IN, why='the empty hat\'s owner starts ashore and wades out to reclaim it')],
     'hat_crowd': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
-                  dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_crowd', f'{p}{n}') for p in ('cold', 'sulk') for n in (2, 3)) + ') ',
+                  dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_crowd', f'cold{n}') for n in (2, 3)) + ') ',
                        match=r'category=drowned\b',
-                       why='the capsize throws the cold families in and each drops her largest; the water decides for each of her young, the tearful families\' young must live')],
+                       why='the capsize throws the cold family in and she drops her largest; the water decides for her young, the tearful family\'s young must live')],
+    'hat_sever_tearful': [dict(kind='drown', why='overloaded hat capsizes and throws the family in')],
+    'hat_sever_cold': [dict(kind='drown', why='overloaded hat capsizes and throws the family in'),
+                       dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_sever_cold', f'cold{n}') for n in (2, 3)) + ') ',
+                            match=r'category=drowned\b',
+                            why='the capsize throws the cold family in and she drops her largest; the water decides for her young')],
+    'hat_sever_freeze': [dict(kind='drown', why='overloaded hat capsizes and throws the family in')],
+    'hat_sever_sulk': [dict(kind='drown', why='overloaded hat capsizes and throws the family in'),
+                       dict(kind='death', who='uuid=(?:' + '|'.join(_uuid_text('hat_sever_sulk', f'sulk{n}') for n in (2, 3)) + ') ',
+                            match=r'category=drowned\b',
+                            why='the capsize throws the cold family in and she drops her largest; the water decides for her young')],
     'hat_load_warning': [dict(kind='drown', why='overloaded hats capsize and throw the families in'),
                          dict(kind='death', match=r'category=drowned\b', why='the scene keeps real water damage: survival is not guaranteed')],
     'rescue_child': [dict(kind='drown', who=f'uuid=(?:{_uuid_text("rescue_child", "c1")}|{_uuid_text("rescue_child", "k1")}) ',
@@ -13208,13 +13260,22 @@ _scene_end('shore_capsized', [('a', _DRY)],
                 post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
 # Overloaded families retain real risk; no prescribed survival for a deliberate capsize. Surviving young
 # must still be safe (ORPHAN remains independent); the load response itself is the observable path.
-_scene_end('hat_crowd', [('normal', 'alive=true and distress=false'), ('normal3', 'alive=true'),
-                         ('freeze', 'alive=true and distress=false'), ('freeze3', 'alive=true')],
+_scene_end('hat_crowd', [('normal', 'alive=true and distress=false'), ('normal2', 'alive=true'), ('normal3', 'alive=true')],
            [('normal', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('normal', 'seen:family:overload beat start .*verdict=DRIVE_TEARFUL'),
             ('normal', 'seen:family:parent dismissed child=')],
-           [('cold', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('cold', 'seen:family:parent dismissed child=')],
-           [('freeze', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('freeze', 'seen:family:parent dismissed child=')],
-           [('sulk', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('sulk', 'seen:family:parent dismissed child=')])
+           [('cold', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('cold', 'seen:family:parent dismissed child=')])
+_scene_end('hat_sever_tearful', [('normal', 'alive=true and distress=false'), ('normal2', 'alive=true'), ('normal3', 'alive=true'), ('normal_far', 'alive=true')],
+           [('normal', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('normal', 'seen:family:overload beat start .*verdict=DRIVE_TEARFUL'),
+            ('normal', 'seen:family:parent dismissed child=')])
+_scene_end('hat_sever_cold', [('cold', 'alive=true and distress=false')],
+           [('cold', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('cold', 'seen:family:overload beat start .*verdict=DRIVE_COLD'),
+            ('cold', 'seen:family:parent dismissed child=')])
+_scene_end('hat_sever_freeze', [('freeze', 'alive=true and distress=false'), ('freeze2', 'alive=true'), ('freeze3', 'alive=true')],
+           [('freeze', 'seen:family:overload verdict .*verdict=DRIVE_TEARFUL'), ('freeze', 'seen:family:overload beat start .*verdict=DRIVE_TEARFUL'),
+            ('freeze', 'seen:family:parent dismissed child=')])
+_scene_end('hat_sever_sulk', [('sulk', 'alive=true and distress=false')],
+           [('sulk', 'seen:family:overload verdict .*verdict=DRIVE_COLD'), ('sulk', 'seen:family:overload beat start .*verdict=DRIVE_COLD'),
+            ('sulk', 'seen:family:parent dismissed child=')])
 _scene_end('hat_load_warning', [('early', _DRY), ('kind', 'alive=true and distress=false')],
            [('early', 'seen:aquatic:load heavy .*reason=unload_ashore'),
             ('early', 'seen:intent:end id=come_ashore result=DONE')],
