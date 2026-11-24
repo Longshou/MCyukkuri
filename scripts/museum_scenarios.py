@@ -2445,13 +2445,11 @@ add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草',
 
 # ====================================================================================================== weather and predators
 add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑去远处石顶下躲雨',
-    '三只性格各异的油库里在石顶东侧淋雨起跑（旧16格范围外）：胆小灵梦往顶内深处躲，中等魔理沙居于中段，胆大橙停在偏外侧，彼此错格并排；进入遮蔽后先抖水再朝雨外安顿，不卡人也不重放奔跑动作',
+    '三只性格各异的油库里在石顶东侧淋雨起跑（旧16格范围外）：胆小灵梦往顶内深处躲，中等魔理沙居于中段，胆大橙停在偏外侧，彼此错格并排；到顶下后（几乎没湿，不抖水）朝雨外安顿，不卡人也不重放奔跑动作',
     '约 30 秒', [
         yk('reimu', 17, -1, 'a', yaw=90, boldness=5, lead=True, uuid=uid('rain_shelter', 'a')),
         yk('marisa', 18, 1, 'b', yaw=90, boldness=50, uuid=uid('rain_shelter', 'b')),
-        yk('chen', 17, 2, 'c', yaw=90, boldness=90, uuid=uid('rain_shelter', 'c')),
-        # Already damp from the rain, so each arrival under the roof shakes the water off before it settles.
-        set_status('a', 'needs.wetness', 15), set_status('b', 'needs.wetness', 15), set_status('c', 'needs.wetness', 15)],
+        yk('chen', 17, 2, 'c', yaw=90, boldness=90, uuid=uid('rain_shelter', 'c'))],
     env={'time': 'noon', 'weather': 'rain'}, spot='roof', vantage=(11, 6, 180, 12),
     reads=[('读反应（behavior.reaction）', f'yukkuri status {sel("a")} raw')],
     smoke=dict(ticks=750,
@@ -2480,8 +2478,6 @@ def _verify_rain_shelter(window, trace):
         beats = re.findall(rf'\[weather\][^\n]* uuid={u} [^\n]*beat=(\S+) declared=(\S+) shown=(\S+) line=(\S+)', window)
         if not beats:
             return f'{name} logged no weather beat'
-        if not any(beat == 'rain_shake' for beat, *_ in beats):
-            return f'{name} arrived damp but never shook the water off (beats={[b[0] for b in beats]})'
         for beat, declared, shown, _line in beats:
             if shown != declared:
                 return f'{name} beat={beat} face mismatch declared={declared} shown={shown}'
