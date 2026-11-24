@@ -4103,11 +4103,11 @@ _RING_KEEPER = 'plaza_owner'
 # their own numbers send them to (boldness 90 leaves no shyness, so their ring gap is 1 and the nearest stand outside the
 # paving is the cell they start on), facing the paving where the badged pet rests within BadgeSocial SCAN_RADIUS (8); the
 # voided badge is read as no badge. Both are bold and low in self-control, so whichever sighting turns into an arc sneers.
-# ring_timid starts far off on the west side: its own shyness keeps it at a gap of five and its drive under it, so it only
-# logs the decision and strolls where it is.
+# ring_timid starts far off on the east side, in the camera's view across the plaza: its own shyness keeps it at a gap of five
+# and its drive under it, so it only logs the decision and strolls where it is.
 _RING_STRAYS = [
     ('ring_cocky', 'reimu', 2, -5, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_timid', 'marisa', 11, -7, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
     ('ring_voided', 'reimu', 6, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
@@ -4126,13 +4126,15 @@ def _ring_yard():
 
 
 def _ring_keeper():
-    """The keeper starts on the cell beside the north bench it takes, facing it, with its home and bowl in the yard."""
+    """The keeper starts on the cell beside the north bench it takes, facing it, with its home and bowl in the yard. It is
+    scn_free, so it is not held for the start countdown and has already sat down by the time the play begins."""
     return [human('caretaker_sister', 7, 2, _RING_KEEPER, 0, yaw=180, label='院主')[:-1]
-            + f',UUID:{uuid_nbt(uid(_PLAZA, _RING_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}']
+            + f',UUID:{uuid_nbt(uid(_PLAZA, _RING_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}',
+            f'tag {sel(_RING_KEEPER)} add scn_free']
 
 
 def _ring_stray(scene, name, kind, x, z, label, values):
-    yaw = -22 if name == 'ring_cocky' else 22 if name == 'ring_voided' else -104
+    yaw = -22 if name == 'ring_cocky' else 22 if name == 'ring_voided' else 41
     att = 5 if name in ('ring_cocky', 'ring_voided') else 40
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=att,
@@ -11876,8 +11878,8 @@ def _ring_stray_fates(window):
             return f'plaza beat {b[2]} showed face={b[3]} instead of declared={b[4]}'
     if not beats:
         return 'no plaza reaction beat fired'
-    if rest and int(beats[0][1]) - int(rest[1]) > 400:
-        return f'first plaza reaction beat came {int(beats[0][1]) - int(rest[1])} ticks after outing_plaza_rest (expected <= 400)'
+    if int(beats[0][1]) - start > 400:
+        return f'first plaza reaction beat came {int(beats[0][1]) - start} ticks after the scene started (expected <= 400)'
     # Gating lock-up check: one body may not stay blocked by a yukkuri or stopped for no_progress for over 200 ticks
     # (lines of one body closer than 120 ticks belong to the same stretch; the move log is limited to one line per 100 ticks).
     stretch = {}

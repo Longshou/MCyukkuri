@@ -394,8 +394,9 @@ def build_pack(world):
         # then starts the scene's late lines, retries and timed rules, so all of them count from the moment the player is in position.
         # A mob the scene made NoAI on purpose is skipped by the command and stays as authored.
         # Every mob of the field, whoever created it (scene summons, shop staff and stock, template residents); the command skips non-mobs and NoAI ones.
+        # A scene that must open on a start already under way (a body sitting, resting) tags that body scn_free, so it keeps its AI through the countdown.
         # The release selects by tag, not by box: a held body that physics pushed out of the box is still released.
-        held = f'@e[type=!player,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
+        held = f'@e[type=!player,tag=!scn_free,x={bx1},y={by1},z={bz1},dx={bx2 - bx1},dy={by2 - by1},dz={bz2 - bz1}]'
         release = []
         if s.late:
             release.append(f'schedule function {NS}:scn/{s.id}_late 40t replace')
