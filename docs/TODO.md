@@ -14,6 +14,7 @@
 | TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
 | PK-02 公园玩耍 | `.worktrees/wp-park-play` | PlayLife,PlayWant,PetOuting,HumanStreet.linger,RoamingGoal,YukkuriGoals,park_play 场景 |
 | 公园其他游具演示 | `.worktrees/wp-doll-comfort` | KeepsakeLife 新阶段,DailyLife,LifeMeal.tryShare,对话 doll_talk,doll_comfort_sleep 与 doll_talk 场景 |
+| 公园其他游具演示 | `.worktrees/wp-doll-snatch` | GroupInteractionGoal,TreasureLife,KeepsakeLife.snatch,拾取监听,doll_snatch 场景 |
 
 ## 玩法待办
 
