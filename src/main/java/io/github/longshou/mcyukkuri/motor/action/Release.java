@@ -79,7 +79,7 @@ public final class Release implements Action, MotorOwner {
     private Walk approach;
     private final SurfaceHost destination;
     private SeatTarget seat;
-    private boolean released, cabinOnly;
+    private boolean released, cabinOnly, counted;
     private BlockPos nest;
     private Vec3 endpoint, stand;
     private String placement;
@@ -104,6 +104,14 @@ public final class Release implements Action, MotorOwner {
     public static Release toCabin(YukkuriEntity child, SurfaceHost host) {
         var release = new Release(child, host);
         release.cabinOnly = true;
+        return release;
+    }
+
+    /** A set-down onto the hull she rides with the child already hanging from her: its weight is aboard already (the root vehicle does
+     *  not change, so no load roll either), so the hull's load rule, which judges a young she would add, does not refuse it. */
+    public static Release counted(YukkuriEntity child, SurfaceHost host) {
+        var release = new Release(child, host);
+        release.counted = true;
         return release;
     }
 
@@ -152,7 +160,7 @@ public final class Release implements Action, MotorOwner {
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.HEAD).count(),
                     places.stream().filter(p -> p.kind() == SeatTarget.Kind.BRIM).count()});
             // A parent's own choice keeps the hull within its capacity (a young that boards itself is not weighed this way).
-            String full = destination.loadRefusal(carrier, child);
+            String full = counted ? null : destination.loadRefusal(carrier, child);
             if (places.isEmpty() || full != null) return Feasibility.of(Reason.NO_ROOM, 0, full == null ? "no_seat" : "hull_full " + full);
             seat = nearest(carrier, places, facings(carrier));
             return seat != null ? Feasibility.pass() : Feasibility.of(Reason.NO_SUPPORT, 0, "transfer_blocked");

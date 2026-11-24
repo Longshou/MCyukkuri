@@ -144,13 +144,14 @@ final class Ashore implements Intent {
             if ((canLand || docked()) && youngLeaving(hat))
                 return List.of(() -> new Step.Wait(() -> !youngLeaving(hat), WAIT, Behaviors.BOAT_CALL));
             // No bank in hop reach: the hull is paddled in, with a stick or a free braid. A child hanging in her braid (carried through a
-            // capsize, say) keeps it busy, so it is set down on the hull first when the hull has a place for it under her load rule; a
-            // full hull keeps her holding it (the paddle's own NO_TOOL says so) until its load changes.
-            if (!canLand && held != null && hat.restSpot(held) != null && hat.loadRefusal(owner, held) == null
+            // capsize, say) keeps it busy, so it is set down on the hull's place for it first: it weighs on the hull already (the load
+            // rule judges a young she would add, and a full hull is exactly why she brings it ashore), so the set-down is the way to
+            // free the braid for the paddle that takes the whole family in. No place for it: the paddle's own NO_TOOL says so.
+            if (!canLand && held != null && hat.restSpot(held) != null
                     && new Paddle(hat.position(), ARRIVE).check(owner).reason() == Reason.NO_TOOL) {
                 GameplayLog.limited(owner, "aquatic", "land.release_held", WAIT,
-                        "land sets down held child={} reason=no_free_braid", held.getUUID());
-                return List.of(() -> new Step.Do(new Release(held, hat)));
+                        "land sets down held child={} reason=no_free_braid hull_full={}", held.getUUID(), hat.loadRefusal(owner, held) != null);
+                return List.of(() -> new Step.Do(Release.counted(held, hat)));
             }
             if (!canLand) return paddle(hat);
             // Docked: a young that cannot leave by itself is taken up while she still has a hold for it, whatever she holds already.

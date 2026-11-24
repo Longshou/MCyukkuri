@@ -44,7 +44,8 @@ public final class Departure {
 
     /** Ticks it keeps walking beyond the range once a caller extends it; ticks a turned-away pleader still stands after a rebuff. */
     private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, REBUFF_WAIT = 40;
-    /** A pleader keeps closing in on its driver while it gains {@link #PROGRESS} blocks within {@link #APPROACH_STALL} ticks (a young one
+    /** A pleader keeps closing in on its driver while it gains {@link #PROGRESS} blocks (nearer to her, or further along its route to her, which
+     *  leads away from her first round a body or a corner) within {@link #APPROACH_STALL} ticks (a young one
      *  crawls about 0.4 blocks a second) and for {@link #APPROACH_CAP} ticks in all (60 s: the 16 blocks she watches it from); then it gives up and turns to go. */
     private static final int APPROACH_STALL = 60, APPROACH_CAP = 1200;
     /** Ticks its turning-away face is kept before a look back may replace it; blocks it must walk before looking back. */
@@ -61,7 +62,7 @@ public final class Departure {
     private final YukkuriEntity entity;
     private final BooleanSupplier myTurn;
     private Terms terms;
-    private Vec3 destination, outward, turnPos;
+    private Vec3 destination, outward, turnPos, approachAt;
     private int ticks, nextExit, extra, answerTicks, lookBacks, lookBackTicks, atDriver, approachStall, stall, turnedAt = -TURN_SHOW;
     private double best, approachBest = Double.MAX_VALUE;
     private boolean resists, pleads, turned, rebuffed, walkNoted;
@@ -81,6 +82,7 @@ public final class Departure {
         ticks = nextExit = extra = lookBackTicks = atDriver = approachStall = stall = 0;
         best = 0;
         approachBest = Double.MAX_VALUE;
+        approachAt = null;
         turned = rebuffed = walkNoted = false;
         turnedAt = -TURN_SHOW;
         failure = "";
@@ -109,6 +111,7 @@ public final class Departure {
         nextExit = lookBackTicks = atDriver = approachStall = stall = 0;
         best = 0;
         approachBest = Double.MAX_VALUE;
+        approachAt = null;
         destination = null;
         aim();
     }
@@ -246,8 +249,10 @@ public final class Departure {
         }
         atDriver = 0;
         double distance = entity.distanceTo(driver);
-        if (distance < approachBest - PROGRESS) {
-            approachBest = distance;
+        // Gaining ground is closing the gap or walking the route to her: the way round a body or the bank's corner leads away first.
+        if (distance < approachBest - PROGRESS || approachAt == null || entity.position().distanceToSqr(approachAt) >= PROGRESS * PROGRESS) {
+            approachBest = Math.min(approachBest, distance);
+            approachAt = entity.position();
             approachStall = 0;
         } else if (++approachStall > APPROACH_STALL) {
             if (approachStall == APPROACH_STALL + 1) GameplayLog.event(entity, terms.category(), "{} pleader gave up short of parent driver={} distance={}",
