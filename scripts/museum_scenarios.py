@@ -7237,7 +7237,7 @@ _FLIGHT_ROOST = (14, 34)
 
 
 def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9, mother_z=5.0,
-                  babies=None, pred_energy=38):
+                  babies=None):
     """One household at its nest (homes known at the summon): in the default home scene the mother stands 5.0 blocks from the nest and
     each baby ~2.4 blocks to her side (inside the 4-block retrieve distance, clear of the shed's removed front posts and roof) with the
     hungry predator summoned 15 blocks from her (20 from the nest). In timid/hat the mother stands 7.5 blocks out with baby_a ~2.4 from
@@ -7267,7 +7267,7 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
               for x, z, name in (babies or [(-baby_x, 3.5, 'baby_a'), (baby_x, 3.5, 'baby_b')])],
             yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
-               label='饥饿的捕食种', nutrition=36, energy=pred_energy, boldness=40)],
+               label='饥饿的捕食种', nutrition=36, energy=38, boldness=40)],
         at_spawn=[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')],
         late=[Retry(f'yukkuri scenario home {sel("predator")} ~{px} ~8 ~{pz}', sel('predator'), tries=8, every=20, first=3)],
         env=DAY, spot='carry_home', vantage=(13, 9, 90, 20), note=note,
@@ -7279,6 +7279,11 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
 # the pursuit ended with energy to spare), so it never claims the family's nest.
 _ROOST_ASSIGNED = r'\[home\] remilia [^\n]*assigned kind=care\b'
 _PREDATOR_LEAVES = r'\[predator\] remilia [^\n]*activity started; task=(?:RETURN|PERCH)\b'
+# A hunt that bit the left young ends in one of its visible stops: the kill and the meal, the mother stepping in front of it (taunt:
+# a defender who turns the chase into a fight), the hunter's own exhaustion (it comes down at its rest line, energy 10-14), or the
+# flight back to its roost.
+_HUNT_ENDS = (r'\[predator\] remilia [^\n]*(?:activity started; task=(?:RETURN|PERCH)\b|taunt accepted [^\n]*shield='
+              r'|eat pause started; reason=prey_kill\b|landing started; previous_task=(?:CHASE|DIVE) [^\n]*energy=1[0-4]\.)')
 # A beat line pairs the face the presentation arbiter showed with the face the beat declared (they must be equal).
 _FLIGHT_BEAT = r'\[family\][^\n]* beat=%s face=(\w+) declared=\1 line=%s\b'
 # The bound flight in order: armed at the decision, the pickup, (the look-back for a child left), the set-down inside the nest.
@@ -7307,15 +7312,13 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight leaves child=\S+ left=1 aboard=1 attachment=31\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED,
-     # The hunt ends with the hunter flying back to its own roost, with the mother stepping in front of it (taunt: a real defender
-     # stop that turns the chase into a fight with her), or with the left young killed and eaten.
-     r'\[predator\] remilia [^\n]*(?:activity started; task=(?:RETURN|PERCH)\b|taunt accepted [^\n]*shield=|eat pause started; reason=prey_kill\b)',
+     _HUNT_ENDS,
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。捕食种精力 100（其余飞行场景 38）：这一幕要看完全程追猎，饥饿的捕食种得有力气咬死并吃掉留下的那只。若亲油放下孩子后回头挡在追猎前（taunt），捕食种转为战斗去驱赶她：这是真实的阻止，留下的孩子可能被救下或只被咬伤后失血死，亲油自己也可能被杀。',
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。追猎一旦开始只在精力降到休息线 15 时才落地休息（可见的疲惫落地）。若亲油放下孩子后回头挡在追猎前（taunt），捕食种转为战斗去驱赶她：这是真实的阻止，留下的孩子可能被救下或只被咬伤后失血死，亲油自己也可能被杀。',
     # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it. The second baby lies beyond the first, on
     # the predator's side and ~10.5 blocks from the nest (~3.6 from her, ~10.7 from the predator: inside the 6-block gather range and
     # the 8-block look-back), so the hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
-    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')], pred_energy=100,
+    mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
     allow_fate=[dict(kind='death', who=f'uuid={_uuid_text(_flight_timid, "baby_b")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
                      why='the left-behind young is the hunt\'s prey: it dies of the hunter\'s bite or the bleeding wound'),
                 dict(kind='death', who=f'uuid={_uuid_text(_flight_timid, "mother")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
@@ -7327,7 +7330,7 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
      r'\[family\][^\n]*carry flight reaching child=\S+ distance=[1-9]',
      r'\[family\][^\n]*carry lift started hold=brim [^\n]*purpose=PROTECT\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=\d\b',
-     _ROOST_ASSIGNED, _PREDATOR_LEAVES,
+     _ROOST_ASSIGNED, _HUNT_ENDS,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b', _FLIGHT_ORDER % ('brim', '')],
     mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
     allow_fate=[dict(kind='death', who=f'uuid={_uuid_text(_flight_hat, "baby_b")} ', match=r'cause=(?:mob\b|generic internal=leak\b)',
