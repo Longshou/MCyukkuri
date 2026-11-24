@@ -4101,9 +4101,9 @@ _RING_HOLDER = 'ring_holder'
 # for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -1, 2, '嚣张的流浪油', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', -1, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
@@ -4147,7 +4147,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
                           .replace('Boldness:70', 'Boldness:35').replace('Attachment:22', 'Attachment:80')
                           .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-6, 6, -135, 12),
+    ], env=DAY, vantage=(-9, 6, -125, 12),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
