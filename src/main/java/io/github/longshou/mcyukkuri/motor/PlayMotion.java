@@ -45,7 +45,8 @@ public final class PlayMotion {
         // Ensure the final ground-navigation waypoint sits outside any non-pathfindable cell and clears the facility shell.
         Vec3 entryWorld = PlayGeometry.world(root, facing, entryLocal.x, entryLocal.y, entryLocal.z);
         boolean entryClipped = PlayBlock.facility(body.level(), BlockPos.containing(entryWorld)) != null
-                || !body.level().noCollision(body, body.getBoundingBox().move(entryWorld.subtract(body.position())));
+                || body.level().getBlockCollisions(body, body.getBoundingBox().move(entryWorld.subtract(body.position())))
+                        .iterator().hasNext();
         double outerZ = entryClipped
                 ? (entryLocal.z >= 0 ? 1.0 : -1.0) * (halfD + margin)
                 : entryLocal.z;
@@ -67,6 +68,7 @@ public final class PlayMotion {
         return out;
     }
 
+    /** Only the world makes a waypoint unusable; a body standing there is walked up to, which contact and yielding settle. */
     private static boolean addIfClear(YukkuriEntity body, List<Vec3> out, Vec3 candidate) {
         var level = body.level();
         BlockPos pos = BlockPos.containing(candidate);
@@ -74,7 +76,7 @@ public final class PlayMotion {
         if (!level.getFluidState(pos).isEmpty()) return false;
         if (!level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP)) return false;
         var box = body.getBoundingBox().move(candidate.subtract(body.position()));
-        if (!level.noCollision(body, box)) return false;
+        if (level.getBlockCollisions(body, box).iterator().hasNext()) return false;
         out.add(candidate);
         return true;
     }
