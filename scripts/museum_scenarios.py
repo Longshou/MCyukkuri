@@ -4101,9 +4101,9 @@ _RING_HOLDER = 'ring_holder'
 # plaza ring decision as soon as the keeper sits, and see the holder arrive; ring_hungry and ring_timid start on the west side.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 1, 3, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -11, 5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 3, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
@@ -4123,7 +4123,7 @@ def _ring_yard():
 
 
 def _ring_stray(scene, name, kind, x, z, label, values):
-    yaw = -150 if name == 'ring_cocky' else -165 if name == 'ring_voided' else -95
+    yaw = -135 if name == 'ring_cocky' else -160 if name == 'ring_voided' else -95
     att = 5 if name in ('ring_cocky', 'ring_voided') else 40
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=att,
