@@ -4096,14 +4096,14 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, z, label, values. ring_cocky and ring_voided start on the south edge of the paving facing north so they
-# stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, yet see the holder arrive and leave strayRoom open
-# for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
+# name, kind, x, z, label, values. ring_cocky and ring_voided start on the west edge of the paving facing the east bench
+# so they stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, yet see the holder arrive and sit;
+# ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', -2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', -2, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
@@ -4123,7 +4123,7 @@ def _ring_yard():
 
 
 def _ring_stray(scene, name, kind, x, z, label, values):
-    yaw = -135 if name == 'ring_cocky' else -160 if name == 'ring_voided' else -95
+    yaw = -120 if name == 'ring_cocky' else -60 if name == 'ring_voided' else -95
     att = 5 if name in ('ring_cocky', 'ring_voided') else 40
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=att,

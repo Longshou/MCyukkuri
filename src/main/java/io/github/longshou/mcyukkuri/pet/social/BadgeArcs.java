@@ -62,7 +62,7 @@ public final class BadgeArcs {
         Arc arc = Arc.byId(s.card);
         if (arc == null) return 1200;
         return switch (arc) {
-            case GLANCE, BOAST -> 400;
+            case GLANCE, BOAST -> 120;
             case ENVY, PITY, ELDER_WARN -> 6000;
             case PLEA -> 24000;
             default -> 12000;
