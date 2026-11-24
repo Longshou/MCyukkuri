@@ -494,12 +494,16 @@ public final class KeepsakeLife implements MotorOwner {
     public void onSleepTick(int sleepTicks, boolean waking) {
         if (sleepTicks == 1) {
             releaseForSleep();
+        }
+        if (sleepTicks >= 1 && sleepTicks < 20) {
             ItemEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
             if (doll != null) {
                 float yaw = SurfaceApproach.yaw(entity.position(), doll.position());
                 Motor.face(entity, yaw);
-                // Replace any lingering awake reaction (e.g. nuzzle_done) so the sleeping face is honestly "sleep".
-                entity.showReaction("sleep", "", 25);
+                if (sleepTicks == 1) {
+                    // Replace any lingering awake reaction (e.g. nuzzle_done) so the sleeping face is honestly "sleep".
+                    entity.showReaction("sleep", "", 25);
+                }
             }
             return;
         }
