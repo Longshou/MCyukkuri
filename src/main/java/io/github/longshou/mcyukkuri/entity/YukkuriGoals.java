@@ -260,7 +260,6 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick() { return true; }
         @Override public void tick() {
             if (owner.panicTicksValue() > 100) { owner.directNavigation().stop(); return; }
-            if (owner.family().carry().tickFlight(owner.getLastHurtByMob())) return;
             // A skilled resident that has reached its den can seal while fleeing, whatever drove it home.
             if (owner.status().reactions().threat().seal().drive(owner.getLastHurtByMob())) return;
             var threat = owner.getLastHurtByMob();
@@ -270,8 +269,7 @@ final class YukkuriGoals {
             else SurfaceApproach.halt(owner);
         }
         @Override public void stop() {
-            // A handoff back to ThreatGoal for the same ongoing danger continues the active gathering; Threat.end() closes it.
-            if (!owner.status().reactions().threat().wants()) owner.family().carry().endFlight();
+            owner.family().carry().endFlight();
             owner.status().reactions().threat().seal().reset();
             owner.status().reactions().threat().flight().forgetRoute();
             owner.directNavigation().stop();

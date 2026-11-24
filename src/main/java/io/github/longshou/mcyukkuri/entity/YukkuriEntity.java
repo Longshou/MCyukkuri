@@ -297,6 +297,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         // Pain and danger end a held reaction: whatever they show next is not dropped.
         if (context.reason() == Interrupt.FRIGHT || context.reason() == Interrupt.HURT || context.reason() == Interrupt.BURNING
                 || context.reason() == Interrupt.DEATH) reactionHeld = false;
+        // A flight with the young bound to this parent (ParentCarry#bound) is not cut by a fright pulse: fear shows in face, voice and speed.
+        if (context.reason() == Interrupt.FRIGHT && family.carry().bound()) return;
         components.interrupt(context, phase);
     }
 

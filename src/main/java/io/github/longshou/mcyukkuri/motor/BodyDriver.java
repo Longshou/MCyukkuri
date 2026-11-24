@@ -233,9 +233,8 @@ public final class BodyDriver {
 
     /** The interrupt bridge: stop now if interruptible, otherwise finish the short physical stretch; a real completion remains Done. */
     public void interrupt(String why) {
-        boolean holdingThroughFright = "fright".equals(why) && current instanceof Grab grab
-                && (body.hasPassenger(grab.target()) && body.family().carry().ownsLift(grab.target())
-                    || body.family().carry().protectiveGrip(grab.target()));
+        boolean holdingThroughFright = "fright".equals(why) && current instanceof Grab grab && body.hasPassenger(grab.target())
+                && body.family().carry().ownsLift(grab.target());
         if (!holdingThroughFright) stop(why);
         Release.interrupted(body, why == null ? "interrupted" : why);
     }

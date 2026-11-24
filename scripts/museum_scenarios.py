@@ -6799,10 +6799,11 @@ _FLIGHT_FAM = {'reimu': None, 'marisa': None}
 _FLIGHT_ROOST = (14, 34)
 
 
-def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=21, baby_x=2.5):
-    """One household outside its nest; after the family settles and receives its home (+40 t), a hungry predator arrives
-    ahead (+41 t) so the player sees the calm start, the notice, the urgent run to each baby (each starts baby_x blocks out), then the predator flies back to its own roost,
-    and the flight to the nest."""
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=24, baby_x=2.2):
+    """One household settled at its nest (homes known at the summon, so no ordinary retrieve starts): the mother stands 3.7 blocks
+    from the nest door and each baby 2.5 blocks to her side, inside the 4-block retrieve distance and clear of the shed's front posts
+    (removed here). A hungry predator arrives 2 s after the release (+41 t), 22 blocks from her, so the player sees the calm start,
+    the notice, the urgent run to the nearest baby, the lift, the run to the nest and the set-down, then the predator flies back to its own roost."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
     # A beat line pairs the face shown with the face declared: any family beat where they differ fails the run.
@@ -6811,17 +6812,19 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
         smoke['allow_fate'] = list(allow_fate)
     px, pz = _FLIGHT_ROOST
     add(sid, 'family', title, title, watch, wait, [*_carry_nest,
+            # No post in the front yard: a lift never loses its contact stand beside one.
+            box(-2, 0, 2, -2, 2, 2, 'minecraft:air'), box(2, 0, 2, 2, 2, 2, 'minecraft:air'),
             # The predator's own roost, far on the side it flies away to: its return home after the hunt never picks the family's nest.
             box(px - 4, 0, pz - 4, px + 4, 12, pz + 4, 'minecraft:air'),
             box(px, 0, pz, px, 7, pz, 'minecraft:oak_log'),
             block(px, 8, pz, 'mcyukkuri:predator_nest'),
             block(px - 1, 7, pz, 'minecraft:oak_log[axis=x]'),
             box(px - 1, 9, pz - 1, px, 9, pz, 'minecraft:oak_leaves[persistent=true]'),
-            yk(kind, 0, 8, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
-            *[yk(kind, x, 7.6, name, stage='baby', uuid=uid(sid, name),
+            yk(kind, 0, 4.2, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
+            *[yk(kind, x, 3.0, name, stage='baby', uuid=uid(sid, name),
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
-              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]],
-            *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
+              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]]],
+        at_spawn=[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')],
         late=[Retry(yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
                        label='饥饿的捕食种', nutrition=36, energy=38, boldness=40),
                     sel('mother'), tries=1, first=1),
@@ -6837,6 +6840,11 @@ _ROOST_ASSIGNED = r'\[home\] remilia [^\n]*assigned kind=care\b'
 _PREDATOR_LEAVES = r'\[predator\] remilia [^\n]*activity started; task=(?:RETURN|PERCH)\b'
 # A beat line pairs the face the presentation arbiter showed with the face the beat declared (they must be equal).
 _FLIGHT_BEAT = r'\[family\][^\n]* beat=%s face=(\w+) declared=\1 line=%s\b'
+# The bound flight in order: armed at the decision, the pickup, (the look-back for a child left), the set-down inside the nest.
+_FLIGHT_ORDER = (r'\[family\][^\n]* carry flight bound cause=\w+ leg=GATHER\b[\s\S]*\[family\][^\n]* carry pickup hold=%s purpose=PROTECT\b'
+                 r'%s[\s\S]*\[family\][^\n]* carry set down started reason=reached_nest\b'
+                 r'[\s\S]*\[family\][^\n]* carry put down reason=reached_nest\b')
+_FLIGHT_LEAVES = r'[\s\S]*\[family\][^\n]* carry flight leaves child=\S+ left=1\b'
 _flight_timid = 'family_flight_timid'
 _flight_hat = 'family_flight_hat'
 _flight_scene(_flight_home, 'reimu', '捕食种靠近，亲油抱起赤油躲回窝',
@@ -6848,7 +6856,7 @@ _flight_scene(_flight_home, 'reimu', '捕食种靠近，亲油抱起赤油躲回
      r'\[family\][^\n]*carry flight pickup ended aboard=[12]\b',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b',
-     _FLIGHT_BEAT % ('pickup', 'none')],
+     _FLIGHT_ORDER % ('mouth', ''), _FLIGHT_BEAT % ('pickup', 'none')],
     note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：两只开场都在 2.5 格外，看跑向第二只时不减速、要抱的孩子站住等着；抱齐后直奔窝口放下（reached_nest）；捕食种有自己的高巢，俯冲后飞回，不占一家的窝。若俯冲落在抱第二只的途中，第二只留下、二趟再来接，也算正常结局。')
 _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带走一只',
     '灵梦与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油胆小又不太依恋（胆量与依恋 31），只来得及含起一只，就停步回头喊一声再逃回窝，另一只自己跟着跑。',
@@ -6858,11 +6866,10 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight leaves child=\S+ left=1 aboard=1 attachment=31\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
-     _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 6.8 格（各距亲油约 3.4 格），她只来得及开跑第一只；留下的孩子面临真实捕食风险。',
-    # Patience 13 ticks: a mouth lift of the first baby (3.4-block walk + 15-18-tick lift) already outlasts it, and the 6.8-block spacing
-    # stays inside the 6-block gather range and the 8-block look-back.
-    baby_x=3.4,
+     _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 4.4 格（各距亲油约 2.5 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
+    # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it, and the 4.4-block spacing stays inside the
+    # 6-block gather range and the 8-block look-back.
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
@@ -6873,7 +6880,7 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
      r'\[family\][^\n]*carry lift started hold=brim [^\n]*purpose=PROTECT\b',
      r'\[family\][^\n]*carry flight pickup ended aboard=\d\b',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
-     r'\[family\][^\n]*carry set down started reason=(?:reached_nest|arrived_home)\b'],
+     r'\[family\][^\n]*carry set down started reason=reached_nest\b', _FLIGHT_ORDER % ('brim', '')],
     note='帽檐路线：辫子托上帽檐（一只约 4.5 秒）后同样不减速地跑向下一只，抱齐后直奔窝口放下；俯冲落在抬升途中时，没抱上的一只自己走回或亲油二趟接回。', pred_z=21)
 
 # ====================================================================================================== which concern each scenario answers
@@ -8850,7 +8857,7 @@ TOPICS = {
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
     'excited_leak': 'D1', 'need_tell': 'D1', 'care_attitude': 'D1', 'basket_attitude': 'M5', 'basket_weakness': 'M5',
-    'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_shelter_full': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
+    'forage_empty': 'R1', 'rain_life': 'R1', 'rain_huddle': 'R1', 'storm_cower': 'R1', 'marisa_explore': 'R1', 'rain_shelter': 'R1', 'rain_shelter_family': 'R1', 'rain_shelter_full': 'R1', 'rain_open': 'R1', 'pred_watch': 'R2', 'pred_range': 'R2', 'pred_pets': 'R2', 'shared_body': 'R3',
     'pred_spawn_nest': 'R2', 'pred_build_nest': 'R2', 'pred_perch_hunt': 'R2', 'pred_noon_shade': 'R2',
     'pred_nest_feeding': 'R2', 'pred_fledging': 'R2', 'pred_tree_territory': 'R2',
     'pred_pad_cleanup': 'R2', 'pred_forage_avoidance': 'R2',

@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +77,8 @@ import org.joml.Vector3f;
 public final class ParentCarry {
     public enum Purpose { MIGRATE, RETRIEVE, NEST_RIM, PROTECT }
     public enum Step { WORKING, FAILED }
+    /** The bound threat flight: gather the young within her patience, run home with them, set each down in the nest. */
+    private enum Leg { GATHER, RUN, SET }
     /** How one carried child is held. */
     public enum Hold {
         MOUTH, BRIM, TAIL_LEFT, TAIL_RIGHT, BRAID, HEAD;
@@ -123,6 +126,13 @@ public final class ParentCarry {
      * the threat's closing time.
      */
     private static final int FLIGHT_BASE = 10, FLIGHT_PER_MARGIN = 3, FLIGHT_MAX = 160, SHELTER_GATHER_TICKS = 80, GRAB_ALLOWANCE = 60;
+    /**
+     * One decision per danger: the choice is not asked again for the same threat within a gather's longest span plus a lift and the
+     * re-lift pause (320 ticks; a strike reopens it, {@link #struck}). The bound flight carries at most {@code MAX_TRIPS} trips per
+     * decision: the first gather and one more for the young she could not take. A bound flight stays dormant for {@code ARM_GRACE}
+     * ticks at most when its goal cannot start (a hazard goal holds the body), see {@link #tick}.
+     */
+    private static final int DECISION_MEMORY = FLIGHT_MAX + GRAB_ALLOWANCE + HOLD_TICKS, MAX_TRIPS = 2, ARM_GRACE = 20;
     /** Walk request of a parent running for a child in danger: at or above {@code Gait.FAST_REQUEST} (1.15), the running gait. */
     private static final double URGENT_GAIT = 1.2;
     /** A parent who leaves a child behind stops to look back for {@code CALL_BASE_TICKS} + attachment / {@code CALL_PER_ATTACHMENT} ticks (31 -> 18, 85 -> 29). */
@@ -197,9 +207,19 @@ public final class ParentCarry {
     private UUID gathering;
     /** Flight gathering: no new child is started after {@code flightUntil}; the child being fetched ({@code flightTarget}) has until
      *  {@code childUntil}; {@code callUntil} is the end of the look-back beat of a parent leaving a child behind (0 = no beat). */
-    private long flightUntil, flightRetryAt, childUntil, callUntil;
-    private boolean flightThreat, flightRetryThreat;
+    private long flightUntil, childUntil, callUntil;
+    private boolean flightThreat;
     private UUID flightTarget;
+    /** Where the bound threat flight is (null: none, see {@link #flightGoal}), when it was armed, its trips so far and the danger it flees. */
+    private Leg leg;
+    private long armedAt;
+    private int trips;
+    private LivingEntity danger;
+    /** The flight goal is running; whether it already logged its first set-down. */
+    private boolean flightRunning, setLogged;
+    /** The one decision per danger: whom it was about and when (the choice is not asked again for the same danger until a strike). */
+    private UUID decidedFor;
+    private long decidedAt = Long.MIN_VALUE / 2;
     /** The last shown beat waiting for the face the presentation arbiter publishes (log only). */
     private String beatName, beatFace, beatLine;
     private Release settingDown;
@@ -215,18 +235,8 @@ public final class ParentCarry {
     /** The carry as the motor owner: active while a lift runs, a set-down runs, or the family carry task walks the child home. */
     private final MotorOwner owner = new MotorOwner() {
         @Override public String ownerId() { return "family_carry"; }
-        @Override public boolean active() { return lifting != null || setting || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
+        @Override public boolean active() { return lifting != null || setting || leg != null || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
         @Override public void finished(Action action, Outcome outcome) {
-            // A Grab of this carry's lifting child ends for any reason: the lift is over (a child already mounted is the passenger record's).
-            if (action instanceof Grab grab && grab.target().getUUID().equals(lifting)) {
-                lifting = null;
-                if (outcome instanceof Outcome.Blocked) {
-                    GameplayLog.event(carrier, "family", "carry grab failed child={} outcome={} reason={}", grab.target().getUUID(),
-                            outcome.label(), outcome.reason());
-                    pauses.put(grab.target().getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed",
-                            grab.target().position(), null));
-                }
-            }
             if (action instanceof Walk && outcome instanceof Outcome.Blocked blocked)
                 homeWalkFailed(blocked.reason(), blocked.detail(), false);
         }
@@ -1578,10 +1588,15 @@ public final class ParentCarry {
         return Step.WORKING;
     }
 
-    /** Starts a bounded gathering choice inside the existing flight or shelter goal. */
+    /**
+     * The one decision of a flight, made when the danger is perceived: gather the young at hand within her patience, or flee alone.
+     * A real threat binds the stretch from here to "set down inside the nest" into one performance this carry owns ({@link #flightGoal});
+     * rain, flood and relocation only gather inside their own goal ({@link #tickFlight}).
+     */
     public void startFlight(String cause, LivingEntity threat) {
-        if (!carrier.family().adult() || !FamilyLife.ordinaryLandFree(carrier) || carrier.isOnFire()) return;
-        if (!ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab) {
+        if (leg != null || !carrier.family().adult() || !FamilyLife.ordinaryLandFree(carrier) || carrier.isOnFire()) return;
+        boolean aboard = !ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab;
+        if (aboard) {
             // A child already aboard (an ordinary retrieve) becomes a protected one: the log shows the same pickup line a lift in flight gives.
             if (purpose != Purpose.PROTECT) for (var child : ours())
                 GameplayLog.event(carrier, "family", "carry pickup hold={} purpose=PROTECT child={} childStage={} adopted=true aboard={}",
@@ -1589,23 +1604,47 @@ public final class ParentCarry {
             purpose = Purpose.PROTECT;
         }
         long now = carrier.level().getGameTime();
-        boolean hasThreat = threat != null;
-        if (now < flightRetryAt && (flightRetryThreat || !hasThreat) || flightYoung().isEmpty()) return;
+        var who = threat == null ? null : threat.getUUID();
+        if (Objects.equals(who, decidedFor) && now - decidedAt < DECISION_MEMORY) return;
+        if (flightYoung().isEmpty()) {
+            if (!ours().isEmpty() && threat != null) bind(threat, Leg.RUN, cause, 1);
+            return;
+        }
+        decide(cause, threat, who, now, 1);
+    }
+
+    /** The choice itself: patience from (boldness + attachment) / 2 against the fear of this threat; a negative margin is flight alone. */
+    private void decide(String cause, LivingEntity threat, UUID who, long now, int trip) {
         var personality = carrier.life().personality();
         int resolve = (personality.boldness() + personality.attachment()) / 2;
-        int fear = hasThreat ? personality.fear(threat.getUUID()) : 0;
+        int fear = threat == null ? 0 : personality.fear(who);
         int margin = resolve - (30 + fear / 3);
         boolean gather = margin >= 0 && !tooClose(threat);
+        // A second trip is only made when she would gather again: it never plays the abandon beat twice.
+        if (trip > 1 && !gather) return;
         long patience = gather ? flightPatience(margin, threat) : 0;
-        flightThreat = hasThreat;
-        flightRetryThreat = hasThreat;
-        flightRetryAt = now + (hasThreat ? FLIGHT_MAX : SHELTER_GATHER_TICKS) + GRAB_ALLOWANCE + HOLD_TICKS;
+        decidedFor = who;
+        decidedAt = now;
         GameplayLog.event(carrier, "family", "carry flight choice cause={} gather={} resolve={} fear={} margin={} patience={}",
                 cause, gather, resolve, fear, margin, patience);
+        flightThreat = threat != null;
         flightUntil = now + patience;
         childUntil = 0;
         callUntil = 0;
         flightTarget = null;
+        if (threat != null) bind(threat, Leg.GATHER, cause, trip);
+    }
+
+    /** Arms the bound flight: from here the carry's own goal holds the body until its young are set down or a real break ends it. */
+    private void bind(LivingEntity threat, Leg first, String cause, int trip) {
+        leg = first;
+        armedAt = carrier.level().getGameTime();
+        danger = threat;
+        trips = trip;
+        setLogged = false;
+        walkTo = null;
+        walkHome = null;
+        GameplayLog.event(carrier, "family", "carry flight bound cause={} leg={} trip={} aboard={} danger={}", cause, first, trip, ours().size(), threat.getUUID());
     }
 
     /** Ticks until {@code threat} reaches {@link #IMMEDIATE_DANGER} at its current closing speed, or {@link Long#MAX_VALUE} if not closing. */
@@ -1648,8 +1687,8 @@ public final class ParentCarry {
         if (callUntil != 0) return tickLookBack(threat);
         var level = (ServerLevel) carrier.level();
         long now = level.getGameTime();
-        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab grab && carrier.hasPassenger(grab.target()))
-            return true;
+        // A lift that has begun finishes: the patience, the child's allowance and the threat's distance only stop her from starting one.
+        if (carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab) return true;
         if (tooClose(threat)) return leaveBehind(threat);
         long closing = closingTicks(threat);
         if (flightTarget != null && now >= childUntil) return leaveBehind(threat);
@@ -1683,10 +1722,10 @@ public final class ParentCarry {
     private boolean leaveBehind(LivingEntity threat) {
         cancelUnmountedGrab();
         flightTarget = null;
-        // Only a flight a real threat began calls back; a threat out of sight this tick (null) is still the danger being fled.
-        if (!flightThreat) { endFlight(); return false; }
+        // Only a flight a real threat began calls back, and only on its first trip; a threat out of sight this tick (null) is still the danger being fled.
+        if (!flightThreat || trips > 1) { closeGather(); return false; }
         var walkers = leftBehind();
-        if (walkers.isEmpty()) { endFlight(); return false; }
+        if (walkers.isEmpty()) { closeGather(); return false; }
         var personality = carrier.life().personality();
         int attachment = personality.attachment();
         boolean calls = attachment >= CALLING_ATTACHMENT;
@@ -1697,14 +1736,14 @@ public final class ParentCarry {
         beatName = "abandon_look"; beatFace = face; beatLine = line;
         GameplayLog.event(carrier, "family", "carry flight leaves child={} left={} aboard={} attachment={} hold={} line={}",
                 left.getUUID(), walkers.size(), ours().size(), attachment, hesitation, line);
-        if (hesitation == 0) { endFlight(); return false; }
+        if (hesitation == 0) { closeGather(); return false; }
         callUntil = carrier.level().getGameTime() + hesitation;
         return tickLookBack(threat);
     }
 
     private boolean tickLookBack(LivingEntity threat) {
         var walkers = leftBehind();
-        if (carrier.level().getGameTime() >= callUntil || walkers.isEmpty() || tooClose(threat)) { endFlight(); return false; }
+        if (carrier.level().getGameTime() >= callUntil || walkers.isEmpty() || tooClose(threat)) { closeGather(); return false; }
         SurfaceApproach.halt(carrier);
         carrier.getLookControl().setLookAt(walkers.get(0), 30, 30);
         return true;
@@ -1717,7 +1756,12 @@ public final class ParentCarry {
         }
     }
 
+    /** A goal of rain, flood or relocation ends its gathering; the bound threat flight ends only by its own exits ({@link #finish}, {@link #breakOff}). */
     public void endFlight() {
+        if (leg == null) closeGather();
+    }
+
+    private void closeGather() {
         if (flightUntil == 0) return;
         flightUntil = 0;
         flightThreat = false;
@@ -1726,6 +1770,111 @@ public final class ParentCarry {
         cancelUnmountedGrab();
         GameplayLog.event(carrier, "family", "carry flight pickup ended aboard={} follow={}", ours().size(),
                 leftBehind().stream().map(Entity::getUUID).toList());
+    }
+
+    // ------------------------------------------------------------------------------------------ the bound threat flight
+
+    /** A threat flight with the young is bound to this carry: no fright pulse, response, course or grief decision takes the body from it. */
+    public boolean bound() { return leg != null; }
+
+    /**
+     * The threat flight as one performance this carry owns (project design). The decision stays stat-driven and is made once when the
+     * danger is perceived ({@link #startFlight}); from there to "the young are set down inside the nest" the stretch is fixed:
+     * GATHER (reach a child, lift it, another one while her patience lasts, the look-back for those left) -> RUN (home with them at
+     * the urgent gait) -> SET (each child down in the nest). The goal sits above every response, course and decision and does not
+     * depend on the panic, FleeGoal or the Threat response staying alive; a lift or set-down in progress is finished, the patience only
+     * stops her from starting another lift. Exits, each logged as {@code carry flight bound end reason=}: {@code set_down} (every child
+     * down; then a second trip while she may, {@link #finish}), {@code nobody_aboard} (nothing taken or the last child gone: she flees
+     * on alone), {@code set_down_refused} (the world refuses the put-down: the ordinary set-down waits for a changed world),
+     * {@code goal_stopped} / {@code not_started} (the goal could not hold the body), and the body's own hard reasons ({@link #breakReason}).
+     * A strike only interrupts the action under way, which this flight issues again; her fear shows in face, voice and speed.
+     */
+    public Goal flightGoal() {
+        return new Goal() {
+            { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+            @Override public boolean canUse() { return leg != null && breakReason() == null; }
+            @Override public boolean canContinueToUse() { return leg != null; }
+            @Override public boolean requiresUpdateEveryTick() { return true; }
+            @Override public void start() { flightRunning = true; }
+            @Override public void tick() { tickBound(); }
+            @Override public void stop() {
+                flightRunning = false;
+                if (leg != null) breakOff("goal_stopped");
+            }
+        };
+    }
+
+    /** What the priority-0 hazard goals and the body's hard reasons would take her for; the flight yields only to these. */
+    private String breakReason() {
+        if (carrier.isOnFire()) return "burning";
+        if (carrier.isInWaterOrBubble()) return "water";
+        if (carrier.isPassenger()) return "boarded";
+        if (carrier.operations().active()) return "operation";
+        if (carrier.body().dying()) return "dying";
+        if (carrier.life().hotFloor().active()) return "hot_floor";
+        return null;
+    }
+
+    private LivingEntity danger() { return danger != null && danger.isAlive() && danger.level() == carrier.level() ? danger : null; }
+
+    private void tickBound() {
+        String why = breakReason();
+        if (why != null) { breakOff(why); return; }
+        if (leg == Leg.GATHER) {
+            if (tickFlight(danger())) return;
+            leg = Leg.RUN;
+        }
+        if (leg == Leg.RUN && !tickRun()) return;
+        if (leg == Leg.SET) tickSet();
+    }
+
+    /** Run home with the young at the urgent gait on the shared Walk; at the nest (or where the way ends) the set-down begins. */
+    private boolean tickRun() {
+        var all = ours();
+        if (all.isEmpty()) { end("nobody_aboard"); return false; }
+        var home = destination(all.get(0));
+        if (home == null) giveUp = "no_home";
+        else if (!atHome(home) && !standReached()) walkHome(home, 1, URGENT_GAIT);
+        // A way that cannot be walked ends the trip here: the set-down below lowers the young at the best cover reached.
+        if (giveUp == null && !atHome(home) && !standReached()) return false;
+        leg = Leg.SET;
+        setLogged = false;
+        return true;
+    }
+
+    private boolean standReached() { return walkTo != null && carrier.position().subtract(walkTo).horizontalDistance() <= .3; }
+
+    private void tickSet() {
+        if (ours().isEmpty()) { finish("set_down"); return; }
+        // A hop or a lift still holds her: the set-down follows it.
+        if (requestedSetDown() == null) return;
+        var next = due();
+        if (next == null) { end("set_down_refused"); return; }
+        if (!setLogged) {
+            setLogged = true;
+            GameplayLog.event(carrier, "family", "carry set down started reason={} child={}", next.getValue(), next.getKey().getUUID());
+        }
+        tickSetDown(next.getKey(), next.getValue());
+    }
+
+    /** The young are down: a second trip for those she could not take when she may (the same choice, the same segment), else done. */
+    private void finish(String how) {
+        var threat = danger();
+        int trip = trips + 1;
+        end(how);
+        if (trip <= MAX_TRIPS && threat != null && !flightYoung().isEmpty() && !tooClose(threat))
+            decide("second_trip", threat, threat.getUUID(), carrier.level().getGameTime(), trip);
+    }
+
+    private void breakOff(String why) { end(why); }
+
+    private void end(String why) {
+        GameplayLog.event(carrier, "family", "carry flight bound end reason={} leg={} trips={} aboard={}", why, leg, trips, ours().size());
+        closeGather();
+        leg = null;
+        danger = null;
+        // Ordinary drives (the response to the same danger, the panic's run) take over at once.
+        carrier.status().reactions().threat().resume();
     }
 
     /** Presentation hook: logs the face actually shown for the last flight beat (declared and shown side by side). */
@@ -1851,6 +2000,7 @@ public final class ParentCarry {
      */
     void tick() {
         prune();
+        if (leg != null && !flightRunning && carrier.level().getGameTime() - armedAt > ARM_GRACE) breakOff("not_started");
         if (lifting != null && !(carrier.motor().current() instanceof Grab) && flightUntil == 0
                 && carrier.family().task() != FamilyLife.Task.SEARCH && carrier.family().task() != FamilyLife.Task.CARRY) lifting = null;
         var all = riders();
@@ -1927,8 +2077,8 @@ public final class ParentCarry {
         if (child.life().nutrition() < 30 && carrier.family().feeding().hasCarriedOpportunity(child)) return "feeding";
         if (purpose == Purpose.RETRIEVE && atHome(destination(child))) return "arrived_home";
         if (purpose == Purpose.RETRIEVE && failedDestination(child)) return "home_unreachable";
-        if (purpose == Purpose.PROTECT && shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
-                : carrier.status().reactions().threat().source())) return "reached_nest";
+        if (purpose == Purpose.PROTECT && (leg == Leg.SET || shelteredFrom(carrier.isPanicking() ? carrier.getLastHurtByMob()
+                : carrier.status().reactions().threat().source()))) return "reached_nest";
         if (purpose == Purpose.NEST_RIM) return "nest_rim_to_cushion";
         return null;
     }
@@ -2051,12 +2201,7 @@ public final class ParentCarry {
             if (ours().stream().anyMatch(this::failedDestination)) return false;
             failedHome = null;
         }
-        // A lift still running keeps the body: the retrieval waits for it instead of replacing its Grab with the home Walk.
-        if (lifting != null) {
-            if (carrier.motor().current() instanceof Grab) return true;
-            lifting = null;
-        }
-        var more = purpose != Purpose.PROTECT && walkTo == null && taskTicks < GATHER_TICKS ? dependent() : null;
+        var more = purpose != Purpose.PROTECT && (lifting != null || walkTo == null && taskTicks < GATHER_TICKS) ? dependent() : null;
         // The dependent this retrieval goes for next stops its own walking and waits for the lift ({@link #awaitsCarrier}).
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
         gathering = more == null ? null : more.getUUID();
@@ -2083,7 +2228,9 @@ public final class ParentCarry {
     }
 
     /** A physical stand can disappear while a child is aboard; a refused or blocked Walk ends the trip. */
-    private boolean walkHome(BlockPos home, int taskTicks) {
+    private boolean walkHome(BlockPos home, int taskTicks) { return walkHome(home, taskTicks, 1); }
+
+    private boolean walkHome(BlockPos home, int taskTicks, double speed) {
         var motor = carrier.motor();
         if (motor.current() instanceof Walk && motor.owner() == owner) return true;
         if (home.equals(walkHome) && taskTicks % 10 != 1) return true;
@@ -2093,7 +2240,7 @@ public final class ParentCarry {
             homeWalkFailed(Reason.NO_PATH, "no_supported_approach", true);
             return false;
         }
-        if (motor.run(owner, new Walk(walkTo))) return true;
+        if (motor.run(owner, Walk.stand(walkTo, speed, 0))) return true;
         if (!(motor.refusal() instanceof Outcome.Blocked blocked)) return true;
         homeWalkFailed(blocked.reason(), blocked.detail(), blocked.reason() == Reason.NO_PATH);
         return false;
@@ -2355,6 +2502,8 @@ public final class ParentCarry {
      * Release where it hangs and falls to its real support. Command and other interruptions keep their own meaning.
      */
     public void struck(float loss) {
+        // A blow reopens the choice: the next response to the danger decides again with what she now fears.
+        decidedAt = Long.MIN_VALUE / 2;
         var all = ours();
         if (all.isEmpty()) return;
         int control = carrier.life().personality().selfControl();

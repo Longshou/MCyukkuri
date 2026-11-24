@@ -112,7 +112,8 @@ public final class GriefLife {
         if (++sacrificeCheck < 10) return;
         sacrificeCheck = 0;
         if (!YukkuriConfig.SACRIFICE.get() || !entity.isAlive() || !entity.family().adult() || entity.body().dying() || entity.life().isSleeping()
-                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.inert()) {
+                || entity.profile().dangerToYukkuri() || entity.profile().houseBody() || entity.inert()
+                || entity.family().carry().bound()) {
             danger = "none"; decision = "unavailable"; chance = 0; physicalBlock = protectBlock(); decided = false;
             return;
         }

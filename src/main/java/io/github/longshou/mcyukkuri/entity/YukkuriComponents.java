@@ -182,6 +182,8 @@ public final class YukkuriComponents {
                 .load(170, (c, ctx) -> { if (ctx.root().contains("YukkuriFamily")) c.load(ctx.root().getCompound("YukkuriFamily")); })
                 // The carry's ordinary put-downs (the carry's own interruptions go through the MOTOR bridge, Release.interrupted).
                 .goal(2, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.carry().setDownGoal())
+                // The threat flight with the young: one bound performance above every response and course (ParentCarry#flightGoal).
+                .goal(0, EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK), (c, entity) -> c.carry().flightGoal())
                 .interrupt(Interrupt.HURT, InterruptPhase.BEFORE_INJURY, 15, (c, ctx) -> c.interruptCourtship())
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 25, (c, ctx) -> c.interruptCourtship())
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 20, (c, ctx) -> c.died(ctx.source())).build(),
