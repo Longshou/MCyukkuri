@@ -7,7 +7,6 @@ import io.github.longshou.mcyukkuri.play.PlayItem;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.ShelterPlacement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
-import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -278,12 +277,10 @@ public final class TownMarkers {
             return Math.sqrt(dx * dx + dz * dz);
         }
 
+        /** A stray that chose this ring: walking to a stand outside the paving, or holding one through its pause. A stray merely crossing
+         *  the ground near the plaza takes no place, so passers-by cannot fill the two places the plaza keeps for gathered strays. */
         private boolean ringStray(PathfinderMob mob) {
-            if (!(mob instanceof YukkuriEntity y) || y.status().identity() != Identity.STRAY) return false;
-            var nav = y.getNavigation();
-            var target = nav.getTargetPos();
-            return !paving.contains(y.position()) && outside(y.position()) <= RING_REACH
-                    || !nav.isDone() && target != null && !paving.contains(target.getCenter()) && outside(target.getCenter()) <= RING_REACH;
+            return mob instanceof YukkuriEntity y && y.roaming() != null && y.roaming().atPlazaRing();
         }
 
         private boolean aimsAtPlaza(PathfinderMob mob) {

@@ -4098,12 +4098,15 @@ _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
 # name, kind, x, z, label, values. ring_cocky and ring_voided start just outside the south edge of the paving facing the east
 # bench (and beside the bell) so they stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, and their own
-# numbers send them to a ring stand the moment the keeper's badge enters the paving. ring_hungry and ring_timid start on the west side.
+# numbers send them to a ring stand the moment the keeper's badge enters the paving. Both are bold and low in self-control, so
+# whichever sighting turns into an arc sneers; a voided badge is read as no badge. ring_hungry starts 12 blocks off on the west
+# side (hungry and friendly: it comes to gaze enviously, and its low self-esteem keeps its own arc a sulk, never a sneer) and
+# ring_timid farther out, so its strolls keep it clear of the ring.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
     ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=60)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
@@ -4134,9 +4137,10 @@ def _ring_stray(scene, name, kind, x, z, label, values):
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '开场约 5 秒内院主从北边院子牵白金章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
-    '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
-    '约 5 秒院主出发，14–18 秒落座，20–55 秒内开始围观与喝止安抚', [
+    '开场约 5 秒院主牵着白金章灵梦从北边院子出发，约 13 秒停在白篷长椅边、约 15 秒坐上长椅；南侧两只嚣张流浪油（其中一只戴着作废章）'
+    '看见章色后按脾气走到广场外圈，落座后 20 秒内先到的一只气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚；'
+    '另一只站在圈上盯着章，胆小魔理沙远远站住，饿而友善的魔理沙被坐着的院主挡在圈外；作废章读作无章。',
+    '约 5 秒院主出发，13–15 秒落座，落座后 20 秒内第一声冷嘲，随即院主喝止并安抚', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
         # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the cocky strays near the benches.
         block(6, 0, 3, 'minecraft:bell[attachment=floor,facing=north]'),
@@ -11824,8 +11828,8 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=3600, verify=_plaza_visi
 
 
 def _ring_stray_fates(window):
-    """Each decision and arrival matches its own values: the shy marisa keeps far off, the others come close, and the two fed
-    cocky strays (no hunger pulling them away) stay long enough to see the badge. The hungry ones may leave for food at once."""
+    """Each decision and arrival matches its own values: the shy marisa keeps far off and the hungry friendly one is held off the
+    ring by the keeper in the way, while the two bold low-self-control strays walk in and stay long enough to see the badge."""
     x, z = BY_ID['town'].anchor
     holder = _uuid_text(_PLAZA, _RING_HOLDER)
 

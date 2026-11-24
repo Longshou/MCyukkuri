@@ -62,6 +62,8 @@ public final class RoamingGoal extends Goal {
     private int plazaPause;
     /** The stop is a stray's look from the ring outside the paving, not a pet's visit to a bench stand. */
     private boolean browsing;
+    /** Until this tick the stray stands on the ring stand it reached: it still holds a place at the ring through its pause. */
+    private long ringPauseUntil;
     /** What drew the stray to the ring was its envy (hungry and friendly), not its cockiness: it looks wistfully, it does not sneer. */
     private boolean browsingEnvy;
     private boolean expedition, active, returning;
@@ -76,6 +78,8 @@ public final class RoamingGoal extends Goal {
     }
     public boolean exploring() { return active && expedition; }
     public boolean walkingToPlayground() { return active && playground != null; }
+    /** Walking to the ring outside a plaza, or standing there through the pause: the state that takes one of its stray places. */
+    public boolean atPlazaRing() { return browsing && plaza != null || animal.level().getGameTime() < ringPauseUntil; }
     public int radius() { return radius; }
     public String activity() { return active ? exploring() ? Behaviors.MARISA_EXPLORE : Behaviors.ROAM : null; }
     public String describe() {
@@ -104,7 +108,7 @@ public final class RoamingGoal extends Goal {
         nextWalk = now + 80 + animal.getRandom().nextInt(80);
         origin = animal.blockPosition().immutable();
         radius = TravelRange.stroll(animal);
-        plaza = null; playground = null; browsing = false;
+        plaza = null; playground = null; browsing = false; ringPauseUntil = 0;
         expedition = false; returning = false; failures = elapsed = 0;
         if (now >= nextExpedition && qualifies()) {
             nextExpedition = now + 1200;
@@ -501,7 +505,9 @@ public final class RoamingGoal extends Goal {
             finishPlaza(true);
             active = false; playground = null; animal.getNavigation().stop(); return;
         }
-        if (elapsed % 20 == 0 && !animal.life().navigate(destination,1,false)) failures++;
+        // A body in mid-air cannot plan, and a refused re-issue stops the route in hand: the step or fall continues on landing.
+        if (elapsed % 20 == 0 && animal.getNavigation() instanceof YukkuriGroundNavigation ground && ground.canPlanApproach()
+                && !animal.life().navigate(destination,1,false)) failures++;
         if (stuckTicks >= 100) {
             result = "blocked"; finishPlaza(false); active = false; animal.getNavigation().stop();
         }
@@ -543,6 +549,7 @@ public final class RoamingGoal extends Goal {
         boolean arrived = reached && plazaReady() && level.isDay() && !level.isRaining() && plaza.present(level)
                 && (!browsing || !plaza.badged().isEmpty());
         if (arrived) nextWalk = level.getGameTime() + plazaPause;
+        if (arrived && browsing) ringPauseUntil = level.getGameTime() + plazaPause;
         // The stray gazes at the nearest valid badge for the whole pause, so the sighting rules see it facing the plaza.
         if (arrived && browsing) plaza.badged().stream().min(Comparator.comparingDouble(animal::distanceToSqr))
                 .ifPresent(wearer -> animal.pet().glanceAt(wearer, plazaPause));
