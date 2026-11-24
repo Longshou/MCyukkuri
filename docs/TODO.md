@@ -13,7 +13,6 @@
 | 断亲双方生效与身份 | `.worktrees/wp-severance-mutual` | family/,social/SeveranceVerdict,social/Departure,FamilyLife,家谱界面 |
 | 捕食种完成捕杀 | `.worktrees/wp-pred-kill` | predator/,捕食追猎 |
 | 对人让路与家规 | `.worktrees/wp-yield-humans` | YukkuriGroundNavigation.giveWay,pet/rules/HouseRule,CareScreen |
-| MD-27 去掉水滴特效 | `.worktrees/wp-need-drip` | 需求预兆特效 |
 
 ## 玩法待办
 
