@@ -5235,11 +5235,13 @@ add(_doll_take, 'park', '玩家捡走布偶：主人只落泪，陌生人掉好�
         item('mcyukkuri:reimu_doll', 1, 7.1, 6, 'take_doll_b'),
         item('mcyukkuri:reimu_doll', 1, 12.1, 6, 'take_doll_c'),
         item('mcyukkuri:reimu_doll', 1, 17.1, 6, 'take_doll_d'),
+        # Energy just above nothing (a body at 0 collapses into a fatigue rest that never logs the doll-beside sleep beat)
+        # with no rest wait: it lies down where it stands at the first planning tick and sleeps its full stretch.
         yk('reimu', 3, 6, 'take_sleep_a', uuid=uid(_doll_take, 'take_sleep_a'),
-           boldness=100, attachment=80, energy=0, yaw=0, label='打盹的灵梦（依恋高）',
+           boldness=100, attachment=80, energy=5, rest_wait=0, yaw=0, label='打盹的灵梦（依恋高）',
            extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
         yk('reimu', 8, 6, 'take_sleep_b', uuid=uid(_doll_take, 'take_sleep_b'),
-           boldness=100, attachment=20, energy=0, yaw=0, label='打盹的灵梦（依恋低）',
+           boldness=100, attachment=20, energy=5, rest_wait=0, yaw=0, label='打盹的灵梦（依恋低）',
            extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
         yk('reimu', 13, 6, 'take_owner', uuid=uid(_doll_take, 'take_owner'),
            boldness=50, attachment=60, yaw=0, label='认主的地灵梦',
@@ -9962,15 +9964,16 @@ _smoke(_doll_take, 1200, [
 ], forbid=[r'TAKE_LEFT_BEHIND_', rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
 _take_commands = [(100, 'execute positioned ~2.6 ~ ~6.5 run yukkuri scenario tool_operator enter'),
                   *((101, f'execute as @p[name=MuseumOperator,distance=..48] run {line}') for line in own('take_owner'))]
-for _i, (_x, _name) in enumerate(((2.6, 'take_doll_a'), (7.6, 'take_doll_b'), (12.6, 'take_doll_c'), (17.6, 'take_doll_d'))):
-    _at = f'execute positioned ~{_x} ~ ~6.5 run yukkuri scenario tool_operator'
-    _take_commands += [(110 + 10 * _i, f'{_at} move'),
-                       (111 + 10 * _i, f'{_at} pick_up {sel(_name)}'),
-                       (112 + 10 * _i, f'execute if entity {sel(_name)} run say TAKE_LEFT_BEHIND_{_i}')]
+# The operator stands where the doll really lies: a doll left beside a body is nudged by that body, so a fixed spot can end up
+# more than one block away and the pick refuses.
+for _i, _name in enumerate(('take_doll_a', 'take_doll_b', 'take_doll_c', 'take_doll_d')):
+    _take_commands += [(140 + 10 * _i, f'execute at {sel(_name)} run yukkuri scenario tool_operator move'),
+                       (141 + 10 * _i, f'yukkuri scenario tool_operator pick_up {sel(_name)}'),
+                       (142 + 10 * _i, f'execute if entity {sel(_name)} run say TAKE_LEFT_BEHIND_{_i}')]
 # The two sleepers wake only after the takes: the operator keeps the dolls until then, then leaves with them far from the row so
 # the dropped stack is out of the sleepers' counting radius and they see the dolls gone.
-_take_commands += [(170, 'execute positioned ~20 ~40 ~100 run yukkuri scenario tool_operator move'),
-                   (171, 'yukkuri scenario tool_operator leave')]
+_take_commands += [(240, 'execute positioned ~20 ~40 ~100 run yukkuri scenario tool_operator move'),
+                   (241, 'yukkuri scenario tool_operator leave')]
 next(s for s in S if s.id == _doll_take).smoke.update(verify=_verify_doll_take, commands=_take_commands)
 
 # The two regressions under the snatch scene use the same bout and strike without a doll or a held treasure.
@@ -9979,9 +9982,10 @@ _bully_victim = _uuid_text('bully_strike', 'bully_victim')
 
 
 def _verify_bully_strike(window):
+    """One ordinary bully bout is the point; the window outlasts the bout cooldown, so the pinned pair may well do it again."""
     reserved = re.findall(r'\[social\][^\n]*bout reserved kind=BULLY peer=\S+', window)
-    if len(reserved) != 1:
-        return f'expected one BULLY bout, saw {len(reserved)}'
+    if not reserved:
+        return 'no BULLY bout was reserved'
     if not re.search(rf'\[social\][^\n]*uuid={_bully_thief} [^\n]*bully strike peer={_bully_victim} accepted=true ', window):
         return 'the bout did not land its strike'
 _smoke('bully_strike', 6000, [rf'\[social\][^\n]*bout reserved kind=BULLY peer={_bully_victim}',
