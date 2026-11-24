@@ -33,6 +33,7 @@ import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.action.GlassPress;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
@@ -1397,6 +1398,7 @@ public final class YukkuriLife {
         targetBlock = here; task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0;
         toiletPit = false; toiletPitCell = null; pitEdgeTicks = 0; toiletAccident = true; leaked = true;
         sayUrge("leak");
+        entity.mind().wetLeak();
     }
     /** One log line per beat of the toilet performance with the face the arbiter finally showed next to the declared one. */
     public void observeUrge(String shown) {
@@ -1406,12 +1408,14 @@ public final class YukkuriLife {
         else if (walkingToToilet()) { beat = leaked ? "leak" : "urge"; declared = urgeFace(); line = urgeLine; }
         else if (toiletTicks > 0) { beat = toiletAccident ? "accident" : "strain"; declared = toiletAccident ? "teary" : "chewing_closed"; line = ""; }
         else { shownUrge = ""; urgeLine = ""; return; }
-        String key = beat + "/" + shown + "/" + urgeStage + "/" + line;
+        long traceAt = entity.leakTraceAt();
+        boolean skin = traceAt >= 0 && ExcitedLeak.opacity(shown, true, entity.level().getGameTime() - traceAt) > 0;
+        String key = beat + "/" + shown + "/" + urgeStage + "/" + line + "/" + skin;
         if (key.equals(shownUrge)) return;
         shownUrge = key;
-        GameplayLog.event(entity, "needs", "beat={} face={} declared={} line={} kind={} pressure={} self_control={} adult={}",
+        GameplayLog.event(entity, "needs", "beat={} face={} declared={} line={} kind={} pressure={} self_control={} adult={} skin={}",
                 beat, shown, declared, line.isEmpty() ? "none" : line, toiletKind, toiletKind == null ? 0 : toiletNeeds.pressure(toiletKind),
-                personality.selfControl(), entity.family().adult());
+                personality.selfControl(), entity.family().adult(), skin ? "flow" : "none");
     }
 
     private boolean planToilet(ToiletNeeds.Kind kind) {

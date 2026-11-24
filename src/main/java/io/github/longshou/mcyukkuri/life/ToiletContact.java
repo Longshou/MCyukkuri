@@ -255,7 +255,8 @@ public final class ToiletContact {
                 ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, actor));
         if (hit.getType() != HitResult.Type.BLOCK || hit.getDirection() != Direction.UP
                 || !actor.level().getFluidState(hit.getBlockPos()).isEmpty() || !ground && !hit.getBlockPos().equals(stand)) return false;
-        // No droplet particle trail; a ground release leaves the wet puddle trace.
+        // The release shows the shared skin-drawn urine flow; no droplet particle trail. A ground release also leaves the wet puddle.
+        actor.mind().wetLeak();
         if (ground) BodyEffects.emit(actor, "urine_puddle", actor.getBbWidth() * actor.life().urine() / 100, hit.getLocation(), forward);
         return true;
     }

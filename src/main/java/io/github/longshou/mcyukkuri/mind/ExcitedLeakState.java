@@ -52,12 +52,15 @@ final class ExcitedLeakState {
                 beat.flowAt(), beat.puddleAt(), beat.width(), pressure, entity.life().urine(), beat.amount());
     }
 
+    /** The one wet trace of a real discharge: the skin-drawn urine flow and the sole decal start fading from {@code at}. */
+    void wet(long at) { entity.syncLeakTrace(at); }
+
     void tick(long now) {
         if (beat == null) return;
         if (!beat.cooling(now)) {
             beat = null;
         } else if (now >= beat.puddleAt()) {
-            if (entity.leakTraceAt() != beat.puddleAt()) entity.syncLeakTrace(beat.puddleAt());
+            if (entity.leakTraceAt() != beat.puddleAt()) wet(beat.puddleAt());
             if (!puddleEmitted && now == beat.puddleAt()) {
                 puddleEmitted = true;
                 Vec3 forward = Vec3.directionFromRotation(0, entity.bodyYaw());

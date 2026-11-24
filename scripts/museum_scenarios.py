@@ -5778,8 +5778,8 @@ def _verify_need_tell(window):
             ('untrained', 'STOOL', 'need_toilet', 'squeezed_frown', 'ground', 'true', 160),
             ('leaker', 'URINE', 'need_toilet_urine', 'pressed_teary', 'ground', 'true', 400)):
         subject = rf'[^\n]*uuid={_uuid_text("need_tell", actor)} t=(\d+) [^\n]*'
-        beats = re.findall(r'\[needs\]' + subject + r' beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) kind=(\w+)', window)
-        for tick, beat, shown, declared, spoken, _ in beats:
+        beats = re.findall(r'\[needs\]' + subject + r' beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) kind=(\w+)[^\n]*skin=(\w+)', window)
+        for tick, beat, shown, declared, spoken, _, skin in beats:
             if shown != declared:
                 return f'{actor}: beat {beat} at {tick} showed {shown} but declared {declared}'
         urges = [b for b in beats if b[1] == 'urge']
@@ -5802,21 +5802,23 @@ def _verify_need_tell(window):
             return f'{actor}: the stand-alone tell must be gone'
         if re.search(r'\[status\]' + subject + r' behavior\.animation: (?:\w+ -> nervous)\b', window):
             return f'{actor}: a shake clip was shown as an urge cue'
-        if actor == 'trained' and not any(b[1] == 'relief' and b[2] == 'happy' for b in beats):
-            return f'{actor}: no relief beat with happy face'
+        if actor == 'trained' and not any(b[1] == 'relief' and b[2] == 'happy' and b[6] == 'flow' for b in beats):
+            return f'{actor}: no relief beat with happy face carrying the skin flow'
+        if actor == 'untrained' and any(b[6] == 'flow' for b in beats):
+            return f'{actor}: a stool-only release must not show the urine flow'
     leaks = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]*toilet leak on the way', window)
     if len(leaks) != 1:
         return f'leaker: expected one leak on the way, found {leaks}'
-    leak_beats = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]* beat=leak face=(\w+) declared=(\w+) line=(\w+)', window)
-    if not leak_beats or leak_beats[0][3] != 'leak':
-        return f'leaker: the leak must log its own beat=leak with line=leak, found {leak_beats}'
+    leak_beats = re.findall(r'\[needs\][^\n]*uuid=' + _uuid_text('need_tell', 'leaker') + r' t=(\d+) [^\n]* beat=leak face=(\w+) declared=(\w+) line=(\w+)[^\n]*skin=(\w+)', window)
+    if not leak_beats or leak_beats[0][3] != 'leak' or leak_beats[0][4] != 'flow':
+        return f'leaker: the leak must log its own beat=leak with line=leak and skin=flow, found {leak_beats}'
     return None
 
 
 add('need_tell', 'meadow', '尿急与便急：表情台词后立刻行动', '尿急与便急：表情台词后立刻行动',
     '站在草垛上看三个围栏各有一只灵梦：左边练过如厕的尿急，露出抿嘴忍耐的表情、说一句后立刻走去沙厕；'
     '中间没练过的便急，表情更难受，说一句后就在原地拉；右边尿意满了、沙厕要绕过隔栏，走不到就在路上漏出来。'
-    '全程没有抖动：只看表情和台词，用望远镜看需求图标在缓解后消失。',
+    '全程没有抖动：只看表情、台词和皮肤上的尿流与湿痕，用望远镜看需求图标在缓解后消失。',
     '开场约 5 秒内各自开始，约 15 秒内各自排完', [
         *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-12, 7) for z in range(-3, 5)
           if x in (-12, -6, 0, 6) or z in (-3, 4)),
@@ -5834,7 +5836,9 @@ add('need_tell', 'meadow', '尿急与便急：表情台词后立刻行动', '尿
     reads=[('读左栏尿意', f'data get entity {sel("trained")} YukkuriLife.Urine'),
            ('读中栏便意', f'data get entity {sel("untrained")} YukkuriLife.Bladder'),
            ('读右栏尿意', f'data get entity {sel("leaker")} YukkuriLife.Urine')],
-    smoke=dict(ticks=900, expect=[r'\[needs\][^\n]* beat=urge face=\w+ declared=\w+ line=need_toilet'],
+    smoke=dict(ticks=900, expect=[r'\[needs\][^\n]* beat=urge face=\w+ declared=\w+ line=need_toilet',
+                                  r'\[needs\][^\n]* beat=leak[^\n]*skin=flow\b',
+                                  r'\[needs\][^\n]* beat=relief face=happy[^\n]*skin=flow\b'],
                forbid=[r'\[body\][^\n]* death settled\b', r'\[needs\][^\n]* tell need=(?:URINE|STOOL)\b'], verify=_verify_need_tell))
 
 

@@ -195,6 +195,11 @@ public final class MindLife {
         if (!entity.level().isClientSide) leak.spike(stimulus, entity.level().getGameTime());
     }
 
+    /** A real urine release on another path (the toilet trips) leaves the same skin-drawn flow the startle leak uses. */
+    public void wetLeak() {
+        if (!entity.level().isClientSide) leak.wet(entity.level().getGameTime());
+    }
+
     public String leakFace() { return leak.face(entity.level().getGameTime()); }
 
     /** Called by YukkuriLife at the step a meal is swallowed. {@code petSweet}: Sweets.eaten already eased a pet. */
