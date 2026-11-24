@@ -22,6 +22,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 /** Interruptible physical routes driven by {@link PlayWant} and {@link PlayMotion}. No route teleports or advances unloaded. */
@@ -39,8 +40,10 @@ public final class PlayLife {
     /** Approach stall budget (~1.25 s) before giving up and switching to another facility; interior safety bound (~2.5 s). */
     private static final int APPROACH_STALL_TICKS = 25;
     private static final int INTERIOR_STALL_TICKS = 50;
-    /** Within this distance of the facility mouth the body's own gait takes over from ground navigation (a body width and a step). */
-    private static final double MOUTH_REACH = 1.0;
+    /** Within this distance of the facility mouth the body's own gait takes over from ground navigation: the mouth point lies outside the shell, so the straight last stretch is clear, while the navigation's last step refuses it next to the shell. */
+    private static final double MOUTH_REACH = 2.0;
+    /** A walk that ends within three blocks of the owner is not routed round the owner's body (its stand lies beside it). */
+    private static final double OWNER_BERTH_SQR = 9;
 
     private record Beat(String name, String declared, String line, PlayBlock.Kind kind) {}
 
@@ -349,7 +352,7 @@ public final class PlayLife {
         }
         double dist = waitStand.subtract(entity.position()).horizontalDistance();
         if (dist > .35) {
-            var result = SurfaceApproach.walkResult(entity, waitStand, entity.outing().escortBody(), 1.0);
+            var result = SurfaceApproach.walkResult(entity, waitStand, null, 1.0);
             if (result == SurfaceApproach.Result.BLOCKED) {
                 rememberSkip(gaveUp, waitingFor.getBlockPos());
                 stopWait("blocked");
@@ -383,6 +386,12 @@ public final class PlayLife {
             rememberSkip(gaveUp, waitingFor.getBlockPos());
             stopWait("patience");
         }
+    }
+
+    /** The escorting owner's body when the walk does not end beside it: the route then goes round it (it is no obstacle to ground navigation). */
+    private Entity routeAroundOwner(Vec3 target) {
+        var owner = entity.outing().escortBody();
+        return owner != null && owner.distanceToSqr(target) > OWNER_BERTH_SQR ? owner : null;
     }
 
     private Vec3 watchFocus(PlayBlockEntity target) {
@@ -712,7 +721,7 @@ public final class PlayLife {
             } else {
                 ++stalled;
             }
-            var res = SurfaceApproach.walkResult(entity, target, entity.outing().escortBody(), 1.0);
+            var res = SurfaceApproach.walkResult(entity, target, routeAroundOwner(target), 1.0);
             int approachLimit = BodyAbility.of(entity).walkSpeed() < 0.06 ? 50 : APPROACH_STALL_TICKS;
             if (res == SurfaceApproach.Result.BLOCKED || stalled > approachLimit) {
                 rememberSkip(refusedAt, facility.getBlockPos());

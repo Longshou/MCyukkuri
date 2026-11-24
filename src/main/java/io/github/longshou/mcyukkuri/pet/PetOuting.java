@@ -32,6 +32,7 @@ public final class PetOuting extends Goal {
     private Vec3 stand;
     /** A pet with no stand beside its owner looks again this often: the crowd round the owner and its own place change while the owner sits still. */
     private static final int RESAMPLE_TICKS = 20;
+    private static final double CROWDED_YARD_SQR = 16;
     private Vec3 doorwayStand;
     private boolean shelter;
     private boolean closeApproach;
@@ -211,9 +212,11 @@ public final class PetOuting extends Goal {
         if (stand == null) seekShelter();
     }
 
-    private boolean atHome() {
-        return pet.distanceToSqr(Vec3.atBottomCenterOf(home)) <= 6.25 && pet.onGround()
-                && seesYard(pet.getEyePosition());
+    private boolean atHome() { return withinYard(6.25); }
+
+    /** In sight of the bowl on the ground within {@code sqr} (squared blocks) of it. */
+    private boolean withinYard(double sqr) {
+        return pet.distanceToSqr(Vec3.atBottomCenterOf(home)) <= sqr && pet.onGround() && seesYard(pet.getEyePosition());
     }
 
     private boolean seesYard(Vec3 eye) {
@@ -292,7 +295,9 @@ public final class PetOuting extends Goal {
             var result = SurfaceApproach.walkResult(pet, stand, null, 1);
             if (shelter ? result == SurfaceApproach.Result.ARRIVED : atHome()) arrived(shelter ? "shelter" : "home");
             else if (result == SurfaceApproach.Result.BLOCKED || result == SurfaceApproach.Result.ARRIVED) {
-                if (!shelter) seekShelter();
+                // Pets already home stand beside the bowl: a pet in sight of it within four blocks has reached a crowded yard.
+                if (!shelter && withinYard(CROWDED_YARD_SQR)) arrived("home");
+                else if (!shelter) seekShelter();
                 else blockedReturn();
             }
         }
