@@ -646,7 +646,7 @@ add(_decoy, 'den', '母油把捕食种引离有孩子的洞', '母油把捕食�
                                   rf'uuid={_decoy_mother}\b[^\n]* lead away taunt [^\n]*attacker={_decoy_hunter}',
                                   rf'uuid={_decoy_mother}\b[^\n]* lead away ended reason=(led_away|expired|threat_lost)'],
                verify_trace=True, verify=_decoy_distance,
-               forbid=[rf'feeding bite target=#\d+ uuid={_uuid_text(_decoy, n)}\b' for n in ('baby1', 'baby2')],
+               forbid=[rf'prey bite target=#\d+ uuid={_uuid_text(_decoy, n)}\b' for n in ('baby1', 'baby2')],
                allow_fate=[dict(kind='death', who=f'uuid={_decoy_mother} ', match=r'cause=mob\b', why='the decoy takes the real hunt')]))
 
 # ====================================================================================================== vagrants and foraging
@@ -2847,8 +2847,8 @@ def _clearing_children():
 
 def _verify_perch_hunt(window):
     beats = [r'\[predator\] remilia [^\n]* perch begin ', r'\[predator\] remilia [^\n]* prey selected ',
-             r'\[predator\] remilia [^\n]* phase CHASE -> DIVE', r'\[predator\] remilia [^\n]* feeding bite [^\n]*mouthful_accepted=true',
-             r'\[predator\] remilia [^\n]* eat pause ended; reason=feeding_bite', r'\[predator\] remilia [^\n]* perch begin ']
+             r'\[predator\] remilia [^\n]* phase CHASE -> DIVE', r'\[predator\] remilia [^\n]* prey bite [^\n]*alive=false',
+             r'\[predator\] remilia [^\n]* eat pause ended; reason=prey_kill', r'\[predator\] remilia [^\n]* perch begin ']
     for beat in beats:
         event = re.search(beat, window)
         if not event:
@@ -2864,6 +2864,8 @@ add('pred_perch_hunt', 'grove', '高枝守望，俯冲捕猎', '高枝守望，�
     reads=[('读守望与追猎', f'yukkuri status {sel("perch_pred")} raw')],
     smoke=dict(ticks=2000, expect=[r'\[home\] remilia [^\n]* assigned kind=care', r'\[meal\] remilia [^\n]* swallowed bodyFood'],
                forbid=[r'\[predator\] remilia [^\n]* combat strike '],
+               allow_fate=[dict(kind='death', who=f'uuid={_uuid_text("pred_perch_hunt", n)} ', match=r'cause=mob\b',
+                                why='the perched hunt catches and eats the child it stoops at') for n in ('forager_a', 'forager_b')],
                verify=_verify_perch_hunt))
 
 def _tree_family(sid, height, feeding):
@@ -3040,7 +3042,7 @@ add(_territory, 'grove', '领地：尖叫驱赶闯入的捕食种', '领地：�
     spot='spawn', vantage=(6, 8, 145, -25), env={'time': 'dawn'},
     reads=[('读巢主', f'yukkuri status {sel("territory_resident")} raw'),
            ('读闯入者', f'yukkuri status {sel("territory_intruder")} raw')],
-    smoke=dict(ticks=800, expect=[], forbid=[r'\[predator\] [^\n]* (?:combat strike|feeding bite) '],
+    smoke=dict(ticks=800, expect=[], forbid=[r'\[predator\] [^\n]* (?:combat strike|prey bite) '],
                verify=_verify_territory, verify_trace=True),
     capture=dict(shots=(60, 90, 120, 160, 240, 400), sequences=((55, 400, 5),),
                  views={'shelf': dict(position=(5, 10.5, 7), look_at=(1.5, 8.4, 1.5))}))
