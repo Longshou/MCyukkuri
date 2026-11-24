@@ -6799,11 +6799,12 @@ _FLIGHT_FAM = {'reimu': None, 'marisa': None}
 _FLIGHT_ROOST = (14, 34)
 
 
-def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=24, baby_x=2.2):
-    """One household settled at its nest (homes known at the summon, so no ordinary retrieve starts): the mother stands 3.7 blocks
-    from the nest door and each baby 2.5 blocks to her side, inside the 4-block retrieve distance and clear of the shed's front posts
-    (removed here). A hungry predator arrives 2 s after the release (+41 t), 22 blocks from her, so the player sees the calm start,
-    the notice, the urgent run to the nearest baby, the lift, the run to the nest and the set-down, then the predator flies back to its own roost."""
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9):
+    """One household at its nest (homes known at the summon): the mother stands 4.5 blocks from the nest and each baby 2.4 blocks to
+    her side, inside the 4-block retrieve distance (no ordinary retrieve starts) and clear of the shed's front posts (removed here)
+    and its roof. The hungry predator is summoned with them, 15 blocks from her: homes known the whole time make the babies hop to
+    the nest, so the notice must come before they get there (they have hopped about half a block by then). The player sees the
+    notice, the urgent run to the nearest baby, the lift, the run to the nest and the set-down, then the predator flies back to its roost."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
     # A beat line pairs the face shown with the face declared: any family beat where they differ fails the run.
@@ -6820,15 +6821,14 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
             block(px, 8, pz, 'mcyukkuri:predator_nest'),
             block(px - 1, 7, pz, 'minecraft:oak_log[axis=x]'),
             box(px - 1, 9, pz - 1, px, 9, pz, 'minecraft:oak_leaves[persistent=true]'),
-            yk(kind, 0, 4.2, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
-            *[yk(kind, x, 3.0, name, stage='baby', uuid=uid(sid, name),
+            yk(kind, 0, 5.0, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
+            *[yk(kind, x, 3.5, name, stage='baby', uuid=uid(sid, name),
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
-              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]]],
+              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]],
+            yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
+               label='饥饿的捕食种', nutrition=36, energy=38, boldness=40)],
         at_spawn=[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')],
-        late=[Retry(yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
-                       label='饥饿的捕食种', nutrition=36, energy=38, boldness=40),
-                    sel('mother'), tries=1, first=1),
-              Retry(f'yukkuri scenario home {sel("predator")} ~{px} ~8 ~{pz}', sel('predator'), tries=8, every=20, first=3)],
+        late=[Retry(f'yukkuri scenario home {sel("predator")} ~{px} ~8 ~{pz}', sel('predator'), tries=8, every=20, first=3)],
         env=DAY, spot='carry_home', vantage=(13, 9, 90, 20), note=note,
         reads=[('读威胁反应与幼体承托', 'yukkuri status @e[tag=scn,distance=..48] raw')],
         smoke=smoke)
@@ -6857,7 +6857,7 @@ _flight_scene(_flight_home, 'reimu', '捕食种靠近，亲油抱起赤油躲回
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      r'\[family\][^\n]*carry set down started reason=reached_nest\b',
      _FLIGHT_ORDER % ('mouth', ''), _FLIGHT_BEAT % ('pickup', 'none')],
-    note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：两只开场都在 2.5 格外，看跑向第二只时不减速、要抱的孩子站住等着；抱齐后直奔窝口放下（reached_nest）；捕食种有自己的高巢，俯冲后飞回，不占一家的窝。若俯冲落在抱第二只的途中，第二只留下、二趟再来接，也算正常结局。')
+    note='胆大又依恋的亲油（胆量 75、依恋 85）把两只都带走：两只开场都在约 2.4 格外，看跑向第二只时不减速、要抱的孩子站住等着；抱齐后直奔窝口放下（reached_nest）；捕食种有自己的高巢，俯冲后飞回，不占一家的窝。若俯冲落在抱第二只的途中，第二只留下、二趟再来接，也算正常结局。')
 _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带走一只',
     '灵梦与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油胆小又不太依恋（胆量与依恋 31），只来得及含起一只，就停步回头喊一声再逃回窝，另一只自己跟着跑。',
     '约 5 秒开始接抱，15 秒内回窝放下', 31, 31,
@@ -6867,8 +6867,8 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 4.4 格（各距亲油约 2.5 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
-    # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it, and the 4.4-block spacing stays inside the
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 3.8 格（各距亲油约 2.4 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
+    # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it, and the 3.8-block spacing stays inside the
     # 6-block gather range and the 8-block look-back.
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])

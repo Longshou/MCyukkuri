@@ -1695,7 +1695,8 @@ public final class ParentCarry {
         YukkuriEntity next = null;
         if (lifting != null && level.getEntity(lifting) instanceof YukkuriEntity child) next = child;
         else {
-            var fetchable = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child)).toList();
+            var fetchable = flightYoung().stream().filter(child -> !blocked(child) && !fetchedByOther(child) && capable(child)
+                    && (trips == 1 || purposeFor(child) == Purpose.RETRIEVE)).toList();
             // The child being fetched stays the one until it is aboard or given up: the order of the others does not flip the target.
             next = fetchable.stream().filter(child -> child.getUUID().equals(flightTarget)).findFirst()
                     .orElseGet(() -> fetchable.stream().min(Comparator.<YukkuriEntity>comparingDouble(ParentCarry::volume)
@@ -1862,8 +1863,13 @@ public final class ParentCarry {
         var threat = danger();
         int trip = trips + 1;
         end(how);
-        if (trip <= MAX_TRIPS && threat != null && !flightYoung().isEmpty() && !tooClose(threat))
+        if (trip <= MAX_TRIPS && threat != null && !fetchableOnSecondTrip().isEmpty() && !tooClose(threat))
             decide("second_trip", threat, threat.getUUID(), carrier.level().getGameTime(), trip);
+    }
+
+    /** The young a second trip goes for: those the ordinary retrieval would fetch too (more than four blocks from home), not one at the nest's rim. */
+    private List<YukkuriEntity> fetchableOnSecondTrip() {
+        return flightYoung().stream().filter(child -> purposeFor(child) == Purpose.RETRIEVE).toList();
     }
 
     private void breakOff(String why) { end(why); }
