@@ -9899,10 +9899,10 @@ _smoke(_doll_snatch, 6400, [
 next(s for s in S if s.id == _doll_snatch).smoke.update(
     verify=_verify_doll_snatch,
     commands=[
-        (6300, f'execute if data entity {sel("snatch_victim_a")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_VICTIM_A_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_victim_b")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_VICTIM_B_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_a")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_THIEF_A_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_b")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_THIEF_B_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_victim_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_A_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_victim_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_B_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_thief_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_A_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_thief_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_B_PINNED'),
     ])
 
 _take_sleep_a = _uuid_text(_doll_take, 'take_sleep_a')
