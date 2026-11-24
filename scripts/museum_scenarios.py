@@ -11865,15 +11865,20 @@ def _ring_stray_fates(window):
             return f'plaza beat {b[2]} showed face={b[3]} instead of declared={b[4]}'
     if not beats:
         return 'no plaza reaction beat fired'
-    if rest and int(beats[0][1]) - int(rest[1]) > 900:
-        return f'first plaza reaction beat came {int(beats[0][1]) - int(rest[1])} ticks after outing_plaza_rest (expected <= 900)'
-    # Gating lock-up / no-progress check: no pair may stay mutually blocked in a wait-expire-wait loop.
-    unresolved = re.findall(r'\[move\][^\n]*blocked by yukkuri [^\n]*action=(?:no_alternative|blocker_busy|waiting)\b', window)
-    if len(unresolved) > 20:
-        return f'mutual block loop: {len(unresolved)} unresolved "blocked by yukkuri" lines (expected <= 20)'
-    stalled_lines = re.findall(r'\[move\][^\n]*ground path stopped reason=no_progress ', window)
-    if len(stalled_lines) > 12:
-        return f'walk no_progress loop: {len(stalled_lines)} "ground path stopped reason=no_progress" lines (expected <= 12)'
+    if rest and int(beats[0][1]) - int(rest[1]) > 400:
+        return f'first plaza reaction beat came {int(beats[0][1]) - int(rest[1])} ticks after outing_plaza_rest (expected <= 400)'
+    # Gating lock-up check: one body may not stay blocked by a yukkuri or stopped for no_progress for over 200 ticks
+    # (lines of one body closer than 120 ticks belong to the same stretch; the move log is limited to one line per 100 ticks).
+    stretch = {}
+    for line in re.finditer(r'\[move\] \w+ #\d+ uuid=(\S+) t=(\d+)[^\n]*(?:blocked by yukkuri |ground path stopped reason=no_progress )', window):
+        stretch.setdefault(line[1], []).append(int(line[2]))
+    for actor, times in stretch.items():
+        first = last = times[0]
+        for t in sorted(times)[1:]:
+            if t - last > 120: first = t
+            last = t
+            if last - first > 200:
+                return f'{actor} stayed blocked by a yukkuri or in no_progress for {last - first} ticks (expected <= 200)'
 
 
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
