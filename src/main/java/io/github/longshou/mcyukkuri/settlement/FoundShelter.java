@@ -38,6 +38,7 @@ import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
+import io.github.longshou.mcyukkuri.motor.action.PlaceMouthItem;
 import io.github.longshou.mcyukkuri.pose.PaperTent;
 import io.github.longshou.mcyukkuri.pose.LipGrip;
 import io.github.longshou.mcyukkuri.rare.RareForms;
@@ -66,7 +67,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -110,7 +110,7 @@ public final class FoundShelter implements MotorOwner {
     private long nextPaperScan;
     private BlockPull.Stand paperStand;
     private ItemEntity loosePaper;
-    private PlacePaperAction placeAction;
+    private PlaceMouthItem placeAction;
     private CoverPaperAction coverAction;
     private Action pullAction;
     private UUID drapeChild;
@@ -949,7 +949,7 @@ public final class FoundShelter implements MotorOwner {
     }
 
     private Step beginPlacePaper() {
-        placeAction = new PlacePaperAction(gap);
+        placeAction = new PlaceMouthItem(MouthOccupancy.Purpose.PAPER, new PaperSite(gap));
         if (body.motor().run(this, placeAction)) {
             phase = Phase.PLACE_PAPER;
             began = now();
@@ -1138,7 +1138,7 @@ public final class FoundShelter implements MotorOwner {
         }
         if (phase == Phase.PLACE_PAPER) {
             if (placeAction != null && body.motor().current() == placeAction) return Step.ACTIVE;
-            boolean ok = placeAction != null && placeAction.placed;
+            boolean ok = placeAction != null && placeAction.released() != null;
             placeAction = null;
             if (!ok) {
                 remember(gap, BLOCKED_REST, "paper_place_refused");
@@ -1587,71 +1587,33 @@ public final class FoundShelter implements MotorOwner {
         return y.life().personality().boldness() + 40 * y.getBbWidth() + 20 * y.body().healthRatio();
     }
 
-    private final class PlacePaperAction implements Action {
-        private static final String CLIP = YukkuriAction.MOUTH_ITEM_PLACE.id();
+    /** The bedded gap the paper goes into: she stands in it once the gap still exists, and the mouth must be over it. */
+    private final class PaperSite implements PlaceMouthItem.Site {
         private final BlockPos targetGap;
-        private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
-        private final int length = Math.max(1, marks.length());
-        private final int releaseTick = marks.ticks("release", Math.max(1, length / 2));
-        private long startTick;
-        private int ticks;
-        private boolean placed;
 
-        PlacePaperAction(BlockPos targetGap) { this.targetGap = targetGap; }
+        PaperSite(BlockPos targetGap) { this.targetGap = targetGap; }
 
-        @Override public String id() { return CLIP; }
+        @Override public Vec3 at() { return Vec3.atBottomCenterOf(targetGap); }
 
-        private boolean inGapContact(YukkuriEntity actor) {
-            return actor.onGround() && !actor.isPassenger() && !actor.isInWaterOrBubble() && !actor.isOnFire()
-                    && gapAt(targetGap) && targetGap.equals(actor.blockPosition());
+        @Override public Feasibility admission(YukkuriEntity actor) {
+            return gapAt(targetGap) && targetGap.equals(actor.blockPosition()) ? Feasibility.pass()
+                    : Feasibility.of(Reason.NO_SUPPORT, 0, "gap_contact_required");
         }
 
-        @Override public Feasibility check(YukkuriEntity actor) {
-            if (!inGapContact(actor))
-                return Feasibility.of(Reason.NO_SUPPORT, 0, "gap_contact_required");
-            if (!holdingPaper())
-                return Feasibility.of(Reason.NO_CONTACT, 0, "mouth_empty");
-            return Feasibility.pass();
+        @Override public Feasibility mouthAt(YukkuriEntity actor, Vec3 mouth) {
+            return BlockPos.containing(mouth.x, actor.getY(), mouth.z).equals(targetGap) ? Feasibility.pass()
+                    : Feasibility.of(Reason.NO_CONTACT, 0, "mouth_outside_gap");
         }
 
-        @Override public void start(YukkuriEntity actor) {
-            actor.getNavigation().stop();
-            startTick = actor.level().getGameTime();
-            ticks = 0;
-            placed = false;
+        @Override public void released(YukkuriEntity actor, ItemEntity drop) {
+            drop.getPersistentData().putBoolean(BROUGHT_PAPER, true);
+            // Keep the laid sheet in place and separate from nearby ordinary drops until someone uses or collects it.
+            drop.setUnlimitedLifetime();
+            GameplayLog.event(actor, "habitat", "paper bedding placed; drop item={} count=1 at={} drop={}",
+                    drop.getItem().getItem(), targetGap, drop.getUUID());
         }
 
-        @Override public Progress tick(YukkuriEntity actor) {
-            if (!inGapContact(actor))
-                return Outcome.of(Reason.NO_SUPPORT, 0, "gap_contact_required");
-            Vec3 center = Vec3.atBottomCenterOf(targetGap);
-            if (actor.position().subtract(center).horizontalDistanceSqr() > 0.01)
-                Motor.face(actor, SurfaceApproach.yaw(actor.position(), center));
-            Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
-            if (!placed && ticks >= releaseTick) {
-                var mouth = actor.component(YukkuriComponents.MOUTH);
-                if (mouth.purpose() != MouthOccupancy.Purpose.PAPER || mouth.items(MouthOccupancy.Purpose.PAPER).isEmpty())
-                    return Outcome.of(Reason.NO_CONTACT, 0, "mouth_empty");
-                Vec3 mouthPos = MouthPlacement.position(actor);
-                if (!BlockPos.containing(mouthPos.x, actor.getY(), mouthPos.z).equals(targetGap))
-                    return Outcome.of(Reason.NO_CONTACT, 0, "mouth_outside_gap");
-                ItemStack one = mouth.stack(MouthOccupancy.Purpose.PAPER).copyWithCount(1);
-                var drop = ItemContact.releaseSupported(actor, one, 20);
-                if (drop == null) return Outcome.of(Reason.NO_ROOM, 0, "drop_refused");
-                drop.getPersistentData().putBoolean(BROUGHT_PAPER, true);
-                // Keep the laid sheet in place and separate from nearby ordinary drops until someone uses or collects it.
-                drop.setUnlimitedLifetime();
-                mouth.takeOne(MouthOccupancy.Purpose.PAPER);
-                placed = true;
-                GameplayLog.event(actor, "habitat", "paper bedding placed; drop item={} count=1 at={} drop={}",
-                        one.getItem(), targetGap, drop.getUUID());
-            }
-            if (++ticks >= length) return new Outcome.Done("gap=" + targetGap);
-            return new Running(length - ticks, TravelMode.PASS);
-        }
-
-        @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
-        @Override public String startDetail() { return "gap=" + targetGap + " clipTicks=" + length; }
+        @Override public String detail() { return "gap=" + targetGap; }
     }
 
     private final class CoverPaperAction implements Action {

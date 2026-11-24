@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
-import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -12,22 +11,17 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
-import io.github.longshou.mcyukkuri.motor.Action;
-import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
-import io.github.longshou.mcyukkuri.motor.MotionPose;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.motor.Outcome;
-import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
-import io.github.longshou.mcyukkuri.motor.Running;
-import io.github.longshou.mcyukkuri.motor.TravelMode;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
+import io.github.longshou.mcyukkuri.motor.action.PlaceMouthItem;
 import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.perception.Sight;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -62,12 +56,13 @@ public final class KeepsakeLife implements MotorOwner {
     private static final double SET_DOWN_MAX_RIM_DIST = 1.2;
 
     private record Beat(String name, String declared, String line, String where, String detail) {}
-    private record DropSpot(Vec3 stand, Vec3 dropPoint, double rimDist) {}
+    private record DropSpot(Vec3 stand, Vec3 dropPoint) {}
 
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
     private ItemEntity target;
     private DropSpot dropSpot;
+    private PlaceMouthItem placeAction;
     private BlockPos blockedDropAt;
     private int cooldown, scanWait, elapsed, noticeTicks, carryTicks;
     private boolean picking, placing, carryLogged, dropRefused;
@@ -340,8 +335,12 @@ public final class KeepsakeLife implements MotorOwner {
                 }
                 String face = entity.life().personality().attachment() >= 60 ? "satisfied" : "closed_smile";
                 String line = entity.family().stage() == FamilyLife.Stage.BABY ? "toy" : "thing_san";
-                double rimDist = dropSpot.rimDist();
-                String detail = String.format(Locale.ROOT, "bedDist=%.2f insideHollow=false", rimDist);
+                // The evidence is the item that actually left her mouth: its own spot decides the rim distance and the hollow.
+                ItemEntity drop = placeAction.released();
+                double rimDist = Keepsakes.rimDistance(drop.position(), bed.getBlockPos(), NestDoorway.shape(bed).reach(), bed.centre());
+                boolean hollow = NestDoorway.at(entity, drop.position()) != null;
+                String detail = String.format(Locale.ROOT, "item=%s at=%s bed=%s bedDist=%.2f hollow=%s",
+                        drop.getUUID(), GameplayLog.at(drop.position()), bed.getBlockPos().toShortString(), rimDist, hollow);
                 emitBeat("set_down", face, line, "bed", 60, detail);
                 cooldown = DONE_COOLDOWN;
                 finish();
@@ -380,9 +379,11 @@ public final class KeepsakeLife implements MotorOwner {
             emitBeat("carry", carryFace(), "none", "mouth", 0, "");
             return;
         }
-        if (entity.motor().run(this, new PlaceKeepsakeAction(bed, dropSpot.dropPoint()))) {
+        placeAction = new PlaceMouthItem(Purpose.KEEPSAKE, new KeepsakeSite(bed, dropSpot.dropPoint()));
+        if (entity.motor().run(this, placeAction)) {
             placing = true;
         } else {
+            placeAction = null;
             cooldown = REFUSED_COOLDOWN;
             stop();
         }
@@ -407,7 +408,7 @@ public final class KeepsakeLife implements MotorOwner {
             Vec3 stand = SurfaceApproach.restingFloor(entity, rawStand);
             if (stand == null || NestDoorway.at(entity, stand) != null || NestDoorway.rimAt(entity, stand) != null) continue;
             if (!SurfaceApproach.canApproach(entity, stand)) continue;
-            return new DropSpot(stand, dropPoint, rimDist);
+            return new DropSpot(stand, dropPoint);
         }
         return null;
     }
@@ -431,7 +432,9 @@ public final class KeepsakeLife implements MotorOwner {
         if (sleepTicks == 20) {
             ItemEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
             if (doll != null) {
-                emitBeat("sleep", "sleep", "sleep", "bed", 0, "");
+                // The doll's own spot says whether it lies in the nest hollow or on open ground beside her.
+                String where = NestDoorway.at(entity, doll.position()) != null ? "bed" : "ground";
+                emitBeat("sleep", "sleep", "sleep", where, 0, "");
             }
             return;
         }
@@ -472,6 +475,7 @@ public final class KeepsakeLife implements MotorOwner {
         carryTicks = 0;
         picking = false;
         placing = false;
+        placeAction = null;
         carryLogged = false;
         dropRefused = false;
         SurfaceApproach.stopWalking(entity);
@@ -490,63 +494,23 @@ public final class KeepsakeLife implements MotorOwner {
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 24000);
     }
 
-    private final class PlaceKeepsakeAction implements Action {
-        private static final String CLIP = YukkuriAction.MOUTH_ITEM_PLACE.id();
+    /** The dry spot beside her own nest's rim: the mouth lets go anywhere but inside the nest hollow. */
+    private final class KeepsakeSite implements PlaceMouthItem.Site {
         private final CareBlockEntity bed;
         private final Vec3 dropPoint;
-        private final ClipMarkers.Clip marks = ClipMarkers.of(CLIP);
-        private final int length = marks.length();
-        private final int releaseTick = marks.ticks("release", Math.max(1, length / 2));
-        private long startTick;
-        private int ticks;
-        private boolean placed;
 
-        PlaceKeepsakeAction(CareBlockEntity bed, Vec3 dropPoint) {
+        KeepsakeSite(CareBlockEntity bed, Vec3 dropPoint) {
             this.bed = bed;
             this.dropPoint = dropPoint;
         }
 
-        @Override public String id() { return CLIP; }
+        @Override public Vec3 at() { return dropPoint; }
 
-        @Override public Feasibility check(YukkuriEntity actor) {
-            if (!actor.onGround() || actor.isPassenger() || actor.isInWaterOrBubble() || actor.isOnFire())
-                return Feasibility.of(Reason.NO_SUPPORT, 0, "ground_required");
-            if (carried().isEmpty())
-                return Feasibility.of(Reason.NO_CONTACT, 0, "mouth_empty");
-            return Feasibility.pass();
+        @Override public Feasibility mouthAt(YukkuriEntity actor, Vec3 mouth) {
+            return NestDoorway.at(actor, mouth) == null ? Feasibility.pass()
+                    : Feasibility.of(Reason.NO_ROOM, 0, "mouth_inside_hollow");
         }
 
-        @Override public void start(YukkuriEntity actor) {
-            actor.getNavigation().stop();
-            startTick = actor.level().getGameTime();
-            ticks = 0;
-            placed = false;
-        }
-
-        @Override public Progress tick(YukkuriEntity actor) {
-            if (!actor.onGround() || actor.isPassenger() || actor.isInWaterOrBubble() || actor.isOnFire())
-                return Outcome.of(Reason.NO_SUPPORT, 0, "ground_required");
-            if (actor.position().subtract(dropPoint).horizontalDistanceSqr() > 0.01) {
-                Motor.face(actor, SurfaceApproach.yaw(actor.position(), dropPoint));
-            }
-            Motor.velocity(actor, new Vec3(0, actor.getDeltaMovement().y, 0), CLIP);
-            if (!placed && ticks >= releaseTick) {
-                if (mouth().purpose() != Purpose.KEEPSAKE || mouth().items(Purpose.KEEPSAKE).isEmpty())
-                    return Outcome.of(Reason.NO_CONTACT, 0, "mouth_empty");
-                Vec3 mouthPos = MouthPlacement.position(actor);
-                if (NestDoorway.at(actor, mouthPos) != null)
-                    return Outcome.of(Reason.NO_ROOM, 0, "mouth_inside_hollow");
-                ItemStack one = mouth().stack(Purpose.KEEPSAKE).copyWithCount(1);
-                ItemEntity drop = ItemContact.releaseSupported(actor, one, 20);
-                if (drop == null) return Outcome.of(Reason.NO_ROOM, 0, "drop_refused");
-                mouth().takeOne(Purpose.KEEPSAKE);
-                placed = true;
-            }
-            if (++ticks >= length) return new Outcome.Done("bed=" + bed.getBlockPos());
-            return new Running(length - ticks, TravelMode.PASS);
-        }
-
-        @Override public MotionPose pose() { return new MotionPose(CLIP, startTick, false); }
-        @Override public String startDetail() { return "bed=" + bed.getBlockPos() + " clipTicks=" + length; }
+        @Override public String detail() { return "bed=" + bed.getBlockPos(); }
     }
 }

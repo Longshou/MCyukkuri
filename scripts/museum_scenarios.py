@@ -8676,6 +8676,19 @@ _KEEPSAKE_BEAT_RE = re.compile(
     r'\[keepsake\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) where=(\w+) dolls=(\d+)(.*)')
 
 
+def _keepsake_set_down_problem(tail):
+    """The set-down beat must name the item that really left her mouth and the spot computed from its position."""
+    m = re.search(r'\bitem=([0-9a-f-]{36}) at=\(([-0-9.]+),([-0-9.]+),([-0-9.]+)\) bed=[-0-9, ]+ '
+                  r'bedDist=([0-9.]+) hollow=(true|false)', tail)
+    if not m:
+        return f'set_down does not name the released item, its landed position and the computed spot: {tail}'
+    if m[6] != 'false':
+        return f'set_down landed inside the nest hollow: {tail}'
+    if float(m[5]) > 1.2:
+        return f'set_down landed {m[5]} from the bed rim (>1.2): {tail}'
+    return None
+
+
 def _verify_doll_carry(window):
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
@@ -8699,11 +8712,9 @@ def _verify_doll_carry(window):
                 set_tick = int(t)
                 if where != 'bed':
                     return f'set_down where={where}, expected bed'
-                dm = re.search(r'bedDist=([0-9.]+)', tail)
-                if not dm or float(dm[1]) > 1.2:
-                    return f'set_down too far from bed rim: {tail}'
-                if 'insideHollow=false' not in tail:
-                    return f'set_down inside hollow: {tail}'
+                problem = _keepsake_set_down_problem(tail)
+                if problem:
+                    return problem
     names = [b[1] for b in marisa_beats]
     want = ['notice', 'pick_up', 'carry', 'set_down']
     idx = 0
@@ -8731,11 +8742,15 @@ _int_hungry = _uuid_text(_doll_interrupt, 'int_hungry')
 def _verify_doll_interrupt(window):
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     for m in beats:
-        _, _, beat, face, declared, _, _, dolls, _ = m.groups()
+        _, _, beat, face, declared, _, _, dolls, tail = m.groups()
         if face != declared:
             return f'face mismatch on {beat}: shown={face} declared={declared}'
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
+        if beat == 'set_down':
+            problem = _keepsake_set_down_problem(tail)
+            if problem:
+                return problem
     hungry_picks = [int(m[2]) for m in beats if m[1] == _int_hungry and m[3] == 'pick_up']
     if len(hungry_picks) < 2:
         return f'expected interrupted carrier to re-fetch after recovery (>=2 pick_up), saw {len(hungry_picks)}'
