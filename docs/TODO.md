@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 断亲双方生效与身份 | `.worktrees/wp-severance-mutual` | family/,social/SeveranceVerdict,social/Departure,FamilyLife,家谱界面 |
 | 捕食种完成捕杀 | `.worktrees/wp-pred-kill` | predator/,捕食追猎 |
 
 ## 玩法待办
