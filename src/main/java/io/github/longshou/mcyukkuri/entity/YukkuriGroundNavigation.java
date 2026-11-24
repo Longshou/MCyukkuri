@@ -919,17 +919,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     // Keep at least .2 blocks beyond both hitboxes. An eager sidestep leaves up to .6 blocks of breathing room.
     public static final double YIELD_MARGIN = Passage.MARGIN;
     private static final double PASSAGE_RANGE = 4;
+    /** A person is noticed this far out, so a body can turn first and take its whole step before the person arrives. */
+    private static final double PERSON_PASSAGE_RANGE = 8;
     /** A person gets one small sidestep, never a walk round them: the far-side fallback would cross their line. */
     private static final double GIVE_WAY_STEP = 1.5;
-    /** A person's sidestep turns first, so its cap covers the turn as well as the step; a peer's step keeps {@link #YIELD_LIMIT}. */
-    private static final int GIVE_WAY_LIMIT = 30;
     private record PlayerPosition(Level level, Vec3 position) {}
     private static final Map<ServerPlayer, PlayerPosition> PLAYER_POSITIONS = new WeakHashMap<>();
     private static final class Yield {
         final UUID walker;
         final Vec3 start, stand;
         final long began;
-        final int notice;
+        final int notice, limit;
         final double pace;
         final boolean mayInterruptWalk;
         /** A player or human NPC, not a fellow yukkuri: it gets the awe gate and a real small walk. */
@@ -940,13 +940,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         Vec3 last;
         double maxStep;
 
-        Yield(UUID walker, Vec3 start, Vec3 stand, long began, int notice, double pace, boolean mayInterruptWalk,
+        Yield(UUID walker, Vec3 start, Vec3 stand, long began, int notice, int limit, double pace, boolean mayInterruptWalk,
               boolean person, double deference) {
             this.walker = walker;
             this.start = start;
             this.stand = stand;
             this.began = began;
             this.notice = notice;
+            this.limit = limit;
             this.pace = pace;
             this.mayInterruptWalk = mayInterruptWalk;
             this.person = person;
@@ -987,7 +988,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (travel.lengthSqr() < .001 || travel.lengthSqr() > 1 || Math.abs(walker.getY() - before.y) > .5) return;
         var heading = travel.normalize();
         var area = walker.getBoundingBox().move(before.subtract(walker.position()))
-                .expandTowards(walker.position().subtract(before).add(heading.scale(PASSAGE_RANGE))).inflate(.6, 0, .6);
+                .expandTowards(walker.position().subtract(before).add(heading.scale(PERSON_PASSAGE_RANGE))).inflate(.6, 0, .6);
         double pace = travel.length() / ticks;
         var blockers = walker.level().getEntitiesOfClass(YukkuriEntity.class, area,
                 y -> walker.hasLineOfSight(y) && idleForPassage(y));
@@ -1049,16 +1050,21 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var temperament = blocker.life().personality();
         double confidence = SocialDisposition.confidence(SocialDisposition.selfEsteem(blocker));
         double deference = ((100 - temperament.boldness()) / 100.0 + 1 - confidence) / 2;
-        boolean person = !(walker instanceof YukkuriEntity);
+        // An incidental approach (noticePassage) is a person's; staff and owner asks are explicit requests that interrupt.
+        boolean person = !mayInterruptWalk;
         if (person) deference = SocialDisposition.humanAwe(blocker, walker, temperament.relation(walker.getUUID()));
         double margin = YIELD_MARGIN + (person ? .2 : .4) * deference;
         // A person gets the body's ordinary walk; a peer keeps the quicker direct step.
         double stepPace = person ? BodyAbility.of(blocker).walkSpeed() * BodyAbility.carrying(blocker) : .18 + .12 * deference;
         int notice = (int)Math.round(MAX_YIELD_NOTICE * (1 - deference));
+        // The turn comes before the step, so a person's lead also covers a body turning from facing them to facing its stand.
+        int turn = person ? (int)Math.ceil(180 / BodyAbility.of(blocker).turnRate()) : 0;
         if (!mayInterruptWalk) {
             double ahead = offset.dot(heading);
-            // Allow the whole step before the front edges meet, including the two-tick player sampling interval.
-            double lead = width + walkerPace * (notice + Math.ceil((width + margin - lateral) / stepPace) + 2);
+            // Allow the whole turn and step before the front edges meet, including the two-tick player sampling interval.
+            double lead = width + walkerPace * (notice + turn + Math.ceil((width + margin - lateral) / stepPace) + 2);
+            // Asked inside the passage it will be held to, with a block to spare at the near end.
+            lead = Math.min(lead, PERSON_PASSAGE_RANGE - 1);
             if (ahead < -.1 || ahead > lead) return false;
         }
         if (person) {
@@ -1088,14 +1094,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             GameplayLog.event(blocker, "move", "action=give_way_notice walker={} walker_type={} beat=notice face={} line=none person={} deference={}",
                     walker.getUUID(), walker.getType(), shown ? face : "none", person, deference);
         }
-        nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk, person, deference);
+        // A hurt or heavy body walks its step slower than a peer's quick step; the cap ends only a step that cannot finish.
+        int limit = YIELD_LIMIT;
+        if (person && stand != null) limit = (int)Math.ceil(notice + turn + 2 * stand.distanceTo(start) / stepPace) + 20;
+        nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, limit, stepPace, mayInterruptWalk, person, deference);
         return stand != null;
     }
 
     /** A person was noticed but does not awe this body (or the pet chose not to obey): no step, and the pass is remembered. */
     private static void refuse(YukkuriGroundNavigation nav, YukkuriEntity body, Entity walker, double deference,
                                String cause, RulesMath.Choice choice) {
-        nav.passage = new Yield(walker.getUUID(), body.position(), null, body.level().getGameTime(), 0, 0, false, true, deference);
+        nav.passage = new Yield(walker.getUUID(), body.position(), null, body.level().getGameTime(), 0, YIELD_LIMIT, 0, false, true, deference);
         GameplayLog.event(body, "move", "action=give_way_refused walker={} walker_type={} beat=refused face=none line=none cause={} choice={} deference={}",
                 walker.getUUID(), walker.getType(), cause, choice == null ? "none" : choice, deference);
     }
@@ -1103,14 +1112,17 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private void tickPassage(YukkuriEntity body) {
         if (!(level instanceof ServerLevel server)) return;
         var walker = server.getEntity(passage.walker);
-        if (walker == null || !walker.isAlive() || body.distanceToSqr(walker) > PASSAGE_RANGE * PASSAGE_RANGE) {
+        double range = passage.person ? PERSON_PASSAGE_RANGE : PASSAGE_RANGE;
+        if (walker == null || !walker.isAlive() || body.distanceToSqr(walker) > range * range) {
             passage = null;
             return;
         }
         if (passage.done) return;
         long elapsed = level.getGameTime() - passage.began;
-        if (!canGiveWay(body) || !passage.mayInterruptWalk && !idleForPassage(body)
-                || elapsed > (passage.person ? GIVE_WAY_LIMIT : YIELD_LIMIT)) {
+        // A person's step is this drive's own ordinary walk, so the idle check (meant for a body that has started its own
+        // walk) would stop it on its second tick; the peer's direct step never sets a walk and keeps the check.
+        if (!canGiveWay(body) || !passage.mayInterruptWalk && !passage.person && !idleForPassage(body)
+                || elapsed > passage.limit) {
             passage.done = true;
             return;
         }

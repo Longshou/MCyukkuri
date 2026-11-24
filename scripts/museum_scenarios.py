@@ -4658,19 +4658,22 @@ if _pass_home >= 1 << 63:
 if _pass_home_south >= 1 << 63:
     _pass_home_south -= 1 << 64
 add('street_give_way', 'town', '街上挡路：敬畏的人才让路', '街上挡路：敬畏的人才让路',
-    '两个居民从西边沿两条砖路回家：北边胆小的灵梦先转身，再朝路边挪开一步；南边好强的魔理沙不把居民放在眼里，站在原地一动不动，居民从她身边擦过。',
+    '两只受了伤、在路边歇着的油库里，两个居民从西边十来格处沿两条砖路走来：北边胆小的灵梦先转身，再朝路边挪开一步；南边好强的魔理沙不把居民放在眼里，站在原地一动不动，居民从她身边擦过。',
     '居民几秒内走过，可重开对比', [
-        box(-6, -1, -2, 6, -1, 6, 'minecraft:stone_bricks'),
-        box(-6, -1, 0, 6, -1, 0, 'minecraft:polished_andesite'),
-        box(-6, -1, 4, 6, -1, 4, 'minecraft:polished_andesite'),
-        human('caretaker_brother', -4, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='北边回家的居民'),
+        box(-11, -1, -2, 6, -1, 6, 'minecraft:stone_bricks'),
+        box(-11, -1, 0, 6, -1, 0, 'minecraft:polished_andesite'),
+        box(-11, -1, 4, 6, -1, 4, 'minecraft:polished_andesite'),
+        human('caretaker_brother', -9, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='北边回家的居民'),
         f'data merge entity {sel("pass_resident")} {{HumanHome:{_pass_home}L,StreetHomePause:-600}}',
-        human('caretaker_brother', -4, 4, 'pass_resident_south', 0, attitude=2, yaw=-90, label='南边回家的居民'),
+        human('caretaker_brother', -9, 4, 'pass_resident_south', 0, attitude=2, yaw=-90, label='南边回家的居民'),
         f'data merge entity {sel("pass_resident_south")} {{HumanHome:{_pass_home_south}L,StreetHomePause:-600}}',
-        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), boldness=12, **pair_ready()),
-        yk('marisa', 0, 4.8, 'pass_marisa', uuid=uid('street_give_way', 'marisa'), label='站着不动的大胆魔理沙',
-           boldness=90, friendliness=20, **pair_ready()),
-    ], env=DAY, vantage=(-5, 4, -90, 10))
+        # Both rest at the road's edge: in the residents' notice corridor yet clear of the cells they walk through,
+        # so the awed body's short step finishes at a hurt body's own shuffle before the resident reaches it.
+        yk('reimu', 0, .55, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), boldness=12,
+           extra='Health:2.8f', **pair_ready()),
+        yk('marisa', 0, 4.5, 'pass_marisa', uuid=uid('street_give_way', 'marisa'), label='站着不动的大胆魔理沙',
+           boldness=90, friendliness=20, extra='Health:2.8f', **pair_ready()),
+    ], env=DAY, vantage=(-5, 3, -90, 10))
 
 # A one-cell lane (z -5..5) between a stone wall (west) and a glass shop front (east, the observer's side): each tired adult starts
 # at one end of the lane, its own nest in the roofed end room beyond the other, and walks the lane alone (nutrition 45: neither is
@@ -11742,10 +11745,10 @@ def _street_give_way_verify(window):
 
 
 _smoke('street_give_way', 300, [
-    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_notice [^\n]* person=true [^\n]* deference=0\.8\d*',
-    rf'\[choreo\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* beat=give_way_notice face=surprise line= declared=surprise',
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_notice [^\n]* person=true [^\n]*deference=0\.8\d*',
+    rf'\[choreo\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* beat=give_way_notice face=surprise line=none declared=surprise',
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
-    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=1\.\d+ gap=0\.[3-5]\d* max_step=0\.[0-2]\d*',
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=0\.[4-7]\d* gap=0\.[3-5]\d* max_step=0\.[0-2]\d*',
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "marisa")} [^\n]* action=give_way_refused [^\n]* cause=awe ',
 ], forbid=[r'\[move\][^\n]* action=give_way_done [^\n]* distance=[2-9]\d*(?:\.\d+)? '])
 next(s for s in S if s.id == 'street_give_way').smoke['verify'] = _street_give_way_verify
