@@ -40,6 +40,8 @@ public final class PlayLife {
     /** Approach stall budget (~1.25 s) before giving up and switching to another facility; interior safety bound (~2.5 s). */
     private static final int APPROACH_STALL_TICKS = 25;
     private static final int INTERIOR_STALL_TICKS = 50;
+    /** The aside is a suggested clear spot: pressed this long within a body width of it, the body stands where it is. */
+    private static final int ASIDE_ARRIVE_TICKS = 10;
     /** A walk that ends within three blocks of the owner is not routed round the owner's body (its stand lies beside it). */
     private static final double OWNER_BERTH_SQR = 9;
 
@@ -54,6 +56,8 @@ public final class PlayLife {
     private List<Vec3> interiorLocal = List.of();
     private Vec3 waitStand, lastPos;
     private int cooldown, scanWait, elapsed, waypoint, entryAt, interiorAt, bounces, rounds, stalled;
+    /** Route index of the owner-side exit aside (-1 when the route has none); it is a suggested spot, not a strict target. */
+    private int asideAt = -1;
     private int waitTicks, waitLimit, waitElapsed, lastWaitElapsed;
     /** A tub session: the route index of the seat (-1 elsewhere), the ticks soaked there and the state at the start of the soak. */
     private int soakAt = -1, soakTicks;
@@ -429,6 +433,7 @@ public final class PlayLife {
         var approach = PlayMotion.approachWaypoints(entity, target.getBlockPos(), target.facing(),
                 halfWidth(target.kind()), halfDepth(target.kind()), local.getFirst());
         entryAt = approach.size() - 1;
+        asideAt = -1;
         var points = new ArrayList<Vec3>(approach);
         Vec3 firstWorld = PlayGeometry.world(target.getBlockPos(), target.facing(),
                 local.getFirst().x, local.getFirst().y, local.getFirst().z);
@@ -455,6 +460,7 @@ public final class PlayLife {
                                 s * dx, exit.y, exit.z + zDir * dz);
                         if (clearOfOthers(aside)) {
                             points.add(aside);
+                            asideAt = points.size() - 1;
                             break outer;
                         }
                     }
@@ -704,7 +710,10 @@ public final class PlayLife {
             emitBeat("play", "happy", "none", 45, PlayBlock.Kind.CERAMIC);
         }
         double arriveDist = waypoint <= entryAt ? .45 : .22;
-        if (distance < arriveDist && Math.abs(entity.getY() - target.y) < .6 && !(trampoline && rel == 1)
+        // A peer may settle on the few centimetres of the exit aside: the body stands where it is rather than pressing on.
+        boolean asideReached = waypoint == asideAt && stalled >= ASIDE_ARRIVE_TICKS
+                && distance < arriveDist + entity.getBbWidth();
+        if ((distance < arriveDist || asideReached) && Math.abs(entity.getY() - target.y) < .6 && !(trampoline && rel == 1)
                 && (!leavingTrampoline || PlayBlock.facility(entity.level(), entity.getOnPos()) != facility)) {
             waypoint++; lastDistance = Double.MAX_VALUE; lastPos = entity.position(); stalled = 0;
             if (waypoint >= route.size()) {
@@ -887,7 +896,7 @@ public final class PlayLife {
             }
         }
         springing = false; peakVoiced = false; playVoiced = false; stopReason = null;
-        facility = null; route = List.of(); interiorLocal = List.of(); entryAt = 0; interiorAt = 0; soakAt = -1; soakTicks = 0; soakHurt = false; soakRule = null; lastPos = null;
+        facility = null; route = List.of(); interiorLocal = List.of(); entryAt = 0; interiorAt = 0; asideAt = -1; soakAt = -1; soakTicks = 0; soakHurt = false; soakRule = null; lastPos = null;
         if (!log) { pendingBeat = null; gaveUp.clear(); refusedAt.clear(); lastFacility = null; }
         entity.getNavigation().stop();
     }

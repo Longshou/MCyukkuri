@@ -99,9 +99,10 @@ public final class PlayMotion {
 
     /**
      * One tick along an authored interior facility route: turns to face {@code target} first (never strafes or slides
-     * backwards) and moves at the body's own walk speed scaled by {@code effort}. A blocked step onto a higher lip hops
-     * up; a blocked step onto a lower waypoint hops down off the standing rim or lip by the same gait. Returns
-     * {@code true} while still turning in place before stepping forward.
+     * backwards) and moves at the body's own walk speed scaled by {@code effort}. A step blocked by a lip or rim hops
+     * up onto it or down off the standing rim toward a lower waypoint by the same gait; a step blocked only by another
+     * body keeps walking so contact and yielding resolve it. Returns {@code true} while still turning in place before
+     * stepping forward.
      */
     public static boolean routeStep(YukkuriEntity body, Vec3 target, double effort) {
         body.getNavigation().stop();
@@ -122,7 +123,8 @@ public final class PlayMotion {
         double speed = Math.min(Math.min(pace, Gait.HUMAN_WALK), dist);
         Vec3 step = delta.scale(speed / dist);
         body.motor().propulsion(step.x, 0, step.z, Math.min(pace, Gait.HUMAN_WALK));
-        if (body.onGround() && body.horizontalCollision && !BodyAbility.cannotSpring(body)) {
+        if (body.onGround() && body.horizontalCollision && blockedByGeometry(body, step)
+                && !BodyAbility.cannotSpring(body)) {
             double rise = Math.clamp((target.y - body.getY()) + 0.22, 0.22, BodyAbility.of(body).hopHeight());
             boolean down = target.y <= body.getY() - STEP_DOWN;
             Motor.takeoff(body, new Vec3(step.x, ArcSolver.vyFor(rise), step.z), down ? "play_step_down" : "play_step_up");
@@ -134,6 +136,12 @@ public final class PlayMotion {
         }
         Motor.velocity(body, new Vec3(step.x, body.getDeltaMovement().y, step.z), "play_route");
         return false;
+    }
+
+    /** Only a lip or rim in the world is hopped: a neighbour body in the way is left to contact and yielding. */
+    private static boolean blockedByGeometry(YukkuriEntity body, Vec3 step) {
+        return body.level().getBlockCollisions(body,
+                body.getBoundingBox().expandTowards(step.x, 0, step.z).deflate(1.0E-4)).iterator().hasNext();
     }
 
     /** Downhill slide glide along the chute, turning forward first and capped by the body's gait ceiling. */
