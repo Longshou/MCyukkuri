@@ -192,7 +192,7 @@ public final class KeepsakeLife implements MotorOwner {
         if (attach <= 0) return false;
         double boredomPressure = SocialDisposition.ramp(entity.dailyLife().boredom(), PlayWant.boredomFloor(entity), 60);
         double curiosity = personality.temperament().curious();
-        double chance = attach * (.50 + .35 * boredomPressure + .15 * curiosity);
+        double chance = Math.min(1.0, attach * (.50 + .40 * boredomPressure + .25 * curiosity));
         double sightRange = Sight.range(personality.intelligence(), false);
         double maxCarry = 8.0 + personality.attachment() / 5.0 + entity.dailyLife().boredom() / 10.0;
 
