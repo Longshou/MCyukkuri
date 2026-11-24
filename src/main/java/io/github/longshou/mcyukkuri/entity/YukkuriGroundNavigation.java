@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.motor.geom.YieldRule;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
@@ -991,7 +992,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
                 .expandTowards(walker.position().subtract(before).add(heading.scale(PERSON_PASSAGE_RANGE))).inflate(.6, 0, .6);
         double pace = travel.length() / ticks;
         var blockers = walker.level().getEntitiesOfClass(YukkuriEntity.class, area,
-                y -> walker.hasLineOfSight(y) && idleForPassage(y));
+                y -> Senses.sees(y, walker) && idleForPassage(y));
         blockers.sort(Comparator.comparingDouble(walker::distanceToSqr));
         for (var y : blockers) if (giveWay(y, walker, heading, pace, false)) return;
     }
@@ -1054,8 +1055,9 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         boolean person = !mayInterruptWalk;
         if (person) deference = SocialDisposition.humanAwe(blocker, walker, temperament.relation(walker.getUUID()));
         double margin = YIELD_MARGIN + (person ? .2 : .4) * deference;
-        // A person gets the body's ordinary walk; a peer keeps the quicker direct step.
-        double stepPace = person ? BodyAbility.of(blocker).walkSpeed() * BodyAbility.carrying(blocker) : .18 + .12 * deference;
+        // A person gets the body's ordinary walk, or its crawl when weak or burned (a tenth of the walk attribute); a peer keeps the quicker direct step.
+        double stepPace = !person ? .18 + .12 * deference
+                : blocker.crawler() ? blocker.crawlSpeed() : BodyAbility.of(blocker).walkSpeed() * BodyAbility.carrying(blocker);
         int notice = (int)Math.round(MAX_YIELD_NOTICE * (1 - deference));
         // The turn comes before the step, so a person's lead also covers a body turning from facing them to facing its stand.
         int turn = person ? (int)Math.ceil(180 / BodyAbility.of(blocker).turnRate()) : 0;
