@@ -13,6 +13,7 @@
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
 | TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
 | PK-02 公园玩耍 | `.worktrees/wp-park-play` | PlayLife,PlayWant,PetOuting,HumanStreet.linger,RoamingGoal,YukkuriGoals,park_play 场景 |
+| 公园其他游具演示 | `.worktrees/wp-doll-comfort` | KeepsakeLife 新阶段,DailyLife,LifeMeal.tryShare,对话 doll_talk,doll_comfort_sleep 与 doll_talk 场景 |
 
 ## 玩法待办
 
