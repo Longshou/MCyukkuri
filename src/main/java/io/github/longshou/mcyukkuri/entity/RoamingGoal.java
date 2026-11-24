@@ -530,7 +530,8 @@ public final class RoamingGoal extends Goal {
     private void finishPlaza(boolean reached) {
         if (plaza == null) return;
         var level = (ServerLevel) animal.level();
-        boolean arrived = reached && plazaReady() && level.isDay() && !level.isRaining() && plaza.present(level);
+        boolean arrived = reached && plazaReady() && level.isDay() && !level.isRaining() && plaza.present(level)
+                && (!browsing || !plaza.badged().isEmpty());
         if (arrived) nextWalk = level.getGameTime() + plazaPause;
         // The stray gazes at the nearest valid badge for the whole pause, so the sighting rules see it facing the plaza.
         if (arrived && browsing) plaza.badged().stream().min(Comparator.comparingDouble(animal::distanceToSqr))

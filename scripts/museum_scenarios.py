@@ -4134,7 +4134,7 @@ def _ring_stray(scene, name, kind, x, z, label, values):
 
 
 add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '开场几秒内院主从北边院子牵银章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
+    '开场几秒内院主从北边院子牵白金章灵梦走到白篷下坐上长椅；四只流浪油已在广场外圈视野内，饿而友善的魔理沙和嚣张灵梦按数值走近羡慕或冷嘲，'
     '灵梦和气回应，院主从长椅上喝止一次并安抚；胆小魔理沙远远停住，戴作废章的前宠物与无章流浪一样对待。',
     '约 5 秒院主出发，8–15 秒落座并开始看章', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
@@ -4143,7 +4143,7 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
         # The badged pet starts inside the yard gate beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 2, z=-9)[0]
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-9)[0]
                           .replace('Boldness:70', 'Boldness:50').replace('Attachment:22', 'Attachment:80')
                           .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:600')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),

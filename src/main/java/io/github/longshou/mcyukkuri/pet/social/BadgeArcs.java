@@ -296,7 +296,7 @@ public final class BadgeArcs {
     /** The owner who sees or hears its badged pet insulted scolds the insulter once (and comforts the pet) when it is free to. */
     private static void ownerScolds(ServerLevel level, YukkuriEntity insulter, YukkuriEntity pet) {
         if (pet.pet().owner() != null && level.getEntity(pet.pet().owner()) instanceof HumanNpc keeper && keeper.isAlive()
-                && Senses.perceives(keeper, insulter, Cue.INSULT) != null)
+                && (Senses.perceives(keeper, insulter, Cue.INSULT) != null || Senses.perceives(keeper, pet, Cue.INSULT) != null))
             keeper.helpPet(pet, insulter);
     }
 
