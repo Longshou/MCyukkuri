@@ -7842,18 +7842,21 @@ def _overload_growth(parent, steps, first=_GROWTH_START):
             for i, (child, nourishment) in enumerate(steps)]
 
 
-def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_traits=None, **traits):
+def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_traits=None,
+                     head_childhood=CHILDHOOD_CRAWLING_READY, **traits):
     """Young start at sizes 0.16 (cabin, only with `cabin`), 0.20 and 0.355: just under the load warning for the ordinary parent
     (head 0.355 + brim 0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them. The
     growth is then staged by `_overload_growth` (`_OVERLOAD_STEPS`: a load over twice the hull's capacity with no warning in
     between; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the
     exceptional one keeps all three and overloading; `_WARNING_STEPS`: only the head young grows, the hull sits in its warning
     (0.96) and never overloads). The hat is empty: these scenes show the load, not the larder (`hat_larder`). `traits` pin the
-    parent's personality; `child3_traits` optionally pin the largest child's personality."""
+    parent's personality; `child3_traits` optionally pin the largest child's personality; `head_childhood` is the real learned
+    state of the head young (the severance scenes send out one that has already learnt to crawl, so it walks out and lives on)."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid(scene, parent), label=label, **traits, **pair_ready()),
             *[yk('marisa', bank_dx(dz + offset) - 1, dz + offset, parent + str(i), aquatic=True,
-                 fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY,
+                 fam=_seat_family(size, nourishment, age),
+                 childhood=head_childhood if i == 3 else CHILDHOOD_CRAWLING_READY,
                  uuid=uid(scene, parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid(scene, parent))}', label=f'孩子{i}',
                  **(child3_traits if i == 3 and child3_traits else {}), **pair_ready())
@@ -8318,7 +8321,10 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
 
 
 def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False):
-    actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits, **parent_traits)]
+    # The driven-out young is the one that has already learnt to crawl: it walks out at its own gait and can live as a stray at
+    # once (a newborn that never practised crawling stays where it is put, and the severance shows nothing).
+    actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits,
+                                head_childhood=CHILDHOOD_HOPPING, **parent_traits)]
     far_actor = None
     if far_sibling:
         far_actor = 'normal_far'
@@ -8345,7 +8351,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
          reads=[(f'读亲油（{label}）', f'yukkuri status {sel(parent)} raw'),
                 ('读最大孩子', f'yukkuri status {sel(parent + "3")} raw'),
                 ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
-         smoke=dict(ticks=6000,
+         smoke=dict(ticks=7200,
                     expect=list(_SEVER_EXPECT),
                     forbid=list(_SEVER_FORBID),
                     verify=lambda window, s=sid, f=families: _overload_tradeoff(window, s, f) or _escape_needs_place(window) or _bank_pickup_retries(window),
