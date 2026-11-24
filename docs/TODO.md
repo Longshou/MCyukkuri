@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 辫子动作制作技能 | `.worktrees/wp-braid-skill` | standards/yukkuri-library/BRAID.md, docs/roles/art.md, standards/yukkuri-library/AGENTS.md |
 
 ## 玩法待办
 
