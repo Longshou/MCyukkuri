@@ -1362,7 +1362,8 @@ public final class YukkuriLife {
     }
 
     /** A performance beat: the urge line is not held back by a neighbour's quiet gap. */
-    private void sayUrge(String event) { if (entity.speakCue(event, null, 2)) urgeLine = event; }
+    /** The urge announcements are performance lines (priority 2); the leak is an involuntary accident and outranks the urge line it follows, so the quiet gap does not drop it. */
+    private void sayUrge(String event) { if (entity.speakCue(event, null, event.equals("leak") ? 3 : 2)) urgeLine = event; }
     /** How hard the hold is: the real pressure picks the band, a young body one band harder. */
     private int urgeStage() {
         float pressure = toiletNeeds.pressure(toiletKind);

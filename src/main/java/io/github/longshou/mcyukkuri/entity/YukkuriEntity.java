@@ -1006,6 +1006,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void showNeedTell(YukkuriAction action, String face, int ticks) {
         startReaction(face, "need_tell", ticks);
         reactionAction = action;
+        reactionDecorative = true; // a need tell is an ambient cue: a hunting predator keeps its hunt face over its hunger tell
     }
 
     public boolean hasReaction() { return reactionTicks > 0 && !reactionEvent.equals("need_tell"); }
@@ -1058,9 +1059,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return true;
     }
 
+    /** A decorative reaction never repaints a declared activity face and never replaces a signal reaction that is still running. */
     private boolean ambientDropped(String expression) {
-        if (FacePrecedence.reactionOffers(true, !activityFace().isEmpty())) return false;
-        GameplayLog.limited(this, "face", "ambient_dropped", 200, "decorative reaction dropped face={} activity={}", expression, activityFace());
+        boolean signalRunning = reactionTicks > 0 && !reactionDecorative;
+        if (!signalRunning && FacePrecedence.reactionOffers(true, !activityFace().isEmpty())) return false;
+        GameplayLog.limited(this, "face", "ambient_dropped", 200, "decorative reaction dropped face={} activity={} running={}", expression, activityFace(),
+                signalRunning ? reactionEvent + "/" + reactionExpression : "none");
         return true;
     }
 
