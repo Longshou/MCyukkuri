@@ -1,11 +1,7 @@
 package io.github.longshou.mcyukkuri.dialogue;
 
-import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-
 /** Server-only transient admission state; deliberately never saved in entity NBT. */
 public final class SpeechTiming {
-    private static final int NEARBY_RADIUS = 16;
-    private static final int NEARBY_QUIET_TICKS = 80;
     private long end, next;
     private int priority = -1;
 
@@ -17,20 +13,15 @@ public final class SpeechTiming {
         return true;
     }
 
-    /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. Inside the gap after a performance line
-     *  only a line of a higher priority speaks; a refused beat line is dropped, not queued (it would come stale). */
-    public boolean canSpeak(YukkuriEntity speaker, long now, int incomingPriority, boolean timedCue) {
-        if (!available(now, incomingPriority, timedCue)) return false;
-        if (incomingPriority < 2 && !speaker.level().getEntitiesOfClass(YukkuriEntity.class,
-                speaker.getBoundingBox().inflate(NEARBY_RADIUS), other -> other != speaker && other.isAlive()
-                        && speaker.distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
-                        && other.speechEnd() != 0 && now < other.speechEnd() + NEARBY_QUIET_TICKS).isEmpty()) {
-            // Stagger retries without consuming the ecology/behaviour random stream.
-            next = Math.max(next, now + 40 + Math.floorMod(speaker.getUUID().hashCode(), 41));
-            return false;
-        }
-        return true;
+    /** Whether a line may start now (the body's own turn among its neighbours is checked beside this, in {@code YukkuriEntity}).
+     *  Inside the gap after a performance line only a line of a higher priority speaks; a refused beat line is dropped, not queued
+     *  (it would come stale). */
+    public boolean canSpeak(long now, int incomingPriority, boolean timedCue) {
+        return available(now, incomingPriority, timedCue);
     }
+
+    /** Keeps the door shut at least until {@code until}: a nearby line still fading staggers the retry. */
+    public void defer(long until) { next = Math.max(next, until); }
 
     public boolean admit(long now, int duration, int incomingPriority) {
         if (!available(now, incomingPriority, false)) return false;

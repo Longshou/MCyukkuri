@@ -131,7 +131,7 @@ public final class PresentationArbiter {
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
             case HAT_RETURN,RUB->"closed_smile";
-            case PIN,FIXED,WRAPPED,HOOK,VIBRATE,BOX->state.reactionTicks()>0?state.reactionExpression():"surprise";
+            case PIN,FIXED,WRAPPED,HOOK,VIBRATE,BOX->!state.reactionFace().isEmpty()?state.reactionFace():"surprise";
             case GRIP,RUMP,ASSIST->"cry";
             default->"surprise";
         };

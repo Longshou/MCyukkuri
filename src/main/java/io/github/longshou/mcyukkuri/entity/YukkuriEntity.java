@@ -237,6 +237,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private final SpeechTiming speechTiming = new SpeechTiming();
     /** Up to 16 distinct spoken keys, oldest first. */
     private static final int SPEECH_MEMORY = 16;
+    /** A neighbour whose line ended less than this many ticks ago still holds the turn; the radius is the shared quiet range. */
+    private static final int NEARBY_RADIUS = 16, NEARBY_QUIET_TICKS = 80;
     private final List<String> recentSpeech = new ArrayList<>();
     private String reactionExpression = "neutral";
     private String reactionEvent = "";
@@ -1048,6 +1050,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (ambientDropped(expression)) return false;
         if (!showReaction(expression, dialogue, ticks)) return false;
         reactionDecorative = true;
+        lingerUntil = 0; // only a signal's face lingers through its line
         return true;
     }
 
@@ -1056,6 +1059,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (ambientDropped(expression) || level().isClientSide || held() && !urgent(event)) return false;
         showReactionCue(action, expression, event);
         reactionDecorative = true;
+        lingerUntil = 0;
         return true;
     }
 
@@ -1063,7 +1067,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private boolean ambientDropped(String expression) {
         boolean signalRunning = reactionTicks > 0 && !reactionDecorative;
         if (!signalRunning && FacePrecedence.reactionOffers(true, !activityFace().isEmpty())) return false;
-        GameplayLog.limited(this, "face", "ambient_dropped", 200, "decorative reaction dropped face={} activity={} running={}", expression, activityFace(),
+        GameplayLog.limited(this, "face", "ambient_dropped", 200, "ambient_dropped face={} activity={} running={}", expression, activityFace(),
                 signalRunning ? reactionEvent + "/" + reactionExpression : "none");
         return true;
     }
@@ -1195,6 +1199,20 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return speak(event, tier, false, null, 0);
     }
 
+    /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. A retry is staggered without
+     *  consuming the ecology/behaviour random stream. */
+    private boolean admitSpeech(long now, int priority, boolean timedCue) {
+        if (!speechTiming.canSpeak(now, priority, timedCue)) return false;
+        if (priority < 2 && !level().getEntitiesOfClass(YukkuriEntity.class,
+                getBoundingBox().inflate(NEARBY_RADIUS), other -> other != this && other.isAlive()
+                        && distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
+                        && other.speechEnd() != 0 && now < other.speechEnd() + NEARBY_QUIET_TICKS).isEmpty()) {
+            speechTiming.defer(now + 40 + Math.floorMod(getUUID().hashCode(), 41));
+            return false;
+        }
+        return true;
+    }
+
     private boolean speak(String event, String tier, boolean timedCue, String style, int priorityFloor) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
@@ -1202,7 +1220,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         long now = level().getGameTime();
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-            if (!speechTiming.canSpeak(this, now, priority, timedCue)) return false;
+            if (!admitSpeech(now, priority, timedCue)) return false;
             speechTiming.begin(now, 40, priority);
             showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
             return true;
@@ -1210,7 +1228,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         event = mind.voice(event); // a broken mind can only scream
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
         int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-        if (choices.isEmpty() || !speechTiming.canSpeak(this, now, priority, timedCue)) return false;
+        if (choices.isEmpty() || !admitSpeech(now, priority, timedCue)) return false;
         var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, style == null ? speechStyle() : style, recentSpeech,
                 nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
         speechTiming.begin(now, line.ticks(), priority);
