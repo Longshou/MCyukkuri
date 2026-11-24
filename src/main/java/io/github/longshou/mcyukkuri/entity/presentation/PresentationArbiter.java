@@ -155,14 +155,14 @@ public final class PresentationArbiter {
         String leakFace=e.mind().leakFace();
         if(!leakFace.isEmpty())return leakFace;
         if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        // What the body is doing right now keeps its own face; background mood, hunger, tiredness and mild injury do not repaint it.
+        String activity = e.activityFace();
+        if (!activity.isEmpty()) return activity;
         // The published emotion row and the last frame of a flight precede the drain, weakness and resting faces.
         if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
             String mood = e.mind().face("neutral");
             if (!mood.equals("neutral")) return mood;
         }
-        // What the body is doing right now keeps its own face; hunger, tiredness and mild injury do not repaint it.
-        String activity = e.activityFace();
-        if (!activity.isEmpty()) return activity;
         // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
         if(e.aftermathDrain()>0)switch(e.getBehaviorId()) {
             case Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,

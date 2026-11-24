@@ -119,7 +119,7 @@ final class LeaveBehind implements Intent {
         var child = subject(parent, memo);
         if (child == null || !steady || parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child)) return;
         if (memo.ordered) {
-            if (child.drivenOut().phase() == DrivenOut.Phase.NONE || child.isInWaterOrBubble()) return;
+            if (child.drivenOut().phase() == DrivenOut.Phase.NONE || child.isInWaterOrBubble() || child.species().catchingBreath()) return;
             out.add(Desire.of("watch_leave", AquaticGoal.num("leave_want", 100), List.of(memo.child, memo.tries),
                     () -> "child=" + memo.child, () -> new Watch(parent, child, memo)));
             return;
