@@ -4096,13 +4096,14 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, z, label, values. ring_cocky and ring_voided start beside the paving watching the holder arrive (leaving
-# strayRoom open for both under MAX_STRAYS=2); ring_hungry and ring_timid start just outside RING_REACH (9) in view from the vantage.
+# name, kind, x, z, label, values. ring_cocky and ring_voided start on the south edge of the paving facing north so they
+# stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, yet see the holder arrive and leave strayRoom open
+# for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -6, -9, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', -1, -4, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -8, -5, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 7, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_hungry', 'marisa', -6, -1, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -7, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_voided', 'reimu', 6, 4, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=20, boldness=90, self_control=20)),
 ]
 
 
@@ -4122,11 +4123,12 @@ def _ring_yard():
 
 
 def _ring_stray(scene, name, kind, x, z, label, values):
+    yaw = -150 if name == 'ring_cocky' else 180 if name == 'ring_voided' else -95
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40,
-                  identity='STRAY', yaw=-60, **values)
+                  identity='STRAY', yaw=yaw, **values)
     # A former companion's badge: still worn and visible, but void since the owner abandoned it.
-    line = yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, identity='STRAY', yaw=30, **values)
+    line = yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=40, grade=1, identity='STRAY', yaw=yaw, **values)
     return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b}')
 
 
@@ -4139,12 +4141,12 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         block(-2, 0, -10, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
-        # The badged pet is the keeper's own companion: boredom 55 is enough to want the outing without starting a solo song on arrival.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 2, z=-9)[0]
+        # The badged pet starts inside the yard beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 2, z=-11)[0]
                           .replace('Boldness:70', 'Boldness:50').replace('Attachment:22', 'Attachment:80')
-                          .replace('Boredom:90', 'Boredom:55')),
+                          .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:600')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-5, 1, -125, 12),
+    ], env=DAY, vantage=(-6, 6, -135, 12),
     at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])

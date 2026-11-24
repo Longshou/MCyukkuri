@@ -108,7 +108,8 @@ public final class BadgeSocial {
         var ledger = o.pet().badgeLedger();
         List<YukkuriEntity> seen = new ArrayList<>();
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, o.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != o && peer.isAlive() && !peer.isRemoved()
-                && !peer.isPassenger() && !peer.profile().houseBody() && !peer.life().isSleeping())) {
+                && !peer.isPassenger() && !peer.profile().houseBody() && !peer.life().isSleeping()
+                && !peer.outing().onEscortLead())) {
             if (!Senses.sees(o, y)) continue;
             int theirs = visibleRank(y).id();
             var known = ledger.get(y.getUUID(), now);

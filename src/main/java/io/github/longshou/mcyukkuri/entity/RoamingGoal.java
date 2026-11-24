@@ -55,7 +55,7 @@ public final class RoamingGoal extends Goal {
     /** Where this stroll is drawn to instead of the home (the village heart in a spell, or a food holder), and how far it strolls there. */
     private BlockPos draw;
     private int radius, homeRadius, elapsed, failures, roll = -1, drawRadius;
-    private long nextWalk, nextExpedition, nextPlaza, nextPlayground;
+    private long nextWalk, nextExpedition, nextPlaza, nextPlayground, nextPlazaNotice;
     private TownMarkers.BadgePlaza plaza;
     private PlayBlockEntity playground;
     private int plazaPause;
@@ -454,6 +454,19 @@ public final class RoamingGoal extends Goal {
             stuckTicks = animal.position().distanceToSqr(progressPosition) < .04 ? stuckTicks + 20 : 0;
             progressPosition = animal.position();
             if (stuckTicks >= 20 && detour == null) routeAroundPeer();
+            if (plaza == null && !expedition && animal.level() instanceof ServerLevel level
+                    && level.getGameTime() >= nextPlaza && level.getGameTime() >= nextPlazaNotice
+                    && VillageStrays.browsesPlaza(animal) && TownMarkers.plazaLeisure(level)) {
+                var site = TownMarkers.badgePlaza(level, animal, radius);
+                if (site != null && !site.badged().isEmpty() && site.strayRoom(level, animal)) {
+                    nextPlazaNotice = level.getGameTime() + 120;
+                    nextWalk = level.getGameTime();
+                    result = "plaza_noticed";
+                    active = false;
+                    animal.getNavigation().stop();
+                    return;
+                }
+            }
         }
         if (detour != null) {
             if (++detourTicks > 100 || animal.distanceToSqr(Vec3.atBottomCenterOf(detour)) < .5) { detour = null; stuckTicks = 0; }
