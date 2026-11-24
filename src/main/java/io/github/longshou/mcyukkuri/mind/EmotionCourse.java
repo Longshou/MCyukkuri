@@ -108,7 +108,9 @@ public final class EmotionCourse {
     public Stage stage() { return kind == null ? Stage.NONE : Stage.at(elapsed, length); }
     public UUID about() { return about; }
     public BlockPos where() { return where; }
-    public boolean mourning() { return kind == Kind.GRIEF && stage() != Stage.FADING && stage() != Stage.NONE; }
+    /** Grief that still holds it back from ordinary living (home search, habitat work): not the grief carried over a severed tie. */
+    public boolean mourning() { return grieving() && !carried(); }
+    private boolean grieving() { return kind == Kind.GRIEF && stage() != Stage.FADING && stage() != Stage.NONE; }
     /** Grief still at its onset or peak: too stricken to go and plead or to start anything of its own. */
     public boolean stricken() { return kind == Kind.GRIEF && (stage() == Stage.ONSET || stage() == Stage.PEAK); }
     public String describe() {
@@ -152,7 +154,7 @@ public final class EmotionCourse {
     /** The face it wears over ordinary behaviour, or null; meals keep their chewing faces, its own goal its presentation row. */
     public String face() {
         if (kind == null || running && goalPriority() != 0 || entity.life().mealTicks() > 0) return null;
-        if (entity.life().isSleeping()) return mourning() && stage() != Stage.ONSET ? "tear_sleep" : null;
+        if (entity.life().isSleeping()) return grieving() && stage() != Stage.ONSET ? "tear_sleep" : null;
         return stageFace();
     }
     private String stageFace() { return stage().face(kind); }
@@ -214,9 +216,9 @@ public final class EmotionCourse {
     }
 
     /**
-     * Grief for kin it was cut off from (the severed tie is in the pedigree) is carried while it lives on: face, pace and droop show it,
-     * but it does not hold the body where it stands, so the severed one goes on to live as a stray. Grief about anyone whose tie is
-     * not severed (a death or a loss) still pins it.
+     * Grief for kin it was cut off from (the severed tie is in the pedigree) is carried while it lives on: face, pace, lines and droop show
+     * it, but it neither holds the body where it stands ({@link #goalPriority}) nor counts as {@link #mourning} for home search and habitat
+     * work, so the severed one goes on to live as a stray. Grief about anyone whose tie is not severed (a death or a loss) still pins it.
      */
     private boolean carried() {
         return kind == Kind.GRIEF && about != null && FamilyData.get((ServerLevel)entity.level()).severed(entity.getUUID(), about);
