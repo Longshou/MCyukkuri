@@ -157,6 +157,7 @@
   "rules.mcyukkuri.no_leaving_yard": "不准出院子（离窝八格）",
   "rules.mcyukkuri.no_eating_unasked": "不准擅自吃东西",
   "rules.mcyukkuri.no_bullying": "不准欺负其他宠物",
+  "rules.mcyukkuri.give_way": "给人让路",
   "rules.mcyukkuri.memory": "第 %s 天被发现违反「%s」",
   "care.mcyukkuri.rules": "家规",
   "rules.mcyukkuri.no_sukkiri": "不准素鸡立",

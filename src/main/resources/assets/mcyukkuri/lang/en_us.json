@@ -157,6 +157,7 @@
   "rules.mcyukkuri.no_leaving_yard": "Stay in the yard (8 blocks from home)",
   "rules.mcyukkuri.no_eating_unasked": "Ask before eating",
   "rules.mcyukkuri.no_bullying": "No bullying household pets",
+  "rules.mcyukkuri.give_way": "Make way for people",
   "rules.mcyukkuri.memory": "Day %s: caught breaking “%s”",
   "care.mcyukkuri.rules": "House rules",
   "rules.mcyukkuri.no_sukkiri": "No sukkiri",

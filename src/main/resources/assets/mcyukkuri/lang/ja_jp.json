@@ -8832,6 +8832,7 @@
   "rules.mcyukkuri.no_leaving_yard": "庭から出ない（巣から8ブロック）",
   "rules.mcyukkuri.no_eating_unasked": "勝手に食べない",
   "rules.mcyukkuri.no_bullying": "同じ家のペットをいじめない",
+  "rules.mcyukkuri.give_way": "人に道を譲る",
   "rules.mcyukkuri.memory": "%s日目：「%s」に違反したことが発覚",
   "care.mcyukkuri.rules": "家のきまり",
   "rules.mcyukkuri.no_sukkiri": "すっきり禁止",

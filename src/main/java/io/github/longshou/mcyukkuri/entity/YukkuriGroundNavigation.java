@@ -4,6 +4,8 @@ import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
 import io.github.longshou.mcyukkuri.motor.geom.YieldRule;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -917,6 +919,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     // Keep at least .2 blocks beyond both hitboxes. An eager sidestep leaves up to .6 blocks of breathing room.
     public static final double YIELD_MARGIN = Passage.MARGIN;
     private static final double PASSAGE_RANGE = 4;
+    /** A person gets one small sidestep, never a walk round them: the far-side fallback would cross their line. */
+    private static final double GIVE_WAY_STEP = 1.5;
+    /** A person's sidestep turns first, so its cap covers the turn as well as the step; a peer's step keeps {@link #YIELD_LIMIT}. */
+    private static final int GIVE_WAY_LIMIT = 30;
     private record PlayerPosition(Level level, Vec3 position) {}
     private static final Map<ServerPlayer, PlayerPosition> PLAYER_POSITIONS = new WeakHashMap<>();
     private static final class Yield {
@@ -926,9 +932,16 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         final int notice;
         final double pace;
         final boolean mayInterruptWalk;
+        /** A player or human NPC, not a fellow yukkuri: it gets the awe gate and a real small walk. */
+        final boolean person;
+        /** This body's awe of the person, or its eagerness to clear a peer's line. */
+        final double deference;
         boolean stepped, done;
+        Vec3 last;
+        double maxStep;
 
-        Yield(UUID walker, Vec3 start, Vec3 stand, long began, int notice, double pace, boolean mayInterruptWalk) {
+        Yield(UUID walker, Vec3 start, Vec3 stand, long began, int notice, double pace, boolean mayInterruptWalk,
+              boolean person, double deference) {
             this.walker = walker;
             this.start = start;
             this.stand = stand;
@@ -936,6 +949,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             this.notice = notice;
             this.pace = pace;
             this.mayInterruptWalk = mayInterruptWalk;
+            this.person = person;
+            this.deference = deference;
             this.done = stand == null;
         }
     }
@@ -1033,24 +1048,56 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if (lateral >= width + YIELD_MARGIN) return false;
         var temperament = blocker.life().personality();
         double confidence = SocialDisposition.confidence(SocialDisposition.selfEsteem(blocker));
-        double eagerness = ((100 - temperament.boldness()) / 100.0 + 1 - confidence) / 2;
-        double margin = YIELD_MARGIN + .4 * eagerness;
-        double stepPace = .18 + .12 * eagerness;
-        int notice = (int)Math.round(MAX_YIELD_NOTICE * (1 - eagerness));
+        double deference = ((100 - temperament.boldness()) / 100.0 + 1 - confidence) / 2;
+        boolean person = !(walker instanceof YukkuriEntity);
+        if (person) deference = SocialDisposition.humanAwe(blocker, walker, temperament.relation(walker.getUUID()));
+        double margin = YIELD_MARGIN + (person ? .2 : .4) * deference;
+        // A person gets the body's ordinary walk; a peer keeps the quicker direct step.
+        double stepPace = person ? BodyAbility.of(blocker).walkSpeed() * BodyAbility.carrying(blocker) : .18 + .12 * deference;
+        int notice = (int)Math.round(MAX_YIELD_NOTICE * (1 - deference));
         if (!mayInterruptWalk) {
             double ahead = offset.dot(heading);
             // Allow the whole step before the front edges meet, including the two-tick player sampling interval.
             double lead = width + walkerPace * (notice + Math.ceil((width + margin - lateral) / stepPace) + 2);
             if (ahead < -.1 || ahead > lead) return false;
         }
+        if (person) {
+            // Only awe moves a body aside for a person: the owner's rule, or its own fear of that person. A bold body that
+            // holds neither keeps its place (and the refused pass is not asked again every tick).
+            var conscience = blocker.pet().conscience();
+            if (conscience.binds(HouseRule.GIVE_WAY)) {
+                var choice = conscience.tempted(HouseRule.GIVE_WAY, 1 - deference, 1);
+                if (choice != RulesMath.Choice.HOLD) {
+                    if (choice == RulesMath.Choice.BREAK) conscience.breach(HouseRule.GIVE_WAY);
+                    refuse(nav, blocker, walker, deference, "rule", choice);
+                    return false;
+                }
+            } else if (deference < SocialDisposition.GIVE_WAY_AWE) {
+                refuse(nav, blocker, walker, deference, "awe", null);
+                return false;
+            }
+        }
         var start = blocker.position();
         Vec3 stand = Passage.aside(start, offset, side, width, margin, at -> Encounter.standFree(blocker, at));
+        if (person && stand != null && stand.distanceTo(start) > GIVE_WAY_STEP) stand = null;
         if (stand != null) {
             blocker.getLookControl().setLookAt(walker, 30, 30);
-            if (!blocker.hasReaction()) blocker.showAmbient(eagerness > .5 ? "surprise" : "pursed", "", 12);
+            String face = deference > .5 ? "surprise" : "pursed";
+            boolean shown = !blocker.hasReaction() && blocker.showAmbient(face, "", 12);
+            if (shown) blocker.beat("give_way_notice", face, "");
+            GameplayLog.event(blocker, "move", "action=give_way_notice walker={} walker_type={} beat=notice face={} line=none person={} deference={}",
+                    walker.getUUID(), walker.getType(), shown ? face : "none", person, deference);
         }
-        nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk);
+        nav.passage = new Yield(walker.getUUID(), start, stand, blocker.level().getGameTime(), notice, stepPace, mayInterruptWalk, person, deference);
         return stand != null;
+    }
+
+    /** A person was noticed but does not awe this body (or the pet chose not to obey): no step, and the pass is remembered. */
+    private static void refuse(YukkuriGroundNavigation nav, YukkuriEntity body, Entity walker, double deference,
+                               String cause, RulesMath.Choice choice) {
+        nav.passage = new Yield(walker.getUUID(), body.position(), null, body.level().getGameTime(), 0, 0, false, true, deference);
+        GameplayLog.event(body, "move", "action=give_way_refused walker={} walker_type={} beat=refused face=none line=none cause={} choice={} deference={}",
+                walker.getUUID(), walker.getType(), cause, choice == null ? "none" : choice, deference);
     }
 
     private void tickPassage(YukkuriEntity body) {
@@ -1062,7 +1109,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         }
         if (passage.done) return;
         long elapsed = level.getGameTime() - passage.began;
-        if (!canGiveWay(body) || !passage.mayInterruptWalk && !idleForPassage(body) || elapsed > YIELD_LIMIT) {
+        if (!canGiveWay(body) || !passage.mayInterruptWalk && !idleForPassage(body)
+                || elapsed > (passage.person ? GIVE_WAY_LIMIT : YIELD_LIMIT)) {
             passage.done = true;
             return;
         }
@@ -1072,25 +1120,47 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
             passage.done = true;
             return;
         }
-        SurfaceApproach.stopWalking(body);
-        var step = delta.normalize().scale(Math.min(delta.length(), passage.pace));
-        if (Motor.move(body, step, "give_way").dot(step) < step.lengthSqr() * .5) {
+        var left = passage.stand.subtract(body.position()).multiply(1, 0, 1);
+        boolean arrived = passage.person ? left.length() < .05 || left.dot(passage.stand.subtract(passage.start)) <= 0
+                : body.position().subtract(passage.stand).horizontalDistanceSqr() < .0001;
+        if (arrived) {
             passage.done = true;
+            if (passage.stepped) {
+                var side = passage.stand.subtract(passage.start).normalize();
+                double distance = body.position().subtract(passage.start).dot(side);
+                double gap = body.position().subtract(walker.position()).dot(side)
+                        - Passage.halfWidth(body, side) - Passage.halfWidth(walker, side);
+                GameplayLog.event(body, "move", "action=give_way_done walker={} distance={} gap={} max_step={} beat=done face=none line=none",
+                        walker.getUUID(), distance, gap, passage.person ? passage.maxStep : -1);
+            }
             return;
+        }
+        // Actual per-tick travel while the step runs, so the log proves there was no slide.
+        if (passage.last != null)
+            passage.maxStep = Math.max(passage.maxStep, passage.last.subtract(body.position()).multiply(1, 0, 1).length());
+        passage.last = body.position();
+        SurfaceApproach.stopWalking(body);
+        if (passage.person) {
+            float yaw = SurfaceApproach.yaw(body.position(), passage.stand);
+            body.getLookControl().setLookAt(passage.stand.x, body.getEyeY(), passage.stand.z);
+            // The body turns to its stand first (never walking backwards), then walks there at its ordinary pace.
+            if (Math.abs(Mth.wrapDegrees(yaw - body.yBodyRot)) > Encounter.TURN_FIRST) {
+                SurfaceApproach.haltInput(body);
+                Motor.face(body, yaw);
+                return;
+            }
+            Motor.step(body, passage.stand, 1);
+        } else {
+            var step = delta.normalize().scale(Math.min(delta.length(), passage.pace));
+            if (Motor.move(body, step, "give_way").dot(step) < step.lengthSqr() * .5) {
+                passage.done = true;
+                return;
+            }
         }
         if (!passage.stepped) {
             passage.stepped = true;
-            GameplayLog.event(body, "move", "action=give_way walker={} walker_type={} stand={}",
+            GameplayLog.event(body, "move", "action=give_way walker={} walker_type={} beat=step face=none line=none stand={}",
                     walker.getUUID(), walker.getType(), GameplayLog.at(passage.stand));
-        }
-        if (body.position().subtract(passage.stand).horizontalDistanceSqr() < .0001) {
-            passage.done = true;
-            var side = passage.stand.subtract(passage.start).normalize();
-            double distance = body.position().subtract(passage.start).dot(side);
-            double gap = body.position().subtract(walker.position()).dot(side)
-                    - Passage.halfWidth(body, side) - Passage.halfWidth(walker, side);
-            GameplayLog.event(body, "move", "action=give_way_done walker={} distance={} gap={}",
-                    walker.getUUID(), distance, gap);
         }
     }
 

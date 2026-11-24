@@ -62,11 +62,7 @@ public final class SocialDisposition {
     }
 
     public static double humanWariness(YukkuriEntity entity, Entity person, Relation relation) {
-        int boldness = entity.life().personality().boldness();
-        double stranger = entity.status().identity().wild()
-                ? .50 + .35 * (1 - ramp(boldness, 40, 90))
-                : .12 + .34 * (1 - ramp(boldness, 35, 65));
-        stranger *= 1 - ramp(relation.closeness(), 0, 8);
+        double stranger = humanStranger(entity, relation);
         var toward = entity.position().subtract(person.position()).multiply(1, 0, 1).normalize();
         // ServerPlayer supplies its accepted packet movement here. Our own approach does not count as a rush.
         double closing = 20 * person.getKnownMovement().dot(toward);
@@ -77,6 +73,28 @@ public final class SocialDisposition {
     public static double wariness(YukkuriEntity entity, Relation relation) {
         return Math.max(ramp(relation.fear(), 15, 60), Math.max(.70 * ramp(entity.mind().unease(), 35, 80),
                 .45 * (1 - ramp(entity.body().healthRatio(), .30, .65))));
+    }
+
+    /** The fear of any person a body starts with: a wild body fears more; closeness to this one settles it. Range .12-.85. */
+    public static double humanStranger(YukkuriEntity entity, Relation relation) {
+        int boldness = entity.life().personality().boldness();
+        double stranger = entity.status().identity().wild()
+                ? .50 + .35 * (1 - ramp(boldness, 40, 90))
+                : .12 + .34 * (1 - ramp(boldness, 35, 65));
+        return stranger * (1 - ramp(relation.closeness(), 0, 8));
+    }
+
+    /** The awe at which an approaching person makes a body step aside. */
+    public static final double GIVE_WAY_AWE = .6;
+
+    /**
+     * How much a body defers to a person: the fear any person starts with, its fear of this one and a hurt or uneasy body's
+     * wariness, and, for a pet, its trained obedience to its owner. Range 0-1; see {@link #GIVE_WAY_AWE} for yielding.
+     */
+    public static double humanAwe(YukkuriEntity entity, Entity person, Relation relation) {
+        double awe = Math.max(humanStranger(entity, relation), wariness(entity, relation));
+        if (entity.pet().ownedBy(person.getUUID())) awe = Math.max(awe, .20 + .60 * ramp(entity.pet().obedience(), 20, 90));
+        return Math.clamp(awe, 0, 1);
     }
 
     /** Learned avoidance grows through the existing cautious and high-fear bands. */

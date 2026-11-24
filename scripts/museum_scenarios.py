@@ -4652,20 +4652,24 @@ add('attack_witness', 'town', '你打灵梦：看见的逃，墙后的不知', '
 
 _pass_x, _pass_z = BY_ID['town'].anchor
 _pass_home = (((_pass_x + 4) & 0x3ffffff) << 38) | ((_pass_z & 0x3ffffff) << 12) | FEET
+_pass_home_south = (((_pass_x + 4) & 0x3ffffff) << 38) | (((_pass_z + 4) & 0x3ffffff) << 12) | FEET
 if _pass_home >= 1 << 63:
     _pass_home -= 1 << 64
-add('street_give_way', 'town', '街上挡路：给走来的居民和玩家侧让', '街上挡路：给走来的居民和玩家侧让',
-    '居民沿北边回家时，胆小的灵梦会快速退到路外。你沿南边的砖路从西向东走，看看好强的魔理沙怎样只往旁边挪出够你经过的位置。',
-    '居民几秒内回家，玩家可随后走过', [
+if _pass_home_south >= 1 << 63:
+    _pass_home_south -= 1 << 64
+add('street_give_way', 'town', '街上挡路：敬畏的人才让路', '街上挡路：敬畏的人才让路',
+    '两个居民从西边沿两条砖路回家：北边胆小的灵梦先转身，再朝路边挪开一步；南边好强的魔理沙不把居民放在眼里，站在原地一动不动，居民从她身边擦过。',
+    '居民几秒内走过，可重开对比', [
         box(-6, -1, -2, 6, -1, 6, 'minecraft:stone_bricks'),
         box(-6, -1, 0, 6, -1, 0, 'minecraft:polished_andesite'),
         box(-6, -1, 4, 6, -1, 4, 'minecraft:polished_andesite'),
-        human('caretaker_brother', -4, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='正在回家的居民'),
+        human('caretaker_brother', -4, 0, 'pass_resident', 0, attitude=2, yaw=-90, label='北边回家的居民'),
         f'data merge entity {sel("pass_resident")} {{HumanHome:{_pass_home}L,StreetHomePause:-600}}',
-        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), boldness=12,
-           extra='Health:2.8f', **pair_ready()),
-        yk('marisa', 0, 4, 'pass_marisa', label='从西侧走来', boldness=90, friendliness=20,
-           extra='Health:2.8f', **pair_ready()),
+        human('caretaker_brother', -4, 4, 'pass_resident_south', 0, attitude=2, yaw=-90, label='南边回家的居民'),
+        f'data merge entity {sel("pass_resident_south")} {{HumanHome:{_pass_home_south}L,StreetHomePause:-600}}',
+        yk('reimu', 0, 0, 'pass_reimu', uuid=uid('street_give_way', 'reimu'), boldness=12, **pair_ready()),
+        yk('marisa', 0, 4.8, 'pass_marisa', uuid=uid('street_give_way', 'marisa'), label='站着不动的大胆魔理沙',
+           boldness=90, friendliness=20, **pair_ready()),
     ], env=DAY, vantage=(-5, 4, -90, 10))
 
 # A one-cell lane (z -5..5) between a stone wall (west) and a glass shop front (east, the observer's side): each tired adult starts
@@ -11715,10 +11719,36 @@ next(s for s in S if s.id == 'oni_stress_room').smoke['commands'] = [
           'if data block ~14 ~3 ~1 {Items:[{Slot:0b,id:"mcyukkuri:restraint_frame",count:1}]} run say MCYSP08_RESTOCKED'),
     (228, 'yukkuri scenario tool_operator leave'),
 ]
+def _street_give_way_verify(window):
+    """The awed body's whole step stays under 1.5 blocks with real clearance and no slide; the bold one never steps."""
+    reimu, marisa = _uuid_text('street_give_way', 'reimu'), _uuid_text('street_give_way', 'marisa')
+    done = 0
+    for line in re.finditer(rf'uuid={reimu} [^\n]* action=give_way_done ([^\n]*)', window):
+        done += 1
+        fields = dict(re.findall(r'(\w+)=(-?[\d.]+)', line[1]))
+        if float(fields['distance']) >= 1.5:
+            return f'the awed body stepped {fields["distance"]} blocks, over 1.5'
+        if float(fields['gap']) < .2:
+            return f'the awed body left only {fields["gap"]} blocks of clearance'
+        if float(fields['max_step']) > .3:
+            return f'the awed body travelled {fields["max_step"]} blocks in one tick'
+    if not done:
+        return 'the awed body never finished its step'
+    if re.search(rf'uuid={marisa} [^\n]* action=give_way(?: |_done)', window):
+        return 'the bold body stepped aside for a person'
+    if not re.search(rf'uuid={marisa} [^\n]* action=give_way_refused [^\n]* cause=awe\b', window):
+        return 'the bold body was never asked, so its refusal was not shown'
+    return None
+
+
 _smoke('street_give_way', 300, [
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_notice [^\n]* person=true [^\n]* deference=0\.8\d*',
+    rf'\[choreo\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* beat=give_way_notice face=surprise line= declared=surprise',
     rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way [^\n]*walker_type=[^\n]*caretaker_brother',
-    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=(?:1\.\d+|[2-9]\d*(?:\.\d+)?) gap=(?:0\.[2-9]\d*|[1-9]\d*(?:\.\d+)?)\b',
-])
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "reimu")} [^\n]* action=give_way_done [^\n]*distance=1\.\d+ gap=0\.[3-5]\d* max_step=0\.[0-2]\d*',
+    rf'\[move\][^\n]*uuid={_uuid_text("street_give_way", "marisa")} [^\n]* action=give_way_refused [^\n]* cause=awe ',
+], forbid=[r'\[move\][^\n]* action=give_way_done [^\n]* distance=[2-9]\d*(?:\.\d+)? '])
+next(s for s in S if s.id == 'street_give_way').smoke['verify'] = _street_give_way_verify
 _smoke('yard_owner_return', 1250, [
     r'\[pet\][^\n]* yard bond established owner=[^ ]+ closeness=24 bowl=1 toilet=1',
     r'\[pet\][^\n]* owner return approach owner=[^ ]+ clip=joy_jump distance=(?:[2-9]|1[0-2])\.',
