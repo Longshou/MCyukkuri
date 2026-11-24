@@ -618,7 +618,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         var home = animal.life().homeStand();
         boolean wildAdult = wildAdult();
         boolean roost = wildAdult && needsRoost(home);
-        if (home != null && !roost && provisionChild() == null && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
+        if (home != null && !roost && provisionChild() == null && !Task.RETURN.needsLanding(animal.life().energy())
+                && (order() == Order.RETURN || animal.life().energy() < 35 || level().isNight() || level().isRaining())
                 && animal.distanceToSqr(Vec3.atBottomCenterOf(home)) > .64) {
             Vec3 feet = landingFeet(home);
             if (feet != null && outsideTerritories(foreignTerritories(home, 0), feet) && canDepart(feet)) {

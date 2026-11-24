@@ -6799,9 +6799,9 @@ _FLIGHT_FAM = {'reimu': None, 'marisa': None}
 _FLIGHT_ROOST = (14, 34)
 
 
-def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=21):
+def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=21, baby_x=2.5):
     """One household outside its nest; after the family settles and receives its home (+40 t), a hungry predator arrives
-    ahead (+41 t) so the player sees the calm start, the notice, the urgent run to each baby (both start 2.5 blocks out), then the predator flies back to its own roost,
+    ahead (+41 t) so the player sees the calm start, the notice, the urgent run to each baby (each starts baby_x blocks out), then the predator flies back to its own roost,
     and the flight to the nest."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
@@ -6820,7 +6820,7 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
             yk(kind, 0, 8, 'mother', uuid=parent, yaw=0, lead=True, boldness=bold, attachment=attach, **({'fam': fam} if fam else {})),
             *[yk(kind, x, 7.6, name, stage='baby', uuid=uid(sid, name),
                  kin=kin_of(Mother=parent), childhood=CHILDHOOD_HOPPING)
-              for x, name in [(-2.5, 'baby_a'), (2.5, 'baby_b')]],
+              for x, name in [(-baby_x, 'baby_a'), (baby_x, 'baby_b')]],
             *[home(name, 0, 0) for name in ('mother', 'baby_a', 'baby_b')]],
         late=[Retry(yk('remilia', 0, pred_z, 'predator', uuid=uid(sid, 'predator'), yaw=180,
                        label='饥饿的捕食种', nutrition=36, energy=38, boldness=40),
@@ -6859,7 +6859,10 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；留下的孩子面临真实捕食风险。',
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；两只开场相距 6.8 格（各距亲油约 3.4 格），她只来得及开跑第一只；留下的孩子面临真实捕食风险。',
+    # Patience 13 ticks: a mouth lift of the first baby (3.4-block walk + 15-18-tick lift) already outlasts it, and the 6.8-block spacing
+    # stays inside the 6-block gather range and the 8-block look-back.
+    baby_x=3.4,
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',

@@ -217,6 +217,16 @@ public final class ParentCarry {
         @Override public String ownerId() { return "family_carry"; }
         @Override public boolean active() { return lifting != null || setting || purpose != null && carrier.family().task() == FamilyLife.Task.CARRY; }
         @Override public void finished(Action action, Outcome outcome) {
+            // A Grab of this carry's lifting child ends for any reason: the lift is over (a child already mounted is the passenger record's).
+            if (action instanceof Grab grab && grab.target().getUUID().equals(lifting)) {
+                lifting = null;
+                if (outcome instanceof Outcome.Blocked) {
+                    GameplayLog.event(carrier, "family", "carry grab failed child={} outcome={} reason={}", grab.target().getUUID(),
+                            outcome.label(), outcome.reason());
+                    pauses.put(grab.target().getUUID(), new Pause(carrier.level().getGameTime() + HOLD_TICKS, "pickup_failed",
+                            grab.target().position(), null));
+                }
+            }
             if (action instanceof Walk && outcome instanceof Outcome.Blocked blocked)
                 homeWalkFailed(blocked.reason(), blocked.detail(), false);
         }
@@ -2041,7 +2051,12 @@ public final class ParentCarry {
             if (ours().stream().anyMatch(this::failedDestination)) return false;
             failedHome = null;
         }
-        var more = purpose != Purpose.PROTECT && (lifting != null || walkTo == null && taskTicks < GATHER_TICKS) ? dependent() : null;
+        // A lift still running keeps the body: the retrieval waits for it instead of replacing its Grab with the home Walk.
+        if (lifting != null) {
+            if (carrier.motor().current() instanceof Grab) return true;
+            lifting = null;
+        }
+        var more = purpose != Purpose.PROTECT && walkTo == null && taskTicks < GATHER_TICKS ? dependent() : null;
         // The dependent this retrieval goes for next stops its own walking and waits for the lift ({@link #awaitsCarrier}).
         if (more != null && !more.getUUID().equals(gathering)) SurfaceApproach.stopWalking(more);
         gathering = more == null ? null : more.getUUID();

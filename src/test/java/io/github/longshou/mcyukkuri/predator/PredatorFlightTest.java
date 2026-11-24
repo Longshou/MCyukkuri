@@ -20,7 +20,7 @@ class PredatorFlightTest {
 
     @Test void familyFlightsLandOnTheSameReserveAsPatrol() {
         for (var task : new PredatorFlight.Task[]{PredatorFlight.Task.DELIVER,PredatorFlight.Task.VISIT_YOUNG,
-                PredatorFlight.Task.BROOD_FLIGHT,PredatorFlight.Task.PATROL}) {
+                PredatorFlight.Task.BROOD_FLIGHT,PredatorFlight.Task.PATROL,PredatorFlight.Task.RETURN}) {
             assertFalse(task.needsLanding(15));
             assertTrue(task.needsLanding(14.99));
         }
