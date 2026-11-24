@@ -4714,12 +4714,12 @@ add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '�
         *shed(12, 4, half=1),
         item('mcyukkuri:marisa_doll', 1, 3, 5, 'doll_fright'),
         item('mcyukkuri:marisa_doll', 1, 7, 8, 'doll_hungry'),
-        street_trial(_doll_interrupt, 'marisa', 6, 5, 'int_fright', boldness=60, attachment=75, friendliness=60,
+        street_trial(_doll_interrupt, 'marisa', 6, 5, 'int_fright', boldness=80, attachment=80, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='受惊的魔理沙',
-                     extra='YukkuriDailyLife:{Boredom:42}'),
-        street_trial(_doll_interrupt, 'marisa', 10, 8, 'int_hungry', boldness=80, attachment=75, friendliness=60,
+                     extra='YukkuriDailyLife:{Boredom:43}'),
+        street_trial(_doll_interrupt, 'marisa', 10, 8, 'int_hungry', boldness=80, attachment=80, friendliness=60,
                      nutrition=95, energy=95, yaw=90, label='变饿的魔理沙',
-                     extra='YukkuriDailyLife:{Boredom:42}'),
+                     extra='YukkuriDailyLife:{Boredom:43}'),
     ], at_spawn=[home('int_fright', -2, 5), home('int_hungry', 12, 4)],
     env=DAY, spot='pavilion', vantage=(4, 13, 180, 20),
     reads=[('读受惊魔理沙', f'yukkuri status {sel("int_fright")} raw'),
@@ -8743,7 +8743,7 @@ def _verify_doll_interrupt(window):
         return 'frightened carrier never completed set_down after re-fetching'
 
 
-_smoke(_doll_interrupt, 1600, [
+_smoke(_doll_interrupt, 1800, [
     rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=pick_up ',
     rf'\[body\][^\n]*uuid={_int_fright} [^\n]*mouth drop item=mcyukkuri:marisa_doll count=1 purpose=KEEPSAKE ',
     rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=set_down ',
@@ -8753,10 +8753,10 @@ _smoke(_doll_interrupt, 1600, [
 next(s for s in S if s.id == _doll_interrupt).smoke.update(
     verify=_verify_doll_interrupt,
     commands=[
-        (165, yk('remilia', 0, 5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
-        (195, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
-        (196, f'tp {sel("tmp_pred")} ~ ~50 ~'),
-        (170, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
+        (90, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
+        (100, yk('remilia', 0, 5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
+        (125, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
+        (126, f'tp {sel("tmp_pred")} ~ ~50 ~'),
     ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
