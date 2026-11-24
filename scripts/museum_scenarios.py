@@ -6800,11 +6800,14 @@ _FLIGHT_ROOST = (14, 34)
 
 
 def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', allow_fate=(), pred_z=20, baby_x=1.9, mother_z=5.0, babies=None):
-    """One household at its nest (homes known at the summon): the mother stands 4.5 blocks from the nest and each baby 2.4 blocks to
-    her side, inside the 4-block retrieve distance (no ordinary retrieve starts) and clear of the shed's front posts (removed here)
-    and its roof. The hungry predator is summoned with them, 15 blocks from her: homes known the whole time make the babies hop to
-    the nest, so the notice must come before they get there (they have hopped about half a block by then). The player sees the
-    notice, the urgent run to the nearest baby, the lift, the run to the nest and the set-down, then the predator flies back to its roost."""
+    """One household at its nest (homes known at the summon): in the default home scene the mother stands 5.0 blocks from the nest and
+    each baby ~2.4 blocks to her side (inside the 4-block retrieve distance, clear of the shed's removed front posts and roof) with the
+    hungry predator summoned 15 blocks from her (20 from the nest). In timid/hat the mother stands 7.5 blocks out with baby_a ~2.4 from
+    her, baby_b ~3.6 from her (~10.5 from the nest, ~10.7 from the predator) and the predator 12.5/13.5 blocks from her (20/21 from the
+    nest). The predator is summoned with them because with homes known earlier the babies hop home before anything happens; the 4 s
+    scene-start hold lets the player watch from the first tick. The player sees the notice, the urgent run to the nearest baby, the lift,
+    the run to the nest and the set-down (the hat scene may need the declared second trip when a dive cuts short the second brim lift),
+    then the predator flies back to its roost."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
     # A beat line pairs the face shown with the face declared: any family beat where they differ fails the run.
@@ -6867,15 +6870,15 @@ _flight_scene(_flight_timid, 'reimu', '捕食种靠近，胆小的亲油只带�
      r'\[family\][^\n]*carry flight pickup ended aboard=1 follow=\[[0-9a-f-]{36}\]',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
      _FLIGHT_ORDER % ('mouth', _FLIGHT_LEAVES), _FLIGHT_BEAT % ('abandon_look', 'protect_child_flee')],
-    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），停步时间＝12＋依恋/5（31 约 18 tick，近 1 秒）；第一只在亲油身边约 2.4 格，第二只在它外侧、亲油南面约 4.7 格（离窝 8 格，在捕食种一侧），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
+    note='依恋低于 50 的亲油回头只喊害怕（protect_child_flee），威胁未贴近 4 格内时停步＝12＋依恋/5（31 约 18 tick，近 1 秒；贴近 4 格内停步为 0）；第一只在亲油身边约 2.4 格，第二只在它外侧、距亲油约 3.6 格（离窝约 10.5 格、距捕食种约 10.7 格），耐心只有 13 tick、第一只的口含抱起就要约 18 tick，所以她抱起第一只后不会再开始第二只；留下的孩子面临真实捕食风险。',
     # Patience 13 ticks: the mouth lift of the first baby (15-18 ticks) already outlasts it. The second baby lies beyond the first, on
-    # the predator's side and 8 blocks from the nest (4.7 from her: inside the 6-block gather range and the 8-block look-back), so the
-    # hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
+    # the predator's side and ~10.5 blocks from the nest (~3.6 from her, ~10.7 from the predator: inside the 6-block gather range and
+    # the 8-block look-back), so the hunt for it ends away from the nest door and the set-down young are not flushed out of the nest.
     mother_z=7.5, babies=[(-1.9, 6.0, 'baby_a'), (2.0, 10.5, 'baby_b')],
     allow_fate=[dict(kind='death', who=f'uuid={uid(_flight_timid, "baby_b")} ', match=r'cause=mob\b',
                      why='left-behind young in timid flight is at real risk from the hunting predator')])
 _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上帽檐躲回窝',
-    '魔理沙与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油用辫子把赤油托上帽檐，一只接一只，然后径直退回窝边放下。',
+    '魔理沙与两只赤油在窝外，饥饿的蕾米莉亚靠近。亲油用辫子把赤油托上帽檐，一只接一只（若俯冲打断第二只抬升，会走已声明的第二趟回接或由留下的赤油自行回窝），然后径直退回窝边放下。',
     '约 5 秒开始接抱，20 秒内回窝放下', 75, 85,
     [r'\[family\][^\n]*carry flight choice .*gather=true',
      r'\[family\][^\n]*carry flight reaching child=\S+ distance=[1-9]',

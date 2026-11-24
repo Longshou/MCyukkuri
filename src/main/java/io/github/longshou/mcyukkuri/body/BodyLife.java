@@ -331,6 +331,7 @@ public final class BodyLife {
     /** {@code cause} names an internal cause (old_age, poison ...) that a generic carrier source would otherwise lose. */
     public void terminalKill(DamageSource source,boolean destroyCore,boolean destroyFood,String cause){
         if(entity.level().isClientSide||!entity.isAlive()||settled)return;
+        entity.family().carry().onTerminalDeath();
         terminalCause=cause==null?"":cause;
         float previousFood=deathFood;boolean previousCore=coreHurt;
         freezeFood();

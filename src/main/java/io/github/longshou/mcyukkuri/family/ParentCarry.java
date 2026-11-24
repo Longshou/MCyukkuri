@@ -1874,6 +1874,11 @@ public final class ParentCarry {
 
     private void breakOff(String why) { end(why); }
 
+    /** Ends a bound threat flight on a terminal death path that reaches {@code terminalKill} directly. */
+    public void onTerminalDeath() {
+        if (leg != null) end("dying");
+    }
+
     private void end(String why) {
         GameplayLog.event(carrier, "family", "carry flight bound end reason={} leg={} trips={} aboard={}", why, leg, trips, ours().size());
         closeGather();

@@ -141,7 +141,9 @@ public final class FlightPlanner {
         if (shelter != null && !shelter.contains(body.blockPosition()) && DenBarrier.sealed(shelter))
             return Vec3.atBottomCenterOf(shelter.entrance().relative(shelter.facing()));
         var home = body.life().homeStand();
-        return home == null ? null : Vec3.atBottomCenterOf(home);
+        if (home == null) return null;
+        // A nest bed cell has no vanilla walk node; a carrier fleeing home routes to its supported doorway stand.
+        return body.family().carry().carrying() ? body.life().homeApproach(home) : Vec3.atBottomCenterOf(home);
     }
 
     boolean hasExit(LivingEntity danger) {

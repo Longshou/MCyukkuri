@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
+import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.GriefVow.Lost;
@@ -605,10 +606,12 @@ public final class EmotionCourse {
         }
         private EmotionCourse f() { return y.mind().feeling(); }
         private boolean wanted() {
+            // A parent carrying its young yields movement/look to getting them to safety first; the course still ticks and
+            // shows its facial overlay while walking, then plays its tremble/stroll once the young are set down.
             return f().goalPriority() == priority && y.isAlive() && !y.inert() && !y.isPassenger() && !y.isPanicking()
                     && !y.isInWaterOrBubble() && !y.isOnFire() && !y.isCommandPlaying() && !y.operations().active()
                     && !y.life().hasUrgentNeed() && !y.life().isSleeping() && y.life().mealTicks() == 0 && !y.body().dying()
-                    && !y.family().laboring() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
+                    && !y.family().laboring() && !y.family().carry().carrying() && !y.mind().nonYukkuri() && !HomeClaim.retreating(y)
                     && (priority != PARTING_PRIORITY || !y.duty().claimed());
         }
         @Override public boolean canUse() { return wanted(); }
@@ -669,6 +672,8 @@ public final class EmotionCourse {
             sit = 100 + y.getRandom().nextInt(140);
             ticks = 0;
             if (f.kind == Kind.RAGE) return;
+            // A frightened individual already inside or on its nest stays where it is safe instead of stepping back out over the rim.
+            if (f.kind == Kind.TERROR && FamilyNest.occupiedBed(y) != null) return;
             // Never back into a home it was driven out of (settlement/MoldExile).
             var to = LandRandomPos.getPos(y, 4, 2);
             if (to != null && Departure.allowsAddress(y, BlockPos.containing(to))) stroll = BlockPos.containing(to);
