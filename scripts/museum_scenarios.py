@@ -3314,7 +3314,7 @@ add(_doll_comfort, 'house', '孤单宠物蹭布偶并面向它入睡', '孤单�
     '走到窝旁的灵梦布偶边蹭脸得到少许安抚，随后回窝面向布偶睡下；同侧另一只胆大低依恋的灵梦不理会布偶。'
     '右侧有伴的魔理沙身旁既有布偶也有熟识同伴，只去蹭真实同伴而不蹭布偶。',
     '约半分钟', [
-        box(0, 0, -2, 0, 2, 3, 'minecraft:oak_planks'),
+        box(0, 0, -2, 0, 2, 6, 'minecraft:oak_planks'),
         *(block(x, 0, 7, 'minecraft:oak_fence_gate[facing=south]') for x in (-1, 0, 1)),
         block(-2, 0, -1, 'mcyukkuri:yukkuri_nest[facing=south]'),
         item('mcyukkuri:reimu_doll', 1, -3, 0, 'comfort_doll'),
@@ -9231,6 +9231,11 @@ def _verify_doll_comfort_sleep(window):
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
         return 'no [keepsake] beat lines logged'
+    # Verify that no actor ever starts a doll nuzzle (beat=ask) when its own companion choice had eligible > 0.
+    choice_re = re.compile(r'\[daily\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*companion choice [^\n]*eligible=(\d+)\b')
+    eligible_at = {}
+    for cm in choice_re.finditer(window):
+        eligible_at[(cm[1], int(cm[2]))] = int(cm[3])
     reimu_beats = []
     done_ok = False
     sleep_ok = False
@@ -9242,6 +9247,8 @@ def _verify_doll_comfort_sleep(window):
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u == _bold_reimu:
             return f'bold unattached Reimu unexpectedly performed keepsake beat={beat}'
+        if beat == 'ask' and eligible_at.get((u, int(t)), 0) > 0:
+            return f'actor {u} started doll nuzzle while eligible peer count={eligible_at[(u, int(t))]}'
         if u == _paired_marisa and beat in ('ask', 'rub', 'done'):
             return f'paired Marisa nuzzled doll instead of eligible peer (beat={beat})'
         if u == _comfort_reimu:
