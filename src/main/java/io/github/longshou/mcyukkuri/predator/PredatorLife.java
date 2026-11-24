@@ -113,7 +113,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private static final int EAT_PAUSE = 160, KILL_PAUSE = 100;
     private static final int SWOOP_GAP = 40, CONTACT_HOLD = 5;
     /** Horizontal reach (blocks) inside which a hunter out of flight stamina still finishes a prey it has already wounded: a few seconds of
-     *  walking at a wounded young's pace, and inside the 10-block limit of one stoop (project design). Beyond it the exhaustion end applies. */
+     *  low stooping at a wounded young's pace, and inside the 10-block limit of one stoop (project design). Beyond it the exhaustion end applies. */
     private static final double FINISH_REACH = 8;
     /** A 6-block pull-away with up to 4.5 blocks of lift needs time to accelerate and brake. */
     private static final int WITHDRAW_LIMIT = 64;
@@ -344,7 +344,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     private boolean stillHunting() {
         return huntAllowed(finishing() ? 0 : PredatorFlight.REST_ENERGY);
     }
-    /** A hunter below its rest line that has already wounded this prey, close by, does not fly off tired: it comes down and finishes it on foot. */
+    /** A hunter below its rest line that has already wounded this prey, close by, does not fly off tired: it keeps stooping at it, low, until it is dead or out of reach. */
     private boolean finishing() {
         return !retaliation && prey != null && hits > 0 && animal.life().energy() < PredatorFlight.REST_ENERGY && prey.isAlive()
                 && prey.getHealth() < prey.getMaxHealth()
@@ -2011,7 +2011,12 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         passTicks++;
         animal.getLookControl().setLookAt(target, 30, 30);
         boolean cooled = ticks - lastHit >= SWOOP_GAP;
-        if (finishing()) { finish(target, cooled); return; }
+        // Finishing a wounded prey: no climb above it, the next run is a low stoop straight at it.
+        if (finishing() && pass == Pass.APPROACH) {
+            GameplayLog.limited(animal, "predator", "finishing", 400, "finishing wounded prey with low stoops prey={} health={} energy={} distance={}",
+                    () -> new Object[]{target.getUUID(), target.getHealth(), animal.life().energy(), animal.distanceTo(target)});
+            setPass(Pass.STOOP);
+        }
         switch (pass) {
             case APPROACH -> {
                 // A stoop that ended without a bite meets the prey on the other side next time instead of repeating the same run.
@@ -2073,18 +2078,6 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
                 }
             }
         }
-    }
-    /** Finishing on foot: down beside the wounded prey, walk to it and bite at every gap; the stamina that remains is not spent on dives. */
-    private void finish(YukkuriEntity target, boolean cooled) {
-        phase(Task.DIVE);
-        GameplayLog.limited(animal, "predator", "finishing", 400, "finishing wounded prey on foot prey={} health={} energy={} distance={} flying={}",
-                () -> new Object[]{target.getUUID(), target.getHealth(), animal.life().energy(), animal.distanceTo(target), animal.predatorFlying()});
-        // Straight down first, pressing slightly into the floor as a landing does (flyToFeet), so the body really touches down; the stamina left is for the walk, not for chasing in the air, and every bite is from the ground.
-        // Touching the ground is enough: the stand beside a living prey is never "free" (dryLanded), which kept the hunter in the air until its energy ran out.
-        if (!animal.onGround() || animal.isInWaterOrBubble()) { directFlight(new Vec3(animal.getX(), target.getY() - .15, animal.getZ()), 1); return; }
-        animal.setPredatorFlying(false);
-        if (mouthTouches(target) && cooled && biteTicks == 0 && animal.hasLineOfSight(target)) { hit(target); return; }
-        if (SurfaceApproach.walkResult(animal, target.position(), target, 1.2) == SurfaceApproach.Result.BLOCKED) stop();
     }
     /** One bite or combat strike at the end of a stoop; returns true when a kill moved on to its eat pause. */
     private boolean hit(YukkuriEntity target) {
