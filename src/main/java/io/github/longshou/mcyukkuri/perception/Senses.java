@@ -3,8 +3,10 @@ package io.github.longshou.mcyukkuri.perception;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -41,11 +43,13 @@ public final class Senses {
     /** A need the body feels now (none for a null need). */
     public static boolean felt(YukkuriEntity body, Cue.Need need) {
         if (need == null) return false;
+        if (need == Cue.Need.PLAY) return PlayWant.wants(body);
         var life = body.life();
         return need == Cue.Need.WATER ? life.dryness() >= YukkuriLife.THIRST_THRESHOLD : life.nutrition() < HUNGRY;
     }
 
     public static double urgency(YukkuriEntity body, Cue.Need need) {
+        if (need == Cue.Need.PLAY) return Sight.ramp(body.dailyLife().boredom(), PlayWant.boredomFloor(body), 90);
         var life = body.life();
         return need == Cue.Need.WATER ? Belief.waterUrgency(life.dryness()) : Belief.foodUrgency(life.nutrition());
     }
@@ -66,6 +70,11 @@ public final class Senses {
 
     /** A point seen now; a ray that ends on {@code accept}'s own shape (a fixture) is clear. */
     public static boolean sees(YukkuriEntity body, Vec3 point, BlockPos accept, Cue.Need need) {
+        return inView(body, point, need) && GlassSight.clearTo(body, point, accept);
+    }
+
+    /** A point on a multi-block fixture seen now; any cell matched by {@code accept} counts as clear. */
+    public static boolean sees(YukkuriEntity body, Vec3 point, Predicate<BlockPos> accept, Cue.Need need) {
         return inView(body, point, need) && GlassSight.clearTo(body, point, accept);
     }
 

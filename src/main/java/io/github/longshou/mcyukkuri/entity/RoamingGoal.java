@@ -5,17 +5,25 @@ import io.github.longshou.mcyukkuri.body.RemainsRot;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.human.TownMarkers;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
+import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+import io.github.longshou.mcyukkuri.play.PlayBlock;
+import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
+import io.github.longshou.mcyukkuri.play.PlayLife;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import io.github.longshou.mcyukkuri.settlement.StreetDraw;
 import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Identity;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.Locale;
 import java.util.EnumSet;
@@ -31,6 +39,8 @@ import net.minecraft.world.phys.Vec3;
 public final class RoamingGoal extends Goal {
     // One minute between optional stops leaves ordinary strolls time to take the animal elsewhere.
     private static final int PLAZA_INTERVAL = 1200;
+    private static final int PLAYGROUND_INTERVAL = 200;
+    private static final int PLAYGROUND_SCAN = 24;
     private static final int PATH_PROBES = 4;
     private final YukkuriEntity animal;
     private BlockPos origin, destination;
@@ -44,8 +54,9 @@ public final class RoamingGoal extends Goal {
     /** Where this stroll is drawn to instead of the home (the village heart in a spell, or a food holder), and how far it strolls there. */
     private BlockPos draw;
     private int radius, homeRadius, elapsed, failures, roll = -1, drawRadius;
-    private long nextWalk, nextExpedition, nextPlaza;
+    private long nextWalk, nextExpedition, nextPlaza, nextPlayground;
     private TownMarkers.BadgePlaza plaza;
+    private PlayBlockEntity playground;
     private int plazaPause;
     /** The stop is a stray's look from the ring outside the paving, not a pet's visit to a bench stand. */
     private boolean browsing;
@@ -62,6 +73,7 @@ public final class RoamingGoal extends Goal {
         setFlags(EnumSet.of(Flag.MOVE));
     }
     public boolean exploring() { return active && expedition; }
+    public boolean walkingToPlayground() { return active && playground != null; }
     public int radius() { return radius; }
     public String activity() { return active ? exploring() ? Behaviors.MARISA_EXPLORE : Behaviors.ROAM : null; }
     public String describe() {
@@ -90,7 +102,7 @@ public final class RoamingGoal extends Goal {
         nextWalk = now + 80 + animal.getRandom().nextInt(80);
         origin = animal.blockPosition().immutable();
         radius = TravelRange.stroll(animal);
-        plaza = null; browsing = false;
+        plaza = null; playground = null; browsing = false;
         expedition = false; returning = false; failures = elapsed = 0;
         if (now >= nextExpedition && qualifies()) {
             nextExpedition = now + 1200;
@@ -252,13 +264,16 @@ public final class RoamingGoal extends Goal {
         }
         var look = !baby && !expedition && !outside && !animal.settlement().underway() ? browseRing(allowed, anchor) : null;
         if (look != null) return look;
+        var playWalk = !baby && !expedition && !animal.settlement().underway() ? playgroundWalk(allowed) : null;
+        if (playWalk != null) return playWalk;
         for (int attempt = 0; attempt < 16; attempt++) {
             Vec3 point = outside ? LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(anchor))
                     : companion == null ? LandRandomPos.getPos(animal, radius, 3)
                     : LandRandomPos.getPosTowards(animal, radius, 3, Vec3.atBottomCenterOf(companion));
             if (point == null) { refusals[0]++; continue; }
             BlockPos pos = BlockPos.containing(point);
-            if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos) || !TravelRange.babyDestination(animal,pos)) { refusals[1]++; continue; }
+            if (!allowed.test(pos) || origin.distSqr(pos) > radius * radius || !outsideFoundShelter(pos)
+                    || !TravelRange.babyDestination(animal,pos) || PlayBlock.facility(animal.level(), pos) != null) { refusals[1]++; continue; }
             if (draw != null && animal.life().avoidsField(pos)) { refusals[1]++; continue; }
             if (anchor != null && (outside ? pos.distSqr(anchor) >= origin.distSqr(anchor) : pos.distSqr(anchor) > homeRadius * homeRadius)) { refusals[2]++; continue; }
             if (expedition && origin.distSqr(pos) <= radius * radius / 4) continue;
@@ -317,6 +332,59 @@ public final class RoamingGoal extends Goal {
         return null;
     }
 
+    /**
+     * A bored stray that sees a playground facility within {@link #PLAYGROUND_SCAN} blocks (through the shared
+     * {@link Senses} layer) may walk over to its entry stand, where {@link PlayLife} takes over with the same play want.
+     */
+    private BlockPos playgroundWalk(Predicate<BlockPos> allowed) {
+        if (!(animal.level() instanceof ServerLevel level) || level.getGameTime() < nextPlayground) return null;
+        if (animal.outing().onOuting() || animal.isLeashed() || animal.status().identity() != Identity.STRAY) return null;
+        if (!level.isDay() || level.isRaining() || animal.life().nutrition() < 40 || !PlayWant.wants(animal)) return null;
+        PlayBlockEntity best = null;
+        double bestScore = 0;
+        for (var pos : BlockPos.betweenClosed(origin.offset(-PLAYGROUND_SCAN, -2, -PLAYGROUND_SCAN),
+                origin.offset(PLAYGROUND_SCAN, 2, PLAYGROUND_SCAN))) {
+            if (!level.hasChunkAt(pos)) continue;
+            if (!(level.getBlockEntity(pos) instanceof PlayBlockEntity found)) continue;
+            double score = PlayWant.preference(animal, found, null);
+            if (score <= 0) continue;
+            if (!Senses.sees(animal, found.getBlockPos().getCenter(), p -> PlayBlock.facility(level, p) == found, Cue.Need.PLAY)) continue;
+            double adjusted = found.occupiedByOther(animal) ? score * 0.5 : score;
+            if (adjusted > bestScore) {
+                bestScore = adjusted;
+                best = found;
+            }
+        }
+        if (best == null) return null;
+        double boredomShare = Math.clamp((animal.dailyLife().boredom() - PlayWant.boredomFloor(animal)) / 60.0, 0, 1);
+        double chance = Math.clamp(0.35 + 0.60 * boredomShare * bestScore, 0.35, 0.98);
+        if (animal.getRandom().nextDouble() >= chance) {
+            nextPlayground = level.getGameTime() + 40;
+            return null;
+        }
+        nextPlayground = level.getGameTime() + PLAYGROUND_INTERVAL;
+        Vec3 entry = PlayLife.entryStand(best);
+        Vec3 goal = entry;
+        if (animal.position().distanceToSqr(entry) > 196) {
+            // Vanilla GroundPathNavigation caps single-path reach near 16 blocks: step 12 blocks toward a distant playground.
+            Vec3 toward = entry.subtract(animal.position()).multiply(1, 0, 1).normalize();
+            goal = animal.position().add(toward.scale(12));
+        }
+        Vec3 stand = SurfaceApproach.beside(animal, goal, 2.5, at -> {
+            BlockPos p = BlockPos.containing(at);
+            return allowed.test(p) && outsideFoundShelter(p) && animal.life().dryStand(p)
+                    && PlayBlock.facility(level, p) == null
+                    && RemainsRot.source(level, at) == null;
+        });
+        if (stand == null) return null;
+        BlockPos dest = BlockPos.containing(stand).immutable();
+        if (!animal.life().reachable(dest, false)) return null;
+        playground = best;
+        GameplayLog.event(animal, "play", "stray playground walk kind={} at={} stand={} score={}",
+                best.kind(), best.getBlockPos(), dest.toShortString(), String.format(Locale.ROOT, "%.2f", bestScore));
+        return dest;
+    }
+
     @Override public void start() {
         active = true; result = "outbound";
         progressPosition = animal.position(); detour = null; stuckTicks = detourTicks = 0;
@@ -342,6 +410,8 @@ public final class RoamingGoal extends Goal {
                 || elapsed >= (expedition ? 1600 : 600) || failures >= 4) return false;
         if (!expedition && !animal.family().allowsIdleWalk(Vec3.atBottomCenterOf(destination))) return false;
         if (plaza != null && (!plazaReady() || !animal.level().isDay() || animal.level().isRaining())) return false;
+        if (playground != null && (playground.isRemoved() || !animal.level().isDay() || animal.level().isRaining()
+                || animal.life().nutrition() < 40 || !PlayWant.wants(animal))) return false;
         return expedition || !animal.getNavigation().isDone();
     }
     @Override public void tick() {
@@ -375,6 +445,14 @@ public final class RoamingGoal extends Goal {
             else { if (elapsed % 10 == 0) animal.life().navigate(detour,1,false); return; }
         }
         boolean reached = animal.distanceToSqr(Vec3.atBottomCenterOf(destination)) < 1;
+        if (playground != null && (reached || animal.distanceToSqr(playground.getBlockPos().getCenter()) <= 36)) {
+            animal.playLife().resetScan();
+            result = "arrived";
+            playground = null;
+            active = false;
+            animal.getNavigation().stop();
+            return;
+        }
         if (expedition && !returning && (reached || animal.life().energy() < 40 || animal.life().nutrition() < 35)) {
             if (!outsideFoundShelter(origin)) { stop(); return; }
             returning = true; destination = origin;
@@ -383,7 +461,7 @@ public final class RoamingGoal extends Goal {
             if (yardChoice == Choice.HOLD) hesitate();
             result = expedition ? "returned" : "arrived";
             finishPlaza(true);
-            active = false; animal.getNavigation().stop(); return;
+            active = false; playground = null; animal.getNavigation().stop(); return;
         }
         if (elapsed % 20 == 0 && !animal.life().navigate(destination,1,false)) failures++;
         if (stuckTicks >= 100) {
@@ -418,7 +496,7 @@ public final class RoamingGoal extends Goal {
         }
         if (expedition) GameplayLog.event(animal,"explore","ended result={} returning={} elapsed={} destination={} distance={}",
                 result,returning,elapsed,destination,destination==null?0:animal.distanceToSqr(Vec3.atBottomCenterOf(destination)));
-        active = false; animal.getNavigation().stop();
+        active = false; playground = null; animal.getNavigation().stop();
     }
 
     private void finishPlaza(boolean reached) {
@@ -433,6 +511,6 @@ public final class RoamingGoal extends Goal {
         if (arrived && browsing && browsingEnvy) animal.speakCue("badge_plaza_gaze");
         GameplayLog.event(animal, "badge", "plaza {}{} stand={} grade={}", browsing ? "ring_" : "", arrived ? "arrived" : "left_route",
                 destination.toShortString(), animal.pet().humanRank());
-        plaza = null; browsing = false;
+        plaza = null; playground = null; browsing = false;
     }
 }

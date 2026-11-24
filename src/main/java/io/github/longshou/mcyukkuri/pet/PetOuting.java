@@ -6,12 +6,13 @@ import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import io.github.longshou.mcyukkuri.life.PetNestBlock;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.geom.OutingPace;
-import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -33,7 +34,6 @@ public final class PetOuting extends Goal {
     private Vec3 doorwayStand;
     private boolean shelter;
     private boolean closeApproach;
-    private boolean playAvailable;
 
     public PetOuting(YukkuriEntity pet) {
         this.pet = pet;
@@ -89,8 +89,21 @@ public final class PetOuting extends Goal {
         return resident == null ? null : resident.parkFacility();
     }
 
-    private boolean nearFacility(PlayBlockEntity facility) {
-        return pet.distanceToSqr(facility.getBlockPos().getCenter()) <= 64;
+    public Vec3 ownerPosition() {
+        var resident = escort();
+        return resident == null ? null : resident.position();
+    }
+
+    public List<PlayBlockEntity> parkFacilities() {
+        var resident = escort();
+        return resident == null ? List.of() : resident.parkFacilities();
+    }
+
+    private boolean nearAnyFacility(List<PlayBlockEntity> facilities) {
+        for (var facility : facilities) {
+            if (!facility.isRemoved() && pet.distanceToSqr(facility.getBlockPos().getCenter()) <= 576) return true;
+        }
+        return false;
     }
 
     public boolean calledByOwner() {
@@ -100,31 +113,16 @@ public final class PetOuting extends Goal {
 
     public boolean tryParkPlay() {
         var resident = escort();
-        var facility = resident == null ? null : resident.parkFacility();
-        if (facility == null || onEscortLead() || tired() || !wantsParkPlay() || wantsPicnic(resident)
-                || !nearFacility(facility)) return false;
-        var play = pet.playLife();
-        if (facility.occupiedByOther(pet)) {
-            GameplayLog.limited(pet, "pet", "park_occupied", 600, "outing play waiting kind={} at={}",
-                    facility.kind(), facility.getBlockPos());
-            return facility.kind() == PlayBlock.Kind.TRAMPOLINE && play.beginWait(facility);
-        }
-        if (play.begin(facility)) return true;
-        playAvailable = false;
-        GameplayLog.event(pet, "pet", "outing play refused reason={} kind={} at={}",
-                play.refused(), facility.kind(), facility.getBlockPos());
-        return false;
+        var facilities = resident == null ? List.<PlayBlockEntity>of() : resident.parkFacilities();
+        if (facilities.isEmpty() || onEscortLead() || tired() || wantsPicnic(resident) || resident.callingPet(pet)) return false;
+        return pet.playLife().chooseFromPark(facilities);
     }
-
-    private boolean wantsParkPlay() {
-        return playAvailable && pet.dailyLife().boredom() >= 60 - pet.life().personality().boldness() / 5.0;
-    }
-
-    public void finishedParkPlay() { playAvailable = false; }
 
     public boolean doneAtPark() {
+        var facilities = parkFacilities();
         return !pet.life().isSleeping() && !pet.life().outingResting() && !pet.playLife().active()
-                && !pet.playLife().waiting() && !tired() && !wantsParkPlay();
+                && !pet.playLife().waiting()
+                && (tired() || !PlayWant.wants(pet) || pet.playLife().parkExhausted(facilities));
     }
 
     public boolean wants(HumanNpc resident) {
@@ -137,11 +135,11 @@ public final class PetOuting extends Goal {
         escort = resident;
         home = yard;
         blockedAt = null;
-        playAvailable = true;
+        pet.playLife().resetParkMemory();
         GameplayLog.event(pet, "pet", "outing joined yard={} follow={}..{}", yard.toShortString(), innerDistance(), outerDistance());
     }
 
-    public void forget() { home = null; escort = null; playAvailable = false; }
+    public void forget() { home = null; escort = null; pet.playLife().resetParkMemory(); }
     /** Until it is back in its yard it neither searches for a home nor claims a bed, so the way back is not cut short by a bed claim. */
     public boolean onOuting() { return home != null; }
     public boolean escorted() { return escort() != null; }
@@ -181,21 +179,23 @@ public final class PetOuting extends Goal {
 
     private boolean shouldFollow(double comfortDistance) {
         if (owner.doorFollowerStand(pet) != null) return true;
-        if (owner.callingPet(pet) || wantsPicnic(owner)) return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
+        if (owner.callingPet(pet) || owner.gatheringForReturn() || (owner.holdsPicnicFood() && wantsPicnic(owner)))
+            return pet.distanceToSqr(owner) > 4 || !pet.hasLineOfSight(owner);
         var paving = owner.plazaPaving();
         // The owner sits on a bench beside the plaza: the pet stays on the paving, where the strays can see its badge.
         if (paving != null) return !onPaving(paving, pet.position());
-        var facility = owner.parkFacility();
+        var facilities = owner.parkFacilities();
         double limit = OutingPace.followComfort(comfortDistance, onEscortLead());
         return (pet.distanceTo(owner) > limit || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
-                && (facility == null || !nearFacility(facility));
+                && (facilities.isEmpty() || !nearAnyFacility(facilities));
     }
 
     private static AABB restPaving(AABB paving) { return paving.inflate(-.6, 0, -.6); }
     private static boolean onPaving(AABB paving, Vec3 at) { return restPaving(paving).contains(at); }
 
     private boolean wantsPicnic(HumanNpc resident) {
-        return resident.parkLingering() && resident.holdsPicnicFood() && pet.life().nutrition() <= picnicBand();
+        return resident.parkLingering() && (resident.holdsPicnicFood() || resident.picnicActive())
+                && pet.life().nutrition() <= picnicBand();
     }
 
     @Override public void start() {
@@ -265,7 +265,7 @@ public final class PetOuting extends Goal {
                 }
                 return;
             }
-            boolean close = owner.callingPet(pet) || wantsPicnic(owner);
+            boolean close = owner.callingPet(pet) || owner.gatheringForReturn() || wantsPicnic(owner);
             if (!owner.blockPosition().equals(escortAt) || close != closeApproach || stand == null && pet.tickCount % RESAMPLE_TICKS == 0) {
                 escortAt = owner.blockPosition();
                 closeApproach = close;

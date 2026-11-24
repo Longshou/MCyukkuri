@@ -570,6 +570,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public Kindness kindness() { return goals.kindness(); }
     public ForageGoal forage() { return goals.forage(); }
     public HomeTerritoryGoal homeTerritory() { return goals.homeTerritory(); }
+    public boolean walkingToPlayground() { return goals.roaming() != null && goals.roaming().walkingToPlayground(); }
     public GroupInteractionGoal groupInteraction() { return groupInteraction; }
     public PlayLife playLife(){return playLife;}
     public void frightenFrom(YukkuriEntity threat) {

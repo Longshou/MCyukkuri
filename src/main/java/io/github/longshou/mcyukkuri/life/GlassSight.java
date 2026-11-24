@@ -57,17 +57,22 @@ public final class GlassSight {
 
     /** The same one-layer glass exception for a proposed eye position. */
     public static boolean clearTo(LivingEntity observer, Vec3 end) {
-        return clearTo(observer, end, null);
+        return clearTo(observer, end, (BlockPos) null);
     }
 
     /** As {@link #clearTo(LivingEntity, Vec3)}, and a ray that ends on {@code target}'s own shape (a fixture, a water cell) is clear too. */
     public static boolean clearTo(LivingEntity observer, Vec3 end, BlockPos target) {
+        return clearTo(observer, end, target == null ? pos -> false : target::equals);
+    }
+
+    /** As {@link #clearTo(LivingEntity, Vec3, BlockPos)}, accepting any cell of a multi-block fixture matched by {@code accept}. */
+    public static boolean clearTo(LivingEntity observer, Vec3 end, Predicate<BlockPos> accept) {
         var eye = observer.getEyePosition();
         var hit = observer.level().clip(new ClipContext(eye, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, observer));
-        if (hit.getType() == HitResult.Type.MISS || hit.getBlockPos().equals(target)) return true;
+        if (hit.getType() == HitResult.Type.MISS || accept.test(hit.getBlockPos())) return true;
         if (!glass(observer.level(), hit)) return false;
         var past = beyond(observer, eye, end, ClipContext.Block.COLLIDER, hit, true);
-        return past.getType() == HitResult.Type.MISS || past.getBlockPos().equals(target);
+        return past.getType() == HitResult.Type.MISS || accept.test(past.getBlockPos());
     }
 
     /** The nearest supported floor point on the body's side of {@code glass}, reachable by the body, from which {@code other}

@@ -4776,6 +4776,56 @@ add('park_play', 'park', '主人带两只宠物去公园玩蹦床', '主人带�
     ], env=DAY, spot='yard', vantage=(*_lot_spot('trampoline', -1, 5), -169, 15),
     reads=[('读灵梦', f'yukkuri status {sel("outing_shy")} raw'), ('读魔理沙', f'yukkuri status {sel("outing_bold")} raw')])
 
+add('park_stray_play', 'park', '流浪油去公园玩', '流浪油去公园玩',
+    '两只无聊的流浪油在草坪北侧十六格处看见游具：胆大轻巧的魔理沙径直走向蹦床，胆小的灵梦走向陶管，各自按自己的玩兴玩够后离开。',
+    '约 2 分钟', [
+        # Both strays have a home nest 4b to their side on open grass (as in park_child_ball), clear of the north-grove trees
+        # and the east-path lamp at (24, -14), so HabitatGoal does not hijack them and SPAWN stays clear (~16b sightlines).
+        block(-6, 0, -13, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(18, 0, -16, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('park_stray_play', 'marisa', -2, -13, 'stray_bold', boldness=95, intelligence=75,
+                     adult_scale=.9, nutrition=95, energy=95, yaw=0, label='胆大流浪魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        street_trial('park_stray_play', 'reimu', 14, -16, 'stray_timid', boldness=5, intelligence=75,
+                     adult_scale=1.15, nutrition=95, energy=95, yaw=7, label='胆小流浪灵梦',
+                     extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        home('stray_bold', -6, -13), home('stray_timid', 18, -16),
+    ], env=DAY, spot='trampoline', vantage=(6, 6, 180, 18),
+    reads=[('读魔理沙', f'yukkuri status {sel("stray_bold")} raw'),
+           ('读灵梦', f'yukkuri status {sel("stray_timid")} raw')])
+
+add('park_wait_switch', 'park', '等位超时改玩别的游具', '等位超时改玩别的游具',
+    '蹦床旁有两只无聊的流浪油：魔理沙先上蹦床连续蹦跳，性急的灵梦偏爱蹦床却见它被占，在床边站着等位观看，等过耐心上限后哼着放弃，转去玩旁边的滑梯。',
+    '约 1 分钟', [
+        block(-6, 0, -6, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(4, 0, -4, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('park_wait_switch', 'marisa', 0, -2, 'wait_player', boldness=95, intelligence=70,
+                     adult_scale=.9, nutrition=95, energy=100, yaw=0, label='正在跳的魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:98,Affection:20}'),
+        street_trial('park_wait_switch', 'reimu', -4, -3, 'wait_impatient', boldness=95, intelligence=20,
+                     self_control=5, adult_scale=.9, nutrition=95, energy=95, yaw=-55, label='性急等位的灵梦',
+                     extra='YukkuriDailyLife:{Boredom:0,Affection:20}'),
+        home('wait_player', 4, -4), home('wait_impatient', -6, -6),
+    ], env=DAY, late=[Retry(f'data merge entity {sel("wait_impatient")} {{YukkuriDailyLife:{{Boredom:98,Affection:20}}}}',
+                            sel('wait_impatient'), tries=1, first=105)],
+    spot='trampoline', vantage=(6, 6, 180, 18),
+    reads=[('读正在跳的魔理沙', f'yukkuri status {sel("wait_player")} raw'),
+           ('读性急的灵梦', f'yukkuri status {sel("wait_impatient")} raw')])
+
+add('park_recall_play', 'park', '主人天黑召回正在玩的宠物', '主人天黑召回正在玩的宠物',
+    '傍晚临近天黑时，院主带魔理沙进公园。魔理沙上蹦床跳起来后天色入夜，院主立刻招呼它回家；魔理沙露出惊讶表情停跳下床，系绳随主人回院。',
+    '约 1 分钟', [
+        *_lot_yard(-2),
+        f'item replace block ~{_PARK_BOWL[0]} ~ ~{_PARK_BOWL[1]} container.0 with mcyukkuri:oil_grain_regular 4',
+        'summon minecraft:marker ~{} ~ ~{} {{Tags:["mcy_park_walk"]}}'.format(*(v + .5 for v in _lot_spot('trampoline', -4, 3))),
+        _lot_keeper('outing_keeper'),
+        *(line.replace('AdultScale:1f,Scale:1f', 'AdultScale:0.9f,Scale:0.9f')
+          for line in _lot_pet('park_recall_play', 'outing_keeper', 'marisa', -2, 'recall_bold',
+                               boldness=95, attachment=5, nutrition=100, energy=98)),
+    ], env=DAY, late=[Retry('time set midnight', sel('recall_bold'), tries=1, first=480)],
+    spot='yard', vantage=(*_lot_spot('trampoline', -1, 5), -169, 15),
+    reads=[('读魔理沙', f'yukkuri status {sel("recall_bold")} raw')])
+
 add('park_picnic', 'park', '主人在公园长椅上分苹果', '主人在公园长椅上分苹果',
     '院子货箱里有一个苹果。院主先取苹果，再带饿了的魔理沙进公园，坐到蹦床旁的长椅上掰开苹果，一半放到魔理沙面前，一半自己吃，吃完回院。'
     '街上饿着的流浪橙也可能进来讨食。',
@@ -8977,7 +9027,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -11312,53 +11362,141 @@ next(s for s in S if s.id == 'park_walk').smoke.update(verify=_outing_crossings,
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_HOME_LEADS_OFF'),
 ])
 def _park_play_pet_fates(window):
-    """Both pets sustain real trampoline bounces by stat; beats match shown face and one waits its turn."""
+    """Both pets choose facilities by stat, play >=2 sessions/facilities, sustain real bounces, match declared faces, and leave after wants end."""
     at_stand = re.search(r'action=outing_park_wait stand=(\([^\n]+\))', window)
     left = re.search(r'action=outing_park_leave stand=(\([^\n]+\)) gap=([\d.]+)', window)
+    turn = re.search(r'action=outing_turn reason=(park_done|park_time)\b', window)
     if not at_stand or not left or at_stand[1] != left[1] or float(left[2]) >= .5:
         return 'the keeper did not finish waiting at her park stand'
-    stats = []
-    waited = False
+    if not turn or turn[1] != 'park_done':
+        return f'expected keeper leave reason=park_done after wants ended, got {turn[1] if turn else "none"}'
+    first_kinds = {}
     for _, name, *_ in _outing_pets:
         actor = _uuid_text('park_play', name)
-        played = re.search(rf'uuid={actor} [^\n]*facility session ended kind=TRAMPOLINE[^\n]*completed=true\b', window)
-        if not played:
-            return f'{name} did not finish a trampoline session'
-        if not at_stand.end() < played.start() < left.start():
-            return f'{name} finished outside the keeper’s wait at the park stand'
-        rebounds = [tuple(map(float, m.groups())) for m in re.finditer(
-            rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
-            r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)]
-        if not rebounds:
-            return f'{name} had no measured trampoline rebound'
-        beats = re.findall(rf'uuid={actor} [^\n]*trampoline beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+        sessions = [m for m in re.finditer(
+            rf'uuid={actor} [^\n]*facility session ended kind=(\w+)[^\n]*completed=true[^\n]*rounds=(\d+)', window)
+            if at_stand.end() < m.start() < left.start()]
+        if not sessions:
+            return f'{name} did not finish any facility session during the park stay'
+        if sessions[-1].end() >= turn.start():
+            return f'{name} finished after keeper turned home'
+        total_rounds = sum(int(m[2]) for m in sessions)
+        kinds = {m[1] for m in sessions}
+        first_kinds[name] = sessions[0][1]
+        if total_rounds < 2 and len(sessions) < 2 and len(kinds) < 2:
+            return f'{name} played too little: sessions={len(sessions)} rounds={total_rounds} kinds={sorted(kinds)}'
+        beats = re.findall(rf'uuid={actor} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
         if not beats:
-            return f'{name} logged no trampoline beats'
+            return f'{name} logged no play beats'
         for beat, shown, declared, _ in beats:
             if shown != declared:
                 return f'{name} beat {beat} showed face={shown} instead of declared={declared}'
         beat_names = {b[0] for b in beats}
-        for req in ('mount', 'bounce', 'peak', 'dismount'):
-            if req not in beat_names:
-                return f'{name} missed trampoline beat {req} (saw {sorted(beat_names)})'
-        if not any(b[0] == 'peak' and b[3] == 'glow' for b in beats):
-            return f'{name} peak beat did not voice glow'
-        if not any(b[0].startswith('stop_') for b in beats):
-            return f'{name} missed a need-driven stop beat'
-        if 'wait_watch' in beat_names:
-            waited = True
-        stats.append((rebounds[0][0], rebounds[0][1], [r[2] for r in rebounds]))
-    heavy, light = stats
-    heavy_real = [h for h in heavy[2] if h >= .20]
-    light_real = [h for h in light[2] if h >= .45]
-    if len(light_real) < 8:
-        return f'light bold pet did not sustain bounces (need >=8 at >=0.45b, got {len(light_real)}: {light[2]})'
-    if len(heavy_real) < 3:
-        return f'heavy timid pet did not sustain bounces (need >=3 at >=0.20b, got {len(heavy_real)}: {heavy[2]})'
-    if not (heavy[0] > light[0] and heavy[1] < light[1] and max(heavy[2]) < max(light[2]) and len(heavy[2]) < len(light[2])):
-        return f'park rebounds did not follow weight, energy and boldness: heavy={heavy} light={light}'
-    if re.search(r'trampoline wait ended reason=\w+ at=[^\n]* waited=[1-9]\d*/', window) and not waited:
-        return 'a pet held the waiting stand beside the trampoline without logging wait_watch'
+        if name == 'outing_bold':
+            if sessions[0][1] not in ('TRAMPOLINE', 'SLIDE'):
+                return f'bold light pet chose {sessions[0][1]} first instead of trampoline or slide'
+            if 'TRAMPOLINE' in kinds:
+                rebounds = [tuple(map(float, m.groups())) for m in re.finditer(
+                    rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
+                    r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)]
+                real = [r[2] for r in rebounds if r[2] >= .45]
+                if len(real) < 6:
+                    return f'bold light pet did not sustain trampoline bounces (need >=6 at >=0.45b, got {len(real)})'
+                if not (rebounds[0][0] < 0.50 and rebounds[0][1] >= 75.0):
+                    return f'bold light pet stats out of expected range: weight={rebounds[0][0]} energy={rebounds[0][1]}'
+                for req in ('mount', 'bounce', 'peak'):
+                    if req not in beat_names:
+                        return f'{name} missed trampoline beat {req} (saw {sorted(beat_names)})'
+                if not any(b[0] == 'peak' and b[3] == 'glow' for b in beats):
+                    return f'{name} peak beat did not voice glow'
+                if not any(b[0].startswith('stop_') or b[0] == 'had_enough' for b in beats):
+                    return f'{name} missed need-driven stop beat'
+        if name == 'outing_shy':
+            if sessions[0][1] != 'CERAMIC':
+                return f'timid heavy pet chose {sessions[0][1]} first instead of tube'
+            for req in ('choose_facility', 'play', 'go_again', 'had_enough'):
+                if req not in beat_names:
+                    return f'{name} missed tube beat {req} (saw {sorted(beat_names)})'
+    if first_kinds.get('outing_bold') == first_kinds.get('outing_shy'):
+        return f'individual stat difference not shown: both pets picked {first_kinds}'
+    if re.search(r'facility wait ended [^\n]* waited=[1-9]\d*/', window) and 'play beat=wait_watch' not in window:
+        return 'a pet held a waiting stand without logging wait_watch'
+    return _verify_outing_pace(window)
+
+
+def _park_stray_verify(window):
+    """Both bored strays see the playground through Senses, pick facilities by stats, sustain play, and match declared faces."""
+    bold_id = _uuid_text('park_stray_play', 'stray_bold')
+    timid_id = _uuid_text('park_stray_play', 'stray_timid')
+    for name, actor, expected in (('stray_bold', bold_id, ('TRAMPOLINE', 'SLIDE')), ('stray_timid', timid_id, ('CERAMIC',))):
+        walk = re.search(rf'uuid={actor} [^\n]*stray playground walk kind=(\w+)', window)
+        if not walk or walk[1] not in expected:
+            return f'{name} did not walk to expected facility {expected} (saw {walk[1] if walk else "none"})'
+        sessions = [m for m in re.finditer(
+            rf'uuid={actor} [^\n]*facility session ended kind=(\w+)[^\n]*completed=true[^\n]*rounds=(\d+)', window)]
+        if not sessions or not any(m[1] in expected for m in sessions):
+            return f'{name} did not complete a session on {expected}'
+        beats = re.findall(rf'uuid={actor} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+        if not beats:
+            return f'{name} logged no play beats'
+        for beat, shown, declared, _ in beats:
+            if shown != declared:
+                return f'{name} beat {beat} showed face={shown} instead of declared={declared}'
+        beat_names = {b[0] for b in beats}
+        if name == 'stray_bold':
+            rebounds = [tuple(map(float, m.groups())) for m in re.finditer(
+                rf'uuid={actor} [^\n]*trampoline rebound weight=([\d.]+) fitness=[\d.]+ energy=([\d.]+)'
+                r' young=false impact=[\d.]+ speed=[\d.]+ height=([\d.]+)', window)]
+            real = [r[2] for r in rebounds if r[2] >= .45]
+            if len(real) < 8 or rebounds[0][0] >= 0.50:
+                return f'light bold stray trampoline evidence weak: count={len(real)} weight={rebounds[0][0] if rebounds else "none"}'
+            for req in ('mount', 'peak', 'had_enough'):
+                if req not in beat_names:
+                    return f'{name} missed beat {req} (saw {sorted(beat_names)})'
+            if not any(b[0] == 'peak' and b[3] == 'glow' for b in beats):
+                return f'{name} peak beat did not voice glow'
+        else:
+            if sum(int(m[2]) for m in sessions) < 2:
+                return f'timid stray did not repeat tube rounds'
+            for req in ('choose_facility', 'play', 'go_again', 'had_enough'):
+                if req not in beat_names:
+                    return f'{name} missed beat {req} (saw {sorted(beat_names)})'
+    return None
+
+
+def _park_wait_switch_verify(window):
+    """Impatient waiter watches occupied trampoline, gives up past patience with hmph/mood_bad, then plays another free toy."""
+    waiter = _uuid_text('park_wait_switch', 'wait_impatient')
+    beats = re.findall(rf'uuid={waiter} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+) kind=(\S+)', window)
+    if not beats:
+        return 'wait_impatient logged no play beats'
+    for beat, shown, declared, _, _ in beats:
+        if shown != declared:
+            return f'wait_impatient beat {beat} showed face={shown} instead of declared={declared}'
+    names = [b[0] for b in beats]
+    if 'wait_watch' not in names or 'wait_give_up' not in names:
+        return f'wait_impatient missed wait_watch or wait_give_up (saw {names})'
+    give_up = next(b for b in beats if b[0] == 'wait_give_up')
+    if give_up[1] != 'hmph' or give_up[3] != 'mood_bad':
+        return f'wait_impatient wait_give_up had unexpected face/line: {give_up}'
+    give_up_match = re.search(rf'uuid={waiter} [^\n]*play beat=wait_give_up\b', window)
+    switched = re.search(rf'uuid={waiter} [^\n]*facility session ended kind=(SLIDE|CERAMIC)[^\n]*completed=true\b', window)
+    if not switched or switched.start() <= give_up_match.start():
+        return 'wait_impatient did not switch to and complete another free facility after wait_give_up'
+    return None
+
+
+def _park_recall_verify(window):
+    """Owner calls a playing pet home on dusk; pet logs called_home (surprise == surprise) and returns home on lead."""
+    pet = _uuid_text('park_recall_play', 'recall_bold')
+    beats = re.findall(rf'uuid={pet} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+)', window)
+    if not beats:
+        return 'recall_bold logged no play beats'
+    for beat, shown, declared, _ in beats:
+        if shown != declared:
+            return f'recall_bold beat {beat} showed face={shown} instead of declared={declared}'
+    if not any(b[0] == 'called_home' and b[1] == 'surprise' for b in beats):
+        return f'recall_bold did not log called_home with surprise face (saw {beats})'
     return _verify_outing_pace(window)
 
 
@@ -11371,19 +11509,19 @@ _park_cores = ' '.join(
                        ('yukkuri_pool', 'pool')))
 _park_bed = ' '.join(f'if block ~{_PARK_TRAMPOLINE[0] + x} ~{y} ~{_PARK_TRAMPOLINE[1] + z} mcyukkuri:yukkuri_trampoline'
                      for x in (-1, 0, 1) for y in range(2) for z in (-1, 0, 1))
-_smoke('park_play', 2600, [
+_smoke('park_play', 3200, [
     r'MCY_PARK_FACILITIES_STAND',
     r'action=outing_depart pets=2 ',
     r'action=outing_park facility=',
     _SIT, r'action=outing_stand reason=leave',
-    r'action=outing_turn reason=park_(?:done|time)',
+    r'action=outing_turn reason=park_done\b',
     r'action=outing_home',
     *[rf'uuid={_uuid_text("park_play", p[1])} [^\n]*outing reached home' for p in _outing_pets],
     *_outing_leads('park_play', [p[1] for p in _outing_pets], True),
     r'MCY_PARK_FACILITY_BEFORE_CLEAR', r'MCY_PARK_FACILITY_CLEARED',
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
            r'action=outing_sit result=taken', r'action=outing_stand reason=move',
-           r'\[body\][^\n]*accepted damage cause=fall\b'],
+           r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'],
     readout=[
         f'execute {_park_bed} run say MCY_PARK_FACILITY_BEFORE_CLEAR',
         'function mcylab:field/park/clear',
@@ -11393,6 +11531,31 @@ _smoke('park_play', 2600, [
     ])
 next(s for s in S if s.id == 'park_play').smoke.update(
     verify=_park_play_pet_fates, commands=[(1, f'execute {_park_cores} run say MCY_PARK_FACILITIES_STAND')])
+_smoke('park_stray_play', 2400, [
+    rf'uuid={_uuid_text("park_stray_play", "stray_bold")} [^\n]*stray playground walk kind=(?:TRAMPOLINE|SLIDE)',
+    rf'uuid={_uuid_text("park_stray_play", "stray_timid")} [^\n]*stray playground walk kind=CERAMIC',
+    rf'uuid={_uuid_text("park_stray_play", "stray_bold")} [^\n]*play beat=had_enough\b',
+    rf'uuid={_uuid_text("park_stray_play", "stray_timid")} [^\n]*play beat=had_enough\b',
+], forbid=[r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
+next(s for s in S if s.id == 'park_stray_play').smoke.update(verify=_park_stray_verify)
+_smoke('park_wait_switch', 1600, [
+    rf'uuid={_uuid_text("park_wait_switch", "wait_impatient")} [^\n]*play beat=wait_watch\b',
+    rf'uuid={_uuid_text("park_wait_switch", "wait_impatient")} [^\n]*play beat=wait_give_up\b',
+    rf'uuid={_uuid_text("park_wait_switch", "wait_impatient")} [^\n]*facility session ended kind=(?:SLIDE|CERAMIC)[^\n]*completed=true\b',
+], forbid=[r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
+next(s for s in S if s.id == 'park_wait_switch').smoke.update(verify=_park_wait_switch_verify)
+_smoke('park_recall_play', 2400, [
+    r'action=outing_depart pets=1 ',
+    r'action=outing_park facility=',
+    rf'uuid={_uuid_text("park_recall_play", "recall_bold")} [^\n]*play beat=mount\b',
+    r'action=outing_turn reason=(?:night|conditions)\b',
+    rf'uuid={_uuid_text("park_recall_play", "recall_bold")} [^\n]*play beat=called_home\b',
+    r'action=outing_home',
+    rf'uuid={_uuid_text("park_recall_play", "recall_bold")} [^\n]*outing reached home',
+    *_outing_leads('park_recall_play', ['recall_bold'], True),
+], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
+           r'result=separated', r'facility route stalled', r'\[body\][^\n]*accepted damage cause=fall\b'])
+next(s for s in S if s.id == 'park_recall_play').smoke.update(verify=_park_recall_verify)
 _picnic_pet = _uuid_text('park_picnic', 'picnic_pet')
 _picnic_transfers = [
     r'action=picnic_take item=minecraft:apple crate=[^\n]* count=1',
@@ -11445,7 +11608,7 @@ def _pocket_rest_verify(window):
     return _verify_outing_pace(window)
 
 
-_smoke('pocket_park_rest', 2600, [
+_smoke('pocket_park_rest', 3200, [
     r'park facility result=placed kind=CERAMIC',
     r'action=outing_depart pets=2 ',
     r'action=outing_park facility=',
@@ -11455,6 +11618,7 @@ _smoke('pocket_park_rest', 2600, [
     *[rf'uuid={_uuid_text("pocket_park_rest", p[1])} [^\n]*outing reached home' for p in _rest_pets],
     *_outing_leads('pocket_park_rest', [p[1] for p in _rest_pets], True),
 ], forbid=[r'outing return blocked', r'action=outing_return_blocked', r'reason=(?:lagging|blocked)',
+           r'result=separated', r'facility route stalled', r'facility session ended [^\n]*reason=interrupted\b',
            r'action=outing_sit result=taken', r'action=outing_stand reason=move'])
 next(s for s in S if s.id == 'pocket_park_rest').smoke.update(verify=_pocket_rest_verify)
 

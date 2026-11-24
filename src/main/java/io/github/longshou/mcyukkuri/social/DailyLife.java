@@ -29,6 +29,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.geom.ContactStandSearch;
 import io.github.longshou.mcyukkuri.perception.Senses;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -258,6 +259,8 @@ public final class DailyLife {
 
     private boolean canBegin(Kind kind, Entity companion) {
         if (!permitsPerformance(entity, companion, kind)) return false;
+        if ((kind == Kind.SING || kind == Kind.EXERCISE && !entity.life().constipated())
+                && (entity.walkingToPlayground() || PlayWant.seesPlayable(entity, 24))) return false;
         if (entity.level().isClientSide || !available(entity, false, kind == Kind.EXERCISE) || active() || cooldown > 0) return false;
         if (kind == Kind.EXERCISE && (!entity.childhood().canExercise()
                 || companion instanceof YukkuriEntity peer && !peer.childhood().canExercise())) return false;

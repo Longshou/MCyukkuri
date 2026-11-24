@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.pet.rules.YardArrival;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.play.PlayBlock;
 import io.github.longshou.mcyukkuri.play.PlayBlockEntity;
+import io.github.longshou.mcyukkuri.play.PlayWant;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
@@ -734,7 +735,7 @@ final class HumanStreet {
         /** From the cell beside the bench (1.0 from the board centre) the owner steps up by itself. */
         private static final double REACH_SEAT = 1.2;
         // Beyond the park's twelve-block calling distance the owner goes to the pet herself.
-        private static final double CALL_RANGE = 12;
+        private static final double CALL_RANGE = 16;
 
         private final HumanNpc npc;
         private Vec3 destination;
@@ -765,6 +766,7 @@ final class HumanStreet {
         private double pace;
         private OutingPace.Mode paceMode = OutingPace.Mode.CRUISE;
         private boolean turnaroundWaiting;
+        private boolean gatherHomeWait;
         private String legPhase;
         private Vec3 paceLastPos;
         private int legTicks, legSlowTicks, legWaitTicks;
@@ -807,8 +809,9 @@ final class HumanStreet {
         HumanNpc.DoorExit doorWait() { return doorWait; }
         boolean waitingForCompanion() {
             return outing() && !parkLingering() && !plazaRest && called == null && doorWait == null
-                    && (paceMode == OutingPace.Mode.WAIT || turnaroundWaiting);
+                    && (paceMode == OutingPace.Mode.WAIT || turnaroundWaiting || gatherHomeWait);
         }
+        boolean gatheringForReturn() { return gatherHomeWait; }
         Vec3 doorFollowerStand(YukkuriEntity pet) {
             return doorWait != null && doorWait.keeperInPlace(npc) && trailing(doorWait, pet)
                     ? doorWait.stand(false) : null;
@@ -818,11 +821,16 @@ final class HumanStreet {
             return pet.getLeashHolder() == npc && !crossing.cleared(pet);
         }
         boolean parkLingering() { return parkOpened != 0; }
+        boolean picnicActive() { return picnicHalf != null; }
         boolean restingAtPlaza() { return plazaSat; }
         /** The paving the owner watches from its bench, or null when it is not resting at a plaza. */
         AABB plazaPaving() { return plazaSat && plaza != null ? plaza.paving() : null; }
         void forcePlaza() { plazaForced = true; }
-        PlayBlockEntity parkFacility() { return parkLingering() && !facility.isRemoved() ? facility : null; }
+        PlayBlockEntity parkFacility() { return parkLingering() && facility != null && !facility.isRemoved() ? facility : null; }
+        List<PlayBlockEntity> parkFacilities() {
+            if (!parkLingering() || parkFacilities.isEmpty()) return List.of();
+            return parkFacilities.stream().filter(f -> !f.isRemoved()).toList();
+        }
 
         void save(CompoundTag tag) {
             if (outing() || picnicHalf != null) tag.putBoolean("OutingReturn", true);
@@ -1142,6 +1150,7 @@ final class HumanStreet {
 
         private void returnHome(String reason) {
             turnaroundWaiting = false;
+            gatherHomeWait = false;
             endPaceLeg();
             if (!homeward) GameplayLog.event(npc, "npc-care", "action=outing_turn reason={}", reason);
             endGlance();
@@ -1232,15 +1241,22 @@ final class HumanStreet {
             return half != null && beginCollect(half, null);
         }
 
+        private static final int PARK_BASE_TICKS = 2400;
+        private static final int PARK_MAX_TICKS = 6000;
+        private List<PlayBlockEntity> parkFacilities = List.of();
+
         private boolean beginLinger() {
             var center = BlockPos.containing(parkDestination);
             parkDestination = null;
             var level = npc.level();
-            var found = BlockPos.betweenClosedStream(center.offset(-12, -2, -12), center.offset(12, 2, 12))
+            var scanned = BlockPos.betweenClosedStream(center.offset(-24, -2, -24), center.offset(24, 2, 24))
                     .filter(level::hasChunkAt).map(level::getBlockEntity)
                     .filter(PlayBlockEntity.class::isInstance).map(PlayBlockEntity.class::cast)
-                    .min(Comparator.comparingDouble(play -> play.getBlockPos().distSqr(center))).orElse(null);
-            if (found == null) return false;
+                    .sorted(Comparator.comparingDouble(play -> play.getBlockPos().distSqr(center)))
+                    .toList();
+            if (scanned.isEmpty()) return false;
+            var found = scanned.getFirst();
+            parkFacilities = scanned;
             seat = null;
             var seats = seats(found);
             seatCandidates = seats.size();
@@ -1250,7 +1266,9 @@ final class HumanStreet {
                 parkStand(found);
                 return true;
             }
-            return standAside(found);
+            if (standAside(found)) return true;
+            parkFacilities = List.of();
+            return false;
         }
 
         /** No bench in reach: stand to the side of the facility, or in front of it. */
@@ -1545,12 +1563,14 @@ final class HumanStreet {
                     if (beginCollect(half, watch)) return;
                 }
             } else if (beginOffer()) return;
-            boolean playing = false, waitingForRest = false, done = true;
+            boolean playing = false, anyoneWants = false, waitingForRest = false, done = true;
             for (var pet : companions) {
-                boolean atPlay = pet.playLife().active();
+                boolean atPlay = pet.playLife().active() || pet.playLife().waiting();
+                boolean petDone = pet.outing().doneAtPark();
                 playing |= atPlay;
+                anyoneWants |= atPlay || !petDone && PlayWant.wants(pet);
                 waitingForRest |= pet.outing().tired() && !pet.life().isSleeping() && !atPlay;
-                done &= pet.outing().doneAtPark() || offered && !atPlay && !pet.life().isSleeping() && !pet.outing().tired();
+                done &= petDone || offered && !atPlay && !pet.life().isSleeping() && !pet.outing().tired();
             }
             tiredTicks = waitingForRest ? tiredTicks + 1 : 0;
             long lingerTicks = npc.level().getGameTime() - parkOpened;
@@ -1558,7 +1578,7 @@ final class HumanStreet {
                     && companions.stream().anyMatch(pet -> pet.life().nutrition() <= pet.outing().picnicBand());
             if (done && !waitingToShare && !npc.isUsingItem() && (picnicHalf == null || tried.contains(Leg.COLLECT))) returnHome("park_done");
             else if (tiredTicks > 300) returnHome("tired");
-            else if (lingerTicks >= 3000 || lingerTicks >= 2400 && !playing) returnHome("park_time");
+            else if (lingerTicks >= PARK_MAX_TICKS || lingerTicks >= PARK_BASE_TICKS && !anyoneWants && !playing) returnHome("park_time");
         }
 
         /** The owner watches the pet at play, else the nearest pet, else the facility. */
@@ -1574,6 +1594,7 @@ final class HumanStreet {
                     GameplayLog.at(watch), npc.distanceToSqr(watch));
             parkDestination = null;
             facility = null;
+            parkFacilities = List.of();
             watch = null;
             parkOpened = 0;
             seat = null;
@@ -1586,6 +1607,7 @@ final class HumanStreet {
 
         private void finishReturn(String result) {
             turnaroundWaiting = false;
+            gatherHomeWait = false;
             endPaceLeg();
             GameplayLog.event(npc, "npc-care", "action=outing_{}", result);
             if (npc.holdsPicnicFood()) {
@@ -1654,6 +1676,10 @@ final class HumanStreet {
                     return;
                 }
                 gatherPet();
+                return;
+            }
+            if (gatherHomeWait) {
+                nextPet(companions.size());
                 return;
             }
             if (homeward && doorStep()) return;
@@ -1734,6 +1760,20 @@ final class HumanStreet {
                             stalled = 1;
                         }
                     }
+                }
+                if (gatherHomeWait) {
+                    var furthest = companions.stream().filter(p -> p.isAlive() && p.getLeashHolder() == npc)
+                            .max(Comparator.comparingDouble(npc::distanceToSqr)).orElse(null);
+                    npc.getNavigation().stop();
+                    tickGlance(furthest, true);
+                    boolean ready = companions.stream().filter(p -> p.isAlive() && p.getLeashHolder() == npc)
+                            .allMatch(p -> npc.distanceToSqr(p) <= 12.25 && npc.hasLineOfSight(p));
+                    if (ready || ++stalled >= ROUTE_TICKS) {
+                        gatherHomeWait = false;
+                        stalled = 0;
+                        continueHome();
+                    }
+                    return;
                 }
                 if (turnaroundWaiting) {
                     tickGlance(lagging, true);
@@ -1893,6 +1933,16 @@ final class HumanStreet {
                 pets.remove();
             }
             if (homeward) {
+                boolean slack = companions.stream().filter(p -> p.isAlive() && p.getLeashHolder() == npc)
+                        .allMatch(p -> npc.distanceToSqr(p) <= 9.0 && npc.hasLineOfSight(p));
+                if (!slack) {
+                    gatherHomeWait = true;
+                    stalled = 0;
+                    lagTicks = 0;
+                    npc.getNavigation().stop();
+                    return;
+                }
+                gatherHomeWait = false;
                 continueHome();
             } else if (companions.isEmpty()) {
                 finished = true;
@@ -2151,6 +2201,7 @@ final class HumanStreet {
 
         @Override public void stop() {
             turnaroundWaiting = false;
+            gatherHomeWait = false;
             endPaceLeg();
             paceMode = OutingPace.Mode.CRUISE;
             endGlance();

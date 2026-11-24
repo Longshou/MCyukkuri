@@ -77,7 +77,7 @@ public final class PlayBlock extends Block implements EntityBlock {
      */
     @Override protected boolean isPathfindable(BlockState state,PathComputationType type){
         if(type!=PathComputationType.LAND)return false;
-        return (kind!=Kind.CERAMIC&&kind!=Kind.TRAMPOLINE)||PlayGeometry.shape(kind,state.getValue(FACING),state.getValue(PART)).isEmpty();}
+        return PlayGeometry.shape(kind,state.getValue(FACING),state.getValue(PART)).isEmpty();}
 
     public static boolean onTrampolineBed(Entity entity) {
         var pos = entity.getOnPos();

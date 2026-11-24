@@ -944,6 +944,38 @@
         }
       ]
     },
+    "behavior_slide_climb": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "waddle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "happy"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_slide_down": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "open_smile"
+            ]
+          ]
+        }
+      ]
+    },
     "behavior_seek_shade": {
       "loop": true,
       "steps": [
@@ -5193,6 +5225,8 @@
     "thunder_startle": "behavior_thunder_startle",
     "sunbathe": "behavior_sunbathe",
     "juice_soak": "behavior_juice_soak",
+    "slide_climb": "behavior_slide_climb",
+    "slide_down": "behavior_slide_down",
     "seek_shade": "behavior_seek_shade",
     "independence_build": "behavior_independence_build",
     "nest_build": "behavior_nest_build",

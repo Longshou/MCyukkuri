@@ -25,6 +25,12 @@ public final class PlayGeometry {
         for(int i=0;i<turns(facing);i++){double old=x;x=-z;z=old;}
         return new Vec3(root.getX()+.5+x,root.getY()+y,root.getZ()+.5+z);
     }
+    /** Inverse of {@link #world}: projects a world position into the facility's south-facing local frame. */
+    public static Vec3 local(BlockPos root,Direction facing,Vec3 pos){
+        double x=pos.x-(root.getX()+.5),y=pos.y-root.getY(),z=pos.z-(root.getZ()+.5);
+        for(int i=0;i<turns(facing);i++){double old=x;x=z;z=-old;}
+        return new Vec3(x,y,z);
+    }
     private static CellShapes load(PlayBlock.Kind kind){return CACHE.computeIfAbsent(kind,PlayGeometry::read);}
     private static CellShapes read(PlayBlock.Kind kind){
         VoxelShape[][] collision=new VoxelShape[4][50],outline=new VoxelShape[4][50];

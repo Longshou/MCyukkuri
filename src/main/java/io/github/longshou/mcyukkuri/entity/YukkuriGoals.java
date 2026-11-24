@@ -170,10 +170,11 @@ final class YukkuriGoals {
         kindness = new Kindness(owner);
         goalSelector.addGoal(4, kindness);
         goalSelector.addGoal(4, landGoal(owner.outing(), false));
+        // Play outranks daily SING/EXERCISE while a wanted facility is reachable; PetOuting (4) still outranks play for picnic and recall.
+        goalSelector.addGoal(5, basicBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
         goalSelector.addGoal(5, basicBinding(PresentationGoals.DAILY, new DailyGoal()));
         goalSelector.addGoal(6, basicBinding(PresentationGoals.SOCIAL, new SocialGoal()));
         goalSelector.addGoal(5, basicBinding(PresentationGoals.GROUP, new GroupGoal()));
-        goalSelector.addGoal(6, basicBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
         goalSelector.addGoal(6, landBinding(PresentationGoals.KEEPSAKE, new KeepsakeGoal()));
         owner.createWintering();
         goalSelector.addGoal(7, basicBinding(PresentationGoals.WINTERING, owner.wintering()));
