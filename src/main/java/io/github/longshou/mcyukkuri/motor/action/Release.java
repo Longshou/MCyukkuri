@@ -715,9 +715,11 @@ public final class Release implements Action, MotorOwner {
     /** The attempt's end, refused at its check or ended running; a real failure is told to the carrier's carry, so whoever holds
      *  the child after an ended intent inherits it ({@link ParentCarry#finish}). */
     private void failed(YukkuriEntity carrier, Outcome result) {
+        // An outside cause that ended the attempt (fright, a goal change) is no refusal: nothing is recorded, so the carry
+        // may set the child down again as soon as it owns the body.
+        if (result.reason() == null) return;
         outcome = result;
         failedWorld = world(carrier);
-        if (result.reason() == null) return;
         if (brimHop == null || child.getVehicle() == carrier) carrier.family().carry().releaseFailed(this);
         GameplayLog.limited(carrier, "family", "release." + child.getUUID() + "." + result.reason(), 200,
                 "carry put down refused child={} outcome={} tries={}", child.getUUID(), result, tries);

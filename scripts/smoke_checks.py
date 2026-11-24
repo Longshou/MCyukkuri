@@ -1144,7 +1144,12 @@ class EndContext:
                 post = []
                 if path.get('post'):
                     if after[0] < self.end:
-                        post = self.clauses(path['post'], after[0] + 1, bound, False)
+                        # ``post_within`` ticks: a put-down on the nest rim may step to the cushion shortly after (first sample that holds).
+                        first = after[0] + 1
+                        for tick in range(first, min(first + path.get('post_within', 0), self.end) + 1):
+                            post = self.clauses(path['post'], tick, bound, False)
+                            if all(r['verdict'] == 'pass' for r in post):
+                                break
                     else:
                         post = [result('END', 'no-evidence', 'window ended before postcondition sample', dict(u=None, t=after[0]))]
                 rejected[:] = [r for r in post if r['verdict'] != 'pass']

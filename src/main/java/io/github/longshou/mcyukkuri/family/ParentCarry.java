@@ -1571,8 +1571,13 @@ public final class ParentCarry {
     /** Starts a bounded gathering choice inside the existing flight or shelter goal. */
     public void startFlight(String cause, LivingEntity threat) {
         if (!carrier.family().adult() || !FamilyLife.ordinaryLandFree(carrier) || carrier.isOnFire()) return;
-        if (!ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab)
+        if (!ours().isEmpty() || lifting != null && carrier.motor().owner() == owner && carrier.motor().current() instanceof Grab) {
+            // A child already aboard (an ordinary retrieve) becomes a protected one: the log shows the same pickup line a lift in flight gives.
+            if (purpose != Purpose.PROTECT) for (var child : ours())
+                GameplayLog.event(carrier, "family", "carry pickup hold={} purpose=PROTECT child={} childStage={} adopted=true aboard={}",
+                        hold(carrier, child).key(), child.getUUID(), child.family().stage(), carrier.getPassengers().size());
             purpose = Purpose.PROTECT;
+        }
         long now = carrier.level().getGameTime();
         boolean hasThreat = threat != null;
         if (now < flightRetryAt && (flightRetryThreat || !hasThreat) || flightYoung().isEmpty()) return;
