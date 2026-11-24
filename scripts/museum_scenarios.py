@@ -4127,7 +4127,8 @@ def _ring_yard():
 
 def _ring_keeper():
     """The keeper starts on the cell beside the north bench it takes, facing it, with its home and bowl in the yard. It is
-    scn_free, so it is not held for the start countdown and has already sat down by the time the play begins."""
+    scn_free, so it is not held for the start countdown: the plaza_rest hook (at_spawn) walks it to the bench and sits it down
+    while the strays are still held."""
     return [human('caretaker_sister', 7, 2, _RING_KEEPER, 0, yaw=180, label='院主')[:-1]
             + f',UUID:{uuid_nbt(uid(_PLAZA, _RING_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}',
             f'tag {sel(_RING_KEEPER)} add scn_free']
@@ -4158,6 +4159,9 @@ add(_RING, 'town', '流浪油在广场边盯上佩章的宠物', '流浪油盯�
         *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 4, z=0)[0]
                           .replace('Innate:[I;55,88,70,22,70]', 'Innate:[I;55,88,35,80,70]')
                           .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400'), _RING_KEEPER),
+        # Free of the start hold like the keeper: a held pet is inert and fails the keeper's escort check (PetOuting.fit), so the
+        # keeper would turn home on the first check; the strays stay held, so the keeper sits before the first sneer.
+        f'tag {sel(_RING_HOLDER)} add scn_free',
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-4, -3, -80, 8),
     at_spawn=[f'yukkuri human plaza_rest {sel(_RING_KEEPER)}'],
