@@ -7662,7 +7662,7 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         return f'{parent}: wrong order ordered={ordered} begins={begins} turned={turned} departed={departed}'
     if distance < 8 or seen and distance < 16:
         return f'{parent}: the cut fell while the child was still near or in sight (distance={distance} sight={seen})'
-    cut, _ = at(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* parent dismissed child=' + child + r'[^\n]* repudiated=true')
+    cut, _ = at(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* parent dismissed child=' + child + r'[^\n]* direction=both')
     if cut is None or cut < departed:
         return f'{parent}: the tie was cut {"never" if cut is None else "before"} the child was gone (cut={cut} departed={departed})'
     if len(re.findall(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=[^\n]* reason=boat_overload', window)) != 1:

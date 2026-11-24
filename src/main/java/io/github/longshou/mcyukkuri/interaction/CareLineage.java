@@ -25,7 +25,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
 
     public enum Relation { MOTHER, FATHER, SOURCE, MATE, CHILDREN, SIBLINGS, LEADER, FOSTER_PARENT }
 
-    public record Entry(Relation relation, String name, YukkuriVariant variant, String stage, FamilyData.Status status, int omitted) {
+    public record Entry(Relation relation, String name, YukkuriVariant variant, String stage, FamilyData.Status status, boolean severed, int omitted) {
         public Component label() {
             if (omitted > 0) return Component.translatable(KEY + "more", omitted);
             Component species = variant == null ? Component.translatable(KEY + "unknown") : ModEntities.forVariant(variant).getDescription();
@@ -33,6 +33,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
             if (!name.isEmpty()) label.append(name).append(" · ");
             label.append(species);
             if (!stage.isEmpty()) label.append(" · ").append(Component.translatable("stage.mcyukkuri." + stage));
+            if (severed) label.append(" · ").append(Component.translatable(KEY + "severed"));
             return status == null ? label : Component.translatable(KEY + "relative_status", label,
                     Component.translatable(KEY + "status." + id(status)));
         }
@@ -43,6 +44,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
             buf.writeVarInt(variant == null ? 0 : variant.ordinal() + 1);
             buf.writeUtf(stage);
             buf.writeVarInt(status == null ? 0 : status.ordinal() + 1);
+            buf.writeBoolean(severed);
             buf.writeVarInt(omitted);
         }
 
@@ -53,7 +55,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
             String stage = buf.readUtf();
             int status = buf.readVarInt();
             return new Entry(relation, name, variant == 0 ? null : YukkuriVariant.values()[variant - 1], stage,
-                    status == 0 ? null : FamilyData.Status.values()[status - 1], buf.readVarInt());
+                    status == 0 ? null : FamilyData.Status.values()[status - 1], buf.readBoolean(), buf.readVarInt());
         }
     }
 
@@ -63,29 +65,29 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         var person = family.person(subject);
         var entries = new ArrayList<Entry>();
         if (person != null) {
-            add(level, family, entries, Relation.MOTHER, person.mother);
-            add(level, family, entries, Relation.FATHER, person.father);
-            if (person.foster() != null) add(level, family, entries, Relation.FOSTER_PARENT, person.foster().parent());
-            add(level, family, entries, Relation.SOURCE, person.incidentSource);
+            add(level, family, entries, Relation.MOTHER, person.mother, family.severed(subject, person.mother));
+            add(level, family, entries, Relation.FATHER, person.father, family.severed(subject, person.father));
+            if (person.foster() != null) add(level, family, entries, Relation.FOSTER_PARENT, person.foster().parent(), false);
+            add(level, family, entries, Relation.SOURCE, person.incidentSource, false);
             switch (person.partnerState()) {
-                case PARTNERED, WIDOWED -> add(level, family, entries, Relation.MATE, person.partner());
+                case PARTNERED, WIDOWED -> add(level, family, entries, Relation.MATE, person.partner(), false);
                 default -> { }
             }
         }
-        addMany(level, family, entries, Relation.CHILDREN, new TreeSet<>(family.children(subject)));
+        addMany(level, family, entries, Relation.CHILDREN, new TreeSet<>(family.children(subject)), subject);
         if (person != null) {
             var siblings = new TreeSet<UUID>();
             if (person.mother != null) siblings.addAll(family.children(person.mother));
             if (person.father != null) siblings.addAll(family.children(person.father));
             siblings.remove(subject);
-            addMany(level, family, entries, Relation.SIBLINGS, siblings);
+            addMany(level, family, entries, Relation.SIBLINGS, siblings, subject);
         }
         var group = target.settlement().recordedGroup();
         var groupRole = group == null ? SettlementData.Role.FREE : group.role(subject);
         String groupKey = "";
         if (groupRole != SettlementData.Role.FREE && groupRole != SettlementData.Role.OUTCAST) {
             groupKey = KEY + "group." + id(group.kind);
-            add(level, family, entries, Relation.LEADER, group.leader);
+            add(level, family, entries, Relation.LEADER, group.leader, false);
         }
         var custody = Custody.view(target).role();
         String roleKey = groupRole != SettlementData.Role.FREE ? "settlement.mcyukkuri.role." + id(groupRole)
@@ -94,18 +96,18 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
     }
 
     private static void addMany(ServerLevel level, FamilyData family, List<Entry> entries,
-                                Relation relation, Collection<UUID> relatives) {
+                                Relation relation, Collection<UUID> relatives, UUID subject) {
         int count = 0;
         for (UUID id : relatives) {
             if (count++ == MAX_PER_LIST) {
-                entries.add(new Entry(relation, "", null, "", null, relatives.size() - MAX_PER_LIST));
+                entries.add(new Entry(relation, "", null, "", null, false, relatives.size() - MAX_PER_LIST));
                 break;
             }
-            add(level, family, entries, relation, id);
+            add(level, family, entries, relation, id, family.severed(subject, id));
         }
     }
 
-    private static void add(ServerLevel level, FamilyData family, List<Entry> entries, Relation relation, UUID id) {
+    private static void add(ServerLevel level, FamilyData family, List<Entry> entries, Relation relation, UUID id, boolean severed) {
         if (id == null) return;
         var person = family.person(id);
         var knownLevel = person == null || person.position == null ? level : level.getServer().getLevel(person.position.dimension());
@@ -130,7 +132,7 @@ public record CareLineage(String stage, String roleKey, String groupKey, List<En
         }
         var status = person == null ? null : person.status;
         if (relative != null) status = relative.isAlive() ? FamilyData.Status.ALIVE : FamilyData.Status.DEAD;
-        entries.add(new Entry(relation, name, variant, stage, status, 0));
+        entries.add(new Entry(relation, name, variant, stage, status, severed, 0));
     }
 
     public void write(FriendlyByteBuf buf) {

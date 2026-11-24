@@ -92,9 +92,8 @@ public final class FamilyData extends SavedData {
         private String unknownPartnerState;
         private UUID partner;
         private final List<UUID> partnerHistory = new ArrayList<>();
+        /** The children severed from this parent: the pedigree keeps the relation but marks it severed, and neither side counts the other as family. */
         private final Set<UUID> dismissedChildren = new HashSet<>();
-        /** The dismissed children the parent drove out (a subset): they no longer look for her, unlike one whose search was only given up. */
-        private final Set<UUID> repudiatedChildren = new HashSet<>();
         /** First acquisition of each badge, used by genealogy and the offspring's shop quote. */
         private final List<BadgeAcquisition> badgeAcquisitions = new ArrayList<>(4);
         public PartnerState partnerState() { return partnerState; }
@@ -424,42 +423,49 @@ public final class FamilyData extends SavedData {
     }
     /** Family treatment follows recorded care parents; incident ancestry alone grants no social relationship. */
     public Set<UUID> dismissedChildren(UUID parent){var person=people.get(parent);return person==null?Set.of():Set.copyOf(person.dismissedChildren);}
-    /** Whether {@code parent} drove {@code child} out: the child stops expecting her, and she does not take it back. */
-    public boolean repudiated(UUID parent, UUID child) {
-        var person=people.get(parent);
-        return person!=null&&person.repudiatedChildren.contains(child);
-    }
+    /** False once the tie between {@code parent} and {@code child} is severed (always both ways: neither counts the other as family). */
     public boolean acknowledgesChild(UUID parent, UUID child) {
         var person=people.get(parent);
         return person==null||!person.dismissedChildren.contains(child);
     }
-    /** Callers go through {@code Bonds.sever} or {@code Bonds.repudiate}. */
-    public void dismissChild(YukkuriEntity parent, UUID child, String reason, boolean repudiated) {
+    /** Callers go through {@code Bonds.sever}. */
+    public void dismissChild(YukkuriEntity parent, UUID child, String reason) {
         register(parent);
-        var person=people.get(parent.getUUID());
-        boolean marked=repudiated&&person.repudiatedChildren.add(child);
-        if(person.dismissedChildren.add(child)||marked){
+        if(people.get(parent.getUUID()).dismissedChildren.add(child)){
             setDirty();
-            GameplayLog.event(parent,"family","parent dismissed child={} direction=parent_to_child child_recognition=retained reason={} repudiated={}",child,reason,repudiated);
+            GameplayLog.event(parent,"family","parent dismissed child={} direction=both reason={}",child,reason);
         }
     }
-    /** Cut when the parent entity is unloaded or dead: still records the dismissal and repudiation in the ledger. */
-    public void dismissChild(ServerLevel level, UUID parentId, UUID child, String reason, boolean repudiated) {
+    /** Cut when the parent entity is unloaded or dead: still records the severance in the ledger. */
+    public void dismissChild(ServerLevel level, UUID parentId, UUID child, String reason) {
         var person=people.computeIfAbsent(parentId,id->new Person(id,"",null));
-        boolean marked=repudiated&&person.repudiatedChildren.add(child);
-        if(person.dismissedChildren.add(child)||marked){
+        if(person.dismissedChildren.add(child)){
             setDirty();
-            GameplayLog.world(level,"family","parent dismissed parent={} child={} direction=parent_to_child child_recognition=retained reason={} repudiated={}",parentId,child,reason,repudiated);
+            GameplayLog.world(level,"family","parent dismissed parent={} child={} direction=both reason={}",parentId,child,reason);
         }
+    }
+    /** Whether the recorded parent-child tie between the two (either way round) or a tie through a shared parent is severed. */
+    public boolean severed(UUID first, UUID second) {
+        Person a=people.get(first), b=people.get(second);
+        if (a==null || b==null) return false;
+        if (second.equals(a.mother)||second.equals(a.father)) return !acknowledgesChild(second,first);
+        if (first.equals(b.mother)||first.equals(b.father)) return !acknowledgesChild(first,second);
+        return sharedParentSevered(a,b);
+    }
+    private boolean sharedParentSevered(Person a, Person b) {
+        for (UUID parent : new UUID[]{a.mother,a.father})
+            if (parent!=null && (parent.equals(b.mother)||parent.equals(b.father))
+                    && (!acknowledgesChild(parent,a.id)||!acknowledgesChild(parent,b.id))) return true;
+        return false;
     }
     public boolean socialKin(UUID first, UUID second) {
         if (first.equals(second)) return true;
         Person a=people.get(first), b=people.get(second);
         if (a==null || b==null) return false;
         if (first.equals(b.mother) || first.equals(b.father)) return acknowledgesChild(first,second);
-        if (second.equals(a.mother) || second.equals(a.father)) return true;
-        return a.mother!=null && (a.mother.equals(b.mother)||a.mother.equals(b.father))
-                || a.father!=null && (a.father.equals(b.mother)||a.father.equals(b.father));
+        if (second.equals(a.mother) || second.equals(a.father)) return acknowledgesChild(second,first);
+        return !sharedParentSevered(a,b) && (a.mother!=null && (a.mother.equals(b.mother)||a.mother.equals(b.father))
+                || a.father!=null && (a.father.equals(b.mother)||a.father.equals(b.father)));
     }
     public List<UUID> children(UUID parent) {
         if (childrenIndexDirty) rebuildChildrenIndex();
@@ -929,7 +935,7 @@ public final class FamilyData extends SavedData {
             }
             savePartner(person,value);
             ListTag dismissed=new ListTag();
-            for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);entry.putBoolean("Repudiated",person.repudiatedChildren.contains(child));dismissed.add(entry);}
+            for(UUID child:person.dismissedChildren){var entry=new CompoundTag();entry.putUUID("Child",child);dismissed.add(entry);}
             value.put("DismissedChildren",dismissed);
             ListTag badges = new ListTag();
             for (var acquisition : person.badgeAcquisitions) {
@@ -976,7 +982,7 @@ public final class FamilyData extends SavedData {
             if(value.hasUUID("IncidentSource"))person.incidentSource=value.getUUID("IncidentSource");
             if (value.hasUUID("FosterParent")) person.foster = new Foster(value.getUUID("FosterParent"), value.getLong("FosterSince"));
             data.loadPartner(person,value);
-            for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child")){person.dismissedChildren.add(dismissedEntry.getUUID("Child"));if(dismissedEntry.getBoolean("Repudiated"))person.repudiatedChildren.add(dismissedEntry.getUUID("Child"));}}
+            for(var raw:value.getList("DismissedChildren",Tag.TAG_COMPOUND)){var dismissedEntry=(CompoundTag)raw;if(dismissedEntry.hasUUID("Child")){person.dismissedChildren.add(dismissedEntry.getUUID("Child"));}}
             for (Tag badgeEntry : value.getList("BadgeAcquisitions", Tag.TAG_COMPOUND)) {
                 CompoundTag badge = (CompoundTag) badgeEntry; int grade = badge.getInt("Grade");
                 if (grade >= 1 && grade <= 4 && person.badgeAcquisitions.stream().noneMatch(record -> record.grade() == grade))

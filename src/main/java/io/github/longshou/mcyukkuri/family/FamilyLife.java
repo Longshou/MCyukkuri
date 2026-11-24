@@ -370,10 +370,10 @@ public final class FamilyLife {
         UUID foster = fosterParent();
         return parent.getUUID().equals(foster) && parent.isAlive() && orphaned() && !absence().gone(foster);
     }
-    /** Whether this young still looks to {@code parent} for care: not once she drove it out (or is driving it out now). */
+    /** Whether this young still looks to {@code parent} for care: not once the tie is severed (or she is driving it out now). */
     public boolean expectsCare(UUID parent) {
         return parent != null && !parent.equals(entity.drivenOut().driver())
-                && !FamilyData.get(level()).repudiated(parent, entity.getUUID());
+                && FamilyData.get(level()).acknowledgesChild(parent, entity.getUUID());
     }
     /** The recorded care parents it still expects care from (a driven-out parent's slot is null). */
     public UUID[] caregiverIds() {

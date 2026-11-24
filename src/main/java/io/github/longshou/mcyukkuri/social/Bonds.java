@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
+import io.github.longshou.mcyukkuri.status.YukkuriStatus;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
@@ -42,18 +43,22 @@ public final class Bonds {
     public static boolean mutualMates(YukkuriEntity a, YukkuriEntity b) {
         return recordedMate(a, b) && recordedMate(b, a);
     }
-    /** The one-sided cut after lost contact: the parent stops treating the child as its own, permanently; the child still recognises the
-     *  parent and keeps looking for her. {@code reason} is only logged. */
-    public static void sever(YukkuriEntity parent, UUID child, String reason) {
-        FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child, reason, false);
-    }
-    /** The one-sided cut after the parent drove the child out and it left: as {@link #sever}, and the child no longer expects her either. */
-    public static void repudiate(YukkuriEntity parent, UUID child, String reason) {
-        FamilyData.get((ServerLevel) parent.level()).dismissChild(parent, child, reason, true);
-    }
-    /** As {@link #repudiate(YukkuriEntity, UUID, String)} when the parent entity is unloaded or dead. */
-    public static void repudiate(ServerLevel level, UUID parentId, UUID child, String reason) {
-        FamilyData.get(level).dismissChild(level, parentId, child, reason, true);
+    /**
+     * The one severance operation every path ends in (driven out, mould exile, a search given up). The cut is mutual and permanent: the
+     * ledger keeps the relation but marks it severed ({@link FamilyData#severed}), so the parent no longer counts the child and the child
+     * no longer expects the parent; the child leaves the family household it was in, and a free wild child becomes a stray. {@code reason}
+     * is only logged. {@code parent} may be null when she is unloaded or dead.
+     */
+    public static void sever(ServerLevel level, UUID parentId, YukkuriEntity parent, YukkuriEntity child, String reason) {
+        var data = FamilyData.get(level);
+        if (parent != null) data.dismissChild(parent, child.getUUID(), reason);
+        else data.dismissChild(level, parentId, child.getUUID(), reason);
+        var household = child.settlement().recordedGroup();
+        if (household != null && household.kind == SettlementData.Kind.FAMILY) child.settlement().exile();
+        var before = child.status().identity();
+        if (!before.wild()) return;
+        child.pet().markTownRoots();
+        YukkuriStatus.identityChanged(child, before, "severed");
     }
     /** Recorded entity parents, without the ledger's sibling or incident-source expansion; a child she is driving out is no longer hers. */
     public static boolean parentOf(YukkuriEntity parent, YukkuriEntity child) {
@@ -62,7 +67,7 @@ public final class Bonds {
                 && !parent.getUUID().equals(child.drivenOut().driver());
     }
     public static boolean directParentChild(YukkuriEntity a, YukkuriEntity b) {
-        return parentOf(a, b) || b.getUUID().equals(a.family().mother()) || b.getUUID().equals(a.family().father());
+        return parentOf(a, b) || parentOf(b, a);
     }
     /** FamilyLife.caresFor includes adulthood/childhood gates; CARE does not. */
     public static boolean currentCarePair(YukkuriEntity a, YukkuriEntity b) {

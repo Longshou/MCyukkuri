@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -157,7 +158,7 @@ public final class WaterDistress {
     private boolean youngInWater(){
         var ledger=AskLedger.server();
         return !level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(16),
-                young->!young.family().adult()&&(entity.getUUID().equals(young.family().mother())||entity.getUUID().equals(young.family().father()))
+                young->!young.family().adult()&&Bonds.parentOf(entity,young)
                         &&ledger.openOf(young.getUUID(),"water")!=null).isEmpty();
     }
     /**

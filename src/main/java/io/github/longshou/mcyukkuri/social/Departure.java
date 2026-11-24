@@ -297,8 +297,8 @@ public final class Departure {
     }
 
     /**
-     * The parent's side of a finished departure, the one place it is written: she repudiates the child (it no longer expects her, she does
-     * not take it back), and a tearful one is left with the parting feeling, which watches the road it took.
+     * A finished departure, the one place it is written: the tie is severed both ways ({@link Bonds#sever}: she does not take it back, it
+     * no longer expects her, it is a stray), and a tearful parent is left with the parting feeling, which watches the road it took.
      */
     public static void parted(YukkuriEntity parent, YukkuriEntity child, Verdict verdict, String reason) {
         parted((ServerLevel) parent.level(), parent.getUUID(), parent, child, verdict, reason);
@@ -306,8 +306,7 @@ public final class Departure {
 
     /** As {@link #parted(YukkuriEntity, YukkuriEntity, Verdict, String)}, still cutting the bond when the parent is unloaded or dead. */
     public static void parted(ServerLevel level, UUID parentId, YukkuriEntity parent, YukkuriEntity child, Verdict verdict, String reason) {
-        if (parent != null) Bonds.repudiate(parent, child.getUUID(), reason);
-        else if (parentId != null) Bonds.repudiate(level, parentId, child.getUUID(), reason);
+        if (parentId != null) Bonds.sever(level, parentId, parent, child, reason);
         if (parent == null || verdict != Verdict.DRIVE_TEARFUL) return;
         parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
         parting(parent);

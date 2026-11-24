@@ -169,8 +169,8 @@ final class FamilySeparation {
             pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
             if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
             if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&GlassSight.glassBetween(e,e.getEyePosition(),child)==null){
-                Bonds.sever(e,id,"search_abandoned");searching.remove(id);
-                e.showReaction("teary","",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；孩子仍然认得母油");
+                Bonds.sever(o.level(),e.getUUID(),e,child,"search_abandoned");searching.remove(id);
+                e.showReaction("teary","",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；断亲是双方的，孩子也不再认母油");
                 if(o.target()==child&&o.task()==FamilyLife.Task.SEARCH)o.stop();
             }
         }
