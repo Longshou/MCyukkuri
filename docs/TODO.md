@@ -12,6 +12,7 @@
 | 移除人类小孩 | `.worktrees/wp-no-child` | human/ChildPlay、HumanNpc、YukkuriSocial、公园结构、PK-06 场景、FEATURES |
 | 捕食种追击专用表情 | `.worktrees/wp-face-yield` | PresentationArbiter,FacePrecedence,反应表情调用处 |
 | 断亲双方生效与身份 | `.worktrees/wp-severance-mutual` | family/,social/SeveranceVerdict,social/Departure,FamilyLife,家谱界面 |
+| 捕食种完成捕杀 | `.worktrees/wp-pred-kill` | predator/,捕食追猎 |
 
 ## 玩法待办
 
