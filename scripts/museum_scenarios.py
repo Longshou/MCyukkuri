@@ -5177,7 +5177,9 @@ add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油
 # doll up before the scene does. A taker's nest stands five blocks behind it, outside the home-territory radius 3, or the taker
 # would warn the visitor off the nest instead of bullying it. The snatch pair starts inside the bout's own contact reach with no
 # affection or boredom need, so the doll is the pair's first drive: the harsh adult claims at its first scan, before either body
-# can wander off. The other doll scenes pin their cast, which only keeps a comparison scene still.
+# can wander off. doll_take holds its cast with a zero-speed pin (a sleeping row five blocks apart, so no pair ever meets); the two
+# outcome scenes below fence their pair into a small lawn patch instead, so a free pair stays within the bout's scan distance while
+# it waits for another escalation roll.
 _SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 # Grime is a random roll that lowers self-esteem enough to turn a bold child's puff into flight; the shown pair starts clean.
 _SNATCH_CLEAN = 'YukkuriStatus:{Marks:{Rolled:1b,Grime:0,Soil:0,Rain:0}},'
@@ -5187,10 +5189,10 @@ _SNATCH_CALM = 'YukkuriDailyLife:{Boredom:0,Affection:0},'
 
 _doll_snatch = 'doll_snatch'
 add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横的魔理沙抢走小灵梦的布偶',
-    '公园凉亭南侧草坪上并排两组，相距 10 格：每组是一只蛮横的成体魔理沙（友好 0、自制力 0）和一个矮一大截的孩子灵梦，'
+    '公园凉亭南侧草坪上并排两组，相距 10 格：每组是一只蛮横的成体魔理沙（友好 0、自制力 50）和一个矮一大截的孩子灵梦，'
     '灵梦身旁地上放着它的布偶。左边灵梦胆大，右边灵梦胆小。看魔理沙扬脸叫嚣「mine」后贴上去，二十次接触后把布偶叼进自己嘴里：'
-    '胆大的灵梦冒火回 puff，胆小的灵梦哭丧着脸逃开。魔理沙叼着布偶走回五格外的窝，在窝沿外放下。'
-    '两组反应不同只看各自的胆量与本事，重开可再看一遍。',
+    '胆大的灵梦冒火回 puff，魔理沙也回一记 puff、就地撂下布偶；胆小的灵梦哭丧着脸逃开，魔理沙叼着布偶走回五格外的窝，'
+    '在窝沿外放下。撂下的布偶，魔理沙得空后会再捡回窝去。两组反应不同只看各自的胆量与本事，重开可再看一遍。',
     '约 25 秒', [
         # Clear the working lawn and the flower bed between it and the view (blocking foliage would hide a child's doll and feet).
         # The fountain's rim one row north of the east lane stays: clearing it lets the basin run into the lawn and the timid
@@ -5201,13 +5203,13 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         item('mcyukkuri:reimu_doll', 1, 7.65, 8.65, 'snatch_doll_a'),
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
         yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
-           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
+           boldness=75, friendliness=0, self_control=50, attachment=70, yaw=-90, lead=True,
            label='蛮横的魔理沙', also=('snatch_a',), extra=_SNATCH_CALM),
         yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
            stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
            label='胆大的灵梦', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_CLEAN),
         yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
-           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
+           boldness=75, friendliness=0, self_control=50, attachment=70, yaw=-90,
            label='蛮横的魔理沙', also=('snatch_b',), extra=_SNATCH_CALM),
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
@@ -5254,38 +5256,46 @@ add(_doll_take, 'park', '玩家捡走布偶：主人只落泪，陌生人掉好�
            ('读认主的灵梦', f'yukkuri status {sel("take_owner")} raw'),
            ('读流浪灵梦', f'yukkuri status {sel("take_stray")} raw')])
 
-# The two scenes under the snatch scene keep its ordinary outcomes honest: the same bout and strike without a doll, and the
-# same strike taking a held treasure. The pair is pinned to the same spot: they exist to produce one bout, not a walk.
+# The two scenes under the snatch scene keep its ordinary outcomes honest: the same bout and strike without a doll, and the same
+# strike taking a held treasure. The first escalation roll fails four times in ten, so the pair is kept together by a fenced lawn
+# patch rather than by a speed pin: without the patch a roaming pair would drift apart between scans and never resolve. The camera
+# stands on a two-block plinth behind the patch to look over its fence.
+_PEN = [box(-2, 0, 3, 18, 3, 15, 'minecraft:air'),
+        box(4, 0, 5, 12, 0, 5, 'minecraft:oak_fence'),
+        box(4, 0, 13, 12, 0, 13, 'minecraft:oak_fence'),
+        box(4, 0, 5, 4, 0, 13, 'minecraft:oak_fence'),
+        box(12, 0, 5, 12, 0, 13, 'minecraft:oak_fence'),
+        block(8, 0, 16, 'minecraft:stone_bricks'),
+        block(8, 1, 16, 'minecraft:stone_bricks')]
 add('bully_strike', 'park', '蛮横的成体魔理沙欺负孩子灵梦（无布偶）', '蛮横的成体魔理沙欺负孩子灵梦（无布偶）',
-    '公园草坪上一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦挨在一起，身上没有布偶也没有财宝。'
-    '看魔理沙贴上去二十次接触后推搡一下得手，灵梦掉血、结怨。这是抢布偶之外最普通的欺负，用来对照。',
+    '公园草坪上一小片围着木栅栏的草地，一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦站在里面挨在一起，'
+    '身上没有布偶也没有财宝。看魔理沙贴上去二十次接触后推搡一下得手，灵梦掉血、结怨。这是抢布偶之外最普通的欺负，用来对照。',
     '约 1 分钟', [
-        box(-2, 0, 3, 22, 3, 8, 'minecraft:air'),
+        *_PEN,
         yk('marisa', 7.45, 9, 'bully_thief', uuid=uid('bully_strike', 'bully_thief'),
            boldness=75, friendliness=0, self_control=0, yaw=-90, lead=True,
-           label='蛮横的魔理沙', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           label='蛮横的魔理沙', extra=_SNATCH_CALM),
         yk('reimu', 8, 9, 'bully_victim', uuid=uid('bully_strike', 'bully_victim'),
            stage='child', boldness=40, friendliness=60, self_control=70, yaw=90,
-           label='小灵梦', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           label='小灵梦', extra=_SNATCH_CALM),
         f'yukkuri scenario relate {sel("bully_thief")} {sel("bully_victim")} -40',
-    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 8),
+    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 23),
     reads=[('读魔理沙', f'yukkuri status {sel("bully_thief")} raw'),
            ('读小灵梦', f'yukkuri status {sel("bully_victim")} raw')])
 
 add('treasure_bully', 'park', '蛮横的魔理沙抢走小灵梦手里的钻石', '蛮横的魔理沙抢走小灵梦手里的钻石',
-    '公园草坪上一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦挨在一起，灵梦怀里揣着一颗钻石。'
-    '看魔理沙贴上去二十次接触后推搡一下得手，钻石从灵梦手里转到魔理沙嘴里，灵梦哭丧着脸结怨。',
+    '公园草坪上一小片围着木栅栏的草地，一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦站在里面挨在一起，'
+    '灵梦怀里揣着一颗钻石。看魔理沙贴上去二十次接触后推搡一下得手，钻石从灵梦手里转到魔理沙嘴里，灵梦哭丧着脸结怨。',
     '约 1 分钟', [
-        box(-2, 0, 3, 22, 3, 8, 'minecraft:air'),
+        *_PEN,
         yk('marisa', 7.45, 9, 'treasure_thief', uuid=uid('treasure_bully', 'treasure_thief'),
            boldness=75, friendliness=0, self_control=0, yaw=-90, lead=True,
-           label='蛮横的魔理沙', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           label='蛮横的魔理沙', extra=_SNATCH_CALM),
         yk('reimu', 8, 9, 'treasure_victim', uuid=uid('treasure_bully', 'treasure_victim'),
            stage='child', boldness=40, friendliness=60, self_control=70, yaw=90,
-           label='小灵梦', extra='YukkuriDailyLife:{Boredom:0},YukkuriTreasure:{Held:[{id:"minecraft:diamond",count:1}],Cooldown:0},'
-           + _SNATCH_STILL),
+           label='小灵梦', extra=_SNATCH_CALM + 'YukkuriTreasure:{Held:[{id:"minecraft:diamond",count:1}],Cooldown:0}'),
         f'yukkuri scenario relate {sel("treasure_thief")} {sel("treasure_victim")} -40',
-    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 8),
+    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 23),
     reads=[('读魔理沙', f'yukkuri status {sel("treasure_thief")} raw'),
            ('读小灵梦', f'yukkuri status {sel("treasure_victim")} raw')])
 
@@ -9835,10 +9845,11 @@ _snatch_victim_b = _uuid_text(_doll_snatch, 'snatch_victim_b')
 
 
 def _verify_doll_snatch(window):
-    """Both lanes: the taker claims, takes the doll it may not take in its mouth, walks off and puts it down; the robbed body
-    shows the reaction of its own temper and answers by its own nature. One snatch beat each, no second grab, faces as declared;
-    whatever either body does with the doll afterwards (a nuzzle at the nest) is its own business. The pair's own numbers start
-    the bout: the claim comes at the first scan after the start hold, not half a minute later."""
+    """Both lanes: the taker claims and takes the doll it may not take in its mouth, and the robbed body shows the reaction of its
+    own temper and answers by its own nature. The bold child's puff is answered by a puff back that interrupts the carry, so that
+    taker puts the doll down where it stands (and may take it home later, its own business); the timid child flees and its taker
+    carries the doll home to the nest. One claim and one grab each, faces as declared, doll count 2 throughout, and the pair's own
+    numbers start the bout at the first scan after the start hold."""
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
         return 'no [keepsake] beat lines logged'
@@ -9853,13 +9864,12 @@ def _verify_doll_snatch(window):
             return f'{u} showed {face} on {beat}, declared {declared}'
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
-    for thief, victim, robbed_face, decision, answer_face, answer_line in (
-            (_snatch_thief_a, _snatch_victim_a, 'angry', 'puff_back', 'cheek_puff', 'puff'),
-            (_snatch_thief_b, _snatch_victim_b, 'teary', 'flee', 'surprise', 'none')):
+
+    def lane(thief, victim, robbed_face, decision, answer_face, answer_line, homeward):
+        # (tick, beat, face, line, where, tail); every beat once, so a second grab would show here too.
         mine = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == thief]
         theirs = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == victim]
-        # (tick, beat, face, line, where, tail); every beat once, so a second grab would show here too.
-        for name in ('claim', 'grab', 'leave', 'set_down'):
+        for name in ('claim', 'grab'):
             rows = [r for r in mine if r[1] == name]
             if len(rows) != 1:
                 return f'{thief}: expected one {name} beat, saw {[r[1] for r in mine]}'
@@ -9867,35 +9877,64 @@ def _verify_doll_snatch(window):
             rows = [r for r in theirs if r[1] == name]
             if len(rows) != 1:
                 return f'{victim}: expected one {name} beat, saw {[r[1] for r in theirs]}'
-        claim, grab, leave, down = (next(r for r in mine if r[1] == n) for n in ('claim', 'grab', 'leave', 'set_down'))
+        claim, grab = (next(r for r in mine if r[1] == n) for n in ('claim', 'grab'))
         robbed, answer = (next(r for r in theirs if r[1] == n) for n in ('robbed', 'answer'))
-        if not claim[0] < grab[0] <= robbed[0] < answer[0] < leave[0] < down[0]:
-            return f'{thief}/{victim}: beat order {[r[0] for r in (claim, grab, robbed, answer, leave, down)]} is not claim/grab/answer/leave/set_down'
+        if not claim[0] < grab[0] <= robbed[0] < answer[0]:
+            return f'{thief}/{victim}: beat order {[r[0] for r in (claim, grab, robbed, answer)]} is not claim/grab/answer'
         if not 0 <= claim[0] - released <= 200:
             return f'{thief}: claimed {claim[0] - released} ticks after the hold release, expected within 200'
         if grab[0] - claim[0] > 240:
             return f'{thief}: the bout took {grab[0] - claim[0]} ticks from claim to grab (>240)'
-        if not 40 <= leave[0] - grab[0] <= 50:
-            return f'{thief}: leave came {leave[0] - grab[0]} ticks after the grab, expected the 45-tick delay'
-        if down[0] - grab[0] > 600:
-            return f'{thief}: carry took {down[0] - grab[0]} ticks (>600)'
         if answer[0] - robbed[0] > 40:
             return f'{victim}: answer came {answer[0] - robbed[0]} ticks after the robbed beat (the 30-tick delay was missed)'
         if (claim[2], claim[3], claim[4]) != ('smug', 'mine', 'peer') or f'victim={victim}' not in claim[5]:
             return f'{thief}: claim is not the smug mine over {victim}: {claim}'
         if grab[2] != 'smug' or grab[3] != 'none' or grab[4] != 'ground' or f'victim={victim}' not in grab[5]:
             return f'{thief}: grab is not the silent pickup of the doll beside {victim}: {grab}'
-        if (leave[2], leave[3], leave[4]) != ('happy', 'none', 'mouth'):
-            return f'{thief}: leave does not show the doll still carried: {leave}'
-        if (down[2], down[3], down[4]) != ('satisfied', 'thing_san', 'bed'):
-            return f'{thief}: set_down is not the doll left at its own nest: {down}'
-        problem = _keepsake_set_down_problem(down[5])
-        if problem:
-            return problem
         if (robbed[2], robbed[3], robbed[4]) != (robbed_face, 'treasure_stolen', 'ground'):
             return f'{victim}: robbed is not the {robbed_face} stolen-treasure reaction: {robbed}'
         if (answer[2], answer[3], answer[4]) != (answer_face, answer_line, 'peer') or f'decision={decision}' not in answer[5]:
             return f'{victim}: answer is not {decision} seen as {answer_face}/{answer_line}: {answer}'
+        if homeward:
+            for name in ('leave', 'set_down'):
+                rows = [r for r in mine if r[1] == name]
+                if len(rows) != 1:
+                    return f'{thief}: expected one {name} beat, saw {[r[1] for r in mine]}'
+            leave, down = (next(r for r in mine if r[1] == n) for n in ('leave', 'set_down'))
+            if not answer[0] < leave[0] < down[0]:
+                return f'{thief}: beat order {[r[0] for r in (answer, leave, down)]} is not answer/leave/set_down'
+            if not 40 <= leave[0] - grab[0] <= 50:
+                return f'{thief}: leave came {leave[0] - grab[0]} ticks after the grab, expected the 45-tick delay'
+            if down[0] - grab[0] > 600:
+                return f'{thief}: carry took {down[0] - grab[0]} ticks (>600)'
+            if (leave[2], leave[3], leave[4]) != ('happy', 'none', 'mouth'):
+                return f'{thief}: leave does not show the doll still carried: {leave}'
+            if (down[2], down[3], down[4]) != ('satisfied', 'thing_san', 'bed'):
+                return f'{thief}: set_down is not the doll left at its own nest: {down}'
+            return _keepsake_set_down_problem(down[5])
+        if any(r[1] == 'leave' for r in mine):
+            return f'{thief}: kept carrying the doll home after the puff that interrupted it'
+        drops = [int(m[1]) for m in re.finditer(
+            rf'\[body\][^\n]*uuid={thief} t=(\d+)[^\n]*mouth drop item=mcyukkuri:reimu_doll count=1 purpose=KEEPSAKE ', window)]
+        if len(drops) != 1:
+            return f'{thief}: expected one interrupted doll drop, saw {len(drops)}'
+        if not 0 < drops[0] - answer[0] <= 40:
+            return f'{thief}: put the doll down {drops[0] - answer[0]} ticks after the answer (expected within 40)'
+        # What it does with the dropped doll later (notices it, takes it home) is its own business, once.
+        late = [r for r in mine if r[1] in ('notice', 'pick_up', 'carry', 'set_down')]
+        names = [r[1] for r in late]
+        if names != ['notice', 'pick_up', 'carry', 'set_down'][:len(names)]:
+            return f'{thief}: beats after the drop are not one take-home: {names}'
+        if late and (late[0][0] <= drops[0] or [r[0] for r in late] != sorted(r[0] for r in late)):
+            return f'{thief}: the take-home after the drop is out of order: {[r[0] for r in late]}'
+        if len(names) == 4:
+            down = late[-1]
+            if (down[2], down[3], down[4]) != ('satisfied', 'thing_san', 'bed'):
+                return f'{thief}: set_down is not the doll left at its own nest: {down}'
+            return _keepsake_set_down_problem(down[5])
+
+    return (lane(_snatch_thief_a, _snatch_victim_a, 'angry', 'puff_back', 'cheek_puff', 'puff', homeward=False)
+            or lane(_snatch_thief_b, _snatch_victim_b, 'teary', 'flee', 'surprise', 'none', homeward=True))
 
 
 _smoke(_doll_snatch, 6400, [
@@ -9905,8 +9944,7 @@ _smoke(_doll_snatch, 6400, [
     rf'\[social\][^\n]*uuid={_snatch_victim_a} [^\n]*aftermath what=doll taker={_snatch_thief_a} face=angry ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed face=angry declared=angry line=treasure_stolen where=ground ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer face=cheek_puff declared=cheek_puff line=puff where=peer ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=leave face=happy declared=happy line=none where=mouth ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
+    rf'\[body\][^\n]*uuid={_snatch_thief_a} [^\n]*mouth drop item=mcyukkuri:reimu_doll count=1 purpose=KEEPSAKE ',
     rf'\[social\][^\n]*uuid={_snatch_victim_b} [^\n]*aftermath what=doll taker={_snatch_thief_b} face=teary ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed face=teary declared=teary line=treasure_stolen where=ground ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
