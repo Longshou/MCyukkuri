@@ -7269,7 +7269,7 @@ def _overload_growth(parent, steps):
             for i, (child, nourishment) in enumerate(steps)]
 
 
-def _overload_family(scene, parent, dz, cabin, label, out=6, child3_traits=None, **traits):
+def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_traits=None, **traits):
     """Young start at sizes 0.16 (cabin, only with `cabin`), 0.20 and 0.355: just under the load warning for the ordinary parent
     (head 0.355 + brim 0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them. The
     growth is then staged by `_overload_growth` (`_OVERLOAD_STEPS`: a load over twice the hull's capacity with no warning in
@@ -7286,7 +7286,7 @@ def _overload_family(scene, parent, dz, cabin, label, out=6, child3_traits=None,
                  **(child3_traits if i == 3 and child3_traits else {}), **pair_ready())
               for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, _YOUNG2_NOURISHMENT, 76000),
                                                        (3, 1, .355, _HEAD_NOURISHMENT, 72000)) if cabin or i != 1],
-            afloat_now(parent, water_at(dz, out), True, sel_all(parent + '_crew'), stick=True)]
+            afloat_now(parent, water_at(dz, out), True, sel_all(parent + '_crew'), stick=stick)]
 
 
 def _babies():
@@ -7736,10 +7736,10 @@ _SULK_KID = dict(attachment=20, friendliness=60, boldness=45, self_control=70)
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
      '四位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：依恋高的含泪说着道歉的话，等孩子上岸再下令；依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求并走近（含泪的转过身、冷淡的推开）、僵住凝望或冷淡哼一声直接转身走远；亲眼看见或听见的兄弟姐妹会哭并在走远后目送，未感知到的不目送。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后成为永久流浪幼体，不再喊亲亲油、也不回旧家范围安家',
      '约 3 分钟，建议倍速',
-     [*_overload_family('hat_crowd', 'normal', -6, False, '含泪·央求', out=2.0, child3_traits=_PLEAD_KID, **_TEARFUL),
-      *_overload_family('hat_crowd', 'cold', -2, False, '冷淡·央求', out=2.0, child3_traits=_PLEAD_KID, **_COLD),
-      *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=2.0, child3_traits=_FREEZE_KID, **_TEARFUL),
-      *_overload_family('hat_crowd', 'sulk', 6, False, '冷淡·哼走', out=2.0, child3_traits=_SULK_KID, **_COLD)],
+     [*_overload_family('hat_crowd', 'normal', -4, False, '含泪·央求', out=2.0, stick=False, child3_traits=_PLEAD_KID, **_TEARFUL),
+      *_overload_family('hat_crowd', 'cold', -1, False, '冷淡·央求', out=2.0, stick=False, child3_traits=_PLEAD_KID, **_COLD),
+      *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=2.0, stick=False, child3_traits=_FREEZE_KID, **_TEARFUL),
+      *_overload_family('hat_crowd', 'sulk', 5, False, '冷淡·哼走', out=2.0, stick=False, child3_traits=_SULK_KID, **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
            *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS),
            *_overload_growth('freeze', _OVERLOAD_STEPS), *_overload_growth('sulk', _OVERLOAD_STEPS)],
