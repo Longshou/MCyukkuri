@@ -44,7 +44,7 @@ public final class HouseScrapRenderer extends ItemEntityRenderer {
     static float smallScale(String prop){return prop.equals("nest_lint")?.65f:HouseEggGeometry.MODEL_SCALE;}
     public HouseScrapRenderer(EntityRendererProvider.Context context){super(context);}
     @Override public void render(ItemEntity entity,float yaw,float partialTick,PoseStack pose,MultiBufferSource buffers,int light){
-        if(Facilities.toy(entity.getItem())){
+        if(Facilities.toy(entity.getItem())||Facilities.doll(entity.getItem())){
             String name=BuiltInRegistries.ITEM.getKey(entity.getItem().getItem()).getPath();
             pose.pushPose();
             PropModels.center(name,pose,true);

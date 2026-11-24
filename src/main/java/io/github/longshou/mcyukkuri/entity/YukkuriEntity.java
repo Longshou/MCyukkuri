@@ -89,6 +89,7 @@ import io.github.longshou.mcyukkuri.social.GriefLife;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
 import io.github.longshou.mcyukkuri.social.PairContact;
 import io.github.longshou.mcyukkuri.social.SelfOffering;
+import io.github.longshou.mcyukkuri.social.KeepsakeLife;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import io.github.longshou.mcyukkuri.social.WoundComfort;
 import io.github.longshou.mcyukkuri.social.Kindness;
@@ -364,8 +365,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public String activityFace() {
         String face = predator.activityFace();
         if (face.isEmpty()) face = playLife.activityFace();
+        if (face.isEmpty()) face = keepsake().activityFace();
         return face.isEmpty() ? life.urgeFace() : face;
     }
+    public KeepsakeLife keepsake() { return component(YukkuriComponents.KEEPSAKE); }
     public boolean predatorFlying() { return sync().predatorFlying(); }
     public void setPredatorFlying(boolean flying) {
         if (level().isClientSide || variant == null || !SpeciesProfile.of(variant).dangerToYukkuri() || predatorFlying() == flying) return;

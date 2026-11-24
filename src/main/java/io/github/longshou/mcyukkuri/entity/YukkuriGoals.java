@@ -172,6 +172,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(6, basicBinding(PresentationGoals.SOCIAL, new SocialGoal()));
         goalSelector.addGoal(5, basicBinding(PresentationGoals.GROUP, new GroupGoal()));
         goalSelector.addGoal(6, basicBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
+        goalSelector.addGoal(6, landBinding(PresentationGoals.KEEPSAKE, new KeepsakeGoal()));
         owner.createWintering();
         goalSelector.addGoal(7, basicBinding(PresentationGoals.WINTERING, owner.wintering()));
         // Needs and duties can take the flags from a parent that is watching its child leave.
@@ -352,6 +353,14 @@ final class YukkuriGoals {
         @Override public boolean requiresUpdateEveryTick(){return true;}
         @Override public void tick(){owner.playLife().tickGoal();}
         @Override public void stop(){owner.playLife().stop();}
+    }
+    private final class KeepsakeGoal extends Goal {
+        KeepsakeGoal() { setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK)); }
+        @Override public boolean canUse() { return !owner.agitation().hunting() && !owner.mind().feeling().subdued() && owner.keepsake().canUse(); }
+        @Override public boolean canContinueToUse() { return owner.keepsake().canContinue(); }
+        @Override public boolean requiresUpdateEveryTick() { return true; }
+        @Override public void tick() { owner.keepsake().tickGoal(); }
+        @Override public void stop() { owner.keepsake().stop(); }
     }
     private final class GroupGoal extends Goal {
         @Override public boolean isInterruptable() { return BehaviorContinuity.emergency(owner) || owner.pet().conscience().catchPending() || !(owner.groupInteraction().active()); }

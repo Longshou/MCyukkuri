@@ -5021,6 +5021,38 @@
         }
       ]
     },
+    "behavior_keepsake_carry": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "idle",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "chewing_closed"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_keepsake_set": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "mouth_item_place",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "chewing_closed"
+            ]
+          ]
+        }
+      ]
+    },
     "behavior_paper_cover": {
       "loop": false,
       "steps": [
@@ -5274,7 +5306,9 @@
     "paper_place": "behavior_paper_place",
     "paper_cover": "behavior_paper_cover",
     "paper_cover_child": "behavior_paper_cover_child",
-    "cold_shiver": "behavior_cold_shiver"
+    "cold_shiver": "behavior_cold_shiver",
+    "keepsake_carry": "behavior_keepsake_carry",
+    "keepsake_set": "behavior_keepsake_set"
   },
   "reactions": {
     "hello": "reaction_hello",

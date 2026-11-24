@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -19,6 +21,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class Facilities {
     private static final DeferredRegister.Items ITEM_TYPES = DeferredRegister.createItems(MCYukkuri.MOD_ID);
     private static final List<String> TOYS = List.of("glass_marble","reimu_doll","marisa_doll");
+    private static final List<String> DOLLS = List.of("reimu_doll","marisa_doll");
     public static final Map<String,DeferredItem<? extends Item>> ITEMS=new LinkedHashMap<>();
     static {
         for(String name:TOYS)ITEMS.put(name,ITEM_TYPES.registerSimpleItem(name,new Item.Properties().stacksTo(16)));
@@ -26,8 +29,16 @@ public final class Facilities {
     public static void register(IEventBus bus) {
         ITEM_TYPES.register(bus);
     }
-    public static boolean toy(ItemStack stack) { return stack.is(ModItems.TOY.get())||TOYS.stream().anyMatch(id->stack.is(ITEMS.get(id).get())); }
-    public static boolean rollingToy(ItemStack stack) { return stack.is(ModItems.TOY.get())||stack.is(ITEMS.get("glass_marble").get()); }
+    public static boolean doll(ItemStack stack) { return DOLLS.stream().anyMatch(id->stack.is(ITEMS.get(id).get())); }
+    public static boolean toy(ItemStack stack) { return stack.is(ModItems.TOY.get())||stack.is(ITEMS.get("glass_marble").get()); }
+    public static boolean rollingToy(ItemStack stack) { return toy(stack); }
+    /** Loose toys and dolls never despawn on the ground; they remain destructible by fire/lava/void. */
+    public static void itemJoin(EntityJoinLevelEvent event) {
+        if (!event.getLevel().isClientSide && event.getEntity() instanceof ItemEntity item
+                && (toy(item.getItem()) || doll(item.getItem()))) {
+            item.setUnlimitedLifetime();
+        }
+    }
     public static BlockState floor(YukkuriEntity entity) {
         var pos = entity.blockPosition();
         var at = entity.level().getBlockState(pos);

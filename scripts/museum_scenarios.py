@@ -4687,6 +4687,44 @@ add(_child_more, 'park', '小孩逗油库里：蹲着戳、放饼干、追', '�
     reads=[('读胆大的灵梦', f'yukkuri status {sel("child_bold")} raw'), ('读有主人的魔理沙', f'yukkuri status {sel("child_pet")} raw'),
            ('读小孩手持', f'data get entity {sel("park_child")} HandItems')])
 
+_doll_carry = 'doll_carry'
+add(_doll_carry, 'park', '无聊的魔理沙把布偶叼回窝边', '无聊的魔理沙把布偶叼回窝边',
+    '野餐草坪上放着一只魔理沙布偶。右边无聊且爱玩的魔理沙（依恋 70）离布偶 3 格，自己的窝在左边树下 8 格处；前景另一只低兴致、低依恋的灵梦（依恋 20）只看一眼便走开。'
+    '看魔理沙亮眼发现布偶、走近叼起、一路带回窝沿外的干地上放下。',
+    '约半分钟', [
+        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        *shed(10, -5, half=1),
+        item('mcyukkuri:marisa_doll', 1, 2, -5, 'doll_target'),
+        street_trial(_doll_carry, 'marisa', 5, -5, 'doll_marisa', boldness=80, attachment=70, friendliness=60,
+                     nutrition=95, energy=95, yaw=90, lead=True, label='无聊的魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:75}'),
+        street_trial(_doll_carry, 'reimu', 2, -2, 'doll_reimu', boldness=60, attachment=20, friendliness=60,
+                     nutrition=95, energy=95, yaw=180, label='低兴致的灵梦',
+                     extra='YukkuriDailyLife:{Boredom:5}'),
+        home('doll_marisa', -3, -5), home('doll_reimu', 10, -5),
+    ], env=DAY, spot='picnic', vantage=(2, 4, 180, 18),
+    reads=[('读魔理沙', f'yukkuri status {sel("doll_marisa")} raw'),
+           ('读灵梦', f'yukkuri status {sel("doll_reimu")} raw')])
+
+_doll_interrupt = 'doll_carry_interrupt'
+add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '叼布偶途中受惊与饥饿时原地放下',
+    '野餐草坪上两只无聊的魔理沙各自叼起布偶回窝。左边一只途中遇到路过的捕食种受惊，立即原地放下布偶逃开，平静后再次回来叼回窝边；右边一只途中变饿（营养低于 50）也原地放下布偶。',
+    '约 1 分钟', [
+        block(-3, 0, -5, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        *shed(10, -5, half=1),
+        item('mcyukkuri:marisa_doll', 1, 2, -5, 'doll_fright'),
+        item('mcyukkuri:marisa_doll', 1, 5, -1, 'doll_hungry'),
+        street_trial(_doll_interrupt, 'marisa', 5, -5, 'int_fright', boldness=60, attachment=75, friendliness=60,
+                     nutrition=95, energy=95, yaw=90, lead=True, label='受惊的魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:80}'),
+        street_trial(_doll_interrupt, 'marisa', 8, -1, 'int_hungry', boldness=80, attachment=75, friendliness=60,
+                     nutrition=95, energy=95, yaw=90, label='变饿的魔理沙',
+                     extra='YukkuriDailyLife:{Boredom:80}'),
+        home('int_fright', -3, -5), home('int_hungry', 10, -5),
+    ], env=DAY, spot='picnic', vantage=(3, 5, 180, 18),
+    reads=[('读受惊魔理沙', f'yukkuri status {sel("int_fright")} raw'),
+           ('读变饿魔理沙', f'yukkuri status {sel("int_hungry")} raw')])
+
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
     '约 30 秒', [
@@ -8446,7 +8484,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -8630,6 +8668,96 @@ _smoke(_child_more, 1600, [
     rf'\[social\][^\n]*uuid={_more_bold} [^\n]*child offer gesture=(?:CRUMB|POKE|CHASE) ',
     rf'\[child\][^\n]*uuid={_more_child} [^\n]*reaction=(?:NONE|WAVE|SHRUG|SORRY) answer=\w+ gesture=(?:CRUMB|POKE|CHASE) target={_more_bold}\b',
 ])
+
+_doll_marisa = _uuid_text(_doll_carry, 'doll_marisa')
+_doll_reimu = _uuid_text(_doll_carry, 'doll_reimu')
+_KEEPSAKE_BEAT_RE = re.compile(
+    r'\[keepsake\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) where=(\w+) dolls=(\d+)(.*)')
+
+
+def _verify_doll_carry(window):
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    marisa_beats = []
+    pick_tick = None
+    set_tick = None
+    for m in beats:
+        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
+        if face != declared:
+            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        if int(dolls) != 1:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+        if u == _doll_reimu and beat in ('notice', 'pick_up', 'carry', 'set_down'):
+            return f'low-drive Reimu unexpectedly performed keepsake beat={beat}'
+        if u == _doll_marisa:
+            marisa_beats.append((int(t), beat, where, tail))
+            if beat == 'pick_up' and pick_tick is None:
+                pick_tick = int(t)
+            if beat == 'set_down' and set_tick is None:
+                set_tick = int(t)
+                if where != 'bed':
+                    return f'set_down where={where}, expected bed'
+                dm = re.search(r'bedDist=([0-9.]+)', tail)
+                if not dm or float(dm[1]) > 1.2:
+                    return f'set_down too far from bed rim: {tail}'
+                if 'insideHollow=false' not in tail:
+                    return f'set_down inside hollow: {tail}'
+    names = [b[1] for b in marisa_beats]
+    want = ['notice', 'pick_up', 'carry', 'set_down']
+    idx = 0
+    for n in names:
+        if idx < len(want) and n == want[idx]:
+            idx += 1
+    if idx < len(want):
+        return f'expected beat order {want}, saw {names}'
+    if pick_tick is not None and set_tick is not None and set_tick - pick_tick > 600:
+        return f'carry took {set_tick - pick_tick} ticks (>600)'
+
+
+_smoke(_doll_carry, 1200, [
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=notice face=sparkle declared=sparkle line=toy where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=pick_up face=happy declared=happy line=mine where=mouth dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=carry face=\w+ declared=\w+ line=none where=mouth dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed dolls=1\b',
+])
+next(s for s in S if s.id == _doll_carry).smoke.update(verify=_verify_doll_carry)
+
+_int_fright = _uuid_text(_doll_interrupt, 'int_fright')
+_int_hungry = _uuid_text(_doll_interrupt, 'int_hungry')
+
+
+def _verify_doll_interrupt(window):
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    for m in beats:
+        _, _, beat, face, declared, _, _, dolls, _ = m.groups()
+        if face != declared:
+            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        if int(dolls) != 2:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+    fright_picks = [int(m[2]) for m in beats if m[1] == _int_fright and m[3] == 'pick_up']
+    if len(fright_picks) < 2:
+        return f'expected frightened carrier to re-fetch after panic (>=2 pick_up), saw {len(fright_picks)}'
+    fright_sets = [int(m[2]) for m in beats if m[1] == _int_fright and m[3] == 'set_down']
+    if not fright_sets:
+        return 'frightened carrier never completed set_down after re-fetching'
+
+
+_smoke(_doll_interrupt, 1600, [
+    rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=pick_up ',
+    rf'\[body\][^\n]*uuid={_int_fright} [^\n]*mouth drop item=mcyukkuri:marisa_doll count=1 purpose=KEEPSAKE ',
+    rf'\[keepsake\][^\n]*uuid={_int_fright} [^\n]*beat=set_down ',
+    rf'\[keepsake\][^\n]*uuid={_int_hungry} [^\n]*beat=pick_up ',
+    rf'\[body\][^\n]*uuid={_int_hungry} [^\n]*mouth drop item=mcyukkuri:marisa_doll count=1 purpose=KEEPSAKE ',
+])
+next(s for s in S if s.id == _doll_interrupt).smoke.update(
+    verify=_verify_doll_interrupt,
+    commands=[
+        (210, yk('remilia', 0, -5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
+        (240, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
+        (241, f'tp {sel("tmp_pred")} ~ ~50 ~'),
+        (215, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
+    ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')

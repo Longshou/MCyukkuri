@@ -269,6 +269,8 @@
     "juice_bath": "PK-05",
     "park_child_ball": "PK-06",
     "park_child_more": "PK-07",
+    "doll_carry": "PK-08",
+    "doll_carry_interrupt": "PK-09",
     "choice_nest": "MD-22",
     "choice_food": "MD-23",
     "choice_tool": "MD-24",

@@ -30,6 +30,7 @@ import io.github.longshou.mcyukkuri.house.HouseLife;
 import io.github.longshou.mcyukkuri.settlement.SettlementLife;
 import io.github.longshou.mcyukkuri.settlement.HabitatLife;
 import io.github.longshou.mcyukkuri.social.GroupInteractionGoal;
+import io.github.longshou.mcyukkuri.social.KeepsakeLife;
 import io.github.longshou.mcyukkuri.social.TreasureLife;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.social.Cannibalism;
@@ -90,6 +91,7 @@ public final class YukkuriComponents {
     public static final ComponentKey<HabitatLife> HABITAT = new ComponentKey<>("habitat", HabitatLife.class);
     public static final ComponentKey<GroupInteractionGoal> GROUP_INTERACTION = new ComponentKey<>("groupInteraction", GroupInteractionGoal.class);
     public static final ComponentKey<TreasureLife> TREASURE = new ComponentKey<>("treasure", TreasureLife.class);
+    public static final ComponentKey<KeepsakeLife> KEEPSAKE = new ComponentKey<>("keepsake", KeepsakeLife.class);
     public static final ComponentKey<Headwear> HEADWEAR = new ComponentKey<>("headwear", Headwear.class);
     public static final ComponentKey<Cannibalism> CANNIBALISM = new ComponentKey<>("cannibalism", Cannibalism.class);
     public static final ComponentKey<GriefLife> GRIEF = new ComponentKey<>("grief", GriefLife.class);
@@ -223,6 +225,17 @@ public final class YukkuriComponents {
                 .save(80, (c, tag) -> tag.put("YukkuriTreasure", c.save()))
                 .load(70, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriTreasure")))
                 .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_PREPARE, 20, (c, ctx) -> c.dropAll()).build(),
+        ComponentSpec.ready(KEEPSAKE, KeepsakeLife::new)
+                .tick(155, KeepsakeLife::clock)
+                .save(85, (c, tag) -> tag.put("YukkuriKeepsake", c.save()))
+                .load(75, (c, ctx) -> c.load(ctx.root().getCompound("YukkuriKeepsake")))
+                .interrupt(Interrupt.FRIGHT, InterruptPhase.MAIN, 65, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.HURT, InterruptPhase.AFTER_STATUS_HURT, 42, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.COMMAND, InterruptPhase.MAIN, 75, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.BURNING, InterruptPhase.MAIN, 35, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.PET_LOCK, InterruptPhase.MAIN, 42, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_CLEANUP, 42, (c, ctx) -> c.stop())
+                .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 42, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(HEADWEAR, YukkuriEntity::headwear)
                 .tick(160, Headwear::clock)
                 .save(90, (c, tag) -> tag.put("YukkuriHeadwear", c.save()))

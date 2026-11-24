@@ -705,6 +705,8 @@ public final class BodyLife {
         }
         var find = mouth.stack(Purpose.FIND);
         if (!find.isEmpty()) GameplayLog.event(entity, "treasure", "find death transfer item={} count={}", find.getItem(), find.getCount());
+        var keepsake = mouth.stack(Purpose.KEEPSAKE);
+        if (!keepsake.isEmpty()) GameplayLog.event(entity, "keepsake", "death transfer item={} count={}", keepsake.getItem(), keepsake.getCount());
         mouth.remainsAcceptedItems();
         if (paperSheets > 0) {
             entity.life().clearPaperCoverForRemains();

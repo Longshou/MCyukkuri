@@ -94,6 +94,7 @@ public final class PresentationGoals {
     public static final Source<Goal> SETTLEMENT = state("settlement", e -> e.settlement().active() ? e.settlement().activity() : null);
     public static final Source<Goal> SOCIAL = state("social", e -> e.social().active() ? e.social().activity() : null);
     public static final Source<Goal> PLAY = state("play", e -> e.playLife().active() ? e.playLife().activity() : null);
+    public static final Source<Goal> KEEPSAKE = state("keepsake", e -> e.keepsake().active() ? e.keepsake().activity() : null);
     public static final Source<Goal> WINTERING = state("wintering", e -> e.wintering().active() ? e.wintering().activity() : null);
 
     public record Candidate(Source<?> source, int priority, int ordinal, Supplier<String> activity) {}

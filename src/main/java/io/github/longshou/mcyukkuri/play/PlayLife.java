@@ -78,19 +78,8 @@ public final class PlayLife {
             &&!(active()?entity.life().nutrition()<15||entity.life().energy()<15||entity.isOnFire()||entity.isInWaterOrBubble():entity.life().hasUrgentNeed())&&!entity.life().isSleeping()
             &&entity.life().mealTicks()==0&&entity.life().energy()>=(active()?15:35)&&(tub||entity.body().condition().readyForPlay())
             &&!entity.family().active()&&!entity.house().active();}
-    private int playBoredomFloor(){
-        double timid=entity.life().personality().temperament().timid();
-        return Math.max(10,(int)Math.round(15+20*timid)-(entity.family().adult()?0:5));
-    }
-    private double stopEnergy(){
-        return entity.outing().onOuting()?Math.max(35,entity.outing().restBand()):35;
-    }
-    private double scareCeiling(){
-        return 75-45*entity.life().personality().temperament().timid();
-    }
     private boolean wantsTrampolinePlay(){
-        return entity.dailyLife().boredom()>playBoredomFloor()&&entity.life().energy()>=stopEnergy()
-                &&entity.mind().unease()<scareCeiling();
+        return PlayWant.wants(entity);
     }
     private int waitBudget(){
         var personality=entity.life().personality();
@@ -330,9 +319,9 @@ public final class PlayLife {
     private String trampolineStopReason() {
         if (BodyAbility.cannotSpring(entity)) return "frail";
         if (entity.outing().onOuting() && (entity.outing().parkFacility() != facility || entity.outing().calledByOwner())) return "called";
-        if (entity.life().energy() < stopEnergy()) return "tired";
-        if (entity.mind().unease() >= scareCeiling()) return "scared";
-        if (entity.dailyLife().boredom() <= playBoredomFloor()) return "enough";
+        if (entity.life().energy() < PlayWant.stopEnergy(entity)) return "tired";
+        if (entity.mind().unease() >= PlayWant.scareCeiling(entity)) return "scared";
+        if (entity.dailyLife().boredom() <= PlayWant.boredomFloor(entity)) return "enough";
         return null;
     }
 

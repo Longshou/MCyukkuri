@@ -254,6 +254,7 @@ public final class YukkuriLife {
     }
     public void startFatigueRest() {
         interrupt();
+        entity.keepsake().releaseForSleep();
         fullFatigueSleep = energy <= 0;
         fatigueLength = fullFatigueSleep ? sleepDuration() : 20 + entity.getRandom().nextInt(41);
         fatigueTicks = 1; napReady = false;
@@ -1629,6 +1630,7 @@ public final class YukkuriLife {
                 if (temperature.hasTemporarySleepSite() && !temperature.canSleepAtRefuge()) { stopGoal(); break; }
                 if(level().isRainingAt(entity.blockPosition())){doses.clearDrugSleep();stopGoal();homeWait=0;break;}
                 entity.getNavigation().stop(); sleepTicks++;
+                entity.keepsake().onSleepTick(sleepTicks, wakeAt > 0);
                 boolean drugged = drugSleep() > 0;
                 if(drugged){doses.tickDrugSleep();sleepTicks=Math.min(sleepTicks,600);}
                 // A nest admits only a whole footprint inside it: rolling or being pushed onto the rim ends the sleep.

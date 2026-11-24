@@ -278,6 +278,8 @@ public final class Behaviors {
     public static final String SELF_OFFER_INSIST = "self_offer_insist";
     public static final String TREASURE_SEEK = "treasure_seek";
     public static final String TREASURE_RETURN = "treasure_return";
+    public static final String KEEPSAKE_CARRY = "keepsake_carry";
+    public static final String KEEPSAKE_SET = "keepsake_set";
     public static final String FORAGE_MUSTER = "forage_muster";
     public static final String FORAGE_OUT = "forage_out";
     public static final String FORAGE_HARVEST = "forage_harvest";
