@@ -1111,13 +1111,18 @@ public final class SurfaceApproach {
         }
         if(current.result==Result.BLOCKED&&now<current.retryAt)return observed(actor,Result.BLOCKED);
         var route=plan(actor,destination,body,!current.routed);
-        if(route!=null&&route.path()!=null&&(retreat?startRetreat(actor,route.path(),speed):startRoute(actor,route.path(),speed,destination))){
+        boolean started=route!=null&&route.path()!=null
+                &&(retreat?startRetreat(actor,route.path(),speed):startRoute(actor,route.path(),speed,destination));
+        if(started){
             current.target=navigation.getTargetPos();
             int suppressed = GameplayLog.admit(actor, "approach", "route", 200);
             if (suppressed >= 0) GameplayLog.limitedEvent(actor, "approach", suppressed,
                     "surface route started peer={} destination={} nodes={} length={}",peer,destination,route.path().getNodeCount(),route.length());
             return observed(actor,Result.MOVING);
         }
+        // The walk was given up: the navigation said its reason once, so this is not a missing route and needs no line of its own.
+        if(!retreat&&route!=null&&route.path()!=null&&navigation instanceof YukkuriGroundNavigation refused&&refused.walkRefused())
+            return blocked(actor,"given_up",false);
         return blocked(actor,navigation instanceof YukkuriGroundNavigation ground&&ground.solidPlanned()>0
                 ?"no_complete_surface_route solid="+ground.solidPlanned():"no_complete_surface_route");
     }
@@ -1127,8 +1132,13 @@ public final class SurfaceApproach {
     }
 
     private Result blocked(YukkuriEntity actor,String reason){
+        return blocked(actor,reason,true);
+    }
+
+    /** As above; {@code log} is false when the refusal already logged its own reason once. */
+    private Result blocked(YukkuriEntity actor,String reason,boolean log){
         stopInput(actor);current.target=null;current.lastStep=null;current.retryAt=actor.level().getGameTime()+RETRY;
-        if (current.result != Result.BLOCKED || !reason.equals(current.why)) {
+        if (log && (current.result != Result.BLOCKED || !reason.equals(current.why))) {
             GameplayLog.limited(actor,"approach","path_failed",200,
                     "surface path unavailable peer={} target={} reason={} retryAfter={}",current.peer,current.destination,reason,current.retryAt);
         }

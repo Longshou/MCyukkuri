@@ -91,6 +91,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private record Declined(Vec3 errand, int blocker, Vec3 at) {}
     private Declined declined;
     private boolean declinedTold;
+    private boolean refusedStart;
     /** Ticks after giving up in which the other party of a locked pair is left to go. */
     static final int GAVE_UP_REST = 100;
     private List<Footing> planning = List.of();
@@ -217,7 +218,11 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         return moveTo(requested,speed,false,errand);
     }
 
+    /** Whether the last {@code moveTo} was refused because that walk had been given up (the refusal itself was logged once there). */
+    public boolean walkRefused(){ return refusedStart; }
+
     public boolean moveToRetreat(Path requested,double speed){
+        refusedStart=false;
         if(requested==null||!requested.canReach()||!SurfaceApproach.safeRetreatPath((YukkuriEntity)mob,requested,null)){
             stop();return false;
         }
@@ -228,9 +233,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     public boolean retreating(){return retreating;}
 
     private boolean moveTo(Path requested,double speed,boolean retreat,Vec3 errand){
+        refusedStart=false;
         if(requested==null){stop();return false;}
         if(!retreat&&declines(errand!=null?errand:requested.getTarget().getCenter())){
-            stop();
+            stop();refusedStart=true;
             // Said once per given-up walk: the owning goal asks again every few ticks while the same blocker stays.
             if(!declinedTold)GameplayLog.event(mob,"move","walk refused target={} reason=given_up blocker=#{} at={}",
                     GameplayLog.at(declined.errand()),declined.blocker(),GameplayLog.at(declined.at()));

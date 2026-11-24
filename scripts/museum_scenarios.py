@@ -4657,7 +4657,7 @@ _lock_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
              block(0, 0, -8, 'mcyukkuri:yukkuri_nest[facing=south]')]
 add(_lock_lane, 'town', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃',
     '镜头朝西：一格宽的窄巷，北端小屋里有疲倦成体的窝，南半段东侧有一个浅侧袋。成体从南端往窝走，两秒后一只困极的宠物倒在巷子中间睡着（约 28 秒），巷里没有别的路。'
-    '看走来的成体：被睡着的挡住后几秒内转过身、走进身后的侧袋，放弃这一趟回窝（头顶符号与台词），不顶着睡着的抖、不倒退；之后在侧袋里待着，睡着的只是醒来、人还挡在原处也不往里挤，直到它真的走开、巷子空了才再往窝走。',
+    '看走来的成体：被睡着的挡住后几秒内转过身、走进身后的侧袋，放弃这一趟回窝（头顶符号与台词），不顶着睡着的抖、不倒退；之后在侧袋里待着，睡着的只是醒来、人还挡在原处也不往里挤，直到它真的挪开（超过约 1.5 格）才再往窝走。',
     '约 65 秒', [
         *_lock_set,
         yk('marisa', 0, 8, 'lane_walker', uuid=uid(_lock_lane, 'lane_walker'), label='往窝走的成体', lead=True, yaw=180,
@@ -9205,9 +9205,7 @@ def _encounter_smoke(sid, ticks, logs, expect, forbid=()):
         *expect,
         *[rf'\[sleep\][^\n]*uuid={log}\b[^\n]*begin source=life occupancy=INSIDE_SUPPORTED\b' for log in logs]],
         forbid=[rf'\[move\][^\n]*{who}[^\n]* encounter end [^\n]* result=(?:stuck|timeout|aborted)\b',
-                rf'\[move\][^\n]*{who}[^\n]* action=(?:keeps_line|backs_off|gives_way|no_alternative|waiting)\b',
-                rf'\[move\][^\n]*{who}[^\n]* ground path stopped reason=no_progress',
-                rf'\[approach\][^\n]*{who}[^\n]* surface path unavailable', *forbid])
+                rf'\[move\][^\n]*{who}[^\n]* ground path stopped reason=no_progress', *forbid])
     return who
 
 
@@ -9223,13 +9221,13 @@ _encounter_smoke('street_dead_end', 2200, _dead_logs, [
             rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end [^\n]* result=no_place'])
 
 
-def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1):
+def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1, who=None):
     """One decision per pair and meeting, begun before the bodies touched (gap > 1.5), no role flip (the only reversal within 300 ticks of
     an end is the logged dead end), at most one keeper stop, every full yield printed its face and line beat, each encounter ends within
     ``base_ticks + per_block * len`` of its begin (the trigger gap is 3.5 blocks, so that is first proximity to passing; ``len`` is the
-    yielder's walk to its place), the yielder's walk is at least ``min_len`` (it is not sent into a dead end), and no walker moves more than
-    55 degrees off its facing at any tick from the first begin to 40 ticks after the last end (never backwards, resumed routes included; an
-    ordinary roam start much later, vanilla turning while it sets off, is outside it)."""
+    yielder's walk to its place), the yielder's walk is at least ``min_len`` (it is not sent into a dead end), no removed ladder action and no
+    missing-route line for either body inside the pass (first begin .. 40 ticks after the last end; ordinary roaming after the pass is not the
+    pass), and no walker moves more than 55 degrees off its facing in the same span (never backwards, resumed routes included)."""
     def verify(window, trace):
         ended, result, lengths, began, span = {}, {}, {}, 0, [10 ** 9, 0]
         for line in re.finditer(r'\[move\][^\n]* t=(\d+) [^\n]* encounter (begin|end) keeper=#(\d+) yielder=#(\d+) ([^\n]*)', window):
@@ -9262,6 +9260,15 @@ def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1):
                     return f'keeper stopped {found.group(4)} times in one encounter (stop and go)'
         if not began:
             return 'no encounter began'
+        if who:
+            for line in window.splitlines():
+                tick = re.search(r' t=(\d+) ', line)
+                if not tick or not span[0] <= int(tick[1]) <= span[1] + 40 or not re.search(who, line):
+                    continue
+                if re.search(r'\[move\][^\n]* action=(?:keeps_line|backs_off|gives_way|no_alternative|waiting)\b', line):
+                    return f'a removed ladder action at t={tick[1]} inside the pass: {line.strip()}'
+                if '[approach]' in line and 'surface path unavailable' in line:
+                    return f'a surface route was reported unavailable at t={tick[1]} inside the pass: {line.strip()}'
         return _slides(trace, span[0], span[1] + 40)
     return verify
 
@@ -9348,7 +9355,8 @@ def _lock_verify(window, trace):
 next(s for s in S if s.id == _lock_lane).smoke.update(verify=_lock_verify, verify_trace=True)
 
 
-for _scene, _verify in (('street_corridor', _encounter_verify(50, 25)), ('street_dead_end', _encounter_verify(50, 25, min_len=5))):
+for _scene, _verify in (('street_corridor', _encounter_verify(50, 25, who=_corridor_who)),
+                        ('street_dead_end', _encounter_verify(50, 25, min_len=5, who=_dead_who))):
     next(s for s in S if s.id == _scene).smoke.update(verify=_verify, verify_trace=True)
 
 # One child, two strays: the child rolls its ball past each in turn (the bold, bored Reimu answers by playing, the timid Marisa by flinching)
