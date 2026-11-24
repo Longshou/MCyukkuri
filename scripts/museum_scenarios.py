@@ -7142,9 +7142,13 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
         return f'{parent}: the driven child called for or looked for the parent that drove it out'
     if re.search(r'\[speech\][^\n]*uuid=' + child + r'[^\n]* line event=(?:lost_parent|caregiver|wait_family)\b', later):
         return f'{parent}: the driven child spoke a parent-seeking line (lost_parent/caregiver/wait_family) after the order'
-    # stat branch proof
-    if branch == 'plead' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
-        return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
+    # stat branch & rebuff proof
+    if branch == 'plead':
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
+            return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
+        rebuff_beat = 'rebuff_shove face=angry line=none declared=angry' if verdict == 'DRIVE_COLD' else 'rebuff_turn_back face=cry line=none declared=cry'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later):
+            return f'{parent}: parent did not rebuff pleader ({rebuff_beat})'
     if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
         return f'{parent}: freeze child did not play beat=stare face=teary line=none'
     if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=none declared=hmph', later):
@@ -7157,8 +7161,10 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     for early in re.finditer(r'\[speech\][^\n]*uuid=(?:' + family_uuids + r') t=(\d+)[^\n]* line event=parting_(?:gaze|over)\b', after):
         if int(early[1]) < departed:
             return f'{parent}: parting line fired at {early[1]}, before the child was gone at {departed}'
+    sib2 = _uuid_text('hat_crowd', parent + '2')
+    sib2_dead = re.search(r'\[body\][^\n]*uuid=' + sib2 + r' t=(\d+)[^\n]* death settled', window)
     cries = re.findall(r'\[family\][^\n]* t=(\d+) [^\n]*driven out (?:sibling cries|sibling missed departure) child=' + child, later)
-    if not cries:
+    if not cries and not (sib2_dead and int(sib2_dead[1]) <= turned):
         return f'{parent}: no sibling reacted when the child turned to go'
     if any(int(t) < begins for t in cries):
         return f'{parent}: a sibling cried before the child began to leave'
@@ -7751,7 +7757,7 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
             ('读北侧最大孩子', f'yukkuri status {sel("normal3")} raw'),
             ('读南侧最大孩子', f'yukkuri status {sel("cold3")} raw'),
             ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
-     smoke=dict(ticks=9000, reload=(60, '@e[tag=seat_reload,limit=1]'),
+     smoke=dict(ticks=6000, reload=(60, '@e[tag=seat_reload,limit=1]'),
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*food=0\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=BRIM\b[\s\S]*\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
