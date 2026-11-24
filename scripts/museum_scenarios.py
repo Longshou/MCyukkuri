@@ -7146,9 +7146,10 @@ def _driven_out_order(window, after, parent, verdict, branch, owner, child, cent
     if branch == 'plead':
         if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
             return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
+        ordered_ashore = re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out ordered parent=' + owner + r' verdict=' + verdict + r' in_water=false', after)
         rebuff_beat = 'rebuff_shove face=angry line=none declared=angry' if verdict == 'DRIVE_COLD' else 'rebuff_turn_back face=cry line=none declared=cry'
-        if not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later):
-            return f'{parent}: parent did not rebuff pleader ({rebuff_beat})'
+        if (verdict == 'DRIVE_TEARFUL' or ordered_ashore) and not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later):
+            return f'{parent}: parent did not rebuff ashore pleader ({rebuff_beat})'
     if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
         return f'{parent}: freeze child did not play beat=stare face=teary line=none'
     if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=none declared=hmph', later):
