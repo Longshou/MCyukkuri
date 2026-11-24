@@ -4,6 +4,8 @@ package io.github.longshou.mcyukkuri.perception;
 public final class Sight {
     /** Anything this close is seen whatever the facing. */
     public static final double NEAR = 2.5;
+    /** Tolerance at the cone edge: a thing exactly side on to a ninety-degree half angle is inside. */
+    private static final double EDGE = 1e-9;
     /** Sight range in blocks: the least intelligent see about ten, the keenest sixteen; a felt need stretches it for the thing it wants. */
     private static final double RANGE_LOW = 10, RANGE_HIGH = 16, SALIENT = 1.25;
     /** Half angle of the view cone in degrees: a timid body scans wide, a bold one is narrower; panic narrows it to this share. */
@@ -27,6 +29,6 @@ public final class Sight {
 
     /** Awake, within range and inside the view cone, or very near. The one sight rule: events and still things alike. */
     public static boolean inView(boolean awake, double distanceSq, double facingDot, double range, double coneCos) {
-        return awake && distanceSq <= range * range && (distanceSq <= NEAR * NEAR || facingDot >= coneCos);
+        return awake && distanceSq <= range * range && (distanceSq <= NEAR * NEAR || facingDot >= coneCos - EDGE);
     }
 }
