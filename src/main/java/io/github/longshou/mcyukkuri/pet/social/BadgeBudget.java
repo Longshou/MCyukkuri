@@ -81,7 +81,8 @@ public final class BadgeBudget {
         observers.put(observer, now + settings.observerCooldown());
         pairs.put(new Pair(observer, subject), now + (cost >= 2 ? settings.pairCooldown() : settings.pairCooldown() / 2));
         var t = targets.computeIfAbsent(subject, id -> new Target());
-        targetCooldowns.put(subject, now + settings.targetCooldown());
+        int targetDelay = cost >= 2 ? settings.targetCooldown() : Math.min(settings.targetCooldown(), 400);
+        targetCooldowns.put(subject, now + targetDelay);
         if (t.day != now / 24000) { t.day = now / 24000; t.count = 0; }
         t.count++;
         if (observers.size() > 512) observers.prune(now);

@@ -268,7 +268,7 @@ public final class TownMarkers {
             var eye = Vec3.atBottomCenterOf(pos).add(0, visitor.getEyeHeight(), 0);
             return wearers.stream().anyMatch(wearer -> eye.distanceToSqr(wearer.getEyePosition()) <= 64
                     && level.clip(new ClipContext(eye, wearer.getEyePosition(),
-                            ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, visitor)).getType() == HitResult.Type.MISS);
+                            ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, visitor)).getType() == HitResult.Type.MISS);
         }
 
         /** Horizontal distance from a point to the paving rectangle (0 on it). */
