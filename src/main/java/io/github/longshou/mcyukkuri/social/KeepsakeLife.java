@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
+import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -23,6 +24,7 @@ import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
 import io.github.longshou.mcyukkuri.motor.action.PlaceMouthItem;
+import io.github.longshou.mcyukkuri.perception.Cue;
 import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.perception.Sight;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
@@ -37,15 +39,19 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 /**
- * General keepsake behaviour (carry to nest, and future comfort/talk/snatch phases in the same Goal).
+ * General keepsake behaviour in the same Goal: carrying one to the nest, a child's talk to it, a bully's grab of one a peer
+ * keeps (the theft itself is the bullying bout's strike), and the answer of a body whose keepsake a player picked up.
  * Nothing about the keepsake or ownership is persisted: phases are derived from real world and mouth state.
  */
 public final class KeepsakeLife implements MotorOwner {
-    public enum Phase { IDLE, CARRY_OFF, TALK }
+    public enum Phase { IDLE, GRAB, CARRY_OFF, TALK }
 
     private static final int SCAN_INTERVAL = 160;
     private static final int CARRY_LIMIT = 600;
@@ -56,6 +62,9 @@ public final class KeepsakeLife implements MotorOwner {
     private static final int TALK_TICKS = 60;
     private static final double TALK_RANGE = 4.0;
     private static final double PEER_GUARD_RANGE = 6.0;
+    private static final int ANSWER_DELAY = 30;
+    private static final int LEAVE_DELAY = 45;
+    private static final int ANSWER_FACE_TICKS = 40;
     private static final double RIM_DROP_GAP = 0.32;
     private static final double SET_DOWN_MAX_RIM_DIST = 1.2;
 
@@ -71,6 +80,16 @@ public final class KeepsakeLife implements MotorOwner {
     private int cooldown, talkCooldown, scanWait, elapsed, noticeTicks, carryTicks, talkTicks;
     private boolean picking, placing, carryLogged, dropRefused, talkAddressed;
     private Beat pendingBeat;
+    /** A grab in progress: the doll to take and the body it was kept by. */
+    private ItemEntity snatchItem;
+    private YukkuriEntity robbed;
+    private int leaveWait;
+    /** The other side of a grabbed keepsake: who took it, the face it was robbed with, and when it answers. */
+    private YukkuriEntity snatchThief;
+    private String robbedFace = "";
+    private int answerWait;
+    /** A keepsake the body did not see or hear taken; it looks for it once it is awake. */
+    private BlockPos missedAt;
 
     public KeepsakeLife(YukkuriEntity entity) {
         this.entity = entity;
@@ -78,6 +97,8 @@ public final class KeepsakeLife implements MotorOwner {
 
     @Override public String ownerId() { return "keepsake"; }
     @Override public boolean active() { return phase != Phase.IDLE || !carried().isEmpty(); }
+    /** The mouth holds a keepsake right now, so the body will not take up a puff display over it. */
+    public boolean carrying() { return !carried().isEmpty(); }
 
     public String activity() {
         if (placing) return Behaviors.KEEPSAKE_SET;
@@ -170,6 +191,12 @@ public final class KeepsakeLife implements MotorOwner {
         if (cooldown > 0) cooldown--;
         if (talkCooldown > 0) talkCooldown--;
         if (scanWait > 0) scanWait--;
+        if (snatchThief != null) {
+            if (answerWait > 0) answerWait--;
+            else answer();
+        }
+        if (leaveWait > 0 && --leaveWait == 0) leave();
+        if (missedAt != null && !entity.life().isSleeping()) discoverLoss();
         // A body that kept a keepsake over water puts it down once it reaches dry ground outside the blocked cell.
         if (!carried().isEmpty() && phase == Phase.IDLE && !entity.blockPosition().equals(blockedDropAt)
                 && entity.onGround() && !entity.isInWaterOrBubble()) {
@@ -178,6 +205,11 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     public boolean canUse() {
+        if (phase == Phase.GRAB) {
+            if (canContinue()) return true;
+            finish();
+            return false;
+        }
         if (!carried().isEmpty()) {
             if (entity.blockPosition().equals(blockedDropAt)) return false;
             if (!carryEligible(true)) {
@@ -264,6 +296,10 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     public boolean canContinue() {
+        // The pick is atomic: the item is debited in the same tick the mouth takes it, so the running pick keeps the goal alive
+        // (as in CARRY_OFF) until the next tick sees the mouth full and finishes the grab.
+        if (phase == Phase.GRAB) return elapsed < CARRY_LIMIT && baseEligible(true)
+                && (picking || snatchItem != null && snatchItem.isAlive() && Keepsakes.fond(entity, snatchItem.getItem()));
         if (phase == Phase.TALK) {
             return talkTicks < TALK_TICKS && elapsed < TALK_TICKS + 40
                     && baseEligible(true) && !entity.life().hasUrgentNeed()
@@ -288,11 +324,11 @@ public final class KeepsakeLife implements MotorOwner {
             return;
         }
         elapsed++;
-        if (phase == Phase.TALK) {
+        if (phase == Phase.GRAB) {
+            tickGrab();
+        } else if (phase == Phase.TALK) {
             tickTalk();
-            return;
-        }
-        if (picking) {
+        } else if (picking) {
             tickFetch();
         } else if (placing || !carried().isEmpty()) {
             tickCarryAndSetDown();
@@ -329,6 +365,181 @@ public final class KeepsakeLife implements MotorOwner {
     private int talkRepeatGap() {
         return 600 + Math.round((100 - entity.life().personality().attachment()) * 6f);
     }
+
+    /** A doll this body keeps right now: in its mouth, or lying beside it (the derived ownership of {@link Keepsakes}). */
+    public static boolean keepsDoll(YukkuriEntity body) {
+        var stack = body.component(YukkuriComponents.MOUTH).stack(Purpose.KEEPSAKE);
+        if (!stack.isEmpty() && Keepsakes.fond(body, stack)) return true;
+        return Keepsakes.nearestBeside((ServerLevel) body.level(), body, Keepsakes.WITH_RADIUS) != null;
+    }
+
+    /** Whether this body could take a doll for itself: an empty mouth and a nest to carry it to. */
+    public boolean canSnatch() { return ownBed() != null && mouth().freeForExternalWork(); }
+
+    /** The claim that opens a bout fought over a peer's doll: smug, with the reservation's own line already spoken. */
+    public void claim(YukkuriEntity victim) {
+        if (phase != Phase.IDLE || !carried().isEmpty()) return;
+        entity.showReaction("smug", "", 100);
+        pendingBeat = new Beat("claim", "smug", "mine", "peer", "victim=" + victim.getUUID());
+    }
+
+    /**
+     * The bullying bout's strike at a body that keeps a doll: the doll is claimed, never hit for. A doll in the victim's mouth
+     * changes holders in one step; a doll lying beside it is walked to and picked up by {@link #tickGrab()}.
+     * Returns false when there is no doll to take, and the ordinary strike runs.
+     */
+    public boolean beginSnatch(YukkuriEntity victim) {
+        if (victim == entity || phase != Phase.IDLE || !carried().isEmpty()) return false;
+        var theirMouth = victim.component(YukkuriComponents.MOUTH);
+        var theirDoll = theirMouth.stack(Purpose.KEEPSAKE);
+        if (!theirDoll.isEmpty() && Keepsakes.fond(victim, theirDoll)) {
+            if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
+            boolean moved = theirMouth.handOne(Purpose.KEEPSAKE, one -> {
+                mouth().set(Purpose.KEEPSAKE, one);
+                return true;
+            });
+            if (!moved) return false;
+            grabbed(victim, "mouth");
+            return true;
+        }
+        ItemEntity loose = Keepsakes.nearestBeside(level(), victim, Keepsakes.WITH_RADIUS);
+        if (loose == null || !mouth().canHold(Purpose.KEEPSAKE)) return false;
+        snatchItem = loose;
+        robbed = victim;
+        phase = Phase.GRAB;
+        elapsed = 0;
+        noticeTicks = 0;
+        picking = false;
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(loose, 30, 30);
+        return true;
+    }
+
+    private void tickGrab() {
+        if (picking) {
+            if (entity.motor().owner() == this && entity.motor().current() != null) return;
+            picking = false;
+            if (!carried().isEmpty()) { grabbed(robbed, "ground"); return; }
+            stop();
+            return;
+        }
+        ItemEntity item = snatchItem;
+        if (item == null || !item.isAlive()) { stop(); return; }
+        entity.getLookControl().setLookAt(item, 30, 30);
+        if (ContactGeometry.inMouthReach(entity, item)) {
+            if (!mouth().canHold(Purpose.KEEPSAKE) || item.hasPickUpDelay()) { stop(); return; }
+            SurfaceApproach.stopWalking(entity);
+            float yaw = SurfaceApproach.yaw(entity.position(), item.position());
+            if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) > Face.FACE_ARRIVED) {
+                if (entity.motor().owner() != this || entity.motor().current() == null) {
+                    entity.motor().run(this, new Face(yaw));
+                }
+                return;
+            }
+            boolean started = entity.motor().run(this, new Pick(item, one -> {
+                if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
+                mouth().set(Purpose.KEEPSAKE, one);
+                return true;
+            }));
+            if (started) picking = true; else stop();
+            return;
+        }
+        Vec3 approach = ItemContact.approach(entity, item.position());
+        if (SurfaceApproach.walkResult(entity, approach, null, 1.0) == SurfaceApproach.Result.BLOCKED) stop();
+    }
+
+    /** The doll has changed holders: the victim's shared theft aftermath, then the taker's own smug beat as it walks off. */
+    private void grabbed(YukkuriEntity victim, String where) {
+        String face = TreasureLife.aftermath(entity, victim, "doll");
+        phase = Phase.CARRY_OFF;
+        elapsed = 0;
+        noticeTicks = 0;
+        carryTicks = 0;
+        carryLogged = true;
+        picking = false;
+        dropSpot = null;
+        snatchItem = null;
+        robbed = null;
+        leaveWait = LEAVE_DELAY;
+        emitBeat("grab", "smug", "none", where, 100, "victim=" + victim.getUUID());
+        victim.keepsake().robbedBy(entity, face, where);
+    }
+
+    /** The body was robbed of a keepsake it kept; it answers the taker after its own visible reaction has run. */
+    public void robbedBy(YukkuriEntity thief, String face, String where) {
+        robbedFace = face;
+        snatchThief = thief;
+        answerWait = ANSWER_DELAY;
+        pendingBeat = new Beat("robbed", face, "treasure_stolen", where, "");
+    }
+
+    /** The robbed body's own answer, decided by {@link PeerDefense} from its esteem, wariness, size and fighting ability. */
+    private void answer() {
+        var thief = snatchThief;
+        snatchThief = null;
+        if (thief == null || !thief.isAlive()) return;
+        String decision = entity.groupInteraction().defense().provoke(thief);
+        if (decision.equals("none")) return;
+        String face = robbedFace;
+        String line = "none";
+        if (decision.equals("flee")) {
+            // The flight's own face over the still-running robbed reaction; danger reads through it either way.
+            face = entity.panicFace();
+            entity.showReaction(face, "", ANSWER_FACE_TICKS);
+        } else if (decision.equals("puff_back")) {
+            // The puff response's start shows the same cheek one tick later and speaks the line itself.
+            face = "cheek_puff";
+            line = "puff";
+            entity.showReaction(face, "", ANSWER_FACE_TICKS);
+        }
+        pendingBeat = new Beat("answer", face, line, "peer", "decision=" + decision);
+    }
+
+    /** The taker walks away with the doll it claimed. */
+    private void leave() {
+        if (carried().isEmpty()) return;
+        emitBeat("leave", "happy", "none", "mouth", 100, "");
+    }
+
+    /** A doll this body was keeping disappeared without it seeing or hearing it: it looks where the doll had been. */
+    private void discoverLoss() {
+        BlockPos at = missedAt;
+        missedAt = null;
+        Motor.face(entity, SurfaceApproach.yaw(entity.position(), Vec3.atCenterOf(at)));
+        String face = entity.life().personality().attachment() >= 60 ? "sad" : "confused";
+        emitBeat("pickup_missed", face, "none", "ground", 80, "at=" + GameplayLog.at(Vec3.atCenterOf(at)));
+    }
+
+    /**
+     * A player picks up a doll this body keeps. If it sees or hears the take it answers at once: its own owner gets only a
+     * teary look, a stranger costs it regard; a body that perceived nothing finds out when it next looks for the doll.
+     */
+    public static void pickingUp(ItemEntityPickupEvent.Pre event) {
+        if (event.canPickup() == TriState.FALSE || !(event.getItemEntity().level() instanceof ServerLevel level)) return;
+        var item = event.getItemEntity();
+        var player = event.getPlayer();
+        for (var body : level.getEntitiesOfClass(YukkuriEntity.class, item.getBoundingBox().inflate(Keepsakes.WITH_RADIUS),
+                b -> b.isAlive() && !b.inert() && Keepsakes.fond(b, item.getItem()))) {
+            if (Senses.perceives(body, item.position(), null, Cue.PICKUP_ITEM) != null) body.keepsake().tookDoll(player);
+            else body.keepsake().missedPickup(item.blockPosition());
+        }
+    }
+
+    private void tookDoll(Player player) {
+        boolean owner = entity.pet().owned(player);
+        String face = owner ? "teary" : EmotionCourse.onsetFace(entity.mind().feeling().wrongedKind());
+        String line = owner ? "" : "treasure_stolen";
+        if (!owner) {
+            entity.life().personality().treasureTaken(player.getUUID());
+            entity.mind().add(15, "treasure_taken");
+            entity.mind().feeling().wronged(player.getUUID(), .5f);
+        }
+        if (!entity.showReaction(face, line, 100)) return;
+        pendingBeat = new Beat(owner ? "pickup_owner" : "pickup_taken", face, line.isEmpty() ? "none" : line, "ground",
+                "player=" + player.getUUID());
+    }
+
+    private void missedPickup(BlockPos at) { missedAt = at.immutable(); }
 
     private void tickFetch() {
         if (picking) {
@@ -458,6 +669,9 @@ public final class KeepsakeLife implements MotorOwner {
             emitBeat("carry", carryFace(), "none", "mouth", 0, "");
             return;
         }
+        // A taken doll is put down only after the taker has been shown leaving with it: a short route keeps it in its mouth
+        // while the robbed body gives its answer.
+        if (leaveWait > 0) return;
         placeAction = new PlaceMouthItem(Purpose.KEEPSAKE, new KeepsakeSite(bed, dropSpot.dropPoint()));
         if (entity.motor().run(this, placeAction)) {
             placing = true;
@@ -575,6 +789,8 @@ public final class KeepsakeLife implements MotorOwner {
         carryLogged = false;
         dropRefused = false;
         talkAddressed = false;
+        snatchItem = null;
+        robbed = null;
         SurfaceApproach.stopWalking(entity);
     }
 
@@ -591,6 +807,11 @@ public final class KeepsakeLife implements MotorOwner {
         pendingBeat = null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 24000);
         talkCooldown = Math.clamp(tag.getInt("TalkCooldown"), 0, 24000);
+        snatchThief = null;
+        leaveWait = 0;
+        answerWait = 0;
+        robbedFace = "";
+        missedAt = null;
     }
 
     /** The dry spot beside her own nest's rim: the mouth lets go anywhere but inside the nest hollow. */

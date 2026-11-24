@@ -208,6 +208,13 @@ final class ScenarioSetup {
         data.relate(second.getUUID(), first.getUUID(), 30 - data.affinity(second.getUUID(), first.getUUID()));
     }
 
+    /** Moves both directions of a pair's affinity by the same amount, so a scene can stage a settled grudge. */
+    static void relate(YukkuriEntity first, YukkuriEntity second, int delta) {
+        var data = YukkuriWorldData.get((ServerLevel)first.level());
+        data.relate(first.getUUID(), second.getUUID(), delta);
+        data.relate(second.getUUID(), first.getUUID(), delta);
+    }
+
     /** Sticks go into the doorway stock of the individual's own den through the ordinary deposit (it holds three at most); returns how many were taken. */
     static int twigs(YukkuriEntity y, int count) {
         var shelter = y.habitat().shelter();

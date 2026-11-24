@@ -107,13 +107,17 @@ public final class GroupInteractionGoal extends Goal {
         for(var peer:level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(4),e->e!=entity&&!e.inert())) {
             if(entity.getRandom().nextFloat()<.25f*entity.species().traits().sumo()&&challenge(peer))return true;
             var personality=entity.life().personality();
+            // A keepsake the peer keeps is a reason of its own: the bout's strike takes the doll instead of hitting for it.
+            boolean keepsake = entity.keepsake().keepsDoll(peer) && entity.keepsake().canSnatch();
             // A provocative species (Marisa) picks fights sooner, and everybody picks on the easily bullied (Chen).
             if(personality.temperament().is(Gate.HARSH)&&available(peer)&&!peer.groupInteraction().active()
                     &&!SettlementSociety.sparesHatlessBlame(entity,peer)&&!SettlementSociety.sparesHatlessBlame(peer,entity)
                     &&peer.groupInteraction().cooldown==0&&entity.family().adult()&&entity.getBbWidth()>peer.getBbWidth()*1.3
                     &&(YukkuriWorldData.get(level()).affinity(entity.getUUID(),peer.getUUID())<=BondLevels.AFFINITY_HOSTILE||
                             !entity.treasure().full()&&peer.treasure().count()>0&&YukkuriWorldData.get(level()).affinity(entity.getUUID(),
-                            peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)&&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
+                            peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL||
+                            keepsake&&YukkuriWorldData.get(level()).affinity(entity.getUUID(), peer.getUUID())<=BondLevels.AFFINITY_NEUTRAL)
+                    &&entity.hasLineOfSight(peer)&&space(entity)&&space(peer))
             {
                 cooldown = 600;
                 if (entity.getRandom().nextInt(100) >= personality.escalationScore()) return false;
@@ -128,6 +132,7 @@ public final class GroupInteractionGoal extends Goal {
                 }
                 if (!reserve(peer,Kind.BULLY)) return false;
                 bout.rule = choice;
+                if (keepsake) entity.keepsake().claim(peer);
                 return true;
             }
             // A hatless stranger is despised and bullied through headwear.Contempt and the sanction, not here.
@@ -167,6 +172,12 @@ public final class GroupInteractionGoal extends Goal {
         if(current.kind==Kind.BULLY) {
             entity.life().personality().decided("bully_peer");
             stop();
+            // A keepsake the victim keeps is what this bout was fought over: the doll changes holders and nobody is hit.
+            if(entity.keepsake().beginSnatch(peer)) {
+                if (current.rule.breached(true) && peer.pet().isPet() && peer.pet().ownedBy(entity.pet().owner()))
+                    entity.pet().conscience().breach(HouseRule.NO_BULLYING);
+                return;
+            }
             float healthBefore = peer.getHealth();
             boolean hit = peer.hurt(level().damageSources().mobAttack(entity),1);
             if (hit) peer.life().personality().bulliedBy(entity.life().personality());

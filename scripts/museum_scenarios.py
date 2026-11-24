@@ -5171,6 +5171,112 @@ add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油
            extra='YukkuriDailyLife:{Affection:75,Boredom:20,Cooldown:300}'),
     ], env=DAY, spot='pavilion', vantage=(0, 8, 180, 22),
     reads=[('读子油', f'yukkuri status {sel("giveup_kid")} raw')])
+# ---- a kept doll taken from a smaller body (docs/FEATURES.md, 布偶), and a player taking one in front of its keeper.
+# A doll is a keepsake only while the body beside it keeps it, and only a body with a nest of its own and a free mouth can take
+# one over (KeepsakeLife.canSnatch), so every taker gets a shed while no victim gets one: a bedless victim never picks its own
+# doll up before the scene does. A taker's nest stands five blocks behind it, outside the home-territory radius 3, or the taker
+# would warn the visitor off the nest instead of bullying it. Movement is pinned with the museum's own stand so a pair stays at
+# contact until the doll really changes mouths; the guarded release then lets each body play its own beat (the taker walks its
+# carry home, the robbed one answers), and a pair that never gets its bout stays put rather than drifting apart.
+_SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
+
+_doll_snatch = 'doll_snatch'
+add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横的魔理沙抢走小灵梦的布偶',
+    '公园凉亭南侧草坪上并排两组，相距 10 格：每组是一只蛮横的成体魔理沙（友好 0、自制力 0）和一个矮一大截的孩子灵梦，'
+    '灵梦身旁地上放着它的布偶。左边灵梦胆大，右边灵梦胆小。看魔理沙扬脸叫嚣「mine」后贴上去，二十次接触后把布偶叼进自己嘴里：'
+    '胆大的灵梦冒火回 puff，胆小的灵梦哭丧着脸逃开。魔理沙叼着布偶走回五格外的窝，在窝沿外放下。'
+    '两组反应不同只看各自的胆量与本事，重开可再看一遍。',
+    '约 25 秒', [
+        # Clear the working lawn and the flower bed between it and the view (blocking foliage would hide a child's doll and feet).
+        box(-2, 0, 3, 22, 3, 15, 'minecraft:air'),
+        *shed(7, 4, half=1), *shed(17, 4, half=1),
+        item('mcyukkuri:reimu_doll', 1, 7.65, 8.65, 'snatch_doll_a'),
+        item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
+        yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
+           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
+           label='蛮横的魔理沙', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
+           stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
+           label='胆大的灵梦', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
+           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
+           label='蛮横的魔理沙', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
+           stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
+           label='胆小的灵梦', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+    ], at_spawn=[home('snatch_thief_a', 7, 4), home('snatch_thief_b', 17, 4)],
+    late=[Retry(f'execute as @e[tag={tag("snatch_" + side)}] run attribute @s minecraft:generic.movement_speed base set 0.18',
+                f'@e[tag={tag("snatch_thief_" + side)},nbt={{YukkuriMouth:{{Purpose:"KEEPSAKE"}}}}]', tries=400, first=20)
+          for side in ('a', 'b')],
+    env=DAY, spot='pavilion', vantage=(13, 18, 180, 10),
+    reads=[('读胆大的灵梦', f'yukkuri status {sel("snatch_victim_a")} raw'),
+           ('读胆小的灵梦', f'yukkuri status {sel("snatch_victim_b")} raw'),
+           ('读蛮横的魔理沙', f'yukkuri status {sel("snatch_thief_a")} raw')])
+
+_doll_take = 'doll_take'
+add(_doll_take, 'park', '玩家捡走布偶：主人只落泪，陌生人掉好感，打盹的醒来才发现', '玩家捡走布偶：主人只落泪，陌生人掉好感，打盹的醒来才发现',
+    '公园草坪上一排四只灵梦，各自身旁地上放着一只布偶。最左两只正在打盹（依恋高、依恋低），第三只认玩家为主人，最右一只是不认识的流浪油（胆大、自制力低）。'
+    '趁最左两只还睡着，先捡它们的布偶，再捡右边两只：认主的只露出泪眼、不丢好感也不说重话；陌生的当场生气、说「偷东西」并掉好感。'
+    '打盹的两只没看见也没听见，醒来后只看一眼布偶原来的位置：依恋高的难过，依恋低的一脸发愣，都不怪玩家。',
+    '约 25 秒', [
+        # Clear the flower bed between the row and the view; a child's doll at ground level would sit behind it.
+        box(-2, 0, 3, 22, 3, 15, 'minecraft:air'),
+        item('mcyukkuri:reimu_doll', 1, 2.1, 6, 'take_doll_a'),
+        item('mcyukkuri:reimu_doll', 1, 7.1, 6, 'take_doll_b'),
+        item('mcyukkuri:reimu_doll', 1, 12.1, 6, 'take_doll_c'),
+        item('mcyukkuri:reimu_doll', 1, 17.1, 6, 'take_doll_d'),
+        yk('reimu', 3, 6, 'take_sleep_a', uuid=uid(_doll_take, 'take_sleep_a'),
+           boldness=100, attachment=80, energy=0, yaw=0, label='打盹的灵梦（依恋高）',
+           extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 8, 6, 'take_sleep_b', uuid=uid(_doll_take, 'take_sleep_b'),
+           boldness=100, attachment=20, energy=0, yaw=0, label='打盹的灵梦（依恋低）',
+           extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 13, 6, 'take_owner', uuid=uid(_doll_take, 'take_owner'),
+           boldness=50, attachment=60, yaw=0, label='认主的地灵梦',
+           extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 18, 6, 'take_stray', uuid=uid(_doll_take, 'take_stray'),
+           boldness=80, self_control=40, attachment=20, yaw=0, label='陌生的流浪灵梦',
+           extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        *own('take_owner'),
+    ], env=DAY, spot='pavilion', vantage=(11, 18, 180, 8),
+    reads=[('读打盹的灵梦', f'yukkuri status {sel("take_sleep_a")} raw'),
+           ('读认主的灵梦', f'yukkuri status {sel("take_owner")} raw'),
+           ('读流浪灵梦', f'yukkuri status {sel("take_stray")} raw')])
+
+# The two scenes under the snatch scene keep its ordinary outcomes honest: the same bout and strike without a doll, and the
+# same strike taking a held treasure. The pair is pinned to the same spot: they exist to produce one bout, not a walk.
+add('bully_strike', 'park', '蛮横的成体魔理沙欺负孩子灵梦（无布偶）', '蛮横的成体魔理沙欺负孩子灵梦（无布偶）',
+    '公园草坪上一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦挨在一起，身上没有布偶也没有财宝。'
+    '看魔理沙贴上去二十次接触后推搡一下得手，灵梦掉血、结怨。这是抢布偶之外最普通的欺负，用来对照。',
+    '约 1 分钟', [
+        box(-2, 0, 3, 22, 3, 8, 'minecraft:air'),
+        yk('marisa', 7.45, 9, 'bully_thief', uuid=uid('bully_strike', 'bully_thief'),
+           boldness=75, friendliness=0, self_control=0, yaw=-90, lead=True,
+           label='蛮横的魔理沙', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 8, 9, 'bully_victim', uuid=uid('bully_strike', 'bully_victim'),
+           stage='child', boldness=40, friendliness=60, self_control=70, yaw=90,
+           label='小灵梦', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        f'yukkuri scenario relate {sel("bully_thief")} {sel("bully_victim")} -40',
+    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 8),
+    reads=[('读魔理沙', f'yukkuri status {sel("bully_thief")} raw'),
+           ('读小灵梦', f'yukkuri status {sel("bully_victim")} raw')])
+
+add('treasure_bully', 'park', '蛮横的魔理沙抢走小灵梦手里的钻石', '蛮横的魔理沙抢走小灵梦手里的钻石',
+    '公园草坪上一只蛮横的成体魔理沙（友好 0、自制力 0）与不和的矮小灵梦挨在一起，灵梦怀里揣着一颗钻石。'
+    '看魔理沙贴上去二十次接触后推搡一下得手，钻石从灵梦手里转到魔理沙嘴里，灵梦哭丧着脸结怨。',
+    '约 1 分钟', [
+        box(-2, 0, 3, 22, 3, 8, 'minecraft:air'),
+        yk('marisa', 7.45, 9, 'treasure_thief', uuid=uid('treasure_bully', 'treasure_thief'),
+           boldness=75, friendliness=0, self_control=0, yaw=-90, lead=True,
+           label='蛮横的魔理沙', extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+        yk('reimu', 8, 9, 'treasure_victim', uuid=uid('treasure_bully', 'treasure_victim'),
+           stage='child', boldness=40, friendliness=60, self_control=70, yaw=90,
+           label='小灵梦', extra='YukkuriDailyLife:{Boredom:0},YukkuriTreasure:{Held:[{id:"minecraft:diamond",count:1}],Cooldown:0},'
+           + _SNATCH_STILL),
+        f'yukkuri scenario relate {sel("treasure_thief")} {sel("treasure_victim")} -40',
+    ], env=DAY, spot='pavilion', vantage=(8, 16, 180, 8),
+    reads=[('读魔理沙', f'yukkuri status {sel("treasure_thief")} raw'),
+           ('读小灵梦', f'yukkuri status {sel("treasure_victim")} raw')])
 
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
@@ -9125,7 +9231,8 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5',
+    'bully_strike': 'M5', 'treasure_bully': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -9711,6 +9818,174 @@ next(s for s in S if s.id == _giveup).smoke.update(
     commands=[
         (6, f'execute as {sel("giveup_kid")} run yukkuri status set @s needs.nutrition 25'),
     ])
+_snatch_thief_a = _uuid_text(_doll_snatch, 'snatch_thief_a')
+_snatch_victim_a = _uuid_text(_doll_snatch, 'snatch_victim_a')
+_snatch_thief_b = _uuid_text(_doll_snatch, 'snatch_thief_b')
+_snatch_victim_b = _uuid_text(_doll_snatch, 'snatch_victim_b')
+
+
+def _verify_doll_snatch(window):
+    """Both lanes: the taker claims, takes the doll it may not take in its mouth, walks off and puts it down; the robbed body
+    shows the reaction of its own temper and answers by its own nature. One beat each, no second grab, faces as declared."""
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    for m in beats:
+        u, _, beat, face, declared, _, _, dolls, _ = m.groups()
+        if face != declared:
+            return f'{u} showed {face} on {beat}, declared {declared}'
+        if int(dolls) != 2:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+    for thief, victim, robbed_face, decision, answer_face, answer_line in (
+            (_snatch_thief_a, _snatch_victim_a, 'angry', 'puff_back', 'cheek_puff', 'puff'),
+            (_snatch_thief_b, _snatch_victim_b, 'teary', 'flee', 'surprise', 'none')):
+        mine = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == thief]
+        theirs = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == victim]
+        # (tick, beat, face, line, where, tail); every beat once, so a second grab would show here too.
+        for name in ('claim', 'grab', 'leave', 'set_down'):
+            rows = [r for r in mine if r[1] == name]
+            if len(rows) != 1:
+                return f'{thief}: expected one {name} beat, saw {[r[1] for r in mine]}'
+        for name in ('robbed', 'answer'):
+            rows = [r for r in theirs if r[1] == name]
+            if len(rows) != 1:
+                return f'{victim}: expected one {name} beat, saw {[r[1] for r in theirs]}'
+        if len(mine) != 4 or len(theirs) != 2:
+            return f'{thief}/{victim}: unexpected extra beats {[r[1] for r in mine]} / {[r[1] for r in theirs]}'
+        claim, grab, leave, down = (next(r for r in mine if r[1] == n) for n in ('claim', 'grab', 'leave', 'set_down'))
+        robbed, answer = (next(r for r in theirs if r[1] == n) for n in ('robbed', 'answer'))
+        if not claim[0] < grab[0] <= robbed[0] < answer[0] < leave[0] < down[0]:
+            return f'{thief}/{victim}: beat order {[r[0] for r in (claim, grab, robbed, answer, leave, down)]} is not claim/grab/answer/leave/set_down'
+        if grab[0] - claim[0] > 240:
+            return f'{thief}: the bout took {grab[0] - claim[0]} ticks from claim to grab (>240)'
+        if not 40 <= leave[0] - grab[0] <= 50:
+            return f'{thief}: leave came {leave[0] - grab[0]} ticks after the grab, expected the 45-tick delay'
+        if down[0] - grab[0] > 600:
+            return f'{thief}: carry took {down[0] - grab[0]} ticks (>600)'
+        if answer[0] - robbed[0] > 40:
+            return f'{victim}: answer came {answer[0] - robbed[0]} ticks after the robbed beat (the 30-tick delay was missed)'
+        if (claim[2], claim[3], claim[4]) != ('smug', 'mine', 'peer') or f'victim={victim}' not in claim[5]:
+            return f'{thief}: claim is not the smug mine over {victim}: {claim}'
+        if grab[2] != 'smug' or grab[3] != 'none' or grab[4] != 'ground' or f'victim={victim}' not in grab[5]:
+            return f'{thief}: grab is not the silent pickup of the doll beside {victim}: {grab}'
+        if (leave[2], leave[3], leave[4]) != ('happy', 'none', 'mouth'):
+            return f'{thief}: leave does not show the doll still carried: {leave}'
+        if (down[2], down[3], down[4]) != ('satisfied', 'thing_san', 'bed'):
+            return f'{thief}: set_down is not the doll left at its own nest: {down}'
+        problem = _keepsake_set_down_problem(down[5])
+        if problem:
+            return problem
+        if (robbed[2], robbed[3], robbed[4]) != (robbed_face, 'treasure_stolen', 'ground'):
+            return f'{victim}: robbed is not the {robbed_face} stolen-treasure reaction: {robbed}'
+        if (answer[2], answer[3], answer[4]) != (answer_face, answer_line, 'peer') or f'decision={decision}' not in answer[5]:
+            return f'{victim}: answer is not {decision} seen as {answer_face}/{answer_line}: {answer}'
+
+
+_smoke(_doll_snatch, 6400, [
+    r'\[social\][^\n]*bout reserved kind=BULLY peer=',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=claim face=smug declared=smug line=mine where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=grab face=smug declared=smug line=none where=ground dolls=2 ',
+    rf'\[social\][^\n]*uuid={_snatch_victim_a} [^\n]*aftermath what=doll taker={_snatch_thief_a} face=angry ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed face=angry declared=angry line=treasure_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer face=cheek_puff declared=cheek_puff line=puff where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=leave face=happy declared=happy line=none where=mouth ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
+    rf'\[social\][^\n]*uuid={_snatch_victim_b} [^\n]*aftermath what=doll taker={_snatch_thief_b} face=teary ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed face=teary declared=teary line=treasure_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer decision=flee',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
+], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike ',
+           'SNATCH_VICTIM_A_PINNED', 'SNATCH_VICTIM_B_PINNED', 'SNATCH_THIEF_A_PINNED', 'SNATCH_THIEF_B_PINNED'])
+next(s for s in S if s.id == _doll_snatch).smoke.update(
+    verify=_verify_doll_snatch,
+    commands=[
+        (6300, f'execute if data entity {sel("snatch_victim_a")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_VICTIM_A_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_victim_b")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_VICTIM_B_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_thief_a")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_THIEF_A_PINNED'),
+        (6300, f'execute if data entity {sel("snatch_thief_b")} Attributes[{{id:"minecraft:generic.movement_speed"}}].Base matches 0.0d run say SNATCH_THIEF_B_PINNED'),
+    ])
+
+_take_sleep_a = _uuid_text(_doll_take, 'take_sleep_a')
+_take_sleep_b = _uuid_text(_doll_take, 'take_sleep_b')
+_take_owner = _uuid_text(_doll_take, 'take_owner')
+_take_stray = _uuid_text(_doll_take, 'take_stray')
+_TOOL_OPERATOR = '2d4c7192-2a6d-4da4-9f94-c82721b9de87'
+
+
+def _verify_doll_take(window):
+    """Each of the four stations answers once: the two sleepers find the doll gone when they wake (one sad, one puzzled, neither
+    blaming the player), the owner only tears up, the stranger names the theft and loses regard."""
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    for m in beats:
+        u, _, beat, face, declared, _, _, _, _ = m.groups()
+        if face != declared:
+            return f'{u} showed {face} on {beat}, declared {declared}'
+    seen = {}
+    for m in beats:
+        seen.setdefault(m[1], []).append(m)
+    expect = {
+        _take_sleep_a: [('sleep', 'sleep', 'sleep', 'ground', 4), ('pickup_missed', 'sad', 'none', 'ground', 0)],
+        _take_sleep_b: [('sleep', 'sleep', 'sleep', 'ground', 4), ('pickup_missed', 'confused', 'none', 'ground', 0)],
+        _take_owner: [('pickup_owner', 'teary', 'none', 'ground', 1)],
+        _take_stray: [('pickup_taken', 'angry', 'treasure_stolen', 'ground', 0)],
+    }
+    for who, want in expect.items():
+        got = [(m[3], m[4], m[6], m[7], int(m[8])) for m in seen.get(who, ())]
+        if got != want:
+            return f'{who}: beats {got}, expected {want}'
+        for m in seen[who]:
+            if m[3] == 'pickup_missed' and not re.search(r'\bat=\([-0-9.]+,[-0-9.]+,[-0-9.]+\)', m[9]):
+                return f'{who}: pickup_missed does not name where it looked: {m[9]}'
+            if m[3].startswith('pickup_') and m[3] != 'pickup_missed' and f'player={_TOOL_OPERATOR}' not in m[9]:
+                return f'{who}: {m[3]} does not name the player who took it: {m[9]}'
+
+
+_smoke(_doll_take, 1200, [
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=pickup_missed face=sad declared=sad line=none where=ground dolls=0 ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=pickup_missed face=confused declared=confused line=none where=ground dolls=0 ',
+    rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*beat=pickup_owner face=teary declared=teary line=none where=ground dolls=1 ',
+    rf'\[keepsake\][^\n]*uuid={_take_stray} [^\n]*beat=pickup_taken face=angry declared=angry line=treasure_stolen where=ground dolls=0 ',
+], forbid=[r'TAKE_LEFT_BEHIND_', rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
+_take_commands = [(100, 'execute positioned ~2.6 ~ ~6.5 run yukkuri scenario tool_operator enter'),
+                  *((101, f'execute as @p[name=MuseumOperator,distance=..48] run {line}') for line in own('take_owner'))]
+for _i, (_x, _name) in enumerate(((2.6, 'take_doll_a'), (7.6, 'take_doll_b'), (12.6, 'take_doll_c'), (17.6, 'take_doll_d'))):
+    _at = f'execute positioned ~{_x} ~ ~6.5 run yukkuri scenario tool_operator'
+    _take_commands += [(110 + 10 * _i, f'{_at} move'),
+                       (111 + 10 * _i, f'{_at} pick_up {sel(_name)}'),
+                       (112 + 10 * _i, f'execute if entity {sel(_name)} run say TAKE_LEFT_BEHIND_{_i}')]
+# The two sleepers wake only after the takes: the operator keeps the dolls until then, then leaves with them far from the row so
+# the dropped stack is out of the sleepers' counting radius and they see the dolls gone.
+_take_commands += [(170, 'execute positioned ~20 ~40 ~100 run yukkuri scenario tool_operator move'),
+                   (171, 'yukkuri scenario tool_operator leave')]
+next(s for s in S if s.id == _doll_take).smoke.update(verify=_verify_doll_take, commands=_take_commands)
+
+# The two regressions under the snatch scene use the same bout and strike without a doll or a held treasure.
+_bully_thief = _uuid_text('bully_strike', 'bully_thief')
+_bully_victim = _uuid_text('bully_strike', 'bully_victim')
+
+
+def _verify_bully_strike(window):
+    reserved = re.findall(r'\[social\][^\n]*bout reserved kind=BULLY peer=\S+', window)
+    if len(reserved) != 1:
+        return f'expected one BULLY bout, saw {len(reserved)}'
+    if not re.search(rf'\[social\][^\n]*uuid={_bully_thief} [^\n]*bully strike peer={_bully_victim} accepted=true ', window):
+        return 'the bout did not land its strike'
+_smoke('bully_strike', 6000, [rf'\[social\][^\n]*bout reserved kind=BULLY peer={_bully_victim}',
+                              rf'\[social\][^\n]*uuid={_bully_thief} [^\n]*bully strike peer={_bully_victim} '])
+next(s for s in S if s.id == 'bully_strike').smoke.update(verify=_verify_bully_strike)
+
+_treasure_thief = _uuid_text('treasure_bully', 'treasure_thief')
+_treasure_victim = _uuid_text('treasure_bully', 'treasure_victim')
+_smoke('treasure_bully', 6000, [
+    rf'\[social\][^\n]*bout reserved kind=BULLY peer={_treasure_victim}',
+    rf'\[social\][^\n]*uuid={_treasure_thief} [^\n]*bully strike peer={_treasure_victim} ',
+    rf'\[treasure\][^\n]*uuid={_treasure_thief} [^\n]*snatched victim={_treasure_victim} item=minecraft:diamond .*victimHeld=0',
+    rf'\[social\][^\n]*uuid={_treasure_victim} [^\n]*aftermath what=treasure taker={_treasure_thief} face=teary ',
+])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')

@@ -33,13 +33,14 @@ public final class PeerDefense extends Goal {
         return "defense=" + (attacker == null ? "none" : attacker.getUUID()) + " decision=" + decision + " score=" + Math.round(score);
     }
 
-    /** A directed, visible threat, never a display callback or an ambient voice. */
-    public void provoke(YukkuriEntity source) {
+    /** A directed, visible threat, never a display callback or an ambient voice. Returns the answer it gave, or "none". */
+    public String provoke(YukkuriEntity source) {
         long now = entity.level().getGameTime();
         if (source == null || source == entity || !source.isAlive() || source.level() != entity.level()
                 || now < nextPuffResponse || !entity.isAlive() || entity.inert() || entity.life().isSleeping()
                 || entity.operations().active() || entity.isCommandPlaying() || entity.isPassenger()
-                || entity.distanceToSqr(source) > 36 || !entity.hasLineOfSight(source)) return;
+                || entity.keepsake().carrying()
+                || entity.distanceToSqr(source) > 36 || !entity.hasLineOfSight(source)) return "none";
         nextPuffResponse = now + 100;
         var p = entity.life().personality();
         var bond = p.relation(source.getUUID());
@@ -59,8 +60,8 @@ public final class PeerDefense extends Goal {
         GameplayLog.event(entity, "social", "puff response={} source={} sizeRatio={} friendliness={} boldness={} importance={} esteem={} wariness={} closeness={} insistence={} combat={}",
                 result, source.getUUID(), entity.getBbWidth()/Math.max(.01,source.getBbWidth()), p.friendliness(), p.boldness(), importance,
                 esteem, wariness, bond.closeness(), insistence, combat);
-        if (result.startsWith("ignore")) return;
-        if (result.equals("flee")) { stop(); entity.cannibalism().stop(); entity.life().interrupt(); entity.fleeFrom(source); return; }
+        if (result.startsWith("ignore")) return result;
+        if (result.equals("flee")) { stop(); entity.cannibalism().stop(); entity.life().interrupt(); entity.fleeFrom(source); return "flee"; }
         // Preserve the same combat and interruption machinery used after a real peer attack.
         decision = result;
         score = combat;
@@ -70,6 +71,7 @@ public final class PeerDefense extends Goal {
         strikeWait = 12;
         entity.groupInteraction().stop(); entity.sanction().stop(); entity.cannibalism().stop();
         entity.social().stop(); entity.dailyLife().stop(); entity.playLife().stop(); entity.life().interrupt();
+        return result;
     }
 
     private int importance() {

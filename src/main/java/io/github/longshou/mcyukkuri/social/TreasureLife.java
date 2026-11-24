@@ -226,15 +226,26 @@ public final class TreasureLife extends Goal {
         GameplayLog.event(entity, "treasure", "confiscated player={} taken={} held=0", player.getUUID(), taken);
         return taken;
     }
+    /**
+     * What a theft does to the one robbed, shared by the treasure snatch and the keepsake snatch: stress, the onset face of its
+     * own temper, distrust of the taker and a lasting grudge. Returns the face it actually showed.
+     */
+    public static String aftermath(YukkuriEntity thief, YukkuriEntity victim, String what) {
+        victim.mind().add(15, "treasure_stolen");
+        String face = EmotionCourse.onsetFace(victim.mind().feeling().wrongedKind());
+        victim.showReaction(face, "treasure_stolen", 160);
+        victim.mind().feeling().wronged(thief.getUUID(), .7f);
+        if (victim.level() instanceof ServerLevel level) YukkuriWorldData.get(level).relate(victim.getUUID(), thief.getUUID(), -12);
+        GameplayLog.event(victim, "social", "aftermath what={} taker={} face={} closeness={}",
+                what, thief.getUUID(), face, victim.life().personality().relation(thief.getUUID()).closeness());
+        return face;
+    }
     /** A peer that wins a bullying bout takes one treasure from the loser if it has room; true if it did. */
     public boolean snatchFrom(YukkuriEntity victim) {
         if (victim == entity || victim.treasure().held.isEmpty() || full()) return false;
         held.add(victim.treasure().held.remove(victim.treasure().held.size() - 1));
-        victim.mind().add(15, "treasure_stolen");
-        victim.showReaction(EmotionCourse.onsetFace(victim.mind().feeling().wrongedKind()), "treasure_stolen", 160);
-        victim.mind().feeling().wronged(entity.getUUID(), .7f);
+        aftermath(entity, victim, "treasure");
         entity.showReaction("happy", "thing_san", 100);
-        YukkuriWorldData.get(level()).relate(victim.getUUID(), entity.getUUID(), -12);
         GameplayLog.event(entity, "treasure", "snatched victim={} item={} held={} victimHeld={}",
                 victim.getUUID(), held.getLast().getItem(), held.size(), victim.treasure().held.size());
         return true;

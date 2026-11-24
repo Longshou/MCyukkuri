@@ -1047,6 +1047,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         startReaction(expression, dialogue, ticks);
         speak(reactionEvent);
     }
+    /** The face flight itself shows: a newborn cries, a weak body tears up, anyone else is startled. */
+    public String panicFace() { return newbornStage() ? "cry" : body().weak() ? "teary" : "surprise"; }
 
     /** Stop the speech already projected to clients, including a recording longer than its subtitle. */
     public void interruptSpeech() {

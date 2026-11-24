@@ -340,6 +340,14 @@ public final class ScenarioCommands {
                             ScenarioSetup.bond(first, second);
                             return 1;
                         }))))
+                .then(Commands.literal("relate").then(Commands.argument("first", EntityArgument.entity())
+                        .then(Commands.argument("second", EntityArgument.entity())
+                                .then(Commands.argument("delta", IntegerArgumentType.integer()).executes(c -> {
+                                    var first = yukkuri(c, "first"); var second = yukkuri(c, "second");
+                                    if (first == null || second == null || first.level() != second.level()) return 0;
+                                    ScenarioSetup.relate(first, second, IntegerArgumentType.getInteger(c, "delta"));
+                                    return 1;
+                                })))))
                 .then(Commands.literal("sumo").then(Commands.argument("first", EntityArgument.entity())
                         .then(Commands.argument("second", EntityArgument.entity()).executes(c -> {
                             var first = yukkuri(c, "first"); var second = yukkuri(c, "second");

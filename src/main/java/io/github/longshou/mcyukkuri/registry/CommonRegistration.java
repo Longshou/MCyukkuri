@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.network.ReadoutNetworking;
 import io.github.longshou.mcyukkuri.network.BodyEffectNetworking;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.pet.SceneReset;
+import io.github.longshou.mcyukkuri.social.KeepsakeLife;
 import io.github.longshou.mcyukkuri.command.PlaygroundFields;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -219,6 +220,7 @@ public final class CommonRegistration {
                 YukkuriGroundNavigation::playerPassage);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGH, false, ItemEntityPickupEvent.Pre.class, ShopTrade::pickingUp);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, BadgeItem::pickingUp);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Pre.class, KeepsakeLife::pickingUp);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ItemEntityPickupEvent.Post.class, ShopTrade::pickedUp);
 
 

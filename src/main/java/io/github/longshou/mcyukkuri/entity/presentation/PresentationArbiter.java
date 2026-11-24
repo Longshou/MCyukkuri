@@ -313,7 +313,7 @@ public final class PresentationArbiter {
                     ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
                     : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
             // The frame retains the pre-decrement count used to choose the clip.
-            state.expression(e.newbornStage() ? "cry" : e.body().weak() ? "teary" : "surprise");
+            state.expression(e.panicFace());
             state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
             return;
         });
