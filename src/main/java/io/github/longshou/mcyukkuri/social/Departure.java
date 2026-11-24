@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 /**
  * The one way a driven-out individual leaves: it stares at whoever drove it, pleads or protests by its own character (a pleader steps
  * up to the driver, which turns it away), turns and walks off with looks back the more attached it is, and is done once it stands
- * dry and beyond the range it was driven out of. The mould exile ({@code settlement/MoldExile}) and the child a parent repudiates
+ * dry and beyond the range it was driven out of. The mould exile ({@code settlement/MoldExile}) and the overload severance
  * ({@code family/DrivenOut}) both run this; each decides, from its own facts, when the walk counts as a departure.
  */
 public final class Departure {
@@ -334,7 +334,7 @@ public final class Departure {
         }
     }
 
-    /** One choke point for every home, roof, nest, shelter, and mourn-stroll check: neither a mould exile nor a repudiated child settles back in its old range. */
+    /** One choke point for every home, roof, nest, shelter, and mourn-stroll check: neither a mould exile nor a severed child settles back in its old range. */
     public static boolean allowsAddress(YukkuriEntity entity, BlockPos pos) {
         return entity.moldExile().allowsAddress(pos) && entity.drivenOut().allowsAddress(pos);
     }

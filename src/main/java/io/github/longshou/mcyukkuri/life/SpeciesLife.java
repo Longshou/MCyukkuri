@@ -340,14 +340,14 @@ public final class SpeciesLife {
     public static SpeechAddress.Kin kinAddress(YukkuriEntity speaker, YukkuriEntity other) {
         var id = other.getUUID();
         var family = speaker.family();
-        if (id.equals(family.mother())) return SpeechAddress.Kin.MOTHER;
-        if (id.equals(family.father())) return SpeechAddress.Kin.FATHER;
+        // A severed parent is no longer addressed as one (Bonds.sever); the same ledger check rules out its remaining siblings.
+        if ((id.equals(family.mother()) || id.equals(family.father())) && family.expectsCare(id))
+            return id.equals(family.mother()) ? SpeechAddress.Kin.MOTHER : SpeechAddress.Kin.FATHER;
         if (id.equals(family.partner()) || speaker.getUUID().equals(other.family().partner())) return SpeechAddress.Kin.PARTNER;
         if (Bonds.parentOf(speaker, other)) return SpeechAddress.Kin.CHILD;
         var group = speaker.settlement().group();
         if (group != null && id.equals(group.leader)) return SpeechAddress.Kin.LEADER;
-        if ((family.mother() != null && family.mother().equals(other.family().mother()))
-                || (family.father() != null && family.father().equals(other.family().father())))
+        if (Bonds.careKin(speaker, other))
             return other.growthScale() >= speaker.growthScale() ? SpeechAddress.Kin.ELDER_SIBLING : SpeechAddress.Kin.YOUNGER_SIBLING;
         return null;
     }

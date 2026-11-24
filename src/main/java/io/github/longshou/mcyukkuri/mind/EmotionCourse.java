@@ -215,7 +215,8 @@ public final class EmotionCourse {
 
     /**
      * Grief for kin it was cut off from (the severed tie is in the pedigree) is carried while it lives on: face, pace and droop show it,
-     * but it does not hold the body where it stands, so the severed one goes on to live as a stray. A death or loss still pins it.
+     * but it does not hold the body where it stands, so the severed one goes on to live as a stray. Grief about anyone whose tie is
+     * not severed (a death or a loss) still pins it.
      */
     private boolean carried() {
         return kind == Kind.GRIEF && about != null && FamilyData.get((ServerLevel)entity.level()).severed(entity.getUUID(), about);
