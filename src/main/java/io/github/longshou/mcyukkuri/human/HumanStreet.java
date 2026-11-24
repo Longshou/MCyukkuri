@@ -1081,7 +1081,7 @@ final class HumanStreet {
                     GameplayLog.event(npc, "npc-care", "action=outing_sit result=taken seat={}", seat.cell().toShortString());
                     var other = pickPlazaSeat(seat.cell());
                     if (other != null) { seat = other; return; }
-                    returnHome("plaza_seat");
+                    if (++stalled >= 4) returnHome("plaza_seat");
                     return;
                 }
                 if (!atStand()) {

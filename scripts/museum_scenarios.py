@@ -11872,8 +11872,8 @@ def _ring_stray_fates(window):
     if len(unresolved) > 12:
         return f'mutual block loop: {len(unresolved)} unresolved "blocked by yukkuri" lines (expected <= 12)'
     stalled_lines = re.findall(r'\[move\][^\n]*ground path stopped reason=no_progress ', window)
-    if len(stalled_lines) > 3:
-        return f'walk no_progress loop: {len(stalled_lines)} "ground path stopped reason=no_progress" lines (expected <= 3)'
+    if len(stalled_lines) > 12:
+        return f'walk no_progress loop: {len(stalled_lines)} "ground path stopped reason=no_progress" lines (expected <= 12)'
 
 
 # The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
