@@ -63,5 +63,48 @@ class FinalWindow(unittest.TestCase):
         self.assertEqual(self.final(set(range(100, 399)), ()), ['fail'])
 
 
+class Hold(unittest.TestCase):
+    def verdicts(self, at_nest_ticks):
+        """Put-down at t=100 (rim); the child is at the nest on the given ticks of 90..500 and OUTSIDE otherwise."""
+        records = [dict(k='ev', u=MOTHER, t=100, seq=1, cat='family', msg=PUT_DOWN), dict(k='geo', u=CHILD, t=500, tags=['scn_baby'])]
+        samples = [dict(u=CHILD, t=t, state=dict(alive=True, hp=5, nest='PARTIAL' if t in at_nest_ticks else 'OUTSIDE', tags=['scn_baby']))
+                   for t in range(90, 501)]
+        spec = dict(path(0), hold=dict(after=300, span=200, share=.8, clauses=[('$subject', 'nest!=OUTSIDE')]), post=[('$subject', 'alive=true')])
+        return [r['verdict'] for r in EndContext(records, samples).path(spec, {'subject': CHILD})]
+
+    def test_child_that_stays_at_the_nest_passes(self):
+        self.assertEqual(set(self.verdicts(set(range(100, 500)))), {'pass'})
+
+    def test_child_that_wanders_off_after_the_put_down_fails(self):
+        self.assertNotEqual(set(self.verdicts(set(range(100, 240)))), {'pass'})
+
+    def test_child_that_returns_only_after_the_hold_window_fails(self):
+        self.assertNotEqual(set(self.verdicts(set(range(100, 150)) | set(range(420, 500)))), {'pass'})
+
+
+class WalksHome(unittest.TestCase):
+    def verdicts(self, nest_after, events=()):
+        """A child that is never picked up (``events`` empty) must reach INSIDE_SUPPORTED by itself after its STAY_HOME phase starts."""
+        from smoke_checks import endings
+        records = [dict(k='geo', u=CHILD, t=300, tags=['scn_baby']), dict(k='geo', u=MOTHER, t=300, tags=['scn_mother']),
+                   dict(k='ev', u=MOTHER, t=1, seq=0, cat='family', msg='noop'),
+                   *[dict(k='ev', u=MOTHER, t=t, seq=i + 1, cat='family', msg=m) for i, (t, m) in enumerate(events)]]
+        samples = [dict(u=CHILD, t=t, state=dict(alive=True, hp=5, g=True, w=False, att=dict(kind='free'), phase='STAY_HOME',
+                                                  nest='INSIDE_SUPPORTED' if nest_after is not None and t >= nest_after else 'OUTSIDE', tags=['scn_baby']))
+                   for t in range(1, 301)]
+        end = dict(final=[], paths=[dict(each='baby', walks_home=True, steps=[('mother', r'seen:family:^carry pickup .*child=$subject\b')])])
+        return [r['verdict'] for r in endings(records, samples, end)]
+
+    def test_unpicked_child_that_walks_into_the_nest_passes(self):
+        self.assertEqual(self.verdicts(120), ['pass'])
+
+    def test_unpicked_child_that_never_reaches_the_nest_fails(self):
+        self.assertEqual(self.verdicts(None), ['fail'])
+
+    def test_picked_child_is_judged_by_its_chain_not_by_its_walk(self):
+        picked = [(50, f'carry pickup hold=brim purpose=PROTECT child={CHILD}')]
+        self.assertEqual(self.verdicts(None, picked), ['pass'])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -6805,7 +6805,8 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
     and the flight to the nest."""
     parent = uid(sid, 'mother')
     fam = _FLIGHT_FAM[kind]
-    smoke = dict(ticks=3000, expect=expect, forbid=_carry_transport_forbid)
+    # A beat line pairs the face shown with the face declared: any family beat where they differ fails the run.
+    smoke = dict(ticks=1800, expect=expect, forbid=[*_carry_transport_forbid, r'\[family\][^\n]* beat=\w+ face=(\w+) declared=(?!\1\b)'])
     if allow_fate:
         smoke['allow_fate'] = list(allow_fate)
     px, pz = _FLIGHT_ROOST
@@ -6830,9 +6831,10 @@ def _flight_scene(sid, kind, title, watch, wait, bold, attach, expect, note='', 
         smoke=smoke)
 
 
-# The predator has its own roost (a nest far on the other side): it takes it, and after the hunt flies back to it.
+# The predator has its own roost (a nest far on the other side): after the hunt it flies back to it (or perches on a far tree when
+# the pursuit ended with energy to spare), so it never claims the family's nest.
 _ROOST_ASSIGNED = r'\[home\] remilia [^\n]*assigned kind=care\b'
-_PREDATOR_LEAVES = r'\[predator\] remilia [^\n]*activity started; task=RETURN\b'
+_PREDATOR_LEAVES = r'\[predator\] remilia [^\n]*activity started; task=(?:RETURN|PERCH)\b'
 # A beat line pairs the face the presentation arbiter showed with the face the beat declared (they must be equal).
 _FLIGHT_BEAT = r'\[family\][^\n]* beat=%s face=(\w+) declared=\1 line=%s\b'
 _flight_timid = 'family_flight_timid'
@@ -6865,12 +6867,11 @@ _flight_scene(_flight_hat, 'marisa', '捕食种靠近，魔理沙把赤油抱上
     '约 5 秒开始接抱，20 秒内回窝放下', 75, 85,
     [r'\[family\][^\n]*carry flight choice .*gather=true',
      r'\[family\][^\n]*carry flight reaching child=\S+ distance=[1-9]',
-     r'\[family\][^\n]*carry pickup hold=brim purpose=PROTECT\b',
-     r'\[family\][^\n]*carry flight pickup ended aboard=[12]\b',
+     r'\[family\][^\n]*carry lift started hold=brim [^\n]*purpose=PROTECT\b',
+     r'\[family\][^\n]*carry flight pickup ended aboard=\d\b',
      _ROOST_ASSIGNED, _PREDATOR_LEAVES,
-     r'\[family\][^\n]*carry set down started reason=reached_nest\b',
-     _FLIGHT_BEAT % ('pickup', 'none')],
-    note='帽檐路线：辫子托上帽檐后同样不减速地跑向下一只，抱齐后直奔窝口放下。', pred_z=21)
+     r'\[family\][^\n]*carry set down started reason=(?:reached_nest|arrived_home)\b'],
+    note='帽檐路线：辫子托上帽檐（一只约 4.5 秒）后同样不减速地跑向下一只，抱齐后直奔窝口放下；俯冲落在抬升途中时，没抱上的一只自己走回或亲油二趟接回。', pred_z=21)
 
 # ====================================================================================================== which concern each scenario answers
 # Fresh NPC UUID on every start: confirmed death records are intentionally never reset by scene cleanup.
@@ -11988,16 +11989,21 @@ _scene_end(_walk_home, [(child, _ASHORE) for child in ('baby_a', 'baby_b', 'smal
                ('mother', r'seen:family:^carry pickup .*purpose=RETRIEVE child=$subject\b'),
                ('mother', r'seen:family:carry put down .*cause=release purpose=RETRIEVE child=$subject .*nest=(?:INSIDE_SUPPORTED|PARTIAL)')],
                post=[('$subject', _ASHORE + ' and nest_of.mother=true and nest=INSIDE_SUPPORTED')]))
-# The contract: at the end both children are inside the nest (INSIDE_SUPPORTED for most of the last 300 ticks; a calm child steps over
-# the doorway now and then). A gathered child is carried there and set down (a second trip for the second one is an ordinary retrieve
-# and counts); a child the parent left behind walks there by itself, is fetched, or is declared dead. Right after the put-down the
-# child is on the nest (rim or cushion), not OUTSIDE, within 40 ticks (a frightened baby may sit on the rim for a while).
+# The contract: every child ends delivered and calm at the nest. A gathered child is carried there and set down (a second trip for
+# the second one is an ordinary retrieve and counts); a child the parent left behind walks there by itself, is fetched, or is declared
+# dead. Within 40 ticks of the put-down the child is on the nest (rim or cushion), not OUTSIDE (a frightened baby may sit on the rim),
+# and it stays at the nest for 80% of the ticks 100-300 after the put-down. The scene ends before the hungry predator rests up and
+# hunts again (about 1900 ticks after its return), so that second sortie is not judged here; the end only needs both children
+# alive, free and on the ground (nobody left in a mouth or brim).
+# The bold Reimu carries both (a second trip counts); Marisa's 4.5 s brim lift may be cut short by the dive, so a child she could not
+# take must walk to the nest by itself; the timid parent takes one and leaves the other.
 for _flight_id, _carried, _cause, _nest in (
         (_flight_home, 2, 'release', '(?:INSIDE_SUPPORTED|PARTIAL)'),
-        (_flight_hat, 2, '(?:brim_hop|release)', '(?:INSIDE_SUPPORTED|PARTIAL|ON_RIM)'),
+        (_flight_hat, 1, '(?:brim_hop|release)', '(?:INSIDE_SUPPORTED|PARTIAL|ON_RIM)'),
         (_flight_timid, 1, 'release', '(?:INSIDE_SUPPORTED|PARTIAL)')):
-    _scene_end(_flight_id, [(child, _ASHORE + ' and nest=INSIDE_SUPPORTED', (300, .6)) for child in ('baby_a', 'baby_b')],
-               *[dict(each=child, autonomous_home=_carried < 2, post_within=40, steps=[
+    _scene_end(_flight_id, [(child, _ASHORE) for child in ('baby_a', 'baby_b')],
+               *[dict(each=child, walks_home=_carried < 2, post_within=40,
+                      hold=dict(after=300, span=200, share=.8, clauses=[('$subject', 'nest!=OUTSIDE')]), steps=[
                    ('mother', rf'seen:family:^carry pickup .*purpose=(?:PROTECT|RETRIEVE) child=$subject\b'),
                    ('mother', rf'seen:family:carry put down .*cause={_cause} purpose=(?:PROTECT|RETRIEVE) child=$subject .*nest={_nest}')],
                    post=[('$subject', _ASHORE + ' and nest!=OUTSIDE')])

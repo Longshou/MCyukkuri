@@ -1156,6 +1156,14 @@ class EndContext:
                                 break
                     else:
                         post = [result('END', 'no-evidence', 'window ended before postcondition sample', dict(u=None, t=after[0]))]
+                # ``hold``: the delivery stays delivered, judged over the ``span`` ticks that end ``after`` ticks past the step
+                # (calm, before a hungry predator's next sortie), not at the scene end where a child may have wandered to the doorway.
+                hold = path.get('hold')
+                if hold and all(r['verdict'] == 'pass' for r in post):
+                    at = after[0] + hold['after']
+                    post = post + (self.clauses([(who, pred, (hold['span'], hold['share'])) for who, pred in hold['clauses']], at, bound, True)
+                                   if at <= self.end else
+                                   [result('END', 'no-evidence', 'window ended before the hold sample', dict(u=None, t=after[0]))])
                 rejected[:] = [r for r in post if r['verdict'] != 'pass']
                 return (after, post) if all(r['verdict'] == 'pass' for r in post) else None
             emitter, seen = steps[index]
@@ -1221,13 +1229,15 @@ def endings(records, samples, end, raw=''):
             if not actors:
                 out.append(result('END', 'fail', 'missing path subject ' + path['each']))
             for actor in sorted(actors):
-                if path.get('autonomous_home'):
+                # ``walks_home``: a child never picked up must reach the nest on its own; one that was picked up is judged by its chain
+                # (a put-down that failed outside, say the carrier was struck, is then followed by the retrieve the chain demands).
+                if path.get('autonomous_home') or path.get('walks_home'):
                     events = [r for r in context.events if r.get('cat') == 'family'
                               and re.search(r'\bchild=' + re.escape(actor) + r'\b', r['msg'])]
                     picked = any(r['msg'].startswith('carry pickup hold=') for r in events)
                     outside = [r for r in events if r['msg'].startswith('carry put down reason=')
                                and re.search(r'\bnest=OUTSIDE\b', r['msg'])]
-                    if outside:
+                    if outside and path.get('autonomous_home'):
                         out.append(result('END', 'fail', 'carried child released OUTSIDE', outside[0]))
                         continue
                     if not picked:
