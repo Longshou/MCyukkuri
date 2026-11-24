@@ -308,10 +308,18 @@ public final class PresentationArbiter {
                 state.expression("teary");
                 return;
             }
-            if (!shell) state.animation(e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
-                    : e.onGround() && e.species().catchingBreath() && e.getDeltaMovement().horizontalDistanceSqr() <= 0.000001
-                    ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
-                    : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
+            if (!shell) {
+                boolean water = e.isInWaterOrBubble();
+                // An action that owns the body (a Grab lifting the young onto the brim, a climb) plays its own authored clip from
+                // its clock; the fright still sets the behaviour and the face below. In water the struggle clip stays the panic's.
+                var pose = water ? null : actionPose(e);
+                state.animation(pose != null ? pose.action()
+                        : water ? YukkuriAction.WATER_STRUGGLE
+                        : e.onGround() && e.species().catchingBreath() && e.getDeltaMovement().horizontalDistanceSqr() <= 0.000001
+                        ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
+                        : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
+                if (pose != null) state.animationStart(pose.startTick());
+            }
             // The frame retains the pre-decrement count used to choose the clip.
             state.expression(e.panicFace());
             state.behavior(e.isInWaterOrBubble() ? Behaviors.ESCAPE_WATER : shell ? Behaviors.SHELL_RETRACT : Behaviors.FLEE);
