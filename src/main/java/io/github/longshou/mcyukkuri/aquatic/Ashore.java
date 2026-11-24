@@ -144,8 +144,10 @@ final class Ashore implements Intent {
             if ((canLand || docked()) && youngLeaving(hat))
                 return List.of(() -> new Step.Wait(() -> !youngLeaving(hat), WAIT, Behaviors.BOAT_CALL));
             // No bank in hop reach: the hull is paddled in, with a stick or a free braid. A child hanging in her braid (carried through a
-            // capsize, say) keeps it busy, so it is set down on the hull first; with no place for it the Release fails for its real reason.
-            if (!canLand && held != null && new Paddle(hat.position(), ARRIVE).check(owner).reason() == Reason.NO_TOOL) {
+            // capsize, say) keeps it busy, so it is set down on the hull first when the hull has a place for it under her load rule; a
+            // full hull keeps her holding it (the paddle's own NO_TOOL says so) until its load changes.
+            if (!canLand && held != null && hat.restSpot(held) != null && hat.loadRefusal(owner, held) == null
+                    && new Paddle(hat.position(), ARRIVE).check(owner).reason() == Reason.NO_TOOL) {
                 GameplayLog.limited(owner, "aquatic", "land.release_held", WAIT,
                         "land sets down held child={} reason=no_free_braid", held.getUUID());
                 return List.of(() -> new Step.Do(new Release(held, hat)));
