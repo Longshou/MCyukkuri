@@ -88,7 +88,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** The body whose encounter with this one failed: not met again by encounter until their lines stop crossing. */
     Entity shunned;
     /** A walk given up for a body holding it up: not made again until the walk or that body changes ({@link #giveUp}). */
-    private record Declined(BlockPos target, int blocker, Vec3 at) {}
+    private record Declined(Vec3 errand, int blocker, Vec3 at) {}
     private Declined declined;
     private boolean declinedTold;
     /** Ticks after giving up in which the other party of a locked pair is left to go. */
@@ -209,26 +209,31 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /** Reissuing a walk is not progress: preserve the node index and timeout when the route is unchanged. */
     @Override public boolean moveTo(Path requested,double speed){
-        return moveTo(requested,speed,false);
+        return moveTo(requested,speed,false,null);
+    }
+
+    /** The same, with the walk's goal when the caller knows it: a route cut short by the blocker still goes to the same place. */
+    public boolean moveTo(Path requested,double speed,Vec3 errand){
+        return moveTo(requested,speed,false,errand);
     }
 
     public boolean moveToRetreat(Path requested,double speed){
         if(requested==null||!requested.canReach()||!SurfaceApproach.safeRetreatPath((YukkuriEntity)mob,requested,null)){
             stop();return false;
         }
-        return moveTo(requested,speed,true);
+        return moveTo(requested,speed,true,null);
     }
 
     public void retreatSteering(){retreating=true;}
     public boolean retreating(){return retreating;}
 
-    private boolean moveTo(Path requested,double speed,boolean retreat){
+    private boolean moveTo(Path requested,double speed,boolean retreat,Vec3 errand){
         if(requested==null){stop();return false;}
-        if(!retreat&&declines(requested.getTarget())){
+        if(!retreat&&declines(errand!=null?errand:requested.getTarget().getCenter())){
             stop();
             // Said once per given-up walk: the owning goal asks again every few ticks while the same blocker stays.
             if(!declinedTold)GameplayLog.event(mob,"move","walk refused target={} reason=given_up blocker=#{} at={}",
-                    requested.getTarget(),declined.blocker(),GameplayLog.at(declined.at()));
+                    GameplayLog.at(declined.errand()),declined.blocker(),GameplayLog.at(declined.at()));
             declinedTold=true;
             return false;
         }
@@ -647,7 +652,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     void giveUp(Vec3 errand, Entity blocker) {
         stop();
         stalled = true;
-        declined = errand == null ? null : new Declined(BlockPos.containing(errand), blocker.getId(), blocker.position());
+        declined = errand == null ? null : new Declined(errand, blocker.getId(), blocker.position());
         gaveUpAt = level.getGameTime();
         declinedTold = false;
         GameplayLog.event(mob, "move", "gave up walk target={} blocker=#{} at={}",
@@ -657,14 +662,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** Gave up a walk within the last {@code ticks}. */
     boolean gaveUpWithin(int ticks) { return level.getGameTime() - gaveUpAt <= ticks; }
 
-    /** The target of a given-up walk, while the body that held it up is alive and on the spot where it stood. */
-    private boolean declines(BlockPos target) {
+    /** The walk given up, while the body that held it up is alive and on the spot where it stood (a goal within 2 blocks is the same walk). */
+    private boolean declines(Vec3 walk) {
         var d = declined;
         if (d == null) return false;
         var blocker = level.getEntity(d.blocker());
         boolean present = blocker != null;
         double moved = present ? blocker.position().distanceTo(d.at()) : Double.POSITIVE_INFINITY;
-        if (YieldRule.refusalLifted(target.distSqr(d.target()) <= 2, present, present && blocker.isAlive(), moved)) {
+        if (YieldRule.refusalLifted(walk.subtract(d.errand()).multiply(1, 0, 1).lengthSqr() <= 4, present, present && blocker.isAlive(), moved)) {
             declined = null;
             declinedTold = false;
             return false;
@@ -887,7 +892,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         var detour = rebuildPath(target);
         if (detour == null || !detour.canReach() || detour.sameAs(path)
                 || retreating && !SurfaceApproach.safeRetreatPath((YukkuriEntity)mob,detour,null)
-                || !moveTo(detour, speedModifier, retreating)) return false;
+                || !moveTo(detour, speedModifier, retreating, null)) return false;
         replans++;
         return true;
     }

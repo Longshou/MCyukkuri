@@ -202,6 +202,13 @@ public final class SurfaceApproach {
         return navigation instanceof YukkuriGroundNavigation ground
                 ? ground.moveToRetreat(path, speed) : navigation.moveTo(path, speed);
     }
+
+    /** Start a route with its goal, so a route cut short by a blocker is still known as the same walk. */
+    private static boolean startRoute(YukkuriEntity actor, Path path, double speed, Vec3 destination) {
+        var navigation = actor.getNavigation();
+        return navigation instanceof YukkuriGroundNavigation ground
+                ? ground.moveTo(path, speed, destination) : navigation.moveTo(path, speed);
+    }
     /** The highest collision top under the body's square footprint within half a block of {@code near}, unchecked. */
     public static Vec3 surface(YukkuriEntity actor, Vec3 near) { return top(actor,near); }
     private static Vec3 top(YukkuriEntity actor, Vec3 near) {
@@ -1104,7 +1111,7 @@ public final class SurfaceApproach {
         }
         if(current.result==Result.BLOCKED&&now<current.retryAt)return observed(actor,Result.BLOCKED);
         var route=plan(actor,destination,body,!current.routed);
-        if(route!=null&&route.path()!=null&&(retreat?startRetreat(actor,route.path(),speed):navigation.moveTo(route.path(),speed))){
+        if(route!=null&&route.path()!=null&&(retreat?startRetreat(actor,route.path(),speed):startRoute(actor,route.path(),speed,destination))){
             current.target=navigation.getTargetPos();
             int suppressed = GameplayLog.admit(actor, "approach", "route", 200);
             if (suppressed >= 0) GameplayLog.limitedEvent(actor, "approach", suppressed,
