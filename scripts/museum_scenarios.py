@@ -2459,6 +2459,44 @@ add('rain_shelter', 'weather', '下雨跑去远处石顶下躲雨', '下雨跑�
                forbid=[r'\[body\][^\n]* invariant\b']))
 
 
+def _rain_motion_faults(trace, actors, idle_streak):
+    """Trace ticks where a run body shows its standing clip while its own legs move it, and where it shows a walk clip
+    standing still.
+
+    A neighbour's separation or shove moves a body while its own horizontal velocity stays zero (Motor.groundStep
+    clears the contact step before vanilla integrates it), and the presentation deliberately keeps the standing clip
+    for such a contact tick. Only the body's own travel counts as walking, so being shifted aside is not "idle while
+    moving"; a real idle clip on a driven walk has the body's own velocity."""
+    rev = {u: name for name, u in actors.items()}
+    prev_pos = {name: None for name in rev.values()}
+    idle_run = {name: 0 for name in rev.values()}
+    still_run = {name: 0 for name in rev.values()}
+    idle_while_moving, run_on_spot = [], []
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] != 'st' or row['u'] not in rev:
+            continue
+        name = rev[row['u']]
+        state = row['st']
+        p = state.get('p')
+        if not p:
+            continue
+        behavior, animation = state.get('behavior'), state.get('animation')
+        if prev_pos[name] is not None and state.get('g'):
+            step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
+            v = state.get('v') or (0, 0, 0)
+            own = math.hypot(v[0], v[2]) > 0.015
+            idle_run[name] = idle_run[name] + 1 if behavior == 'rain_run' and own and step > 0.015 and animation == 'idle' else 0
+            if idle_run[name] >= idle_streak:
+                idle_while_moving.append((name, row['t'], round(step, 4)))
+            # A body that has stopped (or only turns on the spot) shows a standing clip within two ticks.
+            still_run[name] = still_run[name] + 1 if step <= 0.001 and animation in ('run', 'waddle') else 0
+            if still_run[name] > 2:
+                run_on_spot.append((name, row['t']))
+        prev_pos[name] = p
+    return idle_while_moving, run_on_spot
+
+
 def _verify_rain_shelter(window, trace):
     actors = {name: _uuid_text('rain_shelter', name) for name in ('a', 'b', 'c')}
     depths, preferreds, end_ticks, end_cells = {}, {}, {}, {}
@@ -2492,9 +2530,8 @@ def _verify_rain_shelter(window, trace):
     last_in_rain = {}
     run_starts = {name: 0 for name in actors}
     prev_anim = {name: None for name in actors}
-    prev_pos = {name: None for name in actors}
-    idle_while_moving = []
     rev = {u: name for name, u in actors.items()}
+    idle_while_moving, _ = _rain_motion_faults(trace, actors, 1)
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
         if row['k'] != 'st' or row['u'] not in rev:
@@ -2510,11 +2547,6 @@ def _verify_rain_shelter(window, trace):
                     first_under = t
             elif t <= end_ticks[name]:
                 last_in_rain[name] = t
-            if prev_pos[name] is not None and row['st'].get('g') and beh == 'rain_run':
-                step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
-                if step > 0.015 and anim == 'idle':
-                    idle_while_moving.append((name, t, round(step, 4)))
-            prev_pos[name] = p
         if beh == 'rain_run' and anim == 'run' and prev_anim[name] != 'run':
             run_starts[name] += 1
         prev_anim[name] = anim
@@ -2586,28 +2618,7 @@ def _verify_rain_shelter_full(window, trace):
     if not (-277 <= ends['third'][0] <= -271 and ends['third'][1] <= 285):
         return f'third ended at {ends["third"]}, not under the backup roof'
     # Verify no idle while moving during rain_run.
-    rev = {front: 'front', second: 'second', third: 'third'}
-    prev_pos = {k: None for k in rev.values()}
-    idle_moving, run_on_spot, still_run, idle_run = [], [], {k: 0 for k in rev.values()}, {k: 0 for k in rev.values()}
-    for line in trace:
-        row = json.loads(line.split('[trace] ', 1)[1])
-        if row['k'] != 'st' or row['u'] not in rev:
-            continue
-        name = rev[row['u']]
-        p = row['st'].get('p')
-        beh, anim = row['st'].get('behavior'), row['st'].get('animation')
-        if p and prev_pos[name] is not None and row['st'].get('g'):
-            step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
-            # Three ticks in a row: a one- or two-tick contact shift (a passer-by's push) is rightly not a walk.
-            idle_run[name] = idle_run[name] + 1 if beh == 'rain_run' and step > 0.015 and anim == 'idle' else 0
-            if idle_run[name] >= 3:
-                idle_moving.append((name, row['t'], round(step, 4)))
-            # A body that has stopped (or only turns on the spot) shows a standing clip within two ticks, never a run clip on the spot.
-            still_run[name] = still_run[name] + 1 if step <= 0.001 and anim in ('run', 'waddle') else 0
-            if still_run[name] > 2:
-                run_on_spot.append((name, row['t']))
-        if p:
-            prev_pos[name] = p
+    idle_moving, run_on_spot = _rain_motion_faults(trace, {'front': front, 'second': second, 'third': third}, 3)
     if idle_moving:
         return f'idle clip shown while moving in rain_shelter_full: {idle_moving[:5]}'
     if run_on_spot:

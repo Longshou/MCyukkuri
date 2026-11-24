@@ -3,7 +3,7 @@ import json
 import re
 import unittest
 
-from museum_scenarios import BY_ID, FEET, S, _bank_pickup_retries, _carried_boarding, _held_pressure, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
+from museum_scenarios import BY_ID, FEET, S, _bank_pickup_retries, _carried_boarding, _held_pressure, _rain_motion_faults, _reimu_release_verify, _repeat_heat, _uuid_text, bank_dx, current_drift, elopement_result, sel, uid, uuid_nbt
 from smoke_fate import fates
 
 
@@ -290,6 +290,32 @@ class ShopKinRoom(unittest.TestCase):
         self.assertIn('outside its own bed', verify(log, trace + bold + sleeping(OTHER_CHILD, .5, 'OUTSIDE')))
         self.assertIn('asleep together', verify(log, trace + bold + timid[:19]))
         self.assertIn('overlap', verify(log, trace + bold + sleeping(OTHER_CHILD, .8)))
+
+
+class RainMotionFaults(unittest.TestCase):
+    """A contact shift moves a body with its own velocity at zero; the presentation keeps the standing clip for it."""
+
+    def state(self, tick, x, vx, animation, behavior='rain_run'):
+        st = dict(p=[x, 64.0, 294.5], v=[vx, -.0784, 0.0], g=True, behavior=behavior, animation=animation)
+        return '[trace] ' + json.dumps(dict(k='st', u=PARENT, t=tick, st=st))
+
+    def faults(self, rows, streak):
+        return _rain_motion_faults(rows, {'second': PARENT}, streak)
+
+    def test_a_separation_shift_is_not_a_walk_even_for_four_ticks(self):
+        rows = [self.state(t, 100.0 + .035 * t, 0.0, 'idle') for t in range(5)]
+        self.assertEqual(self.faults(rows, 3), ([], []))
+        self.assertEqual(self.faults(rows, 1), ([], []))
+
+    def test_the_bodys_own_walk_with_a_standing_clip_is_a_fault(self):
+        rows = [self.state(t, 100.0 + .05 * t, -.1, 'idle') for t in range(5)]
+        self.assertEqual([fault[:2] for fault in self.faults(rows, 3)[0]], [('second', 3), ('second', 4)])
+        self.assertEqual([fault[:2] for fault in self.faults(rows, 1)[0]],
+                         [('second', 1), ('second', 2), ('second', 3), ('second', 4)])
+
+    def test_a_run_clip_on_a_standing_body_is_a_fault(self):
+        rows = [self.state(t, 100.0, -.1, 'run') for t in range(5)]
+        self.assertEqual(self.faults(rows, 3)[1], [('second', 3), ('second', 4)])
 
 
 if __name__ == '__main__':

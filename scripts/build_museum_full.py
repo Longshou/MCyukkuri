@@ -63,6 +63,14 @@ ENV_TIME = {'noon': 'noon', 'dawn': '100', 'dusk': '12500', 'night': 'midnight'}
 SPEEDS = (('1x', 20), ('3x', 60), ('5x', 100), ('10x', 200), ('20x', 400))
 SPRINTS = (1200, 6000, 24000)
 
+# Scene late lines may schedule a global time or weather change (night_sleep schedules util/time_dawn). Every scene
+# start cancels these, so a change a previous scene scheduled cannot fire inside the next scene's window.
+TIME_UTILITIES = (('dawn', 'time set 100', '清晨'), ('noon', 'time set noon', '正午'),
+                  ('dusk', 'time set 12500', '黄昏'), ('night', 'time set midnight', '夜晚'))
+WEATHER_UTILITIES = (('clear', 'weather clear', '晴'), ('rain', 'weather rain 1000000', '雨（寒冷群系下雪）'),
+                     ('thunder', 'weather thunder 1000000', '雷暴'))
+UTIL_TIMERS = tuple(f'util/time_{tag}' for tag, _, _ in TIME_UTILITIES) + tuple(f'util/weather_{tag}' for tag, _, _ in WEATHER_UTILITIES)
+
 
 def js(value):
     return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
@@ -333,7 +341,8 @@ def build_pack(world):
                     cancel += [f'schedule clear {NS}:scn/{scenario.id}_retry{ri}_{k}' for k in range(retry.tries)]
         # Java retains every UUID that visited the field, even after capture, death or unloading.
         clear_entities = f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2} {field_mark(f)}'
-        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + reset_spawning + cancel + [clear_entities,
+        cancel_timers = [f'schedule clear {NS}:{name}' for name in UTIL_TIMERS]
+        sweep = [f'function {NS}:util/speed_1x', 'gamerule randomTickSpeed 3'] + cancel_random_ticks + reset_spawning + cancel + cancel_timers + [clear_entities,
                  f'function {NS}:field/{f.id}/terrain',
                  f'yukkuri clear {bx1} {by1} {bz1} {bx2} {by2} {bz2}']  # Remove drops from rebuilt containers without resetting twice.
         if f.id == 'village':
@@ -485,11 +494,10 @@ def build_pack(world):
         ])
 
     # ---------------------------------------------------------------- utilities
-    for tag_, command, text in (('dawn', 'time set 100', '清晨'), ('noon', 'time set noon', '正午'), ('dusk', 'time set 12500', '黄昏'), ('night', 'time set midnight', '夜晚')):
+    for tag_, command, text in TIME_UTILITIES:
         fn(f'util/time_{tag_}', [command, 'tellraw @a ' + _text(f'时间：{text}。', 'gray')])
-    fn('util/weather_clear', ['weather clear', 'tellraw @a ' + _text('天气：晴。', 'gray')])
-    fn('util/weather_rain', ['weather rain 1000000', 'tellraw @a ' + _text('天气：雨（寒冷群系下雪）。', 'gray')])
-    fn('util/weather_thunder', ['weather thunder 1000000', 'tellraw @a ' + _text('天气：雷暴。', 'gray')])
+    for tag_, command, text in WEATHER_UTILITIES:
+        fn(f'util/weather_{tag_}', [command, 'tellraw @a ' + _text(f'天气：{text}。', 'gray')])
     # Vanilla /tick needs permission level 3 and functions run at level 2.
     for label, rate in SPEEDS:
         fn(f'util/speed_{label}', [f'yukkuri speed rate {rate}'])
