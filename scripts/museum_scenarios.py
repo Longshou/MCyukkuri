@@ -4697,12 +4697,12 @@ add(_doll_carry, 'park', '无聊的魔理沙把布偶叼回窝边', '无聊的�
         item('mcyukkuri:marisa_doll', 1, 2, -5, 'doll_target'),
         street_trial(_doll_carry, 'marisa', 5, -5, 'doll_marisa', boldness=80, attachment=70, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='无聊的魔理沙',
-                     extra='YukkuriDailyLife:{Boredom:75}'),
+                     extra='YukkuriDailyLife:{Boredom:42}'),
         street_trial(_doll_carry, 'reimu', 2, -2, 'doll_reimu', boldness=60, attachment=20, friendliness=60,
                      nutrition=95, energy=95, yaw=180, label='低兴致的灵梦',
                      extra='YukkuriDailyLife:{Boredom:5}'),
-        home('doll_marisa', -3, -5), home('doll_reimu', 10, -5),
-    ], env=DAY, spot='picnic', vantage=(2, 4, 180, 18),
+    ], at_spawn=[home('doll_marisa', -3, -5), home('doll_reimu', 10, -5)],
+    env=DAY, spot='picnic', vantage=(2, 4, 180, 18),
     reads=[('读魔理沙', f'yukkuri status {sel("doll_marisa")} raw'),
            ('读灵梦', f'yukkuri status {sel("doll_reimu")} raw')])
 
@@ -4716,12 +4716,12 @@ add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '�
         item('mcyukkuri:marisa_doll', 1, 5, -1, 'doll_hungry'),
         street_trial(_doll_interrupt, 'marisa', 5, -5, 'int_fright', boldness=60, attachment=75, friendliness=60,
                      nutrition=95, energy=95, yaw=90, lead=True, label='受惊的魔理沙',
-                     extra='YukkuriDailyLife:{Boredom:80}'),
+                     extra='YukkuriDailyLife:{Boredom:42}'),
         street_trial(_doll_interrupt, 'marisa', 8, -1, 'int_hungry', boldness=80, attachment=75, friendliness=60,
                      nutrition=95, energy=95, yaw=90, label='变饿的魔理沙',
-                     extra='YukkuriDailyLife:{Boredom:80}'),
-        home('int_fright', -3, -5), home('int_hungry', 10, -5),
-    ], env=DAY, spot='picnic', vantage=(3, 5, 180, 18),
+                     extra='YukkuriDailyLife:{Boredom:42}'),
+    ], at_spawn=[home('int_fright', -3, -5), home('int_hungry', 10, -5)],
+    env=DAY, spot='picnic', vantage=(3, 5, 180, 18),
     reads=[('读受惊魔理沙', f'yukkuri status {sel("int_fright")} raw'),
            ('读变饿魔理沙', f'yukkuri status {sel("int_hungry")} raw')])
 

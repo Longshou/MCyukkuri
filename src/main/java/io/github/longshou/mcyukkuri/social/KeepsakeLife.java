@@ -191,9 +191,9 @@ public final class KeepsakeLife implements MotorOwner {
         var personality = entity.life().personality();
         double attach = SocialDisposition.ramp(personality.attachment(), 25, 70);
         if (attach <= 0) return false;
-        double boredomPressure = SocialDisposition.ramp(entity.dailyLife().boredom(), PlayWant.boredomFloor(entity), 80);
+        double boredomPressure = SocialDisposition.ramp(entity.dailyLife().boredom(), PlayWant.boredomFloor(entity), 60);
         double curiosity = personality.temperament().curious();
-        double chance = attach * (.35 + .45 * boredomPressure + .20 * curiosity);
+        double chance = attach * (.50 + .35 * boredomPressure + .15 * curiosity);
         double sightRange = Sight.range(personality.intelligence(), false);
         double maxCarry = 8.0 + personality.attachment() / 5.0 + entity.dailyLife().boredom() / 10.0;
 
@@ -235,6 +235,7 @@ public final class KeepsakeLife implements MotorOwner {
     public boolean canContinue() {
         if (phase != Phase.CARRY_OFF) return false;
         if (elapsed >= CARRY_LIMIT || !carryEligible(true)) return false;
+        if (placing || picking) return true;
         if (!carried().isEmpty()) {
             return !entity.blockPosition().equals(blockedDropAt) && ownBed() != null;
         }
@@ -247,10 +248,12 @@ public final class KeepsakeLife implements MotorOwner {
             return;
         }
         elapsed++;
-        if (carried().isEmpty()) {
+        if (picking) {
             tickFetch();
-        } else {
+        } else if (placing || !carried().isEmpty()) {
             tickCarryAndSetDown();
+        } else {
+            tickFetch();
         }
     }
 
