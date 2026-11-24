@@ -2592,7 +2592,7 @@ def _verify_rain_shelter_full(window, trace):
     # Verify no idle while moving during rain_run.
     rev = {front: 'front', second: 'second', third: 'third'}
     prev_pos = {k: None for k in rev.values()}
-    idle_moving, run_on_spot, still_run = [], [], {k: 0 for k in rev.values()}
+    idle_moving, run_on_spot, still_run, idle_run = [], [], {k: 0 for k in rev.values()}, {k: 0 for k in rev.values()}
     for line in trace:
         row = json.loads(line.split('[trace] ', 1)[1])
         if row['k'] != 'st' or row['u'] not in rev:
@@ -2602,7 +2602,9 @@ def _verify_rain_shelter_full(window, trace):
         beh, anim = row['st'].get('behavior'), row['st'].get('animation')
         if p and prev_pos[name] is not None and row['st'].get('g'):
             step = math.hypot(p[0] - prev_pos[name][0], p[2] - prev_pos[name][2])
-            if beh == 'rain_run' and step > 0.015 and anim == 'idle':
+            # Three ticks in a row: a one- or two-tick contact shift (a passer-by's push) is rightly not a walk.
+            idle_run[name] = idle_run[name] + 1 if beh == 'rain_run' and step > 0.015 and anim == 'idle' else 0
+            if idle_run[name] >= 3:
                 idle_moving.append((name, row['t'], round(step, 4)))
             # A body that has stopped (or only turns on the spot) shows a standing clip within two ticks, never a run clip on the spot.
             still_run[name] = still_run[name] + 1 if step <= 0.001 and anim in ('run', 'waddle') else 0
