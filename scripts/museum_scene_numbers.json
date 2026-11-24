@@ -354,6 +354,7 @@
     "park_slide": "PK-16",
     "park_tube": "PK-17",
     "park_rolling_toys": "PK-18",
-    "park_trampoline_contrast": "PK-19"
+    "park_trampoline_contrast": "PK-19",
+    "yield_lock_lane": "TN-74"
   }
 }

@@ -46,6 +46,22 @@ class YieldRuleTest {
         assertTrue(YieldRule.aYields(strongOpen, weakWall, 1, 2));
     }
 
+    @Test void exactly_one_yields_whoever_asks_and_the_one_that_cannot_never_does() {
+        double[] costs = {0, 1.2, 1.3, 3, 3.1, 16, 36};
+        for (boolean aCan : new boolean[] {true, false}) for (boolean bCan : new boolean[] {true, false}) {
+            if (!aCan && !bCan) continue;
+            for (double a : costs) for (double b : costs) for (int idA : new int[] {1, 2}) {
+                int idB = 3 - idA;
+                boolean fromA = YieldRule.aYields(aCan, bCan, a, b, idA, idB), fromB = YieldRule.aYields(bCan, aCan, b, a, idB, idA);
+                assertTrue(fromA != fromB, "both or neither yield for " + a + "/" + b + " ids " + idA + "/" + idB);
+                if (!aCan) assertFalse(fromA);
+                if (!bCan) assertFalse(fromB);
+                // The same inputs always give the same answer (the decision is stored once, but any later asker agrees).
+                assertEquals(fromA, YieldRule.aYields(aCan, bCan, a, b, idA, idB));
+            }
+        }
+    }
+
     @Test void ties_go_to_the_lower_id() {
         assertTrue(YieldRule.aYields(3, 3.1, 1, 2));
         assertFalse(YieldRule.aYields(3, 3.1, 2, 1));

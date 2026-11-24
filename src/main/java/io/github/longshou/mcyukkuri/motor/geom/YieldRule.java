@@ -42,4 +42,12 @@ public final class YieldRule {
     public static boolean aYields(double costA, double costB, int idA, int idB) {
         return tie(costA, costB) ? idA < idB : costA < costB;
     }
+
+    /**
+     * The same decision when a body may be unable to yield at all (it keeps its place, is leashed or panicking): the one that can yields;
+     * when both can, the lower cost does. Swapping the bodies swaps the answer, and with at least one able exactly one yields.
+     */
+    public static boolean aYields(boolean aCan, boolean bCan, double costA, double costB, int idA, int idB) {
+        return aCan && (!bCan || aYields(costA, costB, idA, idB));
+    }
 }

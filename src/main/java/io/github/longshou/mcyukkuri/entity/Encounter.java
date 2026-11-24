@@ -46,6 +46,8 @@ public final class Encounter {
     private static final double ARRIVED = .05, ABANDON = 8;
     /** The reason of an arrival asking a standing body to shift inward under a roof (the arrival keeps, the occupant yields). */
     private static final String MAKE_ROOM = "make_room";
+    /** The reason prefix of a pair the ordinary ways could not clear: the yielder walks to a stand off the other and drops the errand it was held up on. */
+    private static final String LOCKED = "locked";
 
     /** The way to a passing place: waypoints (the last is the stand) and their length. */
     public record Place(List<Vec3> legs, double length) {}
@@ -60,6 +62,9 @@ public final class Encounter {
     private final String reason;
     private final boolean deadEnd;
     private final boolean minor;
+    /** A locked pair (see {@link #settle}), and where the yielder's held-up walk was going. */
+    private final boolean lock;
+    private final Vec3 errand;
     private final int notice;
     /** The walk speed request the yielder gives way at, and the tick after which the encounter is failed. */
     private final double pace, length;
@@ -86,11 +91,13 @@ public final class Encounter {
         this.keeper = keeper; this.yielder = yielder; this.keeperNav = keeperNav; this.yielderNav = yielderNav;
         this.axis = axis; this.reason = reason; this.deadEnd = deadEnd; this.start = yielder.level().getGameTime();
         this.retreating = found.place() == null;
+        this.lock = reason.startsWith(LOCKED);
+        this.errand = yielderNav.errand();
         this.pace = Math.min(1.4, Math.max(1.2 + .2 * eagerness(yielder), yielderNav.requestedSpeed()));
         List<Vec3> way = retreating ? (found.farthestLength() > 0 ? List.of(found.farthest()) : List.of()) : found.place().legs();
         // A short detour is a veer on the way it was walking: aside and a little farther ahead (under 40 degrees, inside the turn limit), no turn round, no pause.
         Vec3 heading = yielderNav.heading();
-        boolean veer = !retreating && heading != null && found.place().length() < MINOR && found.place().legs().size() == 1;
+        boolean veer = !retreating && !lock && heading != null && found.place().length() < MINOR && found.place().legs().size() == 1;
         if (veer) {
             Vec3 stand = found.place().legs().getFirst(), ahead = stand.add(heading.scale(Math.max(.8, 1.25 * stand.distanceTo(yielder.position()))));
             if (standFree(yielder, yielder.position(), ahead)) way = List.of(ahead); else veer = false;
@@ -287,6 +294,48 @@ public final class Encounter {
         return true;
     }
 
+    /**
+     * The ordinary ways round a body that holds {@code a} up are spent (plan round it, ask it to step aside): one of the two goes
+     * elsewhere for now. A body that keeps its place (asleep, busy, standing at its stand) never moves for the other; a body walking
+     * itself and held up in turn may. The one that can yield, or of two the cheaper by the same rule as {@link #consider}, turns round,
+     * walks to the nearest stand clear of the other (none: it stays where it is) and drops the walk it was held up on, which is not
+     * made again against that body in that place until something changed. True when it was decided; false leaves the ordinary wait
+     * (the other is in an encounter or at a nest doorway, the walk is about the other, or neither can give way).
+     */
+    static boolean settle(YukkuriGroundNavigation an, YukkuriEntity a, YukkuriEntity b) {
+        if (a == b || !b.isAlive() || an.encounter != null || !mobile(a) || a.careApproach().cooperatingWith(b)
+                || NestDoorway.at(b, b.position()) != null || NestDoorway.doorstep(b) != null
+                || !(b.directNavigation() instanceof YukkuriGroundNavigation bn) || bn.encounter != null
+                || an.walksTo(b) || bn.walksTo(a) || bn.gaveUpWithin(YukkuriGroundNavigation.GAVE_UP_REST)) return false;
+        boolean ay = canYield(a), by = able(b) && canYield(b) && bn.walking();
+        if (!ay && !by) return false;
+        Vec3 u = away(an, a, b), perp = new Vec3(-u.z, 0, u.x);
+        Found fa = ay ? search(a, u, b.position(), Passage.halfWidth(b, perp), REACH) : null;
+        Found fb = by ? search(b, u.reverse(), a.position(), Passage.halfWidth(a, perp), REACH) : null;
+        double ca = ay ? YieldRule.cost(cost(fa), score(a, b)) : Double.POSITIVE_INFINITY, cb = by ? YieldRule.cost(cost(fb), score(b, a)) : Double.POSITIVE_INFINITY;
+        boolean aYields = YieldRule.aYields(ay, by, ca, cb, a.getId(), b.getId());
+        var keeper = aYields ? b : a;
+        var yielder = aYields ? a : b;
+        var found = aYields ? fa : fb;
+        String why = !(ay && by) ? "stays" : found.place() == null ? "no_place" : YieldRule.tie(ca, cb) ? "tie" : "cheaper";
+        // No stand in reach: it stays where it is and only drops the walk (a retreat to the farthest clear station is for a body being passed).
+        if (found.place() == null) found = new Found(null, yielder.position(), 0);
+        double gap = a.position().subtract(b.position()).multiply(1, 0, 1).length() - Passage.halfWidth(a, u) - Passage.halfWidth(b, u);
+        new Encounter(aYields ? bn : an, keeper, aYields ? an : bn, yielder, aYields ? u : u.reverse(), found, LOCKED + "_" + why, true)
+                .open(aYields ? ca : cb, aYields ? cb : ca, gap);
+        return true;
+    }
+
+    /**
+     * The way {@code from} retreats off {@code other}: the grid axis they are mostly apart along (a lane is straight, and a few hundredths
+     * of lateral drift would put the first station in its wall), or against its heading when they stand on one another.
+     */
+    private static Vec3 away(YukkuriGroundNavigation nav, YukkuriEntity from, YukkuriEntity other) {
+        Vec3 d = from.position().subtract(other.position()).multiply(1, 0, 1), heading = nav.heading();
+        if (d.lengthSqr() <= 1e-4) d = heading == null ? new Vec3(1, 0, 0) : heading.reverse();
+        return Math.abs(d.x) >= Math.abs(d.z) ? new Vec3(Math.signum(d.x), 0, 0) : new Vec3(0, 0, Math.signum(d.z));
+    }
+
     /** The walk's cost: its length, or with no place the way back's: open (clear to the search's end) or a known dead end (a wall short of it, costs most). */
     private static double cost(Found found) {
         return YieldRule.walkCost(found.place() != null, found.place() == null ? 0 : found.place().length(), found.farthestLength());
@@ -305,7 +354,8 @@ public final class Encounter {
         } else {
             boolean timid = eagerness(yielder) > .5;
             beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", timid ? "busy" : "wait_turn", 30, now);
-            if (keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", 20, now);
+            // A locked pair's keeper is not passing anyone (it may be asleep or eating): it makes no beat of its own.
+            if (!lock && keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", 20, now);
         }
     }
 
@@ -360,17 +410,19 @@ public final class Encounter {
     private String verdict(long now) {
         if (!keeper.isAlive() || !yielder.isAlive()) return fail("aborted", "dead");
         if (keeper.isPassenger() || yielder.isPassenger()) return fail("aborted", "carried");
-        if (keeper.life().isSleeping() || yielder.life().isSleeping()) return fail("aborted", "asleep");
-        if (keeper.isCommandPlaying() || yielder.isCommandPlaying()) return fail("aborted", "command");
+        // A locked pair's keeper is a body that keeps its place (asleep, busy): its state is no reason to stop the other leaving.
+        if (yielder.life().isSleeping() || !lock && keeper.life().isSleeping()) return fail("aborted", "asleep");
+        if (yielder.isCommandPlaying() || !lock && keeper.isCommandPlaying()) return fail("aborted", "command");
         if (yielder.isPanicking()) return fail("aborted", "panic");
-        if (keeper.level() != yielder.level() || keeper.distanceToSqr(yielder) > ABANDON * ABANDON) return fail("aborted", "apart");
-        if (makesRoom() && phase == Phase.WATCH) { cause = "room_made"; return "passed"; }
+        if (keeper.level() != yielder.level() || !lock && keeper.distanceToSqr(yielder) > ABANDON * ABANDON) return fail("aborted", "apart");
+        if ((makesRoom() || lock) && phase == Phase.WATCH) { cause = lock ? "placed" : "room_made"; return "passed"; }
         Vec3 apart = keeper.position().subtract(yielder.position()).multiply(1, 0, 1), keeps = keeperNav.heading();
         double passed = apart.dot(axis), widths = Passage.halfWidth(keeper, axis) + Passage.halfWidth(yielder, axis);
         // Passed: beyond the yielder along the lane, or heading away from it whichever way the keeper has turned.
-        if (passed > widths + Passage.MARGIN) { cause = "axis"; return "passed"; }
-        if (keeps != null && apart.dot(keeps) > widths + Passage.MARGIN) { cause = "heading"; return "passed"; }
-        if (!makesRoom()) {
+        // (A locked keeper is not passing: the yielder's own arrival at its stand ends it.)
+        if (!lock && passed > widths + Passage.MARGIN) { cause = "axis"; return "passed"; }
+        if (!lock && keeps != null && apart.dot(keeps) > widths + Passage.MARGIN) { cause = "heading"; return "passed"; }
+        if (!makesRoom() && !lock) {
             keeperIdle = keeperNav.walking() ? 0 : keeperIdle + 1;
             if (keeperIdle >= IDLE) {
                 // A keeper that stopped for good (its goal is here) beside the yielder, clear of its line, is no longer in the way: the pass is done.
@@ -394,7 +446,8 @@ public final class Encounter {
         if (yielderNav.encounter == this) yielderNav.encounter = null;
         if (keeperNav.encounter == this) keeperNav.encounter = null;
         keeperNav.stopWaiting(yielder);
-        if (!released) yielderNav.resumed();
+        if (lock) yielderNav.giveUp(errand, keeper);
+        else if (!released) yielderNav.resumed();
         if (!result.equals("passed")) { keeperNav.shunned = yielder; yielderNav.shunned = keeper; }
         GameplayLog.event(yielder, "move", "encounter end keeper=#{} yielder=#{} result={} cause={} ticks={} holds={} reason={}",
                 keeper.getId(), yielder.getId(), result, cause, now - start, holds, reason);

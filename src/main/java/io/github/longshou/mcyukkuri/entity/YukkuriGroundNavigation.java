@@ -74,6 +74,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private Vec3 observedGround; // Crossing observation only; never drives movement.
     /** The length of the way round to where the last step was aimed. */
     private double way;
+    private long gaveUpAt = -1000;
     private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000, goalTick = -1000, scanTick = -1000, encounterScan = -1000;
     private int blockedWindows, turnSide, replans, solidPlanned;
     private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
@@ -85,6 +86,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private boolean faceFirst;
     /** The body whose encounter with this one failed: not met again by encounter until their lines stop crossing. */
     Entity shunned;
+    /** A walk given up for a body holding it up: not made again while that body stays where it was ({@link #giveUp}). */
+    private record Declined(BlockPos target, int blocker, Vec3 at, long since, long until) {}
+    private Declined declined;
+    private boolean declinedTold;
+    /** How long a given-up walk stays refused at most, and the ticks after giving up in which the other party of a locked pair is left to go. */
+    private static final int DECLINE_TICKS = 1200;
+    static final int GAVE_UP_REST = 100;
+    private static final double STAYED = 1.5;
     private List<Footing> planning = List.of();
     private List<Entity> scan = List.of();
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
@@ -216,6 +225,14 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     private boolean moveTo(Path requested,double speed,boolean retreat){
         if(requested==null){stop();return false;}
+        if(!retreat&&declines(requested.getTarget())){
+            stop();
+            // Said once per given-up walk: the owning goal asks again every few ticks while the same blocker stays.
+            if(!declinedTold)GameplayLog.event(mob,"move","walk refused target={} reason=given_up blocker=#{} until={}",
+                    requested.getTarget(),declined.blocker(),declined.until());
+            declinedTold=true;
+            return false;
+        }
         if(!entityMove&&level.getGameTime()-goalTick>2)contactPeer=null;
         retreating=retreat;
         var planned=queries.get(requested);
@@ -619,6 +636,40 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /** A walk's Walk watchdog window restarts when the encounter decided how the pair passes. */
     void restarted() { replans++; }
 
+    /** Where the walk in hand goes (the surface approach's goal, else the route's target), or null when it goes nowhere. */
+    Vec3 errand() { return aimed != null ? goal(aimed) : walkingTarget == null ? null : Vec3.atBottomCenterOf(walkingTarget); }
+
+    /**
+     * The walk in hand is dropped because {@code blocker} holds it up and the ordinary ways did not clear it: it stops, the owning goal
+     * sees a finished walk, and the same target is not routed again (the request fails) while the blocker stays where it is, at most
+     * DECLINE_TICKS. A body that is asked for the same errand again is refused the same way, so it chooses another.
+     */
+    void giveUp(Vec3 errand, Entity blocker) {
+        stop();
+        stalled = true;
+        long now = level.getGameTime();
+        declined = errand == null ? null : new Declined(BlockPos.containing(errand), blocker.getId(), blocker.position(), now, now + DECLINE_TICKS);
+        gaveUpAt = now;
+        declinedTold = false;
+        GameplayLog.event(mob, "move", "gave up walk target={} blocker=#{} until={}", errand == null ? "none" : GameplayLog.at(errand), blocker.getId(), now + DECLINE_TICKS);
+    }
+
+    /** Gave up a walk within the last {@code ticks}. */
+    boolean gaveUpWithin(int ticks) { return level.getGameTime() - gaveUpAt <= ticks; }
+
+    /** The target of a given-up walk, while the body that held it up is alive and still where it was (a changed condition lifts the refusal). */
+    private boolean declines(BlockPos target) {
+        var d = declined;
+        if (d == null) return false;
+        var blocker = level.getEntity(d.blocker());
+        if (level.getGameTime() >= d.until() || blocker == null || !blocker.isAlive()
+                || blocker.position().subtract(d.at()).horizontalDistanceSqr() > STAYED * STAYED) {
+            declined = null;
+            return false;
+        }
+        return target.distSqr(d.target()) <= 2;
+    }
+
     /** The yielder is back on its own walk: vanilla's stuck clocks forget the time spent giving way and the route is rebuilt from where it stands. */
     void resumed() {
         timeoutCachedNode = Vec3i.ZERO; timeoutTimer = 0; timeoutLimit = 0; lastTimeoutCheck = level.getGameTime();
@@ -766,7 +817,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     /**
      * Samples progress every WINDOW ticks while walking (a path or a direct steer); only a walker held up by a footprint ahead
      * escalates, so nothing runs per tick. A body walking into it is an {@link Encounter}, decided once; otherwise the round is: plan
-     * round it (solid SOLID_TICKS), ask an idle one to move, wait, and plan again once the mark lapses.
+     * round it (solid SOLID_TICKS), ask an idle one to move, when it cannot or will not {@link Encounter#settle} the pair (one turns round
+     * and goes elsewhere, dropping the walk), else wait, and plan again once the mark lapses.
      */
     private void watch(YukkuriEntity animal) {
         long now = animal.level().getGameTime();
@@ -795,7 +847,7 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         boolean marked = round != null && round.until() > now;
         String action;
         if (!marked) action = replan(blocker, now) ? "replanned" : "no_alternative";
-        else if (round.asked()) action = "waiting";
+        else if (round.asked()) action = other instanceof YukkuriEntity body && Encounter.settle(this, animal, body) ? "locked" : "waiting";
         else {
             blockers.put(id, new Blocker(round.obstacle(), round.until(), true));
             if (other instanceof YukkuriEntity body) action = yieldRequest(animal, body, heading) ? "blocker_yields" : "blocker_busy";

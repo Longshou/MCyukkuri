@@ -4640,6 +4640,34 @@ add(_dead_end, 'town', '死胡同里迎面相遇：身后有路的一只转身�
     reads=[('读北侧成体', f'yukkuri status {sel("dead_north")} raw'),
            ('读南侧成体', f'yukkuri status {sel("dead_south")} raw')])
 
+# A one-cell lane (x 0, z -5..9) between a stone wall (west) and a glass front (east, the observer's side), closed at the south end; its
+# north end opens into a roofed three-cell room with a nest (z -8), as in street_corridor. One two-by-two side pocket (x 1..2, z 2..3) lies
+# in the lane's south half (two cells deep: a body that sleeps off the lane's centre moves the stand with it). A tired adult starts at the south end and walks home; two seconds later a pet that has dropped from
+# exhaustion sleeps in the middle of the lane (a fatigue sleep at energy 0: 28 s for a bold one, summoned late so the walk was planned over
+# a free lane, as a body that falls asleep in a lane mid-walk would be). The sleeper cannot be asked to move and there is no way round.
+_lock_lane = 'yield_lock_lane'
+_lock_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
+             box(-1, 0, -5, -1, 1, 9, 'minecraft:stone_bricks'),
+             box(1, 0, -5, 1, 1, 1, 'minecraft:glass'), box(1, 0, 4, 1, 1, 9, 'minecraft:glass'),
+             box(2, 0, 1, 2, 1, 1, 'minecraft:glass'), box(2, 0, 4, 2, 1, 4, 'minecraft:glass'), box(3, 0, 2, 3, 1, 3, 'minecraft:glass'),
+             box(-1, 0, 10, 1, 1, 10, 'minecraft:stone_bricks'),
+             box(-2, 0, -9, -2, 1, -6, 'minecraft:stone_bricks'), box(2, 0, -9, 2, 1, -6, 'minecraft:glass'),
+             box(-2, 0, -10, 2, 1, -10, 'minecraft:stone_bricks'), box(-2, 2, -10, 2, 2, -6, 'minecraft:oak_planks'),
+             block(0, 0, -8, 'mcyukkuri:yukkuri_nest[facing=south]')]
+add(_lock_lane, 'town', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃',
+    '镜头朝西：一格宽的窄巷，北端小屋里有疲倦成体的窝，南半段东侧有一个浅侧袋。成体从南端往窝走，两秒后一只困极的宠物倒在巷子中间睡着（约 28 秒），巷里没有别的路。'
+    '看走来的成体：被睡着的挡住后几秒内转过身、走进身后的侧袋，放弃这一趟回窝（头顶符号与台词），不顶着睡着的抖、不倒退；之后不再原样往里挤，睡着的醒来走开后才再回窝。',
+    '约 40 秒', [
+        *_lock_set,
+        yk('marisa', 0, 8, 'lane_walker', uuid=uid(_lock_lane, 'lane_walker'), label='往窝走的成体', lead=True, yaw=180,
+           energy=30, rest_wait=60, nutrition=45, boldness=70),
+    ], at_spawn=[home('lane_walker', 0, -8)],
+    late=[Retry(yk('reimu', 0, -1, 'lane_sleeper', uuid=uid(_lock_lane, 'lane_sleeper'), label='睡在巷中的宠物', yaw=180,
+                   energy=0, nutrition=60, boldness=90), sel('lane_walker'), tries=1, first=40)],
+    env=DAY, vantage=(10, 0, 90, 8),
+    reads=[('读往窝走的成体', f'yukkuri status {sel("lane_walker")} raw'),
+           ('读睡着的宠物', f'yukkuri status {sel("lane_sleeper")} raw')])
+
 _yard_x, _yard_z = BY_ID['town'].anchor
 
 
@@ -9090,7 +9118,7 @@ TOPICS = {
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1', 'pet_water_away': 'M1', 'pet_food_walled': 'M1', 'pet_food_empty': 'M1',
-    'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
+    'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
     'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5',
@@ -9233,16 +9261,67 @@ def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1):
                     return f'keeper stopped {found.group(4)} times in one encounter (stop and go)'
         if not began:
             return 'no encounter began'
-        for entry in trace:
-            row = json.loads(entry.split('[trace] ', 1)[1])
-            if row['k'] != 'st' or not span[0] <= row['t'] <= span[1] + 40:
-                continue
-            v, yaw = row['st']['v'], math.radians(row['st']['by'])
-            speed = math.hypot(v[0], v[2])
-            if speed > .05 and (v[0] * -math.sin(yaw) + v[2] * math.cos(yaw)) / speed < math.cos(math.radians(55)):
-                return f"{row['u']} moved {speed:.3f} blocks/tick more than 55 degrees off its facing at tick {row['t']} (a backward or sideways slide)"
-        return None
+        return _slides(trace, span[0], span[1] + 40)
     return verify
+
+
+def _slides(trace, first, last, who=None):
+    """The first tick in [first, last] at which a walker (``who``, or any) moves more than 55 degrees off its facing: a backward or sideways slide."""
+    for entry in trace:
+        row = json.loads(entry.split('[trace] ', 1)[1])
+        if row['k'] != 'st' or not first <= row['t'] <= last or who and row['u'] != who:
+            continue
+        v, yaw = row['st']['v'], math.radians(row['st']['by'])
+        speed = math.hypot(v[0], v[2])
+        if speed > .05 and (v[0] * -math.sin(yaw) + v[2] * math.cos(yaw)) / speed < math.cos(math.radians(55)):
+            return f"{row['u']} moved {speed:.3f} blocks/tick more than 55 degrees off its facing at tick {row['t']} (a backward or sideways slide)"
+    return None
+
+
+_lane_sleeper, _lane_walker = _uuid_text(_lock_lane, 'lane_sleeper'), _uuid_text(_lock_lane, 'lane_walker')
+_lane_who = rf'uuid=(?:{_lane_sleeper}|{_lane_walker})\b'
+_smoke(_lock_lane, 1500, [
+    rf'\[sleep\][^\n]*uuid={_lane_sleeper} [^\n]* begin source=fatigue full=true ',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,inf\) reason=locked_stays ',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter beat role=yielder beat=yield_notice face=\w+ line=\w+ ',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed cause=placed ',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* gave up walk target=\S+ blocker=#\d+ '],
+    forbid=[rf'\[move\][^\n]*{_lane_who}[^\n]* encounter end [^\n]* result=(?:stuck|timeout|aborted|no_place)\b',
+            rf'\[move\][^\n]*{_lane_who}[^\n]* ground path stopped reason=no_progress',
+            rf'\[move\][^\n]*uuid={_lane_sleeper} [^\n]* encounter begin '])
+
+
+def _lock_verify(window, trace):
+    """The lane's lock is resolved by the walker alone within about 100 ticks of its first blocked window (ladder: plan round, ask, settle): it
+    turns round before it walks (no sliding), the sleeper is never made to move, no blocked stretch of any pet lasts over 200 ticks, and the
+    walker is not held up again by the sleeper while it sleeps."""
+    blocked = sorted(int(m[1]) for m in re.finditer(rf'\[move\] \w+ #\d+ {_lane_who} t=(\d+)[^\n]* blocked by yukkuri ', window))
+    begin = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter begin ', window)
+    end = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter end ', window)
+    if not blocked or not begin or not end:
+        return 'the walker was never held up, or never began and ended an encounter'
+    stretches, first = [], blocked[0]
+    for before, now in pairwise(blocked):
+        if now - before > 120:
+            stretches.append((first, before))
+            first = now
+    stretches.append((first, blocked[-1]))
+    if any(last - first > 200 for first, last in stretches):
+        return f'a pet stayed blocked by a yukkuri for over 200 ticks: {stretches}'
+    if int(end[1]) - blocked[0] > 130:
+        return f'resolved {int(end[1]) - blocked[0]} ticks after the first blocked window (> 130)'
+    if int(begin[1]) - blocked[0] > 70:
+        return f'the pair was decided {int(begin[1]) - blocked[0]} ticks after the first blocked window (> 70)'
+    sleep_end = re.search(rf'\[sleep\] \w+ #\d+ uuid={_lane_sleeper} t=(\d+)[^\n]* end source=fatigue ', window)
+    if len(stretches) > 1 and (not sleep_end or stretches[1][0] < int(sleep_end[1])):
+        return f'the walker was held up again by the sleeper: {stretches}'
+    face = re.search(rf'uuid={_lane_walker} [^\n]* encounter face role=yielder beat=yield_notice declared=(\w+) shown=(\w+) ', window)
+    if not face or face[1] != face[2]:
+        return f'the yield_notice beat did not show the face it declared ({face and face.groups()})'
+    return _slides(trace, int(begin[1]), int(end[1]) + 40, _lane_walker)
+
+
+next(s for s in S if s.id == _lock_lane).smoke.update(verify=_lock_verify, verify_trace=True)
 
 
 for _scene, _verify in (('street_corridor', _encounter_verify(50, 25)), ('street_dead_end', _encounter_verify(50, 25, min_len=5))):
