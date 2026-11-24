@@ -21,13 +21,16 @@ public final class PlayMotion {
     /** Maximum heading mismatch (degrees) before moving forward; wider angles turn in place first. */
     private static final double TURN_FIRST_DEG = 35.0;
     private static final double SLIDE_TURN_DEG = 45.0;
+    /** How far in front of the mouth the ground navigation stops, a little over a body width of open ground. */
+    private static final double STANDOFF = 1.0;
 
     private PlayMotion() {}
 
     /**
-     * Builds shell-clearing ground waypoints from {@code body}'s current position to a pathfindable ground spot
-     * outside the facility footprint {@code [-halfW, +halfW] x [-halfD, +halfD]} aligned with {@code entryLocal}.
-     * Callers append {@code entryLocal} (when it lies inside the shell) and the interior route after these points.
+     * Builds shell-clearing ground waypoints from {@code body}'s current position to an open ground standoff
+     * {@link #STANDOFF} in front of the mouth, outside the facility footprint {@code [-halfW, +halfW] x [-halfD, +halfD]} and
+     * aligned with {@code entryLocal}. Ground navigation refuses a last step beside the shell, so it never aims there: callers
+     * append {@code entryLocal} and the interior route, which the body's own gait ({@link #routeStep}) walks from the standoff.
      */
     public static List<Vec3> approachWaypoints(YukkuriEntity body, BlockPos root, Direction facing,
                                                double halfW, double halfD, Vec3 entryLocal) {
@@ -43,7 +46,7 @@ public final class PlayMotion {
         double outerZ = entryClipped
                 ? (entryLocal.z >= 0 ? 1.0 : -1.0) * (halfD + margin)
                 : entryLocal.z;
-        Vec3 outerLocal = new Vec3(entryLocal.x, 0, outerZ);
+        Vec3 outerLocal = new Vec3(entryLocal.x, 0, outerZ + (entryLocal.z >= 0 ? STANDOFF : -STANDOFF));
         boolean needDetour = segmentHitsBox(loc.x, loc.z, outerLocal.x, outerLocal.z, padW - 0.15, padD - 0.15);
         if (needDetour) {
             double side = loc.x >= 0 ? 1.0 : -1.0;
