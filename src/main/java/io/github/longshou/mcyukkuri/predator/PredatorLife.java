@@ -1944,7 +1944,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (wantsMore) {
             double reach = (animal.getBbWidth() + eatRemains.getBbWidth()) * .5 + .18;
             if (animal.distanceToSqr(eatRemains) > reach * reach) {
-                SurfaceApproach.walk(animal, eatRemains.position(), 1);
+                SurfaceApproach.walkResult(animal, eatRemains.position(), eatRemains, 1);
             } else {
                 animal.getNavigation().stop();
                 if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");
