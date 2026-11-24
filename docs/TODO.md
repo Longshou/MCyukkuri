@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
 | 捕食种追击专用表情 | `.worktrees/wp-face-yield` | PresentationArbiter,FacePrecedence,反应表情调用处 |
+| PD-13 断亲离开 | `.worktrees/wp-severance-scenes` | museum_scenarios.py hat_crowd 拆分,museum_scene_numbers.json,playtest_watch.json |
 
 ## 玩法待办
 
