@@ -213,9 +213,17 @@ public final class EmotionCourse {
                 && entity.life().personality().temperament().is(Gate.ATTACHED);
     }
 
+    /**
+     * Grief for kin it was cut off from (the severed tie is in the pedigree) is carried while it lives on: face, pace and droop show it,
+     * but it does not hold the body where it stands, so the severed one goes on to live as a stray. A death or loss still pins it.
+     */
+    private boolean carried() {
+        return kind == Kind.GRIEF && about != null && FamilyData.get((ServerLevel)entity.level()).severed(entity.getUUID(), about);
+    }
+
     /** The selector tier for the current stage, or 0 when it owns no goal. */
     int goalPriority() {
-        if (kind == null) return 0;
+        if (kind == null || carried()) return 0;
         Stage s = stage().presentation();
         return switch (kind) {
             case GRIEF, TERROR -> s == Stage.PEAK ? 3 : s == Stage.EASING ? 6 : 0;

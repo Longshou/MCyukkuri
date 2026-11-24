@@ -7724,6 +7724,24 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         dx, dz = int(home[1]) - centre[0], int(home[2]) - centre[1]
         if dx * dx + dz * dz < 16 * 16:
             return f'{parent}: cut child assigned home ({home[1]},{home[2]}) within 16 blocks of old home {centre}'
+    # the severance is mutual and the child is a stray that lives on: both sides' queries and identity, then within 2 minutes of the
+    # parting beat it has walked out of the old range and does something of its own (not the mourning that used to pin it in place)
+    if not re.search(r'\[identity\][^\n]*uuid=' + child + r' t=(\d+)[^\n]* changed from=\w+ to=stray cause=severed', after_dep):
+        return f'{parent}: the severed child never became a stray (no identity changed to=stray cause=severed after it left)'
+    if re.search(r'\[family\][^\n]*uuid=' + child + r'[^\n]*(?:child separation lost=|missing kin call)', after_dep):
+        return f'{parent}: the severed child still looked for the parent after it left'
+    lived = None
+    for change in re.finditer(r'\[status\][^\n]*uuid=' + child + r' t=(\d+) dim=\S+ pos=(-?\d+), -?\d+, (-?\d+) behavior\.behavior: \S+ -> (\w+)', after_dep):
+        if int(change[1]) > turned + 2400:
+            break
+        if change[4] in ('idle', 'mourn', 'mourn_listless', 'mold_leave', 'mold_look_back', 'mold_plead') or change[4].startswith('water'):
+            continue
+        if (int(change[2]) - centre[0]) ** 2 + (int(change[3]) - centre[1]) ** 2 >= 16 * 16:
+            lived = change
+            break
+    if lived is None:
+        return (f'{parent}: the severed child did no stray activity outside the old range within 2400 ticks of its parting beat '
+                f'(parting beat at {turned})')
     if verdict == 'DRIVE_TEARFUL':
         parting, _ = at(r'\[choreo\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* beat=parting_begins face=', later)
         if parting is None or parting < departed:
