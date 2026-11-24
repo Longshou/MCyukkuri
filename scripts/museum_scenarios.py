@@ -7633,6 +7633,9 @@ _YOUNG2_NOURISHMENT, _HEAD_NOURISHMENT = 84000, 149100
 # Growth steps for an overload: the head young to 0.50, young 2 to 0.29, then the head young on in 5000-tick steps (each a roll
 # for the hull's load, 10 ticks apart). Nourishment (child index, ticks).
 _OVERLOAD_STEPS = ((3, 210000), (2, 120000), (3, 215000), (3, 220000), (3, 225000), (3, 230000), (3, 235000))
+# Heavier juvenile growth steps for hat_crowd: child 3 to 0.71..0.79 (load ratio 5.86..8.00, chance 0.83..0.88 per step,
+# >99.9998% across 7 rolls) while child 2 stays at 0.29 (0.37 of capacity on its own after child 3 is cut).
+_CROWD_OVERLOAD_STEPS = ((3, 300000), (2, 120000), (3, 306000), (3, 312000), (3, 318000), (3, 324000), (3, 330000))
 # One step into the warning only: the head young to 0.375 (load 0.96 of capacity).
 _WARNING_STEPS = ((3, 157500),)
 # The growth steps start after the smoke's chunk-reload check (tick 60 + 400 unloaded ticks) so the saved riders do not change under it.
@@ -8114,7 +8117,7 @@ _SULK_KID = dict(attachment=20, friendliness=60, boldness=45, self_control=70)
 pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
      '四位亲油各带两只孩子，孩子长大后帽船超载翻船，亲油稳住后转向最大的那只孩子取舍：依恋高的含泪说着道歉的话，等孩子上岸再下令；依恋低的冷脸一瞥就下令。被赶的孩子按自己的性格央求并走近（含泪的转过身、冷淡的推开）、僵住凝望或冷淡哼一声直接转身走远；亲眼看见或听见的兄弟姐妹会哭并在走远后目送，未感知到的不目送。孩子真走远了（离她八格外且看不见，或十六格外）才断绝关系，之后成为永久流浪幼体，不再喊亲亲油、也不回旧家范围安家',
      '约 3 分钟，建议倍速',
-     [*_overload_family('hat_crowd', 'normal', -4, False, '含泪·央求', out=3.0, stick=True, child3_traits=_PLEAD_KID, **_TEARFUL),
+     [*_overload_family('hat_crowd', 'normal', -4, False, '含泪·央求', out=7.0, stick=True, child3_traits=_PLEAD_KID, **_TEARFUL),
       # her third young, 16 blocks west of the bank and beyond her 16-block family range: a pen of its own (two-high oak fence west,
       # north and south, the stone wall closing the east side) with an apple and a full waterer inside, so it stays put and
       # neither sees nor hears the departing child
@@ -8131,8 +8134,8 @@ pond('hat_crowd', '超载翻船，亲油取舍', '超载翻船，亲油取舍',
       *_overload_family('hat_crowd', 'freeze', 2, False, '含泪·僵望', out=3.0, stick=True, child3_traits=_FREEZE_KID, **_TEARFUL),
       *_overload_family('hat_crowd', 'sulk', 6, False, '冷淡·哼走', out=5.0, stick=True, child3_traits=_SULK_KID, **_COLD)],
      late=[f'execute as {sel("normal")} on vehicle run tag @s add seat_reload',
-           *_overload_growth('normal', _OVERLOAD_STEPS), *_overload_growth('cold', _OVERLOAD_STEPS),
-           *_overload_growth('freeze', _OVERLOAD_STEPS), *_overload_growth('sulk', _OVERLOAD_STEPS)],
+           *_overload_growth('normal', _CROWD_OVERLOAD_STEPS), *_overload_growth('cold', _CROWD_OVERLOAD_STEPS),
+           *_overload_growth('freeze', _CROWD_OVERLOAD_STEPS), *_overload_growth('sulk', _CROWD_OVERLOAD_STEPS)],
      capture=dict(shots=(1, 600, 2400, 5200), sequences=((600, 5200, 200), (1400, 2600, 4))),
      note='先看翻船后亲油的表情和台词，再看被赶孩子上岸后的回应、走远与帽上兄弟姐妹的哭；日志依次是 [family] overload verdict（child、verdict、severity）→ overload beat start（她的话，[choreo] beat=verdict）→ overload orders child out → driven out begins（孩子 answer、pleads）→ [choreo] beat=plead|resist|stare、overload rebuffs pleader → [choreo] beat=turn_away、driven out sibling cries → driven out departed（distance、sight）→ parent dismissed child（repudiated=true）→ [choreo] beat=parting_begins；断亲只在孩子走远之后，孩子此后不再喊亲亲油。'
           '翻船靠成长时的随机抽签，一次没翻就重开；不强制翻船或存活，只有南侧两只孩子允许淹死，其余都要活着。',
