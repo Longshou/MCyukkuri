@@ -14,6 +14,7 @@
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
 | PK-02 院主步速 | `.worktrees/wp-owner-pace` | HumanStreet.followPace、park_walk 场景 |
 | TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
+| 公园其他游具演示 | `.worktrees/wp-doll-carry` | social/KeepsakeLife,MouthOccupancy,Facilities,YukkuriSocial,PlayLife,YukkuriGoals,museum_scenarios.py |
 
 ## 玩法待办
 
