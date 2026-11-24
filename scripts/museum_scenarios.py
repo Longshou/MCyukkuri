@@ -5210,7 +5210,11 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
            label='胆小的灵梦', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_CLEAN + _SNATCH_STILL),
-    ], at_spawn=[home('snatch_thief_a', 7, 4), home('snatch_thief_b', 17, 4)],
+    ], at_spawn=[home('snatch_thief_a', 7, 4), home('snatch_thief_b', 17, 4),
+                 # The pairs are on visiting terms with the other group, above the bully gate's neutral affinity: a freed thief
+                 # roams once its doll is home and never crosses to rob the other side's child.
+                 f'yukkuri scenario relate {sel("snatch_thief_a")} {sel("snatch_victim_b")} 8',
+                 f'yukkuri scenario relate {sel("snatch_thief_b")} {sel("snatch_victim_a")} 8'],
     late=[Retry(f'execute as @e[tag={tag("snatch_" + side)}] run attribute @s minecraft:generic.movement_speed base set 0.18',
                 f'@e[tag={tag("snatch_thief_" + side)},nbt={{YukkuriMouth:{{Purpose:"KEEPSAKE"}}}}]', tries=400, first=20)
           for side in ('a', 'b')],
