@@ -5175,9 +5175,10 @@ add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油
 # A doll is a keepsake only while the body beside it keeps it, and only a body with a nest of its own and a free mouth can take
 # one over (KeepsakeLife.canSnatch), so every taker gets a shed while no victim gets one: a bedless victim never picks its own
 # doll up before the scene does. A taker's nest stands five blocks behind it, outside the home-territory radius 3, or the taker
-# would warn the visitor off the nest instead of bullying it. Movement is pinned with the museum's own stand so a pair stays at
-# contact until the doll really changes mouths; the guarded release then lets each body play its own beat (the taker walks its
-# carry home, the robbed one answers), and a pair that never gets its bout stays put rather than drifting apart.
+# would warn the visitor off the nest instead of bullying it. Only the robbed bodies stand pinned, beside their dolls: a timid
+# victim steps aside from an oncoming adult whatever its own speed, so a pinned taker could no longer reach it. The takers walk
+# in on their own instead, and the guarded release frees a robbed body to play its own beat (puff or flee) once the doll
+# really changes mouths.
 _SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 
 _doll_snatch = 'doll_snatch'
@@ -5197,13 +5198,13 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
         yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
            boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
-           label='蛮横的魔理沙', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           label='蛮横的魔理沙', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},'),
         yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
            stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
            label='胆大的灵梦', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
         yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
            boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
-           label='蛮横的魔理沙', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           label='蛮横的魔理沙', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},'),
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
            label='胆小的灵梦', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
@@ -9895,17 +9896,15 @@ _smoke(_doll_snatch, 6400, [
     rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
     rf'\[social\][^\n]*uuid={_snatch_victim_b} [^\n]*aftermath what=doll taker={_snatch_thief_b} face=teary ',
     rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed face=teary declared=teary line=treasure_stolen where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer decision=flee',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
     rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
 ], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike ',
-           'SNATCH_VICTIM_A_PINNED', 'SNATCH_VICTIM_B_PINNED', 'SNATCH_THIEF_A_PINNED', 'SNATCH_THIEF_B_PINNED'])
+           'SNATCH_VICTIM_A_PINNED', 'SNATCH_VICTIM_B_PINNED'])
 next(s for s in S if s.id == _doll_snatch).smoke.update(
     verify=_verify_doll_snatch,
     commands=[
         (6300, f'execute if data entity {sel("snatch_victim_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_A_PINNED'),
         (6300, f'execute if data entity {sel("snatch_victim_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_VICTIM_B_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_a")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_A_PINNED'),
-        (6300, f'execute if data entity {sel("snatch_thief_b")} attributes[{{id:"minecraft:generic.movement_speed",base:0.0d}}] run say SNATCH_THIEF_B_PINNED'),
     ])
 
 _take_sleep_a = _uuid_text(_doll_take, 'take_sleep_a')
