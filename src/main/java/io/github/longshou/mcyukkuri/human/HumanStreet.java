@@ -787,6 +787,8 @@ final class HumanStreet {
         private boolean plazaRest, plazaSat;
         /** Scenario hook: the next outing takes the plaza without the roll. */
         private boolean plazaForced;
+        /** Scenario hook: the next stroll goes straight into the plaza rest, without the gate walk or the roll. */
+        private boolean plazaRestWanted;
         private Vec3 parkDestination;
         private PlayBlockEntity facility;
         private Seat seat;
@@ -831,6 +833,7 @@ final class HumanStreet {
         /** The paving the owner watches from its bench, or null when it is not resting at a plaza. */
         AABB plazaPaving() { return plazaSat && plaza != null ? plaza.paving() : null; }
         void forcePlaza() { plazaForced = true; }
+        void forcePlazaRest() { plazaRestWanted = true; }
         PlayBlockEntity parkFacility() { return parkLingering() && facility != null && !facility.isRemoved() ? facility : null; }
         List<PlayBlockEntity> parkFacilities() {
             if (!parkLingering() || parkFacilities.isEmpty()) return List.of();
@@ -854,7 +857,7 @@ final class HumanStreet {
             if (npc.tickCount % 10 == 0) noticePlazaCompany();
             // Ground navigation cannot create a path during the first airborne tick after a spawn.
             return npc.onGround() && npc.tickCount >= nextAt && !npc.leadingWalk() && !npc.isUsingItem()
-                    && (homeward || npc.streetResident() && npc.holdsPicnicFood() ? !npc.isTrading() : npc.streetActive());
+                    && (plazaRestWanted || (homeward || npc.streetResident() && npc.holdsPicnicFood() ? !npc.isTrading() : npc.streetActive()));
         }
 
         /** Reads the plaza's company before the outing: a wearer seen on the paving stays in the keeper's mind for a few seconds. */
@@ -882,6 +885,10 @@ final class HumanStreet {
                 if (npc.level().canSeeSky(npc.blockPosition()) && shelter()) return;
                 route(Vec3.atBottomCenterOf(npc.home()));
                 return;
+            }
+            if (plazaRestWanted) {
+                plazaRestWanted = false;
+                if (startPlazaRest()) return;
             }
             if (startOuting()) return;
             if (npc.getTags().contains(ShelterCartons.VOLUNTEER)) {
@@ -977,6 +984,20 @@ final class HumanStreet {
             }
             companions = new ArrayList<>(ready);
             leg = Leg.GATE;
+            return true;
+        }
+
+        /** Scenario hook: enters the plaza rest through the same pause, seat and sit steps the gate walk ends in. */
+        private boolean startPlazaRest() {
+            var site = TownMarkers.badgePlaza((ServerLevel) npc.level(), npc, 18);
+            if (site == null) return false;
+            companions = new ArrayList<>(npc.animals(Custody.Role.COMPANION).stream()
+                    .filter(pet -> pet.distanceToSqr(npc) <= 144).limit(2).toList());
+            if (companions.isEmpty()) return false;
+            for (var pet : companions) pet.outing().leave(npc, npc.yardBowl());
+            plaza = site;
+            destination = npc.position();
+            pauseAtPlaza();
             return true;
         }
 

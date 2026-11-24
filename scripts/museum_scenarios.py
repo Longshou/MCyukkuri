@@ -4077,10 +4077,10 @@ def _plaza_yard(with_pet=True):
     ]
 
 
-def _plaza_companion(name, line):
-    """The yard keeper's own companion."""
-    keeper = uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))
-    return [line, f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{keeper}}}']
+def _plaza_companion(name, line, keeper=_PLAZA_KEEPER):
+    """The keeper's own companion."""
+    owner = uuid_nbt(uid(_PLAZA, keeper))
+    return [line, f'data modify entity {sel(name)} {OWNED} set value {{Use:"companion",OwnerKind:"npc",Owner:{owner}}}']
 
 
 add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
@@ -4096,22 +4096,24 @@ add(_PLAZA, 'town', _PLAZA_TITLE, _PLAZA_TITLE,
 
 _RING = 'badge_plaza_stray'
 _RING_HOLDER = 'ring_holder'
-# name, kind, x, z, label, values. ring_cocky and ring_voided start just outside the south edge of the paving facing the east
-# bench (and beside the bell) so they stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, and their own
-# numbers send them to a ring stand the moment the keeper's badge enters the paving. Both are bold and low in self-control, so
-# whichever sighting turns into an arc sneers; a voided badge is read as no badge. ring_hungry starts 12 blocks off on the west
-# side (hungry and friendly: it comes to gaze enviously, and its low self-esteem keeps its own arc a sulk, never a sneer) and
-# ring_timid farther out, so its strolls keep it clear of the ring.
+# The keeper is its own slot: 'plaza_keeper' hashes to the third of the three bench cells the plaza keeps, while 'plaza_owner'
+# hashes to the second, the north bench whose sitter faces the paving the pet rests on.
+_RING_KEEPER = 'plaza_owner'
+# name, kind, x, z, label, values. The scene starts where its play does: ring_cocky and ring_voided stand on the ring cells
+# their own numbers send them to (boldness 90 leaves no shyness, so their ring gap is 1 and the nearest stand outside the
+# paving is the cell they start on), facing the paving where the badged pet rests within BadgeSocial SCAN_RADIUS (8); the
+# voided badge is read as no badge. Both are bold and low in self-control, so whichever sighting turns into an arc sneers.
+# ring_timid starts far off on the west side: its own shyness keeps it at a gap of five and its drive under it, so it only
+# logs the decision and strolls where it is.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -12, -8, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', 2, -5, '嚣张的流浪油', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 6, -5, '戴作废章的嚣张前宠物', dict(nutrition=90, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
 def _ring_yard():
-    """Yard 5 blocks north of the paving, inside the vantage view, with no bowl or nest to pull strays away."""
+    """The keeper's yard north of the plaza: its home and bowl, and the walk home the visit ends with."""
     return [
         box(2, 0, -13, 8, 2, -8, 'minecraft:air'),
         box(2, 0, -13, 8, 0, -13, 'minecraft:oak_fence[east=true,west=true]'),
@@ -4120,13 +4122,17 @@ def _ring_yard():
         box(7, 0, -8, 8, 0, -8, 'minecraft:oak_fence[east=true,west=true]'),
         'summon minecraft:marker ~5.5 ~ ~-10.5 {Rotation:[180f,0f],Tags:["mcy_no_carton","mcy_yard_pet_spawned"],'
         'data:{Low:[-3,-1,-2],High:[3,3,2]}}',
-        human('caretaker_sister', 5, -10, _PLAZA_KEEPER, 0, yaw=0, label='院主')[:-1]
-        + f',UUID:{uuid_nbt(uid(_PLAZA, _PLAZA_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}',
     ]
 
 
+def _ring_keeper():
+    """The keeper starts on the cell beside the north bench it takes, facing it, with its home and bowl in the yard."""
+    return [human('caretaker_sister', 7, 2, _RING_KEEPER, 0, yaw=180, label='院主')[:-1]
+            + f',UUID:{uuid_nbt(uid(_PLAZA, _RING_KEEPER))},HumanHome:{_plaza_pos(5, -10)}L,YardBowl:{_plaza_pos(4, -11)}L}}']
+
+
 def _ring_stray(scene, name, kind, x, z, label, values):
-    yaw = -135 if name == 'ring_cocky' else -160 if name == 'ring_voided' else -95
+    yaw = -22 if name == 'ring_cocky' else 22 if name == 'ring_voided' else -104
     att = 5 if name in ('ring_cocky', 'ring_voided') else 40
     if name != 'ring_voided':
         return yk(kind, x, z, name, uuid=uid(scene, name), label=label, intelligence=55, attachment=att,
@@ -4136,23 +4142,23 @@ def _ring_stray(scene, name, kind, x, z, label, values):
     return line.replace('Cooldown:0,History:[],Permits:[]}', 'Cooldown:0,History:[],Permits:[],VoidBadge:1b}')
 
 
-add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到广场边看佩章宠物',
-    '开场约 5 秒院主牵着白金章灵梦从北边院子出发，约 13 秒停在白篷长椅边、约 15 秒坐上长椅；南侧两只嚣张流浪油（其中一只戴着作废章）'
-    '看见章色后走到广场外圈，先到的一只盯着章气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚；'
-    '饿而友善的魔理沙也走到圈上羡慕地盯着章，另一只嚣张流浪在圈上张望，胆小魔理沙远远站住；作废章读作无章。',
-    '约 5 秒院主出发，13–15 秒落座；流浪随即走到圈上，先到的一只冷嘲（实测院主到长椅边后 0–42 秒），院主喝止安抚，友善的流浪在圈上羡慕地盯着章', [
+add(_RING, 'town', '流浪油在广场边盯上佩章的宠物', '流浪油盯着广场边佩章的宠物',
+    '开场院主在白篷下的长椅边坐下，白金章灵梦伏在长椅西边的石板上。西北、东北两只嚣张流浪油（东北那只戴着作废章）看见章色后走到广场外圈盯住灵梦，'
+    '胆小的魔理沙远远站住；先到的一只气鼓鼓地冷嘲，灵梦和气回应，院主从长椅上听见后喝止它一次、把灵梦搂住安抚。',
+    '开场约 1 秒落座；流浪油随即站上圈，十几秒内开始冷嘲，院主随即喝止并安抚灵梦；约 2 分钟后院主带灵梦从北边走回院子。', [
         'place template mcyukkuri:village/plains/badge_hall ~-13 ~-1 ~-11',
-        # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the cocky strays near the benches.
+        # A bell at the southeast plaza edge and a bed make the lot a village street whose heart keeps the strays near the benches.
         block(6, 0, 3, 'minecraft:bell[attachment=floor,facing=north]'),
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
-        # The badged pet starts inside the yard gate beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-11)[0]
+        *_ring_keeper(),
+        # The badged pet rests on the paving beside the bench, where the plaza rest leaves it: bored enough for an outing and on daily cooldown so it doesn't start a solo song on tick 3.
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 4, 4, z=0)[0]
                           .replace('Innate:[I;55,88,70,22,70]', 'Innate:[I;55,88,35,80,70]')
-                          .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400')),
+                          .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:2400'), _RING_KEEPER),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
-    ], env=DAY, vantage=(-9, 6, -125, 12),
-    at_spawn=[f'yukkuri human plaza_visit {sel(_PLAZA_KEEPER)}'],
+    ], env=DAY, vantage=(-4, -3, -80, 8),
+    at_spawn=[f'yukkuri human plaza_rest {sel(_RING_KEEPER)}'],
     reads=[('读佩章宠物', f'yukkuri status {sel(_RING_HOLDER)} raw'),
            *((f'读{stray[4]}', f'yukkuri status {sel(stray[0])} raw') for stray in _RING_STRAYS)])
 
@@ -11828,10 +11834,11 @@ next(s for s in S if s.id == _PLAZA).smoke = dict(ticks=3600, verify=_plaza_visi
 
 
 def _ring_stray_fates(window):
-    """Each decision and arrival matches its own values: the shy marisa keeps far off, the hungry friendly one comes near to gaze
-    enviously, and the two bold low-self-control strays walk in and stay long enough to see the badge."""
+    """Each decision and arrival matches its own values: the shy marisa keeps far off, and the two bold low-self-control strays
+    stand on the ring and stay long enough to see the badge."""
     x, z = BY_ID['town'].anchor
     holder = _uuid_text(_PLAZA, _RING_HOLDER)
+    keeper = _uuid_text(_PLAZA, _RING_KEEPER)
 
     def outside(px, pz):
         dx = max(x + 2 - (px + .5), (px + .5) - (x + 6), 0)
@@ -11841,7 +11848,7 @@ def _ring_stray_fates(window):
     arrived = 0
     ticks = [int(t) for t in re.findall(r'uuid=\S+ t=(\d+) ', window)]
     start, end = min(ticks), max(ticks)
-    rest = re.search(rf'uuid={_plaza_keeper_id} t=(\d+) [^\n]*action=outing_plaza_rest ', window)
+    rest = re.search(rf'uuid={keeper} t=(\d+) [^\n]*action=outing_plaza_rest ', window)
     if rest and int(rest[1]) - start > 800:
         return f'keeper took {int(rest[1]) - start} ticks to reach the plaza bench (expected <= 800)'
     for name, *_ in _RING_STRAYS:
@@ -11885,17 +11892,17 @@ def _ring_stray_fates(window):
                 return f'{actor} stayed blocked by a yukkuri or in no_progress for {last - first} ticks (expected <= 200)'
 
 
-# The scene itself provides the real start via at_spawn plaza_visit; smoke only places a passive viewer at the vantage so
+# The scene itself provides the real start via at_spawn plaza_rest; smoke only places a passive viewer at the vantage so
 # BadgeSocial uses the normal player-audience budget instead of the headless world bucket.
 next(s for s in S if s.id == _RING).smoke = dict(ticks=5400, verify=_ring_stray_fates, commands=[
-    (1, f'execute positioned {BY_ID["town"].anchor[0] - 5}.5 {FEET} {BY_ID["town"].anchor[1] + 1}.5 run yukkuri scenario tool_operator enter'),
+    (1, f'execute positioned {BY_ID["town"].anchor[0] - 4}.5 {FEET} {BY_ID["town"].anchor[1] - 3}.5 run yukkuri scenario tool_operator enter'),
     (5380, 'yukkuri scenario tool_operator leave'),
 ], expect=[
-    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_plaza_rest ',
-    rf'uuid={_plaza_keeper_id} [^\n]*action=outing_sit seat=',
+    rf'uuid={_uuid_text(_PLAZA, _RING_KEEPER)} [^\n]*action=outing_plaza_rest ',
+    rf'uuid={_uuid_text(_PLAZA, _RING_KEEPER)} [^\n]*action=outing_sit seat=',
     *[rf'\[badge\][^\n]*uuid={_uuid_text(_RING, name)} [^\n]*plaza ring decision' for name in ('ring_cocky', 'ring_voided')],
-    rf'uuid={_plaza_keeper_id} [^\n]*action=pet_help pet={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*where=plaza\b',
-    rf'uuid={_plaza_keeper_id} [^\n]*action=pet_comfort pet={_uuid_text(_PLAZA, _RING_HOLDER)} ',
+    rf'uuid={_uuid_text(_PLAZA, _RING_KEEPER)} [^\n]*action=pet_help pet={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*where=plaza\b',
+    rf'uuid={_uuid_text(_PLAZA, _RING_KEEPER)} [^\n]*action=pet_comfort pet={_uuid_text(_PLAZA, _RING_HOLDER)} ',
 ], forbid=[
     rf'\[badge\][^\n]*uuid={_uuid_text(_PLAZA, _RING_HOLDER)} [^\n]*plaza (?:walk|ring)',
     rf'\[badge\][^\n]*badge sight subject={_uuid_text(_RING, "ring_voided")} grade=[1-4]\b',

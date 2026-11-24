@@ -91,6 +91,11 @@ public final class HumanCommands {
                     npc.forcePlaza();
                     return 1;
                 })))
+                .then(Commands.literal("plaza_rest").then(Commands.argument("resident", EntityArgument.entity()).executes(c -> {
+                    if (!(EntityArgument.getEntity(c, "resident") instanceof HumanNpc npc)) { say(c, "resident must be a human"); return 0; }
+                    npc.forcePlazaRest();
+                    return 1;
+                })))
                 .then(Commands.literal("shop")
                         .then(Commands.literal("list").executes(HumanCommands::list))
                         .then(Commands.literal("test_membership").then(Commands.argument("site", BlockPosArgument.blockPos())

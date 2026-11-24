@@ -290,6 +290,7 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** Scenario hook: the next outing goes to the badge plaza without the choice roll. */
     public void forcePlaza() { stroll().forcePlaza(); }
+    public void forcePlazaRest() { stroll().forcePlazaRest(); }
     long streetFrownAfter() { return street.frownAfter(); }
     void streetFrown(long until) { street.frown(until); }
     public int careFood() { return careFood; }
