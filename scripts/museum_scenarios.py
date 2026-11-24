@@ -4101,9 +4101,9 @@ _RING_HOLDER = 'ring_holder'
 # for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
     ('ring_hungry', 'marisa', -9, -6, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=50, friendliness=5, boldness=90, self_control=20)),
+    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
     ('ring_timid', 'marisa', -7, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
-    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=50, friendliness=5, boldness=90, self_control=20)),
+    ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
 ]
 
 
