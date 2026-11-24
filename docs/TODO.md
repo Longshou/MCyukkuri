@@ -11,7 +11,6 @@
 | 场景开场等玩家就位再起演 | `.worktrees/wp-scene-hold` | scripts/build_museum_full.py、museum_dsl.py、smoke_museum.py、docs/roles/stager.md |
 | FM-22 带崽逃跑 | `.worktrees/wp-flight-carry` | family/ParentCarry、Reactions 威胁逃跑、family_flight_home 场景 |
 | PD-13 断亲离开演出 | `.worktrees/wp-severance-leave` | social/Bonds、aquatic/LeaveBehind、FamilySeparation、ChildCall、hat_crowd 场景 |
-| MD-27 尿急便急表情台词 | `.worktrees/wp-need-urge` | life 如厕规划、need_tell 场景 |
 | TN-48 家规被抓与 TN-57 认罚演出 | `.worktrees/wp-caught-penance` | pet/Conscience、ConscienceGoal、arc 场景 |
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
 | PK-02 院主步速 | `.worktrees/wp-owner-pace` | HumanStreet.followPace、park_walk 场景 |
