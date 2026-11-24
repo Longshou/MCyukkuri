@@ -7576,17 +7576,19 @@ def _carried_boarding(window, owner):
             return f'keeper failed to board {attempt[2]} with carried child {attempt[1]}'
 
 
-def _overload_hull(window, scene, parent, exceptional):
+def _overload_hull(window, scene, parent, exceptional, places=None):
     """What both overload scenes share: the family's hat was placed, every young took its real seat, and each logged capsize
-    roll agrees with the logged load. Returns (failure, owner, boats, overloaded_growth)."""
+    roll agrees with the logged load. Returns (failure, owner, boats, overloaded_growth). `places` names the seat each young's
+    real state produces; by default all three are still crawling, so the largest takes the head and the rest fill the brim
+    (user 2026-11-05)."""
     owner = _uuid_text(scene, parent)
     hulls = re.findall(r'\[hat\][^\n]* placed owner=' + owner + r' hat=(\S+)', window)
     if not hulls:
         return f'{parent}: hat was not placed', owner, None, False
     boat = re.escape(hulls[0])
     boats = '(?:' + '|'.join(map(re.escape, dict.fromkeys(hulls))) + ')'
-    # the largest young that fits takes the head, the rest fill the brim (user 2026-11-05)
-    places = ((1, 'CABIN'), (2, 'BRIM'), (3, 'HEAD')) if exceptional else ((2, 'BRIM'), (3, 'HEAD'))
+    if places is None:
+        places = ((1, 'CABIN'), (2, 'BRIM'), (3, 'HEAD')) if exceptional else ((2, 'BRIM'), (3, 'HEAD'))
     for child, place in places:
         if not re.search(r'\[hat\][^\n]*uuid=' + _uuid_text(scene, parent + str(child))
                          + r'[^\n]* scenario place hat=' + boat + r' place=' + place + r'\b', window):
@@ -7609,11 +7611,11 @@ def _overload_tradeoff(window, scene='hat_crowd', families=None):
     and cut children never settle back inside the 16-block banned range."""
     if families is None:
         families = (
-            ('normal', 'DRIVE_TEARFUL', 'plead', None),
-            ('cold', 'DRIVE_COLD', 'plead', None),
+            ('normal', 'DRIVE_TEARFUL', 'plead', None, None),
+            ('cold', 'DRIVE_COLD', 'plead', None, None),
         )
-    for parent, verdict, branch, far_actor in families:
-        failure, owner, boats, overloaded_growth = _overload_hull(window, scene, parent, False)
+    for parent, verdict, branch, far_actor, places in families:
+        failure, owner, boats, overloaded_growth = _overload_hull(window, scene, parent, False, places)
         if failure:
             return failure
         if not overloaded_growth:
@@ -8318,6 +8320,10 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
                  r'\[hat\][^\n]* scenario place [^\n]*place=BRIM\b',
                  r'\[hat\][^\n]* capsized cause=too_heavy\b[^\n]*thrown=[1-9]\b',
                  r'\[water\][^\n]* phase=(?:STRUGGLE|EXHAUSTED) -> RECOVER\b']
+# The head seat is the overflow for a young that cannot hop onto the brim by itself, and one that can hop always takes the brim
+# (PlacedHatEntity.places). The driven-out young here has already learnt to crawl, so it hops and sits on the brim; the smaller
+# young that has not learnt yet rides on the mother's head.
+_SEVER_SEATS = ((2, 'HEAD'), (3, 'BRIM'))
 
 
 def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False):
@@ -8341,7 +8347,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
             block(bank_dx(0) - 16, 0, -1, 'mcyukkuri:waterer{Water:8}'),
             item('minecraft:apple', 2, bank_dx(0) - 16, 1, 'far_food'),
         ]
-    families = ((parent, verdict, branch, far_actor),)
+    families = ((parent, verdict, branch, far_actor, _SEVER_SEATS),)
     pond(sid, title, title, watch, '约 2 分钟，建议倍速', actors,
          late=[f'execute as {sel(parent)} on vehicle run tag @s add seat_reload',
                *_overload_growth(parent, _CROWD_OVERLOAD_STEPS, first=first)],
