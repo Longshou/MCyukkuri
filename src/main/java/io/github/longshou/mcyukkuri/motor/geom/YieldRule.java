@@ -11,6 +11,8 @@ public final class YieldRule {
     public static final double REACH = 12, STATION = .5;
     /** Blocks of walking one unit of {@link #score} is worth, and the cost difference inside which the lower id yields. */
     public static final double K = 2, DEAD_BAND = .25;
+    /** How far (blocks) the body that gave up a walk may move and still count as keeping its place. */
+    public static final double STAYED = 1.5;
 
     private YieldRule() {}
 
@@ -49,5 +51,13 @@ public final class YieldRule {
      */
     public static boolean aYields(boolean aCan, boolean bCan, double costA, double costB, int idA, int idB) {
         return aCan && (!bCan || aYields(costA, costB, idA, idB));
+    }
+
+    /**
+     * A walk given up for a body is asked again only after a real change: the walk goes elsewhere, or that body is gone, dead or
+     * moved away from where it stood. Time alone never lifts it.
+     */
+    public static boolean refusalLifted(boolean sameTarget, boolean present, boolean alive, double moved) {
+        return !sameTarget || !present || !alive || moved > STAYED;
     }
 }

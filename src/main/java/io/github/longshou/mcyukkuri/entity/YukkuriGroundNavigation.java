@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.motor.geom.Detour;
+import io.github.longshou.mcyukkuri.motor.geom.YieldRule;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.settlement.GroupPits;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -86,14 +87,12 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private boolean faceFirst;
     /** The body whose encounter with this one failed: not met again by encounter until their lines stop crossing. */
     Entity shunned;
-    /** A walk given up for a body holding it up: not made again while that body stays where it was ({@link #giveUp}). */
-    private record Declined(BlockPos target, int blocker, Vec3 at, long since, long until) {}
+    /** A walk given up for a body holding it up: not made again until the walk or that body changes ({@link #giveUp}). */
+    private record Declined(BlockPos target, int blocker, Vec3 at) {}
     private Declined declined;
     private boolean declinedTold;
-    /** How long a given-up walk stays refused at most, and the ticks after giving up in which the other party of a locked pair is left to go. */
-    private static final int DECLINE_TICKS = 1200;
+    /** Ticks after giving up in which the other party of a locked pair is left to go. */
     static final int GAVE_UP_REST = 100;
-    private static final double STAYED = 1.5;
     private List<Footing> planning = List.of();
     private List<Entity> scan = List.of();
     /** Assigned by the parent constructor's createPathFinder call: no field initializer. */
@@ -228,8 +227,8 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
         if(!retreat&&declines(requested.getTarget())){
             stop();
             // Said once per given-up walk: the owning goal asks again every few ticks while the same blocker stays.
-            if(!declinedTold)GameplayLog.event(mob,"move","walk refused target={} reason=given_up blocker=#{} until={}",
-                    requested.getTarget(),declined.blocker(),declined.until());
+            if(!declinedTold)GameplayLog.event(mob,"move","walk refused target={} reason=given_up blocker=#{} at={}",
+                    requested.getTarget(),declined.blocker(),GameplayLog.at(declined.at()));
             declinedTold=true;
             return false;
         }
@@ -641,33 +640,36 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
 
     /**
      * The walk in hand is dropped because {@code blocker} holds it up and the ordinary ways did not clear it: it stops, the owning goal
-     * sees a finished walk, and the same target is not routed again (the request fails) while the blocker stays where it is, at most
-     * DECLINE_TICKS. A body that is asked for the same errand again is refused the same way, so it chooses another.
+     * sees a finished walk, and the same target is not routed again (the request fails) until the walk or that body really changes
+     * ({@link YieldRule#refusalLifted}); time alone never lifts it. A body asked for the same errand again is refused the same way, so it
+     * chooses another.
      */
     void giveUp(Vec3 errand, Entity blocker) {
         stop();
         stalled = true;
-        long now = level.getGameTime();
-        declined = errand == null ? null : new Declined(BlockPos.containing(errand), blocker.getId(), blocker.position(), now, now + DECLINE_TICKS);
-        gaveUpAt = now;
+        declined = errand == null ? null : new Declined(BlockPos.containing(errand), blocker.getId(), blocker.position());
+        gaveUpAt = level.getGameTime();
         declinedTold = false;
-        GameplayLog.event(mob, "move", "gave up walk target={} blocker=#{} until={}", errand == null ? "none" : GameplayLog.at(errand), blocker.getId(), now + DECLINE_TICKS);
+        GameplayLog.event(mob, "move", "gave up walk target={} blocker=#{} at={}",
+                errand == null ? "none" : GameplayLog.at(errand), blocker.getId(), GameplayLog.at(blocker.position()));
     }
 
     /** Gave up a walk within the last {@code ticks}. */
     boolean gaveUpWithin(int ticks) { return level.getGameTime() - gaveUpAt <= ticks; }
 
-    /** The target of a given-up walk, while the body that held it up is alive and still where it was (a changed condition lifts the refusal). */
+    /** The target of a given-up walk, while the body that held it up is alive and on the spot where it stood. */
     private boolean declines(BlockPos target) {
         var d = declined;
         if (d == null) return false;
         var blocker = level.getEntity(d.blocker());
-        if (level.getGameTime() >= d.until() || blocker == null || !blocker.isAlive()
-                || blocker.position().subtract(d.at()).horizontalDistanceSqr() > STAYED * STAYED) {
+        boolean present = blocker != null;
+        double moved = present ? blocker.position().distanceTo(d.at()) : Double.POSITIVE_INFINITY;
+        if (YieldRule.refusalLifted(target.distSqr(d.target()) <= 2, present, present && blocker.isAlive(), moved)) {
             declined = null;
+            declinedTold = false;
             return false;
         }
-        return target.distSqr(d.target()) <= 2;
+        return true;
     }
 
     /** The yielder is back on its own walk: vanilla's stuck clocks forget the time spent giving way and the route is rebuilt from where it stands. */

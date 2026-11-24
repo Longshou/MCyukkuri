@@ -244,7 +244,8 @@ public final class Encounter {
         return able(body) && NestDoorway.at(body, body.position()) == null && NestDoorway.doorstep(body) == null;
     }
 
-    private static boolean canYield(YukkuriEntity body) { return !body.isLeashed() && !body.isPanicking(); }
+    /** A body in a bound flight carry is not its own to turn aside (as with FRIGHT at {@code YukkuriEntity}); it waits or keeps as before. */
+    private static boolean canYield(YukkuriEntity body) { return !body.isLeashed() && !body.isPanicking() && !body.family().carry().bound(); }
 
     /** Looks for oncoming bodies round a walker; the first whose line crosses starts an encounter (or makes the walker wait for one running). */
     static void scan(YukkuriGroundNavigation nav, YukkuriEntity me, List<Entity> near) {
@@ -446,7 +447,7 @@ public final class Encounter {
         if (yielderNav.encounter == this) yielderNav.encounter = null;
         if (keeperNav.encounter == this) keeperNav.encounter = null;
         keeperNav.stopWaiting(yielder);
-        if (lock) yielderNav.giveUp(errand, keeper);
+        if (lock && canYield(yielder)) yielderNav.giveUp(errand, keeper);
         else if (!released) yielderNav.resumed();
         if (!result.equals("passed")) { keeperNav.shunned = yielder; yielderNav.shunned = keeper; }
         GameplayLog.event(yielder, "move", "encounter end keeper=#{} yielder=#{} result={} cause={} ticks={} holds={} reason={}",

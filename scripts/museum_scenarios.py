@@ -4644,7 +4644,8 @@ add(_dead_end, 'town', '死胡同里迎面相遇：身后有路的一只转身�
 # north end opens into a roofed three-cell room with a nest (z -8), as in street_corridor. One two-by-two side pocket (x 1..2, z 2..3) lies
 # in the lane's south half (two cells deep: a body that sleeps off the lane's centre moves the stand with it). A tired adult starts at the south end and walks home; two seconds later a pet that has dropped from
 # exhaustion sleeps in the middle of the lane (a fatigue sleep at energy 0: 28 s for a bold one, summoned late so the walk was planned over
-# a free lane, as a body that falls asleep in a lane mid-walk would be). The sleeper cannot be asked to move and there is no way round.
+# a free lane, as a body that falls asleep in a lane mid-walk would be). The sleeper cannot be asked to move and there is no way round. The
+# window runs past the old 1200-tick refusal (and past the sleeper's wake): the walker must not be sent at it again until it really moves.
 _lock_lane = 'yield_lock_lane'
 _lock_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
              box(-1, 0, -5, -1, 1, 9, 'minecraft:stone_bricks'),
@@ -4656,8 +4657,8 @@ _lock_set = [box(-3, -1, -11, 3, -1, 11, 'minecraft:stone_bricks'),
              block(0, 0, -8, 'mcyukkuri:yukkuri_nest[facing=south]')]
 add(_lock_lane, 'town', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃', '窄巷里睡着一只：走不过去的退到侧袋，这一趟先放弃',
     '镜头朝西：一格宽的窄巷，北端小屋里有疲倦成体的窝，南半段东侧有一个浅侧袋。成体从南端往窝走，两秒后一只困极的宠物倒在巷子中间睡着（约 28 秒），巷里没有别的路。'
-    '看走来的成体：被睡着的挡住后几秒内转过身、走进身后的侧袋，放弃这一趟回窝（头顶符号与台词），不顶着睡着的抖、不倒退；之后不再原样往里挤，睡着的醒来走开后才再回窝。',
-    '约 40 秒', [
+    '看走来的成体：被睡着的挡住后几秒内转过身、走进身后的侧袋，放弃这一趟回窝（头顶符号与台词），不顶着睡着的抖、不倒退；之后在侧袋里待着，睡着的只是醒来、人还挡在原处也不往里挤，直到它真的走开、巷子空了才再往窝走。',
+    '约 65 秒', [
         *_lock_set,
         yk('marisa', 0, 8, 'lane_walker', uuid=uid(_lock_lane, 'lane_walker'), label='往窝走的成体', lead=True, yaw=180,
            energy=30, rest_wait=60, nutrition=45, boldness=70),
@@ -9280,7 +9281,7 @@ def _slides(trace, first, last, who=None):
 
 _lane_sleeper, _lane_walker = _uuid_text(_lock_lane, 'lane_sleeper'), _uuid_text(_lock_lane, 'lane_walker')
 _lane_who = rf'uuid=(?:{_lane_sleeper}|{_lane_walker})\b'
-_smoke(_lock_lane, 1500, [
+_smoke(_lock_lane, 2500, [
     rf'\[sleep\][^\n]*uuid={_lane_sleeper} [^\n]* begin source=fatigue full=true ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,inf\) reason=locked_stays ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter beat role=yielder beat=yield_notice face=\w+ line=\w+ ',
@@ -9294,7 +9295,8 @@ _smoke(_lock_lane, 1500, [
 def _lock_verify(window, trace):
     """The lane's lock is resolved by the walker alone within about 100 ticks of its first blocked window (ladder: plan round, ask, settle): it
     turns round before it walks (no sliding), the sleeper is never made to move, no blocked stretch of any pet lasts over 200 ticks, and the
-    walker is not held up again by the sleeper while it sleeps."""
+    walker is never sent at the sleeper again while it still stands on the spot where it held the lane up - a wake alone changes nothing, only
+    a real move (> YieldRule.STAYED) lifts the refusal (the window runs past the old 1200-tick expiry)."""
     blocked = sorted(int(m[1]) for m in re.finditer(rf'\[move\] \w+ #\d+ {_lane_who} t=(\d+)[^\n]* blocked by yukkuri ', window))
     begin = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter begin ', window)
     end = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter end ', window)
@@ -9312,13 +9314,35 @@ def _lock_verify(window, trace):
         return f'resolved {int(end[1]) - blocked[0]} ticks after the first blocked window (> 130)'
     if int(begin[1]) - blocked[0] > 70:
         return f'the pair was decided {int(begin[1]) - blocked[0]} ticks after the first blocked window (> 70)'
-    sleep_end = re.search(rf'\[sleep\] \w+ #\d+ uuid={_lane_sleeper} t=(\d+)[^\n]* end source=fatigue ', window)
-    if len(stretches) > 1 and (not sleep_end or stretches[1][0] < int(sleep_end[1])):
-        return f'the walker was held up again by the sleeper: {stretches}'
     face = re.search(rf'uuid={_lane_walker} [^\n]* encounter face role=yielder beat=yield_notice declared=(\w+) shown=(\w+) ', window)
     if not face or face[1] != face[2]:
         return f'the yield_notice beat did not show the face it declared ({face and face.groups()})'
-    return _slides(trace, int(begin[1]), int(end[1]) + 40, _lane_walker)
+    if slide := _slides(trace, int(begin[1]), int(end[1]) + 40, _lane_walker):
+        return slide
+    gave = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* gave up walk target=\(([-\d.]+),([-\d.]+),([-\d.]+)\) blocker=#\d+ at=', window)
+    if not gave:
+        return 'the walker never gave up the walk held up by the sleeper'
+    gave_tick, errand = int(gave[1]), tuple(float(gave[g]) for g in (2, 3, 4))
+    samples = []
+    for line in trace:
+        row = json.loads(line.split('[trace] ', 1)[1])
+        if row['k'] == 'st' and row['u'] == _lane_sleeper:
+            samples.append((row['t'], tuple(row['st']['p'])))
+    stood = next((p for tick, p in reversed(samples) if tick <= gave_tick), None)
+    if stood is None:
+        return 'the sleeper left no trace position at the give-up'
+    def moved_by(tick):
+        return any(t <= tick and math.dist(p, stood) > 1.5 for t, p in samples)
+    for m in re.finditer(rf'\[approach\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* surface route started [^\n]* destination=\(([-\d.]+), ([-\d.]+), ([-\d.]+)\)', window):
+        tick = int(m[1])
+        if tick <= gave_tick or moved_by(tick):
+            continue
+        if math.dist(tuple(float(m[g]) for g in (2, 3, 4)), errand) <= 2:
+            return f'the walker was sent at the same target again at t={tick} while the sleeper stood where it held the lane up'
+    for start, _ in stretches[1:]:
+        if not moved_by(start):
+            return f'the walker was held up by the sleeper again at t={start} while it stood where it held the lane up: {stretches}'
+    return None
 
 
 next(s for s in S if s.id == _lock_lane).smoke.update(verify=_lock_verify, verify_trace=True)
