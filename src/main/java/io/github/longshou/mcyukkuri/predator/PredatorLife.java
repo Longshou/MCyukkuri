@@ -428,7 +428,8 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     public boolean divert(YukkuriEntity shield, YukkuriEntity child) {
         if (!threatens(child) || !readyExceptMeal() || !animal.family().adult() || !CombatCourage.willing(animal)
                 || animal.life().energy() < 20 || order() == Order.PEACEFUL || order() == Order.RETURN
-                || !mayHunt(shield) || !animal.hasLineOfSight(shield) || animal.distanceToSqr(shield) > 36) return false;
+                || !mayHunt(shield) || !animal.hasLineOfSight(shield)
+                || animal.position().subtract(shield.position()).horizontalDistanceSqr() > 36) return false;
         // An audible taunt redirects the real attack at once, including just after a bite.
         // Interrupting a mouthful uses the same real-food interruption path as other threats.
         boolean chasing = prey() != null;
@@ -1911,9 +1912,11 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         mode(false, reason);
         prey = null; food = null; corpse = null; destination = null; pendingRest = 0;
         task = Task.EAT; restTicks = ticks; restReason = reason; eatRemains = null;
+        // The meal after a kill gets its own clock: a long chase must not use up the pause's activity timeout.
+        this.ticks = 0;
         animal.getNavigation().stop(); animal.setPredatorFlying(false);
         GameplayLog.event(animal,"predator","eat pause started; reason={} ticks={} meal_ticks={} nutrition={} energy={}",
-                reason,ticks,animal.life().mealTicks(),animal.life().nutrition(),animal.life().energy());
+                reason,restTicks,animal.life().mealTicks(),animal.life().nutrition(),animal.life().energy());
     }
     /** The predator holds still while it chews, then keeps eating the nearby remains bite by bite until it is full or they are empty. */
     private void eat() {
@@ -1929,7 +1932,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (wantsMore) {
             double reach = (animal.getBbWidth() + eatRemains.getBbWidth()) * .5 + .18;
             if (animal.distanceToSqr(eatRemains) > reach * reach) {
-                if (animal.tickCount % 10 == 0) animal.getNavigation().moveTo(eatRemains, 1.0);
+                SurfaceApproach.walk(animal, eatRemains.position(), 1);
             } else {
                 animal.getNavigation().stop();
                 if (animal.life().mealTicks() == 0 && animal.life().canAcceptBodyFood()) takeRemains(eatRemains, "eat_pause");

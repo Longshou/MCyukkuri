@@ -203,7 +203,8 @@ public final class GriefLife {
                 if (++tauntTicks >= tauntHoldTicks()) { entity.fleeFrom(challenger); protectTicks = 160; }
                 return;
             }
-            if (entity.distanceToSqr(challenger) > 36 || !entity.hasLineOfSight(challenger)) {
+            // Ground distance: a hunter stooping at the child is 4-5 blocks above the defender, and the puff must still reach it.
+            if (entity.position().subtract(challenger.position()).horizontalDistanceSqr() > 36 || !entity.hasLineOfSight(challenger)) {
                 tauntTicks = 0;
                 if(protectTicks % 10 == 1) entity.getNavigation().moveTo(challenger,1.15);
                 return;

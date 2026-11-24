@@ -73,8 +73,10 @@ class Field:
 
     def chunks(self):
         x1, z1, x2, z2 = self.rect()
-        return {(x, z) for x in range(x1 // 16 * 16, x2 // 16 * 16 + 1, 16)
-                for z in range(z1 // 16 * 16, z2 // 16 * 16 + 1, 16)}
+        # One chunk ring beyond the field: an actor that steps just past the edge in a chase must keep ticking (a frozen body
+        # in an unloaded chunk reads as a predator stuck in the air).
+        return {(x, z) for x in range((x1 // 16 - 1) * 16, (x2 // 16 + 1) * 16 + 1, 16)
+                for z in range((z1 // 16 - 1) * 16, (z2 // 16 + 1) * 16 + 1, 16)}
 
     def clear_box(self):
         """Region that ``yukkuri clear`` sweeps: the field and its margin."""
