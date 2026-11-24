@@ -204,7 +204,7 @@ PROBE_COMMANDS = {
     'museum menu_seed': 'yukkuri museum menu_seed probe meadow',
     'scenario summon': 'yukkuri scenario summon "reimu,marisa" ~ ~ ~ {UUID:[I;0,0,0,1]}',
     'scenario vary': 'yukkuri scenario vary @s {boldness:[40,60]}',
-    'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
+    'scenario wound': 'yukkuri scenario wound @s', 'scenario bond': 'yukkuri scenario bond @s @s', 'scenario relate': 'yukkuri scenario relate @s @s -40', 'scenario mate': 'yukkuri scenario mate @s @s', 'scenario kin': 'yukkuri scenario kin @s @s false',
     'scenario push': 'yukkuri scenario push @s 0.5 0',
     'scenario grow': 'yukkuri scenario grow @s 0', 'scenario hold': 'yukkuri scenario hold @s on',
     'scenario aftermath': 'yukkuri scenario aftermath @s @s',
