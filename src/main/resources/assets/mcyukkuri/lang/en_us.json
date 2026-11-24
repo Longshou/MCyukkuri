@@ -112,6 +112,8 @@
   "factory.mcyukkuri.receive.refused.no_space": "There is no clear, dry spot in the booth within reach of both of us.",
   "dialogue.mcyukkuri.original.factory_receive_insult": "Puff! Stupid human!",
   "dialogue.mcyukkuri.original.predator_screech": "Uuaaah!",
+  "dialogue.mcyukkuri.original.doll_talk.sister": "Big sister... let's take it easy together...",
+  "dialogue.mcyukkuri.original.doll_talk.myamya": "Myamya... Big sister, are you listening to {self}?",
   "magnifier.mcyukkuri.outlook.calm": "Calm",
   "magnifier.mcyukkuri.outlook.guarded": "Wary",
   "magnifier.mcyukkuri.outlook.defiant": "Defiant",

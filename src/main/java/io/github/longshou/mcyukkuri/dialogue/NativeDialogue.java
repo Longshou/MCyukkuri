@@ -124,7 +124,7 @@ public final class NativeDialogue {
                  "food_reluctant", "food_spit", "uneasy", "bitter", "glow",
                          "mood_ok", "mood_bad", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
             // These lines answer an event as it happens.
-            case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide",
+            case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
                  "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",
                  "addr_predator_remilia", "addr_predator_flandre" -> 2;
             // A junk headwear being put on, refused, mocked or taken off answers the person handling the wearer right now.

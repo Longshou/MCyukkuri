@@ -274,6 +274,7 @@ public final class YukkuriLife {
         // A nap is leisure: real hunger ends it so the body can eat (a full sleep at energy 0 goes on to the end).
         if (!fullFatigueSleep && nutrition < 30) { stopFatigueRest("hunger"); return; }
         energy = Math.min(100, energy + (fullFatigueSleep ? 100f/fatigueLength : .05f));
+        if (fullFatigueSleep) entity.keepsake().onSleepTick(fatigueTicks, false);
         fatigueTicks++;
         if (!fullFatigueSleep) {
             if (fatigueTicks > fatigueLength) stopFatigueRest();

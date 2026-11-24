@@ -358,7 +358,8 @@
     {"id":"partner_blame","event":"partner_blame","zh":"把私通推给伴侣先开口","ja":"すっきりを誘ったのは伴侶だと責任を押しつける","en":"Blame the partner for starting the sukkiri","basis":["P"],"status":"ready","axis_refs":["common.narrate_own_action","common.third_person_self"]},
     {"id":"sukkiri_defiant","event":"sukkiri_defiant","zh":"鼓脸顶嘴，拒不认错","ja":"頬を膨らませて食ってかかり、謝らない","en":"Puff up and refuse to apologize","basis":["P"],"status":"ready","axis_refs":["common.puff","common.refusal_da"]},
     {"id":"sukkiri_lie","event":"sukkiri_lie","zh":"别过脸否认亲生","ja":"顔をそらして自分の子ではないと否定する","en":"Turn away and deny the little ones are its own","basis":["P"],"status":"ready","axis_refs":["common.refusal_da","common.little_one"]},
-    {"id":"sukkiri_naive","event":"sukkiri_naive","zh":"迎向主人，回头炫耀孩子","ja":"飼い主に駆け寄って、子を見せびらかす","en":"Run up to the owner and show off the little ones","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.happiness"]}
+    {"id":"sukkiri_naive","event":"sukkiri_naive","zh":"迎向主人，回头炫耀孩子","ja":"飼い主に駆け寄って、子を見せびらかす","en":"Run up to the owner and show off the little ones","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.happiness"]},
+    {"id":"doll_talk","event":"doll_talk","zh":"幼体对布偶搭话","ja":"子ゆっくりが人形に話しかける","en":"A young yukkuri talks to a doll","basis":["P"],"status":"ready","axis_refs":["common.happiness"]}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
@@ -524,7 +525,9 @@
     {"id":"beg_help.hide","event":"beg_help","zh":"帮帮{self}！它一直盯着{self}的吃的！","ja":"たすけて！ ごはんをじっとみてるよ！","en":"Help! It keeps staring at my food!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"beg_curse.stingy","event":"beg_curse","zh":"真小气！{self}走就是了！","ja":"けち！ もういくよ！","en":"Stingy! Fine, I'm going!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"factory_receive_insult","event":"factory_receive_insult","zh":"噗咕！笨蛋人类！","ja":"ぷくー！ばかにんげん！","en":"Puff! Stupid human!","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"predator_screech","event":"predator_screech","zh":"呜啊——！","ja":"うあーっ！","en":"Uuaaah!","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"predator_screech","event":"predator_screech","zh":"呜啊——！","ja":"うあーっ！","en":"Uuaaah!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"doll_talk.sister","event":"doll_talk","zh":"大姐姐……一起来油库里呀……","ja":"おねーちゃん……いっしょに ゆっくりしようね……","en":"Big sister... let's take it easy together...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"doll_talk.myamya","event":"doll_talk","zh":"咪呀咪呀……大姐姐，在听{self}说话吗？","ja":"みゃみゃ……おねーちゃん、おはなし きいてくれてるの？","en":"Myamya... Big sister, are you listening to {self}?","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.event.WildEvents;
@@ -44,7 +45,7 @@ import net.minecraft.world.phys.Vec3;
  * Nothing about the keepsake or ownership is persisted: phases are derived from real world and mouth state.
  */
 public final class KeepsakeLife implements MotorOwner {
-    public enum Phase { IDLE, CARRY_OFF }
+    public enum Phase { IDLE, CARRY_OFF, TALK }
 
     private static final int SCAN_INTERVAL = 160;
     private static final int CARRY_LIMIT = 600;
@@ -52,6 +53,9 @@ public final class KeepsakeLife implements MotorOwner {
     private static final int DONE_COOLDOWN = 600;
     private static final int NOTICE_PAUSE = 15;
     private static final int PICK_FACE_TICKS = 15;
+    private static final int TALK_TICKS = 60;
+    private static final double TALK_RANGE = 4.0;
+    private static final double PEER_GUARD_RANGE = 6.0;
     private static final double RIM_DROP_GAP = 0.32;
     private static final double SET_DOWN_MAX_RIM_DIST = 1.2;
 
@@ -64,8 +68,8 @@ public final class KeepsakeLife implements MotorOwner {
     private DropSpot dropSpot;
     private PlaceMouthItem placeAction;
     private BlockPos blockedDropAt;
-    private int cooldown, scanWait, elapsed, noticeTicks, carryTicks;
-    private boolean picking, placing, carryLogged, dropRefused;
+    private int cooldown, talkCooldown, scanWait, elapsed, noticeTicks, carryTicks, talkTicks;
+    private boolean picking, placing, carryLogged, dropRefused, talkAddressed;
     private Beat pendingBeat;
 
     public KeepsakeLife(YukkuriEntity entity) {
@@ -115,14 +119,20 @@ public final class KeepsakeLife implements MotorOwner {
         pendingBeat = new Beat(name, declaredFace, line, where, detail);
     }
 
-    private boolean baseEligible(boolean continuing) {
+    /** Shared beat logger for DailyLife doll nuzzle, LifeMeal held-out bite, and sleep-entry beats. */
+    public void emitExternalBeat(String name, String declaredFace, String line, String where, boolean speak, String detail) {
+        if (speak && !"none".equals(line)) entity.speakCue(line);
+        pendingBeat = new Beat(name, declaredFace, line, where, detail);
+    }
+
+    /** Shared eligibility for doll comfort / talk / meal-offer (called from DailyLife and LifeMeal too). */
+    public boolean comfortEligible(boolean allowDailyActive) {
         return entity.isAlive() && !entity.isRemoved() && !entity.inert()
                 && !entity.life().isSleeping() && !entity.isPanicking()
                 && !entity.isLeashed() && !entity.isPassenger()
-                && (continuing || entity.onGround())
                 && !entity.isInWaterOrBubble() && !entity.isOnFire()
                 && !WildEvents.reserved(entity) && !entity.isCommandPlaying()
-                && !entity.operations().active() && !entity.dailyLife().active()
+                && !entity.operations().active() && (allowDailyActive || !entity.dailyLife().active())
                 && !entity.playLife().active() && !entity.family().active()
                 && !entity.house().active() && !entity.groupInteraction().active()
                 && !entity.social().active() && !entity.habitat().active()
@@ -133,6 +143,10 @@ public final class KeepsakeLife implements MotorOwner {
                 && entity.status().identity() != Identity.STOCK
                 && !entity.profile().houseBody() && !entity.profile().dangerToYukkuri()
                 && !ExamSession.running(entity);
+    }
+
+    private boolean baseEligible(boolean continuing) {
+        return comfortEligible(false) && (continuing || entity.onGround());
     }
 
     private boolean carryEligible(boolean continuing) {
@@ -153,6 +167,7 @@ public final class KeepsakeLife implements MotorOwner {
     public void clock() {
         if (entity.level().isClientSide || entity.inert() || !entity.isAlive()) return;
         if (cooldown > 0) cooldown--;
+        if (talkCooldown > 0) talkCooldown--;
         if (scanWait > 0) scanWait--;
         // A body that kept a keepsake over water puts it down once it reaches dry ground outside the blocked cell.
         if (!carried().isEmpty() && phase == Phase.IDLE && !entity.blockPosition().equals(blockedDropAt)
@@ -176,6 +191,7 @@ public final class KeepsakeLife implements MotorOwner {
             return true;
         }
         if (phase != Phase.IDLE) return canContinue();
+        if (tryStartTalk()) return true;
         if (cooldown > 0 || scanWait > 0 || !carryEligible(false) || !mouth().freeForExternalWork()) return false;
         if (!PlayWant.wants(entity) || !TravelRange.nearHomeForLeisure(entity)) return false;
         CareBlockEntity bed = ownBed();
@@ -226,7 +242,34 @@ public final class KeepsakeLife implements MotorOwner {
         return true;
     }
 
+    private boolean tryStartTalk() {
+        if (talkCooldown > 0 || entity.family().adult()) return false;
+        if (!baseEligible(false) || entity.life().hasUrgentNeed()
+                || entity.life().nutrition() < 30 || entity.life().mealTicks() > 0) return false;
+        if (!Keepsakes.wantsComfort(entity)) return false;
+        if (Keepsakes.hasAwakePeerNear(level(), entity, PEER_GUARD_RANGE)) return false;
+        ItemEntity doll = Keepsakes.nearestVisibleDoll(level(), entity, TALK_RANGE, true);
+        if (doll == null) return false;
+        target = doll;
+        phase = Phase.TALK;
+        elapsed = 0;
+        talkTicks = 0;
+        talkAddressed = false;
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(doll, 30, 30);
+        return true;
+    }
+
     public boolean canContinue() {
+        if (phase == Phase.TALK) {
+            return talkTicks < TALK_TICKS && elapsed < TALK_TICKS + 40
+                    && baseEligible(true) && !entity.life().hasUrgentNeed()
+                    && entity.life().nutrition() >= 30 && entity.life().mealTicks() == 0
+                    && target != null && target.isAlive() && !target.isRemoved() && !target.isInWater()
+                    && Keepsakes.kinDoll(entity, target.getItem())
+                    && entity.distanceToSqr(target) <= (TALK_RANGE + 0.5) * (TALK_RANGE + 0.5)
+                    && !Keepsakes.hasAwakePeerNear(level(), entity, PEER_GUARD_RANGE);
+        }
         if (phase != Phase.CARRY_OFF) return false;
         if (elapsed >= CARRY_LIMIT || !carryEligible(true)) return false;
         if (placing || picking) return true;
@@ -242,12 +285,41 @@ public final class KeepsakeLife implements MotorOwner {
             return;
         }
         elapsed++;
+        if (phase == Phase.TALK) {
+            tickTalk();
+            return;
+        }
         if (picking) {
             tickFetch();
         } else if (placing || !carried().isEmpty()) {
             tickCarryAndSetDown();
         } else {
             tickFetch();
+        }
+    }
+
+    private void tickTalk() {
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(target, 30, 30);
+        if (!talkAddressed) {
+            float yaw = SurfaceApproach.yaw(entity.position(), target.position());
+            if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) > Face.FACE_ARRIVED) {
+                if (entity.motor().owner() != this || entity.motor().current() == null) {
+                    entity.motor().run(this, new Face(yaw));
+                }
+                return;
+            }
+            talkAddressed = true;
+            talkTicks = 0;
+            entity.showReaction(YukkuriAction.SWAY, "happy", "", TALK_TICKS);
+            emitBeat("address", "happy", "doll_talk", "ground", 0, "doll=" + target.getItem().getItem());
+            return;
+        }
+        talkTicks++;
+        if (talkTicks >= TALK_TICKS) {
+            int attachment = entity.life().personality().attachment();
+            talkCooldown = 600 + Math.round((100 - attachment) * 6f);
+            finish();
         }
     }
 
@@ -426,6 +498,8 @@ public final class KeepsakeLife implements MotorOwner {
             if (doll != null) {
                 float yaw = SurfaceApproach.yaw(entity.position(), doll.position());
                 Motor.face(entity, yaw);
+                // Replace any lingering awake reaction (e.g. nuzzle_done) so the sleeping face is honestly "sleep".
+                entity.showReaction("sleep", "", 25);
             }
             return;
         }
@@ -434,7 +508,11 @@ public final class KeepsakeLife implements MotorOwner {
             if (doll != null) {
                 // The doll's own spot says whether it lies in the nest hollow or on open ground beside her.
                 String where = NestDoorway.at(entity, doll.position()) != null ? "bed" : "ground";
-                emitBeat("sleep", "sleep", "sleep", where, 0, "");
+                double dist = entity.position().subtract(doll.position()).horizontalDistance();
+                float targetYaw = SurfaceApproach.yaw(entity.position(), doll.position());
+                float yawDiff = Math.abs(Mth.wrapDegrees(targetYaw - entity.yBodyRot));
+                String detail = String.format(Locale.ROOT, "dollDist=%.2f yawDiff=%.1f", dist, yawDiff);
+                emitExternalBeat("sleep", "sleep", "sleep", where, false, detail);
             }
             return;
         }
@@ -473,17 +551,20 @@ public final class KeepsakeLife implements MotorOwner {
         elapsed = 0;
         noticeTicks = 0;
         carryTicks = 0;
+        talkTicks = 0;
         picking = false;
         placing = false;
         placeAction = null;
         carryLogged = false;
         dropRefused = false;
+        talkAddressed = false;
         SurfaceApproach.stopWalking(entity);
     }
 
     public CompoundTag save() {
         var tag = new CompoundTag();
         tag.putInt("Cooldown", cooldown);
+        tag.putInt("TalkCooldown", talkCooldown);
         return tag;
     }
 
@@ -492,6 +573,7 @@ public final class KeepsakeLife implements MotorOwner {
         blockedDropAt = null;
         pendingBeat = null;
         cooldown = Math.clamp(tag.getInt("Cooldown"), 0, 24000);
+        talkCooldown = Math.clamp(tag.getInt("TalkCooldown"), 0, 24000);
     }
 
     /** The dry spot beside her own nest's rim: the mouth lets go anywhere but inside the nest hollow. */

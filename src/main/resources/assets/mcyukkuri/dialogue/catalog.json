@@ -93020,6 +93020,30 @@
     }
   },
   {
+    "id": "doll_talk.sister",
+    "key": "dialogue.mcyukkuri.original.doll_talk.sister",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "doll_talk"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "doll_talk.myamya",
+    "key": "dialogue.mcyukkuri.original.doll_talk.myamya",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "doll_talk"
+    ],
+    "ticks": 123,
+    "sound": ""
+  },
+  {
     "id": "deficient_babble",
     "key": "dialogue.mcyukkuri.deficient.babble",
     "origin": "project-original",

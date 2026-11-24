@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.Facilities;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.perception.Senses;
@@ -30,6 +31,58 @@ public final class Keepsakes {
         if (stack.isEmpty() || !Facilities.doll(stack)) return false;
         var variant = entity.getVariant();
         return variant == YukkuriVariant.REIMU || variant == YukkuriVariant.MARISA;
+    }
+
+    /** True when the doll matches this body's own species. */
+    public static boolean ownKindDoll(YukkuriEntity entity, ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        return switch (entity.getVariant()) {
+            case REIMU -> stack.is(Facilities.ITEMS.get("reimu_doll").get());
+            case MARISA -> stack.is(Facilities.ITEMS.get("marisa_doll").get());
+            default -> false;
+        };
+    }
+
+    /**
+     * A clever child only treats a doll of its own kind as kin; a dull child (intelligence < 40)
+     * or a baby takes any doll for kin.
+     */
+    public static boolean kinDoll(YukkuriEntity entity, ItemStack stack) {
+        if (!fond(entity, stack)) return false;
+        if (entity.family().stage() == FamilyLife.Stage.BABY || entity.life().personality().intelligence() < 40) return true;
+        return ownKindDoll(entity, stack);
+    }
+
+    /** Bold, unattached bodies never seek comfort or talk to a doll. */
+    public static boolean attachedOrTimid(YukkuriEntity entity) {
+        var personality = entity.life().personality();
+        return personality.attachment() >= 30 || personality.temperament().timid() >= Temperament.TOP35;
+    }
+
+    /** Loneliness (existing affection need) or timid unease drives doll comfort and child talk. */
+    public static boolean wantsComfort(YukkuriEntity entity) {
+        if (!attachedOrTimid(entity)) return false;
+        var personality = entity.life().personality();
+        if (entity.dailyLife().affectionNeed() >= personality.affectionThreshold()) return true;
+        return personality.temperament().timid() >= Temperament.TOP35 && entity.mind().unease() >= 25;
+    }
+
+    public static boolean hasAwakePeerNear(ServerLevel level, YukkuriEntity self, double radius) {
+        double maxSq = radius * radius;
+        return !level.getEntitiesOfClass(YukkuriEntity.class, self.getBoundingBox().inflate(radius),
+                other -> other != self && Senses.awake(other) && self.distanceToSqr(other) <= maxSq).isEmpty();
+    }
+
+    /** Nearest loose, dry doll visible through the shared perception layer. */
+    public static ItemEntity nearestVisibleDoll(ServerLevel level, YukkuriEntity entity, double radius, boolean requireKin) {
+        double maxSq = radius * radius;
+        return level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(radius, 3, radius),
+                item -> item.isAlive() && !item.isRemoved() && !item.isInWater()
+                        && (requireKin ? kinDoll(entity, item.getItem()) : fond(entity, item.getItem()))
+                        && entity.life().dryStand(item.blockPosition())
+                        && Senses.sees(entity, item)
+                        && entity.distanceToSqr(item) <= maxSq)
+                .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
     public static boolean hasNearBed(ServerLevel level, YukkuriEntity entity, Vec3 bedCentre) {

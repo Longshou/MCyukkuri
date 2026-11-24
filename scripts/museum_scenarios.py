@@ -3308,6 +3308,38 @@ add('pet_door_return', 'house', '困倦的院宠穿门回屋睡觉', '困倦的�
     ], late=[home('return_pet', 0, 4), set_status('return_pet', 'needs.energy', 30)],
     env=DAY, vantage=(-3, 11, -135, 15, 0), reads=[('读院宠归属与住所', f'yukkuri status {sel("return_pet")} raw')])
 
+_doll_comfort = 'doll_comfort_sleep'
+add(_doll_comfort, 'house', '孤单宠物蹭布偶并面向它入睡', '孤单宠物蹭布偶并面向它入睡',
+    '傍晚的屋里隔着木板墙分成左右两边。左侧孤单的灵梦宠物（依恋 85、亲近需求 80）身边没有熟识同伴，'
+    '走到窝旁的灵梦布偶边蹭脸得到少许安抚，随后回窝面向布偶睡下；同侧另一只胆大低依恋的灵梦不理会布偶。'
+    '右侧有伴的魔理沙身旁既有布偶也有熟识同伴，只去蹭真实同伴而不蹭布偶。',
+    '约半分钟', [
+        box(0, 0, -3, 0, 2, 3, 'minecraft:oak_planks'),
+        block(-3, 0, -2, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        item('mcyukkuri:reimu_doll', 1, -3, -1, 'comfort_doll'),
+        yk('reimu', -3, 1, 'comfort_reimu', uuid=uid(_doll_comfort, 'comfort_reimu'), yaw=180, lead=True,
+           label='孤单的灵梦', attachment=85, boldness=40, friendliness=70, affection=80,
+           nutrition=95, energy=45, rest_wait=260),
+        *own('comfort_reimu'),
+        yk('reimu', -4, 2, 'bold_reimu', uuid=uid(_doll_comfort, 'bold_reimu'), yaw=180,
+           label='胆大低依恋灵梦', attachment=15, boldness=90, friendliness=40, affection=80,
+           nutrition=95, energy=95, rest_wait=1200),
+        item('mcyukkuri:marisa_doll', 1, 4, -1, 'pair_doll'),
+        yk('marisa', 3, -1, 'paired_marisa', uuid=uid(_doll_comfort, 'paired_marisa'), yaw=0,
+           label='有伴的魔理沙', attachment=85, boldness=50, friendliness=80, affection=80,
+           nutrition=95, energy=95, rest_wait=1200),
+        *own('paired_marisa'),
+        yk('reimu', 3, 1, 'paired_peer', uuid=uid(_doll_comfort, 'paired_peer'), yaw=180,
+           label='熟识同伴', attachment=100, boldness=50, friendliness=80, affection=0,
+           nutrition=95, energy=95, rest_wait=1200),
+        *own('paired_peer'),
+        f'yukkuri scenario bond {sel("paired_marisa")} {sel("paired_peer")}',
+    ], at_spawn=[home('comfort_reimu', -3, -2)],
+    env={'time': 'dusk'}, vantage=(0, 5, 180, 20, 0),
+    reads=[('读孤单灵梦', f'yukkuri status {sel("comfort_reimu")} raw'),
+           ('读有伴魔理沙', f'yukkuri status {sel("paired_marisa")} raw'),
+           ('读胆大灵梦', f'yukkuri status {sel("bold_reimu")} raw')])
+
 # The plains template starts its caretaker on (5,1,9). Keep the cottage in the next activity
 # column east of the empty house, with the observer out on the lane.
 _occupied_house = 'execute positioned ~14 ~ ~6 run yukkuri household status'
@@ -4909,6 +4941,34 @@ add(_doll_interrupt, 'park', '叼布偶途中受惊与饥饿时原地放下', '�
     env=DAY, spot='pavilion', vantage=(4, 13, 180, 20),
     reads=[('读受惊魔理沙', f'yukkuri status {sel("int_fright")} raw'),
            ('读变饿魔理沙', f'yukkuri status {sel("int_hungry")} raw')])
+
+_doll_talk = 'doll_talk'
+add(_doll_talk, 'park', '孤单的子油对布偶说话并递出一口', '孤单的子油对布偶说话并递出一口',
+    '公园凉亭南侧草坪上三只独处（相隔 8 格）的子油各自守着一只灵梦布偶。'
+    '左边聪慧的灵梦子油（智力 70、自制力 85）认出同种布偶，先转身对它说话，随后吃到苹果时向布偶递出一口停留片刻再自己吃下；'
+    '中间聪慧的魔理沙子油（智力 70）面对异种布偶既不搭话也不递食；'
+    '右边迟钝的魔理沙子油（智力 25、自制力 20）把异种布偶也当作同类，会搭话并在进食时短暂递出一口。',
+    '约半分钟', [
+        item('mcyukkuri:reimu_doll', 1, -5, 3, 'talk_doll_left'),
+        item('mcyukkuri:reimu_doll', 1, 3, 3, 'talk_doll_mid'),
+        item('mcyukkuri:reimu_doll', 1, 11, 3, 'talk_doll_right'),
+        yk('reimu', -5, 5, 'talk_reimu', uuid=uid(_doll_talk, 'talk_reimu'), stage='child', yaw=180, lead=True,
+           label='聪慧灵梦子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=85,
+           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+        yk('marisa', 3, 5, 'clever_marisa', uuid=uid(_doll_talk, 'clever_marisa'), stage='child', yaw=180,
+           label='聪慧魔理沙子油', intelligence=70, attachment=80, boldness=50, friendliness=70, self_control=80,
+           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+        yk('marisa', 11, 5, 'dull_marisa', uuid=uid(_doll_talk, 'dull_marisa'), stage='child', yaw=180,
+           label='迟钝魔理沙子油', intelligence=25, attachment=80, boldness=50, friendliness=70, self_control=20,
+           nutrition=55, energy=95, extra='YukkuriDailyLife:{Affection:75,Cooldown:300}'),
+    ], late=[
+        Retry(item('minecraft:apple', 1, -4, 4, 'apple_reimu'), sel('talk_reimu'), tries=1, first=160),
+        Retry(item('minecraft:apple', 1, 4, 4, 'apple_clever'), sel('clever_marisa'), tries=1, first=160),
+        Retry(item('minecraft:apple', 1, 12, 4, 'apple_dull'), sel('dull_marisa'), tries=1, first=160),
+    ], env=DAY, spot='pavilion', vantage=(3, 13, 180, 18),
+    reads=[('读聪慧灵梦子油', f'yukkuri status {sel("talk_reimu")} raw'),
+           ('读聪慧魔理沙子油', f'yukkuri status {sel("clever_marisa")} raw'),
+           ('读迟钝魔理沙子油', f'yukkuri status {sel("dull_marisa")} raw')])
 
 add('yard_stray_scold', 'town', '宠物院子：流浪认窝，院主喝斥驱离', '宠物院子：流浪认窝，院主喝斥驱离',
     '魔理沙溜进院子，在空着的软窝边认窝并宣言。看院主走近挥手喝斥，魔理沙从院门退出院子。',
@@ -8860,7 +8920,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'park_child_ball': 'M5', 'park_child_more': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_talk': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',
@@ -9149,6 +9209,122 @@ next(s for s in S if s.id == _doll_interrupt).smoke.update(
         (115, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
         (116, f'tp {sel("tmp_pred")} ~ ~50 ~'),
     ])
+
+_comfort_reimu = _uuid_text(_doll_comfort, 'comfort_reimu')
+_bold_reimu = _uuid_text(_doll_comfort, 'bold_reimu')
+_paired_marisa = _uuid_text(_doll_comfort, 'paired_marisa')
+_paired_peer = _uuid_text(_doll_comfort, 'paired_peer')
+
+
+def _verify_doll_comfort_sleep(window):
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    reimu_beats = []
+    done_ok = False
+    sleep_ok = False
+    for m in beats:
+        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
+        if face != declared:
+            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        if int(dolls) != 2:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+        if u == _bold_reimu:
+            return f'bold unattached Reimu unexpectedly performed keepsake beat={beat}'
+        if u == _paired_marisa and beat in ('ask', 'rub', 'done'):
+            return f'paired Marisa nuzzled doll instead of eligible peer (beat={beat})'
+        if u == _comfort_reimu:
+            reimu_beats.append(beat)
+            if beat == 'done':
+                cm = re.search(r'\bcomfort=(\d+)->(\d+)\b', tail)
+                if not cm:
+                    return f'done beat missing comfort before->after: {tail}'
+                before, after = int(cm[1]), int(cm[2])
+                if before - after != min(before, 15):
+                    return f'doll nuzzle comfort was {before}->{after}, expected -15'
+                done_ok = True
+            if beat == 'sleep':
+                sm = re.search(r'\bdollDist=([0-9.]+) yawDiff=([0-9.]+)\b', tail)
+                if not sm:
+                    return f'sleep beat missing dollDist/yawDiff: {tail}'
+                if float(sm[1]) > 1.5:
+                    return f'sleep dollDist={sm[1]} (>1.5)'
+                if float(sm[2]) > 15.0:
+                    return f'sleep yawDiff={sm[2]} (>15 deg; not facing doll)'
+                sleep_ok = True
+    want = ['ask', 'rub', 'done', 'sleep']
+    idx = 0
+    for n in reimu_beats:
+        if idx < len(want) and n == want[idx]:
+            idx += 1
+    if idx < len(want):
+        return f'expected comfort_reimu beat order {want}, saw {reimu_beats}'
+    if not done_ok or not sleep_ok:
+        return f'missing validated done ({done_ok}) or sleep ({sleep_ok}) beat'
+
+
+_smoke(_doll_comfort, 1600, [
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=ask face=teary_smile declared=teary_smile line=want_nuzzle where=ground dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=done face=satisfied declared=satisfied line=nuzzle_done where=ground dolls=2 comfort=\d+->\d+\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=(?:ground|bed) dolls=2\b',
+    rf'\[daily\][^\n]*uuid={_paired_marisa} [^\n]*session reserved kind=NUZZLE companion={_paired_peer}\b',
+])
+next(s for s in S if s.id == _doll_comfort).smoke.update(verify=_verify_doll_comfort_sleep)
+
+_talk_reimu = _uuid_text(_doll_talk, 'talk_reimu')
+_clever_marisa = _uuid_text(_doll_talk, 'clever_marisa')
+_dull_marisa = _uuid_text(_doll_talk, 'dull_marisa')
+
+
+def _verify_doll_talk(window):
+    beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
+    if not beats:
+        return 'no [keepsake] beat lines logged'
+    by_actor = {_talk_reimu: [], _dull_marisa: []}
+    holds = {}
+    for m in beats:
+        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
+        if face != declared:
+            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        if int(dolls) != 3:
+            return f'doll conservation broken on {beat}: dolls={dolls}'
+        if u == _clever_marisa and beat in ('address', 'offer', 'eat_on'):
+            return f'clever Marisa unexpectedly reacted to other-kind doll: beat={beat}'
+        if u in by_actor:
+            by_actor[u].append(beat)
+            if beat == 'offer':
+                om = re.search(r'\bhold=(\d+) food=(\d+)\b', tail)
+                if not om:
+                    return f'offer beat missing hold/food: {tail}'
+                if int(om[2]) != 1:
+                    return f'bite count not conserved on offer: food={om[2]}'
+                holds[u] = int(om[1])
+            if beat == 'eat_on':
+                em = re.search(r'\bfood=(\d+)\b', tail)
+                if not em or int(em[1]) != 1:
+                    return f'bite count not conserved on eat_on: {tail}'
+    want = ['address', 'offer', 'eat_on']
+    for label, u in (('talk_reimu', _talk_reimu), ('dull_marisa', _dull_marisa)):
+        idx = 0
+        for n in by_actor[u]:
+            if idx < len(want) and n == want[idx]:
+                idx += 1
+        if idx < len(want):
+            return f'{label} expected beat order {want}, saw {by_actor[u]}'
+    if holds.get(_dull_marisa, 999) >= holds.get(_talk_reimu, 0):
+        return f'expected lower selfControl hold < higher selfControl hold, saw dull={holds.get(_dull_marisa)} clever={holds.get(_talk_reimu)}'
+
+
+_smoke(_doll_talk, 1200, [
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=address face=happy declared=happy line=doll_talk where=ground dolls=3\b',
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=offer face=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=eat_on face=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=address face=happy declared=happy line=doll_talk where=ground dolls=3\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=offer face=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=eat_on face=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
+])
+next(s for s in S if s.id == _doll_talk).smoke.update(verify=_verify_doll_talk)
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
 _park_local_log = _uuid_text(_park_aid, 'park_local')

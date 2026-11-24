@@ -24,13 +24,16 @@ import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.PicnicFood;
 import io.github.longshou.mcyukkuri.motor.Braid;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
+import io.github.longshou.mcyukkuri.social.Keepsakes;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -85,6 +88,8 @@ final class LifeMeal {
     private boolean offeredForDemand;
     private Ability sweetFeedback;
     private int fleeCropAt;
+    private int dollOfferTicks;
+    private ItemEntity dollOfferTarget;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
     /** This meal left it full and it lets itself melt in contentment after the swallow (meal_content); transient, like the clock below. */
@@ -540,6 +545,8 @@ final class LifeMeal {
         sweetFeedback = null;
         tuftMeal = null; tuftReleaseRefusedAt = null;
         fleeCropAt = 0;
+        dollOfferTicks = 0;
+        dollOfferTarget = null;
         feeder = null; mealTicks = 0; mealVerdict = Verdict.PLAIN; refusedSpitAt = null; sharedMeal = false; preparedMeal = false;
     }
 
@@ -552,11 +559,29 @@ final class LifeMeal {
                 .min(Comparator.comparingDouble(donor::distanceToSqr)).orElse(null);
     }
 
+    private void tryOfferToDoll() {
+        var donor = o.entity();
+        if (donor.family().adult() || mouth().isEmpty() || Consumables.oral(mouth())) return;
+        if (!donor.keepsake().comfortEligible(false) || !Keepsakes.attachedOrTimid(donor)) return;
+        if (Keepsakes.hasAwakePeerNear(o.level(), donor, 6.0)) return;
+        ItemEntity doll = Keepsakes.nearestVisibleDoll(o.level(), donor, 3.0, true);
+        if (doll == null) return;
+        Motor.face(donor, SurfaceApproach.yaw(donor.position(), doll.position()));
+        int full = ClipMarkers.of(YukkuriAction.OFFER_BITE.id()).length();
+        int hold = Math.max(10, Math.round(full * (0.45f + 0.55f * (o.personality().selfControl() / 100f))));
+        dollOfferTicks = hold;
+        dollOfferTarget = doll;
+        donor.showReaction(YukkuriAction.OFFER_BITE, "happy", "", hold);
+        donor.keepsake().emitExternalBeat("offer", "happy", "share", "mouth", true,
+                "hold=" + hold + " food=" + mouth().getCount());
+    }
+
     void tryShare() {
         var donor = o.entity();
         var peer = nearbyHungryKin();
         if (peer == null) {
             if (canOfferMeal()) donor.kindness().offerMeal();
+            if (!donor.kindness().active()) tryOfferToDoll();
             return;
         }
         if (mouth().isEmpty()) return;
@@ -590,6 +615,18 @@ final class LifeMeal {
                 return false;
             }
             o.entity().getNavigation().stop();
+            if (dollOfferTicks > 0) {
+                boolean dollGone = dollOfferTarget == null || !dollOfferTarget.isAlive() || dollOfferTarget.isRemoved();
+                dollOfferTicks--;
+                if (dollGone || dollOfferTicks == 0) {
+                    dollOfferTicks = 0;
+                    dollOfferTarget = null;
+                    o.entity().showReaction("satisfied", "", 20);
+                    o.entity().keepsake().emitExternalBeat("eat_on", "satisfied", "none", "mouth", false,
+                            "food=" + mouth().getCount());
+                }
+                return true;
+            }
             mealTicks++;
             if (mealTicks % MEAL_SIGHT_INTERVAL == 0 && canOfferMeal()
                     && (o.entity().kindness().offerMealToWaiter(() -> nearbyHungryKin() == null) || BadgeSocial.mealSeen(o.entity()))) return true;
