@@ -4100,9 +4100,9 @@ _RING_HOLDER = 'ring_holder'
 # stay out of BadgeSocial SCAN_RADIUS (8) while the holder is in the yard, yet see the holder arrive and leave strayRoom open
 # for both under MAX_STRAYS=2; ring_hungry and ring_timid start outside RING_REACH (9) on the west side in view from vantage.
 _RING_STRAYS = [
-    ('ring_hungry', 'marisa', -9, -6, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
-    ('ring_cocky', 'reimu', 2, 2, '嚣张的流浪油', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
-    ('ring_timid', 'marisa', -10, 3, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
+    ('ring_hungry', 'marisa', -11, -7, '饿而友善的流浪油', dict(nutrition=60, friendliness=90, boldness=60, self_control=70)),
+    ('ring_cocky', 'reimu', -1, 2, '嚣张的流浪油', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
+    ('ring_timid', 'marisa', -11, 4, '胆小的流浪油', dict(nutrition=60, friendliness=90, boldness=15, self_control=70)),
     ('ring_voided', 'reimu', 4, 2, '戴作废章的嚣张前宠物', dict(nutrition=75, friendliness=5, boldness=90, self_control=20)),
 ]
 
@@ -4143,8 +4143,8 @@ add(_RING, 'town', '流浪油走到广场边看佩章宠物', '流浪油走到�
         block(-13, 0, -10, 'minecraft:red_bed[facing=east,part=foot]'), block(-12, 0, -10, 'minecraft:red_bed[facing=east,part=head]'),
         *_ring_yard(),
         # The badged pet starts inside the yard gate beside the keeper, bored enough to want an outing and on daily cooldown so it doesn't start a solo song on tick 3.
-        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-9)[0]
-                          .replace('Boldness:70', 'Boldness:25').replace('Attachment:22', 'Attachment:80')
+        *_plaza_companion(_RING_HOLDER, _plaza_wearer('reimu', _RING_HOLDER, 5, 4, z=-11)[0]
+                          .replace('Boldness:70', 'Boldness:35').replace('Attachment:22', 'Attachment:80')
                           .replace('Boredom:90,Affection:45', 'Boredom:90,Affection:45,Cooldown:600')),
         *(_ring_stray(_RING, *stray) for stray in _RING_STRAYS),
     ], env=DAY, vantage=(-6, 6, -135, 12),
