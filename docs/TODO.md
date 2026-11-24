@@ -12,7 +12,6 @@
 | PD-13 断亲离开演出 | `.worktrees/wp-severance-leave` | social/Bonds、aquatic/LeaveBehind、FamilySeparation、ChildCall、hat_crowd 场景 |
 | WT-03 躲雨选格与统一重试 | `.worktrees/wp-rain-shelter` | Reactions.findCover、Weather、YukkuriGroundNavigation.partner、rain_shelter 场景 |
 | TN-69 布景与没收徽章 | `.worktrees/wp-plaza-stage` | badge_plaza_stray 场景、徽章交互 |
-| 公园其他游具演示 | `.worktrees/wp-doll-carry` | social/KeepsakeLife,MouthOccupancy,Facilities,YukkuriSocial,PlayLife,YukkuriGoals,museum_scenarios.py |
 | PK-02 公园玩耍 | `.worktrees/wp-park-play` | PlayLife,PlayWant,PetOuting,HumanStreet.linger,RoamingGoal,YukkuriGoals,park_play 场景 |
 
 ## 玩法待办
