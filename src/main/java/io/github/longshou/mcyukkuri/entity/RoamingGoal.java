@@ -83,7 +83,7 @@ public final class RoamingGoal extends Goal {
     }
     private boolean available() {
         return animal.isAlive() && !animal.inert() && !animal.isPassenger() && animal.childhood().canLearn()
-                && !animal.pet().care().walk().onOwnerLead() && !animal.outing().waitingForPicnic() && !ExamSession.running(animal)
+                && !animal.pet().care().walk().onOwnerLead() && !animal.outing().onOuting() &&!ExamSession.running(animal)
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
@@ -360,7 +360,8 @@ public final class RoamingGoal extends Goal {
             return null;
         }
         double boredomShare = Math.clamp((animal.dailyLife().boredom() - PlayWant.boredomFloor(animal)) / 60.0, 0, 1);
-        double chance = Math.clamp(0.35 + 0.60 * boredomShare * bestScore, 0.35, 0.98);
+        // A stray at its floor walks over about every other look (every 40 ticks); one at full boredom always does.
+        double chance = 0.5 + 0.5 * boredomShare;
         if (animal.getRandom().nextDouble() >= chance) {
             nextPlayground = level.getGameTime() + 40;
             GameplayLog.limited(animal, "play", "stray_walk_roll", 200, "stray playground walk skipped reason=roll_missed kind={} chance={}",

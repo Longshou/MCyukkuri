@@ -39,6 +39,8 @@ public final class PlayLife {
     /** Approach stall budget (~1.25 s) before giving up and switching to another facility; interior safety bound (~2.5 s). */
     private static final int APPROACH_STALL_TICKS = 25;
     private static final int INTERIOR_STALL_TICKS = 50;
+    /** Within this distance of the facility mouth the body's own gait takes over from ground navigation (a body width and a step). */
+    private static final double MOUTH_REACH = 1.0;
 
     private record Beat(String name, String declared, String line, PlayBlock.Kind kind) {}
 
@@ -347,7 +349,7 @@ public final class PlayLife {
         }
         double dist = waitStand.subtract(entity.position()).horizontalDistance();
         if (dist > .35) {
-            var result = SurfaceApproach.walkResult(entity, waitStand, null, 1.0);
+            var result = SurfaceApproach.walkResult(entity, waitStand, entity.outing().escortBody(), 1.0);
             if (result == SurfaceApproach.Result.BLOCKED) {
                 rememberSkip(gaveUp, waitingFor.getBlockPos());
                 stopWait("blocked");
@@ -699,16 +701,18 @@ public final class PlayLife {
         if (entity.horizontalCollision || entity.motor().contact.pushedThisTick(entity.level().getGameTime()) || stalled >= 5) {
             askToYield(target);
         }
-        // Approach phase (before reaching the facility mouth): walk via ground navigation around the shell.
-        // Progress is measured by actual displacement so curving around a shell or bench never false-stalls.
-        if (waypoint <= entryAt) {
+        // Approach phase (until the last metre of the facility mouth): walk via ground navigation around the shell, giving the
+        // escorting owner's body a berth (ground navigation plans round yukkuri bodies only). The last metre is the body's own
+        // gait below, which turns first and steps up a lip. Progress is measured by actual displacement so curving round a shell
+        // or bench never false-stalls.
+        if (waypoint < entryAt || waypoint == entryAt && distance >= MOUTH_REACH) {
             if (lastPos == null || entity.position().distanceToSqr(lastPos) > 0.04) {
                 stalled = 0;
                 lastPos = entity.position();
             } else {
                 ++stalled;
             }
-            var res = SurfaceApproach.walkResult(entity, target, null, 1.0);
+            var res = SurfaceApproach.walkResult(entity, target, entity.outing().escortBody(), 1.0);
             int approachLimit = BodyAbility.of(entity).walkSpeed() < 0.06 ? 50 : APPROACH_STALL_TICKS;
             if (res == SurfaceApproach.Result.BLOCKED || stalled > approachLimit) {
                 rememberSkip(refusedAt, facility.getBlockPos());

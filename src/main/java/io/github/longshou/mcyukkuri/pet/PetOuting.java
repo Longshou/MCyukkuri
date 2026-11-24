@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.ClipContext;
 import io.github.longshou.mcyukkuri.pet.rules.OutingPerformance;
@@ -88,6 +89,9 @@ public final class PetOuting extends Goal {
         var resident = escort();
         return resident == null ? null : resident.parkFacility();
     }
+
+    /** The escorting owner's body, or null off an outing. */
+    public Entity escortBody() { return escort(); }
 
     public Vec3 ownerPosition() {
         var resident = escort();
@@ -188,16 +192,11 @@ public final class PetOuting extends Goal {
         var facilities = owner.parkFacilities();
         double limit = OutingPace.followComfort(comfortDistance, onEscortLead());
         return (pet.distanceTo(owner) > limit || pet.getLeashHolder() == owner && !pet.hasLineOfSight(owner))
-                && (facilities.isEmpty() || !nearAnyFacility(facilities));
+                && (facilities.isEmpty() || !PlayWant.wants(pet) || !nearAnyFacility(facilities));
     }
 
     private static AABB restPaving(AABB paving) { return paving.inflate(-.6, 0, -.6); }
     private static boolean onPaving(AABB paving, Vec3 at) { return restPaving(paving).contains(at); }
-
-    public boolean waitingForPicnic() {
-        var resident = escort();
-        return resident != null && wantsPicnic(resident);
-    }
 
     private boolean wantsPicnic(HumanNpc resident) {
         return resident.parkLingering() && (resident.holdsPicnicFood() || resident.picnicActive())
