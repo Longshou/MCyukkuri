@@ -1044,6 +1044,17 @@ final class HumanStreet {
             return probes;
         }
 
+        private Seat pickPlazaSeat(BlockPos skip) {
+            var paving = plaza.paving().getCenter();
+            var seats = seats(BlockPos.containing(paving.x, plaza.paving().minY, paving.z), new Vec3(paving.x, plaza.paving().minY + .5, paving.z));
+            seatCandidates = seats.size();
+            for (var candidate : ParkSeats.order(seats, npc.getUUID().hashCode())) {
+                if (skip != null && candidate.cell().equals(skip)) continue;
+                if (routeSeat(candidate)) return candidate;
+            }
+            return null;
+        }
+
         private void pauseAtPlaza() {
             endPaceLeg();
             endGlance();
@@ -1053,15 +1064,7 @@ final class HumanStreet {
             GameplayLog.event(npc, "npc-care", "action=outing_plaza_arrive stand={} pets={}",
                     GameplayLog.at(destination), companions.stream().map(YukkuriEntity::getUUID).toList());
             // A bench on the plaza lets the owner sit and watch, which keeps the pets about long enough for strays to see them.
-            var paving = plaza.paving().getCenter();
-            var seats = seats(BlockPos.containing(paving.x, plaza.paving().minY, paving.z), new Vec3(paving.x, plaza.paving().minY + .5, paving.z));
-            seatCandidates = seats.size();
-            seat = null;
-            for (var candidate : ParkSeats.order(seats, npc.getUUID().hashCode())) {
-                if (!routeSeat(candidate)) continue;
-                seat = candidate;
-                break;
-            }
+            seat = pickPlazaSeat(null);
             plazaRest = seat != null;
             plazaUntil = npc.level().getGameTime() + (plazaRest ? TownMarkers.plazaRest(wariness) : TownMarkers.plazaPause(wariness));
         }
@@ -1074,6 +1077,8 @@ final class HumanStreet {
             if (!plazaSat) {
                 if (npc.tickCount % 10 == 0 && !seatFree(seat)) {
                     GameplayLog.event(npc, "npc-care", "action=outing_sit result=taken seat={}", seat.cell().toShortString());
+                    var other = pickPlazaSeat(seat.cell());
+                    if (other != null) { seat = other; return; }
                     returnHome("plaza_seat");
                     return;
                 }
