@@ -5175,13 +5175,16 @@ add(_giveup, 'park', '子油转身去对布偶说话时被饥饿打断', '子油
 # A doll is a keepsake only while the body beside it keeps it, and only a body with a nest of its own and a free mouth can take
 # one over (KeepsakeLife.canSnatch), so every taker gets a shed while no victim gets one: a bedless victim never picks its own
 # doll up before the scene does. A taker's nest stands five blocks behind it, outside the home-territory radius 3, or the taker
-# would warn the visitor off the nest instead of bullying it. Every body stands pinned beside its doll until the doll really
-# changes mouths: with no drive to walk nobody is pressed aside by an encounter, so a pair stays in contact; the guarded release
-# then frees that side's two bodies (the taker walks its carry home, the robbed one answers) and a pair that never gets its bout
-# stays put rather than drifting apart.
+# would warn the visitor off the nest instead of bullying it. Every body stands pinned beside its doll with no affection or boredom
+# drive until the doll really changes mouths: a lonely body would nuzzle and shove its pair out of the bout's contact reach before
+# the claim. The guarded release then frees that side's two bodies (the taker walks its carry home, the robbed one answers) and a
+# pair that never gets its bout stays put rather than drifting apart.
 _SNATCH_STILL = 'attributes:[{id:"minecraft:generic.movement_speed",base:0.0d}]'
 # Grime is a random roll that lowers self-esteem enough to turn a bold child's puff into flight; the shown pair starts clean.
 _SNATCH_CLEAN = 'YukkuriStatus:{Marks:{Rolled:1b,Grime:0,Soil:0,Rain:0}},'
+# Loneliness would send a pinned body nuzzling and shove its pair past the bout's contact reach before the claim; no affection
+# need and no fondness for dolls leaves the bully bout as the pair's only drive.
+_SNATCH_CALM = 'YukkuriDailyLife:{Boredom:0,Affection:0},'
 
 _doll_snatch = 'doll_snatch'
 add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横的魔理沙抢走小灵梦的布偶',
@@ -5199,17 +5202,17 @@ add(_doll_snatch, 'park', '蛮横的魔理沙抢走小灵梦的布偶', '蛮横�
         item('mcyukkuri:reimu_doll', 1, 7.65, 8.65, 'snatch_doll_a'),
         item('mcyukkuri:reimu_doll', 1, 17.65, 8.65, 'snatch_doll_b'),
         yk('marisa', 7.45, 9, 'snatch_thief_a', uuid=uid(_doll_snatch, 'snatch_thief_a'),
-           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90, lead=True,
-           label='蛮横的魔理沙', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           boldness=75, friendliness=0, self_control=0, attachment=20, yaw=-90, lead=True,
+           label='蛮横的魔理沙', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_STILL),
         yk('reimu', 8, 9, 'snatch_victim_a', uuid=uid(_doll_snatch, 'snatch_victim_a'),
            stage='child', boldness=68, friendliness=60, self_control=70, yaw=90,
-           label='胆大的灵梦', also=('snatch_a',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_CLEAN + _SNATCH_STILL),
+           label='胆大的灵梦', also=('snatch_a',), extra=_SNATCH_CALM + _SNATCH_CLEAN + _SNATCH_STILL),
         yk('marisa', 17.45, 9, 'snatch_thief_b', uuid=uid(_doll_snatch, 'snatch_thief_b'),
-           boldness=75, friendliness=0, self_control=0, attachment=70, yaw=-90,
-           label='蛮横的魔理沙', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_STILL),
+           boldness=75, friendliness=0, self_control=0, attachment=20, yaw=-90,
+           label='蛮横的魔理沙', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_STILL),
         yk('reimu', 18, 9, 'snatch_victim_b', uuid=uid(_doll_snatch, 'snatch_victim_b'),
            stage='child', boldness=20, friendliness=70, self_control=70, yaw=90,
-           label='胆小的灵梦', also=('snatch_b',), extra='YukkuriDailyLife:{Boredom:0},' + _SNATCH_CLEAN + _SNATCH_STILL),
+           label='胆小的灵梦', also=('snatch_b',), extra=_SNATCH_CALM + _SNATCH_CLEAN + _SNATCH_STILL),
     ], at_spawn=[home('snatch_thief_a', 7, 4), home('snatch_thief_b', 17, 4),
                  # The pairs are on visiting terms with the other group, above the bully gate's neutral affinity: a freed thief
                  # roams once its doll is home and never crosses to rob the other side's child.
