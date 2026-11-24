@@ -4950,9 +4950,13 @@ add(_doll_talk, 'park', '孤单的子油对布偶说话并递出一口', '孤单
     '中间聪慧的魔理沙子油（智力 70）面对异种布偶既不搭话也不递食；'
     '右边迟钝的魔理沙子油（智力 25、自制力 20）把异种布偶也当作同类，会搭话并在进食时短暂递出一口。',
     '约半分钟', [
-        box(-10, 0, -2, 16, 1, 10, 'minecraft:air', 'replace minecraft:short_grass'),
-        box(-1, 0, 1, -1, 0, 8, 'minecraft:oak_fence'),
-        box(7, 0, 1, 7, 0, 8, 'minecraft:oak_fence'),
+        box(-10, 0, 0, 16, 1, 9, 'minecraft:air', 'replace minecraft:short_grass'),
+        box(-9, 0, 1, 15, 0, 1, 'minecraft:oak_fence'),
+        box(-9, 0, 7, 15, 0, 7, 'minecraft:oak_fence'),
+        box(-9, 0, 2, -9, 0, 6, 'minecraft:oak_fence'),
+        box(-1, 0, 2, -1, 0, 6, 'minecraft:oak_fence'),
+        box(7, 0, 2, 7, 0, 6, 'minecraft:oak_fence'),
+        box(15, 0, 2, 15, 0, 6, 'minecraft:oak_fence'),
         item('mcyukkuri:reimu_doll', 1, -5, 3, 'talk_doll_left'),
         item('mcyukkuri:reimu_doll', 1, 3, 3, 'talk_doll_mid'),
         item('mcyukkuri:reimu_doll', 1, 11, 3, 'talk_doll_right'),

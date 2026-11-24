@@ -131,6 +131,7 @@ public final class KeepsakeLife implements MotorOwner {
                 && !entity.life().isSleeping() && !entity.isPanicking()
                 && !entity.isLeashed() && !entity.isPassenger()
                 && !entity.isInWaterOrBubble() && !entity.isOnFire()
+                && !entity.species().catchingBreath()
                 && !WildEvents.reserved(entity) && !entity.isCommandPlaying()
                 && !entity.operations().active() && (allowDailyActive || !entity.dailyLife().active())
                 && !entity.playLife().active() && !entity.family().active()
