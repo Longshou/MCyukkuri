@@ -75,7 +75,6 @@ public final class KeepsakeLife implements MotorOwner {
 
     public KeepsakeLife(YukkuriEntity entity) {
         this.entity = entity;
-        this.scanWait = 15 + entity.getRandom().nextInt(20);
     }
 
     @Override public String ownerId() { return "keepsake"; }
@@ -258,13 +257,6 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     private void tickFetch() {
-        if (target == null || !target.isAlive()) { stop(); return; }
-        entity.getLookControl().setLookAt(target, 30, 30);
-        if (noticeTicks > 0) {
-            noticeTicks--;
-            SurfaceApproach.halt(entity);
-            return;
-        }
         if (picking) {
             if (entity.motor().owner() == this && entity.motor().current() != null) return;
             picking = false;
@@ -282,6 +274,13 @@ public final class KeepsakeLife implements MotorOwner {
             }
             cooldown = REFUSED_COOLDOWN;
             stop();
+            return;
+        }
+        if (target == null || !target.isAlive()) { stop(); return; }
+        entity.getLookControl().setLookAt(target, 30, 30);
+        if (noticeTicks > 0) {
+            noticeTicks--;
+            SurfaceApproach.halt(entity);
             return;
         }
         if (ContactGeometry.inMouthReach(entity, target)) {

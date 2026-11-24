@@ -8753,10 +8753,10 @@ _smoke(_doll_interrupt, 1600, [
 next(s for s in S if s.id == _doll_interrupt).smoke.update(
     verify=_verify_doll_interrupt,
     commands=[
-        (195, yk('remilia', 0, 5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
-        (225, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
-        (226, f'tp {sel("tmp_pred")} ~ ~50 ~'),
-        (200, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
+        (165, yk('remilia', 0, 5, 'tmp_pred', yaw=-90, nutrition=100, energy=100)),
+        (195, f'data merge entity {sel("tmp_pred")} {{NoAI:1b}}'),
+        (196, f'tp {sel("tmp_pred")} ~ ~50 ~'),
+        (170, f'execute as {sel("int_hungry")} run yukkuri status set @s needs.nutrition 35'),
     ])
 
 _park_waiter_log = _uuid_text(_park_aid, 'park_waiter')
