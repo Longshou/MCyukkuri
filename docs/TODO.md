@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 表情整理执行：合并、改名、登记检查、未用表情接入动作 | `.worktrees/wp-face-exec` | src/main/java (face literals), standards/yukkuri-library/{expressions,presentation,motions}, src/main/resources (face_library, moments, motion_corrections), scripts/check_face_registry.py |
 
 ## 玩法待办
 
