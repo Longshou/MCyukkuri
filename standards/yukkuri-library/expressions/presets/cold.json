@@ -21,11 +21,11 @@
     "phase_note": "A：细薄眼缘水光"
   },
   "parts": {
-    "face_eye_left": "expressions/parts/485d013f2c55cd7c245a.png",
+    "face_eye_left": "expressions/parts/d555c46591fad1e114d9.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
-    "face_eye_right": "expressions/parts/dfd8064961973aca66e6.png",
+    "face_eye_right": "expressions/parts/f82869269322c1cc8ae9.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
@@ -51,52 +51,28 @@
     "face_brow_left": {
       "position": [
         0,
-        -0.8,
+        -0.35,
         0
       ]
     },
     "face_brow_right": {
       "position": [
         0,
-        -0.8,
-        0
-      ]
-    },
-    "face_eye_left": {
-      "scale": [
-        1,
-        0.5,
-        1
-      ],
-      "position": [
-        0,
-        -0.25,
-        0
-      ]
-    },
-    "face_eye_right": {
-      "scale": [
-        1,
-        0.5,
-        1
-      ],
-      "position": [
-        0,
-        -0.25,
+        -0.35,
         0
       ]
     },
     "face_tear_left": {
       "position": [
         0,
-        0.5325,
+        -0.145,
         0
       ]
     },
     "face_tear_right": {
       "position": [
         0,
-        0.5325,
+        -0.145,
         0
       ]
     }

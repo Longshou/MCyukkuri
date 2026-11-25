@@ -78,7 +78,7 @@
       "source_rig_sha256": "cbceed351973f20760607dacdc4a494855e312772eb392e4eeb1357d185c3776",
       "model_sha256": "3852f6a1fb150100d43c057314dbbae73d13b2b7b3a939c1d73332069b6f6ca5",
       "rig_sha256": "8108392bf7ce0e8c06b92ff8574bc66ca39ebc395a56cf0bdbc400149c6f1074",
-      "runtime_sha256": "bd3633ab948d1142191ea445a581eb2edc8fe023ad0c6401779b9b05eac11f94",
+      "runtime_sha256": "108ff0323eadf6f793404dcd95014fa930a96a71f95fcf26c6e22da61c1e018e",
       "elements": 95,
       "vertices": 18966
     },
@@ -89,7 +89,7 @@
       "source_rig_sha256": "c0431a3de89a832c63bb0f0e67cbd488e0826761254715aa47ea52fe8bef1cb4",
       "model_sha256": "fd55f971139d1febb95434cf1825fc40f4a31d320d9503530820313d6581b0f8",
       "rig_sha256": "0338e7505dfb088f1bbf771b7a0e6cdaba7604fb406350b4010dc20547ca4944",
-      "runtime_sha256": "1a7b501249889702ba61226a3de23f8378df390f2e6cd36323482c65702c10ec",
+      "runtime_sha256": "4044c187f0a9aeccbc342ae1ca8493e16e1400cfba45ddfe2d494a213c7c42a4",
       "elements": 92,
       "vertices": 15354
     },
@@ -100,7 +100,7 @@
       "source_rig_sha256": "4cbf6d0fa0c401e42b987abc8305cbc87b207b600e8037eeb637c726ea27da56",
       "model_sha256": "ea8ee4bcfc1055967379a1216fbfc2fc02999ecbc4d74d2c1ad0218780169d4d",
       "rig_sha256": "5548c14c0c512efc127a8256f91ee3abe80dbb2684c34447ccbe786d320bc743",
-      "runtime_sha256": "9d747c9c12ef5d0cb0e8f35dca587ec4e868e5d9beac71bc3f154a49e6296133",
+      "runtime_sha256": "4af28769271d9044d0e3544024332152f6838d7fba840d2285154534fca338ca",
       "elements": 159,
       "vertices": 29484
     },
@@ -111,7 +111,7 @@
       "source_rig_sha256": "c0dcb8fa12efb732dcbf8b6670ef84d90f8a58eb921c3a1bd64ed9533761c4a2",
       "model_sha256": "c504b701310833c9267533cf4913d87b71d98124d66c1cd214f647ea21373e9b",
       "rig_sha256": "43dd37a65caa374c7e8ec75fc7bfd729299f577c6df59176125ee2203e52c28c",
-      "runtime_sha256": "7c008a7839a16505f99c4a80b3401f8f41dcaa62b3af1aa414a757bff5a755d7",
+      "runtime_sha256": "f759e06ff7d988f5e5c38b7a7632e8a8af06f6a8984bf846f47359f69ae796e4",
       "elements": 151,
       "vertices": 36774
     },
@@ -122,7 +122,7 @@
       "source_rig_sha256": "9d9590a51b1c5039fceecb697fcde347c50a1604a734df1e864d8f65ad577266",
       "model_sha256": "a0e676bfce6d1fe9353c2f88c313ceece1cd0f79b4f36eff21a0fddcb22ede00",
       "rig_sha256": "a60c087c39c598cb3d1fe13014c3ff0e8a59e3d7edc08baa5e776c2b83b33232",
-      "runtime_sha256": "fc38037df81748a2f7cfeabd93e1aa04ae11915ce59c9308725e8889a5fdb608",
+      "runtime_sha256": "127ad005d9f5725f90aa78ce9d50e07ef214a582ff03e7a98590014bee00f1f7",
       "elements": 715,
       "vertices": 92550
     },
@@ -133,7 +133,7 @@
       "source_rig_sha256": "0411802f2fae1cf48c8bf973a4987a0772eda21e700bf120d43d0b08b7b457cf",
       "model_sha256": "26a408119a9208cabb21e04534c2e4e8490b2476298a3dca01154a21e5680dea",
       "rig_sha256": "b6a70c4c559f2e68c098efd24e48f6cfd51038cfb9f77ccee135178b3afffab9",
-      "runtime_sha256": "4e1cd628016797cf68e525296b8b2a72af2c3a2e5e4617672c8cb8cbaff8c144",
+      "runtime_sha256": "3a937efea9e0a914bdeea24bf31de7430f466cd395f81491683352502e1215b1",
       "elements": 1288,
       "vertices": 58410
     },

@@ -19,15 +19,15 @@
     "retained_special": []
   },
   "parts": {
-    "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_eye_left": "expressions/parts/2ea992db3dc89b4f429f.png",
     "face_brow_left": "expressions/parts/6c43e5c9d5978be4060c.png",
     "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_left": "expressions/parts/70d38ef30d920ef604f2.png",
-    "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_eye_right": "expressions/parts/cf59e163678d4d3b0e22.png",
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
-    "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+    "face_mouth": "expressions/parts/8dfe7419494560173348.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
@@ -63,14 +63,14 @@
     "face_brow_left": {
       "position": [
         0,
-        -0.8,
+        -0.3,
         0
       ]
     },
     "face_brow_right": {
       "position": [
         0,
-        -0.8,
+        -0.3,
         0
       ]
     },

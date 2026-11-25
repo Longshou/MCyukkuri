@@ -10,7 +10,7 @@
     "leak_puddle": "textures/effects, 32x32 top-down: a small outlined pale ground puddle left where the stream ends"
   },
   "builder": "standards/yukkuri-library/expressions/derived/faces.py",
-  "builder_sha256": "91eff8d528e32fd2bb2aa30e74720f163312e6281f832211872a47ea0389305b",
+  "builder_sha256": "47c159689fe7cfee5b27c8be6303ea2a5e0de91c69b49821f7e0673ac03e0025",
   "models": {
     "alice": {
       "sad": {
@@ -19,21 +19,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/afraid.png",
-        "sha256": "c6cb0adbb591b3ce857aea740104d1d5e51321320729f9764ad0989f1da7300f"
+        "sha256": "fd9b4b2bdc42f5322d2b639787e6d27ea2406c5cc8901ed5581724fed045dcd9"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_startle.png",
-        "sha256": "e87eb82cc5358d761a086d1d4e5698eb8eae42dcf4712ae561c0782b41357864"
+        "sha256": "912a4f37f5ddf4515eb5fc623da241a94f5d926fdca547294b07b043e6ca5cb1"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/alice/leak_flow.png",
-        "sha256": "e4d19f3ee853903a5f08e165ce39bc503c02f25f4b4f768eef131c27d64b5c6c"
+        "sha256": "3fcab7523a74e7bb13e8fa066d88665a92f36356cb001b9fa3f01d63b424b4c4"
       },
       "from": {
         "teary": "3eb3c4f8fb44b3b7646411e2d0a7d0836e9868904263f8763db5b84c0d56cf03",
         "neutral": "04fba1df3dbb9e6e88aeeab5015a49b2732e73b03a5eb9c214837802db9330f3",
         "surprise": "6457975a218172ea93a82b267df022aeaa8c01215dd8a3c29d788238d2dc7779",
-        "flushed_smile": "1c420e9d971f2ab0b8ebe20aea556de9ee824aeacc4e75a8f313fefce1015c4c"
+        "flushed_smile": "ad8b0d431e9f8ed5cd2ecc5441e2d788fb6280ae7cf93338b5a0f9c220fc44a8"
       }
     },
     "chen": {
@@ -43,21 +43,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/afraid.png",
-        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+        "sha256": "3847f4077ec1c9cdb147b7340baecebaf4d49e382d34db4fdb7b51676fc62b1b"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_startle.png",
-        "sha256": "3ed26a5c2040360f9eec41b5d3fa9a839d8b6d293897835fd5345da391437cba"
+        "sha256": "3533c72e00f0c01409fe9513286811b74165aa744580285a7b01040b8e2cd2b4"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen/leak_flow.png",
-        "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
+        "sha256": "cf562e98bfe10e7c2fec9ff4e085ec1fa9afc119a1458b41102fe7cab25a0a0b"
       },
       "from": {
         "teary": "6320fb617a0fb84ede259eaf519cbfb3944f9060ece771791b1509919306b194",
         "neutral": "320329870934bf2c612e918d4ca98c20fab2513968d81d2100fdd32fa033dbaf",
         "surprise": "30571a7e3fb8887fd153d40589a67ff684535761d0186d49f58b5e524c76e8ef",
-        "flushed_smile": "2b3bf00fb804b2572e1c598e40b2aca24b6b024b37ee3118a5e39da9251ef6d0"
+        "flushed_smile": "d80f45c0198cfbf193f86a44b0985ad1970ac487ef66fed283ab3a630ea80d11"
       }
     },
     "chen_longtail": {
@@ -67,21 +67,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/afraid.png",
-        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+        "sha256": "3847f4077ec1c9cdb147b7340baecebaf4d49e382d34db4fdb7b51676fc62b1b"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_startle.png",
-        "sha256": "3ed26a5c2040360f9eec41b5d3fa9a839d8b6d293897835fd5345da391437cba"
+        "sha256": "3533c72e00f0c01409fe9513286811b74165aa744580285a7b01040b8e2cd2b4"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/leak_flow.png",
-        "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
+        "sha256": "cf562e98bfe10e7c2fec9ff4e085ec1fa9afc119a1458b41102fe7cab25a0a0b"
       },
       "from": {
         "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
         "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
         "surprise": "6ef3c3c3d8e6f6411370d0250493e21ca314205f504fbd7bd2397b10ba47f521",
-        "flushed_smile": "388033d220c0f1cb231be595593d93833b01bc25e0dae356eda9c46d32a96030"
+        "flushed_smile": "43f035e0240ba56a14f87e680dc52cbced14657a0df63afb2cb7bb9dde2fe909"
       }
     },
     "chen_roundtail": {
@@ -91,21 +91,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/afraid.png",
-        "sha256": "0439ee1cffaed7fe3e54954bcdbcb8eefe3af225646e6a16629da3144b830607"
+        "sha256": "3847f4077ec1c9cdb147b7340baecebaf4d49e382d34db4fdb7b51676fc62b1b"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_startle.png",
-        "sha256": "3ed26a5c2040360f9eec41b5d3fa9a839d8b6d293897835fd5345da391437cba"
+        "sha256": "3533c72e00f0c01409fe9513286811b74165aa744580285a7b01040b8e2cd2b4"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/leak_flow.png",
-        "sha256": "a8d4f0ecb63435497d84e8f943e4d30c14b1117183fe1740ad3dbe0423bccc62"
+        "sha256": "cf562e98bfe10e7c2fec9ff4e085ec1fa9afc119a1458b41102fe7cab25a0a0b"
       },
       "from": {
         "teary": "81d5781783fb4e84d47ae72a6520baa67614674a05cc5c7c1e704f9029bd615f",
         "neutral": "49e71d6e15038923f64352a8646b6e9948a67659788d1d90a8035ab8f9199859",
         "surprise": "6ef3c3c3d8e6f6411370d0250493e21ca314205f504fbd7bd2397b10ba47f521",
-        "flushed_smile": "388033d220c0f1cb231be595593d93833b01bc25e0dae356eda9c46d32a96030"
+        "flushed_smile": "43f035e0240ba56a14f87e680dc52cbced14657a0df63afb2cb7bb9dde2fe909"
       }
     },
     "flandre": {
@@ -115,21 +115,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/afraid.png",
-        "sha256": "a29ba7cfb76c9f8468ee5214264025bdad419201c78608d7e1b514e9caeeb66c"
+        "sha256": "6646532c356c5d24475eda56e873a04785aec77736eed706b5b7f14b91ad060d"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_startle.png",
-        "sha256": "550ffb57b01dbd7426e1e037a4ba0ed006e558b0b26c0638171d0cdd33ef600b"
+        "sha256": "b6da370317765335a9bbf2c3c7be2e397c67c3ee2c9cd24d13252a6bd124ca49"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/flandre/leak_flow.png",
-        "sha256": "5986c61fef860021ad2c6e91612c7336d0c2fa3121c7b8946665beb266808ad0"
+        "sha256": "8f803a8f2f86b02c3a92ec3f22777daa444eb638c50a9d9a09bc7aef7e445e52"
       },
       "from": {
         "teary": "db3461c3f738c13395f6e4d40f5cc4bd13f9da97e9804062e8ba3b3e24098b1a",
         "neutral": "a731584876aa3a5faa634b294e3923d8fee5c4d094d974a4107c4bc1206f6920",
         "surprise": "ff84a96476fc029f04f70004da9fdca26c649b084c2508c3b0c46808116aa1e3",
-        "flushed_smile": "3713f956d1f6f55621ffb4cfb313b8b5867dbec6d6844bc805eb64d7a26fefa1"
+        "flushed_smile": "4d75696c12185ad8374a742a797a7eadc0bb37ac95e0d56d20179b7245392123"
       }
     },
     "house_marisa": {
@@ -139,21 +139,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/afraid.png",
-        "sha256": "71c655867ab81dce75eebf7837e73dc36f0d90b3e8594482da7c3030d600cef3"
+        "sha256": "28e4cb1ce46d02c6a592a2509cf8c9126262c760171a81f58a2e708ce06ec180"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_startle.png",
-        "sha256": "6c3852f39553cca0f6e3291e75c4871a75c9c6b7b13ea79396c6952367243179"
+        "sha256": "99675da21d9f8bf1b67e69fd171167c725e273d91e4ba1a56ed45e5c50d6b628"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_marisa/leak_flow.png",
-        "sha256": "1178a69eef9c375d77275e6705e903daa0796b756a9199e2560f98da6a4f7299"
+        "sha256": "40a4314083548eb7a6c697a659c733651b64026b63863e25101a7c1f9573bafd"
       },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
         "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
         "surprise": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639",
-        "flushed_smile": "1ab984b40a84ecb7ef7215dbdb70549be6838c6513de84cd773e5bcf784a43a3"
+        "flushed_smile": "0202870895229aac517d55fa5648ed0973e782c5cf738df5238320fa012099fd"
       }
     },
     "house_reimu": {
@@ -163,21 +163,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/afraid.png",
-        "sha256": "6742d774c0b0ab992760134e3277d20d3c54ee081fa151d6380f75420a4055e6"
+        "sha256": "7798a282ee1646691e47997f34b3b8815de30166050761d0c9aa18279b758952"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_startle.png",
-        "sha256": "68b47c86561d00e847acf8790a2c9f12c8bf83441c6cb07d0bb6fb239768a52b"
+        "sha256": "9bc62dc94f03e7e8b8e0cb345e712cc284746484314a2c4a53a15c0ae65a8bdf"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/house_reimu/leak_flow.png",
-        "sha256": "26bd771d388c59469ced0f971707b5ff66cf70109d7f2e19ef3a678383270a10"
+        "sha256": "376c086c42bf126d455df7e420c3ad7c706233d758a3fe8649a027ac6ed67bd4"
       },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
         "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
         "surprise": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
-        "flushed_smile": "8cf502b6797bde7141ba35abec474397e552024622c20156d2149f92041511b5"
+        "flushed_smile": "b8682e280c1d42428e0f2614a09e26cf1f67ba9d99fc175f944956197fecbb69"
       }
     },
     "marisa": {
@@ -187,21 +187,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/afraid.png",
-        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+        "sha256": "9b1795843e4322e937399af38de6ebca46a49c93d8cc97873008898ab9571a38"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_startle.png",
-        "sha256": "5029bde5277a4a8efe22d8176c9b011f5c4e9775f947e369907cbdbb09152347"
+        "sha256": "63f408463ef62d6fb91008d4e039b10f6f94591fa7ab915c31281403b61caf22"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/leak_flow.png",
-        "sha256": "7f65c37cd7c442c44e2581935542236a3e0ffd6c14462d29d7ecd42aba9aa0e5"
+        "sha256": "e2de339b487ce212e7ab6fe5f2bdd2ec9ced01a90c2a3bb5ab835ffdf88f63f1"
       },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
         "surprise": "d0415f0558210ed8bc7847a8936b6f72e296afef399b2299f690697309c23d5c",
-        "flushed_smile": "d3af3a69042cee3de8eb9ed5f34212be91ea097d70df4b823b5f9f80adc0e8e3"
+        "flushed_smile": "bf2728d30c072e7908f036ab6a44b5c4f85c3ec5cf37b49585f04f4a01d20c38"
       }
     },
     "marisa_bean": {
@@ -211,21 +211,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/afraid.png",
-        "sha256": "71c655867ab81dce75eebf7837e73dc36f0d90b3e8594482da7c3030d600cef3"
+        "sha256": "28e4cb1ce46d02c6a592a2509cf8c9126262c760171a81f58a2e708ce06ec180"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_startle.png",
-        "sha256": "6c3852f39553cca0f6e3291e75c4871a75c9c6b7b13ea79396c6952367243179"
+        "sha256": "99675da21d9f8bf1b67e69fd171167c725e273d91e4ba1a56ed45e5c50d6b628"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_bean/leak_flow.png",
-        "sha256": "1178a69eef9c375d77275e6705e903daa0796b756a9199e2560f98da6a4f7299"
+        "sha256": "40a4314083548eb7a6c697a659c733651b64026b63863e25101a7c1f9573bafd"
       },
       "from": {
         "teary": "c2665c0ee4c234fa92005019b1308b1f57e899670a619a3172510bb080aae025",
         "neutral": "af6c00936afe90d4a8d61cb2ef87a94828410415567410ff87973b295631c0c0",
         "surprise": "5c50fce8b0aa046947c5205ee1a7e68e3fed3dd8bb1180e8cd0c079084bf2639",
-        "flushed_smile": "1ab984b40a84ecb7ef7215dbdb70549be6838c6513de84cd773e5bcf784a43a3"
+        "flushed_smile": "0202870895229aac517d55fa5648ed0973e782c5cf738df5238320fa012099fd"
       }
     },
     "marisa_face": {
@@ -235,21 +235,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/afraid.png",
-        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+        "sha256": "9b1795843e4322e937399af38de6ebca46a49c93d8cc97873008898ab9571a38"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_startle.png",
-        "sha256": "09900bf29a295844f9282e3bfc4161e5203cffd82d6d6b5a310de4fdfe4bf9d3"
+        "sha256": "a4c611db12f10c0c94723d749f7dd7c6ca664fafc5f0cd0ae75e5114bf117922"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_face/leak_flow.png",
-        "sha256": "2f5ae43243da0c833373b09fe7d78229949ed32175d1f0d2c83fc18410a6c51a"
+        "sha256": "9495d4f9a15c1973863db1bc8d8885e9bbcca838ee31be061046488d1a4e7570"
       },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
         "surprise": "d0415f0558210ed8bc7847a8936b6f72e296afef399b2299f690697309c23d5c",
-        "flushed_smile": "d3af3a69042cee3de8eb9ed5f34212be91ea097d70df4b823b5f9f80adc0e8e3"
+        "flushed_smile": "bf2728d30c072e7908f036ab6a44b5c4f85c3ec5cf37b49585f04f4a01d20c38"
       }
     },
     "marisa_kotatsu": {
@@ -259,21 +259,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/afraid.png",
-        "sha256": "0eefbe1763bbbc69bc0bacefe7c12bcd6021451b40ba56812f8fb4b4388651af"
+        "sha256": "2db5c1f5d19a2026e8e8d7787eed39b513d1f9b2fd7e73eafb41e9ba609f0855"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_startle.png",
-        "sha256": "39097a644b50b1baaf771996f0fe5486b3e82f99dca7223483e5f89b4646f541"
+        "sha256": "9de9b5fc2122f609f5dc35cd80e9dbadbf945807e9145671a1bd2e3209f0c74f"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/leak_flow.png",
-        "sha256": "75db0384a2194139d3e458e97975a5e8fa153ef7e94d72e516bec121c5c72213"
+        "sha256": "9b01d6bc047245df7e650c1fdf75bbefceb97de628514a2b48ddee341e79a5af"
       },
       "from": {
         "teary": "49ea5d6b5e6892580cbf3ba8e1b4dd76ab4bd4852b763824dd573a945a9f9642",
         "neutral": "c7ece5155a54137534a16bfa8ddbf922fd43b4960e30dedb60883e90a45d731c",
         "surprise": "fc465fced3613697732d6b8adf17bb81dc7f52be4975b23401896f84d35fde4d",
-        "flushed_smile": "3fee68b6f6c1ef8b4115b36cd01cdbc2bbb3545d97097dc6d210348026cdeb0d"
+        "flushed_smile": "350e48a468844cfd1d7ef999923835df35999262bb384ba5359aa243a22273fe"
       }
     },
     "marisa_sparse": {
@@ -283,21 +283,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/afraid.png",
-        "sha256": "9fc69e670571dad4356de627aa2971fd84dace5b36b4021d30b3bbab3c114e44"
+        "sha256": "9b1795843e4322e937399af38de6ebca46a49c93d8cc97873008898ab9571a38"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_startle.png",
-        "sha256": "5029bde5277a4a8efe22d8176c9b011f5c4e9775f947e369907cbdbb09152347"
+        "sha256": "63f408463ef62d6fb91008d4e039b10f6f94591fa7ab915c31281403b61caf22"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_sparse/leak_flow.png",
-        "sha256": "7f65c37cd7c442c44e2581935542236a3e0ffd6c14462d29d7ecd42aba9aa0e5"
+        "sha256": "e2de339b487ce212e7ab6fe5f2bdd2ec9ced01a90c2a3bb5ab835ffdf88f63f1"
       },
       "from": {
         "teary": "785a32bc6a7694cb2a8e3ce0bd729adbf9596344a18d49fcffce30a5fe1a8e98",
         "neutral": "a1720e803bd78ddb3ac91add7c6714574afc4f1db48387c80f95315609e5c3e7",
         "surprise": "d0415f0558210ed8bc7847a8936b6f72e296afef399b2299f690697309c23d5c",
-        "flushed_smile": "d3af3a69042cee3de8eb9ed5f34212be91ea097d70df4b823b5f9f80adc0e8e3"
+        "flushed_smile": "bf2728d30c072e7908f036ab6a44b5c4f85c3ec5cf37b49585f04f4a01d20c38"
       }
     },
     "marisa_tsumuri": {
@@ -307,21 +307,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/afraid.png",
-        "sha256": "5a97aba1f2fcab2221852fadd0ce6baf982d9b8a67eb30a4aad4b755496110e1"
+        "sha256": "dcab0ff52aa20315ae3d1439d0c0e7afbe363356408dd32521224b8e81aab85b"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_startle.png",
-        "sha256": "58cea6f3c6e927dcba05b4c7ee43387c66104b2e47d7f94cfa3e503757eafa8a"
+        "sha256": "9150d51054ebceaf09eb40de9efc8b2874305a181a078c710c19bb4288a19e1d"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/leak_flow.png",
-        "sha256": "23bce186c459e39acbcb8e95a04f4c78b7dd2da4b20248e567961b2d66fb2b8a"
+        "sha256": "58aab26f3d76f4bd0faf78f92499e551fc4c206aec225809b7af2d9017ece11a"
       },
       "from": {
         "teary": "bb1875f1b48f2827e4a7870f78668f50ff7ebb33adb238209161a014ca6fab64",
         "neutral": "177ebc3bd82dae70d451b4799a7398889a41829632435dd468ec9af27afe9ebb",
         "surprise": "019c8cc031c618d72ae0084a87c934337d0d5d96684ec27a984cd93651e62463",
-        "flushed_smile": "4ec2a6afaad5f2993e066664748826899d934006c0dea76f3c6524501de160bb"
+        "flushed_smile": "9f295a30052ad5f6ed7ac73e89fda7d2e62a7a3259507dece8d255db14a69148"
       }
     },
     "myon": {
@@ -331,21 +331,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/afraid.png",
-        "sha256": "fc5b14a10008f75c5abc138eb9f7cd5805330b027a8879a35070e2dd92544fc0"
+        "sha256": "4c39397e90cd36af210fa2f9308bd2da60a304d4ae48c3e792abbe62feba84e3"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_startle.png",
-        "sha256": "e55be731c3360b8c33e92a2bf8a06dc2b29d1356cd18ad550477aab707c1ba6f"
+        "sha256": "9b1a621b5904e318a6628ea9cd9238b62419713bd56b74bc96b0f729089a33a4"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon/leak_flow.png",
-        "sha256": "84012e230a70e62ffc95051344647a5ee80ef3f97e5d9cc21b191013c039b11b"
+        "sha256": "74b20b130dfa53a6818e1d7fa8e1316dca72157972f57e4cb4d701feec3a1626"
       },
       "from": {
         "teary": "bbabad6de8f1ce4831cbf4a0c092a62a944171d3edc52c9838e44ee8db70cf74",
         "neutral": "db13d431109dc66d1bc11925fc4a692164eb3647371d115d93c27f972935b387",
         "surprise": "5b6b32801a8a3563076206cd6cf82cb547a10d294c73399e1a53a007b7c572d9",
-        "flushed_smile": "517ddbb27d7f53fe7995c6fa318c5d66d8b5c1f09d550d77b875c876ab2c21cc"
+        "flushed_smile": "0b7e9d72c463f79114bebbe2b949c17f0fd5b313741bf769d3df248cd6c8a95a"
       }
     },
     "myon_redeye": {
@@ -355,21 +355,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/afraid.png",
-        "sha256": "ce49fb9f91f216dbca60ec0edadfd58b20d25cb4ad16b89785a7d85caadebb6f"
+        "sha256": "d26b4fbf9f44084267ef00afd26588f2546e5f55f0bff77e4f9bc761b9891c30"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_startle.png",
-        "sha256": "5026748f48473d0c0b65b06580b54dbc96aed08a7e57973a2a0439a16fa423ae"
+        "sha256": "fa55c3b274062dc52c45d3f5cad850e45af6b47dfd8a7f48167a4cc148dfb702"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/leak_flow.png",
-        "sha256": "6845950868a4e96c26919586f802efc97b54ca085888033999aa434c99c7220d"
+        "sha256": "c8373ca9062910663bf13fdb581357e173ec2a036bb5179079f07234fde5fe47"
       },
       "from": {
         "teary": "79ceca55dec12b2476fdca692292256ee2df8021d74dec1a37b02223fc7c6781",
         "neutral": "12d24a52c5f6c2ee805349988a502af30af9b5b4dfdfedba14a1f4c8386c3192",
         "surprise": "d68629a7ddba145bc5e95e4edfcfb18562e3fc33de74b46047510e0bb6684106",
-        "flushed_smile": "bc2672ac4bebccd019ed94bec9d17becf01f5b6a6ebade2eff751d2726068255"
+        "flushed_smile": "8e5b6de08ba4bbf442de0662fd7ebe8e63e217a9b5c29e7e6280132c58080ab2"
       }
     },
     "patchouli": {
@@ -379,21 +379,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/afraid.png",
-        "sha256": "1613b8f11ff58ced014d151add319f911ca80ff5a8a2dee6ddb0ba91fde00eae"
+        "sha256": "095e01d56b9720b0314e14892ddf0422b8b6417c8d1a45653b90cede6683b5de"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_startle.png",
-        "sha256": "6e53b94045315b7decfc267da3d4b5304dea3a28fd6dc9b98e676b3096555fd1"
+        "sha256": "8b44d0556a0abd0f01052f3a2d709972421c67b5d67160e531fb359e42b480c4"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/leak_flow.png",
-        "sha256": "68e80cc73b11e782f083ccaeaf7f27258a875bf578451e4de4aab9bd14898738"
+        "sha256": "87afba1ed732756f00559129f00918690e0a05f9765a8ad2974fc098319e70b8"
       },
       "from": {
         "teary": "a93c2b92efef64c0ab29da6a3efc736967b74bcd5c89039bb86ccb036610ea87",
         "neutral": "58ca8d998efca87c3d786c74efed1cf0935eb08da656128997b4b76a4104da2e",
         "surprise": "7f935a56a93e80f1bb4a5cff548b45a26f4937683b186f0c401ad1e5df7f2da3",
-        "flushed_smile": "2592b35c42cd6d34a65af1c5a95592b2d0e26d7750680834d8bab5545344b4bd"
+        "flushed_smile": "6cdc7760239ca715ec5c441c4b40ce87b430bc977eff4068defacfb1b59fadf7"
       }
     },
     "reimu": {
@@ -403,21 +403,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/afraid.png",
-        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+        "sha256": "b380a3f26b82286a376af859af670ae26d73641dae32189142afa8e9076695a4"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_startle.png",
-        "sha256": "c05d82bc249c6bc22eef46be6af627b35f9b8cadeb024deec0cf53383a6b83a5"
+        "sha256": "e2ed7c4ab7930fdf0eb91c5c764572dca774df9e758611e67cebac3c7849b7e6"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/leak_flow.png",
-        "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
+        "sha256": "541aaa1c83282bf168d27800b5b3218ba7c0495c6f7243ed174d57d78e25e72f"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
         "surprise": "07d90ebaea95d148a455caca4bc287bfe77913d4bca51dc6b971a210896bc5b1",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "reimu_bean": {
@@ -427,21 +427,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/afraid.png",
-        "sha256": "6742d774c0b0ab992760134e3277d20d3c54ee081fa151d6380f75420a4055e6"
+        "sha256": "7798a282ee1646691e47997f34b3b8815de30166050761d0c9aa18279b758952"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_startle.png",
-        "sha256": "68b47c86561d00e847acf8790a2c9f12c8bf83441c6cb07d0bb6fb239768a52b"
+        "sha256": "9bc62dc94f03e7e8b8e0cb345e712cc284746484314a2c4a53a15c0ae65a8bdf"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_bean/leak_flow.png",
-        "sha256": "26bd771d388c59469ced0f971707b5ff66cf70109d7f2e19ef3a678383270a10"
+        "sha256": "376c086c42bf126d455df7e420c3ad7c706233d758a3fe8649a027ac6ed67bd4"
       },
       "from": {
         "teary": "bebe2ce7865657862ba50b96e840c67becee016e37ac35bc6f52ceac4f4e02f8",
         "neutral": "3ab104970773f942d3fb85a6cf98450ddccecfe4e7162827fb57b6f985362ba4",
         "surprise": "acd88aec7d7ba28a95141d2252eab37809e523a882c413399b37e40b343e305e",
-        "flushed_smile": "8cf502b6797bde7141ba35abec474397e552024622c20156d2149f92041511b5"
+        "flushed_smile": "b8682e280c1d42428e0f2614a09e26cf1f67ba9d99fc175f944956197fecbb69"
       }
     },
     "reimu_deibu": {
@@ -451,21 +451,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/afraid.png",
-        "sha256": "687819bd978b78616ede9b7595b4da0393ee976fbe6cde4f5c0ab2d468ca2184"
+        "sha256": "36e09c9b32bf0ba06101823e783ae68cebcc3acc7269f6b0a3be839b2a116fd7"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_startle.png",
-        "sha256": "e590587c85d3b03013bbe341607982f5fc8b47298e759f8151c79f04f6181402"
+        "sha256": "b23b734bf5620a0b2976882e22e67926238f486d18e3856ab4b505d163486503"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/leak_flow.png",
-        "sha256": "30593ac6afbacda6bf1d37b42b151d7f3840312c0fc01ecbf036200cce496fbc"
+        "sha256": "e83cb443797bf9b221c39056babb1b0610ce29c8a3fb11ac70b3b757668c02de"
       },
       "from": {
         "teary": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
         "neutral": "88c7fbcb380c193f26371b32a5a1751ac7694c3aa1956edbb442ef78fad4392f",
         "surprise": "7b4eaa585907fbd7b8510fc40afe0722dbd04d638e4514d333853612c788a7d3",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "reimu_face": {
@@ -475,21 +475,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/afraid.png",
-        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+        "sha256": "b380a3f26b82286a376af859af670ae26d73641dae32189142afa8e9076695a4"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_startle.png",
-        "sha256": "f1c8afcdb41097d762281c97dd56f273bac0731d8fd45b57760d4be4eef4c91b"
+        "sha256": "f8b2670e8d312e5b824c800b8a9587bfc6fd86f54825e04a7752479c82721759"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/leak_flow.png",
-        "sha256": "4237543639326c0eadd8dbdf3f53c233515582a49011affdeee2008ee4c79b2b"
+        "sha256": "56f61390b9b7c4fb751a30e87d3cf1a61d4d407753ac0d683ce6027f6b713d0a"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
         "surprise": "07d90ebaea95d148a455caca4bc287bfe77913d4bca51dc6b971a210896bc5b1",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "reimu_sparse": {
@@ -499,21 +499,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/afraid.png",
-        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+        "sha256": "b380a3f26b82286a376af859af670ae26d73641dae32189142afa8e9076695a4"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_startle.png",
-        "sha256": "c05d82bc249c6bc22eef46be6af627b35f9b8cadeb024deec0cf53383a6b83a5"
+        "sha256": "e2ed7c4ab7930fdf0eb91c5c764572dca774df9e758611e67cebac3c7849b7e6"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/leak_flow.png",
-        "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
+        "sha256": "541aaa1c83282bf168d27800b5b3218ba7c0495c6f7243ed174d57d78e25e72f"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
         "surprise": "07d90ebaea95d148a455caca4bc287bfe77913d4bca51dc6b971a210896bc5b1",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "reimu_wasa": {
@@ -523,21 +523,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/afraid.png",
-        "sha256": "a3052bcc0ddbb027cee438afcd5f0815573779ea35bed8bf17416af7f655477e"
+        "sha256": "b380a3f26b82286a376af859af670ae26d73641dae32189142afa8e9076695a4"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_startle.png",
-        "sha256": "c05d82bc249c6bc22eef46be6af627b35f9b8cadeb024deec0cf53383a6b83a5"
+        "sha256": "e2ed7c4ab7930fdf0eb91c5c764572dca774df9e758611e67cebac3c7849b7e6"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/leak_flow.png",
-        "sha256": "13c12d85c7d4fe86488a800be9159f1f3aa851efd41828b95d33bd35439e36e6"
+        "sha256": "541aaa1c83282bf168d27800b5b3218ba7c0495c6f7243ed174d57d78e25e72f"
       },
       "from": {
         "teary": "f5cc66d63fcf28c53d5dd48cc706f4af249cfe52044d00af8e6e30fb846b1be7",
         "neutral": "fbac91d3335b6e08db0b7cb2b193c85aae6b24a5f2b0eab752be8c42be88f263",
         "surprise": "07d90ebaea95d148a455caca4bc287bfe77913d4bca51dc6b971a210896bc5b1",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "reimu_wasa_deibu": {
@@ -547,21 +547,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/afraid.png",
-        "sha256": "687819bd978b78616ede9b7595b4da0393ee976fbe6cde4f5c0ab2d468ca2184"
+        "sha256": "36e09c9b32bf0ba06101823e783ae68cebcc3acc7269f6b0a3be839b2a116fd7"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_startle.png",
-        "sha256": "7a9b6f09ad39d01748f2752c993ab62a3c4730ada9d9feb7f8fc12a10266aac5"
+        "sha256": "a4087ed9c00a0dc18babffa5a5cfe898c96fbd146730e8c05c62e6073f44b3b3"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/leak_flow.png",
-        "sha256": "6f7b9818ce7993c0a23d9ce5756edf1846be59854679c25dfdbd4748d69dc895"
+        "sha256": "bb22b821ff2b98fa7ca1d5cdfbadc88bb21b50d65d07fb1c6af6b554a114e7a3"
       },
       "from": {
         "teary": "85c5529d95c6708dee4b3b066c5138952778eaf0f3c4ccb00d6b477e92acf5dd",
         "neutral": "88c7fbcb380c193f26371b32a5a1751ac7694c3aa1956edbb442ef78fad4392f",
         "surprise": "7b4eaa585907fbd7b8510fc40afe0722dbd04d638e4514d333853612c788a7d3",
-        "flushed_smile": "ca2d9d0e9e51ce109711e587618ac108c2650a2d2c0436d0cf7b4e62f4764ce2"
+        "flushed_smile": "eebd66ec544bbcf427cf622e0ac67336553b7c06aaeb94a8bd075a6634a82b82"
       }
     },
     "remilia": {
@@ -571,21 +571,21 @@
       },
       "afraid": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/afraid.png",
-        "sha256": "555195b609d971a4396d9c7658cb1941078742c07bca9128e15bf78e7e5d5d41"
+        "sha256": "618775ac2af513bae941a96036b6e7c6360b211dd4da397c7df4e958f7b14a47"
       },
       "leak_startle": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_startle.png",
-        "sha256": "76ec33253414a987dfef373a38dc282c4b87268aef5d875e1a8305038bdb1473"
+        "sha256": "6e414885b92f27c2767d49c28ebecf3f38873a46f92fa92137064c969a018b06"
       },
       "leak_flow": {
         "runtime": "src/main/resources/assets/mcyukkuri/textures/entity/remilia/leak_flow.png",
-        "sha256": "b81752a8a9155980414f285fd07660cb76717f510cd8cc1ac6a8b00cef5642f0"
+        "sha256": "31f66d3040c951c79af9a0cb28eb194d5acb40996ed7b99b7701280cf9001d66"
       },
       "from": {
         "teary": "248a65f930a1c148ecf602d23ab87e7211376ec01856e8ea3135fa4ee79422cd",
         "neutral": "5b72014140c0791876c7d4712aba4d8fea52c0b3afdffc64154dcba23b72f83b",
         "surprise": "c6c646a9a6a0e28a87962931cbe6c52b461d87ac0c90b98be736119ed828da67",
-        "flushed_smile": "358a745908354c47044a7ae4098caca2d6495acdc16d7ae1fb35ff4c5533eaf4"
+        "flushed_smile": "d8ae9833f0fee91a555193728d09db1aa16ed177c2491ac3569381b222e8f80e"
       }
     }
   },

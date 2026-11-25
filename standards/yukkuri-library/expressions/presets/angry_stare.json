@@ -27,7 +27,7 @@
     "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
     "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_mouth": "expressions/parts/c65e88644f22808b9f2a.png",
+    "face_mouth": "expressions/parts/84f3ead8caf4ebe71103.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
@@ -52,15 +52,7 @@
   "review_code": "N058",
   "origin": "new",
   "review_pair": null,
-  "geometry_offsets": {
-    "face_mouth": {
-      "scale": [
-        0.8,
-        0.8,
-        1
-      ]
-    }
-  },
+  "geometry_offsets": {},
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

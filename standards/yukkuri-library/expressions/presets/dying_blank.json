@@ -27,7 +27,7 @@
     "face_brow_right": "expressions/parts/37e940968392d59867a9.png",
     "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
     "face_tear_right": "expressions/parts/dc96140aab738d6ad443.png",
-    "face_mouth": "expressions/parts/b1e51d77a2309766a35f.png",
+    "face_mouth": "expressions/parts/8dfe7419494560173348.png",
     "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
   },
   "sources": [
@@ -49,14 +49,14 @@
     "face_brow_left": {
       "position": [
         0,
-        -0.8,
+        -0.25,
         0
       ]
     },
     "face_brow_right": {
       "position": [
         0,
-        -0.8,
+        -0.25,
         0
       ]
     },

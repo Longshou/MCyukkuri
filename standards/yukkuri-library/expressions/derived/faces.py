@@ -106,16 +106,21 @@ def tremble_mouth(image, box, scale):
     cells = [(x, y) for y in range(y0, y1) for x in range(x0, x1) if px[x, y][3] >= 128]
     if not cells: return
     dark = min((px[c] for c in cells), key=lambda c: c[0]+c[1]+c[2])
-    left, right = min(x for x, _ in cells), max(x for x, _ in cells)
-    centre = round((min(y for _, y in cells)+max(y for _, y in cells))/2)
     for x, y in cells: px[x, y] = (0, 0, 0, 0)
-    step = max(1, round(scale)); width = max(right-left+1, 5*step)
-    left = max(x0, (left+right+1)//2-width//2)
-    for x in range(left, min(x1, left+width)):
-        up = ((x-left)//step) % 2
-        for k in range(step):
-            y = centre-up*step+k
-            if y0 <= y < y1: px[x, y] = dark
+    # Match the standard 14x12 mouth grid so predators (112x96 mouth box) and standard bodies (28x24) get the same weight.
+    unit = max(1, round((x1 - x0) / 14))
+    cols = 8
+    width = cols * unit
+    left = max(x0, (x0 + x1 - width) // 2)
+    centre = y0 + round((y1 - y0) * .45)
+    for col in range(cols):
+        up = col % 2
+        for dx in range(unit):
+            x = left + col * unit + dx
+            if not (x0 <= x < x1): continue
+            for dy in range(unit):
+                y = centre - up * unit + dy
+                if y0 <= y < y1: px[x, y] = dark
 
 
 def big_eye(image, source, box):
