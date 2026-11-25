@@ -4,12 +4,12 @@
     "art/props/care-facilities/recipe.json": "824254984a93a09c8c22110a052cae6b55a09d5fd7cafdea7773a89e70a8661a",
     "art/props/food-bowl/food_bowl.geo.json": "65ee92fa0020d8e6c8039ef6884612e58e030b2c3a6bd62fb2abe30b799e00c3",
     "art/props/food-bowl/feeding.png": "ecae350c80f0eca14c4a3b18b56f0c5971fbcdfa261a6a19a306ab057d17fc9c",
-    "art/source/rounded-runtime/manifest.json": "bf818c38833330a2b2dfe324e06c1e12326df55fd5afbbbd472124ecadab56da",
-    "art/source/rounded-runtime/reimu/runtime.model.json": "5daaf428cc6b994fdf2bc37a16bea5f1b6b0610caa41ed059e975dae12078e39",
-    "art/source/rounded-runtime/marisa/runtime.model.json": "686e905274d4b228d14d16626cefa2ab4e9f0ae81d13b40b9665b9750c53aaae",
-    "art/source/rounded-runtime/chen/runtime.model.json": "1bdf5f46ff8adb1985b14c42637896a03d67a13bad72ba2b12ef6ff280cc51ea",
-    "art/source/rounded-runtime/alice/runtime.model.json": "a8061f378141b236e95db2be7ba05d5d986a19f6279c4c98551ab51fb85c3a92",
-    "art/source/rounded-runtime/patchouli/runtime.model.json": "0d0f1bc850d9be387e6e68ac90226f3dd176be4d0579a6980da6109d91b128ab",
+    "art/source/rounded-runtime/manifest.json": "e8d8990cee9de60d81735814e584b9f2a8115493e13772c5612a6387eb035c51",
+    "art/source/rounded-runtime/reimu/runtime.model.json": "916b4ebb90f334fa765cccb90d52513503afbb91ab0d8e42a9170c002d348227",
+    "art/source/rounded-runtime/marisa/runtime.model.json": "445cc269c6db0fdcf99f830290df3abe71b3b0edcdeb111e0f6d5f874a90cb46",
+    "art/source/rounded-runtime/chen/runtime.model.json": "1c931efd99c1bc74ddaa8741aea8b2aed987dc993eb22fd3ac5369d6782b7a66",
+    "art/source/rounded-runtime/alice/runtime.model.json": "4183ca895319c82dfcae3fbef67b6b94e731e3a4702832bfe0ddb6c1c38a9a3d",
+    "art/source/rounded-runtime/patchouli/runtime.model.json": "d7291c4e1bd903bf63168ba12a760e056beadf24f5229f29bcd014141ce5cf69",
     "art/source/rounded-runtime/presentation.json": "bbb2f7243caa91fd103b38f3b275970a6fd8f00a45fd16fc3eb5f9979fa8160b"
   },
   "outputs": {
