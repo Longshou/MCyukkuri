@@ -3045,14 +3045,14 @@
       "snapshot": "art/source/rounded-runtime/alice/selected/alice.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "reimu"
       },
       "shape_status": "selected_rounded_standard",
       "runtime_acceptance": "pending_current_verification",
       "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
       "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-      "runtime_sha256": "4183ca895319c82dfcae3fbef67b6b94e731e3a4702832bfe0ddb6c1c38a9a3d",
+      "runtime_sha256": "4777144ed9e0c6a0d84d1b2bf9afc14237694cfffe8073c665d895d22f0df97d",
       "rig": "art/source/rounded-runtime/alice/animation-rig.json",
       "bone_count": 262,
       "clips": [
@@ -3233,7 +3233,7 @@
       "snapshot": "art/source/rounded-runtime/chen/selected/chen.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "reimu"
       },
       "shape_status": "selected_rounded_standard",
@@ -3973,7 +3973,7 @@
       "snapshot": "art/source/rounded-runtime/marisa/selected/marisa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "marisa"
       },
       "shape_status": "selected_rounded_standard",
@@ -4747,7 +4747,7 @@
       "snapshot": "art/source/rounded-runtime/marisa_tsumuri/selected/marisa_tsumuri.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "marisa",
         "shell_motion": "slow walk and five-degree whole-body side lean"
       },
@@ -4939,7 +4939,7 @@
       "snapshot": "art/source/rounded-runtime/patchouli/selected/patchouli.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "reimu",
         "grounded_hair": "selected library hair-contact weights preserved"
       },
@@ -5128,7 +5128,7 @@
       "snapshot": "art/source/rounded-runtime/reimu/selected/reimu.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "reimu"
       },
       "shape_status": "selected_rounded_standard",
@@ -6090,7 +6090,7 @@
       "snapshot": "art/source/rounded-runtime/reimu_wasa/selected/reimu_wasa.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,
-        "runtime_scale_normalization": 1.0,
+        "runtime_scale_normalization": 1,
         "missing_actions_filled_from": "reimu"
       },
       "shape_status": "selected_rounded_standard",
