@@ -251,7 +251,7 @@ def export(ident, base, selection, stage, preserve_textures=False):
     if ident=='marisa_tsumuri':
         # Flexible torso bends cannot carry the rigid shell through the head. Shell types
         # use a small whole-root lean for these two actions; their rest geometry is unchanged.
-        for key in ('side_bend','exercise_sides'):
+        for key in ('side_bend',):
             duration=clips[key]['duration'];clips[key]={'duration':duration,'loop':clips[key]['loop'],'tracks':[
                 {'bone':names['root'],'channel':'rotation','keys':[[0,0,0,0],[duration*.25,0,0,5],[duration*.5,0,0,0],[duration*.75,0,0,-5],[duration,0,0,0]]}]}
         clips['waddle']['duration']*=1.4

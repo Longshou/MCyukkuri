@@ -88,7 +88,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
 
     private static String expression(YukkuriView entity) {
         String face = ParentCarryPresentation.expression(entity, entity.getExpressionId());
-        if (switch (face) { case "pin_cry", "pressed_cry", "horrified", "cut_cry", "sukkiri_squeeze", "flushed_smile" -> true; default -> false; }
+        if (FaceLibrary.openMouth(face)
                 && (!entity.getMouthItem().isEmpty() || !entity.getMouthBodyFood().isEmpty()
                     || !entity.getCarriedItem().isEmpty() || ParentCarry.mouthCarrying(entity)
                     || HeldItemPresentation.hasMouthKit(entity))) face = "teary_frown";

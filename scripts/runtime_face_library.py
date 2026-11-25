@@ -135,17 +135,18 @@ def outputs(bases=False):
             if composed[1]:
                 patches[name] = composed[1]
         models[ident] = dict(bone_names=[b['name'] for b in model['bones']],clips={},
-                            expression_patches=patches,face_aliases=row['face_aliases'],
+                            expression_patches=patches,
                             selectable=sorted(set(faces)|set(row['existing_textures'])|set(row['legacy_faces'])))
     if bases:
         return files
-    animations = selection['animations']
+    registry = read(LIB/'expressions/registry.json')['faces']
+    animations = {a: dict(frames=[a, a+'_b'], frame_ticks=row['frame_ticks']) for a, row in registry.items() if 'frame_ticks' in row}
     # One duration (ticks) per frame; the client cycles them in order. Frames are approved faces or derived faces
     # selectable on every model.
     shared = set.intersection(*(set(m['selectable']) for m in models.values()))
     assert all(a == b['frames'][0] and set(b['frames']) <= shared and len(b['frame_ticks']) == len(b['frames']) >= 2
                and all(t > 0 for t in b['frame_ticks']) for a,b in animations.items())
-    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),aliases={**index['aliases'],**selection['aliases']},animations=animations,models=models,labels={n:[p['group'],p['label']] for n,p in faces.items()},face_fallback=selection['face_fallback']))
+    files[ASSETS/'yukkuri_presentation/face_library.json'] = encoded(dict(format=1,faces=list(faces),animations=animations,open_mouth=[a for a, row in registry.items() if row.get('open_mouth')],models=models,labels={n:[p['group'],p['label']] for n,p in faces.items()},face_fallback=selection['face_fallback']))
     ledger = read(ROOT/'art/runtime-sources.json')
     ledger['face_library'] = dict(selection='standards/yukkuri-library/expressions/runtime.json',
         exporter='scripts/export_ecology_expressions.py', helper='scripts/runtime_face_library.py',

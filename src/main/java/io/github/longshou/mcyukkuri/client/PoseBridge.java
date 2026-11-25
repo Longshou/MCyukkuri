@@ -16,7 +16,7 @@ import java.util.function.BiConsumer;
 final class PoseBridge {
     enum Mode { BLEND, RECORD, OFF }
 
-    private static final Set<String> TAKEOVERS = Set.of(Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.THREAT_HIDE,
+    private static final Set<String> TAKEOVERS = Set.of(Behaviors.FLEE, Behaviors.BOAT_ALARM_WAIT, Behaviors.THREAT_HIDE,
             Behaviors.STRUCK, Behaviors.SHELL_RETRACT, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING);
     private static final String[] CONTACTS = {"contact", "contact_closed", "bite_contact", "hook_contact", "grip", "pick", "impact"};
     private static final WeakHashMap<YukkuriView, State> history = new WeakHashMap<>();

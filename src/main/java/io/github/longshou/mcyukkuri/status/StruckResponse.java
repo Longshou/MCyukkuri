@@ -157,13 +157,13 @@ final class StruckResponse implements MotorOwner {
         }
         var threat = body.status().reactions().threat();
         if (threat.seal().committedOutside() && threat.seal().drive(actor)) return true;
-        int clip = YukkuriAction.PUKU_TEARY.durationTicks();
+        int clip = YukkuriAction.PUFF_TEARY.durationTicks();
         if (now >= nextTaunt && body.distanceTo(actor) > HomeTactic.tauntGap(t)) {
             SurfaceApproach.halt(body);
             body.getLookControl().setLookAt(actor, 30, 30);
             var home = body.habitat().shelter();
             var young = home == null ? List.<YukkuriEntity>of() : dependants(home);
-            body.showReaction(YukkuriAction.PUKU_TEARY, "puff_teary", ReactionSpeech.leadTaunt(!young.isEmpty()), clip);
+            body.showReaction(YukkuriAction.PUFF_TEARY, "puff_teary", ReactionSpeech.leadTaunt(!young.isEmpty()), clip);
             if (actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
                 for (var child : young)
                     if (predator.predator().divert(body, child)) break;
@@ -245,7 +245,7 @@ final class StruckResponse implements MotorOwner {
 
     YukkuriAction action() {
         if (stance == StruckStance.LEAD_AWAY) {
-            if (body.level().getGameTime() < nextTaunt - YukkuriAction.PUKU_TEARY.durationTicks()) return YukkuriAction.PUKU_TEARY;
+            if (body.level().getGameTime() < nextTaunt - YukkuriAction.PUFF_TEARY.durationTicks()) return YukkuriAction.PUFF_TEARY;
             return body.status().reactions().threat().flight().cornered(actor) ? YukkuriAction.TREMBLE : YukkuriAction.RUN;
         }
         return stance == StruckStance.FREEZE && body.level().getGameTime() - start >= YukkuriAction.BRACE.durationTicks()

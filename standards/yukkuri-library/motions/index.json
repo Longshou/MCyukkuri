@@ -14,15 +14,14 @@
   "composite": {
     "stretch": "motions/composite/stretch.json",
     "exercise_vertical": "motions/composite/exercise_vertical.json",
-    "exercise_sides": "motions/composite/exercise_sides.json",
     "press": "motions/composite/press.json",
-    "taiso": "motions/composite/taiso.json",
+    "exercise_all": "motions/composite/exercise_all.json",
     "flee": "motions/composite/flee.json"
   },
   "aliases": {
     "walk": "waddle",
     "effort": "press",
-    "full_exercise": "taiso"
+    "full_exercise": "exercise_all"
   },
   "rules": [
     "Compound motion files reference base motions and contain no baked tracks.",

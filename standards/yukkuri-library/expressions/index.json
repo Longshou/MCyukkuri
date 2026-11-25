@@ -21,8 +21,8 @@
     "yawn_b": "expressions/presets/yawn_b.json",
     "sleep": "expressions/presets/sleep.json",
     "sleep_b": "expressions/presets/sleep_b.json",
-    "tear_sleep": "expressions/presets/tear_sleep.json",
-    "tear_sleep_b": "expressions/presets/tear_sleep_b.json",
+    "teary_sleep": "expressions/presets/teary_sleep.json",
+    "teary_sleep_b": "expressions/presets/teary_sleep_b.json",
     "squeezed_frown": "expressions/presets/squeezed_frown.json",
     "squeezed_frown_b": "expressions/presets/squeezed_frown_b.json",
     "waking": "expressions/presets/waking.json",
@@ -39,7 +39,6 @@
     "dead_tongue": "expressions/presets/dead_tongue.json",
     "blank_cry": "expressions/presets/blank_cry.json",
     "blank_cry_b": "expressions/presets/blank_cry_b.json",
-    "squeezed_cry": "expressions/presets/squeezed_cry.json",
     "squeezed_cry_tears": "expressions/presets/squeezed_cry_tears.json",
     "teary_pant": "expressions/presets/teary_pant.json",
     "teary_pant_b": "expressions/presets/teary_pant_b.json",
@@ -72,7 +71,6 @@
     "blank_happy": "expressions/presets/blank_happy.json",
     "cold": "expressions/presets/cold.json",
     "cold_b": "expressions/presets/cold_b.json",
-    "cut_cry": "expressions/presets/cut_cry.json",
     "pressed_teary": "expressions/presets/pressed_teary.json",
     "pressed_cry": "expressions/presets/pressed_cry.json",
     "licking": "expressions/presets/licking.json",
@@ -91,19 +89,6 @@
     "shattered_fade": "expressions/presets/shattered_fade.json",
     "flick_dull": "expressions/presets/flick_dull.json",
     "sleepy": "expressions/presets/sleepy.json",
-    "angry__new": "expressions/presets/angry__new.json",
-    "confused__new": "expressions/presets/confused__new.json",
-    "cry__new": "expressions/presets/cry__new.json",
-    "drool__new": "expressions/presets/drool__new.json",
-    "happy__new": "expressions/presets/happy__new.json",
-    "neutral__new": "expressions/presets/neutral__new.json",
-    "puff__new": "expressions/presets/puff__new.json",
-    "sleep__new": "expressions/presets/sleep__new.json",
-    "sleepy__new": "expressions/presets/sleepy__new.json",
-    "smug__new": "expressions/presets/smug__new.json",
-    "surprise__new": "expressions/presets/surprise__new.json",
-    "teary__new": "expressions/presets/teary__new.json",
-    "yawn__new": "expressions/presets/yawn__new.json",
     "sukkiri_squeeze": "expressions/presets/sukkiri_squeeze.json",
     "sukkiri_dazed": "expressions/presets/sukkiri_dazed.json",
     "sukkiri_smug": "expressions/presets/sukkiri_smug.json",
@@ -116,18 +101,6 @@
     "ashamed": "expressions/presets/ashamed.json",
     "sparkle": "expressions/presets/sparkle.json"
   },
-  "effects": {
-    "wet_highlight": "expressions/effects/wet_highlight.json",
-    "side_tears": "expressions/effects/side_tears.json"
-  },
-  "aliases": {
-    "sleepy_eye": "sleepy",
-    "crying": "cry",
-    "smile": "happy",
-    "fear": "surprise",
-    "puff_eye_a": "puff",
-    "bad_taste": "squeezed_cry_tears"
-  },
   "parts": "expressions/parts/index.json",
   "source_coverage": "provenance/expression-coverage.json",
   "default": "neutral",
@@ -137,8 +110,5 @@
     "Direction and action variants map to existing recipes; A/B tear phases use shared eye/mouth parts.",
     "No raw Hakkei U pixels in this library."
   ],
-  "effect_aliases": {
-    "closed_wet_highlight": "wet_highlight"
-  },
   "standard_set": "provenance/standard-expressions.json"
 }

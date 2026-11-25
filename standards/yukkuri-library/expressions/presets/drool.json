@@ -36,7 +36,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/drool.png",
   "review_code": "O06",
   "origin": "original",
-  "review_pair": "drool__new",
+  "review_pair": null,
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

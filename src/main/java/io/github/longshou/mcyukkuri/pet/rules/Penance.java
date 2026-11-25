@@ -203,11 +203,11 @@ public final class Penance {
         boolean scared = fearful || fear >= .5;
         if (verdict == Verdict.PUNISHED) {
             outcome = blow ? "punished_blow" : "punished_scold";
-            declare("punished", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : blow ? "squeezed_cry" : "teary",
+            declare("punished", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : blow ? "impact_teary" : "teary",
                     blow && scared ? "hurt_plea" : "scolded");
         } else if (verdict == Verdict.FORGIVEN) {
             outcome = "forgiven";
-            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.DROOP, "teary_smile", "request_thanks");
+            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.DROOP, "closed_smile", "request_thanks");
             pet.pet().addStress(-6);
         } else {
             outcome = "withdrew";

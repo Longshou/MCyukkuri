@@ -34,7 +34,7 @@ for(const item of catalog.models){
   pose.expression(expression);const posed=pose.frame('waddle',.3);if(!posed.every(Number.isFinite))throw Error('Invalid expression '+item.id+'/'+expression);
   // A revision's own named patch wins; otherwise the alias lends its geometry.
   const patches={...model.expression_patches,...revisions[item.id].expression_patches};
-  const sourceExpression=patches[expression]?expression:revisions[item.id].expression_aliases?.[expression]||expression;
+  const sourceExpression=patches[expression]?expression:revisions[item.id].patch_source?.[expression]||expression;
   const patched=new Set((patches[sourceExpression]||[]).map(patch=>patch.index));
   // Only parts that declare a patch may leave their neutral geometry.
   for(let index=0;index<pose.model.parts.length;index++){const part=pose.model.parts[index];if(patched.has(index))continue;

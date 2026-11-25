@@ -52,5 +52,42 @@ class LibraryValidationTests(unittest.TestCase):
             self.validate('alice', self.character, self.rig)
 
 
+class FaceRegistryTests(unittest.TestCase):
+    """Negative controls for scripts/check_face_registry.py; the emitter rules take a hand-made usage map."""
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(LIB.parents[1]/'scripts'))
+        import check_face_registry
+        cls.check = check_face_registry
+
+    def problems(self, mutate=None, usage=None):
+        original = self.check.read
+        def read(path):
+            data = original(path)
+            if mutate and path.name == 'registry.json': mutate(data['faces'])
+            return data
+        with patch.object(self.check, 'read', side_effect=read):
+            return self.check.problems(usage)
+
+    def test_current_registry_is_consistent(self):
+        self.assertEqual([], self.problems())
+
+    def test_bad_ids_are_rejected(self):
+        for name in ('angry__new', 'Bad', 'reimu_smile', 'young_cry'):
+            found = self.problems(lambda faces, n=name: faces.update({n: {'kind': 'domain'}}))
+            self.assertTrue(any(name in line for line in found), name)
+
+    def test_b_frame_rules(self):
+        self.assertTrue(any('frame_of' in line for line in self.problems(lambda faces: faces.update({'x_b': {'kind': 'domain'}}))))
+        self.assertTrue(any('_b' in line for line in self.problems(lambda faces: faces['cry'].pop('frame_ticks'))))
+
+    def test_emitter_rules(self):
+        usage = {'neutral': {'x'}, 'cry_b': {'x'}, 'not_a_face': {'x'}}
+        found = '\n'.join(self.problems(usage=usage))
+        self.assertIn('not registered: not_a_face', found)
+        self.assertIn('cry_b: a B frame is emitted directly', found)
+        self.assertIn('no emitter and no reserved reason', found)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -33,7 +33,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/yawn.png",
   "review_code": "O08",
   "origin": "original",
-  "review_pair": "yawn__new",
+  "review_pair": null,
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

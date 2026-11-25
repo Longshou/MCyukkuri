@@ -53,11 +53,11 @@ public final class NestComfort {
         /** Nothing to remark: the ordinary good-night. */
         CONTENT(null, "", "", 0),
         /** A bed better than it hoped for: a happy shiver. */
-        DELIGHTED(YukkuriAction.SHIAWASE, "happy", "mood_good", 0),
+        DELIGHTED(YukkuriAction.JOY_HOP, "happy", "mood_good", 0),
         /** An anxious one sinking into a soft roll. */
         SOOTHED(null, "closed_smile", "mood_ok", 30),
         /** Beneath it, but it lies down: puffed cheeks first. */
-        GRUMBLE(YukkuriAction.PUFF, "cheek_puff", "puff", 0),
+        GRUMBLE(YukkuriAction.PUFF, "puff_open", "puff", 0),
         /** Far beneath it: it puffs up and will not lie down yet. */
         REFUSE(YukkuriAction.PUFF, "cheek_puff", "request_sulk", 0),
         /** Back after refusing: it gives in with a sulk and lies down. */

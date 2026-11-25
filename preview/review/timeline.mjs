@@ -46,8 +46,7 @@ export function leakSteps(steps, leak, end = leak.beat.endAt) {
 }
 
 export function textureFace(data, model, face, seconds) {
-    const universal = data.faceAliases[face] ?? face;
-    const selected = model.faceAliases[universal] ?? universal;
+    const selected = face;
     const animation = data.faceAnimations[selected];
     if (!animation) return selected;
     const cycle = animation.frame_ticks.reduce((sum, ticks) => sum + ticks, 0);

@@ -17,9 +17,8 @@ public enum YukkuriAction {
     HOP_LEG("hop_leg", 0.9, false),
     STRETCH("stretch", 2.8, true),
     EXERCISE_VERTICAL("exercise_vertical", 2.62, true),
-    EXERCISE_SIDES("exercise_sides", 2.36, true),
     PRESS("press", 4.8, true),
-    TAISO("taiso", 14.0, true),
+    EXERCISE_ALL("exercise_all", 14.0, true),
     FLEE("flee", 5.0, true),
     ANATOMY_MAMU_EXTEND("anatomy_mamu_extend", 0.24, false),
     ANATOMY_MAMU_RETRACT("anatomy_mamu_retract", 0.65, false),
@@ -32,7 +31,7 @@ public enum YukkuriAction {
     BRAID_EAT_BIN("braid_eat_bin", 1.9, false),
     BIN_SNIFF("bin_sniff", 3.1, false),
     BIN_NOSE_IN("bin_nose_in", 2.5, false),
-    SHIAWASE("shiawase", 2.0, false),
+    JOY_HOP("joy_hop", 2.0, false),
     MEAL_CONTENT("meal_content", 3.6, false),
     DRINK("drink", 1.6, true),
     SLEEP("sleep", 4.0, true),
@@ -103,7 +102,6 @@ public enum YukkuriAction {
     BOAT_REASSURE("boat_reassure", 2.0, true),
     BOAT_ALARM_CALL("boat_alarm_call", 1.2, false),
     BOAT_ALARM_WAIT("boat_alarm_wait", 2.0, true),
-    BOAT_FLEE("boat_flee", 2.0, true),
     BOAT_CALM("boat_calm", 4.0, false),
     BOAT_ANSWER_CALL("boat_answer_call", 1.0, false),
     BRAID_RESCUE_REACH("braid_rescue_reach", 1.1, false),
@@ -181,7 +179,7 @@ public enum YukkuriAction {
     THUNDER_COWER("thunder_cower", 3.2, true),
     SUNBATHE("sunbathe", 10.0, true),
     // A frightened puff with tears (lore recipe): a parent taunting a predator away from its child (moment behavior_protect_taunt).
-    PUKU_TEARY("puku_teary", 3.2, true),
+    PUFF_TEARY("puff_teary", 3.2, true),
     // Landed base rig: launch .36, impact .52, settled 1.1 seconds.
     LUNGE_RAM("lunge_ram", 1.1, false),
     // Face squashed on a pane (GlassPress): launch .3, contact .6, impact (peel) 1.3, settled 1.9 seconds.

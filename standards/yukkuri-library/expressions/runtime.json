@@ -28,9 +28,7 @@
       ],
       "legacy_faces": [
         "afraid",
-        "breeding_period",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -66,7 +64,6 @@
         "chewing_closed": "art/source/rounded-runtime/alice/textures/chewing_closed.png",
         "satisfied": "art/source/rounded-runtime/alice/textures/satisfied.png",
         "sleepy": "art/source/rounded-runtime/alice/textures/sleepy.png",
-        "breeding_period": "art/source/adult-states/breeding_period.png",
         "remains_burned": "art/source/remains/textures/alice/remains_burned.png",
         "remains_crushed": "art/source/remains/textures/alice/remains_crushed.png",
         "remains_dissolving": "art/source/remains/textures/alice/remains_dissolving.png",
@@ -76,11 +73,7 @@
         "remains_sick": "art/source/remains/textures/alice/remains_sick.png",
         "remains_starved": "art/source/remains/textures/alice/remains_starved.png",
         "remains_violent": "art/source/remains/textures/alice/remains_violent.png",
-        "state_recover": "art/source/adult-states/state_recover.png",
-        "dazed": "standards/yukkuri-library/assembled/alice/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "state_recover": "art/source/adult-states/state_recover.png"
       }
     },
     "chen": {
@@ -110,7 +103,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -152,14 +144,11 @@
         "remains_natural": "art/source/remains/textures/chen/remains_natural.png",
         "remains_sick": "art/source/remains/textures/chen/remains_sick.png",
         "remains_starved": "art/source/remains/textures/chen/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/chen/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/chen/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/chen/remains_violent.png"
       }
     },
-    "chen_longtail": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/chen_longtail/textures",
+    "chen_longtail": {
+      "texture_source": "standards/yukkuri-library/subspecies/rare-forms/assembled/chen_longtail/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
       "neutral_source": "art/source/rare-forms-runtime/chen_longtail/textures/neutral.png",
       "existing_textures": [
@@ -187,7 +176,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "sad"
@@ -212,14 +200,11 @@
         "chewing": "art/source/rare-forms-runtime/chen_longtail/textures/chewing.png",
         "chewing_closed": "art/source/rare-forms-runtime/chen_longtail/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/chen_longtail/textures/satisfied.png",
-        "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png",
-        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png"
       }
     },
-    "chen_roundtail": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/chen_roundtail/textures",
+    "chen_roundtail": {
+      "texture_source": "standards/yukkuri-library/subspecies/rare-forms/assembled/chen_roundtail/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
       "neutral_source": "art/source/rare-forms-runtime/chen_longtail/textures/neutral.png",
       "existing_textures": [
@@ -247,7 +232,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "sad"
@@ -272,11 +256,7 @@
         "chewing": "art/source/rare-forms-runtime/chen_longtail/textures/chewing.png",
         "chewing_closed": "art/source/rare-forms-runtime/chen_longtail/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/chen_longtail/textures/satisfied.png",
-        "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png",
-        "dazed": "art/source/rare-forms-runtime/chen_longtail/textures/dazed.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "sleepy": "art/source/rare-forms-runtime/chen_longtail/textures/sleepy.png"
       }
     },
     "flandre": {
@@ -316,9 +296,6 @@
         "surprise": "art/source/standard-runtime/flandre/textures/surprise.png",
         "sleepy": "art/source/standard-runtime/flandre/textures/sleepy.png",
         "biting": "art/source/standard-runtime/flandre/textures/biting.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused"
       }
     },
     "house_marisa": {
@@ -366,10 +343,6 @@
         "chewing_closed": "art/source/ecology/textures/house_marisa/chewing_closed.png",
         "satisfied": "art/source/ecology/textures/house_marisa/satisfied.png",
         "sleepy": "art/source/standard-runtime/house_marisa/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "house_reimu": {
@@ -417,10 +390,6 @@
         "chewing_closed": "art/source/ecology/textures/house_reimu/chewing_closed.png",
         "satisfied": "art/source/ecology/textures/house_reimu/satisfied.png",
         "sleepy": "art/source/standard-runtime/house_reimu/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "marisa": {
@@ -450,7 +419,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -492,11 +460,7 @@
         "remains_natural": "art/source/remains/textures/marisa/remains_natural.png",
         "remains_sick": "art/source/remains/textures/marisa/remains_sick.png",
         "remains_starved": "art/source/remains/textures/marisa/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/marisa/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/marisa/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/marisa/remains_violent.png"
       }
     },
     "marisa_bean": {
@@ -544,10 +508,6 @@
         "chewing_closed": "art/source/ecology/textures/house_marisa/chewing_closed.png",
         "satisfied": "art/source/ecology/textures/house_marisa/satisfied.png",
         "sleepy": "art/source/standard-runtime/house_marisa/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "marisa_face": {
@@ -599,13 +559,10 @@
         "chewing_closed": "art/source/rounded-runtime/marisa/textures/chewing_closed.png",
         "satisfied": "art/source/rounded-runtime/marisa/textures/satisfied.png",
         "sleepy": "art/source/rounded-runtime/marisa/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
-    "marisa_kotatsu": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/marisa_kotatsu/textures",
+    "marisa_kotatsu": {
+      "texture_source": "standards/yukkuri-library/subspecies/rare-forms/assembled/marisa_kotatsu/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
       "neutral_source": "art/source/rare-forms-runtime/marisa_kotatsu/textures/neutral.png",
       "existing_textures": [
@@ -633,7 +590,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "sad"
@@ -658,11 +614,7 @@
         "chewing": "art/source/rare-forms-runtime/marisa_kotatsu/textures/chewing.png",
         "chewing_closed": "art/source/rare-forms-runtime/marisa_kotatsu/textures/chewing_closed.png",
         "satisfied": "art/source/rare-forms-runtime/marisa_kotatsu/textures/satisfied.png",
-        "sleepy": "art/source/rare-forms-runtime/marisa_kotatsu/textures/sleepy.png",
-        "dazed": "art/source/rare-forms-runtime/marisa_kotatsu/textures/dazed.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "sleepy": "art/source/rare-forms-runtime/marisa_kotatsu/textures/sleepy.png"
       }
     },
     "marisa_sparse": {
@@ -714,10 +666,6 @@
         "chewing_closed": "art/source/rounded-runtime/marisa/textures/chewing_closed.png",
         "satisfied": "art/source/rounded-runtime/marisa/textures/satisfied.png",
         "sleepy": "art/source/rounded-runtime/marisa/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "marisa_tsumuri": {
@@ -747,7 +695,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -789,14 +736,11 @@
         "remains_natural": "art/source/remains/textures/marisa_tsumuri/remains_natural.png",
         "remains_sick": "art/source/remains/textures/marisa_tsumuri/remains_sick.png",
         "remains_starved": "art/source/remains/textures/marisa_tsumuri/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/marisa_tsumuri/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/marisa_tsumuri/remains_violent.png"
       }
     },
-    "myon": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/myon/textures",
+    "myon": {
+      "texture_source": "standards/yukkuri-library/subspecies/rare-forms/assembled/myon/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
       "neutral_source": "art/source/rare-forms-runtime/myon/textures/neutral.png",
       "existing_textures": [
@@ -825,9 +769,7 @@
       "legacy_faces": [
         "afraid",
         "alice_agitated",
-        "breeding_period",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "sad",
@@ -856,15 +798,11 @@
         "satisfied": "art/source/rare-forms-runtime/myon/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/myon/textures/sleepy.png",
         "alice_agitated": "art/source/rare-forms-runtime/myon/textures/alice_agitated.png",
-        "breeding_period": "art/source/rare-forms-runtime/myon/textures/breeding_period.png",
-        "dazed": "art/source/rare-forms-runtime/myon/textures/dazed.png",
         "state_recover": "art/source/rare-forms-runtime/myon/textures/state_recover.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
       }
     },
-    "myon_redeye": {"texture_source":"standards/yukkuri-library/subspecies/rare-forms/assembled/myon_redeye/textures",
+    "myon_redeye": {
+      "texture_source": "standards/yukkuri-library/subspecies/rare-forms/assembled/myon_redeye/textures",
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
       "neutral_source": "art/source/rare-forms-runtime/myon/textures/neutral.png",
       "existing_textures": [
@@ -893,9 +831,7 @@
       "legacy_faces": [
         "afraid",
         "alice_agitated",
-        "breeding_period",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "sad",
@@ -924,12 +860,7 @@
         "satisfied": "art/source/rare-forms-runtime/myon_redeye/textures/satisfied.png",
         "sleepy": "art/source/rare-forms-runtime/myon_redeye/textures/sleepy.png",
         "alice_agitated": "art/source/rare-forms-runtime/myon/textures/alice_agitated.png",
-        "breeding_period": "art/source/rare-forms-runtime/myon_redeye/textures/breeding_period.png",
-        "dazed": "art/source/rare-forms-runtime/myon_redeye/textures/dazed.png",
         "state_recover": "art/source/rare-forms-runtime/myon_redeye/textures/state_recover.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
       }
     },
     "patchouli": {
@@ -959,7 +890,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -1001,11 +931,7 @@
         "remains_natural": "art/source/remains/textures/patchouli/remains_natural.png",
         "remains_sick": "art/source/remains/textures/patchouli/remains_sick.png",
         "remains_starved": "art/source/remains/textures/patchouli/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/patchouli/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/patchouli/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/patchouli/remains_violent.png"
       }
     },
     "reimu": {
@@ -1035,7 +961,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -1077,11 +1002,7 @@
         "remains_natural": "art/source/remains/textures/reimu/remains_natural.png",
         "remains_sick": "art/source/remains/textures/reimu/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/reimu/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/reimu/remains_violent.png"
       }
     },
     "reimu_bean": {
@@ -1129,10 +1050,6 @@
         "chewing_closed": "art/source/ecology/textures/house_reimu/chewing_closed.png",
         "satisfied": "art/source/ecology/textures/house_reimu/satisfied.png",
         "sleepy": "art/source/standard-runtime/house_reimu/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "reimu_deibu": {
@@ -1202,10 +1119,6 @@
         "remains_sick": "art/source/remains/textures/reimu_deibu/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu_deibu/remains_starved.png",
         "remains_violent": "art/source/remains/textures/reimu/remains_violent.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "reimu_face": {
@@ -1257,10 +1170,6 @@
         "chewing_closed": "art/source/rounded-runtime/reimu/textures/chewing_closed.png",
         "satisfied": "art/source/rounded-runtime/reimu/textures/satisfied.png",
         "sleepy": "art/source/rounded-runtime/reimu/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "reimu_sparse": {
@@ -1312,10 +1221,6 @@
         "chewing_closed": "art/source/rounded-runtime/reimu/textures/chewing_closed.png",
         "satisfied": "art/source/rounded-runtime/reimu/textures/satisfied.png",
         "sleepy": "art/source/rounded-runtime/reimu/textures/sleepy.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "reimu_wasa": {
@@ -1344,7 +1249,6 @@
       "legacy_faces": [
         "afraid",
         "cheek_puff",
-        "dazed",
         "leak_flow",
         "leak_startle",
         "remains_burned",
@@ -1385,11 +1289,7 @@
         "remains_natural": "art/source/remains/textures/reimu_wasa/remains_natural.png",
         "remains_sick": "art/source/remains/textures/reimu_wasa/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu_wasa/remains_starved.png",
-        "remains_violent": "art/source/remains/textures/reimu/remains_violent.png",
-        "dazed": "standards/yukkuri-library/assembled/reimu/textures/blank_confused.png"
-      },
-      "face_aliases": {
-        "biting": "puff"
+        "remains_violent": "art/source/remains/textures/reimu/remains_violent.png"
       }
     },
     "reimu_wasa_deibu": {
@@ -1459,10 +1359,6 @@
         "remains_sick": "art/source/remains/textures/reimu_wasa/remains_sick.png",
         "remains_starved": "art/source/remains/textures/reimu_wasa/remains_starved.png",
         "remains_violent": "art/source/remains/textures/reimu/remains_violent.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused",
-        "biting": "puff"
       }
     },
     "remilia": {
@@ -1502,226 +1398,10 @@
         "surprise": "art/source/standard-runtime/remilia/textures/surprise.png",
         "sleepy": "art/source/standard-runtime/remilia/textures/sleepy.png",
         "biting": "art/source/standard-runtime/remilia/textures/biting.png"
-      },
-      "face_aliases": {
-        "dazed": "blank_confused"
       }
     }
   },
   "face_fallback": {},
-  "animations": {
-    "cry": {
-      "frames": [
-        "cry",
-        "cry_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "teary": {
-      "frames": [
-        "teary",
-        "teary_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "drool": {
-      "frames": [
-        "drool",
-        "drool_b"
-      ],
-      "frame_ticks": [
-        24,
-        16
-      ]
-    },
-    "teary_smile": {
-      "frames": [
-        "teary_smile",
-        "teary_smile_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "yawn": {
-      "frames": [
-        "yawn",
-        "yawn_b"
-      ],
-      "frame_ticks": [
-        16,
-        16
-      ]
-    },
-    "sleep": {
-      "frames": [
-        "sleep",
-        "sleep_b"
-      ],
-      "frame_ticks": [
-        20,
-        20
-      ]
-    },
-    "tear_sleep": {
-      "frames": [
-        "tear_sleep",
-        "tear_sleep_b"
-      ],
-      "frame_ticks": [
-        36,
-        14
-      ]
-    },
-    "squeezed_frown": {
-      "frames": [
-        "squeezed_frown",
-        "squeezed_frown_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "pin_cry": {
-      "frames": [
-        "pin_cry",
-        "pin_cry_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "tongue_cry": {
-      "frames": [
-        "tongue_cry",
-        "tongue_cry_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "blank_cry": {
-      "frames": [
-        "blank_cry",
-        "blank_cry_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "teary_pant": {
-      "frames": [
-        "teary_pant",
-        "teary_pant_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "teary_tongue": {
-      "frames": [
-        "teary_tongue",
-        "teary_tongue_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "horrified": {
-      "frames": [
-        "horrified",
-        "horrified_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "side_teary": {
-      "frames": [
-        "side_teary",
-        "side_teary_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "teary_frown": {
-      "frames": [
-        "teary_frown",
-        "teary_frown_b"
-      ],
-      "frame_ticks": [
-        28,
-        12
-      ]
-    },
-    "open_drool": {
-      "frames": [
-        "open_drool",
-        "open_drool_b"
-      ],
-      "frame_ticks": [
-        24,
-        16
-      ]
-    },
-    "open_cry": {
-      "frames": [
-        "open_cry",
-        "open_cry_b"
-      ],
-      "frame_ticks": [
-        20,
-        10
-      ]
-    },
-    "cold": {
-      "frames": [
-        "cold",
-        "cold_b"
-      ],
-      "frame_ticks": [
-        30,
-        12
-      ]
-    },
-    "dying": {
-      "frames": [
-        "dying",
-        "dying_b"
-      ],
-      "frame_ticks": [
-        36,
-        14
-      ]
-    },
-    "dying_closed": {
-      "frames": [
-        "dying_closed",
-        "dying_closed_b"
-      ],
-      "frame_ticks": [
-        36,
-        14
-      ]
-    }
-  },
-  "timing_basis": "项目设计：frame_ticks 逐帧给出时长（tick），与 frames 一一对应。含泪脸 A 帧是泪盈眼眶的停留，B 帧是泪溢出、泪珠顺脸颊流下的短帧：哭喊类 20/10，含泪类 28/12，睡中与虚弱 36/14，发冷 30/12；口水 24/16，哈欠 16/16，睡眠 20/20；激动漏尿流出时三帧各 4（身前尿线的高光逐帧下移），之后 30/10（底部挂着的最后一滴落下）。纯客户端循环。",
   "kit_clips": [
     "idle",
     "stretch_shape",
@@ -1734,9 +1414,8 @@
     "hop",
     "stretch",
     "exercise_vertical",
-    "exercise_sides",
     "press",
-    "taiso",
+    "exercise_all",
     "flee",
     "tremble",
     "shake",
@@ -1752,8 +1431,5 @@
     "sulk",
     "hide_face",
     "struggle"
-  ],
-  "aliases": {
-    "tired": "sleepy"
-  }
+  ]
 }

@@ -15,7 +15,7 @@ const {chromium}=require(path.resolve('tools/browser-check/node_modules/playwrig
     await page.selectOption('#expression',expression);
     const result=await page.evaluate(()=>{
      const model=MODELS[$('subject').value].model,poses=[];
-     for(const action of ['idle','waddle','side_bend','stretch','taiso'])for(const q of [.25,.75]){
+     for(const action of ['idle','waddle','side_bend','stretch','exercise_all'])for(const q of [.25,.75]){
       const data=posed(model,action,model.clips[action].duration*q);poses.push(data.length>0&&data.every(Number.isFinite));
      }
      // A nonempty PNG can contain only a few face pixels: compare actual opacity with the full mesh silhouette.

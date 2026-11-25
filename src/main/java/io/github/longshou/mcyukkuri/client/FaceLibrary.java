@@ -19,6 +19,7 @@ final class FaceLibrary {
     private static Map<String, Set<String>> selectable;
     private static Map<String, Integer> cycles;
     private static Map<String, String> labels;
+    private static Set<String> openMouth;
 
     static JsonObject reload(ResourceManager manager) {
         try (var reader = manager.getResourceOrThrow(MCYukkuri.id("yukkuri_presentation/face_library.json")).openAsReader()) {
@@ -41,6 +42,9 @@ final class FaceLibrary {
                 var pair = label.getValue().getAsJsonArray();
                 names.put(label.getKey(), pair.get(0).getAsString() + " · " + pair.get(1).getAsString());
             }
+            var open = new HashSet<String>();
+            for (var face : library.getAsJsonArray("open_mouth")) open.add(face.getAsString());
+            openMouth = open;
             selectable = faces;
             cycles = durations;
             labels = names;
@@ -55,12 +59,10 @@ final class FaceLibrary {
     /** `组 · 名` for a face with a preset; a legacy face keeps its raw id. */
     static String label(String face) { return labels.getOrDefault(face, face); }
 
+    /** Faces whose open mouth cannot coexist with an item held in the mouth (registry `open_mouth`). */
+    static boolean openMouth(String face) { return openMouth.contains(face); }
+
     static String expression(YukkuriView entity, String expression) {
-        var aliases = data.getAsJsonObject("aliases");
-        if (aliases.has(expression)) expression = aliases.get(expression).getAsString();
-        var model = data.getAsJsonObject("models").getAsJsonObject(entity.assetId());
-        var localAliases = model.getAsJsonObject("face_aliases");
-        if (localAliases.has(expression)) expression = localAliases.get(expression).getAsString();
         if (!selectable.get(entity.assetId()).contains(expression)) {
             LoggerFactory.getLogger(FaceLibrary.class).error("Unknown face id {} on {}", expression, entity.assetId());
             throw new IllegalArgumentException("Unknown face id: " + expression);

@@ -142,7 +142,7 @@ final class RenderPose implements Overlays.Contact {
         retention=request.has("retention")?request.get("retention").getAsFloat():0;
         source=rest.clone();String expression=request.get("expression").getAsString();
         var patches=data.getAsJsonObject("expression_patches");
-        if(patches!=null&&!patches.has(expression)&&data.has("expression_aliases")&&data.getAsJsonObject("expression_aliases").has(expression))expression=data.getAsJsonObject("expression_aliases").get(expression).getAsString();
+        if(patches!=null&&!patches.has(expression)&&data.has("patch_source")&&data.getAsJsonObject("patch_source").has(expression))expression=data.getAsJsonObject("patch_source").get(expression).getAsString();
         if(patches!=null&&patches.has(expression))for(var raw:patches.getAsJsonArray(expression)){
             var patch=raw.getAsJsonObject();var part=data.getAsJsonArray("parts").get(patch.get("index").getAsInt()).getAsJsonObject();
             var values=Rig.floats(patch.getAsJsonArray("vertices"));System.arraycopy(values,0,source,start(part)*8,values.length);

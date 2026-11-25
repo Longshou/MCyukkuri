@@ -39,7 +39,7 @@ function sampleScene(name,t){
   else if(t>=3.4&&t<5){action='nuzzle';seconds=t-3.4;face=null;}
   else if(t>=5&&t<7){action='waddle';seconds=t-5;face='closed_smile';}
   else if(t>=7&&t<10){action='nuzzle';seconds=t-7;face=null;}
-  else if(t>=10&&t<12){action='shiawase';seconds=t-10;face=null;}
+  else if(t>=10&&t<12){action='joy_hop';seconds=t-10;face=null;}
   else if(t>=12){action='idle';seconds=0;face='satisfied';}
   actors=[actor('marisa',-x,-yaw,action,seconds,face),actor('reimu',x,yaw,action,seconds,face)];
   if(t>=5&&t<10){actors[0].x=-3.2;actors[1].x=3.2;}

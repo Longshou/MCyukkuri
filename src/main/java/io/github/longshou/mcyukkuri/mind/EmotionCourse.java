@@ -154,7 +154,7 @@ public final class EmotionCourse {
     /** The face it wears over ordinary behaviour, or null; meals keep their chewing faces, its own goal its presentation row. */
     public String face() {
         if (kind == null || running && goalPriority() != 0 || entity.life().mealTicks() > 0) return null;
-        if (entity.life().isSleeping()) return grieving() && stage() != Stage.ONSET ? "tear_sleep" : null;
+        if (entity.life().isSleeping()) return grieving() && stage() != Stage.ONSET ? "teary_sleep" : null;
         return stageFace();
     }
     private String stageFace() { return stage().face(kind); }

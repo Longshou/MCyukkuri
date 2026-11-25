@@ -171,7 +171,7 @@ public final class PetRequests {
         var bond = personality.relation(animal.pet().owner());
         double esteem = SocialDisposition.selfEsteem(animal);
         double wary = SocialDisposition.wariness(animal, bond);
-        String face = kind == Kind.WATER ? animal.life().dryness() >= 70 ? "teary_pant_b" : "pursed"
+        String face = kind == Kind.WATER ? animal.life().dryness() >= 70 ? "teary_pant" : "pursed"
                 : wary >= .5 ? "teary"
                 : SocialDisposition.insistence(personality, esteem, wary, bond) >= .52 ? "cheek_puff"
                 : switch (kind) { case FOOD, WARM -> "teary"; case WALK -> "happy"; default -> "open_smile"; };
@@ -310,7 +310,7 @@ public final class PetRequests {
         }
         if (++ignoredNear >= SULK_AT && !sulked) {
             sulked = true;
-            animal.showReaction(YukkuriAction.SULK, "teary", "request_sulk", 100);
+            animal.showReaction(YukkuriAction.SULK, "puff_open", "request_sulk", 100);
         }
         GameplayLog.event(animal,"request","expired kind={} owner={} ownerNearby=true ignoredToday={} sulking={} stress={} -> {}",
                 kind,nearbyOwner.getUUID(),ignoredNear,sulked,stressBefore,pet.stress());

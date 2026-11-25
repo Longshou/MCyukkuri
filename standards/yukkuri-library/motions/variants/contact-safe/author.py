@@ -6,7 +6,7 @@ transform (scale, rotation, lift) sampled over time, landed on the floor by
 the root. The puff (ぷくー) is a squash and stretch clip: a small inhale squash,
 a swell with overshoot, a hold with breathing and a fast tremor, a quick
 ぷしゅー deflate squash and a settle. Its phases are fractions of the clip
-duration, so `taiso` re-uses the same curve for its puff segment. The face comes
+duration, so `exercise_all` re-uses the same curve for its puff segment. The face comes
 from the expression timeline: the angry pouting `puff` face where a model has
 that texture, the derived `cheek_puff` face otherwise. Faces the server sets for
 injury (`expression_yield`) win over the timeline.
@@ -74,7 +74,7 @@ def state(action, t, duration, cfg, height, angle, shape='standard'):
     scale, rotation, lift = [1., 1., 1.], [0., 0., 0.], 0.
     if action == 'puff':
         scale, rotation = puff_curve(t, duration, cfg['puff'], shape)
-    elif action in ('side_bend', 'exercise_sides'):
+    elif action == 'side_bend':
         # Ease through the centre without elongating the top of the head.
         rotation[2] = angle*math.sin(2*math.pi*t/duration)**3
     elif action in ('stretch', 'stretch_shape', 'exercise_vertical'):
@@ -93,7 +93,7 @@ def state(action, t, duration, cfg, height, angle, shape='standard'):
         else:
             s = math.sin(math.pi*(q-.8)/.2)**2
             scale = [1+.06*s, 1-.09*s, 1+.035*s]
-    elif action == 'taiso':
+    elif action == 'exercise_all':
         if t < 2.4:
             return state('exercise_vertical', t, 2.4, cfg, height, angle)
         if t < 4.8:
@@ -103,7 +103,7 @@ def state(action, t, duration, cfg, height, angle, shape='standard'):
         elif t < 10.4:
             return state('hop', (t-7.2) % cfg['hop_seconds'], cfg['hop_seconds'], cfg, height, angle)
         elif t < 13.6:
-            return state('puff', t-10.4, cfg['taiso_puff_seconds'], cfg, height, angle, shape)
+            return state('puff', t-10.4, cfg['exercise_all_puff_seconds'], cfg, height, angle, shape)
     return scale, rotation, lift
 
 
@@ -161,8 +161,8 @@ def compile_revision(model, cfg, face, cache=None):
                 keys[c].append([round(t, 8), *[round(x, 7) for x in value]])
         clip = {'duration': duration, 'loop': model['clips'][action]['loop'],
                 'tracks': [{'bone': root, 'channel': c, 'keys': k} for c, k in keys.items()]}
-        if action in ('puff', 'taiso'):
-            start, span = (0, duration) if action == 'puff' else (10.4, cfg['taiso_puff_seconds'])
+        if action in ('puff', 'exercise_all'):
+            start, span = (0, duration) if action == 'puff' else (10.4, cfg['exercise_all_puff_seconds'])
             clip['expression_spans'] = puff_faces(cfg, model['id'], start, span)
             clip['expression_yield'] = cfg['puff']['expression_yield']
         result[action] = clip
@@ -194,7 +194,7 @@ def compile_revision(model, cfg, face, cache=None):
         result.update(braid_follow(model, cfg, result))
         result = finish_chain(model, cfg, result, owned)
     revision = {'bone_names': [b['name'] for b in model['bones']], 'clips': result,
-                'expression_aliases': {'cheek_puff': 'neutral'},
+                'patch_source': {'cheek_puff': 'neutral'},
                 'body_height': height, 'hop_height': height*cfg['hop_height_body_ratio']}
     if face.get('mouth_patch'):
         revision['expression_patches'] = {'cheek_puff': [face['mouth_patch']]}

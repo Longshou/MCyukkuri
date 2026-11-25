@@ -138,7 +138,7 @@ function render(){
  const raster={};vm.runInNewContext(fs.readFileSync(path.join(root,'standards/yukkuri-library/runtime/render.js'),'utf8'),raster);
  fs.mkdirSync(previews,{recursive:true});const frames=[];
  const shot=(id,label,variant,action,t,az,el,W,hide)=>{const item=catalog.models.find(m=>m.id===id),model=JSON.parse(fs.readFileSync(path.join(root,item.url)));
-  const clipsOnly=r=>r&&{bone_names:r.bone_names,clips:r.clips,expression_aliases:r.expression_aliases,expression_patches:r.expression_patches};
+  const clipsOnly=r=>r&&{bone_names:r.bone_names,clips:r.clips,patch_source:r.patch_source,expression_patches:r.expression_patches};
   const pose=variant==='fit'?new RuntimePose(model,item.formScale,revisions[id],fits[id]||null):new RuntimePose(model,item.formScale,clipsOnly(revisions[id]),null);
   const ref=new RuntimePose(model,item.formScale,clipsOnly(revisions[id]),null).frame('idle',0);
   let min=1e9,max=-1e9,r=0;for(let i=0;i<ref.length;i+=8){if(!ref[i]&&!ref[i+1]&&!ref[i+2])continue;min=Math.min(min,ref[i+1]);max=Math.max(max,ref[i+1]);r=Math.max(r,Math.hypot(ref[i],ref[i+2]));}
@@ -153,7 +153,7 @@ function render(){
  for(const [name,ids] of groups){const cells=[];for(const id of ids)for(const variant of ['base','fit'])for(const [az,el,label] of views)cells.push(shot(id,`${variant==='base'?'原':'新'} ${id} ${label}`,variant,'idle',0,az,el,220));sheets.push({name,cols:4,W:220,cells});}
  const hatOff=[];for(const id of ['marisa','marisa_face','marisa_sparse'])for(const variant of ['base','fit'])for(const [az,el,label] of views)hatOff.push(shot(id,`${variant==='base'?'原':'新'} ${id} 脱帽 ${label}`,variant,'idle',0,az,el,200,/^(brim_|hat_|bow_)/));
  sheets.push({name:'hat-off',cols:4,W:200,cells:hatOff});
- const acts=[['waddle',.3],['waddle',.9],['press',1.2],['brace',1.2],['hop',.4],['puff',3.2],['side_bend',.6],['taiso',11.2]],actionCells=[];
+ const acts=[['waddle',.3],['waddle',.9],['press',1.2],['brace',1.2],['hop',.4],['puff',3.2],['side_bend',.6],['exercise_all',11.2]],actionCells=[];
  for(const id of ['reimu','marisa','chen','alice','reimu_wasa','marisa_sparse'])for(const [a,t] of acts)actionCells.push(shot(id,`新 ${id} ${a}@${t}`,'fit',a,t,.6,.15,180));
  sheets.push({name:'actions',cols:8,W:180,cells:actionCells});
  const unchanged=[];for(const id of catalog.models.map(m=>m.id).filter(id=>!fits[id]))for(const [az,el,label] of views)unchanged.push(shot(id,`不变 ${id} ${label}`,'base','idle',0,az,el,200));

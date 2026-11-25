@@ -3,15 +3,15 @@
   "runtime_revision": "life-weather-20261107-v38",
   "export_families": {
     "weather": {"clips": ["rain_huddle_right", "rain_huddle_left", "thunder_cower", "sunbathe"], "braid_follow": true, "side_profile": true},
-    "life": {"clips": ["call_child", "wake", "meal_content", "puku_teary", "sneeze_a", "sneeze_b", "sneeze_c"], "braid_follow": true},
+    "life": {"clips": ["call_child", "wake", "meal_content", "puff_teary", "sneeze_a", "sneeze_b", "sneeze_c"], "braid_follow": true},
     "comfort": {"clips": ["comfort_lick"], "braid_follow": true},
     "bin-rummage": {"clips": ["bin_sniff", "bin_nose_in"], "braid_follow": true},
     "brim-carry": {"clips": ["braid_brim_lift", "braid_brim_lower"]},
     "carry": {"clips": ["boat_carry_young", "boat_be_carried", "boat_prepare_carry", "boat_release_carry", "mouth_release"]},
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
-    "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover", "water_hat_pull", "water_hat_over"], "braid_follow": true},
-    "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "water_held_breath", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_flee", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "water_hat_pull", "water_hat_over", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
-    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "cling_right", "cling_left", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
+    "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover"], "braid_follow": true},
+    "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
+    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "territory": {"clips": ["home_declare", "home_declare_timid"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
@@ -104,9 +104,6 @@
     "drool": [
       "chewing",
       "neutral"
-    ],
-    "dazed": [
-      "surprise"
     ],
     "blank_cry": [
       "cry"
@@ -1314,7 +1311,7 @@
       "lore": "Project design (user 2026-11-17 feedback 24: rummaging a bin especially needs the braid). braid_eat's preset at a fallen street bin, worked from its stand (GarbageSearch, one block out from the bin): she turns her braid side well toward the bin and leans in, the tuft reaches into the dark mouth of the fallen can (pick: the real piece leaves the bin into the tuft once, drawn at tip), pulls it out and up in front of her face (lift) and brings it to her lips (mouth: tuft to mouth, the meal starts), then chews. Tilt stays within 9 degrees.",
       "triggers": ["GarbageSearch take at a fallen bin, for a braided body (strongly preferred over the mouth)"]
     },
-    "shiawase": {
+    "joy_hop": {
       "label": "しあわせー",
       "duration": 2.0,
       "loop": false,
@@ -1485,7 +1482,7 @@
       "lore": "Project design (GarbageSearch NOSE_IN at a fallen bin, the mouth route; user 2026-11-17 feedback 25 on FG-10). A small eager rise and draw-back (launch), lean in until the face meets the bin's open mouth (contact), face pressed into it with pursed lips, wriggling side to side and digging with short pumps while it feels for the piece (a physical press: the front stays on the mouth plane and the body squeezes in behind it), then yank back out with the chin up and the find held in the closed mouth (pull = impact: the piece leaves the bin into the mouth), and settle into eat's first pose (lean end_lean with eat's mouth_comp), so the eat loop takes over unseen. Travel belongs to the motor (the RamContact front sweep of this clip, as glass_press); the clip's own forward shift stays within the body. Pitch and roll together stay within 10 degrees. Markers: launch, contact, impact and pull (the same instant), settled.",
       "triggers": ["GarbageSearch NOSE_IN at a fallen bin's mouth (activity house_scavenge), the mouth route"]
     },
-    "puku_teary": {
+    "puff_teary": {
       "label": "噗咕·含泪硬撑",
       "duration": 3.2,
       "loop": true,
@@ -1880,7 +1877,7 @@
         [
           2.0,
           2.4,
-          "sleepy"
+          "waking"
         ],
         [
           2.4,
@@ -3513,16 +3510,26 @@
       "faces": [
         [
           0,
-          1.6,
-          "dazed"
+          0.7,
+          "shattered"
         ],
         [
-          1.6,
-          2.4,
+          0.7,
+          1.4,
+          "shattered_fade"
+        ],
+        [
+          1.4,
+          2.2,
+          "blank_confused"
+        ],
+        [
+          2.2,
+          3.0,
           "blank_cry"
         ],
         [
-          2.4,
+          3.0,
           65,
           "cry"
         ]
@@ -3606,7 +3613,7 @@
         [
           0.5,
           0.9,
-          "sleepy"
+          "waking"
         ],
         [
           0.9,
@@ -4213,7 +4220,7 @@
           "open_smile"
         ]
       ],
-      "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash; the body only tips about 4.5 degrees in the air (cf. shiawase hop, EH25 delight).",
+      "lore": "Project design: two consecutive high hops with clear anticipation squash, stretch in the air and landing squash; the body only tips about 4.5 degrees in the air (cf. joy_hop hop, EH25 delight).",
       "triggers": [
         "exam passed"
       ]
@@ -4424,33 +4431,6 @@
       "lore": "A child's real staggered response to its parent's heard alarm; its own hat then follows the existing physical return route.",
       "triggers": [
         "boat_answer_call"
-      ]
-    },
-    "boat_flee": {
-      "label": "离摇船者撤离警戒",
-      "duration": 2.0,
-      "loop": true,
-      "applies": "not_house",
-      "faces": [
-        [
-          0,
-          0.35,
-          "surprise"
-        ],
-        [
-          0.35,
-          1.1,
-          "teary"
-        ],
-        [
-          1.1,
-          2,
-          "cry"
-        ]
-      ],
-      "lore": "Face only accompanies a successful real water route away from the source. Actual paddling retains boat_paddle and its real stick; this clip supplies a stationary guarded fallback.",
-      "triggers": [
-        "boat_flee with an actual retreat route"
       ]
     },
     "boat_calm": {
@@ -6654,7 +6634,7 @@
           "teary"
         ]
       ],
-      "lore": "Project design (user 2026-11-01; derived from boat_alarm_wait and boat_flee): scared, a 子油 scoots to its mother with a crouch-spring hop (the server moves it; markers scoot_start..scoot_land) and cowers low under her braid, trembling, peeking out once (peek); held cowering from tucked.",
+      "lore": "Project design (user 2026-11-01; derived from boat_alarm_wait): scared, a 子油 scoots to its mother with a crouch-spring hop (the server moves it; markers scoot_start..scoot_land) and cowers low under her braid, trembling, peeking out once (peek); held cowering from tucked.",
       "triggers": [
         "赤油 afloat scared (threat, hit, thunder): on a brim spot facing the captain, the server moving it along the brim toward her braid side; on her head in place (the scoot hop stays in place)"
       ],
@@ -7642,7 +7622,7 @@
       "push_role": "take",
       "push_delay": 0.05,
       "yaw_keys": [[0, 0], [1.0, 0]],
-      "faces": [[0, 63.0, "squeezed_cry_tears"]],
+      "faces": [[0, 2.4, "squeezed_cry_tears"], [2.4, 4.8, "tongue_cry"], [4.8, 7.2, "squeezed_cry_tears"], [7.2, 63.0, "tongue_cry"]],
       "lore": "Project design: the pinned body is shoved by each stroke a tick later, crying; its struggles stay the server's Pin.struggle.",
       "triggers": ["agitation HELD before the climax (wiring package)"]
     },
@@ -7651,7 +7631,7 @@
       "label": "被压住的受方·四拍与 3 秒",
       "applies": "prey",
       "height_keys": [[0, 1], [3.5, 1], [3.6, 1.04], [3.9, 1], [6.5, 1]],
-      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "squeezed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 63.0, "squeezed_cry_tears"]],
+      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "pressed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 63.0, "squeezed_cry_tears"]],
       "lore": "Project design (user 2026-11-13: keep the mother pinned until the performance is complete): the held body takes Alice's four beats, each a fresh face (horror, squeezed wail, grey-eyed wail), jolts once at the release with the blank-eyed cry and stays pinned, crying, through the 3 s peak.",
       "triggers": ["agitation HELD climax (wiring package)"]
     },
@@ -7765,7 +7745,7 @@
         [0.08, 0.26, "confused"],
         [0.26, 0.52, "chewing"],
         [0.52, 0.7, "landing"],
-        [0.7, 0.8, "squeezed_cry"],
+        [0.7, 0.8, "impact"],
         [0.8, 0.9, "impact"],
         [0.9, 1.08, "landing"],
         [1.08, 1.2, "pursed"],
@@ -7798,7 +7778,7 @@
           "wags": [[1.08, 1.44, 3.5, 7]]
         }
       },
-      "faces": [[0, 0.06, "neutral"], [0.06, 0.22, "confused_small"], [0.22, 0.34, "landing"], [0.34, 0.50, "squeezed_cry"], [0.50, 0.58, "landing"], [0.58, 0.80, "squeezed_cry"], [0.80, 0.94, "impact"], [0.94, 1.08, "landing"], [1.08, 1.20, "confused_small"], [1.20, 1.30, "landing"], [1.30, 1.40, "pursed"], [1.40, 1.48, "landing"], [1.48, 61.68, "neutral"]],
+      "faces": [[0, 0.06, "neutral"], [0.06, 0.22, "confused_small"], [0.22, 0.34, "landing"], [0.34, 0.50, "impact"], [0.50, 0.58, "landing"], [0.58, 0.80, "impact"], [0.80, 0.94, "impact"], [0.94, 1.08, "landing"], [1.08, 1.20, "confused_small"], [1.20, 1.30, "landing"], [1.30, 1.40, "pursed"], [1.40, 1.48, "landing"], [1.48, 61.68, "neutral"]],
       "lore": "Everyday sneeze: nose tickles and the body stretches up and leans slightly back through three escalating inhale hitches with scrunched face, snaps sharply forward with a tiny reflex hop and lands into a backward recoil with a brief physical landing cushion, then blinks, gives a small shake and settles cleanly to neutral rest. Whole-body tilt stays within 11.2 degrees.",
       "triggers": ["sneeze"]
     },
@@ -7921,7 +7901,7 @@
         [0, 0.08, "neutral"],
         [0.08, 0.28, "confused"],
         [0.28, 0.50, "chewing"],
-        [0.50, 0.88, "squeezed_cry"],
+        [0.50, 0.88, "impact"],
         [0.88, 1.04, "landing"],
         [1.04, 1.14, "pursed"],
         [1.14, 1.24, "old_dead"],
@@ -8048,7 +8028,7 @@
     "sideburn_piko": {
       "clips": [
         "greet",
-        "shiawase"
+        "joy_hop"
       ],
       "flick": 12,
       "flicks": 4,
@@ -8081,7 +8061,7 @@
     "push",
     "tremble",
     "droop",
-    "shiawase",
+    "joy_hop",
     "wake",
     "brood",
     "midwife",
@@ -8115,7 +8095,7 @@
     "sunbathe",
     "call_child",
     "meal_content",
-    "puku_teary",
+    "puff_teary",
     "lunge_ram",
     "crouch_watch",
     "crouch_watch_weary",

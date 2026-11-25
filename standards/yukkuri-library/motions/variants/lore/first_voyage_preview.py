@@ -96,7 +96,7 @@ def main():
                                  dl['solve'](at,berth,ownpose,hat,r,D,tmin=D['hop_tmin']))
                     arc=dl['arc'](at,berth,duration,D['gravity']);pos=np.array(arc(duration*progress/.65))
                     mesh.append(vertices(sailor,'boat_board',time%.8,size,0,pos,(.5,.5))[:-sailor.boat])
-                else:actor(pupil,'shiawase',time%2,size,0,berth,(.5,.5))
+                else:actor(pupil,'joy_hop',time%2,size,0,berth,(.5,.5))
             else:
                 at=boat(sailor,clip,min(time,2) if index==2 else time%1.6,size,center,(.5,.5),yaw)
                 if index in (3,4):

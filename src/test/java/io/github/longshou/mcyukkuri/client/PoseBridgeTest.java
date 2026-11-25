@@ -138,7 +138,7 @@ class PoseBridgeTest {
         assertEquals(RECORD, PoseBridge.mode(false, false, 1, 0, "IDLE", Behaviors.IDLE));
         assertEquals(RECORD, PoseBridge.mode(false, false, 0, 1, "IDLE", Behaviors.IDLE));
         assertEquals(RECORD, PoseBridge.mode(false, false, 0, 0, "STRUGGLE", Behaviors.IDLE));
-        for (String row : new String[]{Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.THREAT_HIDE, Behaviors.STRUCK,
+        for (String row : new String[]{Behaviors.FLEE, Behaviors.BOAT_ALARM_WAIT, Behaviors.THREAT_HIDE, Behaviors.STRUCK,
                 Behaviors.SHELL_RETRACT, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING}) {
             assertEquals(RECORD, PoseBridge.mode(false, false, 0, 0, "IDLE", row));
         }

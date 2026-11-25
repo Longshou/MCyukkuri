@@ -5,7 +5,7 @@
       "loop": true,
       "steps": [
         {
-          "clip": "taiso",
+          "clip": "exercise_all",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -202,7 +202,7 @@
           "clip": "eat",
           "intensity": 1,
           "tempo": 0.6,
-          "faces": [[0, "squeezed_cry_tears"], [0.45, "teary_frown"], [0.9, "cry"], [1.35, "teary_frown"]]
+          "faces": [[0, "bad_taste_small"], [0.45, "bad_taste_closed"], [0.9, "squeezed_cry_tears"], [1.35, "bad_taste_closed"]]
         }
       ]
     },
@@ -322,7 +322,7 @@
       "loop": false,
       "steps": [
         {
-          "clip": "shiawase",
+          "clip": "joy_hop",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -1687,7 +1687,7 @@
             ],
             [
               2,
-              "sleepy"
+              "waking"
             ],
             [
               2.4,
@@ -1951,7 +1951,7 @@
       "loop": true,
       "steps": [
         {
-          "clip": "puku_teary",
+          "clip": "puff_teary",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -2719,7 +2719,7 @@
             ],
             [
               1.4,
-              "neutral"
+              "confused_small"
             ],
             [
               2.1,
@@ -3091,6 +3091,10 @@
               "teary"
             ],
             [
+              1.4,
+              "open_cry"
+            ],
+            [
               2.6,
               "cry"
             ],
@@ -3137,6 +3141,10 @@
             [
               0,
               "teary"
+            ],
+            [
+              1.4,
+              "open_cry"
             ],
             [
               2.6,
@@ -3295,7 +3303,7 @@
             ],
             [
               0.5,
-              "sleepy"
+              "waking"
             ],
             [
               0.9,
@@ -3351,14 +3359,22 @@
           "faces": [
             [
               0,
-              "dazed"
+              "shattered"
             ],
             [
-              1.6,
+              0.7,
+              "shattered_fade"
+            ],
+            [
+              1.4,
+              "blank_confused"
+            ],
+            [
+              2.2,
               "blank_cry"
             ],
             [
-              2.4,
+              3.0,
               "cry"
             ]
           ]
@@ -3497,7 +3513,7 @@
       "loop": false,
       "steps": [
         {
-          "clip": "shiawase",
+          "clip": "joy_hop",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -3521,7 +3537,7 @@
       "loop": false,
       "steps": [
         {
-          "clip": "shiawase",
+          "clip": "joy_hop",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -3809,6 +3825,10 @@
           "faces": [
             [
               0,
+              "impact_teary"
+            ],
+            [
+              0.6,
               "cry"
             ]
           ]
@@ -4004,7 +4024,7 @@
           "faces": [
             [
               0,
-              "teary_smile"
+              "open_smile"
             ],
             [
               0.35,
@@ -4012,7 +4032,7 @@
             ],
             [
               0.7,
-              "teary_smile"
+              "open_smile"
             ],
             [
               1.05,
@@ -4508,6 +4528,10 @@
             [
               0,
               "side_teary"
+            ],
+            [
+              1.8,
+              "blank_frown"
             ]
           ],
           "emote": "gloom"
@@ -4771,7 +4795,7 @@
       "loop": true,
       "steps": [
         {
-          "clip": "puku_teary",
+          "clip": "puff_teary",
           "intensity": 1,
           "tempo": 1,
           "faces": [

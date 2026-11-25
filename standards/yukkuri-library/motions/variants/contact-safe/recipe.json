@@ -5,9 +5,9 @@
   "sample_seconds": 0.04,
   "hop_seconds": 0.8,
   "puff_seconds": 2.8,
-  "taiso_puff_seconds": 3.2,
+  "exercise_all_puff_seconds": 3.2,
   "puff": {
-    "note": "Whole-body squash and stretch; phases are fractions of the clip duration so taiso (3.2 s) reuses the curve. Scale deltas are (width, height, depth) around 1.",
+    "note": "Whole-body squash and stretch; phases are fractions of the clip duration so exercise_all (3.2 s) reuses the curve. Scale deltas are (width, height, depth) around 1.",
     "inhale_end": 0.12,
     "swell_end": 0.3,
     "hold_end": 0.8,
@@ -74,12 +74,11 @@
   "actions": [
     "puff",
     "side_bend",
-    "exercise_sides",
     "hop",
     "stretch",
     "stretch_shape",
     "exercise_vertical",
-    "taiso"
+    "exercise_all"
   ],
   "braid_follow": {
     "note": "Marisa's single braid follows the body twist and splays outward just enough to stay out of the skin and above the floor in these clips.",
@@ -88,8 +87,7 @@
       "brace",
       "press",
       "side_bend",
-      "exercise_sides",
-      "taiso"
+      "exercise_all"
     ],
     "sample_seconds": 0.04,
     "max_splay_degrees": 30,

@@ -51,7 +51,7 @@ public final class Splice {
             compatible = expected.get(i).getAsString().equals(actual.get(i).getAsJsonObject().get("name").getAsString());
         if (!compatible) return false;
         revision.getAsJsonObject("clips").entrySet().forEach(e -> data.getAsJsonObject("clips").add(e.getKey(),e.getValue()));
-        if (revision.has("expression_aliases")) data.add("expression_aliases",revision.get("expression_aliases"));
+        if (revision.has("patch_source")) data.add("patch_source",revision.get("patch_source"));
         if (revision.has("expression_patches")) {
             if (!data.has("expression_patches")) data.add("expression_patches",new JsonObject());
             revision.getAsJsonObject("expression_patches").entrySet().forEach(e -> data.getAsJsonObject("expression_patches").add(e.getKey(),e.getValue()));

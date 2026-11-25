@@ -121,7 +121,7 @@ public final class BegBite {
             }
             case HESITATE -> {
                 if (elapsed < duration) return;
-                pose(scene, Beat.PLEAD, stray, BEG, "teary_smile", "beg_ask", 4);
+                pose(scene, Beat.PLEAD, stray, BEG, "open_smile", "beg_ask", 4);
                 pet.showReaction(STARTLE, "surprise", "");
             }
             case PLEAD -> {
@@ -403,7 +403,7 @@ public final class BegBite {
     }
 
     private void lastLook(Scene scene, YukkuriEntity stray, YukkuriEntity pet) {
-        pose(scene, Beat.LOOK, stray, snatch || result.equals("shared") ? SHIAWASE : DROOP, departureFace(), "", 1);
+        pose(scene, Beat.LOOK, stray, snatch || result.equals("shared") ? JOY_HOP : DROOP, departureFace(), "", 1);
         if (!result.equals("asked_help") && pet.life().mealTicks() == 0) pet.showReaction(TURN, result.equals("shared") ? "closed_smile" : "pursed", "");
     }
 

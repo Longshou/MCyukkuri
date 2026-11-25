@@ -1,0 +1,725 @@
+{
+  "format": 1,
+  "note": "Face registry. kind: standard (preset + approval in provenance/standard-expressions.json), derived, adult, corpse, domain. models: only for faces not selectable everywhere. frame_ticks: A frame owner of an A/_b animation, ticks per frame; frame_of: the B frame. open_mouth: swapped for teary_frown while the mouth holds an item. reserved: why a face with no emitter stays. Checked by scripts/check_face_registry.py.",
+  "timing_basis": "项目设计：frame_ticks 逐帧给出时长（tick），与 frames 一一对应。含泪脸 A 帧是泪盈眼眶的停留，B 帧是泪溢出、泪珠顺脸颊流下的短帧：哭喊类 20/10，含泪类 28/12，睡中与虚弱 36/14，发冷 30/12；口水 24/16，哈欠 16/16，睡眠 20/20；激动漏尿流出时三帧各 4（身前尿线的高光逐帧下移），之后 30/10（底部挂着的最后一滴落下）。纯客户端循环。",
+  "faces": {
+    "neutral": {
+      "kind": "standard"
+    },
+    "open_smile": {
+      "kind": "standard"
+    },
+    "happy": {
+      "kind": "standard"
+    },
+    "closed_smile": {
+      "kind": "standard"
+    },
+    "smug": {
+      "kind": "standard"
+    },
+    "cry": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ]
+    },
+    "cry_b": {
+      "kind": "standard",
+      "frame_of": "cry"
+    },
+    "teary": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "teary_b": {
+      "kind": "standard",
+      "frame_of": "teary"
+    },
+    "drool": {
+      "kind": "standard",
+      "frame_ticks": [
+        24,
+        16
+      ]
+    },
+    "drool_b": {
+      "kind": "standard",
+      "frame_of": "drool"
+    },
+    "confused": {
+      "kind": "standard"
+    },
+    "confused_small": {
+      "kind": "standard"
+    },
+    "blank_confused": {
+      "kind": "standard"
+    },
+    "teary_smile": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "teary_smile_b": {
+      "kind": "standard",
+      "frame_of": "teary_smile"
+    },
+    "yawn": {
+      "kind": "standard",
+      "frame_ticks": [
+        16,
+        16
+      ]
+    },
+    "yawn_b": {
+      "kind": "standard",
+      "frame_of": "yawn"
+    },
+    "sleep": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        20
+      ]
+    },
+    "sleep_b": {
+      "kind": "standard",
+      "frame_of": "sleep"
+    },
+    "teary_sleep": {
+      "kind": "standard",
+      "frame_ticks": [
+        36,
+        14
+      ]
+    },
+    "teary_sleep_b": {
+      "kind": "standard",
+      "frame_of": "teary_sleep"
+    },
+    "squeezed_frown": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ]
+    },
+    "squeezed_frown_b": {
+      "kind": "standard",
+      "frame_of": "squeezed_frown"
+    },
+    "waking": {
+      "kind": "standard"
+    },
+    "puff": {
+      "kind": "standard"
+    },
+    "angry": {
+      "kind": "standard"
+    },
+    "puff_open": {
+      "kind": "standard"
+    },
+    "puff_teary": {
+      "kind": "standard"
+    },
+    "surprise": {
+      "kind": "standard"
+    },
+    "look_down": {
+      "kind": "standard"
+    },
+    "pin_cry": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ],
+      "open_mouth": true
+    },
+    "pin_cry_b": {
+      "kind": "standard",
+      "frame_of": "pin_cry"
+    },
+    "tongue_cry": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ],
+      "open_mouth": true
+    },
+    "tongue_cry_b": {
+      "kind": "standard",
+      "frame_of": "tongue_cry"
+    },
+    "dead_tongue": {
+      "kind": "standard"
+    },
+    "blank_cry": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ],
+      "open_mouth": true
+    },
+    "blank_cry_b": {
+      "kind": "standard",
+      "frame_of": "blank_cry"
+    },
+    "squeezed_cry_tears": {
+      "kind": "standard"
+    },
+    "teary_pant": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "teary_pant_b": {
+      "kind": "standard",
+      "frame_of": "teary_pant"
+    },
+    "dull": {
+      "kind": "standard"
+    },
+    "flushed_smile": {
+      "kind": "standard",
+      "open_mouth": true
+    },
+    "flushed_tongue": {
+      "kind": "standard"
+    },
+    "teary_tongue": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "teary_tongue_b": {
+      "kind": "standard",
+      "frame_of": "teary_tongue"
+    },
+    "endure": {
+      "kind": "standard"
+    },
+    "horrified": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ],
+      "open_mouth": true
+    },
+    "horrified_b": {
+      "kind": "standard",
+      "frame_of": "horrified"
+    },
+    "side_teary": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "side_teary_b": {
+      "kind": "standard",
+      "frame_of": "side_teary"
+    },
+    "down_angry": {
+      "kind": "standard"
+    },
+    "dry_dead": {
+      "kind": "standard"
+    },
+    "squashed": {
+      "kind": "standard"
+    },
+    "teary_frown": {
+      "kind": "standard",
+      "frame_ticks": [
+        28,
+        12
+      ]
+    },
+    "teary_frown_b": {
+      "kind": "standard",
+      "frame_of": "teary_frown"
+    },
+    "open_drool": {
+      "kind": "standard",
+      "frame_ticks": [
+        24,
+        16
+      ]
+    },
+    "open_drool_b": {
+      "kind": "standard",
+      "frame_of": "open_drool"
+    },
+    "landing": {
+      "kind": "standard"
+    },
+    "open_cry": {
+      "kind": "standard",
+      "frame_ticks": [
+        20,
+        10
+      ],
+      "open_mouth": true
+    },
+    "open_cry_b": {
+      "kind": "standard",
+      "frame_of": "open_cry"
+    },
+    "pursed": {
+      "kind": "standard"
+    },
+    "chewing": {
+      "kind": "standard"
+    },
+    "chewing_closed": {
+      "kind": "standard"
+    },
+    "bad_taste_small": {
+      "kind": "standard"
+    },
+    "bad_taste_closed": {
+      "kind": "standard"
+    },
+    "angry_stare": {
+      "kind": "standard"
+    },
+    "blank_happy": {
+      "kind": "standard"
+    },
+    "cold": {
+      "kind": "standard",
+      "frame_ticks": [
+        30,
+        12
+      ]
+    },
+    "cold_b": {
+      "kind": "standard",
+      "frame_of": "cold"
+    },
+    "pressed_teary": {
+      "kind": "standard"
+    },
+    "pressed_cry": {
+      "kind": "standard",
+      "open_mouth": true
+    },
+    "licking": {
+      "kind": "standard"
+    },
+    "dying": {
+      "kind": "standard",
+      "frame_ticks": [
+        36,
+        14
+      ]
+    },
+    "dying_b": {
+      "kind": "standard",
+      "frame_of": "dying"
+    },
+    "old_dead": {
+      "kind": "standard"
+    },
+    "dying_blank": {
+      "kind": "standard"
+    },
+    "dying_closed": {
+      "kind": "standard",
+      "frame_ticks": [
+        36,
+        14
+      ]
+    },
+    "dying_closed_b": {
+      "kind": "standard",
+      "frame_of": "dying_closed"
+    },
+    "satisfied": {
+      "kind": "standard"
+    },
+    "blank_frown": {
+      "kind": "standard"
+    },
+    "impact": {
+      "kind": "standard"
+    },
+    "impact_teary": {
+      "kind": "standard"
+    },
+    "flick_dull": {
+      "kind": "standard"
+    },
+    "sleepy": {
+      "kind": "standard"
+    },
+    "sukkiri_squeeze": {
+      "kind": "standard",
+      "open_mouth": true
+    },
+    "sukkiri_dazed": {
+      "kind": "standard"
+    },
+    "sukkiri_smug": {
+      "kind": "standard"
+    },
+    "sukkiri_grin": {
+      "kind": "standard"
+    },
+    "sukkiri_manic": {
+      "kind": "standard"
+    },
+    "sukkiri_tender": {
+      "kind": "standard"
+    },
+    "sneer": {
+      "kind": "standard"
+    },
+    "envy": {
+      "kind": "standard"
+    },
+    "hmph": {
+      "kind": "standard"
+    },
+    "ashamed": {
+      "kind": "standard"
+    },
+    "sparkle": {
+      "kind": "standard"
+    },
+    "shattered": {
+      "kind": "standard"
+    },
+    "shattered_fade": {
+      "kind": "standard"
+    },
+    "pressed_hidden": {
+      "kind": "standard"
+    },
+    "afraid": {
+      "kind": "derived",
+      "builder": "standards/yukkuri-library/expressions/derived/faces.py",
+      "models": [
+        "alice",
+        "chen",
+        "chen_longtail",
+        "chen_roundtail",
+        "flandre",
+        "house_marisa",
+        "house_reimu",
+        "marisa",
+        "marisa_bean",
+        "marisa_face",
+        "marisa_kotatsu",
+        "marisa_sparse",
+        "marisa_tsumuri",
+        "myon",
+        "myon_redeye",
+        "patchouli",
+        "reimu",
+        "reimu_bean",
+        "reimu_deibu",
+        "reimu_face",
+        "reimu_sparse",
+        "reimu_wasa",
+        "reimu_wasa_deibu",
+        "remilia"
+      ]
+    },
+    "sad": {
+      "kind": "derived",
+      "builder": "standards/yukkuri-library/expressions/derived/faces.py",
+      "models": [
+        "alice",
+        "chen",
+        "chen_longtail",
+        "chen_roundtail",
+        "flandre",
+        "house_marisa",
+        "house_reimu",
+        "marisa",
+        "marisa_bean",
+        "marisa_face",
+        "marisa_kotatsu",
+        "marisa_sparse",
+        "marisa_tsumuri",
+        "myon",
+        "myon_redeye",
+        "patchouli",
+        "reimu",
+        "reimu_bean",
+        "reimu_deibu",
+        "reimu_face",
+        "reimu_sparse",
+        "reimu_wasa",
+        "reimu_wasa_deibu",
+        "remilia"
+      ]
+    },
+    "leak_flow": {
+      "kind": "derived",
+      "builder": "standards/yukkuri-library/expressions/derived/faces.py",
+      "models": [
+        "alice",
+        "chen",
+        "chen_longtail",
+        "chen_roundtail",
+        "flandre",
+        "house_marisa",
+        "house_reimu",
+        "marisa",
+        "marisa_bean",
+        "marisa_face",
+        "marisa_kotatsu",
+        "marisa_sparse",
+        "marisa_tsumuri",
+        "myon",
+        "myon_redeye",
+        "patchouli",
+        "reimu",
+        "reimu_bean",
+        "reimu_deibu",
+        "reimu_face",
+        "reimu_sparse",
+        "reimu_wasa",
+        "reimu_wasa_deibu",
+        "remilia"
+      ]
+    },
+    "leak_startle": {
+      "kind": "derived",
+      "builder": "standards/yukkuri-library/expressions/derived/faces.py",
+      "models": [
+        "alice",
+        "chen",
+        "chen_longtail",
+        "chen_roundtail",
+        "flandre",
+        "house_marisa",
+        "house_reimu",
+        "marisa",
+        "marisa_bean",
+        "marisa_face",
+        "marisa_kotatsu",
+        "marisa_sparse",
+        "marisa_tsumuri",
+        "myon",
+        "myon_redeye",
+        "patchouli",
+        "reimu",
+        "reimu_bean",
+        "reimu_deibu",
+        "reimu_face",
+        "reimu_sparse",
+        "reimu_wasa",
+        "reimu_wasa_deibu",
+        "remilia"
+      ]
+    },
+    "cheek_puff": {
+      "kind": "derived",
+      "builder": "scripts/export_motion_corrections.py",
+      "models": [
+        "alice",
+        "chen",
+        "chen_longtail",
+        "chen_roundtail",
+        "flandre",
+        "house_marisa",
+        "house_reimu",
+        "marisa",
+        "marisa_bean",
+        "marisa_face",
+        "marisa_kotatsu",
+        "marisa_sparse",
+        "marisa_tsumuri",
+        "myon",
+        "myon_redeye",
+        "patchouli",
+        "reimu",
+        "reimu_bean",
+        "reimu_deibu",
+        "reimu_face",
+        "reimu_sparse",
+        "reimu_wasa",
+        "reimu_wasa_deibu",
+        "remilia"
+      ]
+    },
+    "alice_agitated": {
+      "kind": "adult",
+      "models": [
+        "myon",
+        "myon_redeye"
+      ]
+    },
+    "state_recover": {
+      "kind": "adult",
+      "builder": "scripts/export_adult_states.py",
+      "models": [
+        "alice",
+        "myon",
+        "myon_redeye"
+      ]
+    },
+    "biting": {
+      "kind": "domain",
+      "models": [
+        "flandre",
+        "remilia"
+      ]
+    },
+    "remains_burned": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_crushed": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_dissolving": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_drowned": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_frozen": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_natural": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_sick": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_starved": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    },
+    "remains_violent": {
+      "kind": "corpse",
+      "builder": "standards/yukkuri-library/drafts/remains/build.py",
+      "models": [
+        "alice",
+        "chen",
+        "marisa",
+        "marisa_tsumuri",
+        "patchouli",
+        "reimu",
+        "reimu_deibu",
+        "reimu_wasa",
+        "reimu_wasa_deibu"
+      ]
+    }
+  }
+}

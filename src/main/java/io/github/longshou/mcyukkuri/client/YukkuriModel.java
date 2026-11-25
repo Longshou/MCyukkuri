@@ -391,7 +391,7 @@ public final class YukkuriModel {
     private Part puffSurface;
     private int puffPartIndex=-1;
     private final Map<Integer,Part> puffAttachments=new HashMap<>();
-    private final Map<String,String> expressionAliases=new HashMap<>();
+    private final Map<String,String> patchSources=new HashMap<>();
     private HouseNormals puffNormals;
     /** Model-owned normal slots. Every draw recomputes their values from that body's pose. */
     private final Map<String,Vector3f> cardNormals=new HashMap<>();
@@ -399,7 +399,7 @@ public final class YukkuriModel {
     Vector3f woundCardNormal(String part){return cardNormals.get(part);}
     private final Vector3f puffBlendedNormal=new Vector3f();
     private final Vector3f transformedNormal=new Vector3f();
-    String geometryExpression(String expression) { return expressionAliases.getOrDefault(expression,expression); }
+    String geometryExpression(String expression) { return patchSources.getOrDefault(expression,expression); }
     /** Vertices any expression patch can move; the wound renderer reuses everything else across expressions. */
     private boolean[] woundExpressionVertices=new boolean[0];
     /** The patch list setExpression would apply: equal keys mean identical vertex data. */
@@ -865,7 +865,7 @@ public final class YukkuriModel {
 
     YukkuriModel(JsonObject data,ModelFingerprint hash) {
         sourceHash=hash;
-        if(data.has("expression_aliases"))data.getAsJsonObject("expression_aliases").entrySet().forEach(e->expressionAliases.put(e.getKey(),e.getValue().getAsString()));
+        if(data.has("patch_source"))data.getAsJsonObject("patch_source").entrySet().forEach(e->patchSources.put(e.getKey(),e.getValue().getAsString()));
         id = data.get("id").getAsString();
         if (data.get("format").getAsInt() != 1 || data.get("units_per_block").getAsInt() != 16)
             throw new IllegalArgumentException("Unsupported Yukkuri model format");

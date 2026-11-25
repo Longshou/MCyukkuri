@@ -9770,7 +9770,7 @@ def _verify_doll_comfort_sleep(window):
 
 
 _smoke(_doll_comfort, 1600, [
-    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=ask face=teary_smile declared=teary_smile line=want_nuzzle where=ground dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=ask face=open_smile declared=open_smile line=want_nuzzle where=ground dolls=2\b',
     rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=2\b',
     rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=done face=satisfied declared=satisfied line=nuzzle_done where=ground dolls=2 comfort=\d+->\d+\b',
     rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=(?:ground|bed) dolls=2\b',
@@ -9879,7 +9879,7 @@ def _verify_doll_comfort_friend(window):
 
 
 _smoke(_friend_scene, 540, [
-    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask face=teary_smile declared=teary_smile line=want_nuzzle where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask face=open_smile declared=open_smile line=want_nuzzle where=ground dolls=1\b',
     rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=1\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*doll comfort interrupted friend={_friend_marisa} contactTicks=\d+ affectionNeed=\d+ handedOver=true\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*greet face turn to={_friend_marisa} ',

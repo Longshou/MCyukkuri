@@ -62,11 +62,10 @@ def outputs():
     runtime = ASSETS / 'textures/entity/alice'
     selection = read(LIB / 'expressions/runtime.json')['models']['alice']
     standard_faces = {entry['id'] for entry in read(LIB / 'provenance/standard-expressions.json')['entries']}
-    aliases = {'dazed': 'blank_confused'}
     for target in sorted(runtime.glob('*.png')):
         if target.stem in standard_faces and target.stem not in selection['existing_textures']:
             continue  # Composed for the runtime UVs by the shared face library.
-        name = aliases.get(target.stem, target.stem)
+        name = target.stem
         source = SOURCE / 'textures' / (name + '.png')
         if not source.exists():
             source = DRAFT / (name + '.png')

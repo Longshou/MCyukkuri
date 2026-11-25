@@ -44,7 +44,8 @@ AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 # A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlay ashore, pick and place.
 # Aboard the hold is boat_paddle's own loop start (the game samples it at 0), so rowing and holding share one grip.
 HELD_CLIPS = ('braid_item_hold', 'braid_item_pick', 'braid_item_place')
-EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+HELD_CLIPS+('boat_puff',)
+# braid_item_pick and braid_item_place stay authored but have no runtime caller (tiers.json library_only).
+EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+('braid_item_hold',)+('boat_puff',)
 
 
 def smooth(x):
@@ -250,7 +251,7 @@ def state(action, t, c, height):
         r = [lerp(-2, .5, q) if power else lerp(.5, -2, q), lerp(-10, 9, q) if power else lerp(9, -10, q),
              -10*drive+wobble*math.sin(2*math.pi*u*6)]
     elif action == 'kid_hide_behind':
-        # Scared: a quick crouch-spring scoot toward its mother (the server moves it; boat_alarm_wait / boat_flee), then it
+        # Scared: a quick crouch-spring scoot toward its mother (the server moves it; boat_alarm_wait), then it
         # cowers low and wide under her braid, trembling, peeking out once. Pitch <= 5, roll <= 3.
         crouch = keyed(t, [(0, 0), (.12, 1), (.2, -.4), (.42, .8), (.6, 1.2), (d, 1.2)])
         tremble = math.sin(2*math.pi*7*t)*smooth((t-.6)/.2)*(1-.6*bump((t-1.5)/.5))

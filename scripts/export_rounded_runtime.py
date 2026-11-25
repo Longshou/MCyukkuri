@@ -132,7 +132,7 @@ def export_all():
             if action=='flee':world.pop('rotation',None)
         adaptation={'source_weights_preserved':True,'runtime_scale_normalization':factor,'missing_actions_filled_from':spec['base']}
         if ident=='marisa_tsumuri':
-            for action in ['side_bend','exercise_sides']:
+            for action in ['side_bend']:
                 c=rig['clips'][action];d=c['duration'];c['tracks']={'root':{'rotation':{str(t):v for t,v in [(0,[0,0,0]),(d*.25,[0,0,5]),(d*.5,[0,0,0]),(d*.75,[0,0,-5]),(d,[0,0,0])]}}}
             c=rig['clips']['waddle'];c['duration']*=1.4
             for channels in c['tracks'].values():

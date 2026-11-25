@@ -25,7 +25,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/neutral.png",
   "review_code": "O01",
   "origin": "original",
-  "review_pair": "neutral__new",
+  "review_pair": null,
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

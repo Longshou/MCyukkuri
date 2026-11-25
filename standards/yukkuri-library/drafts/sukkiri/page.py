@@ -21,7 +21,7 @@ OUT = SHARED/'.local/previews/sukkiri-plan'
 STRIPS = OUT/'strips'
 LABEL = dict(flushed_smile='潮红闭眼笑', flushed_tongue='潮红闭眼吐舌尖', impact='受击挤眼', teary_tongue='含泪吐舌尖',
              satisfied='满足闭眼', open_drool='睁眼流口水', squeezed_cry_tears='挤眼大哭', blank_cry='白眼哭喊',
-             horrified='惊恐', landing='挤眼抿嘴', endure='白眼忍耐', squeezed_cry='挤眼哭喊',
+             horrified='惊恐', landing='挤眼抿嘴', endure='白眼忍耐', pressed_cry='挤脸哭喊',
              pin_cry='灰眼哭喊', sukkiri_squeeze='潮红挤眼喊', sukkiri_dazed='失神', sukkiri_smug='潮红得意',
              sukkiri_grin='翻白眼咧嘴笑', sukkiri_manic='癫狂咧嘴笑', sukkiri_tender='温柔满足')
 MODELS = dict(marisa='魔理沙', reimu='灵梦', alice='爱丽丝')
@@ -36,7 +36,7 @@ SEQUENCES = [
     ('爱丽丝·攻击素鸡立', 'alice', [('搜寻追击', 'sukkiri_manic'), ('循环', 'sukkiri_grin'),
                               ('起拍', 'open_drool'), ('释放', 'sukkiri_squeeze'),
                               ('峰值', 'sukkiri_grin'), ('事后', 'sukkiri_manic')]),
-    ('受方', 'reimu', [('循环', 'squeezed_cry_tears'), ('起拍', 'horrified'), ('第二拍', 'squeezed_cry'),
+    ('受方', 'reimu', [('循环', 'squeezed_cry_tears'), ('起拍', 'horrified'), ('第二拍', 'pressed_cry'),
                       ('第三拍', 'pin_cry'), ('释放', 'blank_cry'), ('峰值', 'squeezed_cry_tears')]),
 ]
 # Clip strips: (topic, model, clip, times in seconds, beat labels, partner).

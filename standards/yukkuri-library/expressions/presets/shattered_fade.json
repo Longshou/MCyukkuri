@@ -32,8 +32,8 @@
       "scope": "expression; perspective handled by 3D camera"
     }
   ],
-  "status": "pending-review",
-  "art": "Draft adaptation; requires redraw before production use",
+  "status": "accepted",
+  "art": "Redrawn by wp-face-curate (V-05) and approved by the user (face-consolidation v2 D-02)",
   "aliases": [],
   "review_code": "N078",
   "origin": "new",

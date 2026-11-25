@@ -553,7 +553,7 @@ console.log(JSON.stringify(moments.map(time => {
             parts = fitted_sections(entry['model'], include_mouth=True)
             peer_parts = fitted_sections(peer['model'], include_mouth=True)
             with self.actor(entry['model']) as first, self.actor(peer['model'], peer['scale']) as second:
-                minimal = {key: self.data[key] for key in ('models', 'momentClips', 'faceAnimations', 'faceAliases')}
+                minimal = {key: self.data[key] for key in ('models', 'momentClips', 'faceAnimations')}
                 result = subprocess.run(['node', '--input-type=module', '-e', program], cwd=ROOT, check=True,
                                         input=json.dumps(dict(entry=entry, clips=first['clips'], peerClips=second['clips'],
                                                               data=minimal)), capture_output=True, text=True, encoding='utf-8')

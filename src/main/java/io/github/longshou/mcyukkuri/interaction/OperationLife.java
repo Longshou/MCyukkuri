@@ -261,7 +261,7 @@ public final class OperationLife {
                 if(!strike(player,damage,WoundShape.BLUNT))yield false;
                 var away=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
                 Motor.velocity(entity, away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0), "care_knockback");
-                if(entity.isAlive())begin(player,Pose.SLIDE,30,null);yield true;
+                if(entity.isAlive()){begin(player,Pose.SLIDE,30,null);if(action==CareAction.FLICK)entity.showReaction("flick_dull","",30);}yield true;
             }
             case ROLL -> begin(player,Pose.ROLL,50,null);
             case LAY_DOWN -> begin(player,Pose.SUPINE,60,null);
@@ -295,7 +295,7 @@ public final class OperationLife {
             switch(action){
                 case COLLECT_NEAREST -> message(player,"collected");
                 case STERILIZE -> {
-                    entity.forceReaction("cut_cry", "", 80);
+                    entity.forceReaction("blank_cry", "", 80);
                     message(player,"sterilized");
                 }
                 case ABANDON -> message(player,"abandoned");
@@ -426,7 +426,7 @@ public final class OperationLife {
         if (pose == Pose.BOX && elapsed % BOX_BEAT == 0) {
             boolean calm = calmInBox();
             if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
-            entity.forceReaction(calm ? "sleepy" : "horrified", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
+            entity.forceReaction(calm ? "sleepy" : elapsed / BOX_BEAT % 2 == 1 ? "horrified" : "pin_cry", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
         }
         if(pose==Pose.ASSIST){
             if(actor.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
@@ -462,7 +462,7 @@ public final class OperationLife {
             if(table==null)moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
-                entity.showReaction(entity.life().personality().temperament().is(Gate.SHARP) ? "teary" : "sukkiri_squeeze", "", remaining);
+                entity.showReaction(entity.life().personality().temperament().is(Gate.SHARP) ? "tongue_cry" : "sukkiri_squeeze", "", remaining);
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(actor.position()).multiply(1,0,1).normalize();
             Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
@@ -587,7 +587,7 @@ public final class OperationLife {
     private boolean cutAccessory(Player player){
         if(!entity.headwear().harm(3,"cut",false))return false;
         ItemContact.shearFeedback(entity,player,WoundPlacement.shearContact(entity,0));
-        entity.life().personality().confiscated(player.getUUID());entity.showReaction("surprise","lost_accessory",140);return true;
+        entity.life().personality().confiscated(player.getUUID());entity.showReaction("shattered","lost_accessory",140);return true;
     }
     private ItemEntity nearestItem(Player player){
         return entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()

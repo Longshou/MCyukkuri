@@ -40,7 +40,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/smug.png",
   "review_code": "O03",
   "origin": "original",
-  "review_pair": "smug__new",
+  "review_pair": null,
   "geometry_offsets": {
     "face_mouth": {
       "scale": [

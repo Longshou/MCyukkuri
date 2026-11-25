@@ -31,17 +31,17 @@ for(const [id,rev] of Object.entries(revision.models)){
    const t=clip.duration*i/16,data=pose.frame(action,t);if(!data.every(Number.isFinite))throw Error('Nonfinite '+id+'/'+action);frames++;
    const gap=minimum(data,model)-floor;
    if(gap < -.025*scale)throw Error('Below floor '+id+'/'+action+': '+gap);
-   if(!['hop','taiso'].includes(action))maxContactError=Math.max(maxContactError,Math.abs(gap));
+   if(!['hop','exercise_all'].includes(action))maxContactError=Math.max(maxContactError,Math.abs(gap));
   }
  }
  if(maxContactError>.035*scale)throw Error('Floating support '+id+': '+maxContactError);
  const apex=minimum(pose.frame('hop',.4),model)-floor;
  if(Math.abs(apex-rev.hop_height*scale)>.001)throw Error('Wrong jump height '+id);
- if(pose.expressionFor('puff',1)==='neutral'||pose.expressionFor('taiso',11)==='neutral'||pose.expressionFor('taiso',8)!=='neutral')throw Error('Expression timing '+id);
+ if(pose.expressionFor('puff',1)==='neutral'||pose.expressionFor('exercise_all',11)==='neutral'||pose.expressionFor('exercise_all',8)!=='neutral')throw Error('Expression timing '+id);
  // A single invertible root transform must preserve all relative attachment
  // positions. No source branch may be independently displaced or stretched.
- for(const action of ['side_bend','taiso']){
-  const t=action==='taiso'?3:pose.clips[action].duration*.25;
+ for(const action of ['side_bend','exercise_all']){
+  const t=action==='exercise_all'?3:pose.clips[action].duration*.25;
   const data=pose.frame(action,t),clip=pose.clips[action],values={};
   for(const track of clip.tracks){let index=0;while(index+1<track.keys.length&&track.keys[index+1][0]<t)index++;
    const a=track.keys[index],b=track.keys[Math.min(index+1,track.keys.length-1)],q=a[0]===b[0]?0:(t-a[0])/(b[0]-a[0]);values[track.channel]=a.slice(1).map((v,i)=>v+(b[i+1]-v)*q);}
@@ -70,7 +70,7 @@ function render(id,action,t,current,az=0,width=320,height=300){
  const span=Math.max(max*.7,radius*1.05,5),centerY=max*.52;
  return Buffer.from(raster.renderModel(pose.frame(action,t),texture,width,height,az,.12,span,{centerY,textureSize:model.texture_size||128}));
 }
-const cases=[['reimu','puff',1.6,0],['reimu','puff',1.6,Math.PI],['marisa','taiso',3.0,.65],['patchouli','side_bend',.59,.65],['reimu','hop',.4,0],['house_reimu','puff',1.6,0],['reimu_wasa_deibu','side_bend',.59,Math.PI],['marisa_bean','puff',1.6,.3]];
+const cases=[['reimu','puff',1.6,0],['reimu','puff',1.6,Math.PI],['marisa','exercise_all',3.0,.65],['patchouli','side_bend',.59,.65],['reimu','hop',.4,0],['house_reimu','puff',1.6,0],['reimu_wasa_deibu','side_bend',.59,Math.PI],['marisa_bean','puff',1.6,.3]];
 for(let i=0;i<cases.length;i++){
  const [id,a,t,az]=cases[i];for(const current of [false,true]){
   const tt=!current&&a==='hop'?.06544984695:t;
@@ -78,7 +78,7 @@ for(let i=0;i<cases.length;i++){
  }report.comparisons.push({id,action:a,time:t,az});
 }
 // Show the same floor/framing for the full animation, never recenter mid-jump.
-for(let i=0;i<32;i++)for(const [a,d]of [['puff',2.8],['side_bend',2.36],['hop',.8],['taiso',14]])
+for(let i=0;i<32;i++)for(const [a,d]of [['puff',2.8],['side_bend',2.36],['hop',.8],['exercise_all',14]])
  fs.writeFileSync(path.join(out,`motion-${a}-${i}.rgba`),render('reimu',a,d*i/32,true,.45,256,256));
 fs.writeFileSync(path.join(out,'checks.json'),JSON.stringify(report,null,2));
 cp.execFileSync(python,['-c',String.raw`
@@ -99,11 +99,11 @@ sheet.save(dest/'comparison.png')
 frames=[]
 for i in range(32):
  im=Image.new('RGB',(1024,292),'#f5f3ed');d=ImageDraw.Draw(im)
- for j,(action,label) in enumerate([('puff','鼓腮'),('side_bend','侧弯'),('hop','跳动'),('taiso','完整体操')]):
+ for j,(action,label) in enumerate([('puff','鼓腮'),('side_bend','侧弯'),('hop','跳动'),('exercise_all','完整体操')]):
   p=Image.frombytes('RGBA',(256,256),(o/f'motion-{action}-{i}.rgba').read_bytes());im.paste(p,(j*256,30),p);d.text((j*256+16,8),label,font=font,fill='#243e34')
  frames.append(im)
 frames[0].save(dest/'motions.gif',save_all=True,append_images=frames[1:],duration=90,loop=0)
-for action,duration in [('puff',2.8),('side_bend',2.36),('hop',.8),('taiso',14)]:
+for action,duration in [('puff',2.8),('side_bend',2.36),('hop',.8),('exercise_all',14)]:
  imgs=[]
  for i in range(32):
   bg=Image.new('RGB',(256,256),'#f5f3ed');im=Image.frombytes('RGBA',(256,256),(o/f'motion-{action}-{i}.rgba').read_bytes());bg.paste(im,(0,0),im);imgs.append(bg)

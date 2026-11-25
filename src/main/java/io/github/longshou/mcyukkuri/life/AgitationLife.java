@@ -118,7 +118,8 @@ public final class AgitationLife {
     }
     public String expression() {
         return switch (phase) {
-            case RECOVER, HEAT_UNMET -> "sleepy";
+            case RECOVER -> entity.getVariant() == YukkuriVariant.ALICE ? "state_recover" : "sleepy";
+            case HEAT_UNMET -> "sleepy";
             case ALICE_WATCH, ALICE_APPROACH -> "sukkiri_manic";
             default -> "neutral";
         };

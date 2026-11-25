@@ -1,6 +1,6 @@
 """Sukkiri faces: new face components drawn on the standard part grid, their presets, and the short tongue.
 
-Project design (user-approved proposal, sukkiri-plan page): the release peak shout, the dazed after-face, Marisa's
+Project design (user-approved proposal, sukkiri-plan page): the release peak shout, the blank-confused after-face, Marisa's
 smug afterglow, Alice's rolled-eye grin and her manic grin, and the mother's tender closing face. The long hanging
 tongue (part 37ac1b...) is replaced by a short rounded tongue tip in every preset that used it (flushed_tongue,
 teary_tongue and its B frame). Style references (wiki/art-references): EH27-007 lower panel (flat lid over the pupil,

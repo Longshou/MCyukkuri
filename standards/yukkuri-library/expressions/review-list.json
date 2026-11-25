@@ -4,7 +4,7 @@
     "id": "neutral",
     "label": "普通",
     "origin": "original",
-    "pair": "neutral__new"
+    "pair": null
   },
   {
     "code": "N001",
@@ -18,7 +18,7 @@
     "id": "happy",
     "label": "闭眼大笑",
     "origin": "original",
-    "pair": "happy__new"
+    "pair": null
   },
   {
     "code": "N002",
@@ -32,14 +32,14 @@
     "id": "smug",
     "label": "得意",
     "origin": "original",
-    "pair": "smug__new"
+    "pair": null
   },
   {
     "code": "O04",
     "id": "cry",
     "label": "闭眼哭喊",
     "origin": "original",
-    "pair": "cry__new"
+    "pair": null
   },
   {
     "code": "N003",
@@ -53,7 +53,7 @@
     "id": "teary",
     "label": "含泪",
     "origin": "original",
-    "pair": "teary__new"
+    "pair": null
   },
   {
     "code": "N004",
@@ -67,7 +67,7 @@
     "id": "drool",
     "label": "闭眼流口水",
     "origin": "original",
-    "pair": "drool__new"
+    "pair": null
   },
   {
     "code": "N005",
@@ -81,7 +81,7 @@
     "id": "confused",
     "label": "困惑张嘴",
     "origin": "original",
-    "pair": "confused__new"
+    "pair": null
   },
   {
     "code": "N006",
@@ -116,7 +116,7 @@
     "id": "yawn",
     "label": "打哈欠",
     "origin": "original",
-    "pair": "yawn__new"
+    "pair": null
   },
   {
     "code": "N010",
@@ -130,7 +130,7 @@
     "id": "sleep",
     "label": "睡眠",
     "origin": "original",
-    "pair": "sleep__new"
+    "pair": null
   },
   {
     "code": "N011",
@@ -141,14 +141,14 @@
   },
   {
     "code": "N012",
-    "id": "tear_sleep",
+    "id": "teary_sleep",
     "label": "含泪睡眠",
     "origin": "new",
     "pair": null
   },
   {
     "code": "N013",
-    "id": "tear_sleep_b",
+    "id": "teary_sleep_b",
     "label": "含泪睡眠 · 泪帧 B",
     "origin": "new",
     "pair": null
@@ -179,14 +179,14 @@
     "id": "puff",
     "label": "闭眼噗咕",
     "origin": "original",
-    "pair": "puff__new"
+    "pair": null
   },
   {
     "code": "O11",
     "id": "angry",
     "label": "生气",
     "origin": "original",
-    "pair": "angry__new"
+    "pair": null
   },
   {
     "code": "N019",
@@ -207,7 +207,7 @@
     "id": "surprise",
     "label": "受惊逃跑",
     "origin": "original",
-    "pair": "surprise__new"
+    "pair": null
   },
   {
     "code": "N021",
@@ -262,13 +262,6 @@
     "code": "N028",
     "id": "blank_cry_b",
     "label": "白眼哭喊 · 泪帧 B",
-    "origin": "new",
-    "pair": null
-  },
-  {
-    "code": "N029",
-    "id": "squeezed_cry",
-    "label": "挤眼喊叫",
     "origin": "new",
     "pair": null
   },
@@ -497,13 +490,6 @@
     "pair": null
   },
   {
-    "code": "N062",
-    "id": "cut_cry",
-    "label": "受损哭喊",
-    "origin": "new",
-    "pair": null
-  },
-  {
     "code": "N063",
     "id": "pressed_teary",
     "label": "挤脸含泪",
@@ -627,97 +613,6 @@
     "id": "sleepy",
     "label": "困倦",
     "origin": "original",
-    "pair": "sleepy__new"
-  },
-  {
-    "code": "N080",
-    "id": "angry__new",
-    "label": "生气",
-    "origin": "new",
-    "pair": "angry"
-  },
-  {
-    "code": "N081",
-    "id": "confused__new",
-    "label": "困惑张嘴",
-    "origin": "new",
-    "pair": "confused"
-  },
-  {
-    "code": "N082",
-    "id": "cry__new",
-    "label": "闭眼哭喊",
-    "origin": "new",
-    "pair": "cry"
-  },
-  {
-    "code": "N083",
-    "id": "drool__new",
-    "label": "闭眼流口水",
-    "origin": "new",
-    "pair": "drool"
-  },
-  {
-    "code": "N084",
-    "id": "happy__new",
-    "label": "闭眼大笑",
-    "origin": "new",
-    "pair": "happy"
-  },
-  {
-    "code": "N085",
-    "id": "neutral__new",
-    "label": "普通",
-    "origin": "new",
-    "pair": "neutral"
-  },
-  {
-    "code": "N086",
-    "id": "puff__new",
-    "label": "闭眼噗咕",
-    "origin": "new",
-    "pair": "puff"
-  },
-  {
-    "code": "N087",
-    "id": "sleep__new",
-    "label": "睡眠",
-    "origin": "new",
-    "pair": "sleep"
-  },
-  {
-    "code": "N088",
-    "id": "sleepy__new",
-    "label": "刚睡醒",
-    "origin": "new",
-    "pair": "sleepy"
-  },
-  {
-    "code": "N089",
-    "id": "smug__new",
-    "label": "得意",
-    "origin": "new",
-    "pair": "smug"
-  },
-  {
-    "code": "N090",
-    "id": "surprise__new",
-    "label": "受惊逃跑",
-    "origin": "new",
-    "pair": "surprise"
-  },
-  {
-    "code": "N091",
-    "id": "teary__new",
-    "label": "含泪",
-    "origin": "new",
-    "pair": "teary"
-  },
-  {
-    "code": "N092",
-    "id": "yawn__new",
-    "label": "打哈欠",
-    "origin": "new",
-    "pair": "yawn"
+    "pair": null
   }
 ]

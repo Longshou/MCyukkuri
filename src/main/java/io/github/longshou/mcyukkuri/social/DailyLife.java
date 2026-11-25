@@ -297,8 +297,8 @@ public final class DailyLife {
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE && !welcome) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE && companion instanceof ItemEntity) {
-            entity.showReaction("teary_smile", "", 30);
-            entity.keepsake().emitExternalBeat("ask", "teary_smile", "want_nuzzle", "ground", false, "");
+            entity.showReaction("open_smile", "", 30);
+            entity.keepsake().emitExternalBeat("ask", "open_smile", "want_nuzzle", "ground", false, "");
         }
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
         GameplayLog.limited(entity,"daily","started."+kind,1200,

@@ -197,7 +197,7 @@ public final class ShopDate implements IntPredicate {
             if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed_reason", KeeperMenu.failReason(why)), true);
         }
         if (ok) {
-            a.playAction("shiawase"); a.showReaction("happy", "expecting", 100);
+            a.playAction("joy_hop"); a.showReaction("happy", "expecting", 100);
             b.playAction("greet"); b.showReaction("happy", "date_fond", 80);
             Staging.sparkle(level, a.position().add(0, a.getBbHeight() + .2, 0)); k.swing(InteractionHand.MAIN_HAND);
         } else if (fond) {

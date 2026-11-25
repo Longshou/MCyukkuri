@@ -85,7 +85,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/happy.png",
   "review_code": "O02",
   "origin": "original",
-  "review_pair": "happy__new",
+  "review_pair": null,
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

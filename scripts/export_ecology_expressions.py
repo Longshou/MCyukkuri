@@ -21,6 +21,10 @@ def main():
     check_coverage(json.loads(selected[metadata]),usage,selected)
     if args.check:
         check_coverage(json.loads(metadata.read_text(encoding='utf-8')),usage)
+    if args.check:
+        from check_face_registry import problems
+        found = problems(usage)
+        assert not found, 'Face registry: ' + '; '.join(found[:12])
     for path,data in selected.items():
         if args.check: assert path.is_file() and path.read_bytes()==data,'Outdated ecology expression: '+str(path)
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)

@@ -3,7 +3,7 @@
    Per model: the puff is a root-only transform clip of 2.8 s that starts and ends at rest, no cheek morph
    data is shipped, the swell stays inside the amplitude budget, whole-body pitch and roll stay far under
    the 12 degree limit, the lowest point never leaves the floor, the face timeline is neutral-free until the
-   swell and ends on cheek_puff, injury faces yield, and taiso re-uses the same fractions for 10.4-13.6 s. */
+   swell and ends on cheek_puff, injury faces yield, and exercise_all re-uses the same fractions for 10.4-13.6 s. */
 const fs=require('fs'),path=require('path');
 const {RuntimePose,spliceFit}=require('../preview/review/pose.js');
 const root=path.resolve(__dirname,'..'),assets=path.join(root,'src/main/resources/assets/mcyukkuri');
@@ -13,9 +13,9 @@ const fail=m=>{throw Error(m);};
 function minimum(data){let min=Infinity;for(let k=0;k<data.length;k+=24){if(Math.hypot(data[k+5],data[k+6],data[k+7])<.5)continue;for(let j=0;j<3;j++)min=Math.min(min,data[k+j*8+1]);}return min;}
 let checked=0;
 for(const [id,rev] of Object.entries(motion.models)){
- const clip=rev.clips.puff,taiso=rev.clips.taiso,names=rev.bone_names;
+ const clip=rev.clips.puff,exercise_all=rev.clips.exercise_all,names=rev.bone_names;
  if(rev.puff_surface||rev.puff_attachments||rev.puff_offsets)fail(`${id}: cheek morph data still shipped`);
- if(clip.puff_envelope||taiso.puff_envelope)fail(`${id}: puff envelope still shipped`);
+ if(clip.puff_envelope||exercise_all.puff_envelope)fail(`${id}: puff envelope still shipped`);
  if(Math.abs(clip.duration-2.8)>1e-9||!clip.loop)fail(`${id}: puff must be a 2.8 s loop`);
  const rootBone=names.indexOf('root'),bean=/bean/.test(id),deibu=/deibu/.test(id);
  let peakW=0,peakH=0,pitch=0,roll=0;
@@ -38,8 +38,8 @@ for(const [id,rev] of Object.entries(motion.models)){
  if(spans.length!==2||spans[0][0]<.25||spans[1][2]!=='cheek_puff'||Math.abs(spans[1][1]-2.8)>1e-6)fail(`${id}: face timeline ${JSON.stringify(spans)}`);
  if(!['puff','cheek_puff'].includes(spans[0][2]))fail(`${id}: swell face`);
  if(!(clip.expression_yield||[]).includes('cry'))fail(`${id}: puff face does not yield to injury`);
- const t=taiso.expression_spans;
- if(!t||Math.abs(t[0][0]-(10.4+3.2*.1))>1e-6||Math.abs(t[1][1]-13.6)>1e-6)fail(`${id}: taiso face timeline`);
+ const t=exercise_all.expression_spans;
+ if(!t||Math.abs(t[0][0]-(10.4+3.2*.1))>1e-6||Math.abs(t[1][1]-13.6)>1e-6)fail(`${id}: exercise_all face timeline`);
  checked++;console.log(id,'swell',peakW.toFixed(3),'x',peakH.toFixed(3),'pitch',pitch.toFixed(2),'roll',roll.toFixed(2),'floor gap',worst.toExponential(1));
 }
 console.log('Puff motion verified for',checked,'models');

@@ -83,7 +83,7 @@ def staged_performances(models):
             ('feed-approach', 1.8, 'waddle', 'newborn_crawl', None, 'open_smile', '亲代走近'),
             ('feed-chew', 1.5, 'eat', 'newborn_crawl', 'chewing_closed', 'open_smile', '取食并咀嚼'),
             ('feed-offer', 1.4, 'feed_child', 'drink', 'satisfied', 'open_smile', '近身递喂'),
-            ('feed-finish', 1.4, 'nuzzle', 'shiawase', 'happy', 'satisfied', '幼体吞咽'),
+            ('feed-finish', 1.4, 'nuzzle', 'joy_hop', 'happy', 'satisfied', '幼体吞咽'),
             ('feed-finish', 1.1, 'idle', 'idle', 'happy', 'satisfied', '亲子停留'),
         ]),
         entry('adult-pairing', '普通配对：回应、蹭脸和绕后', 'marisa', 'reimu', 1, [
@@ -212,9 +212,8 @@ def build_entries(catalog, items):
     assert len({entry['id'] for entry in entries}) == len(entries)
     return dict(entries=entries, models={model['id']: dict(
         name=model['name'], scale=model['formScale'], textures=model['textures'],
-        faceAliases=faces['models'][model['id']].get('face_aliases', {}),
         expressions=faces['models'][model['id']]['selectable']) for model in models},
-        momentClips=moment_clip_durations(), faceAliases=faces['aliases'], faceAnimations=faces['animations'],
+        momentClips=moment_clip_durations(), faceAnimations=faces['animations'],
         faceLabels={ident: ' · '.join(label) for ident, label in faces['labels'].items()})
 
 

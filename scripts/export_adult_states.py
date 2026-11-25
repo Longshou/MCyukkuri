@@ -90,8 +90,8 @@ def main():
     # Export newly authored faces. Never fall back to the superseded draft.
     for name in ('breeding_period', 'state_recover'):
         face = (SOURCE / 'variant' / f'{name}.png').read_bytes()
-        outputs[SNAPSHOT / f'{name}.png'] = face
-        outputs[ASSETS / 'textures/entity/alice' / f'{name}.png'] = face
+        outputs[SNAPSHOT / f'{name}.png'] = face  # breeding_period is only Alice's neutral source, not a face id
+        if name != 'breeding_period': outputs[ASSETS / 'textures/entity/alice' / f'{name}.png'] = face
     # The 発情 rotating mark (hatujyou/rot.bmp); the droplet strip is no longer used.
     for name in ('hatujyou_rot',):
         overlay = (SOURCE / 'overlays' / f'{name}.png').read_bytes()

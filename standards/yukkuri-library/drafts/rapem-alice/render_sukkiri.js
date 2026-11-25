@@ -23,8 +23,6 @@ function pose(id){
  return poses[id]=p;
 }
 function faceFile(id,face){
- const aliases=library.aliases,local=library.models[id].face_aliases||{};
- if(aliases[face])face=aliases[face];if(local[face])face=local[face];
  if(!library.models[id].selectable.includes(face))throw Error('Unknown face '+id+'/'+face);
  const animation=library.animations[face];
  return {face,file:path.join(ASSET,'textures/entity',id,(animation?animation.frames[0]:face)+'.png')};

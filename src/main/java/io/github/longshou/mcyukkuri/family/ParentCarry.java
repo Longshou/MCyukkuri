@@ -1994,7 +1994,7 @@ public final class ParentCarry {
         boolean strained = load(carrier, child, hold, true) >= STRAIN_LOAD;
         // Only an ordinary lift is glad: a flight with the young is no time for "so happy", and effort is not a refusal.
         boolean fleeing = purpose == Purpose.PROTECT;
-        String face = strained ? "tired" : fleeing ? "surprise" : "happy";
+        String face = strained ? "endure" : fleeing ? "surprise" : "happy";
         carrier.showReaction(face, strained || fleeing ? "" : "gentle", 40);
         if (fleeing) { beatName = "pickup"; beatFace = face; beatLine = "none"; }
         if (child.getUUID().equals(flightTarget)) flightTarget = null;

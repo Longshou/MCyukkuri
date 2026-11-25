@@ -121,11 +121,11 @@ public final class PetScenes {
             if ((insistence >= .2 || boldness >= 55) && fear < 45) {
                 style = "stray_cling";
                 reactAction = "puff"; reactFace = "cheek_puff"; reactLine = "badge_taken";
-                endAction = "sulk"; endFace = "angry"; endLine = "";
+                endAction = "sulk"; endFace = "angry_stare"; endLine = "";
                 stepAway = true;
             } else {
                 style = "stray_run";
-                reactAction = "droop"; reactFace = "cry"; reactLine = "badge_taken";
+                reactAction = "droop"; reactFace = "open_cry"; reactLine = "badge_taken";
                 endAction = "droop"; endFace = "afraid"; endLine = "afraid";
                 stepAway = true;
             }

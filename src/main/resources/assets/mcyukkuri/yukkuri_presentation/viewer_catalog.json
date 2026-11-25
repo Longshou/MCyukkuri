@@ -44,9 +44,8 @@
     ["hop_leg", "屈身蹬跳"],
     ["stretch", "伸展"],
     ["exercise_vertical", "纵向体操"],
-    ["exercise_sides", "横向体操"],
     ["press", "挤压"],
-    ["taiso", "广播体操"]
+    ["exercise_all", "广播体操"]
    ]
   },
   {
@@ -57,7 +56,7 @@
     ["braid_eat_bin", "从倒地垃圾桶辫梢取食"],
     ["bin_sniff", "嗅垃圾桶"],
     ["bin_nose_in", "探进垃圾桶翻找"],
-    ["shiawase", "饭后幸福"],
+    ["joy_hop", "饭后幸福"],
     ["meal_content", "吃饱满足瘫软"],
     ["reject_or_spit", "吐出拒食"],
     ["drink", "饮水"],
@@ -87,7 +86,7 @@
     ["home_declare", "住家宣言"],
     ["home_declare_timid", "胆小的住家宣言"],
     ["puff", "鼓腮"],
-    ["puku_teary", "含泪硬撑噗咕"],
+    ["puff_teary", "含泪硬撑噗咕"],
     ["push", "推挤"],
     ["startle", "受惊"],
     ["tremble", "发抖"],
@@ -219,7 +218,6 @@
     ["boat_reassure", "安抚"],
     ["boat_alarm_call", "惊呼"],
     ["boat_alarm_wait", "警戒等待"],
-    ["boat_flee", "撤离"],
     ["boat_calm", "平复"],
     ["boat_answer_call", "回应呼唤"],
     ["braid_rescue_reach", "伸辫救援"],

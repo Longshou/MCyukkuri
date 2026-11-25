@@ -42,7 +42,7 @@ const frames=job.times.map((t,frame)=>{
   let selectedFace;
   if(a.pose){
    let face=a.face||a.pose.expressionFor(a.clip,t);
-   if(faces){face=faces.aliases[face]||face;face=faces.models[a.id].face_aliases?.[face]||face;}
+   
    const animation=a.draftFace?null:faces?.animations[face];
    if(animation){let tick=Math.floor(t*20)%animation.frame_ticks.reduce((a,b)=>a+b,0);while(tick>=animation.frame_ticks[phase])tick-=animation.frame_ticks[phase++];face=animation.frames[phase];}
    if(faces&&!a.draftFace&&!faces.models[a.id].selectable.includes(face))throw Error('Unknown face id: '+face);

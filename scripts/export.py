@@ -69,7 +69,6 @@ TABLE = [
     exporter('runtime-models', 'scripts/export_runtime_models.py', ['art/source/standard-runtime/'], check=None, note='Legacy seven-model recipe; refuses current rounded selections.'),
     exporter('moments', 'scripts/export_moments.py', ['standards/yukkuri-library/presentation/moments.json'], ['ecology-expressions']),
     exporter('ecology-audio', 'scripts/build_ecology_audio.py', ['art/audio/ecology/']),
-    exporter('lore-faces', LORE+'/faces.py', [LORE+'/faces.py']),
     exporter('house-ecology', 'art/source/house-ecology-presentation/build.mjs', ['art/source/house-ecology-presentation/']),
     exporter('prop-mesh-lint', 'scripts/check_prop_meshes.py', [
         'src/main/resources/assets/mcyukkuri/yukkuri_props/', 'src/main/resources/assets/mcyukkuri/textures/props/',

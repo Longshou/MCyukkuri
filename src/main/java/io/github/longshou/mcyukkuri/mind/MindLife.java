@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.life.Consumables;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
 import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.life.Sweets;
+import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -230,8 +231,8 @@ public final class MindLife {
     }
     /** The resting face when nothing else is shown. */
     public String face(String fallback) {
-        if (course == Course.FRENZY) return "dazed";
-        if (course == Course.WITHERING) return "blank_cry";
+        if (course == Course.FRENZY) return "blank_confused";
+        if (course == Course.WITHERING) return "blank_frown";
         String felt = feeling.face();
         if ((felt == null || feeling.kind() == EmotionCourse.Kind.RAGE && feeling.stage() == EmotionCourse.Stage.FADING)
                 && !entity.life().hasAccessory() && entity.headwear().uneasePerMinute() > 0) return "teary";
@@ -337,7 +338,7 @@ public final class MindLife {
             entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
         } else if (!nonYukkuri() && unease >= UNEASY && unease < SWEETENED && --moanClock <= 0 && calm()) {
             moanClock = 36 + entity.getRandom().nextInt(36);
-            if (entity.getRandom().nextInt(3) == 0) entity.showReaction("neutral", pick("uneasy", "mood_bad"), 60);
+            if (entity.getRandom().nextInt(3) == 0) entity.showReaction("confused_small", pick("uneasy", "mood_bad"), 60);
         }
     }
 
@@ -422,7 +423,8 @@ public final class MindLife {
     private void begin() {
         course = Course.FRENZY; courseTicks = 0; breakingTicks = 0; shoutClock = 0; fitClock = 40; witherClock = 0;
         MCYukkuri.LOGGER.info("[mind] {} #{} non-yukkuri onset (unease {}, sweetness {})", entity.getVariant().assetId(), entity.getId(), Math.round(unease), Math.round(sweetness));
-        entity.showReaction("dazed", pick("non_yukkuri", "afraid"), 80);
+        entity.showReaction("shattered", pick("non_yukkuri", "afraid"), 30);
+        PetScenes.later(entity, 30, () -> entity.forceReaction("shattered_fade", "", 50));
         hearing();
     }
 
@@ -444,7 +446,7 @@ public final class MindLife {
         }
         if (--shoutClock <= 0) {
             shoutClock = course == Course.FRENZY ? 60 + entity.getRandom().nextInt(60) : 200 + entity.getRandom().nextInt(200);
-            entity.showReaction(course == Course.FRENZY ? "dazed" : "blank_cry", pick("non_yukkuri", "afraid"), 50);
+            entity.showReaction(course == Course.FRENZY ? entity.getRandom().nextBoolean() ? "blank_happy" : "blank_confused" : "blank_cry", pick("non_yukkuri", "afraid"), 50);
             hearing();
         }
         if (course == Course.WITHERING && ++witherClock >= 2400) {

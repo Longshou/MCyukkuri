@@ -211,7 +211,7 @@ def state(action, t, c, height):
     elif action in ('boat_alarm_call','boat_answer_call'):
         q=keyed(t,[(0,.1),(.16,1),(.4,.55),(.75,.3),(d,.2)])
         s=[1+.03*q,1-.065*q,1+.025*q];r=[-3*q,keyed(t,[(0,0),(.25,-9),(.65,5),(d,0)]),0]
-    elif action in ('boat_alarm_wait','boat_flee'):
+    elif action in ('boat_alarm_wait',):
         q=keyed(t,[(0,.3),(.4,.6),(.8,.25),(1.2,.5),(2,.3)])
         s=[1.02,.95+.015*q,1.02];r=[-3,keyed(t,[(0,-10),(.55,-16),(1.05,8),(1.5,10),(2,-10)]),0]
     elif action=='boat_calm':
@@ -346,7 +346,7 @@ def state(action, t, c, height):
         q = bump((t % c['chew_seconds'])/c['chew_seconds'])
         r[0] = c['lean']+c['chew_nod']*q
         k = c['chew_squash']; s = [1+.6*k*q, 1-k*q, 1+.6*k*q]
-    elif action == 'shiawase':
+    elif action == 'joy_hop':
         s, lift, e = hop(t, 0, .3, .75, .95, height*c['hop_ratio'])
         r[0] = c['look_up']*e
         if t >= .95:
@@ -929,7 +929,7 @@ def flourish_tracks(model, action, samples, cfg, c):
             tracks.append({'bone': hand, 'channel': 'position', 'keys': [[round(t, 8), *[round(o*lift(t), 5) for o in off]] for t in samples]})
     piko = cfg['flourishes']['sideburn_piko']
     if action in piko['clips'] and 'reimu' in model['id']:
-        start, end = {'greet': (.2, 1.2), 'shiawase': (.3, 1.5)}[action]
+        start, end = {'greet': (.2, 1.2), 'joy_hop': (.3, 1.5)}[action]
         def flick(t):
             if not start <= t <= end: return 0.
             return piko['flick']*bump(((t-start)/((end-start)/piko['flicks'])) % 1)

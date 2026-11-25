@@ -26,7 +26,7 @@
   "retained_source": "standards/yukkuri-v1/textures/marisa/sleepy.png",
   "review_code": "O13",
   "origin": "original",
-  "review_pair": "sleepy__new",
+  "review_pair": null,
   "review_decision": {
     "status": "accepted",
     "date": "2026-09-12",

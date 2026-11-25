@@ -41,18 +41,15 @@ def emitted_faces():
     return usage
 
 
-def resolve(data, model, face):
-    face = data['aliases'].get(face,face)
-    # Offline --before inputs can predate per-model aliases.
-    return data['models'][model].get('face_aliases',{}).get(face,face)
-
-
 def check_coverage(data, usage, generated=None):
+    registry = json.loads((ROOT/'standards/yukkuri-library/expressions/registry.json').read_text(encoding='utf-8'))['faces']
     for model,row in data['models'].items():
         for face,sources in sorted(usage.items()):
-            selected = resolve(data,model,face)
+            # A face carried by named models only (registry models) is emitted only by code that checks the form.
+            if model not in registry.get(face,{}).get('models',[model]): continue
+            selected = face
             if selected not in row['selectable']:
-                raise ValueError(f'Unselectable emitted face id={face} model={model} resolved={selected}; source={sorted(sources)[0]}')
+                raise ValueError(f'Unselectable emitted face id={face} model={model} source={sorted(sources)[0]}')
             path = ASSETS/'textures/entity'/model/(selected+'.png')
             if not (generated is not None and path in generated) and not path.is_file():
-                raise ValueError(f'Missing emitted face texture id={face} model={model} resolved={selected}')
+                raise ValueError(f'Missing emitted face texture id={face} model={model}')

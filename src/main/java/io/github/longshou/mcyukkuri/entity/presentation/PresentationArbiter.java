@@ -131,8 +131,13 @@ public final class PresentationArbiter {
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
             case HAT_RETURN,RUB->"closed_smile";
-            case PIN,FIXED,WRAPPED,HOOK,VIBRATE,BOX->!state.reactionFace().isEmpty()?state.reactionFace():"surprise";
-            case GRIP,RUMP,ASSIST->"cry";
+            case PIN,FIXED->!state.reactionFace().isEmpty()?state.reactionFace():"pressed_hidden";
+            case WRAPPED,HOOK->!state.reactionFace().isEmpty()?state.reactionFace():"pin_cry";
+            case VIBRATE,BOX->!state.reactionFace().isEmpty()?state.reactionFace():"surprise";
+            case GRIP->"pressed_cry";
+            case RUMP,ASSIST->"cry";
+            case SLIDE->!state.reactionFace().isEmpty()?state.reactionFace():"impact_teary";
+            case ROLL->"flick_dull";
             default->"surprise";
         };
         String clip=e.getAnimationId();
@@ -157,7 +162,8 @@ public final class PresentationArbiter {
         if(e.body().dying())return "blank_cry";
         String leakFace=e.mind().leakFace();
         if(!leakFace.isEmpty())return leakFace;
-        if(e.body().condition().needsPainExpression()||e.life().spicyTicks()>0)return "cry";
+        if(e.body().condition().needsPainExpression())return "cry";
+        if(e.life().spicyTicks()>0)return "teary_tongue";
         String linger=state.lingerFace();
         if(!linger.isEmpty())return linger;
         // The published emotion row and the last frame of a flight precede the drain, weakness and resting faces.
@@ -170,9 +176,9 @@ public final class PresentationArbiter {
         if (!activity.isEmpty()) return activity;
         // Danger and contact keep their reaction faces; ordinary clips use the existing dry presets.
         if(e.aftermathDrain()>0)switch(e.getBehaviorId()) {
-            case Behaviors.FLEE, Behaviors.BOAT_FLEE, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,
+            case Behaviors.FLEE, Behaviors.BOAT_ALARM_WAIT, Behaviors.ESCAPE_WATER, Behaviors.HAT_SLIPPING, Behaviors.SHELL_RETRACT,
                  Behaviors.PAIRING, Behaviors.HEAT_RELIEF, Behaviors.ALICE_ACT, Behaviors.RAPEM_HELD -> {}
-            default -> { return e.aftermathDrain()==1?"teary":"neutral"; }
+            default -> { return e.aftermathDrain()==1?"teary":"blank_frown"; }
         }
         if(e.body().weak()||e.settlement().society().dejected())return "teary";
         if (!e.life().isSleeping() && e.life().weakness() >= YukkuriLife.WEAKNESS_WARNING)
@@ -528,7 +534,7 @@ public final class PresentationArbiter {
         // A real successful conception gets a brief response before ordinary brooding resumes.
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")
-                &&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.SHIAWASE;
+                &&(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)))return YukkuriAction.JOY_HOP;
         YukkuriAction action = behavior.equals(Behaviors.FORAGE_SEEK) ? YukkuriAction.NERVOUS : behavior.equals(Behaviors.FORAGE_HARVEST) ? YukkuriAction.BRACE : EcologyPresentation.action(behavior);
         // House behaviors and predator hunts own their body clips on the client.
         if (action != YukkuriAction.IDLE || behavior.startsWith(Behaviors.HOUSE_PREFIX) || actions == Actions.PREDATOR || e.isPassenger()) return action;

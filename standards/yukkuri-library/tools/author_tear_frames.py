@@ -23,7 +23,7 @@ SIZE = (15, 16)  # tear tile texels; face.json tear element is 3.75 x 4.24 units
 UNIT = (3.75/15, 4.24/16)  # face units per texel
 TEAL = ((151, 186, 199, 255), (190, 224, 228, 255), (255, 248, 233, 255))  # pin_cry pool: outline, fill, glint
 # tongue_cry and side_teary keep their approved B frames: those already run a long streak and a falling drop.
-PAIRS = ('cry', 'teary', 'teary_smile', 'tear_sleep', 'squeezed_frown', 'pin_cry', 'blank_cry',
+PAIRS = ('cry', 'teary', 'teary_smile', 'teary_sleep', 'squeezed_frown', 'pin_cry', 'blank_cry',
          'teary_pant', 'teary_tongue', 'horrified', 'teary_frown', 'open_cry', 'cold', 'dying', 'dying_closed')
 # Sprites are 4 texels wide; O outline, F fill, H glint. Two-tone pools (no outline) get a narrower trail and a
 # plain round drop. The trail fills whatever room the pool leaves above the one-row gap and the drop. A B quad whose

@@ -83,7 +83,7 @@ for name in character_names:
     patch.append(dict(index=i,vertices=vertices(e,texture_size)))
    patches[id]=patch
  effects={}
- for id,ref in expression_index['effects'].items():
+ for id,ref in expression_index.get('effects',{}).items():
   fx=read(ref);parts=[]
   for part,png in fx['parts'].items():
    im=Image.open(R/png).convert('RGBA');parts.append(dict(uv=uv_binding[part],size=list(im.size),pixels=list(im.tobytes())))
@@ -127,12 +127,12 @@ for name in character_names:
   html=(R/'runtime/viewer.html').read_text(encoding='utf-8-sig').replace('__RUNTIME__',runtime).replace('__CHARACTER_LABEL__',c['label']).replace('__MODEL_FILE__',name+'.bbmodel');(out/'index.html').write_text(html,encoding='utf-8')
  print(name,len(elements),'cubes',len(clips),'resolved motions',len(textures),'shared expressions',flush=True)
 # Human-facing catalog data has no giant baked vertex arrays.
-public_effects={id:read(ref) for id,ref in expression_index['effects'].items()}
+public_effects={id:read(ref) for id,ref in expression_index.get('effects',{}).items()}
 standard_components={'anatomy':dict(label='标准伸缩部件',component='components/common/anatomy.json',rig='components/common/anatomy-rig.json',behavior='behaviors/anatomy.json',documentation='ANATOMY.md',characters=character_names)}
 public_expressions={id:dict(id=id,label=e['label'],group=e['group'],status=e['status'],origin=e['origin'],review_code=e['review_code'],review_pair=e.get('review_pair'),requires=e.get('requires',[]),sources=e['sources'],aliases=e.get('aliases',[]),thumbnail=f'expressions/thumbnails/{id}.png',file=expression_index['presets'][id]) for id,e in expressions.items()}
 registered_models={name:dict(label=read(f'characters/{name}.json')['label'],source=f'characters/{name}.json',preview=f'assembled/{name}/index.html',model=f'assembled/{name}/{name}.bbmodel') for name in character_names}
-save('catalog-data.json',dict(models=registered_models,standardComponents=standard_components,effects=public_effects,motions=metadata,expressions=public_expressions,expressionAliases=expression_index['aliases'],sourceCoverage=read('provenance/expression-coverage.json')))
-(R/'catalog-data.js').write_text('const CATALOG='+json.dumps(dict(models=registered_models,standardComponents=standard_components,effects=public_effects,motions=metadata,expressions=public_expressions,expressionAliases=expression_index['aliases']),ensure_ascii=False,separators=(',',':'))+';',encoding='utf-8')
+save('catalog-data.json',dict(models=registered_models,standardComponents=standard_components,effects=public_effects,motions=metadata,expressions=public_expressions,expressionAliases=expression_index.get('aliases',{}),sourceCoverage=read('provenance/expression-coverage.json')))
+(R/'catalog-data.js').write_text('const CATALOG='+json.dumps(dict(models=registered_models,standardComponents=standard_components,effects=public_effects,motions=metadata,expressions=public_expressions,expressionAliases=expression_index.get('aliases',{})),ensure_ascii=False,separators=(',',':'))+';',encoding='utf-8')
 import subprocess,sys
 subprocess.run([sys.executable,str(R/'interactions/marisa-braids/build.py')],check=True)
 subprocess.run([sys.executable,str(R/'ecology/house-yukkuri/build.py')],check=True)
