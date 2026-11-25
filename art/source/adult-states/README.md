@@ -3,7 +3,7 @@
 本包由 `scripts/export_adult_states.py` 从 `standards/yukkuri-library/drafts/rapem-alice/` 导出。
 
 - `pose-cues.json`：整体姿态关键帧，与近景图和动图使用同一制作数据；`pair_peni`／`pair_mamu` 是普通自愿配对整段接触的擦蹭、顶送、加快与高潮颤抖（按接触所需时长取进度），`relief` 是完成段三拍；`faces` 为同一进度上的表情表。整体倾角不超过 12°（导出检查）。
-- `breeding_period.png`、`state_recover.png`：按用户提供的八景 ver1.12 普通成体外貌重画的爱丽丝中性观察与恢复脸。其他种类仍使用其现有标准表情。
+- `breeding_period.png`、`state_recover.png`：按用户提供的八景 ver1.12 普通成体外貌重画的爱丽丝中性观察与恢复脸。`breeding_period.png` 只是爱丽丝（及稀有形态 myon、myon_redeye）的中性贴图来源，不再是表情 ID；`state_recover` 由 AgitationLife 在爱丽丝恢复期发出。其他种类仍使用其现有标准表情。
 - `alice_open_drool.png` / `alice_flushed_tongue.png`：标准确认表情 N048（睁眼流口水）与 N035（潮红闭眼伸舌），分别为攻击魔搜寻追击与接触动作的攻方演出脸。
 - `<species>_squeezed_cry_tears.png`：标准确认表情 N030（挤眼喊叫含泪），被压制受方的演出脸（reimu/marisa/alice/chen/patchouli）；无标准图集的形态回退 `cry`。
 - `<species>_flushed_tongue.png`：标准确认表情 N035，普通配对的父方接触脸；覆盖 reimu/marisa/chen/patchouli/marisa_tsumuri，爱丽丝同图同时用于攻击魔接触。

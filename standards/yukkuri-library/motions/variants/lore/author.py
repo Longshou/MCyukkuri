@@ -1049,7 +1049,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
     hat = runpy.run_path(str(Path(__file__).resolve().parent/'hat.py'))
     for name in cfg['clips']:
         base = resolve(cfg['clips'], name)
-        if not applies(cfg, base['applies'], ident): continue
+        if 'library_only' in cfg['clips'][name] or not applies(cfg, base['applies'], ident): continue  # library_only: authored, no runtime track
         c = variant(base, ident)
         if cache:
             from motion_compile_cache import lore_inputs

@@ -201,7 +201,8 @@ def validate():
     gaps = data["gaps"]
     expected, action_ids = expected_clips()
     gap_ids = {row["id"] for row in gaps}
-    known_clips = set(clips) | runtime_clips()
+    on_disk = runtime_clips()
+    known_clips = set(clips) | on_disk
     source_ids = wiki_source_ids()
     moments = moments_rows()
     java = java_texts()
@@ -246,6 +247,14 @@ def validate():
 
     for clip, row in clips.items():
         where = f"clip {clip}"
+        # Every clip has a runtime track (motion_corrections, a model JSON or toilet_contact) or says why not.
+        reserved = row.get("library_only")
+        if reserved is not None and (not isinstance(reserved, str) or not reserved):
+            errors.append(f"{where}: library_only needs a reason")
+        elif reserved and clip in on_disk:
+            errors.append(f"{where}: library_only but a runtime track is still exported")
+        elif not reserved and clip not in on_disk:
+            errors.append(f"{where}: no runtime track and no library_only reason")
         if row.get("source") != expected.get(clip):
             errors.append(f"{where}: source {row.get('source')!r}, expected {expected.get(clip)!r}")
         if row.get("source") not in SOURCES:

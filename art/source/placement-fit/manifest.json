@@ -11,7 +11,7 @@
   "models": {
     "reimu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
-      "base_sha256": "2225286a4e3942999789939cd8062b25bd805d56503e5896bfb637e4ee3862ff",
+      "base_sha256": "916b4ebb90f334fa765cccb90d52513503afbb91ab0d8e42a9170c002d348227",
       "parts": [
         "crown",
         "back_hair",
@@ -118,7 +118,7 @@
     },
     "reimu_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
-      "base_sha256": "32c2d893954d8d4326eb0cdadcaff8634f0a212d649ca368d10ede9fc4734e5f",
+      "base_sha256": "3a0d3640155f464286ffb3f8ac5487383bdfdc8b9668726b332272da3180d43f",
       "parts": [
         "crown",
         "back_hair",
@@ -225,7 +225,7 @@
     },
     "reimu_sparse": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json",
-      "base_sha256": "a2185dfc099511cbf2614cd69254f77a6f8e19959b00bd27bcf78249d3b477ab",
+      "base_sha256": "633913c457f79f1c2a7690877af58a57c1f615cf180226c7933f3dd04d4f8267",
       "parts": [
         "bow_tail_top_-1",
         "bow_tail_mid_-1",
@@ -255,7 +255,7 @@
     },
     "reimu_wasa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa.json",
-      "base_sha256": "ba46852b1d895c1270023c301ab7d6ab44f0872d8a203efed8d88b5e9a787eec",
+      "base_sha256": "ad3680fa4da99df6ef3f915c5035c8509007618ab630a44fb9f851c151a09fa7",
       "parts": [
         "back_hair",
         "bang_0",
@@ -428,7 +428,7 @@
     },
     "reimu_deibu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
-      "base_sha256": "5468e3b792048224717c0164d65c2b114d1766c9ff2f0c2bb2ff9b9faf4e4b51",
+      "base_sha256": "8b79be45a8feb21ce34e7e021173dee55a21695a55559f6b0867162b75e65991",
       "parts": [
         "back_hair_taper_0",
         "back_hair_taper_1",
@@ -619,7 +619,7 @@
     },
     "reimu_wasa_deibu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_wasa_deibu.json",
-      "base_sha256": "53923e185a24c993f6794ac5e22ca54a1b52806e8b1355de95e9eef7c3a3d675",
+      "base_sha256": "e567756e507199faee9f4f8fd4d054855a20e224a298d82908bb82be66a96a5a",
       "parts": [
         "back_hair",
         "bang_0",
@@ -782,17 +782,17 @@
     },
     "reimu_bean": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json",
-      "base_sha256": "8e7d29ce684e1c5ab38dd6a7b41a5fba8d7a505bc413b661370d0dd45d87f83e",
+      "base_sha256": "18bd5b83730aa20ebaf19ca9300e71cdeb90a82cb4b7c34102db49112273a9ab",
       "unchanged": "Bow straddles the back edge of the bean hair cap and touches it."
     },
     "house_reimu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/house_reimu.json",
-      "base_sha256": "c98db583a1ebd7ea137b87bdb4ccd5bc8328e3dd62582ddc1ebdce805facf0dd",
+      "base_sha256": "b9f48e6e9515a20df6d0add6be743808d58e525feb976f56ac49f69eaa07a20b",
       "unchanged": "House hair already wraps the small rounded head; the bow sits on the back of the crown."
     },
     "marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-      "base_sha256": "6d68ae196b98f5d7e12edac2f68c64ca4c21311963aa8c721e93630ec62f5642",
+      "base_sha256": "445cc269c6db0fdcf99f830290df3abe71b3b0edcdeb111e0f6d5f874a90cb46",
       "parts": [
         "crown",
         "back_hair",
@@ -890,7 +890,7 @@
     },
     "marisa_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json",
-      "base_sha256": "0427ecfa97ee4ef6dc081bd281bfea518511dc4f8812ff63da6da7010d84b7bf",
+      "base_sha256": "79beba8e355e3e5ace3c8b4f33e79c0eacdedebb364647c1ba4c11bfe24ce4c1",
       "parts": [
         "back_hair",
         "bang_0",
@@ -986,12 +986,12 @@
     },
     "marisa_sparse": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json",
-      "base_sha256": "9b9417f21a75c164ce766b5a3555cc8b393d9b753a85e523631c96fcaeaac135",
+      "base_sha256": "557207874b9164fce46a7172c216bf9fc6df4191a077afbb1ba7d22e3d864ce3",
       "unchanged": "The exporter seats the hat onto the bare head (brim just above the brows; rounded-marisa recipe sparse_hat_seat), so no runtime hat offset is added."
     },
     "marisa_tsumuri": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_tsumuri.json",
-      "base_sha256": "6743f25055dd259b6ace70e2b7c5b4e022a3d5ae49cdf409db3d94b71f3d8e5f",
+      "base_sha256": "dc96e8f3577f33fa6b943a509ffcdac796f73fc711e24141df05965492cad10e",
       "parts": [
         "crown",
         "back_hair",
@@ -1053,17 +1053,17 @@
     },
     "marisa_bean": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-      "base_sha256": "f4bb1b7d109a0ca66925dc54963b7fd1a9c88c2420023e67f6a51023d60a953a",
+      "base_sha256": "2de7922d59119923f175a066d8f925d6034c4a7025026ba96b4fee69f959c302",
       "unchanged": "Hat was lowered 0.62 onto the bean hair top in the bean-braid revision and validated in game."
     },
     "house_marisa": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json",
-      "base_sha256": "400afc82e93a2ddd81f74368f6244647123da67ae56aa0b4cc1528687cebccf4",
+      "base_sha256": "13f29f47985ea5b740bfa94f5576e2d18a9a75747f571f39b4b2bf47f3fd32fe",
       "unchanged": "Hat brim already sits on the wrapped hair top; hat-carry limits were validated on this geometry."
     },
     "chen": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen.json",
-      "base_sha256": "54d08652f7aaf459cea811552a09c63787d3c5e2a1d5ecc069b5327b279877cc",
+      "base_sha256": "1c931efd99c1bc74ddaa8741aea8b2aed987dc993eb22fd3ac5369d6782b7a66",
       "parts": [
         "chen_cap",
         "chen_crown",
@@ -1223,7 +1223,7 @@
     },
     "alice": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-      "base_sha256": "e968db5febfc9325b4fefec32a19237fdfda917365224318b71975d820e24731",
+      "base_sha256": "4183ca895319c82dfcae3fbef67b6b94e731e3a4702832bfe0ddb6c1c38a9a3d",
       "parts": [
         "alice_hair_cap_left",
         "alice_hair_cap_right",
@@ -1364,22 +1364,22 @@
     },
     "patchouli": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-      "base_sha256": "cf161a8f58c359a4d1b3f7cf28630c29745ab60809232e3fa81b9a6f7aa74c2d",
+      "base_sha256": "d7291c4e1bd903bf63168ba12a760e056beadf24f5229f29bcd014141ce5cf69",
       "unchanged": "Bonnet rim sits on the fringe top; lowering it hides the fringe and lets hair show through the frill."
     },
     "remilia": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/remilia.json",
-      "base_sha256": "1dd89f7d1e256403400dd3ef988e9d068c02930b485367f817d43f6080490ce9",
+      "base_sha256": "98535650acb39aa45cfbc95e6604da53896d25834aa9620aaa7022b2667cc105",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "flandre": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/flandre.json",
-      "base_sha256": "343628b2da3e5317eaac68600bec56cc8688756d62ad0e38e961705c80a34cbb",
+      "base_sha256": "2f8f9b2ead0b7f95bbb507bfb5b5c337c820d8577cbdfcb7ab6df910d516b576",
       "unchanged": "Rounded hair crown with the mob cap ruffle resting on it."
     },
     "myon": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
-      "base_sha256": "96c78f084e9284f57c665dfe785240075e9e68fd1ae9dc6c338e1ce55c473233",
+      "base_sha256": "0dc38779ac3c9ff3cf2c0aed8ba8cf1fd2acce55c5187158cb508ff76ae69419",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1462,7 +1462,7 @@
     },
     "myon_redeye": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
-      "base_sha256": "daf1ef842c0e4f1bf6f1836d556781b00f17820a3706d93af8b68b56daeb9483",
+      "base_sha256": "fa2fad7d8dba905e513a09a2fb674b40f33a2fae3109f20a93ccd20507e4126a",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1545,7 +1545,7 @@
     },
     "chen_longtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
-      "base_sha256": "1d6c9d45ed5c3e7312bcad074b0a4e31ec1ac9c2f77fca829131c78eb6283ad3",
+      "base_sha256": "5096252ecef978d4c6a285c7d0a4e04640eb4881f0b0766705131140c3c91256",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1677,7 +1677,7 @@
     },
     "chen_roundtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
-      "base_sha256": "7b07c6154403ad0fbf17eb39ea3399a4c77ffe4c3d7c3e8f7f3fd1b46ca193a1",
+      "base_sha256": "05cb96280c4d659ff69c74e581cf6059b2b4b730dc518b8ddb3955812879a34e",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1809,7 +1809,7 @@
     },
     "marisa_kotatsu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "base_sha256": "dde11eb3ef4a551fa13ef92fd26c802bf21272e01d28cd977b6122660cefdbf4",
+      "base_sha256": "4421f2691c8dbf60fef5e9ce788eb37da1374e55119c2d97083ba65a1efa7f98",
       "derived_from": "marisa",
       "parts": [
         "crown",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "00d6ea0259f9f98d5e350c5727c6f2afb6d8dca9cf04eba8c96c8e90d8742b90"
+  "runtime_sha256": "20fd9ff3adbefbff2be645872f66f30fb187425532b6339d22c74abd6ccea921"
 }

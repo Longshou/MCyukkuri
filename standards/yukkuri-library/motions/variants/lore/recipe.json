@@ -4945,6 +4945,7 @@
       ]
     },
     "water_hat_pull": {
+      "library_only": "unwired authored action reserved for future hookup",
       "label": "抓稳帽缘分两次使劲抬身",
       "duration": 1.2,
       "loop": false,
@@ -4983,6 +4984,7 @@
       ]
     },
     "water_hat_over": {
+      "library_only": "unwired authored action reserved for future hookup",
       "label": "腹部越过帽檐再落稳",
       "duration": 1.2,
       "loop": false,
@@ -5290,6 +5292,7 @@
       "braid_out": 42
     },
     "water_held_breath": {
+      "library_only": "unwired authored action reserved for future hookup",
       "label": "被辫梢托住时喘息与小幅回应",
       "duration": 1.6,
       "loop": true,
@@ -6761,6 +6764,7 @@
       }
     },
     "braid_item_pick": {
+      "library_only": "unwired authored action reserved for future hookup",
       "label": "辫梢拾起物品",
       "duration": 1.6,
       "loop": false,
@@ -6862,6 +6866,7 @@
       }
     },
     "braid_item_place": {
+      "library_only": "unwired authored action reserved for future hookup",
       "label": "辫梢放下物品",
       "duration": 1.4,
       "loop": false,
@@ -7157,6 +7162,7 @@
       ]
     },
     "cling_right": {
+      "library_only": "base motion for snuggle_left/snuggle_right",
       "base": "rain_huddle_right",
       "label": "依偎贴靠（同伴在右）",
       "shiver": 0,
@@ -7173,6 +7179,7 @@
       ]
     },
     "cling_left": {
+      "library_only": "base motion for snuggle_left/snuggle_right",
       "base": "cling_right",
       "label": "依偎贴靠（同伴在左）",
       "side": -1,

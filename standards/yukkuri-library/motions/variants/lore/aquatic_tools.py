@@ -44,8 +44,7 @@ AUTHORED = {'boat_thrown': 1.2, 'water_hat_right': 2.0}
 # A real item held in the braid tuft (the same vanilla stick the paddle clips row with): the hold overlay ashore, pick and place.
 # Aboard the hold is boat_paddle's own loop start (the game samples it at 0), so rowing and holding share one grip.
 HELD_CLIPS = ('braid_item_hold', 'braid_item_pick', 'braid_item_place')
-# braid_item_pick and braid_item_place stay authored but have no runtime caller (tiers.json library_only).
-EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+('braid_item_hold',)+('boat_puff',)
+EXPORT_CLIPS = PADDLE_CLIPS+NEW_CLIPS+HELD_CLIPS+('boat_puff',)
 
 
 def smooth(x):

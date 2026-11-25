@@ -32,7 +32,7 @@
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
   "placement_fit_sha256": "5f24a7e3b655216fa45e0b686046ce8d008db27a6506d0295aa13ef32c463bde",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "3b515f1b7654af45a3d3b480e8abc4fea7707f55d7445427de7f92d61e544b1f",
+  "runtime_sha256": "e0e9255498b8d3c992e88e4a8e7ca6c9165c770066ec55885d31a9a5136b3ade",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -422,5 +422,5 @@
   "birth_pose": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/live_birth_pose.json",
   "birth_pose_sha256": "8bcbaadec1328ec6cadb1c0823c79999396296bfb31ec52c3f751665360784ec",
   "side_profile": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/side_profile.json",
-  "side_profile_sha256": "8e395ffc140260c057b931bc804ef1b5c3763d8d6ce0e377a949e568be34c6a9"
+  "side_profile_sha256": "93365bd5acfc89159189c1af3bf8e6ceafadcca90116d3382028ca102d3d62e0"
 }
