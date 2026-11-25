@@ -426,7 +426,7 @@ public final class OperationLife {
         if (pose == Pose.BOX && elapsed % BOX_BEAT == 0) {
             boolean calm = calmInBox();
             if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
-            entity.forceReaction(calm ? "sleepy" : elapsed / BOX_BEAT % 2 == 1 ? "horrified" : "pin_cry", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
+            entity.forceReaction(calm ? "sleepy" : elapsed / BOX_BEAT % 2 == 0 ? "horrified" : "pin_cry", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
         }
         if(pose==Pose.ASSIST){
             if(actor.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
