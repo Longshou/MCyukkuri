@@ -11,7 +11,7 @@ python scripts/build_preview_hub.py
 python scripts/serve_review.py --port 8766
 ```
 
-生成目录为 `.local/previews/`。手动打开 `http://127.0.0.1:8766/`，条目地址为 `/.local/previews/player.html?entry=编号`。可拖动三维模型看任意角度，滚轮和滑条调整缩放，也可用正面、侧面和背面按钮。播放速度、暂停、进度拖动和演出字幕共用同一时间轴。带多种模型的演出可用 `model` 参数分享当前形态。
+生成目录为 `.local/previews/`。手机查看：加 `--host 0.0.0.0` 启动，手机与电脑同一局域网或同一 Tailscale 账号时，用电脑的局域网或 Tailscale 地址加端口打开。手动打开 `http://127.0.0.1:8766/`，条目地址为 `/.local/previews/player.html?entry=编号`。可拖动三维模型看任意角度，滚轮和滑条调整缩放，也可用正面、侧面和背面按钮。播放速度、暂停、进度拖动和演出字幕共用同一时间轴。带多种模型的演出可用 `model` 参数分享当前形态。
 
 `python scripts/preview.py moment behavior_sunbathe` 生成晒太阳的条目链接。`python scripts/preview.py moment excited_leak --model marisa --paper-cover` 生成魔理沙盖报纸的漏尿演出链接。首次使用时会生成播放器和目录。
 

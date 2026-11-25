@@ -1,4 +1,4 @@
-"""Serve review media, live poses and verdicts on localhost."""
+"""Serve review media, live poses and verdicts locally (or on LAN/Tailscale with --host)."""
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -164,9 +164,11 @@ class Handler(SimpleHTTPRequestHandler):
             super().log_message(format,*args)
 
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--port',type=int,default=8766);args=parser.parse_args()
-    server=ThreadingHTTPServer(('127.0.0.1',args.port),partial(Handler,directory=str(ROOT)))
-    print(f'http://127.0.0.1:{server.server_port}/.local/previews/index.html', flush=True)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--port',type=int,default=8766)
+    parser.add_argument('--host',default='127.0.0.1',help='bind address; 0.0.0.0 lets phones on LAN/Tailscale connect')
+    args=parser.parse_args()
+    server=ThreadingHTTPServer((args.host,args.port),partial(Handler,directory=str(ROOT)))
+    print(f'http://{args.host}:{server.server_port}/.local/previews/index.html', flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
