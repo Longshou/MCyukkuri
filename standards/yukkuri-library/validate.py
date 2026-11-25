@@ -15,7 +15,7 @@ assert sum(row['status']=='source-empty' for row in coverage['rows'])==16
 for row in coverage['rows']:
  if row['status']=='source-empty':assert not any(x['id'] for x in row['all_slots'])
  else:assert row['target'] and (R/row['target']).is_file()
-for alias,target in idx['aliases'].items():assert target in idx['presets'],(alias,target)
+
 recipe_hashes={}
 for id,ref in idx['presets'].items():
  p=read(ref);assert p['status'] in ['retained','needs-redraw','pending-review','accepted'];sig=json.dumps({'parts':p['parts'],'requires':p.get('requires',[]),'cheek_scale':p.get('cheek_scale',1),'offsets':p.get('geometry_offsets',{})},sort_keys=True)

@@ -663,7 +663,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/tear_sleep.json"
+      "target": "expressions/presets/teary_sleep.json"
     },
     {
       "field": "基本涙目睡眠２顔グラベース",
@@ -697,7 +697,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/tear_sleep_b.json"
+      "target": "expressions/presets/teary_sleep_b.json"
     },
     {
       "field": "基本バツ涙目顔グラベース",
@@ -1070,8 +1070,8 @@
           "id": 6849
         }
       ],
-      "status": "implemented-overlay",
-      "target": "expressions/effects/wet_highlight.json"
+      "status": "retained",
+      "target": "expressions/presets/teary.json"
     },
     {
       "field": "基本横涙グラベース",
@@ -1096,8 +1096,8 @@
           "id": 5267
         }
       ],
-      "status": "implemented-overlay",
-      "target": "expressions/effects/side_tears.json"
+      "status": "retained",
+      "target": "expressions/presets/teary.json"
     },
     {
       "field": "基本驚き顔グラベース",
@@ -1471,7 +1471,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_cry.json"
+      "target": "expressions/presets/impact.json"
     },
     {
       "field": "基本バツ泣き叫び顔面２グラベース",
@@ -1696,8 +1696,8 @@
           "id": 7151
         }
       ],
-      "status": "implemented-overlay",
-      "target": "expressions/effects/wet_highlight.json",
+      "status": "retained",
+      "target": "expressions/presets/teary.json",
       "alias": "closed_wet_highlight"
     },
     {
@@ -3508,7 +3508,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_cry.json"
+      "target": "expressions/presets/impact.json"
     },
     {
       "field": "左右バツ泣き叫び顔面２グラベース",
@@ -4888,7 +4888,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/cut_cry.json"
+      "target": "expressions/presets/blank_cry.json"
     },
     {
       "field": "押しつぶし左右顔面１グラベース",
@@ -6128,7 +6128,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_cry.json"
+      "target": "expressions/presets/impact.json"
     },
     {
       "field": "正面ケツ振り泣き叫び２B顔面グラベース",
@@ -8464,7 +8464,7 @@
         }
       ],
       "status": "needs-redraw",
-      "target": "expressions/presets/squeezed_cry.json"
+      "target": "expressions/presets/impact.json"
     },
     {
       "field": "寝泣き叫び顔面２グラベース",

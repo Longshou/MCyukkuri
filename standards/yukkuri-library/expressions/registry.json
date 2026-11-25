@@ -161,7 +161,8 @@
       "frame_of": "tongue_cry"
     },
     "dead_tongue": {
-      "kind": "standard"
+      "kind": "standard",
+      "reserved": "authored dead-body face kept; no emitter yet"
     },
     "blank_cry": {
       "kind": "standard",
@@ -240,10 +241,12 @@
       "kind": "standard"
     },
     "dry_dead": {
-      "kind": "standard"
+      "kind": "standard",
+      "reserved": "dry-dead corpse/withered face art kept; no emitter yet (art fixed in wp-face-curate)"
     },
     "squashed": {
-      "kind": "standard"
+      "kind": "standard",
+      "reserved": "authored crushed face kept; no emitter yet"
     },
     "teary_frown": {
       "kind": "standard",
@@ -322,14 +325,16 @@
       "open_mouth": true
     },
     "licking": {
-      "kind": "standard"
+      "kind": "standard",
+      "reserved": "authored licking face kept; no emitter yet"
     },
     "dying": {
       "kind": "standard",
       "frame_ticks": [
         36,
         14
-      ]
+      ],
+      "reserved": "dying-state face art (user fixed in wp-face-curate) kept for the last-words state; the arbiter shows blank_cry until a dying emitter is designed"
     },
     "dying_b": {
       "kind": "standard",
@@ -339,14 +344,16 @@
       "kind": "standard"
     },
     "dying_blank": {
-      "kind": "standard"
+      "kind": "standard",
+      "reserved": "dying-state face art (user fixed in wp-face-curate) kept for the last-words state; the arbiter shows blank_cry until a dying emitter is designed"
     },
     "dying_closed": {
       "kind": "standard",
       "frame_ticks": [
         36,
         14
-      ]
+      ],
+      "reserved": "dying-state face art (user fixed in wp-face-curate) kept for the last-words state; the arbiter shows blank_cry until a dying emitter is designed"
     },
     "dying_closed_b": {
       "kind": "standard",
@@ -568,7 +575,8 @@
       "models": [
         "myon",
         "myon_redeye"
-      ]
+      ],
+      "reserved": "legacy adult-state art retained on myon/myon_redeye"
     },
     "state_recover": {
       "kind": "adult",

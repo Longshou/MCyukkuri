@@ -37,5 +37,10 @@
   "aliases": [],
   "review_code": "N077",
   "origin": "new",
-  "review_pair": null
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-25",
+    "note": "用户认可 wp-face-curate 对 shattered / shattered_fade / pressed_hidden 的重绘（face-consolidation v2 D-02），作为三段式破碎序列保留。"
+  }
 }

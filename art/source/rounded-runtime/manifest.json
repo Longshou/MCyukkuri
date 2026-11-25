@@ -573,10 +573,10 @@
       "geometry_identifier": "alice",
       "base_species": "reimu",
       "selected_model": "standards/yukkuri-library/assembled/alice/alice.bbmodel",
-      "selected_model_sha256": "c504b701310833c9267533cf4913d87b71d98124d66c1cd214f647ea21373e9b",
+      "selected_model_sha256": "68c1f3606a801ba5ab43444d831727b900a2373598f129988c6899ebb00b51b2",
       "selected_rig": "standards/yukkuri-library/assembled/alice/animation-rig.json",
-      "selected_rig_sha256": "43dd37a65caa374c7e8ec75fc7bfd729299f577c6df59176125ee2203e52c28c",
-      "selected_runtime_sha256": "7c008a7839a16505f99c4a80b3401f8f41dcaa62b3af1aa414a757bff5a755d7",
+      "selected_rig_sha256": "947e690b59e33a06151150ecbfbe2e31eab197be73f52643cd4c3decd1802026",
+      "selected_runtime_sha256": "57ddcab0f927b1bd246e80f1a796d89cf75e9a719f56e8271e8f93df42c99b02",
       "snapshot": "art/source/rounded-runtime/alice/selected/alice.bbmodel",
       "retargeting": {
         "source_weights_preserved": true,

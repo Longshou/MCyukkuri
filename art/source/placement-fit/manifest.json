@@ -118,7 +118,7 @@
     },
     "reimu_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
-      "base_sha256": "3a0d3640155f464286ffb3f8ac5487383bdfdc8b9668726b332272da3180d43f",
+      "base_sha256": "a3162a0baa5e72daec8c3a27b7418483af7dd98278bfd2cd1b8f74ed243c0f54",
       "parts": [
         "crown",
         "back_hair",
@@ -225,7 +225,7 @@
     },
     "reimu_sparse": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json",
-      "base_sha256": "633913c457f79f1c2a7690877af58a57c1f615cf180226c7933f3dd04d4f8267",
+      "base_sha256": "0cace7d5f3ea37e2df700d1bf7228e3a7806e2387c323e131736749bc9884a65",
       "parts": [
         "bow_tail_top_-1",
         "bow_tail_mid_-1",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "20fd9ff3adbefbff2be645872f66f30fb187425532b6339d22c74abd6ccea921"
+  "runtime_sha256": "4f0961e3dc3096361f78e6c92db0b17040d1f61b24b8134cd9fbe3925a7dc735"
 }

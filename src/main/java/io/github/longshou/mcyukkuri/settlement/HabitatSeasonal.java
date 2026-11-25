@@ -112,7 +112,7 @@ final class HabitatSeasonal {
         if(o.task()==Task.STAY&&value!=null&&o.entity().life().canEat()&&value.food()>0){o.task(Task.FOOD);o.targetBlock(value.bed(o.entity().getUUID()));o.resetTicks();return;}
         if(o.approach(o.targetBlock())) {
             o.entity().getNavigation().stop();
-            if(!arrived){arrived=true;if(o.task()==Task.SIESTA)o.entity().showReaction("tired","puff",80);}
+            if(!arrived){arrived=true;if(o.task()==Task.SIESTA)o.entity().showReaction("sleepy","puff",80);}
         }
         return;
     }

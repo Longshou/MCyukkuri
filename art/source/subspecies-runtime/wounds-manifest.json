@@ -3,14 +3,14 @@
   "sha256": "e3a428cd43277f471343db30895bb25bb7fa8008b13f5ce18511e1b2c9430845",
   "models": {
     "reimu_bean": {
-      "runtime_sha256": "8e7d29ce684e1c5ab38dd6a7b41a5fba8d7a505bc413b661370d0dd45d87f83e",
-      "surface_sha256": "d80f2346d35d69291426ab4e632c1a50624d723297fbbb972554372b6ff96308",
+      "runtime_sha256": "18bd5b83730aa20ebaf19ca9300e71cdeb90a82cb4b7c34102db49112273a9ab",
+      "surface_sha256": "e8c85830e3d700e51e8518e9a3dfa54dfb4b3d0a465d043893cb210b18d6bc71",
       "skin_vertices": 96786,
       "face_vertices": 3306
     },
     "marisa_bean": {
-      "runtime_sha256": "f4bb1b7d109a0ca66925dc54963b7fd1a9c88c2420023e67f6a51023d60a953a",
-      "surface_sha256": "577faf4a80ef4981372d42f8ec00d40e542c3d9b060d299906d3218b09a48849",
+      "runtime_sha256": "2de7922d59119923f175a066d8f925d6034c4a7025026ba96b4fee69f959c302",
+      "surface_sha256": "623156f65b381d0ddf4315c86e4e01645e7b273d08620c39b2a5562ad0c114e5",
       "skin_vertices": 96786,
       "face_vertices": 3306
     }
