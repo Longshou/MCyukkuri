@@ -1,7 +1,7 @@
 /* Preview the exported runtime schema. This page is opened manually, never by the exporter. */
 const $=id=>document.getElementById(id), canvas=$('view'), ctx=canvas.getContext('2d');
 for(const entry of Object.values(MODELS)) Object.assign(entry.model.clips,entry.model.behavior_clips||{});
-const labels={house_pickup:'俯身夹取',house_carry:'短辫搬运',house_deposit:'俯身放下',house_crawl:'贴地蠕动',idle:'待机',stretch_shape:'伸展造型',side_bend:'侧弯',waddle:'走动',puff:'鼓腮',brace:'撑地',startle:'受惊',turn:'转身',hop:'跳动',stretch:'伸展',exercise_vertical:'纵向体操',exercise_sides:'横向体操',press:'按压',taiso:'完整体操',flee:'逃跑',anatomy_mamu_extend:'麻姆麻姆伸出',anatomy_mamu_retract:'麻姆麻姆收回',anatomy_peni_extend:'佩尼佩尼伸出',anatomy_peni_retract:'佩尼佩尼收回'};
+const labels={house_pickup:'俯身夹取',house_carry:'短辫搬运',house_deposit:'俯身放下',house_crawl:'贴地蠕动',idle:'待机',stretch_shape:'伸展造型',side_bend:'侧弯',waddle:'走动',puff:'鼓腮',brace:'撑地',startle:'受惊',turn:'转身',hop:'跳动',stretch:'伸展',exercise_vertical:'纵向体操',press:'按压',exercise_all:'完整体操',flee:'逃跑',anatomy_mamu_extend:'麻姆麻姆伸出',anatomy_mamu_retract:'麻姆麻姆收回',anatomy_peni_extend:'佩尼佩尼伸出',anatomy_peni_retract:'佩尼佩尼收回'};
 let time=0, playing=true, az=.3, el=.2, zoom=1, last=performance.now(), drawn=0;
 const textures={};
 const framing={};

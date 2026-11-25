@@ -35,9 +35,8 @@
     "hop",
     "stretch",
     "exercise_vertical",
-    "exercise_sides",
     "press",
-    "taiso",
+    "exercise_all",
     "flee"
   ],
   "textures": {
