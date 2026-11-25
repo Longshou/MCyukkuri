@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 表情修复导出到运行模型（垂死／寒冷／afraid）+ 发伤 dry face 刷新 | `.worktrees/wp-face-export` | art/source/rounded-runtime/, src/main/resources/assets/mcyukkuri/yukkuri/, standards/yukkuri-library/drafts/body-marks/hair-wounds/ |
 
 ## 玩法待办
 
