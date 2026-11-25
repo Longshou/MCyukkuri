@@ -66,8 +66,8 @@ ART = {
 STD = dict(flush='cef8e0a1eb', bridge='78921e8cff', blank='fd1165af5d', blush='4f872d58d2', relaxed='af2d4cf86a')
 # id: (base preset, label, slots, note). Eye names get a mirrored right part.
 FACES = {
-    'sukkiri_squeeze': ('impact', '潮红挤眼喊', {'blush': 'flush', 'face_effect_mouth': 'bridge'},
-                        'release peak: impact eyes, brows and shout on the flushed blush and blush bridge'),
+    'sukkiri_squeeze': ('impact', '潮红挤眼喊', {'blush': 'flush', 'face_effect_mouth': 'blank'},
+                        'release peak: impact eyes, brows and shout on the deep flushed cheek blush'),
     'sukkiri_dazed': ('open_smile', '失神', {'eye': 'eye_dazed', 'blush': 'flush', 'face_mouth': 'mouth_slack',
                                            'face_effect_mouth': 'blank'},
                       'after release: heavy lids, the pupil drifted up, slack small mouth, flushed; no drool'),

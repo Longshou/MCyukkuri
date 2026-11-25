@@ -58,7 +58,7 @@
     "standards\\yukkuri-library\\body-standard\\build.py": "da2c271ba26982b893c38f4b9412e4990b0d8489f5f2134f9ac1daa88b291a86",
     "standards\\yukkuri-library\\body-standard\\expression_geometry.py": "2aaae48887ca2b3f9a1d3d9a5ee6f32fc25301a0d438dac6652ccb3b3c667315",
     "standards\\yukkuri-library\\body-standard\\runtime\\birth.js": "35ae01f495fe27dabb437bf718a2cba736c2e0e0e2836bacb43f0a07fbf90cd1",
-    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "6a50d0e6faf12980035d335d22b2f6bd8bbc00c0eb32723dd3faf0151c3b324c",
+    "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "31c5141ebdb01302a7440765f85fe0f3b142d9dbdb35e922e7d55574a8900420",
     "standards\\yukkuri-library\\runtime\\motion.js": "298e8a0294545fcb0795ba1f49471fb53c8a998d72baa4c8bbb043f4cf1bf062",
     "standards\\yukkuri-library\\runtime\\viewer.html": "38a52c60766699fb08d18b2a35644d0d62ecef9a7f77e6ba109643e69ea25b9e",
     "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\recipe.json": "32e2d58b061ca9cd869997ed3130e80c5f9643f9f18745bb9d75cec3e48bfc12",

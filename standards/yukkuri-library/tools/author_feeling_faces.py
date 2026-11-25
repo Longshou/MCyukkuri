@@ -60,8 +60,8 @@ FACES = {
              'turning the nose up: eyes shut in a firm curve, smug brows, a flat turned-down mouth'),
     'ashamed': ('look_down', '羞愧', '惊吓 / 困惑',
                 {'face_brow_left': 'worry_brow_l', 'face_brow_right': 'worry_brow_r', 'face_blush_left': 'flush',
-                 'face_blush_right': 'flush', 'face_mouth': 'waver', 'face_effect_mouth': 'bridge'},
-                'shame: downcast eyes, worried brows, the hatched flush across the nose, a wavering mouth'),
+                 'face_blush_right': 'flush', 'face_mouth': 'waver', 'face_effect_mouth': 'blank'},
+                'shame: downcast eyes, worried brows, deep cheek flush, a wavering mouth'),
 }
 
 

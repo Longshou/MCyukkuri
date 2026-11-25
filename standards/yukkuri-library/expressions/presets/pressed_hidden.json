@@ -3,9 +3,9 @@
   "label": "被压遮挡",
   "group": "特殊状态",
   "recipe": {
-    "eyes": "none",
+    "eyes": "pressed_shut",
     "brows": "angry",
-    "mouth": "none",
+    "mouth": "clenched",
     "tears": "none",
     "blush": "none",
     "effect": "none"
@@ -15,7 +15,7 @@
     "face_brow_left": "expressions/parts/22aa133a1679fd7292be.png",
     "face_blush_left": "expressions/parts/0fa6d9dedc86a49f382f.png",
     "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_eye_right": "expressions/parts/e55c75ce1fbe8d4c30b8.png",
+    "face_eye_right": "expressions/parts/64ac4933144b20dca54d.png",
     "face_brow_right": "expressions/parts/60f941ca2e49069b1649.png",
     "face_blush_right": "expressions/parts/0fa6d9dedc86a49f382f.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
