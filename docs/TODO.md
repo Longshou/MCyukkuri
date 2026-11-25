@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 表情整理：Gemini 重定取舍 + 修 dry_dead／腮红横条／碎眼 | `.worktrees/wp-face-curate` | standards/yukkuri-library/expressions/, src/main/resources/assets/mcyukkuri/textures/entity/ |
 
 ## 玩法待办
 
