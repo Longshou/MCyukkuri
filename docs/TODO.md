@@ -13,6 +13,7 @@
 | 美术：干枯失神、寒夜发抖、晒太阳、饮水舌舔 | `.worktrees/wp-art-redo-b` | standards/yukkuri-library/motions/variants/lore, expressions |
 | 偶发小演出的表情时长 | `.worktrees/wp-face-tiers` | entity/presentation/FaceTier, entity/YukkuriEntity, entity/presentation/PresentationArbiter, dialogue/SpeechTiming, social/Departure, aquatic/LeaveBehind, family/DrivenOut, entity/Encounter, play/PlayLife, mind/EmotionCourse, showReaction callers |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
+| 预览录像命令 | `.worktrees/wp-preview-video` | scripts/preview.py, scripts/README.md |
 
 ## 玩法待办
 
