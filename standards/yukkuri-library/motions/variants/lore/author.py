@@ -348,8 +348,7 @@ def state(action, t, c, height):
         elif action == 'boat_eat':
             chew = bump((t % .4)/.4); r[0] = -5-2*chew; s[1] -= .025*chew
         elif action == 'boat_drink':
-            lap = sum(bump((t-a)/.34) for a in (.08, .48, .88) if a <= t <= a+.34)
-            r[0] = -6.0 - 3.5*lap; r[2] = -1.5*lap; s[1] -= .02*lap
+            sip = bump(t/d); r[0] = -9*sip; r[2] = -2*sip; s[1] -= .02*sip
         else:
             s = [1.03, .94, 1.03]  # physical flight supplies lift; never double the arc
     elif action == 'eat':
@@ -363,12 +362,11 @@ def state(action, t, c, height):
             fade = (1-(t-.95)/(d-.95))**2
             r[2] = c['wiggle']*math.sin(2*math.pi*(t-.95)/.52)*fade
     elif action == 'drink':
-        # Quick repeated tongue laps at the water: three small head dips with brief retracts, ending in a swallow.
-        lap = sum(bump((t-a)/.34) for a in (.08, .48, .88) if a <= t <= a+.34)
-        swallow = bump((t-1.26)/.28) if 1.26 <= t <= 1.54 else 0.
-        r[0] = c['lean'] + c['sip']*lap + 1.2*swallow
-        s = [1+.015*lap-.008*swallow, 1-.025*lap+.016*swallow, 1+.015*lap-.008*swallow]
-        shift = [0., -.025*height*lap]
+        # Two gentle tongue laps at the water on the original 0.8s sip rhythm.
+        q = bump((t % c['sip_seconds'])/c['sip_seconds'])
+        r[0] = c['lean'] + c['sip']*q
+        s = [1+.012*q, 1-.022*q, 1+.012*q]
+        shift = [0., -.02*height*q]
     elif action == 'sleep':
         b = (1-math.cos(2*math.pi*t/d))/2
         wide = 1+(1-c['height'])*.6-c['breath']*.3*b
@@ -1126,6 +1124,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
             tip = BRAID_KEYS['tip_track'](model, samples, tracks, TOOLS['palette'])
             BRAID_KEYS['gate'](model, name, samples, tracks, tip, c, TOOLS['palette'])
             fields = {**({'markers': dict(c['markers'])} if 'markers' in c else {}), 'tip': tip}
+            if 'contacts' in c: fields['contacts'] = json.loads(json.dumps(c['contacts']))
         elif name in TOOLS['EXPORT_CLIPS']:
             if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
             more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more

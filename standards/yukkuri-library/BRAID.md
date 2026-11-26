@@ -132,6 +132,7 @@
 - 变体 `braid_keys` 被旧分支抢走或叠手势：`author.py` 的 `state()` 只把 `braid_brim_lift`／`braid_brim_lower` 交给 `BRAID_KEYS['state']`，有自写身体的新 `braid_keys` 片段要自己处理身体且从 `flourish_tracks` 移出，避免双写 `hand_right`。
 - 推广到非标准形态漏查静止帽檐深度：`braid_keys.gate` 按含 `body_surface` 的部件找身体皮肤；先量静止 `braid_hat`（`marisa_bean` 静止已 `+0.069`、主动摆辫即超 `TOUCH`），过不了就留在身体路线。
 - `RamContact`（`Shove`）把辫子顶点算进最前伸 `-Z`：用 `Shove` 的辫子片段（如 `bin_nose_in`）把辫梢世界 `-Z` 控制在站位到目标面距离内，否则电机反推身体后退。
+- `braid_path` 不约束辫根出射方向导致辫根穿帽：`braid_chain.arc` 抬高或前探目标时会直接转动 `hand_right` 根骨，使 `braid_lock_root` 穿入自身帽檐与帽座（`brim_center`／`hat_base`，`water_hat_climb` 曾达 +0.52 单位）；且 `braid_path` 片段不走 `braid_keys.gate`。需要高位前探勾檐的动作改用 `braid_keys`（`braid_frame: "body"`），把 `root` 方向保持向下略外展（如 `[0.55, -1.0, -0.1]`），让辫根先从帽檐下垂出再向前弯曲，并用 `braid_keys.gate` 核对 `braid_hat <= 0.1`。
 
 ## 7. 检查方法
 

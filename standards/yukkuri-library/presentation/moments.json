@@ -409,30 +409,22 @@
           "faces": [
             [
               0,
-              "neutral"
-            ],
-            [
-              0.12,
-              "drink_lap"
-            ],
-            [
-              0.38,
               "closed_smile"
             ],
             [
-              0.52,
+              0.25,
               "drink_lap"
             ],
             [
-              0.78,
-              "neutral"
+              0.55,
+              "closed_smile"
             ],
             [
-              0.92,
+              1.05,
               "drink_lap"
             ],
             [
-              1.18,
+              1.35,
               "closed_smile"
             ]
           ]
