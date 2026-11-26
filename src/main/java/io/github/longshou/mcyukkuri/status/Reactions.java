@@ -316,7 +316,7 @@ public final class Reactions {
                 if (!hurt && danger instanceof HumanNpc && z.status().identity().companion()) continue;
                 if (PunishmentReaction.decidesAsPlantParent(z, y, danger) && PunishmentReaction.perceives(z, y, danger)) continue;
                 // A parent paying penance to the owner who strikes its young answers through the penance, not by fleeing the owner.
-                if (z.pet().conscience().taking(danger) && ProtectivePuff.parentOf(y, z)) continue;
+                if (z.pet().conscience().payingTo(danger) && ProtectivePuff.parentOf(y, z)) continue;
                 z.status().reactions().threat().heard(danger, now);
             }
         }

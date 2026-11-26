@@ -161,7 +161,7 @@ public final class PunishmentReaction {
                 body -> perceives(body, target, punisher))) {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
             // The penance owns that parent's answer (struggle, then the ending): no witness reaction or learned flight over it.
-            if (observer.pet().conscience().taking(punisher) && ProtectivePuff.parentOf(target, observer)) continue;
+            if (observer.pet().conscience().payingTo(punisher) && ProtectivePuff.parentOf(target, observer)) continue;
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
             boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);

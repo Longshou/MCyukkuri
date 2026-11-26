@@ -233,7 +233,7 @@ public final class Conscience {
     public void treatedBy(LivingEntity actor, Penance.Verdict verdict, boolean blow) {
         if (!pet.isAlive() || pet.body().dying()) return;
         for (var parent : pet.level().getEntitiesOfClass(YukkuriEntity.class, pet.getBoundingBox().inflate(PARENT_RANGE),
-                e -> e != pet && e.pet().conscience().taking(actor) && ProtectivePuff.parentOf(pet, e) && PunishmentReaction.sees(e, pet, actor)))
+                e -> e != pet && e.pet().conscience().payingTo(actor) && ProtectivePuff.parentOf(pet, e) && PunishmentReaction.sees(e, pet, actor)))
             parent.pet().conscience().judgedViaChild(pet, verdict, blow);
     }
 
@@ -241,6 +241,11 @@ public final class Conscience {
         if (penance == null || penance.finished()) return;
         boolean taken = penance.judgedViaChild(young, verdict, blow);
         GameplayLog.event(pet, "rules", "penance child treated child={} verdict={} blow={} taken={}", young.getUUID(), verdict, blow, taken);
+    }
+
+    /** A penance to this owner is running (a catch still waiting for the pet to freeze is not one). */
+    public boolean payingTo(LivingEntity actor) {
+        return penance != null && !penance.finished() && pet.pet().ownedBy(actor.getUUID());
     }
 
     /**

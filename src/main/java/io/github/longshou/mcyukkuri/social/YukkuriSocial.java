@@ -214,6 +214,8 @@ public final class YukkuriSocial implements MotorOwner {
                 || entity.life().hasUrgentNeed() || entity.life().mealTicks() > 0;
     }
     public boolean talk(Player player, boolean gentle) {
+        // A scolded child: its parent that is paying penance to this owner takes the scold as its verdict, whatever the child answers.
+        if (!gentle) entity.pet().conscience().treatedBy(player, Penance.Verdict.PUNISHED, false);
         if (!gentle && entity.pet().conscience().judged(player, Penance.Verdict.PUNISHED, false)) {
             // Scolded while paying penance: the lesson lands as for any scold, and the penance answers it, not the stranger retreat.
             // On the talk cooldown the scold still teaches (obedience and fear); talk() would have given the same on a free turn.
@@ -222,8 +224,6 @@ public final class YukkuriSocial implements MotorOwner {
             entity.pet().contact(player.getUUID(), false);
             return true;
         }
-        // A scolded child: its parent that is paying penance to this owner takes the scold as its verdict (once, whatever the child answers).
-        if (!gentle) entity.pet().conscience().treatedBy(player, Penance.Verdict.PUNISHED, false);
         if (busyForTalk()) {
             entity.showReaction("surprise", "busy", FaceTier.Tier.SHORT); return false;
         }

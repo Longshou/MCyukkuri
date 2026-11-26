@@ -31,7 +31,7 @@ public final class Penance {
     /** The struggle looks from the child to the owner and back every second. */
     private static final int GLANCE_TICKS = 20;
     /** Stepping in front of the child or running off gives up after four seconds; the beat after the arrival holds one and a half. */
-    private static final int ACT_TICKS = 80, SETTLE_TICKS = 30;
+    private static final int ACT_TICKS = 120, SETTLE_TICKS = 30;
     /** The parent was not the one struck: a fright of the owner, not the victim's twenty-five. */
     private static final int TORN_FEAR_SCOLD = 8, TORN_FEAR_BLOW = 12;
     /** Farther than this from the owner the pet has lost its audience. */
@@ -122,8 +122,8 @@ public final class Penance {
 
     /** The owner's answer reached the pet through its own young: the same verdict, taken once, remembering whose treatment it was. */
     boolean judgedViaChild(YukkuriEntity young, Verdict answer, boolean hit) {
-        if (phase == Phase.DONE) return false;
-        if (verdict == null) child = young;
+        if (phase == Phase.DONE || verdict != null) return false;
+        child = young;
         return judged(answer, hit);
     }
 
@@ -302,8 +302,10 @@ public final class Penance {
                 settledAt = now;
             }
         }
-        // Walking gives up with the beat; after the arrival the pose holds a moment, then the owner's answer is taken.
-        if (age >= beatTicks || settledAt >= 0 && now - settledAt >= SETTLE_TICKS) {
+        // After the arrival the pose holds a moment, then the owner's answer is taken; a walk that never arrives gives up with the beat.
+        if (settledAt >= 0 ? now - settledAt >= SETTLE_TICKS : age >= beatTicks) {
+            if (stand != null) GameplayLog.event(pet, "rules", "penance step cut after={} toward={}", age,
+                    struggle == StruggleOdds.Choice.ESCAPE ? "owner" : "child");
             stand = null;
             resolve();
         }
