@@ -9503,6 +9503,15 @@ def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1, who=None):
                     return f'keeper stopped {found.group(4)} times in one encounter (stop and go)'
         if not began:
             return 'no encounter began'
+        impatience_by_pair = {}
+        for m in re.finditer(r'encounter beat role=(\w+) beat=wait_impatient face=(\w+) declared=(\w+)(?: held_by=(\S+) held_tier=\S+ held_face=\w+)? line=(\w+) clip=\w+ keeper=#(\d+) yielder=#(\d+)', window):
+            role, shown, declared, held_by, _, keeper, yielder = m.groups()
+            if shown != declared and not held_by:
+                return f'wait_impatient ({role}) showed face={shown} instead of declared={declared} with no holder'
+            key = (keeper, yielder, role)
+            impatience_by_pair[key] = impatience_by_pair.get(key, 0) + 1
+            if impatience_by_pair[key] > 1:
+                return f'wait_impatient ({role}) fired {impatience_by_pair[key]} times in one encounter keeper=#{keeper} yielder=#{yielder}'
         if who:
             for line in window.splitlines():
                 tick = re.search(r' t=(\d+) ', line)
@@ -12219,8 +12228,15 @@ def _park_wait_switch_verify(window):
         if shown != declared:
             return f'wait_impatient beat {beat} showed face={shown} instead of declared={declared}'
     names = [b[0] for b in beats]
-    if 'wait_watch' not in names or 'wait_give_up' not in names:
-        return f'wait_impatient missed wait_watch or wait_give_up (saw {names})'
+    if 'wait_watch' not in names or 'wait_impatient' not in names or 'wait_give_up' not in names:
+        return f'wait_impatient missed wait_watch, wait_impatient or wait_give_up (saw {names})'
+    if names.count('wait_impatient') != 1:
+        return f'wait_impatient fired {names.count("wait_impatient")} times (expected 1): {names}'
+    if not (names.index('wait_watch') < names.index('wait_impatient') < names.index('wait_give_up')):
+        return f'wait_impatient beat order wrong (saw {names})'
+    impatient = next(b for b in beats if b[0] == 'wait_impatient')
+    if impatient[1] != 'puff' or impatient[3] != 'request_sulk':
+        return f'wait_impatient impatience beat had unexpected face/line: {impatient}'
     give_up = next(b for b in beats if b[0] == 'wait_give_up')
     if give_up[1] != 'hmph' or give_up[3] != 'mood_bad':
         return f'wait_impatient wait_give_up had unexpected face/line: {give_up}'

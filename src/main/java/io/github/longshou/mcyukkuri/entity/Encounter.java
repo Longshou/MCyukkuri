@@ -53,6 +53,7 @@ public final class Encounter {
     /** The way to a passing place: waypoints (the last is the stand) and their length. */
     public record Place(List<Vec3> legs, double length) {}
     private record Found(Place place, Vec3 farthest, double farthestLength) {}
+    private record ImpatienceBeat(String role, String declared, String line, String clip, int waited, int budget) {}
     private enum Phase { NOTICE, WALK, WATCH }
 
     private final YukkuriEntity keeper, yielder;
@@ -86,6 +87,9 @@ public final class Encounter {
     private Vec3 keeperAt;
     private String pendingBeatRole, pendingBeatName, pendingBeatDeclared, pendingBeatLine;
     private YukkuriEntity pendingBeatBody;
+    private int yielderWaited, keeperWaited;
+    private boolean yielderImpatient, keeperImpatient;
+    private ImpatienceBeat yielderImpatienceBeat, keeperImpatienceBeat;
 
     private Encounter(YukkuriGroundNavigation keeperNav, YukkuriEntity keeper, YukkuriGroundNavigation yielderNav, YukkuriEntity yielder,
                       Vec3 axis, Found found, String reason, boolean deadEnd) {
@@ -380,10 +384,62 @@ public final class Encounter {
 
     /** Logs the actual face published by {@code PresentationArbiter} on the queued encounter beat. */
     void observeFace(YukkuriEntity body, String shown) {
-        if (pendingBeatBody == null || body != pendingBeatBody) return;
-        GameplayLog.event(body, "move", "encounter face role={} beat={} declared={} shown={} line={} keeper=#{} yielder=#{} reason={}",
-                pendingBeatRole, pendingBeatName, pendingBeatDeclared, shown, pendingBeatLine, keeper.getId(), yielder.getId(), reason);
-        pendingBeatBody = null;
+        if (pendingBeatBody != null && body == pendingBeatBody) {
+            GameplayLog.event(body, "move", "encounter face role={} beat={} declared={} shown={} line={} keeper=#{} yielder=#{} reason={}",
+                    pendingBeatRole, pendingBeatName, pendingBeatDeclared, shown, pendingBeatLine, keeper.getId(), yielder.getId(), reason);
+            pendingBeatBody = null;
+        }
+        if (yielderImpatienceBeat != null && body == yielder) {
+            logImpatience(body, shown, yielderImpatienceBeat);
+            yielderImpatienceBeat = null;
+        }
+        if (keeperImpatienceBeat != null && body == keeper) {
+            logImpatience(body, shown, keeperImpatienceBeat);
+            keeperImpatienceBeat = null;
+        }
+    }
+
+    private void logImpatience(YukkuriEntity body, String shown, ImpatienceBeat beat) {
+        var holder = shown.equals(beat.declared()) ? null : body.faceHold(shown);
+        if (holder != null) {
+            GameplayLog.event(body, "move",
+                    "encounter beat role={} beat=wait_impatient face={} declared={} held_by={} held_tier={} held_face={} line={} clip={} keeper=#{} yielder=#{} reason={} waited={}/{}",
+                    beat.role(), shown, beat.declared(), holder.source(), holder.tier() == null ? "none" : holder.tier(), holder.face(),
+                    beat.line(), beat.clip(), keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
+        } else {
+            GameplayLog.event(body, "move",
+                    "encounter beat role={} beat=wait_impatient face={} declared={} line={} clip={} keeper=#{} yielder=#{} reason={} waited={}/{}",
+                    beat.role(), shown, beat.declared(), beat.line(), beat.clip(), keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
+        }
+    }
+
+    /** Forced-wait impatience beat (shared with {@code PlayLife}): fires at most once per role when the wait passes its threshold. */
+    private void tickImpatience() {
+        if (minor || makesRoom() || lock) return;
+        yielderWaited++;
+        if (phase == Phase.WATCH && !yielderImpatient) {
+            int budget = yielder.life().personality().waitingTicks();
+            if (yielderWaited >= WaitImpatience.triggerTick(yielder, budget) && yielder.quiet()) {
+                yielderImpatient = true;
+                var beat = WaitImpatience.perform(yielder);
+                if (beat != null) {
+                    yielderImpatienceBeat = new ImpatienceBeat("yielder", beat.face(), beat.line(), beat.clip().id(), yielderWaited, budget);
+                }
+            }
+        }
+        if (keeperNav.holding()) {
+            keeperWaited++;
+            if (!keeperImpatient) {
+                int budget = keeper.life().personality().waitingTicks();
+                if (keeperWaited >= WaitImpatience.triggerTick(keeper, budget) && keeper.quiet()) {
+                    keeperImpatient = true;
+                    var beat = WaitImpatience.perform(keeper);
+                    if (beat != null) {
+                        keeperImpatienceBeat = new ImpatienceBeat("keeper", beat.face(), beat.line(), beat.clip().id(), keeperWaited, budget);
+                    }
+                }
+            }
+        }
     }
 
     // ----------------------------------------------------------------------------------------------------------------- the tick
@@ -403,6 +459,7 @@ public final class Encounter {
             checkedAt = now;
             String result = verdict(now);
             if (result != null) { end(result, now); return false; }
+            tickImpatience();
         }
         return me == yielder && !released && drive(now);
     }

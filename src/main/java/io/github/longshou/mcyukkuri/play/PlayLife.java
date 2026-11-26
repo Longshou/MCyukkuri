@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.play;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.WaitImpatience;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
@@ -70,7 +71,7 @@ public final class PlayLife {
     private String refused, stopReason;
     private Beat pendingBeat;
     private double lastDistance = Double.MAX_VALUE;
-    private boolean completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced;
+    private boolean completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced, waitImpatient;
 
     public PlayLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -143,11 +144,21 @@ public final class PlayLife {
         if (pendingBeat == null) return;
         var beat = pendingBeat;
         pendingBeat = null;
-        GameplayLog.event(entity, "play",
-                "play beat={} face={} declared={} line={} kind={} clip={} rounds={} bounces={} energy={} boredom={} unease={}",
-                beat.name(), shown, beat.declared(), beat.line(), beat.kind() == null ? "NONE" : beat.kind(),
-                entity.getAnimationId(), rounds, bounces,
-                entity.life().energy(), entity.dailyLife().boredom(), entity.mind().unease());
+        var holder = shown.equals(beat.declared()) ? null : entity.faceHold(shown);
+        if (holder != null) {
+            GameplayLog.event(entity, "play",
+                    "play beat={} face={} declared={} held_by={} held_tier={} held_face={} line={} kind={} clip={} rounds={} bounces={} energy={} boredom={} unease={}",
+                    beat.name(), shown, beat.declared(), holder.source(), holder.tier() == null ? "none" : holder.tier(), holder.face(),
+                    beat.line(), beat.kind() == null ? "NONE" : beat.kind(),
+                    entity.getAnimationId(), rounds, bounces,
+                    entity.life().energy(), entity.dailyLife().boredom(), entity.mind().unease());
+        } else {
+            GameplayLog.event(entity, "play",
+                    "play beat={} face={} declared={} line={} kind={} clip={} rounds={} bounces={} energy={} boredom={} unease={}",
+                    beat.name(), shown, beat.declared(), beat.line(), beat.kind() == null ? "NONE" : beat.kind(),
+                    entity.getAnimationId(), rounds, bounces,
+                    entity.life().energy(), entity.dailyLife().boredom(), entity.mind().unease());
+        }
     }
     public String activity() {
         if (!active()) return Behaviors.IDLE;
@@ -302,6 +313,7 @@ public final class PlayLife {
         waitLimit = waitBudget();
         waitWatching = false;
         waitFaced = false;
+        waitImpatient = false;
         waitElapsed = 0;
         lastWaitElapsed = -1;
         GameplayLog.limited(entity, "play", "wait_start:" + target.kind(), 600,
@@ -402,6 +414,12 @@ public final class PlayLife {
             emitBeat("wait_give_up", patient < Temperament.LOW35 ? "hmph" : "dull", "mood_bad", FaceTier.Tier.MEDIUM, waitingFor.kind());
             rememberSkip(gaveUp, waitingFor.getBlockPos());
             stopWait("patience");
+        } else if (!waitImpatient && waitTicks >= WaitImpatience.triggerTick(entity, waitLimit)) {
+            waitImpatient = true;
+            var beat = WaitImpatience.perform(entity);
+            if (beat != null) {
+                pendingBeat = new Beat("wait_impatient", beat.face(), beat.line(), waitingFor.kind());
+            }
         }
     }
 
@@ -427,7 +445,7 @@ public final class PlayLife {
                     waitingFor.kind(), reason, waitingFor.getBlockPos(), waitTicks, waitLimit, entity.dailyLife().boredom());
         }
         waitingFor = null; waitStand = null; waitTicks = waitLimit = waitElapsed = 0; lastWaitElapsed = -1;
-        waitWatching = waitFaced = false;
+        waitWatching = waitFaced = waitImpatient = false;
         SurfaceApproach.stopWalking(entity);
     }
 
