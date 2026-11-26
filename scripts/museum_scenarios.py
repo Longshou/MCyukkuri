@@ -9368,10 +9368,12 @@ add('single_bed_contest', 'family', '两个成油争一个软垫窝', '两个成
 _even_a = _uuid_text('bed_contest_even', 'a')
 _even_b = _uuid_text('bed_contest_even', 'b')
 add('bed_contest_even', 'family', '两个同样胆大的成油争一个窝', '两个同样胆大的成油争一个窝',
-    '棚内只有一个空窝。两个同样胆大的成油同时走到窝前，数值相当，先对峙再互相顶撞，数轮后分出胜负，赢的认窝，输的按性格表态。一分钟后棚里添一个空窝，落选者改去那里。',
+    '棚内只有一个空窝。两个同样胆大的成油（分属两位饲主）同时走到窝前，数值相当，先对峙再互相顶撞，数轮后分出胜负，赢的认窝，输的按性格表态。一分钟后棚里添一个空窝，落选者改去那里。',
     '约 1 分半钟', [*shed(0, 0, half=4),
         *[line for name, x in [('a', -.65), ('b', .65)] for line in
-          (yk('reimu', x, -2.3, name, uuid=uid('bed_contest_even', name), boldness=85, label='甲' if name == 'a' else '乙', lead=name == 'b'),)]],
+          (yk('reimu', x, -2.3, name, uuid=uid('bed_contest_even', name), boldness=85, label='甲' if name == 'a' else '乙', lead=name == 'b'),)],
+        # Two homeless pets of two different hands: owned, so the habitat does not take the loser, and not one hand's, so they may tussle.
+        *own('a'), f'data modify entity {sel("b")} {OWNED} set value {{Use:"companion",Owner:[I;2,2,2,2]}}'],
     late=[Retry(block(2, 0, 0, 'mcyukkuri:yukkuri_nest'), sel('b'), tries=1, first=1250)],
     env=DAY, spot='pet_birth', vantage=(0, -5, 0),
     smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_even_a, _even_b)],

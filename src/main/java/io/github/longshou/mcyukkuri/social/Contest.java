@@ -91,8 +91,9 @@ public final class Contest {
         if (voiced) lastVoice = t;
         for (var body : new YukkuriEntity[]{winner, loser}) {
             boolean defiant = ContestOdds.defiant(body.life().personality().boldness());
-            // A grunt at most once a minute; the pushes between are the bodies leaning in.
-            beat(body, YukkuriAction.PUSH, "contest_tussle", defiant ? "angry" : "teary", voiced && defiant ? "puff" : "", FaceTier.Tier.MEDIUM);
+            // A grunt at most every three seconds, from one body at a time; the pushes between are the bodies leaning in.
+            boolean grunts = voiced && defiant && body == (pushed % 2 == 1 ? winner : loser);
+            beat(body, YukkuriAction.PUSH, "contest_tussle", defiant ? "angry" : "teary", grunts ? "puff" : "", FaceTier.Tier.MEDIUM);
         }
         GroupInteractionGoal.shove(loser, winner);
     }
