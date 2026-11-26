@@ -196,7 +196,7 @@ def state(action, t, c, height):
         s = [w, h, w]
         r = [-5.5-1.5*env, 1.4*trem, 1.6*math.sin(2*math.pi*9.5*t+.7)*(.18+.82*env)]
         shift = [.008*height*trem, -.020*height*(1+.25*env)]
-    elif BRAID_KEYS['authored'](c):
+    elif action in ('braid_brim_lift', 'braid_brim_lower'):
         s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):
         global _BRAID_RESCUE
@@ -291,18 +291,26 @@ def state(action, t, c, height):
         s=[1+.10*impact,1-.22*impact,1+.08*impact]
         r=[keyed(t,[(0,-7),(.12,-10),(.3,3),(.48,8),(.6,5)]),0,keyed(t,[(0,-4),(.16,5),(.36,-3),(.6,0)])]
     elif action == 'water_struggle':
-        effort=keyed(t,[(0,.1),(.07,.9),(.17,.35),(.28,1),(.4,.12),(1.6,.1)])
-        s=[1+.045*effort,.92+.07*effort,1+.055*effort]
-        r=[keyed(t,[(0,5),(.07,10),(.18,-3),(.28,9.5),(.4,4),(1.6,5)]),
-           keyed(t,[(0,0),(.12,-5),(.3,4),(.45,0),(1.6,0)]),keyed(t,[(0,-2),(.12,6),(.29,-5),(.44,0),(1.6,-2)])]
-    elif action == 'water_swim':
-        # Purposeful swimming (Swim): a steady stroke instead of water_struggle's jerks. Its first frame is water_plunge's last
-        # and starts at rest, so the shock flows straight into the first reach. Each loop the body glides while the braid reaches
-        # forward, then surges on the pull (power_start..power_end: a little squash, the face dipping from +5 to +2 degrees, a
-        # slight yaw and roll toward the stroking side). Pitch +2..+5, roll <= 2; no root track (the server owns the travel).
-        drive=bump((t/d-.5)/.5)
-        s=[1.015+.03*drive,.967-.045*drive,1.012+.035*drive]
-        r=[5-3*drive,4*drive,-2*drive]
+        # Panicked in-place flail crying for help: uneven bobbing and head-up tilting on the waterline across the full loop
+        # (no dead pause), while braided forms slap the water surface via braid_keys. Composed tilt stays <= 10.5 degrees.
+        bob = keyed(t, [(0, .35), (.22, -.5), (.44, .45), (.72, -.45), (1.02, .5), (1.28, -.55), (1.6, .35)])
+        effort = keyed(t, [(0, .2), (.22, .95), (.44, .3), (.72, .85), (1.02, .25), (1.28, 1.), (1.6, .2)])
+        s = [1+.035*effort, .97-.04*effort, 1+.035*effort]
+        r = [keyed(t, [(0, 6.5), (.22, 2.0), (.44, 8.0), (.72, 2.5), (1.02, 7.5), (1.28, 1.5), (1.6, 6.5)]),
+             keyed(t, [(0, -6), (.26, 12), (.54, -10), (.84, 9), (1.16, -12), (1.42, 6), (1.6, -6)]),
+             keyed(t, [(0, 3.0), (.22, -5.5), (.44, 4.0), (.72, -5.0), (1.02, 3.5), (1.28, -6.0), (1.6, 3.0)])]
+        lift = .06*height*bob
+    elif action == 'water_flail':
+        # Panicked water flail (Swim, replacing the non-existent orderly swimming stroke): body bobs and tilts unevenly on the
+        # water line in three frantic bursts (0.24 s, 0.68 s, 1.28 s) with no rowing or paddling cycle; Marisa's braid slaps
+        # the surface via braid_keys. Composed tilt stays <= 10.5 degrees; server owns travel.
+        bob = keyed(t, [(0, .3), (.24, -.55), (.44, .45), (.68, -.45), (1.00, .55), (1.28, -.65), (1.6, .3)])
+        slap = keyed(t, [(0, .15), (.24, 1.0), (.44, .2), (.68, .85), (1.00, .1), (1.28, 1.0), (1.6, .15)])
+        s = [1+.035*slap, .975-.045*slap, 1+.035*slap]
+        r = [keyed(t, [(0, 5.5), (.24, -1.5), (.44, 6.5), (.68, -.5), (1.00, 7.0), (1.28, -2.0), (1.6, 5.5)]),
+             keyed(t, [(0, -8), (.24, 10), (.48, -11), (.72, 8), (1.00, -13), (1.28, 12), (1.6, -8)]),
+             keyed(t, [(0, 3.5), (.24, -6.0), (.44, 4.0), (.68, -5.0), (1.00, 4.5), (1.28, -6.5), (1.6, 3.5)])]
+        lift = .065*height*bob
     elif action == 'water_gasp':
         breath=keyed(t,[(0,0),(.3,0),(.5,1),(.75,.1),(1.2,0),(1.6,0)])
         s=[1.035,.81+.035*breath,1.045]
@@ -721,23 +729,40 @@ def state(action, t, c, height):
         a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (S, 0)])
         shift[1] = -height*(a + q*F)
     elif action == 'bin_nose_in':
-        # Nose into a fallen bin's mouth (recipe lore): a small eager rise and draw-back, lean in until the face meets the mouth
-        # (launch..contact), face pressed flat into it while the body wriggles and digs (contact..impact: yaw and roll wiggle,
-        # short forward pumps; the front stays on the mouth plane), yank back out with the find on `pull` (= impact) with the
-        # chin up, then settle into eat's first pose. Travel is the motor's (RamContact front sweep of this clip).
-        m = c['markers']; L, C, I = m['launch'], m['contact'], m['impact']
-        fl, F, hz = c['flatten'], c['front_ratio'], c['wiggle_hz']
-        q = fl*keyed(t, [(0, 0), (C, 0), (C+.12, 1), (I, 1), (I+.1, 0), (d, 0)])
-        env = keyed(t, [(0, 0), (C+.05, 0), (C+.2, 1), (I-.2, 1), (I-.05, 0), (d, 0)])
-        ph = 2*math.pi*hz*(t-C)
-        a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (I+.14, -c['recoil']), (I+.4, 0), (d, 0)])
-        a += c['dig']*env*math.sin(2*ph)
-        yank = bump((t-I)/.3) if I <= t <= I+.3 else 0.
-        s = [1+.6*q, 1+.25*q+.03*yank, 1-q+.02*yank]
-        r = [keyed(t, [(0, 0), (L, c['rise_lean']), (C, c['lean']), (I, c['lean']), (I+.14, c['yank_lean']), (I+.4, -4), (d, c['end_lean'])]),
-             c['wiggle_yaw']*env*math.sin(ph), c['wiggle_roll']*env*math.sin(ph+1.3)]
-        shift[1] = -height*(a + q*F)
-        lift = c['yank_hop']*height*yank
+        if c.get('braid_rummage'):
+            # Braid trash-bin rummage (Marisa): stops at the bin rim without diving in or flattening her face, turns her braid
+            # side toward the open mouth (yaw unlimited), leans slightly within the 12 deg tilt cap while her braid reaches into
+            # the bin, sweeps side-to-side (contact..pull), then pulls back upright holding the find and settles at rest.
+            m = c['markers']; L, C, I = m['launch'], m['contact'], m['impact']
+            turn = keyed(t, [(0, 0), (L, .78), (C, 1), (I, 1), (I+.35, .22), (d, 0)])
+            lean = keyed(t, [(0, 0), (L, .65), (C, 1), (I, 1), (I+.35, 0), (d, 0)])
+            env = keyed(t, [(0, 0), (C, 0), (C+.15, 1), (I-.15, 1), (I, 0), (d, 0)])
+            sweep = math.sin(2*math.pi*1.45*(t-C))*env
+            pull_bob = bump((t-I)/.38) if I <= t <= I+.38 else 0.
+            s = [1+.02*lean+.015*pull_bob, 1-.035*lean-.025*pull_bob, 1+.02*lean]
+            r = [c['reach_pitch']*lean + .8*sweep + 2.4*pull_bob,
+                 c['yaw']*turn + 5.0*sweep,
+                 c['roll']*lean + .9*sweep]
+            shift[1] = -height*(.025*lean - .015*pull_bob)
+            lift = .018*height*pull_bob
+        else:
+            # Nose into a fallen bin's mouth (recipe lore): a small eager rise and draw-back, lean in until the face meets the mouth
+            # (launch..contact), face pressed flat into it while the body wriggles and digs (contact..impact: yaw and roll wiggle,
+            # short forward pumps; the front stays on the mouth plane), yank back out with the find on `pull` (= impact) with the
+            # chin up, then settle into eat's first pose. Travel is the motor's (RamContact front sweep of this clip).
+            m = c['markers']; L, C, I = m['launch'], m['contact'], m['impact']
+            fl, F, hz = c['flatten'], c['front_ratio'], c['wiggle_hz']
+            q = fl*keyed(t, [(0, 0), (C, 0), (C+.12, 1), (I, 1), (I+.1, 0), (d, 0)])
+            env = keyed(t, [(0, 0), (C+.05, 0), (C+.2, 1), (I-.2, 1), (I-.05, 0), (d, 0)])
+            ph = 2*math.pi*hz*(t-C)
+            a = keyed(t, [(0, 0), (L, -c['draw_back']), (C, c['reach']), (I, c['reach']), (I+.14, -c['recoil']), (I+.4, 0), (d, 0)])
+            a += c['dig']*env*math.sin(2*ph)
+            yank = bump((t-I)/.3) if I <= t <= I+.3 else 0.
+            s = [1+.6*q, 1+.25*q+.03*yank, 1-q+.02*yank]
+            r = [keyed(t, [(0, 0), (L, c['rise_lean']), (C, c['lean']), (I, c['lean']), (I+.14, c['yank_lean']), (I+.4, -4), (d, c['end_lean'])]),
+                 c['wiggle_yaw']*env*math.sin(ph), c['wiggle_roll']*env*math.sin(ph+1.3)]
+            shift[1] = -height*(a + q*F)
+            lift = c['yank_hop']*height*yank
     elif action == 'shy':
         # Bashful turn-away and slight downward tuck with a small fidget, one quick peek back, then turning away again.
         yaw = keyed(t, [(0, c['turn']*.55), (.35, c['turn']), (.95, c['turn']),
@@ -869,20 +894,11 @@ def flourish_tracks(model, action, samples, cfg, c):
     """Rotation flourishes on the hand bones that carry a braid. Side hair, front locks and a ponytail sit on
     the same bones on other variants and only follow the body: a hair lock never paddles, lifts or flaps."""
     tracks = []
-    if action in ('hat_stumble','hat_jostle','water_plunge','water_struggle','water_swim','water_gasp','water_recover','water_held_breath','boat_reassure'):
+    if action in ('hat_stumble','hat_jostle','water_plunge','water_gasp','water_recover','water_held_breath','boat_reassure'):
         for bone,side in (('hand_right',1),('hand_left',-1)):
             hand,braid=braid_carried(model,bone)
             if not braid:continue
             def gesture(t):
-                if action=='water_struggle':
-                    at=max(0,t-(.11 if side<0 else 0))
-                    sweep=keyed(at,[(0,0),(.08,1),(.18,-.5),(.29,.7),(.42,0),(1.6,0)])
-                    return [-28*sweep,side*9*sweep,side*(8+38*abs(sweep))]
-                if action=='water_swim':
-                    # The braid strokes (a carried braid only): from water_plunge's last braid pose (hanging, at rest) it swings
-                    # forward to the catch tucked in, then is drawn back down and out through the pull (power_start..power_end).
-                    u=t/c['duration'];pull=bump((u-.5)/.5)
-                    return [-1.8+21*(1-math.cos(2*math.pi*u)),side*5*pull,side*(12.3+16*pull)]
                 if action=='water_plunge':
                     q=keyed(t,[(0,.1),(.14,1),(.35,.3),(.6,.15)])
                     return [-12*q,0,side*(9+22*q)]
@@ -1109,7 +1125,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
             tracks += BRAID_KEYS['tracks'](model, name, c, samples, tracks, TOOLS['palette'])
             tip = BRAID_KEYS['tip_track'](model, samples, tracks, TOOLS['palette'])
             BRAID_KEYS['gate'](model, name, samples, tracks, tip, c, TOOLS['palette'])
-            fields = {'markers': dict(c['markers']), 'tip': tip}
+            fields = {**({'markers': dict(c['markers'])} if 'markers' in c else {}), 'tip': tip}
         elif name in TOOLS['EXPORT_CLIPS']:
             if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
             more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more

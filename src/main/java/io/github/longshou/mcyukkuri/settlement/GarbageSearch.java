@@ -336,6 +336,7 @@ public final class GarbageSearch implements MotorOwner {
     private boolean take(GarbageBinBlockEntity bin, double travel) {
         int slot = serving(bin);
         if (slot < 0 || !eligible() || !allowedByFamily(point.stand())) {
+            if (slot < 0) body.showReaction("confused_small", "", FaceTier.Tier.SHORT);
             GameplayLog.event(body, "forage", "garbage pull refused point={} reason={}", bin.getBlockPos(),
                     slot < 0 ? "emptied" : "no_longer_eligible");
             return false;

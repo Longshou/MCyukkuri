@@ -13,12 +13,12 @@
 | 形态 | 辫子 | 能做的辫子动作 |
 | --- | --- | --- |
 | `marisa` | 标准骨链 | 全部（托幼、水生、帽船、取戴帽等组 `marisa_braid`／`aquatic_marisa`／`marisa_hat` 只编到这一形态） |
-| `marisa_face` | 标准骨链 | 跟随、送嘴进食（`braid_feeders`） |
-| `marisa_tsumuri` | 标准骨链，无帽 | 跟随、送嘴进食、接生片段；缩入时头发后仰外张 |
-| `marisa_kotatsu` | 标准骨链 | 只跟随；帽子挡住辫根前摆，送嘴进食门槛不过 |
+| `marisa_face` | 标准骨链 | 跟随、送嘴进食（`braid_feeders`）、翻垃圾桶（`bin_nose_in`）、水中扑腾（`water_flail`／`water_struggle`） |
+| `marisa_tsumuri` | 标准骨链，无帽 | 跟随、送嘴进食、接生片段、翻垃圾桶、水中扑腾；缩入时头发后仰外张 |
+| `marisa_kotatsu` | 标准骨链 | 只跟随；被炉围裙（`x=8.71..9.59`、`y=0.15..10.70`）挡住辫根前摆与外摆，送嘴进食、翻垃圾桶与水中扑腾门槛不过 |
 | `marisa_sparse` | 一撮贴在头皮上的短辫，不挂骨链 | 无，随皮肤变形，只用嘴 |
-| `marisa_bean` | 按头部比例缩小的骨链 | 只跟随；骨架比例不同，未编辑子片段 |
-| `house_marisa` | 自身缩小骨链，夹点都在发尾骨 | 家油专用夹取、搬运、放下（`scripts/runtime_house_interactions.py`） |
+| `marisa_bean` | 按头部比例缩小的骨链 | 只跟随；辫根（`y=12.66`）高于帽檐底（`12.54`），静止 `braid_hat=+0.069`，主动摆辫必超 0.1 门槛 |
+| `house_marisa` | 自身缩小骨链，夹点都在发尾骨 | 家油专用夹取、搬运、放下（`scripts/runtime_house_interactions.py`）与水中扑腾（`water_flail`／`water_struggle`） |
 | 捕食种 | 辫链已剥除，`hand_right_tip` 直接挂在 `hand_right` | 无 |
 
 ## 2. 四种制作方式
@@ -30,7 +30,7 @@
 | 跟随 | 辫子不干活，只随身体摆动 | `contact-safe/braid_chain.follow`；clip 列在 `contact-safe/recipe.json` 与 lore `recipe.json` 的 `braid_follow`，或家族 `braid_follow: true` |
 | 关键姿态 | 辫梢在身旁的地面、帽檐、食物、幼油上做接触 | lore `braid_keys.py`，配方 `braid_keys` |
 | 目标点轨迹 | 辫梢按时间走到给定点：划水、船上姿态、托幼上头、持物 | lore `aquatic_tools.py`，配方 `braid_path` |
-| 手骨手势 | 只转 `hand_right` 根部的整体姿势：水中扑腾、游泳、情绪垂发、挥手 | lore `author.py` 的 `flourish_tracks`、`display`、`flourishes.braid_wave` |
+| 手骨手势 | 只转 `hand_right` 根部的整体姿势：落水冲击、喘息、情绪垂发、挥手 | lore `author.py` 的 `flourish_tracks`、`display`、`flourishes.braid_wave` |
 
 另有两类专用解算：取帽、戴帽、扶帽、水生护帽由 `lore/hat.py` 把辫子弯到帽檐握点；持棍划桨由 `paddle_shared`（`curl`、`aim`、`braid_raise`）铺辫。
 
@@ -128,6 +128,10 @@
 - 分家族导出与全量导出字节不一致：改完用 `export.py --rebuild-motion` 重建，再 `--check`。
 - 够取量错站位：辫梢够取在转身后、从实际站位量；准入与执行同一几何。
 - `braid_path` 目标离辫根过近时向内鼓进脸颊：`braid_chain.arc` 始终向前略下拱出余长，前探勾檐（如 `water_hat_climb`）时若目标离辫根明显短于辫长，中段会鼓进 `+X` 脸颊；把前探与勾檐关键点保持在外侧且距辫根约 8.5–9.8 模型单位（近绷直），即可避开脸颊并通过 `pose_check` 0 穿插。
+- 引导线两头切向对向折成发卡：`braid_keys` 的 `root` 与 `arrive` 反平行或对向会让中段单步翻转上百度；高抬与拍水保持两头均偏下（`root.y < 0`、`arrive.y < 0`）且 `P0→P1→P2→P3` 沿外展轴单调递增，单步可压在 10° 内。
+- 变体 `braid_keys` 被旧分支抢走或叠手势：`author.py` 的 `state()` 只把 `braid_brim_lift`／`braid_brim_lower` 交给 `BRAID_KEYS['state']`，有自写身体的新 `braid_keys` 片段要自己处理身体且从 `flourish_tracks` 移出，避免双写 `hand_right`。
+- 推广到非标准形态漏查静止帽檐深度：`braid_keys.gate` 按含 `body_surface` 的部件找身体皮肤；先量静止 `braid_hat`（`marisa_bean` 静止已 `+0.069`、主动摆辫即超 `TOUCH`），过不了就留在身体路线。
+- `RamContact`（`Shove`）把辫子顶点算进最前伸 `-Z`：用 `Shove` 的辫子片段（如 `bin_nose_in`）把辫梢世界 `-Z` 控制在站位到目标面距离内，否则电机反推身体后退。
 
 ## 7. 检查方法
 
@@ -136,7 +140,7 @@
 - 导出与门槛：`<py> scripts/export.py motion <片段> --beats <节拍文件> --model marisa,marisa_face,...` 导出所属家族，检查整身倾角、`braid_*` 片段的辫节连续性、节拍姿态报告并出渲染条；`--check` 不重导出。带辫子的家族：`brim-carry`、`braid-eat`、`dig`、`distress`、`aquatic`、`badge`、`paper`、`braid-water-rescue`，跟随类在 `motion-corrections`。
 - 辫子专项：`<py> standards/yukkuri-library/motions/variants/lore/braid_keys.py --check` 对关键姿态片段跑辫子、幼油与身体、帽子、地面的穿插门槛，对全部 `braid_*` 片段跑连续性；`<py> scripts/export_motion_corrections.py --check` 核对整份动作覆盖；`aquatic_tools` 的 `stroke_gate`、`held_gate`、`stow_gate`、`hull_gate` 在水上家族导出时自动跑，`<py> scripts/check_pose_consumers.py <基线> --lore --stow` 复核持物交接。
 - 离线看图：`<py> scripts/preview.py strip <主题> --model marisa --clip <片段> --times ... --view 0 4 --view 90 4`，至少看正面（辫子在画面左）和辫侧；`--wall` 看避墙；`--before <ref>` 出新旧对比。划桨与拨水看 `lore/aquatic_paddle_preview.py`（`--form`、`--against`）与 `lore/aquatic_strokes_preview.py`。逐帧数值用 `<py> scripts/pose_check.py --model marisa --clip <片段> --t 0:<时长>:0.05 --metric tilt,pass[,wet]`。
-- 读哪些帧：每个标记时刻（`contact`、`lift_start`、`place`、`release`、`pick`、`mouth`、`power_start`、`power_end`、`grip`）；每段 `turn` 的起点、中点、终点；门槛报告打印的最差时刻；首帧与末帧（与前后片段的衔接）。
+- 读哪些帧：每个标记时刻（`contact`、`lift_start`、`place`、`release`、`pick`、`mouth`、`power_start`、`power_end`、`grip`）；每段 `turn` 的起点、中点、终点；门槛报告打印的最差时刻；首帧与末帧（与前后片段的衔接）；跨水面扑腾另核 `tip` 轨道 `y` 区间（水上高点高于水线 `4.0`、拍水低点入水不超过第 4 节允许深度 `2.2` 且不低于地面）。
 - 交给用户：`<py> scripts/preview.py viewer <主题> --model marisa --clip <片段> --decision <要用户决定什么>`；最后一轮做游戏内截图审图（`capture_review.py`），确认真实接触与遮挡。
 
 ## 补充规则

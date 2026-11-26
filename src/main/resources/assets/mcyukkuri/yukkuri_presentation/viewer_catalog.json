@@ -175,7 +175,7 @@
     ["boat_paddle_braid", "无棍辫子划水"],
     ["bank_beckon", "岸边拨水"],
     ["water_beckon", "水中拨水"],
-    ["water_swim", "游泳划水"],
+    ["water_flail", "水中扑腾前行"],
     ["boat_gather", "收集口粮"],
     ["boat_eat", "船上进食"],
     ["boat_drink", "船上饮水"],

@@ -94,7 +94,7 @@ public enum YukkuriAction {
     WATER_PLUNGE("water_plunge", .6, false),
     WATER_STRUGGLE("water_struggle", 1.6, true),
     WATER_GASP("water_gasp", 1.6, true),
-    WATER_SWIM("water_swim", 1.2, true),
+    WATER_FLAIL("water_flail", 1.6, true),
     WATER_RECOVER("water_recover", 2.8, false),
     WATER_HAT_FLIP("water_hat_flip", .8, false),
     WATER_HAT_GRIP("water_hat_grip", 1.0, true),

@@ -43,7 +43,7 @@ CUSTOM_JAVA_CALLERS = {
     "boat_drift": {"Paddle.pose"},
     "bank_beckon": {"Beckon.clip"},
     "water_beckon": {"Beckon.clip"},
-    "water_swim": {"Swim.pose"},
+    "water_flail": {"Swim.pose"},
     "snuggle_right": {"DailyLife.contactClip"},
     "snuggle_left": {"DailyLife.contactClip"},
 }

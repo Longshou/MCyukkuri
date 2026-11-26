@@ -268,14 +268,14 @@ def gate(model, name, samples, all_tracks, tip, c, palette):
     samples, with the time of each; raises when any passes TOUCH."""
     parts = {p['name']: p for p in model['parts']}; span = lambda p: list(range(p['start'], p['start']+p['count']))
     braid = [i for p in model['parts'] if p['name'].startswith('braid_lock_') for i in span(p)]
-    body = parts['rounded_body_surface']; tri = np.array(span(body)).reshape(-1, 3)
+    body = next(p for p in model['parts'] if 'body_surface' in p['name']); tri = np.array(span(body)).reshape(-1, 3)
     hats = [span(p) for p in model['parts'] if p['name'].startswith(HAT)]
     def skin(M):
         P = posed(model, M, list(range(len(model['weights'])))); t3 = P[tri]
         n = np.cross(t3[:, 1]-t3[:, 0], t3[:, 2]-t3[:, 0]); cc = t3.mean(1)
         return P, P[tri[:, ::-1] if (n*(cc-np.array([0, 1, 0])*cc[:, 1:2])).sum(-1).mean() < 0 else tri]
     P0, S0 = skin(palette(model, [], 0)); base = np.maximum(-_closest(P0[braid], S0), 0)
-    m = c['markers']; ride = (m['lift_start'], m['place']) if 'lift_start' in m else (math.inf, -math.inf)  # a young rides it
+    m = c.get('markers', {}); ride = (m['lift_start'], m['place']) if 'lift_start' in m else (math.inf, -math.inf)  # a young rides it
     worst = {k: [-math.inf, 0.] for k in ('braid_body', 'braid_hat', 'braid_floor', 'young_body', 'young_hat')}
     def note(k, v, t):
         if v > worst[k][0]: worst[k] = [round(float(v), 3), round(t, 3)]
@@ -335,7 +335,7 @@ if __name__ == '__main__':
         clip = rev['clips'][name]
         tr = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
         try:
-            if name in keyed: gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(own[name], markers=clip['markers']), A.palette)
+            if name in keyed: gate(model, name, [k[0] for k in clip['tip']], tr, clip['tip'], dict(own[name], markers=clip.get('markers', {})), A.palette)
             else: continuity(model, name, tr)
         except ValueError as error:
             print(f'  FAIL {error}', flush=True); failed.append(name)

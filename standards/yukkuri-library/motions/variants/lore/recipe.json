@@ -10,7 +10,7 @@
     "carry": {"clips": ["boat_carry_young", "boat_be_carried", "boat_prepare_carry", "boat_release_carry", "mouth_release"]},
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover"], "braid_follow": true},
-    "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_swim", "water_gasp", "water_recover", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
+    "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_flail", "water_gasp", "water_recover", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
     "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "stamp", "walk_look_back", "run", "reject_or_spit", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "territory": {"clips": ["home_declare", "home_declare_timid"], "braid_follow": true},
@@ -263,7 +263,7 @@
       ]
     },
     "water_struggle": {
-      "label": "朝救援侧抬脸扑水呼救",
+      "label": "水中扑腾呼救",
       "duration": 1.6,
       "loop": true,
       "applies": "all",
@@ -271,61 +271,118 @@
       "faces": [
         [
           0,
-          0.14,
+          0.35,
           "teary"
         ],
         [
-          0.14,
-          0.3,
-          "cry"
+          0.35,
+          0.85,
+          "open_cry"
         ],
         [
-          0.3,
-          0.5,
-          "teary"
+          0.85,
+          1.2,
+          "afraid"
         ],
         [
-          0.5,
+          1.2,
           1.6,
           "cry"
         ]
       ],
-      "lore": "Only the server's bounded effort window enables the strong asymmetric hair strokes. Rescue direction is the actual entity yaw; body pitch raises the mouth then presses down. Hair sweeps do not propel or float the entity. v14: pitch limited to 10, roll 6; effort is squash and braid strokes. v17: only a braid-carrying hand bone strokes; plain side hair (hand_left on Marisa) only follows the body.",
+      "variants": {
+        "marisa": {
+          "match": ["marisa", "marisa_face", "marisa_tsumuri"],
+          "braid_frame": "body",
+          "braid_keys": [
+            [0.0, {"tip": [14.0, 6.4, -3.6], "root": [0.58, -1.0, -0.12], "arrive": [-0.5, -0.86, 0.1]}],
+            [0.22, {"tip": [13.2, 4.4, -5.2], "root": [0.68, -1.0, -0.2], "arrive": [-0.9, -0.28, 0.28]}],
+            [0.44, {"tip": [14.4, 6.3, -2.2], "root": [0.62, -1.0, -0.04], "arrive": [-0.52, -0.85, 0.04]}],
+            [0.72, {"tip": [13.8, 4.5, -3.6], "root": [0.72, -1.0, -0.1], "arrive": [-0.92, -0.25, 0.16]}],
+            [1.02, {"tip": [13.6, 7.0, -4.6], "root": [0.56, -1.0, -0.18], "arrive": [-0.48, -0.86, 0.18]}],
+            [1.28, {"tip": [12.8, 4.5, -5.8], "root": [0.64, -1.0, -0.24], "arrive": [-0.88, -0.28, 0.34]}],
+            [1.6, {"tip": [14.0, 6.4, -3.6], "root": [0.58, -1.0, -0.12], "arrive": [-0.5, -0.86, 0.1]}]
+          ]
+        },
+        "house_marisa": {
+          "match": ["house_marisa"],
+          "braid_frame": "body",
+          "braid_keys": [
+            [0.0, {"tip": [3.22, 2.55, -1.65], "root": [0.58, -1.0, -0.1], "arrive": [-0.32, -1.0, 0.1]}],
+            [0.22, {"tip": [2.98, 2.02, -1.92], "root": [0.66, -1.0, -0.18], "arrive": [-0.75, -0.55, 0.24]}],
+            [0.44, {"tip": [3.3, 2.48, -1.32], "root": [0.62, -1.0, -0.04], "arrive": [-0.32, -1.0, 0.02]}],
+            [0.72, {"tip": [3.1, 2.06, -1.62], "root": [0.68, -1.0, -0.08], "arrive": [-0.8, -0.5, 0.14]}],
+            [1.02, {"tip": [3.15, 2.62, -1.85], "root": [0.56, -1.0, -0.15], "arrive": [-0.28, -1.0, 0.16]}],
+            [1.28, {"tip": [2.9, 2.02, -2.02], "root": [0.64, -1.0, -0.2], "arrive": [-0.7, -0.58, 0.28]}],
+            [1.6, {"tip": [3.22, 2.55, -1.65], "root": [0.58, -1.0, -0.1], "arrive": [-0.32, -1.0, 0.1]}]
+          ]
+        }
+      },
+      "lore": "Panicked in-place water flail crying for help (user 2026-11-25 theater feedback: 水中扑腾 uses the braid): uneven bobbing and head-up tilting on the waterline across the whole loop (tilt <= 10.5 deg); Marisa's braided forms slap the water surface (waterline ~4.0 mu, dipping <= 1.8 mu below, within BRAID.md section 4) via braid_keys in three uneven panicked bursts. marisa_kotatsu (low kotatsu curtain encloses braid) and marisa_sparse (no braid chain weights) keep body-only flail. Rescue direction and buoyancy stay on the server.",
       "triggers": [
         "water_struggle with synchronized effort"
       ]
     },
-    "water_swim": {
-      "label": "落水后定神划水游",
-      "duration": 1.2,
+    "water_flail": {
+      "label": "水中扑腾前行",
+      "duration": 1.6,
       "loop": true,
       "applies": "all",
       "root_support": "free_water",
       "faces": [
         [
           0,
-          0.5,
-          "teary"
+          0.32,
+          "surprise"
         ],
         [
-          0.5,
-          1.1,
-          "chewing_closed"
+          0.32,
+          0.76,
+          "cry"
         ],
         [
-          1.1,
-          1.2,
-          "teary"
+          0.76,
+          1.12,
+          "afraid"
+        ],
+        [
+          1.12,
+          1.6,
+          "cry"
         ]
       ],
-      "lore": "Project design (user 2026-11-04: swimming back to the hat must not twitch at the start): purposeful swimming (Swim) after the plunge's shock, instead of water_struggle's distress jerks. Its first frame is water_plunge's last, so the shock flows straight into the first stroke without a reset; each loop starts at rest: the body glides while a carried braid swings forward to the catch, then surges a little on the pull (power_start..power_end: the braid drawn back down and out, pitch +5 to +2, a squash, a slight yaw and roll toward the stroke); plain side hair only follows. No root track: the server owns the travel. water_struggle stays for distress without a swim, water_gasp for real exhaustion.",
+      "variants": {
+        "marisa": {
+          "match": ["marisa", "marisa_face", "marisa_tsumuri"],
+          "braid_frame": "body",
+          "braid_keys": [
+            [0.0, {"tip": [13.8, 6.5, -4.4], "root": [0.56, -1.0, -0.16], "arrive": [-0.48, -0.86, 0.16]}],
+            [0.24, {"tip": [13.0, 4.6, -5.8], "root": [0.66, -1.0, -0.24], "arrive": [-0.88, -0.26, 0.32]}],
+            [0.44, {"tip": [14.3, 6.4, -2.6], "root": [0.62, -1.0, -0.06], "arrive": [-0.5, -0.85, 0.06]}],
+            [0.68, {"tip": [13.6, 4.6, -4.2], "root": [0.72, -1.0, -0.14], "arrive": [-0.92, -0.24, 0.2]}],
+            [1.0, {"tip": [13.4, 7.1, -5.0], "root": [0.54, -1.0, -0.2], "arrive": [-0.46, -0.86, 0.22]}],
+            [1.28, {"tip": [12.6, 4.7, -6.2], "root": [0.62, -1.0, -0.26], "arrive": [-0.86, -0.26, 0.36]}],
+            [1.6, {"tip": [13.8, 6.5, -4.4], "root": [0.56, -1.0, -0.16], "arrive": [-0.48, -0.86, 0.16]}]
+          ]
+        },
+        "house_marisa": {
+          "match": ["house_marisa"],
+          "braid_frame": "body",
+          "braid_keys": [
+            [0.0, {"tip": [3.18, 2.58, -1.82], "root": [0.56, -1.0, -0.14], "arrive": [-0.3, -1.0, 0.16]}],
+            [0.24, {"tip": [2.92, 2.02, -2.02], "root": [0.64, -1.0, -0.2], "arrive": [-0.72, -0.55, 0.28]}],
+            [0.44, {"tip": [3.28, 2.5, -1.42], "root": [0.62, -1.0, -0.05], "arrive": [-0.32, -1.0, 0.06]}],
+            [0.68, {"tip": [3.08, 2.06, -1.72], "root": [0.66, -1.0, -0.12], "arrive": [-0.78, -0.5, 0.18]}],
+            [1.0, {"tip": [3.12, 2.65, -1.96], "root": [0.54, -1.0, -0.18], "arrive": [-0.26, -1.0, 0.2]}],
+            [1.28, {"tip": [2.85, 2.02, -2.1], "root": [0.62, -1.0, -0.22], "arrive": [-0.66, -0.58, 0.32]}],
+            [1.6, {"tip": [3.18, 2.58, -1.82], "root": [0.56, -1.0, -0.14], "arrive": [-0.3, -1.0, 0.16]}]
+          ]
+        }
+      },
+      "lore": "Project design (user 2026-11-25 theater feedback: 游泳划水不存在的，就用水中扑腾): replaces water_swim for Swim when moving through water. No orderly rowing or paddling cycle: body bobs and tilts unevenly on the waterline (composed tilt <= 10.5 deg), and Marisa's braided forms slap the water surface in three uneven, panicky strokes via braid_keys (tuft dips 1.2-1.7 mu below the 4.0 mu floating waterline, within BRAID.md section 4, and clears body, hat and floor). Server owns travel; water_gasp remains for real exhaustion.",
       "triggers": [
         "Swim running with paid effort while not EXHAUSTED"
-      ],
-      "markers": {
-        "power_start": 0.6,
-        "power_end": 1.2
-      }
+      ]
     },
     "water_gasp": {
       "label": "力竭停顿低伏喘息",
@@ -1069,7 +1126,7 @@
         "arc": 1.0,
         "entry": 0.08
       },
-      "base_pose": "water_swim"
+      "base_pose": "water_flail"
     },
     "boat_gather": {
       "label": "收食入帽",
@@ -1477,7 +1534,7 @@
       "triggers": ["GarbageSearch SNIFF at a standing or fallen bin (activity house_sniff)"]
     },
     "bin_nose_in": {
-      "label": "把脸伸进倒下的垃圾桶里翻找",
+      "label": "探进垃圾桶翻找",
       "duration": 2.5,
       "loop": false,
       "applies": "not_house",
@@ -1498,9 +1555,33 @@
       "end_lean": -8,
       "mouth_comp": {"pitch": 10, "forward": 0.01, "sink": 0.02},
       "faces": [[0, 0.62, "open_smile"], [0.62, 1.7, "pursed"], [1.7, 62.5, "chewing_closed"]],
-      "variants": {"bean": {"match": ["*bean*"], "front_ratio": 0.39}},
-      "lore": "Project design (GarbageSearch NOSE_IN at a fallen bin, the mouth route; user 2026-11-17 feedback 25 on FG-10). A small eager rise and draw-back (launch), lean in until the face meets the bin's open mouth (contact), face pressed into it with pursed lips, wriggling side to side and digging with short pumps while it feels for the piece (a physical press: the front stays on the mouth plane and the body squeezes in behind it), then yank back out with the chin up and the find held in the closed mouth (pull = impact: the piece leaves the bin into the mouth), and settle into eat's first pose (lean end_lean with eat's mouth_comp), so the eat loop takes over unseen. Travel belongs to the motor (the RamContact front sweep of this clip, as glass_press); the clip's own forward shift stays within the body. Pitch and roll together stay within 10 degrees. Markers: launch, contact, impact and pull (the same instant), settled.",
-      "triggers": ["GarbageSearch NOSE_IN at a fallen bin's mouth (activity house_scavenge), the mouth route"]
+      "variants": {
+        "marisa": {
+          "match": ["marisa", "marisa_face", "marisa_tsumuri"],
+          "braid_rummage": true,
+          "braid_frame": "body",
+          "yaw": 40,
+          "reach_pitch": -5.0,
+          "roll": -3.0,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "braid_keys": [
+            [0.0, "rest", "stop"],
+            [0.3, {"tip": [8.6, 1.0, -5.8], "root": [0.24, -0.92, -0.31], "arrive": [0.2, 0.9, 0.28]}, "turn", "swap_lead"],
+            [0.62, {"tip": [8.0, 2.2, -7.2], "root": [0.22, -0.94, -0.32], "arrive": [0.35, 0.88, 0.22]}],
+            [0.9, {"tip": [9.2, 1.2, -6.4], "root": [0.36, -0.92, -0.25], "arrive": [0.42, 0.86, 0.2]}],
+            [1.18, {"tip": [7.2, 1.7, -7.5], "root": [0.2, -0.95, -0.32], "arrive": [0.32, 0.88, 0.24]}],
+            [1.45, {"tip": [8.6, 1.2, -6.9], "root": [0.3, -0.94, -0.28], "arrive": [0.38, 0.88, 0.22]}],
+            [1.7, {"tip": [7.6, 2.0, -7.2], "root": [0.22, -0.94, -0.32], "arrive": [0.45, 0.85, 0.2]}, "stop"],
+            [2.05, {"tip": [7.2, 3.0, -6.8], "root": [0.24, -0.94, -0.28], "arrive": [0.6, 0.78, 0.15]}],
+            [2.28, {"tip": [8.6, 1.0, -5.8], "root": [0.24, -0.92, -0.31], "arrive": [0.2, 0.9, 0.28]}],
+            [2.5, "rest", "stop", "turn", "swap_lead"]
+          ]
+        },
+        "bean": {"match": ["*bean*"], "front_ratio": 0.39}
+      },
+      "lore": "Project design (GarbageSearch NOSE_IN at a fallen bin; user 2026-11-25 theater feedback: Marisa uses her braid to reach into the bin and rummage). On Marisa braided forms (marisa, marisa_face, marisa_tsumuri), she stops at the bin rim without flattening her face, turns her braid side toward the bin mouth and leans within 8.5 deg while her braid reaches in, sweeps side-to-side (contact..pull), curls onto the find on pull (= impact), lifts it out before her face with an open smile (or confused_small in GarbageSearch if the bin turns out empty) and returns to rest; body and hat stay behind the rim. marisa_bean (braid root y=12.66 sits above hat brim min_y=12.54, rest braid_hat=+0.069, failing gate on swing), marisa_kotatsu (low kotatsu curtain encloses the braid), marisa_sparse (no braid chain weights) and other species keep the mouth nose-in route until step 2. Travel belongs to the motor (Shove/RamContact). Markers: launch, contact, impact and pull (same instant), settled.",
+      "triggers": ["GarbageSearch NOSE_IN at a fallen bin's mouth (activity house_scavenge)"]
     },
     "puff_teary": {
       "label": "噗咕·含泪硬撑",
@@ -8243,9 +8324,10 @@
       "aquatic_hat_care",
       "bank_beckon",
       "water_beckon",
-      "water_swim",
+      "water_flail",
       "water_plunge",
       "water_struggle",
+      "bin_nose_in",
       "water_gasp",
       "water_held_breath",
       "water_bob_lunge",

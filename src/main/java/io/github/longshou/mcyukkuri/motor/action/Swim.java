@@ -65,7 +65,7 @@ public final class Swim implements Action {
     }
 
     @Override public void start(YukkuriEntity body) {
-        strokeClip = body.childhood().canSail() ? YukkuriAction.WATER_SWIM : YukkuriAction.WATER_STRUGGLE;
+        strokeClip = body.childhood().canSail() ? YukkuriAction.WATER_FLAIL : YukkuriAction.WATER_STRUGGLE;
     }
 
     @Override public Progress tick(YukkuriEntity body) {
