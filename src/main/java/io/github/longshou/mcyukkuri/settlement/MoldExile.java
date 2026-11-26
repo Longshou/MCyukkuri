@@ -118,12 +118,13 @@ public final class MoldExile extends Goal implements MotorOwner {
     // The beats of this confrontation, decided at its start. Transient.
     private int noticeEnd;
     private boolean fond, harsh, trudging;
-    private int turnWaited;
     private Verdict childVerdict;
+    private final Departure.Turn myTurn;
 
     public MoldExile(YukkuriEntity entity) {
         this.entity = entity;
-        departure = new Departure(entity, this::myTurn);
+        myTurn = new Departure.Turn(entity, 2 * SIGHT, TURN_CAP);
+        departure = new Departure(entity, myTurn);
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
@@ -516,7 +517,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         entity.getLookControl().setLookAt(peer, 30, 30);
         int answerAt = Math.max(noticeEnd, 1);
         boolean scorn = harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER;
-        if ((ticks == 1 && noticeEnd > 0 || ticks == answerAt || scorn) && !myTurn()) { ticks--; return; }
+        if ((ticks == 1 && noticeEnd > 0 || ticks == answerAt || scorn) && !myTurn.getAsBoolean()) { ticks--; return; }
         if (ticks == 1 && noticeEnd > 0)
             entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", FaceTier.Tier.ofTicks(NOTICE));
         if (ticks == answerAt) answer();
@@ -584,18 +585,6 @@ public final class MoldExile extends Goal implements MotorOwner {
         Vec3 at = peer.position().add(away.scale(peer.getBbWidth()));
         return away.lengthSqr() > 0 && away.dot(peer.position().subtract(home.centre())) >= 0 && SurfaceApproach.stands(peer, at)
                 && SurfaceApproach.dryStep(peer, peer.position(), at);
-    }
-
-    /** Spoken beats take turns: it waits while anyone close by is mid-line, then goes ahead once the wait has run its cap. */
-    private boolean myTurn() {
-        long now = level().getGameTime();
-        if (turnWaited < TURN_CAP && !level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2 * SIGHT),
-                y -> y != entity && y.isAlive() && y.speechEnd() > now).isEmpty()) {
-            turnWaited++;
-            return false;
-        }
-        turnWaited = 0;
-        return true;
     }
 
     private void leave() {

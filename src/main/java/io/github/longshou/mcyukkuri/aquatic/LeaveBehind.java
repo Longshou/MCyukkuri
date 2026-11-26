@@ -17,6 +17,7 @@ import io.github.longshou.mcyukkuri.mind.Ousting;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -220,6 +221,7 @@ final class LeaveBehind implements Intent {
         memo.ordered = true;
         memo.tries = 0;
         child.drivenOut().order(parent, memo.verdict, "boat_overload");
+        if (memo.verdict == Verdict.DRIVE_TEARFUL) Departure.partingCourse(parent, child);
         GameplayLog.event(parent, "family", "overload orders child out child={} verdict={} in_water={}",
                 child.getUUID(), memo.verdict, child.isInWaterOrBubble());
     }
@@ -285,7 +287,7 @@ final class LeaveBehind implements Intent {
         /** A pleader at her feet is turned away (the child's plea then ends); a child that did not plead needs nothing. */
         private Step rebuff() {
             if (!child.drivenOut().pleaderAtParent()) return new Step.Wait(() -> true, 1, null);
-            child.drivenOut().rebuffed();
+            child.drivenOut().rebuffed(memo.verdict == Verdict.DRIVE_COLD);
             if (memo.verdict == Verdict.DRIVE_COLD) {
                 // The shove is a beat of her verdict state: LONG, so it replaces the verdict's hold and renews it.
                 if (parent.showReaction("angry", "", FaceTier.Tier.LONG)) parent.beat("rebuff_shove", "angry", "");

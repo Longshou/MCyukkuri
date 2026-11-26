@@ -62,6 +62,6 @@ class ReactionSpeechTest {
         assertEquals("driven_curse", ReactionSpeech.ousted(Answer.CURSE, false));
         assertEquals("child_curse_parent", ReactionSpeech.ousted(Answer.CURSE, true));
         assertEquals("driven_farewell", ReactionSpeech.ousted(Answer.FAREWELL, false));
-        assertEquals("", ReactionSpeech.ousted(Answer.SHRUG, false));
+        assertEquals("sulk_huff", ReactionSpeech.ousted(Answer.SHRUG, false));
     }
 }

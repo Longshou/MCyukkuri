@@ -49,6 +49,8 @@ public final class Departure {
      *  leads away from her first round a body or a corner) within {@link #APPROACH_STALL} ticks (a young one
      *  crawls about 0.4 blocks a second) and for {@link #APPROACH_CAP} ticks in all (60 s: the 16 blocks she watches it from); then it gives up and turns to go. */
     private static final int APPROACH_STALL = 60, APPROACH_CAP = 1200;
+    /** The temper a shove adds (a pleader with boldness 45 and self-control 70 sits at .23 and flares at .5; one with boldness 30 never does). */
+    private static final double SHOVE_ANGER = .3;
     /** Ticks its turning-away face is kept before a look back may replace it; blocks it must walk before looking back. */
     private static final int TURN_SHOW = 40;
     private static final double LOOK_BACK_WALK = 2.0;
@@ -69,6 +71,30 @@ public final class Departure {
     private boolean resists, pleads, turned, rebuffed;
     private Answer answer;
     private String failure = "";
+
+    /** Lines take turns among neighbours: a beat that speaks waits while anyone within {@code radius} is mid-line, at most {@code cap} asks. */
+    public static final class Turn implements BooleanSupplier {
+        private final YukkuriEntity entity;
+        private final int radius, cap;
+        private int waited;
+
+        public Turn(YukkuriEntity entity, int radius, int cap) {
+            this.entity = entity;
+            this.radius = radius;
+            this.cap = cap;
+        }
+
+        @Override public boolean getAsBoolean() {
+            long now = entity.level().getGameTime();
+            if (waited < cap && !entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(radius),
+                    y -> y != entity && y.isAlive() && y.speechEnd() > now).isEmpty()) {
+                waited++;
+                return false;
+            }
+            waited = 0;
+            return true;
+        }
+    }
 
     /** {@code myTurn} says whether it may speak now (lines take turns); it is asked at the beats that speak. */
     public Departure(YukkuriEntity entity, BooleanSupplier myTurn) {
@@ -136,10 +162,15 @@ public final class Departure {
     /** Whether it is still in the hold of its plea or protest, before it turns to go. */
     public boolean holding() { return ticks <= answerTicks && !turned; }
 
-    /** The driver turned a pleader away: its plea is over after a short moment, and it turns to go. */
-    public void rebuff() {
+    /** The driver turned a pleader away: its plea is over after a short moment, and it turns to go. A shove is a hurt of its own: how
+     *  it answers then is settled again with {@link #SHOVE_ANGER} added to its temper (a bold or quick-tempered pleader flares up, a meek
+     *  or self-controlled one still cries or shrugs). */
+    public void rebuff(boolean shoved) {
         rebuffed = true;
         answerTicks = Math.min(answerTicks, ticks + REBUFF_HOLD);
+        if (!shoved) return;
+        answer = Ousting.answer(entity.life().personality().temperament(), SHOVE_ANGER);
+        if (answer != Answer.FAREWELL) lookBacks = 0;
     }
 
     /** It is not out yet: walks on for {@code blocks} more beyond the range. */
@@ -299,8 +330,14 @@ public final class Departure {
     public static void parted(ServerLevel level, UUID parentId, YukkuriEntity parent, YukkuriEntity child, Verdict verdict, String reason) {
         if (parentId != null) Bonds.sever(level, parentId, parent, child, reason);
         if (parent == null || verdict != Verdict.DRIVE_TEARFUL) return;
-        parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
+        partingCourse(parent, child);
         parting(parent);
+    }
+
+    /** The tearful parent's parting feeling: begun when she gives the order (her face never falls to the default during the watch)
+     *  and renewed when the child is truly gone. */
+    public static void partingCourse(YukkuriEntity parent, YukkuriEntity child) {
+        parent.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, child.getUUID(), child.blockPosition());
     }
 
     /** A home range this individual was driven out of and must not claim, nest in, or stroll back into. */

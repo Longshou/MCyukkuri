@@ -39,7 +39,7 @@ public final class ReactionSpeech {
         return switch (answer) {
             case CURSE -> byGuardian ? "child_curse_parent" : "driven_curse";
             case FAREWELL -> "driven_farewell";
-            case SHRUG -> "";
+            case SHRUG -> "sulk_huff";
         };
     }
 

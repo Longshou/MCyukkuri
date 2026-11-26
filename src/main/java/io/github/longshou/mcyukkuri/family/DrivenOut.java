@@ -37,6 +37,8 @@ public final class DrivenOut extends Goal {
     private static final int WINDOW = 2400, BUDGET = 5000;
     /** The range it is driven out of (blocks round where she stood), the sight it counts as gone from, and the distance that is gone anyway. */
     private static final int RANGE = 7, GONE_NEAR = 8, GONE_FAR = 16, SIBLING_SIGHT = 12, SAY_PRIORITY = 4;
+    /** Lines take turns: its plea or turn waits for a neighbour's line (the parent's verdict) to end, at most this long (ticks); within this range (blocks). */
+    private static final int TURN_CAP = 120, TURN_RANGE = 6;
 
     private final YukkuriEntity entity;
     private final Departure departure;
@@ -53,7 +55,7 @@ public final class DrivenOut extends Goal {
 
     public DrivenOut(YukkuriEntity entity) {
         this.entity = entity;
-        departure = new Departure(entity, () -> true);
+        departure = new Departure(entity, new Departure.Turn(entity, 2 * TURN_RANGE, TURN_CAP));
         setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
@@ -68,7 +70,7 @@ public final class DrivenOut extends Goal {
     /** The pleader stands at her feet and waits for her answer. */
     public boolean pleaderAtParent() { return holding() && departure.atDriver(); }
     /** She turned it away: its plea ends. */
-    public void rebuffed() { departure.rebuff(); }
+    public void rebuffed(boolean shoved) { departure.rebuff(shoved); }
     public String activity() { return phase == Phase.GOING ? departure.activity() : null; }
 
     private YukkuriEntity parent() {

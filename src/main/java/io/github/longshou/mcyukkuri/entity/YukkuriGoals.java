@@ -118,9 +118,10 @@ final class YukkuriGoals {
         goalSelector.addGoal(6, landBinding(PresentationGoals.EMOTION, new EmotionCourse.CourseGoal(owner, 6)));
         goalSelector.addGoal(3, landBinding(PresentationGoals.DEN_SEAL, new DenSeal.FamilyGoal(owner)));
         owner.createMoldExile();
-        goalSelector.addGoal(3, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
+        // An order or sentence addressed to this individual answers above the childhood practice, the life errands and the course goals (3).
+        goalSelector.addGoal(2, landBinding(PresentationGoals.MOLD_EXILE, owner.moldExile()));
         owner.createDrivenOut();
-        goalSelector.addGoal(3, landBinding(PresentationGoals.DRIVEN_OUT, owner.drivenOut()));
+        goalSelector.addGoal(2, landBinding(PresentationGoals.DRIVEN_OUT, owner.drivenOut()));
         // Below the life needs, above every errand: a slave kept in the waste pit stays in it (settlement/PitSlave).
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         homeTerritory = new HomeTerritoryGoal(owner);
