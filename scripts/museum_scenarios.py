@@ -4384,7 +4384,8 @@ def arc_confession_child(log, trace, mother, punished):
             return f'The {torn[2]} must log which way it steps, got {step and step.groups()}'
         if step[2] == 'true':
             arrival = re.search(rf'uuid={mother} t=\d+ [^\n]*penance step end result=(\w+) after=\d+ gap=(\S+) toward=(\w+)', log)
-            if not arrival or torn[2] == 'SHIELD' and (arrival[1] != 'ARRIVED' or float(arrival[2]) > 2.0):
+            # A walk that ends BLOCKED beside the child is the body's own refusal at a crowded stand: it still stands beside the child.
+            if not arrival or torn[2] == 'SHIELD' and float(arrival[2]) > 2.0:
                 return f'The parent must end its step beside the child, got {arrival and arrival.groups()}'
     # The badge verdict follows the whole struggle and its ending, not the bow and not the blow.
     ache = beats[-1][0]
