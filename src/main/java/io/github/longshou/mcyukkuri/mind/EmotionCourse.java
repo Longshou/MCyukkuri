@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
@@ -402,7 +403,7 @@ public final class EmotionCourse {
             case JOY -> peak ? "glow" : "glow_hum";
             case PARTING -> "parting_gaze";
         };
-        entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, 60);
+        entity.showReaction(event.equals("mourn_sob") ? "cry" : stageFace(), event, FaceTier.Tier.MEDIUM);
         return true;
     }
 
@@ -419,8 +420,8 @@ public final class EmotionCourse {
     }
 
     private boolean vow(String event, Lost lost, String style) {
-        if (style.equals("proud")) entity.showReaction(YukkuriAction.PROUD, "satisfied", "", 80);
-        else entity.showReaction("teary_smile", "", 80);
+        if (style.equals("proud")) entity.showReaction(YukkuriAction.PROUD, "satisfied", "", 80, FaceTier.Tier.MEDIUM);
+        else entity.showReaction("teary_smile", "", FaceTier.Tier.MEDIUM);
         boolean spoken = entity.speakCue(event, style);
         GameplayLog.event(entity, "emotion", "grief vow event={} style={} lost={} spoken={}", event, style, lost, spoken);
         return spoken;
@@ -429,7 +430,7 @@ public final class EmotionCourse {
     /** Midway through a fading grief it remembers once: looks around, teary, and says so. */
     private boolean recall() {
         if (!calm()) return false;
-        entity.showReaction("teary", about == null ? "" : "mourn_recall", 80);
+        entity.showReaction("teary", about == null ? "" : "mourn_recall", FaceTier.Tier.MEDIUM);
         return true;
     }
 
@@ -448,7 +449,7 @@ public final class EmotionCourse {
         GameplayLog.event(entity, "emotion", "course ended kind={} length={} about={}", kind.name().toLowerCase(Locale.ROOT), length, about);
         kind = null; strength = 0; length = elapsed = 0; about = null; where = null;
         griefFocus = null;
-        if (closing != null && calm()) entity.showReaction(face, closing, 70);
+        if (closing != null && calm()) entity.showReaction(face, closing, FaceTier.Tier.MEDIUM);
     }
 
     // ---- save --------------------------------------------------------------------------------------------------------------------

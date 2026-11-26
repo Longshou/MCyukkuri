@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.play;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -166,9 +167,11 @@ public final class PlayLife {
         return Math.max(60, (int) Math.round(personality.waitingTicks() * (1.5 + personality.temperament().patient())));
     }
 
-    private void emitBeat(String name, String declaredFace, String line, int holdTicks, PlayBlock.Kind kind) {
+    /** The face first, so the line spoken over it extends its hold (the face never drops to the default before the words end). A beat is
+     *  the performance's own next frame: it replaces its own previous beat whatever the tier. */
+    private void emitBeat(String name, String declaredFace, String line, FaceTier.Tier tier, PlayBlock.Kind kind) {
+        entity.forceReaction(declaredFace, "", tier);
         if (!"none".equals(line)) entity.speakCue(line);
-        entity.showReaction(declaredFace, "", holdTicks);
         pendingBeat = new Beat(name, declaredFace, line, kind);
     }
 
@@ -352,7 +355,7 @@ public final class PlayLife {
 
     private void tickWait() {
         if (entity.outing().onOuting() && entity.outing().calledByOwner()) {
-            emitBeat("called_home", "surprise", "none", 50, waitingFor.kind());
+            emitBeat("called_home", "surprise", "none", FaceTier.Tier.SHORT, waitingFor.kind());
             stopWait("called");
             return;
         }
@@ -392,11 +395,11 @@ public final class PlayLife {
             waitWatching = true;
             String face = entity.dailyLife().boredom() >= 75 ? "sparkle" : "dull";
             String line = entity.life().personality().temperament().patient() >= Temperament.TOP35 ? "wait_turn" : "none";
-            emitBeat("wait_watch", face, line, 50, waitingFor.kind());
+            emitBeat("wait_watch", face, line, FaceTier.Tier.SHORT, waitingFor.kind());
         }
         if (++waitTicks >= waitLimit) {
             double patient = entity.life().personality().temperament().patient();
-            emitBeat("wait_give_up", patient < Temperament.LOW35 ? "hmph" : "dull", "mood_bad", 60, waitingFor.kind());
+            emitBeat("wait_give_up", patient < Temperament.LOW35 ? "hmph" : "dull", "mood_bad", FaceTier.Tier.MEDIUM, waitingFor.kind());
             rememberSkip(gaveUp, waitingFor.getBlockPos());
             stopWait("patience");
         }
@@ -531,7 +534,7 @@ public final class PlayLife {
         String chooseFace = target.kind() == PlayBlock.Kind.POOL && hurt ? "teary"
                 : entity.dailyLife().boredom() >= 60 ? "sparkle" : "happy";
         String chooseLine = target.kind() == PlayBlock.Kind.POOL && hurt ? "none" : firstOrNew ? "toy" : "none";
-        emitBeat("choose_facility", chooseFace, chooseLine, 45, target.kind());
+        emitBeat("choose_facility", chooseFace, chooseLine, FaceTier.Tier.SHORT, target.kind());
         GameplayLog.event(entity, "play", "facility session started kind={} at={} energy={} boredom={}",
                 target.kind(), target.getBlockPos(), entity.life().energy(), entity.dailyLife().boredom());
         return true;
@@ -605,7 +608,7 @@ public final class PlayLife {
         };
         String line = "scared".equals(reason) ? "uneasy" : "none";
         String beat = "called".equals(reason) ? "called_home" : "stop_" + reason;
-        emitBeat(beat, face, line, 50, PlayBlock.Kind.TRAMPOLINE);
+        emitBeat(beat, face, line, FaceTier.Tier.SHORT, PlayBlock.Kind.TRAMPOLINE);
     }
 
     void trampolineBounced() {
@@ -621,9 +624,9 @@ public final class PlayLife {
         } else if (bounces == 3 && !peakVoiced) {
             peakVoiced = true;
             String peakFace = entity.life().personality().temperament().is(Temperament.Gate.BOLD) ? "open_smile" : "happy";
-            emitBeat("peak", peakFace, "glow", 50, PlayBlock.Kind.TRAMPOLINE);
+            emitBeat("peak", peakFace, "glow", FaceTier.Tier.SHORT, PlayBlock.Kind.TRAMPOLINE);
         } else {
-            emitBeat("bounce", "happy", "none", 45, PlayBlock.Kind.TRAMPOLINE);
+            emitBeat("bounce", "happy", "none", FaceTier.Tier.SHORT, PlayBlock.Kind.TRAMPOLINE);
         }
     }
 
@@ -648,7 +651,7 @@ public final class PlayLife {
         if (waiting()) { tickWait(); return; }
         if (active() && entity.outing().onOuting() && entity.outing().calledByOwner() && !springing) {
             stopReason = "called";
-            emitBeat("called_home", "surprise", "none", 50, facility.kind());
+            emitBeat("called_home", "surprise", "none", FaceTier.Tier.SHORT, facility.kind());
             stop();
             return;
         }
@@ -691,7 +694,7 @@ public final class PlayLife {
                     peakVoiced = false;
                     TrampolineMotion.hop(entity);
                     String mountFace = entity.life().personality().temperament().timid() >= Temperament.TOP35 ? "confused" : "happy";
-                    emitBeat("mount", mountFace, "none", 40, PlayBlock.Kind.TRAMPOLINE);
+                    emitBeat("mount", mountFace, "none", FaceTier.Tier.SHORT, PlayBlock.Kind.TRAMPOLINE);
                 }
                 return;
             }
@@ -704,10 +707,10 @@ public final class PlayLife {
         if (!playVoiced && facility.kind() == PlayBlock.Kind.SLIDE && rel == 6) {
             playVoiced = true;
             boolean bold = entity.life().personality().temperament().is(Temperament.Gate.BOLD);
-            emitBeat("play", bold ? "open_smile" : "happy", bold ? "glow" : "none", 45, PlayBlock.Kind.SLIDE);
+            emitBeat("play", bold ? "open_smile" : "happy", bold ? "glow" : "none", FaceTier.Tier.SHORT, PlayBlock.Kind.SLIDE);
         } else if (!playVoiced && facility.kind() == PlayBlock.Kind.CERAMIC && rel == 2) {
             playVoiced = true;
-            emitBeat("play", "happy", "none", 45, PlayBlock.Kind.CERAMIC);
+            emitBeat("play", "happy", "none", FaceTier.Tier.SHORT, PlayBlock.Kind.CERAMIC);
         }
         double arriveDist = waypoint <= entryAt ? .45 : .22;
         // A peer may settle on the few centimetres of the exit aside: the body stands where it is rather than pressing on.
@@ -783,10 +786,10 @@ public final class PlayLife {
             gaveUp.clear();
             if (!PlayWant.wants(entity) || "enough".equals(stopReason) || "tired".equals(stopReason)) {
                 String face = PlayWant.tired(entity) || "tired".equals(stopReason) ? "sleepy" : "satisfied";
-                emitBeat("had_enough", face, "none", 70, kind);
+                emitBeat("had_enough", face, "none", FaceTier.Tier.MEDIUM, kind);
             } else {
                 String dismountFace = "scared".equals(stopReason) ? "teary" : "happy";
-                emitBeat("dismount", dismountFace, "none", 70, kind);
+                emitBeat("dismount", dismountFace, "none", FaceTier.Tier.MEDIUM, kind);
             }
             stop();
             return;
@@ -811,7 +814,7 @@ public final class PlayLife {
             lastPos = entity.position();
             stalled = 0;
             playVoiced = false;
-            emitBeat("go_again", "sparkle", "toy", 50, kind);
+            emitBeat("go_again", "sparkle", "toy", FaceTier.Tier.SHORT, kind);
             var start = route.getFirst();
             entity.getNavigation().moveTo(start.x, start.y, start.z, .9);
             return;
@@ -820,9 +823,9 @@ public final class PlayLife {
         gaveUp.clear();
         if (kind == PlayBlock.Kind.POOL || !PlayWant.wants(entity)) {
             String face = PlayWant.tired(entity) ? "sleepy" : "satisfied";
-            emitBeat("had_enough", face, "none", 70, kind);
+            emitBeat("had_enough", face, "none", FaceTier.Tier.MEDIUM, kind);
         } else {
-            emitBeat("dismount", "happy", "none", 50, kind);
+            emitBeat("dismount", "happy", "none", FaceTier.Tier.SHORT, kind);
         }
         stop();
     }
@@ -847,7 +850,7 @@ public final class PlayLife {
             soakHealth = entity.getHealth(); soakWounds = entity.body().wounds().size();
             soakJuice = facility.juice(); soakUnease = entity.mind().unease();
             if (soakRule != null) entity.pet().conscience().breach(soakRule);
-            emitBeat("play", "closed_smile", "none", 50, PlayBlock.Kind.POOL);
+            emitBeat("play", "closed_smile", "none", FaceTier.Tier.SHORT, PlayBlock.Kind.POOL);
             GameplayLog.event(entity, "play", "tub soak started at={} juice={} health={}/{} wounds={} hygiene={} hurt={} unease={}",
                     facility.getBlockPos(), soakJuice, entity.getHealth(), entity.getMaxHealth(), soakWounds,
                     entity.life().hygiene(), soakHurt, soakUnease);
@@ -881,7 +884,7 @@ public final class PlayLife {
             if (soaking() && soakTicks > 0 && soakTicks < JuiceTub.SOAK_TICKS) soakEnded(false);
             if (log && entity.outing().onOuting() && entity.outing().calledByOwner() && stopReason == null) {
                 stopReason = "called";
-                emitBeat("called_home", "surprise", "none", 50, facility.kind());
+                emitBeat("called_home", "surprise", "none", FaceTier.Tier.SHORT, facility.kind());
             }
             facility.release(entity);
             if (log) {

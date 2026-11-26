@@ -25,7 +25,7 @@ public enum FacePrecedence {
     LEAK,
     /** Pain and spicy food show cry. */
     PAIN,
-    /** The face of a reaction whose line is still being spoken: a beat's face holds until its line has finished. */
+    /** The face of a finished reaction: it holds for its tier (see {@link FaceTier}) and until its line and tail have ended, then calms through milder faces of the same mood. */
     LINGER,
     /** The published emotion course or mind face (grief, rage, joy, frenzy, withering). */
     COURSE,

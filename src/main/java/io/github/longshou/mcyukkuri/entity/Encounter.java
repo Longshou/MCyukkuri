@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.entity;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -38,7 +39,7 @@ public final class Encounter {
     /** Keeper stops at this gap to a yielder still on its line and goes on once it is off the line or past RELEASE (a band in distance, one stop). */
     static final double HOLD = .6, RELEASE = 2;
     /** Failure bounds (ticks): a yielder that does not move, a keeper that stopped walking or does not move; ticks a body keeps a spoken line to itself. */
-    private static final int STUCK = 20, IDLE = 10, STALL = 30, LINE_REST = 200;
+    private static final int STUCK = 20, IDLE = 10, STALL = 30;
     /** The whole encounter's hard bound follows the walk: the slowest honest pace (blocks/tick, a tired body measured 0.034) over the way the yielder walks
      *  and the keeper closes, plus a turn in place per leg (ticks). A far place or a retreat is given the time it takes. */
     private static final double FLOOR_PACE = .03;
@@ -349,24 +350,22 @@ public final class Encounter {
         yielderNav.restarted(); keeperNav.restarted();
         GameplayLog.event(yielder, "move", "encounter begin keeper=#{} yielder=#{} place={} cost=({},{}) reason={} minor={} legs={} gap={} len={}",
                 keeper.getId(), yielder.getId(), retreating ? "none" : GameplayLog.at(legs.getLast()), format(yielderCost), format(keeperCost), reason, minor, legs.size(), format(gap), format(length));
-        long now = yielder.level().getGameTime();
         if (minor) {
-            beat(yielder, yielderNav, "yielder", "shift_aside", eagerness(yielder) > .5 ? "surprise" : "pursed", "", 14, now);
+            beat(yielder, yielderNav, "yielder", "shift_aside", eagerness(yielder) > .5 ? "surprise" : "pursed", "", FaceTier.Tier.SHORT);
         } else {
             boolean timid = eagerness(yielder) > .5;
-            beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", timid ? "busy" : "wait_turn", 30, now);
+            beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", timid ? "busy" : "wait_turn", FaceTier.Tier.MEDIUM);
             // A locked pair's keeper is not passing anyone (it may be asleep or eating): it makes no beat of its own.
-            if (!lock && keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", 20, now);
+            if (!lock && keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", FaceTier.Tier.SHORT);
         }
     }
 
     private static String format(double value) { return Double.isInfinite(value) ? "inf" : String.format(Locale.ROOT, "%.2f", value); }
 
-    /** One visible beat: the face always, the line unless this body already spoke one lately (a busy street does not repeat it). */
-    private void beat(YukkuriEntity body, YukkuriGroundNavigation nav, String role, String name, String face, String line, int ticks, long now) {
-        boolean speak = !line.isEmpty() && now >= nav.lineAfter;
-        boolean shown = body.showReaction(face, speak ? line : "", ticks);
-        if (shown && speak) nav.lineAfter = now + LINE_REST;
+    /** One visible beat: the face, and its line when the speaker's own gap after its last line allows (a busy street does not repeat it). */
+    private void beat(YukkuriEntity body, YukkuriGroundNavigation nav, String role, String name, String face, String line, FaceTier.Tier tier) {
+        boolean speak = !line.isEmpty() && body.quiet();
+        boolean shown = body.showReaction(face, speak ? line : "", tier);
         GameplayLog.event(body, "move", "encounter beat role={} beat={} face={} line={} keeper=#{} yielder=#{}",
                 role, name, shown ? face : "none", shown && speak ? line : "none", keeper.getId(), yielder.getId());
         if (shown && role.equals("yielder")) {

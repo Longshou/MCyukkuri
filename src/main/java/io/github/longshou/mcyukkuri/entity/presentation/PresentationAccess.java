@@ -13,7 +13,7 @@ public interface PresentationAccess {
     String reactionExpression();
     /** The face the REACTION rank offers now ("" when none, or a decorative reaction yielding to a declared activity face). */
     String reactionFace();
-    /** The face of a finished reaction whose line is still being spoken ("" when none). */
+    /** The held or calming face of a finished reaction ("" when none; see {@link FaceTier}). */
     String lingerFace();
     void behavior(String behavior);
     void animation(YukkuriAction action);

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.DrivenOut;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.Commitment;
@@ -156,17 +157,17 @@ final class LeaveBehind implements Intent {
             case KEEP -> {
                 face = "puff_teary";
                 line = memo.ferry ? ReactionSpeech.leftAshore(memo.coldParent) : "keep_child";
-                if (parent.showReaction(face, "", beat)) say(line);
+                if (parent.showReaction(face, "", FaceTier.Tier.LONG)) say(line);
             }
             case DRIVE_TEARFUL -> {
                 face = "puff_teary";
                 line = "drive_child_tearful";
-                if (parent.showReaction(face, "", beat)) say(line);
+                if (parent.showReaction(face, "", FaceTier.Tier.LONG)) say(line);
             }
             default -> {
                 face = "angry";
                 line = "drive_child_cold";
-                if (parent.showReaction(YukkuriAction.MOOD_FLICK, face, "", beat)) say(line);
+                if (parent.showReaction(YukkuriAction.MOOD_FLICK, face, "", beat, FaceTier.Tier.LONG)) say(line);
             }
         }
         parent.beat("verdict", face, line);
@@ -230,9 +231,10 @@ final class LeaveBehind implements Intent {
         memo.reply = Ousting.answer(child.life().personality().temperament());
         boolean swimming = child.isInWaterOrBubble();
         boolean shown = switch (memo.reply) {
-            case CURSE -> swimming ? child.showReaction("angry", "", 60) : child.showReaction(YukkuriAction.STAMP, "angry", "", 60);
-            case FAREWELL -> child.showReaction("cry", "", 60);
-            case SHRUG -> child.showReaction("hmph", "", 40);
+            case CURSE -> swimming ? child.showReaction("angry", "", FaceTier.Tier.MEDIUM)
+                    : child.showReaction(YukkuriAction.STAMP, "angry", "", YukkuriAction.STAMP.durationTicks(), FaceTier.Tier.MEDIUM);
+            case FAREWELL -> child.showReaction("cry", "", FaceTier.Tier.MEDIUM);
+            case SHRUG -> child.showReaction("hmph", "", FaceTier.Tier.MEDIUM);
         };
         // Only the cry after the departing hull is voiced; the sulk and the stamp stay wordless.
         boolean cry = shown && memo.reply == Ousting.Answer.FAREWELL;
@@ -285,15 +287,14 @@ final class LeaveBehind implements Intent {
             if (!child.drivenOut().pleaderAtParent()) return new Step.Wait(() -> true, 1, null);
             child.drivenOut().rebuffed();
             if (memo.verdict == Verdict.DRIVE_COLD) {
-                parent.showReaction("angry", "", 60);
-                parent.beat("rebuff_shove", "angry", "");
+                // The shove is a beat of her verdict state: LONG, so it replaces the verdict's hold and renews it.
+                if (parent.showReaction("angry", "", FaceTier.Tier.LONG)) parent.beat("rebuff_shove", "angry", "");
                 GameplayLog.event(parent, "family", "overload rebuffs pleader child={} how=shove", child.getUUID());
                 var centre = parent.position();
                 return new Step.Do(new Push(child, () -> SHOVE - child.position().subtract(centre).horizontalDistance()));
             }
             turnedBack = true;
-            parent.showReaction("cry", "", 80);
-            parent.beat("rebuff_turn_back", "cry", "");
+            if (parent.showReaction("cry", "", FaceTier.Tier.LONG)) parent.beat("rebuff_turn_back", "cry", "");
             GameplayLog.event(parent, "family", "overload rebuffs pleader child={} how=turn_back", child.getUUID());
             return new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()) + 180));
         }

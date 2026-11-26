@@ -82,11 +82,10 @@ public final class YukkuriGroundNavigation extends GroundPathNavigation {
     private long sampleTick, turnId, turnTick = -1000, steerTick = -1000, stallTick = -1000, goalTick = -1000, scanTick = -1000, encounterScan = -1000;
     private int blockedWindows, turnSide, replans, solidPlanned;
     private final Map<Long, Blocker> blockers = new LinkedHashMap<>();
-    /** The encounter this walker is in (as keeper or yielder), the body it waits for, whether it holds for it now, and the tick before which it speaks no encounter line. */
+    /** The encounter this walker is in (as keeper or yielder), the body it waits for, and whether it holds for it now. */
     Encounter encounter;
     private Entity waitFor;
     private boolean holding;
-    long lineAfter;
     private boolean faceFirst;
     /** The body whose encounter with this one failed: not met again by encounter until their lines stop crossing. */
     Entity shunned;

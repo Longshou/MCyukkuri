@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -49,7 +50,7 @@ public final class Departure {
      *  crawls about 0.4 blocks a second) and for {@link #APPROACH_CAP} ticks in all (60 s: the 16 blocks she watches it from); then it gives up and turns to go. */
     private static final int APPROACH_STALL = 60, APPROACH_CAP = 1200;
     /** Ticks its turning-away face is kept before a look back may replace it; blocks it must walk before looking back. */
-    private static final int TURN_SHOW = 40, WALK_FACE = 40;
+    private static final int TURN_SHOW = 40;
     private static final double LOOK_BACK_WALK = 2.0;
     /** Speech priority for the turning-away line so it is not muted by the plea that just ended. */
     private static final int SAY_PRIORITY = 4;
@@ -65,7 +66,7 @@ public final class Departure {
     private Vec3 destination, outward, turnPos, approachAt;
     private int ticks, nextExit, extra, answerTicks, lookBacks, lookBackTicks, atDriver, approachStall, stall, turnedAt = -TURN_SHOW;
     private double best, approachBest = Double.MAX_VALUE;
-    private boolean resists, pleads, turned, rebuffed, walkNoted;
+    private boolean resists, pleads, turned, rebuffed;
     private Answer answer;
     private String failure = "";
 
@@ -83,7 +84,7 @@ public final class Departure {
         best = 0;
         approachBest = Double.MAX_VALUE;
         approachAt = null;
-        turned = rebuffed = walkNoted = false;
+        turned = rebuffed = false;
         turnedAt = -TURN_SHOW;
         failure = "";
         resists = !terms.repeat() && t.is(Gate.PROTESTS_EXILE);
@@ -151,16 +152,6 @@ public final class Departure {
     /** Whether it has been extended past the range it was driven out of (it keeps walking after the departure is settled). */
     public boolean extended() { return extra > 0; }
 
-    /** The face it wears on the walk out, by how it took the order: the clip's own happy faces never show over a driven one. */
-    public String walkFace() {
-        if (!turned || lookBackTicks > 0 || ticks <= answerTicks) return "";
-        return switch (answer) {
-            case CURSE -> "angry";
-            case FAREWELL -> "teary";
-            case SHRUG -> "hmph";
-        };
-    }
-
     public String activity() {
         return ticks <= answerTicks ? resists ? Behaviors.MOLD_RESIST : Behaviors.MOLD_PLEAD
                 : answer != Answer.FAREWELL ? null : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
@@ -172,7 +163,9 @@ public final class Departure {
         ticks++;
         var driver = terms.driver();
         // A begging or protesting one starts at once, to the face of the one driving it; one that neither begs nor protests just turns to go.
-        if (extra == 0 && (ticks == 1 && answerTicks > 0 && !terms.repeat() || ticks == answerTicks + 1) && !myTurn.getAsBoolean()) {
+        // Each beat that speaks waits for its own last line (and the gap after it) and for its neighbours' turn.
+        if (extra == 0 && (ticks == 1 && answerTicks > 0 && !terms.repeat() || ticks == answerTicks + 1)
+                && !(entity.quiet() && myTurn.getAsBoolean())) {
             ticks--;
             return Status.RUNNING;
         }
@@ -191,21 +184,15 @@ public final class Departure {
         // Looks back at about half way and near the edge of the range (attached ones), the goodbye at the last, once it has actually walked.
         double out = Math.sqrt(entity.position().subtract(terms.centre()).horizontalDistanceSqr()) / terms.radius();
         boolean walked = turnPos == null || entity.position().subtract(turnPos).horizontalDistanceSqr() >= LOOK_BACK_WALK * LOOK_BACK_WALK;
-        if (lookBacks > 0 && walked && ticks - turnedAt >= TURN_SHOW && out >= (lookBacks == 2 ? .45 : .8)) {
+        if (lookBacks > 0 && walked && ticks - turnedAt >= TURN_SHOW && out >= (lookBacks == 2 ? .45 : .8) && entity.quiet()) {
             lookBacks--;
             lookBackTicks = 40 + entity.life().personality().attachment() / 4;
             SurfaceApproach.stopWalking(entity);
             String line = lookBacks == 0 ? "mold_leave" : "";
-            entity.showReaction("teary", line, lookBackTicks);
-            entity.beat("look_back", "teary", line);
+            // The look back keeps the walk's tearful face (a long hold: the turn's own face must not drop to the default mid-walk).
+            if (entity.showReaction("teary", line, FaceTier.Tier.LONG)) entity.beat("look_back", "teary", line);
             GameplayLog.event(entity, terms.category(), "{} looked back left={} out={}", terms.label(), lookBacks, Math.round(out * 100) / 100.0);
             return Status.RUNNING;
-        }
-        // The walk's face is a held reaction (above the running course and every activity face), renewed as it lapses.
-        String face = walkFace();
-        if (!face.isEmpty() && !entity.hasReaction() && entity.showReaction(face, "", WALK_FACE) && !walkNoted) {
-            walkNoted = true;
-            entity.beat("walk_out", face, "");
         }
         int clear = clearRange();
         if (entity.position().subtract(terms.centre()).horizontalDistanceSqr() >= clear * clear
@@ -232,8 +219,8 @@ public final class Departure {
         if (ticks == 1 && !terms.repeat()) {
             String line = resists ? terms.resistLine() == null ? "" : terms.resistLine() : pleads ? "mold_plea" : "";
             String face = resists ? "angry" : "teary";
-            entity.showReaction(face, line, Math.max(answerTicks, 1));
-            entity.beat(resists ? "resist" : pleads ? "plead" : "stare", face, line);
+            // One medium beat; a line longer than the beat keeps the face to its end, and the turn waits for the line (see tick).
+            if (entity.showReaction(face, line, FaceTier.Tier.MEDIUM)) entity.beat(resists ? "resist" : pleads ? "plead" : "stare", face, line);
         }
         if (pleads && terms.approach() && driver != null && !rebuffed && ticks >= APPROACH_AFTER) stepUp(driver);
     }
@@ -280,10 +267,11 @@ public final class Departure {
             case SHRUG -> "hmph";
         };
         String line = ReactionSpeech.ousted(answer, terms.byGuardian());
+        // The turn's face is one hold for the whole walk out (calming after it), not a renewal loop.
         boolean shown = switch (answer) {
-            case CURSE -> entity.showReaction(YukkuriAction.STAMP, "angry", "", 60);
-            case FAREWELL -> entity.showReaction("cry", "", 40);
-            case SHRUG -> entity.showReaction("hmph", "", 40);
+            case CURSE -> entity.showReaction(YukkuriAction.STAMP, "angry", "", YukkuriAction.STAMP.durationTicks(), FaceTier.Tier.LONG);
+            case FAREWELL -> entity.showReaction("cry", "", FaceTier.Tier.LONG);
+            case SHRUG -> entity.showReaction("hmph", "", FaceTier.Tier.MEDIUM);
         };
         boolean spoken = !line.isEmpty() && shown && entity.speakCue(line, null, SAY_PRIORITY);
         entity.beat("turn_away", face, spoken ? line : "");
@@ -342,7 +330,7 @@ public final class Departure {
     /** The one who stays shows the parting face at once (over whatever a passing reaction still wears) and the beat records what is shown. */
     public static void parting(YukkuriEntity stays) {
         String face = EmotionCourse.onsetFace(EmotionCourse.Kind.PARTING);
-        stays.showReaction(face, "", 60);
+        stays.forceReaction(face, "", FaceTier.Tier.MEDIUM);
         stays.beat("parting_begins", face, "");
     }
 

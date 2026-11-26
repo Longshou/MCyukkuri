@@ -26,7 +26,9 @@ import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
 import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.component.LoadContext;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceMood;
 import io.github.longshou.mcyukkuri.entity.presentation.FacePrecedence;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationAccess;
 import io.github.longshou.mcyukkuri.entity.presentation.Moments;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationArbiter;
@@ -232,8 +234,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private int panicTicks;
     private final ShellRetraction shellRetraction = new ShellRetraction(this);
     private int reactionTicks;
-    /** The running reaction is held: nothing replaces it before it has run its ticks (a startle that must be seen whole). */
-    private boolean reactionHeld;
     private final SpeechTiming speechTiming = new SpeechTiming();
     /** Up to 16 distinct spoken keys, oldest first. */
     private static final int SPEECH_MEMORY = 16;
@@ -244,9 +244,19 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private String reactionEvent = "";
     /** The running reaction is a decorative flourish (see {@link FacePrecedence}): its face yields to a declared activity face. */
     private boolean reactionDecorative;
-    /** The face of the last signal reaction, kept until its line has finished (the arbiter's LINGER rank). */
-    private String lingerFace = "";
-    private long lingerUntil;
+    /**
+     * The hold behind the face of the last signal reaction (the arbiter's LINGER rank, see {@link FaceTier}): the face stays until
+     * {@code holdEnd} (the tier hold, floored by the line spoken over it), then calms through {@code calming} for {@code fadeLen}
+     * ticks, ending at {@code fadeEnd}. A bound performance (its clip owns the length) is replaced by nothing but pain and danger.
+     */
+    private FaceTier.Tier faceTier = FaceTier.Tier.SHORT;
+    private boolean faceBound;
+    private long holdEnd, fadeEnd;
+    private int fadeLen;
+    private String holdFace = "";
+    private List<String> calming = List.of();
+    /** Whether it was asleep or dying on the last tick: a hold ends when either begins. */
+    private boolean faceQuiet;
     private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
     private DelayedCue pendingSpeech;
     private int pendingSpeechTicks, pendingSpeechFloor;
@@ -304,7 +314,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void interrupt(InterruptContext context, InterruptPhase phase) {
         // Pain and danger end a held reaction: whatever they show next is not dropped.
         if (context.reason() == Interrupt.FRIGHT || context.reason() == Interrupt.HURT || context.reason() == Interrupt.BURNING
-                || context.reason() == Interrupt.DEATH) reactionHeld = false;
+                || context.reason() == Interrupt.DEATH) faceBound = false;
         // A flight with the young bound to this parent (ParentCarry#bound) is not cut by a fright pulse: fear shows in face, voice and speed.
         if (context.reason() == Interrupt.FRIGHT && family.carry().bound()) return;
         components.interrupt(context, phase);
@@ -916,10 +926,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!firstReactionTick && reactionTicks > 0 && --reactionTicks == 0 && reactionAfter != null) {
             var follow = reactionAfter;
             var event = reactionEvent;
+            holdEnd = fadeEnd = 0; // the clip it followed is over: its follow-up is shown over its own hold
+            faceBound = false;
             showReaction(follow, reactionExpression, "");
             setAnimation(follow, true);
             reactionEvent = event;
-            reactionHeld = true;
+            faceBound = true;
         }
         if (!firstReactionTick && pendingSpeechTicks > 0 && --pendingSpeechTicks == 0) {
             var cue = pendingSpeech;
@@ -930,7 +942,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             if (cue.action() == null) {
                 boolean first = cue.event().equals("newborn");
                 String words = first ? family.firstWords() : cue.event();
-                boolean said = speak(words, first && words.equals("hello") ? "young" : speechTier(), false, null, floor);
+                boolean said = speak(words, first && words.equals("hello") ? "young" : speechTier(), null, floor);
                 if (said && first) BirthStaging.greeting(this);
                 if (cue.result() != null) cue.result().accept(said);
             } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
@@ -940,6 +952,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (!isAlive()) return;
         components.tick(ComponentSpec.TickPhase.AFTER_ALIVE_CHECK);
         if (reactionTicks > 0 && reactionEvent.equals("need_tell") && !status().reactions().allowsNeedTell()) cancelReaction();
+        boolean faceEnds = life().isSleeping() || body().dying();
+        if (faceEnds && !faceQuiet) endFaceHold();
+        faceQuiet = faceEnds;
         // A shove or the neighbour-separation shift is contact, not travel: it must not flip a standing clip to the walk.
         boolean driven = drivenThisTick;
         boolean passive = !driven && (motor.contact.recoiling() || motor.contact.pushedThisTick(level().getGameTime()));
@@ -965,9 +980,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** A death in the family before its eyes (a newborn lost at birth, a kin dying in sight): a blank stare, then crying and calling out (bereaved clip). */
     public void bereave(EmotionEvent loss, UUID lost, BlockPos where) {
         if (level().isClientSide) return;
-        reactionTicks = 100; reactionHeld = true; reactionExpression = "surprise"; reactionEvent = "birth_lost"; mind.felt(loss);
-        reactionDecorative = false; lingerUntil = 0;
-        reactionAction = reactionAfter = null;
+        startReaction("surprise", "birth_lost", 100, FaceTier.Tier.MEDIUM, 100);
+        faceBound = true;
+        mind.felt(loss);
         pendingSpeech = new DelayedCue("family_died", null, null); pendingSpeechTicks = 32;
         mind.feeling().mourn(lost, where);
     }
@@ -991,11 +1006,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     public boolean showReactionDelayed(YukkuriAction action, String expression, String event, int ticks, int speechDelayTicks,
                                        YukkuriAction follow, java.util.function.Consumer<Boolean> spoken) {
-        if (level().isClientSide || held() && !urgent(event)) return false;
+        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(ticks), urgent(event))) return false;
+        startReaction(expression, event, ticks);
         reactionAction = action;
         reactionAfter = follow;
-        reactionTicks = ticks; reactionHeld = action != null; reactionExpression = expression; reactionEvent = event == null ? "" : event;
-        reactionDecorative = false; lingerUntil = 0;
+        faceBound = action != null;
         pendingSpeech = new DelayedCue(reactionEvent, action, spoken); pendingSpeechTicks = Math.max(1, speechDelayTicks);
         pendingSpeechFloor = 0;
         if (action != null) {
@@ -1008,7 +1023,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void showNeedTell(YukkuriAction action, String face, int ticks) {
         startReaction(face, "need_tell", ticks);
         reactionAction = action;
-        reactionDecorative = true; // a need tell is an ambient cue: a hunting predator keeps its hunt face over its hunger tell
+        decorate(); // a need tell is an ambient cue: a hunting predator keeps its hunt face over its hunger tell
     }
 
     public boolean hasReaction() { return reactionTicks > 0 && !reactionEvent.equals("need_tell"); }
@@ -1019,8 +1034,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
     public boolean reactingTo(String event) { return reactionTicks > 0 && reactionEvent.equals(event); }
     public void cancelReaction() {
-        reactionTicks = 0; lingerUntil = 0;
+        reactionTicks = 0;
+        endFaceHold();
         reactionAction = reactionAfter = null;
+    }
+
+    /** The hold and its calming end now, and nothing guards the next face. */
+    private void endFaceHold() {
+        holdEnd = fadeEnd = 0;
+        holdFace = "";
+        faceBound = false;
+        if (reactionTicks > 0) reactionExpression = "";
     }
 
     /** An ordinary reaction pose. Movement, active contact and danger can still take priority. */
@@ -1028,15 +1052,26 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return showReaction(action, expression, dialogue, Math.max(1, (int) Math.ceil(action.duration() * 20)));
     }
 
+    /** Temporary: the literal is the clip's length and, mapped by {@link FaceTier.Tier#ofTicks}, the face's tier. */
+    @Deprecated
     public boolean showReaction(YukkuriAction action, String expression, String dialogue, int ticks) {
         if (!showReaction(expression, dialogue, ticks)) return false;
         reactionAction = action;
         return true;
     }
 
+    /** A clip of {@code clipTicks} with a face of the given tier: the clip owns the reaction ticks, the face's hold goes on after it. */
+    public boolean showReaction(YukkuriAction action, String expression, String dialogue, int clipTicks, FaceTier.Tier tier) {
+        if (level().isClientSide || !displaces(tier, urgent(dialogue))) return false;
+        startReaction(expression, dialogue, clipTicks, tier, personalHold(tier, expression));
+        speak(reactionEvent);
+        reactionAction = action;
+        return true;
+    }
+
     /** A reaction with a timed line at the start of the clip. */
     public void showReactionCue(YukkuriAction action, String expression, String event) {
-        if (level().isClientSide || held() && !urgent(event)) return;
+        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(action.durationTicks()), urgent(event))) return;
         startReaction(expression, event, action.durationTicks());
         reactionAction = action;
         speakCue(event);
@@ -1049,17 +1084,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean showAmbient(String expression, String dialogue, int ticks) {
         if (ambientDropped(expression)) return false;
         if (!showReaction(expression, dialogue, ticks)) return false;
-        reactionDecorative = true;
-        lingerUntil = 0; // only a signal's face lingers through its line
+        decorate(); // only a signal's face lingers through its line
         return true;
     }
 
     /** As {@link #showAmbient(String, String, int)}, as a clip with a timed line at its start. */
     public boolean showAmbientCue(YukkuriAction action, String expression, String event) {
-        if (ambientDropped(expression) || level().isClientSide || held() && !urgent(event)) return false;
+        if (ambientDropped(expression) || level().isClientSide
+                || !displaces(FaceTier.Tier.ofTicks(action.durationTicks()), urgent(event))) return false;
         showReactionCue(action, expression, event);
-        reactionDecorative = true;
-        lingerUntil = 0;
+        decorate();
         return true;
     }
 
@@ -1076,13 +1110,28 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean firstWaking() { return reactionTicks > 0 && "newborn".equals(reactionEvent); }
     /** A reaction and its line; while a held one runs it is dropped, unless it is pain or danger ({@link #forceReaction}).
      *  An empty or {@code null} dialogue is a face-only reaction: it shows the face and says nothing. */
+    public boolean showReaction(String expression, String dialogue, FaceTier.Tier tier) {
+        if (level().isClientSide || !displaces(tier, urgent(dialogue))) return false;
+        forceReaction(expression, dialogue, tier);
+        return true;
+    }
+    /** Temporary: a literal tick count maps to its tier by {@link FaceTier.Tier#ofTicks}; the callers move to the tier form. */
+    @Deprecated
     public boolean showReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide || held() && !urgent(dialogue)) return false;
+        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(ticks), urgent(dialogue))) return false;
         forceReaction(expression, dialogue, ticks);
         return true;
     }
     /** A reaction that ends any held one (pain, danger, panic); its line is spoken, or nothing when it has none
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
+    public void forceReaction(String expression, String dialogue, FaceTier.Tier tier) {
+        if (level().isClientSide) return;
+        int hold = personalHold(tier, expression);
+        startReaction(expression, dialogue, hold, tier, hold);
+        speak(reactionEvent);
+    }
+    /** Temporary, as {@link #showReaction(String, String, int)}: the literal is the reaction's ticks, its tier the neutral mapping. */
+    @Deprecated
     public void forceReaction(String expression, String dialogue, int ticks) {
         if (level().isClientSide) return;
         startReaction(expression, dialogue, ticks);
@@ -1103,17 +1152,48 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     public void struckReaction(YukkuriAction action, String face, String line, int ticks) {
         reactionStartedAt = level().getGameTime();
-        startReaction(face, line, ticks);
-        speak(line, speechTier(), false, null, NativeDialogue.priority("wounded"));
+        startReaction(face, line, ticks, FaceTier.Tier.ofTicks(ticks), ticks);
+        speak(line, speechTier(), null, NativeDialogue.priority("wounded"));
         reactionAction = action;
-        reactionHeld = true;
+        faceBound = true;
         setAnimation(action, true);
     }
 
+    /** A reaction of a literal length: its face holds exactly that long (plus the line floor and the calming), in the tier that length sits in. */
     private void startReaction(String expression, String dialogue, int ticks) {
+        startReaction(expression, dialogue, ticks, FaceTier.Tier.ofTicks(ticks), ticks);
+    }
+
+    /** The one place a reaction and its face hold begin: the reaction rank shows {@code ticks}, the hold (at least as long) goes on in LINGER, then calms. */
+    private void startReaction(String expression, String dialogue, int ticks, FaceTier.Tier tier, int hold) {
         reactionAction = reactionAfter = null;
-        reactionTicks = ticks; reactionHeld = false; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
-        reactionDecorative = false; lingerUntil = 0;
+        reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
+        reactionDecorative = false;
+        faceTier = tier; faceBound = false; holdFace = expression;
+        holdEnd = level().getGameTime() + Math.max(ticks, hold);
+        calming = FaceMood.calming(expression, tier);
+        fadeLen = calming.isEmpty() ? 0 : FaceTier.fade(Math.max(ticks, hold));
+        fadeEnd = holdEnd + fadeLen;
+    }
+
+    /** The tier's hold for this individual: its range shifted by the traits the face's mood leans on, +-10% by its own hash. */
+    private int personalHold(FaceTier.Tier tier, String face) {
+        var p = life().personality();
+        float lean = FaceTier.lean(FaceMood.of(face), p.attachment(), p.selfControl(), p.boldness(), p.friendliness());
+        return FaceTier.hold(tier, lean, getUUID().hashCode());
+    }
+
+    /** An ambient flourish: its face is shortest of all, never lingers, and never clips a beat. */
+    private void decorate() {
+        reactionDecorative = true;
+        faceTier = FaceTier.Tier.SHORT;
+        holdEnd = fadeEnd = 0;
+    }
+
+    /** Whether a reaction of this tier may replace what is shown now: anything urgent, anything over a hold that has run out, else a tier not lower than the running one (a bound performance is never replaced). */
+    private boolean displaces(FaceTier.Tier incoming, boolean urgent) {
+        if (urgent || reactionTicks <= 0 && level().getGameTime() >= holdEnd) return true;
+        return !faceBound && FaceTier.replaces(faceTier, incoming);
     }
     public void forceReaction(YukkuriAction action, String expression, String dialogue) {
         forceReaction(expression, dialogue, action.durationTicks());
@@ -1122,23 +1202,22 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** The same reaction, held for all its ticks: any reaction but pain or danger shown meanwhile is dropped, so the face cannot
      *  flip back and forth. */
     public void holdReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide || held()) return;
-        forceReaction(expression, dialogue, ticks);
-        reactionHeld = true;
+        if (level().isClientSide || faceBound && (reactionTicks > 0 || level().getGameTime() < holdEnd)) return;
+        startReaction(expression, dialogue, ticks, FaceTier.Tier.ofTicks(ticks), ticks);
+        faceBound = true;
+        speak(reactionEvent);
     }
     /** A clip, face and line a bound performance owns for its ticks: it replaces whatever reaction runs, and ordinary reactions
      *  shown meanwhile are dropped (pain and danger still win). Returns whether the line was voiced. */
     public boolean holdReaction(YukkuriAction action, String expression, String dialogue, int ticks) {
         if (level().isClientSide) return false;
         cancelReaction();
-        startReaction(expression, dialogue, ticks);
-        // A timed cue like the other owner-facing performances (PetScenes.say): it is not refused for a line still fading out.
+        startReaction(expression, dialogue, ticks, FaceTier.Tier.ofTicks(ticks), ticks);
         boolean voiced = speakCue(reactionEvent, null, 2);
         reactionAction = action;
-        reactionHeld = true;
+        faceBound = true;
         return voiced;
     }
-    private boolean held() { return reactionHeld && reactionTicks > 0; }
     /** Pain and danger, the reactions a held one gives way to: the hurt line and the urgent speech classes (wounds, fright, loss). */
     private static boolean urgent(String event) { return event != null && (event.equals("hurt") || NativeDialogue.priority(event) >= 3); }
 
@@ -1189,20 +1268,23 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public boolean speakCue(String event, String style, int priorityFloor) {
-        boolean spoken = speak(event, speechTier(), true, style, priorityFloor);
+        boolean spoken = speak(event, speechTier(), style, priorityFloor);
         if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
         return spoken;
     }
 
     /** Say a line of this event in the given voice tier (its fallback chain as {@link NativeDialogue#select}). */
     public boolean speak(String event, String tier) {
-        return speak(event, tier, false, null, 0);
+        return speak(event, tier, null, 0);
     }
 
-    /** Ordinary speech takes turns locally; important reactions bypass the shared quiet gap. A retry is staggered without
-     *  consuming the ecology/behaviour random stream. */
-    private boolean admitSpeech(long now, int priority, boolean timedCue) {
-        if (!speechTiming.canSpeak(now, priority, timedCue)) return false;
+    /** Whether it is between lines: none running and the gap after the last one over (a beat that must be heard waits for this). */
+    public boolean quiet() { return speechTiming.idle(level().getGameTime()); }
+
+    /** Ordinary speech takes turns locally; only urgent lines (wounds, fright, loss) bypass the gap after the last line. A retry is
+     *  staggered without consuming the ecology/behaviour random stream. */
+    private boolean admitSpeech(long now, int priority, boolean urgent) {
+        if (!speechTiming.canSpeak(now, priority, urgent)) return false;
         if (priority < 2 && !level().getEntitiesOfClass(YukkuriEntity.class,
                 getBoundingBox().inflate(NEARBY_RADIUS), other -> other != this && other.isAlive()
                         && distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
@@ -1213,14 +1295,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return true;
     }
 
-    private boolean speak(String event, String tier, boolean timedCue, String style, int priorityFloor) {
+    private boolean speak(String event, String tier, String style, int priorityFloor) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
         long now = level().getGameTime();
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-            if (!admitSpeech(now, priority, timedCue)) return false;
+            if (!admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return false;
             speechTiming.begin(now, 40, priority);
             showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
             return true;
@@ -1228,7 +1310,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         event = mind.voice(event); // a broken mind can only scream
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
         int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-        if (choices.isEmpty() || !admitSpeech(now, priority, timedCue)) return false;
+        if (choices.isEmpty() || !admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return false;
         var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, style == null ? speechStyle() : style, recentSpeech,
                 nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
         speechTiming.begin(now, line.ticks(), priority);
@@ -1237,10 +1319,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     private void showSpeech(String event, String key, String tier, long now) {
-        // A beat's face holds at least until the line spoken over it has finished (the LINGER rank), then the course or rest face takes over.
-        if (reactionTicks > 0 && !reactionDecorative && !reactionExpression.isEmpty()) {
-            lingerFace = reactionExpression;
-            lingerUntil = speechTiming.end();
+        // A beat's face holds at least until the line spoken over it has finished and its tail (LINGER rank); a line spoken while it
+        // calms keeps the calmer face to the same end instead of bringing the hot one back.
+        if (!reactionDecorative && !holdFace.isEmpty()) {
+            long end = speechTiming.end() + faceTier.tail(), nowTick = level().getGameTime();
+            if (nowTick < holdEnd || reactionTicks > 0) {
+                holdEnd = Math.max(holdEnd, end);
+                fadeEnd = holdEnd + fadeLen;
+            } else if (nowTick < fadeEnd) fadeEnd = Math.max(fadeEnd, end);
         }
         recentSpeech.remove(key);
         if (recentSpeech.size() == SPEECH_MEMORY) recentSpeech.removeFirst();
@@ -1386,7 +1472,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
             return reactionTicks > 0 && !reactionExpression.isEmpty()
                     && FacePrecedence.reactionOffers(reactionDecorative, !activityFace().isEmpty()) ? reactionExpression : "";
         }
-        @Override public String lingerFace() { return reactionTicks == 0 && level().getGameTime() < lingerUntil ? lingerFace : ""; }
+        @Override public String lingerFace() {
+            long now = level().getGameTime();
+            if (reactionTicks > 0 || now >= fadeEnd) return "";
+            if (now < holdEnd) return holdFace;
+            // A running emotion course takes over from the hold without a calming of its own.
+            if (mind.feeling().face() != null) return "";
+            return calming.get(Math.min(calming.size() - 1, (int) ((now - holdEnd) * calming.size() / fadeLen)));
+        }
         @Override public void behavior(String behavior) { setBehavior(behavior); }
         @Override public void animation(YukkuriAction action) { setAnimation(action, false); }
         @Override public void animationId(String animation) { sync().animationId(animation); }
