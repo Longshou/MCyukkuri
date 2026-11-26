@@ -9599,7 +9599,22 @@ for _scene, _verify in (('street_corridor', _encounter_verify(50, 25, who=_corri
 _doll_marisa = _uuid_text(_doll_carry, 'doll_marisa')
 _doll_reimu = _uuid_text(_doll_carry, 'doll_reimu')
 _KEEPSAKE_BEAT_RE = re.compile(
-    r'\[keepsake\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*beat=(\w+) face=(\w+) declared=(\w+) line=(\w+) where=(\w+) dolls=(\d+)(.*)')
+    r'\[keepsake\][^\n]*uuid=([0-9a-f-]{36}) t=(\d+)[^\n]*beat=(\w+) shown=(\w+) declared=(\w+)'
+    r'(?: held_by=(\S+)(?: tier=(\w+))? held_face=(\w+))? line=(\w+) where=(\w+) dolls=(\d+)(.*)')
+
+
+def _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face):
+    """A beat shows what it declared, unless a logged live hold or course stage owns the shown face: then shown must be its own face."""
+    if shown == declared:
+        return None
+    if not held_by:
+        return f'face mismatch on {beat}: shown={shown} declared={declared}'
+    if held_face != shown:
+        return (f'face mismatch on {beat}: shown={shown} declared={declared} '
+                f'held_by={held_by} tier={tier} held_face={held_face}')
+    if tier is not None and tier not in ('SHORT', 'MEDIUM', 'LONG'):
+        return f'{beat}: held_by={held_by} with an unknown tier={tier}'
+    return None
 
 
 def _keepsake_set_down_problem(tail):
@@ -9623,9 +9638,10 @@ def _verify_doll_carry(window):
     pick_tick = None
     set_tick = None
     for m in beats:
-        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
-        if face != declared:
-            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        u, t, beat, shown, declared, held_by, tier, held_face, line, where, dolls, tail = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return problem
         if int(dolls) != 1:
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u == _doll_reimu and beat in ('notice', 'pick_up', 'carry', 'set_down'):
@@ -9654,10 +9670,10 @@ def _verify_doll_carry(window):
 
 
 _smoke(_doll_carry, 1200, [
-    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=notice face=sparkle declared=sparkle line=toy where=ground dolls=1\b',
-    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=pick_up face=happy declared=happy line=mine where=mouth dolls=1\b',
-    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=carry face=\w+ declared=\w+ line=none where=mouth dolls=1\b',
-    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=notice shown=sparkle declared=sparkle line=toy where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=pick_up shown=happy declared=happy line=mine where=mouth dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=carry shown=\w+ declared=\w+ line=none where=mouth dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_doll_marisa} [^\n]*beat=set_down shown=satisfied declared=satisfied line=thing_san where=bed dolls=1\b',
 ])
 next(s for s in S if s.id == _doll_carry).smoke.update(verify=_verify_doll_carry)
 
@@ -9668,9 +9684,10 @@ _int_hungry = _uuid_text(_doll_interrupt, 'int_hungry')
 def _verify_doll_interrupt(window):
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     for m in beats:
-        _, _, beat, face, declared, _, _, dolls, tail = m.groups()
-        if face != declared:
-            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        _, _, beat, shown, declared, held_by, tier, held_face, _, _, dolls, tail = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return problem
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if beat == 'set_down':
@@ -9720,9 +9737,10 @@ def _verify_doll_comfort_sleep(window):
     done_ok = False
     sleep_ok = False
     for m in beats:
-        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
-        if face != declared:
-            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        u, t, beat, shown, declared, held_by, tier, held_face, line, where, dolls, tail = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return problem
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u == _bold_reimu:
@@ -9770,10 +9788,10 @@ def _verify_doll_comfort_sleep(window):
 
 
 _smoke(_doll_comfort, 1600, [
-    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=ask face=open_smile declared=open_smile line=want_nuzzle where=ground dolls=2\b',
-    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=2\b',
-    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=done face=satisfied declared=satisfied line=nuzzle_done where=ground dolls=2 comfort=\d+->\d+\b',
-    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=(?:ground|bed) dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=ask shown=open_smile declared=open_smile line=want_nuzzle where=ground dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=rub shown=closed_smile declared=closed_smile line=nuzzle where=ground dolls=2\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=done shown=satisfied declared=satisfied line=nuzzle_done where=ground dolls=2 comfort=\d+->\d+\b',
+    rf'\[keepsake\][^\n]*uuid={_comfort_reimu} [^\n]*beat=sleep shown=sleep declared=sleep line=sleep where=(?:ground|bed) dolls=2\b',
     rf'\[daily\][^\n]*uuid={_paired_marisa} [^\n]*session reserved kind=NUZZLE companion={_paired_peer}\b',
 ])
 next(s for s in S if s.id == _doll_comfort).smoke.update(verify=_verify_doll_comfort_sleep)
@@ -9790,9 +9808,10 @@ def _verify_doll_talk(window):
     by_actor = {_talk_reimu: [], _dull_marisa: []}
     holds = {}
     for m in beats:
-        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
-        if face != declared:
-            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        u, t, beat, shown, declared, held_by, tier, held_face, line, where, dolls, tail = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return problem
         if int(dolls) != 3:
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u == _clever_marisa and beat in ('address', 'offer', 'eat_on'):
@@ -9823,12 +9842,12 @@ def _verify_doll_talk(window):
 
 
 _smoke(_doll_talk, 1200, [
-    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=address face=happy declared=happy line=doll_talk where=ground dolls=3\b',
-    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=offer face=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
-    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=eat_on face=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
-    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=address face=happy declared=happy line=doll_talk where=ground dolls=3\b',
-    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=offer face=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
-    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=eat_on face=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=address shown=happy declared=happy line=doll_talk where=ground dolls=3\b',
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=offer shown=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_talk_reimu} [^\n]*beat=eat_on shown=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=address shown=happy declared=happy line=doll_talk where=ground dolls=3\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=offer shown=happy declared=happy line=share where=mouth dolls=3 hold=\d+ food=1\b',
+    rf'\[keepsake\][^\n]*uuid={_dull_marisa} [^\n]*beat=eat_on shown=satisfied declared=satisfied line=none where=mouth dolls=3 food=1\b',
 ])
 next(s for s in S if s.id == _doll_talk).smoke.update(verify=_verify_doll_talk)
 
@@ -9842,9 +9861,10 @@ def _verify_doll_comfort_friend(window):
         return 'no [keepsake] beat lines logged'
     rubs, dones = [], []
     for m in beats:
-        u, t, beat, face, declared, line, where, dolls, tail = m.groups()
-        if face != declared:
-            return f'face mismatch on {beat}: shown={face} declared={declared}'
+        u, t, beat, shown, declared, held_by, tier, held_face, line, where, dolls, tail = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return problem
         if int(dolls) != 1:
             return f'doll conservation broken on {beat}: dolls={dolls}'
         if u != _friend_reimu:
@@ -9879,8 +9899,8 @@ def _verify_doll_comfort_friend(window):
 
 
 _smoke(_friend_scene, 540, [
-    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask face=open_smile declared=open_smile line=want_nuzzle where=ground dolls=1\b',
-    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=rub face=closed_smile declared=closed_smile line=nuzzle where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=ask shown=open_smile declared=open_smile line=want_nuzzle where=ground dolls=1\b',
+    rf'\[keepsake\][^\n]*uuid={_friend_reimu} [^\n]*beat=rub shown=closed_smile declared=closed_smile line=nuzzle where=ground dolls=1\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*doll comfort interrupted friend={_friend_marisa} contactTicks=\d+ affectionNeed=\d+ handedOver=true\b',
     rf'\[daily\][^\n]*uuid={_friend_reimu} [^\n]*greet face turn to={_friend_marisa} ',
 ])
@@ -9925,7 +9945,7 @@ def _verify_doll_snatch(window):
     """Both lanes: the taker claims and takes the doll it may not take in its mouth, and the robbed body shows the reaction of its
     own temper and answers by its own nature. The bold child's puff is answered by a puff back that interrupts the carry, so that
     taker puts the doll down where it stands (and may take it home later, its own business); the timid child flees and its taker
-    carries the doll home to the nest. One claim and one grab each, faces as declared, doll count 2 throughout, and the pair's own
+    carries the doll home to the nest. One claim and one grab each, each face as declared or as the logged hold that refused it, doll count 2 throughout, and the pair's own
     numbers start the bout at the first scan after the start hold."""
     beats = list(_KEEPSAKE_BEAT_RE.finditer(window))
     if not beats:
@@ -9936,16 +9956,17 @@ def _verify_doll_snatch(window):
         return 'no hold release line to time the claim'
     released = max(releases)
     for m in beats:
-        u, _, beat, face, declared, _, _, dolls, _ = m.groups()
-        if face != declared:
-            return f'{u} showed {face} on {beat}, declared {declared}'
+        u, _, beat, shown, declared, held_by, tier, held_face, _, _, dolls, _ = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return f'{u}: {problem}'
         if int(dolls) != 2:
             return f'doll conservation broken on {beat}: dolls={dolls}'
 
     def lane(thief, victim, robbed_face, decision, answer_face, answer_line, homeward):
         # (tick, beat, face, line, where, tail); every beat once, so a second grab would show here too.
-        mine = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == thief]
-        theirs = [(int(m[2]), m[3], m[4], m[6], m[7], m[9]) for m in beats if m[1] == victim]
+        mine = [(int(m[2]), m[3], m[4], m[9], m[10], m[12]) for m in beats if m[1] == thief]
+        theirs = [(int(m[2]), m[3], m[4], m[9], m[10], m[12]) for m in beats if m[1] == victim]
         for name in ('claim', 'grab'):
             rows = [r for r in mine if r[1] == name]
             if len(rows) != 1:
@@ -10017,16 +10038,16 @@ def _verify_doll_snatch(window):
 
 _smoke(_doll_snatch, 6400, [
     r'\[social\][^\n]*bout reserved kind=BULLY peer=',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=claim face=smug declared=smug line=mine where=peer ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=grab face=smug declared=smug line=none where=ground dolls=2 ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=claim shown=smug declared=smug line=mine where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=grab shown=smug declared=smug line=none where=ground dolls=2 ',
     rf'\[social\][^\n]*uuid={_snatch_victim_a} [^\n]*aftermath what=doll taker={_snatch_thief_a} face=angry ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed face=angry declared=angry line=treasure_stolen where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer face=cheek_puff declared=cheek_puff line=puff where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed shown=angry declared=angry line=treasure_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer shown=cheek_puff declared=cheek_puff line=puff where=peer ',
     rf'\[body\][^\n]*uuid={_snatch_thief_a} [^\n]*mouth drop item=mcyukkuri:reimu_doll count=1 purpose=KEEPSAKE ',
     rf'\[social\][^\n]*uuid={_snatch_victim_b} [^\n]*aftermath what=doll taker={_snatch_thief_b} face=teary ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed face=teary declared=teary line=treasure_stolen where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer face=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down face=satisfied declared=satisfied line=thing_san where=bed ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed shown=teary declared=teary line=treasure_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer shown=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down shown=satisfied declared=satisfied line=thing_san where=bed ',
 ], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike '])
 next(s for s in S if s.id == _doll_snatch).smoke.update(verify=_verify_doll_snatch)
 
@@ -10044,9 +10065,10 @@ def _verify_doll_take(window):
     if not beats:
         return 'no [keepsake] beat lines logged'
     for m in beats:
-        u, _, beat, face, declared, _, _, _, _ = m.groups()
-        if face != declared:
-            return f'{u} showed {face} on {beat}, declared {declared}'
+        u, _, beat, shown, declared, held_by, tier, held_face, _, _, _, _ = m.groups()
+        problem = _keepsake_beat_problem(beat, shown, declared, held_by, tier, held_face)
+        if problem:
+            return f'{u}: {problem}'
     seen = {}
     for m in beats:
         seen.setdefault(m[1], []).append(m)
@@ -10057,23 +10079,23 @@ def _verify_doll_take(window):
         _take_stray: [('pickup_taken', 'angry', 'treasure_stolen', 'ground', 0)],
     }
     for who, want in expect.items():
-        got = [(m[3], m[4], m[6], m[7], int(m[8])) for m in seen.get(who, ())]
+        got = [(m[3], m[4], m[9], m[10], int(m[11])) for m in seen.get(who, ())]
         if got != want:
             return f'{who}: beats {got}, expected {want}'
         for m in seen[who]:
-            if m[3] == 'pickup_missed' and not re.search(r'\bat=\([-0-9.]+,[-0-9.]+,[-0-9.]+\)', m[9]):
-                return f'{who}: pickup_missed does not name where it looked: {m[9]}'
-            if m[3].startswith('pickup_') and m[3] != 'pickup_missed' and f'player={_TOOL_OPERATOR}' not in m[9]:
-                return f'{who}: {m[3]} does not name the player who took it: {m[9]}'
+            if m[3] == 'pickup_missed' and not re.search(r'\bat=\([-0-9.]+,[-0-9.]+,[-0-9.]+\)', m[12]):
+                return f'{who}: pickup_missed does not name where it looked: {m[12]}'
+            if m[3].startswith('pickup_') and m[3] != 'pickup_missed' and f'player={_TOOL_OPERATOR}' not in m[12]:
+                return f'{who}: {m[3]} does not name the player who took it: {m[12]}'
 
 
 _smoke(_doll_take, 1200, [
-    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=sleep face=sleep declared=sleep line=sleep where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=pickup_missed face=sad declared=sad line=none where=ground dolls=0 ',
-    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=pickup_missed face=confused declared=confused line=none where=ground dolls=0 ',
-    rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*beat=pickup_owner face=teary declared=teary line=none where=ground dolls=1 ',
-    rf'\[keepsake\][^\n]*uuid={_take_stray} [^\n]*beat=pickup_taken face=angry declared=angry line=treasure_stolen where=ground dolls=0 ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=sleep shown=sleep declared=sleep line=sleep where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=sleep shown=sleep declared=sleep line=sleep where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_a} [^\n]*beat=pickup_missed shown=sad declared=sad line=none where=ground dolls=0 ',
+    rf'\[keepsake\][^\n]*uuid={_take_sleep_b} [^\n]*beat=pickup_missed shown=confused declared=confused line=none where=ground dolls=0 ',
+    rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*beat=pickup_owner shown=teary declared=teary line=none where=ground dolls=1 ',
+    rf'\[keepsake\][^\n]*uuid={_take_stray} [^\n]*beat=pickup_taken shown=angry declared=angry line=treasure_stolen where=ground dolls=0 ',
 ], forbid=[rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
 _take_commands = [(100, 'execute positioned ~2.6 ~ ~6.5 run yukkuri scenario tool_operator enter'),
                   *((101, f'execute as @p[name=MuseumOperator,distance=..48] run {line}') for line in own('take_owner'))]

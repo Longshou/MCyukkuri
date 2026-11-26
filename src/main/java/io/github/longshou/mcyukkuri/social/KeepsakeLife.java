@@ -120,18 +120,21 @@ public final class KeepsakeLife implements MotorOwner {
     private ItemStack carried() { return mouth().stack(Purpose.KEEPSAKE); }
     private ServerLevel level() { return (ServerLevel) entity.level(); }
 
-    /** Logs each keepsake beat on the exact tick with the actual face published by {@code PresentationArbiter}. */
+    /** Logs each keepsake beat on the exact tick with the actual face published by {@code PresentationArbiter}, and the hold that refused its own face when one did. */
     public void observeFace(String shown) {
         if (pendingBeat == null) return;
         var beat = pendingBeat;
         pendingBeat = null;
+        var hold = shown.equals(beat.declared()) ? null : entity.faceHold(shown);
+        String held = hold == null ? "" : " held_by=" + hold.source()
+                + (hold.tier() == null ? "" : " tier=" + hold.tier()) + " held_face=" + hold.face();
         int dolls = Keepsakes.countNearbyDolls(level(), entity.position(), 32);
         if (beat.detail().isEmpty()) {
-            GameplayLog.event(entity, "keepsake", "beat={} face={} declared={} line={} where={} dolls={}",
-                    beat.name(), shown, beat.declared(), beat.line(), beat.where(), dolls);
+            GameplayLog.event(entity, "keepsake", "beat={} shown={} declared={}{} line={} where={} dolls={}",
+                    beat.name(), shown, beat.declared(), held, beat.line(), beat.where(), dolls);
         } else {
-            GameplayLog.event(entity, "keepsake", "beat={} face={} declared={} line={} where={} dolls={} {}",
-                    beat.name(), shown, beat.declared(), beat.line(), beat.where(), dolls, beat.detail());
+            GameplayLog.event(entity, "keepsake", "beat={} shown={} declared={}{} line={} where={} dolls={} {}",
+                    beat.name(), shown, beat.declared(), held, beat.line(), beat.where(), dolls, beat.detail());
         }
     }
 

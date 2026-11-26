@@ -711,7 +711,10 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE) { daily.comfort(nuzzleComfort); daily.nuzzles++; }
         else if (kind == Kind.SING) { daily.entertained(30); daily.comfort(5); daily.songs++; }
         else { daily.entertained(30); daily.exercises++; e.life().finishExercise(); }
-        e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED); e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", FaceTier.Tier.SHORT);
+        e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED);
+        // The face and the line are separate writes: the line is said even when a running hold refuses the satisfied face.
+        e.showReaction("satisfied", "", FaceTier.Tier.SHORT);
+        e.speakCue(kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done");
         GameplayLog.limited(e,"daily","completed."+kind,1200,
                 "session result kind={} affectionNeed={} -> {} boredom={} -> {} energy={} -> {} exerciseReliefTicks={}",
                 kind,affectionBefore,daily.affection,boredomBefore,daily.boredom,energyBefore,e.life().energy(),e.life().exerciseReliefTicks());

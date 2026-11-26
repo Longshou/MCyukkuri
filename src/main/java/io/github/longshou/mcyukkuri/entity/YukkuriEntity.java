@@ -1033,6 +1033,37 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private long reactionStartedAt = -1;
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }
     public boolean reactingTo(String event) { return reactionTicks > 0 && reactionEvent.equals(event); }
+
+    /** A live hold or a running emotion course whose own face is the one shown, for a beat that asked for another face: its source, tier (none for a course stage) and face; null when neither shows {@code shown}. */
+    public FaceHold faceHold(String shown) {
+        if (shown.isEmpty()) return null;
+        String source = reactionEvent.isEmpty() ? "hold" : reactionEvent;
+        if (reactionFace().equals(shown)) return new FaceHold(source, faceTier, shown);
+        if (lingerFace().equals(shown)) return new FaceHold(source, faceTier, shown);
+        var feeling = mind.feeling();
+        if (shown.equals(feeling.face())) return new FaceHold("course:" + feeling.kind() + ":" + feeling.stage(), null, shown);
+        return null;
+    }
+
+    /** What holds a shown face instead of a beat's declared one: the reaction event, the hold itself, or a course stage; its tier and face. */
+    public record FaceHold(String source, FaceTier.Tier tier, String face) {}
+
+    /** The reaction slot's own face, when the precedence order would show it (an ambient one yields to a declared activity face). */
+    private String reactionFace() {
+        return reactionTicks > 0 && !reactionExpression.isEmpty()
+                && FacePrecedence.reactionOffers(reactionDecorative, !activityFace().isEmpty()) ? reactionExpression : "";
+    }
+
+    /** The face a finished hold calms through, before an emotion course takes the face back. */
+    private String lingerFace() {
+        long now = level().getGameTime();
+        if (reactionTicks > 0 || now >= fadeEnd) return "";
+        if (now < holdEnd) return holdFace;
+        // A running emotion course takes over from the hold without a calming of its own.
+        if (mind.feeling().face() != null) return "";
+        return calming.get(Math.min(calming.size() - 1, (int) ((now - holdEnd) * calming.size() / fadeLen)));
+    }
+
     public void cancelReaction() {
         reactionTicks = 0;
         endFaceHold();
@@ -1183,6 +1214,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void forceReaction(YukkuriAction action, String expression, String dialogue) {
         if (level().isClientSide) return;
         startReaction(expression, dialogue, action.durationTicks());
+        speak(reactionEvent);
+        reactionAction = action;
+    }
+    /** A forced clip of the action's length with a face of the given tier: the clip plays for its length, the face holds for the tier. */
+    public void forceReaction(YukkuriAction action, String expression, String dialogue, FaceTier.Tier tier) {
+        if (level().isClientSide) return;
+        int hold = personalHold(tier, expression);
+        startReaction(expression, dialogue, action.durationTicks(), tier, hold);
         speak(reactionEvent);
         reactionAction = action;
     }
@@ -1429,7 +1468,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     void resetLoadedCommands() {
         requestedAction = null;
-        panicTicks = reactionTicks = 0;
+        panicTicks = 0;
+        endFaceHold();
+        reactionTicks = 0;
         shellRetraction.reset();
     }
 
@@ -1455,18 +1496,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         @Override public int reactionTicks() { return reactionTicks; }
         @Override public String reactionEvent() { return reactionEvent; }
         @Override public String reactionExpression() { return reactionExpression; }
-        @Override public String reactionFace() {
-            return reactionTicks > 0 && !reactionExpression.isEmpty()
-                    && FacePrecedence.reactionOffers(reactionDecorative, !activityFace().isEmpty()) ? reactionExpression : "";
-        }
-        @Override public String lingerFace() {
-            long now = level().getGameTime();
-            if (reactionTicks > 0 || now >= fadeEnd) return "";
-            if (now < holdEnd) return holdFace;
-            // A running emotion course takes over from the hold without a calming of its own.
-            if (mind.feeling().face() != null) return "";
-            return calming.get(Math.min(calming.size() - 1, (int) ((now - holdEnd) * calming.size() / fadeLen)));
-        }
+        @Override public String reactionFace() { return YukkuriEntity.this.reactionFace(); }
+        @Override public String lingerFace() { return YukkuriEntity.this.lingerFace(); }
         @Override public void behavior(String behavior) { setBehavior(behavior); }
         @Override public void animation(YukkuriAction action) { setAnimation(action, false); }
         @Override public void animationId(String animation) { sync().animationId(animation); }

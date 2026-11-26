@@ -267,13 +267,14 @@ public final class Departure {
             case SHRUG -> "hmph";
         };
         String line = ReactionSpeech.ousted(answer, terms.byGuardian());
-        // The turn's face is one hold for the whole walk out (calming after it), not a renewal loop.
-        boolean shown = switch (answer) {
-            case CURSE -> entity.showReaction(YukkuriAction.STAMP, "angry", "", YukkuriAction.STAMP.durationTicks(), FaceTier.Tier.LONG);
-            case FAREWELL -> entity.showReaction("cry", "", FaceTier.Tier.LONG);
-            case SHRUG -> entity.showReaction("hmph", "", FaceTier.Tier.MEDIUM);
-        };
-        boolean spoken = !line.isEmpty() && shown && entity.speakCue(line, null, SAY_PRIORITY);
+        // The turn's face is one forced hold for the whole walk out (calming after it), not a renewal loop: the performance's
+        // own beat is not refused by a reaction of another writer.
+        switch (answer) {
+            case CURSE -> entity.forceReaction(YukkuriAction.STAMP, "angry", "", FaceTier.Tier.LONG);
+            case FAREWELL -> entity.forceReaction("cry", "", FaceTier.Tier.LONG);
+            case SHRUG -> entity.forceReaction("hmph", "", FaceTier.Tier.MEDIUM);
+        }
+        boolean spoken = !line.isEmpty() && entity.speakCue(line, null, SAY_PRIORITY);
         entity.beat("turn_away", face, spoken ? line : "");
         // The walk out starts on this one hold (no renewal loop): log the beat the scene checks for its face.
         entity.beat("walk_out", face, "");
