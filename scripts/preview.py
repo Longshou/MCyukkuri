@@ -507,8 +507,12 @@ def capture(args, stage):
     sheet(samples, labels, stage/'contact.png', args.columns)
     write_json(stage/'frames.json', dict(source=str(directory), compare=str(other) if other else None,
                frames=[dict(tick=r['tick'], duration=d) for r, d in zip(rows, durations)]))
+    video = media('capture.mp4', '左：当前输入；右：对比输入' if other else '1 倍速', loop=True)
+    if args.decision:
+        # A user preview plays the real-speed video only; the contact sheet and crops stay for self-checks.
+        return video
     body = f'<p>{len(rows)} 帧；tick {rows[0]["tick"]}–{rows[-1]["tick"]}；按 tick 间隔 / 20 秒播放，末帧 1 tick。</p>'
-    body += media('capture.mp4', '左：当前输入；右：对比输入' if other else '1 倍速') + media('contact.png', '帧号与实际 tick')
+    body += video + media('contact.png', '帧号与实际 tick')
     body += '<a href="frames.json">帧与时长数据</a>'
     if args.crop or args.zoom != 1:
         body += '<p>原尺寸裁切／缩放帧：</p>' + ' '.join(f'<a href="frame-{i:03d}-tick-{r["tick"]:06d}.png">{r["tick"]}</a>' for i, r in enumerate(rows, start=1))
@@ -529,6 +533,9 @@ def motion(args, stage):
     body = ''
     for key, title, pattern in [('storyboard', '分镜', 'storyboard*.png'), ('animatic', '动态分镜', 'animatic.gif'),
                                 ('strip', '真实片段渲染条', 'strip.png'), ('capture', '游戏截图／录像', 'capture*.png')]:
+        if args.decision and key == 'strip':
+            # A registered user preview shows playback only; the strip stays in the topic folder for self-checks.
+            continue
         value = getattr(args, key)
         paths = [Path(v) for v in value] if value else sorted(existing.glob(pattern))
         body += f'<h2>{title}</h2>'
@@ -980,6 +987,10 @@ def main():
                 raise ValueError('--draft-clip needs --model and no --before')
             if args.command == 'strip' and args.face and args.face_preset and not args.before:
                 raise ValueError('--face only applies to the old side of --before when --face-preset is given')
+            if args.command == 'strip' and args.decision:
+                raise ValueError('strip renders a self-check frame strip; user previews use video or viewer')
+            if args.command == 'faces' and args.decision:
+                raise ValueError('faces renders self-check contact sheets; user previews use video or viewer')
             if args.command == 'capture' and (args.zoom <= 0 or args.count < 2):
                 raise ValueError('zoom must be positive and count at least 2')
             if args.command == 'video' and (args.fps < 1 or min(args.size) < 1):
