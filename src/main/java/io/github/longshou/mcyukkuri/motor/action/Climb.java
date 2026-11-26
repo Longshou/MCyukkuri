@@ -28,6 +28,8 @@ public final class Climb implements Action {
     private static final double HOST_SPEED = .1, GRIP_ANGLE = 45, CLEAR = .05, HOLD = .3;
     /** Energy a strained scramble over a bank edge above the plain climb rise costs (a stroke of Beckon costs 1; a hop 1): paid at the start. */
     public static final float STRAIN_COST = 5;
+    /** Share of the pull spent rising straight up beside the edge; the rest arches over it once the body has cleared {@code top}. */
+    private static final double RISE = .32;
 
     private final SurfaceHost host;
     private BodyAbility ability;
@@ -151,20 +153,16 @@ public final class Climb implements Action {
                 : speed > HOST_SPEED ? String.format(Locale.ROOT, "host_speed=%.3f", speed) : null;
     }
 
-    /** A share {@code f} along the pull: one smooth arc up and over the brim/edge into the stand, clearing {@code top} before crossing the rim. */
+    /** A share {@code f} along the pull: straight up beside the edge until the body has cleared {@code top}, then one smooth arch over the brim/edge into the stand. */
     private Vec3 along(double f) {
         double q = Math.clamp(f, 0, 1);
-        double h = q * q * (3 - 2 * q);
-        double x = from.x + (stand.x - from.x) * h;
-        double z = from.z + (stand.z - from.z) * h;
-        double arch = (CLEAR / (host == null ? 1 : host.frame().unit())) * 1.2 * Math.sin(Math.PI * q);
-        double y;
-        if (q <= 0.32) {
-            y = from.y + (top - from.y) * Math.sin((q / 0.32) * (Math.PI / 2)) + arch;
-        } else {
-            double v = (q - 0.32) / 0.68;
-            y = top + (stand.y - top) * (v * v) + arch;
+        if (q <= RISE) {
+            double u = q / RISE;
+            return new Vec3(from.x, from.y + (top - from.y) * Math.sin(u * Math.PI / 2), from.z);
         }
-        return new Vec3(x, y, z);
+        double v = (q - RISE) / (1 - RISE);
+        double h = v * v * (3 - 2 * v);
+        double arch = (CLEAR / (host == null ? 1 : host.frame().unit())) * 1.2 * Math.sin(Math.PI * v);
+        return new Vec3(from.x + (stand.x - from.x) * h, top + (stand.y - top) * (v * v) + arch, from.z + (stand.z - from.z) * h);
     }
 }
