@@ -3595,7 +3595,9 @@ _PENANCE_BEAT = re.compile(r'\[rules\][^\n]*? t=(\d+) [^\n]*penance beat=(\w+) f
 _PLEASED_OR_POUTING = {'happy', 'open_smile', 'satisfied', 'smug', 'closed_smile', 'pursed', 'angry', 'cheek_puff', 'puff', 'sneer',
                        'hmph', 'blank_happy', 'flushed_smile', 'sukkiri_grin', 'sukkiri_smug'}
 _PENANCE_LINES = {'startle': '-', 'bow': 'confess|confess_mate|exam_sorry', 'mutter': 'sulk_huff', 'afraid': '-', 'plea': 'plea_spare', 'apology': 'caught_guilty',
-                  'prostrate': '-', 'shiver': '-', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'request_thanks', 'withdraw': '-'}
+                  'prostrate': '-', 'shiver': '-', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'request_thanks', 'withdraw': '-',
+                  # The answer came through the child: the struggle, how it ends, and the silent ache that follows.
+                  'torn': '-', 'shield': 'protect_taunt', 'plead': 'plea_spare', 'submit': '-', 'flee': '-', 'ache': '-'}
 
 
 def _penance_beats(window, entrance, rule, pet=None):
@@ -4334,17 +4336,96 @@ def arc_confession(log, trace, mother):
     return _pleased_between(trace, int(admission[1]), withdraw, mother)
 
 
+_STRUGGLE_BEAT = {'SHIELD': 'shield', 'PLEAD': 'plead', 'SUBMIT': 'submit', 'ESCAPE': 'flee'}
+
+
+def arc_confession_child(log, trace, mother, punished):
+    """The owner answers the confession through the child (a stroke, or a scold and a flick): one verdict that names the child, the
+    forwarded treatment logged, then a pardon at once, or one struggle that ends by the parent's own numbers and a silent ache."""
+    problem = arc_response(log, 'confess', 'confession', mother)
+    if problem:
+        return problem
+    admission = re.search(rf'uuid={mother} t=(\d+) [^\n]*arc spoke=confess\b', log)
+    if not admission:
+        return 'Missing admission from the mother'
+    verdicts = re.findall(rf'uuid={mother} t=(\d+) [^\n]*penance verdict=(\w+) by=(\w+) phase=\w+ after=\d+ via=(\w+) child=(\S+)', log)
+    if len(verdicts) != 1 or verdicts[0][3] != 'child' or verdicts[0][4] == '-':
+        return f'Expected one penance verdict that names the treated child, got {verdicts}'
+    answer, verdict, by = int(verdicts[0][0]), verdicts[0][1], verdicts[0][2]
+    treated = re.findall(rf'uuid={mother} t=\d+ [^\n]*penance child treated child={verdicts[0][4]} verdict=(\w+) blow=\w+ taken=true', log)
+    if not treated or treated[0] != verdict:
+        return f'The treatment of the child must reach the penance as {verdict}, got {treated}'
+    beats = _penance_beats(log, 'CONFESSION', 'secret_brood', mother)
+    names = [b[1] for b in beats]
+    if not punished:
+        problem = _penance_problem(beats, ['bow'], ['forgiven'])
+        if problem or verdict != 'FORGIVEN' or by != 'stroke':
+            return problem or f'A stroke on the child must be the pardon, got {verdict} by {by}'
+        if 'torn' in names:
+            return f'A pardon must not struggle: {names}'
+        focus = re.search(rf'uuid={mother} t=\d+ [^\n]*penance beat=forgiven [^\n]*focus=(\w+)', log)
+        if not focus or focus[1] != 'child':
+            return f'The pardoned parent must turn to the child it is thankful for, got {focus and focus[1]}'
+        return _pleased_between(trace, int(admission[1]), _answer_tick(log), mother)
+    if verdict != 'PUNISHED' or by not in ('scold', 'blow'):
+        return f'A scold or blow on the child must be the punishment, got {verdict} by {by}'
+    problem = _penance_problem(beats, ['bow'], ['ache'])
+    if problem:
+        return problem
+    torn = re.search(rf'uuid={mother} t=(\d+) [^\n]*penance torn choice=(\w+) child=\S+ guard=\S+ trust=\S+ shield=\S+ plead=\S+ escape=\S+ ticks=(\d+)', log)
+    if not torn or names.count('torn') != 1 or names[-3:] != ['torn', _STRUGGLE_BEAT[torn[2]], 'ache'] or set(names[1:-3]) - {'prostrate', 'shiver'}:
+        return f'Expected waiting, one struggle, its ending and the ache; got {names} and {torn and torn.groups()}'
+    began, ticks = beats[-3][0], int(torn[3])
+    if not 60 <= ticks <= 120 or abs(beats[-2][0] - began - ticks) > 4 or answer > began:
+        return f'The struggle must follow the answer and last its {ticks} ticks, got verdict {answer}, beats {[b[:2] for b in beats[-3:]]}'
+    if torn[2] in ('SHIELD', 'ESCAPE'):
+        step = re.search(rf'uuid={mother} t=\d+ [^\n]*penance step toward=(\w+) stand=(\w+)', log)
+        if not step or step[1] != ('child' if torn[2] == 'SHIELD' else 'away'):
+            return f'The {torn[2]} must log which way it steps, got {step and step.groups()}'
+        if step[2] == 'true':
+            arrival = re.search(rf'uuid={mother} t=\d+ [^\n]*penance step end result=(\w+) after=\d+ gap=(\S+) toward=(\w+)', log)
+            if not arrival or torn[2] == 'SHIELD' and (arrival[1] != 'ARRIVED' or float(arrival[2]) > 2.0):
+                return f'The parent must end its step beside the child, got {arrival and arrival.groups()}'
+    # The badge verdict follows the whole struggle and its ending, not the bow and not the blow.
+    ache = beats[-1][0]
+    stamps = [int(t) for t in re.findall(r' t=(\d+) [^\n]*disqualified cause=confession', log)]
+    if not stamps or min(stamps) < began or max(stamps) > ache + 4:
+        return f'The confession verdict {stamps} must come with the ending of the struggle ({began}..{ache})'
+    release = re.search(rf'\[duty\][^\n]*uuid={mother} t=(\d+) [^\n]*released kind=RULES end=(\w+) why=(\w+)', log)
+    if not release or release[2] != 'DONE' or release[3] not in ('punished_child_scold', 'punished_child_blow'):
+        return f'The duty must end done with the child punished, got {release and release.groups()}'
+    return _pleased_between(trace, int(admission[1]), ache, mother)
+
+
+def _answer_child(sid, child):
+    """The stand-in owner answers once the mother has stood beside them for about forty ticks (the bow is over and she lies low), through
+    the child: a stroke, or a scold and then a flick. Each act repeats until it is accepted and then never again; nothing moves the child."""
+    steps = [(1, f'scoreboard players set #cf_{name} museum 0') for name in ('near', 'done', 'flick')]
+    for tick in range(20, 790, 4):
+        steps.append((tick, f'execute as {sel("pet")} at @s if entity @a[name=MuseumOperator,distance=..1.9] run scoreboard players add #cf_near museum 1'))
+        act = 'rub' if sid == 'arc_confess_pat' else 'cold'
+        steps.append((tick + 1, f'execute if score #cf_near museum matches 10.. if score #cf_done museum matches 0 store result score #cf_done museum '
+                                f'run yukkuri scenario care_click {child} {act}'))
+        if sid == 'arc_confess_hit':
+            steps.append((tick + 2, f'execute if score #cf_near museum matches 18.. if score #cf_flick museum matches 0 store result score #cf_flick museum '
+                                    f'run yukkuri scenario care_click {child} flick'))
+    return steps
+
+
 for sid, title, description, traits, child_pos in (
     ('arc_hide', '躲在遮挡后喂孩子', '站在屏风左边等灵梦躲开，看它在另一边把食物嚼成糜喂给孩子。绕过去才有机会看清亲缘。', dict(friendliness=100), '~3.5 ~ ~1.5'),
     ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
     ('arc_confess', '聪明的坦白求饶', '面对聪明又依恋主人的灵梦，等它走近鞠躬，请你饶过孩子。', dict(intelligence=80, attachment=80), '~4.5 ~ ~3.5'),
+    ('arc_confess_pat', '坦白后摸摸孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，在照料菜单里摸摸它背后的孩子，看灵梦把这当作原谅。', dict(intelligence=80, attachment=80), '~4.5 ~ ~-5.5'),
+    ('arc_confess_hit', '坦白后训打孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，当着它的面训斥再弹打它背后的孩子，看灵梦在孩子和你之间怎么挣扎。', dict(intelligence=80, attachment=80), '~4.5 ~ ~-5.5'),
     ('arc_naive', '带着孩子找主人炫耀', '面对灵梦，看它朝你走来，回头向自己的孩子笑，邀你一起油库里。', dict(intelligence=30), '~3.5 ~ ~0.5'),
 ):
     mother_id = _uuid_text(sid, 'mother')
     hide = sid == 'arc_hide'
     # The confessing mother wanders a little before the owner is seen: her side of the screen keeps a block of margin from the sight line.
-    props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide else [box(2, 0, -1, 8, 2, -1, 'minecraft:oak_planks')] if sid == 'arc_confess' else []
-    ticks = 600 if hide else 800 if sid == 'arc_confess' else 320
+    confess = sid.startswith('arc_confess')
+    props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide else [box(2, 0, -1, 8, 2, -1, 'minecraft:oak_planks')] if confess else []
+    ticks = 600 if hide else 800 if confess else 320
     owner_pos = '~1.5 ~ ~-2.5' if sid == 'arc_naive' else '~0.5 ~ ~-4.5'
     smoke = dict(ticks=ticks,
                  commands=[(1, f'execute positioned {owner_pos} run yukkuri scenario tool_operator enter'),
@@ -4364,20 +4445,30 @@ for sid, title, description, traits, child_pos in (
         if not hide:
             smoke['verify'] = arc_exchange
     else:
-        style, line, cause = ('CONFESS', 'confess', 'confession') if sid == 'arc_confess' else ('NAIVE', 'sukkiri_naive', 'naive_introduction')
+        style, line, cause = ('CONFESS', 'confess', 'confession') if confess else ('NAIVE', 'sukkiri_naive', 'naive_introduction')
         smoke.update(expect=[rf'uuid={mother_id} .*arc style={style}', rf'uuid={mother_id} .*arc spoke={line}\b',
                              *(rf'disqualified cause={cause} .*parent={_uuid_text(sid, role)} .*observed=40' for role in ('mother', 'father'))],
                      forbid=[rf'disqualified cause=(?!{cause}\b)', r'penance abandoned'],
                      verify=lambda log, line=line, cause=cause, mother=mother_id: arc_response(log, line, cause, mother))
-        if sid == 'arc_confess':
+        if confess:
             # The observer keeps facing the mother while she gets ready to come (as a player watching her would), so the
             # confession does not depend on where the harness left the observer's view.
-            facing = [(t, f'tp @a[name=MuseumOperator,distance=..32] {owner_pos} facing entity {sel("pet")} eyes') for t in range(13, 261, 10)]
+            # (Where the owner answers through the child, they stop facing her once she stands beside them: the stroke steps them away.)
+            hold = '' if sid == 'arc_confess' else 'execute unless score #cf_near museum matches 1.. run '
+            facing = [(t, f'{hold}tp @a[name=MuseumOperator,distance=..32] {owner_pos} facing entity {sel("pet")} eyes') for t in range(13, 261, 10)]
             # The operator may not be selectable on the very first ticks: the (idempotent) ownership writes are repeated.
             owning = [(t, f'execute as @a[name=MuseumOperator,distance=..32] run {command}') for t in (6, 10, 20)
                       for role in ('pet', 'father') for command in own(role)]
             smoke.update(verify_trace=True, verify=lambda log, trace, mother=mother_id: arc_confession(log, trace, mother),
                          commands=sorted([*smoke['commands'], *facing, *owning], key=lambda command: command[0]))
+            if sid != 'arc_confess':
+                # The answer is the owner's treatment of the child behind them, so the child is theirs too, and the mother must not take
+                # the witness path (her penance owns the answer).
+                owned_child = [(t, f'execute as @a[name=MuseumOperator,distance=..32] run {command}') for t in (60, 100, 140, 180, 220) for command in own('child')]
+                punished = sid == 'arc_confess_hit'
+                smoke.update(verify=lambda log, trace, mother=mother_id, punished=punished: arc_confession_child(log, trace, mother, punished),
+                             forbid=[*smoke['forbid'], rf'\[punishment\][^\n]*uuid={mother_id} [^\n]*witness victim='],
+                             commands=sorted([*smoke['commands'], *owned_child, *_answer_child(sid, sel('child'))], key=lambda command: command[0]))
     add(sid, 'town', title, title, description, '安静等候约半分钟',
         [box(-5, -1, -6, 14, -1, 7, 'minecraft:grass_block'), box(-5, 0, -6, 14, 3, 7, 'minecraft:air'),
          *props, *shed(0, 5), block(2, 0, 5, 'mcyukkuri:yukkuri_nest'),
@@ -9430,7 +9521,7 @@ TOPICS = {
     'certify_bronze': 'M5', 'certify_silver_pass': 'M5', 'certify_silver_fail': 'M5', 'certify_platinum_talent': 'M5',
     'badge_counter_reissue': 'M5', 'badge_plaza': 'M5', 'badge_plaza_stray': 'M5', 'badge_confiscate': 'M5',
     'exam_caught': 'M5', 'brood_unseen': 'M5',
-    'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_naive': 'M5',
+    'arc_hide': 'M5', 'arc_lie': 'M5', 'arc_confess': 'M5', 'arc_confess_pat': 'M5', 'arc_confess_hit': 'M5', 'arc_naive': 'M5',
     'rule_song_hold': 'M5', 'rule_song_sneak': 'M5', 'rule_eat_wait': 'M5', 'rule_eat_caught': 'M5', 'rule_eat_struck': 'M5', 'rule_yard': 'M5', 'elope': 'M5', 'elope_leave': 'M5',
     'airborne': 'R8', 'house_health': 'R9',
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',

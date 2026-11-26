@@ -4,25 +4,36 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import java.util.Set;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * The one bound performance of owning a fault in front of the owner, used by every house rule and both entrances: being caught
  * (the pet freezes, stops what it was doing and is startled) and confessing (it walked up and bowed by itself). After the opening
  * the pet lies low and shivers while it waits for the owner's answer: a stroke forgives, a scold or a blow punishes, silence leaves
- * it to withdraw uneasily. Obedience, attachment, fear and boldness pick the posture, the lines and how long it waits. Driven by
+ * it to withdraw uneasily. Obedience, attachment, fear and boldness pick the posture, the lines and how long it waits. When the
+ * answer comes through the pet's own young (the owner scolds or strikes the child, or strokes it), a stroke is the same pardon, and a
+ * punishment first makes the parent torn between guarding the child and trusting the owner ({@link StruggleOdds}). Driven by
  * {@link ConscienceGoal}; it owns the pet's face, clip and line from start to end and hands the body back to self-drive.
  */
 public final class Penance {
     public enum Entrance { CAUGHT, CONFESSION }
     public enum Verdict { FORGIVEN, PUNISHED }
-    private enum Phase { STARTLE, MUTTER, PLEA, BOW, WAIT, AFRAID, RESOLVE, DONE }
+    private enum Phase { STARTLE, MUTTER, PLEA, BOW, WAIT, AFRAID, TORN, ACT, RESOLVE, DONE }
 
     private static final int STARTLE_TICKS = 14, MUTTER_TICKS = 40, AFRAID_TICKS = 24, RESOLVE_TICKS = 64, CONTACT_PATIENCE = 60;
+    /** The struggle looks from the child to the owner and back every second. */
+    private static final int GLANCE_TICKS = 20;
+    /** Stepping in front of the child or running off gives up after four seconds; the beat after the arrival holds one and a half. */
+    private static final int ACT_TICKS = 80, SETTLE_TICKS = 30;
+    /** The parent was not the one struck: a fright of the owner, not the victim's twenty-five. */
+    private static final int TORN_FEAR_SCOLD = 8, TORN_FEAR_BLOW = 12;
     /** Farther than this from the owner the pet has lost its audience. */
     static final double AUDIENCE_SQ = 24 * 24;
     /** Eight seconds for the most defiant, fifteen for the most guilty. */
@@ -40,6 +51,11 @@ public final class Penance {
     private long waitUntil = -1, judgedAt = -1;
     private Verdict verdict;
     private boolean blow, shown, reported, voiced;
+    // The child whose treatment was the answer (null when the owner's hand was on the parent), and how the parent ends its struggle.
+    private YukkuriEntity child;
+    private StruggleOdds.Choice struggle;
+    private Vec3 stand;
+    private long settledAt;
     private String outcome = "";
     // The beat on show: its declared clip, face and line, and when it started.
     private String beat = "", face = "", line = "";
@@ -97,10 +113,18 @@ public final class Penance {
             verdict = answer;
             blow = hit;
             judgedAt = now();
-            GameplayLog.event(pet, "rules", "penance verdict={} by={} phase={} after={}", answer,
-                    answer == Verdict.FORGIVEN ? "stroke" : hit ? "blow" : "scold", phase, now() - startedAt);
+            GameplayLog.event(pet, "rules", "penance verdict={} by={} phase={} after={} via={} child={}", answer,
+                    answer == Verdict.FORGIVEN ? "stroke" : hit ? "blow" : "scold", phase, now() - startedAt,
+                    child == null ? "owner" : "child", child == null ? "-" : child.getUUID());
         }
         return true;
+    }
+
+    /** The owner's answer reached the pet through its own young: the same verdict, taken once, remembering whose treatment it was. */
+    boolean judgedViaChild(YukkuriEntity young, Verdict answer, boolean hit) {
+        if (phase == Phase.DONE) return false;
+        if (verdict == null) child = young;
+        return judged(answer, hit);
     }
 
     /** From the owner's first answer to the end: the owner's own hand on the body is no emergency. */
@@ -140,13 +164,19 @@ public final class Penance {
     void tick() {
         if (phase == Phase.DONE) return;
         long now = now();
-        pet.getLookControl().setLookAt(owner, 30, 30);
-        SurfaceApproach.halt(pet);
-        SurfaceApproach.face(pet, SurfaceApproach.yaw(pet.position(), owner.position()));
+        if (child != null && (!child.isAlive() || child.body().dying() || child.level() != pet.level())) lostChild();
+        // A parent that is stepping in front of the child or running walks; every other beat holds still and faces its focus.
+        var focus = focus(now - beatAt);
+        pet.getLookControl().setLookAt(focus, 30, 30);
+        if (stand == null) {
+            SurfaceApproach.halt(pet);
+            SurfaceApproach.face(pet, SurfaceApproach.yaw(pet.position(), focus.position()));
+        }
         if (!reported && now - beatAt >= 2) report();
         long age = now - beatAt;
-        // The startle is not a choice: it plays out before any answer is taken.
-        if (verdict != null && phase != Phase.STARTLE && phase != Phase.AFRAID && phase != Phase.RESOLVE) {
+        // The startle is not a choice, and a struggle plays out once begun: neither takes another answer.
+        boolean playing = phase == Phase.STARTLE || phase == Phase.AFRAID || phase == Phase.TORN || phase == Phase.ACT || phase == Phase.RESOLVE;
+        if (verdict != null && !playing) {
             answer();
             return;
         }
@@ -155,10 +185,30 @@ public final class Penance {
             case MUTTER, PLEA, BOW -> { if (age >= beatTicks) lieLow(); }
             case WAIT -> { if (now >= waitUntil) resolve(); else if (age >= beatTicks) lieLow(); }
             case AFRAID -> { if (age >= AFRAID_TICKS) resolve(); }
+            case TORN -> { if (age >= beatTicks) act(); }
+            case ACT -> acting(now, age);
             case RESOLVE -> resolving(now, age);
             default -> {}
         }
         if (phase != Phase.DONE && phase != Phase.RESOLVE && !pet.hasReaction()) show(false);
+    }
+
+    /** Whom the head and body turn to: the owner, except while torn (child, owner, child ...) and while the child is being pardoned. */
+    private LivingEntity focus(long age) {
+        if (child == null) return owner;
+        if (phase == Phase.TORN) return age / GLANCE_TICKS % 2 == 0 ? child : owner;
+        return phase == Phase.RESOLVE && verdict == Verdict.FORGIVEN ? child : owner;
+    }
+
+    /** The child died or went away under the answer: no struggle for it (grief is the body's own), the parent takes what is left of the ending. */
+    private void lostChild() {
+        GameplayLog.event(pet, "rules", "penance child lost child={} phase={} entrance={} rule={}", child.getUUID(), phase, entrance, rule);
+        child = null;
+        stand = null;
+        if (phase == Phase.TORN || phase == Phase.ACT) {
+            SurfaceApproach.halt(pet);
+            resolve();
+        }
     }
 
     private void posture() {
@@ -169,11 +219,88 @@ public final class Penance {
 
     /** The owner answered while the pet still stood stiff: a scold makes it afraid first, then it takes the punishment. */
     private void answer() {
-        if (verdict == Verdict.PUNISHED && mutters && !fearful) {
+        if (verdict == Verdict.PUNISHED && child != null) torn();
+        else if (verdict == Verdict.PUNISHED && mutters && !fearful) {
             pet.interruptSpeech();
             fearful = true;
             enter(Phase.AFRAID, "afraid", YukkuriAction.TREMBLE, "horrified", "", AFRAID_TICKS);
         } else resolve();
+    }
+
+    /**
+     * The owner punished the pet's own young in front of it: the parent is torn between guarding the child and trusting the owner.
+     * Its numbers pick how it ends once, here ({@link StruggleOdds}); the fear it takes is how obedience is taught, not a penalty on the owner.
+     */
+    private void torn() {
+        pet.interruptSpeech();
+        var personality = pet.life().personality();
+        int obedience = pet.pet().obedience(), fear = personality.fear(owner.getUUID());
+        double guilt = (Temperament.ramp(obedience, 20, 80) + personality.temperament().attached()) / 2;
+        var scores = StruggleOdds.score(personality.attachment(), personality.boldness(), personality.trust(child.getUUID()), fear,
+                obedience, guilt, mobile());
+        struggle = scores.choice();
+        pet.pet().disciplined(owner.getUUID(), blow, blow ? TORN_FEAR_BLOW : TORN_FEAR_SCOLD);
+        int ticks = scores.struggleTicks();
+        GameplayLog.event(pet, "rules", "penance torn choice={} child={} guard={} trust={} shield={} plead={} escape={} ticks={} blow={} entrance={} rule={}",
+                struggle, child.getUUID(), scores.guard(), scores.trust(), scores.shield(), scores.plead(), scores.escape(), ticks, blow,
+                entrance, rule);
+        enter(Phase.TORN, "torn", YukkuriAction.TREMBLE, "teary", "", ticks);
+    }
+
+    /** A body that can step in front of the child or run: not weak, leashed, off the ground or carrying. */
+    private boolean mobile() {
+        return pet.onGround() && !pet.isLeashed() && !pet.body().weak() && !pet.family().carry().carrying();
+    }
+
+    /** How the struggle ends: in front of the child, begging the owner, bowing to the owner's right, or (rarely) running. */
+    private void act() {
+        stand = null;
+        settledAt = -1;
+        switch (struggle) {
+            case SHIELD -> {
+                enter(Phase.ACT, "shield", YukkuriAction.PUFF, "puff_teary", "protect_taunt", ACT_TICKS);
+                if (inFront(pet.position()) && pet.distanceToSqr(child) <= 2.25) settledAt = now();
+                else {
+                    double reach = (pet.getBbWidth() + child.getBbWidth()) / 2 + .1;
+                    stand = SurfaceApproach.beside(pet, child.position(), reach, child, this::inFront);
+                    if (stand == null) settledAt = now();
+                }
+                GameplayLog.event(pet, "rules", "penance step toward=child stand={} child={}", stand != null, child.getUUID());
+            }
+            case PLEAD -> enter(Phase.ACT, "plead", YukkuriAction.BEG, "teary", "plea_spare", 50);
+            case SUBMIT -> enter(Phase.ACT, "submit", YukkuriAction.BOW, "ashamed", "", YukkuriAction.BOW.durationTicks());
+            case ESCAPE -> {
+                enter(Phase.ACT, "flee", YukkuriAction.FLEE, "horrified", "", ACT_TICKS);
+                stand = Reactions.escapeStand(pet, owner, 6, Set.of());
+                if (stand == null) settledAt = now();
+                GameplayLog.event(pet, "rules", "penance step toward=away stand={} child={}", stand != null, child.getUUID());
+            }
+        }
+    }
+
+    /** On the owner's side of the child, where the owner's hand would meet the parent first. */
+    private boolean inFront(Vec3 at) {
+        var toOwner = owner.position().subtract(child.position()).multiply(1, 0, 1).normalize();
+        var side = at.subtract(child.position()).multiply(1, 0, 1).normalize();
+        return side.dot(toOwner) > .8;
+    }
+
+    private void acting(long now, long age) {
+        if (stand != null) {
+            var result = struggle == StruggleOdds.Choice.ESCAPE ? SurfaceApproach.retreatResult(pet, stand, owner, .9)
+                    : SurfaceApproach.walkResult(pet, stand, child, .9);
+            if (result == SurfaceApproach.Result.ARRIVED || result == SurfaceApproach.Result.BLOCKED) {
+                GameplayLog.event(pet, "rules", "penance step end result={} after={} gap={} toward={}", result, age,
+                        pet.distanceTo(struggle == StruggleOdds.Choice.ESCAPE ? owner : child), struggle == StruggleOdds.Choice.ESCAPE ? "owner" : "child");
+                stand = null;
+                settledAt = now;
+            }
+        }
+        // Walking gives up with the beat; after the arrival the pose holds a moment, then the owner's answer is taken.
+        if (age >= beatTicks || settledAt >= 0 && now - settledAt >= SETTLE_TICKS) {
+            stand = null;
+            resolve();
+        }
     }
 
     /** The whole waiting window, in segments of low posture and shivering (fear is where shaking belongs). */
@@ -196,12 +323,18 @@ public final class Penance {
         if (phase == Phase.RESOLVE) return;
         phase = Phase.RESOLVE;
         shown = false;
+        // The ending is only reported once the owner's hand has let go and it is really on show (see resolving).
+        reported = true;
         beatAt = now();
         pet.interruptSpeech();
         onResolved.run();
         double fear = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
         boolean scared = fearful || fear >= .5;
-        if (verdict == Verdict.PUNISHED) {
+        if (verdict == Verdict.PUNISHED && child != null) {
+            // The child was the one punished: its parent aches for it in silence, the struggle already said what it had to say.
+            outcome = blow ? "punished_child_blow" : "punished_child_scold";
+            declare("ache", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : "teary", "");
+        } else if (verdict == Verdict.PUNISHED) {
             outcome = blow ? "punished_blow" : "punished_scold";
             declare("punished", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : blow ? "impact_teary" : "teary",
                     blow && scared ? "hurt_plea" : "scolded");
@@ -266,8 +399,9 @@ public final class Penance {
     /** One line per beat with the face and clip really shown a moment after they were declared. */
     private void report() {
         reported = true;
-        GameplayLog.event(pet, "rules", "penance beat={} face={} declared={} line={} spoke={} clip={} declaredClip={} entrance={} rule={}",
-                beat, pet.getExpressionId(), face, line.isEmpty() ? "-" : line, voiced, pet.getAnimationId(), clip.id(), entrance, rule);
+        GameplayLog.event(pet, "rules", "penance beat={} face={} declared={} line={} spoke={} clip={} declaredClip={} entrance={} rule={} focus={}",
+                beat, pet.getExpressionId(), face, line.isEmpty() ? "-" : line, voiced, pet.getAnimationId(), clip.id(), entrance, rule,
+                focus(now() - beatAt) == child ? "child" : "owner");
     }
 
     private long now() { return pet.level().getGameTime(); }

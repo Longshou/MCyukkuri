@@ -2,10 +2,12 @@ package io.github.longshou.mcyukkuri.pet.rules;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
 import java.util.HashMap;
@@ -30,6 +32,8 @@ public final class Conscience {
     private long reactAfter;
     /** Ten seconds: a catch the pet cannot freeze for within this (a long meal, a flight) is lost, not replayed late. */
     private static final int CATCH_PATIENCE = 200;
+    /** How far from its young a parent that is paying penance can see the owner treat them. */
+    private static final int PARENT_RANGE = 16;
     private long catchAt = -1;
     private Penance penance;
     private Penance.Verdict early;
@@ -219,6 +223,24 @@ public final class Conscience {
             earlyBlow = blow;
         }
         return true;
+    }
+
+    /**
+     * The owner's stroke, scold or blow on this young reaches each parent that is paying penance to that owner and sees both the
+     * act and the actor: the child's treatment is the parent's verdict. Once per act, at the one place each act passes (the care
+     * actions, the scold, and {@link PunishmentReaction#recordHuman} for every strike); outside a penance the parent is only a witness.
+     */
+    public void treatedBy(LivingEntity actor, Penance.Verdict verdict, boolean blow) {
+        if (!pet.isAlive() || pet.body().dying()) return;
+        for (var parent : pet.level().getEntitiesOfClass(YukkuriEntity.class, pet.getBoundingBox().inflate(PARENT_RANGE),
+                e -> e != pet && e.pet().conscience().taking(actor) && ProtectivePuff.parentOf(pet, e) && PunishmentReaction.sees(e, pet, actor)))
+            parent.pet().conscience().judgedViaChild(pet, verdict, blow);
+    }
+
+    private void judgedViaChild(YukkuriEntity young, Penance.Verdict verdict, boolean blow) {
+        if (penance == null || penance.finished()) return;
+        boolean taken = penance.judgedViaChild(young, verdict, blow);
+        GameplayLog.event(pet, "rules", "penance child treated child={} verdict={} blow={} taken={}", young.getUUID(), verdict, blow, taken);
     }
 
     /**

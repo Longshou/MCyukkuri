@@ -241,6 +241,8 @@ public final class OperationLife {
                 // A pet paying penance answers with its own performance, not the generic pleased or startled face.
                 if (!entity.pet().conscience().judged(player, favored ? Penance.Verdict.FORGIVEN : Penance.Verdict.PUNISHED, false))
                     entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", FaceTier.Tier.MEDIUM);
+                // A parent paying penance to this owner reads the treatment of its child as the answer to its own confession.
+                if (favored) entity.pet().conscience().treatedBy(player, Penance.Verdict.FORGIVEN, false);
                 yield true;
             }
             case LIFT -> {
@@ -254,6 +256,7 @@ public final class OperationLife {
                 entity.life().personality().talk(player.getUUID(),true);
                 entity.mind().felt(EmotionEvent.COMFORTED);
                 if(!entity.pet().conscience().judged(player,Penance.Verdict.FORGIVEN,false))entity.showReaction("happy","gentle",FaceTier.Tier.MEDIUM);
+                entity.pet().conscience().treatedBy(player,Penance.Verdict.FORGIVEN,false);
                 yield true;
             }
             case FLICK,PUNCH,SLAP -> {

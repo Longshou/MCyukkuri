@@ -222,6 +222,8 @@ public final class YukkuriSocial implements MotorOwner {
             entity.pet().contact(player.getUUID(), false);
             return true;
         }
+        // A scolded child: its parent that is paying penance to this owner takes the scold as its verdict (once, whatever the child answers).
+        if (!gentle) entity.pet().conscience().treatedBy(player, Penance.Verdict.PUNISHED, false);
         if (busyForTalk()) {
             entity.showReaction("surprise", "busy", FaceTier.Tier.SHORT); return false;
         }

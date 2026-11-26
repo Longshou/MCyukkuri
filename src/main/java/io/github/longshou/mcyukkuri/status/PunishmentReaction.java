@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
+import io.github.longshou.mcyukkuri.pet.rules.Penance;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -71,6 +72,8 @@ public final class PunishmentReaction {
             int gain = (int) Math.round((loss > 0 ? 25 : 12) * (1.25 - .5 * ramp(resistance, 35, 70)));
             target.pet().disciplined(punisher.getUUID(), loss > 0, gain);
         } else GameplayLog.event(target, "punishment", "victim actor={} incident={} response=collapse", punisher.getUUID(), incident);
+        // A parent paying penance to this very owner takes the child's punishment as its own verdict (before it is a mere witness).
+        target.pet().conscience().treatedBy(punisher, Penance.Verdict.PUNISHED, loss > 0);
         witness(target, punisher, incident, loss > 0);
         return before;
     }
@@ -157,6 +160,8 @@ public final class PunishmentReaction {
         for (var observer : target.level().getEntitiesOfClass(YukkuriEntity.class, target.getBoundingBox().inflate(range),
                 body -> perceives(body, target, punisher))) {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
+            // The penance owns that parent's answer (struggle, then the ending): no witness reaction or learned flight over it.
+            if (observer.pet().conscience().taking(punisher) && ProtectivePuff.parentOf(target, observer)) continue;
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
             boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);
