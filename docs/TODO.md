@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 录像页去拼帧 | `.worktrees/wp-capture-page` | scripts/preview.py capture |
 
 ## 玩法待办
 
