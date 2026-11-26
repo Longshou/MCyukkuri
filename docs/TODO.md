@@ -13,6 +13,7 @@
 | 等待演出（PK-14、TN-70/71） | `.worktrees/wp-wait-beats` | play/PlayLife, entity/Encounter wait beat |
 | 思考、跺脚、蹭蹭、吐出拒食修正 | `.worktrees/wp-redo-a-fix` | motions/variants/lore (think, stamp, nuzzle, reject_or_spit), PresentationArbiter reject choice |
 | 饮水表情与上帽辫子穿模 | `.worktrees/wp-art-fix-2` | motions/variants/lore (drink, water_hat_climb), drink_lap face |
+| 断亲宣判台词被上一句挡掉 | `.worktrees/wp-verdict-line` | aquatic/LeaveBehind verdict cue |
 
 ## 玩法待办
 
