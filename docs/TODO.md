@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 美术：辫子翻垃圾桶与水中扑腾（魔理沙） | `.worktrees/wp-braid-bin` | standards/yukkuri-library/motions/variants/lore, settlement/GarbageSearch, motor/action/Swim |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
 | 等待演出（PK-14、TN-70/71） | `.worktrees/wp-wait-beats` | play/PlayLife, entity/Encounter wait beat |
 | 思考、跺脚、蹭蹭、吐出拒食修正 | `.worktrees/wp-redo-a-fix` | motions/variants/lore (think, stamp, nuzzle, reject_or_spit), PresentationArbiter reject choice |
