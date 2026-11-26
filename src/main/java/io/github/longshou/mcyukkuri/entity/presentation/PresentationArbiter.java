@@ -150,6 +150,10 @@ public final class PresentationArbiter {
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
+        if(YukkuriAction.STAMP.id().equals(clip))
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"angry");
+        if(YukkuriAction.REJECT_OR_SPIT.id().equals(clip))
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"bad_taste_small");
         if (clip.equals(e.life().braidMealClip()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "look_down");
         if (clip.equals(Behaviors.BIN_SNIFF) || clip.equals(Behaviors.BIN_NOSE_IN))

@@ -622,9 +622,15 @@ def state(action, t, c, height):
     elif action == 'hat_cradle':
         lift = c['bob']*(1+math.sin(2*math.pi*t/d))/2; r[2] = c['sway']*math.sin(2*math.pi*t/d)
     elif action == 'think':
-        ph = 2*math.pi*t/d; k = c['squash']
-        r = [c['look_up'], c['turn']*math.sin(ph), c['tilt']*math.sin(ph)]; s = [1+.5*k, 1-k, 1+.5*k]
-        shift[0] = c['sway']*height*math.sin(ph)
+        # No-hands body thinking: slow tilt to one side, paused pondering hold with a gentle look up and breath sway,
+        # small contemplative sway to the other side, then settle upright for a seamless loop; no emotional squash.
+        roll = keyed(t, [(0, 0), (.45, c['tilt']), (1.15, c['tilt']), (1.55, c['sway_tilt']), (1.75, c['sway_tilt']), (d, 0)])
+        roll += .6*math.sin(2*math.pi*(t-.45)/.7)*bump((t-.45)/.7) if .45 <= t <= 1.15 else 0.
+        yaw = keyed(t, [(0, 0), (.45, c['turn']), (1.15, c['turn']), (1.55, c['sway_turn']), (1.75, c['sway_turn']), (d, 0)])
+        pitch = keyed(t, [(0, 0), (.45, c['look_up']*.75), (.85, c['look_up']), (1.15, c['look_up']*.75), (1.55, c['look_up']*.5), (1.75, c['look_up']*.4), (d, 0)])
+        h = 1 + c['stretch']*keyed(t, [(0, 0), (.45, 1), (1.15, 1), (1.55, .6), (1.75, .5), (d, 0)])
+        w = h**-.5; s = [w, h, w]; r = [pitch, yaw, roll]
+        shift[0] = c['sway']*height*keyed(t, [(0, 0), (.45, 1), (1.15, 1), (1.55, -.65), (1.75, -.65), (d, 0)])
     elif action == 'nervous':
         ph = 2*math.pi*t/c['hop_seconds']; k = c['shrink']
         s = [1-.5*k, 1-k, 1-.5*k]; shift[0] = c['tremble_units']*math.sin(2*math.pi*c['tremble_hz']*t)

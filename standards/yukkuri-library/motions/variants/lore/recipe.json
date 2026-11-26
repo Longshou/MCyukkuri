@@ -4,7 +4,7 @@
   "export_families": {
     "weather": {"clips": ["rain_huddle_right", "rain_huddle_left", "thunder_cower", "sunbathe"], "braid_follow": true, "side_profile": true},
     "life": {"clips": ["call_child", "wake", "meal_content", "puff_teary", "sneeze_a", "sneeze_b", "sneeze_c"], "braid_follow": true},
-    "comfort": {"clips": ["comfort_lick"], "braid_follow": true},
+    "comfort": {"clips": ["comfort_lick", "nuzzle"], "braid_follow": true},
     "bin-rummage": {"clips": ["bin_sniff", "bin_nose_in"], "braid_follow": true},
     "brim-carry": {"clips": ["braid_brim_lift", "braid_brim_lower"]},
     "carry": {"clips": ["boat_carry_young", "boat_be_carried", "boat_prepare_carry", "boat_release_carry", "mouth_release"]},
@@ -1902,26 +1902,26 @@
       "faces": [
         [
           0,
-          0.15,
+          0.12,
           "closed_smile"
         ],
         [
-          0.15,
-          0.3,
-          "satisfied"
+          0.12,
+          0.34,
+          "sukkiri_tender"
         ],
         [
-          0.3,
-          0.55,
+          0.34,
+          0.52,
           "closed_smile"
         ],
         [
-          0.55,
-          0.7,
-          "satisfied"
+          0.52,
+          0.74,
+          "sukkiri_tender"
         ],
         [
-          0.7,
+          0.74,
           0.8,
           "closed_smile"
         ]
@@ -4059,29 +4059,36 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "tilt": 8,
-      "turn": 20,
+      "tilt": 6.0,
+      "sway_tilt": -4.0,
+      "turn": 12.0,
+      "sway_turn": -8.0,
       "look_up": 3.5,
-      "squash": 0.04,
-      "sway": 0.03,
+      "stretch": 0.015,
+      "sway": 0.018,
       "faces": [
         [
           0,
-          0.5,
-          "neutral"
+          0.35,
+          "pursed"
         ],
         [
-          0.5,
-          1.5,
-          "confused"
+          0.35,
+          1.15,
+          "confused_small"
         ],
         [
-          1.5,
+          1.15,
+          1.65,
+          "pursed"
+        ],
+        [
+          1.65,
           2.0,
-          "neutral"
+          "confused_small"
         ]
       ],
-      "lore": "Project design for exam thinking: slow side-to-side tilt of at most 8 degrees, a 20 degree yaw and sideways sway, slight squash, eyes up (face does the looking up, body pitch stays about 3.5 degrees).",
+      "lore": "Project design for no-hands body thinking: slow tilt to one side with a slight upward gaze and gentle stretch (no emotional squash), paused pondering hold with a subtle micro-sway, small contemplative sway to the other side, then settle upright for a seamless loop. Combined pitch and roll stay under 8 degrees.",
       "triggers": [
         "pet exam: considering an answer"
       ]
@@ -4754,18 +4761,18 @@
       "faces": [
         [
           0,
-          0.9,
-          "closed_smile"
+          0.3,
+          "ashamed"
         ],
         [
-          0.9,
-          1.4,
-          "open_smile"
+          0.3,
+          0.75,
+          "flushed_smile"
         ],
         [
-          1.4,
+          0.75,
           2.0,
-          "closed_smile"
+          "ashamed"
         ]
       ],
       "lore": "Project design: the face turns about 40 degrees away with a small side sway and drift, and peeks back once per cycle; no squash, pitch stays under 4 degrees.",
@@ -7222,8 +7229,8 @@
       "pitch_keys": [[0, 0], [0.28, 2], [0.36, -5], [0.46, -5], [0.64, -2], [0.9, 2], [0.98, -6], [1.1, -6], [1.34, -3], [1.95, -3], [2.2, 0]],
       "roll_keys": [[0, 0], [0.28, 3], [0.36, -2], [0.46, -2], [0.64, 0], [0.9, -3.5], [0.98, 2.5], [1.1, 2.5], [1.34, 0], [2.2, 0]],
       "yaw_keys": [[0, 0], [1.34, 0], [1.6, -18], [1.95, -18], [2.2, 0]],
-      "faces": [],
-      "lore": "Project design (user 2026-11-14: the refused stray pleads, stamps and cries): a planted tantrum stamp without hands. The body pulls up stretched, tipped to one side, and slams down onto the ground twice, the second stamp higher, harder and tipped to the other side; the squash is the real impact, never airborne (it must not read as a hop). Then it fumes, swelling slightly with a short hmph turn away, and settles upright. Pitch and roll together stay within 9 degrees; the face is the caller's.",
+      "faces": [[0, 0.3, "angry"], [0.3, 0.5, "puff"], [0.5, 0.92, "angry_stare"], [0.92, 1.16, "puff"], [1.16, 1.4, "down_angry"], [1.4, 2.2, "hmph"]],
+      "lore": "Project design (user 2026-11-14: the refused stray pleads, stamps and cries): a planted tantrum stamp without hands. The body pulls up stretched, tipped to one side, and slams down onto the ground twice, the second stamp higher, harder and tipped to the other side; the squash is the real impact, never airborne (it must not read as a hop). Then it fumes, swelling slightly with a short hmph turn away, and settles upright. Pitch and roll together stay within 9 degrees; faces peak on each stomp impact and end in a fuming hmph.",
       "triggers": [
         "begging refusal pestering (BegBite STAMP beat)"
       ]
@@ -7269,8 +7276,8 @@
       "yaw_keys": [[0, 0], [0.55, 0], [0.7, 16], [0.9, -16], [1.1, 12], [1.3, -8], [1.5, 0], [1.8, -32], [2.6, -32], [3.0, 0]],
       "roll_keys": [[0, 0], [0.55, 0], [0.7, -2], [0.9, 2], [1.1, -1.5], [1.3, 1], [1.5, 0], [3.0, 0]],
       "markers": {"release": 0, "recoil": 0.5, "settled": 3.0},
-      "faces": [],
-      "lore": "Project design (motion library base reject_or_spit; wiki picky eating and food refusal): the mouth throws the food back out, independent of the chew and swallow loop. It starts on the tick the real item leaves the mouth (marker release): the body jabs forward and down, flattened by the push, so the dropped item appears in front of the lips; then it rears back and up away from the taste, shakes the whole ball no-no-no with a fading yaw, and ends with a short hmph turned aside before settling. No hop, never airborne. Pitch and roll together stay within 9 degrees; the face is the caller's.",
+      "faces": [[0, 0.35, "bad_taste_small"], [0.35, 1.05, "bad_taste_closed"], [1.05, 1.55, "squeezed_frown"], [1.55, 2.65, "hmph"], [2.65, 3.0, "pursed"]],
+      "lore": "Project design (motion library base reject_or_spit; wiki picky eating and food refusal): the mouth throws the food back out, independent of the chew and swallow loop. It starts on the tick the real item leaves the mouth (marker release): the body jabs forward and down, flattened by the push, so the dropped item appears in front of the lips; then it rears back and up away from the taste, shakes the whole ball no-no-no with a fading yaw, and ends with a short hmph turned aside before settling. No hop, never airborne. Pitch and roll together stay within 9 degrees; faces follow the spit disgust into a displeased hmph and pursed settle.",
       "triggers": [
         "refused meal spat out (LifeMeal.spit, the real dropped item)"
       ]

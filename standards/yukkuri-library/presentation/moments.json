@@ -1117,19 +1117,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1149,19 +1149,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1181,19 +1181,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1213,19 +1213,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1245,19 +1245,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1277,19 +1277,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1309,19 +1309,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -1710,19 +1710,19 @@
               "closed_smile"
             ],
             [
-              0.15,
-              "satisfied"
+              0.12,
+              "sukkiri_tender"
             ],
             [
-              0.3,
+              0.34,
               "closed_smile"
             ],
             [
-              0.55,
-              "satisfied"
+              0.52,
+              "sukkiri_tender"
             ],
             [
-              0.7,
+              0.74,
               "closed_smile"
             ]
           ]
@@ -4181,15 +4181,15 @@
           "faces": [
             [
               0,
+              "ashamed"
+            ],
+            [
+              0.3,
               "flushed_smile"
             ],
             [
-              0.9,
-              "surprise"
-            ],
-            [
-              1.4,
-              "flushed_smile"
+              0.75,
+              "ashamed"
             ]
           ],
           "emote": "sweat"
@@ -4201,15 +4201,15 @@
           "faces": [
             [
               0,
-              "closed_smile"
+              "ashamed"
             ],
             [
-              1.0,
-              "open_smile"
+              0.3,
+              "flushed_smile"
             ],
             [
-              1.6,
-              "closed_smile"
+              0.75,
+              "ashamed"
             ]
           ]
         },

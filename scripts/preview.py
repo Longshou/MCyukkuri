@@ -195,9 +195,8 @@ def render_strip(args, stage, times, before=False, unyielded=False):
             images = [(draft_textures/f'{model}.png',None,[0,0],[1,1])]
             atlas.save(images[0][0])
         elif getattr(args, 'face', None) and not prop:
-            from face_usage import resolve
             library = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')
-            face = resolve(library,model,args.face)
+            face = args.face
             a['face'] = face
             images = [(source_root/'src/main/resources/assets/mcyukkuri/textures/entity'/model/(face+'.png'),None,[0,0],[1,1])]
             animation = library['animations'].get(face)
@@ -207,21 +206,21 @@ def render_strip(args, stage, times, before=False, unyielded=False):
             # An atlas outside the face library (e.g. a wound-pipeline dry face) on the face id's geometry.
             a.setdefault('face', 'neutral')
             images = [(Path(args.texture).resolve(),None,[0,0],[1,1])]
-        if not prop and not before and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
+        if not prop and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
             # A clip with authored face spans shows its own face at every sampled time (atlas and geometry together).
-            from face_usage import resolve
-            library = read(ASSETS/'yukkuri_presentation/face_library.json')
+            src_assets = source_root/'src/main/resources/assets/mcyukkuri'
+            library = read(src_assets/'yukkuri_presentation/face_library.json')
             data = read(a['path'])
             clip = {**data.get('clips', {}), **data.get('behavior_clips', {}),
-                    **read(ASSETS/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {}),
-                    **read(ASSETS/'yukkuri_presentation/toilet_contact.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
+                    **read(src_assets/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {}),
+                    **read(src_assets/'yukkuri_presentation/toilet_contact.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
             spans = clip.get('expression_spans', [])
             if spans:
-                names = {'neutral'} | {resolve(library, model, face) for _, _, face in spans}
+                names = {'neutral'} | {face for _, _, face in spans}
                 names |= {phase for face in list(names) for phase in library['animations'].get(face, {}).get('frames', [])}
-                names = sorted(n for n in names if (ASSETS/'textures/entity'/model/(n+'.png')).is_file())
+                names = sorted(n for n in names if (src_assets/'textures/entity'/model/(n+'.png')).is_file())
                 a['faceSlots'] = {face: len(textures)+i for i, face in enumerate(names)}
-                images = [(ASSETS/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
+                images = [(src_assets/'textures/entity'/model/(face+'.png'),None,[0,0],[1,1]) for face in names]
         a['slots'] = list(range(len(textures), len(textures)+len(images)))
         textures.extend(images)
         if getattr(args, 'paper_cover', False) and not prop:
