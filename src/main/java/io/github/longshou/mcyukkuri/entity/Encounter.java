@@ -53,7 +53,7 @@ public final class Encounter {
     /** The way to a passing place: waypoints (the last is the stand) and their length. */
     public record Place(List<Vec3> legs, double length) {}
     private record Found(Place place, Vec3 farthest, double farthestLength) {}
-    private record ImpatienceBeat(String role, String declared, String line, String clip, int waited, int budget) {}
+    private record ImpatienceBeat(String declared, String line, int waited, int budget) {}
     private enum Phase { NOTICE, WALK, WATCH }
 
     private final YukkuriEntity keeper, yielder;
@@ -87,9 +87,18 @@ public final class Encounter {
     private Vec3 keeperAt;
     private String pendingBeatRole, pendingBeatName, pendingBeatDeclared, pendingBeatLine;
     private YukkuriEntity pendingBeatBody;
-    private int yielderWaited, keeperWaited;
-    private boolean yielderImpatient, keeperImpatient;
-    private ImpatienceBeat yielderImpatienceBeat, keeperImpatienceBeat;
+    /** One side's forced-wait clock and its single impatience beat; {@code waited} counts only ticks the body really stands waiting. */
+    private static final class Impatience {
+        final YukkuriEntity body;
+        final String role;
+        int waited;
+        boolean played, refused;
+        ImpatienceBeat beat;
+        Impatience(YukkuriEntity body, String role) { this.body = body; this.role = role; }
+        int budget() { return body.life().personality().waitingTicks(); }
+        boolean due() { return waited >= WaitImpatience.triggerTick(body, budget()); }
+    }
+    private final Impatience yielderWait, keeperWait;
 
     private Encounter(YukkuriGroundNavigation keeperNav, YukkuriEntity keeper, YukkuriGroundNavigation yielderNav, YukkuriEntity yielder,
                       Vec3 axis, Found found, String reason, boolean deadEnd) {
@@ -98,6 +107,8 @@ public final class Encounter {
         this.retreating = found.place() == null;
         this.lock = reason.startsWith(LOCKED);
         this.errand = yielderNav.errand();
+        this.yielderWait = new Impatience(yielder, "yielder");
+        this.keeperWait = new Impatience(keeper, "keeper");
         this.pace = Math.min(1.4, Math.max(1.2 + .2 * eagerness(yielder), yielderNav.requestedSpeed()));
         List<Vec3> way = retreating ? (found.farthestLength() > 0 ? List.of(found.farthest()) : List.of()) : found.place().legs();
         // A short detour is a veer on the way it was walking: aside and a little farther ahead (under 40 degrees, inside the turn limit), no turn round, no pause.
@@ -389,57 +400,53 @@ public final class Encounter {
                     pendingBeatRole, pendingBeatName, pendingBeatDeclared, shown, pendingBeatLine, keeper.getId(), yielder.getId(), reason);
             pendingBeatBody = null;
         }
-        if (yielderImpatienceBeat != null && body == yielder) {
-            logImpatience(body, shown, yielderImpatienceBeat);
-            yielderImpatienceBeat = null;
-        }
-        if (keeperImpatienceBeat != null && body == keeper) {
-            logImpatience(body, shown, keeperImpatienceBeat);
-            keeperImpatienceBeat = null;
-        }
+        observeImpatience(body, shown, yielderWait);
+        observeImpatience(body, shown, keeperWait);
     }
 
-    private void logImpatience(YukkuriEntity body, String shown, ImpatienceBeat beat) {
+    private void observeImpatience(YukkuriEntity body, String shown, Impatience side) {
+        if (side.beat == null || body != side.body) return;
+        var beat = side.beat;
+        side.beat = null;
+        // The clip is read from the body: what really started, not what was asked for.
+        String clip = body.getAnimationId();
         var holder = shown.equals(beat.declared()) ? null : body.faceHold(shown);
         if (holder != null) {
             GameplayLog.event(body, "move",
                     "encounter beat role={} beat=wait_impatient face={} declared={} held_by={} held_tier={} held_face={} line={} clip={} keeper=#{} yielder=#{} reason={} waited={}/{}",
-                    beat.role(), shown, beat.declared(), holder.source(), holder.tier() == null ? "none" : holder.tier(), holder.face(),
-                    beat.line(), beat.clip(), keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
+                    side.role, shown, beat.declared(), holder.source(), holder.tier() == null ? "none" : holder.tier(), holder.face(),
+                    beat.line(), clip, keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
         } else {
             GameplayLog.event(body, "move",
                     "encounter beat role={} beat=wait_impatient face={} declared={} line={} clip={} keeper=#{} yielder=#{} reason={} waited={}/{}",
-                    beat.role(), shown, beat.declared(), beat.line(), beat.clip(), keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
+                    side.role, shown, beat.declared(), beat.line(), clip, keeper.getId(), yielder.getId(), reason, beat.waited(), beat.budget());
         }
     }
 
-    /** Forced-wait impatience beat (shared with {@code PlayLife}): fires at most once per role when the wait passes its threshold. */
+    /**
+     * Forced-wait impatience beat (shared with {@code PlayLife}): each side's clock counts only the ticks it really waits (the yielder
+     * standing in {@link Phase#WATCH}, the keeper held). The beat plays once; a refusal (a longer hold, a bound clip, the speech gap)
+     * is retried every tick, so it plays as soon as the hold ends, and is logged as dropped if the encounter ends first.
+     */
     private void tickImpatience() {
         if (minor || makesRoom() || lock) return;
-        yielderWaited++;
-        if (phase == Phase.WATCH && !yielderImpatient) {
-            int budget = yielder.life().personality().waitingTicks();
-            if (yielderWaited >= WaitImpatience.triggerTick(yielder, budget) && yielder.quiet()) {
-                yielderImpatient = true;
-                var beat = WaitImpatience.perform(yielder);
-                if (beat != null) {
-                    yielderImpatienceBeat = new ImpatienceBeat("yielder", beat.face(), beat.line(), beat.clip().id(), yielderWaited, budget);
-                }
-            }
-        }
-        if (keeperNav.holding()) {
-            keeperWaited++;
-            if (!keeperImpatient) {
-                int budget = keeper.life().personality().waitingTicks();
-                if (keeperWaited >= WaitImpatience.triggerTick(keeper, budget) && keeper.quiet()) {
-                    keeperImpatient = true;
-                    var beat = WaitImpatience.perform(keeper);
-                    if (beat != null) {
-                        keeperImpatienceBeat = new ImpatienceBeat("keeper", beat.face(), beat.line(), beat.clip().id(), keeperWaited, budget);
-                    }
-                }
-            }
-        }
+        if (phase == Phase.WATCH) tickWait(yielderWait);
+        if (keeperNav.holding()) tickWait(keeperWait);
+    }
+
+    private void tickWait(Impatience side) {
+        side.waited++;
+        if (side.played || !side.due() || !side.body.quiet()) return;
+        var beat = WaitImpatience.perform(side.body);
+        if (beat == null) { side.refused = true; return; }
+        side.played = true;
+        side.beat = new ImpatienceBeat(beat.face(), beat.line(), side.waited, side.budget());
+    }
+
+    private void logDropped(Impatience side) {
+        if (side.played || !side.due()) return;
+        GameplayLog.event(side.body, "move", "encounter beat role={} beat=wait_impatient dropped={} keeper=#{} yielder=#{} reason={} waited={}/{}",
+                side.role, side.refused ? "held" : "speech_gap", keeper.getId(), yielder.getId(), reason, side.waited, side.budget());
     }
 
     // ----------------------------------------------------------------------------------------------------------------- the tick
@@ -504,6 +511,7 @@ public final class Encounter {
         if (yielderNav.encounter == this) yielderNav.encounter = null;
         if (keeperNav.encounter == this) keeperNav.encounter = null;
         keeperNav.stopWaiting(yielder);
+        if (!minor && !lock && !makesRoom()) { logDropped(yielderWait); logDropped(keeperWait); }
         if (lock && canYield(yielder)) {
             yielderNav.giveUp(errand, keeper);
             // The walk it was held up on is dropped for good: the body stays at its stand and sulks.

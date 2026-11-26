@@ -71,7 +71,7 @@ public final class PlayLife {
     private String refused, stopReason;
     private Beat pendingBeat;
     private double lastDistance = Double.MAX_VALUE;
-    private boolean completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced, waitImpatient;
+    private boolean completed, springing, peakVoiced, playVoiced, waitWatching, waitFaced, waitImpatient, waitImpatientRefused;
 
     public PlayLife(YukkuriEntity entity) { this.entity = entity; }
 
@@ -313,7 +313,7 @@ public final class PlayLife {
         waitLimit = waitBudget();
         waitWatching = false;
         waitFaced = false;
-        waitImpatient = false;
+        waitImpatient = waitImpatientRefused = false;
         waitElapsed = 0;
         lastWaitElapsed = -1;
         GameplayLog.limited(entity, "play", "wait_start:" + target.kind(), 600,
@@ -411,14 +411,20 @@ public final class PlayLife {
         }
         if (++waitTicks >= waitLimit) {
             double patient = entity.life().personality().temperament().patient();
+            if (!waitImpatient && waitImpatientRefused) {
+                GameplayLog.event(entity, "play", "play beat=wait_impatient dropped=held kind={} waited={}/{}", waitingFor.kind(), waitTicks, waitLimit);
+            }
             emitBeat("wait_give_up", patient < Temperament.LOW35 ? "hmph" : "dull", "mood_bad", FaceTier.Tier.MEDIUM, waitingFor.kind());
             rememberSkip(gaveUp, waitingFor.getBlockPos());
             stopWait("patience");
         } else if (!waitImpatient && waitTicks >= WaitImpatience.triggerTick(entity, waitLimit)) {
-            waitImpatient = true;
+            // A refusal (a longer hold, a bound clip) does not consume the beat: it is retried each tick until the hold ends.
             var beat = WaitImpatience.perform(entity);
             if (beat != null) {
+                waitImpatient = true;
                 pendingBeat = new Beat("wait_impatient", beat.face(), beat.line(), waitingFor.kind());
+            } else {
+                waitImpatientRefused = true;
             }
         }
     }
@@ -445,7 +451,7 @@ public final class PlayLife {
                     waitingFor.kind(), reason, waitingFor.getBlockPos(), waitTicks, waitLimit, entity.dailyLife().boredom());
         }
         waitingFor = null; waitStand = null; waitTicks = waitLimit = waitElapsed = 0; lastWaitElapsed = -1;
-        waitWatching = waitFaced = waitImpatient = false;
+        waitWatching = waitFaced = waitImpatient = waitImpatientRefused = false;
         SurfaceApproach.stopWalking(entity);
     }
 

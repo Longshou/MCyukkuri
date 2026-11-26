@@ -4721,11 +4721,11 @@ _dead_end_set = [box(-3, -1, -13, 3, -1, 10, 'minecraft:stone_bricks'),
                  box(-2, 0, -12, 2, 1, -12, 'minecraft:stone_bricks'), box(-2, 2, -12, 2, 2, -8, 'minecraft:oak_planks'),
                  block(0, 0, -10, 'mcyukkuri:yukkuri_nest[facing=south]')]
 add(_dead_end, 'town', '死胡同里迎面相遇：身后有路的一只转身让开', '死胡同里迎面相遇：身后有路的一只转身让开',
-    '镜头朝西：一格宽的窄巷，南端是封死的短巷（里面有大胆的魔理沙的窝），北端 8 格外是胆小的魔理沙的小屋，巷中没有侧袋。两只疲倦的成体从巷子两头出发，在巷中迎面相遇：胆小的一只身后是死胡同，没有地方可让；大胆的一只虽然更强，身后却有路，于是它转身沿巷走回北边小屋口让开，胆小的一只走过去回窝，大胆的一只再走回自己的窝。全程不倒退，也不会把谁送进死胡同又退出来。',
+    '镜头朝西：一格宽的窄巷，南端是封死的短巷（里面有大胆的魔理沙的窝），北端 8 格外是胆小的魔理沙的小屋，巷中没有侧袋。两只疲倦的成体从巷子两头出发，在巷中迎面相遇：胆小的一只身后是死胡同，没有地方可让；大胆的一只虽然更强，身后却有路，于是它转身沿巷走回北边小屋口让开，胆小的一只走过去回窝，大胆的一只再走回自己的窝。大胆的一只性子急（自制力低）：站在北边小屋口等胆小的一只走过的那几秒里，会露出一次不耐烦的表情、动作并抱怨一句。全程不倒退，也不会把谁送进死胡同又退出来。',
     '约 60 秒', [
         *_dead_end_set,
         yk('marisa', 0, -3, 'dead_north', uuid=uid(_dead_end, 'dead_north'), label='北端回窝的大胆成体',
-           lead=True, yaw=0, energy=30, rest_wait=60, boldness=90, nutrition=45),
+           lead=True, yaw=0, energy=30, rest_wait=60, boldness=90, self_control=10, nutrition=45),
         yk('marisa', 0, 5, 'dead_south', uuid=uid(_dead_end, 'dead_south'), label='死胡同里回窝的胆小成体',
            yaw=180, energy=30, rest_wait=60, boldness=15, nutrition=45),
     ], at_spawn=[home('dead_north', 0, 7), home('dead_south', 0, -10)], env=DAY,
@@ -9459,7 +9459,9 @@ _encounter_smoke('street_corridor', 1500, _corridor_logs, [
 _dead_who = rf'uuid=(?:{_dead_logs[0]}|{_dead_logs[1]})\b'
 _encounter_smoke('street_dead_end', 2200, _dead_logs, [
     rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,\S+\) reason=nearer_place minor=false ',
-    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed '],
+    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed ',
+    # The impatient yielder (self_control 10) stands waiting in the room mouth: one beat, its face shown or a logged holder's.
+    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter beat role=yielder beat=wait_impatient face=\w+ declared=\w+ (?:held_by=\S+ held_tier=\S+ held_face=\w+ )?line=\w+ clip=\w+ '],
     forbid=[rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin [^\n]* reason=(?:no_place|dead_end) ',
             rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end [^\n]* result=no_place'])
 
@@ -12221,12 +12223,15 @@ def _park_stray_verify(window):
 def _park_wait_switch_verify(window):
     """Impatient waiter watches occupied trampoline, gives up past patience with hmph/mood_bad, then plays another free toy."""
     waiter = _uuid_text('park_wait_switch', 'wait_impatient')
-    beats = re.findall(rf'uuid={waiter} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+) line=(\S+) kind=(\S+)', window)
+    beats = []
+    for m in re.finditer(rf'uuid={waiter} [^\n]*play beat=(\S+) face=(\S+) declared=(\S+)(?: held_by=(\S+) held_tier=\S+ held_face=\S+)? line=(\S+) kind=(\S+)', window):
+        beat, shown, declared, held_by, line, kind = m.groups()
+        # A beat shows what it declared, or a logged holder owns the shown face.
+        if shown != declared and not held_by:
+            return f'wait_impatient beat {beat} showed face={shown} instead of declared={declared} with no holder'
+        beats.append((beat, shown, declared, line, kind))
     if not beats:
         return 'wait_impatient logged no play beats'
-    for beat, shown, declared, _, _ in beats:
-        if shown != declared:
-            return f'wait_impatient beat {beat} showed face={shown} instead of declared={declared}'
     names = [b[0] for b in beats]
     if 'wait_watch' not in names or 'wait_impatient' not in names or 'wait_give_up' not in names:
         return f'wait_impatient missed wait_watch, wait_impatient or wait_give_up (saw {names})'
