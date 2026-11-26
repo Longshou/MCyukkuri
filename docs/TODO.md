@@ -12,6 +12,7 @@
 | 通用争抢演出（FM-27） | `.worktrees/wp-contest` | life/ContestOdds, social/Contest, GroupInteractionGoal, YukkuriLife bed claim, PeerDefense.power, LifeHome |
 | 当面处置赤油时亲油的挣扎（TN-57） | `.worktrees/wp-confess-parent` | OperationLife, YukkuriSocial.talk, pet/rules/Conscience, Penance, ConscienceGoal, arc_confess scenes |
 | 嘲讽失饰者的台词与演出（HD-04） | `.worktrees/wp-hatless-taunt` | headwear/Contempt, Headwear history, headwear/ScornLadder, Sanction, dialogue hatless events |
+| 繁殖许可改为家规与宠物手册整理 | `.worktrees/wp-breeding-rule` | BadgeMenu, BadgeScreen, PetPrivileges, PetScenes permit, CareScreen rules height, lang no_sukkiri |
 
 ## 玩法待办
 
