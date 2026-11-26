@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 美术：辫子翻垃圾桶与水中扑腾（魔理沙） | `.worktrees/wp-braid-bin` | standards/yukkuri-library/motions/variants/lore, settlement/GarbageSearch, motor/action/Swim |
-| 美术：干枯失神、寒夜发抖、晒太阳、饮水舌舔 | `.worktrees/wp-art-redo-b` | standards/yukkuri-library/motions/variants/lore, expressions |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
 | 害羞重做与旧画风眼睛替换 | `.worktrees/wp-shy-eyes` | standards/yukkuri-library/expressions, motions/variants/lore (shy) |
 
