@@ -7423,19 +7423,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "reimu.adult.o_permit_glad",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいよ？ やったよ！",
-      "chinese": "可以有小贝比酱哟？好耶哟！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "reimu.adult.o_courtship_held",
       "species": "reimu",
       "age": "adult",
@@ -7602,19 +7589,6 @@
       "english": "I want to see that yukkuri again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "reimu.young.o_permit_glad",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おちびちゃん、いいよぉ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哟？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"
@@ -7791,19 +7765,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "marisa.adult.o_permit_glad",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいのぜ？ やったのぜ！",
-      "chinese": "可以有小贝比酱贼？好耶贼！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "marisa.adult.o_courtship_held",
       "species": "marisa",
       "age": "adult",
@@ -7970,19 +7931,6 @@
       "english": "I want to see that yukkuri again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "marisa.young.o_permit_glad",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おちびちゃん、いいのじぇ？ やっちゃ！",
-      "chinese": "可以有小贝比酱惹杰？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"
@@ -8159,19 +8107,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "alice.adult.o_permit_glad",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいわ？ やったわ！",
-      "chinese": "可以有小贝比酱哇？好耶！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "alice.adult.o_courtship_held",
       "species": "alice",
       "age": "adult",
@@ -8338,19 +8273,6 @@
       "english": "I want to see that yukkuri again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "alice.young.o_permit_glad",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おちびちゃん、いいわ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哇？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"
@@ -8527,19 +8449,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "chen.adult.o_permit_glad",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいよー？ やったよー！",
-      "chinese": "可以有小贝比酱哟——？好耶哟——！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "chen.adult.o_courtship_held",
       "species": "chen",
       "age": "adult",
@@ -8706,19 +8615,6 @@
       "english": "I want to see that yukkuri again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "chen.young.o_permit_glad",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おちびちゃん、いいよぅ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哟——？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"
@@ -8895,19 +8791,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "patchouli.adult.o_permit_glad",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おちびちゃん、いいわ？ やったわ！",
-      "chinese": "姆啾。可以有小贝比酱哇？好耶！",
-      "english": "Mukyu. We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "patchouli.adult.o_courtship_held",
       "species": "patchouli",
       "age": "adult",
@@ -9079,19 +8962,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "patchouli.young.o_permit_glad",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おちびちゃん、いいわ？ やっちゃ！",
-      "chinese": "姆啾。可以有小贝比酱哇？成惹！",
-      "english": "Mukyu. We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "patchouli.young.o_courtship_held",
       "species": "patchouli",
       "age": "young",
@@ -9258,19 +9128,6 @@
       "english": "Uu... That yukkuri... I want to see them again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "remilia.adult.o_permit_glad",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おちびちゃん、いいのだ？ やったのだ！",
-      "chinese": "呜——可以有小贝比酱呀？好耶呀！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"
@@ -9486,19 +9343,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "remilia.young.o_permit_glad",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おちびちゃん、いいのだ？ やっちゃ！",
-      "chinese": "呜——可以有小贝比酱呀？成惹！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "remilia.young.o_courtship_held",
       "species": "remilia",
       "age": "young",
@@ -9709,19 +9553,6 @@
       "audio_status": "unvoiced"
     },
     {
-      "id": "flandre.adult.o_permit_glad",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おちびちゃん、いいよ？ やったよ！",
-      "chinese": "呜——可以有小贝比酱哦？好耶哦！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
       "id": "flandre.adult.o_courtship_held",
       "species": "flandre",
       "age": "adult",
@@ -9927,19 +9758,6 @@
       "english": "Uu... I want to see that yukkuri again...",
       "events": [
         "date_fond"
-      ],
-      "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
-      "audio_status": "unvoiced"
-    },
-    {
-      "id": "flandre.young.o_permit_glad",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おちびちゃん、いいよぅ？ やっちゃ！",
-      "chinese": "呜——可以有小贝比酱哟？成惹！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
       ],
       "basis": "项目原创；相亲、繁殖许可、徽章佩戴、运输篮、弹珠汽水喷雾、野生请求与捕食种忍耐的反应字幕，台词为本库另写，非八景原句、非旧汉化词形；年龄依MCyukkuri FamilyLife.youngVoice()，成体口吻按 dialogue/species-variants.md，幼语按 growth-stages.md 另写；已按对应角色与成长阶段配音。",
       "audio_status": "unvoiced"

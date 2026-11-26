@@ -286,9 +286,6 @@ LINES = {
     'peer': {
         'adult': ('{t}！ だれ？ ……ゆっくりしていってね！', '{t}！是谁？……油库里洗跌一跌捏！', "{t}! Who's that? ...Take it easy!"),
         'young': ('{t}？ だぁれ？ ゆっくちちていっちぇにぇ！', '{t}？是谁？油库气洗切一切捏！', '{t}? Who? Take it eashy!')},
-    'permit_glad': {
-        'adult': ('あかちゃん、いいの？ {t}！ ぜったい、まもる！', '可以要宝宝了？{t}！一定会保护好！', "We can have babies? {t}! I'll protect them!"),
-        'young': ('あかちゃん、いいにょ？ {t}！ しあわちぇー！', '可以要宝宝吗？{t}！好幸福——！', 'Babies? {t}! So happy!')},
     'pet_report_hurt': {
         'adult': ('{t}……にんげんさん、のらに、いじめられた……', '{t}……人类先生，被野良欺负了……', '{t}... human, a stray bullied me...'),
         'young': ('{t}……にんげんしゃん、のらに いじめられちゃ……', '{t}……人类先生，被野良欺负惹……', '{t}... human, a stway was mean...')},

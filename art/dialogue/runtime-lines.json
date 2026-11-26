@@ -14099,23 +14099,6 @@
       "source_sha256": "24789a085c77086e9730f2a666e00380efeba3817e1fb4f72e85dc18cac54d8c"
     },
     {
-      "id": "reimu.adult.o_permit_glad",
-      "species": "reimu",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいよ？ やったよ！",
-      "chinese": "可以有小贝比酱哟？好耶哟！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.adult.o_permit_glad"
-      },
-      "source_sha256": "9a872d76eae33d659bedd65aa5385f4e125dd460a7c8cdaffcc63c686ba7772a"
-    },
-    {
       "id": "reimu.adult.o_courtship_held",
       "species": "reimu",
       "age": "adult",
@@ -14337,23 +14320,6 @@
         "id": "reimu.young.o_date_fond"
       },
       "source_sha256": "57d63c8ac9469075e841664002699e56ed1550d4c61965416a6f46bf040b5219"
-    },
-    {
-      "id": "reimu.young.o_permit_glad",
-      "species": "reimu",
-      "age": "young",
-      "japanese": "おちびちゃん、いいよぉ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哟？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "reimu.young.o_permit_glad"
-      },
-      "source_sha256": "adbdadab6cba061b6d42ad07913f242cb9e4b4207743f7a0c51ed94965459cc1"
     },
     {
       "id": "reimu.young.o_courtship_held",
@@ -14579,23 +14545,6 @@
       "source_sha256": "6456c79778d1c45afc18d4846bc39e49e9f9662a1c07c48a26fef61adf42d228"
     },
     {
-      "id": "marisa.adult.o_permit_glad",
-      "species": "marisa",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいのぜ？ やったのぜ！",
-      "chinese": "可以有小贝比酱贼？好耶贼！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.adult.o_permit_glad"
-      },
-      "source_sha256": "a720b4b493eeb96814703623564c632ee259792a95ed678f6adc24bb164c06d3"
-    },
-    {
       "id": "marisa.adult.o_courtship_held",
       "species": "marisa",
       "age": "adult",
@@ -14817,23 +14766,6 @@
         "id": "marisa.young.o_date_fond"
       },
       "source_sha256": "e42b5184bc6a39b60914f261ff0516fa12c29777b45986491ffd2dd8d5274d6e"
-    },
-    {
-      "id": "marisa.young.o_permit_glad",
-      "species": "marisa",
-      "age": "young",
-      "japanese": "おちびちゃん、いいのじぇ？ やっちゃ！",
-      "chinese": "可以有小贝比酱惹杰？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "marisa.young.o_permit_glad"
-      },
-      "source_sha256": "57957b71899664aa3a7e1597b2f39cd77db69d35c3bfb7ef1a4e264c71325be8"
     },
     {
       "id": "marisa.young.o_courtship_held",
@@ -15059,23 +14991,6 @@
       "source_sha256": "4c79183105dcffd2347e1fbc2168e859f20d46ee082b74c802ee083071f00fc4"
     },
     {
-      "id": "alice.adult.o_permit_glad",
-      "species": "alice",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいわ？ やったわ！",
-      "chinese": "可以有小贝比酱哇？好耶！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.adult.o_permit_glad"
-      },
-      "source_sha256": "f16d6c4e40150fa5620b3fdc66ec384e3993da07f72585861a58dd2d5cfcd2c9"
-    },
-    {
       "id": "alice.adult.o_courtship_held",
       "species": "alice",
       "age": "adult",
@@ -15297,23 +15212,6 @@
         "id": "alice.young.o_date_fond"
       },
       "source_sha256": "dd359248fa108d1b3ed0cc425ce3a9f5e0b914a4a72326df51714ef103a90cd2"
-    },
-    {
-      "id": "alice.young.o_permit_glad",
-      "species": "alice",
-      "age": "young",
-      "japanese": "おちびちゃん、いいわ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哇？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "alice.young.o_permit_glad"
-      },
-      "source_sha256": "bbcbd2f8304f409810bdb3266ada0700a1272b48da1c81a17aae5298b3d424a2"
     },
     {
       "id": "alice.young.o_courtship_held",
@@ -15539,23 +15437,6 @@
       "source_sha256": "e831f88a5f85802c84e8ef819e52a8558c5c6662743fe6f3784b99a86ffa0182"
     },
     {
-      "id": "chen.adult.o_permit_glad",
-      "species": "chen",
-      "age": "adult",
-      "japanese": "おちびちゃん、いいよー？ やったよー！",
-      "chinese": "可以有小贝比酱哟——？好耶哟——！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.adult.o_permit_glad"
-      },
-      "source_sha256": "fbcfaf3755092258e896a803ff84fef825ee25c0b9af243d99a3dca75f2a8e66"
-    },
-    {
       "id": "chen.adult.o_courtship_held",
       "species": "chen",
       "age": "adult",
@@ -15777,23 +15658,6 @@
         "id": "chen.young.o_date_fond"
       },
       "source_sha256": "38a5bc9a376af47f6c9d71d4dd3b529083e2395c4f75df479f20d07b8d88060a"
-    },
-    {
-      "id": "chen.young.o_permit_glad",
-      "species": "chen",
-      "age": "young",
-      "japanese": "おちびちゃん、いいよぅ？ やっちゃ！",
-      "chinese": "可以有小贝比酱哟——？成惹！",
-      "english": "We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "chen.young.o_permit_glad"
-      },
-      "source_sha256": "9bdc567941492773620f8ef7b604374a3a0230afcc3e0649b1dc2b6107dfa5ce"
     },
     {
       "id": "chen.young.o_courtship_held",
@@ -16019,23 +15883,6 @@
       "source_sha256": "7cfa2616a0f7d129783b6ad5335a213c04c42f91573e5207b7c9a2dc75936729"
     },
     {
-      "id": "patchouli.adult.o_permit_glad",
-      "species": "patchouli",
-      "age": "adult",
-      "japanese": "むきゅ。おちびちゃん、いいわ？ やったわ！",
-      "chinese": "姆啾。可以有小贝比酱哇？好耶！",
-      "english": "Mukyu. We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.adult.o_permit_glad"
-      },
-      "source_sha256": "b0763c490673705fa20b363f9008fec5cf915650ff3c26b71f49be4099b448a2"
-    },
-    {
       "id": "patchouli.adult.o_courtship_held",
       "species": "patchouli",
       "age": "adult",
@@ -16259,23 +16106,6 @@
       "source_sha256": "f8aa5e1e25a69ab048485bd254e46a62bd9666ea5d0093fd1e5624644710c37b"
     },
     {
-      "id": "patchouli.young.o_permit_glad",
-      "species": "patchouli",
-      "age": "young",
-      "japanese": "むきゅ。おちびちゃん、いいわ？ やっちゃ！",
-      "chinese": "姆啾。可以有小贝比酱哇？成惹！",
-      "english": "Mukyu. We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "patchouli.young.o_permit_glad"
-      },
-      "source_sha256": "fa83df7c9ee8240cd209b3563e88ed4f3530a154ed7ff3ee813eff603d604985"
-    },
-    {
       "id": "patchouli.young.o_courtship_held",
       "species": "patchouli",
       "age": "young",
@@ -16497,23 +16327,6 @@
         "id": "remilia.adult.o_date_fond"
       },
       "source_sha256": "59c56788ec07e2732c47609fade660adc1777325b9d327bc928953a5c160f691"
-    },
-    {
-      "id": "remilia.adult.o_permit_glad",
-      "species": "remilia",
-      "age": "adult",
-      "japanese": "うー、おちびちゃん、いいのだ？ やったのだ！",
-      "chinese": "呜——可以有小贝比酱呀？好耶呀！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.adult.o_permit_glad"
-      },
-      "source_sha256": "59704ec5ec10c18d813f018875ea9a957e2f7a71e9697d76b4819ad1d2a82e4f"
     },
     {
       "id": "remilia.adult.o_courtship_held",
@@ -16790,23 +16603,6 @@
       "source_sha256": "bc7c98e2b83fdeb15b7b11f27af966f1be3b9f58774792832dc5fa0dabf968a7"
     },
     {
-      "id": "remilia.young.o_permit_glad",
-      "species": "remilia",
-      "age": "young",
-      "japanese": "うー、おちびちゃん、いいのだ？ やっちゃ！",
-      "chinese": "呜——可以有小贝比酱呀？成惹！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "remilia.young.o_permit_glad"
-      },
-      "source_sha256": "d1b42d7f5bc557bd5e54cc8c34cbf875725b239f65cf34532b29eb45e57c2cd8"
-    },
-    {
       "id": "remilia.young.o_courtship_held",
       "species": "remilia",
       "age": "young",
@@ -17081,23 +16877,6 @@
       "source_sha256": "088db9bae07fc353351b826620ea110bb4d576e659ff300c7a64aee2240f7c97"
     },
     {
-      "id": "flandre.adult.o_permit_glad",
-      "species": "flandre",
-      "age": "adult",
-      "japanese": "うー、おちびちゃん、いいよ？ やったよ！",
-      "chinese": "呜——可以有小贝比酱哦？好耶哦！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.adult.o_permit_glad"
-      },
-      "source_sha256": "012f9d00b6e96ffe52c372966ce3841453b234a428c34833815299a176a15d3a"
-    },
-    {
       "id": "flandre.adult.o_courtship_held",
       "species": "flandre",
       "age": "adult",
@@ -17370,23 +17149,6 @@
         "id": "flandre.young.o_date_fond"
       },
       "source_sha256": "6aaf7b187fcd60a344bd5f58bc837c2eb0c2ff165c88073bd775510a258ff3e6"
-    },
-    {
-      "id": "flandre.young.o_permit_glad",
-      "species": "flandre",
-      "age": "young",
-      "japanese": "うー、おちびちゃん、いいよぅ？ やっちゃ！",
-      "chinese": "呜——可以有小贝比酱哟？成惹！",
-      "english": "Uu... We can have little ones? Hooray!",
-      "events": [
-        "permit_glad"
-      ],
-      "origin": "project-original",
-      "source": {
-        "file": "art/dialogue/species-original.json",
-        "id": "flandre.young.o_permit_glad"
-      },
-      "source_sha256": "cdde5a30cf145987d544a95c688b04a561bc1e04293e65eec158de616f70ca5f"
     },
     {
       "id": "flandre.young.o_courtship_held",
