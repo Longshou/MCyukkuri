@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 美术：辫子翻垃圾桶与水中扑腾（魔理沙） | `.worktrees/wp-braid-bin` | standards/yukkuri-library/motions/variants/lore, settlement/GarbageSearch, motor/action/Swim |
 
 ## 玩法待办
 
