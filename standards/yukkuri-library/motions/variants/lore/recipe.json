@@ -316,9 +316,145 @@
             [1.28, {"tip": [2.9, 2.02, -2.02], "root": [0.64, -1.0, -0.2], "arrive": [-0.7, -0.58, 0.28]}],
             [1.6, {"tip": [3.22, 2.55, -1.65], "root": [0.58, -1.0, -0.1], "arrive": [-0.32, -1.0, 0.1]}]
           ]
+        },
+        "reimu": {
+          "match": ["reimu", "reimu_face", "reimu_deibu"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "sideburn",
+              "keys": [[0.0, [10, 4, 72]], [0.22, [20, 6, 54]], [0.44, [8, 4, 78]], [0.72, [18, 6, 56]], [1.02, [12, 4, 82]], [1.28, [22, 8, 54]], [1.6, [10, 4, 72]]]
+            },
+            "hand_left": {
+              "group": "sideburn",
+              "keys": [[0.0, [18, -6, -56]], [0.22, [8, -4, -78]], [0.44, [20, -6, -54]], [0.72, [10, -4, -80]], [1.02, [20, -6, -56]], [1.28, [12, -4, -76]], [1.44, [22, -7, -54]], [1.6, [18, -6, -56]]]
+            }
+          }
+        },
+        "house_reimu": {
+          "match": ["house_reimu"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "sideburn",
+              "keys": [[0.0, [8, 4, 58]], [0.22, [18, 6, 42]], [0.44, [6, 4, 64]], [0.72, [16, 6, 44]], [1.02, [10, 4, 68]], [1.28, [20, 6, 42]], [1.6, [8, 4, 58]]]
+            },
+            "hand_left": {
+              "group": "sideburn",
+              "keys": [[0.0, [16, -6, -44]], [0.22, [6, -4, -64]], [0.44, [18, -6, -42]], [0.72, [8, -4, -66]], [1.02, [18, -6, -44]], [1.28, [10, -4, -62]], [1.44, [20, -6, -42]], [1.6, [16, -6, -44]]]
+            }
+          }
+        },
+        "chen": {
+          "match": ["chen"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-36, 24, 0]], [0.22, [-6, 42, 0]], [0.44, [-34, 22, 0]], [0.72, [-6, 38, 0]], [1.02, [-40, 26, 0]], [1.28, [-4, 44, 0]], [1.6, [-36, 24, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-10, -38, 0]], [0.22, [-36, -22, 0]], [0.44, [-12, -42, 0]], [0.72, [-38, -26, 0]], [1.02, [-12, -40, 0]], [1.28, [-34, -24, 0]], [1.6, [-10, -38, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [8, 6, 62]], [0.22, [16, 8, 46]], [0.44, [6, 6, 68]], [0.72, [14, 8, 48]], [1.02, [10, 6, 70]], [1.28, [18, 8, 46]], [1.6, [8, 6, 62]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [14, -8, -48]], [0.22, [6, -6, -66]], [0.44, [16, -8, -46]], [0.72, [8, -6, -68]], [1.02, [14, -8, -48]], [1.28, [8, -6, -64]], [1.6, [14, -8, -48]]]
+            }
+          }
+        },
+        "chen_longtail": {
+          "match": ["chen_longtail"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-30, 22, 0]], [0.22, [-10, 44, 0]], [0.44, [-28, 20, 0]], [0.72, [-10, 40, 0]], [1.02, [-34, 24, 0]], [1.28, [-8, 48, 0]], [1.6, [-30, 22, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-14, -40, 0]], [0.22, [-30, -20, 0]], [0.44, [-16, -44, 0]], [0.72, [-32, -24, 0]], [1.02, [-16, -42, 0]], [1.28, [-28, -22, 0]], [1.6, [-14, -40, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [8, 6, 62]], [0.22, [16, 8, 46]], [0.44, [6, 6, 68]], [0.72, [14, 8, 48]], [1.02, [10, 6, 70]], [1.28, [18, 8, 46]], [1.6, [8, 6, 62]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [14, -8, -48]], [0.22, [6, -6, -66]], [0.44, [16, -8, -46]], [0.72, [8, -6, -68]], [1.02, [14, -8, -48]], [1.28, [8, -6, -64]], [1.6, [14, -8, -48]]]
+            }
+          }
+        },
+        "chen_roundtail": {
+          "match": ["chen_roundtail"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-18, 16, 0]], [0.22, [-8, 38, 0]], [0.44, [-16, 14, 0]], [0.72, [-8, 34, 0]], [1.02, [-20, 18, 0]], [1.28, [-8, 42, 0]], [1.6, [-18, 16, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-8, -34, 0]], [0.22, [-18, -16, 0]], [0.44, [-8, -38, 0]], [0.72, [-20, -18, 0]], [1.02, [-8, -36, 0]], [1.28, [-16, -16, 0]], [1.6, [-8, -34, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [8, 6, 68]], [0.22, [14, 8, 56]], [0.44, [6, 6, 72]], [0.72, [12, 8, 58]], [1.02, [10, 6, 74]], [1.28, [16, 8, 56]], [1.6, [8, 6, 68]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [12, -8, -58]], [0.22, [6, -6, -72]], [0.44, [14, -8, -56]], [0.72, [8, -6, -74]], [1.02, [12, -8, -58]], [1.28, [8, -6, -70]], [1.6, [12, -8, -58]]]
+            }
+          }
+        },
+        "alice_myon": {
+          "match": ["alice", "myon", "myon_redeye"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "front_lock",
+              "keys": [[0.0, [8, 8, 78]], [0.22, [16, 12, 62]], [0.44, [6, 8, 82]], [0.72, [14, 12, 64]], [1.02, [10, 8, 84]], [1.28, [18, 14, 62]], [1.6, [8, 8, 78]]]
+            },
+            "hand_left": {
+              "group": "front_lock",
+              "keys": [[0.0, [14, -12, -64]], [0.22, [6, -8, -80]], [0.44, [16, -12, -62]], [0.72, [8, -8, -82]], [1.02, [16, -12, -64]], [1.28, [10, -8, -78]], [1.44, [18, -14, -62]], [1.6, [14, -12, -64]]]
+            }
+          }
+        },
+        "patchouli": {
+          "match": ["patchouli"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [6, 8, 65]], [0.22, [6, 10, 58]], [0.44, [8, 8, 66]], [0.72, [6, 10, 58]], [1.02, [8, 8, 67]], [1.28, [6, 10, 58]], [1.6, [6, 8, 65]]]
+            },
+            "hand_left": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [6, -10, -58]], [0.22, [8, -8, -66]], [0.44, [6, -10, -58]], [0.72, [8, -8, -67]], [1.02, [6, -10, -58]], [1.28, [8, -8, -65]], [1.44, [6, -10, -58]], [1.6, [6, -10, -58]]]
+            }
+          }
+        },
+        "predator": {
+          "match": ["remilia", "flandre"],
+          "appendage_keys": {
+            "predator_wing_right": {
+              "group": "predator_wing",
+              "keys": [[0.0, [0, -24, 32]], [0.22, [4, -18, 2]], [0.44, [0, -26, 34]], [0.72, [4, -18, 4]], [1.02, [0, -26, 34]], [1.28, [4, -18, 2]], [1.6, [0, -24, 32]]]
+            },
+            "predator_wing_left": {
+              "group": "predator_wing",
+              "keys": [[0.0, [4, 18, -4]], [0.22, [0, 26, -34]], [0.44, [4, 18, -2]], [0.72, [0, 26, -34]], [1.02, [4, 18, -4]], [1.28, [0, 24, -32]], [1.44, [4, 18, -2]], [1.6, [4, 18, -4]]]
+            },
+            "hand_right": {
+              "group": "predator_lock",
+              "keys": [[0.0, [2, 8, 72]], [0.22, [8, 10, 62]], [0.44, [2, 8, 74]], [0.72, [8, 10, 64]], [1.02, [2, 8, 76]], [1.28, [8, 10, 62]], [1.6, [2, 8, 72]]]
+            },
+            "hand_left": {
+              "group": "predator_lock",
+              "keys": [[0.0, [8, -10, -64]], [0.22, [2, -8, -74]], [0.44, [8, -10, -62]], [0.72, [2, -8, -76]], [1.02, [8, -10, -64]], [1.28, [2, -8, -72]], [1.6, [8, -10, -64]]]
+            }
+          }
         }
       },
-      "lore": "Panicked in-place water flail crying for help (user 2026-11-25 theater feedback: 水中扑腾 uses the braid): uneven bobbing and head-up tilting on the waterline across the whole loop (tilt <= 10.5 deg); Marisa's braided forms slap the water surface (waterline ~4.0 mu, dipping <= 1.8 mu below, within BRAID.md section 4) via braid_keys in three uneven panicked bursts. marisa_kotatsu (low kotatsu curtain encloses braid) and marisa_sparse (no braid chain weights) keep body-only flail. Rescue direction and buoyancy stay on the server.",
+      "lore": "Panicked in-place water flail crying for help (user 2026-11-25 theater feedback: 水中扑腾 uses the braid and adapts across species): uneven bobbing and head-up tilting on the waterline across the whole loop (tilt <= 10.5 deg); Marisa's braided forms slap via braid_keys while non-Marisa species flail with their own appendages via appendage_keys (Reimu sideburns/cuffs, Chen tails + side locks, Alice/Myon front locks, Patchouli whole-lock cheek slaps, Remilia/Flandre wings + locks), all gated against body/hat/floor/eye-occlusion and BRAID.md water-depth limits. Forms without weighted hair bones (reimu_bean, reimu_sparse, reimu_wasa*, marisa_sparse) and excluded Marisa forms (marisa_kotatsu, marisa_bean) keep body-only flail. Rescue direction and buoyancy stay on the server.",
       "triggers": [
         "water_struggle with synchronized effort"
       ]
@@ -377,9 +513,145 @@
             [1.28, {"tip": [2.85, 2.02, -2.1], "root": [0.62, -1.0, -0.22], "arrive": [-0.66, -0.58, 0.32]}],
             [1.6, {"tip": [3.18, 2.58, -1.82], "root": [0.56, -1.0, -0.14], "arrive": [-0.3, -1.0, 0.16]}]
           ]
+        },
+        "reimu": {
+          "match": ["reimu", "reimu_face", "reimu_deibu"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "sideburn",
+              "keys": [[0.0, [14, 4, 74]], [0.24, [24, 8, 56]], [0.44, [10, 4, 80]], [0.68, [22, 6, 58]], [1.0, [16, 6, 84]], [1.28, [26, 8, 56]], [1.6, [14, 4, 74]]]
+            },
+            "hand_left": {
+              "group": "sideburn",
+              "keys": [[0.0, [22, -6, -58]], [0.24, [10, -4, -80]], [0.44, [24, -8, -56]], [0.68, [12, -4, -82]], [1.0, [24, -6, -58]], [1.28, [14, -4, -78]], [1.44, [24, -8, -56]], [1.6, [22, -6, -58]]]
+            }
+          }
+        },
+        "house_reimu": {
+          "match": ["house_reimu"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "sideburn",
+              "keys": [[0.0, [10, 4, 60]], [0.24, [22, 6, 42]], [0.44, [8, 4, 66]], [0.68, [20, 6, 44]], [1.0, [12, 4, 70]], [1.28, [22, 6, 42]], [1.6, [10, 4, 60]]]
+            },
+            "hand_left": {
+              "group": "sideburn",
+              "keys": [[0.0, [20, -6, -44]], [0.24, [8, -4, -66]], [0.44, [22, -6, -42]], [0.68, [10, -4, -68]], [1.0, [20, -6, -44]], [1.28, [12, -4, -64]], [1.44, [22, -6, -42]], [1.6, [20, -6, -44]]]
+            }
+          }
+        },
+        "chen": {
+          "match": ["chen"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-38, 26, 0]], [0.24, [-4, 46, 0]], [0.44, [-36, 24, 0]], [0.68, [-6, 42, 0]], [1.0, [-42, 28, 0]], [1.28, [-2, 48, 0]], [1.6, [-38, 26, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-10, -42, 0]], [0.24, [-38, -24, 0]], [0.44, [-12, -46, 0]], [0.68, [-40, -28, 0]], [1.0, [-12, -44, 0]], [1.28, [-36, -26, 0]], [1.6, [-10, -42, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [10, 6, 64]], [0.24, [18, 8, 48]], [0.44, [8, 6, 70]], [0.68, [16, 8, 50]], [1.0, [12, 6, 72]], [1.28, [20, 8, 48]], [1.6, [10, 6, 64]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [16, -8, -50]], [0.24, [8, -6, -68]], [0.44, [18, -8, -48]], [0.68, [10, -6, -70]], [1.0, [16, -8, -50]], [1.28, [10, -6, -66]], [1.6, [16, -8, -50]]]
+            }
+          }
+        },
+        "chen_longtail": {
+          "match": ["chen_longtail"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-32, 24, 0]], [0.24, [-8, 48, 0]], [0.44, [-30, 22, 0]], [0.68, [-10, 44, 0]], [1.0, [-36, 26, 0]], [1.28, [-6, 52, 0]], [1.6, [-32, 24, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-14, -44, 0]], [0.24, [-32, -22, 0]], [0.44, [-16, -48, 0]], [0.68, [-34, -26, 0]], [1.0, [-16, -46, 0]], [1.28, [-30, -24, 0]], [1.6, [-14, -44, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [10, 6, 64]], [0.24, [18, 8, 48]], [0.44, [8, 6, 70]], [0.68, [16, 8, 50]], [1.0, [12, 6, 72]], [1.28, [20, 8, 48]], [1.6, [10, 6, 64]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [16, -8, -50]], [0.24, [8, -6, -68]], [0.44, [18, -8, -48]], [0.68, [10, -6, -70]], [1.0, [16, -8, -50]], [1.28, [10, -6, -66]], [1.6, [16, -8, -50]]]
+            }
+          }
+        },
+        "chen_roundtail": {
+          "match": ["chen_roundtail"],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-20, 16, 0]], [0.24, [-4, 42, 0]], [0.44, [-18, 14, 0]], [0.68, [-4, 38, 0]], [1.0, [-22, 20, 0]], [1.28, [-4, 44, 0]], [1.6, [-20, 16, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [-4, -38, 0]], [0.24, [-20, -16, 0]], [0.44, [-4, -42, 0]], [0.68, [-22, -20, 0]], [1.0, [-4, -40, 0]], [1.28, [-18, -18, 0]], [1.6, [-4, -38, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [10, 6, 64]], [0.24, [18, 8, 48]], [0.44, [8, 6, 70]], [0.68, [16, 8, 50]], [1.0, [12, 6, 72]], [1.28, [20, 8, 48]], [1.6, [10, 6, 64]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [16, -8, -50]], [0.24, [8, -6, -68]], [0.44, [18, -8, -48]], [0.68, [10, -6, -70]], [1.0, [16, -8, -50]], [1.28, [10, -6, -66]], [1.6, [16, -8, -50]]]
+            }
+          }
+        },
+        "alice_myon": {
+          "match": ["alice", "myon", "myon_redeye"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "front_lock",
+              "keys": [[0.0, [10, 8, 80]], [0.24, [18, 14, 66]], [0.44, [8, 8, 84]], [0.68, [16, 12, 66]], [1.0, [12, 8, 86]], [1.28, [18, 14, 66]], [1.6, [10, 8, 80]]]
+            },
+            "hand_left": {
+              "group": "front_lock",
+              "keys": [[0.0, [16, -12, -66]], [0.24, [8, -8, -82]], [0.44, [18, -14, -66]], [0.68, [10, -8, -84]], [1.0, [18, -12, -66]], [1.28, [12, -8, -80]], [1.44, [18, -14, -66]], [1.6, [16, -12, -66]]]
+            }
+          }
+        },
+        "patchouli": {
+          "match": ["patchouli"],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [6, 8, 66]], [0.24, [8, 10, 62]], [0.44, [8, 8, 67]], [0.68, [8, 10, 62]], [1.0, [8, 8, 67]], [1.28, [8, 10, 62]], [1.6, [6, 8, 66]]]
+            },
+            "hand_left": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [8, -10, -62]], [0.24, [8, -8, -66]], [0.44, [8, -10, -62]], [0.68, [8, -8, -67]], [1.0, [8, -10, -62]], [1.28, [8, -8, -66]], [1.44, [8, -10, -62]], [1.6, [8, -10, -62]]]
+            }
+          }
+        },
+        "predator": {
+          "match": ["remilia", "flandre"],
+          "appendage_keys": {
+            "predator_wing_right": {
+              "group": "predator_wing",
+              "keys": [[0.0, [0, -24, 34]], [0.24, [4, -18, 2]], [0.44, [0, -26, 36]], [0.68, [4, -18, 4]], [1.0, [0, -26, 36]], [1.28, [4, -18, 2]], [1.6, [0, -24, 34]]]
+            },
+            "predator_wing_left": {
+              "group": "predator_wing",
+              "keys": [[0.0, [4, 18, -4]], [0.24, [0, 26, -36]], [0.44, [4, 18, -2]], [0.68, [0, 26, -36]], [1.0, [4, 18, -4]], [1.28, [0, 24, -34]], [1.44, [4, 18, -2]], [1.6, [4, 18, -4]]]
+            },
+            "hand_right": {
+              "group": "predator_lock",
+              "keys": [[0.0, [2, 8, 74]], [0.24, [8, 10, 64]], [0.44, [2, 8, 76]], [0.68, [8, 10, 66]], [1.0, [2, 8, 78]], [1.28, [8, 10, 64]], [1.6, [2, 8, 74]]]
+            },
+            "hand_left": {
+              "group": "predator_lock",
+              "keys": [[0.0, [8, -10, -66]], [0.24, [2, -8, -76]], [0.44, [8, -10, -64]], [0.68, [2, -8, -78]], [1.0, [8, -10, -66]], [1.28, [2, -8, -74]], [1.6, [8, -10, -66]]]
+            }
+          }
         }
       },
-      "lore": "Project design (user 2026-11-25 theater feedback: 游泳划水不存在的，就用水中扑腾): replaces water_swim for Swim when moving through water. No orderly rowing or paddling cycle: body bobs and tilts unevenly on the waterline (composed tilt <= 10.5 deg), and Marisa's braided forms slap the water surface in three uneven, panicky strokes via braid_keys (tuft dips 1.2-1.7 mu below the 4.0 mu floating waterline, within BRAID.md section 4, and clears body, hat and floor). Server owns travel; water_gasp remains for real exhaustion.",
+      "lore": "Project design (user 2026-11-25 theater feedback: 游泳划水不存在的，就用水中扑腾): replaces water_swim for Swim when moving through water across all species. No orderly rowing or paddling cycle: body bobs and tilts unevenly on the waterline (composed tilt <= 10.5 deg), Marisa's braided forms slap via braid_keys, and non-Marisa species flail with their own appendages via appendage_keys (Reimu sideburns/cuffs, Chen tails + side locks, Alice/Myon front locks, Patchouli whole-lock cheek slaps, Remilia/Flandre wings + locks), all gated against body/hat/floor/eye-occlusion and BRAID.md water-depth limits. Forms without weighted hair bones (reimu_bean, reimu_sparse, reimu_wasa*, marisa_sparse) and excluded Marisa forms (marisa_kotatsu, marisa_bean) keep body-only flail. Server owns travel; water_gasp remains for real exhaustion.",
       "triggers": [
         "Swim running with paid effort while not EXHAUSTED"
       ]
@@ -1558,9 +1830,165 @@
             [2.5, "rest", "stop", "turn", "swap_lead"]
           ]
         },
+        "reimu": {
+          "match": ["reimu", "reimu_face", "reimu_deibu"],
+          "braid_rummage": true,
+          "yaw": 0,
+          "reach_pitch": -6.2,
+          "roll": 0.0,
+          "reach_shift": 0.045,
+          "sweep_yaw": 6.5,
+          "sweep_roll": 1.5,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "sideburn",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [14, 4, 24]], [0.62, [34, 8, 30]], [0.9, [22, 6, 22]], [1.18, [36, 8, 32]], [1.45, [24, 6, 24]], [1.7, [32, 8, 30]], [2.05, [16, 4, 34]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "sideburn",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [12, -4, -22]], [0.62, [22, -6, -24]], [0.9, [34, -8, -32]], [1.18, [22, -6, -22]], [1.45, [36, -8, -32]], [1.7, [30, -8, -30]], [2.05, [16, -4, -34]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
+        "chen": {
+          "match": ["chen"],
+          "braid_rummage": true,
+          "yaw": 112,
+          "reach_pitch": 0.0,
+          "roll": 4.0,
+          "reach_shift": 0.02,
+          "sweep_yaw": 7.0,
+          "sweep_roll": 1.0,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-10, 22, 0]], [0.62, [0, 44, 0]], [0.9, [-14, 28, 0]], [1.18, [2, 46, 0]], [1.45, [-12, 30, 0]], [1.7, [-4, 42, 0]], [2.05, [-22, 24, 0]], [2.5, [0, 0, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-14, -12, 0]], [0.62, [-22, -18, 0]], [1.18, [-26, -22, 0]], [1.7, [-20, -18, 0]], [2.05, [-14, -12, 0]], [2.5, [0, 0, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [4, 4, 14]], [0.9, [8, 6, 18]], [1.45, [4, 4, 14]], [2.05, [6, 4, 16]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [6, -4, -14]], [0.9, [4, -4, -16]], [1.45, [8, -6, -18]], [2.05, [6, -4, -14]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
+        "chen_longtail": {
+          "match": ["chen_longtail"],
+          "braid_rummage": true,
+          "yaw": 96,
+          "reach_pitch": 0.0,
+          "roll": 3.5,
+          "reach_shift": 0.015,
+          "sweep_yaw": 6.0,
+          "sweep_roll": 0.8,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-10, 20, 0]], [0.62, [-2, 38, 0]], [0.9, [-14, 24, 0]], [1.18, [-1, 42, 0]], [1.45, [-12, 26, 0]], [1.7, [-4, 36, 0]], [2.05, [-20, 22, 0]], [2.5, [0, 0, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-12, -12, 0]], [0.62, [-18, -18, 0]], [1.18, [-22, -20, 0]], [1.7, [-16, -16, 0]], [2.05, [-12, -10, 0]], [2.5, [0, 0, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [4, 4, 14]], [0.9, [8, 6, 18]], [1.45, [4, 4, 14]], [2.05, [6, 4, 16]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [6, -4, -14]], [0.9, [4, -4, -16]], [1.45, [8, -6, -18]], [2.05, [6, -4, -14]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
+        "chen_roundtail": {
+          "match": ["chen_roundtail"],
+          "braid_rummage": true,
+          "yaw": 126,
+          "reach_pitch": 0.0,
+          "roll": 4.0,
+          "reach_shift": 0.025,
+          "sweep_yaw": 7.5,
+          "sweep_roll": 1.0,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "chen_tail_right": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-10, 18, 0]], [0.62, [2, 42, 0]], [0.9, [-14, 24, 0]], [1.18, [4, 44, 0]], [1.45, [-12, 26, 0]], [1.7, [-2, 40, 0]], [2.05, [-22, 20, 0]], [2.5, [0, 0, 0]]]
+            },
+            "chen_tail_left": {
+              "group": "chen_tail",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [-14, -14, 0]], [0.62, [-22, -20, 0]], [1.18, [-26, -24, 0]], [1.7, [-20, -18, 0]], [2.05, [-14, -14, 0]], [2.5, [0, 0, 0]]]
+            },
+            "hand_right": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [4, 4, 14]], [0.9, [8, 6, 18]], [1.45, [4, 4, 14]], [2.05, [6, 4, 16]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "chen_side_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [6, -4, -14]], [0.9, [4, -4, -16]], [1.45, [8, -6, -18]], [2.05, [6, -4, -14]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
+        "alice_myon": {
+          "match": ["alice", "myon", "myon_redeye"],
+          "braid_rummage": true,
+          "yaw": 0,
+          "reach_pitch": -6.2,
+          "roll": 0.0,
+          "reach_shift": 0.045,
+          "sweep_yaw": 6.0,
+          "sweep_roll": 1.5,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "front_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [12, 8, 24]], [0.62, [30, 12, 34]], [0.9, [18, 10, 26]], [1.18, [32, 14, 36]], [1.45, [20, 10, 26]], [1.7, [28, 12, 34]], [2.05, [14, 8, 32]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "front_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [10, -8, -24]], [0.62, [18, -10, -26]], [0.9, [30, -12, -34]], [1.18, [18, -10, -26]], [1.45, [32, -14, -36]], [1.7, [26, -12, -32]], [2.05, [14, -8, -32]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
+        "patchouli": {
+          "match": ["patchouli"],
+          "braid_rummage": true,
+          "yaw": 0,
+          "reach_pitch": -5.5,
+          "roll": 0.0,
+          "reach_shift": 0.035,
+          "sweep_yaw": 6.0,
+          "sweep_roll": 1.2,
+          "mouth_comp": null,
+          "faces": [[0, 0.3, "look_down"], [0.3, 0.62, "pursed"], [0.62, 1.45, "look_down"], [1.45, 1.7, "pursed"], [1.7, 62.5, "open_smile"]],
+          "appendage_keys": {
+            "hand_right": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [6, 8, 18]], [0.62, [10, 14, 26]], [0.9, [6, 10, 20]], [1.18, [10, 16, 28]], [1.45, [6, 10, 20]], [1.7, [10, 14, 26]], [2.05, [6, 8, 24]], [2.5, [0, 0, 0]]]
+            },
+            "hand_left": {
+              "group": "cheek_lock",
+              "keys": [[0.0, [0, 0, 0]], [0.3, [4, -8, -18]], [0.62, [6, -10, -20]], [0.9, [10, -14, -26]], [1.18, [6, -10, -20]], [1.45, [10, -16, -28]], [1.7, [8, -14, -24]], [2.05, [6, -8, -24]], [2.5, [0, 0, 0]]]
+            }
+          }
+        },
         "bean": {"match": ["*bean*"], "front_ratio": 0.39}
       },
-      "lore": "Project design (GarbageSearch NOSE_IN at a fallen bin; user 2026-11-25 theater feedback: Marisa uses her braid to reach into the bin and rummage). On Marisa braided forms (marisa, marisa_face, marisa_tsumuri), she stops at the bin rim without flattening her face, turns her braid side toward the bin mouth and leans within 8.5 deg while her braid reaches in, sweeps side-to-side (contact..pull), curls onto the find on pull (= impact), lifts it out before her face with an open smile (or confused_small in GarbageSearch if the bin turns out empty) and returns to rest; body and hat stay behind the rim. marisa_bean (braid root y=12.66 sits above hat brim min_y=12.54, rest braid_hat=+0.069, failing gate on swing), marisa_kotatsu (low kotatsu curtain encloses the braid), marisa_sparse (no braid chain weights) and other species keep the mouth nose-in route until step 2. Travel belongs to the motor (Shove/RamContact). Markers: launch, contact, impact and pull (same instant), settled.",
+      "lore": "Project design (GarbageSearch NOSE_IN at a fallen bin; user 2026-11-25 theater feedback: braid/species-adapted bin rummage). Marisa braided forms (marisa, marisa_face, marisa_tsumuri) use braid_keys; Reimu (reimu, reimu_face, reimu_deibu), Alice/Myon (alice, myon, myon_redeye) and Patchouli stop at the bin rim with a shallow lean (no face flattening) and perform a two-lock brush/pat/scoop via appendage_keys (no fake curled pull); Chen (chen, chen_longtail, chen_roundtail) yaws her rear/side toward the bin mouth to poke and sweep with her right tail while balancing with the left. Predators (remilia, flandre) never enter GarbageSearch (N/A); house forms are excluded by applies=not_house; forms without weighted hair bones (reimu_bean, reimu_sparse, reimu_wasa*, marisa_sparse) and excluded Marisa forms (marisa_kotatsu, marisa_bean) keep the mouth nose-in route. Travel belongs to the motor (Shove/RamContact). Markers: launch, contact, impact and pull (same instant), settled.",
       "triggers": ["GarbageSearch NOSE_IN at a fallen bin's mouth (activity house_scavenge)"]
     },
     "puff_teary": {

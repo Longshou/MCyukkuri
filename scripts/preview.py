@@ -316,8 +316,8 @@ def strip(args, stage):
     return body
 
 
-def clip_seconds(root, model, clip):
-    """Runtime clip duration in seconds, after the loader's clip revisions."""
+def resolved_clip(root, model, clip):
+    """Runtime clip payload after the loader's clip revisions."""
     assets = root/'src/main/resources/assets/mcyukkuri'
     data = read(assets/'yukkuri'/f'{model}.json')
     bones = [bone['name'] for bone in data['bones']]
@@ -333,7 +333,12 @@ def clip_seconds(root, model, clip):
     clips.update(data.get('behavior_clips', {}))
     if clip not in clips:
         raise ValueError(f'Unknown clip {model}/{clip}')
-    return clips[clip]['duration']
+    return clips[clip]
+
+
+def clip_seconds(root, model, clip):
+    """Runtime clip duration in seconds, after the loader's clip revisions."""
+    return resolved_clip(root, model, clip)['duration']
 
 
 def encode_video(frames, target, fps):
@@ -363,37 +368,49 @@ def video(args, stage):
         return canvas
 
     body = ''
-    for clip in args.clip:
-        seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, args.model, clip)
-        has_before = False
-        if before_root:
+    models = args.model if isinstance(args.model, list) else [args.model]
+    multi = len(models) > 1
+    for model in models:
+        for clip in args.clip:
             try:
-                seconds = min(seconds, clip_seconds(before_root, args.model, clip))
-                has_before = True
+                seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, model, clip)
             except ValueError:
-                has_before = False
-        count = round(seconds*args.fps)
-        if count < 1:
-            raise ValueError(f'Clip too short for {args.fps} fps: {args.model}/{clip}')
-        times = [i/args.fps for i in range(count)]
-        opts = argparse.Namespace(model=args.model, prop=None, clip=clip, partner=None, face=args.face,
-                                  draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
-                                  size=args.size, view=[0, 10], node=args.node)
-        frames = render_strip(opts, stage, times)
-        if has_before:
-            old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
-            pairs = []
-            for old_frame, new_frame in zip(old, frames):
-                pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
-                pair.paste(compose(old_frame, '旧'), (0, 0))
-                pair.paste(compose(new_frame, '新'), (args.size[0], 0))
-                pairs.append(pair)
-            frames = pairs
-        else:
-            frames = [compose(frame, '新' if before_root else '') for frame in frames]
-        name = f'{clip}.mp4'
-        encode_video(frames, stage/name, args.fps)
-        body += f'<h2>{E(clip)}</h2>' + media(name, f'{args.model} / {clip} · 正对机位 {args.fps} fps', loop=True)
+                if multi:
+                    continue
+                raise
+            has_before = False
+            if before_root:
+                try:
+                    before_clip = resolved_clip(before_root, model, clip)
+                    if multi and not args.draft_clip and before_clip == resolved_clip(ROOT, model, clip):
+                        continue
+                    seconds = min(seconds, before_clip['duration'])
+                    has_before = True
+                except ValueError:
+                    has_before = False
+            count = round(seconds*args.fps)
+            if count < 1:
+                raise ValueError(f'Clip too short for {args.fps} fps: {model}/{clip}')
+            times = [i/args.fps for i in range(count)]
+            opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=args.face,
+                                      draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
+                                      size=args.size, view=[0, 10], node=args.node)
+            frames = render_strip(opts, stage, times)
+            if has_before:
+                old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
+                pairs = []
+                for old_frame, new_frame in zip(old, frames):
+                    pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
+                    pair.paste(compose(old_frame, '旧'), (0, 0))
+                    pair.paste(compose(new_frame, '新'), (args.size[0], 0))
+                    pairs.append(pair)
+                frames = pairs
+            else:
+                frames = [compose(frame, '新' if before_root else '') for frame in frames]
+            name = f'{model}-{clip}.mp4' if multi else f'{clip}.mp4'
+            encode_video(frames, stage/name, args.fps)
+            heading = f'{model} / {clip}' if multi else clip
+            body += f'<h2>{E(heading)}</h2>' + media(name, f'{model} / {clip} · 正对机位 {args.fps} fps', loop=True)
     return body
 
 
@@ -957,7 +974,7 @@ def parser():
     vd.add_argument('topic', type=valid_topic)
     vd.add_argument('--title')
     vd.add_argument('--decision', help='also add to the review inbox with this decision')
-    vd.add_argument('--model', required=True)
+    vd.add_argument('--model', nargs='+', required=True, help='one or more runtime models')
     vd.add_argument('--clip', nargs='+', default=['idle'], help='one video per clip')
     vd.add_argument('--before', help='before checkout path or Git ref, played beside the current clip')
     vd.add_argument('--face', help='runtime expression id')
@@ -1010,7 +1027,8 @@ def main():
                             else (moment_url(args) if args.command == 'moment' else f'../{args.topic}/index.html')),
                        decision=args.decision,
                        entry=moment_entry_id(args.topic) if args.command == 'moment' else None,
-                       look_only=args.command == 'viewer'))
+                       look_only=args.command == 'viewer',
+                       kind='motion' if args.command in ('video', 'viewer') else None))
         elif args.command == 'inbox':
             inbox(args)
         if args.command in ('hub', 'kit'):
