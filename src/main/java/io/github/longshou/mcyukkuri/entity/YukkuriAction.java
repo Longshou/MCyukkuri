@@ -162,6 +162,7 @@ public enum YukkuriAction {
     // spit that throws a refused bite back out (it starts on the tick the item drops), and the parting played in place.
     RUN("run", 0.64, true),
     REJECT_OR_SPIT("reject_or_spit", 3.0, false),
+    SPIT_ALONE("spit_alone", 2.4, false),
     FAREWELL("farewell", 6.4, false),
     // Motion library gaps (lore recipe base-motions): the watch kept at a pane and its weary form, the hair and tail mood displays
     // shown with a face-only reaction (braid, sideburns, Chen tails; other forms move only the body), and Patchouli's cough.
@@ -227,6 +228,8 @@ public enum YukkuriAction {
     /** A clip whose body leaves the ground: the hop-run, hops and the joy jump. YukkuriSync writes every clip through one gate that plays idle in place of these for a body that cannot spring. */
     public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP || this == RUN; }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
+    /** Shared food-refusal clip choice: offered food gets the side-face pout; eating alone gets the plain disgust/let-down variant. */
+    public static YukkuriAction foodRefusal(boolean offered) { return offered ? REJECT_OR_SPIT : SPIT_ALONE; }
     public static Optional<YukkuriAction> byId(String id) {
         return Arrays.stream(values()).filter(action -> action.id.equals(id)).findFirst();
     }

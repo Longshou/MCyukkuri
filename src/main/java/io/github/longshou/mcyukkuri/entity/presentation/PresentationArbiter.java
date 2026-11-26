@@ -152,7 +152,7 @@ public final class PresentationArbiter {
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if(YukkuriAction.STAMP.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"angry");
-        if(YukkuriAction.REJECT_OR_SPIT.id().equals(clip))
+        if(YukkuriAction.REJECT_OR_SPIT.id().equals(clip)||YukkuriAction.SPIT_ALONE.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"bad_taste_small");
         if (clip.equals(e.life().braidMealClip()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "look_down");

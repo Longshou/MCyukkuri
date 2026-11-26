@@ -1598,5 +1598,13 @@
       12
     ],
     "sha256": "e3dddb518b1506e63282ff451aea9197d13018a5fc748d7ec0ed0a81376e2def"
+  },
+  "bb417f9e227a4ed5bd64": {
+    "path": "expressions/parts/bb417f9e227a4ed5bd64.png",
+    "size": [
+      14,
+      12
+    ],
+    "sha256": "dcafd4f8c76b112a233233175304c2b9ee7cb9bbbbd194f3624ba91a3edb5ddb"
   }
 }

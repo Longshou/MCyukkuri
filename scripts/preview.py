@@ -365,8 +365,13 @@ def video(args, stage):
     body = ''
     for clip in args.clip:
         seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, args.model, clip)
+        has_before = False
         if before_root:
-            seconds = min(seconds, clip_seconds(before_root, args.model, clip))
+            try:
+                seconds = min(seconds, clip_seconds(before_root, args.model, clip))
+                has_before = True
+            except ValueError:
+                has_before = False
         count = round(seconds*args.fps)
         if count < 1:
             raise ValueError(f'Clip too short for {args.fps} fps: {args.model}/{clip}')
@@ -375,7 +380,7 @@ def video(args, stage):
                                   draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
                                   size=args.size, view=[0, 10], node=args.node)
         frames = render_strip(opts, stage, times)
-        if before_root:
+        if has_before:
             old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
             pairs = []
             for old_frame, new_frame in zip(old, frames):
@@ -385,7 +390,7 @@ def video(args, stage):
                 pairs.append(pair)
             frames = pairs
         else:
-            frames = [compose(frame) for frame in frames]
+            frames = [compose(frame, '新' if before_root else '') for frame in frames]
         name = f'{clip}.mp4'
         encode_video(frames, stage/name, args.fps)
         body += f'<h2>{E(clip)}</h2>' + media(name, f'{args.model} / {clip} · 正对机位 {args.fps} fps', loop=True)

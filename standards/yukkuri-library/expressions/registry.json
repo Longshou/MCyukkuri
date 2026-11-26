@@ -423,6 +423,9 @@
     "drink_lap": {
       "kind": "standard"
     },
+    "thinking": {
+      "kind": "standard"
+    },
     "afraid": {
       "kind": "derived",
       "builder": "standards/yukkuri-library/expressions/derived/faces.py",

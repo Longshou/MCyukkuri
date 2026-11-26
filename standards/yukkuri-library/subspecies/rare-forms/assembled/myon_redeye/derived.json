@@ -10,7 +10,7 @@
   "status": "pending_confirmation",
   "basis": "wiki species/myon L05《赤い眼のみょん》：红眼个体遭群落迷信；DEVELOPMENT_PLAN 4.2 红眼作为稀有外观",
   "operations": {
-    "recoloured_eye_pixels": 6561
+    "recoloured_eye_pixels": 6629
   },
   "textures": {
     "afraid": "df600976952b56f78547db51a9cc9a7d1940cbef836ce4ca2fdb7e3d2616970d",
@@ -114,6 +114,7 @@
     "teary_smile_b": "599b2a77b51d2ce06930d458b036b698706dbcca212005033e15f0af90d28f47",
     "teary_tongue": "e3a340bb50d832916bf2749b952ba623719b67a5c3855400f4f3d1d2a0fec4ec",
     "teary_tongue_b": "cb1e8f8d99279a639150a6bfcd22b4e3f76feab829ef5930d4b50d5ec3bd0297",
+    "thinking": "0728b0e1618863d799e99b821f34f14c52184787233254e459bbc708bf4510c1",
     "tongue_cry": "d82e3c5408203ad8246c1cafa489d33a6817cec4ab30511516646e652ec3ce96",
     "tongue_cry_b": "0bb35bd05aafa4d517d0d40d131b7e7f95693cf50fafc6fe6974f4266c5f690e",
     "waking": "3e20ad093a8dde9e643448e0719056bd5335bd26aa4f2621667ca711016d0086",

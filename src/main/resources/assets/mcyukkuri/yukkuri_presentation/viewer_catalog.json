@@ -59,6 +59,7 @@
     ["joy_hop", "饭后幸福"],
     ["meal_content", "吃饱满足瘫软"],
     ["reject_or_spit", "吐出拒食"],
+    ["spit_alone", "独自吐出拒食"],
     ["drink", "饮水"],
     ["sleep", "睡觉"],
     ["wake", "醒来"],

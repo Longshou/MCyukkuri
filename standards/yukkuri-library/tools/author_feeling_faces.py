@@ -45,6 +45,10 @@ ART = {
     'mouth_sulk': ['..............', '..............', '..............', '......AA......', '.....AAAA.....',
                    '....AA..AA....', '..............', '..............', '..............', '..............',
                    '..............', '..............'],
+    # Small closed horizontal "hmm" line for quiet thinking (no pout, no frown).
+    'mouth_hmm': ['..............', '..............', '..............', '..............', '....AAAAAA....',
+                  '..............', '..............', '..............', '..............', '..............',
+                  '..............', '..............'],
 }
 # Approved parts reused by hash prefix.
 STD = dict(smug_eye_l='4e7eae754f', smug_eye_r='8ea6755ac7', smug_brow_l='4a98859cf9', smug_brow_r='87649084e1',
@@ -67,6 +71,9 @@ FACES = {
                  'face_brow_left': 'worry_brow_l', 'face_brow_right': 'worry_brow_r', 'face_blush_left': 'flush',
                  'face_blush_right': 'flush', 'face_mouth': 'waver', 'face_effect_mouth': 'blank'},
                 'shame/shyness: eyes looking away and down, worried brows, deep cheek flush, a wavering mouth'),
+    'thinking': ('neutral', '思考', '动作表情',
+                 {'face_mouth': 'mouth_hmm'},
+                 'quiet thinking: bright open eyes, relaxed brows, a small closed neutral hmm line with no pout'),
 }
 
 

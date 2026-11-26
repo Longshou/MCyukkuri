@@ -603,6 +603,12 @@
       "code": "D01",
       "label": "饮水舔舐",
       "preset": "expressions/presets/drink_lap.json"
+    },
+    {
+      "id": "thinking",
+      "code": "F06",
+      "label": "思考",
+      "preset": "expressions/presets/thinking.json"
     }
   ],
   "deferred_ids": [],
