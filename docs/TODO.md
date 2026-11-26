@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 美术：其他种族的辫子替代动作（翻桶、扑腾） | `.worktrees/wp-braid-species` | standards/yukkuri-library/motions/variants/lore (bin_nose_in, water_flail, water_struggle per species), author.py braid rule, BRAID.md |
 
 ## 玩法待办
 
