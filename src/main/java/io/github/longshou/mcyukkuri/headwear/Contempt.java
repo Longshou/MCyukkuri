@@ -219,12 +219,12 @@ public final class Contempt {
                         p.fear(source.getUUID()), starving, sameGroup),
                 target.getRandom().nextDouble());
         if (outcome.avoidTaunter()) target.headwear().avoidTaunter(source.getUUID(), ScornLadder.AVOID_TAUNTER_TICKS);
+        boolean fleeRequested = outcome.kind() == ScornLadder.TargetKind.LEAVE && !target.isPanicking() && mobile(target);
         if (outcome.kind() == ScornLadder.TargetKind.LEAVE) {
-            if (!target.isPanicking() && mobile(target)) target.fleeFrom(source);
-            if (!target.groupInteraction().defense().active() && !target.isPanicking()
-                    && target.showReaction(outcome.face(), "", FaceTier.Tier.SHORT)) {
-                target.beat(outcome.beat(), outcome.face(), "");
-            }
+            // The hurt is what it shows while it goes: one forced face through the flight, as a departure's walk-out holds its own.
+            target.forceReaction(outcome.face(), "", FaceTier.Tier.MEDIUM);
+            target.beat(outcome.beat(), outcome.face(), "");
+            if (fleeRequested) target.fleeFrom(source);
         } else if (!target.groupInteraction().defense().active() && !target.isPanicking()) {
             boolean shown = outcome.clip() != null
                     ? target.showReaction(outcome.clip(), outcome.face(), outcome.event(), outcome.clip().durationTicks(), FaceTier.Tier.MEDIUM)
@@ -236,9 +236,9 @@ public final class Contempt {
         }
         // An insult weighs less than being driven from a home (.5); a bold one fumes, a meek one is hurt and sad.
         if (!sameGroup) target.mind().feeling().wronged(source.getUUID(), .35f);
-        GameplayLog.event(target, "contempt", "scorned source={} rounds={} outcome={} face={} event={} avoid={}",
+        GameplayLog.event(target, "contempt", "scorned source={} rounds={} outcome={} face={} event={} avoid={} fleeRequested={}",
                 source.getUUID(), scornedRounds, outcome.kind().name().toLowerCase(Locale.ROOT), outcome.face(),
-                outcome.event().isEmpty() ? "none" : outcome.event(), outcome.avoidTaunter());
+                outcome.event().isEmpty() ? "none" : outcome.event(), outcome.avoidTaunter(), fleeRequested);
     }
 
     /**
