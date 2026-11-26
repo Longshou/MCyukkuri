@@ -14,6 +14,7 @@
 | 偶发小演出的表情时长 | `.worktrees/wp-face-tiers` | entity/presentation/FaceTier, entity/YukkuriEntity, entity/presentation/PresentationArbiter, dialogue/SpeechTiming, social/Departure, aquatic/LeaveBehind, family/DrivenOut, entity/Encounter, play/PlayLife, mind/EmotionCourse, showReaction callers |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
 | 预览录像命令 | `.worktrees/wp-preview-video` | scripts/preview.py, scripts/README.md |
+| 害羞重做与旧画风眼睛替换 | `.worktrees/wp-shy-eyes` | standards/yukkuri-library/expressions, motions/variants/lore (shy) |
 
 ## 玩法待办
 
