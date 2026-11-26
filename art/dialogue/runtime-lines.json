@@ -29878,6 +29878,2386 @@
         "home_declare"
       ],
       "english": "This is Kinbao's home!"
+    },
+    {
+      "id": "reimu.adult.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりさんも ないなんて、ゆっくりじゃ ないよ！",
+      "chinese": "连头饰先生都没有，才不是油库里哟！",
+      "english": "With no ornament at all, you are not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_scorn_2"
+      },
+      "source_sha256": "06943a60433d62a87836dcc22f28bbcb6f9d9fdb0e96ccc8db844086ac659aab",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "あたまが すっぽんぽんで、ゆっくり できないよ！",
+      "chinese": "头顶光秃秃的，真让人没法油库里哟！",
+      "english": "A bare head like that ruins taking it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_scorn_3"
+      },
+      "source_sha256": "1154b54a71fa00fecad5110eef5f8e5efd0bafcf5098c8d83838778f35004a39",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おかじゃり にゃい、ゆっくりじゃ にゃいよぉ！",
+      "chinese": "头饰都没惹，才不是油库里哟！",
+      "english": "No ornament! Not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_scorn_2"
+      },
+      "source_sha256": "068913861f4d30d005a21f7159bbd3ad4131b763312e6d0e552c113341faffa6",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ちゅるちゅる あたま、ゆっくり できにゃいよぉ！",
+      "chinese": "光秃秃的，没法油库里哟！",
+      "english": "Bare head! Cannot take it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_scorn_3"
+      },
+      "source_sha256": "1fb0ef98b52788af391e6cfae43f391fd5ed35f8913013d87b64596bd62c51e6",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おかざりさんも ないなんて、ゆっくりじゃ ないのぜ！",
+      "chinese": "连头饰先生都没有，才不是油库里贼！",
+      "english": "With no ornament at all, you are not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_scorn_2"
+      },
+      "source_sha256": "b5e3a4b069ff11c9c1a47e73124c69c67c4f3a6253e37554efdbcb97c57d7734",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "あたまが すっぽんぽんで、ゆっくり できないのぜ！",
+      "chinese": "头顶光秃秃的，真让人没法油库里贼！",
+      "english": "A bare head like that ruins taking it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_scorn_3"
+      },
+      "source_sha256": "3ea80fcc51238cd59917ab7df7a6e645e1400dd0e1365e5ca7becb667d15c9ad",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おかじゃり にゃい、ゆっくりじゃ にゃいのじぇ！",
+      "chinese": "头饰都没惹，才不是油库里惹杰！",
+      "english": "No ornament! Not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_scorn_2"
+      },
+      "source_sha256": "163240c7c694cdf892927bef7ae5d020092227b1d51f0ad41aec2849d54152c6",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ちゅるちゅる あたま、ゆっくり できにゃいのじぇ！",
+      "chinese": "光秃秃的，没法油库里惹杰！",
+      "english": "Bare head! Cannot take it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_scorn_3"
+      },
+      "source_sha256": "b70912cc4674ca3dd6e4ffdb81a6bcd804f79b715bce1a15933876e922b1d7e9",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりさんも ないなんて、ゆっくりじゃ ないわ！",
+      "chinese": "连头饰先生都没有，才不是油库里哇！",
+      "english": "With no ornament at all, you are not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_scorn_2"
+      },
+      "source_sha256": "568fe09fd5a63997f472a31e39c21fd50acac60e3512e0e96af9906352a2694f",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "あたまが すっぽんぽんで、ゆっくり できないわ！",
+      "chinese": "头顶光秃秃的，真让人没法油库里哇！",
+      "english": "A bare head like that ruins taking it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_scorn_3"
+      },
+      "source_sha256": "51f679e5bed4f2ac0cf4b6015507820be426f18add173ad421ee835b9ce1d102",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おかじゃり にゃい、ゆっくりじゃ にゃいわよぉ！",
+      "chinese": "头饰都没惹，才不是油库里哇哟！",
+      "english": "No ornament! Not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_scorn_2"
+      },
+      "source_sha256": "504c37ab84dc7718a107f2813adfb7e9e49210ca6745fb8d6de2be0a61c70ffc",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ちゅるちゅる あたま、ゆっくり できにゃいわよぉ！",
+      "chinese": "光秃秃的，没法油库里哇哟！",
+      "english": "Bare head! Cannot take it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_scorn_3"
+      },
+      "source_sha256": "76a603a798e98065476ce92f00113079d95dadcf9c8114bfb49c16b93d23e6cf",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりさんも ないなんて、ゆっくりじゃ ないよー！",
+      "chinese": "连头饰先生都没有，才不是油库里哟——！",
+      "english": "With no ornament at all, you are not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_scorn_2"
+      },
+      "source_sha256": "e47c057c7994bae57cab2c5a959798eb6de660fd57079cb2fe52446e31bed214",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "あたまが すっぽんぽんで、ゆっくり できないよー！",
+      "chinese": "头顶光秃秃的，真让人没法油库里哟——！",
+      "english": "A bare head like that ruins taking it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_scorn_3"
+      },
+      "source_sha256": "3723e280744f8405ca0fe996c675f8c55bf864a9f57043c27c96f93715620f03",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃり にゃい、ゆっくりじゃ にゃいよぅ！",
+      "chinese": "头饰都没惹，才不是油库里哟——！",
+      "english": "No ornament! Not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_scorn_2"
+      },
+      "source_sha256": "b9f4a29997d136d27d9c712c7ecb055d537538334e5e4790f31f0bebf12df62f",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ちゅるちゅる あたま、ゆっくり できにゃいよぅ！",
+      "chinese": "光秃秃的，没法油库里哟——！",
+      "english": "Bare head! Cannot take it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_scorn_3"
+      },
+      "source_sha256": "e931bf7b49df89c9014a7ec272f3268d664c06c3cbecc366a9f5efcdf4268544",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……おかざりさんも ないなんて、ゆっくりじゃ ないわ！",
+      "chinese": "姆啾……连头饰先生都没有，才不是油库里哇！",
+      "english": "Mukyu... With no ornament at all, you are not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_scorn_2"
+      },
+      "source_sha256": "e5d60af8fb6f523e56fb9332d8bef178a2330e686657fd1a67e129f124aebca8",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……あたまが すっぽんぽんで、ゆっくり できないわ！",
+      "chinese": "姆啾……头顶光秃秃的，真让人没法油库里哇！",
+      "english": "Mukyu... A bare head like that ruins taking it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_scorn_3"
+      },
+      "source_sha256": "f501e1f9ae1c205a6370ac1d793a5ac842e5878bd4bf3e2c848a7c0ad5e8b79b",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_scorn_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おかじゃり にゃい、ゆっくりじゃ にゃいわぁ！",
+      "chinese": "姆啾……头饰都没惹，才不是油库里哇！",
+      "english": "Mukyu... No ornament! Not a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_scorn_2"
+      },
+      "source_sha256": "4a6086e9fceff78d1c9c711242f24c6c6f8176e52a25ed5bf3a5b83d2df54f82",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_scorn_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ちゅるちゅる あたま、ゆっくり できにゃいわぁ！",
+      "chinese": "姆啾……光秃秃的，没法油库里哇！",
+      "english": "Mukyu... Bare head! Cannot take it easy!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_scorn_3"
+      },
+      "source_sha256": "55e723d17f5c5109f8d36712c95dbf7c315b7a0d814e363e1824f62b241dca48",
+      "events": [
+        "hatless_scorn"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぷくー！ すっぽんぽんの あたま、おかしいよ！",
+      "chinese": "噗咕！光秃秃的脑袋真好笑哟！",
+      "english": "Puff! That bare head looks ridiculous!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_jeer_1"
+      },
+      "source_sha256": "52065c9c476cf90a4f456850b410d82a8f83efb4ac18ee9657cf249ce1e964af",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりさんは どこ？ なくした やつは はずかしいよ！",
+      "chinese": "头饰先生呢？丢掉头饰的家伙真丢脸哟！",
+      "english": "Where is your ornament? Losing it is shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_jeer_2"
+      },
+      "source_sha256": "6e5779fdb62ae0cf65a76a3bcb066c0dee805bd8540e8fda9b48b7b8dc4bfe19",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ははっ、おかざりなしで うろうろ してるよ！",
+      "chinese": "哈哈，没头饰还敢晃来晃去哟！",
+      "english": "Haha, still wandering around with a bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_jeer_3"
+      },
+      "source_sha256": "a14df761b31d206d0e36097fde1787fa6876b38b02c2ca90cb6bbea7c413eb0d",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぷくー！ ちゅるちゅる あたま、へんだよよぉ！",
+      "chinese": "噗咕！光秃秃的脑袋好滑稽哟！",
+      "english": "Puff! Funny bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_jeer_1"
+      },
+      "source_sha256": "dd49190a52445893729ca3010c4a9efe695bbe063c1a440105012b88ced9e405",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おかじゃり どこ？ にゃくして はじゅかしいよぉ！",
+      "chinese": "头饰先生不见惹？真丢脸哟！",
+      "english": "Lost your ornament? How shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_jeer_2"
+      },
+      "source_sha256": "e73d4aac233b27d921beb30bc7fc095d95d52f09c6d1530d7d7898b8284e6179",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "えへへ、おかじゃり にゃいのに うろうろ してるよぉ！",
+      "chinese": "嘻嘻，没头饰还到处跑哟！",
+      "english": "Heehee, walking around with no ornament!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_jeer_3"
+      },
+      "source_sha256": "361eb6e5db1ce49582091d5aac4b124f6c84a8be37b17de55e69d1e1afb4e858",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぷくー！ すっぽんぽんの あたま、おかしいのぜ！",
+      "chinese": "噗咕！光秃秃的脑袋真好笑贼！",
+      "english": "Puff! That bare head looks ridiculous!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_jeer_1"
+      },
+      "source_sha256": "47486864009c8264f3dea7ae3337992508eae2623d56de3264a61b7fd28145f5",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おかざりさんは どこ？ なくした やつは はずかしいのぜ！",
+      "chinese": "头饰先生呢？丢掉头饰的家伙真丢脸贼！",
+      "english": "Where is your ornament? Losing it is shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_jeer_2"
+      },
+      "source_sha256": "6dcdae431e1978c74c45766994a0cb953b784c692d8f85a1ec64f77409c9de4a",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ははっ、おかざりなしで うろうろ してるのぜ！",
+      "chinese": "哈哈，没头饰还敢晃来晃去贼！",
+      "english": "Haha, still wandering around with a bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_jeer_3"
+      },
+      "source_sha256": "57ee08a2bb49501e9e14b7287ff70444afe37d96d216526c068cf2bd9013bb1c",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぷくー！ ちゅるちゅる あたま、へんだよのじぇ！",
+      "chinese": "噗咕！光秃秃的脑袋好滑稽惹杰！",
+      "english": "Puff! Funny bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_jeer_1"
+      },
+      "source_sha256": "43eb6cc855e5f21ec8f9027f947fabe571df43d2a2e6e99c20bc93346e9a9693",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おかじゃり どこ？ にゃくして はじゅかしいのじぇ！",
+      "chinese": "头饰先生不见惹？真丢脸惹杰！",
+      "english": "Lost your ornament? How shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_jeer_2"
+      },
+      "source_sha256": "88fef586bbc9a4643ba08009457f7980acbb70c76464b6fe29e116d26ce5e7b6",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "えへへ、おかじゃり にゃいのに うろうろ してるのじぇ！",
+      "chinese": "嘻嘻，没头饰还到处跑惹杰！",
+      "english": "Heehee, walking around with no ornament!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_jeer_3"
+      },
+      "source_sha256": "952d46c26a9fc11c9ad615d8e8e9cf724316aaf6ee3e6055abc3e8d07ff24fe5",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぷくー！ すっぽんぽんの あたま、おかしいわ！",
+      "chinese": "噗咕！光秃秃的脑袋真好笑哇！",
+      "english": "Puff! That bare head looks ridiculous!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_jeer_1"
+      },
+      "source_sha256": "2333cbb01276d1ac2326e1c9f0ec4870b539ff37fb5fdb05f6576f2481716b62",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりさんは どこ？ なくした やつは はずかしいわ！",
+      "chinese": "头饰先生呢？丢掉头饰的家伙真丢脸哇！",
+      "english": "Where is your ornament? Losing it is shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_jeer_2"
+      },
+      "source_sha256": "f9bc7e72656f10c47c966c2ba31f040a35f04751bdcc2645ea37abe478bdf2ac",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ははっ、おかざりなしで うろうろ してるわ！",
+      "chinese": "哈哈，没头饰还敢晃来晃去哇！",
+      "english": "Haha, still wandering around with a bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_jeer_3"
+      },
+      "source_sha256": "c305a62f46367fbb5bee1d71432744a08357091e83ed8aa36ee2e5d03aa0c0db",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぷくー！ ちゅるちゅる あたま、へんだよわよぉ！",
+      "chinese": "噗咕！光秃秃的脑袋好滑稽哇哟！",
+      "english": "Puff! Funny bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_jeer_1"
+      },
+      "source_sha256": "c4be323b3aede31debe5adc5ca27e062559a8b82c6c0560d9770074289da43f1",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おかじゃり どこ？ にゃくして はじゅかしいわよぉ！",
+      "chinese": "头饰先生不见惹？真丢脸哇哟！",
+      "english": "Lost your ornament? How shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_jeer_2"
+      },
+      "source_sha256": "6082000dca484557d548728992895d1253c0bc6e015bc50af48ba4ccd57f9cea",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "えへへ、おかじゃり にゃいのに うろうろ してるわよぉ！",
+      "chinese": "嘻嘻，没头饰还到处跑哇哟！",
+      "english": "Heehee, walking around with no ornament!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_jeer_3"
+      },
+      "source_sha256": "5bd1f090b85aa862c1ebce7f00ef7ff411a7dc7f0b7c52771acaaf2353426c53",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぷくー！ すっぽんぽんの あたま、おかしいよー！",
+      "chinese": "噗咕！光秃秃的脑袋真好笑哟——！",
+      "english": "Puff! That bare head looks ridiculous!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_jeer_1"
+      },
+      "source_sha256": "a0a96aaa41e81f54f05842e3d28f91adb4392ccc0c074d9315a77d6019726db3",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりさんは どこ？ なくした やつは はずかしいよー！",
+      "chinese": "头饰先生呢？丢掉头饰的家伙真丢脸哟——！",
+      "english": "Where is your ornament? Losing it is shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_jeer_2"
+      },
+      "source_sha256": "984e0af7e98222ed677c4e8f505ee31c78b877c7b13c1c79da7a8c0d75408e13",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ははっ、おかざりなしで うろうろ してるよー！",
+      "chinese": "哈哈，没头饰还敢晃来晃去哟——！",
+      "english": "Haha, still wandering around with a bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_jeer_3"
+      },
+      "source_sha256": "23bd8086aa67bdea24c2a60c52189d3a46fe5f866169a1529d96f8bf23c66ae9",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぷくー！ ちゅるちゅる あたま、へんだよよぅ！",
+      "chinese": "噗咕！光秃秃的脑袋好滑稽哟——！",
+      "english": "Puff! Funny bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_jeer_1"
+      },
+      "source_sha256": "8bd74f68e6c2a8e442cc3b5cb077bc46ab0f303fc73fd8c56066a63575e4ea32",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃり どこ？ にゃくして はじゅかしいよぅ！",
+      "chinese": "头饰先生不见惹？真丢脸哟——！",
+      "english": "Lost your ornament? How shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_jeer_2"
+      },
+      "source_sha256": "0f4655bc50673a79dddec147eaa84eb25accbf5465e5cf62b081622a8ec68e66",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "えへへ、おかじゃり にゃいのに うろうろ してるよぅ！",
+      "chinese": "嘻嘻，没头饰还到处跑哟——！",
+      "english": "Heehee, walking around with no ornament!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_jeer_3"
+      },
+      "source_sha256": "07feb8618e55d7d0fa589316f6bade3fd51433e2513fff45f6dd97b1a7a869b0",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ぷくー！ すっぽんぽんの あたま、おかしいわ！",
+      "chinese": "姆啾……噗咕！光秃秃的脑袋真好笑哇！",
+      "english": "Mukyu... Puff! That bare head looks ridiculous!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_jeer_1"
+      },
+      "source_sha256": "4514b7f9c1387b8bd36f6834f4c44b9a8ff257053e1297ff821cbdf1d24140fa",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……おかざりさんは どこ？ なくした やつは はずかしいわ！",
+      "chinese": "姆啾……头饰先生呢？丢掉头饰的家伙真丢脸哇！",
+      "english": "Mukyu... Where is your ornament? Losing it is shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_jeer_2"
+      },
+      "source_sha256": "fe7d614a079ac33820e5d9ee54ca1498c3d286ad715a935dbb27e682c5000859",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ははっ、おかざりなしで うろうろ してるわ！",
+      "chinese": "姆啾……哈哈，没头饰还敢晃来晃去哇！",
+      "english": "Mukyu... Haha, still wandering around with a bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_jeer_3"
+      },
+      "source_sha256": "8442af4986f49fb2e69b80db87943901e78f6b479ff744472f07c99093276f93",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_jeer_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぷくー！ ちゅるちゅる あたま、へんだよわぁ！",
+      "chinese": "姆啾……噗咕！光秃秃的脑袋好滑稽哇！",
+      "english": "Mukyu... Puff! Funny bare head!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_jeer_1"
+      },
+      "source_sha256": "b585f43b95290b6e4a6e0ce5a7a1ea1edbc9d482deee24c0b1bb82d013c663c5",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_jeer_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おかじゃり どこ？ にゃくして はじゅかしいわぁ！",
+      "chinese": "姆啾……头饰先生不见惹？真丢脸哇！",
+      "english": "Mukyu... Lost your ornament? How shameful!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_jeer_2"
+      },
+      "source_sha256": "fbc317f252f0c0fc0c41b9b67b87a366928169c80cd62091191e047401f485b2",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_jeer_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……えへへ、おかじゃり にゃいのに うろうろ してるわぁ！",
+      "chinese": "姆啾……嘻嘻，没头饰还到处跑哇！",
+      "english": "Mukyu... Heehee, walking around with no ornament!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_jeer_3"
+      },
+      "source_sha256": "16751c7eea432d1b4f4ea951e8a1cb228effb8aa010baa87745d0201a5b95d70",
+      "events": [
+        "hatless_jeer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ちかよらないで、あっちへ いってよ。",
+      "chinese": "别凑过来，快点走开哟。",
+      "english": "Do not come near me, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_shoo_1"
+      },
+      "source_sha256": "e36c5f19c1b9ff6f4f7bfa869a20003977eb4251de625330ed61e8ecc61bc906",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "おかざりの ない こは めのまえに いないでよ。",
+      "chinese": "没头饰的家伙别挡在眼前哟。",
+      "english": "A bare-headed one has no business in front of me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_shoo_2"
+      },
+      "source_sha256": "7a8dc97a53464fbc086a1a1ba5a759d4e5ac2bb9304529da056d98fe65116950",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "とおくへ いって、れいむの ゆっくりの じゃまよよ。",
+      "chinese": "离远一点，别打扰灵梦油库里哟。",
+      "english": "Stay far away, you are spoiling my ease.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_shoo_3"
+      },
+      "source_sha256": "107104e0c6fc36a098a04d78597b931ac45a067933a1830115be12abaed5f1bd",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "こっち こないで、あっち いっちぇよぉ。",
+      "chinese": "别过来，快走开哟。",
+      "english": "Stay back, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_shoo_1"
+      },
+      "source_sha256": "d25b5ab46fecd76c0bef3053f946e37c06af7677efa02e19445b55723bbe0f02",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "おかじゃり にゃい こ、じゃまよぉ。",
+      "chinese": "没头饰的别站在前面哟。",
+      "english": "No-ornament one, move out of the way.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_shoo_2"
+      },
+      "source_sha256": "d037bee56b2f62d500570b5d1a3bb06ef480dc4c8ebbc359bea047e9a8ecef76",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "とおく いっちぇ、わたちの じゃまよぉ。",
+      "chinese": "离远点，别打扰窝油库里哟。",
+      "english": "Go far away, do not bother me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_shoo_3"
+      },
+      "source_sha256": "551d492fda80120dbe22b7cc8f2ecd0d249ecb4ecd3b585d9329c449f8b640ec",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ちかよらないで、あっちへ いってのぜ。",
+      "chinese": "别凑过来，快点走开贼。",
+      "english": "Do not come near me, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_shoo_1"
+      },
+      "source_sha256": "ec9b926160b6b9c361c12c2ee8ee0d4f65bd6a7b5de302fcb5e03e9590c7ce17",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "おかざりの ない こは めのまえに いないでのぜ。",
+      "chinese": "没头饰的家伙别挡在眼前贼。",
+      "english": "A bare-headed one has no business in front of me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_shoo_2"
+      },
+      "source_sha256": "8f3a8f962e00df501f720f9da91318ff1569d2b5a81118dd24e4bd5f9525992f",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "とおくへ いって、まりさの ゆっくりの じゃまよのぜ。",
+      "chinese": "离远一点，别打扰魔理沙油库里贼。",
+      "english": "Stay far away, you are spoiling my ease.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_shoo_3"
+      },
+      "source_sha256": "8672cc8388cf30d8747b6f3ca8760a709cc11cb8753c672d7dbba3d4034f426f",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "こっち こないで、あっち いっちぇのじぇ。",
+      "chinese": "别过来，快走开惹杰。",
+      "english": "Stay back, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_shoo_1"
+      },
+      "source_sha256": "d60c4427d4a21d78ac91bc24b82afdb1b48099e05008d4998e8cd4165394dee7",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "おかじゃり にゃい こ、じゃまのじぇ。",
+      "chinese": "没头饰的别站在前面惹杰。",
+      "english": "No-ornament one, move out of the way.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_shoo_2"
+      },
+      "source_sha256": "f311b821cf2382f2cd26bdb51a12a66f62a8c3545d1315054428b707c55c1846",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "とおく いっちぇ、わたちの じゃまのじぇ。",
+      "chinese": "离远点，别打扰窝油库里惹杰。",
+      "english": "Go far away, do not bother me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_shoo_3"
+      },
+      "source_sha256": "0070ea557c648a6cde6b2bda2bc4e8bacaa04291b974f8b9c26abb3ade90b729",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ちかよらないで、あっちへ いってわ。",
+      "chinese": "别凑过来，快点走开哇。",
+      "english": "Do not come near me, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_shoo_1"
+      },
+      "source_sha256": "331cd2c7bebf3fe1ba331564d84305a2d9f1a291c87eeebc61acbe793587fd93",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "おかざりの ない こは めのまえに いないでわ。",
+      "chinese": "没头饰的家伙别挡在眼前哇。",
+      "english": "A bare-headed one has no business in front of me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_shoo_2"
+      },
+      "source_sha256": "e975e588fd1e0b2467abc9c0b525cebd2d7267bd7f2e90fc3c7b920923c2505b",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "とおくへ いって、ありすの ゆっくりの じゃまよわ。",
+      "chinese": "离远一点，别打扰爱丽丝油库里哇。",
+      "english": "Stay far away, you are spoiling my ease.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_shoo_3"
+      },
+      "source_sha256": "1228a15a2d0a8f628d4f963130901cb7f7cbb496f27f231d6803249417e26ddc",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "こっち こないで、あっち いっちぇわよぉ。",
+      "chinese": "别过来，快走开哇哟。",
+      "english": "Stay back, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_shoo_1"
+      },
+      "source_sha256": "294050618c5012ee5d060e0f0a37526103d2a46165983a9c85dc1843b51fe4a8",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "おかじゃり にゃい こ、じゃまわよぉ。",
+      "chinese": "没头饰的别站在前面哇哟。",
+      "english": "No-ornament one, move out of the way.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_shoo_2"
+      },
+      "source_sha256": "8c990bd4b225b0876b782e4b7742eed13cb55bc9df5749b38fedf421a2553425",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "とおく いっちぇ、わたちの じゃまわよぉ。",
+      "chinese": "离远点，别打扰窝油库里哇哟。",
+      "english": "Go far away, do not bother me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_shoo_3"
+      },
+      "source_sha256": "3ff394fe4582b6163a19ed286ac0c39c7c953469197fb8c36467bed0515bd936",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ちかよらないで、あっちへ いってよー。",
+      "chinese": "别凑过来，快点走开哟——。",
+      "english": "Do not come near me, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_shoo_1"
+      },
+      "source_sha256": "e8de543355abcb0f5c34f686a761c6823c6957a6714fd86245bb1d6aa365e4e8",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "おかざりの ない こは めのまえに いないでよー。",
+      "chinese": "没头饰的家伙别挡在眼前哟——。",
+      "english": "A bare-headed one has no business in front of me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_shoo_2"
+      },
+      "source_sha256": "de6faad1df3bf5a3802740e4b0bcf12cf14decb03e546abf0faf48d955743405",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "とおくへ いって、ちぇんの ゆっくりの じゃまよよー。",
+      "chinese": "离远一点，别打扰橙油库里哟——。",
+      "english": "Stay far away, you are spoiling my ease.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_shoo_3"
+      },
+      "source_sha256": "5a704b1115f18c98e5f53675db62971567bd0a0882dfee1df74cb21951265899",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "こっち こないで、あっち いっちぇよぅ。",
+      "chinese": "别过来，快走开哟——。",
+      "english": "Stay back, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_shoo_1"
+      },
+      "source_sha256": "7f6e583af767d5389596b1fe8234ecb2c2da9a82533a417ba1ecd07d4a75d376",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "おかじゃり にゃい こ、じゃまよぅ。",
+      "chinese": "没头饰的别站在前面哟——。",
+      "english": "No-ornament one, move out of the way.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_shoo_2"
+      },
+      "source_sha256": "35fa028267c65005174021640d77308b062792fcd5adf4d8d45405cee57e9607",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "とおく いっちぇ、わたちの じゃまよぅ。",
+      "chinese": "离远点，别打扰窝油库里哟——。",
+      "english": "Go far away, do not bother me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_shoo_3"
+      },
+      "source_sha256": "7beed59d1d7b36a04004a7a881e9f1dfcb9b7e73b496271defd1c3bca427e0c8",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ちかよらないで、あっちへ いってわ。",
+      "chinese": "姆啾……别凑过来，快点走开哇。",
+      "english": "Mukyu... Do not come near me, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_shoo_1"
+      },
+      "source_sha256": "5ca72268eddd490f77ee5994ee43f4430bd75521709cd0ec2f1cff8a280416ab",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……おかざりの ない こは めのまえに いないでわ。",
+      "chinese": "姆啾……没头饰的家伙别挡在眼前哇。",
+      "english": "Mukyu... A bare-headed one has no business in front of me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_shoo_2"
+      },
+      "source_sha256": "b8a34c404e8285dd7540a2906b23d41786d75c0c304cba6f894ae0370c4fddc9",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……とおくへ いって、ぱちゅりーの ゆっくりの じゃまよわ。",
+      "chinese": "姆啾……离远一点，别打扰帕秋莉油库里哇。",
+      "english": "Mukyu... Stay far away, you are spoiling my ease.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_shoo_3"
+      },
+      "source_sha256": "8d1c281b1400cc5f218e88f3af8fa36e2f90a17ba9cf055cf4c427d3678143c2",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_shoo_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……こっち こないで、あっち いっちぇわぁ。",
+      "chinese": "姆啾……别过来，快走开哇。",
+      "english": "Mukyu... Stay back, go away.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_shoo_1"
+      },
+      "source_sha256": "6a051dbfc8f623f59a2e01bd913408bb2156b01c945265e6cc385b2c2770866a",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_shoo_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……おかじゃり にゃい こ、じゃまわぁ。",
+      "chinese": "姆啾……没头饰的别站在前面哇。",
+      "english": "Mukyu... No-ornament one, move out of the way.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_shoo_2"
+      },
+      "source_sha256": "c186b9000f2e763147a0d9bc034dc50ca042b0a5bb3649d5c6c59db231ca6dfa",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_shoo_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……とおく いっちぇ、わたちの じゃまわぁ。",
+      "chinese": "姆啾……离远点，别打扰窝油库里哇。",
+      "english": "Mukyu... Go far away, do not bother me.",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_shoo_3"
+      },
+      "source_sha256": "6f7e294d278b228761d677be1b8466421b0c030b2f53ee34957a6c83ce5af9da",
+      "events": [
+        "hatless_shoo"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ねえ……あの こ、おかざりさんが ないよ……",
+      "chinese": "你看呀……那家伙头饰先生不见了哟……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_whisper_1"
+      },
+      "source_sha256": "cac37a2c452e5bbfd368f588059222f70ef0181b6920a1c03238dd748738c813",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "しーっ……おかざりなし、ちょっと へんよ……",
+      "chinese": "小声点……没头饰的好奇怪哟……",
+      "english": "Shh... a bare-headed one is so strange...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_whisper_2"
+      },
+      "source_sha256": "7842a78d1eaaf4057f74fd8b4b749f96964c76de4a9d5bb605d28303c72df3dd",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ほんとうに おかざり ないのね……はなれて いようよ……",
+      "chinese": "真的没有头饰呢……离它远点好哟……",
+      "english": "Really no ornament... better keep our distance...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_whisper_3"
+      },
+      "source_sha256": "c480eabb9666bcff024d171ba6833061f393d3e6dcafef7327c79f5a13d6d8b3",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ねえ……あの こ、おかじゃり にゃいよぉ……",
+      "chinese": "你看呀……它没有头饰惹哟……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_whisper_1"
+      },
+      "source_sha256": "05101b0609573486b59c7a1dbf2c01541f558ef3a9c0d04f7cc389a57fdfe948",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "しーっ……おかじゃり にゃい、へんなのよぉ……",
+      "chinese": "小声点……没头饰的好怪哟……",
+      "english": "Shh... no ornament is weird...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_whisper_2"
+      },
+      "source_sha256": "3d370a4f7be0312a658067629451b13b57b7a76bb05c7cf4edb52ed884a9e18c",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ほんとに おかじゃり にゃい……とおく いこうよぉ……",
+      "chinese": "真的没头饰呢……躲远点哟……",
+      "english": "Really no ornament... let us stay away...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_whisper_3"
+      },
+      "source_sha256": "ecadd1cbd46ac7547f783b03ed1ffeef42387209e071446cc79096a7a3f5ec3a",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ねえ……あの こ、おかざりさんが ないのぜ……",
+      "chinese": "你看呀……那家伙头饰先生不见了贼……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_whisper_1"
+      },
+      "source_sha256": "35fc530764937def667bc9dc4a6e0f3e2167229acc330e4e89f313b4320557ba",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "しーっ……おかざりなし、ちょっと へんのぜ……",
+      "chinese": "小声点……没头饰的好奇怪贼……",
+      "english": "Shh... a bare-headed one is so strange...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_whisper_2"
+      },
+      "source_sha256": "1a842f4607cbd98ea0ed06b3231c4d2ef4bc2ced07a421033e26343acf35d3c1",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ほんとうに おかざり ないのね……はなれて いようのぜ……",
+      "chinese": "真的没有头饰呢……离它远点好贼……",
+      "english": "Really no ornament... better keep our distance...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_whisper_3"
+      },
+      "source_sha256": "249b6c17306344dc418585f37dee6822c8d2373b79060f1fa8218b63eb7b60bf",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ねえ……あの こ、おかじゃり にゃいのじぇ……",
+      "chinese": "你看呀……它没有头饰惹惹杰……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_whisper_1"
+      },
+      "source_sha256": "3dd811cec8be542d424dfb7d6d4ee50ab012a5364d2a2368488893911b7d3d06",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "しーっ……おかじゃり にゃい、へんなののじぇ……",
+      "chinese": "小声点……没头饰的好怪惹杰……",
+      "english": "Shh... no ornament is weird...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_whisper_2"
+      },
+      "source_sha256": "3ef8a60854c5178e65c460e8d2259eeb3f8bf9c1eae3ca9e2309494e921da2c8",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ほんとに おかじゃり にゃい……とおく いこうのじぇ……",
+      "chinese": "真的没头饰呢……躲远点惹杰……",
+      "english": "Really no ornament... let us stay away...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_whisper_3"
+      },
+      "source_sha256": "85f909a48ae3b460f236036527c7116df97f328d8dd1290131eb9de578a16995",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ねえ……あの こ、おかざりさんが ないわ……",
+      "chinese": "你看呀……那家伙头饰先生不见了哇……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_whisper_1"
+      },
+      "source_sha256": "db685bc6a4b88987585584c366fff8d31074b50e463297f5397a7c6681cc4d5e",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "しーっ……おかざりなし、ちょっと へんわ……",
+      "chinese": "小声点……没头饰的好奇怪哇……",
+      "english": "Shh... a bare-headed one is so strange...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_whisper_2"
+      },
+      "source_sha256": "169176da26de45c34057b13de71500d94bd69c53cb449d3dab6be378d3d8cb80",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ほんとうに おかざり ないのね……はなれて いようわ……",
+      "chinese": "真的没有头饰呢……离它远点好哇……",
+      "english": "Really no ornament... better keep our distance...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_whisper_3"
+      },
+      "source_sha256": "3f887ee94a785964aca04eccd45a9f41b7743eed786d796328afbde7201b64c3",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ねえ……あの こ、おかじゃり にゃいわよぉ……",
+      "chinese": "你看呀……它没有头饰惹哇哟……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_whisper_1"
+      },
+      "source_sha256": "3bdf5575edd8bf5574ea0e9c57b297fb93b98fd57fe39d5f31240b7bc8be8b53",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "しーっ……おかじゃり にゃい、へんなのわよぉ……",
+      "chinese": "小声点……没头饰的好怪哇哟……",
+      "english": "Shh... no ornament is weird...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_whisper_2"
+      },
+      "source_sha256": "545fc10e63ba5f5343136959ae39145b2795bbe30f97fabf74e64fb4c127841c",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ほんとに おかじゃり にゃい……とおく いこうわよぉ……",
+      "chinese": "真的没头饰呢……躲远点哇哟……",
+      "english": "Really no ornament... let us stay away...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_whisper_3"
+      },
+      "source_sha256": "cadce106fb189963a1bab4ace8b067c5531a994d7a3888529247818961f7f92f",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ねえ……あの こ、おかざりさんが ないよー……",
+      "chinese": "你看呀……那家伙头饰先生不见了哟——……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_whisper_1"
+      },
+      "source_sha256": "3a3bc0e73f3ff9c1ed36c8e4aa16320a2e5f029ac79a576a17f6f8ee036f1531",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "しーっ……おかざりなし、ちょっと へんよー……",
+      "chinese": "小声点……没头饰的好奇怪哟——……",
+      "english": "Shh... a bare-headed one is so strange...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_whisper_2"
+      },
+      "source_sha256": "f4efbc1a7a49e5f924899396630bff2fd2607ba96dfabb91f1eea28c9ef9481e",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ほんとうに おかざり ないのね……はなれて いようよー……",
+      "chinese": "真的没有头饰呢……离它远点好哟——……",
+      "english": "Really no ornament... better keep our distance...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_whisper_3"
+      },
+      "source_sha256": "e7687cb3b761764f933e3e761decda671e5dd360fb093f0510e276a5ad808e4c",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ねえ……あの こ、おかじゃり にゃいよぅ……",
+      "chinese": "你看呀……它没有头饰惹哟——……",
+      "english": "Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_whisper_1"
+      },
+      "source_sha256": "5b1fee72f6c80e808769fb13825f4041270cb8606f428d4c8446066c5b52b0a1",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "しーっ……おかじゃり にゃい、へんなのよぅ……",
+      "chinese": "小声点……没头饰的好怪哟——……",
+      "english": "Shh... no ornament is weird...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_whisper_2"
+      },
+      "source_sha256": "00ec5ed9477b626996bdb75482399b14dac68f2cf21c40b8ec8744659a4ae703",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ほんとに おかじゃり にゃい……とおく いこうよぅ……",
+      "chinese": "真的没头饰呢……躲远点哟——……",
+      "english": "Really no ornament... let us stay away...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_whisper_3"
+      },
+      "source_sha256": "10ef34626e3023777e6655446eb82964b01f6a995d3d7ef81bfb6396f6b6ad68",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ねえ……あの こ、おかざりさんが ないわ……",
+      "chinese": "姆啾……你看呀……那家伙头饰先生不见了哇……",
+      "english": "Mukyu... Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_whisper_1"
+      },
+      "source_sha256": "9e081b0378a6fa9d59b82a665252bbe59f0b040d372b9f62debf874c1132fba6",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……しーっ……おかざりなし、ちょっと へんわ……",
+      "chinese": "姆啾……小声点……没头饰的好奇怪哇……",
+      "english": "Mukyu... Shh... a bare-headed one is so strange...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_whisper_2"
+      },
+      "source_sha256": "a0f63fd236f0ce218b04565d6e2017ecdc32aaaf2037d24b5365bca0e9527f67",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ほんとうに おかざり ないのね……はなれて いようわ……",
+      "chinese": "姆啾……真的没有头饰呢……离它远点好哇……",
+      "english": "Mukyu... Really no ornament... better keep our distance...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_whisper_3"
+      },
+      "source_sha256": "fd0e42f9f3590175dd0d8b5676a6c1701014f5c5f1bc825b6ae44d0319031343",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_whisper_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ねえ……あの こ、おかじゃり にゃいわぁ……",
+      "chinese": "姆啾……你看呀……它没有头饰惹哇……",
+      "english": "Mukyu... Look... that one has no ornament...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_whisper_1"
+      },
+      "source_sha256": "3567ffc8205c88b637f37897bf0b132ef6f628e0d5f22679b4a0887bcf5881d0",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_whisper_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……しーっ……おかじゃり にゃい、へんなのわぁ……",
+      "chinese": "姆啾……小声点……没头饰的好怪哇……",
+      "english": "Mukyu... Shh... no ornament is weird...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_whisper_2"
+      },
+      "source_sha256": "df62bb21c2b37bfc8d59301562aa1ce8043271384659317e1058d6bd3b1aefb1",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_whisper_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ほんとに おかじゃり にゃい……とおく いこうわぁ……",
+      "chinese": "姆啾……真的没头饰呢……躲远点哇……",
+      "english": "Mukyu... Really no ornament... let us stay away...",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_whisper_3"
+      },
+      "source_sha256": "7528874f67d9451f79b23c7d31d0f770002f06c227f08faaa63b4486280d4d18",
+      "events": [
+        "hatless_whisper"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "ぷくー！ おかざりが なくても れいむは ゆっくりよ！",
+      "chinese": "噗咕！没了头饰灵梦也是油库里哟！",
+      "english": "Puff! Even without my ornament, I am still a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_answer_1"
+      },
+      "source_sha256": "97c55d72d78140ba5dc30c095fa19abf80afa13f9d3074799393bd686394fee7",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "いつまでも わらわないで！ おかざりさんは きっと みつかるよ！",
+      "chinese": "别老是笑灵梦！头饰先生一定会找回来的哟！",
+      "english": "Stop laughing at me! I will find my ornament again!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_answer_2"
+      },
+      "source_sha256": "c6e0a535dba95370f273c650a09cead8adece6fb5fd1fd02555d2331779beecc",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "reimu.adult.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "adult",
+      "japanese": "うるさい！ れいむの こと ばかに しないでよ！",
+      "chinese": "吵死了！少对灵梦指指点点哟！",
+      "english": "Shut up! Stop looking down on me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.adult.o_hatless_answer_3"
+      },
+      "source_sha256": "548ee5f8b604670774a820e2cfce9a1884ba99626037c5bf2a8f20485553f451",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "ぷくー！ おかじゃり にゃくても わたちは ゆっくりよぉ！",
+      "chinese": "噗咕！没头饰窝也是油库里哟！",
+      "english": "Puff! Even with no ornament, I am a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_answer_1"
+      },
+      "source_sha256": "dd1372cad840365baaf99cef7d2c1be9f605069e0c00dca6c70daf337737f9af",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "わらわないで！ おかじゃり きっと みちゅかるよぉ！",
+      "chinese": "不许老笑窝！头饰会回来的哟！",
+      "english": "Stop laughing! My ornament will come back!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_answer_2"
+      },
+      "source_sha256": "d337da0558c349a4f1294d7402871f40081127367a2e936a71928b6823757e07",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "reimu.young.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "reimu",
+      "age": "young",
+      "japanese": "うるちゃい！ わたちを ばかに しないでよぉ！",
+      "chinese": "吵死惹！不许欺负窝哟！",
+      "english": "Be quiet! Do not make fun of me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "reimu.young.o_hatless_answer_3"
+      },
+      "source_sha256": "7e4cca4526c6ff52f12d6a2c562fee6e6fa77d7c641fbca64b55625065a6ceca",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "ぷくー！ おかざりが なくても まりさは ゆっくりのぜ！",
+      "chinese": "噗咕！没了头饰魔理沙也是油库里贼！",
+      "english": "Puff! Even without my ornament, I am still a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_answer_1"
+      },
+      "source_sha256": "f01b954e9e6d4f4c4f03286adc9a2ae8507f2291db06894399c5a1226afdcb54",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "いつまでも わらわないで！ おかざりさんは きっと みつかるのぜ！",
+      "chinese": "别老是笑魔理沙！头饰先生一定会找回来的贼！",
+      "english": "Stop laughing at me! I will find my ornament again!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_answer_2"
+      },
+      "source_sha256": "f382df64726b35663c46176fa065b03c607fa562ebb4da7fd6883cea34d4de29",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.adult.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "adult",
+      "japanese": "うるさい！ まりさの こと ばかに しないでのぜ！",
+      "chinese": "吵死了！少对魔理沙指指点点贼！",
+      "english": "Shut up! Stop looking down on me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.adult.o_hatless_answer_3"
+      },
+      "source_sha256": "06477df7c079ab09b6498141624865671bab03493f766ad4434dbdf187b41ee1",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "ぷくー！ おかじゃり にゃくても わたちは ゆっくりのじぇ！",
+      "chinese": "噗咕！没头饰窝也是油库里惹杰！",
+      "english": "Puff! Even with no ornament, I am a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_answer_1"
+      },
+      "source_sha256": "dba09e2d1257650faeb057566be04324228b6be80ed44ebe35245fe7e0a0ee0b",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "わらわないで！ おかじゃり きっと みちゅかるのじぇ！",
+      "chinese": "不许老笑窝！头饰会回来的惹杰！",
+      "english": "Stop laughing! My ornament will come back!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_answer_2"
+      },
+      "source_sha256": "fb8d5a399196267fd49474b11cf7c655f1153ebe06dcb05673eafe9fa76ccce1",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "marisa.young.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "marisa",
+      "age": "young",
+      "japanese": "うるちゃい！ わたちを ばかに しないでのじぇ！",
+      "chinese": "吵死惹！不许欺负窝惹杰！",
+      "english": "Be quiet! Do not make fun of me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "marisa.young.o_hatless_answer_3"
+      },
+      "source_sha256": "b825e353bca08076a54a9d147ce16bcd58d02b35a966449b5055d1701a1dab0a",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "ぷくー！ おかざりが なくても ありすは ゆっくりわ！",
+      "chinese": "噗咕！没了头饰爱丽丝也是油库里哇！",
+      "english": "Puff! Even without my ornament, I am still a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_answer_1"
+      },
+      "source_sha256": "3455735511ce9e5a2029833422993d406697ede0e76598cb2403d4c6ec8a81b7",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "いつまでも わらわないで！ おかざりさんは きっと みつかるわ！",
+      "chinese": "别老是笑爱丽丝！头饰先生一定会找回来的哇！",
+      "english": "Stop laughing at me! I will find my ornament again!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_answer_2"
+      },
+      "source_sha256": "61b3b669a3dbb7d3a5ff5272a8f4e3ede53e527bd0d3829ebf31d7d11fc19c17",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.adult.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "adult",
+      "japanese": "うるさい！ ありすの こと ばかに しないでわ！",
+      "chinese": "吵死了！少对爱丽丝指指点点哇！",
+      "english": "Shut up! Stop looking down on me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.adult.o_hatless_answer_3"
+      },
+      "source_sha256": "8fca5e62c497de3edd8fbe6fbb5622768bb61939519dca2ade2dcd1246b3787a",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "ぷくー！ おかじゃり にゃくても わたちは ゆっくりわよぉ！",
+      "chinese": "噗咕！没头饰窝也是油库里哇哟！",
+      "english": "Puff! Even with no ornament, I am a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_answer_1"
+      },
+      "source_sha256": "7573f23440c430285bc65f32f5f38b0a9abf45e383267134c0f62c3e1d37e320",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "わらわないで！ おかじゃり きっと みちゅかるわよぉ！",
+      "chinese": "不许老笑窝！头饰会回来的哇哟！",
+      "english": "Stop laughing! My ornament will come back!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_answer_2"
+      },
+      "source_sha256": "090e6f9e322bb5344395a295c877a2c04fdd9e9773d115122ee203defab5ea2f",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "alice.young.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "alice",
+      "age": "young",
+      "japanese": "うるちゃい！ わたちを ばかに しないでわよぉ！",
+      "chinese": "吵死惹！不许欺负窝哇哟！",
+      "english": "Be quiet! Do not make fun of me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "alice.young.o_hatless_answer_3"
+      },
+      "source_sha256": "87ce95210dc54a549b74b64b0576d66493ac87f830ecc166b61917e359e44aab",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "ぷくー！ おかざりが なくても ちぇんは ゆっくりよー！",
+      "chinese": "噗咕！没了头饰橙也是油库里哟——！",
+      "english": "Puff! Even without my ornament, I am still a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_answer_1"
+      },
+      "source_sha256": "a8459330a91fe15c6a4061f538c61db8cb752fa0b73157fb0c1745d62d6a8b72",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "いつまでも わらわないで！ おかざりさんは きっと みつかるよー！",
+      "chinese": "别老是笑橙！头饰先生一定会找回来的哟——！",
+      "english": "Stop laughing at me! I will find my ornament again!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_answer_2"
+      },
+      "source_sha256": "d0ea26a619f161bfcc578a6e998b680ae1142717d59c79a6be09e0f82dc921d6",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.adult.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "adult",
+      "japanese": "うるさい！ ちぇんの こと ばかに しないでよー！",
+      "chinese": "吵死了！少对橙指指点点哟——！",
+      "english": "Shut up! Stop looking down on me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.adult.o_hatless_answer_3"
+      },
+      "source_sha256": "c7e5824af8bcf71d642c033ceb36da4096210decf5e540f1b9c189073b69336f",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "ぷくー！ おかじゃり にゃくても わたちは ゆっくりよぅ！",
+      "chinese": "噗咕！没头饰窝也是油库里哟——！",
+      "english": "Puff! Even with no ornament, I am a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_answer_1"
+      },
+      "source_sha256": "cd0c27cc85295204c686908c455ebdcc4e743506bbc09c4aed847477b4d432e3",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "わらわないで！ おかじゃり きっと みちゅかるよぅ！",
+      "chinese": "不许老笑窝！头饰会回来的哟——！",
+      "english": "Stop laughing! My ornament will come back!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_answer_2"
+      },
+      "source_sha256": "fe361b869e6e80acc82699beee2afe7df7dbdd354402dae35d327ef53f445a6e",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "chen.young.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "chen",
+      "age": "young",
+      "japanese": "うるちゃい！ わたちを ばかに しないでよぅ！",
+      "chinese": "吵死惹！不许欺负窝哟——！",
+      "english": "Be quiet! Do not make fun of me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "chen.young.o_hatless_answer_3"
+      },
+      "source_sha256": "b8fcb7e1049f58bd2c258114d1555e2bd0f46da7c4a0b8e248223418151f8836",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……ぷくー！ おかざりが なくても ぱちゅりーは ゆっくりわ！",
+      "chinese": "姆啾……噗咕！没了头饰帕秋莉也是油库里哇！",
+      "english": "Mukyu... Puff! Even without my ornament, I am still a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_answer_1"
+      },
+      "source_sha256": "3b8592dc9c737b980f59598a599f3addba37eb86efb27e7b3fe1b19ea8bbfbd6",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……いつまでも わらわないで！ おかざりさんは きっと みつかるわ！",
+      "chinese": "姆啾……别老是笑帕秋莉！头饰先生一定会找回来的哇！",
+      "english": "Mukyu... Stop laughing at me! I will find my ornament again!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_answer_2"
+      },
+      "source_sha256": "c051bfd5052d29170854e4288770b44b0e9216a16810b1aa3a7d40d0401d6e2b",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.adult.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "adult",
+      "japanese": "むきゅ……うるさい！ ぱちゅりーの こと ばかに しないでわ！",
+      "chinese": "姆啾……吵死了！少对帕秋莉指指点点哇！",
+      "english": "Mukyu... Shut up! Stop looking down on me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.adult.o_hatless_answer_3"
+      },
+      "source_sha256": "78dacc728cd18de56e7580493b5006245a292e6977ba048128358866965a4227",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_answer_1",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……ぷくー！ おかじゃり にゃくても わたちは ゆっくりわぁ！",
+      "chinese": "姆啾……噗咕！没头饰窝也是油库里哇！",
+      "english": "Mukyu... Puff! Even with no ornament, I am a yukkuri!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_answer_1"
+      },
+      "source_sha256": "da5a87f5f8160b89e5aad486ef78221b07290d3fae24e2a8cd2ea89d3f7eadad",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_answer_2",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……わらわないで！ おかじゃり きっと みちゅかるわぁ！",
+      "chinese": "姆啾……不许老笑窝！头饰会回来的哇！",
+      "english": "Mukyu... Stop laughing! My ornament will come back!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_answer_2"
+      },
+      "source_sha256": "fdb870a237b72c7089d5e2724c67678adff762916138466906fc38d99b79a598",
+      "events": [
+        "hatless_answer"
+      ]
+    },
+    {
+      "id": "patchouli.young.o_hatless_answer_3",
+      "origin": "project-original",
+      "species": "patchouli",
+      "age": "young",
+      "japanese": "むきゅ……うるちゃい！ わたちを ばかに しないでわぁ！",
+      "chinese": "姆啾……吵死惹！不许欺负窝哇！",
+      "english": "Mukyu... Be quiet! Do not make fun of me!",
+      "source": {
+        "file": "art/dialogue/species-original.json",
+        "id": "patchouli.young.o_hatless_answer_3"
+      },
+      "source_sha256": "2038998aa4dedc9bae0ac1696fa743f95f3de8c5e96bd2954bf321e1c26243ae",
+      "events": [
+        "hatless_answer"
+      ]
     }
   ]
 }

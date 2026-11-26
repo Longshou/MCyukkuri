@@ -2,13 +2,16 @@ package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
+import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import java.util.Comparator;
+import java.util.Locale;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.AABB;
 
@@ -131,6 +134,13 @@ public final class Contempt {
         return wait;
     }
 
+    private static boolean hasThirdPartyWitness(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
+        return !level.getEntitiesOfClass(YukkuriEntity.class, sightBox(observer),
+                other -> other != observer && other != target && other.isAlive() && !other.inert()
+                        && !other.life().isSleeping() && !other.body().dying()
+                        && other.hasLineOfSight(observer) && other.hasLineOfSight(target)).isEmpty();
+    }
+
     /** Despise, then keep away, or (harsh) bully. */
     static int scorn(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
         var relations = YukkuriWorldData.get(level);
@@ -139,22 +149,42 @@ public final class Contempt {
         if (affinity > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), Math.max(SCORN, SCORN_FLOOR - affinity));
         affinity = relations.affinity(observer.getUUID(), target.getUUID());
         observer.getLookControl().setLookAt(target, 30, 30);
-        boolean bully = observer.family().adult() && observer.life().personality().temperament().is(Gate.HARSH) && Sanction.eligibleTarget(target) && Sanction.enabled()
-                && observer.getRandom().nextInt(100) < observer.life().personality().escalationScore();
+        int rounds = observer.headwear().nextScornRound(target);
+        var personality = observer.life().personality();
+        boolean harsh = personality.temperament().is(Gate.HARSH);
+        boolean closeKin = Bonds.careOrMate(observer, target);
+        int escalation = Math.min(100, personality.escalationScore() + ScornLadder.escalationBonus(rounds, harsh, closeKin));
+        boolean bully = observer.family().adult() && harsh && Sanction.eligibleTarget(target) && Sanction.enabled()
+                && observer.getRandom().nextInt(100) < escalation;
         if (bully && Sanction.request(target, "hatless", observer)) {
-            GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_accepted",
-                    target.getUUID(), observer.life().personality().intelligence(), before, affinity);
+            observer.headwear().recordScorn(target, rounds, "");
+            GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} rounds={} event=sanction sanction=request_accepted",
+                    target.getUUID(), personality.intelligence(), before, affinity, rounds);
             return AFTER_SCORN;
         }
-        observer.showReaction("sneer", "hatless_scorn", FaceTier.Tier.MEDIUM);
-        // The scorned one answers by its own nature (flee, puff back or ignore), and thinks less of the scorner in turn.
+        boolean thirdParty = hasThirdPartyWitness(level, observer, target);
+        var profile = new ScornLadder.TaunterProfile(personality.friendliness(), personality.selfControl(),
+                personality.boldness(), personality.intelligence(), harsh);
+        var taunt = ScornLadder.choose(rounds, profile, thirdParty, observer.getRandom().nextDouble(),
+                target.headwear().lastScornEvent(), observer.headwear().lastPairScornEvent(target));
+        boolean shown = taunt.clip() != null
+                ? observer.showReaction(taunt.clip(), taunt.face(), taunt.event(), taunt.clip().durationTicks(), FaceTier.Tier.MEDIUM)
+                : observer.showReaction(taunt.face(), taunt.event(), taunt.quietSnub() ? FaceTier.Tier.SHORT : FaceTier.Tier.MEDIUM);
+        if (shown) observer.beat(taunt.beat(), taunt.face(), taunt.event());
+        observer.headwear().recordScorn(target, rounds, taunt.event());
+        if (!taunt.event().isEmpty()) target.headwear().recordTargetScornEvent(taunt.event());
+        // The scorned one answers by its own nature (flee, puff back, answer or go numb), and thinks less of the scorner in turn.
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
+        int scornedRounds = target.headwear().recordScorned();
         if (!SettlementSociety.sparesHatlessBlame(observer, target)) target.groupInteraction().defense().provoke(observer);
-        suffer(target, observer, "teary", 80, SCORNED, "scorned", true);
-        GameplayLog.event(observer, "contempt", "scorn target={} known=false intelligence={} affinity={} -> {} sanction=request_not_accepted attempted={}",
-                target.getUUID(), observer.life().personality().intelligence(), before, affinity, bully);
-        return AFTER_SCORN + observer.getRandom().nextInt(200);
+        sufferScorn(target, observer, scornedRounds, rounds >= 2, SCORNED, "scorned");
+        String eventLog = taunt.event().isEmpty() ? "none" : taunt.event();
+        GameplayLog.event(observer, "contempt",
+                "scorn target={} known=false intelligence={} affinity={} -> {} rounds={} event={} beat={} face={} quiet={} bored={} sanction=request_not_accepted attempted={}",
+                target.getUUID(), personality.intelligence(), before, affinity, rounds, eventLog, taunt.beat(), taunt.face(),
+                taunt.quietSnub(), taunt.bored(), bully);
+        return (AFTER_SCORN + observer.getRandom().nextInt(200)) * taunt.cooldownMultiplier();
     }
 
     /** A hatless, horribly hurt thing: fear; the harsh gang up to drive it away, everyone else flees. */
@@ -176,8 +206,43 @@ public final class Contempt {
         return AFTER_MONSTER + observer.getRandom().nextInt(200);
     }
 
+    /** Target's reaction to contempt: shock on first sight, then answer, numb hunch, or leave by stats and history. */
+    private static void sufferScorn(YukkuriEntity target, YukkuriEntity source, int scornedRounds, boolean repeatedFromSameTaunter,
+                                    float unease, String cause) {
+        if (!target.isAlive()) return;
+        boolean sameGroup = SettlementSociety.sameGroup(source, target);
+        if (sameGroup) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
+        var p = target.life().personality();
+        boolean starving = target.life().nutrition() < 15 || !Reactions.free(target);
+        var outcome = ScornLadder.chooseTarget(scornedRounds, repeatedFromSameTaunter,
+                new ScornLadder.TargetProfile(p.boldness(), SocialDisposition.selfEsteem(target),
+                        p.fear(source.getUUID()), starving, sameGroup),
+                target.getRandom().nextDouble());
+        if (outcome.avoidTaunter()) target.headwear().avoidTaunter(source.getUUID(), ScornLadder.AVOID_TAUNTER_TICKS);
+        if (outcome.kind() == ScornLadder.TargetKind.LEAVE) {
+            if (!target.isPanicking() && mobile(target)) target.fleeFrom(source);
+            if (!target.groupInteraction().defense().active() && !target.isPanicking()
+                    && target.showReaction(outcome.face(), "", FaceTier.Tier.SHORT)) {
+                target.beat(outcome.beat(), outcome.face(), "");
+            }
+        } else if (!target.groupInteraction().defense().active() && !target.isPanicking()) {
+            boolean shown = outcome.clip() != null
+                    ? target.showReaction(outcome.clip(), outcome.face(), outcome.event(), outcome.clip().durationTicks(), FaceTier.Tier.MEDIUM)
+                    : target.showReaction(outcome.face(), outcome.event(), FaceTier.Tier.ofTicks(80));
+            if (shown) {
+                if (!outcome.event().isEmpty()) target.getLookControl().setLookAt(source, 30, 30);
+                target.beat(outcome.beat(), outcome.face(), outcome.event());
+            }
+        }
+        // An insult weighs less than being driven from a home (.5); a bold one fumes, a meek one is hurt and sad.
+        if (!sameGroup) target.mind().feeling().wronged(source.getUUID(), .35f);
+        GameplayLog.event(target, "contempt", "scorned source={} rounds={} outcome={} face={} event={} avoid={}",
+                source.getUUID(), scornedRounds, outcome.kind().name().toLowerCase(Locale.ROOT), outcome.face(),
+                outcome.event().isEmpty() ? "none" : outcome.event(), outcome.avoidTaunter());
+    }
+
     /**
-     * The face and line of the one being scorned or bullied, with exactly {@code unease} added: the line is only spoken, so
+     * The face and line of the one being feared as a monster, with exactly {@code unease} added: the line is only spoken, so
      * the reaction event's own unease (MindLife.felt) is not added on top.
      */
     private static void suffer(YukkuriEntity target, YukkuriEntity source, String face, int ticks, float unease, String cause, boolean scorned) {

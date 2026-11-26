@@ -90,7 +90,7 @@ public final class SettlementSociety {
                 && Recognition.unrecognizedHatless(observer, target);
     }
     public static boolean avoids(YukkuriEntity observer, YukkuriEntity target) {
-        if (MoldExile.avoids(observer, target)) return true;
+        if (MoldExile.avoids(observer, target) || observer.headwear().avoidsTaunter(target)) return true;
         if (!sameGroup(observer, target)) return false;
         if (rejects(observer, target)) return true;
         var record = target.settlement().society().record();

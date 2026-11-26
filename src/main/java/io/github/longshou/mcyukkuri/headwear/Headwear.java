@@ -84,8 +84,15 @@ public final class Headwear extends Goal implements MotorOwner {
     private int junkBeatWait;
     private boolean junkMocked;
     private long junkRefitAt;
-    /** Runtime-only pair cooldown shared by passive contempt and a peer greeting. */
-    private final Map<UUID, Long> hatlessContactUntil = new HashMap<>();
+    /** Runtime-only pair contact record shared by passive contempt and peer greeting (not saved). */
+    record Contact(long until, int rounds, long lastTick, String lastEvent) {}
+    private final Map<UUID, Contact> hatlessContacts = new HashMap<>();
+    /** Runtime-only target-side scorn history within {@link ScornLadder#HISTORY_WINDOW} (not saved). */
+    private int scornedRounds;
+    private long lastScornedTick;
+    private String lastScornEvent = "";
+    /** Runtime-only avoidance of taunters after going numb or leaving (not saved). */
+    private final Map<UUID, Long> scornAvoidUntil = new HashMap<>();
 
     public Headwear(YukkuriEntity entity) {
         this.entity = entity; setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -165,7 +172,8 @@ public final class Headwear extends Goal implements MotorOwner {
         return "wait=" + Math.max(0, contemptWait) + " last=" + lastContact + " " + Contempt.describe(entity);
     }
     long contactWait(YukkuriEntity other) {
-        return Math.max(0, hatlessContactUntil.getOrDefault(other.getUUID(), 0L) - entity.level().getGameTime());
+        var c = hatlessContacts.get(other.getUUID());
+        return c == null ? 0L : Math.max(0L, c.until() - entity.level().getGameTime());
     }
     void recordContact(YukkuriEntity other, boolean monster) {
         lastContact = (monster ? "monster" : "scorn") + ":#" + other.getId() + "@" + entity.level().getGameTime();
@@ -213,19 +221,84 @@ public final class Headwear extends Goal implements MotorOwner {
 
     /** A recent non-urgent reaction to this same hatless target prevents another social approach or contempt line. */
     public boolean readyForHatlessContact(YukkuriEntity target) {
-        return target != null && hatlessContactUntil.getOrDefault(target.getUUID(), 0L) <= entity.level().getGameTime();
+        if (target == null) return false;
+        var c = hatlessContacts.get(target.getUUID());
+        return c == null || c.until() <= entity.level().getGameTime();
+    }
+
+    /** Next contempt round for this observer-target pair; resets to 1 after {@link ScornLadder#HISTORY_WINDOW} quiet ticks. */
+    int nextScornRound(YukkuriEntity target) {
+        long now = entity.level().getGameTime();
+        var c = hatlessContacts.get(target.getUUID());
+        return c == null || now - c.lastTick() > ScornLadder.HISTORY_WINDOW ? 1 : c.rounds() + 1;
+    }
+
+    /** Last spoken contempt event from this observer to {@code target} within the active window, or empty. */
+    String lastPairScornEvent(YukkuriEntity target) {
+        long now = entity.level().getGameTime();
+        var c = hatlessContacts.get(target.getUUID());
+        return c == null || now - c.lastTick() > ScornLadder.HISTORY_WINDOW ? "" : c.lastEvent();
+    }
+
+    /** Record a scorn round for this observer-target pair (cooldown is applied by {@link #coolHatlessContact}). */
+    void recordScorn(YukkuriEntity target, int rounds, String event) {
+        long now = entity.level().getGameTime();
+        var prev = hatlessContacts.get(target.getUUID());
+        String remembered = event == null || event.isEmpty() ? (prev == null ? "" : prev.lastEvent()) : event;
+        hatlessContacts.put(target.getUUID(), new Contact(prev == null ? now : prev.until(), rounds, now, remembered));
+        pruneContacts(now);
+    }
+
+    /** Target-side: increment and return how many times this body was scorned within {@link ScornLadder#HISTORY_WINDOW}. */
+    int recordScorned() {
+        long now = entity.level().getGameTime();
+        scornedRounds = now - lastScornedTick > ScornLadder.HISTORY_WINDOW ? 1 : scornedRounds + 1;
+        lastScornedTick = now;
+        return scornedRounds;
+    }
+
+    /** Target-side: last spoken scorn event heard by this body within the window, or empty. */
+    String lastScornEvent() {
+        return entity.level().getGameTime() - lastScornedTick > ScornLadder.HISTORY_WINDOW ? "" : lastScornEvent;
+    }
+
+    void recordTargetScornEvent(String event) {
+        if (event != null && !event.isEmpty()) lastScornEvent = event;
+    }
+
+    /** Target-side: avoid approaching {@code taunter} for {@code ticks} after going numb or leaving. */
+    void avoidTaunter(UUID taunter, int ticks) {
+        if (taunter == null || ticks <= 0) return;
+        long now = entity.level().getGameTime();
+        scornAvoidUntil.put(taunter, now + ticks);
+        if (scornAvoidUntil.size() > 24) {
+            scornAvoidUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
+            if (scornAvoidUntil.size() > 24) scornAvoidUntil.entrySet().stream().min(Comparator.comparingLong(Map.Entry::getValue))
+                    .ifPresent(entry -> scornAvoidUntil.remove(entry.getKey()));
+        }
+    }
+
+    public boolean avoidsTaunter(YukkuriEntity other) {
+        return other != null && scornAvoidUntil.getOrDefault(other.getUUID(), 0L) > entity.level().getGameTime();
     }
 
     /** Keep pair-specific social noise out of saves; its only purpose is to settle the current encounter. */
     public void coolHatlessContact(YukkuriEntity target, int ticks) {
         if (target == null || ticks <= 0) return;
         long now = entity.level().getGameTime();
-        hatlessContactUntil.put(target.getUUID(), now + ticks);
-        if (hatlessContactUntil.size() > 24) {
-            hatlessContactUntil.entrySet().removeIf(entry -> entry.getValue() <= now);
-            if (hatlessContactUntil.size() > 24) hatlessContactUntil.entrySet().stream().min(Comparator.comparingLong(Map.Entry::getValue))
-                    .ifPresent(entry -> hatlessContactUntil.remove(entry.getKey()));
-        }
+        var prev = hatlessContacts.get(target.getUUID());
+        int rounds = prev == null || now - prev.lastTick() > ScornLadder.HISTORY_WINDOW ? 0 : prev.rounds();
+        long lastTick = prev == null ? 0L : prev.lastTick();
+        String lastEvent = prev == null || now - prev.lastTick() > ScornLadder.HISTORY_WINDOW ? "" : prev.lastEvent();
+        hatlessContacts.put(target.getUUID(), new Contact(now + ticks, rounds, lastTick, lastEvent));
+        pruneContacts(now);
+    }
+
+    private void pruneContacts(long now) {
+        if (hatlessContacts.size() <= 24) return;
+        hatlessContacts.entrySet().removeIf(entry -> entry.getValue().until() <= now && now - entry.getValue().lastTick() > ScornLadder.HISTORY_WINDOW);
+        if (hatlessContacts.size() > 24) hatlessContacts.entrySet().stream().min(Comparator.comparingLong(e -> e.getValue().until()))
+                .ifPresent(entry -> hatlessContacts.remove(entry.getKey()));
     }
 
     /** Lecture: the hat feeds on the feeling of being able to take it easy. */
@@ -615,7 +688,7 @@ public final class Headwear extends Goal implements MotorOwner {
         junkRefitAt = tag.getLong("JunkRefitAt");
         junkMocked = tag.getBoolean("JunkMocked");
         if (shattered && shardToken == null) { shattered = false; lost = true; }
-        target = null; hatlessContactUntil.clear();
+        target = null; hatlessContacts.clear(); scornedRounds = 0; lastScornedTick = 0; lastScornEvent = ""; scornAvoidUntil.clear();
         gatherCheck="not_checked";gatherScanTick=-1;gatherCandidates=gatherReachable=0;
     }
 }

@@ -6744,16 +6744,21 @@ add('hatless_kin', 'headwear', '失饰子油：笨亲油认不出', '失饰子�
     env=DAY, note=NEW, vantage=(-8, 0, -90), reads=[('读低智力亲油', f'yukkuri status {sel("mom_blind")} raw'), ('读高智力亲油', f'yukkuri status {sel("mom_sees")} raw'), ('读被驱赶孩子', f'yukkuri status {sel("kid_blind")} raw')])
 
 add('hatless_scorn', 'headwear', '没头饰：被鄙视、被凶的欺负', '没头饰：被鄙视、被凶的欺负',
-    '围栏里没戴头饰的灵梦（胆大、友善、健康）：智力普通的旁观者认不出它，生气说台词、走开，它先含泪，随后鼓脸生气；凶悍成体自然鄙视后发起欺负，'
-    '它遇到咬、抢、推时按自身状态选择反击或逃跑，欺负者被反击也重新选择，低血量一律逃跑。高智力的橙（90）认得出，不鄙视也不躲。观察双方血量、实际 Goal、位置及反应读数',
-    '鄙视约 10–30 秒出现，之后每 30–40 秒重复；欺负自然升级有概率，约 1–3 分钟', [
+    '围栏里没戴头饰的灵梦（胆大、友善、健康）：智力普通的旁观者认不出它，按性格与轮次依次初见蔑视、鼓腮嘲弄、转身冷斥或向旁人低声议论，'
+    '多轮后转入厌倦冷待；它首轮含泪，反复被嘲时鼓腮回嘴，凶悍成体升级发起欺负。高智力的橙（90）认得出，不鄙视也不躲。观察双方血量、实际 Goal、轮次事件及反应读数',
+    '首轮鄙视约 10–30 秒出现，之后每 30–40 秒演进；欺负自然升级有概率，约 1–3 分钟', [
         # The pen keeps wandering actors in sight and leaves ground for a retreat.
         *(block(x, 0, z, 'minecraft:oak_fence') for x in range(-3, 4) for z in range(-3, 4) if abs(x) == 3 or abs(z) == 3),
         box(-1, 0, -5, 1, 0, -5, 'minecraft:oak_planks'),
-        # Friendly to bystanders, still bold enough to defend itself after a hit.
+        # Friendly to bystanders, still bold enough to answer back and defend itself after a hit.
         yk('reimu', 0, 0, 'bare', uuid=uid('hatless_scorn', 'bare'), yaw=-90, lead=True, accessory=False, label='胆大失饰者',
            friendliness=70, boldness=95, self_control=15, **pair_ready()),
-        yk('marisa', 2, -2, 'a', yaw=90, **pair_ready()), yk('reimu', 2, 2, 'b', yaw=90, **pair_ready()),
+        yk('alice', 2, -2, 'proud', uuid=uid('hatless_scorn', 'proud'), yaw=90, label='骄傲旁观者',
+           intelligence=65, friendliness=50, boldness=65, self_control=70, **pair_ready()),
+        yk('reimu', 2, 2, 'friendly', uuid=uid('hatless_scorn', 'friendly'), yaw=90, label='友善旁观者',
+           intelligence=45, friendliness=80, boldness=50, self_control=60, **pair_ready()),
+        yk('chen', -2, -2, 'timid', uuid=uid('hatless_scorn', 'timid'), yaw=-90, label='胆小旁观者',
+           intelligence=45, friendliness=55, boldness=15, self_control=55, **pair_ready()),
         yk('marisa', 2, 0, 'b1', uuid=uid('hatless_scorn', 'b1'), yaw=90, label='凶悍欺负者', friendliness=0, boldness=80, self_control=0, **pair_ready()),
         yk('chen', -2, 1, 'c', yaw=-90, label='高智力', **pair_ready()), set_status('c', 'personality.intelligence', 90)],
     env=DAY, note=NEW, vantage=(0, -5, 0, 23),
@@ -11335,6 +11340,44 @@ next(s for s in S if s.id == 'learned_fire').smoke['commands'] = [
 ]
 _scorn_executor = _uuid_text('hatless_scorn', 'drive_executor')
 _scorn_meek = _uuid_text('hatless_scorn', 'drive_meek')
+
+
+def _hatless_scorn_verify(window):
+    spoken_by_target = {}
+    distinct_events = set()
+    snub_by_round5 = False
+    for m in re.finditer(
+            r'\[contempt\] \w+ #\d+ uuid=(\S+) [^\n]* scorn target=(\S+) [^\n]* rounds=(\d+) event=(\S+)(?:[^\n]* quiet=(true|false) bored=(true|false))?',
+            window):
+        _, target, rounds_s, event, quiet_s, bored_s = m.groups()
+        rounds = int(rounds_s)
+        if quiet_s == 'true' or bored_s == 'true' or event == 'none':
+            if rounds <= 5:
+                snub_by_round5 = True
+            continue
+        if event == 'sanction':
+            continue
+        distinct_events.add(event)
+        prev = spoken_by_target.get(target)
+        if prev == event:
+            return f'same scorn event repeated twice in a row for target={target}: {event}'
+        spoken_by_target[target] = event
+    if len(distinct_events) < 3:
+        return f'expected >=3 distinct scorn events, got {sorted(distinct_events)}'
+    if not snub_by_round5:
+        return 'expected at least one quiet snub or boredom beat by round 5'
+    beats = list(re.finditer(
+        r'\[choreo\] \w+ #\d+ uuid=(\S+) [^\n]* beat=(scorn_\w+|scorned_\w+) face=(\S+) line=(\S+) declared=(\S+)',
+        window))
+    if not beats:
+        return 'no scorn/scorned choreo beats logged'
+    for b in beats:
+        actor, beat, face, _, declared = b.groups()
+        if face != declared:
+            return f'beat face mismatch actor={actor} beat={beat} shown={face} declared={declared}'
+    return None
+
+
 _smoke('hatless_scorn', 3600, [
     r'\[contempt\][^\n]* scorn target=',
     rf'\[contempt\] marisa #\d+ uuid={_uuid_text("hatless_scorn", "b1")} [^\n]* scorn target=',
@@ -11342,6 +11385,7 @@ _smoke('hatless_scorn', 3600, [
     rf'uuid={_scorn_executor} [^\n]*drive off attempted target={_scorn_meek}\b',
     rf'uuid={_scorn_executor} [^\n]*course begun kind=rage strength=0\.3 length=\d+ about={_scorn_meek}\b',
 ], forbid=[rf'uuid={_scorn_meek} [^\n]*course (?:begun|renewed) kind=rage\b'])
+next(s for s in S if s.id == 'hatless_scorn').smoke['verify'] = _hatless_scorn_verify
 # The bold exhibit actor can interrupt the case by counterattacking. A separate smoke pair can carry out the final act.
 next(s for s in S if s.id == 'hatless_scorn').smoke['commands'] = [
     *((1, block(x, 0, z, 'minecraft:oak_fence'))

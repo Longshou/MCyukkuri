@@ -359,7 +359,11 @@
     {"id":"sukkiri_defiant","event":"sukkiri_defiant","zh":"鼓脸顶嘴，拒不认错","ja":"頬を膨らませて食ってかかり、謝らない","en":"Puff up and refuse to apologize","basis":["P"],"status":"ready","axis_refs":["common.puff","common.refusal_da"]},
     {"id":"sukkiri_lie","event":"sukkiri_lie","zh":"别过脸否认亲生","ja":"顔をそらして自分の子ではないと否定する","en":"Turn away and deny the little ones are its own","basis":["P"],"status":"ready","axis_refs":["common.refusal_da","common.little_one"]},
     {"id":"sukkiri_naive","event":"sukkiri_naive","zh":"迎向主人，回头炫耀孩子","ja":"飼い主に駆け寄って、子を見せびらかす","en":"Run up to the owner and show off the little ones","basis":["P"],"status":"ready","axis_refs":["common.little_one","common.happiness"]},
-    {"id":"doll_talk","event":"doll_talk","zh":"幼体对布偶搭话","ja":"子ゆっくりが人形に話しかける","en":"A young yukkuri talks to a doll","basis":["P"],"status":"ready","axis_refs":["common.happiness"]}
+    {"id":"doll_talk","event":"doll_talk","zh":"幼体对布偶搭话","ja":"子ゆっくりが人形に話しかける","en":"A young yukkuri talks to a doll","basis":["P"],"status":"ready","axis_refs":["common.happiness"]},
+    {"id":"hatless_jeer","event":"hatless_jeer","zh":"反复嘲弄失饰者的光秃头顶","ja":"無飾物の頭をからかう","en":"Jeering at a hatless individual","basis":["P"],"status":"ready"},
+    {"id":"hatless_shoo","event":"hatless_shoo","zh":"冷淡驱赶失饰者","ja":"無飾物を冷たく追い払う","en":"Coldly shooing a hatless individual away","basis":["P"],"status":"ready"},
+    {"id":"hatless_whisper","event":"hatless_whisper","zh":"有旁观者时低声议论失饰者","ja":"周囲に無飾物のうわさ話をする","en":"Whispering to a bystander about a hatless individual","basis":["P"],"status":"ready"},
+    {"id":"hatless_answer","event":"hatless_answer","zh":"胆大失饰者被反复嘲讽时回嘴","ja":"強気な無飾物がからかいに言い返す","en":"Bold hatless individual answering back to repeated taunts","basis":["P"],"status":"ready"}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
@@ -530,7 +534,19 @@
     {"id":"factory_receive_insult","event":"factory_receive_insult","zh":"噗咕！笨蛋人类！","ja":"ぷくー！ばかにんげん！","en":"Puff! Stupid human!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"predator_screech","event":"predator_screech","zh":"呜啊——！","ja":"うあーっ！","en":"Uuaaah!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"doll_talk.sister","event":"doll_talk","zh":"大姐姐……一起来油库里呀……","ja":"おねーちゃん……いっしょに ゆっくりしようね……","en":"Big sister... let's take it easy together...","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"doll_talk.myamya","event":"doll_talk","zh":"咪呀咪呀……大姐姐，在听{self}说话吗？","ja":"みゃみゃ……おねーちゃん、おはなし きいてくれてるの？","en":"Myamya... Big sister, are you listening to {self}?","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"doll_talk.myamya","event":"doll_talk","zh":"咪呀咪呀……大姐姐，在听{self}说话吗？","ja":"みゃみゃ……おねーちゃん、おはなし きいてくれてるの？","en":"Myamya... Big sister, are you listening to {self}?","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_jeer.bare_head","event":"hatless_jeer","zh":"噗咕！头顶光秃秃的真好笑！","ja":"ぷくー！ あたまが すっぽんぽんで おかしいよ！","en":"Puff! That bare head is laughable!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_jeer.lost_hat","event":"hatless_jeer","zh":"连头饰{mister}都守不住，真丢脸！","ja":"おかざり{mister}も まもれないなんて はずかしいよ！","en":"Cannot even keep your ornament, how shameful!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_jeer.wandering","event":"hatless_jeer","zh":"没头饰还敢在大家面前晃悠！","ja":"おかざりなしで みんなの まえを うろうろ してる！","en":"Wandering in front of everyone with a bare head!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_shoo.away","event":"hatless_shoo","zh":"别靠过来，快走开。","ja":"ちかよらないで、あっちへ いって。","en":"Do not come closer, go away.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_shoo.in_way","event":"hatless_shoo","zh":"没头饰的家伙别挡路。","ja":"おかざりの ない こは じゃまよ。","en":"A bare-headed one is in the way.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_shoo.spoil","event":"hatless_shoo","zh":"离远一点，别打扰{self}油库里。","ja":"とおくへ いって、{self}の ゆっくりの じゃまよ。","en":"Keep away, you are spoiling {self}'s ease.","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_whisper.look","event":"hatless_whisper","zh":"你看……那家伙没有头饰{mister}……","ja":"ねえ……あの こ、おかざり{mister}が ないよ……","en":"Look... that one has no ornament...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_whisper.strange","event":"hatless_whisper","zh":"小声点……光秃秃的好奇怪……","ja":"しーっ……すっぽんぽんで へんだよ……","en":"Shh... bare-headed looks so strange...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_whisper.distance","event":"hatless_whisper","zh":"真的没头饰呢……离远点吧……","ja":"ほんとうに おかざり ないね……はなれて いよう……","en":"Really no ornament... better keep our distance...","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_answer.still_yukkuri","event":"hatless_answer","zh":"噗咕！没头饰{self}也是油库里！","ja":"ぷくー！ おかざりが なくても {self}は ゆっくりだよ！","en":"Puff! Even without an ornament, {self} is still a yukkuri!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_answer.will_find","event":"hatless_answer","zh":"别老是笑{self}！头饰{mister}会找回来的！","ja":"いつまでも わらわないで！ おかざり{mister}は きっと みつかるよ！","en":"Stop laughing at {self}! The ornament will be found!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"hatless_answer.quiet","event":"hatless_answer","zh":"吵死了！少瞧不起{self}！","ja":"うるさい！ {self}を ばかに しないで！","en":"Be quiet! Stop looking down on {self}!","basis":["P"],"status":"ready","shared_runtime":true}
   ],
   "planned": [
     {
