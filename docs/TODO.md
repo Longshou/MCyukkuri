@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
-| 等待演出（PK-14、TN-70/71） | `.worktrees/wp-wait-beats` | play/PlayLife, entity/Encounter wait beat |
 | 饮水表情与上帽辫子穿模 | `.worktrees/wp-art-fix-2` | motions/variants/lore (drink, water_hat_climb), drink_lap face |
 
 ## 玩法待办
