@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
 
 ## 玩法待办
 
