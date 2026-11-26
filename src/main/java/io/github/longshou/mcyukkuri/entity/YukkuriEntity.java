@@ -1022,6 +1022,34 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return true;
     }
 
+    /** How a deferred line ended: the tick it was spoken ({@code -1} when the face's hold ended before the speech gap opened), the face
+     *  hold's end and whether it was said. */
+    public record DeferredLine(long tick, long holdEnd, boolean spoken) {}
+
+    /**
+     * A face (with a clip, if one is given) shown now, and its line deferred to the first tick the shared speech clock opens a gap for
+     * it, while the face's hold still runs: a beat that must be heard waits instead of losing its line. {@code clipTicks} is the clip's
+     * own run (unused without a clip). The line is left unsaid only when the hold ends before the gap does. Returns whether the face was
+     * shown; every outcome of the line goes to {@code ended}.
+     */
+    public boolean showWithDeferredLine(YukkuriAction clip, int clipTicks, String face, String line, FaceTier.Tier tier,
+                                        int priorityFloor, java.util.function.Consumer<DeferredLine> ended) {
+        long now = level().getGameTime(), speechAt = nextSpeech(priorityFloor);
+        int hold = personalHold(tier, face);
+        // The delayed cue comes due a tick after its delay (aiStep): two ticks of margin keep the line inside the hold.
+        if (speechAt + 2 > now + hold) {
+            boolean shown = clip == null ? showReaction(face, "", tier) : showReaction(clip, face, "", clipTicks, tier);
+            if (shown) ended.accept(new DeferredLine(-1, now + hold, false));
+            return shown;
+        }
+        boolean shown = showReactionDelayed(face, line, hold, (int) (speechAt - now) + 2, priorityFloor,
+                spoken -> ended.accept(new DeferredLine(level().getGameTime(), now + hold, spoken)));
+        // The clip plays over the armed look: it must not bind the whole hold as an action-bearing delayed cue would, nor speak for the
+        // face-only cue's line.
+        if (shown && clip != null) showReaction(clip, face, "", clipTicks, tier);
+        return shown;
+    }
+
     public void showNeedTell(YukkuriAction action, String face, int ticks) {
         startReaction(face, "need_tell", ticks);
         reactionAction = action;
@@ -1193,10 +1221,6 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         fadeLen = calming.isEmpty() ? 0 : FaceTier.fade(Math.max(ticks, hold));
         fadeEnd = holdEnd + fadeLen;
     }
-
-    /** How long this individual keeps a face of this tier: the length its reaction of that face would hold (a caller that defers the
-     *  line behind the face needs it to tell whether the hold will still run when the line may start). */
-    public int faceHold(FaceTier.Tier tier, String face) { return personalHold(tier, face); }
 
     /** The tier's hold for this individual: its range shifted by the traits the face's mood leans on, +-10% by its own hash. */
     private int personalHold(FaceTier.Tier tier, String face) {

@@ -468,20 +468,10 @@ public final class Encounter {
         String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
         // The huff waits out the notice's own line and gap (the shared speech clock owns that rule) and is armed only while the sulk's
         // hold still covers the tick it may start.
-        long now = yielder.level().getGameTime(), speechAt = yielder.nextSpeech(2);
-        int hold = yielder.faceHold(FaceTier.Tier.LONG, face);
-        // The delayed cue comes due a tick after its delay (YukkuriEntity.aiStep): two ticks of margin keep the line inside the hold.
-        boolean voiced = speechAt + 2 <= now + hold;
-        boolean shown = voiced
-                ? yielder.showReactionDelayed(face, "sulk_huff", hold, (int) (speechAt - now) + 2, 2, spoken ->
-                    GameplayLog.event(yielder, "move", "encounter sulk speech tick={} beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken={}",
-                            yielder.level().getGameTime(), face, now + hold, spoken))
-                : yielder.showReaction(face, "", FaceTier.Tier.LONG);
-        if (!shown) return;
+        if (!yielder.showWithDeferredLine(null, 0, face, "sulk_huff", FaceTier.Tier.LONG, 2, said ->
+                GameplayLog.event(yielder, "move", "encounter sulk speech tick={} beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken={}",
+                        said.tick() < 0 ? "none" : said.tick(), face, said.holdEnd(), said.spoken()))) return;
         yielder.beat("yield_giveup", face, "sulk_huff");
-        if (!voiced) GameplayLog.event(yielder, "move",
-                "encounter sulk speech tick=none beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken=false cause=hold_end speechAt={}",
-                face, now + hold, speechAt);
     }
 
     /** Nowhere to pass behind the yielder: the other body, whose way back is the open side, yields in one new encounter. */

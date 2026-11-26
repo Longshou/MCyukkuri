@@ -160,41 +160,13 @@ final class LeaveBehind implements Intent {
             case DRIVE_TEARFUL -> { face = "puff_teary"; line = "drive_child_tearful"; }
             default -> { face = "angry"; line = "drive_child_cold"; clip = YukkuriAction.MOOD_FLICK; }
         }
-        verdictLook(clip, face, line);
+        // Her verdict look holds now; the rescue chatter still running as she turns would otherwise swallow the line (Encounter.sulk).
+        parent.showWithDeferredLine(clip, beat, face, line, FaceTier.Tier.LONG, SAY_PRIORITY, said ->
+                GameplayLog.event(parent, "family", "overload verdict speech tick={} beat=verdict event={} face={} holdEnd={} spoken={}",
+                        said.tick() < 0 ? "none" : said.tick(), line, face, said.holdEnd(), said.spoken()));
         parent.beat("verdict", face, line);
         GameplayLog.event(parent, "family", "overload beat start child={} verdict={} ferry={} distance={} child_in_water={}",
                 child.getUUID(), memo.verdict, memo.ferry, Math.round(parent.distanceTo(child)), child.isInWaterOrBubble());
-    }
-
-    /**
-     * Her verdict look with its line deferred to the first tick the speech gap opens (the shared clock owns that rule) and still
-     * inside the look's hold, as {@code Encounter.sulk}: the rescue chatter still running as she turns would otherwise swallow the
-     * line. It is left unsaid only when the hold ends before the gap does.
-     */
-    private void verdictLook(YukkuriAction clip, String face, String line) {
-        long now = parent.level().getGameTime(), speechAt = parent.nextSpeech(SAY_PRIORITY);
-        int hold = parent.faceHold(FaceTier.Tier.LONG, face);
-        // The delayed cue comes due a tick after its delay (YukkuriEntity.aiStep): two ticks of margin keep the line inside the hold.
-        boolean voiced = speechAt + 2 <= now + hold;
-        if (!voiced) {
-            boolean shown = clip == null ? parent.showReaction(face, "", FaceTier.Tier.LONG)
-                    : parent.showReaction(clip, face, "", beat, FaceTier.Tier.LONG);
-            if (shown) GameplayLog.event(parent, "family",
-                    "overload verdict speech tick=none beat=verdict event={} face={} holdEnd={} spoken=false cause=hold_end speechAt={}",
-                    line, face, now + hold, speechAt);
-            return;
-        }
-        if (!parent.showReactionDelayed(face, line, hold, (int) (speechAt - now) + 2, SAY_PRIORITY,
-                spoken -> verdictSpeech(line, face, now + hold, spoken))) return;
-        // The cold one's flick over the look just started: its clip must not bind the whole hold as an action-bearing delayed cue
-        // would (the bound look would refuse the watch's rebuff later). The armed line is none of its business: a face-only cue speaks
-        // whatever reaction is running.
-        if (clip != null) parent.showReaction(clip, face, "", beat, FaceTier.Tier.LONG);
-    }
-
-    private void verdictSpeech(String line, String face, long holdEnd, boolean spoken) {
-        GameplayLog.event(parent, "family", "overload verdict speech tick={} beat=verdict event={} face={} holdEnd={} spoken={}",
-                parent.level().getGameTime(), line, face, holdEnd, spoken);
     }
 
     @Override public String id() { return "leave_behind"; }
@@ -252,29 +224,15 @@ final class LeaveBehind implements Intent {
         String face = memo.reply == Ousting.Answer.FAREWELL ? "cry" : memo.reply == Ousting.Answer.SHRUG ? "hmph" : "angry";
         // Only the cry after the departing hull is voiced; the sulk and the stamp stay wordless.
         boolean shown;
-        if (memo.reply == Ousting.Answer.FAREWELL) shown = cryAfterHull();
+        if (memo.reply == Ousting.Answer.FAREWELL)
+            shown = child.showWithDeferredLine(null, 0, face, "mold_child_cry", FaceTier.Tier.MEDIUM, SAY_PRIORITY, said ->
+                    GameplayLog.event(child, "family", "overload left ashore cry tick={} event=mold_child_cry holdEnd={} spoken={}",
+                            said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken()));
         else if (memo.reply == Ousting.Answer.CURSE && !swimming)
             shown = child.showReaction(YukkuriAction.STAMP, face, "", YukkuriAction.STAMP.durationTicks(), FaceTier.Tier.MEDIUM);
         else shown = child.showReaction(face, "", FaceTier.Tier.MEDIUM);
         child.beat("left_ashore_answer", face, shown && memo.reply == Ousting.Answer.FAREWELL ? "mold_child_cry" : "");
         GameplayLog.event(child, "family", "overload left ashore child answers parent={} answer={}", parent.getUUID(), memo.reply);
-    }
-
-    /** Its cry after the departing hull, deferred to the first tick its speech gap opens and still inside the cry's hold (as
-     *  {@code Encounter.sulk}); left unsaid only when the hold ends before the gap does. */
-    private boolean cryAfterHull() {
-        long now = child.level().getGameTime(), speechAt = child.nextSpeech(SAY_PRIORITY);
-        int hold = child.faceHold(FaceTier.Tier.MEDIUM, "cry");
-        boolean voiced = speechAt + 2 <= now + hold;
-        if (!voiced) {
-            boolean shown = child.showReaction("cry", "", FaceTier.Tier.MEDIUM);
-            if (shown) GameplayLog.event(child, "family",
-                    "overload left ashore cry tick=none event=mold_child_cry holdEnd={} spoken=false cause=hold_end speechAt={}", now + hold, speechAt);
-            return shown;
-        }
-        return child.showReactionDelayed("cry", "mold_child_cry", hold, (int) (speechAt - now) + 2, SAY_PRIORITY,
-                spoken -> GameplayLog.event(child, "family", "overload left ashore cry tick={} event=mold_child_cry holdEnd={} spoken={}",
-                        child.level().getGameTime(), now + hold, spoken));
     }
 
     /**
