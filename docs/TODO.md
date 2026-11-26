@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 美术：辫子翻垃圾桶与水中扑腾（魔理沙） | `.worktrees/wp-braid-bin` | standards/yukkuri-library/motions/variants/lore, settlement/GarbageSearch, motor/action/Swim |
 | 打喷嚏方案 C 接入 | `.worktrees/wp-sneeze` | entity/YukkuriAction, house/HouseholdEcology, body/status sneeze helper |
-| 害羞重做与旧画风眼睛替换 | `.worktrees/wp-shy-eyes` | standards/yukkuri-library/expressions, motions/variants/lore (shy) |
 | 断亲演出节奏（PD-31～34） | `.worktrees/wp-sever-pace` | entity/YukkuriGoals, family/DrivenOut, family/MoldExile, social/Departure, aquatic/LeaveBehind, hat_sever scenes |
 | 窄巷让路台词与放弃闹情绪（TN-74） | `.worktrees/wp-yield-lines` | entity/Encounter, YukkuriGroundNavigation give-up, dialogue lines, pet/rules/Penance lines |
 | 等待演出（PK-14、TN-70/71） | `.worktrees/wp-wait-beats` | play/PlayLife, entity/Encounter wait beat |
