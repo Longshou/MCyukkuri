@@ -41,6 +41,11 @@ def emitted_faces():
     return usage
 
 
+def resolve(data, model, face):
+    face = data.get('aliases', {}).get(face, face)
+    return data.get('models', {}).get(model, {}).get('face_aliases', {}).get(face, face)
+
+
 def check_coverage(data, usage, generated=None):
     registry = json.loads((ROOT/'standards/yukkuri-library/expressions/registry.json').read_text(encoding='utf-8'))['faces']
     for model,row in data['models'].items():

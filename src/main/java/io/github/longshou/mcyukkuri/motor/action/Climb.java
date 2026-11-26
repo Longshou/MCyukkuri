@@ -151,11 +151,20 @@ public final class Climb implements Action {
                 : speed > HOST_SPEED ? String.format(Locale.ROOT, "host_speed=%.3f", speed) : null;
     }
 
-    /** A share {@code f} along the pull: straight up from where it gripped, across at the edge's height, down onto the stand. */
+    /** A share {@code f} along the pull: one smooth arc up and over the brim/edge into the stand, clearing {@code top} before crossing the rim. */
     private Vec3 along(double f) {
-        Vec3 up = new Vec3(from.x, top, from.z), across = new Vec3(stand.x, top, stand.z);
-        double a = up.distanceTo(from), b = across.distanceTo(up), c = stand.distanceTo(across), s = f * (a + b + c);
-        if (s <= a) return a <= 0 ? up : from.lerp(up, s / a);
-        return s <= a + b ? up.lerp(across, b <= 0 ? 1 : (s - a) / b) : across.lerp(stand, c <= 0 ? 1 : (s - a - b) / c);
+        double q = Math.clamp(f, 0, 1);
+        double h = q * q * (3 - 2 * q);
+        double x = from.x + (stand.x - from.x) * h;
+        double z = from.z + (stand.z - from.z) * h;
+        double arch = (CLEAR / (host == null ? 1 : host.frame().unit())) * 1.2 * Math.sin(Math.PI * q);
+        double y;
+        if (q <= 0.32) {
+            y = from.y + (top - from.y) * Math.sin((q / 0.32) * (Math.PI / 2)) + arch;
+        } else {
+            double v = (q - 0.32) / 0.68;
+            y = top + (stand.y - top) * (v * v) + arch;
+        }
+        return new Vec3(x, y, z);
     }
 }

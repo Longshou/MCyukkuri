@@ -27,9 +27,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
     /** Something an add-on draws with the hat (its stores in the hollow), in the hull's frame: blocks, origin at its bottom. */
     @FunctionalInterface public interface Layer { void render(PlacedHatView hat,float partial,PoseStack pose,MultiBufferSource buffers,int light); }
+    /** Client-side visual response of the hat (dip in blocks, extra roll/pitch in degrees), shared with its riders. */
+    public record VisualOffset(double dipY, float rollDeg, float pitchDeg) {
+        public static final VisualOffset ZERO = new VisualOffset(0, 0, 0);
+        public boolean zero() { return dipY == 0 && rollDeg == 0 && pitchDeg == 0; }
+    }
+    @FunctionalInterface public interface Motion { VisualOffset sample(PlacedHatView hat, float partial); }
     private static final List<Layer> LAYERS=new CopyOnWriteArrayList<>();
+    private static Motion motion = (hat, partial) -> VisualOffset.ZERO;
     /** The client registration entry adds an add-on's layer; the base never names it. */
     public static void layer(Layer layer){LAYERS.add(layer);}
+    /** The client registration entry sets the add-on's visual hat motion; the base never names it. */
+    public static void motion(Motion next){motion=next==null?(hat,partial)->VisualOffset.ZERO:next;}
+    public static VisualOffset visualOffset(PlacedHatView hat, float partial){return motion.sample(hat,partial);}
     public PlacedHatRenderer(EntityRendererProvider.Context context) { super(context); shadowRadius=.45f; }
     public static void register(EntityRenderersEvent.RegisterRenderers event) { event.registerEntityRenderer(ModEntities.PLACED_HAT.get(),PlacedHatRenderer::new); }
     public static void items(RegisterClientExtensionsEvent event) {
@@ -48,10 +58,11 @@ public final class PlacedHatRenderer extends EntityRenderer<PlacedHatEntity> {
         float scale=hat.hullScale(), unit=scale/16;
         var at=hat.getPosition(partial);
         var start=PoseTap.active()?new Matrix4f(pose.last().pose()):null;
+        var extra=motion.sample(hat,partial);
         pose.pushPose();
-        pose.translate(at.x-source.getX(),at.y-source.getY(),at.z-source.getZ());
+        pose.translate(at.x-source.getX(),at.y-source.getY()+extra.dipY(),at.z-source.getZ());
         pose.mulPose(new Quaternionf().rotationY((180-Mth.rotLerp(partial,hat.previousYaw(),hat.getYRot()))*Mth.DEG_TO_RAD)
-                .rotateZ(hat.roll(partial)*Mth.DEG_TO_RAD).rotateX(hat.pitch(partial)*Mth.DEG_TO_RAD));
+                .rotateZ((hat.roll(partial)+extra.rollDeg())*Mth.DEG_TO_RAD).rotateX((hat.pitch(partial)+extra.pitchDeg())*Mth.DEG_TO_RAD));
         for(var layer:LAYERS){pose.pushPose();layer.render(hat,partial,pose,buffers,light);pose.popPose();}
         var drawn=PoseTap.active()?new Matrix4f(pose.last().pose()):null;
         var evidence=PoseTap.active()?new DrawEvidence(drawn):null;

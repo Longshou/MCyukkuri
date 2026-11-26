@@ -4714,16 +4714,21 @@
         ],
         [
           0.35,
-          1.6,
+          1.35,
           "chewing_closed"
         ],
         [
-          1.6,
+          1.35,
+          1.62,
+          "landing"
+        ],
+        [
+          1.62,
           1.8,
-          "teary"
+          "closed_smile"
         ]
       ],
-      "lore": "Project original (water 11 ruling): self-rescue climb (reworked; replaces the retired v14 press-and-relax pose). The mouth bites the brim, the braid swings forward over it and its tuft hooks down outside the rim, then two pulls lift the body (squash, stretch, a small lift) ready for hat_slide_over. Pitch <= 9, roll <= 2.",
+      "lore": "Project original: aquatic Marisa boards her floating hat from the water. Mouth bites the brim (bite_contact), the braid swings forward in an arc and hooks over the brim (hook_contact), she coils and heaves up and over the brim in one continuous arc (pull_start..pull_end) while the braid pulls down against the brim, drops into the crown with a landing squash, and settles with the braid laid out on the brim.",
       "triggers": [
         "AquaticSelfRescue CLIMB",
         "self-rescue CLIMB"
@@ -4734,6 +4739,68 @@
         "pull_start": 0.85,
         "pull_end": 1.55
       },
+      "braid_path": [
+        [
+          0,
+          9.0,
+          0.6,
+          -4.2
+        ],
+        [
+          0.35,
+          12.8,
+          4.0,
+          -5.8,
+          "turn"
+        ],
+        [
+          0.6,
+          13.0,
+          6.8,
+          -9.0
+        ],
+        [
+          0.75,
+          13.2,
+          5.2,
+          -9.0
+        ],
+        [
+          0.85,
+          13.2,
+          5.0,
+          -9.0
+        ],
+        [
+          1.05,
+          12.8,
+          3.4,
+          -8.0
+        ],
+        [
+          1.25,
+          13.2,
+          5.4,
+          -6.2
+        ],
+        [
+          1.45,
+          14.2,
+          5.8,
+          -3.6
+        ],
+        [
+          1.55,
+          15.0,
+          5.2,
+          -1.8
+        ],
+        [
+          1.8,
+          "rest",
+          "turn"
+        ]
+      ],
       "contacts": {
         "mouth": {
           "anchor": "mouth",

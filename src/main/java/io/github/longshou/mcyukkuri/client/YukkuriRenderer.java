@@ -39,6 +39,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
 
@@ -146,12 +147,27 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
                     float headYaw=Mth.rotLerp(partialTick,entity.previousHeadYaw(),entity.getYHeadRot());
                     bodyYaw+=Mth.clamp(Mth.wrapDegrees(headYaw-bodyYaw),-35,35);
                 }
-                // A rider stands on the hat's floor: it leans with the hull's synced tilt, about its own feet.
+                // A rider stands on the hat's floor: it leans and dips with the hull's synced tilt and visual boarding response.
                 var host=entity.vehicleHat();
                 if(host!=null&&!preview){
+                    var extra=PlacedHatRenderer.visualOffset(host,partialTick);
                     float hostYaw=180-Mth.rotLerp(partialTick,host.previousYaw(),host.getYRot());
-                    pose.mulPose(Axis.YP.rotationDegrees(hostYaw));pose.mulPose(Axis.ZP.rotationDegrees(host.roll(partialTick)));
-                    pose.mulPose(Axis.XP.rotationDegrees(host.pitch(partialTick)));pose.mulPose(Axis.YP.rotationDegrees(-hostYaw));
+                    if(!extra.zero()){
+                        var rel=entity.getPosition(partialTick).subtract(host.getPosition(partialTick)).toVector3f();
+                        var base=new Quaternionf().rotationY(hostYaw*Mth.DEG_TO_RAD)
+                                .rotateZ(host.roll(partialTick)*Mth.DEG_TO_RAD).rotateX(host.pitch(partialTick)*Mth.DEG_TO_RAD);
+                        var shifted=new Quaternionf().rotationY(hostYaw*Mth.DEG_TO_RAD)
+                                .rotateZ((host.roll(partialTick)+extra.rollDeg())*Mth.DEG_TO_RAD)
+                                .rotateX((host.pitch(partialTick)+extra.pitchDeg())*Mth.DEG_TO_RAD);
+                        var moved=new Vector3f(rel);
+                        base.invert().transform(moved);
+                        shifted.transform(moved);
+                        pose.translate(moved.x-rel.x,moved.y-rel.y+extra.dipY(),moved.z-rel.z);
+                    }
+                    pose.mulPose(Axis.YP.rotationDegrees(hostYaw));
+                    pose.mulPose(Axis.ZP.rotationDegrees(host.roll(partialTick)+extra.rollDeg()));
+                    pose.mulPose(Axis.XP.rotationDegrees(host.pitch(partialTick)+extra.pitchDeg()));
+                    pose.mulPose(Axis.YP.rotationDegrees(-hostYaw));
                 }
                 pose.mulPose(Axis.YP.rotationDegrees(180-bodyYaw));
                 renderedBodyYaw=bodyYaw;

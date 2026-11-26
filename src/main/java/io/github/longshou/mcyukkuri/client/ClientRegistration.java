@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.client;
 import io.github.longshou.mcyukkuri.network.CarrierPayload;
 import io.github.longshou.mcyukkuri.network.MuseumMenuPayload;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.client.aquatic.HatBoardingMotion;
 import io.github.longshou.mcyukkuri.client.aquatic.HullLarderRenderer;
 import io.github.longshou.mcyukkuri.client.aquatic.HullWaterMask;
 import io.github.longshou.mcyukkuri.client.capture.MuseumCapture;
@@ -92,8 +93,11 @@ public final class ClientRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, BodyEffectsRenderer::renderStage);
         // The aquatic add-on's client part: the water kept out of a floating hat.
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, RenderLevelStageEvent.class, HullWaterMask::renderStage);
-        // ... and the food lying in its hollow, drawn with the hat.
+        // ... and the food lying in its hollow, drawn with the hat, plus client-side boarding dip/tilt response.
         PlacedHatRenderer.layer(HullLarderRenderer::render);
+        PlacedHatRenderer.motion(HatBoardingMotion::sample);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, ClientTickEvent.Post.class, HatBoardingMotion::tick);
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, HatBoardingMotion::unload);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, LevelEvent.Unload.class, BodyEffectsRenderer::unload);
         NeoForge.EVENT_BUS.addListener(EntityJoinLevelEvent.class, ClientEvents::warmWoundSurface);

@@ -198,11 +198,24 @@ def state(action, t, c, height):
         r = [-4*math.sin(math.pi*min(1, t/.8))+3*splash, 200*spin, 7*math.sin(2*math.pi*t/.55)*(1-smooth((t-.7)/.3))]
         shift[1] = -.71*(1-math.cos(math.radians(r[1])))  # the spin turns about the root pivot, .71 behind the body's middle
     elif action == 'water_hat_climb':
-        # Self-rescue: bite the brim, hook the braid over it, then pull up in two efforts and hold for the slide in.
-        bite = smooth(t/.35); pull = keyed(t, [(0, 0), (.85, 0), (1.05, -1), (1.25, .7), (1.4, -.6), (1.55, .9), (1.8, .8)])
-        s = [1+.06*max(0, -pull), 1-.13*max(0, -pull)+.08*max(0, pull), 1+.05*max(0, -pull)-.02*max(0, pull)]
-        r = [-6*bite-3*max(0, pull), keyed(t, [(0, 0), (.4, -6), (.8, -4), (1.8, 0)]), 2*math.sin(math.pi*min(1, t/.8))]
-        lift = height*.14*smooth((t-1.0)/.6); shift[1] = -.6*bite-height*.08*smooth((t-1.0)/.6)
+        # Boarding from water over the floating brim: reach & bite (0..0.35), hook braid & coil (0.35..0.85),
+        # heave up and crest over the brim in one arc (0.85..1.35), drop into the crown with a landing squash
+        # (1.35..1.58), and rebound-settle to upright rest (1.58..1.80). |pitch| + |roll| <= 10.5 deg throughout.
+        bite = keyed(t, [(0, 0), (.35, 1), (.85, 1), (1.35, .6), (1.55, 0), (1.8, 0)])
+        coil = bump((t-.62)/.30)
+        heave = bump((t-.85)/.46)
+        land = bump((t-1.44)/.24)
+        sy = 1 + .04*bump(t/.40) - .16*coil + .12*heave - .17*land
+        sx = 1 - .02*bump(t/.40) + .08*coil - .05*heave + .09*land
+        sz = 1 + .02*bump(t/.40) + .07*coil - .04*heave + .08*land
+        s = [sx, sy, sz]
+        pitch = keyed(t, [(0, 0), (.35, -6), (.75, -6), (.98, -8), (1.22, 2.5), (1.42, 3), (1.55, -4), (1.68, 1), (1.8, 0)])
+        yaw = keyed(t, [(0, 0), (.35, -4), (.75, -10), (1.05, -6), (1.30, 3), (1.55, 0), (1.8, 0)])
+        roll = keyed(t, [(0, 0), (.45, -2.5), (.78, -3), (1.05, -2), (1.28, 2), (1.55, -2), (1.68, 1), (1.8, 0)])
+        r = [pitch, yaw, roll]
+        arc = bump((t-.85)/.68)
+        lift = height*.24*arc
+        shift[1] = -1.0*bite - height*.10*bump((t-.85)/.56)
     elif action == 'water_hat_right':
         # Righting the capsized hat: bite its brim, tug and twist it up (yaw is free), push the far side over with the braid,
         # let go and sit back. Pitch -6..+5, roll <= 4.
@@ -305,9 +318,8 @@ def braid_rotation(action, t, c, side):
         # flung up and out, high over the brim while she spins
         flail = math.sin(2*math.pi*t/.42)*(1-smooth((t-.8)/.3)); return [-20*flail*side, side*6, side*(64+14*abs(flail))]
     if action == 'water_hat_climb':
-        if side < 0: return [0, 0, -(10+6*bump((t-.85)/.9))]
-        # Forward and up over the brim, then hold the hook while the body pulls.
-        return [keyed(t, [(0, 0), (.3, 30), (.75, 62), (1.8, 58)]), 0, keyed(t, [(0, 0), (.3, 20), (.75, 8), (1.8, 6)])]
+        if side < 0: return [0, 0, -(10+8*bump((t-.80)/.75))]
+        return None
     if action == 'water_hat_right':
         if side < 0: return [0, 0, -(10+6*bump((t-.6)/1.0))]
         # Rest, then swing forward-up under the lifting far brim and push it over.
@@ -326,7 +338,8 @@ def tip_rotation(action, t, c):
     if action == 'boat_jettison':
         flat = keyed(t, [(0, 0), (.3, 1), (.6, 1), (1.0, 0)]); return [-30*flat, 0, 0]
     if action == 'water_hat_climb':
-        hook = keyed(t, [(0, 0), (.55, .2), (.8, 1), (1.8, 1)]); return [70*hook, 0, -10*hook]  # tuft folds down over the rim
+        hook = keyed(t, [(0, 0), (.55, .15), (.75, 1), (1.10, 1), (1.30, 0), (1.8, 0)])
+        return [48*hook, 0, -8*hook]  # tuft folds down over the brim lip while hooked, then opens on release
     if action == 'water_hat_right':
         flat = keyed(t, [(0, 0), (.9, 0), (1.1, 1), (1.6, 1), (2.0, 0)]); return [-35*flat, 0, 0]  # open tuft pressing like a palm
     return None
