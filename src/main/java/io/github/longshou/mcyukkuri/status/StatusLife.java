@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile.Ecology;
+import io.github.longshou.mcyukkuri.house.HouseholdEcology;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.social.CharacterWords;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
@@ -34,6 +35,7 @@ public final class StatusLife {
     private final YukkuriEntity entity;
     private final Marks marks;
     private final Reactions reactions;
+    private final Sneeze sneeze;
     private final Map<StatusKey, String> sampled = new EnumMap<>(StatusKey.class);
     private int glow;
     private double groundY, lastY;
@@ -42,11 +44,12 @@ public final class StatusLife {
     private boolean airborneKnown, airborneRose, airborneSpoken;
 
     public StatusLife(YukkuriEntity entity) {
-        this.entity = entity; marks = new Marks(entity); reactions = new Reactions(entity);
+        this.entity = entity; marks = new Marks(entity); reactions = new Reactions(entity); sneeze = new Sneeze(entity);
     }
 
     public Marks marks() { return marks; }
     public Reactions reactions() { return reactions; }
+    public Sneeze sneeze() { return sneeze; }
     public Identity identity() { return YukkuriStatus.identity(entity); }
 
     /** Server side, once per entity tick (after the components have ticked). */
@@ -94,6 +97,10 @@ public final class StatusLife {
         int t = entity.tickCount;
         if (PerceptionScan.due(t, entity.getId())) reactions.threat().scan();
         if (t % 5 == 0) reactions.scanWeatherAndNeeds();
+        if (t % 40 == 17 && entity.level() instanceof ServerLevel level) {
+            double dust = HouseholdEcology.dustIntensity(level, entity.blockPosition());
+            if (dust > 0) Sneeze.consider(entity, SneezeRules.Trigger.DUST, dust * 0.5);
+        }
         airborneTick();
         if (t % 20 == 7) {
             if (marks.tick(identity())) entity.syncMarks(Marks.write(marks.visible()));
@@ -190,7 +197,7 @@ public final class StatusLife {
     }
     public void load(CompoundTag tag) {
         marks.load(tag.getCompound("Marks"));
-        sampled.clear(); glow = 0; reactions.stop();
+        sampled.clear(); glow = 0; reactions.stop(); sneeze.reset();
         airborneKnown = airborneRose = airborneSpoken = false; airborneTicks = 0; nextAirborneSpeech = 0;
     }
 }

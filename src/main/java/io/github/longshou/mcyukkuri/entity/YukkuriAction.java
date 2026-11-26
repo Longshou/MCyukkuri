@@ -197,9 +197,7 @@ public enum YukkuriAction {
     SUKKIRI_AFTER_TENDER("sukkiri_after_tender", 6, false),
     SUKKIRI_AFTER_PROUD("sukkiri_after_proud", 6, false),
     SUKKIRI_AFTER_MANIC("sukkiri_after_manic", 6, false),
-    // Museum comparison trial (lore recipe): three authored sneeze variants shown side by side; no behaviour calls them.
-    SNEEZE_A("sneeze_a", 1.6, false),
-    SNEEZE_B("sneeze_b", 1.68, false),
+    // Everyday sneeze (lore recipe): dust or cold reflex, own face timeline.
     SNEEZE_C("sneeze_c", 1.64, false),
     // Newspaper-stack paper source and cold plain-gap cover (lore recipe paper family + mouth_item_place).
     MOUTH_ITEM_PLACE("mouth_item_place", 1.2, false),

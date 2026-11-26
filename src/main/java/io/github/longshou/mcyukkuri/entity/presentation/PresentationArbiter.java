@@ -82,6 +82,7 @@ public final class PresentationArbiter {
         e.keepsake().observeFace(shown);
         e.life().observeUrge(shown);
         e.status().reactions().weather().observeFace(shown);
+        e.status().sneeze().observeFace(shown);
         if (e.getNavigation() instanceof YukkuriGroundNavigation nav) nav.observeFace(shown);
         for (var beat = noted.poll(); beat != null; beat = noted.poll())
             GameplayLog.event(e, "choreo", "beat={} face={} line={} declared={}", beat.name(), shown, beat.line(), beat.face());
@@ -150,6 +151,8 @@ public final class PresentationArbiter {
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
+        if(YukkuriAction.SNEEZE_C.id().equals(clip))
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"neutral");
         if(YukkuriAction.STAMP.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"angry");
         if(YukkuriAction.REJECT_OR_SPIT.id().equals(clip)||YukkuriAction.SPIT_ALONE.id().equals(clip))
@@ -415,6 +418,9 @@ public final class PresentationArbiter {
                 : e.species().catchingBreath() && e.onGround() && !e.isPassenger() && m.distanceSquared() <= 0.000001
                         && (e.species().sprintRequested() || behavior.equals(Behaviors.THREAT_RETREAT) || behavior.equals(Behaviors.IDLE))
                 ? EcologyPresentation.catchBreath(e)
+                : e.reactionAction() == YukkuriAction.SNEEZE_C && !e.life().isSleeping() && e.life().mealTicks() == 0
+                        && e.life().braidMealClip().isEmpty() && !e.playLife().inFacilityMovement() && !e.predator().active()
+                ? YukkuriAction.SNEEZE_C
                 : showWalk ? walking(e, behavior)
                 : stationary;
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;

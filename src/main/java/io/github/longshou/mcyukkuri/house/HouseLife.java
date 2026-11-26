@@ -6,6 +6,8 @@ import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
 import io.github.longshou.mcyukkuri.life.HungerDrive;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Sneeze;
+import io.github.longshou.mcyukkuri.status.SneezeRules;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -546,6 +548,8 @@ public final class HouseLife implements EcologyRoutine {
         // Reaching urgent hunger before picking up an egg gives the ordinary food route this tick; an actual ticket never changes hands here.
         if (value != null && value.relocation() != null && urgentMeal() && interaction == 0 && phase != Phase.NONE) phase(Phase.NONE);
         if (interaction > 0) { tickInteraction(value); return; }
+        if (ticks % 20 == 10 && !carrying().isEmpty() && SupplyPiles.lint(carrying()))
+            Sneeze.consider(entity, SneezeRules.Trigger.DUST, 0.45);
         if (phase != Phase.NONE) { tickPhase(value); return; }
         tickOuting(value);
     }
@@ -755,7 +759,17 @@ public final class HouseLife implements EcologyRoutine {
         entity.getLookControl().setLookAt(entity.getX() - Math.sin(heading) * 2, entity.getEyeY() - .05, entity.getZ() + Math.cos(heading) * 2, 25, 25);
         if (ticks == 24 && mayTransfer()) {
             locate(value, hungerReach(LOCATE_RADIUS));
-            if (sourceAvailable()) { scouts = 0; count(Stat.SCOUTED); entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT); phase(Phase.NONE); return; }
+            if (sourceAvailable()) {
+                scouts = 0; count(Stat.SCOUTED);
+                double dust = entity.level() instanceof ServerLevel level ? HouseholdEcology.dustIntensity(level, entity.blockPosition()) : 0;
+                if (dust <= 0 || !Sneeze.consider(entity, SneezeRules.Trigger.DUST, dust))
+                    entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT);
+                phase(Phase.NONE); return;
+            }
+            if (entity.level() instanceof ServerLevel level) {
+                double dust = HouseholdEcology.dustIntensity(level, entity.blockPosition());
+                if (dust > 0) Sneeze.consider(entity, SneezeRules.Trigger.DUST, dust);
+            }
         }
         if (ticks >= 50) {
             count(Stat.SCOUTED); scoutTarget = null; scouts++;
@@ -1031,8 +1045,9 @@ public final class HouseLife implements EcologyRoutine {
                 if (taken.isEmpty()) { stop(); return; }
                 GameplayLog.event(entity,"house","pickup source={} item={} count={} feeding={}",at,taken.getItem(),taken.getCount(),feeding);
                 count(Stat.PICKED);
-                entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT);
                 if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, BlockPos.containing(at), lint);
+                if (!lint || !Sneeze.consider(entity, SneezeRules.Trigger.DUST, 1.0))
+                    entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT);
                 if (feeding) {
                     // All beginMeal preconditions were checked before this synchronous one-item debit.
                     if (entity.life().beginMeal(taken, null, false)) count(Stat.ATE);
@@ -1109,7 +1124,8 @@ public final class HouseLife implements EcologyRoutine {
         if (!lint) count(Stat.STASHED);
         lastDeliveredLint = lint;
         if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, target.getBlockPos(), lint);
-        entity.showReaction("happy", "house_deposit", FaceTier.Tier.SHORT);
+        if (!lint || !Sneeze.consider(entity, SneezeRules.Trigger.DUST, 1.0))
+            entity.showReaction("happy", "house_deposit", FaceTier.Tier.SHORT);
         if (!builtBefore && target.built()) {
             count(Stat.BUILT);
             GameplayLog.event(entity,"house","nest built home={} lint={}",target.getBlockPos(),target.materials());

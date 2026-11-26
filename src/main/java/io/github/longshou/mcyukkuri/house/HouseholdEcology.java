@@ -59,6 +59,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import java.util.Collections;
 import java.util.Random;
+import io.github.longshou.mcyukkuri.status.SneezeRules;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -181,6 +182,14 @@ public final class HouseholdEcology {
     public static boolean covered(ServerLevel level,BlockPos floor){
         return level.isInWorldBounds(floor)&&level.hasChunkAt(floor)
                 &&level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,floor.getX(),floor.getZ())>floor.getY();
+    }
+    /** Real indoor dust buildup at {@code pos} in [0, 1]; 0 outdoors or in recently swept/clean rooms. */
+    public static double dustIntensity(ServerLevel level,BlockPos pos){
+        if(!covered(level,pos))return 0;
+        var state=HouseholdEcologyData.get(level).state(pos);
+        if(level.getGameTime()<state.cleanUntil())return 0;
+        int lint=new SupplyPileView(level).region(pos).lint();
+        return SneezeRules.dustLevel(state.dustTicks(),DUST_TICKS,lint,ARRIVAL_LINT);
     }
     /** Inputs are observed player/villager foot positions. Repeated calls in one bucket cannot accelerate a region. */
     public static void sample(ServerLevel level,Collection<BlockPos> activities){sample(level,activities,Set.of());}

@@ -2,6 +2,8 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Sneeze;
+import io.github.longshou.mcyukkuri.status.SneezeRules;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.perception.Knowledge;
@@ -121,6 +123,8 @@ public final class TemperatureLife {
                 entity.life().applyEnvironment(0, 0, entity.family().adult() ? 1 : 2);
             }
         } else coldTicks = 0;
+        double coldSneeze = SneezeRules.coldIntensity(cold(), coldDeficit(), current.felt(), coldLimit(), entity.life().wetness());
+        if (coldSneeze > 0) Sneeze.consider(entity, SneezeRules.Trigger.COLD, coldSneeze);
         if (hot()) {
             hotTicks += 20;
             if (hotTicks >= YukkuriConfig.HEAT_DRYNESS_INTERVAL.get()) {
