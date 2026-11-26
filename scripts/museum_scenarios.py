@@ -9375,6 +9375,7 @@ add('bed_contest_even', 'family', '两个同样胆大的成油争一个窝', '�
     late=[Retry(block(2, 0, 0, 'mcyukkuri:yukkuri_nest'), sel('b'), tries=1, first=1250)],
     env=DAY, spot='pet_birth', vantage=(0, -5, 0),
     smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_even_a, _even_b)],
+               forbid=[r'contest beat=\w+ [^\n]*accepted=false'],
                verify=lambda log: _verify_bed_contest(log, 'TUSSLE', tussles=3)))
 
 _number_scenes()
