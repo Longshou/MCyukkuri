@@ -29,11 +29,15 @@ import net.minecraft.world.phys.Vec3;
 
 /** A shared, transient bout reserves both live participants. Reload cancels it, preserving cooldown. */
 public final class GroupInteractionGoal extends Goal {
-    private enum Kind { SUMO, BULLY, PROTECT }
+    private enum Kind { SUMO, BULLY, PROTECT, CONTEST }
+    /** A bout nobody ticks (its goal never took the body) ends at this age in game ticks. */
+    private static final int STALE = 300;
     private static final class Bout {
         final YukkuriEntity first, second;
         final Kind kind;
         YukkuriEntity protectedPeer;
+        Contest contest;
+        long created;
         int ticks, contactTicks;
         boolean ended;
         Choice rule = Choice.ALLOW;
@@ -65,12 +69,21 @@ public final class GroupInteractionGoal extends Goal {
     public CompoundTag save() { var tag=new CompoundTag();tag.putInt("Cooldown",cooldown);return tag; }
     public void load(CompoundTag tag) { interrupt();cooldown=Math.clamp(tag.getInt("Cooldown"),0,24000); }
     private ServerLevel level() { return (ServerLevel)entity.level(); }
-    private static boolean available(YukkuriEntity e) {
+    /** Free of every other engagement; the needs are asked separately, because a contest is fought by the needy. */
+    private static boolean free(YukkuriEntity e) {
         return !WildEvents.reserved(e) && !e.groupInteraction().defense().active() && e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.isCommandPlaying()&&!e.operations().active()
-                &&!(e.groupInteraction().active()?e.life().nutrition()<15||e.life().energy()<15||e.isOnFire()||e.isInWaterOrBubble():e.life().hasUrgentNeed())&&!e.life().isSleeping()&&e.life().mealTicks()==0
-                &&e.life().nutrition()>=(e.groupInteraction().active()?15:40)&&e.life().energy()>=(e.groupInteraction().active()?15:35)&&e.body().condition().readyForGroupPlay()
+                &&!e.life().isSleeping()&&e.life().mealTicks()==0&&e.body().condition().readyForGroupPlay()
                 &&!e.dailyLife().active()&&!e.playLife().active()&&!e.family().active()&&!e.house().active()
                 &&!e.independence().active()&&!e.forageTrip().outing()&&!e.settlement().active()&&!e.settlement().duties().active();
+    }
+    private static boolean available(YukkuriEntity e) {
+        return free(e)
+                &&!(e.groupInteraction().active()?e.life().nutrition()<15||e.life().energy()<15||e.isOnFire()||e.isInWaterOrBubble():e.life().hasUrgentNeed())
+                &&e.life().nutrition()>=(e.groupInteraction().active()?15:40)&&e.life().energy()>=(e.groupInteraction().active()?15:35);
+    }
+    /** A contest starts and runs with any needs, tired included (a sleepy or hungry body is who contests a bed), but not in fire or water. */
+    private static boolean contestant(YukkuriEntity e) {
+        return free(e)&&!e.isOnFire()&&!e.isInWaterOrBubble()&&e.family().adult();
     }
     private static boolean space(YukkuriEntity e) {
         if(e.isPassenger()||!e.onGround())return false;
@@ -90,14 +103,35 @@ public final class GroupInteractionGoal extends Goal {
         if(relations.affinity(entity.getUUID(),peer.getUUID())<BondLevels.AFFINITY_ACQUAINTED||relations.affinity(peer.getUUID(),entity.getUUID())<BondLevels.AFFINITY_ACQUAINTED)return false;
         return reserve(peer,Kind.SUMO);
     }
+    /**
+     * Two claimants of one bed meet at its lip. Both are stood down from their errand ({@code YukkuriLife.plan} yields while a bout is
+     * on), and the bout plays the contest where they stand; a pair owned by one hand does not tussle.
+     */
+    public boolean contest(YukkuriEntity rival, BlockPos bed) {
+        if(rival.level()!=entity.level()||cooldown>0||rival.groupInteraction().cooldown>0||active()||rival.groupInteraction().active()
+                ||!contestant(entity)||!contestant(rival))return false;
+        boolean mayPush=!(rival.pet().isPet()&&rival.pet().ownedBy(entity.pet().owner()));
+        if(!reserve(rival,Kind.CONTEST))return false;
+        bout.contest=Contest.begin(entity,rival,bed,mayPush);
+        return true;
+    }
+    /** The pushed body is shoved away from the pusher; the one sumo and contest contact. */
+    static void shove(YukkuriEntity pushed, YukkuriEntity pusher) {
+        Vec3 direction=pushed.position().subtract(pusher.position()).multiply(1,0,1).normalize();
+        if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
+        pushed.setDeltaMovement(direction.scale(.13));pushed.hurtMarked=true;
+    }
     private boolean reserve(YukkuriEntity peer, Kind kind) {
-        if(kind!=Kind.SUMO&&(!space(entity)||!space(peer)))return false;
+        if(kind!=Kind.SUMO&&kind!=Kind.CONTEST&&(!space(entity)||!space(peer)))return false;
         entity.social().stop();peer.social().stop();
-        bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
+        bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;bout.created=level().getGameTime();
         entity.life().personality().protectRelation(peer.getUUID());peer.life().personality().protectRelation(entity.getUUID());
         cooldown=peer.groupInteraction().cooldown=2400;
-        entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",FaceTier.Tier.MEDIUM);
-        if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",FaceTier.Tier.MEDIUM);
+        // A contest opens with its own face-off beats; the other bouts open with this one reaction.
+        if(kind!=Kind.CONTEST) {
+            entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",FaceTier.Tier.MEDIUM);
+            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",FaceTier.Tier.MEDIUM);
+        }
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
     }
@@ -141,8 +175,9 @@ public final class GroupInteractionGoal extends Goal {
         }
         return false;
     }
-    private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&available(e); }
+    private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&(bout.kind==Kind.CONTEST?contestant(e):available(e)); }
     private boolean valid() {
+        if(active()&&level().getGameTime()-bout.created>=STALE)return false;
         if(!active()||bout.first.isPassenger()||bout.second.isPassenger()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;
         if (bout.kind == Kind.BULLY && (SettlementSociety.sparesHatlessBlame(bout.first, bout.second)
                 || SettlementSociety.sparesHatlessBlame(bout.second, bout.first))) return false;
@@ -156,6 +191,12 @@ public final class GroupInteractionGoal extends Goal {
         if(!valid()){stop();return;}
         var current=bout;var peer=entity==current.first?current.second:current.first;
         entity.getLookControl().setLookAt(peer,30,30);
+        if(current.kind==Kind.CONTEST) {
+            // Two bodies already at one lip stand where they are; the first one's clock plays the performance for both.
+            SurfaceApproach.stopWalking(entity);
+            if(entity==current.first){current.ticks++;if(current.contest.tick(current.ticks))stop();}
+            return;
+        }
         double contact=(entity.getBbWidth()+peer.getBbWidth())*.5+.15;
         if(entity.distanceToSqr(peer)>contact*contact) {
             if(entity==current.first){
@@ -210,11 +251,8 @@ public final class GroupInteractionGoal extends Goal {
         }
         if(current.contactTicks%20!=0)return;
         if(!entity.life().spendEnergy(2)||!peer.life().spendEnergy(2)){stop();return;}
-        Vec3 direction=peer.position().subtract(entity.position()).multiply(1,0,1).normalize();
-        if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
-        boolean firstStronger=entity.getBbWidth()*entity.life().energy()*entity.species().traits().might()>=peer.getBbWidth()*peer.life().energy()*peer.species().traits().might();
-        var pushed=firstStronger?peer:entity;
-        pushed.setDeltaMovement(direction.scale(firstStronger?.13:-.13));pushed.hurtMarked=true;
+        boolean firstStronger=Contest.might(entity)>=Contest.might(peer);
+        shove(firstStronger?peer:entity,firstStronger?entity:peer);
         if(current.contactTicks>=80) {
             var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
             stop();winner.showReaction("happy","puff",FaceTier.Tier.MEDIUM);loser.showReaction("surprise","shy",FaceTier.Tier.MEDIUM);

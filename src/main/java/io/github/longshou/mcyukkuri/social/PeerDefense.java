@@ -86,7 +86,7 @@ public final class PeerDefense extends Goal {
     public boolean respond(YukkuriEntity aggressor) {
         if (aggressor == null || aggressor == entity || !aggressor.isAlive() || aggressor.level() != entity.level()) return false;
         var personality = entity.life().personality();
-        double ownPower = power(entity), otherPower = power(aggressor);
+        double ownPower = Contest.might(entity), otherPower = Contest.might(aggressor);
         score = combatScore(personality.boldness(), personality.fear(aggressor.getUUID()), ownPower, otherPower);
         String refusal = refusal();
         boolean defend = refusal == null && score >= 50;
@@ -112,15 +112,11 @@ public final class PeerDefense extends Goal {
         return defend;
     }
 
-    private static double power(YukkuriEntity peer) {
-        return peer.getBbWidth() * peer.species().traits().might() * peer.body().healthRatio()
-                * Math.max(.15, peer.life().energy() / 100.0);
-    }
     private double combatScore(YukkuriEntity aggressor, int fear) {
-        return combatScore(entity.life().personality().boldness(), fear, power(entity), power(aggressor));
+        return combatScore(entity.life().personality().boldness(), fear, Contest.might(entity), Contest.might(aggressor));
     }
     private static double combatScore(int boldness, int fear, double ownPower, double otherPower) {
-        return boldness - fear * .5 + 35 * Math.clamp(ownPower / Math.max(.01, otherPower) - 1, -1, 1);
+        return boldness - fear * .5 + ContestOdds.mightEdge(ownPower, otherPower);
     }
 
     private String refusal() {

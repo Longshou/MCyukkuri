@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.shop.ShopKind;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
+import io.github.longshou.mcyukkuri.social.Contest;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 
@@ -1061,6 +1062,8 @@ public final class YukkuriLife {
     }
 
     public boolean plan() {
+        // A bout holds the body (a bed contest stands both claimants down from their errand); the errand is planned again after it.
+        if (entity.groupInteraction().active()) return false;
         if (entity.family().awaitingLanding()) return false;
         if (task == Task.HOME && ParentCarry.awaitsCarrier(entity)) { stopGoal(); return false; }
         if (entity.predator().active()) return false;
@@ -2295,9 +2298,18 @@ public final class YukkuriLife {
 
     public boolean dryStand(BlockPos pos){ return home.dryStand(pos); }
 
-    private double bedClaimStrength() {
-        return entity.getBbWidth() * entity.species().traits().might() * entity.body().healthRatio()
-                * (1 + personality.boldness() / 100.0);
+    /**
+     * The verdict of a bed contest played at the lip: the winner takes the bed the way an uncontested arrival does; the loser leaves
+     * and does not look for a bed again until the same wait a yielded bed always costs, so it ends at another free bed or waits.
+     */
+    public void bedVerdict(BlockPos bed, boolean won, UUID rival) {
+        if (!won) {
+            home.yieldedBed();
+            GameplayLog.event(entity, "home", "yielded contested bed nest={} rival={}", bed, rival);
+            return;
+        }
+        var care = NestDoorway.bed(entity, bed);
+        if (care != null && (!care.canClaim(entity) || !assignHome(GlobalPos.of(level().dimension(), bed)))) home.refusedApproach(care);
     }
 
     private void approachUnclaimedBed() {
@@ -2322,9 +2334,13 @@ public final class YukkuriLife {
         var rival = level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(2),
                 y -> y != entity && y.life().task == Task.CLAIM_BED && targetBlock.equals(y.life().targetBlock)
                         && y.distanceToSqr(stand) <= Math.pow(y.getBbWidth() + entity.getBbWidth(), 2)
-                        && entity.hasLineOfSight(y) && y.life().bedClaimStrength() > bedClaimStrength()).stream().findFirst();
-        if (rival.isPresent() || !bed.canClaim(entity)) {
-            var winner = rival.map(Entity::getUUID).orElse(bed.resident());
+                        && entity.hasLineOfSight(y)).stream().findFirst();
+        // Two claimants at one lip contest it in a bout (the verdict lands in bedVerdict); a pair that cannot stage one settles it
+        // silently by the same odds, so exactly one of them yields.
+        if (rival.isPresent() && entity.groupInteraction().contest(rival.get(), targetBlock)) return;
+        boolean beaten = rival.isPresent() && !Contest.beats(entity, rival.get());
+        if (beaten || !bed.canClaim(entity)) {
+            var winner = beaten ? rival.get().getUUID() : bed.resident();
             entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",FaceTier.Tier.SHORT);
             home.yieldedBed();
             GameplayLog.event(entity,"home","yielded contested bed nest={} rival={}",targetBlock,winner);
