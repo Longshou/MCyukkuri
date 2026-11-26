@@ -54,7 +54,7 @@ public final class Penance {
     // The child whose treatment was the answer (null when the owner's hand was on the parent), and how the parent ends its struggle.
     private YukkuriEntity child;
     private StruggleOdds.Choice struggle;
-    private Vec3 stand;
+    private Vec3 stand, standFor;
     private long settledAt;
     private String outcome = "";
     // The beat on show: its declared clip, face and line, and when it started.
@@ -260,11 +260,7 @@ public final class Penance {
             case SHIELD -> {
                 enter(Phase.ACT, "shield", YukkuriAction.PUFF, "puff_teary", "protect_taunt", ACT_TICKS);
                 if (inFront(pet.position()) && pet.distanceToSqr(child) <= 2.25) settledAt = now();
-                else {
-                    double reach = (pet.getBbWidth() + child.getBbWidth()) / 2 + .1;
-                    stand = SurfaceApproach.beside(pet, child.position(), reach, child, this::inFront);
-                    if (stand == null) settledAt = now();
-                }
+                else if ((stand = shieldStand()) == null) settledAt = now();
                 GameplayLog.event(pet, "rules", "penance step toward=child stand={} child={}", stand != null, child.getUUID());
             }
             case PLEAD -> enter(Phase.ACT, "plead", YukkuriAction.BEG, "teary", "plea_spare", 50);
@@ -285,7 +281,17 @@ public final class Penance {
         return side.dot(toOwner) > .8;
     }
 
+    /** A stand on the owner's side of the child where it is now (a scolded child runs, so the stand follows it). */
+    private Vec3 shieldStand() {
+        standFor = child.position();
+        return SurfaceApproach.beside(pet, standFor, (pet.getBbWidth() + child.getBbWidth()) / 2 + .1, child, this::inFront);
+    }
+
     private void acting(long now, long age) {
+        if (stand != null && struggle == StruggleOdds.Choice.SHIELD && child.position().distanceToSqr(standFor) > 1) {
+            var moved = shieldStand();
+            if (moved != null) stand = moved;
+        }
         if (stand != null) {
             var result = struggle == StruggleOdds.Choice.ESCAPE ? SurfaceApproach.retreatResult(pet, stand, owner, .9)
                     : SurfaceApproach.walkResult(pet, stand, child, .9);
