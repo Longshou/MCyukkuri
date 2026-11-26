@@ -50,9 +50,10 @@ def page(title, body):
             f'<style>{STYLE}</style><body><a href="../index.html">预览总入口</a><h1>{E(title)}</h1>{body}</body></html>')
 
 
-def media(path, caption=''):
+def media(path, caption='', loop=False):
     name = E(path, quote=True)
-    tag = (f'<video controls preload="metadata" src="{name}"></video>' if Path(path).suffix.lower() in ('.mp4', '.webm')
+    tag = (f'<video{" autoplay loop muted" if loop else ""} controls preload="metadata" src="{name}"></video>'
+           if Path(path).suffix.lower() in ('.mp4', '.webm')
            else f'<img loading="lazy" src="{name}" alt="{E(caption)}">')
     return f'<figure>{tag}<figcaption>{E(caption)}</figcaption></figure>'
 
@@ -312,6 +313,82 @@ def strip(args, stage):
         sheet(pairs, comparison_labels, stage/'compare.png', 2*len(times) if len(views) > 1 else 2, tuple(args.size))
         body += media('compare.png', '相同视角与时刻：' + ('原版本 / 当前' if before_root else '不避让 / 避让'))
     body += '<a href="atlas.png">帧图集</a> · <a href="atlas.json">时刻数据</a>'
+    return body
+
+
+def clip_seconds(root, model, clip):
+    """Runtime clip duration in seconds, after the loader's clip revisions."""
+    assets = root/'src/main/resources/assets/mcyukkuri'
+    data = read(assets/'yukkuri'/f'{model}.json')
+    bones = [bone['name'] for bone in data['bones']]
+    clips = dict(data.get('clips', {}))
+    revision = read(assets/'yukkuri_presentation/motion_corrections.json')['models'].get(model)
+    if revision and revision['bone_names'] == bones:
+        clips.update(revision.get('clips', {}))
+        for name in ('house_ecology', 'toilet_contact'):
+            path = assets/'yukkuri_presentation'/f'{name}.json'
+            later = read(path)['models'].get(model) if path.is_file() else None
+            if later and later['bone_names'] == bones:
+                clips.update(later.get('clips', {}))
+    clips.update(data.get('behavior_clips', {}))
+    if clip not in clips:
+        raise ValueError(f'Unknown clip {model}/{clip}')
+    return clips[clip]['duration']
+
+
+def encode_video(frames, target, fps):
+    """Encode one-per-frame images at their real speed with the local ffmpeg."""
+    with tempfile.TemporaryDirectory(dir=target.parent) as directory:
+        work = Path(directory)
+        for i, image in enumerate(frames, 1):
+            image.save(work/f'{i:04d}.png')
+        subprocess.run([str(ffmpeg_path()), '-hide_banner', '-loglevel', 'error', '-y',
+                        '-framerate', str(fps), '-i', str(work/'%04d.png'),
+                        '-vf', 'pad=ceil(iw/2)*2:ceil(ih/2)*2', '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
+                        '-movflags', '+faststart', str(target)], check=True)
+
+
+def video(args, stage):
+    """Every frame of each clip at its real speed from the front, as one loopable MP4."""
+    before_root = before_checkout(args.before, stage) if args.before else None
+    background = '#eee8dd'
+    label_font = font(max(14, args.size[1]//22))
+
+    def compose(image, label=''):
+        canvas = Image.new('RGB', tuple(args.size), background)
+        canvas.paste(image, (0, 0), image)
+        if label:
+            ImageDraw.Draw(canvas).text((8, 6), label, font=label_font, fill='#222',
+                                        stroke_width=2, stroke_fill=background)
+        return canvas
+
+    body = ''
+    for clip in args.clip:
+        seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, args.model, clip)
+        if before_root:
+            seconds = min(seconds, clip_seconds(before_root, args.model, clip))
+        count = round(seconds*args.fps)
+        if count < 1:
+            raise ValueError(f'Clip too short for {args.fps} fps: {args.model}/{clip}')
+        times = [i/args.fps for i in range(count)]
+        opts = argparse.Namespace(model=args.model, prop=None, clip=clip, partner=None, face=args.face,
+                                  draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
+                                  size=args.size, view=[0, 10], node=args.node)
+        frames = render_strip(opts, stage, times)
+        if before_root:
+            old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
+            pairs = []
+            for old_frame, new_frame in zip(old, frames):
+                pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
+                pair.paste(compose(old_frame, '旧'), (0, 0))
+                pair.paste(compose(new_frame, '新'), (args.size[0], 0))
+                pairs.append(pair)
+            frames = pairs
+        else:
+            frames = [compose(frame) for frame in frames]
+        name = f'{clip}.mp4'
+        encode_video(frames, stage/name, args.fps)
+        body += f'<h2>{E(clip)}</h2>' + media(name, f'{args.model} / {clip} · 正对机位 {args.fps} fps', loop=True)
     return body
 
 
@@ -864,6 +941,18 @@ def parser():
     vp.add_argument('--expression', default='auto')
     vp.add_argument('--title')
     vp.add_argument('--decision')
+    vd = commands.add_parser('video', help='front-view clip video at real speed, old and new side by side')
+    vd.add_argument('topic', type=valid_topic)
+    vd.add_argument('--title')
+    vd.add_argument('--decision', help='also add to the review inbox with this decision')
+    vd.add_argument('--model', required=True)
+    vd.add_argument('--clip', nargs='+', default=['idle'], help='one video per clip')
+    vd.add_argument('--before', help='before checkout path or Git ref, played beside the current clip')
+    vd.add_argument('--face', help='runtime expression id')
+    vd.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model')
+    vd.add_argument('--fps', type=int, default=20)
+    vd.add_argument('--size', type=int, nargs=2, default=[360, 360])
+    vd.add_argument('--node', default='node')
     return ap
 
 
@@ -888,6 +977,10 @@ def main():
                 raise ValueError('--face only applies to the old side of --before when --face-preset is given')
             if args.command == 'capture' and (args.zoom <= 0 or args.count < 2):
                 raise ValueError('zoom must be positive and count at least 2')
+            if args.command == 'video' and (args.fps < 1 or min(args.size) < 1):
+                raise ValueError('fps and size must be positive')
+            if args.command == 'video' and args.draft_clip and args.before:
+                raise ValueError('--draft-clip needs no --before')
             with staging(args.topic) as stage:
                 body = globals()[args.command](args, stage)
                 title = args.title or args.topic
