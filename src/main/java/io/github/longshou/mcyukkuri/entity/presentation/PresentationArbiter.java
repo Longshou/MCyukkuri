@@ -418,7 +418,8 @@ public final class PresentationArbiter {
                 : e.species().catchingBreath() && e.onGround() && !e.isPassenger() && m.distanceSquared() <= 0.000001
                         && (e.species().sprintRequested() || behavior.equals(Behaviors.THREAT_RETREAT) || behavior.equals(Behaviors.IDLE))
                 ? EcologyPresentation.catchBreath(e)
-                : e.reactionAction() == YukkuriAction.SNEEZE_C && !e.life().isSleeping() && e.life().mealTicks() == 0
+                // The sneeze is planted: it holds only while no walk clip is due, so a body that starts walking mid-clip shows its walk.
+                : e.reactionAction() == YukkuriAction.SNEEZE_C && !showWalk && !e.life().isSleeping() && e.life().mealTicks() == 0
                         && e.life().braidMealClip().isEmpty() && !e.playLife().inFacilityMovement() && !e.predator().active()
                 ? YukkuriAction.SNEEZE_C
                 : showWalk ? walking(e, behavior)
