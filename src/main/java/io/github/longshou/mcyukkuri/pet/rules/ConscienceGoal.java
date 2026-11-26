@@ -270,6 +270,14 @@ public final class ConscienceGoal extends Goal {
             }
             if (style == ArcStyle.CONFESS) {
                 SurfaceApproach.halt(pet);
+                // The opening line must be sayable now: a mother that spoke a moment ago (greeting the owner on the way) stands
+                // facing them until the speech gap is over, instead of giving the confession up. The goal's own lapse rules still end it.
+                long free = pet.nextSpeech(2);
+                if (free > pet.level().getGameTime()) {
+                    pet.getLookControl().setLookAt(owner, 30, 30);
+                    GameplayLog.limited(pet, "rules", "arc_wait.speech_gap", 100, "arc waiting reason=speech_gap until={} owner={}", free, owner.getUUID());
+                    return;
+                }
                 String event = bearer ? "confess" : "confess_mate";
                 var opening = Penance.confession(pet, owner, "secret_brood", event, () -> pet.pet().discovery().admitted(pet, owner));
                 if (opening.voiced()) {
