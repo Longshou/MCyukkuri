@@ -14,6 +14,7 @@
 | 断亲演出节奏（PD-31～34） | `.worktrees/wp-sever-pace` | entity/YukkuriGoals, family/DrivenOut, family/MoldExile, social/Departure, aquatic/LeaveBehind, hat_sever scenes |
 | 窄巷让路台词与放弃闹情绪（TN-74） | `.worktrees/wp-yield-lines` | entity/Encounter, YukkuriGroundNavigation give-up, dialogue lines, pet/rules/Penance lines |
 | 等待演出（PK-14、TN-70/71） | `.worktrees/wp-wait-beats` | play/PlayLife, entity/Encounter wait beat |
+| 思考、跺脚、蹭蹭、吐出拒食修正 | `.worktrees/wp-redo-a-fix` | motions/variants/lore (think, stamp, nuzzle, reject_or_spit), PresentationArbiter reject choice |
 
 ## 玩法待办
 
