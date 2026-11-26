@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 美术：其他种族的辫子替代动作（翻桶、扑腾） | `.worktrees/wp-braid-species` | standards/yukkuri-library/motions/variants/lore (bin_nose_in, water_flail, water_struggle per species), author.py braid rule, BRAID.md |
-| 通用争抢演出（FM-27） | `.worktrees/wp-contest` | life/ContestOdds, social/Contest, GroupInteractionGoal, YukkuriLife bed claim, PeerDefense.power, LifeHome |
 | 当面处置赤油时亲油的挣扎（TN-57） | `.worktrees/wp-confess-parent` | OperationLife, YukkuriSocial.talk, pet/rules/Conscience, Penance, ConscienceGoal, arc_confess scenes |
 | 嘲讽失饰者的台词与演出（HD-04） | `.worktrees/wp-hatless-taunt` | headwear/Contempt, Headwear history, headwear/ScornLadder, Sanction, dialogue hatless events |
 
