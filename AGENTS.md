@@ -61,6 +61,7 @@
 - 版本以 `gradle.properties` 为准（Minecraft 1.21.1、JDK 21、NeoForge 21.1.250）。`.github/workflows/build.yml` 在 `main` 推送、PR 和手动触发时执行 `./gradlew build`，产物 `mcyukkuri-<sha>`（开发 Jar）与 `mcyukkuri-runtime-<sha>`（运行包），并运行身体层纯函数单元测试（`src/test/java`，不依赖 Minecraft，不算试玩验收）；失败用 `gh run view <id> --log-failed`。本机不执行 Gradle，代理不启动游戏客户端。
 - Python：PATH 上的 `python` 是坏的商店存根；用 `C:/Users/Administrator/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe`，并设 `PYTHONUTF8=1`（下文 `<py>`）。仓库脚本是 bash；PowerShell 里用 `& 'C:\Program Files\Git\bin\bash.exe' <脚本>`（裸 `bash` 可能是 WSL），且不用 Set-Content、Out-File 或 `>` 写源码与文档（BOM／UTF-16）。
 - 改源码与文档用 `scripts/safe_edit.py replace <文件> <旧文本> <新文本>`（多行用 `--old-from-file`／`--new-from-file`）或 Edit 工具，不用 `sed` 和临时脚本：后者会丢 `\r`、把 UTF-8 写成 ANSI 代码页、吃掉结尾换行。
+- 长命令（构建、批量检查、长时间脚本）用 `pi-background-tasks` 的 `bg_run` 后台运行，等完成通知后再读 `bg_logs`；不用 `sleep` 轮询或阻塞等待。产物与任务记录在 `.pi/tasks/`（不入库）。
 - 只结束自己启动的进程（按 PID）；不按映像名批量结束（如 `taskkill /IM python.exe`），本机同时跑着其他工人、总负责人的工具和用户的程序。
 - 临时文件放本工作树 `.local/tmp/`，用完删除自己的临时脚本。截图、报告分别放 `.local/screenshots/`、`.local/reports/`；预览、截图、报告、验收或确认记录不入库。
 - 删除：只删自己本次任务创建的东西；删前先看清归属与引用，查不清就不删；仓库外的路径和不可再生的内容只由用户删除或经用户当次明确同意；可再生的内容与包的工作树、分支由总负责人决定，工人只报告。具体做法见 [lead.md](docs/roles/lead.md#删除)。
