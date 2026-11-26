@@ -7703,12 +7703,18 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
             return f'{parent}: parent did not rebuff the pleader standing at her ({rebuff_beat}, reached at distance {reached[1]})'
     if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
         return f'{parent}: freeze child did not play beat=stare face=teary line=none'
-    if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=none declared=hmph', later):
-        return f'{parent}: sulk child did not play beat=turn_away face=hmph line=none'
-    # the parting feeling and its "cannot see" lines start from real separation, never before the child is gone
-    for early in re.finditer(r'\[emotion\][^\n]* t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
-        if int(early[1]) < departed:
-            return f'{parent}: someone began the parting feeling at {early[1]}, before the child was gone at {departed}'
+    if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=sulk_huff declared=hmph', later):
+        return f'{parent}: sulk child did not play beat=turn_away face=hmph line=sulk_huff'
+    # the order is answered at once (social orders pre-empt the child's occupants)
+    if begins - ordered > 60:
+        return f'{parent}: the child began {begins - ordered} ticks after the order (limit 60)'
+    # the tearful parent's parting feeling begins at the order, everyone else's from real separation, never before the child is gone
+    for early in re.finditer(r'\[emotion\][^\n]*uuid=(\S+) t=(\d+)[^\n]* course begun kind=parting[^\n]* about=' + child, later):
+        if early[1] == owner and verdict == 'DRIVE_TEARFUL':
+            if int(early[2]) < ordered:
+                return f'{parent}: her parting feeling began at {early[2]}, before the order at {ordered}'
+        elif int(early[2]) < departed:
+            return f'{parent}: someone began the parting feeling at {early[2]}, before the child was gone at {departed}'
     family_uuids = '|'.join([owner] + [_uuid_text(scene, parent + str(i)) for i in (1, 2)])
     for early in re.finditer(r'\[speech\][^\n]*uuid=(?:' + family_uuids + r') t=(\d+)[^\n]* line event=parting_(?:gaze|over)\b', after):
         if int(early[1]) < departed:
