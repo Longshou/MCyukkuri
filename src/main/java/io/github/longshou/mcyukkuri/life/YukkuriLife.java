@@ -1485,6 +1485,8 @@ public final class YukkuriLife {
         task = Task.GROUND_TOILET; toiletTicks = pursuitTicks = 0; return true;
     }
     public void tickGoal() {
+        // The goal selector stops this goal only at its next full tick (every second tick); a bout that took the body does not wait for it.
+        if (entity.groupInteraction().active()) return;
         if (mealTicks() > 0 && !garbage.rummaging()) { entity.getNavigation().stop(); return; }
         if (entity.isPanicking() || entity.isCommandPlaying() || entity.isInWaterOrBubble()) { stopGoal(); return; }
         if (guardingDish()) { SurfaceApproach.halt(entity); return; }
