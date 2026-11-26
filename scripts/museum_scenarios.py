@@ -6145,7 +6145,7 @@ for _sid, _title, _instruction, _control, _shift in (
     if not _holding:
         _commands.append((12, f'yukkuri scenario owner_at {sel("rule_pet")} away'))
     _ticks = 1800 if _holding else 5400
-    add(_sid, 'town', _title, _title, '在家规中勾选「不准素鸡立」，不给指定伴侣许可。' + _instruction, '约半分钟至数分钟', [
+    add(_sid, 'town', _title, _title, '在家规中勾选「不准繁殖（素鸡立）」。' + _instruction, '约半分钟至数分钟', [
         box(-3, -1, -3, 3, -1, 3, 'minecraft:grass_block'), box(-3, 0, -3, 3, 3, 3, 'minecraft:air'),
         *(box(-3, 0, z, 3, 1, z, 'minecraft:glass') for z in (-3, 3)),
         *(box(x, 0, -2, x, 1, 2, 'minecraft:glass') for x in (-3, 3)),

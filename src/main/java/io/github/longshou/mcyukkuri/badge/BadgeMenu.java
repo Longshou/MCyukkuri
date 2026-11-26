@@ -5,8 +5,6 @@ import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.*;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
-import io.github.longshou.mcyukkuri.pet.PetPrivileges;
-import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.predator.PredatorLife;
@@ -20,13 +18,12 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 
 /** Read-only pet profile. The server keeps a stable subject list; client button packets never supply an animal UUID.
- * Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20-24 start a concrete lesson, 30 cycle breeding
- * partner, 31 permit breeding with it for a day, 32 revoke the current permit. The lesson buttons follow {@link #LESSONS}.
+ * Button ids: 5 detach, 8 cycle subject, 10 attach, 11-13 predator orders; 20-24 start a concrete lesson. The lesson buttons
+ * follow {@link #LESSONS}.
  *  Data 40-44: lesson state (0 idle, ability ordinal+1 while running, {@link #AWAITING_FEEDBACK} after), cooldown seconds,
  *  lessons today, precondition bitmask, ready flag.
- *  Data 45-53: breeding. 45 candidate count, 46 candidate index+1, 47/48 candidate entity id (low/high), 49 permit active, 50/51 permit partner entity id (low/high, 0 if not loaded),
- * 52 permit hours left, 53 permit already covers the candidate. 56 neglect level (0-100), 58 title (0 none, 1 eternal silver, 2 hidden gold), 57
- * owner-line status (0 none, 1 abandoned, 2 registry void badge). */
+ *  Data 56-58: neglect level (0-100), owner-line status (0 none, 1 abandoned, 2 registry void badge), title (0 none,
+ *  1 eternal silver, 2 hidden gold). */
 public final class BadgeMenu extends AbstractContainerMenu {
     public static final List<Ability> LESSONS = List.of(Ability.WAIT, Ability.TOILET, Ability.FOOD_GUARD, Ability.GREETING, Ability.COUNTING);
     /** Fixed wire values; reserved slots and ranges remain unchanged. */
@@ -40,10 +37,7 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int ORDER_END = 14;
         public static final int LESSON_START = 20;
         public static final int LESSON_END = LESSON_START + LESSONS.size();
-        public static final int NEXT_PARTNER = 30;
-        public static final int PERMIT = 31;
-        public static final int REVOKE = 32;
-        public static final int COUNT = 33;
+        public static final int COUNT = LESSON_END;
         public static final int ORDER_ORDINAL_OFFSET = 10;
         private ButtonId() {}
     }
@@ -76,15 +70,6 @@ public final class BadgeMenu extends AbstractContainerMenu {
         public static final int LESSONS_TODAY = 42;
         public static final int LESSON_MASK = 43;
         public static final int READY = 44;
-        public static final int PARTNER_COUNT = 45;
-        public static final int PARTNER_INDEX = 46;
-        public static final int PARTNER_ID_LOW = 47;
-        public static final int PARTNER_ID_HIGH = 48;
-        public static final int PERMIT_ACTIVE = 49;
-        public static final int PERMIT_ID_LOW = 50;
-        public static final int PERMIT_ID_HIGH = 51;
-        public static final int PERMIT_HOURS = 52;
-        public static final int PARTNER_PERMITTED = 53;
         public static final int NEGLECT = 56;
         public static final int OWNER_STATE = 57;
         public static final int TITLE = 58;
@@ -96,8 +81,6 @@ public final class BadgeMenu extends AbstractContainerMenu {
     private final Player viewer;
     private int selected;
     private final ContainerData data = new SimpleContainerData(Data.COUNT);
-    private final List<UUID> partners = new ArrayList<>();
-    private int partner, scanClock;
     private int maskClock, mask;
     public static final int AWAITING_FEEDBACK = Ability.values().length + 1;
     public BadgeMenu(int id, Inventory inventory, int subjectId) {
@@ -158,68 +141,17 @@ public final class BadgeMenu extends AbstractContainerMenu {
         var families = FamilyData.get((ServerLevel)y.level());
         data.set(Data.MOTHER_BADGE, families.badgeAcquired(y.family().mother()));
         data.set(Data.FATHER_BADGE, families.badgeAcquired(y.family().father()));
-        breedingData(y);
-    }
-    private void scanPartners(YukkuriEntity y) {
-        partners.clear();
-        if (y != null && y.pet().owned(viewer) && viewer.level() instanceof ServerLevel level)
-            level.getEntitiesOfClass(YukkuriEntity.class, viewer.getBoundingBox().inflate(8), o -> o != y && o.isAlive() && o.pet().isPet() && o.pet().ownedBy(viewer.getUUID())
-                    && y.family().compatibleWith(o)).stream().sorted(Comparator.comparing(YukkuriEntity::getUUID)).limit(32).forEach(o -> partners.add(o.getUUID()));
-        partner = partners.isEmpty() ? 0 : Math.min(partner, partners.size() - 1);
-    }
-    private YukkuriEntity candidate() {
-        return partners.isEmpty() || !(viewer.level() instanceof ServerLevel level) ? null
-                : level.getEntity(partners.get(Math.min(partner, partners.size() - 1))) instanceof YukkuriEntity o && o.isAlive() ? o : null;
-    }
-    private void breedingData(YukkuriEntity y) {
-        if (scanClock-- <= 0) { scanClock = 20; scanPartners(y); }
-        var b = y.pet(); var c = candidate();
-        data.set(Data.PARTNER_COUNT, partners.size()); data.set(Data.PARTNER_INDEX, c == null ? 0 : partner + 1);
-        if (c != null) { data.set(Data.PARTNER_ID_LOW, c.getId() & 0xffff); data.set(Data.PARTNER_ID_HIGH, c.getId() >>> 16);
-                data.set(Data.PARTNER_PERMITTED, b.permitUntil(c.getUUID()) >= 0 ? 1 : 0); }
-        var pp = b.permitPartner();
-        if (pp != null) {
-            data.set(Data.PERMIT_ACTIVE, 1); data.set(Data.PERMIT_HOURS, (int)Math.min(99, (b.permitUntil(pp) - y.level().getGameTime() + 999) / 1000));
-            if (viewer.level() instanceof ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) { data.set(Data.PERMIT_ID_LOW,
-                    o.getId() & 0xffff); data.set(Data.PERMIT_ID_HIGH, o.getId() >>> 16); }
-        }
     }
     @Override public void broadcastChanges() { refresh(); super.broadcastChanges(); }
     @Override public boolean clickMenuButton(Player p, int id) {
         boolean knownButton = id == ButtonId.DETACH || id == ButtonId.NEXT_SUBJECT || id == ButtonId.ATTACH
                 || id >= ButtonId.ORDER_PEACEFUL && id < ButtonId.ORDER_END
-                || id >= ButtonId.LESSON_START && id < ButtonId.LESSON_END
-                || id >= ButtonId.NEXT_PARTNER && id <= ButtonId.REVOKE;
+                || id >= ButtonId.LESSON_START && id < ButtonId.LESSON_END;
         if (p != viewer || p.level().isClientSide || !stillValid(p) || !knownButton) return false;
-        if (id == ButtonId.NEXT_SUBJECT) { if (!subjects.isEmpty()) selected = (selected + 1) % subjects.size(); maskClock = 0; scanClock = 0;
-                partners.clear(); partner = 0; broadcastChanges(); return true; }
+        if (id == ButtonId.NEXT_SUBJECT) { if (!subjects.isEmpty()) selected = (selected + 1) % subjects.size(); maskClock = 0;
+                broadcastChanges(); return true; }
         var y = subject(); if (y == null || !y.pet().near(p)) return false;
         var b = y.pet();
-        if (id >= ButtonId.NEXT_PARTNER) {
-            boolean done = false;
-            if (id == ButtonId.NEXT_PARTNER) { scanPartners(y); if (!partners.isEmpty()) { partner = (partner + 1) % partners.size(); done = true; } }
-            else if (id == ButtonId.PERMIT) {
-                scanPartners(y); var c = candidate();
-                if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c) && !PetPrivileges.mayPermitBreeding(y, c)) {
-                    p.displayClientMessage(Component.translatable("badge.mcyukkuri.permit_need_badge"), true);
-                    broadcastChanges(); return false; // both pets need a badge: no badge, no permit
-                }
-                if (c != null && b.owned(p) && c.pet().near(p) && y.family().compatibleWith(c)) {
-                    long until = y.level().getGameTime() + 24000; b.permitBreeding(c.getUUID(), until); c.pet().permitBreeding(y.getUUID(), until); done = true;
-                    PetScenes.permitGranted(y, c, p);
-                }
-            } else {
-                var pp = b.permitPartner();
-                if (pp != null && b.owned(p)) {
-                    b.revokeBreeding(pp); YukkuriEntity other = null;
-                    if (p.level() instanceof ServerLevel level && level.getEntity(pp) instanceof YukkuriEntity o) { o.pet().revokeBreeding(y.getUUID()); other = o; }
-                    PetScenes.permitRevoked(y, other, p);
-                    done = true;
-                }
-            }
-            if (!done) p.displayClientMessage(Component.translatable("badge.mcyukkuri.unavailable"), true);
-            broadcastChanges(); return done;
-        }
         if (id >= ButtonId.LESSON_START && id < ButtonId.LESSON_END) {
             boolean started = b.owned(p) && b.lessons().start(p, LESSONS.get(id - ButtonId.LESSON_START));
             if (started) p.closeContainer();

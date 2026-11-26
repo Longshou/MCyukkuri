@@ -25,7 +25,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 /**
  * What a badge is good for in the shop and in the family (docs/FEATURES.md).
  * <ul>
- * <li>bronze: a breeding permit can be given (both pets need a badge); resale 60%;</li>
+ * <li>bronze: a registered pet; resale 60%;</li>
  * <li>silver: premium grain and pudding can be bought; matchmaking with the keeper can be booked; resale 70%;</li>
  * <li>gold: the same, resale 80%.</li>
  * </ul>
@@ -33,7 +33,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * a pet's certification or purchase.
  */
 public final class PetPrivileges extends SavedData {
-    public static final int BREEDING = 1, MATCHMAKING = 2;
+    public static final int MATCHMAKING = 2;
     private static final String NAME = "mcyukkuri_pet_privileges";
     private final Map<UUID, Map<UUID, Integer>> records = new HashMap<>();
     private final BadgeConduct conduct = new BadgeConduct();
@@ -87,10 +87,6 @@ public final class PetPrivileges extends SavedData {
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, player.getBoundingBox().inflate(32), e -> e.isAlive() && e.pet().isPet() && e.pet().ownedBy(player.getUUID())))
             best = Math.max(best, Math.min(y.pet().effectiveGrade().id(), BadgeGrade.GOLD.id()));
         return BadgeGrade.of(best);
-    }
-    /** A breeding permit needs a badge on both pets. */
-    public static boolean mayPermitBreeding(YukkuriEntity a, YukkuriEntity b) {
-        return a.pet().effectiveGrade().id() >= BREEDING && b.pet().effectiveGrade().id() >= BREEDING;
     }
     /** Matchmaking with the keeper is booked for a silver pet. */
     public static boolean mayMatchmake(YukkuriEntity pet) { return pet.pet().effectiveGrade().id() >= MATCHMAKING; }

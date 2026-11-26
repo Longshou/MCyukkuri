@@ -91,6 +91,7 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
         int sectionsHeight = longest == 0 ? 22 : sectionHeight(longest);
         contentHeight = StatusStrip.CARD_HEIGHT + GAP + sectionsHeight;
         if (hasTabs) contentHeight = Math.max(contentHeight, Math.min(126, height - contentTop - footer - 2 * MARGIN));
+        if (page == Page.RULES) contentHeight = Math.max(contentHeight, 15 + HouseRule.values().length * 18); // one full-height button per rule
         imageHeight = contentTop + contentHeight + footer;
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;

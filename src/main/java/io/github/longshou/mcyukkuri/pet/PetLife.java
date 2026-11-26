@@ -62,6 +62,7 @@ public final class PetLife {
     public interface Director { void tick(YukkuriEntity animal); default void stop(YukkuriEntity animal) {} }
     private final YukkuriEntity animal;
     private final List<ExamRecord> history = new ArrayList<>();
+    // Shop matchmaking only: the paired partner and the end of the one-day permit.
     private final Map<UUID, Long> permits = new HashMap<>();
     private BadgeGrade grade = BadgeGrade.NONE;
     private boolean worn = true;
@@ -306,16 +307,6 @@ public final class PetLife {
         var conduct = PetPrivileges.get((ServerLevel) animal.level()).conduct();
         return conduct.disqualified(animal.getUUID()) || conduct.disqualified(partner) ? -1 : until;
     }
-    /** The partner whose permit lasts longest, or null. */
-    public UUID permitPartner() {
-        UUID best = null; long t = -1;
-        for (var id : permits.keySet()) {
-            long until = permitUntil(id);
-            if (until > t) { best = id; t = until; }
-        }
-        return best;
-    }
-    public void revokeBreeding(UUID partner) { permits.remove(partner); }
     // owner line: neglect and abandonment (docs/FEATURES.md)
     public int neglect() { return neglect; }
     public boolean voidBadge() { return voidBadge; }

@@ -18,7 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-/** Short owner-facing performances of a pet (badge pinned/taken, breeding permit, held-back courtship). Server only, calm animals only, cooldown per animal. */
+/** Short owner-facing performances of a pet (badge pinned/taken, held-back courtship). Server only, calm animals only, cooldown per animal. */
 public final class PetScenes {
     private record SceneKey(UUID animal, String kind) {}
     private static final DeadlineMap<SceneKey> COOLDOWN = new DeadlineMap<>();
@@ -163,22 +163,6 @@ public final class PetScenes {
         });
     }
 
-    /** Both pets within 16 blocks of the owner look at each other and blush; the second one a beat later. */
-    public static void permitGranted(YukkuriEntity a, YukkuriEntity b, Player owner) {
-        for (int i = 0; i < 2; i++) {
-            var y = i == 0 ? a : b; var other = i == 0 ? b : a;
-            if (!(y.level() instanceof ServerLevel level) || y.distanceToSqr(owner) > 256 || !y.pet().calm() || !ready(y, "permit", 200)) continue;
-            y.getLookControl().setLookAt(other, 30, 30);
-            later(y, i * 8, () -> act(y, "shy", "closed_smile", "permit_glad", 70, other));
-        }
-    }
-    /** The permit is withdrawn: both droop a moment. */
-    public static void permitRevoked(YukkuriEntity a, YukkuriEntity b, Player owner) {
-        for (var y : new YukkuriEntity[] {a, b}) {
-            if (y == null || y.distanceToSqr(owner) > 256 || !y.pet().calm() || !ready(y, "permit", 200)) continue;
-            act(y, "droop", "teary", null, 50, null);
-        }
-    }
     public static void courtshipHeld(YukkuriEntity y, YukkuriEntity peer) {
         int hesitation = 20 + (int) (30 * y.life().personality().temperament().patient());
         act(y, YukkuriAction.SHY, "flushed_smile", "courtship_held", hesitation, peer);
