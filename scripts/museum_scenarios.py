@@ -4417,7 +4417,7 @@ for sid, title, description, traits, child_pos in (
     ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
     ('arc_confess', '聪明的坦白求饶', '面对聪明又依恋主人的灵梦，等它走近鞠躬，请你饶过孩子。', dict(intelligence=80, attachment=80), '~4.5 ~ ~3.5'),
     ('arc_confess_pat', '坦白后摸摸孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，在照料菜单里摸摸它背后的孩子，看灵梦把这当作原谅。', dict(intelligence=80, attachment=80), '~4.5 ~ ~-5.5'),
-    ('arc_confess_hit', '坦白后训打孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，当着它的面训斥再弹打它背后的孩子，看灵梦在孩子和你之间怎么挣扎。', dict(intelligence=80, attachment=80), '~4.5 ~ ~-5.5'),
+    ('arc_confess_hit', '坦白后训打孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，当着它的面训斥再弹打它背后的孩子，看灵梦在孩子和你之间怎么挣扎。', dict(intelligence=80, attachment=80, boldness=85), '~4.5 ~ ~-5.5'),
     ('arc_naive', '带着孩子找主人炫耀', '面对灵梦，看它朝你走来，回头向自己的孩子笑，邀你一起油库里。', dict(intelligence=30), '~3.5 ~ ~0.5'),
 ):
     mother_id = _uuid_text(sid, 'mother')
