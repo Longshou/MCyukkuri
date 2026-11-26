@@ -4852,27 +4852,29 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "turn": -40,
-      "sway": 4,
-      "shift": 0.025,
+      "turn": -34,
+      "peek_yaw": -8,
+      "sway": 3.5,
+      "shift": 0.022,
+      "tuck": 0.02,
       "faces": [
         [
           0,
-          0.3,
+          1.05,
           "ashamed"
         ],
         [
-          0.3,
-          0.75,
-          "flushed_smile"
+          1.05,
+          1.45,
+          "pursed"
         ],
         [
-          0.75,
+          1.45,
           2.0,
           "ashamed"
         ]
       ],
-      "lore": "Project design: the face turns about 40 degrees away with a small side sway and drift, and peeks back once per cycle; no squash, pitch stays under 4 degrees.",
+      "lore": "Project design: turns shyly away and slightly down with a gentle bashful huddle and side fidget, peeks back once mid-cycle, then turns away again; pitch and roll stay well under 12 degrees.",
       "triggers": [
         "matchmaking meeting, breeding permit granted, wild request"
       ]

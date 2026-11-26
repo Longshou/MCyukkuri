@@ -739,10 +739,17 @@ def state(action, t, c, height):
         shift[1] = -height*(a + q*F)
         lift = c['yank_hop']*height*yank
     elif action == 'shy':
-        # Face turned away with a small sway; once per cycle it peeks back and turns away again.
-        ph = 2*math.pi*t/d; peek = max(0., math.sin(ph))**2
-        r = [-1.5-2*peek, c['turn']*(1-.6*peek), c['sway']*math.sin(ph)]
-        shift[0] = c['shift']*height*math.sin(ph)
+        # Bashful turn-away and slight downward tuck with a small fidget, one quick peek back, then turning away again.
+        yaw = keyed(t, [(0, c['turn']*.55), (.35, c['turn']), (.95, c['turn']),
+                        (1.25, c['peek_yaw']), (1.42, c['peek_yaw']*1.2), (1.75, c['turn']*.85), (d, c['turn']*.55)])
+        pitch = keyed(t, [(0, -2.0), (.35, -4.2), (.95, -4.5), (1.25, -1.2), (1.42, -1.5), (1.75, -3.5), (d, -2.0)])
+        fidget = math.sin(2*math.pi*t/d)
+        roll = c['sway']*keyed(t, [(0, .4), (.4, 1.0), (.75, .5), (1.0, .9), (1.25, -.35), (1.5, .6), (d, .4)])
+        tuck = c['tuck']*keyed(t, [(0, .5), (.35, 1.0), (.95, 1.0), (1.25, 0.0), (1.45, .3), (1.75, .85), (d, .5)])
+        s = [1+.5*tuck, 1-tuck, 1+.5*tuck]
+        r = [pitch, yaw, roll]
+        shift[0] = c['shift']*height*fidget
+        shift[1] = .018*height*keyed(t, [(0, .4), (.35, 1.0), (.95, .9), (1.25, .1), (1.75, .8), (d, .4)])
     elif action == 'doze_off':
         # Starts upright and ends in the exact sleep pose (height, slump, tilt) so the sleep clip takes over unseen.
         p = smooth(t/d); h = lerp(1., c['height'], p)

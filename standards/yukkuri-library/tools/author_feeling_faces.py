@@ -7,8 +7,8 @@ sneer    lidded eyes sitting on the pupil (the sukkiri_smug eyes), the smug brow
 envy     both eyes cut sideways under a flat, half-lowered lid (the white shows on one side), the smug brows knit over
          them and a small sulking frown.
 hmph     eyes shut in a firm downward curve, the smug brows and a flat turned-down mouth: the nose turned up.
-ashamed  the look_down eyes (downcast), the worried teary brows, the hatched flush with its bridge over the nose and the
-         wavering cold mouth; approved parts only.
+ashamed  eyes looking away and down in the standard eye style, the worried teary brows, the hatched flush and the
+         wavering cold mouth.
 
 Parts are written as expressions/parts/<sha20>.png and registered in expressions/parts/index.json, like the other
 tools. Registration in the standard set (index.json, provenance) is done once by hand.
@@ -25,6 +25,10 @@ ART = {
     'eye_side': ['...............', '...............', '...............', '...............', '..AAAAAAAAAAA..',
                  '...ABBBCCCCA...', '...ABBBCBCCA...', '...ABBBCCCCA...', '...ABBBCCCCA...', '....ABBCCCA....',
                  '.....AEEEA.....', '......AAA......'],
+    # Shy / ashamed downcast averted eye: compact 9x9 neutral-style eye, both eyes looking away and down (not mirrored).
+    'eye_shy_down': ['...............', '...............', '...............', '....AAAAAAA....', '...ABBBBBBBA...',
+                     '...ABBBCCCCA...', '...ABBCBBCCA...', '...ABBCCCCCA...', '...ABBCCCCCA...', '....ABCCCBA....',
+                     '.....AEEEA.....', '......AAA......'],
     # Shut in a firm downward curve, the corners turned up.
     'eye_shut': ['...............', '...............', '...............', '...............', '...............',
                  '...............', '..A.........A..', '..AA.......AA..', '...AAAAAAAAA...', '...............',
@@ -59,9 +63,10 @@ FACES = {
              {'face_eye_left': 'eye_shut', 'face_eye_right': 'eye_shut', **SMUG_BROWS, 'face_mouth': 'mouth_frown'},
              'turning the nose up: eyes shut in a firm curve, smug brows, a flat turned-down mouth'),
     'ashamed': ('look_down', '羞愧', '惊吓 / 困惑',
-                {'face_brow_left': 'worry_brow_l', 'face_brow_right': 'worry_brow_r', 'face_blush_left': 'flush',
+                {'face_eye_left': 'eye_shy_down', 'face_eye_right': 'eye_shy_down',
+                 'face_brow_left': 'worry_brow_l', 'face_brow_right': 'worry_brow_r', 'face_blush_left': 'flush',
                  'face_blush_right': 'flush', 'face_mouth': 'waver', 'face_effect_mouth': 'blank'},
-                'shame: downcast eyes, worried brows, deep cheek flush, a wavering mouth'),
+                'shame/shyness: eyes looking away and down, worried brows, deep cheek flush, a wavering mouth'),
 }
 
 

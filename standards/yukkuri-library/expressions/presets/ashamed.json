@@ -5,14 +5,14 @@
   "recipe": {
     "source": "tools/author_feeling_faces.py",
     "base": "look_down",
-    "note": "shame: downcast eyes, worried brows, deep cheek flush, a wavering mouth"
+    "note": "shame/shyness: eyes looking away and down, worried brows, deep cheek flush, a wavering mouth"
   },
   "parts": {
-    "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_eye_left": "expressions/parts/d81cdb2e6cba1a1408c7.png",
     "face_brow_left": "expressions/parts/38cbe6444a87b1b263e8.png",
     "face_blush_left": "expressions/parts/cef8e0a1ebaf2b15b078.png",
     "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
-    "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_eye_right": "expressions/parts/d81cdb2e6cba1a1408c7.png",
     "face_brow_right": "expressions/parts/72256f4d77b93cdc9da0.png",
     "face_blush_right": "expressions/parts/cef8e0a1ebaf2b15b078.png",
     "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
