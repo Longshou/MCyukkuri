@@ -466,9 +466,9 @@ public final class Encounter {
      */
     private void sulk(YukkuriEntity yielder) {
         String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
-        long now = yielder.level().getGameTime(), lineEnd = yielder.speechEnd();
-        // The first tick a floor-2 line may start after the last one: SpeechTiming.next, 30 ticks plus half the line's length.
-        long speechAt = Math.max(now, lineEnd + 30 + (lineEnd - yielder.speechStart()) / 2);
+        // The huff waits out the notice's own line and gap (the shared speech clock owns that rule) and is armed only while the sulk's
+        // hold still covers the tick it may start.
+        long now = yielder.level().getGameTime(), speechAt = yielder.nextSpeech(2);
         int hold = yielder.faceHold(FaceTier.Tier.LONG, face);
         // The delayed cue comes due a tick after its delay (YukkuriEntity.aiStep): two ticks of margin keep the line inside the hold.
         boolean voiced = speechAt + 2 <= now + hold;

@@ -24,6 +24,12 @@ public final class SpeechTiming {
     /** Whether the speaker is between lines: nothing running and the gap after the last one over. */
     public boolean idle(long now) { return now >= next; }
 
+    /** The first tick a line of {@code incomingPriority} may start: after the last line (and, below a performance floor, after its
+     *  chatter quiet); {@code now} itself when that is already past. A beat that must be heard defers to this tick. */
+    public long nextStart(long now, int incomingPriority) {
+        return Math.max(now, Math.max(next, incomingPriority < 2 ? quiet : 0));
+    }
+
     /** Keeps the door shut at least until {@code until}: a nearby line still fading staggers the retry. */
     public void defer(long until) { quiet = Math.max(quiet, until); }
 

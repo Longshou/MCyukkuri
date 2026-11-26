@@ -1313,6 +1313,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Whether it is between lines: none running and the gap after the last one over (a beat that must be heard waits for this). */
     public boolean quiet() { return speechTiming.idle(level().getGameTime()); }
 
+    /** The tick this body may next say a line of the given priority: a beat that must be heard defers to it instead of losing the line. */
+    public long nextSpeech(int priority) { return speechTiming.nextStart(level().getGameTime(), priority); }
+
     /** Ordinary speech takes turns locally; only urgent lines (wounds, fright, loss) bypass the gap after the last line. A retry is
      *  staggered without consuming the ecology/behaviour random stream. */
     private boolean admitSpeech(long now, int priority, boolean urgent) {
