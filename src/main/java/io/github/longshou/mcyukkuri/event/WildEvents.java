@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -205,7 +206,7 @@ public final class WildEvents {
         }
         if(separated && s.phase!=Phase.SEPARATED) {
             data.phase(s,Phase.SEPARATED);s.result="member_captured_or_dead";
-            for(var e:loaded)e.showReaction("cry","search_family",80);
+            for(var e:loaded)e.showReaction("cry","search_family",FaceTier.Tier.MEDIUM);
         }
         // Badge arcs keep their own (action-tolerant) safety checks: they play actions that the generic test would read as danger.
         if(s.kind==Kind.BADGE_ARC && s.phase!=Phase.SEPARATED){BadgeArcs.advance(level,s,loaded);return;}
@@ -213,7 +214,7 @@ public final class WildEvents {
         if(loaded.stream().anyMatch(e -> e.blockPosition().distSqr(s.origin.pos())>(Expedition.far(s)?144*144:64*64))) {finish(level,s,Phase.INTERRUPTED,"left_region");return;}
         s.ticks++;s.phaseTicks++;data.setDirty();
         if(s.phase==Phase.SEPARATED) {
-            if(s.phaseTicks%60==1)for(var e:loaded)e.showReaction("teary","wait_family",60);
+            if(s.phaseTicks%60==1)for(var e:loaded)e.showReaction("teary","wait_family",FaceTier.Tier.SHORT);
             if(s.phaseTicks>=180)finish(level,s,Phase.INTERRUPTED,"separation_observed");
             return;
         }
@@ -221,18 +222,18 @@ public final class WildEvents {
         if(s.kind==Kind.CARD){GroupCards.advance(level,s,loaded);return;}
         if(s.kind==Kind.ABANDONMENT) {
             var e=loaded.getFirst();boolean attached=e.life().personality().trust(s.player)>=BondLevels.TRUST_FAMILIAR;
-            if(s.phaseTicks==1)e.showReaction(attached?"surprise":"happy",attached?"search_family":"hello",70);
-            if(s.phaseTicks==80)e.showReaction(attached?"cry":"neutral",attached?"search_family":"shy",90);
+            if(s.phaseTicks==1)e.showReaction(attached?"surprise":"happy",attached?"search_family":"hello",FaceTier.Tier.MEDIUM);
+            if(s.phaseTicks==80)e.showReaction(attached?"cry":"neutral",attached?"search_family":"shy",FaceTier.Tier.MEDIUM);
             if(s.phaseTicks>=200)finish(level,s,Phase.COMPLETE,attached?"former_owner_lament":"left_former_owner");
             return;
         }
         Player player=level.getPlayerByUUID(s.player);
         if(!playerNear(loaded.getFirst(),player)) {finish(level,s,Phase.REFUSED,"player_left");return;}
         if(s.phase==Phase.APPROACH) {
-            if(s.phaseTicks==1)for(var e:loaded)e.showReaction("teary","caregiver",80);
+            if(s.phaseTicks==1)for(var e:loaded)e.showReaction("teary","caregiver",FaceTier.Tier.MEDIUM);
             if(loaded.getFirst().distanceToSqr(player)<=16)data.phase(s,Phase.WAITING);
         } else if(s.phase==Phase.WAITING && s.phaseTicks%120==1) {
-            for(var e:loaded)e.showReaction("teary","wait_family",60);
+            for(var e:loaded)e.showReaction("teary","wait_family",FaceTier.Tier.SHORT);
         } else if(s.phase==Phase.RESPONDING && s.phaseTicks>=80) {
             finish(level,s,Phase.COMPLETE,"individual_adopted");
         }
@@ -302,7 +303,7 @@ public final class WildEvents {
         Scene s=WildEventData.get(level).forMember(e.getUUID(),scene -> scene.kind==Kind.ADOPTION || pleading(scene,e));
         if(s!=null && s.kind==Kind.ADOPTION){s.player=player.getUUID();WildEventData.get(level).phase(s,Phase.RESPONDING);}
         else if(s!=null && s.kind==Kind.BADGE_ARC && s.active())BadgeArcs.adopted(level,s,e,player);
-        e.showReaction("happy","caregiver",80);HomeClaim.adopted(e,player);return true;
+        e.showReaction("happy","caregiver",FaceTier.Tier.MEDIUM);HomeClaim.adopted(e,player);return true;
     }
     public static boolean canAbandon(YukkuriEntity e, Player player) {
         return safe(e) && e.hasLineOfSight(player)

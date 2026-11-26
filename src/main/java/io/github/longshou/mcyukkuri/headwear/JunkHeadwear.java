@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -178,7 +179,7 @@ public enum JunkHeadwear {
 
     /** The lowly one is mocked: it keeps the cover and only winces, it does not answer back. */
     private static boolean wince(YukkuriEntity animal) {
-        if (!animal.showReaction("teary", line(animal, "junk_afraid", "afraid"), 60)) return false;
+        if (!animal.showReaction("teary", line(animal, "junk_afraid", "afraid"), FaceTier.Tier.SHORT)) return false;
         GameplayLog.limited(animal, "headwear", "junk_mock_wince", 600,
                 "junk mock wince variant={} esteem={}", () -> new Object[]{animal.life().custody().junk().id(), SocialDisposition.selfEsteem(animal)});
         return true;

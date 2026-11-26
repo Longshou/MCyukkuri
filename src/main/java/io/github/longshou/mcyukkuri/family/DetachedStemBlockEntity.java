@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -89,7 +90,7 @@ public final class DetachedStemBlockEntity extends BlockEntity {
         brood.anchor=GlobalPos.of(server.dimension(),destination);data.setDirty();
         if(bottle&&!player.getAbilities().instabuild)water.shrink(1);
         mother.family().detached();mother.life().personality().confiscated(player.getUUID());
-        mother.mind().felt(EmotionEvent.FAMILY_DEATH); mother.showReaction("surprise","family_died",120);
+        mother.mind().felt(EmotionEvent.FAMILY_DEATH); mother.showReaction("surprise","family_died",FaceTier.Tier.MEDIUM);
         mother.mind().feeling().mourn(null,destination);holder.sync();return true;
     }
     private static boolean clearance(ServerLevel level,BlockPos center,FamilyData.Brood brood,YukkuriVariant parent,boolean bottled){

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
 import io.github.longshou.mcyukkuri.family.CareApproach;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -191,7 +192,7 @@ final class Care implements Intent {
 
     private boolean nuzzled() {
         if (!FamilyFeedingContact.mouthsMeet(parent, child)) { contact = 0; return false; }
-        if (++contact == 10) { parent.showReaction("closed_smile", "nuzzle", 60); child.showReaction("happy", "caregiver", 60); }
+        if (++contact == 10) { parent.showReaction("closed_smile", "nuzzle", FaceTier.Tier.SHORT); child.showReaction("happy", "caregiver", FaceTier.Tier.SHORT); }
         if (contact < NUZZLE) return false;
         GameplayLog.event(parent, "aquatic", "comfort_young done child={}", child.getUUID());
         return done = true;

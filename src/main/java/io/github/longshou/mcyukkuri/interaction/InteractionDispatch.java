@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -316,7 +317,7 @@ public final class InteractionDispatch {
             reason="condition";
         }
         if(reason.equals("cut_too_early")||reason.equals("cut_birth_started"))
-            target.showReaction("surprise","",20);
+            target.showReaction("surprise","",FaceTier.Tier.SHORT);
         refuse(player,target,action.key(),reason);
         return false;
     }

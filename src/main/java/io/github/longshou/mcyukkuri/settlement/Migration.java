@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
@@ -185,7 +186,7 @@ final class Migration {
             var phase = phase(group, now);
             if (phase == Phase.DISCUSS || phase == Phase.PREPARE || vanguard(level, group) == null) refreshVanguard(level, group);
             logPhase(level, group, phase, now);
-            if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", 80);
+            if (leader && phase == Phase.DISCUSS && (now - group.migrateSince) % 300 < 100) caller.showReaction("teary", "migrate_discuss", FaceTier.Tier.MEDIUM);
             if (!onJourney(group, now) || phase == Phase.PICK_SITE) return;
             var members = members(level, group);
             if (phase == Phase.REGROUP) {
@@ -245,7 +246,7 @@ final class Migration {
                         .max(Comparator.comparingDouble(m -> m.distanceToSqr(Vec3.atBottomCenterOf(group.migrateTo)))).orElse(caller);
                 group.migrateRegroupAt = last.blockPosition();
                 setLeg(data, group, Leg.REGROUP, now, reason);
-                caller.showReaction("teary", "wait_family", 80);
+                caller.showReaction("teary", "wait_family", FaceTier.Tier.MEDIUM);
             }
             case DETOUR -> setLeg(data, group, Leg.PICK_SITE, now, reason);
             case REPLACEMENT -> setLeg(data, group, Leg.PICK_NEARBY, now, reason);
@@ -356,7 +357,7 @@ final class Migration {
             if (last != null && now - last < OMEN_REPEAT) continue;
             group.sighted.put(visitor.getUUID(), now);
             omen((ServerLevel) caller.level(), group, visitor.blockPosition());
-            caller.mind().felt(EmotionEvent.FRIGHTENED); caller.showReaction("surprise", "afraid", 60);
+            caller.mind().felt(EmotionEvent.FRIGHTENED); caller.showReaction("surprise", "afraid", FaceTier.Tier.SHORT);
             return;
         }
     }
@@ -560,7 +561,7 @@ final class Migration {
         setLeg(data, group, Leg.DIRECT, now, reason);
         c.note(now, "migrate_decided", leader.getUUID(), reason + " to " + site.toShortString() + (force ? " (command)" : "") + " " + c.pressureText);
         data.setDirty();
-        leader.showReaction("teary", "migrate_discuss", 80);
+        leader.showReaction("teary", "migrate_discuss", FaceTier.Tier.MEDIUM);
         String key = switch (reason) {
             case "deaths", "famine", "predators" -> "message.mcyukkuri.settlement.migrate." + reason;
             default -> "message.mcyukkuri.settlement.migrate";
@@ -578,7 +579,7 @@ final class Migration {
         // Ordinary "heard" speech competes for the nearby quiet window: keep the original first speaker.
         if (competing) informed = LoadedGroupMembers.encounterOrder(level, newsBox, informed);
         for (YukkuriEntity other : informed) {
-            other.showReaction("surprise", "heard", 60);
+            other.showReaction("surprise", "heard", FaceTier.Tier.SHORT);
             other.mind().add(3, "migrate_news");
         }
         return Result.FOUND;
@@ -588,9 +589,9 @@ final class Migration {
     static void discuss(YukkuriEntity member, SettlementData.Group group) {
         if (member.getUUID().equals(group.leader)) return;
         if (member.life().personality().temperament().is(Gate.OBJECTS_TO_MOVE)) {
-            member.showReaction("angry", "migrate_object", 80);
+            member.showReaction("angry", "migrate_object", FaceTier.Tier.MEDIUM);
             member.mind().add(2, "migrate_object");
-        } else member.showReaction("teary", "migrate_agree", 80);
+        } else member.showReaction("teary", "migrate_agree", FaceTier.Tier.MEDIUM);
     }
 
     /**
@@ -729,7 +730,7 @@ final class Migration {
         c.settledUntil = now + SETTLE_TICKS; c.pressure100 = 0; c.pressureMain = ""; c.pressureText = "";
         c.hunt.calledAt = 0; c.clearRations();
         data.setDirty();
-        caller.showReaction("happy", "hello", 80);
+        caller.showReaction("happy", "hello", FaceTier.Tier.MEDIUM);
         if (caller.level() instanceof ServerLevel level)
             for (YukkuriEntity m : LoadedGroupMembers.query(level, group.id, new AABB(group.center).inflate(16),
                     e -> e.isAlive() && group.id.equals(e.settlement().groupId()))) m.mind().add(-4, "migrate_settled");

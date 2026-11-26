@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -49,7 +50,7 @@ final class HabitatSeasonal {
             int loss=-YukkuriConfig.WINTER_QUARREL_PENALTY.get();
             relations.relate(o.entity().getUUID(),other.getUUID(),loss);relations.relate(other.getUUID(),o.entity().getUUID(),loss);
             boolean weaker=o.entity().life().nutrition()<=other.life().nutrition();
-            o.entity().showReaction(weaker?"teary":"angry","mine",80);other.showReaction(weaker?"angry":"teary","mine",80);
+            o.entity().showReaction(weaker?"teary":"angry","mine",FaceTier.Tier.MEDIUM);other.showReaction(weaker?"angry":"teary","mine",FaceTier.Tier.MEDIUM);
             quarrelCooldown=2400;other.habitat().quarrelCooldown(2400);return;
         }
     }
@@ -112,7 +113,7 @@ final class HabitatSeasonal {
         if(o.task()==Task.STAY&&value!=null&&o.entity().life().canEat()&&value.food()>0){o.task(Task.FOOD);o.targetBlock(value.bed(o.entity().getUUID()));o.resetTicks();return;}
         if(o.approach(o.targetBlock())) {
             o.entity().getNavigation().stop();
-            if(!arrived){arrived=true;if(o.task()==Task.SIESTA)o.entity().showReaction("sleepy","puff",80);}
+            if(!arrived){arrived=true;if(o.task()==Task.SIESTA)o.entity().showReaction("sleepy","puff",FaceTier.Tier.MEDIUM);}
         }
         return;
     }
@@ -129,7 +130,7 @@ final class HabitatSeasonal {
         var pile=other==null?null:other.ensurePile();
         if(pile==null){o.task(Task.DEPOSIT);o.resetTicks();return;}
         if(!o.mouth(pile))return;
-        if(other.deposit(o.carrying())){o.carry(ItemStack.EMPTY);o.entity().showReaction("happy","share",80);o.stop();}
+        if(other.deposit(o.carrying())){o.carry(ItemStack.EMPTY);o.entity().showReaction("happy","share",FaceTier.Tier.MEDIUM);o.stop();}
         else{o.task(Task.DEPOSIT);o.resetTicks();}
         return;
     }

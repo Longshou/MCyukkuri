@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.social;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.BirthStaging;
 import io.github.longshou.mcyukkuri.family.FamilyFeedingContact;
@@ -350,8 +351,8 @@ public final class WoundComfort {
         victim.woundComfort().relief = mended && victim.body().canLickMend() ? RELIEF_SHORT : RELIEF_COOLDOWN;
         victim.dailyLife().comfort(10);
         licker.dailyLife().comfort(10);
-        victim.showReaction("closed_smile", "", 60);
-        licker.showReaction("teary", "", 50);
+        victim.showReaction("closed_smile", "", FaceTier.Tier.SHORT);
+        licker.showReaction("teary", "", FaceTier.Tier.SHORT);
         BirthStaging.affection(licker);
         var relations = YukkuriWorldData.get(level());
         relations.relate(licker.getUUID(), victim.getUUID(), 1);

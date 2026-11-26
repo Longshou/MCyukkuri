@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.geom.Gait;
@@ -204,7 +205,7 @@ public final class SpeciesLife {
             entity.mind().add(3, "vomit_" + cause);
             entity.mind().felt(EmotionEvent.BITTER_TASTE);
         }
-        entity.showReaction(YukkuriAction.COUGH_MUKYU, "teary", "", 80); // gulping hungry made it sick, not a bitter taste
+        entity.showReaction(YukkuriAction.COUGH_MUKYU, "teary", "", 80, FaceTier.Tier.MEDIUM); // gulping hungry made it sick, not a bitter taste
         return true;
     }
 

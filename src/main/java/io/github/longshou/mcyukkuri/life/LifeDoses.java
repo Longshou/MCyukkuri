@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import java.util.UUID;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -49,7 +50,7 @@ final class LifeDoses {
         if(outlet==null)outlet=o.entity().position().add(0,.05,0);
         if(!ToiletContact.drop(o.entity(),outlet))return false;
         o.leaked();leakCooldown=2400;
-        o.entity().showReaction("teary","leak",80);
+        o.entity().showReaction("teary","leak",FaceTier.Tier.MEDIUM);
         return true;
     }
 
@@ -63,7 +64,7 @@ final class LifeDoses {
     boolean takeFlour(){
         o.addNutrition(8);o.increaseDryness(20);
         flourDoses++;flourWindow=2400;sinceFlour=0;
-        if(!addicted&&flourDoses>=3){addicted=true;o.entity().showReaction("drool","hungry",80);}
+        if(!addicted&&flourDoses>=3){addicted=true;o.entity().showReaction("drool","hungry",FaceTier.Tier.MEDIUM);}
         return true;
     }
 
@@ -74,7 +75,7 @@ final class LifeDoses {
         if(sinceFlour<1000000)sinceFlour++;
         if(addicted){
             // Withdrawal: shaking, restless, more stress, every half minute; after two game days clean the habit is gone.
-            if(withdrawing()&&sinceFlour%600==0){o.entity().mind().add(2,"flour_withdrawal");if(!o.isSleeping())o.entity().showReaction("teary","craving",80);}
+            if(withdrawing()&&sinceFlour%600==0){o.entity().mind().add(2,"flour_withdrawal");if(!o.isSleeping())o.entity().showReaction("teary","craving",FaceTier.Tier.MEDIUM);}
             if(sinceFlour>48000){addicted=false;flourDoses=0;}
         }
     }
@@ -82,7 +83,7 @@ final class LifeDoses {
     boolean spray(){
         if(!canSpray())return false;
         o.entity().playAction("doze_off");// playing an action resets the life state, so the delay is set after it
-        o.interrupt();sprayDelay=90;o.entity().setPersistenceRequired();o.entity().showReaction("sleepy","spray_drowsy",90);
+        o.interrupt();sprayDelay=90;o.entity().setPersistenceRequired();o.entity().showReaction("sleepy","spray_drowsy",FaceTier.Tier.MEDIUM);
         o.level().sendParticles(ParticleTypes.CLOUD,o.entity().getX(),o.entity().getEyeY(),o.entity().getZ(),8,.15,.08,.15,.015);return true;
     }
     void tickSpice() { if(spicyTicks>0&&--spicyTicks%80==0)o.entity().body().irritated(); }

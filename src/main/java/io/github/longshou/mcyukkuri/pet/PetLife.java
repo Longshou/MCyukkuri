@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.badge.BadgeRequirements;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -378,7 +379,7 @@ public final class PetLife {
         double chance = Math.min(1, .35 + .60 * SocialDisposition.ramp(personality.attachment(), 30, 80) + .25 * affection);
         double wariness = SocialDisposition.humanWariness(animal, person, bond);
         if (wariness < .50 && (neglect >= 30 || animal.getRandom().nextDouble() < chance)) return person;
-        animal.showReaction("side_teary", "", 40);
+        animal.showReaction("side_teary", "", FaceTier.Tier.SHORT);
         animal.life().deferSocial(600);
         GameplayLog.event(animal, "pet", "owner return declined owner={} wariness={} approachChance={}", person.getUUID(), wariness, chance);
         return null;
@@ -455,7 +456,7 @@ public final class PetLife {
         }
         if (neglect > 0 && --searchClock <= 0) {
             searchClock = 2400 + animal.getRandom().nextInt(2400);
-            if (calm()) { animal.playAction(animal.getRandom().nextBoolean() ? "look_around" : "droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("teary", "lost_parent", 100); }
+            if (calm()) { animal.playAction(animal.getRandom().nextBoolean() ? "look_around" : "droop"); animal.mind().felt(EmotionEvent.SEPARATED); animal.showReaction("teary", "lost_parent", FaceTier.Tier.MEDIUM); }
         }
     }
     /** Called by WildEvents.abandon before the owner is cleared. A worn badge stays on but its registry entry is void. */
@@ -505,15 +506,15 @@ public final class PetLife {
         if (grade != BadgeGrade.NONE) voidBadge = true;
         neglect = 0; neglectClock = 0; searchClock = 0; ownerAbsence = 0; noticeSent = false;
         animal.mind().felt(EmotionEvent.SEPARATED);
-        animal.showReaction("teary", "lost_parent", 100);
+        animal.showReaction("teary", "lost_parent", FaceTier.Tier.MEDIUM);
     }
     private void tickAbandoned() {
-        if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", 80); }
+        if (joyDelay > 0 && --joyDelay == 0) { animal.playAction("joy_jump"); animal.showReaction("happy", "hello", FaceTier.Tier.MEDIUM); }
         if (!vigilOffers.isEmpty() && !waitingAfterAbandonment()) vigilOffers.clear();
         if (!townRoots || !abandoned() || now() - abandonedAt < 240 || !calm()) return;
         if (abandonStage == 0) {
             abandonStage = 1;
-            if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", 80); }
+            if (!waits && !animal.life().personality().temperament().is(Gate.WARM)) { animal.playAction("proud"); animal.showReaction("smug", "hello", FaceTier.Tier.MEDIUM); }
         }
     }
 
@@ -547,7 +548,7 @@ public final class PetLife {
                 }
             } else {
                 animal.mind().felt(EmotionEvent.SEPARATED);
-                animal.showReaction(YukkuriAction.DROOP, "cry", "lost_parent", 100);
+                animal.showReaction(YukkuriAction.DROOP, "cry", "lost_parent", 100, FaceTier.Tier.MEDIUM);
             }
         }
 

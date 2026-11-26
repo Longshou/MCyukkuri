@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -178,7 +179,7 @@ public final class PetRequests {
         boolean demand = (kind == Kind.FOOD || kind == Kind.SNACK) && wary < .5
                 && NeedWarnings.insistence(personality.temperament()) >= .75;
         animal.showReaction(demand ? YukkuriAction.STAMP : YukkuriAction.BEG, demand ? "cheek_puff" : face,
-                event, 80); // the insulting demand line is for strays facing strangers; a pet asks its keeper
+                event, 80, FaceTier.Tier.MEDIUM); // the insulting demand line is for strays facing strangers; a pet asks its keeper
         GameplayLog.event(animal,"request","beat=ask face={} line={} kind={}",demand ? "cheek_puff" : face,event,kind);
         dropCard();
         var at = markPos();
@@ -268,7 +269,7 @@ public final class PetRequests {
         if (credited && owner != null && !meal) { animal.life().personality().answeredRequest(owner); pet.contact(owner, true); }
         pet.addStress(-2);
         if (credited && !meal) {
-            animal.showReaction("happy", "request_thanks", 70);
+            animal.showReaction("happy", "request_thanks", FaceTier.Tier.MEDIUM);
             GameplayLog.event(animal,"request","beat=thanks face=happy line=request_thanks kind={} via={}",kind,via);
         }
         if (credited) Staging.sparkle(level(), markPos());
@@ -287,7 +288,7 @@ public final class PetRequests {
         boolean pressing = (food ? Belief.foodUrgency(life.nutrition()) : Belief.waterUrgency(life.dryness())) >= .5;
         String face = food ? pressing ? "drool" : "happy" : pressing ? "closed_smile" : "happy";
         String line = food ? "food_found" : pressing ? "" : "mood_good";
-        animal.showReaction(face, line, 60);
+        animal.showReaction(face, line, FaceTier.Tier.SHORT);
         GameplayLog.event(animal,"request","beat=discovered face={} line={} kind={} via={}",face,line.isEmpty() ? "-" : line,kind,via);
     }
     private void expire() {
@@ -310,7 +311,7 @@ public final class PetRequests {
         }
         if (++ignoredNear >= SULK_AT && !sulked) {
             sulked = true;
-            animal.showReaction(YukkuriAction.SULK, "puff_open", "request_sulk", 100);
+            animal.showReaction(YukkuriAction.SULK, "puff_open", "request_sulk", 100, FaceTier.Tier.MEDIUM);
         }
         GameplayLog.event(animal,"request","expired kind={} owner={} ownerNearby=true ignoredToday={} sulking={} stress={} -> {}",
                 kind,nearbyOwner.getUUID(),ignoredNear,sulked,stressBefore,pet.stress());

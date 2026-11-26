@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.headwear.HatCustody;
@@ -49,7 +50,7 @@ final class LifeAccessory {
         o.entity().headwear().detachReassembly();
         custody.lose("taken", false); clearConfiscation(); o.personality().accessoryTaken(player);
         GameplayLog.event(o.entity(), "headwear", "taken player={} token={}", player, token);
-        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return token;
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", FaceTier.Tier.MEDIUM); return token;
     }
 
     boolean returnAccessory(UUID owner, UUID token, UUID player) {
@@ -63,7 +64,7 @@ final class LifeAccessory {
         o.entity().settlement().society().restored("accessory");
         GameplayLog.event(o.entity(), "headwear", "returned player={} token={}", player, token);
         // Taken back by its own braid (no player) the hat was never lost: the おかざり回収 line and relief are for one given back.
-        if (player != null) { o.personality().accessoryReturned(player); o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", 100); }
+        if (player != null) { o.personality().accessoryReturned(player); o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED); o.entity().showReaction("happy", "returned_accessory", FaceTier.Tier.MEDIUM); }
         return true;
     }
     /** Transfer a compatible loose physical accessory. */
@@ -77,7 +78,7 @@ final class LifeAccessory {
         if (custody.worn()) o.entity().settlement().society().restored("accessory");
         GameplayLog.event(o.entity(),"headwear","received loose accessory item={} state={} damage={} player={}",
                 stack.getItem(),o.entity().headwear().stateId(),o.entity().headwear().damage(),player);
-        o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED);o.entity().showReaction("happy","returned_accessory",100);
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_RETURNED);o.entity().showReaction("happy","returned_accessory",FaceTier.Tier.MEDIUM);
         return true;
     }
 
@@ -113,7 +114,7 @@ final class LifeAccessory {
         if (custody.lost()) return matchesAccessory(owner, token);
         if (!custody.matches(owner, token)) return false;
         custody.lose(cause, true); o.personality().accessoryTaken(player);
-        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", 100); return true;
+        o.entity().mind().felt(EmotionEvent.ACCESSORY_LOST); o.entity().showReaction("surprise", "lost_accessory", FaceTier.Tier.MEDIUM); return true;
     }
     /** Only a recorded transfer or loss ends custody while the owner was unloaded. */
     void tick() {

@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -137,7 +138,7 @@ public final class LeaderSuccession {
             data.setDirty();
             candidate.getLookControl().setLookAt(witness, 25, 25);
             witness.getLookControl().setLookAt(candidate, 25, 25);
-            candidate.showReaction("happy", "hello", 60);
+            candidate.showReaction("happy", "hello", FaceTier.Tier.SHORT);
         }
     }
 
@@ -276,11 +277,11 @@ public final class LeaderSuccession {
             // the news gets a small, visible response without being misreported as an eye-witnessed family death.
             if ("heard".equals(source)) {
                 member.mind().add(2, "leader_news");
-                member.showReaction("teary", "heard", 80);
+                member.showReaction("teary", "heard", FaceTier.Tier.MEDIUM);
             }
         } else {
             member.mind().felt(EmotionEvent.FRIGHTENED);
-            member.showReaction("surprise", "afraid", 80);
+            member.showReaction("surprise", "afraid", FaceTier.Tier.MEDIUM);
         }
         group.commons.note(((ServerLevel) member.level()).getGameTime(), "leader_news", member.getUUID(), source);
         data.setDirty();

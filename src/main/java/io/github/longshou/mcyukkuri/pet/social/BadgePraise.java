@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -41,7 +42,7 @@ public final class BadgePraise {
         if (!w.owner().equals(who)) return;
         WINDOWS.remove(pet.getUUID());
         pet.pet().addStress(-3);
-        pet.mind().felt(EmotionEvent.PRAISED); pet.showReaction("happy", "lesson_praised", 80);
+        pet.mind().felt(EmotionEvent.PRAISED); pet.showReaction("happy", "lesson_praised", FaceTier.Tier.MEDIUM);
         Staging.sparkle(level, pet.position().add(0, pet.getBbHeight(), 0));
         pet.life().personality().decided("badge_praised");
     }

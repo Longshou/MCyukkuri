@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechAddress;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -245,7 +246,7 @@ final class ChildCall {
         boolean answered = child.family().call().answered(e.getUUID(), callStart);
         if (visible) { walkOn(now, "in_sight", child); return false; }
         if (phase != Phase.CALL && answered) {
-            e.showReaction("surprise", "", 30); walkOn(now, "answered", child); return false;
+            e.showReaction("surprise", "", FaceTier.Tier.SHORT); walkOn(now, "answered", child); return false;
         }
         var before = phase;
         boolean calling = tickSilence();

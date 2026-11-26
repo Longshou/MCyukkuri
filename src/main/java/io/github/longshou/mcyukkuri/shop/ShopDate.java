@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.shop;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.coordination.LeaseTable;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
@@ -136,12 +137,12 @@ public final class ShopDate implements IntPredicate {
                 if (pt >= 47) { hold(k, false); next(); }
             }
             case 1 -> { // shy hello
-                if (pt == 1) { a.playAction("shy"); b.playAction("shy"); a.showReaction("closed_smile", "date_meet", 70); }
-                if (pt == 14) b.showReaction("closed_smile", "date_meet", 70);
+                if (pt == 1) { a.playAction("shy"); b.playAction("shy"); a.showReaction("closed_smile", "date_meet", FaceTier.Tier.MEDIUM); }
+                if (pt == 14) b.showReaction("closed_smile", "date_meet", FaceTier.Tier.MEDIUM);
                 if (pt % 10 == 0) face(a, b);
                 if (flourish != null && pt == shy) {
-                    if (flourish.equals("proud")) { a.playAction("proud"); a.showReaction("smug", BadgeSocial.reactionLine(a, "badge_proud", b), 70); }
-                    else { a.playAction("greet"); a.showReaction("open_smile", "hello", 50); }
+                    if (flourish.equals("proud")) { a.playAction("proud"); a.showReaction("smug", BadgeSocial.reactionLine(a, "badge_proud", b), FaceTier.Tier.MEDIUM); }
+                    else { a.playAction("greet"); a.showReaction("open_smile", "hello", FaceTier.Tier.SHORT); }
                 }
                 if (pt >= shy + (flourish == null ? 0 : 26)) { a.playAction("idle"); b.playAction("idle"); walk.go = true; next(); }
             }
@@ -197,15 +198,15 @@ public final class ShopDate implements IntPredicate {
             if (sp != null) sp.displayClientMessage(Component.translatable("shop.mcyukkuri.keeper.failed_reason", KeeperMenu.failReason(why)), true);
         }
         if (ok) {
-            a.playAction("joy_hop"); a.showReaction("happy", "expecting", 100);
-            b.playAction("greet"); b.showReaction("happy", "date_fond", 80);
+            a.playAction("joy_hop"); a.showReaction("happy", "expecting", FaceTier.Tier.MEDIUM);
+            b.playAction("greet"); b.showReaction("happy", "date_fond", FaceTier.Tier.MEDIUM);
             Staging.sparkle(level, a.position().add(0, a.getBbHeight() + .2, 0)); k.swing(InteractionHand.MAIN_HAND);
         } else if (fond) {
-            a.playAction("greet"); a.showReaction("happy", "date_fond", 80);
-            b.playAction("greet"); b.showReaction("happy", "date_fond", 80);
+            a.playAction("greet"); a.showReaction("happy", "date_fond", FaceTier.Tier.MEDIUM);
+            b.playAction("greet"); b.showReaction("happy", "date_fond", FaceTier.Tier.MEDIUM);
         } else {
-            a.playAction("droop"); a.showReaction("teary", "", 70);
-            b.showReaction("neutral", "", 50);
+            a.playAction("droop"); a.showReaction("teary", "", FaceTier.Tier.MEDIUM);
+            b.showReaction("neutral", "", FaceTier.Tier.SHORT);
         }
         a.getLookControl().setLookAt(b, 30, 30); b.getLookControl().setLookAt(a, 30, 30);
     }

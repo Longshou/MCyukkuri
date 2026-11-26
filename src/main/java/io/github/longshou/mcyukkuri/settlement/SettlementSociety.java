@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -58,7 +59,7 @@ public final class SettlementSociety {
         var before = guest.status().identity();
         guest.settlement().join(entity.settlement().group());
         guest.pet().leaveTownLife();
-        guest.showReaction("happy", "known_peer", 80);
+        guest.showReaction("happy", "known_peer", FaceTier.Tier.MEDIUM);
         guest.moldExile().welcomed(entity);
         YukkuriStatus.identityChanged(guest, before, "settlement_welcome");
     }
@@ -148,10 +149,10 @@ public final class SettlementSociety {
             data.assign(group,record,observer.getUUID(),now+1200);
         }
         observer.getLookControl().setLookAt(entity, 25, 25);
-        observer.showReaction("angry", event, 80);
+        observer.showReaction("angry", event, FaceTier.Tier.MEDIUM);
         if (record.role == SettlementData.Role.UNUN_SLAVE) entity.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
         else entity.mind().felt(EmotionEvent.SOCIAL_HURT);
-        entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", 100);
+        entity.showReaction("teary", record.role == SettlementData.Role.UNUN_SLAVE ? "settlement_submit" : "settlement_hurt", FaceTier.Tier.MEDIUM);
         // The rejected one withdraws from the one who turned on it (a slave is sent to the pit instead).
         if (record.role != SettlementData.Role.UNUN_SLAVE) entity.frightenFrom(observer);
         data.setDirty();
@@ -180,14 +181,14 @@ public final class SettlementSociety {
             for (var witness : witnesses) {
                 witness.getLookControl().setLookAt(slave, 25, 25);
                 // The assignment speech was made once, when the slave was appointed; each excretion gets one short order from one witness.
-                witness.showReaction("angry", ordered ? "" : "pit_order", 80);
+                witness.showReaction("angry", ordered ? "" : "pit_order", FaceTier.Tier.MEDIUM);
                 ordered = true;
                 YukkuriWorldData.get(level()).relate(witness.getUUID(), slave.getUUID(), -1);
             }
             float before = slave.life().hygiene();
             slave.life().changeHygiene(-3);
             slave.mind().feltSlavePressure(EmotionEvent.SUBMITTED);
-            slave.showReaction("teary", "", 100); // it already answered the assignment
+            slave.showReaction("teary", "", FaceTier.Tier.MEDIUM); // it already answered the assignment
             GameplayLog.event(slave, "settlement", "pit mockery witnesses={} excretor={} hygiene={} -> {}", witnesses.size(), entity.getUUID(),
                     before, slave.life().hygiene());
         }

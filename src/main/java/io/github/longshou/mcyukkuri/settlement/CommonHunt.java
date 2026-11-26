@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -192,7 +193,7 @@ public final class CommonHunt {
                 GameplayLog.event(m, "settlement", "hunt call refused leader={} attachment={} friendliness={} selfControl={} attached={} selfish={}", leader.getUUID(),
                         t.attachment(), t.friendliness(), t.selfControl(),
                         String.format(Locale.ROOT, "%.2f", t.attached()), String.format(Locale.ROOT, "%.2f", t.selfish()));
-                m.showReaction("angry", "hunt_refuse", 60);
+                m.showReaction("angry", "hunt_refuse", FaceTier.Tier.SHORT);
                 continue;
             }
             party.add(m);
@@ -213,8 +214,8 @@ public final class CommonHunt {
         hunt.deadline = hunt.departAt + HUNT_TICKS;
         hunt.party.clear(); hunt.done.clear(); hunt.delivered = 0; hunt.kept = 0; hunt.outcome = "";
         hunt.party.add(leader.getUUID());
-        for (var m : party) { hunt.party.add(m.getUUID()); m.showReaction("happy", "hunt_join", 60); }
-        leader.showReaction("happy", "hunt_call", 80);
+        for (var m : party) { hunt.party.add(m.getUUID()); m.showReaction("happy", "hunt_join", FaceTier.Tier.SHORT); }
+        leader.showReaction("happy", "hunt_call", FaceTier.Tier.MEDIUM);
         group.commons.note(now, "hunt_call", leader.getUUID(), "party " + hunt.party.size() + " dest " + dest.toShortString() + " defied " + hunt.defied.size()
                 + (famine >= 2 ? " famine" : ""));
         SettlementData.get(level).setDirty();
@@ -264,7 +265,7 @@ public final class CommonHunt {
             group.commons.outing(fruitful);
             group.commons.huntFails = fruitful ? 0 : group.commons.huntFails + 1;
         }
-        if (hunt.delivered + hunt.kept > 0 && leader != null) leader.showReaction("happy", "hunt_back", 80);
+        if (hunt.delivered + hunt.kept > 0 && leader != null) leader.showReaction("happy", "hunt_back", FaceTier.Tier.MEDIUM);
         hunt.phase = Commons.HuntPhase.IDLE;
         hunt.party.clear(); hunt.done.clear(); hunt.defied.clear();
         hunt.calledAt = now;

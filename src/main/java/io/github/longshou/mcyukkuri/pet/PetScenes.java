@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.coordination.DeadlineMap;
@@ -42,13 +43,13 @@ public final class PetScenes {
 
     public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
-        if (y.showReaction(action, face, "", ticks) && !event.isEmpty()) y.speakCue(BadgeSocial.reactionLine(y, event, look));
+        if (y.showReaction(action, face, "", ticks, FaceTier.Tier.ofTicks(ticks)) && !event.isEmpty()) y.speakCue(BadgeSocial.reactionLine(y, event, look));
     }
 
     /** Report only intelligible words actually delivered, including when a speaker can only babble. */
     public static boolean say(YukkuriEntity y, YukkuriAction action, String face, String event, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
-        if (!y.showReaction(action, face, "", action.durationTicks())
+        if (!y.showReaction(action, face, "", action.durationTicks(), FaceTier.Tier.ofTicks(action.durationTicks()))
                 || !y.speakCue(BadgeSocial.reactionLine(y, event, look), null, 2)) return false;
         var line = NativeDialogue.byKey(y.getDialogueKey());
         return line != null && line.events().contains(event);
@@ -59,7 +60,7 @@ public final class PetScenes {
         if (!(y.level() instanceof ServerLevel level) || !y.isAlive()) return;
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
         boolean played = action != null && y.playAction(action);
-        if (face != null) y.showReaction(face, event == null ? "" : BadgeSocial.reactionLine(y, event, look), ticks);
+        if (face != null) y.showReaction(face, event == null ? "" : BadgeSocial.reactionLine(y, event, look), FaceTier.Tier.ofTicks(ticks));
         long start = y.getAnimationStartTick();
         boolean loops = played && YukkuriAction.byId(action).map(YukkuriAction::loops).orElse(false);
         if (!loops && look == null) return;

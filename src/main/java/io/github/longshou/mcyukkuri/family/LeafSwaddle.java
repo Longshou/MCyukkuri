@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.family;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -149,16 +150,16 @@ public final class LeafSwaddle {
                 // The cost follows the soiled stage the wrap shows (wearBits), not the raw volume: a newborn's wrap is as unpleasant as a child's.
                 float stage = (float)Math.ceil(soil) + neglectStage() - 1;
                 life.changeHygiene(-stage); entity.mind().add(stage, "soiled_swaddle");
-                if (!life.isSleeping()) entity.showReaction("teary", "", 60); // nothing new leaked: discomfort only, the "leaked" line belongs to the soiling
+                if (!life.isSleeping()) entity.showReaction("teary", "", FaceTier.Tier.SHORT); // nothing new leaked: discomfort only, the "leaked" line belongs to the soiling
             }
             GameplayLog.limited(entity, "family", "leaf_swaddle.wear", 2400,
                     "leaf swaddle wear soil={} hygiene={} -> {} unease={} -> {} friendliness={}", soil, hygiene, life.hygiene(),
                     unease, entity.mind().unease(), life.personality().friendliness());
         }
-        if (retaining() && entity.tickCount % 120 == 0) entity.showReaction("teary", "hurt", 100);
+        if (retaining() && entity.tickCount % 120 == 0) entity.showReaction("teary", "hurt", FaceTier.Tier.MEDIUM);
         if (neglectStage() == 4 && entity.tickCount % EFFECT_TICKS == 0) entity.body().swaddleRetentionDamage();
         if (needsCare() && entity.tickCount % 120 == 0 && !life.isSleeping() && !entity.isPanicking()) {
-            entity.showReaction("teary", "need_toilet", 50);
+            entity.showReaction("teary", "need_toilet", FaceTier.Tier.SHORT);
             GameplayLog.limited(entity, "family", "leaf_swaddle.waiting", 1200,
                     "leaf swaddle waiting for care soil={} bladder={} hygiene={} vehicle={}", soil, life.bowel(), life.hygiene(),
                     entity.getVehicle() == null ? null : entity.getVehicle().getUUID());
@@ -189,7 +190,7 @@ public final class LeafSwaddle {
             life.releaseIntoWrap(); soil+=volume;
             logStageChange(previousStage);
             entity.mind().add(6, "soiled_swaddle");
-            entity.showReaction("teary", "leak", 80);
+            entity.showReaction("teary", "leak", FaceTier.Tier.MEDIUM);
             GameplayLog.event(entity, "family", "leaf swaddle soiled cause={} volume={} -> {} bladder={} -> {} hygiene={} -> {}",
                     cause, before, soil, bladder, life.bowel(), hygiene, life.hygiene());
             return true;
@@ -202,7 +203,7 @@ public final class LeafSwaddle {
         }
         life.releaseIntoWrap(); life.changeHygiene(-10);
         entity.mind().add(8, "soiled_swaddle");
-        entity.showReaction("teary", "leak", 80);
+        entity.showReaction("teary", "leak", FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "family", "leaf swaddle overflowed cause={} soil={} bladder={} -> {} hygiene={} -> {} dropped=1",
                 cause, soil, bladder, life.bowel(), hygiene, life.hygiene());
         return true;
@@ -219,7 +220,7 @@ public final class LeafSwaddle {
         worn = true; open = false; openAt = null; soil = wearClock = openClock = 0; wrapper = parent.getUUID();
         entity.mind().add(-2, "leaf_swaddle");
         entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "swaddled");
-        entity.showReaction("happy", "swaddle_on", 80);
+        entity.showReaction("happy", "swaddle_on", FaceTier.Tier.MEDIUM);
     }
 
     /** Opens the wrap for care. A soiled wrap is thrown away with its stool: each load lands as real waste and the leaves are spent. */

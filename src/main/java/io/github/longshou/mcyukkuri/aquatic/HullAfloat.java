@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -307,7 +308,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         for (var passenger : hat.getPassengers()) if (passenger instanceof YukkuriEntity y) {
             boolean adult = y.family().adult();
             if (!adult) y.mind().felt(EmotionEvent.FRIGHTENED);
-            y.showReaction(adult ? "surprise" : "teary", adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", ticks);
+            y.showReaction(adult ? "surprise" : "teary", adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", FaceTier.Tier.ofTicks(ticks));
             GameplayLog.event(y, "aquatic", "rocked hat={} cause={} phase={} adult={} line={} ticks={}",
                     hat.getUUID(), cause, phase, adult, adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", ticks);
         }

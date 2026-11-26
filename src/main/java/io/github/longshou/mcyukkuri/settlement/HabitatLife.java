@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.settlement;
 import static io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose.HABITAT;
 
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.TownAware;
 
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
@@ -551,7 +552,7 @@ public final class HabitatLife {
             var food=pile.take(entity.life()::seeksFood);
             if(!food.isEmpty()) {
                 if(!entity.life().beginMeal(food,null,false))pile.returnFood(food);
-                else if(stealing){entity.showReaction("happy","narrate_steal",60);CommunityRules.granaryTheft(entity,pile.getBlockPos());}
+                else if(stealing){entity.showReaction("happy","narrate_steal",FaceTier.Tier.SHORT);CommunityRules.granaryTheft(entity,pile.getBlockPos());}
                 else if(Rations.governs(entity))Rations.ateAllowance(entity);
             }
             stealing=false;stop();return;
@@ -607,7 +608,7 @@ public final class HabitatLife {
                 SurfaceApproach.face(entity,(work/20%4)*90);
                 if(value.workOnNest(entity)){
                     GameplayLog.event(entity,"habitat","nest complete home={} bed={} usedPortions={}",value.getBlockPos(),targetBlock,portions);
-                    nestHome=null;entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",60);stop();
+                    nestHome=null;entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy","gentle",FaceTier.Tier.SHORT);stop();
                 }
             }
         } else if(task==Task.PICKUP) {

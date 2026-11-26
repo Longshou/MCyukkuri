@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -235,7 +236,7 @@ public final class Sanction extends Goal {
         if (!declared) {
             if (distance > 9 || !entity.hasLineOfSight(target)) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
-            entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", 80);
+            entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", FaceTier.Tier.MEDIUM);
             // The anger starts with the declaration and carries through the acts (a huff about the accused, below being scorned).
             entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, target.getUUID(), entity.blockPosition());
             target.groupInteraction().defense().provoke(entity);
@@ -301,7 +302,7 @@ public final class Sanction extends Goal {
         return target.body().healthRatio() <= HEALTH_FLOOR || target.body().weak() || target.body().dying() || !target.body().coreIntact();
     }
     private void driveOff() {
-        entity.showReaction("angry", "settlement_drive", 80);
+        entity.showReaction("angry", "settlement_drive", FaceTier.Tier.MEDIUM);
         boolean resisted = target.respondToBullying(entity);
         target.mind().add(3, "drive_off_attempt");
         PunishmentReaction.peer(target, entity, "drive_off", false);
@@ -325,7 +326,7 @@ public final class Sanction extends Goal {
             GameplayLog.event(entity, "sanction", "executor ended target={} reason={} roundComplete={} targetAlive={} targetDying={} targetHealth={} acts={}",
                     victim.getUUID(), why, done, victim.isAlive(), victim.body().dying(), victim.getHealth(), performed);
         }
-        if (done && entity.isAlive()) entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 60);
+        if (done && entity.isAlive()) entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 60, FaceTier.Tier.SHORT);
         return false;
     }
 }

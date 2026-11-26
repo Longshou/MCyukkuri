@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.family.PentUpMath;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
@@ -188,7 +189,7 @@ public final class AgitationLife {
             if(phaseTicks>=RELIEF_TICKS){
                 var finished=reliefRole;
                 stop();
-                if(finished==ReliefRole.MOTHER)entity.showReaction("happy","expecting",100);
+                if(finished==ReliefRole.MOTHER)entity.showReaction("happy","expecting",FaceTier.Tier.MEDIUM);
                 else if(finished==ReliefRole.FATHER)entity.showReactionDelayed("happy","expecting",100,18);
             }
             return;

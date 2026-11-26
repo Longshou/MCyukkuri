@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -65,7 +66,7 @@ public final class PetCare {
         if (!player.getAbilities().instabuild) stack.shrink(1);
         GameplayLog.event(animal, "interaction", "swaddle on player={} style={}", player.getUUID(), swaddleStyle.id);
         pet.contact(player.getUUID(), true);
-        animal.showReaction("happy", "swaddle_on", 80);
+        animal.showReaction("happy", "swaddle_on", FaceTier.Tier.MEDIUM);
         requests.answer(PetRequests.Kind.WARM);
         return true;
     }
@@ -196,7 +197,7 @@ public final class PetCare {
         else {
             animal.playAction("joy_jump");
             animal.mind().felt(EmotionEvent.PRAISED);
-            animal.showReaction("happy", "lesson_praised", 70);
+            animal.showReaction("happy", "lesson_praised", FaceTier.Tier.MEDIUM);
         }
         Staging.sparkle(level(), markPos());
         closeHabit();
@@ -222,7 +223,7 @@ public final class PetCare {
         boolean good = !bad && pet.stress() <= BondLevels.UNEASE_LOW_LIMIT && pet.neglect() == 0 && daily.affectionNeed() < 50 && daily.boredom() < 50 && life.nutrition() >= 50;
         String mood = bad ? "bad" : good ? "good" : "ok";
         animal.playAction(bad ? "droop" : good ? "greet" : "look_around");
-        animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, 90);
+        animal.showReaction(bad ? "teary" : good ? "happy" : "neutral", "mood_" + mood, FaceTier.Tier.MEDIUM);
         if (life.personality().temperament().is(Gate.CLEVER)) player.displayClientMessage(Component.translatable("pet.mcyukkuri.ask.mood." + mood, animal.getDisplayName()), true);
         if (!good && life.personality().temperament().is(Gate.CLEVER)) {
             String why = life.nutrition() < 45 ? "hungry" : life.temperature().cold() ? "cold" : requests.sulking() || requests.ignoredToday() > 0 ? "ignored"

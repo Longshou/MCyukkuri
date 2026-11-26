@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.BodySigns;
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -517,10 +518,10 @@ public final class MoldExile extends Goal implements MotorOwner {
         boolean scorn = harsh && childVerdict != Verdict.DRIVE_TEARFUL && ticks == noticeEnd + SCORN_AFTER;
         if ((ticks == 1 && noticeEnd > 0 || ticks == answerAt || scorn) && !myTurn()) { ticks--; return; }
         if (ticks == 1 && noticeEnd > 0)
-            entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", NOTICE);
+            entity.showReaction("surprise", entity.skills().knows(Ability.MOLD_LORE) ? "mold_notice" : "mold_notice_unaware", FaceTier.Tier.ofTicks(NOTICE));
         if (ticks == answerAt) answer();
         // "Mouldy thing, get out" is for strangers: a cold parent driving its own child only glares and keeps the warning.
-        if (scorn && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50) && childVerdict == null
+        if (scorn && entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 50, FaceTier.Tier.SHORT) && childVerdict == null
                 && entity.skills().knows(Ability.MOLD_LORE)) entity.speakCue("mold_scorn");
         if (!driving || fond || ticks < noticeEnd + (harsh ? SCORN_AFTER : 0)) return;
         // One decision is one continuous drive-off: one push action starts, follows the sick one and keeps its clip until it is out
@@ -542,7 +543,7 @@ public final class MoldExile extends Goal implements MotorOwner {
         var address = home;
         if (entity.motor().run(this, new Push(driven, () -> address.leftToLeave(driven.position())))) {
             pushed = true;
-            if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", REACTION);
+            if (childVerdict == Verdict.DRIVE_TEARFUL) entity.showReaction("cry", "", FaceTier.Tier.ofTicks(REACTION));
             GameplayLog.event(entity, "settlement", "mold exile push subject={} harsh={}", driven.getUUID(), harsh);
         }
     }
@@ -550,17 +551,17 @@ public final class MoldExile extends Goal implements MotorOwner {
     /** The witness's answer to what it saw: a fond kin's sobbed apology, a driver's warning, or a wary watch. */
     private void answer() {
         if (childVerdict == Verdict.KEEP || childVerdict == Verdict.DRIVE_TEARFUL) {
-            if (entity.showReaction("puff_teary", "", WARN_HOLD))
+            if (entity.showReaction("puff_teary", "", FaceTier.Tier.ofTicks(WARN_HOLD)))
                 entity.speakCue(childVerdict == Verdict.KEEP ? "keep_child" : "drive_child_tearful");
         } else if (fond) {
             if (entity.skills().knows(Ability.MOLD_LORE)) {
-                if (entity.showReaction("puff_teary", "", WARN_HOLD)) entity.speakCue(ReactionSpeech.moldSorrow(
+                if (entity.showReaction("puff_teary", "", FaceTier.Tier.ofTicks(WARN_HOLD))) entity.speakCue(ReactionSpeech.moldSorrow(
                         Bonds.eitherMate(entity, peer) && !Bonds.directParentChild(entity, peer), youngToProtect()));
-            } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD);
+            } else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", WARN_HOLD, FaceTier.Tier.ofTicks(WARN_HOLD));
         } else if (driving) {
-            if (entity.showReaction("puff", "", 50)) entity.speakCue(entity.skills().knows(Ability.MOLD_LORE) ? "mold_warn" : "mold_shun_unaware");
+            if (entity.showReaction("puff", "", FaceTier.Tier.SHORT)) entity.speakCue(entity.skills().knows(Ability.MOLD_LORE) ? "mold_warn" : "mold_shun_unaware");
         }
-        else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 40);
+        else entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 40, FaceTier.Tier.SHORT);
     }
 
     /** Whether a healthy young one of its own care stands near: only then is "the little one would get sick too" its reason. */
@@ -690,7 +691,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     private void appeal() {
         if (exile.appeal == Appeal.NONE) {
             exile.appeal = Appeal.RETURNING;
-            entity.showReaction("teary", "", REACTION);
+            entity.showReaction("teary", "", FaceTier.Tier.ofTicks(REACTION));
             GameplayLog.event(entity, "settlement", "mold exile appeals group={} den={} stage={}", home.group(), home.den(), entity.body().mold());
         }
         peer = driverForDeparture(home);
@@ -698,7 +699,7 @@ public final class MoldExile extends Goal implements MotorOwner {
             if (peer == null && !arrivedAtHome()) return;
             exile.appeal = Appeal.AWAITING_REPLY;
             exile.replyTicks = REACTION;
-            boolean spoken = entity.showReaction("teary", "", REACTION) && entity.speakCue("mold_plea");
+            boolean spoken = entity.showReaction("teary", "", FaceTier.Tier.ofTicks(REACTION)) && entity.speakCue("mold_plea");
             GameplayLog.event(entity, "settlement", "mold exile return plea spoken={}", spoken);
         }
         if (peer == null && exile.replyTicks > 0) {

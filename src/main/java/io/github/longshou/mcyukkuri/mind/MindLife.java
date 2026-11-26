@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.mind;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import net.minecraft.world.level.biome.Biome;
 
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -275,7 +276,7 @@ public final class MindLife {
             GameplayLog.limited(entity, "mind", "stage", 600, "stage {} -> {} (unease {}, sweetness {})", () -> new Object[]{
                         reported.name().toLowerCase(Locale.ROOT), stageId(), Math.round(unease), Math.round(sweetness)});
             if (now == Stage.SWEETENED && reported.ordinal() < now.ordinal() && calm()) {
-                entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
+                entity.showReaction("teary", pick("uneasy", "mood_bad"), FaceTier.Tier.MEDIUM);
                 if (entity.life().activity().equals(Behaviors.IDLE)) perform("droop", 80);
             }
             reported = now;
@@ -335,10 +336,10 @@ public final class MindLife {
         else if (unease < UNEASY) sweetness = Math.max(0, sweetness - PER_SAMPLE);
         if (!nonYukkuri() && unease >= SWEETENED && --moanClock <= 0 && calm()) {
             moanClock = 18 + entity.getRandom().nextInt(18); // every 1.5-3 minutes
-            entity.showReaction("teary", pick("uneasy", "mood_bad"), 80);
+            entity.showReaction("teary", pick("uneasy", "mood_bad"), FaceTier.Tier.MEDIUM);
         } else if (!nonYukkuri() && unease >= UNEASY && unease < SWEETENED && --moanClock <= 0 && calm()) {
             moanClock = 36 + entity.getRandom().nextInt(36);
-            if (entity.getRandom().nextInt(3) == 0) entity.showReaction("confused_small", pick("uneasy", "mood_bad"), 60);
+            if (entity.getRandom().nextInt(3) == 0) entity.showReaction("confused_small", pick("uneasy", "mood_bad"), FaceTier.Tier.SHORT);
         }
     }
 
@@ -390,7 +391,7 @@ public final class MindLife {
         put("lonely", rate);
         if (!lonely) {
             lonely = true;
-            entity.showReaction("cry", entity.family().disowned() ? "afraid" : pick("lost_parent", "afraid"), 100);
+            entity.showReaction("cry", entity.family().disowned() ? "afraid" : pick("lost_parent", "afraid"), FaceTier.Tier.MEDIUM);
             GameplayLog.limited(entity, "mind", "lonely", 24000, "alone {} ticks, lonely +{}/min (unease {})",
                     aloneTicks, Math.round(rate * 10) / 10f, Math.round(unease));
         }
@@ -423,8 +424,8 @@ public final class MindLife {
     private void begin() {
         course = Course.FRENZY; courseTicks = 0; breakingTicks = 0; shoutClock = 0; fitClock = 40; witherClock = 0;
         MCYukkuri.LOGGER.info("[mind] {} #{} non-yukkuri onset (unease {}, sweetness {})", entity.getVariant().assetId(), entity.getId(), Math.round(unease), Math.round(sweetness));
-        entity.showReaction("shattered", pick("non_yukkuri", "afraid"), 30);
-        PetScenes.later(entity, 30, () -> entity.forceReaction("shattered_fade", "", 50));
+        entity.showReaction("shattered", pick("non_yukkuri", "afraid"), FaceTier.Tier.SHORT);
+        PetScenes.later(entity, 30, () -> entity.forceReaction("shattered_fade", "", FaceTier.Tier.SHORT));
         hearing();
     }
 
@@ -434,7 +435,7 @@ public final class MindLife {
             if (unease < RECOVERED) {
                 MCYukkuri.LOGGER.info("[mind] {} #{} recovered from non-yukkuri frenzy after {} ticks (unease {})", entity.getVariant().assetId(), entity.getId(), courseTicks, Math.round(unease));
                 course = Course.NONE; courseTicks = 0; breakingTicks = 0;
-                entity.showReaction("teary", pick("uneasy", "mood_bad"), 100);
+                entity.showReaction("teary", pick("uneasy", "mood_bad"), FaceTier.Tier.MEDIUM);
                 // Out of the frenzy it is not yet itself: it shakes and starts at nothing for a while.
                 feeling.begin(EmotionCourse.Kind.TERROR, 1, null, entity.blockPosition());
                 return;
@@ -446,7 +447,7 @@ public final class MindLife {
         }
         if (--shoutClock <= 0) {
             shoutClock = course == Course.FRENZY ? 60 + entity.getRandom().nextInt(60) : 200 + entity.getRandom().nextInt(200);
-            entity.showReaction(course == Course.FRENZY ? entity.getRandom().nextBoolean() ? "blank_happy" : "blank_confused" : "blank_cry", pick("non_yukkuri", "afraid"), 50);
+            entity.showReaction(course == Course.FRENZY ? entity.getRandom().nextBoolean() ? "blank_happy" : "blank_confused" : "blank_cry", pick("non_yukkuri", "afraid"), FaceTier.Tier.SHORT);
             hearing();
         }
         if (course == Course.WITHERING && ++witherClock >= 2400) {

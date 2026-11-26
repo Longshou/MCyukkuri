@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.human;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.motor.geom.DoorPassage;
 import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 
@@ -240,7 +241,7 @@ final class HumanStreet {
             return true;
         }
         y.life().personality().talk(npc.getUUID(), true);
-        y.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);
+        y.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60, FaceTier.Tier.SHORT);
         npc.swing(InteractionHand.MAIN_HAND);
         lastPetted = y;
         GameplayLog.event(npc, "npc-care", "action=street_pet target={} food={}", y.getUUID(), npc.careFood());
@@ -453,7 +454,7 @@ final class HumanStreet {
         if (pet.isAlive() && pet.level() == npc.level() && npc.distanceToSqr(pet) <= 144) {
             npc.getLookControl().setLookAt(pet, 30, 30);
             npc.swing(InteractionHand.MAIN_HAND);
-            pet.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60);
+            pet.showReaction(YukkuriAction.MOOD_FLUTTER, "happy", "", 60, FaceTier.Tier.SHORT);
             pet.life().personality().talk(npc.getUUID(), true);
             // The kindly words to the pet hang above the head; a cruel owner only touches it.
             if (npc.attitude() != HumanNpc.Attitude.CRUEL)
@@ -487,7 +488,7 @@ final class HumanStreet {
                 var contact = SocialDisposition.contact(y, npc);
                 double confidence = SocialDisposition.confidence(contact.esteem());
                 String face = contact.wariness() > confidence ? "teary" : "surprise";
-                if (y.showReaction(face, "", 40)) {
+                if (y.showReaction(face, "", FaceTier.Tier.SHORT)) {
                     GameplayLog.event(y, "npc-care", "action=street_warning_seen resident={} face={} wariness={} confidence={}",
                             npc.getUUID(), face, contact.wariness(), confidence);
                 }
@@ -580,7 +581,7 @@ final class HumanStreet {
     private void kick(YukkuriEntity y, Vec3 away) {
         float health = y.getHealth();
         y.nudge(away.x * .12, away.z * .12);
-        y.showReaction("surprise", "", 30);
+        y.showReaction("surprise", "", FaceTier.Tier.SHORT);
         var personality = y.life().personality();
         int closeness = personality.relation(npc.getUUID()).closeness();
         personality.relationshipChanged(npc.getUUID(), Math.min(-8, -1 - closeness), 18);

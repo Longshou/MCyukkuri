@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -38,7 +39,7 @@ public final class JunkContact implements Action {
 
     @Override public void start(YukkuriEntity body) {
         started = body.level().getGameTime();
-        body.showReaction(face, line, length);
+        body.showReaction(face, line, FaceTier.Tier.ofTicks(length));
     }
 
     @Override public Progress tick(YukkuriEntity body) {

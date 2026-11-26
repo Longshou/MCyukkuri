@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -41,7 +42,7 @@ public final class ProtectivePuff {
     private static boolean puff(YukkuriEntity parent, YukkuriEntity victim, Entity attacker) {
         if (!able(parent) || parent == victim && !youngNear(parent) || !draw(parent, victim, attacker)) return false;
         parent.getLookControl().setLookAt(attacker, 30, 30);
-        parent.showReaction("cheek_puff", "protect_taunt", REACTION_TICKS);
+        parent.showReaction("cheek_puff", "protect_taunt", FaceTier.Tier.ofTicks(REACTION_TICKS));
         return parent == victim;
     }
 

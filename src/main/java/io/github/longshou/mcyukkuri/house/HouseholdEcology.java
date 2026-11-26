@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.house;
 import io.github.longshou.mcyukkuri.body.DetachedItems;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.MCYukkuri;
@@ -413,7 +414,7 @@ public final class HouseholdEcology {
         if(!entity.life().dryStand(stand)||!level.noCollision(entity))return null;
         entity.house().foundAt(den);
         if(!level.addFreshEntity(entity))return null;
-        entity.showReaction("surprise","house_arrival",100);
+        entity.showReaction("surprise","house_arrival",FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity,"house","a {} moved in at {} (entrance {})",reimu?"house reimu":"house marisa",
                 den.site().toShortString(),den.entrance());
         return entity;

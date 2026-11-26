@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Reactions;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife;
@@ -222,10 +223,10 @@ public final class YukkuriSocial implements MotorOwner {
             return true;
         }
         if (busyForTalk()) {
-            entity.showReaction("surprise", "busy", 60); return false;
+            entity.showReaction("surprise", "busy", FaceTier.Tier.SHORT); return false;
         }
         if (!personality().talk(player.getUUID(), gentle)) {
-            entity.showReaction("neutral", "heard", 40); return false;
+            entity.showReaction("neutral", "heard", FaceTier.Tier.SHORT); return false;
         }
         if(gentle)entity.dailyLife().comfort(5);
         stop();
@@ -235,7 +236,7 @@ public final class YukkuriSocial implements MotorOwner {
             retreat = !gentle;
         }
         entity.getLookControl().setLookAt(player, 30, 30);
-        entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "scolded", 100);
+        entity.mind().felt(gentle ? EmotionEvent.COMFORTED : EmotionEvent.COLD_TREATMENT); entity.showReaction(gentle ? "happy" : "surprise", gentle ? "gentle" : "scolded", FaceTier.Tier.MEDIUM);
         quarrelPeer = null;
         entity.pet().contact(player.getUUID(), gentle);
         return true;
@@ -515,7 +516,7 @@ public final class YukkuriSocial implements MotorOwner {
         var phase = contactPhase();
         if (task == Task.OWNER_RETURN && !phase.canTick(elapsed, duration)) {
             if (!retreat) {
-                entity.showReaction("side_teary", "", 40);
+                entity.showReaction("side_teary", "", FaceTier.Tier.SHORT);
                 GameplayLog.event(entity, "pet", "owner return gave up pursuit owner={} phase={} travelTicks={}", target.getUUID(), phase, elapsed);
             }
             stop();
@@ -535,7 +536,7 @@ public final class YukkuriSocial implements MotorOwner {
         }
         if (task == Task.STUDY) {
             EcologyMovement.halt(entity);
-            if (elapsed == 1) entity.showReaction("confused", "", duration);
+            if (elapsed == 1) entity.showReaction("confused", "", FaceTier.Tier.ofTicks(duration));
             if (elapsed >= duration) {
                 var actual = PetStudy.counting(entity);
                 if (exercise.equals(actual)) PetStudy.answer(entity, actual);
@@ -574,7 +575,7 @@ public final class YukkuriSocial implements MotorOwner {
                     if(!entity.life().dryStand(BlockPos.containing(toy.position().add(direction.scale(.8))))){stop();return;}
                     toy.setDeltaMovement(direction.scale(.14).add(0,.06,0));toy.hurtMarked=true;toyContact=0;toyTouches++;
                     if(toyTouches==1){entity.dailyLife().entertained(15);}
-                    entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy",toyTouches==1?"toy":"",60); // asks to join once, on the first touch
+                    entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy",toyTouches==1?"toy":"",FaceTier.Tier.SHORT); // asks to join once, on the first touch
                 }
             }
             return;
@@ -611,7 +612,7 @@ public final class YukkuriSocial implements MotorOwner {
                 greeted = true;
                 boolean afraid = personality().fear(target.getUUID()) > BondLevels.FEAR_AT_15;
                 if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
-                entity.showReaction("surprise", afraid ? "afraid" : "shy", 80);
+                entity.showReaction("surprise", afraid ? "afraid" : "shy", FaceTier.Tier.MEDIUM);
             }
             if (elapsed % 10 == 1) {
                 var route = entity.status().reactions().threat().flight().retreatRoute(target.position(), 5);
@@ -635,7 +636,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (!greeted && task == Task.PEER && target instanceof YukkuriEntity peer && !entity.isPassenger()) {
             var arrival = GreetingStance.approach(entity, peer, 1.0, 1.5);
             if (arrival == SurfaceApproach.Result.BLOCKED) {
-                entity.showReaction("surprise", "", 40);
+                entity.showReaction("surprise", "", FaceTier.Tier.SHORT);
                 stop();
             }
             if (arrival != SurfaceApproach.Result.ARRIVED) return;
@@ -645,7 +646,7 @@ public final class YukkuriSocial implements MotorOwner {
             // the existing duration limit or a real interruption, rather than abort on the first moving tick.
             // Every tick: the shared approach's last step is a one-tick MoveControl input, so a throttled call crawls.
             if (EcologyMovement.approachResult(entity, target, 1.0) == SurfaceApproach.Result.BLOCKED) {
-                entity.showReaction("surprise", "", 40);
+                entity.showReaction("surprise", "", FaceTier.Tier.SHORT);
                 stop();
             }
             return;
@@ -665,7 +666,7 @@ public final class YukkuriSocial implements MotorOwner {
                         var p = personality();
                         boolean defiant = SocialDisposition.insistence(p, SocialDisposition.selfEsteem(entity), wariness, bond) >= .2;
                         entity.mind().felt(EmotionEvent.REJECTED);
-                        entity.showReaction(wariness >= .5 ? "teary" : defiant ? "angry" : "neutral", "", 60);
+                        entity.showReaction(wariness >= .5 ? "teary" : defiant ? "angry" : "neutral", "", FaceTier.Tier.SHORT);
                         stop(); return;
                     }
                     String why = greetReason(peer, relations);
@@ -684,7 +685,7 @@ public final class YukkuriSocial implements MotorOwner {
                             if (entity.getUUID().equals(peer.social().quarrelPeer)) peer.social().quarrelPeer = null;
                         } else {
                             peer.getLookControl().setLookAt(entity, 30, 30);
-                            peer.showReaction("neutral", "", 60);
+                            peer.showReaction("neutral", "", FaceTier.Tier.SHORT);
                         }
                     }
                     else if (why != null) {
@@ -695,7 +696,7 @@ public final class YukkuriSocial implements MotorOwner {
                             relations.relate(peer.getUUID(), entity.getUUID(), 1);
                     }
                     else if (!BadgeSocial.greeting(entity, peer)) {
-                        entity.showReaction(peerGreetingFace(peer), bond.closeness() >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", 80);
+                        entity.showReaction(peerGreetingFace(peer), bond.closeness() >= BondLevels.AFFINITY_CLOSE ? "known_peer" : "peer", FaceTier.Tier.MEDIUM);
                         relations.relate(entity.getUUID(), peer.getUUID(), 2);
                         // A greeting is met by the other party: otherwise bonds only grow one way and mutual affinity for nuzzling stalls.
                         if (peer.life().canRecognize(entity) && relations.affinity(peer.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_NEUTRAL)
@@ -703,13 +704,13 @@ public final class YukkuriSocial implements MotorOwner {
                     }
 
                 } else if (Recognition.junkCovered(peer)) {
-                    entity.showReaction("neutral", "peer", 60);
+                    entity.showReaction("neutral", "peer", FaceTier.Tier.SHORT);
                 } else if (Recognition.unrecognizedHatless(entity, peer)) {
                     // Walked up to greet and found no accessory: not taken for a yukkuri, and despised for it (headwear.Contempt).
                     Contempt.react((ServerLevel) entity.level(), entity, peer);
                     stop(); return;
-                } else { entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("surprise", "unrecognized", 80); }
-            } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", 100); }
+                } else { entity.mind().felt(EmotionEvent.REJECTED); entity.showReaction("surprise", "unrecognized", FaceTier.Tier.MEDIUM); }
+            } else if (task == Task.TOY) { entity.mind().felt(EmotionEvent.PLAYED); entity.showReaction("happy", "toy", FaceTier.Tier.MEDIUM); }
         }
     }
     private boolean holdingPeerGreeting() {
@@ -748,7 +749,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (wariness >= .18 && humanWatchUntil == 0) {
             int watch = 10 + (int) (30 * SocialDisposition.ramp(wariness, .18, .50));
             humanWatchUntil = elapsed + watch;
-            entity.showReaction("surprise", "", watch);
+            entity.showReaction("surprise", "", FaceTier.Tier.ofTicks(watch));
             GameplayLog.limited(entity, "social", "human_watch", 200, "human watch target={} wariness={} ticks={}",
                     target.getUUID(), wariness, watch);
         }
@@ -766,7 +767,7 @@ public final class YukkuriSocial implements MotorOwner {
         if (task == Task.OWNER_RETURN) {
             welcomePhase = ContactPhase.GREETING;
             greetingBody(returnClip);
-            entity.showReaction("happy", "caregiver", ClipMarkers.of(returnClip).length());
+            entity.showReaction("happy", "caregiver", FaceTier.Tier.ofTicks(ClipMarkers.of(returnClip).length()));
             entity.pet().ownerWelcomed(target.getUUID(), returnClip);
             GameplayLog.event(entity, "pet", "owner return greeted owner={} clip={} distance={}",
                     target.getUUID(), returnClip, entity.distanceTo(target));
@@ -781,7 +782,7 @@ public final class YukkuriSocial implements MotorOwner {
         String line = keeper || relation.closeness() >= BondLevels.TRUST_AT_20 ? "caregiver" : "hello";
         boolean visitor = visitor(target);
         greetingBody(visitor ? "bow" : "greet");
-        entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, 80);
+        entity.showReaction(wariness >= .18 ? "surprise" : "happy", line, FaceTier.Tier.MEDIUM);
         if (visitor) entity.pet().lessons().performed(Ability.GREETING, true);
         GameplayLog.limited(entity, "social", "human_greeting", 200, "human greeting identity={} player={} line={} wariness={}", () -> new Object[]{
                     entity.status().identity().id(), target.getUUID(), line, wariness});
@@ -829,7 +830,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
 
     private void hesitateAtOwner(double wariness) {
-        entity.showReaction("side_teary", "", 40);
+        entity.showReaction("side_teary", "", FaceTier.Tier.SHORT);
         GameplayLog.event(entity, "pet", "owner return hesitation owner={} wariness={}", target.getUUID(), wariness);
         stop();
     }
@@ -863,7 +864,7 @@ public final class YukkuriSocial implements MotorOwner {
         boolean keeper = entity.pet().ownedBy(target.getUUID());
         boolean demand = !keeper && entity.getRandom().nextDouble() < chance;
         String line = keeper ? "ask_food" : demand ? "human_food_demand" : "human_food_ask";
-        entity.showReaction(demand ? "cheek_puff" : "teary", "", 80);
+        entity.showReaction(demand ? "cheek_puff" : "teary", "", FaceTier.Tier.MEDIUM);
         // A presentation cue: the demand may take over the ambient address that brought the animal near, instead of being swallowed by it.
         boolean spoken = entity.speakCue(line);
         if (!spoken || entity.subspecies().congenital() != SubspeciesLife.Congenital.NORMAL) {
@@ -908,7 +909,7 @@ public final class YukkuriSocial implements MotorOwner {
             boolean afraid = wariness >= .62;
             if (afraid) entity.mind().felt(EmotionEvent.FRIGHTENED);
             if (visitor(target)) entity.pet().lessons().performed(Ability.GREETING, false);
-            if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", 80);
+            if (chooseHumanEscape(wariness)) entity.showReaction(afraid ? "surprise" : "angry", afraid ? "afraid" : "", FaceTier.Tier.MEDIUM);
             return;
         }
         // An empty stand after selection is the bounded cower. Keep it until the reaction or contact ends.
@@ -935,8 +936,8 @@ public final class YukkuriSocial implements MotorOwner {
         humanEscapeStand = null;
         EcologyMovement.halt(entity);
         duration = elapsed + 40;
-        if (wariness >= .62) entity.showReaction("teary", "afraid", 40);
-        else entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 40);
+        if (wariness >= .62) entity.showReaction("teary", "afraid", FaceTier.Tier.SHORT);
+        else entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 40, FaceTier.Tier.SHORT);
         GameplayLog.event(entity, "social", "human retreat identity={} player={} wariness={} moving=false response=cower",
                 entity.status().identity().id(), target.getUUID(), wariness);
         return false;
@@ -969,7 +970,7 @@ public final class YukkuriSocial implements MotorOwner {
     }
     public void startGreeting(YukkuriEntity peer, String why) {
         greetingBody("greet");
-        entity.showReaction(peerGreetingFace(peer), "hello", 80);
+        entity.showReaction(peerGreetingFace(peer), "hello", FaceTier.Tier.MEDIUM);
         logGreet(peer, why);
     }
     private String peerGreetingFace(YukkuriEntity peer) {
@@ -985,7 +986,7 @@ public final class YukkuriSocial implements MotorOwner {
     public void answerGreeting(YukkuriEntity peer, String clip, String why) {
         greetingBody(clip);
         entity.getLookControl().setLookAt(peer, 30, 30);
-        entity.showReaction(peerGreetingFace(peer), "hello", 80);
+        entity.showReaction(peerGreetingFace(peer), "hello", FaceTier.Tier.MEDIUM);
         noteContact(peer);
         GameplayLog.limited(entity, "social", "answer." + peer.getUUID(), 200,
                 "greet answer from={} to={} why={} answer={}", entity.getUUID(), peer.getUUID(), why, clip);

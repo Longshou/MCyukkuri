@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
@@ -100,7 +101,7 @@ public final class Climb implements Action {
         body.speakCue("self_rescue_grip");
         if (host == null && rise > ability.climbRise()) {
             body.life().spendEnergy(STRAIN_COST);
-            body.showReaction("puff_teary", null, pullEnd);
+            body.showReaction("puff_teary", null, FaceTier.Tier.ofTicks(pullEnd));
             GameplayLog.event(body, "move", "scramble strain rise={} climbRise={} scrambleRise={} energy={}",
                     String.format(Locale.ROOT, "%.2f", rise), String.format(Locale.ROOT, "%.2f", ability.climbRise()),
                     String.format(Locale.ROOT, "%.2f", ability.scrambleRise()), String.format(Locale.ROOT, "%.1f", body.life().energy()));

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.shop;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.human.Custody;
@@ -252,7 +253,7 @@ public final class ShopTrade {
         boolean joyful = !guarded && (SocialDisposition.confidence(esteem) >= .55 || personality.temperament().is(Gate.DEVOTED)
                 || bond.closeness() >= BondLevels.TRUST_FAMILIAR);
         y.playAction(joyful ? "joy_jump" : "bow");
-        y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : line, 40);
+        y.showReaction(guarded ? "flushed_smile" : "happy", guarded ? "hello" : line, FaceTier.Tier.SHORT);
         y.getLookControl().setLookAt(p, 30, 30);
         GameplayLog.event(y, "shop", "action={} result={} shop={} buyer={} due={} reaction={} esteem={} wariness={} closeness={} fear={}",
                 action, result, shop.id, p.getUUID(), due, guarded ? "guarded_bow" : joyful ? "joyful" : "bow", esteem, wary, bond.closeness(), bond.fear());
@@ -432,11 +433,11 @@ public final class ShopTrade {
         boolean sad = fondness >= .4, aloof = !sad && composure >= .55;
         if (sad) {
             y.playAction("droop");
-            y.showReaction("cry", "shop_sold_sad", 80);
+            y.showReaction("cry", "shop_sold_sad", FaceTier.Tier.MEDIUM);
             y.mind().feeling().begin(EmotionCourse.Kind.GRIEF, (float)fondness, p.getUUID(), y.blockPosition());
         }
-        else if (aloof) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", 80); }
-        else { y.playAction("bow"); y.showReaction(wary >= .4 ? "flushed_smile" : "closed_smile", "", 40); }
+        else if (aloof) { y.playAction("ignore"); y.showReaction("smug", "shop_sold_proud", FaceTier.Tier.MEDIUM); }
+        else { y.playAction("bow"); y.showReaction(wary >= .4 ? "flushed_smile" : "closed_smile", "", FaceTier.Tier.SHORT); }
         say(p, shop.kind == ShopKind.ONI ? "sell.accepted_oni" : "sell.accepted", y.getDisplayName(), price);
         GameplayLog.event(y, "shop", "action=sell_live result=accepted shop={} seller={} offer={} reaction={} esteem={} wariness={} closeness={} fear={}",
                 shop.id, p.getUUID(), price, sad ? "sad" : aloof ? "aloof" : "bow", esteem, wary, bond.closeness(), bond.fear());

@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.event.WildEvents;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
@@ -135,7 +136,7 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     private void emitBeat(String name, String declaredFace, String line, String where, int holdTicks, String detail) {
-        if (holdTicks > 0) entity.showReaction(declaredFace, "", holdTicks);
+        if (holdTicks > 0) entity.showReaction(declaredFace, "", FaceTier.Tier.ofTicks(holdTicks));
         if (!"none".equals(line)) entity.speakCue(line);
         pendingBeat = new Beat(name, declaredFace, line, where, detail);
     }
@@ -350,7 +351,7 @@ public final class KeepsakeLife implements MotorOwner {
             }
             talkAddressed = true;
             talkTicks = 0;
-            entity.showReaction(YukkuriAction.SWAY, "happy", "", TALK_TICKS);
+            entity.showReaction(YukkuriAction.SWAY, "happy", "", TALK_TICKS, FaceTier.Tier.ofTicks(TALK_TICKS));
             emitBeat("address", "happy", "doll_talk", "ground", 0, "doll=" + target.getItem().getItem());
             return;
         }
@@ -379,7 +380,7 @@ public final class KeepsakeLife implements MotorOwner {
     /** The claim that opens a bout fought over a peer's doll: smug, with the reservation's own line already spoken. */
     public void claim(YukkuriEntity victim) {
         if (phase != Phase.IDLE || !carried().isEmpty()) return;
-        entity.showReaction("smug", "", 100);
+        entity.showReaction("smug", "", FaceTier.Tier.MEDIUM);
         pendingBeat = new Beat("claim", "smug", "mine", "peer", "victim=" + victim.getUUID());
     }
 
@@ -485,12 +486,12 @@ public final class KeepsakeLife implements MotorOwner {
         if (decision.equals("flee")) {
             // The flight's own face over the still-running robbed reaction; danger reads through it either way.
             face = entity.panicFace();
-            entity.showReaction(face, "", ANSWER_FACE_TICKS);
+            entity.showReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
         } else if (decision.equals("puff_back")) {
             // The puff response's start shows the same cheek one tick later and speaks the line itself.
             face = "cheek_puff";
             line = "puff";
-            entity.showReaction(face, "", ANSWER_FACE_TICKS);
+            entity.showReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
         }
         pendingBeat = new Beat("answer", face, line, "peer", "decision=" + decision);
     }
@@ -535,7 +536,7 @@ public final class KeepsakeLife implements MotorOwner {
             entity.mind().add(15, "treasure_taken");
             entity.mind().feeling().wronged(player.getUUID(), .5f);
         }
-        if (!entity.showReaction(face, line, 100)) return;
+        if (!entity.showReaction(face, line, FaceTier.Tier.MEDIUM)) return;
         pendingBeat = new Beat(owner ? "pickup_owner" : "pickup_taken", face, line.isEmpty() ? "none" : line, "ground",
                 "player=" + player.getUUID());
     }
@@ -724,7 +725,7 @@ public final class KeepsakeLife implements MotorOwner {
                 Motor.face(entity, yaw);
                 if (sleepTicks == 1) {
                     // Replace any lingering awake reaction (e.g. nuzzle_done) so the sleeping face is honestly "sleep".
-                    entity.showReaction("sleep", "", 25);
+                    entity.showReaction("sleep", "", FaceTier.Tier.SHORT);
                 }
             }
             return;

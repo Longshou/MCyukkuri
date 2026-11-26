@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.action.Face;
@@ -209,8 +210,8 @@ final class FamilyFeeding {
         boolean accepted=decision.accepted();
         o.entity().getLookControl().setLookAt(child,20,20);
         // The turn-away is the refusal and the child's glad face the answer: neither borrows a mood or cling line.
-        o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"",80);
-        child.showReaction(accepted?"happy":"cry",accepted?"":"hungry",80);
+        o.entity().showReaction(accepted?"closed_smile":"angry",accepted?"caregiver":"",FaceTier.Tier.MEDIUM);
+        child.showReaction(accepted?"happy":"cry",accepted?"":"hungry",FaceTier.Tier.MEDIUM);
         BirthStaging.caption(o.entity(),accepted?"回应赤油求食，去找食物":"拒绝赤油求食，转身离开");
         // The refusal is a whole visible turn away at the body's own turn rate (a Face action), not one bounded step.
         if(!accepted){
@@ -241,7 +242,7 @@ final class FamilyFeeding {
             if (portion.isEmpty()) { o.target(null); return false; }
             store(portion);careChewTicks=careOfferTicks=0;
         }
-        o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",40);
+        o.task(Task.FEED_CHILD);o.taskTicks(0);o.entity().showReaction("closed_smile","caregiver",FaceTier.Tier.SHORT);
         GameplayLog.limited(o.entity(),"family","care.start",200,"feed started child={} carrying={} source={} store={}",
                 o.target().getUUID(),carrying(),foodSource==null?null:foodSource.getUUID(),foodStore);
         BirthStaging.caption(o.entity(),"亲油接受求食，开始寻找真实食物；取得后嚼糜喂食");
@@ -520,7 +521,7 @@ final class FamilyFeeding {
         }
         var approach=o.entity().careApproach().tick(o.target(),CareApproach.Kind.FEED);
         if(approach==CareApproach.Result.FAILED){
-            o.entity().showReaction(YukkuriAction.MOOD_DROOP,"teary","",60);
+            o.entity().showReaction(YukkuriAction.MOOD_DROOP,"teary","",60, FaceTier.Tier.SHORT);
             endCare("approach_failed");return;
         }
         if(approach==CareApproach.Result.CONTACT) {
@@ -556,7 +557,7 @@ final class FamilyFeeding {
         GameplayLog.event(o.entity(),"family","feed handed to meal child={} item={} mealTicks={} nutrition={}",
                 child.getUUID(),carrying(),child.life().mealTicks(),child.life().nutrition());
         o.careDecisions().complete(child,CareDecisionLedger.Need.FEED);
-        store(ItemStack.EMPTY);careChewTicks=careOfferTicks=0;o.entity().showReaction("happy","share",80);
+        store(ItemStack.EMPTY);careChewTicks=careOfferTicks=0;o.entity().showReaction("happy","share",FaceTier.Tier.MEDIUM);
         return true;
     }
     private void endCare(String reason) {

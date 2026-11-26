@@ -1049,13 +1049,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** An ordinary reaction pose. Movement, active contact and danger can still take priority. */
     public boolean showReaction(YukkuriAction action, String expression, String dialogue) {
-        return showReaction(action, expression, dialogue, Math.max(1, (int) Math.ceil(action.duration() * 20)));
-    }
-
-    /** Temporary: the literal is the clip's length and, mapped by {@link FaceTier.Tier#ofTicks}, the face's tier. */
-    @Deprecated
-    public boolean showReaction(YukkuriAction action, String expression, String dialogue, int ticks) {
-        if (!showReaction(expression, dialogue, ticks)) return false;
+        int clipTicks = Math.max(1, (int) Math.ceil(action.duration() * 20));
+        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(clipTicks), urgent(dialogue))) return false;
+        startReaction(expression, dialogue, clipTicks);
+        speak(reactionEvent);
         reactionAction = action;
         return true;
     }
@@ -1083,7 +1080,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
      */
     public boolean showAmbient(String expression, String dialogue, int ticks) {
         if (ambientDropped(expression)) return false;
-        if (!showReaction(expression, dialogue, ticks)) return false;
+        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(ticks), urgent(dialogue))) return false;
+        startReaction(expression, dialogue, ticks);
+        speak(reactionEvent);
         decorate(); // only a signal's face lingers through its line
         return true;
     }
@@ -1115,26 +1114,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         forceReaction(expression, dialogue, tier);
         return true;
     }
-    /** Temporary: a literal tick count maps to its tier by {@link FaceTier.Tier#ofTicks}; the callers move to the tier form. */
-    @Deprecated
-    public boolean showReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide || !displaces(FaceTier.Tier.ofTicks(ticks), urgent(dialogue))) return false;
-        forceReaction(expression, dialogue, ticks);
-        return true;
-    }
     /** A reaction that ends any held one (pain, danger, panic); its line is spoken, or nothing when it has none
      *  ({@code ""} or {@code null}, the entry callers use for a face-only reaction). */
     public void forceReaction(String expression, String dialogue, FaceTier.Tier tier) {
         if (level().isClientSide) return;
         int hold = personalHold(tier, expression);
         startReaction(expression, dialogue, hold, tier, hold);
-        speak(reactionEvent);
-    }
-    /** Temporary, as {@link #showReaction(String, String, int)}: the literal is the reaction's ticks, its tier the neutral mapping. */
-    @Deprecated
-    public void forceReaction(String expression, String dialogue, int ticks) {
-        if (level().isClientSide) return;
-        startReaction(expression, dialogue, ticks);
         speak(reactionEvent);
     }
     /** The face flight itself shows: a newborn cries, a weak body tears up, anyone else is startled. */
@@ -1196,7 +1181,9 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return !faceBound && FaceTier.replaces(faceTier, incoming);
     }
     public void forceReaction(YukkuriAction action, String expression, String dialogue) {
-        forceReaction(expression, dialogue, action.durationTicks());
+        if (level().isClientSide) return;
+        startReaction(expression, dialogue, action.durationTicks());
+        speak(reactionEvent);
         reactionAction = action;
     }
     /** The same reaction, held for all its ticks: any reaction but pain or danger shown meanwhile is dropped, so the face cannot

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.mind.MindLife;
 import io.github.longshou.mcyukkuri.social.Bonds;
@@ -100,7 +101,7 @@ final class FamilySeparation {
     void reunited(YukkuriEntity child){
         var e=o.entity();
         searching.remove(child.getUUID());o.call().found(child.getUUID());
-        e.showReaction("happy","caregiver",80);BirthStaging.affection(e);
+        e.showReaction("happy","caregiver",FaceTier.Tier.MEDIUM);BirthStaging.affection(e);
         GameplayLog.event(e,"family","child search reunited child={} distance={}",child.getUUID(),Math.round(e.distanceTo(child)*100)/100.0);
     }
     void tick(){
@@ -122,7 +123,7 @@ final class FamilySeparation {
                 hungerDecision=1200;
                 float score=.55f*p.boldness()+.30f*p.intelligence()+.15f*(100-p.selfControl());
                 desperate=score>=45;
-                e.showReaction(desperate?"teary":"cry","hungry",80);
+                e.showReaction(desperate?"teary":"cry","hungry",FaceTier.Tier.MEDIUM);
                 BirthStaging.caption(e,desperate?"饿极了，离开窝边自己寻找食物":"饿极了仍不敢独自找食物，继续呼唤亲油");
                 GameplayLog.event(e,"family","infant starvation decision accepted={} score={} threshold=45 nutrition={}",desperate,score,e.life().nutrition());
             }
@@ -146,7 +147,7 @@ final class FamilySeparation {
             else if(o.stage()==FamilyLife.Stage.BABY&&!sameNest)pressure(.07f,70-.5f*p.selfControl(),"separate_nest");
             // A child driven out of the family neither cries for her nor greets her: the turn from lost to not expecting her is no reunion.
             if(lost!=wasLost&&!e.grieving()&&!o.disowned()){
-                e.showReaction(lost?"cry":"happy",lost?"lost_parent":"caregiver",100);
+                e.showReaction(lost?"cry":"happy",lost?"lost_parent":"caregiver",FaceTier.Tier.MEDIUM);
                 if(lost)BirthStaging.tears(e);else BirthStaging.affection(e);
                 GameplayLog.event(e,"family","child separation lost={} unease={} boldness={} sameNest={}",lost,e.mind().unease(),p.boldness(),sameNest);
             }
@@ -167,10 +168,10 @@ final class FamilySeparation {
             int elapsed=searching.merge(id,20,Integer::sum);
             // A slave is kept in the pit and cannot go to the child: that worry stays at 不安 with its other pit pressures.
             pressure(.12f,o.entity().settlement().society().slave()?MindLife.UNEASY:MindLife.BREAKING-10,"missing_child");
-            if(elapsed==20){e.showReaction("teary","wait_family",100);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
+            if(elapsed==20){e.showReaction("teary","wait_family",FaceTier.Tier.MEDIUM);GameplayLog.event(e,"family","child search clock started child={} limit={}",id,searchLimit());}
             if(elapsed>=searchLimit()&&!o.glass().tracks(child)&&GlassSight.glassBetween(e,e.getEyePosition(),child)==null){
                 Bonds.sever(o.level(),e.getUUID(),e,child,"search_abandoned");searching.remove(id);
-                e.showReaction("teary","",120);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；断亲是双方的，孩子也不再认母油");
+                e.showReaction("teary","",FaceTier.Tier.MEDIUM);BirthStaging.caption(e,"搜寻太久，母油放弃寻找；断亲是双方的，孩子也不再认母油");
                 if(o.target()==child&&o.task()==FamilyLife.Task.SEARCH)o.stop();
             }
         }

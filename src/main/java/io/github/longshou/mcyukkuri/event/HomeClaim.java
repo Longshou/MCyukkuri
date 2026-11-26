@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -364,7 +365,7 @@ public final class HomeClaim {
         }
         c.declared=true; stage(level,c,Stage.HOLD);
         declareHome(first, c.site.pos());
-        for (var y:alive) if (y!=first) y.showReaction("happy","",80); // the family seeing the home declared: a glad face, not a stranger's greeting
+        for (var y:alive) if (y!=first) y.showReaction("happy","",FaceTier.Tier.MEDIUM); // the family seeing the home declared: a glad face, not a stranger's greeting
     }
     public static void declareHome(YukkuriEntity speaker, BlockPos site) {
         String style = speaker.speechStyle();
@@ -432,16 +433,16 @@ public final class HomeClaim {
     }
     private static void quarrel(ServerLevel level, List<YukkuriEntity> alive) {
         var relations=YukkuriWorldData.get(level);
-        for (var y:alive) if (!y.family().adult()) y.showReaction("teary","hungry",60);
+        for (var y:alive) if (!y.family().adult()) y.showReaction("teary","hungry",FaceTier.Tier.SHORT);
         var adults=alive.stream().filter(y -> y.family().adult()).toList();
         if (adults.isEmpty()) return;
         var a=adults.get(ModRandom.world(level).nextInt(adults.size()));
-        a.showReaction("angry","mine",60);
+        a.showReaction("angry","mine",FaceTier.Tier.SHORT);
         a.mind().feeling().begin(EmotionCourse.Kind.RAGE,.3f,null,a.blockPosition());
         var others=alive.stream().filter(y -> y!=a).toList();
         if (others.isEmpty()) return;
         var b=others.get(ModRandom.world(level).nextInt(others.size()));
-        if (b.family().adult()) { b.showReaction("angry","mine",60); b.mind().feeling().begin(EmotionCourse.Kind.RAGE,.3f,null,b.blockPosition()); }
+        if (b.family().adult()) { b.showReaction("angry","mine",FaceTier.Tier.SHORT); b.mind().feeling().begin(EmotionCourse.Kind.RAGE,.3f,null,b.blockPosition()); }
         relations.relate(a.getUUID(),b.getUUID(),-6); relations.relate(b.getUUID(),a.getUUID(),-6); // [original]
     }
     private static void stage(ServerLevel level,Claim claim,Stage next){
@@ -633,9 +634,9 @@ public final class HomeClaim {
                                 && !y.isPanicking()) SurfaceApproach.halt(y);
                     }
                     case FAREWELL -> {
-                        if (y.showReaction("teary", "", 80)) y.speakCue(line);
+                        if (y.showReaction("teary", "", FaceTier.Tier.MEDIUM)) y.speakCue(line);
                     }
-                    case SHRUG -> y.showReaction("hmph", "", 60);
+                    case SHRUG -> y.showReaction("hmph", "", FaceTier.Tier.SHORT);
                 }
                 y.mind().feeling().wronged(actor.getUUID(), .5f, c.site.pos());
                 GameplayLog.event(y, "home-claim", "driven off member={} answer={} temper={}", id, answer, Ousting.temper(temperament));

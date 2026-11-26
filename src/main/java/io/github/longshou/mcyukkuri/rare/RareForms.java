@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.rare;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.season.Season;
 import io.github.longshou.mcyukkuri.settlement.SettlementSeasons;
 import io.github.longshou.mcyukkuri.subspecies.SubspeciesLife.Kind;
@@ -41,8 +42,8 @@ public final class RareForms {
     public static void tick(YukkuriEntity entity) {
         if (entity.level().isClientSide || !kotatsu(entity) || (entity.tickCount + entity.getId()) % TALK_INTERVAL != 0) return;
         if (entity.life().isSleeping() || entity.isPanicking()) return;
-        if (SettlementSeasons.is(entity, Season.SUMMER)) entity.showReaction("sleepy", "kotatsu_hot", 60);
-        else if (SettlementSeasons.is(entity, Season.WINTER)) entity.showReaction("happy", "kotatsu_warm", 60);
+        if (SettlementSeasons.is(entity, Season.SUMMER)) entity.showReaction("sleepy", "kotatsu_hot", FaceTier.Tier.SHORT);
+        else if (SettlementSeasons.is(entity, Season.WINTER)) entity.showReaction("happy", "kotatsu_warm", FaceTier.Tier.SHORT);
     }
     private RareForms() {}
 }

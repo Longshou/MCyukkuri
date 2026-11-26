@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.life;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.settlement.SettlementData;
@@ -55,7 +56,7 @@ final class DenRaid {
         routeUntil = now + ROUTE_TICKS;
         bites = 0;
         lastBite = 0;
-        body.showReaction("angry", "mine", 50);
+        body.showReaction("angry", "mine", FaceTier.Tier.SHORT);
         body.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, null, body.blockPosition());
         GameplayLog.event(body, "settlement", "den raid approach den={} nutrition={} stock={} residents={}",
                 den.toShortString(), body.life().nutrition(), shelter.food(), shelter.occupants());
@@ -133,7 +134,7 @@ final class DenRaid {
             if (!(level().getEntity(id) instanceof YukkuriEntity resident) || !resident.isAlive() || resident.distanceToSqr(body) > 100) continue;
             boolean fights = resident.getRandom().nextFloat() < resident.life().personality().helpProbability(true, false);
             if (!fights) resident.mind().felt(EmotionEvent.FRIGHTENED);
-            resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", 80);
+            resident.showReaction(fights ? "angry" : "teary", fights ? "mine" : "afraid", FaceTier.Tier.MEDIUM);
             resident.mind().feeling().begin(fights ? EmotionCourse.Kind.RAGE : EmotionCourse.Kind.TERROR, .5f, body.getUUID(), resident.blockPosition());
             YukkuriWorldData.get(level()).relate(resident.getUUID(), body.getUUID(), -3);
             if (!resident.inert() && !resident.life().isSleeping() && resident.hasLineOfSight(body)

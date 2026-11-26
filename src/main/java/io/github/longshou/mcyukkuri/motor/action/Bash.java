@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.motor.*;
 import io.github.longshou.mcyukkuri.motor.geom.Effort;
@@ -130,7 +131,7 @@ public final class Bash implements Action {
                     pane.getZ()+.5, 6, .1, .1, .1, 0);
             float before = body.getHealth();
             body.hurtInternal(body.damageSources().generic(), (float) resistance);
-            body.showReaction("teary", "hurt", LENGTH);
+            body.showReaction("teary", "hurt", FaceTier.Tier.ofTicks(LENGTH));
             GameplayLog.event(body, "action", "hit id=bash block={} hits={} progress={} health={} -> {} contactGap={} strokeTravel={}",
                     pane, hits(), damage.broken(), before, body.getHealth(),frame.gap(),frame.travel());
             if (damage.broken() >= 1) {

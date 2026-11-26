@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.rare;
 import io.github.longshou.mcyukkuri.dialogue.SpeechQuirk;
 import io.github.longshou.mcyukkuri.entity.SpeciesProfile;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
@@ -131,7 +132,7 @@ public final class MyonLife {
     private void armed() {
         kanroken = true;
         GameplayLog.event(entity,"myon","kanroken acquired; received item={} count=1 holder=kanroken",Items.STICK);
-        entity.showReaction("happy", "kanroken_found", 40);
+        entity.showReaction("happy", "kanroken_found", FaceTier.Tier.SHORT);
         entity.setPersistenceRequired();
     }
 
@@ -157,7 +158,7 @@ public final class MyonLife {
         foe = attacker.getUUID(); foeTicks = FOE_MEMORY;
         if(fresh)GameplayLog.event(entity,"myon","foe selected #{} uuid={}; armed={} health={}/{} memory={}",
                 attacker.getId(),attacker.getUUID(),kanroken,entity.getHealth(),entity.getMaxHealth(),foeTicks);
-        if (fresh) { if (!kanroken) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("angry", kanroken ? "kanroken_draw" : "afraid", 40); }
+        if (fresh) { if (!kanroken) entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("angry", kanroken ? "kanroken_draw" : "afraid", FaceTier.Tier.SHORT); }
     }
     private LivingEntity foeEntity() {
         if (foe == null || !(entity.level() instanceof ServerLevel level)) return null;
@@ -190,7 +191,7 @@ public final class MyonLife {
         if (dropped != null) GameplayLog.event(entity,"myon","kanroken dropped; drop item={} count=1 drop={}",
                 Items.STICK,dropped.getUUID());
         else GameplayLog.event(entity,"myon","kanroken drop failed item={} count=1",Items.STICK);
-        entity.showReaction("teary", "kanroken_lost", 50);
+        entity.showReaction("teary", "kanroken_lost", FaceTier.Tier.SHORT);
         searchCooldown = STICK_SEARCH * 3;
     }
     public void died() {

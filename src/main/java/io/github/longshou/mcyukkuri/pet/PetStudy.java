@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
@@ -81,7 +82,7 @@ public final class PetStudy {
         UUID caption = Staging.card((ServerLevel)pet.level(), pet.position().add(0, pet.getBbHeight() + .65, 0), answer, length + 30, 1.2f);
         String base = exercise.source().equals("young") ? SpeechCount.CHILDREN : SpeechCount.FOOD;
         String event = done ? count == 0 ? "exam_answer" : SpeechCount.event(base, count, cap) : "exam_unsure";
-        pet.showReaction(missing ? "teary" : done ? "happy" : "confused", event, length + 30);
+        pet.showReaction(missing ? "teary" : done ? "happy" : "confused", event, FaceTier.Tier.ofTicks(length + 30));
         GameplayLog.event(pet, "lesson", "study answered skill={} source={} count={} success={} missing={}",
                 Ability.COUNTING, exercise.source(), count, success, missing);
         if (success) pet.life().personality().experienced(Trait.INTELLIGENCE, 1, "counted");

@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.MindLife;
@@ -792,13 +793,13 @@ final class HabitatHomes {
             early.refreshSite(NaturalShelter.survey(level(),early.getBlockPos(),early.facing(),early.pileCell()));
             if(!early.owns(o.entity().getUUID()))o.choose(early);
             GameplayLog.event(o.entity(),"habitat","dig end doorway={} extension=false recognized=true claimed={} cells={}",plan.doorway(),early.owns(o.entity().getUUID()),plan.cells().size());
-            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);o.stop();return;
+            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",FaceTier.Tier.MEDIUM);o.stop();return;
         }
         if(wasExtending) {
             var value=o.shelter();
             if(value!=null)value.refreshSite(NaturalShelter.survey(level(),value.getBlockPos(),value.facing(),value.pileCell()));
             GameplayLog.event(o.entity(),"habitat","dig end doorway={} extension=true homePresent={} cells={}",plan.doorway(),value!=null,plan.cells().size());
-            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",60);o.stop();return;
+            o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",FaceTier.Tier.SHORT);o.stop();return;
         }
         var placement=new ShelterPlacement.Plan(plan.doorway(),ShelterBlock.Kind.BURROW,plan.facing());
         String outcome="invalid_layout";
@@ -807,7 +808,7 @@ final class HabitatHomes {
             outcome="placement_failed";
             if(placed!=null) {
                 if(o.choose(placed.shelter())){
-                    outcome="claimed";o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",80);
+                    outcome="claimed";o.entity().mind().felt(EmotionEvent.COMFORTED); o.entity().showReaction("happy","gentle",FaceTier.Tier.MEDIUM);
                 }else {outcome="claim_refused";placed.rollback(level());}
             }
         }

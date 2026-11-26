@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.body.BodyHit;
 import io.github.longshou.mcyukkuri.entity.component.InterruptContext;
 import io.github.longshou.mcyukkuri.entity.component.InterruptPhase;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.mind.ExcitedLeak;
@@ -304,7 +305,7 @@ public final class Reactions {
             var stimulus = danger instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri()
                     ? ExcitedLeak.Stimulus.PREDATOR : ExcitedLeak.Stimulus.SCARE;
             y.mind().felt(EmotionEvent.FRIGHTENED, stimulus);
-            y.showReaction("surprise", "afraid", ticks);
+            y.showReaction("surprise", "afraid", FaceTier.Tier.ofTicks(ticks));
         }
 
         /** Kin and friends within earshot learn of the danger even without seeing it; those who already know are not told again. */
@@ -897,7 +898,7 @@ public final class Reactions {
                         if (y.life().wetness() > 0 || y.life().temperature().cold()) y.mind().felt(EmotionEvent.CHILLED); // running from rain is not cold
                         String runFace = storm ? "surprise" : y.life().personality().boldness() < 40 ? "teary" : "neutral";
                         String runLine = stage == Stage.FLOOD ? "afraid" : "rain_run";
-                        y.showReaction(runFace, runLine, 80);
+                        y.showReaction(runFace, runLine, FaceTier.Tier.MEDIUM);
                         queueBeat("rain_run", runFace, runLine);
                     }
                 }
@@ -1343,7 +1344,7 @@ public final class Reactions {
             startled = now;
             y.mind().felt(EmotionEvent.FRIGHTENED, ExcitedLeak.Stimulus.LOUD_NOISE);
             if (pressedAt >= 0) pressedAt = now + STARTLE_TICKS;
-            if (stage == Stage.NONE) y.showReaction("surprise", "thunder", STARTLE_TICKS);
+            if (stage == Stage.NONE) y.showReaction("surprise", "thunder", FaceTier.Tier.ofTicks(STARTLE_TICKS));
             GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}", () -> new Object[]{
                         Math.round(distance), stage, partner == null ? null : partner.getUUID()});
         }

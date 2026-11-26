@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.pet.stage;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import java.util.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -105,7 +106,7 @@ public final class Staging {
     // acting and walking
     public static void act(YukkuriEntity a, String action, String expression, String speechEvent, int ticks) {
         if (action != null) a.playAction(action);
-        a.showReaction(expression, speechEvent == null ? "" : speechEvent, ticks);
+        a.showReaction(expression, speechEvent == null ? "" : speechEvent, FaceTier.Tier.ofTicks(ticks));
     }
     public static boolean walkTo(YukkuriEntity a, BlockPos pos, double speed) {
         double x = pos.getX() + .5, z = pos.getZ() + .5, dx = a.getX() - x, dz = a.getZ() - z;

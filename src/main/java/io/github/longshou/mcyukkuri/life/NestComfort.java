@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -94,7 +95,7 @@ public final class NestComfort {
         else settle = Settle.CONTENT;
         int wait = 0;
         if (settle.action != null) { if (e.showReaction(settle.action, settle.face, settle.line)) wait = (int) Math.ceil(settle.action.duration() * 20); }
-        else if (settle.faceTicks > 0 && e.showReaction(settle.face, settle.line, settle.faceTicks)) wait = settle.faceTicks;
+        else if (settle.faceTicks > 0 && e.showReaction(settle.face, settle.line, FaceTier.Tier.ofTicks(settle.faceTicks))) wait = settle.faceTicks;
         if (settle == Settle.REFUSE) wait = REFUSAL_WAIT;
         GameplayLog.event(e, "home", "bed settle verdict={} nest={} grade={} esteem={} expect={} deficit={} surplus={} unworthy={} anxiety={} sensitivity={} energy={} roll={} wait={}",
                 settle.name().toLowerCase(Locale.ROOT), bed.getBlockPos(), r.grade(), Math.round(r.esteem()), round(r.expect()),

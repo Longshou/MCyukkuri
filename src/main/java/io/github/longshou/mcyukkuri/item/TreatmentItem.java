@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.item;
 
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.registry.ModItems;
@@ -62,7 +63,7 @@ public final class TreatmentItem extends Item {
                             player.getUUID(),kind,reason,before,entity.getHealth(),entity.getMaxHealth(),entity.body().wounds().size(),
                             entity.status().marks().scarCount(),entity.body().mold()});
                 // A freshly hurt animal is still bolting or curled up for a few seconds; say so instead of failing silently.
-                if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",40); }
+                if(entity.isPanicking()){ entity.mind().felt(EmotionEvent.FRIGHTENED); entity.showReaction("surprise","afraid",FaceTier.Tier.SHORT); }
                 else InteractionDispatch.refuse(player,entity,"treatment","condition");
                 return InteractionResult.FAIL;
             }

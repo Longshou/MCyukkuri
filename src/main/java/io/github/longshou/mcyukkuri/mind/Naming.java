@@ -4,6 +4,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -98,7 +99,7 @@ public final class Naming {
         boolean young = !y.family().adult();
         if (ownName(y, name)) {
             mind.add(-2, "own_name");
-            y.showReaction("happy", "introduced", 80);
+            y.showReaction("happy", "introduced", FaceTier.Tier.MEDIUM);
             MCYukkuri.LOGGER.info("[mind] {} #{} called by its own name '{}': accepted", y.getVariant().assetId(), y.getId(), name);
             return "own name: accepted";
         }
@@ -110,13 +111,13 @@ public final class Naming {
             delta = Math.min(50, 25 + 10 * (count - 1)) * soften;
             if (show) {
                 mind.perform("struggle", 60);
-                y.showReaction("cry", line, 120);
+                y.showReaction("cry", line, FaceTier.Tier.MEDIUM);
             }
         } else {
             delta = Math.min(30, 12 + 6 * (count - 1)) * soften;
             if (show) {
                 mind.perform(count >= 3 ? "hide_face" : "sulk", count >= 3 ? 60 : 72);
-                y.showReaction(count >= 3 ? "teary" : "angry", line, 100);
+                y.showReaction(count >= 3 ? "teary" : "angry", line, FaceTier.Tier.MEDIUM);
             }
         }
         // Never fatal, not even through the sickness: naming alone stops short of the breaking point.

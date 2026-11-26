@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.pet;
 import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.SkillMath.Attempt;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.life.CareBlock;
@@ -122,7 +123,7 @@ public final class PetLessons {
                 case "hungry" -> "hungry";
                 case "tired" -> "sleepy";
                 default -> "lesson_refused";
-            }, 60);
+            }, FaceTier.Tier.SHORT);
             player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.refuse." + reason), true); return false;
         }
         // A button press is the actual lesson request.
@@ -139,7 +140,7 @@ public final class PetLessons {
             markCard = Staging.card(level(), example.add(0, 1.2, 0),
                     Component.translatable("pet.mcyukkuri.skill." + skill.key()), ClipMarkers.of("think").length(), 1.2f);
             animal.getLookControl().setLookAt(example.x, example.y, example.z);
-            animal.showReaction("surprise", "lesson_start", 60);
+            animal.showReaction("surprise", "lesson_start", FaceTier.Tier.SHORT);
             animal.life().replanNow();
             GameplayLog.event(animal, "lesson", "lesson started owner={} skill={} mode=routine", owner, skill);
             player.displayClientMessage(Component.translatable("pet.mcyukkuri.lesson.started", animal.getDisplayName(), Component.translatable("pet.mcyukkuri.skill." + skill.key())), true);
@@ -214,7 +215,7 @@ public final class PetLessons {
             if (ticks == 1) {
                 waitTicks = animal.life().personality().waitingTicks();
                 success = animal.skills().attempt(skill) == Attempt.DONE;
-                animal.showReaction("drool", "lesson_start", waitTicks);
+                animal.showReaction("drool", "lesson_start", FaceTier.Tier.ofTicks(waitTicks));
                 card = Staging.card(level(), player.position().add(0, player.getBbHeight() + 1.1, 0),
                         Component.translatable("pet.mcyukkuri.card.promise"), waitTicks + FEEDBACK_WINDOW, 1.0f);
             }
@@ -226,7 +227,7 @@ public final class PetLessons {
                 if (!animal.life().beginWaitTreat(one, player.getUUID(), success)) { interrupt(); return; }
                 if (!player.getAbilities().instabuild) sweet.shrink(1);
                 snackGiven = true;
-                animal.showReaction(success ? "happy" : "teary", success ? "wait_learned" : "lesson_refused", 60);
+                animal.showReaction(success ? "happy" : "teary", success ? "wait_learned" : "lesson_refused", FaceTier.Tier.SHORT);
                 GameplayLog.event(animal, "lesson", "wait treat taken owner={} early={} waited={} required={} item={}",
                         player.getUUID(), !success, ticks, waitTicks, one.getItem());
             }
@@ -240,7 +241,7 @@ public final class PetLessons {
             if (ticks == 1) {
                 card = Staging.card(level(), player.position().add(0, player.getBbHeight() + .55, 0),
                         exercise.example(), ClipMarkers.of("think").length() + FEEDBACK_WINDOW, 1.2f);
-                animal.showReaction("surprise", "lesson_start", ClipMarkers.of("think").length());
+                animal.showReaction("surprise", "lesson_start", FaceTier.Tier.ofTicks(ClipMarkers.of("think").length()));
             }
             if (ticks >= ClipMarkers.of("think").length()) {
                 var actual = PetStudy.counting(animal);

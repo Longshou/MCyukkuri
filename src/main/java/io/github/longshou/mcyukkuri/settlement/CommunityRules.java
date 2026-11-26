@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -100,7 +101,7 @@ public final class CommunityRules {
         commons.note(now, "offence_" + offence.id, offender.getUUID(), (detail == null ? "" : detail) + (witness == null ? "" : " seen_by " + witness.getUUID().toString().substring(0, 8)));
         if (witness != null) {
             witness.getLookControl().setLookAt(offender, 25, 25);
-            witness.showReaction("angry", "heard", 60);
+            witness.showReaction("angry", "heard", FaceTier.Tier.SHORT);
             witness.mind().add(offence.base >= 4 ? 10 : 2, "rule_broken");
         }
         SettlementData.get(level).setDirty();
@@ -135,7 +136,7 @@ public final class CommunityRules {
             if (Recognition.unrecognizedHatless(member, other)
                     && group.commons.has(Commons.NO_HATLESS)) {
                 if (member.life().personality().temperament().is(Gate.KINDLY)) { member.mind().felt(EmotionEvent.REJECTED); member.showReaction("surprise", "unrecognized",
-                        60); s.lastIntrusion = now; continue; }
+                        FaceTier.Tier.SHORT); s.lastIntrusion = now; continue; }
                 if (now - s.lastIntrusion > 24000) s.intrusions = 0;
                 s.lastIntrusion = now; s.intrusions++;
                 intruder(level, group, member, other, s.intrusions, now);
@@ -151,9 +152,9 @@ public final class CommunityRules {
             commons.note(now, "sanction", stranger.getUUID(), "hatless intruder x" + times);
         } else {
             if (times >= 2) commons.note(now, "sanction_deferred", stranger.getUUID(), "hatless intruder x" + times);
-            member.showReaction("angry", "settlement_drive", 80);
+            member.showReaction("angry", "settlement_drive", FaceTier.Tier.MEDIUM);
             stranger.frightenFrom(member);
-            stranger.mind().felt(EmotionEvent.SOCIAL_HURT); stranger.showReaction("teary", "settlement_hurt", 100);
+            stranger.mind().felt(EmotionEvent.SOCIAL_HURT); stranger.showReaction("teary", "settlement_hurt", FaceTier.Tier.MEDIUM);
             stranger.mind().add(10, "driven_off");
             commons.note(now, "driven_" + Offence.HATLESS.id, stranger.getUUID(), "by " + member.getUUID().toString().substring(0, 8) + " x" + times);
         }
@@ -234,7 +235,7 @@ public final class CommunityRules {
         if (entity.life().personality().temperament().is(Gate.KEEPS_RULE)) {
             if (now - s.lastBlocked > 2400) {
                 s.lastBlocked = now;
-                entity.showReaction("teary", "rule_blocked", 80);
+                entity.showReaction("teary", "rule_blocked", FaceTier.Tier.MEDIUM);
                 commons.note(now, "birth_refrained", entity.getUUID(), famine ? "famine" : "limit " + commons.birthLimit);
                 SettlementData.get(level).setDirty();
             }

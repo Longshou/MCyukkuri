@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
@@ -144,7 +145,7 @@ final class FirstVoyage implements Intent {
         var own = AquaticLife.hat(young);
         if (result == IntentRunner.Result.DONE) {
             // Back ashore with its own hat on, its first voyage behind it (初航成功的雀跃).
-            young.showReaction("happy", "hello", 60);
+            young.showReaction("happy", "hello", FaceTier.Tier.SHORT);
             young.childhood().learnSailing(id());
             GameplayLog.event(young, "aquatic", "first_voyage success parent={} route={} ticks={}", parent.getUUID(), route, young.level().getGameTime() - started);
             return;

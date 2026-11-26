@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -286,7 +287,7 @@ public final class BadgeArcs {
                 if (parent == null || o.family().adult()) { if (t >= 20) end(level, s, Phase.COMPLETE, "glance_" + s.result); return; }
                 if (t == 1) {
                     parent.getLookControl().setLookAt(o, 30, 30);
-                    parent.showReaction("surprise", BadgeSocial.reactionLine(parent, "badge_pull_back", sub), 70);
+                    parent.showReaction("surprise", BadgeSocial.reactionLine(parent, "badge_pull_back", sub), FaceTier.Tier.MEDIUM);
                 }
                 if (parent.distanceToSqr(o) <= 4 || t >= 120) { s.result = s.result + "|pulled"; next(s); }
             }
@@ -313,7 +314,7 @@ public final class BadgeArcs {
                             SocialDisposition.wariness(o, bond), bond);
                     boolean snark = insistence >= .2;
                     s.result = snark ? "snark" : "sulk";
-                    sub.showReaction("surprise", "", 50);
+                    sub.showReaction("surprise", "", FaceTier.Tier.SHORT);
                     int speech = o.speechSequence();
                     String cue = snark ? "badge_envy_snark" : "badge_envy";
                     String face = snark ? "angry" : "envy";
@@ -486,7 +487,7 @@ public final class BadgeArcs {
                 } else if (t >= 220) end(level, s, Phase.REFUSED, "plea_unreached");
             }
             default -> {
-                if (t > 0 && t % 130 == 0) o.showReaction("teary", "wild_plea_keep", 60);
+                if (t > 0 && t % 130 == 0) o.showReaction("teary", "wild_plea_keep", FaceTier.Tier.SHORT);
                 if (t >= 400) end(level, s, Phase.REFUSED, "plea_ignored");
             }
         }
@@ -533,7 +534,7 @@ public final class BadgeArcs {
         if (home == null) { end(level, s, Phase.INTERRUPTED, "home_gone"); return; }
         switch (s.responses) {
             case 0 -> {
-                if (t == 1) o.showReaction("angry", "mine", 70);
+                if (t == 1) o.showReaction("angry", "mine", FaceTier.Tier.MEDIUM);
                 if (o.blockPosition().distSqr(home.pos()) <= 4) { quiet(o); next(s); }
                 else if (t >= 220) end(level, s, Phase.INTERRUPTED, "home_unreached");
             }
@@ -593,7 +594,7 @@ public final class BadgeArcs {
                 if (t == 1) {
                     if (!BadgeSocial.snatchEnabled() || !knockOff(level, sub, o)) { end(level, s, Phase.INTERRUPTED, "nothing_to_take"); return; }
                     PetScenes.act(o, "snatch_pull", "angry", null, 30, sub);
-                    sub.mind().felt(EmotionEvent.ACCESSORY_LOST); sub.showReaction("cry", "lost_accessory", 140);
+                    sub.mind().felt(EmotionEvent.ACCESSORY_LOST); sub.showReaction("cry", "lost_accessory", FaceTier.Tier.LONG);
                 }
                 if (t >= 30) { quiet(o); next(s); }
             }
@@ -766,13 +767,13 @@ public final class BadgeArcs {
                     BadgeSocial.spread(level, o, Rumours.HUMAN_KIND, asked, 1);
                     if (result.equals("plea_adopted")) {
                         if (sub.life().personality().temperament().is(Gate.HARSH)) sub.pet().addStress(2);
-                        o.showReaction("happy", "badge_thanks", 80);
-                    } else o.showReaction("happy", "badge_thanks", 80);
+                        o.showReaction("happy", "badge_thanks", FaceTier.Tier.MEDIUM);
+                    } else o.showReaction("happy", "badge_thanks", FaceTier.Tier.MEDIUM);
                 } else if (result.equals("player_declined")) {
                     BadgeSocial.spread(level, o, Rumours.WARY_HUMAN, asked, 1);
-                    o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "droop", "teary", null, 60, human0);
+                    o.showReaction("teary", "plea_sad", FaceTier.Tier.MEDIUM); PetScenes.act(o, "droop", "teary", null, 60, human0);
                 } else if (result.equals("plea_ignored")) {
-                    o.showReaction("teary", "plea_sad", 80); PetScenes.act(o, "sulk", "teary", null, 60, null);
+                    o.showReaction("teary", "plea_sad", FaceTier.Tier.MEDIUM); PetScenes.act(o, "sulk", "teary", null, 60, null);
                     if (sub.life().personality().temperament().is(Gate.HARSH)) like(level, o, sub, -1);
                 }
             }

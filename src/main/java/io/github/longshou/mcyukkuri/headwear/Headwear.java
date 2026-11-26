@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.headwear;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -339,7 +340,7 @@ public final class Headwear extends Goal implements MotorOwner {
         boolean complete = shardsHeld >= shardsTotal;
         if (complete && giver != null) entity.life().personality().accessoryReturned(giver.getUUID());
         entity.mind().add(complete ? -8 : -3, "shard_gathered");
-        entity.showReaction(complete ? "happy" : "teary", "shard_gathered", 80);
+        entity.showReaction(complete ? "happy" : "teary", "shard_gathered", FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "headwear", "piece gathered held={} -> {} total={} token={} giver={}", before, shardsHeld, shardsTotal, shardToken, giver == null ? null : giver.getUUID());
         return true;
     }
@@ -397,7 +398,7 @@ public final class Headwear extends Goal implements MotorOwner {
     public void loseForGood(String why) {
         if (entity.life().hasAccessory() || lost) return;
         lost = true; shattered = false; shardToken = null; cause = why;
-        if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "", 140); }
+        if (entity.isAlive()) { entity.mind().felt(EmotionEvent.ACCESSORY_LOST); entity.showReaction("cry", "", FaceTier.Tier.LONG); }
         GameplayLog.event(entity, "headwear", "accessory lost permanently cause={}", why);
     }
     /** Positive destruction of the actual deployed hat invalidates its sole token, even after an earlier drift loss. */
@@ -413,14 +414,14 @@ public final class Headwear extends Goal implements MotorOwner {
         if (!entity.life().wearAccessory()) return false;
         shattered = false; lost = false; shardsTotal = shardsHeld = 0; reassembly = 0; shardToken = null; mend = 0;
         damage = TORN; // the seams still show; it mends from here as a worn hat
-        entity.mind().felt(EmotionEvent.ACCESSORY_RETURNED); entity.showReaction("happy", "returned_accessory", 120);
+        entity.mind().felt(EmotionEvent.ACCESSORY_RETURNED); entity.showReaction("happy", "returned_accessory", FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "headwear", "accessory reassembled damage={}", damage);
         return true;
     }
 
     // ---- writes for status and tests -------------------------------------------------------------------------------
     private void shatterForStatus(boolean burned) {
-        if (shatter("status", burned) && entity.isAlive()) entity.showReaction("cry", "", 140);
+        if (shatter("status", burned) && entity.isAlive()) entity.showReaction("cry", "", FaceTier.Tier.LONG);
     }
     public String force(String what) {
         switch (what) {
@@ -449,7 +450,7 @@ public final class Headwear extends Goal implements MotorOwner {
     private void mendStep(int feeling, String where) {
         if (damage > 0 && feeling > 0 && (mend += feeling) >= (damage >= TORN ? MEND_TORN : MEND_FRAYED)) {
             damage--; mend = 0;
-            if (entity.isAlive()) entity.showReaction("happy", damage == 0 ? "accessory_mended" : "", 60); // a partial mend is not "all fixed"
+            if (entity.isAlive()) entity.showReaction("happy", damage == 0 ? "accessory_mended" : "", FaceTier.Tier.SHORT); // a partial mend is not "all fixed"
             GameplayLog.event(entity, "headwear", "accessory mended damage={} -> {} where={}", damage + 1, damage, where);
         }
     }

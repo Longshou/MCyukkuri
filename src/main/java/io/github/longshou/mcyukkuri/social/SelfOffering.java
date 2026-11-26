@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -207,7 +208,7 @@ public final class SelfOffering extends Goal {
         // A new real meal or care opportunity takes over at every pre-GIVE phase, including the approach.
         if (!desperate(child) || rescued || remedy) {
             EcologyMovement.halt(entity);
-            entity.showReaction("happy", "offer_spared", 80);
+            entity.showReaction("happy", "offer_spared", FaceTier.Tier.MEDIUM);
             lastReason = !desperate(child) ? "spared (recipient no longer desperate)"
                     : rescued ? "spared (care already started)" : "spared (food available)";
             GameplayLog.event(entity, "offering", "spared recipient={} nutrition={} phase={} elapsed={} reason={}",
@@ -219,7 +220,7 @@ public final class SelfOffering extends Goal {
             if (entity.distanceToSqr(child) > 6 || !entity.hasLineOfSight(child)) {
                 if (EcologyMovement.approachResult(entity, child, 1.1) == SurfaceApproach.Result.BLOCKED) {
                     GameplayLog.event(entity, "offering", "approach ended recipient={} reason=no_reachable_meeting", recipient);
-                    entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 60);
+                    entity.showReaction(YukkuriAction.MOOD_DROOP, "teary", "", 60, FaceTier.Tier.SHORT);
                     stop();
                 }
                 return;
@@ -228,7 +229,7 @@ public final class SelfOffering extends Goal {
             phase = Phase.ASK; phaseTicks = 0; lastReason = "ask";
             GameplayLog.event(entity, "offering", "phase=ASK recipient={} elapsed={}", recipient, elapsed);
             child.life().interrupt();
-            entity.showReaction("teary", "offer_ask", ASK_TICKS);
+            entity.showReaction("teary", "offer_ask", FaceTier.Tier.ofTicks(ASK_TICKS));
             child.showReactionDelayed("teary", "offer_refuse", ASK_TICKS, 24);
             child.mind().add(12, "offer_dread");
             return;
@@ -242,7 +243,7 @@ public final class SelfOffering extends Goal {
         if (phase == Phase.ASK && phaseTicks >= ASK_TICKS) {
             phase = Phase.INSIST; phaseTicks = 0; lastReason = "insist";
             GameplayLog.event(entity, "offering", "phase=INSIST recipient={} elapsed={}", recipient, elapsed);
-            entity.showReaction("teary", "offer_insist", INSIST_TICKS);
+            entity.showReaction("teary", "offer_insist", FaceTier.Tier.ofTicks(INSIST_TICKS));
             child.showReactionDelayed("blank_cry", "offer_refuse", INSIST_TICKS, 30);
             child.mind().add(10, "offer_dread");
         } else if (phase == Phase.INSIST && phaseTicks >= INSIST_TICKS) {

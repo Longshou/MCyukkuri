@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.event;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.event.WildEventData.Kind;
 import io.github.longshou.mcyukkuri.event.WildEventData.Phase;
 import io.github.longshou.mcyukkuri.event.WildEventData.Scene;
@@ -119,9 +120,9 @@ public final class Expedition {
             BlockPos goal=s.sourceCount==1?s.destination.pos():s.origin.pos();
             if(roster.stream().allMatch(e -> e.distanceToSqr(Vec3.atBottomCenterOf(goal))<(distant?16:6.25))) {
                 if(s.sourceCount==3){
-                    if(distant){report(level,s);captain.showReaction("happy","hello",60);}
+                    if(distant){report(level,s);captain.showReaction("happy","hello",FaceTier.Tier.SHORT);}
                     WildEvents.finish(level,s,Phase.COMPLETE,distant?"crossed_biome_and_returned":"real_squad_reported_and_returned");
-                } else {if(distant)captain.showReaction("surprise","",70);s.sourceCount=2;s.responses=0;WildEventData.get(level).phase(s,Phase.RESPONDING);}
+                } else {if(distant)captain.showReaction("surprise","",FaceTier.Tier.MEDIUM);s.sourceCount=2;s.responses=0;WildEventData.get(level).phase(s,Phase.RESPONDING);}
             }
         }
         if(distant?s.ticks>=4600:s.ticks>=2400)WildEvents.finish(level,s,Phase.INTERRUPTED,distant?"biome_expedition_timed_out":"local_expedition_timed_out");

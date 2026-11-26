@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.item;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
@@ -169,7 +170,7 @@ public final class CarrierItem extends Item {
         var response = contact.response(true);
         entity.playAction("basket_in");
         entity.showReaction(response == SocialDisposition.Response.GUARDED ? "teary" : "closed_smile",
-                response == SocialDisposition.Response.GRATEFUL ? "request_thanks" : "basket_enter", SCENE_WINDOW);
+                response == SocialDisposition.Response.GRATEFUL ? "request_thanks" : "basket_enter", FaceTier.Tier.ofTicks(SCENE_WINDOW));
         ShopPerformance.schedule(level, entity.getUUID(), age -> {
             if (age < 16) return false;
             if (!finishScene(entity.getUUID(), session)) return true;
@@ -205,7 +206,7 @@ public final class CarrierItem extends Item {
         if (mobile && !weary && response != SocialDisposition.Response.SULKY) {
             if (response == SocialDisposition.Response.GUARDED) entity.showReaction(YukkuriAction.TREMBLE, "teary", "basket_refuse_guarded");
             else entity.showReaction(YukkuriAction.STRUGGLE, "angry", "basket_refuse_defiant");
-        } else if (mobile) entity.showReaction("look_down", ReactionSpeech.basketRefusal(weary), SCENE_WINDOW);
+        } else if (mobile) entity.showReaction("look_down", ReactionSpeech.basketRefusal(weary), FaceTier.Tier.ofTicks(SCENE_WINDOW));
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.refuse", entity.getName()), true);
         GameplayLog.event(entity, "carrier", "capture reaction player={} response={} esteem={} wariness={} insistence={} nutrition={} mobile={}",
                 player.getUUID(), !mobile ? "busy" : weary ? "weary" : response.id(),

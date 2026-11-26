@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.EcologyRoutine;
 import io.github.longshou.mcyukkuri.life.EcologyRoutines;
 import io.github.longshou.mcyukkuri.life.FoodTaste;
@@ -248,7 +249,7 @@ public final class HouseLife implements EcologyRoutine {
                 double candidateScore = entity.distanceToSqr(Vec3.atBottomCenterOf(candidate.entrance())) - (candidate.built() ? 4 : 0);
                 if (candidateScore < score && entity.life().reachable(candidate.entrance(), false)) { best = candidate; score = candidateScore; }
             }
-            if (best != null && choose(best)) { stop(); wait = 0; entity.showReaction("surprise", "house_arrival", 80); }
+            if (best != null && choose(best)) { stop(); wait = 0; entity.showReaction("surprise", "house_arrival", FaceTier.Tier.MEDIUM); }
             else if (den == null && available()) seekDen();
         }
     }
@@ -378,7 +379,7 @@ public final class HouseLife implements EcologyRoutine {
             // No food in the nest and none in reach: a hungry resident goes out and looks farther rather than lying in its nest.
             // A resident with no nest of its own keeps its own plan without one (a den's corner, or nothing to fetch).
             if (value != null && value.usable(entity) && outingAllowed() && scoutAllowed()) {
-                entity.showReaction("teary", "hungry", 60);
+                entity.showReaction("teary", "hungry", FaceTier.Tier.SHORT);
                 clearSource();
                 if (physicallyInside()) return start(Phase.LEAVE);
                 scoutTarget = null; return start(Phase.SCOUT);
@@ -551,7 +552,7 @@ public final class HouseLife implements EcologyRoutine {
     private void hide(HouseNestBlockEntity value) {
         count(Stat.HIDDEN); movement.stop(); entity.getNavigation().stop();
         hideUntil = entity.tickCount + 120; hurry = true; scoutTarget = null; clearSource();
-        entity.showReaction("surprise", "", 30); // a person walking up makes no noise: face only (house_startled is the cleaning noise)
+        entity.showReaction("surprise", "", FaceTier.Tier.SHORT); // a person walking up makes no noise: face only (house_startled is the cleaning noise)
         if (value != null && value.usable(entity)) { tending = false; restPosition = null; sleepTicks = 0; phase(Phase.APPROACH); }
         else { denRest = false; phase(Phase.HIDE); }
     }
@@ -661,7 +662,7 @@ public final class HouseLife implements EcologyRoutine {
                     if (careContact) count(Stat.TENDED);
                 }
                 if (phase == Phase.TEND && ticks >= 40) {
-                    if (careContact && value.eggs() > 0) { phase(Phase.LISTEN); if (value.progress() >= .75f) entity.showReaction("happy", "house_listen", 80); }
+                    if (careContact && value.eggs() > 0) { phase(Phase.LISTEN); if (value.progress() >= .75f) entity.showReaction("happy", "house_listen", FaceTier.Tier.MEDIUM); }
                     else { tending = false; phase(daytime() || !outingAllowed() ? Phase.REST : Phase.LEAVE); }
                 } else if (phase == Phase.LISTEN && ticks >= 80) {
                     if (keepsBrooding(value)) { phase(Phase.TEND); return; } // stays with the eggs, tending again
@@ -675,7 +676,7 @@ public final class HouseLife implements EcologyRoutine {
                     if (!carrying().isEmpty() || !mouth().canHold(Purpose.HOUSE)) { stop(); return; }
                     var egg = value.liftRelocationForward(entity);
                     if (egg.isEmpty()) { lifting = false; careWait = 200; phase(Phase.LEAVE); return; }
-                    store(egg); entity.showReaction("neutral", "house_pickup", 40);
+                    store(egg); entity.showReaction("neutral", "house_pickup", FaceTier.Tier.SHORT);
                     GameplayLog.event(entity,"house","egg lifted source={} destination={} count={}",value.getBlockPos(),
                             value.relocation()==null?null:value.relocation().target(),egg.getCount());
                 }
@@ -692,7 +693,7 @@ public final class HouseLife implements EcologyRoutine {
                 }
                 if (entity.distanceToSqr(outside) < .04) {
                     if (!carrying().isEmpty() || value.relocation() != null) phase(Phase.NONE);
-                    else { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", 60); }
+                    else { phase(Phase.PEEK); entity.showReaction("neutral", "house_peek", FaceTier.Tier.SHORT); }
                 } else route(outside, .65);
             }
             case PEEK -> {
@@ -754,7 +755,7 @@ public final class HouseLife implements EcologyRoutine {
         entity.getLookControl().setLookAt(entity.getX() - Math.sin(heading) * 2, entity.getEyeY() - .05, entity.getZ() + Math.cos(heading) * 2, 25, 25);
         if (ticks == 24 && mayTransfer()) {
             locate(value, hungerReach(LOCATE_RADIUS));
-            if (sourceAvailable()) { scouts = 0; count(Stat.SCOUTED); entity.showReaction("happy", "house_pickup", 40); phase(Phase.NONE); return; }
+            if (sourceAvailable()) { scouts = 0; count(Stat.SCOUTED); entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT); phase(Phase.NONE); return; }
         }
         if (ticks >= 50) {
             count(Stat.SCOUTED); scoutTarget = null; scouts++;
@@ -923,7 +924,7 @@ public final class HouseLife implements EcologyRoutine {
         if (!carrying().isEmpty() || !mouth().canHold(Purpose.HOUSE)) { stop(); return; }
         var egg = source.liftRelocationRollback(entity,target);
         if (egg.isEmpty()) { wait = Math.max(wait,100); stop(); return; }
-        store(egg); entity.showReaction("neutral","house_pickup",40); phase(Phase.RETURN_EXIT);
+        store(egg); entity.showReaction("neutral","house_pickup",FaceTier.Tier.SHORT); phase(Phase.RETURN_EXIT);
     }
     /** A recovered egg walks back out of the target before returning to its original source nest. */
     private void tickRollbackExit(HouseNestBlockEntity source) {
@@ -975,7 +976,7 @@ public final class HouseLife implements EcologyRoutine {
         stop(); entity.life().interrupt(); entity.family().stop(); entity.dailyLife().stop(); entity.social().stop();
         if (destroyed) { dropCarrying(); nest = null; nestIdentity = null; lostTicks = 1200; }
         refuge = null; startledTicks = 24; wait = 0;
-        entity.showReaction("surprise", destroyed ? "house_search_home" : "house_startled", 100);
+        entity.showReaction("surprise", destroyed ? "house_search_home" : "house_startled", FaceTier.Tier.MEDIUM);
     }
     private void route(Vec3 point, double speed) {
         if (!movement.moveTo(point, speed)) {
@@ -1030,7 +1031,7 @@ public final class HouseLife implements EcologyRoutine {
                 if (taken.isEmpty()) { stop(); return; }
                 GameplayLog.event(entity,"house","pickup source={} item={} count={} feeding={}",at,taken.getItem(),taken.getCount(),feeding);
                 count(Stat.PICKED);
-                entity.showReaction("happy", "house_pickup", 60);
+                entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT);
                 if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, BlockPos.containing(at), lint);
                 if (feeding) {
                     // All beginMeal preconditions were checked before this synchronous one-item debit.
@@ -1049,7 +1050,7 @@ public final class HouseLife implements EcologyRoutine {
                 if (rest.isEmpty()) food.discard(); else food.setItem(rest);
                 GameplayLog.event(entity,"house","nibble item={} remaining={} source={}",bite.getItem(),rest.getCount(),food.getUUID());
                 count(Stat.ATE);
-                entity.showReaction("happy", "house_pickup", 60);
+                entity.showReaction("happy", "house_pickup", FaceTier.Tier.SHORT);
                 stop(); return;
             } else if (interaction == 2 && !carrying().isEmpty()) {
                 var entrance = entranceCell();
@@ -1063,7 +1064,7 @@ public final class HouseLife implements EcologyRoutine {
                         : source.depositRelocation(entity,target,carrying());
                 if (result == HouseNestBlockEntity.RelocationTransfer.MOVED || result == HouseNestBlockEntity.RelocationTransfer.HANDOFF) {
                     store(ItemStack.EMPTY); count(Stat.MOVED); lifting = false;
-                    entity.showReaction("happy", "house_deposit", 80);
+                    entity.showReaction("happy", "house_deposit", FaceTier.Tier.MEDIUM);
                     GameplayLog.event(entity,"house","egg deposited source={} home={} relocation={}",source.getBlockPos(),target.getBlockPos(),source.eggRelocationStatus());
                     interaction = interactionTicks = 0; contactTarget = null;
                     phase(Phase.NONE); return;
@@ -1108,7 +1109,7 @@ public final class HouseLife implements EcologyRoutine {
         if (!lint) count(Stat.STASHED);
         lastDeliveredLint = lint;
         if (entity.level() instanceof ServerLevel level) HouseholdEcology.puff(level, target.getBlockPos(), lint);
-        entity.showReaction("happy", "house_deposit", 60);
+        entity.showReaction("happy", "house_deposit", FaceTier.Tier.SHORT);
         if (!builtBefore && target.built()) {
             count(Stat.BUILT);
             GameplayLog.event(entity,"house","nest built home={} lint={}",target.getBlockPos(),target.materials());

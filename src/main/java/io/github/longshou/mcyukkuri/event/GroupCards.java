@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.event;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -101,10 +102,10 @@ public final class GroupCards {
         boolean sleeping = owner.life().isSleeping();
         if (sleeping) s.responses = 1; // the owner has taken its bed; waking ends the bar
         if (!sleeping && (s.phaseTicks == 1 || s.phaseTicks % 200 == 100)) {
-            owner.showReaction("angry", "mine", 80);
+            owner.showReaction("angry", "mine", FaceTier.Tier.MEDIUM);
             owner.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, all.getFirst().getUUID(), owner.blockPosition());
-            all.getFirst().showReaction("teary", "wait_turn", 80);
-            for (int i = 1; i < all.size(); i++) all.get(i).showReaction("neutral", "shy", 60);
+            all.getFirst().showReaction("teary", "wait_turn", FaceTier.Tier.MEDIUM);
+            for (int i = 1; i < all.size(); i++) all.get(i).showReaction("neutral", "shy", FaceTier.Tier.SHORT);
         }
         if (s.phaseTicks % 100 == 50) for (var kin : all) relations.relate(kin.getUUID(), owner.getUUID(), -2);
         if (s.phaseTicks < s.sourceCount && (sleeping || s.responses == 0)) return;
@@ -112,9 +113,9 @@ public final class GroupCards {
         for (var kin : all) regard += relations.affinity(kin.getUUID(), owner.getUUID());
         release(all);
         if (regard < 0) {
-            owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "", 90); // a tearful apology: no line fits, and "so happy" is not it
+            owner.mind().felt(EmotionEvent.COMFORTED); owner.showReaction("teary", "", FaceTier.Tier.MEDIUM); // a tearful apology: no line fits, and "so happy" is not it
             for (var kin : all) relations.relate(kin.getUUID(), owner.getUUID(), 4);
-            all.getFirst().showReaction("happy", "share", 70);
+            all.getFirst().showReaction("happy", "share", FaceTier.Tier.MEDIUM);
             WildEvents.finish(level, s, Phase.COMPLETE, "apologized_and_shared");
         } else WildEvents.finish(level, s, Phase.COMPLETE, "kept_the_nest");
     }
@@ -136,7 +137,7 @@ public final class GroupCards {
         level.playSound(null, at, SoundEvents.GRAVEL_BREAK, SoundSource.BLOCKS, 1f, .7f);
         for (var resident : residents) {
             if (resident.getHealth() > 3) resident.hurt(level.damageSources().generic(), 1 + resident.getRandom().nextInt(2));
-            resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction("cry", "afraid", 80);
+            resident.mind().felt(EmotionEvent.FRIGHTENED); resident.showReaction("cry", "afraid", FaceTier.Tier.MEDIUM);
             resident.life().navigate(shelter.entrance(), 1.4, false);
         }
         var ids = residents.stream().limit(6).map(YukkuriEntity::getUUID).toList();

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.pet.stage.Staging;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
@@ -135,7 +136,7 @@ public final class PetWalk {
                     int duration = ClipMarkers.of("look_around").length();
                     turnUntil = nowTick + duration;
                     turnAside = waitsAtTurn ? null : aside(owner);
-                    animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", duration);
+                    animal.showReaction(waitsAtTurn ? "neutral" : "teary", waitsAtTurn ? "wait_turn" : "harness_tug", FaceTier.Tier.ofTicks(duration));
                     GameplayLog.event(animal, "lesson", "lead turn owner={} waits={} aside={} will={}",
                             owner.getUUID(), waitsAtTurn, turnAside != null, will);
                 }
@@ -160,7 +161,7 @@ public final class PetWalk {
         if (tugWait > 0) tugWait--;
         if (led && animal.life().hasUrgentNeed() && tugWait == 0) { // it will not follow while something is urgent: the owner feels the pull of the lead
             tugWait = TUG_INTERVAL;
-            animal.showReaction("teary", "harness_tug", 70);
+            animal.showReaction("teary", "harness_tug", FaceTier.Tier.MEDIUM);
         }
     }
 
@@ -207,7 +208,7 @@ public final class PetWalk {
         } else if (scared) { action = YukkuriAction.STRUGGLE; face = "horrified"; line = "afraid"; }
         else if (bold) { action = YukkuriAction.PUFF; face = "puff"; line = "harness_tug"; }
         else { action = YukkuriAction.TURN; face = "happy"; line = "walk_enjoy"; }
-        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40))) return false;
+        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
         GameplayLog.event(animal, "lead", "beat={} face={} line={} fear={} timid={} bold={} friendly={} holder={}",
                 beat, face, line, fear, traits.is(Gate.TIMID), traits.is(Gate.BOLDISH), friendly, holder.getUUID());
         return true;
@@ -271,7 +272,7 @@ public final class PetWalk {
         if (strangerLeave == 1) { action = YukkuriAction.FLEE; face = "horrified"; line = "narrate_flee"; }
         else if (strangerLeave == 2) { action = YukkuriAction.PUFF; face = "hmph"; line = "sulk_huff"; }
         else { action = YukkuriAction.LOOK_AROUND; face = "happy"; line = "glow_hum"; }
-        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40))) return false;
+        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
         GameplayLog.event(animal, "lead", "beat=stranger_released face={} line={} leave={}", face, line, strangerLeave);
         return true;
     }
@@ -280,7 +281,7 @@ public final class PetWalk {
     private void lookBack() {
         if (strangerPoint != null)
             animal.getLookControl().setLookAt(strangerPoint.x, strangerPoint.y + animal.getEyeHeight(), strangerPoint.z, 30, 30);
-        if (!animal.showReaction(YukkuriAction.LOOK_AROUND, "teary", "shaken_after", YukkuriAction.LOOK_AROUND.durationTicks())) return;
+        if (!animal.showReaction(YukkuriAction.LOOK_AROUND, "teary", "shaken_after", YukkuriAction.LOOK_AROUND.durationTicks(), FaceTier.Tier.ofTicks(YukkuriAction.LOOK_AROUND.durationTicks()))) return;
         GameplayLog.event(animal, "lead", "beat=stranger_release_look face={} line={}", "teary", "shaken_after");
     }
 
@@ -299,7 +300,7 @@ public final class PetWalk {
         animal.life().spendEnergy(2); animal.life().spendNutrition(1);
         pet.contact(owner.getUUID(), true);
         if (units == 3) {
-            animal.showReaction("happy", "walk_enjoy", 80);
+            animal.showReaction("happy", "walk_enjoy", FaceTier.Tier.MEDIUM);
             if (animal.level() instanceof ServerLevel level) Staging.sparkle(level, animal.position().add(0, animal.getBbHeight() + .3, 0));
         }
     }

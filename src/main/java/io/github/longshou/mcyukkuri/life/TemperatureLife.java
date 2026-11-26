@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -137,7 +138,7 @@ public final class TemperatureLife {
         // An addressed cry can break into ambient chatter while an ordinary complaint takes its turn.
         if (!entity.speakCue("cold", null, parent == null ? 0 : 2)) return;
         coldComplaint = true;
-        if (parent != null) entity.showReaction("cry", "", 40);
+        if (parent != null) entity.showReaction("cry", "", FaceTier.Tier.SHORT);
         GameplayLog.event(entity, "temperature", "cold complaint felt={} line={} parent={}", current.felt(),
                 entity.getDialogueKey(), parent == null ? null : parent.getUUID());
     }

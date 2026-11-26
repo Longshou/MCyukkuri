@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyDutyMath;
 import io.github.longshou.mcyukkuri.life.SpeciesLife;
 import io.github.longshou.mcyukkuri.life.Duty.End;
@@ -519,7 +520,7 @@ public final class DenSeal {
                 if (!callers.isEmpty()) {
                     var danger = y.status().reactions().threat().source();
                     if (danger != null && y.distanceToSqr(danger) <= 256) {
-                        y.showReaction("teary", "afraid", 40);
+                        y.showReaction("teary", "afraid", FaceTier.Tier.SHORT);
                         refuse(screen, "afraid");
                         return false;
                     }
@@ -547,7 +548,7 @@ public final class DenSeal {
             elapsed = 0;
             if ("answered_call".equals(reason)) {
                 phase = OpeningPhase.ANSWER;
-                y.showReaction("happy", "heard", EcologyPresentation.duration(Behaviors.ANSWER_CALL));
+                y.showReaction("happy", "heard", FaceTier.Tier.ofTicks(EcologyPresentation.duration(Behaviors.ANSWER_CALL)));
                 GameplayLog.event(y, "home", "den call answered by={}", y.getUUID());
             } else phase = OpeningPhase.WALK;
             return true;
@@ -570,7 +571,7 @@ public final class DenSeal {
             callee = residents(level, home).stream().min(Comparator.comparingInt(this::rank)
                     .thenComparingInt(other -> -y.life().personality().trust(other.getUUID()))).orElse(null);
             var kin = callee == null ? null : SpeciesLife.kinAddress(y, callee);
-            y.showReaction("teary", kin == null ? "wait_family" : SpeechAddress.kin(kin), callLength());
+            y.showReaction("teary", kin == null ? "wait_family" : SpeechAddress.kin(kin), FaceTier.Tier.ofTicks(callLength()));
             GameplayLog.event(y, "home", "den call caller={} callee={} relation={} patience={}", y.getUUID(),
                     callee == null ? null : callee.getUUID(), kin, patience);
         }

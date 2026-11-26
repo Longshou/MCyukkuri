@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import static io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose.FORAGE;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.human.TownAware;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 
@@ -684,7 +685,7 @@ public final class ForageTrip extends Goal {
     private void arrivedHunt() {
         delivered++;
         if (!load().isEmpty()) dropLoad();
-        if (role != Role.CHIEF) entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", 60);
+        if (role != Role.CHIEF) entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", role == Role.CHIEF ? "hunt_back" : "gentle", FaceTier.Tier.SHORT);
         finish(true);
     }
     /** A standing point two cells out from the mouth, on the open side. */
@@ -697,7 +698,7 @@ public final class ForageTrip extends Goal {
     private void arrived() {
         delivered++;
         if (!load().isEmpty()) dropLoad(); // the store is full: whatever is left stays on the floor at the burrow mouth
-        entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", "gentle", 60);
+        entity.mind().felt(EmotionEvent.COMFORTED); entity.showReaction("happy", "gentle", FaceTier.Tier.SHORT);
         finish(true);
     }
 }

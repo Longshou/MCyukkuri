@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.season.Season;
@@ -285,7 +286,7 @@ public final class Rations {
         if (famine >= 2 && before < 2) {
             commons.famineSince = now;
             commons.note(now, "famine", leader == null ? null : leader.getUUID(), "days " + daysText + " failDays " + commons.failDays);
-            if (leader != null) leader.showReaction("teary", "famine", 100);
+            if (leader != null) leader.showReaction("teary", "famine", FaceTier.Tier.MEDIUM);
             for (var m : members) m.mind().add(5, "famine");
         } else if (famine < 2 && before >= 2) {
             commons.note(now, "famine_over", leader == null ? null : leader.getUUID(), "days " + daysText);
@@ -353,7 +354,7 @@ public final class Rations {
             given += h.quota;
         }
         commons.rationDay = day; commons.rationTime = now; commons.rationGiven = given;
-        if (leader != null && given > 0) leader.showReaction("happy", "ration_give", 80);
+        if (leader != null && given > 0) leader.showReaction("happy", "ration_give", FaceTier.Tier.MEDIUM);
         for (var h : list) if (h.quota > 0) for (var m : h.people) m.mind().add(-2, "ration");
         if (unfair) for (var h : homes.values()) if (!h.leaders) for (var m : h.people) if (m.family().adult()) m.mind().add(3, "unfair_ration");
         String summary = "relief " + given + "/" + wanted + " to " + list.size() + " short households"
@@ -440,7 +441,7 @@ public final class Rations {
             group.commons.note(level.getGameTime(), "ration_fetched", entity.getUUID(), first.getCount() + " left " + r.left);
             SettlementData.get(level).setDirty();
         }
-        entity.showReaction("happy", "ration_get", 60);
+        entity.showReaction("happy", "ration_get", FaceTier.Tier.SHORT);
         return first;
     }
 

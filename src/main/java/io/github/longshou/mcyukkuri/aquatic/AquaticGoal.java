@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.entity.presentation.PresentationGoals;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
@@ -344,7 +345,7 @@ final class AquaticGoal extends Goal {
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
             if (heavy) {
                 // she feels it sit low and wallow with her young aboard: a worried cry before she turns for the bank
-                body.showReaction("teary", Behaviors.BOAT_ROCK_STARTLE, 40);
+                body.showReaction("teary", Behaviors.BOAT_ROCK_STARTLE, FaceTier.Tier.SHORT);
                 GameplayLog.event(body, "aquatic", "load heavy hat={} ratio={} limit={} riders={} reason=unload_ashore", hat.getUUID(),
                         String.format(Locale.ROOT, "%.3f", hat.loadRatio()), hat.behavior().loadLimit(hat), hat.getPassengers().size() - 1);
             }

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
@@ -95,8 +96,8 @@ public final class GroupInteractionGoal extends Goal {
         bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;
         entity.life().personality().protectRelation(peer.getUUID());peer.life().personality().protectRelation(entity.getUUID());
         cooldown=peer.groupInteraction().cooldown=2400;
-        entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",100);
-        if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",100);
+        entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",FaceTier.Tier.MEDIUM);
+        if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
     }
@@ -194,7 +195,7 @@ public final class GroupInteractionGoal extends Goal {
             if(!peer.life().hasAccessory()&&!Recognition.recognizes(entity,peer)&&peer.isAlive()){
                 peer.mind().addSlavePressure(6,"bullied_hatless");peer.mind().feltSlavePressure(EmotionEvent.SOCIAL_HURT);
                 if (!peer.isPanicking() && !peer.groupInteraction().defense().active()
-                        && peer.showReaction("teary", "", 100)) {
+                        && peer.showReaction("teary", "", FaceTier.Tier.MEDIUM)) {
                     peer.getLookControl().setLookAt(entity, 30, 30);
                     peer.speak(ReactionSpeech.contempt(SettlementSociety.sameGroup(entity, peer)));
                 }
@@ -202,7 +203,7 @@ public final class GroupInteractionGoal extends Goal {
             return;
         }
         if(current.kind==Kind.PROTECT) {
-            stop();peer.groupInteraction().defense().provoke(entity);entity.showReaction("neutral","known_peer",100);
+            stop();peer.groupInteraction().defense().provoke(entity);entity.showReaction("neutral","known_peer",FaceTier.Tier.MEDIUM);
             GameplayLog.event(entity, "social", "protection puff directed attacker={} protected={}",
                     peer.getUUID(), current.protectedPeer == null ? null : current.protectedPeer.getUUID());
             return;
@@ -216,7 +217,7 @@ public final class GroupInteractionGoal extends Goal {
         pushed.setDeltaMovement(direction.scale(firstStronger?.13:-.13));pushed.hurtMarked=true;
         if(current.contactTicks>=80) {
             var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
-            stop();winner.showReaction("happy","puff",120);loser.showReaction("surprise","shy",120);
+            stop();winner.showReaction("happy","puff",FaceTier.Tier.MEDIUM);loser.showReaction("surprise","shy",FaceTier.Tier.MEDIUM);
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
             entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
             peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
@@ -234,7 +235,7 @@ public final class GroupInteractionGoal extends Goal {
             if(!available(witness)||witness.inert()||!witness.hasLineOfSight(victim)||!witness.hasLineOfSight(attacker))continue;
             // A recognised parent answers through the family puff response, which already drew for this same hit.
             if(ProtectivePuff.parentOf(victim, witness))continue;
-            witness.mind().felt(EmotionEvent.FRIGHTENED); witness.showReaction("surprise","afraid",100);
+            witness.mind().felt(EmotionEvent.FRIGHTENED); witness.showReaction("surprise","afraid",FaceTier.Tier.MEDIUM);
             // Kin and friends defend only someone they can actually recognise: without its accessory the victim is a stranger to them.
             boolean close=witness.life().canRecognize(victim)&&(Bonds.careKin(witness, victim)||relations.affinity(witness.getUUID(),victim.getUUID())>=BondLevels.AFFINITY_ATTACHED);
             var goal=witness.groupInteraction();
@@ -251,7 +252,7 @@ public final class GroupInteractionGoal extends Goal {
             if(!goal.reserve(attacker,Kind.PROTECT))continue;
             goal.defending=true;goal.bout.protectedPeer=victim;
             witness.life().personality().decided("protect_peer");
-            witness.showReaction("surprise","mine",100);relations.relate(witness.getUUID(),attacker.getUUID(),-5);break;
+            witness.showReaction("surprise","mine",FaceTier.Tier.MEDIUM);relations.relate(witness.getUUID(),attacker.getUUID(),-5);break;
         }
     }
     @Override public void stop() {

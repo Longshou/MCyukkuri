@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.interaction;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 
@@ -170,7 +171,7 @@ public final class OperationLife {
             GameplayLog.event(entity,"interaction","pin extracted; actor={}",actor.getUUID());
         }
         if (returned && released == Pose.VIBRATE)
-            entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", 40);
+            entity.showReaction(SocialDisposition.selfEsteem(entity) >= 50 ? "smug" : "puff", "", FaceTier.Tier.SHORT);
         return returned;
     }
 
@@ -239,7 +240,7 @@ public final class OperationLife {
                 if (!favored) entity.mind().felt(EmotionEvent.FRIGHTENED);
                 // A pet paying penance answers with its own performance, not the generic pleased or startled face.
                 if (!entity.pet().conscience().judged(player, favored ? Penance.Verdict.FORGIVEN : Penance.Verdict.PUNISHED, false))
-                    entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", 100);
+                    entity.showReaction(favored?"happy":"surprise", favored?"caregiver":"afraid", FaceTier.Tier.MEDIUM);
                 yield true;
             }
             case LIFT -> {
@@ -252,7 +253,7 @@ public final class OperationLife {
                 if(!begin(player,Pose.RUB,40,null))yield false;
                 entity.life().personality().talk(player.getUUID(),true);
                 entity.mind().felt(EmotionEvent.COMFORTED);
-                if(!entity.pet().conscience().judged(player,Penance.Verdict.FORGIVEN,false))entity.showReaction("happy","gentle",100);
+                if(!entity.pet().conscience().judged(player,Penance.Verdict.FORGIVEN,false))entity.showReaction("happy","gentle",FaceTier.Tier.MEDIUM);
                 yield true;
             }
             case FLICK,PUNCH,SLAP -> {
@@ -261,7 +262,7 @@ public final class OperationLife {
                 if(!strike(player,damage,WoundShape.BLUNT))yield false;
                 var away=entity.position().subtract(player.position()).multiply(1,0,1).normalize();
                 Motor.velocity(entity, away.scale(action==CareAction.FLICK?.25:.4).add(0,.16,0), "care_knockback");
-                if(entity.isAlive()){begin(player,Pose.SLIDE,30,null);if(action==CareAction.FLICK)entity.showReaction("flick_dull","",30);}yield true;
+                if(entity.isAlive()){begin(player,Pose.SLIDE,30,null);if(action==CareAction.FLICK)entity.showReaction("flick_dull","",FaceTier.Tier.SHORT);}yield true;
             }
             case ROLL -> begin(player,Pose.ROLL,50,null);
             case LAY_DOWN -> begin(player,Pose.SUPINE,60,null);
@@ -295,7 +296,7 @@ public final class OperationLife {
             switch(action){
                 case COLLECT_NEAREST -> message(player,"collected");
                 case STERILIZE -> {
-                    entity.forceReaction("blank_cry", "", 80);
+                    entity.forceReaction("blank_cry", "", FaceTier.Tier.MEDIUM);
                     message(player,"sterilized");
                 }
                 case ABANDON -> message(player,"abandoned");
@@ -426,7 +427,7 @@ public final class OperationLife {
         if (pose == Pose.BOX && elapsed % BOX_BEAT == 0) {
             boolean calm = calmInBox();
             if (!calm) entity.mind().felt(EmotionEvent.FRIGHTENED);
-            entity.forceReaction(calm ? "sleepy" : elapsed / BOX_BEAT % 2 == 0 ? "horrified" : "pin_cry", calm ? "" : "afraid", Math.min(remaining, BOX_BEAT));
+            entity.forceReaction(calm ? "sleepy" : elapsed / BOX_BEAT % 2 == 0 ? "horrified" : "pin_cry", calm ? "" : "afraid", FaceTier.Tier.ofTicks(Math.min(remaining, BOX_BEAT)));
         }
         if(pose==Pose.ASSIST){
             if(actor.distanceToSqr(entity)>2.25||entity.position().distanceToSqr(anchor)>.04
@@ -436,7 +437,7 @@ public final class OperationLife {
             Motor.face(entity, actor.getYRot());
             if(elapsed==40){
                 var brood=FamilyData.get((ServerLevel)entity.level()).assist(entity);
-                if(brood!=null){inserted=ItemStack.EMPTY;entity.showReaction("happy","expecting",100);}
+                if(brood!=null){inserted=ItemStack.EMPTY;entity.showReaction("happy","expecting",FaceTier.Tier.MEDIUM);}
                 cooldown=40;end();return;
             }
         }
@@ -462,7 +463,7 @@ public final class OperationLife {
             if(table==null)moveTo(anchor);
             if(pose==Pose.VIBRATE&&elapsed%20==0){entity.family().stimulate();entity.life().spendNutrition(.5f);}
             if (pose == Pose.VIBRATE && elapsed == ROTOR_PLEA)
-                entity.showReaction(entity.life().personality().temperament().is(Gate.SHARP) ? "tongue_cry" : "sukkiri_squeeze", "", remaining);
+                entity.showReaction(entity.life().personality().temperament().is(Gate.SHARP) ? "tongue_cry" : "sukkiri_squeeze", "", FaceTier.Tier.ofTicks(remaining));
         }else if(pose==Pose.ROLL){
             var forward=entity.position().subtract(actor.position()).multiply(1,0,1).normalize();
             Motor.move(entity,forward.scale(.045).add(0,-.04,0),"operation_roll");
@@ -553,7 +554,7 @@ public final class OperationLife {
         if(table!=null)entity.syncOperationWound(null);
         entity.getNavigation().stop();
         if (recover && entity.isAlive() && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPanicking() && entity.hurtTime == 0)
-            entity.showReaction("teary", "", 24);
+            entity.showReaction("teary", "", FaceTier.Tier.SHORT);
         return returnInserted();
     }
     private boolean takeAccessory(Player player,boolean confiscated){
@@ -587,7 +588,7 @@ public final class OperationLife {
     private boolean cutAccessory(Player player){
         if(!entity.headwear().harm(3,"cut",false))return false;
         ItemContact.shearFeedback(entity,player,WoundPlacement.shearContact(entity,0));
-        entity.life().personality().confiscated(player.getUUID());entity.showReaction("shattered","lost_accessory",140);return true;
+        entity.life().personality().confiscated(player.getUUID());entity.showReaction("shattered","lost_accessory",FaceTier.Tier.LONG);return true;
     }
     private ItemEntity nearestItem(Player player){
         return entity.level().getEntitiesOfClass(ItemEntity.class,entity.getBoundingBox().inflate(2),value->value.isAlive()
@@ -613,7 +614,7 @@ public final class OperationLife {
                 chosen.equals(other.house().nestPosition())||other.life().home()!=null&&other.life().home().dimension().equals(entity.level().dimension())&&chosen.equals(other.life().home().pos())));
     }
     private boolean shakeHome(Player player){
-        residents(player).forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",100);});
+        residents(player).forEach(other->{other.life().interrupt();other.social().stop();other.mind().felt(EmotionEvent.FRIGHTENED); other.showReaction("surprise","afraid",FaceTier.Tier.MEDIUM);});
         return true;
     }
     public CompoundTag save(){

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.body.FillingResource;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 import io.github.longshou.mcyukkuri.life.Consumables;
@@ -66,7 +67,7 @@ final class YukkuriInteractions {
         if (!prepared && Toxins.dose(stack) > 0 && !owner.life().acceptsFood(stack)) { // bitter or poisonous: refused unless starving
             GameplayLog.limited(owner,"interaction","food_toxic",20,"food refused; player={} item={} reason=toxic nutrition={}",
                     player.getUUID(),stack.getItem(),owner.life().nutrition());
-            owner.showReaction("cheek_puff", "refuse", 60);
+            owner.showReaction("cheek_puff", "refuse", FaceTier.Tier.SHORT);
             return InteractionResult.CONSUME;
         }
         if(prepared&&!InteractionDispatch.requireReach(player,owner,3))return InteractionResult.FAIL;
@@ -77,12 +78,12 @@ final class YukkuriInteractions {
             if (sweet && owner.pet().owned(player) && owner.life().acceptsFood(stack) && owner.life().nutrition() > Sweets.FULL) { // too full even for a treat
                 GameplayLog.limited(owner,"interaction","food_full",20,"food refused; player={} item={} reason=full nutrition={}",
                         player.getUUID(),stack.getItem(),owner.life().nutrition());
-                owner.showReaction("neutral", "snack_refuse", 60);
+                owner.showReaction("neutral", "snack_refuse", FaceTier.Tier.SHORT);
                 return InteractionResult.CONSUME;
             }
             GameplayLog.limited(owner,"interaction","food_unaccepted",20,"food refused; player={} item={} reason=cannot_eat nutrition={}",
                     player.getUUID(),stack.getItem(),owner.life().nutrition());
-            owner.showReaction("cheek_puff","refuse",60);
+            owner.showReaction("cheek_puff","refuse",FaceTier.Tier.SHORT);
             return InteractionResult.CONSUME;
         }
         int before=stack.getCount();
@@ -90,7 +91,7 @@ final class YukkuriInteractions {
         boolean fed = prepared ? owner.life().beginPreparedMeal(ownerMash ? InfantFood.mash(one, player.getUUID()) : one, player.getUUID())
                 : owner.life().beginOfferedMeal(one, player);
         if (fed && !player.getAbilities().instabuild) stack.shrink(1);
-        if (prepared && !fed) owner.showReaction("cheek_puff","refuse",60);
+        if (prepared && !fed) owner.showReaction("cheek_puff","refuse",FaceTier.Tier.SHORT);
         GameplayLog.event(owner,"interaction","food offered; player={} item={} meal_started={} item_count={} -> {} prepared={}",
                 player.getUUID(),one.getItem(),fed,before,stack.getCount(),prepared);
         return InteractionResult.CONSUME;

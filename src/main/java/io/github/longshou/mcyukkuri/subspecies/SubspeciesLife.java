@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.subspecies;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.headwear.HullProfile;
 
@@ -300,7 +301,7 @@ public final class SubspeciesLife {
     }
     private void applyDeibu() {
         String previous=assetId();deibu=true;deibuPending=false;initialized=true;sync();entity.body().remapSurface(previous);entity.syncFamily();entity.refreshDimensions();entity.setPersistenceRequired();
-        entity.life().personality().decided("deibu_developed");entity.showReaction("neutral","deibu_developed",100);
+        entity.life().personality().decided("deibu_developed");entity.showReaction("neutral","deibu_developed",FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "growth", "deibu applied previous={} current={} attempts={}", previous, assetId(), deibuSpaceAttempts);
     }
 }

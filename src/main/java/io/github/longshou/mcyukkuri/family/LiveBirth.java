@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
@@ -289,7 +290,7 @@ final class LiveBirth extends Choreography {
                 var at=FamilyGeometry.toWorld(m,ripeFruit(m,b,i));
                 // A blocked attachment delays the birth; it never spawns through the ceiling or into a wall.
                 if(FamilyData.get(o.level()).birth(b,i,o.level(),at,placedHat(),null)!=null)
-                    m.showReaction(b.incidentSource==null?"happy":"teary","",100); // the child is already out: "about to give birth" is over
+                    m.showReaction(b.incidentSource==null?"happy":"teary","",FaceTier.Tier.MEDIUM); // the child is already out: "about to give birth" is over
             }
             // Start the existing eight-tick stagger when the mother can release ripe fruit.
             if(!b.complete()&&b.elapsed<b.duration+40){
@@ -339,7 +340,7 @@ final class LiveBirth extends Choreography {
                 ClipMarkers.of(cabin.clip()).markers().get("land"),nominal.ticks(),at,nominal.aim(),nominal.velocity());
         deliveryReadout("release","spawned",hat);
         BirthStaging.emerge(m,child.position());
-        m.showReaction(pushing>0?"sleepy":"closed_smile","",LiveBirthGeometry.REST); // later children come easier but tire her more
+        m.showReaction(pushing>0?"sleepy":"closed_smile","",FaceTier.Tier.ofTicks(LiveBirthGeometry.REST)); // later children come easier but tire her more
         if(b.complete())o.delivered(b);
         return "";
     }
@@ -348,12 +349,12 @@ final class LiveBirth extends Choreography {
         int prep=LiveBirthGeometry.PREPARATION;
         if(delivery<prep){
             // Restless and nervous: a worried face, beads of sweat, then she settles into place.
-            if(delivery==1)m.showReaction("teary","",34);if(delivery==prep/2)m.showReaction("surprise","",30);
+            if(delivery==1)m.showReaction("teary","",FaceTier.Tier.SHORT);if(delivery==prep/2)m.showReaction("surprise","",FaceTier.Tier.SHORT);
             if(delivery%30==12)BirthStaging.sweat(m);if(delivery==prep-4)BirthStaging.settle(m);
             return;
         }
         int index=LiveBirthGeometry.cycleIndex(delivery),strain=LiveBirthGeometry.strain(index),cycle=(int)LiveBirthGeometry.cycleTick(delivery);
-        if(cycle==0||cycle==strain+36)m.showReaction("chewing_closed","birth",28);
+        if(cycle==0||cycle==strain+36)m.showReaction("chewing_closed","birth",FaceTier.Tier.SHORT);
         if(cycle==strain+8)BirthStaging.push(m,.9f);
         if(cycle==strain+46)BirthStaging.push(m,.8f);
         if(cycle==strain+LiveBirthGeometry.EMERGENCE+10&&index>0)BirthStaging.sweat(m);

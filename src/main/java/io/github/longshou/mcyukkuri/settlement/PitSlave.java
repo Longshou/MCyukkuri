@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.settlement;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.PoopBlockEntity;
 import io.github.longshou.mcyukkuri.life.Poops;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -197,7 +198,7 @@ public final class PitSlave {
 
     private void refuseHeap(BlockPos cell) {
         if (rejectedHeaps.add(cell)) {
-            entity.showReaction("teary", "", 60);
+            entity.showReaction("teary", "", FaceTier.Tier.SHORT);
             GameplayLog.limited(entity, "settlement", "pit_heap_unreachable", 200,
                     "pit slave contact blocked reason=no_reachable_stand heap={} nutrition={}", cell, entity.life().nutrition());
         }

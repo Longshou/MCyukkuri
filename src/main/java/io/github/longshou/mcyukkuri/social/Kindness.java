@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
@@ -248,7 +249,7 @@ public final class Kindness extends Goal {
         giver.getLookControl().setLookAt(guest, 30, 30);
         if (act == Act.BITE && giver.family().canAdopt(guest))
             giver.social().startGreeting(guest, "foster");
-        else giver.showReaction("closed_smile", "", CUE + 10);
+        else giver.showReaction("closed_smile", "", FaceTier.Tier.ofTicks(CUE + 10));
         GameplayLog.event(giver, "kindness", "offer act={} peer={}", act, guest.getUUID());
     }
 
@@ -289,7 +290,7 @@ public final class Kindness extends Goal {
         if (giver.distanceToSqr(guest) <= 2.25) FamilyFeedingContact.faceEachOther(giver, guest);
         if (!FamilyFeedingContact.mouthsMeet(giver, guest)) {
             if (act == Act.COMPANY && contact >= CUE) { finished = true; return; }
-            if (contact > 0 && act == Act.BITE) giver.showReaction("closed_smile", "", CUE);
+            if (contact > 0 && act == Act.BITE) giver.showReaction("closed_smile", "", FaceTier.Tier.ofTicks(CUE));
             contact = 0;
             if (stand == null) stand = FamilyFeedingContact.approachSpot(giver, guest);
             if (stand == null || !withinPetRange(stand)
@@ -299,7 +300,7 @@ public final class Kindness extends Goal {
         SurfaceApproach.halt(giver);
         var clip = ClipMarkers.of(YukkuriAction.OFFER_BITE.id());
         if (contact++ == 0 && act == Act.BITE)
-            giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", clip.length());
+            giver.showReaction(YukkuriAction.OFFER_BITE, "happy", "", clip.length(), FaceTier.Tier.ofTicks(clip.length()));
         if (act == Act.BITE && giver.reactionAction() == YukkuriAction.OFFER_BITE)
             guest.forage().pauseForBite(giver.component(YukkuriComponents.MOUTH).stack(Purpose.KINDNESS));
         int cue = act == Act.BITE ? clip.ticks("contact", clip.length() / 2) : CUE;
@@ -448,7 +449,7 @@ public final class Kindness extends Goal {
     @Override public void stop() {
         if (act == null) return;
         if (act == Act.BITE && !finished && giver.reactionAction() == YukkuriAction.OFFER_BITE)
-            giver.showReaction("neutral", "", 0);
+            giver.showReaction("neutral", "", FaceTier.Tier.SHORT);
         cooldown = Math.max(cooldown, act == Act.COMPANY ? RECEIVER_REST : act == Act.BITE && finished ? CUE : GIVER_REST);
         // A guest who was really kept company rests from every visitor, so a body that stays weak is not visited in a loop.
         if (act == Act.COMPANY && companyAt != null) of(guest).visited = RECEIVER_REST;

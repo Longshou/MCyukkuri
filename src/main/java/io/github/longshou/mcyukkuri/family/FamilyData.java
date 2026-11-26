@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
@@ -647,7 +648,7 @@ public final class FamilyData extends SavedData {
         victim.family().receiveAftermath(brood.id);
         victim.life().applyEnvironment(0,0,8);victim.pet().addStress(25);
         if(fleeImmediately)victim.frightenFrom(source);
-        victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",200);
+        victim.mind().felt(EmotionEvent.FRIGHTENED); victim.showReaction("teary","afraid",FaceTier.Tier.LONG);
         victim.syncFamily();
         setDirty();
         GameplayLog.event(victim,"family","aftermath reserved brood={} source={} children={}",brood.id,source.getUUID(),count);

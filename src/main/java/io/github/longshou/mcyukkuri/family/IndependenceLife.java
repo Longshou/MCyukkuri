@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
@@ -315,7 +316,7 @@ public final class IndependenceLife extends Goal {
             }
             releaseNuzzle();
         }
-        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", GO_LINE)) {
+        if (contact == closeEnd() && entity.showReaction(teary ? "teary_smile" : "happy", "", FaceTier.Tier.ofTicks(GO_LINE))) {
             entity.speakCue("farewell_go");
             // The attached leaver carries the parting past the door: it rises here and fades by its own course.
             if (teary) entity.mind().feeling().begin(EmotionCourse.Kind.PARTING,
@@ -337,7 +338,7 @@ public final class IndependenceLife extends Goal {
         if (!touching) facePartner(parent);
         entity.getLookControl().setLookAt(parent, 25, 25);
         contact++;
-        if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", ANSWER);
+        if (contact == 1) entity.showReaction(teary ? "teary_smile" : "happy", teary ? "farewell_say_teary" : "farewell_say", FaceTier.Tier.ofTicks(ANSWER));
         if (contact == ANSWER && parent.independence().attached() && !parent.independence().seeingOff(entity)) {
             // A busy attached parent can still react from where it is.
             if (!parent.life().isSleeping()) { parent.mind().felt(EmotionEvent.COMFORTED); parent.showReactionDelayed("happy", "gentle", 80, 12); }
@@ -346,7 +347,7 @@ public final class IndependenceLife extends Goal {
             if (canNuzzle(parent, touch)) {
                 pair = new PairContact(entity, parent, Pose.FAREWELL, closeTicks);
                 pair.publish(0);
-                entity.showReaction(teary ? "teary_smile" : "closed_smile", "", closeTicks);
+                entity.showReaction(teary ? "teary_smile" : "closed_smile", "", FaceTier.Tier.ofTicks(closeTicks));
                 GameplayLog.event(entity, "independence", "farewell rub started parent={} ticks={} distance={}",
                         parent.getUUID(), closeTicks, entity.distanceTo(parent));
             } else if (contact == closeEnd()) {
@@ -431,8 +432,8 @@ public final class IndependenceLife extends Goal {
             SurfaceApproach.halt(entity);
             SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), parent.position()));
             if (entity.life().personality().temperament().is(Gate.DEVOTED_KIN) && looked == lookBacks)
-                entity.showReaction("teary_smile", "farewell_look_back", lookBackTicks);
-            else entity.showReaction(teary ? "teary_smile" : "happy", "", lookBackTicks);
+                entity.showReaction("teary_smile", "farewell_look_back", FaceTier.Tier.ofTicks(lookBackTicks));
+            else entity.showReaction(teary ? "teary_smile" : "happy", "", FaceTier.Tier.ofTicks(lookBackTicks));
             return;
         }
         // The look-back beats have their own countdown and do not spend the walk's time allowance.
@@ -524,16 +525,16 @@ public final class IndependenceLife extends Goal {
         if (!late && beat < ANSWER) return;
         if (contact == 0) {
             // Its answer, once, by its own attachment: a glad blessing, or a sob and "come back sometimes".
-            if (!attached && !entity.showReaction("happy", "farewell_bless", 60)) return;
+            if (!attached && !entity.showReaction("happy", "farewell_bless", FaceTier.Tier.SHORT)) return;
             contact = 1;
             entity.mind().felt(EmotionEvent.COMFORTED);
-            if (attached) entity.showReaction("teary", "farewell_cry", 60);
+            if (attached) entity.showReaction("teary", "farewell_cry", FaceTier.Tier.SHORT);
             GameplayLog.event(entity, "independence", "see off answer child={} attached={} attachment={} attachmentScore={} late={} distance={}",
                     seeing, attached, t.attachment(), String.format(Locale.ROOT, "%.2f", t.attached()), late, entity.distanceTo(child));
         }
         // While the child walks away the attached one sobs where it stands.
         sobbing = attached && beat == Integer.MAX_VALUE;
-        if (beat == Integer.MAX_VALUE && contact == 1 && attached) { contact = 2; entity.showReaction("cry", "", 80); }
+        if (beat == Integer.MAX_VALUE && contact == 1 && attached) { contact = 2; entity.showReaction("cry", "", FaceTier.Tier.MEDIUM); }
     }
 
     private void seeOffEnded() {

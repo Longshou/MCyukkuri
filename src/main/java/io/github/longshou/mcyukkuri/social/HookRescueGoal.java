@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -107,7 +108,7 @@ public final class HookRescueGoal extends Goal {
     @Override public void start() {
         ticks=contactTicks=0;result=null;
         attemptedWounds.put(target,wound);
-        helper.showReaction("teary","afraid",60);
+        helper.showReaction("teary","afraid",FaceTier.Tier.SHORT);
         var personality=helper.life().personality();
         GameplayLog.event(helper,"social","hook rescue cue target={} wound={} fear={} attachment={} boldness={} friendliness={}",
                 target.getUUID(),wound,personality.fear(target.operations().operator()),personality.attachment(),
@@ -152,14 +153,14 @@ public final class HookRescueGoal extends Goal {
         }
         Motor.face(helper,SurfaceApproach.yaw(helper.position(),point));
         if(++contactTicks==1){
-            helper.forceReaction("surprise","",WARNING_TICKS);
+            helper.forceReaction("surprise","",FaceTier.Tier.ofTicks(WARNING_TICKS));
             GameplayLog.event(helper,"social","hook rescue attempt target={} wound={} stand={} hook={}",
                     target.getUUID(),wound,GameplayLog.at(stand),GameplayLog.at(point));
         }
         if(contactTicks<WARNING_TICKS)return;
         if(target.operations().releaseHook(helper,wound))result="released";
         else{
-            helper.forceReaction("teary","afraid",60);
+            helper.forceReaction("teary","afraid",FaceTier.Tier.SHORT);
             result="no_reach";
         }
     }

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.LearnedFear;
@@ -100,7 +101,7 @@ public final class FoodNoticeGoal extends Goal {
             return;
         }
         owner.getNavigation().stop();
-        if (waited++ % 60 == 0) owner.showReaction("drool", "", 70);
+        if (waited++ % 60 == 0) owner.showReaction("drool", "", FaceTier.Tier.MEDIUM);
     }
 
     /** Two or more other bodies, nearer to the holder than this one, already stand at the holder's feet. */

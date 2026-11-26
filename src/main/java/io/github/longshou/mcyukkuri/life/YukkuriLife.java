@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.play.JuiceTub;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath;
@@ -492,7 +493,7 @@ public final class YukkuriLife {
         if (rear == null) return false;
         if (!ToiletContact.drop(entity, rear)) return false;
         toiletNeeds.passStool(); personality().relieveFear();
-        entity.showReaction("happy", "toilet_done", 60);
+        entity.showReaction("happy", "toilet_done", FaceTier.Tier.SHORT);
         return true;
     }
     /** Leaf swaddle (family/LeafSwaddle): one load goes into the closed wrap, with the same bowel and hygiene cost as a leak. */
@@ -503,7 +504,7 @@ public final class YukkuriLife {
                 || entity.isInWaterOrBubble() || isSleeping() || mealTicks() > 0 || entity.leafSwaddle().wrapped()) return false;
         if (!ToiletContact.drop(entity, ToiletContact.anus(entity, 0))) return false;
         toiletNeeds.passStool(); personality.relieveFear();
-        entity.showReaction("happy", "toilet_done", 60);
+        entity.showReaction("happy", "toilet_done", FaceTier.Tier.SHORT);
         return true;
     }
     /**
@@ -516,7 +517,7 @@ public final class YukkuriLife {
         if (stool == null) return null;
         float before = toiletNeeds.bowel;
         toiletNeeds.passStool(); personality.relieveFear();
-        entity.showReaction("happy", "toilet_done", 60);
+        entity.showReaction("happy", "toilet_done", FaceTier.Tier.SHORT);
         GameplayLog.event(entity, "needs", "relieved source=boat at={} bladder={} -> {}", GameplayLog.at(at), before, toiletNeeds.bowel);
         return stool;
     }
@@ -639,7 +640,7 @@ public final class YukkuriLife {
         noticedPlayer = player.getUUID();
         noticedAt = now;
         noticeBeatUntil = now + beat;
-        entity.showReaction("drool", "", beat);
+        entity.showReaction("drool", "", FaceTier.Tier.ofTicks(beat));
         GameplayLog.limited(entity, "meal", "food_noticed", NOTICE_COOLDOWN, "noticed a held serving player={} distance={} beat={} nutrition={} boldness={}",
                 player.getUUID(), entity.distanceTo(player), beat, nutrition, personality.boldness());
         return true;
@@ -698,7 +699,7 @@ public final class YukkuriLife {
         boolean rested = sleepTicks >= 220;
         if(sleepTicks>=20)GameplayLog.event(entity,"sleep","end source=hat ticks={} energy={} nutrition={} rested={}",sleepTicks,energy,nutrition,rested);
         task = Task.NONE; resetSleep(); restWait = restInterval();
-        if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", 40);
+        if (rested && !entity.family().woke()) entity.showReaction("neutral", "awake", FaceTier.Tier.SHORT);
     }
     public boolean wantsCrawl() {
         return task == Task.FOOD && mealTicks() == 0 && targetFood != null && targetFood.isAlive()
@@ -1010,7 +1011,7 @@ public final class YukkuriLife {
             case GUARDED -> entity.showReaction(YukkuriAction.TREMBLE, "teary", "");
             case DEFIANT -> entity.showReaction(YukkuriAction.STRUGGLE, "angry", "wash_refuse");
             case GRATEFUL -> entity.showReaction(YukkuriAction.BOW, "closed_smile", "request_thanks");
-            default -> entity.showReaction("happy", "washed", 60);
+            default -> entity.showReaction("happy", "washed", FaceTier.Tier.SHORT);
         }
         GameplayLog.event(entity, "interaction", "wash player={} response={} esteem={} wariness={} hygiene={}->{} dirt={}->{}",
                 player, response.id(), contact.esteem(), contact.wariness(), before, hygiene, dirt, marks.dirt());
@@ -1582,7 +1583,7 @@ public final class YukkuriLife {
                         if (ToiletContact.facilityContact(entity, targetBlock, toiletKind) && toiletNeeds.release(toiletKind,
                                 () -> care.relieve(DetachedItems.waste(entity)), () -> ToiletContact.urinate(entity, targetBlock, false))) {
                             personality.relieveFear();
-                            entity.showReaction("happy", "toilet_done", 60);
+                            entity.showReaction("happy", "toilet_done", FaceTier.Tier.SHORT);
                             entity.pet().routineCompleted(Ability.TOILET);
                             GameplayLog.event(entity,"needs","relieved source=facility at={} kind={} pressure={} -> {} volume={}",targetBlock,toiletKind,before,toiletNeeds.pressure(toiletKind),care.waste());
                         } else { stopGoal(); return; }
@@ -1619,7 +1620,7 @@ public final class YukkuriLife {
                                 hygiene = Math.max(0,hygiene-20);
                                 entity.pet().lessons().performed(Ability.TOILET, false);
                             }
-                            entity.showReaction(toiletAccident?"teary":"happy", toiletAccident?"":"toilet_done",60); // an accident is not relief
+                            entity.showReaction(toiletAccident?"teary":"happy", toiletAccident?"":"toilet_done",FaceTier.Tier.SHORT); // an accident is not relief
                             if (toiletPit) {
                                 entity.settlement().society().pitExcreted();
                                 entity.skills().practise(Ability.TOILET, 1, "daily");
@@ -1703,7 +1704,7 @@ public final class YukkuriLife {
                     if (!leaving) foundCover.stop();
                     task = leaving ? Task.FOUND_COVER : Task.NONE; restWait = restInterval(); resetSleep();
                     // "Good morning" greets a rested wake only; a hunger, thirst, toilet or child's call that broke the sleep says nothing of it.
-                    if(!entity.family().woke())entity.showReaction("neutral", cause.startsWith("rested") ? "awake" : "", 60);
+                    if(!entity.family().woke())entity.showReaction("neutral", cause.startsWith("rested") ? "awake" : "", FaceTier.Tier.SHORT);
                 }
             }
             default -> { }
@@ -1862,10 +1863,10 @@ public final class YukkuriLife {
                 if (!occupant.warnedAtDish) {
                     SurfaceApproach.face(other, SurfaceApproach.yaw(other.position(), entity.position()));
                     other.getLookControl().setLookAt(entity, 30, 30);
-                    occupant.warnedAtDish = other.showReaction(YukkuriAction.PUFF, "angry", "mine", 60);
+                    occupant.warnedAtDish = other.showReaction(YukkuriAction.PUFF, "angry", "mine", 60, FaceTier.Tier.SHORT);
                 }
                 var waiting = personality.temperament();
-                entity.showReaction(waiting.is(Gate.WARY) ? "teary" : waiting.is(Gate.BOLDISH) ? "cheek_puff" : "neutral", "wait_turn", queueBudget);
+                entity.showReaction(waiting.is(Gate.WARY) ? "teary" : waiting.is(Gate.BOLDISH) ? "cheek_puff" : "neutral", "wait_turn", FaceTier.Tier.ofTicks(queueBudget));
                 GameplayLog.event(other, "meal", "supply guarded supply={} kind={} guard={} approacher={} reason={}", targetBlock,
                         supply == SupplyGuard.WATER ? "water" : "bowl", other.getUUID(), entity.getUUID(), traits.is(Gate.HARSH) ? "harsh" : "need");
             }
@@ -1995,7 +1996,7 @@ public final class YukkuriLife {
             // The look-beg: it sits at the stand facing the window and drools; nothing moves it but the end of the beg.
             SurfaceApproach.halt(entity);
             entity.getLookControl().setLookAt(foodGlassTarget, 30, 30);
-            if (level().getGameTime() % 40 == 0) entity.showReaction("drool", "", 50);
+            if (level().getGameTime() % 40 == 0) entity.showReaction("drool", "", FaceTier.Tier.SHORT);
             return;
         }
         if (entity.motor().owner() == foodGlass) return;
@@ -2030,7 +2031,7 @@ public final class YukkuriLife {
         int ticks = 120 + (int) Math.round(280 * drive);
         foodGlassBegUntil = level().getGameTime() + ticks;
         pursuitTicks = 0;
-        entity.showReaction("drool", "", 50);
+        entity.showReaction("drool", "", FaceTier.Tier.SHORT);
         GameplayLog.limited(entity, "meal", "glass_look_beg", 400, "begging at a pane too high to press pane={} ticks={} fear={} nutrition={} boldness={}",
                 foodGlassPane.toShortString(), ticks, fear, nutrition, personality.boldness());
     }
@@ -2054,7 +2055,7 @@ public final class YukkuriLife {
             foodChoice = conscience.tempted(HouseRule.NO_EATING_UNASKED, 1 - nutrition / 100, RulesMath.starvingGuard(nutrition));
             if (foodChoice == Choice.HOLD) {
                 permissionWait = RulesMath.servingWait(queueBudget, entity.skills().grade(Ability.WAIT));
-                entity.showReaction("drool", "wait_turn", permissionWait);
+                entity.showReaction("drool", "wait_turn", FaceTier.Tier.ofTicks(permissionWait));
                 GameplayLog.event(entity, "rules", "waiting rule=no_eating_unasked ticks={} source={}", permissionWait, GameplayLog.at(point));
             }
         }
@@ -2123,7 +2124,7 @@ public final class YukkuriLife {
                 if (behindRival && queueTicks++ < wait) {
                     pursuitTicks--; entity.getNavigation().stop();
                     if (queueTicks == 1) {
-                        personality.decided("wait_food"); entity.showReaction("neutral", "wait_turn", wait);
+                        personality.decided("wait_food"); entity.showReaction("neutral", "wait_turn", FaceTier.Tier.ofTicks(wait));
                         GameplayLog.event(entity, "meal", "food_order wait_behind rivals={} stack={} nutrition={} budget={}",
                                 rivals.size(), targetFood.getItem().getCount(), nutrition, wait);
                     }
@@ -2138,7 +2139,7 @@ public final class YukkuriLife {
                     }
                     if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
                         for (var rival : rivals) YukkuriSocial.quarrelled(entity, rival);
-                        entity.showReaction("angry", "mine", 80);
+                        entity.showReaction("angry", "mine", FaceTier.Tier.MEDIUM);
                         personality.decided("claim_food");
                         for(var rival:rivals)rival.mind().add(3, "food_competition");
                         for (YukkuriEntity rival : rivals) if (rival.life().canRecognize(entity)) YukkuriWorldData.get(level()).relate(rival.getUUID(), entity.getUUID(), -3);
@@ -2184,7 +2185,7 @@ public final class YukkuriLife {
                 if (!taken) stopGoal();
                 else if (entity.pet().ownedBy(breachOwner)) entity.pet().conscience().breach(HouseRule.NO_EATING_UNASKED);
             } else {
-                entity.showReaction("surprise", "", 45);
+                entity.showReaction("surprise", "", FaceTier.Tier.SHORT);
                 if (bowl.handFood(this::seeksFood, one -> {
                     var dropped = ItemContact.release(entity, one, 0);
                     if (dropped == null) return false;
@@ -2324,7 +2325,7 @@ public final class YukkuriLife {
                         && entity.hasLineOfSight(y) && y.life().bedClaimStrength() > bedClaimStrength()).stream().findFirst();
         if (rival.isPresent() || !bed.canClaim(entity)) {
             var winner = rival.map(Entity::getUUID).orElse(bed.resident());
-            entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",60);
+            entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",FaceTier.Tier.SHORT);
             home.yieldedBed();
             GameplayLog.event(entity,"home","yielded contested bed nest={} rival={}",targetBlock,winner);
         } else if (!assignHome(GlobalPos.of(level().dimension(),targetBlock))) home.refusedApproach(bed);

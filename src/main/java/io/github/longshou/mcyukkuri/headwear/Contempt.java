@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.headwear;
 
 import io.github.longshou.mcyukkuri.dialogue.ReactionSpeech;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
@@ -87,20 +88,20 @@ public final class Contempt {
     }
 
     private static int snubDirt(YukkuriEntity observer, YukkuriEntity target) {
-        if (!observer.showReaction("pursed", "", 60)) return IDLE_WAIT;
+        if (!observer.showReaction("pursed", "", FaceTier.Tier.SHORT)) return IDLE_WAIT;
         observer.getLookControl().setLookAt(target, 30, 30);
         var personality = observer.life().personality();
         int closeness = personality.trust(target.getUUID());
         if (closeness > -10) personality.relationshipChanged(target.getUUID(), -1, 0);
         observer.headwear().coolHatlessContact(target, AFTER_SCORN);
-        if (!target.life().isSleeping()) target.showReaction("look_down", "", 60);
+        if (!target.life().isSleeping()) target.showReaction("look_down", "", FaceTier.Tier.SHORT);
         GameplayLog.event(observer, "contempt", "dirt snub target={} dirt={} affinity={}->{}", target.getUUID(),
                 target.status().marks().dirt(), closeness, personality.trust(target.getUUID()));
         return AFTER_SCORN;
     }
 
     private static int mock(ServerLevel level, YukkuriEntity observer, YukkuriEntity target) {
-        if (!observer.showReaction("cheek_puff", "puff", 60)) return IDLE_WAIT;
+        if (!observer.showReaction("cheek_puff", "puff", FaceTier.Tier.SHORT)) return IDLE_WAIT;
         observer.getLookControl().setLookAt(target, 30, 30);
         var relations = YukkuriWorldData.get(level);
         int before = relations.affinity(observer.getUUID(), target.getUUID());
@@ -145,7 +146,7 @@ public final class Contempt {
                     target.getUUID(), observer.life().personality().intelligence(), before, affinity);
             return AFTER_SCORN;
         }
-        observer.showReaction("sneer", "hatless_scorn", 80);
+        observer.showReaction("sneer", "hatless_scorn", FaceTier.Tier.MEDIUM);
         // The scorned one answers by its own nature (flee, puff back or ignore), and thinks less of the scorner in turn.
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
@@ -162,7 +163,7 @@ public final class Contempt {
         int before = relations.affinity(observer.getUUID(), target.getUUID());
         if (relations.affinity(observer.getUUID(), target.getUUID()) > SCORN_FLOOR) relations.relate(observer.getUUID(), target.getUUID(), -5);
         observer.mind().add(6, "monster");
-        observer.showReaction("surprise", "hatless_monster", 100);
+        observer.showReaction("surprise", "hatless_monster", FaceTier.Tier.MEDIUM);
         suffer(target, observer, "cry", 100, 2, "feared_as_monster", false);
         boolean drive = observer.family().adult() && observer.life().personality().temperament().is(Gate.HARSH) && Sanction.eligibleTarget(target) && Sanction.enabled();
         boolean accepted = drive && Sanction.request(target, "monster", observer);
@@ -184,7 +185,7 @@ public final class Contempt {
         boolean sameGroup = SettlementSociety.sameGroup(source, target);
         boolean pitPressure = scorned && sameGroup;
         if (pitPressure) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
-        if (!target.groupInteraction().defense().active() && !target.isPanicking() && target.showReaction(face, "", ticks)) {
+        if (!target.groupInteraction().defense().active() && !target.isPanicking() && target.showReaction(face, "", FaceTier.Tier.ofTicks(ticks))) {
             if (!scorned || target.getRandom().nextInt(3) == 0) {
                 target.getLookControl().setLookAt(source, 30, 30);
                 target.speak(ReactionSpeech.contempt(sameGroup));

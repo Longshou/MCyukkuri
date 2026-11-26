@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.pet.rules;
 
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.life.GlassSight;
@@ -246,7 +247,7 @@ public final class Discovery {
                     && pet.hasLineOfSight(partner) && pet.pet().obedience() < partner.pet().obedience()
                     && pet.life().personality().temperament().is(Gate.HARSH)
                     && PetScenes.say(pet, YukkuriAction.TURN, "pursed", "partner_blame", partner)) {
-                partner.showReaction("surprise", "", 30);
+                partner.showReaction("surprise", "", FaceTier.Tier.SHORT);
                 GameplayLog.event(pet, "rules", "arc spoke=partner_blame brood={} partner={}", entry.brood, partner.getUUID());
             }
         }

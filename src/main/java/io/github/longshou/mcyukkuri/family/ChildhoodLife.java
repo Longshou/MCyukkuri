@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.cognition.Ability;
 import io.github.longshou.mcyukkuri.cognition.Cognition;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -175,8 +176,8 @@ public final class ChildhoodLife {
         if (!landed) return;
         observeMovement();
         if (entity.tickCount % 120 == 0 && childAvailable(entity)) {
-            if (needsAssistedFirstToilet()) entity.showReaction("teary", "need_toilet", 50);
-            else if (entity.family().needsMash() && entity.life().nutrition() < 45) entity.showReaction("teary", "hungry", 60);
+            if (needsAssistedFirstToilet()) entity.showReaction("teary", "need_toilet", FaceTier.Tier.SHORT);
+            else if (entity.family().needsMash() && entity.life().nutrition() < 45) entity.showReaction("teary", "hungry", FaceTier.Tier.SHORT);
         }
     }
 

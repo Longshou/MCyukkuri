@@ -5,6 +5,7 @@ import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
@@ -163,7 +164,7 @@ final class StruckResponse implements MotorOwner {
             body.getLookControl().setLookAt(actor, 30, 30);
             var home = body.habitat().shelter();
             var young = home == null ? List.<YukkuriEntity>of() : dependants(home);
-            body.showReaction(YukkuriAction.PUFF_TEARY, "puff_teary", ReactionSpeech.leadTaunt(!young.isEmpty()), clip);
+            body.showReaction(YukkuriAction.PUFF_TEARY, "puff_teary", ReactionSpeech.leadTaunt(!young.isEmpty()), clip, FaceTier.Tier.ofTicks(clip));
             if (actor instanceof YukkuriEntity predator && predator.profile().dangerToYukkuri())
                 for (var child : young)
                     if (predator.predator().divert(body, child)) break;

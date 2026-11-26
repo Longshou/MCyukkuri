@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
@@ -105,7 +106,7 @@ public final class TreasureLife extends Goal {
         var home = homePos();
         if (home == null || entity.blockPosition().distSqr(home) > 36) return;
         entity.getNavigation().stop();
-        entity.showReaction("happy", "thing_san", 100);
+        entity.showReaction("happy", "thing_san", FaceTier.Tier.MEDIUM);
     }
 
     @Override public boolean canUse() {
@@ -174,7 +175,7 @@ public final class TreasureLife extends Goal {
                 if (stack.isEmpty()) target.discard(); else target.setItem(stack);
                 target = null; elapsed = 0;
                 if (junk) SurfaceApproach.stopWalking(entity);
-                else entity.showReaction("happy", "mine", 60);
+                else entity.showReaction("happy", "mine", FaceTier.Tier.SHORT);
             } else if (junk) {
                 var stand = ItemContact.approach(entity, target.position());
                 SurfaceApproach.walk(entity, stand, 1);
@@ -195,7 +196,7 @@ public final class TreasureLife extends Goal {
         var home = homePos();
         if (home == null) { stop(); return; }
         if (entity.blockPosition().distSqr(home) <= 4) {
-            if (add(carried)) { entity.showReaction("happy", "thing_san", 100); mouth.clear(Purpose.FIND); cooldown = 1200; }
+            if (add(carried)) { entity.showReaction("happy", "thing_san", FaceTier.Tier.MEDIUM); mouth.clear(Purpose.FIND); cooldown = 1200; }
             stop();
         } else if (elapsed % 10 == 1 && !entity.life().navigate(home, 1, false)) stop();
     }
@@ -221,7 +222,7 @@ public final class TreasureLife extends Goal {
         held.clear();
         entity.life().personality().treasureTaken(player.getUUID());
         entity.mind().add(15, "treasure_taken");
-        entity.showReaction(EmotionCourse.onsetFace(entity.mind().feeling().wrongedKind()), "treasure_stolen", 160);
+        entity.showReaction(EmotionCourse.onsetFace(entity.mind().feeling().wrongedKind()), "treasure_stolen", FaceTier.Tier.LONG);
         entity.mind().feeling().wronged(player.getUUID(), .7f);
         GameplayLog.event(entity, "treasure", "confiscated player={} taken={} held=0", player.getUUID(), taken);
         return taken;
@@ -233,7 +234,7 @@ public final class TreasureLife extends Goal {
     public static String aftermath(YukkuriEntity thief, YukkuriEntity victim, String what) {
         victim.mind().add(15, "treasure_stolen");
         String face = EmotionCourse.onsetFace(victim.mind().feeling().wrongedKind());
-        victim.showReaction(face, "treasure_stolen", 160);
+        victim.showReaction(face, "treasure_stolen", FaceTier.Tier.LONG);
         victim.mind().feeling().wronged(thief.getUUID(), .7f);
         if (victim.level() instanceof ServerLevel level) YukkuriWorldData.get(level).relate(victim.getUUID(), thief.getUUID(), -12);
         GameplayLog.event(victim, "social", "aftermath what={} taker={} face={} closeness={}",
@@ -245,7 +246,7 @@ public final class TreasureLife extends Goal {
         if (victim == entity || victim.treasure().held.isEmpty() || full()) return false;
         held.add(victim.treasure().held.remove(victim.treasure().held.size() - 1));
         aftermath(entity, victim, "treasure");
-        entity.showReaction("happy", "thing_san", 100);
+        entity.showReaction("happy", "thing_san", FaceTier.Tier.MEDIUM);
         GameplayLog.event(entity, "treasure", "snatched victim={} item={} held={} victimHeld={}",
                 victim.getUUID(), held.getLast().getItem(), held.size(), victim.treasure().held.size());
         return true;

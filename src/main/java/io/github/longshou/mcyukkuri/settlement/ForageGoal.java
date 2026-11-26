@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.world.SearchBudget.Purpose;
 import javax.annotation.Nullable;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -140,12 +141,12 @@ public final class ForageGoal extends Goal {
                 if (parked >= Math.round((120 + 3 * selfControl) * (0.5 + n / 60))) {
                     giveUpUntil = level().getGameTime() + 600 + 4L * selfControl;
                     parked = 0;
-                    entity.showReaction("side_teary", "", 60);
+                    entity.showReaction("side_teary", "", FaceTier.Tier.SHORT);
                     GameplayLog.event(entity, "forage", "gave up at hand nutrition={} selfControl={}", n, selfControl);
                     searchSpot = null;
                     return false;
                 }
-                if (n < HungerDrive.URGENT && parked % 100 == 10) entity.showReaction(YukkuriAction.BEG, "teary", "human_food_ask", 60);
+                if (n < HungerDrive.URGENT && parked % 100 == 10) entity.showReaction(YukkuriAction.BEG, "teary", "human_food_ask", 60, FaceTier.Tier.SHORT);
             }
             searchSpot = null;
             int suppressed = GameplayLog.admit(entity, "forage", "player_food", 400);
@@ -282,7 +283,7 @@ public final class ForageGoal extends Goal {
                     refused[3]++;
                 }
                 // Starving with nowhere to go is shown, not borne in silence.
-                if (searchSpot == null && entity.life().nutrition() < 20) entity.showReaction("teary", "hungry", 60);
+                if (searchSpot == null && entity.life().nutrition() < 20) entity.showReaction("teary", "hungry", FaceTier.Tier.SHORT);
                 GameplayLog.limited(entity,"forage","search_path",200,
                         "search sweep destination={} moving={} nutrition={} rain={} elapsed={} reach={} refused(noPoint,step,threat,route)={}", () -> new Object[]{searchSpot,
                         !entity.getNavigation().isDone(),entity.life().nutrition(),level().isRainingAt(entity.blockPosition()),elapsed,reach,java.util.Arrays.toString(refused)});

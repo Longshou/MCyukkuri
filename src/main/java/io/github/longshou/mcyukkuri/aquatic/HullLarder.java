@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.aquatic;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -112,7 +113,7 @@ public final class HullLarder {
         GameplayLog.limited(hat, "hat", "stores." + reason, 20, "stores refused by={} kind={} reason={} total={}", () -> new Object[]{
                     actor, food.getItem(), reason, count()});
         var owner = hat.owner();
-        if (owner != null) owner.showReaction("cheek_puff", "refuse", 40);
+        if (owner != null) owner.showReaction("cheek_puff", "refuse", FaceTier.Tier.SHORT);
     }
 
     /** A stack per kind, split only at the vanilla stack limit; vanilla items float after the spill. */

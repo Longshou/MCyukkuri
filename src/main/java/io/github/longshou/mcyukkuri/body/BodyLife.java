@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.body;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -190,7 +191,7 @@ public final class BodyLife {
         parts&=7;int cut=parts&~hairLoss;if(cut==0||entity.level().isClientSide||!entity.isAlive())return false;
         hairLoss|=cut;entity.syncBody();entity.mind().felt(EmotionEvent.FRIGHTENED);
         ItemContact.shearFeedback(entity,player,WoundPlacement.shearContact(entity,cut));
-                entity.showReaction("surprise","afraid",100);entity.life().personality().confiscated(player.getUUID());return true;
+                entity.showReaction("surprise","afraid",FaceTier.Tier.MEDIUM);entity.life().personality().confiscated(player.getUUID());return true;
     }
     /** Older wound lists may contain surface marks; those are not injuries. */
     private static boolean injury(BodyWound w){return w.kind().injury();}
@@ -221,7 +222,7 @@ public final class BodyLife {
         int scars=entity.status().marks().scarCount()+(int)wounds.stream().filter(w->w.kind()==WoundKind.SCAR).count();
         GameplayLog.event(entity,"body","orange juice cleared {} wound(s){}; health {}/{} (before {}); scars remaining {}",
                 cleared,mended?" and mended the sole":"",entity.getHealth(),entity.getMaxHealth(),before,scars);
-        entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",80);return true;
+        entity.mind().felt(EmotionEvent.TREATED);entity.showReaction("happy","treated",FaceTier.Tier.MEDIUM);return true;
     }
     /** Remove healed scars without changing open wounds, health or dirt, including scars in old wound lists. */
     public boolean repairScars(){
@@ -232,7 +233,7 @@ public final class BodyLife {
         int cleared=marks.scarCount()+legacy;marks.clearScars();wounds.removeIf(w->w.kind()==WoundKind.SCAR);
         GameplayLog.event(entity,"body","flour paste cleared {} scar(s) (legacy {}); wounds remaining {}; health {}/{}",
                 cleared,legacy,wounds.size(),entity.getHealth(),entity.getMaxHealth());
-        refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);return true;
+        refreshWounds();entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",FaceTier.Tier.MEDIUM);return true;
     }
     /**
      * Mould is a death sentence once it has gone deep (komicolle 11518802). The remover cures the early and middle stages in one
@@ -245,9 +246,9 @@ public final class BodyLife {
         if(mold<=MOLD_CURABLE){
             mold=moldExposure=moldSpread=noticedMoldTier=0;
             entity.skills().practise(Ability.MOLD_LORE, SkillMath.pointsForGrade(1, Ability.MOLD_LORE.graded), "cured");
-            entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",80);
+            entity.mind().felt(EmotionEvent.TREATED); entity.showReaction("happy","treated",FaceTier.Tier.MEDIUM);
         }
-        else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","treated",80);} // partial relief: thanks, not a blow's pain
+        else{mold=MOLD_LATE_RESET;moldSpread=0;entity.showReaction("teary","treated",FaceTier.Tier.MEDIUM);} // partial relief: thanks, not a blow's pain
         entity.syncBody();GameplayLog.event(entity,"body","mold remover changed stage {} -> {}",before,mold);return true;
     }
     public void setMold(int level){mold=Math.clamp(level,0,MOLD_TERMINAL);moldSpread=0;entity.syncBody();}
@@ -282,8 +283,8 @@ public final class BodyLife {
         int before=toxin;toxin=Math.min(12,toxin+dose);
         GameplayLog.event(entity,"body","poison dose {}; toxin {} -> {}; sick {}",dose,before,toxin,sick());
         if(toxin>=LETHAL_TOXIN){damageCore("poison");return;}
-        if(toxin>=SICK_TOXIN){vomit();damage(1,"toxin");entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",100);}
-        else { entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("surprise","bitter",80); }
+        if(toxin>=SICK_TOXIN){vomit();damage(1,"toxin");entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("teary","bitter",FaceTier.Tier.MEDIUM);}
+        else { entity.mind().felt(EmotionEvent.BITTER_TASTE); entity.showReaction("surprise","bitter",FaceTier.Tier.MEDIUM); }
     }
     public void setToxin(int value){toxin=Math.clamp(value,0,12);}
     /** Deprecated scenario scale: write health, never an independent filling field. */
@@ -320,7 +321,7 @@ public final class BodyLife {
         GameplayLog.event(entity,"body","core hurt ({}), dying for {} ticks; health {}/{}",cause,DYING_TICKS,entity.getHealth(),entity.getMaxHealth());
         // Last words to kin (or an offering) replace the plain "want to stay a little longer" line instead of cutting it short.
         for(var listener:DYING_LISTENERS){try{listener.dying(entity,cause,DYING_TICKS);}catch(RuntimeException ex){MCYukkuri.LOGGER.warn("Dying listener failed",ex);}}
-        if(!entity.reactingTo("dying_kin")&&!entity.reactingTo("offer_give"))entity.showReaction("blank_cry","dying",DYING_TICKS);
+        if(!entity.reactingTo("dying_kin")&&!entity.reactingTo("offer_give"))entity.showReaction("blank_cry","dying",FaceTier.Tier.ofTicks(DYING_TICKS));
     }
     private void finishDying(){
         terminalKill(dyingSource!=null?dyingSource:entity.damageSources().generic(),true,false,dyingCause);
@@ -491,7 +492,7 @@ public final class BodyLife {
         if(!footBurned&&(wound.severity()>=3||footScorch>=4)){
             footBurned=true;
             GameplayLog.event(entity,"body","sole burned; wound={} severity={} accumulated={}",wound.id(),wound.severity(),footScorch);
-            entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",120);
+            entity.mind().felt(EmotionEvent.SOLE_BURN); entity.showReaction("cry","sole_burned",FaceTier.Tier.MEDIUM);
             if(entity.level() instanceof ServerLevel level)level.sendParticles(ParticleTypes.SMOKE,entity.getX(),entity.getY()+.05,entity.getZ(),6,.1,.02,.1,.01);
             updateMobility();
         }
@@ -549,7 +550,7 @@ public final class BodyLife {
                     for(var cut:leaking)emitWound("leak",loss*cut.leakLoss()/total,cut);
                     GameplayLog.event(entity,"body","wound leak outlets={} health={} -> {} loss={}",leaking.size(),before,entity.getHealth(),loss);
                     if(entity.isAlive()&&!life.isSleeping()&&life.mealTicks()==0&&!entity.isPanicking()&&!entity.hasReaction()
-                            &&entity.showReaction("teary","",40))entity.speakCue("wounded");
+                            &&entity.showReaction("teary","",FaceTier.Tier.SHORT))entity.speakCue("wounded");
                 }
                 if(!entity.isAlive())return;
             }
@@ -574,8 +575,8 @@ public final class BodyLife {
         boolean knows = entity.skills().knows(Ability.MOLD_LORE);
         if (tier == noticedMoldTier && (knows || ticks % 2400 != 0)) return;
         if (entity.hasReaction() || entity.life().isSleeping() || entity.isPanicking() || entity.life().mealTicks() > 0) return;
-        if (knows) entity.showReaction("horrified", "", 80);
-        else entity.showReaction(YukkuriAction.SHAKE, "squeezed_frown", "", 60);
+        if (knows) entity.showReaction("horrified", "", FaceTier.Tier.MEDIUM);
+        else entity.showReaction(YukkuriAction.SHAKE, "squeezed_frown", "", 60, FaceTier.Tier.SHORT);
         entity.speakCue(knows ? "mold_self_aware" : "mold_itch");
         // A slow danger weighs half as much as a blow from a non-predator (.6).
         if (knows) entity.mind().feeling().begin(EmotionCourse.Kind.TERROR, .3f, null, entity.blockPosition());

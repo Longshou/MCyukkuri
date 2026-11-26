@@ -1,4 +1,5 @@
 package io.github.longshou.mcyukkuri.predator;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.predator.PredatorFlight.Task;
 import io.github.longshou.mcyukkuri.predator.PredatorFlight.Visit;
 import static io.github.longshou.mcyukkuri.predator.PredatorFlight.OTHER_TASK_LIMIT;
@@ -294,7 +295,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
         if (ALERTED.size() > 128) { ALERTED.prune(now); if (ALERTED.size() > 1024) ALERTED.clear(); }
         ALERTED.put(prey.getUUID(), now + 600);
         owner.displayClientMessage(Component.translatable("pet.mcyukkuri.predator.alert", prey.getDisplayName()), true);
-        if (!prey.life().isSleeping() && owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", 80); }
+        if (!prey.life().isSleeping() && owner.distanceToSqr(prey) <= 256) { prey.mind().felt(EmotionEvent.FRIGHTENED); prey.showReaction("surprise", "afraid", FaceTier.Tier.MEDIUM); }
     }
     private ServerLevel level() { return (ServerLevel)animal.level(); }
     private boolean ready() {
@@ -892,7 +893,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
             if (!releasePrey(null)) return;
             GameplayLog.event(animal,"predator","prey delivered beside grounded young child={} feet={}",child.getUUID(),feet);
         } else {
-            animal.showReaction("teary","caregiver",40);
+            animal.showReaction("teary","caregiver",FaceTier.Tier.SHORT);
             GameplayLog.event(animal,"predator","landed beside grounded young child={} feet={}",child.getUUID(),feet);
         }
         stop();
@@ -1100,7 +1101,7 @@ public final class PredatorLife implements EcologyRoutine, MotorOwner {
     }
 
     private void screech(LivingEntity target) {
-        animal.showReaction("angry", Behaviors.PREDATOR_SCREECH, YukkuriAction.PUFF.durationTicks());
+        animal.showReaction("angry", Behaviors.PREDATOR_SCREECH, FaceTier.Tier.ofTicks(YukkuriAction.PUFF.durationTicks()));
         animal.getLookControl().setLookAt(target, 30, 30);
         GameplayLog.event(animal, "predator", "territory screech target={} boldness={}",
                 target.getUUID(), animal.life().personality().boldness());

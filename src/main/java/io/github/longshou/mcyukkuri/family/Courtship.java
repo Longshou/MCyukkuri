@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
@@ -214,7 +215,7 @@ final class Courtship {
         if(Bonds.biological(o.entity(), other)||data.busyParent(o.entity().getUUID())||data.busyParent(other.getUUID()))return false;
         if(!data.pair(o.entity(),other,false))return false;
         other.family().waitTicks(0);o.waitTicks(0);
-        o.entity().setPersistenceRequired();other.setPersistenceRequired();o.entity().showReaction("happy","introduced",80);other.showReaction("happy","introduced",80);
+        o.entity().setPersistenceRequired();other.setPersistenceRequired();o.entity().showReaction("happy","introduced",FaceTier.Tier.MEDIUM);other.showReaction("happy","introduced",FaceTier.Tier.MEDIUM);
         return true;
     }
 
@@ -418,7 +419,7 @@ final class Courtship {
             } else {
                 mother.family().endBreedingPeriod();father.family().endBreedingPeriod();
                 mother.agitation().markRelieved(true);father.agitation().markRelieved(false);
-                o.entity().showReaction("confused","",60);peer.showReaction("confused","",60);
+                o.entity().showReaction("confused","",FaceTier.Tier.SHORT);peer.showReaction("confused","",FaceTier.Tier.SHORT);
             }
             boolean breached = body.pet().ownedBy(initiatingRuleOwner) && !body.pet().breedingPermitted(peer.getUUID())
                     && body.pet().conscience().breach(HouseRule.NO_SUKKIRI);
@@ -486,7 +487,7 @@ final class Courtship {
         if(sawNotice&&off>=REFUSAL_TURN) {
             GameplayLog.limited(o.entity(),"family","court.giveup",200,"court gave up reason=partner_alive partner={} turnFromFacing={}", () -> new Object[]{
                         peer.getUUID(),Math.round(off)});
-            o.entity().showReaction("confused","",80);
+            o.entity().showReaction("confused","",FaceTier.Tier.MEDIUM);
             o.stop();
         }
     }
@@ -496,7 +497,7 @@ final class Courtship {
         o.entity().getNavigation().stop();
         var him=leader.entity();var me=o.entity();
         if(declineTicks++==0) {
-            me.showReaction("dull","",80);
+            me.showReaction("dull","",FaceTier.Tier.MEDIUM);
             GameplayLog.limited(me,"family","court.refused.partner_alive",200,
                     "court refused reason=partner_alive partner={} distance={}", () -> new Object[]{
                         him.getUUID(),Math.round(me.distanceTo(him)*10)/10.0});

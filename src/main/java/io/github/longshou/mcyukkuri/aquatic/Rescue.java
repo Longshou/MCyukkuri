@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.BraidFetch;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
@@ -53,7 +54,7 @@ final class Rescue implements Intent {
         this.incident = incident;
         started = helper.level().getGameTime();
         // The one going for the faller says so before it moves (辫子救援：招呼落水的孩子).
-        helper.showReaction("teary", "braid_rescue_offer", 40);
+        helper.showReaction("teary", "braid_rescue_offer", FaceTier.Tier.SHORT);
         GameplayLog.event(helper, "aquatic", "rescue start faller={} incident={}", faller.getUUID(), incident);
     }
 
@@ -203,7 +204,7 @@ final class Rescue implements Intent {
         Watch(YukkuriEntity parent, YukkuriEntity faller, String incident) {
             this.parent = parent; this.faller = faller; this.incident = incident;
             started = parent.level().getGameTime();
-            parent.showReaction("teary", null, TEARS);
+            parent.showReaction("teary", null, FaceTier.Tier.ofTicks(TEARS));
             GameplayLog.event(parent, "aquatic", "watch start faller={} incident={} reason=can_sail", faller.getUUID(), incident);
         }
         YukkuriEntity faller() { return faller; }
@@ -217,7 +218,7 @@ final class Rescue implements Intent {
         private float yaw() { return SurfaceApproach.yaw(parent.position(), faller.position()); }
         private List<Supplier<Step>> derive() {
             return List.of(() -> new Step.Do(new Face(yaw())), () -> new Step.Wait(() -> {
-                if ((parent.level().getGameTime() - started) % TEARS == 0) parent.showReaction("teary", null, TEARS);
+                if ((parent.level().getGameTime() - started) % TEARS == 0) parent.showReaction("teary", null, FaceTier.Tier.ofTicks(TEARS));
                 return satisfied() || Math.abs(Mth.wrapDegrees(yaw() - parent.yBodyRot)) > REFACE;
             }, (int) Math.max(1, deadline() - parent.level().getGameTime()), Behaviors.BOAT_REASSURE));
         }

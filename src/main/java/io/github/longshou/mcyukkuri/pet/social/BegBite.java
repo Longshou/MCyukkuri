@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
@@ -87,7 +88,7 @@ public final class BegBite {
         stray.pet().badgeLedger().arc(pet.getUUID(), BadgeArcPolicy.Arc.BEG_BITE.id, now);
         petFood = mouth(pet);
         GameplayLog.event(stray, "badge", "beg approach pet={} stand={} spacing={} item={}", this.pet, stand, distance, petFood.getItem());
-        stray.showReaction("open_drool", "", ClipMarkers.of(LOOK_AROUND.id()).length());
+        stray.showReaction("open_drool", "", FaceTier.Tier.ofTicks(ClipMarkers.of(LOOK_AROUND.id()).length()));
     }
 
     private static ItemStack mouth(YukkuriEntity e) { return e.component(YukkuriComponents.MOUTH).stack(Purpose.KINDNESS); }
@@ -143,7 +144,7 @@ public final class BegBite {
                 if (stand != null && SurfaceApproach.arrived(pet, stand)) {
                     var radial = stray.position().subtract(pet.position()).multiply(1, 0, 1).normalize();
                     var side = pet.position().add(radial.yRot((float) (Math.PI / 3)).scale(distance));
-                    if (stray.showReaction("teary", "", ClipMarkers.of(LOOK_AROUND.id()).length()))
+                    if (stray.showReaction("teary", "", FaceTier.Tier.ofTicks(ClipMarkers.of(LOOK_AROUND.id()).length())))
                         stray.speakCue("beg_plead_again");
                     walk(scene, Beat.CIRCLE, SurfaceApproach.floor(stray, side));
                 } else walkDeadline(level, scene, pet, "withdrawal_unreached");
@@ -218,7 +219,7 @@ public final class BegBite {
                     result = "asked_help";
                     GameplayLog.event(pet, "badge", "beg help reached human={} stray={}", human, stray.getUUID());
                     look(pet, live);
-                    if (pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length())) pet.speakCue("beg_help");
+                    if (pet.showReaction(HIDE_FACE, "teary", "", ClipMarkers.of(DROOP.id()).length(), FaceTier.Tier.ofTicks(ClipMarkers.of(DROOP.id()).length()))) pet.speakCue("beg_help");
                     if (drivenOff) pose(scene, Beat.LOOK, stray, YukkuriAction.WALK_LOOK_BACK, departureFace(), "", 1);
                     else if (SocialDisposition.contact(stray, live).wariness() < .5
                             && SocialDisposition.contact(stray, pet).response(false) == SocialDisposition.Response.DEFIANT) {
@@ -236,7 +237,7 @@ public final class BegBite {
                     }
                     walk(scene, Beat.LEAVE, away(stray, pet, Math.max(distance * 2.3, stray.distanceTo(pet) + distance)));
                     stray.showReaction(YukkuriAction.WALK_LOOK_BACK, departureFace(), "",
-                            ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length());
+                            ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length(), FaceTier.Tier.ofTicks(ClipMarkers.of(YukkuriAction.WALK_LOOK_BACK.id()).length()));
                 }
             }
             case LEAVE -> {
@@ -304,7 +305,7 @@ public final class BegBite {
             }
             case SNATCH -> {
                 snatch = true;
-                stray.showReaction("angry", "", ClipMarkers.of(LOOK_AROUND.id()).length());
+                stray.showReaction("angry", "", FaceTier.Tier.ofTicks(ClipMarkers.of(LOOK_AROUND.id()).length()));
                 contact(scene, stray, pet);
             }
         }
@@ -374,7 +375,7 @@ public final class BegBite {
             if (chase == null && gap(pet, stray) >= distance) {
                 chase = SurfaceApproach.floor(pet, stray.position().add(pet.position().subtract(stray.position())
                         .multiply(1, 0, 1).normalize().scale(distance)));
-                if (chase != null && pet.showReaction("angry", "", ClipMarkers.of(DROOP.id()).length())) {
+                if (chase != null && pet.showReaction("angry", "", FaceTier.Tier.ofTicks(ClipMarkers.of(DROOP.id()).length()))) {
                     pet.speakCue("beg_chase");
                 }
             }
@@ -438,7 +439,7 @@ public final class BegBite {
     private void pose(Scene scene, Beat next, YukkuriEntity actor, YukkuriAction clip, String face, String line, int repeats) {
         setBeat(scene, next);
         duration = ClipMarkers.of(clip.id()).length() * repeats;
-        if (actor.showReaction(clip, face, "", duration) && !line.isEmpty()) actor.speakCue(line);
+        if (actor.showReaction(clip, face, "", duration, FaceTier.Tier.ofTicks(duration)) && !line.isEmpty()) actor.speakCue(line);
     }
 
     private void walk(Scene scene, Beat next, Vec3 target) {

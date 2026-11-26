@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -602,7 +603,7 @@ public final class FamilyLife {
         entity.getLookControl().setLookAt(at.x,at.y+.1,at.z,20,20);
     }
     /** A role's intent starts in BirthGoal: the father who notices the labour shows it (project original staging). */
-    public void birthIntentStarted(Conductor.Role role,Intent intent) { if(LiveBirth.CATCHER.equals(role.role())&&"rendezvous".equals(intent.id()))entity.showReaction("surprise","",50); }
+    public void birthIntentStarted(Conductor.Role role,Intent intent) { if(LiveBirth.CATCHER.equals(role.role())&&"rendezvous".equals(intent.id()))entity.showReaction("surprise","",FaceTier.Tier.SHORT); }
     /** BirthGoal stops: only a family task it took over is stopped, so a finished role leaves the next errand no pause. */
     public void stopBirthGoal() { if(task!=Task.NONE)stop(); }
     /** A birth role, or comforting a hurt newborn, comes before ordinary household routines. Pure observation. */
@@ -814,7 +815,7 @@ public final class FamilyLife {
                     elapsed==brood.duration?"ripe":"first draw",brood.id,elapsed,brood.duration,unborn,before,entity.life().nutrition(),entity.getHealth());
         // The attack's release and fright response keep their own timing.
         if(entity.isAlive()&&elapsed==Math.min(StemDrain.LEGACY_DRAW_TICKS,brood.duration)&&brood.incidentSource!=null)
-            entity.showReaction("confused","aftermath_realize",160);
+            entity.showReaction("confused","aftermath_realize",FaceTier.Tier.LONG);
     }
     /** One loaded tick of live gestation: "" when it ran, else why it waits. */
     String gestate(FamilyData.Brood b,boolean sited){
@@ -996,13 +997,13 @@ public final class FamilyLife {
         if(!(greeting() instanceof LiveBirth.Welcome hello)||entity.life().isSleeping()||!(level().getEntity(hello.baby()) instanceof YukkuriEntity baby)||!baby.isAlive())return;
         long since=level().getGameTime()-hello.tick();boolean hurt=baby.family().bumped(),mate=partner()!=null&&partner().equals(baby.family().mother());
         if(greetingSupported())entity.getLookControl().setLookAt(baby,20,20);
-        if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",LiveBirthGeometry.REST);
+        if(since==0&&mate&&!hurt)entity.showReaction("happy","caregiver",FaceTier.Tier.ofTicks(LiveBirthGeometry.REST));
         if(hurt&&since==6&&greetingSupported()){
             entity.mind().felt(EmotionEvent.FRIGHTENED);entity.holdReaction("surprise","afraid",MISS_SHOCK);BirthStaging.sweat(entity);
         }
         if(hurt&&since==6+MISS_SHOCK&&mate&&entity.distanceToSqr(baby)<256)comfort(baby);
         if(since==30&&!hurt&&answering()!=null){
-            entity.showReaction(YukkuriAction.MOOD_FLUTTER,"happy","",40);boolean spoken=entity.speak(baby.family().firstWords());BirthStaging.affection(entity);
+            entity.showReaction(YukkuriAction.MOOD_FLUTTER,"happy","",40, FaceTier.Tier.SHORT);boolean spoken=entity.speak(baby.family().firstWords());BirthStaging.affection(entity);
             GameplayLog.event(entity,"family","birth greeting child={} spoken={} host={}",baby.getUUID(),spoken,entity.getVehicle()==null?null:entity.getVehicle().getUUID());
         }
     }
@@ -1040,7 +1041,7 @@ public final class FamilyLife {
             // The bounce is this body's own small-hop impulse (Gesture HOP_SMALL), thrown from its own decision tick.
             double lift=Gesture.smallHopImpulse(entity);var motion=entity.getDeltaMovement();
             if(lift>0)entity.motor().run(BIRTH_BODY,new Launch(new Vec3(motion.x,lift,motion.z),"birth_impact"));
-            entity.mind().felt(EmotionEvent.WOUND_DISTRESS);entity.showReaction("cry","wounded",140);
+            entity.mind().felt(EmotionEvent.WOUND_DISTRESS);entity.showReaction("cry","wounded",FaceTier.Tier.LONG);
             BirthStaging.caption(parent,"漏接：新生儿重重摔在地上，弹了一下，受了摔伤哭了起来（进入伤势系统，不致命，可照料）");return;
         }
         // The greeting waits until first_wake has opened the eyes and reached its happy face (24 ticks), not the landing tick;
@@ -1060,10 +1061,10 @@ public final class FamilyLife {
         if(baby==null)return;
         if(age>=24&&age<=150){entity.getLookControl().setLookAt(baby,20,20);if(age>=40)turnTo(baby);}
         if(age==24&&baby.family().bumped()){
-            entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",50);BirthStaging.sweat(entity);BirthStaging.caption(entity,"母油见孩子摔伤，惊慌地转向它");
+            entity.mind().felt(EmotionEvent.FRIGHTENED);entity.showReaction("surprise","afraid",FaceTier.Tier.SHORT);BirthStaging.sweat(entity);BirthStaging.caption(entity,"母油见孩子摔伤，惊慌地转向它");
         }
-        if(age==88){entity.showReaction("happy","nuzzle",60);BirthStaging.affection(entity);if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚摔伤的孩子，随后轻舔");}
-        if(age==116){entity.showReaction("open_smile","",30);BirthStaging.affection(entity);}
+        if(age==88){entity.showReaction("happy","nuzzle",FaceTier.Tier.SHORT);BirthStaging.affection(entity);if(baby.family().bumped())BirthStaging.caption(entity,"母油蹭脸安抚摔伤的孩子，随后轻舔");}
+        if(age==116){entity.showReaction("open_smile","",FaceTier.Tier.SHORT);BirthStaging.affection(entity);}
     }
     /** One bounded turn toward the baby (Face) from a decision tick; a running turn of these beats is left alone. */
     private void turnTo(YukkuriEntity baby){
@@ -1076,7 +1077,7 @@ public final class FamilyLife {
     public void comfort(YukkuriEntity baby){
         if(entity.level().isClientSide||baby==null||baby==entity||!adult()||entity.inert()||!entity.isAlive())return;
         comfortBaby=baby.getUUID();comfortTicks=COMFORT;comfortNear=0;
-        entity.showReaction("teary","",40);
+        entity.showReaction("teary","",FaceTier.Tier.SHORT);
     }
     /** Only the COMFORT task may advance contact or steer. */
     private void tickComfort(){
@@ -1098,8 +1099,8 @@ public final class FamilyLife {
             return;
         }
         SurfaceApproach.halt(entity);turnTo(baby);comfortNear++;
-        if(comfortNear==10){entity.showReaction("closed_smile","nuzzle",60);BirthStaging.affection(entity);BirthStaging.caption(entity,"蹭脸安抚");}
-        if(comfortNear==70){entity.showReaction("open_smile","",40);BirthStaging.affection(entity);BirthStaging.caption(entity,"轻轻舔舐安抚");}
+        if(comfortNear==10){entity.showReaction("closed_smile","nuzzle",FaceTier.Tier.SHORT);BirthStaging.affection(entity);BirthStaging.caption(entity,"蹭脸安抚");}
+        if(comfortNear==70){entity.showReaction("open_smile","",FaceTier.Tier.SHORT);BirthStaging.affection(entity);BirthStaging.caption(entity,"轻轻舔舐安抚");}
         if(comfortNear>=130){comfortTicks=0;comfortNear=0;}
     }
     /**
@@ -1361,11 +1362,11 @@ public final class FamilyLife {
     }
     private void beginCourt(boolean declined, String releasedGoal) {
         task = Task.COURT; courtship.beginRound(declined, releasedGoal); taskTicks = 0;
-        entity.showReaction("happy", "courtship", 100);
+        entity.showReaction("happy", "courtship", FaceTier.Tier.MEDIUM);
     }
     private void receiveCourt() {
         task = Task.RECEIVE_COURT; courtship.resetAttempt(); taskTicks = 0;
-        entity.showReaction("happy", "courtship", 100);
+        entity.showReaction("happy", "courtship", FaceTier.Tier.MEDIUM);
     }
     private boolean allowCourt(YukkuriEntity other) { return courtship.allowCourt(other); }
     public boolean canReproduceWith(YukkuriEntity other) { return courtship.canReproduceWith(other); }
@@ -1464,7 +1465,7 @@ public final class FamilyLife {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
                     &&other.childhood().shouldStayWithParents()&&Bonds.parentOf(entity,other)&&entity.life().canRecognize(other))
                     .stream().filter(other->entity.distanceToSqr(other)>6.25&&entity.hasLineOfSight(other)).min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
-            if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("teary","wait_family",80);return true; }
+            if(child!=null) { task=Task.WAIT_CHILD;target=child;taskTicks=0;entity.showReaction("teary","wait_family",FaceTier.Tier.MEDIUM);return true; }
         }
         if(!entity.profile().houseBody()&&ready()&&(FamilyConfig.NATURAL_PAIRING.get()||partner()!=null||sexDrive>0)) {
             var data=FamilyData.get(level());
@@ -1518,7 +1519,7 @@ public final class FamilyLife {
         // The last-sighting walk has a 1200-tick cap. Leave room for goal handoffs.
         entity.duty().take(Kind.SEARCH,1400,0,coldCry ? "child_cold" : "child_lost");
         task=Task.SEARCH;target=child;searchAt=separation.lastSeen(child);taskTicks=0;
-        entity.showReaction("teary","wait_family",80);return true;
+        entity.showReaction("teary","wait_family",FaceTier.Tier.MEDIUM);return true;
     }
 
     private boolean startAbsence() {
@@ -1892,7 +1893,7 @@ public final class FamilyLife {
                 BlockPos home=nestStand();
                 if (wildStemBrood() && home != null && level().getBlockState(home).is(ModBlocks.PREDATOR_NEST.get())) { stop(); return; }
                 var shelter=entity.habitat().shelter();
-                if(shelter!=null&&shelter.prepareLargeBed(entity)){SurfaceApproach.halt(entity);entity.showReaction("chewing_closed","",20);return;}
+                if(shelter!=null&&shelter.prepareLargeBed(entity)){SurfaceApproach.halt(entity);entity.showReaction("chewing_closed","",FaceTier.Tier.SHORT);return;}
                 if(home==null){stop();return;}
                 // Her place may not stand right now (another body, a growing belly): the bed's middle, never wherever she is on its rim.
                 var resting=FamilyNest.restPosition(entity,home);
@@ -2061,7 +2062,7 @@ public final class FamilyLife {
         if (entity.tickCount % 300 == 0 && !entity.agitation().active() && !inBreedingPeriod()
                 && entity.pet().calm() && !entity.hasReaction() && !entity.mind().active()) {
             if (liked != null && pentUp >= 40 && entity.pet().isPet()) entity.pet().glanceAt(liked, 40);
-            if (repressed() && entity.tickCount % 600 == 0) entity.showReaction("endure", "heat_unmet", 80);
+            if (repressed() && entity.tickCount % 600 == 0) entity.showReaction("endure", "heat_unmet", FaceTier.Tier.MEDIUM);
         }
     }
 

@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatProp;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
@@ -218,7 +219,7 @@ public final class EscapeWater implements Intent {
                         20, "", "water_contact"));
             if (next == 0) {
                 boolean afloatHat = AFLOAT_HAT.contains(id);
-                if (afloatHat || id.equals("hat_boat")) body.showReaction("teary", null, 36);
+                if (afloatHat || id.equals("hat_boat")) body.showReaction("teary", null, FaceTier.Tier.SHORT);
                 if (afloatHat && AFLOAT_HAT.stream().noneMatch(tried::contains))
                     body.speakCue("self_rescue_hat_seek");
                 if (!id.equals("bank")) tried.add(id);

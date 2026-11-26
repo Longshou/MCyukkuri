@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.WoundPlacement;
@@ -1300,13 +1301,13 @@ public final class FoundShelter implements MotorOwner {
                     long exitDeadline = resident.life().yieldFoundShelter(target());
                     if (exitDeadline > now()) {
                         yieldingRival = rival;
-                        body.showReaction("cheek_puff", "", 40);
+                        body.showReaction("cheek_puff", "", FaceTier.Tier.SHORT);
                         phase = Phase.WAIT; deadline = exitDeadline;
                         GameplayLog.event(body, "habitat", "found contest shelter={} outcome=wait rival={}", target(), rival);
                         return Step.ACTIVE;
                     }
                 }
-                resident.showReaction("cheek_puff", "", 40);
+                resident.showReaction("cheek_puff", "", FaceTier.Tier.SHORT);
             }
             remember(target(), CONTEST_REST, "yield");
             stop(); return Step.ENDED;
@@ -1396,7 +1397,7 @@ public final class FoundShelter implements MotorOwner {
         SurfaceApproach.halt(body);
         phase = Phase.REST;
         deadline = now() + 20; // Let the shared temperature sampler observe the reached cover before sleep.
-        body.showReaction("closed_smile", "", 45);
+        body.showReaction("closed_smile", "", FaceTier.Tier.SHORT);
         if (shelter != null) GameplayLog.event(body, "habitat", "found settled shelter={} kind={} occupants={}",
                 target(), shelter.kind(), shelter.occupants());
         else if (streetSpot != null) {
@@ -1488,7 +1489,7 @@ public final class FoundShelter implements MotorOwner {
 
     public void removed(BlockPos pos, boolean wet) {
         if (wet) body.life().applyEnvironment(12, 0, 0);
-        body.showReaction("surprise", "", 60);
+        body.showReaction("surprise", "", FaceTier.Tier.SHORT);
         if (targeting(pos)) stop();
     }
 

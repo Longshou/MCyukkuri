@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -69,7 +70,7 @@ public final class GriefLife {
                 .stream().sorted(Comparator.comparingDouble(dying::distanceToSqr)).toList();
         if ("offering".equals(cause) || dying.offering().dedicate()) {
             // "Please eat me": the offering line replaces the ordinary last words; the other kin still grieve.
-            dying.showReaction("teary", "offer_give", ticks);
+            dying.showReaction("teary", "offer_give", FaceTier.Tier.ofTicks(ticks));
             var recipient = dying.offering().recipient();
             int m = 0;
             for (var other : kin) {
@@ -216,12 +217,12 @@ public final class GriefLife {
             if (first) {
                 decision = "taunting";
                 // The one who draws the predator off says so ("I'll lead it away, run!"); a taunt it ignores is only the puff at it.
-                entity.showReaction("puff_teary",diverts ? "sacrifice" : "protect_taunt",45);
+                entity.showReaction("puff_teary",diverts ? "sacrifice" : "protect_taunt",FaceTier.Tier.SHORT);
                 GameplayLog.event(entity,"grief","protection taunt predator={} child={} distance={}",challenger.getUUID(),protectedChild.getUUID(),entity.distanceTo(challenger));
             }
             if (diverts) {
                 decision = "diverted"; sacrificeWait = 3600;
-                challenger.showReaction("angry","protect_angered",25);
+                challenger.showReaction("angry","protect_angered",FaceTier.Tier.SHORT);
                 int affinity = YukkuriWorldData.get(level()).affinity(protectedChild.getUUID(),entity.getUUID());
                 var t = protectedChild.life().personality().temperament();
                 String response = affinity >= 40 && !t.is(Gate.HARSH) ? "protect_child_worry"

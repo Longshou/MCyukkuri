@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.CorpseFood;
@@ -337,12 +338,12 @@ public final class Cannibalism extends Goal {
         running = true;
         entity.life().interrupt(); entity.social().stop();
         if (mode == Mode.AVOID) {
-            entity.showReaction("teary", "stench", 80);
+            entity.showReaction("teary", "stench", FaceTier.Tier.MEDIUM);
             SurfaceApproach.startRetreat(entity, away, 1.1);
             away = entity.getNavigation().getPath();
         }
-        else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", 100);
-        else if (mode == Mode.GUARD) entity.showReaction("angry", "puff", 80);
+        else if (mode == Mode.HUNT) entity.showReaction("neutral", "hunt_sweet", FaceTier.Tier.MEDIUM);
+        else if (mode == Mode.GUARD) entity.showReaction("angry", "puff", FaceTier.Tier.MEDIUM);
         GameplayLog.limited(entity, "cannibal", "start." + mode, 200, "started mode={} body={} prey={} nutrition={}",
                 mode, body == null ? null : body.getUUID(), prey == null ? null : prey.getUUID(), entity.life().nutrition());
     }
@@ -377,8 +378,8 @@ public final class Cannibalism extends Goal {
         GameplayLog.event(entity, "cannibal", "body meal handed off body={} offered={} rot={} bite={} portions={} nutrition={}",
                 body.getUUID(), offered, RemainsRot.id(stage), bites, bite.portions(), entity.life().nutrition());
         if (bites == 1) {
-            if (offered) { entity.mind().add(25, "offered_meal"); entity.showReaction("teary", "offer_eat", 120); }
-            else { entity.mind().add(25 + stage * 5, "cannibal_guilt"); entity.showReaction("teary", "eat_kin", 100); }
+            if (offered) { entity.mind().add(25, "offered_meal"); entity.showReaction("teary", "offer_eat", FaceTier.Tier.MEDIUM); }
+            else { entity.mind().add(25 + stage * 5, "cannibal_guilt"); entity.showReaction("teary", "eat_kin", FaceTier.Tier.MEDIUM); }
         }
     }
     private void guard() {

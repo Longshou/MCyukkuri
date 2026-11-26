@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.house;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetPrivileges;
 
 import io.github.longshou.mcyukkuri.random.ModRandom;
@@ -566,7 +567,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
                         entity.moveTo(Vec3.atBottomCenterOf(entrance()));entity.setPersistenceRequired();
                         if(entity.life().dryStand(entrance()))entity.setOnGround(true);
                         if(entity.life().dryStand(entrance())&&server.noCollision(entity)&&entity.house().choose(this)&&server.addFreshEntity(entity)){
-                            arrivals++;entity.showReaction("surprise","house_arrival",100);changed();
+                            arrivals++;entity.showReaction("surprise","house_arrival",FaceTier.Tier.MEDIUM);changed();
                         }
                     }
                 }
@@ -586,9 +587,9 @@ public final class HouseNestBlockEntity extends BlockEntity {
                 if(hatchWait==0&&entry.progress()>=1){
                     var baby=FamilyData.get(server).birth(entry.brood(),entry.index(),server,eggPosition(slot).add(0,HouseEggGeometry.HATCH_FOOT_LIFT,0));
                     if(baby!=null){
-                        baby.house().choose(this);baby.showReaction("happy","hatched",80);
+                        baby.house().choose(this);baby.showReaction("happy","hatched",FaceTier.Tier.MEDIUM);
                         eggSlots[slot]=null;hatchAges[slot]=0;hatchWait=48;
-                        if(server.getEntity(carer) instanceof YukkuriEntity witness)witness.showReaction("happy","house_hatched",80);
+                        if(server.getEntity(carer) instanceof YukkuriEntity witness)witness.showReaction("happy","house_hatched",FaceTier.Tier.MEDIUM);
                         syncEggs(server);
                         changed();
                     }
@@ -607,7 +608,7 @@ public final class HouseNestBlockEntity extends BlockEntity {
                 if((a.family().partner()==null||a.family().partner().equals(b.getUUID()))&&(b.family().partner()==null||b.family().partner().equals(a.getUUID()))){
                     if(createClutch(a,b)){
                         PetPrivileges.voluntaryBrood(broodId, a, b);
-                        a.showReaction("happy","laid_eggs",100);break outer;
+                        a.showReaction("happy","laid_eggs",FaceTier.Tier.MEDIUM);break outer;
                     }
                 }
             }

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.GlassSight;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.Action;
@@ -169,7 +170,7 @@ final class GlassVigil implements MotorOwner {
         phase=Phase.FAREWELL; farewellReason=reason;
         int length=EcologyPresentation.duration(Behaviors.GLASS_FAREWELL);
         deadline=family.level().getGameTime()+length;
-        parent.forceReaction("teary","",length);
+        parent.forceReaction("teary","",FaceTier.Tier.ofTicks(length));
         // "Can't get through now" is the giving-up of a wait; pulled away by panic, a need or another task she says nothing of it.
         boolean pulledAway=reason.equals("danger")||reason.equals("urgent_need")||reason.equals("interrupted");
         boolean spoken=!pulledAway&&parent.speak("give_up_search");

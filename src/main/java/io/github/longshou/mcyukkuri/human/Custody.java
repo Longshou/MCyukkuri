@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.human;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.shop.ShopRegistry;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -225,7 +226,7 @@ public final class Custody {
         float bond = animal.life().personality().attachment() / 100f;
         animal.mind().add(EmotionEvent.FAMILY_DEATH.delta() * bond, "owner_died");
         animal.mind().perform("bereaved", 100);
-        animal.showReaction("teary", "family_died", 100);
+        animal.showReaction("teary", "family_died", FaceTier.Tier.MEDIUM);
         animal.mind().feeling().mourn(owner.getUUID(), owner.blockPosition());
         GameplayLog.event(animal, "custody", "keeper grieved owner={} attachment={} unease={}", owner.getUUID(),
                 animal.life().personality().attachment(), animal.mind().unease());

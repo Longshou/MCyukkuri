@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
@@ -211,7 +212,7 @@ public final class GarbageSearch implements MotorOwner {
         if (active()) {
             if (body.motor().current() == stroke) return true;
             if (!(body.motor().last() instanceof Outcome.Done)) { decline("ram_obstructed"); return false; }
-            if (phase == Phase.RAM_TIPPED && bin.tipped()) body.showReaction("surprise", "", 30);
+            if (phase == Phase.RAM_TIPPED && bin.tipped()) body.showReaction("surprise", "", FaceTier.Tier.SHORT);
         }
         // Someone stood the bin up, or it fell meanwhile: work from where the bin now is.
         if (bin.tipped() != (point.fall() == null)) {
@@ -376,7 +377,7 @@ public final class GarbageSearch implements MotorOwner {
         remember(reason);
         body.motor().cancel(this, "garbage_retreat");
         if (rummaging()) putDownScrap();
-        body.showReaction("surprise", "", 50);
+        body.showReaction("surprise", "", FaceTier.Tier.SHORT);
         phase = Phase.RETREAT; deadline = now() + 100;
         aim = body.status().reactions().threat().flight().destination(from, 5);
     }

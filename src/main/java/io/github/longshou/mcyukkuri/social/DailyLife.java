@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.social;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
@@ -297,7 +298,7 @@ public final class DailyLife {
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE && !welcome) entity.speak("want_nuzzle");
         if (kind == Kind.NUZZLE && companion instanceof ItemEntity) {
-            entity.showReaction("open_smile", "", 30);
+            entity.showReaction("open_smile", "", FaceTier.Tier.SHORT);
             entity.keepsake().emitExternalBeat("ask", "open_smile", "want_nuzzle", "ground", false, "");
         }
         if (kind == Kind.NUZZLE) entity.life().personality().decided("seek_companion");
@@ -666,7 +667,7 @@ public final class DailyLife {
         if (current.contactTicks() == 1) {
             leader.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
             if (current.kind == Kind.NUZZLE && current.companion instanceof ItemEntity) {
-                leader.showReaction("closed_smile", "", 60);
+                leader.showReaction("closed_smile", "", FaceTier.Tier.SHORT);
                 leader.keepsake().emitExternalBeat("rub", "closed_smile", "nuzzle", "ground", false, "");
             }
             if (leader.pet().ownedBy(current.songRuleOwner) && !leader.pet().conscience().breach(HouseRule.NO_SINGING))
@@ -679,7 +680,7 @@ public final class DailyLife {
         // The audience answers the singer by how well it knows it: a happy face if acquainted, a neutral one if not.
         if (current.kind == Kind.SING && current.contact % 40 == 1 && current.companion instanceof YukkuriEntity listener) {
             boolean known = YukkuriWorldData.get(level()).affinity(listener.getUUID(), entity.getUUID()) >= BondLevels.AFFINITY_ACQUAINTED;
-            listener.showReaction(known ? "happy" : "neutral", "known_peer", 35);
+            listener.showReaction(known ? "happy" : "neutral", "known_peer", FaceTier.Tier.SHORT);
             level().sendParticles(ParticleTypes.NOTE, listener.getX(), listener.getEyeY() + .1, listener.getZ(), 1, .05, .05, .05, 0);
         }
         int duration = current.kind == Kind.NUZZLE ? 60 : current.kind == Kind.SING ? 160 : 280;
@@ -710,7 +711,7 @@ public final class DailyLife {
         if (kind == Kind.NUZZLE) { daily.comfort(nuzzleComfort); daily.nuzzles++; }
         else if (kind == Kind.SING) { daily.entertained(30); daily.comfort(5); daily.songs++; }
         else { daily.entertained(30); daily.exercises++; e.life().finishExercise(); }
-        e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED); e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", 50);
+        e.mind().felt(kind == Kind.NUZZLE ? EmotionEvent.NUZZLED : EmotionEvent.LEISURE_COMPLETED); e.showReaction("satisfied", kind == Kind.NUZZLE ? "nuzzle_done" : "leisure_done", FaceTier.Tier.SHORT);
         GameplayLog.limited(e,"daily","completed."+kind,1200,
                 "session result kind={} affectionNeed={} -> {} boredom={} -> {} energy={} -> {} exerciseReliefTicks={}",
                 kind,affectionBefore,daily.affection,boredomBefore,daily.boredom,energyBefore,e.life().energy(),e.life().exerciseReliefTicks());

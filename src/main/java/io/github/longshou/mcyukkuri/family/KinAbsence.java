@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.family;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.Duty.End;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
@@ -130,7 +131,7 @@ final class KinAbsence {
             }
             if (memory.away > 0 && !memory.confirmed && baby() && memory.phase == Phase.MOVED_ON
                     && memory.away % 1200 == 0 && !e.hasReaction() && family.atHome()) {
-                e.showReaction("cry", "lost_parent", 80);
+                e.showReaction("cry", "lost_parent", FaceTier.Tier.MEDIUM);
                 BirthStaging.tears(e);
             }
         }
@@ -161,7 +162,7 @@ final class KinAbsence {
             if (memory != null && overdue(id) && !memory.confirmed) {
                 GameplayLog.event(e, "family", "missing kin reunited kin={} away={} at={}", id, memory.away, peer.blockPosition());
                 if (!e.grieving()) {
-                    e.showReaction("happy", "caregiver", 80);
+                    e.showReaction("happy", "caregiver", FaceTier.Tier.MEDIUM);
                     BirthStaging.affection(e);
                 }
             }
@@ -351,7 +352,7 @@ final class KinAbsence {
                 searching, next, next == Phase.SEARCH && !sweep.isEmpty() ? sweep.getFirst() : destination,
                 family.stageId(), e.life().nutrition());
         if (next == Phase.MOVED_ON) {
-            e.showReaction(baby() ? "cry" : "teary", "lost_parent", 80);
+            e.showReaction(baby() ? "cry" : "teary", "lost_parent", FaceTier.Tier.MEDIUM);
             BirthStaging.tears(e);
             family.stop();
         }

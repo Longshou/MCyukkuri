@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.settlement;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.random.ModRandom;
 
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -343,7 +344,7 @@ public final class SettlementLife {
             if (distance <= 6 * 6) {
                 if (greeted != group.gatherUntil) {
                     greeted = group.gatherUntil;
-                    entity.showReaction("happy", "hello", 60);
+                    entity.showReaction("happy", "hello", FaceTier.Tier.SHORT);
                 }
                 return false;
             }
@@ -471,7 +472,7 @@ public final class SettlementLife {
                 packedFor = group.migrateSince;
                 int packed = entity.habitat().packForMove(pile, Rations.FETCH_MAX);
                 if (packed > 0) {
-                    entity.showReaction("teary", "migrate_pack", 60);
+                    entity.showReaction("teary", "migrate_pack", FaceTier.Tier.SHORT);
                     StatusEvents.note(entity, "migrate packed " + packed);
                 }
                 return false;

@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.social;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
@@ -167,7 +168,7 @@ public final class PeerDefense extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() {
         if (puffBack && attacker != null) {
-            entity.showReaction("cheek_puff", "puff", 40);
+            entity.showReaction("cheek_puff", "puff", FaceTier.Tier.SHORT);
             attacker.groupInteraction().defense().provoke(entity);
         }
     }

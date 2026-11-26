@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.status;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.FearBand;
@@ -43,7 +44,7 @@ public final class LearnedFear {
                 body -> body!=victim && body!=holder && eligible(body) && !body.operations().active()
                         && body.distanceToSqr(victim)<=WITNESS_RANGE*WITNESS_RANGE
                         && body.hasLineOfSight(victim) && body.hasLineOfSight(holder))) {
-            if (remember(witness, victim, holder, incident)) witness.showReaction("afraid","afraid",60);
+            if (remember(witness, victim, holder, incident)) witness.showReaction("afraid","afraid",FaceTier.Tier.SHORT);
         }
     }
 
@@ -139,8 +140,8 @@ public final class LearnedFear {
             lastBody=body.blockPosition();
             lastDanger=holder==null?fire:holder.blockPosition();
             if (holder != null && body.pet().ownedBy(holder.getUUID()))
-                body.showReaction(YukkuriAction.TREMBLE, "afraid", "afraid", WARNING_TICKS);
-            else body.showReaction("afraid","afraid",60);
+                body.showReaction(YukkuriAction.TREMBLE, "afraid", "afraid", WARNING_TICKS, FaceTier.Tier.ofTicks(WARNING_TICKS));
+            else body.showReaction("afraid","afraid",FaceTier.Tier.SHORT);
             GameplayLog.limited(body,"threat","learned_cue",200,"learned retreat cue holder={} fire={}",
                     holder==null?null:holder.getUUID(),fire);
         }

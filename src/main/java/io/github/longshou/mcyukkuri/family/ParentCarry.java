@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.entity.component.SyncSlot;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.headwear.HatGeometry;
 import io.github.longshou.mcyukkuri.headwear.HatScale;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -1733,7 +1734,7 @@ public final class ParentCarry {
         String face = calls ? "teary" : "surprise", line = calls ? "protect_child_worry" : "protect_child_flee";
         var left = walkers.stream().min(Comparator.comparingDouble(carrier::distanceToSqr)).get();
         long hesitation = tooClose(threat) ? 0 : CALL_BASE_TICKS + attachment / CALL_PER_ATTACHMENT;
-        carrier.showReaction(face, line, CALL_FACE_TICKS);
+        carrier.showReaction(face, line, FaceTier.Tier.ofTicks(CALL_FACE_TICKS));
         beatName = "abandon_look"; beatFace = face; beatLine = line;
         GameplayLog.event(carrier, "family", "carry flight leaves child={} left={} aboard={} attachment={} hold={} line={}",
                 left.getUUID(), walkers.size(), ours().size(), attachment, hesitation, line);
@@ -1995,7 +1996,7 @@ public final class ParentCarry {
         // Only an ordinary lift is glad: a flight with the young is no time for "so happy", and effort is not a refusal.
         boolean fleeing = purpose == Purpose.PROTECT;
         String face = strained ? "endure" : fleeing ? "surprise" : "happy";
-        carrier.showReaction(face, strained || fleeing ? "" : "gentle", 40);
+        carrier.showReaction(face, strained || fleeing ? "" : "gentle", FaceTier.Tier.SHORT);
         if (fleeing) { beatName = "pickup"; beatFace = face; beatLine = "none"; }
         if (child.getUUID().equals(flightTarget)) flightTarget = null;
         if (strained) GameplayLog.event(carrier, "family", "carry strain hold={} child={} load={}", hold.key(),

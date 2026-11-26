@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.event;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.Recognition;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -244,7 +245,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
         }
         if (yielded) { shelter(); return; }
         if (elapsed == LOOK) {
-            body.showReaction("angry", "puff", PUFF / 2);
+            body.showReaction("angry", "puff", FaceTier.Tier.ofTicks(PUFF / 2));
             GameplayLog.event(body, "home-claim", "territory warn target={} site={} esteem={} wariness={} resolve={}",
                     intruder.getUUID(), home.site, contact.esteem(), contact.wariness(), courage);
         }
@@ -303,7 +304,7 @@ public final class HomeTerritoryGoal extends Goal implements MotorOwner {
     }
 
     private void puff() {
-        if (body.showReaction(YukkuriAction.PUFF, "cheek_puff", "", PUFF))
+        if (body.showReaction(YukkuriAction.PUFF, "cheek_puff", "", PUFF, FaceTier.Tier.ofTicks(PUFF)))
             GameplayLog.event(body, "home-claim", "territory puff target={} site={}", intruder.getUUID(), home.site);
     }
 

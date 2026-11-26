@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.life;
 
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 
 import io.github.longshou.mcyukkuri.cognition.Ability;
@@ -229,7 +230,7 @@ final class LifeMeal {
         if (inspecting != kind) {
             inspecting = kind;
             inspectTicks = 0;
-            o.entity().showReaction("neutral", "", pause);
+            o.entity().showReaction("neutral", "", FaceTier.Tier.ofTicks(pause));
             GameplayLog.event(o.entity(), "meal", "strange_food_pause item={} ticks={} nutrition={} timid={} clever={}",
                     kind, pause, o.nutrition(), traits.timid(), traits.clever());
         }
@@ -321,7 +322,7 @@ final class LifeMeal {
             }
         }
         if (!startMeal(food, giver, false, offered)) {
-            o.entity().showReaction("cheek_puff", "refuse", 60);
+            o.entity().showReaction("cheek_puff", "refuse", FaceTier.Tier.SHORT);
             return false;
         }
         if (offered != Verdict.REFUSE && Sweets.is(food)) {
@@ -492,7 +493,7 @@ final class LifeMeal {
 
     private boolean refusesWhileCarryingStallFood() {
         if (occupancy().purpose() != Purpose.STALL_FOOD) return false;
-        o.entity().showReaction("cheek_puff", "refuse", 60);
+        o.entity().showReaction("cheek_puff", "refuse", FaceTier.Tier.SHORT);
         return true;
     }
 
@@ -508,11 +509,11 @@ final class LifeMeal {
         meltFace = meltTail = finishFace = null; mealTicks = 1;
         o.entity().social().mealStarted();
         o.beginConsumption(); o.entity().getNavigation().stop(); o.entity().setPersistenceRequired();
-        if (preparedMeal) o.entity().showReaction("happy", "receive_mash", 60);
+        if (preparedMeal) o.entity().showReaction("happy", "receive_mash", FaceTier.Tier.SHORT);
         else switch (mealVerdict) {
-            case SAVOUR, PLAIN -> o.entity().showReaction("happy", "take_food", TAKE_TICKS);
-            case REFUSE, GRUMBLE -> o.entity().showReaction("pursed", "", TAKE_TICKS);
-            case RELUCTANT -> o.entity().showReaction("teary_frown", "", TAKE_TICKS);
+            case SAVOUR, PLAIN -> o.entity().showReaction("happy", "take_food", FaceTier.Tier.ofTicks(TAKE_TICKS));
+            case REFUSE, GRUMBLE -> o.entity().showReaction("pursed", "", FaceTier.Tier.ofTicks(TAKE_TICKS));
+            case RELUCTANT -> o.entity().showReaction("teary_frown", "", FaceTier.Tier.ofTicks(TAKE_TICKS));
         }
         GameplayLog.event(o.entity(), "meal", "received item={} count={} holder=mouth feeder={} prepared={} shared={}",
                 transferred.getItem(), transferred.getCount(), feeder, preparedMeal, sharedMeal);
@@ -571,7 +572,7 @@ final class LifeMeal {
         int hold = Math.max(10, Math.round(full * (0.45f + 0.55f * (o.personality().selfControl() / 100f))));
         dollOfferTicks = hold;
         dollOfferTarget = doll;
-        donor.showReaction(YukkuriAction.OFFER_BITE, "happy", "", hold);
+        donor.showReaction(YukkuriAction.OFFER_BITE, "happy", "", hold, FaceTier.Tier.ofTicks(hold));
         donor.keepsake().emitExternalBeat("offer", "happy", "share", "mouth", true,
                 "hold=" + hold + " food=" + mouth().getCount());
     }
@@ -588,7 +589,7 @@ final class LifeMeal {
         int score=o.personality().shareScore(o.nutrition(),peer.life().nutrition(),o.entity().family().caresFor(peer),YukkuriWorldData.get(o.level()).affinity(o.entity().getUUID(),peer.getUUID()));
         if(o.entity().getRandom().nextInt(100)>=score){o.personality().decided("keep_food");return;}
         if (transferTo(peer, o.entity().getUUID())) {
-            o.personality().experienced(Trait.FRIENDLINESS, 1, "shared_food"); o.entity().showReaction("happy", "share", 100);
+            o.personality().experienced(Trait.FRIENDLINESS, 1, "shared_food"); o.entity().showReaction("happy", "share", FaceTier.Tier.MEDIUM);
             o.personality().decided("share_food");
         }
     }
@@ -621,7 +622,7 @@ final class LifeMeal {
                 if (dollGone || dollOfferTicks == 0) {
                     dollOfferTicks = 0;
                     dollOfferTarget = null;
-                    o.entity().showReaction("satisfied", "", 20);
+                    o.entity().showReaction("satisfied", "", FaceTier.Tier.SHORT);
                     o.entity().keepsake().emitExternalBeat("eat_on", "satisfied", "none", "mouth", false,
                             "food=" + mouth().getCount());
                 }
@@ -725,7 +726,7 @@ final class LifeMeal {
                         : guarded || defiant ? "" : grass && !liked ? "bitter" : treat != null ? treat
                         : liked && fedLine.equals("fed") ? "food_delight" : fedLine;
                 if (!coughing() && (!eater.body().sick() || !harmful)
-                        && (harmful ? eater.showReaction(face, line, 100)
+                        && (harmful ? eater.showReaction(face, line, FaceTier.Tier.MEDIUM)
                             : eater.showAmbient(face, "", waste || grass && !liked && !unhappy || preparedMeal ? 100 : SWALLOW_TICKS))
                         && !harmful && !line.isEmpty()) {
                     eater.speakCue(line, line.equals("fed") ? "plain" : null);
