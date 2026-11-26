@@ -448,8 +448,7 @@ public final class Kindness extends Goal {
 
     @Override public void stop() {
         if (act == null) return;
-        if (act == Act.BITE && !finished && giver.reactionAction() == YukkuriAction.OFFER_BITE)
-            giver.showReaction("neutral", "", FaceTier.Tier.SHORT);
+        if (act == Act.BITE && !finished && giver.reactionAction() == YukkuriAction.OFFER_BITE) giver.cancelReaction();
         cooldown = Math.max(cooldown, act == Act.COMPANY ? RECEIVER_REST : act == Act.BITE && finished ? CUE : GIVER_REST);
         // A guest who was really kept company rests from every visitor, so a body that stays weak is not visited in a loop.
         if (act == Act.COMPANY && companyAt != null) of(guest).visited = RECEIVER_REST;

@@ -607,6 +607,8 @@ public final class KeepsakeLife implements MotorOwner {
         carryTicks++;
         if (!carryLogged && carryTicks > PICK_FACE_TICKS) {
             carryLogged = true;
+            // The pick's silent signal face is one moment only: the carry activity face takes over when the carry starts.
+            if (entity.reactingTo("")) entity.cancelReaction();
             emitBeat("carry", carryFace(), "none", "mouth", 0, "");
         }
         if (dropSpot == null) {

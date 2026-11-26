@@ -275,6 +275,8 @@ public final class Departure {
         };
         boolean spoken = !line.isEmpty() && shown && entity.speakCue(line, null, SAY_PRIORITY);
         entity.beat("turn_away", face, spoken ? line : "");
+        // The walk out starts on this one hold (no renewal loop): log the beat the scene checks for its face.
+        entity.beat("walk_out", face, "");
         GameplayLog.event(entity, terms.category(), "{} answer={} fumes={}", terms.label(), answer, answer == Answer.CURSE);
         terms.onTurn().accept(answer);
     }
