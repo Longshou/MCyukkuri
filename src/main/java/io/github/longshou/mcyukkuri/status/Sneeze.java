@@ -3,6 +3,7 @@ package io.github.longshou.mcyukkuri.status;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriGroundNavigation;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.event.HomeClaim;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -86,6 +87,10 @@ public final class Sneeze {
         if (e.life().isSleeping() || e.house().sleeping()
                 || behavior.equals(Behaviors.SLEEP) || behavior.equals(Behaviors.SLEEP_ENTER)
                 || behavior.equals(Behaviors.HOUSE_SLEEP)) return false;
+        // Standing still only: a route or steer in hand, or any real travel (a shove, a slide), would show the walk clip under
+        // the planted sneeze, so a moving body is refused here. A carried body is a passenger and is refused with the contacts below.
+        if (e.getDeltaMovement().horizontalDistanceSqr() > .000001
+                || e.getNavigation() instanceof YukkuriGroundNavigation ground && ground.walking()) return false;
         // Bound performances, contacts and active motor actions
         if (e.operations().active() || e.agitation().active() || e.isPassenger() || e.pairedContact()
                 || e.motor().current() != null
