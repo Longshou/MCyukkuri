@@ -1,6 +1,7 @@
 package io.github.longshou.mcyukkuri.family;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
 import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
@@ -180,10 +181,30 @@ public final class DrivenOut extends Goal {
                 continue;
             }
             witnessed.add(sibling.getUUID());
-            sibling.showReactionDelayed("cry", "mold_child_cry", 80, 20, SAY_PRIORITY,
-                    spoken -> sibling.beat("sibling_cry", "cry", spoken ? "mold_child_cry" : ""));
+            cry(sibling);
             GameplayLog.event(sibling, "family", "driven out sibling cries child={} via={}", entity.getUUID(), via);
         }
+    }
+
+    /** Its cry after the one leaving, deferred to the first tick its speech gap opens and still inside the cry's hold (as
+     *  {@code Encounter.sulk}); left unsaid only when the hold ends before the gap does (it was dropped behind a running line). */
+    private static void cry(YukkuriEntity sibling) {
+        long now = sibling.level().getGameTime(), speechAt = sibling.nextSpeech(SAY_PRIORITY);
+        int hold = sibling.faceHold(FaceTier.Tier.MEDIUM, "cry");
+        boolean voiced = speechAt + 2 <= now + hold;
+        if (voiced) {
+            sibling.showReactionDelayed("cry", "mold_child_cry", hold, (int) (speechAt - now) + 2, SAY_PRIORITY, spoken -> {
+                sibling.beat("sibling_cry", "cry", spoken ? "mold_child_cry" : "");
+                GameplayLog.event(sibling, "family", "driven out sibling cry tick={} event=mold_child_cry holdEnd={} spoken={}",
+                        sibling.level().getGameTime(), now + hold, spoken);
+            });
+            return;
+        }
+        boolean shown = sibling.showReaction("cry", "", FaceTier.Tier.MEDIUM);
+        if (!shown) return;
+        sibling.beat("sibling_cry", "cry", "");
+        GameplayLog.event(sibling, "family",
+                "driven out sibling cry tick=none event=mold_child_cry holdEnd={} spoken=false cause=hold_end speechAt={}", now + hold, speechAt);
     }
 
     @Override public void tick() {
