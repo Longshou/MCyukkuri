@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 美术：辫子翻垃圾桶与水中扑腾（魔理沙） | `.worktrees/wp-braid-bin` | standards/yukkuri-library/motions/variants/lore, settlement/GarbageSearch, motor/action/Swim |
 | 美术：水生魔理沙上帽 | `.worktrees/wp-hat-board` | standards/yukkuri-library/motions/variants/lore, aquatic presentation |
-| 美术：思考、害羞、跺脚、蹭蹭、吐出拒食 | `.worktrees/wp-art-redo-a` | standards/yukkuri-library/motions/variants/lore, expressions |
 | 美术：干枯失神、寒夜发抖、晒太阳、饮水舌舔 | `.worktrees/wp-art-redo-b` | standards/yukkuri-library/motions/variants/lore, expressions |
 | 偶发小演出的表情时长 | `.worktrees/wp-face-tiers` | entity/presentation/FaceTier, entity/YukkuriEntity, entity/presentation/PresentationArbiter, dialogue/SpeechTiming, social/Departure, aquatic/LeaveBehind, family/DrivenOut, entity/Encounter, play/PlayLife, mind/EmotionCourse, showReaction callers |
 
