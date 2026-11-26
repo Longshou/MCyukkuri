@@ -449,17 +449,39 @@ public final class Encounter {
         keeperNav.stopWaiting(yielder);
         if (lock && canYield(yielder)) {
             yielderNav.giveUp(errand, keeper);
-            // The walk it was held up on is dropped for good: the body stays at its stand and sulks. The bold huff, the meek only purse
-            // their lips, and the sulk holds long after that single huff (a LONG tier, unlike the notice's).
-            if (able(yielder)) {
-                String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
-                if (yielder.showReaction(face, "sulk_huff", FaceTier.Tier.LONG)) yielder.beat("yield_giveup", face, "sulk_huff");
-            }
+            // The walk it was held up on is dropped for good: the body stays at its stand and sulks.
+            if (able(yielder)) sulk(yielder);
         } else if (!released) yielderNav.resumed();
         if (!result.equals("passed")) { keeperNav.shunned = yielder; yielderNav.shunned = keeper; }
         GameplayLog.event(yielder, "move", "encounter end keeper=#{} yielder=#{} result={} cause={} ticks={} holds={} reason={}",
                 keeper.getId(), yielder.getId(), result, cause, now - start, holds, reason);
         if (result.equals("no_place") && !deadEnd) handOver();
+    }
+
+    /**
+     * The walk given up for good: the body stays at its stand and sulks. The bold huff, the meek only purse their lips, and the sulk
+     * holds long after that single huff (a LONG tier, unlike the notice's). The huff line follows the notice's own line and its gap: it
+     * is deferred to the first tick that gap opens (a floor-2 line waits only for the line, not the chatter quiet), still inside the
+     * sulk's hold, and is left unsaid only when the hold ends before the gap does.
+     */
+    private void sulk(YukkuriEntity yielder) {
+        String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
+        long now = yielder.level().getGameTime(), lineEnd = yielder.speechEnd();
+        // The first tick a floor-2 line may start after the last one: SpeechTiming.next, 30 ticks plus half the line's length.
+        long speechAt = Math.max(now, lineEnd + 30 + (lineEnd - yielder.speechStart()) / 2);
+        int hold = yielder.faceHold(FaceTier.Tier.LONG, face);
+        // The delayed cue comes due a tick after its delay (YukkuriEntity.aiStep): two ticks of margin keep the line inside the hold.
+        boolean voiced = speechAt + 2 <= now + hold;
+        boolean shown = voiced
+                ? yielder.showReactionDelayed(face, "sulk_huff", hold, (int) (speechAt - now) + 2, 2, spoken ->
+                    GameplayLog.event(yielder, "move", "encounter sulk speech tick={} beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken={}",
+                            yielder.level().getGameTime(), face, now + hold, spoken))
+                : yielder.showReaction(face, "", FaceTier.Tier.LONG);
+        if (!shown) return;
+        yielder.beat("yield_giveup", face, "sulk_huff");
+        if (!voiced) GameplayLog.event(yielder, "move",
+                "encounter sulk speech tick=none beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken=false cause=hold_end speechAt={}",
+                face, now + hold, speechAt);
     }
 
     /** Nowhere to pass behind the yielder: the other body, whose way back is the open side, yields in one new encounter. */

@@ -998,10 +998,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         showReactionDelayed(expression, event, ticks, speechDelayTicks, priorityFloor, null);
     }
 
-    /** As above, told whether the delayed line was spoken when it comes due. */
-    public void showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks, int priorityFloor,
-                                    java.util.function.Consumer<Boolean> spoken) {
-        if (showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, spoken)) pendingSpeechFloor = priorityFloor;
+    /** As above, told whether the delayed line was spoken when it comes due; returns whether the reaction and its cue were armed. */
+    public boolean showReactionDelayed(String expression, String event, int ticks, int speechDelayTicks, int priorityFloor,
+                                       java.util.function.Consumer<Boolean> spoken) {
+        boolean armed = showReactionDelayed(null, expression, event, ticks, speechDelayTicks, null, spoken);
+        if (armed) pendingSpeechFloor = priorityFloor;
+        return armed;
     }
 
     public boolean showReactionDelayed(YukkuriAction action, String expression, String event, int ticks, int speechDelayTicks,
@@ -1191,6 +1193,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         fadeLen = calming.isEmpty() ? 0 : FaceTier.fade(Math.max(ticks, hold));
         fadeEnd = holdEnd + fadeLen;
     }
+
+    /** How long this individual keeps a face of this tier: the length its reaction of that face would hold (a caller that defers the
+     *  line behind the face needs it to tell whether the hold will still run when the line may start). */
+    public int faceHold(FaceTier.Tier tier, String face) { return personalHold(tier, face); }
 
     /** The tier's hold for this individual: its range shifted by the traits the face's mood leans on, +-10% by its own hash. */
     private int personalHold(FaceTier.Tier tier, String face) {
