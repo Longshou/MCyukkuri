@@ -9536,6 +9536,7 @@ _smoke(_lock_lane, 2500, [
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,inf\) reason=locked_stays ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter beat role=yielder beat=yield_notice face=\w+ line=\w+ ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed cause=placed ',
+    rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=\w+ line=sulk_huff declared=\w+',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* gave up walk target=\S+ blocker=#\d+ '],
     forbid=[rf'\[move\][^\n]*{_lane_who}[^\n]* encounter end [^\n]* result=(?:stuck|timeout|aborted|no_place)\b',
             rf'\[move\][^\n]*{_lane_who}[^\n]* ground path stopped reason=no_progress',
@@ -9544,9 +9545,10 @@ _smoke(_lock_lane, 2500, [
 
 def _lock_verify(window, trace):
     """The lane's lock is resolved by the walker alone within about 100 ticks of its first blocked window (ladder: plan round, ask, settle): it
-    turns round before it walks (no sliding), the sleeper is never made to move, no blocked stretch of any pet lasts over 200 ticks, and the
-    walker is never sent at the sleeper again while it still stands on the spot where it held the lane up - a wake alone changes nothing, only
-    a real move (> YieldRule.STAYED) lifts the refusal (the window runs past the old 1200-tick expiry)."""
+    turns round before it walks (no sliding), both its notice and the sulk it keeps at the give-up show the faces they declare, the sleeper is
+    never made to move, no blocked stretch of any pet lasts over 200 ticks, and the walker is never sent at the sleeper again while it still
+    stands on the spot where it held the lane up - a wake alone changes nothing, only a real move (> YieldRule.STAYED) lifts the refusal (the
+    window runs past the old 1200-tick expiry)."""
     blocked = sorted(int(m[1]) for m in re.finditer(rf'\[move\] \w+ #\d+ {_lane_who} t=(\d+)[^\n]* blocked by yukkuri ', window))
     begin = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter begin ', window)
     end = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* encounter end ', window)
@@ -9567,6 +9569,9 @@ def _lock_verify(window, trace):
     face = re.search(rf'uuid={_lane_walker} [^\n]* encounter face role=yielder beat=yield_notice declared=(\w+) shown=(\w+) ', window)
     if not face or face[1] != face[2]:
         return f'the yield_notice beat did not show the face it declared ({face and face.groups()})'
+    huff = re.search(rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=(\w+) line=sulk_huff declared=(\w+)', window)
+    if not huff or huff[1] != huff[2]:
+        return f'the give-up sulk did not show the face it declared ({huff and huff.groups()})'
     if slide := _slides(trace, int(begin[1]), int(end[1]) + 40, _lane_walker):
         return slide
     gave = re.search(rf'\[move\] \w+ #\d+ uuid={_lane_walker} t=(\d+)[^\n]* gave up walk target=\(([-\d.]+),([-\d.]+),([-\d.]+)\) blocker=#\d+ at=', window)

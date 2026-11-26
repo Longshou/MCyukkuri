@@ -90717,6 +90717,45 @@
     }
   },
   {
+    "id": "yield_way.meek",
+    "key": "dialogue.mcyukkuri.original.yield_way.meek",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "yield_way"
+    ],
+    "ticks": 83,
+    "sound": "",
+    "variant": "timid"
+  },
+  {
+    "id": "yield_way.grumbling",
+    "key": "dialogue.mcyukkuri.original.yield_way.grumbling",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "yield_way"
+    ],
+    "ticks": 75,
+    "sound": "",
+    "variant": "plain"
+  },
+  {
+    "id": "yield_way.proud",
+    "key": "dialogue.mcyukkuri.original.yield_way.proud",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "yield_way"
+    ],
+    "ticks": 95,
+    "sound": "",
+    "variant": "proud"
+  },
+  {
     "id": "glow.happy",
     "key": "dialogue.mcyukkuri.original.glow.happy",
     "origin": "project-original",

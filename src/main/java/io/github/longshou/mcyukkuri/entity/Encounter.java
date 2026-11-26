@@ -353,8 +353,9 @@ public final class Encounter {
         if (minor) {
             beat(yielder, yielderNav, "yielder", "shift_aside", eagerness(yielder) > .5 ? "surprise" : "pursed", "", FaceTier.Tier.SHORT);
         } else {
-            boolean timid = eagerness(yielder) > .5;
-            beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", timid ? "busy" : "wait_turn", FaceTier.Tier.MEDIUM);
+            // The line and its face take the speaker's own style: a meek body apologises and starts, a grumbling or proud one mutters.
+            boolean timid = yielder.speechStyle().equals("timid");
+            beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", "yield_way", FaceTier.Tier.MEDIUM);
             // A locked pair's keeper is not passing anyone (it may be asleep or eating): it makes no beat of its own.
             if (!lock && keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", FaceTier.Tier.SHORT);
         }
@@ -446,8 +447,15 @@ public final class Encounter {
         if (yielderNav.encounter == this) yielderNav.encounter = null;
         if (keeperNav.encounter == this) keeperNav.encounter = null;
         keeperNav.stopWaiting(yielder);
-        if (lock && canYield(yielder)) yielderNav.giveUp(errand, keeper);
-        else if (!released) yielderNav.resumed();
+        if (lock && canYield(yielder)) {
+            yielderNav.giveUp(errand, keeper);
+            // The walk it was held up on is dropped for good: the body stays at its stand and sulks. The bold huff, the meek only purse
+            // their lips, and the sulk holds long after that single huff (a LONG tier, unlike the notice's).
+            if (able(yielder)) {
+                String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
+                if (yielder.showReaction(face, "sulk_huff", FaceTier.Tier.LONG)) yielder.beat("yield_giveup", face, "sulk_huff");
+            }
+        } else if (!released) yielderNav.resumed();
         if (!result.equals("passed")) { keeperNav.shunned = yielder; yielderNav.shunned = keeper; }
         GameplayLog.event(yielder, "move", "encounter end keeper=#{} yielder=#{} result={} cause={} ticks={} holds={} reason={}",
                 keeper.getId(), yielder.getId(), result, cause, now - start, holds, reason);
