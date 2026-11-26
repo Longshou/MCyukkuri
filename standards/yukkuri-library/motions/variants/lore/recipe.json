@@ -1154,16 +1154,36 @@
       "faces": [
         [
           0,
-          0.6,
-          "chewing_closed"
+          0.12,
+          "neutral"
         ],
         [
-          0.6,
-          1.1,
-          "chewing"
+          0.12,
+          0.38,
+          "drink_lap"
         ],
         [
-          1.1,
+          0.38,
+          0.52,
+          "neutral"
+        ],
+        [
+          0.52,
+          0.78,
+          "drink_lap"
+        ],
+        [
+          0.78,
+          0.92,
+          "neutral"
+        ],
+        [
+          0.92,
+          1.18,
+          "drink_lap"
+        ],
+        [
+          1.18,
           1.6,
           "closed_smile"
         ]
@@ -1673,37 +1693,47 @@
       "duration": 1.6,
       "loop": true,
       "applies": "all",
-      "lean": -8,
-      "sip": -2,
-      "sip_seconds": 0.8,
+      "lean": -7,
+      "sip": -3.8,
+      "sip_seconds": 0.4,
       "faces": [
         [
           0,
-          0.25,
-          "chewing_closed"
+          0.12,
+          "neutral"
         ],
         [
-          0.25,
-          0.55,
-          "chewing"
+          0.12,
+          0.38,
+          "drink_lap"
         ],
         [
-          0.55,
-          1.05,
-          "chewing_closed"
+          0.38,
+          0.52,
+          "closed_smile"
         ],
         [
-          1.05,
-          1.35,
-          "chewing"
+          0.52,
+          0.78,
+          "drink_lap"
         ],
         [
-          1.35,
+          0.78,
+          0.92,
+          "neutral"
+        ],
+        [
+          0.92,
+          1.18,
+          "drink_lap"
+        ],
+        [
+          1.18,
           1.6,
-          "chewing_closed"
+          "closed_smile"
         ]
       ],
-      "lore": "drinking (rules)",
+      "lore": "drinking (rules): three quick tongue laps at the water with small head dips and a brief swallow, distinct from eating",
       "triggers": [
         "drink"
       ],
@@ -7170,7 +7200,7 @@
         [
           0,
           0.8,
-          "teary"
+          "neutral"
         ],
         [
           0.8,
@@ -8075,17 +8105,13 @@
         "sideburn": {
           "forward_keys": [[0, 2], [2.4, 2]],
           "out_keys": [[0, -2], [2.4, -2]],
-          "wags": [[0.32, 1.04, 2.5, 5.5], [1.44, 2.08, 2.0, 5.5]]
+          "wags": [[0.25, 1.05, 1.8, 9.5], [1.35, 2.1, 1.5, 9.5]]
         }
       },
       "faces": [
-        [0, 0.44, "cold"],
-        [0.44, 0.88, "squeezed_cry_tears"],
-        [0.88, 1.56, "cold"],
-        [1.56, 1.92, "teary"],
-        [1.92, 2.4, "cold"]
+        [0, 2.4, "cold"]
       ],
-      "lore": "Project design (N79): huddled slightly forward in a cold gap (distinct from `tremble`'s backward fear shake), with no emotional Y-squash; two involuntary 5.5 Hz cold shudder bursts per 2.4 s cycle separated by shallow cold breaths, starting and ending in the same quiet tucked hold for a seamless loop. Composed tilt stays within 6 degrees.",
+      "lore": "Project design (N79): drawn in flatter and tucked forward against the cold, shivering in small fast 9.5 Hz tremors with two crisp shudder bursts per 2.4 s cycle; face stays on cold (animated cold/cold_b) rather than fear or crying. Composed tilt stays within 9 degrees.",
       "triggers": ["FoundShelter cold plain-gap rest"]
     }
   },

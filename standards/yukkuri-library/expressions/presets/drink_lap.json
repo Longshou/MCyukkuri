@@ -1,0 +1,46 @@
+{
+  "id": "drink_lap",
+  "label": "饮水舔舐",
+  "group": "动作表情",
+  "recipe": {
+    "source": "approved-component-reuse",
+    "donors": {
+      "face_eye_left": "N021",
+      "face_eye_right": "N021",
+      "face_brow_left": "N021",
+      "face_brow_right": "N021",
+      "face_blush_left": "N021",
+      "face_blush_right": "N021",
+      "face_mouth": "N065",
+      "face_tear_left": "N001",
+      "face_tear_right": "N001",
+      "face_effect_mouth": "N001"
+    },
+    "retained_special": []
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_brow_left": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_eye_right": "expressions/parts/394256bd3d1fd6dedc15.png",
+    "face_brow_right": "expressions/parts/af2d4cf86a7386999bbb.png",
+    "face_blush_right": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_mouth": "expressions/parts/e90a66b2028eead57c32.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design: downcast eyes with lapping tongue for drinking",
+  "aliases": [],
+  "review_code": "D01",
+  "origin": "project design",
+  "review_pair": null,
+  "geometry_offsets": {},
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-26",
+    "note": "Reuses approved N021 downcast eyes/brows/blush and N065 lapping tongue for water drinking."
+  }
+}

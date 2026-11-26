@@ -99,7 +99,8 @@
     "envy": "expressions/presets/envy.json",
     "hmph": "expressions/presets/hmph.json",
     "ashamed": "expressions/presets/ashamed.json",
-    "sparkle": "expressions/presets/sparkle.json"
+    "sparkle": "expressions/presets/sparkle.json",
+    "drink_lap": "expressions/presets/drink_lap.json"
   },
   "parts": "expressions/parts/index.json",
   "source_coverage": "provenance/expression-coverage.json",

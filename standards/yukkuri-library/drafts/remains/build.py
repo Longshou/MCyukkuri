@@ -110,6 +110,10 @@ def body_sources(ident):
 
 def face_atlas(ident, expression, boxes):
     """The selected body atlas carrying the accepted standard face (the rounded exporter's derivation)."""
+    if expression == 'dry_dead':
+        runtime = ASSETS / 'textures/entity' / ident / f'{expression}.png'
+        if runtime.is_file():
+            return Image.open(runtime).convert('RGBA'), runtime
     spec, folder = body_sources(ident)
     own = folder / f'{expression}.png'
     derived = ident in ('reimu_wasa', 'reimu_deibu', 'reimu_wasa_deibu') or not own.exists()
@@ -272,15 +276,30 @@ def overlay(name):
         return rng.choice((rng.uniform(.2, .4), rng.uniform(.6, .8), rng.uniform(0, 1))) * w
 
     if name == 'wrinkle':
-        for _ in range(28):
-            x, y = rng.randrange(w), rng.randrange(3, h - 2)
+        # Dried-out skin folds: sagging horizontal creases on the flanks and hollow vertical cheek lines.
+        for _ in range(36):
+            x, y = rng.randrange(w), rng.randrange(2, h - 2)
             if front(x, y):
                 continue
-            for k in range(rng.choice((2, 3, 3, 4))):
-                yy = y + (1 if k in (0, 3) else 0)
-                put(x + k, yy, P['crease_dark'])
-                if rng.random() < .6:
-                    put(x + k, yy + 1, P['crease'])
+            length = rng.choice((3, 4, 5, 6))
+            for k in range(length):
+                yy = y + (1 if k in (0, length - 1) else 0)
+                if not front((x + k) % w, yy):
+                    put(x + k, yy, P['crease_dark'])
+                    if rng.random() < .75 and not front((x + k) % w, yy + 1):
+                        put(x + k, yy + 1, P['crease'])
+        # Sunken cheek hollows flanking the face (just outside the front eye/mouth keep-out).
+        for cx in (round(w * .41), round(w * .59)):
+            for dy in range(4, 11):
+                put(cx, dy, P['crease_dark'] if dy in (5, 7, 9) else P['crease'])
+                if dy in (6, 8):
+                    put(cx + (1 if cx < w // 2 else -1), dy, P['crease'])
+        # Puckered dry rim near the sole.
+        for x in range(w):
+            if x % 3 != 0 and not front(x, h - 2):
+                put(x, h - 2, P['crease'])
+                if x % 6 == 1:
+                    put(x, h - 1, P['crease_dark'])
     elif name == 'crack':
         for i in range(9):
             x = round(i * w / 9 + rng.randrange(3))

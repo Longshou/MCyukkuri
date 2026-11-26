@@ -186,15 +186,16 @@ def state(action, t, c, height):
              keyed(t, [(0, 0), (.52, 0), (.76, -1.0), (1.08, .7), (1.26, 0), (d, 0)])]
         shift = [0., height*keyed(t, [(0, 0), (.36, -.035), (.76, -.125), (1.08, -.025), (d, 0)])]
     elif action == 'cold_shiver':
-        # Huddled slightly forward with no emotional Y-squash: two 5.5 Hz cold shudder bursts per cycle separated by cold breaths.
-        b1 = bump((t-.32)/.72) if .32 <= t <= 1.04 else 0.
-        b2 = .78*bump((t-1.44)/.64) if 1.44 <= t <= 2.08 else 0.
+        # Drawn in (flatter, tucked) and shivering in small fast tremors (9.5 Hz) with two crisp shudder bursts per cycle.
+        b1 = bump((t-.25)/.80) if .25 <= t <= 1.05 else 0.
+        b2 = .85*bump((t-1.35)/.75) if 1.35 <= t <= 2.10 else 0.
         env = b1+b2
-        sh = math.sin(2*math.pi*5.5*(t-.32))*b1 + math.sin(2*math.pi*5.5*(t-1.44))*b2
-        h = 1+.012*(1-math.cos(2*math.pi*t/d))/2
-        w = h**-.5; s = [w, h, w]
-        r = [-4.0-1.4*env, 4.5*sh, 2.4*math.sin(2*math.pi*5.5*t+.7)*env]
-        shift = [.012*height*sh, -.018*height*(1+.35*env)]
+        trem = (.18 + .82*env)*math.sin(2*math.pi*9.5*t)
+        h = .90 + .012*(1-math.cos(2*math.pi*t/d))/2 - .025*env
+        w = 1 + (1-h)*.45
+        s = [w, h, w]
+        r = [-5.5-1.5*env, 1.4*trem, 1.6*math.sin(2*math.pi*9.5*t+.7)*(.18+.82*env)]
+        shift = [.008*height*trem, -.020*height*(1+.25*env)]
     elif BRAID_KEYS['authored'](c):
         s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):
@@ -339,7 +340,8 @@ def state(action, t, c, height):
         elif action == 'boat_eat':
             chew = bump((t % .4)/.4); r[0] = -5-2*chew; s[1] -= .025*chew
         elif action == 'boat_drink':
-            sip = bump(t/d); r[0] = -9*sip; r[2] = -2*sip
+            lap = sum(bump((t-a)/.34) for a in (.08, .48, .88) if a <= t <= a+.34)
+            r[0] = -6.0 - 3.5*lap; r[2] = -1.5*lap; s[1] -= .02*lap
         else:
             s = [1.03, .94, 1.03]  # physical flight supplies lift; never double the arc
     elif action == 'eat':
@@ -353,8 +355,12 @@ def state(action, t, c, height):
             fade = (1-(t-.95)/(d-.95))**2
             r[2] = c['wiggle']*math.sin(2*math.pi*(t-.95)/.52)*fade
     elif action == 'drink':
-        q = bump((t % c['sip_seconds'])/c['sip_seconds'])
-        r[0] = c['lean']+c['sip']*q; s = [1+.01*q, 1-.02*q, 1+.01*q]
+        # Quick repeated tongue laps at the water: three small head dips with brief retracts, ending in a swallow.
+        lap = sum(bump((t-a)/.34) for a in (.08, .48, .88) if a <= t <= a+.34)
+        swallow = bump((t-1.26)/.28) if 1.26 <= t <= 1.54 else 0.
+        r[0] = c['lean'] + c['sip']*lap + 1.2*swallow
+        s = [1+.015*lap-.008*swallow, 1-.025*lap+.016*swallow, 1+.015*lap-.008*swallow]
+        shift = [0., -.025*height*lap]
     elif action == 'sleep':
         b = (1-math.cos(2*math.pi*t/d))/2
         wide = 1+(1-c['height'])*.6-c['breath']*.3*b

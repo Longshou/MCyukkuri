@@ -7,6 +7,11 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT/'src/main/resources/assets/mcyukkuri'
 
 
+def resolve(library, model, face):
+    """Identity face resolver kept for preview/player callers after E-03 removed aliases."""
+    return face
+
+
 def emitted_faces():
     shared = Path(subprocess.check_output(['git','rev-parse','--path-format=absolute','--git-common-dir'],cwd=ROOT,text=True).strip()).parent
     java = next((shared/'.local/tools/java').rglob('java.exe'))

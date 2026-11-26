@@ -597,6 +597,12 @@
       "code": "N072",
       "label": "被压遮挡",
       "preset": "expressions/presets/pressed_hidden.json"
+    },
+    {
+      "id": "drink_lap",
+      "code": "D01",
+      "label": "饮水舔舐",
+      "preset": "expressions/presets/drink_lap.json"
     }
   ],
   "deferred_ids": [],

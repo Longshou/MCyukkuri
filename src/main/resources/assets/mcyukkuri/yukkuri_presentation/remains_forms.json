@@ -12,12 +12,12 @@
     },
     "starved": {
       "scale": [
-        0.86,
-        0.6,
-        0.86
+        0.8,
+        0.5,
+        0.8
       ],
       "face": "dry_dead",
-      "roll": 0,
+      "roll": 6,
       "overlay": "wrinkle"
     },
     "burned": {

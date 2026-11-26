@@ -420,6 +420,9 @@
     "pressed_hidden": {
       "kind": "standard"
     },
+    "drink_lap": {
+      "kind": "standard"
+    },
     "afraid": {
       "kind": "derived",
       "builder": "standards/yukkuri-library/expressions/derived/faces.py",

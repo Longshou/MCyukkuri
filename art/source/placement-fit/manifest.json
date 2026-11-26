@@ -1379,7 +1379,7 @@
     },
     "myon": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
-      "base_sha256": "0dc38779ac3c9ff3cf2c0aed8ba8cf1fd2acce55c5187158cb508ff76ae69419",
+      "base_sha256": "681ef8898f25926bdf29bfdc2c218ca6dd97302bf16983a3d1c69f502e90e095",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1462,7 +1462,7 @@
     },
     "myon_redeye": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
-      "base_sha256": "fa2fad7d8dba905e513a09a2fb674b40f33a2fae3109f20a93ccd20507e4126a",
+      "base_sha256": "a7e2c56060c8b1c09b8ce995f6df6585829072a5ef50c9e99cb7f1beb2ebf707",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1545,7 +1545,7 @@
     },
     "chen_longtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
-      "base_sha256": "5096252ecef978d4c6a285c7d0a4e04640eb4881f0b0766705131140c3c91256",
+      "base_sha256": "9c21486b322ba310c766fc276a731edc9acbb063ffef3fcd196418c7bef0c9e9",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1677,7 +1677,7 @@
     },
     "chen_roundtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
-      "base_sha256": "05cb96280c4d659ff69c74e581cf6059b2b4b730dc518b8ddb3955812879a34e",
+      "base_sha256": "8ffecff20efc63ebbedc094a9e1a443292f77b0a7737e469b9a534e9d5b92b7d",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1809,7 +1809,7 @@
     },
     "marisa_kotatsu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "base_sha256": "4421f2691c8dbf60fef5e9ce788eb37da1374e55119c2d97083ba65a1efa7f98",
+      "base_sha256": "1e11587f7dbd89a186f42b33ade9643bd30f6a8bae36c39b4410922b259596b7",
       "derived_from": "marisa",
       "parts": [
         "crown",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "ff8412721a9463898f63217033d565484bceb55ddc008474362aee4c7bfe7b3d"
+  "runtime_sha256": "1a38b7c104859827f0c0db401c1722dc167ed42c7613821397cc42d94e756582"
 }

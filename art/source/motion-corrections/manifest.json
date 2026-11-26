@@ -10,9 +10,9 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "0db153f83220e1cbc23f22430e1a20b21dfa0890630224ad8fea35f30f00e8e2",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "67eabde1023c3cfdea6ce5af133b7f852faf8b7e151aa9f9d881fbac389fd565",
+  "lore_recipe_sha256": "2b641baf176b9a9fce416bf509c5f1ac483cb930f6c0d748f7f6d095e4c2488b",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
-  "lore_author_sha256": "cb336efd01486bcfda2f306c394ea0b0c29e3fc75c49b740f51ccba982fb92ec",
+  "lore_author_sha256": "1a0ae5da0ec20081001965a3ddfa59ce4fae7c64cbb63ff28c1c5ee169de5262",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
   "lore_hat_sha256": "a007b28152fef6b2272c501f19cd7ff0650180bb8279f772c12ee01e35213e4a",
   "hat_vessel": "standards/yukkuri-library/interactions/marisa-hat-vessel/geometry.json",
@@ -30,9 +30,9 @@
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "6f4c6d43ab74174a1d0222ac0291ea61bd6966a06b71874204a5b4879c583de3",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "ff8412721a9463898f63217033d565484bceb55ddc008474362aee4c7bfe7b3d",
+  "placement_fit_sha256": "1a38b7c104859827f0c0db401c1722dc167ed42c7613821397cc42d94e756582",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "ef15e1e09b812be97fca026ec691408058d6add26e9e39ea4993e0382cdc2cfe",
+  "runtime_sha256": "970f7aee5cc8555eed3d5a52f7edc033a26d010085441a1a67ad25352f38adcd",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -68,7 +68,7 @@
     },
     "chen_longtail": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
-      "sha256": "5096252ecef978d4c6a285c7d0a4e04640eb4881f0b0766705131140c3c91256",
+      "sha256": "9c21486b322ba310c766fc276a731edc9acbb063ffef3fcd196418c7bef0c9e9",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/chen_longtail/angry.png",
@@ -84,7 +84,7 @@
     },
     "chen_roundtail": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
-      "sha256": "05cb96280c4d659ff69c74e581cf6059b2b4b730dc518b8ddb3955812879a34e",
+      "sha256": "8ffecff20efc63ebbedc094a9e1a443292f77b0a7737e469b9a534e9d5b92b7d",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/chen_roundtail/angry.png",
@@ -196,7 +196,7 @@
     },
     "marisa_kotatsu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "sha256": "4421f2691c8dbf60fef5e9ce788eb37da1374e55119c2d97083ba65a1efa7f98",
+      "sha256": "1e11587f7dbd89a186f42b33ade9643bd30f6a8bae36c39b4410922b259596b7",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_kotatsu/angry.png",
@@ -244,7 +244,7 @@
     },
     "myon": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
-      "sha256": "0dc38779ac3c9ff3cf2c0aed8ba8cf1fd2acce55c5187158cb508ff76ae69419",
+      "sha256": "681ef8898f25926bdf29bfdc2c218ca6dd97302bf16983a3d1c69f502e90e095",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/myon/angry.png",
@@ -260,7 +260,7 @@
     },
     "myon_redeye": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
-      "sha256": "fa2fad7d8dba905e513a09a2fb674b40f33a2fae3109f20a93ccd20507e4126a",
+      "sha256": "a7e2c56060c8b1c09b8ce995f6df6585829072a5ef50c9e99cb7f1beb2ebf707",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/myon_redeye/angry.png",

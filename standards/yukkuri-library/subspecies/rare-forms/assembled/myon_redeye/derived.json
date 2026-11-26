@@ -3,14 +3,14 @@
   "label": "红眼妖梦",
   "base_model": "alice",
   "base_form": "myon",
-  "base_runtime_sha256": "0dc38779ac3c9ff3cf2c0aed8ba8cf1fd2acce55c5187158cb508ff76ae69419",
-  "runtime_sha256": "fa2fad7d8dba905e513a09a2fb674b40f33a2fae3109f20a93ccd20507e4126a",
+  "base_runtime_sha256": "681ef8898f25926bdf29bfdc2c218ca6dd97302bf16983a3d1c69f502e90e095",
+  "runtime_sha256": "a7e2c56060c8b1c09b8ce995f6df6585829072a5ef50c9e99cb7f1beb2ebf707",
   "vertices": 37026,
   "parts": 158,
   "status": "pending_confirmation",
   "basis": "wiki species/myon L05《赤い眼のみょん》：红眼个体遭群落迷信；DEVELOPMENT_PLAN 4.2 红眼作为稀有外观",
   "operations": {
-    "recoloured_eye_pixels": 6273
+    "recoloured_eye_pixels": 6321
   },
   "textures": {
     "afraid": "df600976952b56f78547db51a9cc9a7d1940cbef836ce4ca2fdb7e3d2616970d",
@@ -36,9 +36,10 @@
     "cry_b": "4ba5fbb901ff488f469712020d8e172ecf42053271591fcd020dd448bcab73a7",
     "dead_tongue": "7b666dfe62a0accdf2048fe28535993a55941b765ad1f738fa19e9583590f35f",
     "down_angry": "8b98ed0f9207f24c83efda33d5066f5c578cf05c1474a80b3dced1791db82f01",
+    "drink_lap": "43b12ee7b7efb2ef7fa2bdcb16e838885b5b3cecb1c1d359745f93a66118ae62",
     "drool": "3eb8ff28e46f3a3ecd0f763753249720b82731e0d09d2dc90f0c9eca043a28e2",
     "drool_b": "ace200c3e966f0542aa634c1b36cd26ba4163eeb756faae1cb0e445d55709d3b",
-    "dry_dead": "132a10979f6aa3540f5e14a1c44b41bab73afe096f2f52f949ca0d5c6ff230e1",
+    "dry_dead": "b3f21ca9966460682f5f17887cc25ec2bcaf25d9ca96fd3055ff2d5488f9092e",
     "dull": "c13f64d61e095ba4bddf9c10198ce98d4fa91f4f40a877527d46a248d7234f2e",
     "dying": "063370c45e993f3aa074501ec55ac3fd1f1951d02114abef5b8ab1c7770900c2",
     "dying_b": "f7c9dd56d22dcc8316bb22750f753e11e19e78d0809e3abf7145b7bda51ac764",

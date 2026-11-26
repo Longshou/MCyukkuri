@@ -1,6 +1,6 @@
 {
-  "recipe_sha256": "acccb31d028cf547bae73d5ebe966441ccff1bc5624c20d55210369fce89bd4d",
-  "builder_sha256": "94e5489e2978896634a824580e362c6a4fc70aba681330f48ff283cd1702689f",
+  "recipe_sha256": "922f267a9e3e1c692335df7c29b24d7b2d33123297132bfeb48bb916f462881e",
+  "builder_sha256": "2cd1196b11f1f95f5075698c54587eb78e959bada0f671e62173338eee4ef107",
   "standard_confirmation": "standards/yukkuri-library/provenance/standard-expressions.json",
   "atlases": {
     "reimu": {
@@ -11,8 +11,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-        "sha256": "daec1a6864bc05ae02dc03f425705b9ecdf300a436aee7706018202b11623274"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/dry_dead.png",
+        "sha256": "a5a89c9f6ce049c6d6ce1324a4759da716e5b8a761e4af7846de692050a0ce61"
       },
       "burned": {
         "face": "blank_cry",
@@ -68,8 +68,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/marisa/textures/dry_dead.png",
-        "sha256": "d27a96ef74757e9022e4e540e3014c62b2a23a92113e4a1d7be0014d38542457"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/marisa/dry_dead.png",
+        "sha256": "db92bf3be3ff6e819610e8d43f4ee51c8bc8505468661075e2021b07c6e4a30d"
       },
       "burned": {
         "face": "blank_cry",
@@ -125,8 +125,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/chen/textures/dry_dead.png",
-        "sha256": "a15335ffd51ebbcad4b342d3fc8041f289376bf6697ae11e521730cb327f79d7"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/chen/dry_dead.png",
+        "sha256": "0a5ea6988050a7b0f8f81205420aa91e62437b681abe0befdd994e611385d677"
       },
       "burned": {
         "face": "blank_cry",
@@ -182,8 +182,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/alice/textures/dry_dead.png",
-        "sha256": "ab59682414b79dcc89e66fd092da3d86c120279547c49f67d5b78e28daaee230"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/alice/dry_dead.png",
+        "sha256": "3245d3932e95a031ba151198c6b417eb917155fe55c80686b4af57cdefb392ca"
       },
       "burned": {
         "face": "blank_cry",
@@ -239,8 +239,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/patchouli/textures/dry_dead.png",
-        "sha256": "3fdec338075f35caa053470e1a2206ed87d42a61d45ac8cf4fb1dd2ad59ec7f1"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/dry_dead.png",
+        "sha256": "a2db8aed030fa8fd8363568363c37aa48b1e892a9eed295fd6235f42766dfe8d"
       },
       "burned": {
         "face": "blank_cry",
@@ -296,8 +296,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/marisa_tsumuri/textures/dry_dead.png",
-        "sha256": "f5d02674732ec4d321bf5af5e939be3f737792c2602540915e27eb8708b7a73f"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/marisa_tsumuri/dry_dead.png",
+        "sha256": "a4e1af60931a96937862d9425c02f493e8ee5eed9ffd4f6282c801953fce7b1c"
       },
       "burned": {
         "face": "blank_cry",
@@ -353,8 +353,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-        "sha256": "2f05386aae66b3a6f854609130017a8bd32d6b0d0be9a9af47011d6ce6e4f937"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa/dry_dead.png",
+        "sha256": "d59287e7f54e054fdcf2eeb5493795a7fb2eeedc15b39b9966708f55c435e1e7"
       },
       "burned": {
         "face": "blank_cry",
@@ -410,8 +410,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-        "sha256": "9a4c1f31c76088e2cf54fdf99d240d6197527cfea0c460384e63c22a4d15d5f7"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/dry_dead.png",
+        "sha256": "889e4587850d898eabff37d59d2942c48c3e5c19218021fb3db6237b2102610e"
       },
       "burned": {
         "face": "blank_cry",
@@ -467,8 +467,8 @@
       },
       "starved": {
         "face": "dry_dead",
-        "face_source": "standards/yukkuri-library/assembled/reimu/textures/dry_dead.png",
-        "sha256": "2f05386aae66b3a6f854609130017a8bd32d6b0d0be9a9af47011d6ce6e4f937"
+        "face_source": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_wasa_deibu/dry_dead.png",
+        "sha256": "d59287e7f54e054fdcf2eeb5493795a7fb2eeedc15b39b9966708f55c435e1e7"
       },
       "burned": {
         "face": "blank_cry",
@@ -526,7 +526,7 @@
     "overlay_melt": "d25d2596988842754ee4d4c989c168d2a31152292b8e3202ef293967bd62eb93",
     "overlay_sallow": "56670a3336e37c736f7cd9aee516eb3aadfb7ea5d9ef0a7d03476217186a551f",
     "overlay_soaked": "c03151c537727893d7c6c120f5bc31a67bfcb805326628ca8eff7ab853bd159d",
-    "overlay_wrinkle": "c5320949043ef9f44ba07b7f30077ec35b814d720a8bdc5c36c185234b0e05f8",
+    "overlay_wrinkle": "bb49690e9f7b3e14d2f6a346f0c934abafbeece1cde88ae03fc9bc1c6ee40cba",
     "decal_leak": "64f22a55654cfc347f8b2e5d0ec2a2165b7ac5fbff6739c019dfd35cc9d780a2",
     "decal_residue": "bab1dbfbec4abd4b68a2223bd0b282d1a41f0d738d7a68d217f171f1d7e458e6",
     "decal_splat": "44adc76f6df9623e3b7fbbdb1f3e3bb4948ffa194105267b6a4d8457dd956e19"

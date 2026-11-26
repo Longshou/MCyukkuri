@@ -48,7 +48,7 @@ public final class EcologyPresentation {
             case THIRST -> "licking";
             case SLEEP -> "yawn";
             case HUNGER -> intensity < Temperament.LOW35 ? "look_down" : "drool";
-            case COLD -> "teary";
+            case COLD -> "cold";
             case OVERHEATING -> "teary_pant";
             case BREEDING -> throw new IllegalStateException();
         };

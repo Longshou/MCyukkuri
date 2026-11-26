@@ -290,7 +290,7 @@
       "loop": true,
       "steps": [
         {
-          "clip": "drink",
+          "clip": "eat",
           "intensity": 1,
           "tempo": 1,
           "faces": [
@@ -307,11 +307,11 @@
               "chewing_closed"
             ],
             [
-              1.05,
+              0.85,
               "chewing"
             ],
             [
-              1.35,
+              1.05,
               "chewing_closed"
             ]
           ]
@@ -409,23 +409,31 @@
           "faces": [
             [
               0,
-              "chewing_closed"
+              "neutral"
             ],
             [
-              0.25,
-              "chewing"
+              0.12,
+              "drink_lap"
             ],
             [
-              0.55,
-              "chewing_closed"
+              0.38,
+              "closed_smile"
             ],
             [
-              1.05,
-              "chewing"
+              0.52,
+              "drink_lap"
             ],
             [
-              1.35,
-              "chewing_closed"
+              0.78,
+              "neutral"
+            ],
+            [
+              0.92,
+              "drink_lap"
+            ],
+            [
+              1.18,
+              "closed_smile"
             ]
           ]
         }
@@ -906,7 +914,7 @@
           "faces": [
             [
               0,
-              "teary"
+              "neutral"
             ],
             [
               0.8,
@@ -930,7 +938,7 @@
           "faces": [
             [
               0,
-              "teary"
+              "neutral"
             ],
             [
               0.8,
@@ -5167,22 +5175,6 @@
           "faces": [
             [
               0,
-              "cold"
-            ],
-            [
-              0.44,
-              "squeezed_cry_tears"
-            ],
-            [
-              0.88,
-              "cold"
-            ],
-            [
-              1.56,
-              "teary"
-            ],
-            [
-              1.92,
               "cold"
             ]
           ],
