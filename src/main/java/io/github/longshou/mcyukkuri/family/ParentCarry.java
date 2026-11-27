@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.github.longshou.mcyukkuri.body.MouthPlacement;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriComponents;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
@@ -359,7 +360,10 @@ public final class ParentCarry {
         return holdOf(e) == Hold.BRIM && e.contains("T") && brimRide(carrier, child, e, partial) != null;
     }
     /** The steady pose a brim carrier is drawn and measured in. */
-    public static String carryAction(YukkuriView carrier) { return carrier.getAnimationId().equals("waddle") ? "waddle" : "idle"; }
+    public static String carryAction(YukkuriView carrier) {
+        String clip = carrier.getAnimationId();
+        return YukkuriAction.gait(clip) ? clip : YukkuriAction.IDLE.id();
+    }
     /** Ticks a brim or tail child takes to come down to the ground: the braid clip's set-down, its place to release markers. */
     public static int lowerTicks() {
         var clip = ClipMarkers.of(Grab.BRAID_LIFT);

@@ -159,7 +159,7 @@ final class AgitationPresentation {
         if (phase.equals("ALICE_APPROACH") && !entity.getAnimationId().equals(YukkuriAction.LOOK_AROUND.id())) return false;
         // Preserve the real walking clip even on the boundary tick when navigation has just stopped.
         if ((phase.equals("HEAT") || phase.equals("HEAT_RELIEVED") || phase.equals("HEAT_UNMET") || phase.equals("RECOVER"))
-                && entity.getAnimationId().equals("waddle")) return false;
+                && YukkuriAction.gait(entity.getAnimationId())) return false;
         String behavior = switch (phase) {
             case "HEAT" -> Behaviors.BREEDING_PERIOD;
             case "HEAT_RELIEVED" -> Behaviors.HEAT_RELIEF;
