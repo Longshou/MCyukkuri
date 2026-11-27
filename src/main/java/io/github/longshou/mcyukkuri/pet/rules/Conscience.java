@@ -328,7 +328,9 @@ public final class Conscience {
         LivingEntity focus = look != null && look.isAlive() ? look : owner;
         if (focus != null) pet.getLookControl().setLookAt(focus, 30, 30);
         String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
-        boolean shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line, FaceTier.Tier.SHORT, 2, null);
+        boolean shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line, FaceTier.Tier.SHORT, 2,
+                said -> GameplayLog.event(pet, "rules", "hold speech rule={} beat={} event={} spoken={}",
+                        rule.key(), beat.name(), line, said.spoken()));
         GameplayLog.event(pet, "rules", "hold reaction rule={} beat={} face={} line={} shown={}",
                 rule.key(), beat.name(), beat.face(), beat.event(), shown);
     }
