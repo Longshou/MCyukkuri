@@ -275,7 +275,10 @@ public final class PetWalk {
         if (strangerLeave == 1) { action = YukkuriAction.FLEE; face = "horrified"; }
         else if (strangerLeave == 2) { action = YukkuriAction.MOOD_FLICK; face = "hmph"; }
         else { action = YukkuriAction.LOOK_AROUND; face = "teary_smile"; }
-        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
+        int said = animal.speechSequence();
+        follow.clearOwnLine();
+        if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.MEDIUM)) return false;
+        follow.noteOwnLine(said);
         animal.beat("stranger_released", face, line);
         GameplayLog.event(animal, "lead", "beat=stranger_released face={} line={} leave={}", face, line, strangerLeave);
         return true;

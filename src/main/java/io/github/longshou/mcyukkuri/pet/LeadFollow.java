@@ -81,13 +81,13 @@ final class LeadFollow {
     }
 
     /**
-     * A leash beat may cut only the body's own previous leash line (hurry, then alarm, then relief; the struggle, then the spent cry), never
-     * another line, and every leash event ranks 2, so no hurt or distress line is ever refused or cut by it.
+     * A leash beat may cut only the body's own previous leash line (hurry, then alarm, then relief; the struggle, then the spent cry,
+     * then the release answer), never another line, and every leash event ranks 2, so no hurt or distress line is ever refused or cut by it.
      */
-    private void clearOwnLine() {
+    void clearOwnLine() {
         if (ownLine == animal.speechSequence() && !animal.quiet()) animal.interruptSpeech();
     }
-    private void noteOwnLine(int before) { if (animal.speechSequence() != before) ownLine = animal.speechSequence(); }
+    void noteOwnLine(int before) { if (animal.speechSequence() != before) ownLine = animal.speechSequence(); }
 
     // ---- an owner's pet: hop to catch up, hurry, alarm, relief ----
 
@@ -128,7 +128,7 @@ final class LeadFollow {
         double taut = LeadPace.tautAt(personality.boldness(), comfort, LeadPace.ELASTIC);
         if (!hurried && distance < taut && now - hurryAt >= HURRY_GAP) {
             String face = !hopping ? "teary_pant" : scared ? "afraid" : "surprise";
-            if (beat("lead_hurry", null, face, "lead_hurry", scared ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, comfort)) {
+            if (beat("lead_hurry", null, face, "lead_hurry", FaceTier.Tier.MEDIUM, distance, comfort)) {
                 hurried = shown = true;
                 hurryAt = now;
             }
@@ -147,7 +147,7 @@ final class LeadFollow {
     private boolean relief(Player owner, double distance) {
         var personality = animal.life().personality();
         String face = scared(owner) || personality.attachment() >= 50 ? "teary_smile" : "happy";
-        return beat("lead_relief", null, face, "lead_relief", scared(owner) ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, 0);
+        return beat("lead_relief", null, face, "lead_relief", FaceTier.Tier.MEDIUM, distance, 0);
     }
 
     private boolean scared(Player holder) {
@@ -174,7 +174,7 @@ final class LeadFollow {
         long now = animal.level().getGameTime();
         if (BodyAbility.frail(animal)) {
             if (boutEnd != 0) endBout("exhausted");
-            if (struggled && !spentSaid && beat("lead_spent", YukkuriAction.DROOP, "teary_pant", "lead_spent", FaceTier.Tier.LONG, animal.distanceTo(holder), 0))
+            if (struggled && !spentSaid && beat("lead_spent", YukkuriAction.DROOP, "teary_pant", "lead_spent", FaceTier.Tier.MEDIUM, animal.distanceTo(holder), 0))
                 spentSaid = true;
             return;
         }
@@ -196,7 +196,7 @@ final class LeadFollow {
         boolean scared = scared(holder);
         boolean bold = !scared && personality.friendliness() < 60 && traits.is(Gate.BOLDISH);
         double reserve = LeadPace.reserve(animal.life().energy(), BodyAbility.TIRED_ENERGY);
-        boolean winded = reserve <= .45;
+        boolean winded = struggled && reserve <= .45;
         String face = winded ? (bold ? "squeezed_frown" : "teary_pant")
                 : scared ? "horrified" : bold ? "fierce" : "teary";
         String line = winded ? "lead_struggle_tired" : "lead_struggle";

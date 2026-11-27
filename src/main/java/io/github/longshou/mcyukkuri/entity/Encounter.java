@@ -87,6 +87,7 @@ public final class Encounter {
     private Vec3 keeperAt;
     private String pendingBeatRole, pendingBeatName, pendingBeatDeclared, pendingBeatLine;
     private YukkuriEntity pendingBeatBody;
+    private int noticeSpeechSeq = -1;
     /** One side's forced-wait clock and its single impatience beat; {@code waited} counts only ticks the body really stands waiting. */
     private static final class Impatience {
         final YukkuriEntity body;
@@ -385,11 +386,13 @@ public final class Encounter {
 
     /** One visible beat: the face, and its line when the speaker's own gap after its last line allows (a busy street does not repeat it). */
     private void beat(YukkuriEntity body, YukkuriGroundNavigation nav, String role, String name, String face, String line, FaceTier.Tier tier) {
+        int before = body.speechSequence();
         boolean speak = !line.isEmpty() && body.quiet();
         boolean shown = body.showReaction(face, speak ? line : "", tier);
         GameplayLog.event(body, "move", "encounter beat role={} beat={} face={} line={} keeper=#{} yielder=#{}",
                 role, name, shown ? face : "none", shown && speak ? line : "none", keeper.getId(), yielder.getId());
         if (shown && role.equals("yielder")) {
+            if (name.equals("yield_notice") && body.speechSequence() != before) noticeSpeechSeq = body.speechSequence();
             pendingBeatBody = body;
             pendingBeatRole = role;
             pendingBeatName = name;
@@ -441,7 +444,17 @@ public final class Encounter {
 
     private void tickWait(Impatience side) {
         side.waited++;
-        if (side.played || !side.due() || !side.body.quiet()) return;
+        if (side.played || !side.due()) return;
+        if (!side.body.quiet()) {
+            // Once the yielder's own opening yield_notice line has finished and rested briefly (>= 20 ticks), do not let its tail gap drop wait_impatient.
+            long now = side.body.level().getGameTime();
+            if (side.body == yielder && noticeSpeechSeq >= 0 && side.body.speechSequence() == noticeSpeechSeq
+                    && side.body.speechEnd() > 0 && now >= side.body.speechEnd() + 20) {
+                side.body.interruptSpeech();
+            } else {
+                return;
+            }
+        }
         var beat = WaitImpatience.perform(side.body);
         if (beat == null) { side.refused = true; return; }
         side.played = true;
