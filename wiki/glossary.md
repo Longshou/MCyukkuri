@@ -1,8 +1,8 @@
 # 常用术语与易混概念
 
-[总入口](README.md) · [来源与记录边界](README.md#来源与记录边界)
+[总入口](README.md) · [来源与记录边界](README.md#来源与记录边界) · [设定差异](hakkei-reference/lore/conflicts.md) · [功能分册索引](../docs/FEATURES.md)
 
-以下是本库检索与写作用语，不宣称所有作者采用同一分类。日文用作查找线索，词语本身不能证明一种生物学能力。
+本页统一本库检索与写作用语，区分通用词形、社区译法、作品异说与项目实现规则，不宣称所有作者采用同一分类。日文和英文用作查找线索，词语本身不能证明生物学能力；各玩法领域的实现细则见 `docs/features/` 对应分册。
 
 | 用语／日文线索 | 本库使用方式 | 容易混淆的内容 |
 | --- | --- | --- |
@@ -11,47 +11,46 @@
 | 亲油、子代／親・子 | 亲缘关系 | 子代长大后仍是子代，不能由亲缘称呼推断生活能力 |
 | 幼油 | 未成年个体的泛称 | 不替代赤油、子油的具体阶段，也不能直接决定喂养或劳动资格 |
 | 实子、胎体 | 尚未完成出生的茎上或体内幼体 | 不具有落定幼体的进食、行动或独立任务 |
-| 家油／家ゆっくり・家ゆ | 微小、室内寄居的生态类型 | 一般宠物；同一个日文词在其他文章可能只是“家养” |
-| 宠物油／飼いゆっくり | 被人饲养的社会身份 | 进入室内不改变种族与繁殖方式 |
+| 家油／家ゆっくり・家ゆ | 微小、室内寄居的生态类型，见[家油生态](../docs/features/wild-ecology.md#家油生态) | 一般宠物；同一个日文词在其他文章可能只是“家养” |
+| 宠物油／飼いゆっくり | 被人类饲养的社会身份，见[油库里的身份](../docs/features/identity.md#油库里的身份)与[宠物生活](pet-life.md) | 不是种族，与微小室内家油分开；进入室内不改变种族与繁殖方式，角色自称被养也不等于人类承认或正式登记（[N30](novel-reading/cards/N30.md)的身份误认） |
 | 野良、野生 | 城镇流浪与野外生活语境，按作品注明 | 不能由生活环境推断品行 |
-| 饰物／お飾り | 帽子、蝴蝶结、头带等识别物 | 金银章是另附的资格标志；二者不是同一件物品 |
-| 金银章／バッジ | 教育、资格与社会评价的作品母题 | 持有物品、获得资格、被他人认出应分别描述 |
+| 饰物／お飾り | 帽子、蝴蝶结、头带等识别物，见[头饰](../docs/features/species-and-body.md#头饰) | 金银章是另附的资格标志；二者不是同一件物品 |
+| 金银章／バッジ | 教育、资格与社会评价的作品母题，项目规则见[宠物店、徽章与宠物培育](../docs/features/pets-and-shop.md#宠物店徽章与宠物培育) | 持有物品、获得资格、被他人认出应分别描述 |
 | 优良种／劣等种（垃圾种） | L36 汇总的角色与能力评价写法；部分版本兼看品行表现与才能 | 不视为跨作者统一的先天分类；徽章、实际能力与作品库评分各自区分 |
 | 认屋／おうち宣言 | 宣称某地归自己所有的行为 | 实际产权、共同筑巢、成年离巢不是一回事 |
 | 悠闲之地／ゆっくりプレイス | 角色认为可安居活动的地方 | 未必安全，也未必属于该角色 |
 | 结界／けっかい | 本项目可指巢前细枝等实体边界；智力与自制都高的野生灵梦会用洞口库存里的细枝在洞口堆出一道枝叶屏（项目设计，用户要求） | 仍是物理的细枝叶屏，不是东方的魔法屏障，也不自动具有魔法屏障能力；见[灵梦封洞口](../docs/features/wild-ecology.md#野外住所) |
 | 茎生／植物型・植物式 | 头部茎上结实的繁殖版本 | 异作茎上赤体与项目落地子体的阶段不同 |
-| 胎生／動物型・胎生 | 身体内发育后产出的版本 | 具体出口、周期和胎数不能跨作品合并 |
+| 胎生／動物型・胎生 | 身体内发育后产出的版本，见[消耗品与胎生](../docs/features/family-and-breeding.md#消耗品与胎生) | 具体出口、周期和胎数不能跨作品合并 |
 | 献身／おたべなさい | 临危提供身体或馅给亲属的母题 | 同词也有喜剧分裂版本，不统一成增殖能力 |
 | 馅／餡子・餡 | 身体内容物；明确成分见基本设定 | 排泄物“嗯嗯”、中枢馅、离体材料与记忆并非同义 |
 | 食糜／咀嚼后的食物 | 亲油将一份真实食物嚼碎后递喂的形态 | 身体馅、空茎和排泄物不是同义词；加工不增加食物份数 |
-| 嗯嗯／うんうん | 排泄物及相应便意 | 首便辅助、普通如厕、体操和清洁是不同过程 |
+| 嗯嗯、嘘嘘／うんうん・Poo Poo・Pee Pee | 排泄物及相应便意；站点把两者分别当作“过期馅料”与糖水排出，排出部位分别为 anyaru 与 yurethra（[W，F32](https://yukkuri.fandom.com/wiki/Poo_poo)、[F12](https://yukkuri.fandom.com/wiki/Pee_pee)、[F23](https://yukkuri.fandom.com/wiki/Anyaru)、[F37](https://yukkuri.fandom.com/wiki/Yurethra)） | 首便辅助、普通如厕、体操和清洁是不同过程；项目的嗯嗯是真实方块（份数、四档外观），嘘嘘不单独做成物品，只作卫生状态影响，见[基础生活与饲养操作](../docs/features/care-and-life.md#基础生活与饲养操作) |
 | 不足油 | 本库的先天形态分类 | 后天伤病、低智、性格恶劣不能互相等同 |
 | 多毛灵梦／わされいむ | 球状蓬松鬓发的命名亚型 | 教育困难不等于不能学习；本项目保留生育能力 |
 | 螺壳魔理沙／まりさつむり | 带壳类型 | L22 同名条目其实描述被炉型，需看外形 |
 | 被炉魔理沙／こたまりさ・こたつむり | 本项目采用被炉饰物变体，冬活夏眠 | 不是螺壳或帽船；产茶杯、橘子等不自动采用 |
-| 水生魔理沙 | 本项目单列的帽船类型 | 载体浮力不等于身体耐浸泡；小说中的乘帽行为也未必定义亚种 |
+| 水生魔理沙 | 本项目单列的帽船类型，见[水生魔理沙](../docs/features/aquatic-marisa.md#水生魔理沙) | 载体浮力不等于身体耐浸泡；小说中的乘帽行为也未必定义亚种 |
 | DOS／ドスまりさ | 项目采用罕见大体型魔理沙亚种，本体尚未实现；设定有立场与魔炮，自然成为族长，不可生育（[妖梦与稀有变体](../docs/features/species-and-body.md#妖梦与稀有变体)） | 普通大个体不自动获得这些特征；词形借自怪物猎人的巨型首领前缀（[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide)），仅指体型 |
 | 咻咻车 | L36 以木板、瓶盖和相信之力构成的非现实小车例子 | 不能据此推定普通车辆具备超自然移动能力；见[资源生态](hakkei-reference/world/resources-ecology.md#咻咻车与相信之力) |
-| 鬼威惨／鬼意惨 | 人类虐待者的作品称呼及项目 NPC 类型 | 不是所有店员、工人或成年男性的统一身份 |
+| 鬼威惨／鬼意惨 | 人类虐待者的作品称呼及项目 NPC 类型，见[人类世界](../docs/features/human-world.md#人类世界) | 不是所有店员、工人或成年男性的统一身份 |
 | 辫子动作／ぴこぴこ・わさわさ | Reimu 系把发胶起的筋称为 piko piko，Wasa Wasa 指更蓬松的发型；站点记载这些筋后来被画成能动、像粗笨肢体一样拿东西。[W，F31](https://yukkuri.fandom.com/wiki/Piko_piko) | 本项目的辫子、尾巴、嘴都只是真实可用的拿取部位，不存在“后来长出的能力”；日文词只作查找线索 |
 | 先生／Mister | 站点把接触到的事物都加敬称，物件、人、食物都叫“先生”；“Mister Treasure”即幼体的小玩具。[W，F21](https://yukkuri.fandom.com/wiki/Yukkuri_vocabulary)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F11](https://yukkuri.fandom.com/wiki/Mister_Treasure) | 不是称呼主人或亲属的专用词；项目对白里的称呼见[通用短语](hakkei-reference/dialogue/common-phrases.md) |
-| 嗯嗯、嘘嘘／Poo Poo・Pee Pee | 站点把两者分别当“过期馅料”与糖水排出，排出部位分别为 anyaru 与 yurethra。[W，F32](https://yukkuri.fandom.com/wiki/Poo_poo)、[F12](https://yukkuri.fandom.com/wiki/Pee_pee)、[F23](https://yukkuri.fandom.com/wiki/Anyaru)、[F37](https://yukkuri.fandom.com/wiki/Yurethra) | 项目的嗯嗯是真实方块（份数、四档外观）；嘘嘘不单独做成物品，只作卫生状态影响 |
-| 中枢馅／Paste Core | 站点写作身体中央或头后部的小球，兼管行为与身份，可移植、可用别人的馅“杂合”。[W，F29](https://yukkuri.fandom.com/wiki/Paste_Core) | 项目的中枢馅只作致命弱点与可取出的宝物，没有移植或杂合机制 |
-| 不良油、优良油／Shithead・Nicehead | 站点用一个标签概括品行好坏的二分，并自称“界限模糊、不好用”。[W，F15](https://yukkuri.fandom.com/wiki/Shithead) | 项目用五项属性与具体行为判定，不设全局好坏标签（[性格与社会关系](hakkei-reference/world/personality-social.md)） |
-| 垃圾油／Gutter Trash | 站点对城市流浪、失饰与脏污个体的统称。[W，F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris) | 项目用身份（流浪、聚落、有主）与卫生状态分别描述，不合成一个“品种” |
-| 不如意症／Anti-yukkuritis | 站点把它写成“不能慢慢来”导致的抑郁，早期可用更好的环境治好。[W，F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis) | 项目的非油症是不可逆的终末阶段（狂乱→衰竭→死亡），不设治愈；见[性格与社会关系](hakkei-reference/world/personality-social.md) |
+| 中枢馅／Paste Core | 站点写作身体中央或头后部的小球，兼管行为与身份，可移植、可用别人的馅“杂合”。[W，F29](https://yukkuri.fandom.com/wiki/Paste_Core) | 项目的中枢馅只作致命弱点与可取出的宝物，没有移植或杂合机制，见[伤口、遗体与身体状态](../docs/features/species-and-body.md#伤口遗体与身体状态) |
+| 不良油、优良油／Shithead・Nicehead | 站点用一个标签概括品行好坏的二分，并自称“界限模糊、不好用”。[W，F15](https://yukkuri.fandom.com/wiki/Shithead) | 项目用五项属性与具体行为判定，不设全局好坏标签，见[性格与社会关系](hakkei-reference/world/personality-social.md)与[行为、性格与成长](../docs/features/behavior-and-mind.md#行为性格与成长) |
+| 垃圾油／Gutter Trash | 站点对城市流浪、失饰与脏污个体的统称。[W，F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris) | 项目用身份（流浪、聚落、有主）与卫生状态分别描述，不合成一个“品种”，见[油库里的身份](../docs/features/identity.md#油库里的身份) |
+| 不如意症／Anti-yukkuritis | 站点把它写成“不能慢慢来”导致的抑郁，早期可用更好的环境治好。[W，F01](https://yukkuri.fandom.com/wiki/Anti-yukkuritis) | 项目的非油症是不可逆的终末阶段（狂乱→衰竭→死亡），不设治愈；见[性格与社会关系](hakkei-reference/world/personality-social.md)与[情绪链](../docs/features/behavior-and-mind.md#情绪链) |
 | 爱称／昵称 | 站点给每型一个检索用昵称，如 Yukkureimu、Yukkurisa、Mukyu、Myon、Kimeemaru、Miniaturekkuri。[W，F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)、[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)、[F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli)、[F193](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu)、[F68](https://yukkuri.fandom.com/wiki/Yukkuri_Aya)、[F171](https://yukkuri.fandom.com/wiki/Yukkuri_Shinmyoumaru) | 与种族名同义，不是独立品种，也不是个体名字 |
-| Deibu／灵胖 | 站点把肥胖好怒的灵梦写成 Deibu，子代称 Weibu。[W，F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu) | 项目的灵胖是营养与压力跨阈值的后天体型变化，与人格无关，也没有 Weibu 称呼 |
-| Peni Peni／攻击素鸡立 | 站点写爱丽丝等型能操控该部位的形状与运动，并以其气流飞行。[W，F30](https://yukkuri.fandom.com/wiki/Peni_Peni)、[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice) | 项目只有真实的「攻击素鸡立」茎生规则，不操控形态，也不拿来飞行 |
-| 半灵／幽灵伴随物 | 站点把妖梦型身边的“幽灵”写成来历不明的伴随物。[W，F193](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu) | 项目没有幽灵实体，妖梦只用真实的木棍 |
+| Deibu／灵胖 | 站点把肥胖好怒的灵梦写成 Deibu，子代称 Weibu。[W，F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu) | 项目的灵胖是营养与压力跨阈值的后天体型变化，与人格无关，也没有 Weibu 称呼，见[种族与亚种](../docs/features/species-and-body.md#种族与亚种) |
+| Peni Peni／攻击素鸡立 | 站点写爱丽丝等型能操控该部位的形状与运动，并以其气流飞行。[W，F30](https://yukkuri.fandom.com/wiki/Peni_Peni)、[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice) | 项目只有真实的「攻击素鸡立」茎生规则，不操控形态，也不拿来飞行，见[成体发情与攻击素鸡立](../docs/features/family-and-breeding.md#成体发情与攻击素鸡立) |
+| 半灵／幽灵伴随物 | 站点把妖梦型身边的“幽灵”写成来历不明的伴随物。[W，F193](https://yukkuri.fandom.com/wiki/Yukkuri_Youmu) | 项目没有幽灵实体，妖梦只用真实的木棍，见[妖梦与稀有变体](../docs/features/species-and-body.md#妖梦与稀有变体) |
 | Mukyu | 帕秋莉的咳声，站点同时把它当爱称。[W，F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli) | 项目里是易吐与口癖的表现，不是状态名或数值 |
 
 种族索引见[种族与变体](hakkei-reference/lore/species/README.md)，冲突采用见[差异表](hakkei-reference/lore/conflicts.md)。
 
 ## 译者惯例补充
 
-**W：[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide)** 是社区译者的用语惯例表：把漫画与小说的日文说法整理成英文译法，并声明它只收惯例、不讨论哪种译法才对。本库只取尚未收入上表的词条，日文仍只作查找线索；项目台词的固定词形以制作源为准，见[通用短语](hakkei-reference/dialogue/common-phrases.md)。
+**W（[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide)）** 是社区译者的用语惯例表，把漫画与小说的日文说法整理成英文译法，并声明只收惯例、不讨论哪种译法才对。本库只取尚未收入上表的词条，日文仍只作查找线索；项目台词的固定词形以制作源为准，见[通用短语](hakkei-reference/dialogue/common-phrases.md)。
 
 | 用语／日文线索 | 惯例译法与意思 | 本库区分 |
 | --- | --- | --- |
@@ -67,17 +66,18 @@
 | げす、くず、ごみ | 下等、渣、垃圾 | 辱骂词，与失饰蔑视一类场景共用，不成为类型名 |
 | じまんの | 值得夸耀的 | 夸耀用语，不证明真实能力或地位 |
 | にんーしん | “有小宝宝了”，惯译 preggers | 口语说法，不是孕期阶段或胎数 |
-| かいゆっくり、かいぬしさん | 买来的宠物油、饲主先生 | 对应项目的宠物身份与主人关系，野生个体不适用 |
+| かいゆっくり、かいぬしさん | 买来的宠物油、饲主先生 | 宠物油身份已并入主表；此条补充饲主与主人关系称呼，野生个体不适用 |
 | 餡子脳 | 馅子脑 | 辱骂词，不是真实的认知或馅料状态 |
 | ぺにぺに、まむまむ、あにゃる | 阳具、阴部、肛门 | 与嗯嗯、嘘嘘的出口分开，不合成一个部位 |
 
-**W（[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide) 的译法争议）：** 「うめぇ！！！めっちゃうめぇ！！！」的英译曾加入原文没有的粗口，替代表述也没有得到广泛认同；「Take it easy!」则会丢失「ゆっくり」兼有“慢慢来”的双关，不加旁注就难以保留这类文字游戏。页面把两项都列为争议，没有给出统一译法。
+**W（[F54](https://yukkuri.fandom.com/wiki/Translator%27s_Guide) 的译法争议）** 指出，「うめぇ！！！めっちゃうめぇ！！！」的英译曾加入原文没有的粗口，替代表述也没有得到广泛认同；「Take it easy!」则会丢失「ゆっくり」兼有“慢慢来”的双关，不加旁注就难以保留这类文字游戏。页面把两项都列为争议，没有给出统一译法。
 
 ## 宠物生活补充
 
+宠物油身份区分见主表“宠物油／飼いゆっくり”条目，本节补记[宠物生活专题](pet-life.md)中的衣物与损伤易混用语。
+
 | 词语 | 本库区分 | 依据 |
 | --- | --- | --- |
-| 宠物油／飼いゆっくり | 与人类的饲养关系，不是种族；与微小室内家油分开；角色自称被养不等于人类承认或正式登记 | [宠物生活](pet-life.md)、N30 的身份误认 |
 | 襁褓／おくるみ | 可指覆盖下半身的宠物衣物，也有约束版本；不限新生幼体；功能按作者记录 | [EH31／EH33／EH34 与 EH30 的用途对照](pet-life.md#襁褓的形状与用途) |
 | 作品中的「足りない」 | N29 语境为后天事故损伤，不能直接映射为项目的先天不足形态 | [N29](novel-reading/cards/N29.md) |
 

@@ -1,5 +1,34 @@
 # 项目脚本
 
+## 常用命令速查
+
+按任务类别速查最常用的脚本入口，完整参数、判定规则与写入边界见下方各节。
+
+| 类别 | 常用命令 | 用途 | 详述章节 |
+| --- | --- | --- | --- |
+| 导出（Export） | `<py> scripts/export.py --changed [REV]` / `--family <家族>` / `--check --jobs 3` | 按改动或家族统一导出与全量只读检查，含分片登记与认可指纹 | [统一导出与登记入口](#统一导出与登记入口) |
+| 导出（Export） | `<py> scripts/export.py --rebuild-motion` / `motion <片段> --beats beats.txt --model <形态>` | 重建动作族并做倾角门槛、节拍渲染条与姿态核对 | [统一导出与登记入口](#统一导出与登记入口) |
+| 检查（Check） | `bash scripts/javac_check.sh [工作树]` / `<py> scripts/pkg.py land <名>` | 纯 javac 编译加单元测试，以及包合入全链路检查 | [静态检查与包生命周期](#静态检查与包生命周期) |
+| 检查（Check） | `python scripts/check_doc_refs.py --check` / `check_architecture.py --check` / `check_prop_meshes.py --check` / `check_face_fit.py --check` | 死链、Java 架构守卫、道具网格闪烁与表情时间线只读检查 | [静态检查与包生命周期](#静态检查与包生命周期) · [架构建议检查](#架构建议检查) |
+| 试玩场（Museum） | `<py> scripts/smoke_museum.py --worktree <工作树> <场景ID...>` / `--repeat N --compare` / `--layout` | 无头试玩场冒烟、命运检查、基线对比与初态布局校验 | [试玩场冒烟与基线](#试玩场冒烟与基线) · [追踪与冒烟观察](#追踪与冒烟观察) |
+| 试玩场（Museum） | `<py> scripts/build_museum_full.py --install` / `check_museum_pack.py` / `playtest_list.py` / `feedback_intake.py` | 重建试玩世界、离线核对数据包、生成待试玩清单与反馈入档 | [试玩场生成与场景登记](#试玩场生成与场景登记) · [试玩清单与反馈入档](#试玩清单与反馈入档) |
+| 截图（Capture） | `python scripts/capture_museum.py --worktree <工作树> <场景ID...>` / `capture_review.py` | 隐藏客户端多视角截图、菜单截图、姿态取证与 AI 可读性审图 | [隐藏客户端截图与审图](#隐藏客户端截图与审图) · [客户端卡顿录制](#客户端卡顿录制) |
+| 预览（Preview） | `<py> scripts/preview.py strip` / `video` / `viewer` / `capture` / `moment` / `inbox` / `serve_review.py --port 8766` | 专项渲染条、对比录像、实时查看器、放映室与「待你查看」管理 | [预览与导出](#预览与导出) · [姿态检查与专项预览](#姿态检查与专项预览) |
+| 参考库（Wiki） | `<py> scripts/wiki_reference_library.py` / `wiki_ehentai_reference.py` / `wiki_fandom.py` / `wiki_reference_topics.py` / `wiki_image_tags.py` | 漫画原图库、社区 Wiki 缓存、游戏参考交叉索引与全库图片打标 | [Wiki参考库与抓取工具](#wiki参考库与抓取工具) |
+
+## 章节目录
+
+- [统一导出与登记入口](#统一导出与登记入口)（统一导出、动作节拍门槛、分片登记、动作分级、标准库验证与人类世界村庄检查）
+- [追踪与冒烟观察](#追踪与冒烟观察)（trace 日志、演出导出、姿态协议、时间线、`smoke_checks.py`、场景观察契约与校准资格）
+- [静态检查与包生命周期](#静态检查与包生命周期)（架构检查、死链检查、道具网格与表情适配、`javac_check.sh`、`safe_edit.py` 与 `pkg.py`）
+- [试玩场冒烟与基线](#试玩场冒烟与基线)（`smoke_museum.py`、名额与清理、`smoke_fate.py`、基线对照与 `--layout`）
+- [隐藏客户端截图与审图](#隐藏客户端截图与审图)（`capture_museum.py`、菜单与望远镜截图、`pose.jsonl` 取证、`capture_review.py` 与 [客户端卡顿录制](#客户端卡顿录制)）
+- [架构建议检查](#架构建议检查)（词法检查范围、重构守卫与 `architecture_exceptions.json` 许可规则）
+- [试玩清单与反馈入档](#试玩清单与反馈入档)（`playtest_list.py` 与 `feedback_intake.py`）
+- [预览与导出](#预览与导出)（[姿态检查与专项预览](#姿态检查与专项预览)、[试玩场生成与场景登记](#试玩场生成与场景登记)、[各模块导出与校验脚本](#各模块导出与校验脚本) 与 [Wiki参考库与抓取工具](#wiki参考库与抓取工具)）
+
+## 统一导出与登记入口
+
 资源统一入口：`<py> scripts/export.py --family weather --family life` 按家族导出；`--changed [REV]` 读取从 REV（默认 HEAD）到工作区的 Git 差异（含暂存、未暂存、未跟踪文件），选择声明的源和下游导出器。`--list` 列出脚本、只读检查参数、依赖与边界；表在 `scripts/export.py`，执行按依赖排序，导出器仍留原目录。已选制作器先于其运行导出；单独导出家族不会自动重做已选模型制作源。来源清单中显式登记的 `inputs` 也参与改动选择；旧七模型入口 `runtime-models` 只允许显式指定。无选择时只接受 `--check`，避免误跑全部历史制作器。每项只打印一行耗时／结果，详细输出在 `.local/reports/export/<报告名>-logs/`，汇总在 `results.json`（`--report` 可改位置）；失败返回非零，独立检查继续，无检查的脚本明确标 `NO CHECK`，不会执行写入。`subspecies` 的检查只覆盖贴图；尚未合入的导出器标 `MISSING`，不略过。表新增项应同时登记制作源路径与依赖。音频检查使用主检出 `.local/python-audio/` 的现有依赖；对白的本地八景原文也从主检出读取，运行导出仍写当前工作树。
 
 动作源合并后用 `export.py --rebuild-motion` 重建完整动作、天气接触轮廓和生活片段。家族在 lore `recipe.json` 的 `export_families` 登记片段及必要派生输出，不再新增命令行开关。`export.py motion call_child wake --beats beats.txt --model reimu` 导出所属家族（捕食种 `predator_*` 片段先运行捕食种制作源再运行 `predator-assets`；读取运行模型的下游导出器不随之重做，须另行导出），检查导出后的身体硬错误，调用 `preview.py strip` 输出节拍渲染条，再通过 `pose_check.py --serve` 把同一组任意秒时刻逐帧送检，输出在 `.local/reports/export/motion/<片段>/<模型>/`。`--check` 不重导出，对当前资源执行同样门槛（仍检查家族同步情况并输出预览与报告）。`--model reimu marisa`（逗号写法 `--model reimu,marisa` 等同）可一次检查多个形态，家族只导出一次，各形态的预览与指标分别保存；单个形态的姿态证据错误会显示具体原因并继续其余形态，整批仍返回非零。
@@ -28,6 +57,8 @@
 
 lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <主题> --model <模型> --clip <片段> --times <秒列表>` 接替；出生兼容入口 `birth_performance_preview.py` 移除，专用剖面直接用 `mamu_birth_preview.py`。保留的专门组合：`aquatic_family_preview.py`／`first_voyage_preview.py`（船上乘员与投喂交接）、`aquatic_paddle_preview.py`／`aquatic_strokes_preview.py`（船体、水线、岸边与辫节弯曲带）、`carry_hold_preview.py`（口中放幼、双尾承托、持物，侧面轮廓导出亦复用其蒙皮）、`birth_catching_preview.py`／`mamu_birth_preview.py`（出生出口剖切与接幼）、`weather_preview.py`（按真实侧面轮廓排列双体；雷雨与晒太阳的单体渲染已委托统一 strip）。这些依赖的 lore `preview.py` 是场景蒙皮辅助库，不是命令入口；`page.py` 的完整设定动作目录也保留。`aquatic_preview.py` 的旧帽船与木棍组合由上述水上专门预览覆盖。
 
+## 追踪与冒烟观察
+
 试玩场默认使用 `/yukkuri status trace light`；`off` 关闭，`dense` 每 tick 输出完整状态及耗时。结构化 `[trace]` 行写入服务端原日志，`st` 中缺失的键表示不变，`null` 表示未知。light 每 tick 观察依附关系、持物、动作身份和危险状态，位置、速度、帽船坐标系及其他连续读数每 40 tick 比较一次，仅写变化；异常跳变保留前后两帧。详细状态表的 `ch` 在 light 每 200 tick 观察一次（dense 为 20 tick），不保留其间的短暂诊断变化，也不重复输出同一次状态变化的文本和 `ev`；普通玩法事件照常记录。场景窗口重置后首帧完整，未加载区块的窒息几何记为未知，不为录制加载区块。
 
 演出数据由 `export_moments.py [--check]` 导出并检查片段、表情及符号引用。`test_moments.py` 检查错误引用和非法时间。`preview.py moment <ID> [--model NAME] [--paper-cover]` 生成实时[放映室](../preview/README.md)条目链接，`excited_leak` 打开受惊漏尿。`preview.py kit` 收录演出与动作的实时链接及头顶符号目录。格式见[演出数据](../standards/yukkuri-library/presentation/README.md)。
@@ -37,7 +68,7 @@ lore 通用宠物联系表 `pet_motions_preview.py` 已由 `preview.py strip <�
 `render` 可附带 `emote` 对象，传入逻辑表情 `face`、是否冒汗 `sweat`、演出已过秒数 `elapsed`、时长 `duration`、当前片段已过秒数 `stepSeconds` 和片段指定的符号 `symbol`。返回的 `emote` 是游戏选中的符号 ID，空串表示隐藏。使用 HTTP 二进制顶点响应时，符号 ID 经 URL 编码放在 `X-Pose-Emote` 响应头。
 `<py> scripts/timeline.py <日志或 .log.gz> [pose.jsonl ...] --output <目录>` 合并结构化 `[trace]` 记录，按运行、维度、场景窗口与个体输出 JSONL、世界流和 `index.json`；重复拷贝去重，同名场景再次开启分开登记，缺号、冲突与坏记录写进索引。`<py> scripts/smoke_checks.py <日志...> [--scene ID] [--dense] [--seed N] [--evidence H|C|F|R] [--rerun 命令] [--output checks.json]` 独立报告 FATE、LOOP、PROGRESS、JUMP、LEDGER、ORPHAN、END、LAG、SPAWN、VANTAGE，附种子、证据等级、重跑命令和异常前后 100 tick 的记录；`--dense` 仅用于逐 tick 全量记录，启用个体无离场记录却消失的检查。缺数据记 `no-evidence`，报告退出码不因异常改变；既有命运门槛及 `allow_fate` 仍由兼容入口 `smoke_fate.py` 执行。`<py> scripts/fixtures/timeline/test_timeline.py` 运行十项检查各自的故障、干净与缺数据样例，以及移动、库存、日志边界与命运门槛对照；这些离线样例不替代真实日志校准。冒烟每场与截图每个视角显式设为 dense，按场景观察点在第 1、20 tick 与后续每 20 tick 读取几何；原始窗口逐行复制，轮询使用增量游标，既有断言只读非 trace 文本。冒烟可传 --seed N 作会话种子（默认生成）；每轮由会话种子与轮次散列出该轮种子，在场景开始前用 `/yukkuri status seed <n>` 交给服务器，覆盖此后构造／首次加入世界的个体随机数、模组世界随机、模组身份与出生 UUID、台词和考试随机；未设种子时世界级抽样使用原版世界随机源。原版自身的随机、设种子前已生成的世界、tick 与世界生成执行顺序仍不受控，不能完整重放；每场的 checks.json、timelines/index.json 记录该轮种子、重跑命令与 tick 耗时；加 `--jfr` 时另有 jfr.json 与 JFR 文件记录录制器耗时及服务端热点方法（JFR 按场景开启、结束并保留原文件，热点只取一层栈；checks.json 只含本场窗口，上一场窗口的收尾记录在该场自己的结果里）。`<py> scripts/replay_compare.py <左冒烟结果.json或日志> <右冒烟结果.json或日志>` 对比去掉 tick、坐标、原版实体数字 ID（`#N`）与耗时诊断（`elapsedMs=`）后的有序 INFO 玩法行，报告相同前缀长度、首处分歧；结果 JSON 还校验场景顺序与种子一致，并比较场景通过／失败结果。UUID 和业务数值仍参与比较，空日志不能证明可回放。反馈入档自动输出 observations/ 下的时间线、各 trace 窗口的检查结果和摘要；无记录或无场景 END 声明时明确记 no-evidence。
 
-场景观察契约在 `museum_scenarios.py`：`smoke.end` 的 `final` 保存 `(主体, 谓词)`，按整窗末尾 100 tick 至少 80% 且最后时刻成立判定；`paths`（同 `smoke.milestones`）是互不强加顺序的路径，每条 `steps` 保存有序的 `(事件发出者, seen:类别:正则)`，`each` 要求选中的每个个体走完整条链。正则命名捕获绑定身份，后续 `$变量` 必须匹配同一身份；`$标签名` 引用唯一场景个体，`$subject` 引用 each 当前个体；顺序使用 tick 和记录顺序，支持同 tick 事件。`post` 在链尾事件后的一个物理 tick 检查真实完成状态，允许随后恢复日常行为；`forbid` 禁止窗口内的指定事件。主体支持标签、`actors`、`world`、`child_of:标签`、`newborn_of:标签`（仅本窗 life/birth）、`caught_child_of:标签`（仅本窗实际落入帽内的子油）、`hat_of:标签`。谓词支持状态字段、`carry_empty=true`、`near.主体<=距离`、`aboard.帽主=true`（含帽主承托）、`home_of.主体=true`（相同 homeStand 坐标）、`nest_of.亲油=true`（该亲油对同一孩子真实放下日志的窝内占用，且孩子已解除承托）；homeStand 相等不能代替窝内几何。状态字段 `nest` 是个体对自己窝的实际占用；`carry_home` 的 `autonomous_home` 路径允许无拾取记录且执行过 STAY_HOME 的幼体自行回窝，每只初始幼体须至少一次实际到达受支撑的窝内（搬运者在放下后的物理 tick 核对，自行回窝者在 STAY_HOME 开始后核对），此后允许正常离窝；曾被放到 OUTSIDE 的个体不能借自行走回通过；`carried_min` 要求至少两只不同初始幼体走完整搬运链。未标记聚落成员的事件只从同维度、同窗口、`bounds` 场景范围内的原始 GameplayLog 补读，不补造状态。旧式 END 列表仍供已有调用方使用。`capture.views` 各视角的 `criteria` 保存画面要求。`<py> scripts/fixtures/timeline/test_end.py` 验证顺序、错配、离场、世界事件、初生范围和完成后继续活动；`<py> scripts/fixtures/timeline/replay_end.py 日志目录 --output 目录` 对真实日志和移除阶段事件的故障输入逐场报告 END。检查只报告，不代替用户试玩。
+场景观察契约经由门面 `museum_scenarios.py`（实际场景定义拆在 `scripts/museum_scenarios_parts/`）统一暴露：`smoke.end` 的 `final` 保存 `(主体, 谓词)`，按整窗末尾 100 tick 至少 80% 且最后时刻成立判定；`paths`（同 `smoke.milestones`）是互不强加顺序的路径，每条 `steps` 保存有序的 `(事件发出者, seen:类别:正则)`，`each` 要求选中的每个个体走完整条链。正则命名捕获绑定身份，后续 `$变量` 必须匹配同一身份；`$标签名` 引用唯一场景个体，`$subject` 引用 each 当前个体；顺序使用 tick 和记录顺序，支持同 tick 事件。`post` 在链尾事件后的一个物理 tick 检查真实完成状态，允许随后恢复日常行为；`forbid` 禁止窗口内的指定事件。主体支持标签、`actors`、`world`、`child_of:标签`、`newborn_of:标签`（仅本窗 life/birth）、`caught_child_of:标签`（仅本窗实际落入帽内的子油）、`hat_of:标签`。谓词支持状态字段、`carry_empty=true`、`near.主体<=距离`、`aboard.帽主=true`（含帽主承托）、`home_of.主体=true`（相同 homeStand 坐标）、`nest_of.亲油=true`（该亲油对同一孩子真实放下日志的窝内占用，且孩子已解除承托）；homeStand 相等不能代替窝内几何。状态字段 `nest` 是个体对自己窝的实际占用；`carry_home` 的 `autonomous_home` 路径允许无拾取记录且执行过 STAY_HOME 的幼体自行回窝，每只初始幼体须至少一次实际到达受支撑的窝内（搬运者在放下后的物理 tick 核对，自行回窝者在 STAY_HOME 开始后核对），此后允许正常离窝；曾被放到 OUTSIDE 的个体不能借自行走回通过；`carried_min` 要求至少两只不同初始幼体走完整搬运链。未标记聚落成员的事件只从同维度、同窗口、`bounds` 场景范围内的原始 GameplayLog 补读，不补造状态。旧式 END 列表仍供已有调用方使用。`capture.views` 各视角的 `criteria` 保存画面要求。`<py> scripts/fixtures/timeline/test_end.py` 验证顺序、错配、离场、世界事件、初生范围和完成后继续活动；`<py> scripts/fixtures/timeline/replay_end.py 日志目录 --output 目录` 对真实日志和移除阶段事件的故障输入逐场报告 END。检查只报告，不代替用户试玩。
 
 `<py> scripts/fixtures/timeline/test_calibration.py` 用已标注日志的最小复现验证正常行为、故意破坏和缺失证据；`<py> -m unittest discover -s scripts/fixtures/timeline -p 'test_*.py'` 运行全部离线检查。样例不代替真实日志校准，观察检查中 ORPHAN 与 SPAWN 已按校准升为冒烟门槛（见下）。PRESENTATION 按个体统计连续逐 tick 样本中动作或表情短暂切换又返回的次数（中段 1–2 tick，前后各至少 3 tick），只报告。
 
@@ -48,6 +79,8 @@ PROGRESS 只统计实际停住后的重新移动；持续移动中跨过 0.01 �
 JUMP 以真实位移、前后 tick 速度、跨步能力和承载者身体朝向检查残差；碰撞前 travel、帽内已执行的局部飞行增量及同个体同 tick 的明确初态放置只解释对应输入。实际碰撞且速度归零的轴允许位移在零到输入速度之间截短；额外或反向位移仍按 0.25／1 格分界报告。LEDGER 分别记录实际持有者，离开观察范围只扣除该持有者的库存，死亡后的展示缓存不重复计入物资；交接解释限定前后 2 tick，明确物品 ID 必须匹配，自然过期须有实际 age/lifespan。嘴部记录从各组件读取真实持物，并带 `hold.mouthAuthority=components`；缺此读数的旧日志库存总量记 no-evidence，仍检查已观察到的嘴部重复占用和实体出入。`test_inventory_authority.py` 验证采叶遮住草的旧显示、真实丢草和缺权威读数。双方记录确认的亲油乘员由实时抱持动作定位，缺少动画目标轨迹时 JUMP 记 no-evidence；亲油自身、入抱与离抱仍检查。无采样个体的掉落／拾取日志须明确指向已采样物品 UUID。报告附实际持有者和物品增减量；事件解释不等于逐笔数量配平。
 
 SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂实体按原版附着条件判定支撑，两个开场样本都须挂稳且无碰撞。初始化内落稳的普通个体（首个样本尚无支撑、+20 tick 已真实支撑）不算坏起点，两个样本都无支撑或任一时刻穿模仍失败；开场拒绝后在原有 40 tick 内确实开始行动的不算阻塞，缺后续样本记 no-evidence。VANTAGE 在近似主体高度低于画面 3.5%、可见射线少于 5/9 或中心出画时提示；射线依据最近碰撞体，不能证明每个演员、接触点和演出细节可读，仍需画面审查。
+
+## 静态检查与包生命周期
 
 `python scripts/check_architecture.py --check` 是 Python 3.10+ 标准库的只读架构建议工具；默认不带 `--check` 也只读。它只扫描本仓库 `src/main/java/**/*.java`，不扫描 `.worktrees`、`.local`、资源或文档，不调用 Git、Java、Gradle、游戏、网络，也不修改文件。不接入 CI、pre-commit 或合并门槛，不替代远端编译或用户试玩。
 
@@ -65,7 +98,9 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `<py> scripts/pkg.py <命令>`（`PYTHONUTF8=1`）是总负责人的包生命周期入口，出错即停并给出原因，不静默兜底：`start <名> --title <条目> --files <主要文件> [--art]` 要求主检出干净，`pull --ff-only`，在待办“进行中”表加行并以 `TODO: register <名>` 推送，基于 `origin/main` 建 `.worktrees/<名>`，缺省时写 `.local/refactor/briefs/<名>.md` 骨架（`--art` 加 `docs/roles/art.md` 指引）；`land <名> [--scene ID ...] [--dry-run]` 要求工作树干净，把 `origin/main` 并入（已包含则跳过；分支含合并提交时用 merge，避免逐个重放美术提交在生成文件上冲突；否则 rebase），改动含 Java 时跑 `javac_check.sh`，列出场景则调用本工作树的 `smoke_museum.py --worktree`（非零退出码原样返回并中止），`--dry-run` 把上述全部检查移到 `.local/tmp/pkg-dry-<名>` 的临时 detached 副本上（不动该包分支，检查完删除副本），通过后不推送、不改行、不删工作树；否则以 `TODO: <名> landed` 删除进行中行，`git push origin HEAD:main`（被拒且 `origin/main` 已前进时 fetch、把这些落地提交 rebase 到新的 `origin/main`、重跑 `javac_check.sh` 后再推，不重跑冒烟；失败后重跑 `land <名>` 从已有的落地提交继续，不因进行中行已删而拒绝），快进主检出，移除工作树（占用时 `git worktree prune` 重试，仍失败则报告残留路径）并删除本地分支，打印推送提交；`runtime [--commit <sha>] [--dry-run]` 等该提交（默认 `origin/main`，等待期间 `origin/main` 前进、或该 Build 被更新的推送取消时，就改等新提交）的 Build 完成，失败打印日志尾部，成功后等试玩客户端关闭（运行中的冒烟与截图不妨碍更新，它们继续用旧包），再快进主检出并运行 `update_museum_runtime.py --run <run-id>`（`--dry-run` 在此之前停止），适合合入后后台运行；`status` 每包一行（工作树、分支、领先 `origin/main` 的提交数、未提交文件数、报告 STATUS 行、待办行是否存在），并列出行无工作树、工作树无行、报告 DONE 但未合入。改动含 Markdown 或场景登记（`museum_scene_numbers.json`、`playtest_watch.json`）时，`land` 先运行 `check_doc_refs.py --check` 只查该包改动的这些文件，有发现即停止；全库检查用其 `--all`。推送成功后把该包的任务说明、报告及两者的 `-review` 副本移到 `.local/archive/refactor/<yyyy-mm>/` 下的 `briefs/`、`reports/`，共享笔记 `_*.md` 不动。
 
-`scripts/smoke_museum.py`：用法与自查边界见[命令与自查](../docs/roles/coder.md#4-命令与自查)。与截图共用 `headless_server`：只把游戏目录在 `.local/experimental-map/museum/` 内的客户端、或 `play-museum/process.json` 记录且启动时间吻合的 PID 当作用户客户端；它运行时冒烟与截图排队等待（提示一次后静默轮询），`--no-wait` 改为直接拒绝。每个冒烟服务器与截图客户端启动前在主检出 `.local/smoke/slots/` 取一个全机名额（默认名额见[命令与自查](../docs/roles/coder.md#4-命令与自查)，`--slots` 或环境变量 `MCY_SMOKE_SLOTS`；记录 pid 与进程启动时间，进程退出的记录自动回收），名额满时先来先得地等待；`python scripts/smoke_slots.py` 列出占用与排队。取名额前若 F: 空闲低于 50 GB，先删除 24 小时前且未被引用的冒烟实例、pack 与截图运行的大文件（窗口日志、JFR、stdout、mod／run），仍不足就等待并提示一次；`pkg.py land` 合入后同样清理一次。`<py> scripts/smoke_prune.py [--keep-hours N] [--apply]` 完整删除这些目录（默认只列出）。“被引用”指目录名（`instance-<12 位十六进制>` 或截图的 `<日期>-<时间>-<6 位>`）出现在 docs/、AGENTS.md、本文件、`.local/HANDOFF.md` 的文本里，或出现在仍有工作树的包的任务说明与报告里（`.local/refactor/reports|briefs/<包名>*`、`.local/reports/<包名>*`）；包合入后还要保留的证据须在待办或交接文件中写明目录名，工人会话日志、已合入包的报告、结果与基线索引不算引用。重复场景的日志与最终读数按运行顺序编号保存，保留每轮结果。一个场景失败时逐条列出全部问题（每个命中过的 `forbid`、每个缺失的 `expect`、`verify`、个体命运与门槛检查的每个失败发现，后者附个体与 tick），不只报第一条；运行前还用 `git archive` 导出 `origin/main` 的场景源码，对照同一场景的 `expect`／`forbid`／`verify` 与时长，不同就打印 `WARNING` 行点名差异（只警告，不改判定）——曾有工人在自己的树里放宽期望，自测因此通过。
+## 试玩场冒烟与基线
+
+`scripts/smoke_museum.py`：用法与自查边界见[命令与自查](../docs/roles/coder.md#4-命令与自查)。与截图共用 `headless_server`：只把游戏目录在 `.local/experimental-map/museum/` 内的客户端、或 `play-museum/process.json` 记录且启动时间吻合的 PID 当作用户客户端；它运行时冒烟与截图排队等待（提示一次后静默轮询），`--no-wait` 改为直接拒绝。每个冒烟服务器与截图客户端启动前在主检出 `.local/smoke/slots/` 取一个全机名额（默认名额见[命令与自查](../docs/roles/coder.md#4-命令与自查)，`--slots` 或环境变量 `MCY_SMOKE_SLOTS`；记录 pid 与进程启动时间，进程退出的记录自动回收），名额满时先来先得地等待；`python scripts/smoke_slots.py` 列出占用与排队。取名额前若 F: 空闲低于 50 GB，先删除 24 小时前且未被引用的冒烟实例、pack 与截图运行的大文件（窗口日志、JFR、stdout、mod／run），仍不足就等待并提示一次；`pkg.py land` 合入后同样清理一次。`<py> scripts/smoke_prune.py [--keep-hours N] [--apply]` 完整删除这些目录（默认只列出）。“被引用”指目录名（`instance-<12 位十六进制>` 或截图的 `<日期>-<时间>-<6 位>`）出现在 docs/、AGENTS.md、本文件、`.local/HANDOFF.md` 的文本里，或出现在仍有工作树的包的任务说明与报告里（`.local/refactor/reports|briefs/<包名>*`、`.local/reports/<包名>*`）；包合入后还要保留的证据须在待办或交接文件中写明目录名，工人会话日志、已合入包的报告、结果与基线索引不算引用。重复场景的日志与最终读数按运行顺序编号保存，保留每轮结果。一个场景失败时逐条列出全部问题（每个命中过的 `forbid`、每个缺失的 `expect`、`verify`、个体命运与门槛检查的每个失败发现，后者附个体与 tick），不只报第一条；运行前还用 `git archive` 导出 `origin/main` 的场景源码，对照同一场景的 `expect`／`forbid`／`verify` 与时长，不同就打印 `WARNING` 行点名差异（只警告，不改判定，因曾有工人在自己的树里放宽期望，自测因此通过）。
 
 每轮冒烟另做个体命运检查（`smoke_fate.py`）：窗口内任何油库里死亡或进入濒死、受溺水伤、受 `inWall` 窒息伤、受饥饿伤，或同一个体以同一原因重复同一拒绝 400 次以上（含限频的 `suppressed=N`），都按 FAIL 打印对应日志行。场景真实路径包含的结局在 `smoke['allow_fate']` 声明：`kind`（`death`／`drown`／`in_wall`／`starve`／`loop`）、`who`（该个体自己打印的某行的模式，如 `uuid=…` 或 `pit slave `；省略为任何个体）、`match`（命运行须匹配的模式，如死因）与 `why`。`python scripts/smoke_fate.py [--scene 场景ID] <日志> ...` 复查已存的场景日志。
 
@@ -74,6 +109,8 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 冒烟的固定成本（编译、装载、建馆，约占一次调用的四分之三）按下面几处压缩，只描述当前做法：`--worktree` 组装 mod 时，资源用硬链接而非复制（8 个线程并行；链接失败回退复制，实例里的 mod 树只读不写）；编译好的类按 `src/main/java` 各文件内容（不看 HEAD，未提交改动也计入）、`gradle.properties`、merged jar 的大小与时间及编译器和依赖路径的哈希缓存在主检出 `.local/smoke/mod-cache/<键>/`，命中即用硬链接复用，两小时未被使用的缓存树在组装结束时清除（命中刷新时间，链接前被别的会话清掉就按未命中重编；`smoke_prune.py` 不管这个目录），截图的 `--worktree` 同样走这条路径；服务器起来后建馆用 `tick sprint` 一路冲到 `MCYMUSEUM_BUILD_COMPLETE`，每场清场与 `run_scene` 的场地加载等待的是游戏 tick，同样冲刺，重载场景（`reload`）与 `--layout` 的场地加载仍按墙钟轮询；服务器用 `scripts/smoke-log4j2.xml`（`headless_server.build_java_cmd` 替换运行包的日志配置）：只写 `logs/latest.log`，控制台（`stdout.log`）只留 WARN 及以上，没有 `debug.log`；JFR 默认关闭，`--jfr` 才逐场录制并写 `jfr.json` 与结果 JSON 的 `jfr` 键；每场窗口的日志拷贝与检查在后台线程里（单线程，各场的 PASS／REPORT 按场次顺序；重载场景的 PASS 在主线程打印，可能先于上一场的输出）与下一场的准备并行，退出码仍由全部结果决定。一个包的全部场景放进同一次调用，见[命令与自查](../docs/roles/coder.md#4-命令与自查)。
 
 `--layout` 读取生成初态、40 tick 初始化及场景延迟召唤后的实体包围盒、方块碰撞形状和水面。初始无支撑者须在初始化内落稳；已落稳者随后正常跳跃不算坏起点。覆盖命令生成的聚落、人员、帽船、场景道具及玩家，排除地形施工掉落物；同场地互斥场景共用地块，群系各用所属地块。生成失败、延迟演员缺失、函数加载失败、穿模或越界均返回非零；每场 `*.layout.json` 保留读数。
+
+## 隐藏客户端截图与审图
 
 `python scripts/capture_museum.py [--worktree <工作树>] [--smoke-commands] [--vantage] <场景ID> [...]` 复用已装 CI 运行包，在主检出 `.local/captures/<run>/` 的独立世界启动隐藏客户端，按场景的 start 与观察点录制 PNG、带 tick 标签的联系表与 `frames.json`（请求／实际 tick、耗时、窗口状态）；需 Windows、Pillow、nbtlib，`--worktree` 仅 javac 组装，用户客户端运行时排队等待（`--no-wait` 拒绝）。`--smoke-commands` 按场景 `smoke.commands` 的 tick 执行真实交互（如摇帽），不改行为结果；捕获窗口仍由 `capture` 决定，须覆盖待测事件。`--vantage` 固定使用场景观察点，关闭跟拍和 observe，用于对照服务器 VANTAGE 的取景读数。时序在场景的 `capture=`（`shots` 与含首尾的 `sequences=(起点,终点,步长)`）；捕获开关下另有客户端 `/museumcapture shot <延迟tick>`、`/museumcapture sequence <秒数> <fps>`。捕获与审图命令均支持 `--sample-window 起点tick 终点tick 步长`，仅截取指定窗口，不改场景初态或行为；`--tick-rate 速率` 可将本次独立捕获服务器降至 1–20 tick/秒，默认 20，用于慢速采样，物理仍按游戏 tick 计算。例：`--sample-window 100 650 2 --tick-rate 2`；实际采样间隔以 `frames.json` 为准，错过的帧不补造。只作视觉自查，不算试玩验收，不操作桌面或用户世界。
 
@@ -125,6 +162,8 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 ## 预览与导出
 
+### 姿态检查与专项预览
+
 `<py> scripts/check_pose_consumers.py <基线提交> [--lore] [--stow]` 与 `node scripts/check_pose_consumers.cjs <基线提交>` 对照同一批输入的 Python 制作门槛、矩阵、辫链及软件渲染；`--lore` 执行全部 lore 家族的真实门槛，`--stow` 直接复核戴帽／脱帽分别从岸上与船上持棍姿态进入的门槛。`--inject-arc`／`--inject-vertex` 是应非零退出的破坏对照。报告放 `.local/reports/pose-consumers*`；不登记用户收件箱，不代替美术或玩法验收。制作桥接与交互页的核心服务接口见下文的姿态检查接口。
 
 `<py> scripts/pose_check.py --model marisa --clip bank_beckon --t 0:1.6:0.05 --metric tilt,wet,pass [--water 0.5] [--partner child=marisa:baby@0,8,-2] [--care x,y,z]` 用共享 Java 姿态核心输出含单位、判定带和证据位置的 JSON；`--frames <capture>/pose.jsonl` 重算捕获证据，`--serve` 每行接收一个 JSON 请求，`--vertices out.f32` 输出最后一帧皮肤点，`--pose-out pose.jsonl` 保存可回放姿态。玻璃等接触面用 `--metric plane --context <平面证据.json>`，可加 `--actor <UUID> --from-tick <tick> --until-tick <tick>` 限定主体与表面仍存在的区间，`--report <结果.json>` 保存结果。只编译并缓存纯核心及其纯函数依赖，不跑 Gradle、不启动游戏；需要本机 JDK 21 和已有 Gson/JOML jar。检查只报告，缺水面、道具尖端、伙伴或时序证据时报错，不把缺证据算通过；输入/证据错误退出 2，有效报告（含 fail）退出 0。坐标、配对、允许区、假设带、服务协议与覆盖边界见[姿态检查接口](../src/main/java/io/github/longshou/mcyukkuri/pose/check/README.md)。
@@ -165,7 +204,11 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `verify_marisa_deficient_browser.cjs`、`verify_rounded_browser.cjs`、`verify_hat_interactions.cjs` 是历史浏览器自动化工具，不是当前 Agent 的检查入口；按根 AGENTS.md，不执行这些脚本。交互页面效果由用户手工查看。
 
-人工试玩当前使用[油库里试玩场](../docs/features/museum.md#试玩场与动作博物馆)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景在 `museum_scenarios.py`，生成真实个体的词汇在 `museum_dsl.py`，动作名与查看菜单目录在 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/viewer_catalog.json`（`museum_actions.py` 读取同一份）；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译。`-Resume` 保留旧世界，缺少场景菜单函数时须用 `-Fresh` 重建；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、菜单函数与场景观察点，`render_museum_map.py` 画俯视布局图。场景编号登记在 `museum_scene_numbers.json`：场地代码（如 `PD`）加两位序号，菜单、聊天标题、导览书、预览库和试玩清单都显示同一个 `PD-03`；改场景名、增删或重排场景都不改已有编号，登记表只按场地在末尾追加，`museum_scenarios.py` 在缺号、重号或改动已有编号时直接失败。其他输出目录约束见[试玩场景](../docs/roles/coder.md#2-演出与试玩场景)。
+### 试玩场生成与场景登记
+
+人工试玩当前使用[油库里试玩场](../docs/features/museum.md#试玩场与动作博物馆)：`build_museum_full.py --install` 现场生成全新世界（数据包加种子 `level.dat` 的元数据）到 `.local/experimental-map/museum`，整体替换，不做原地修补；各开放场地的地形在 `museum_fields.py`，场景定义拆在 `scripts/museum_scenarios_parts/` 并由 `museum_scenarios.py` 作为门面统一导出，生成真实个体的词汇在 `museum_dsl.py`，动作名与查看菜单目录在 `src/main/resources/assets/mcyukkuri/yukkuri_presentation/viewer_catalog.json`（`museum_actions.py` 读取同一份）；需要 Python 3.11+、nbtlib。`--catalog` 另外生成完整动作适配清单。根目录 `启动动作博物馆.cmd`（唯一的试玩启动入口，文件名沿用）调用 `launch_museum.ps1`：世界缺失或生成器改动时先生成，再用已有 CI 运行产物启动，不编译。`-Resume` 保留旧世界，缺少场景菜单函数时须用 `-Fresh` 重建；运行模组比数据包旧时，进图会大字提示“运行模组过旧”。`check_museum_pack.py` 离线核对数据包里的每条命令与函数引用、场地布局、菜单函数与场景观察点，`render_museum_map.py` 画俯视布局图。场景编号登记在 `museum_scene_numbers.json`：场地代码（如 `PD`）加两位序号，菜单、聊天标题、导览书、预览库和试玩清单都显示同一个 `PD-03`；改场景名、增删或重排场景都不改已有编号，登记表只按场地在末尾追加，`museum_scenarios.py` 在缺号、重号或改动已有编号时直接失败。其他输出目录约束见[试玩场景](../docs/roles/coder.md#2-演出与试玩场景)。
+
+### 各模块导出与校验脚本
 
 圆润体型与灵胖发育的资源导出使用 `export_rounded_runtime.py`、`rounded_wound_surface.cjs`、`export_rounded_attachments.py`、`export_badges.py --mounts-only` 和 `export_family_assets.py`；按受影响的资源选择，不要求逐个执行。`export_rounded_attachments.py` 只写自己名下的 `accessory_*` 与 `rounded-index.json` 条目，其他导出器的条目保留；`art/props/family-life/recipe.json` 只在内容变化时按原排版局部改写。束具仍由标准库 `drafts/operation-tools/build.py` 生成。`build_rounded_preview.py` 将专项预览模板写入 `.local/previews/rounded-runtime/`，只服务专项预览依赖，不作为当前通用预览入口。来源见[圆润运行包](../art/source/rounded-runtime/README.md)。
 
@@ -203,10 +246,6 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 新增脚本须说明输入、输出、是否写文件及适用环境。临时脚本放项目内 `.local/`；可复用后再整理为正式入口。所有脚本遵守根目录 [AGENTS.md](../AGENTS.md) 的本机执行限制。
 
-Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#出处索引)。
-
-E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#来源登记)。
-
 亚种与先天形态入口，详见[实现说明](../docs/features/species-and-body.md#种族与亚种)：
 
 | 脚本 | 用途与写入边界 |
@@ -218,6 +257,12 @@ E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）�
 日常生态入口：`export_ecology_expressions.py` 按标准库 `expressions/runtime.json` 导出全部认可表情（共享辅助模块 `runtime_face_library.py`），保留已选贴图来源，补齐其他贴图与几何补丁；已烘焙预设按制作源记录的几何输入指纹复用权威补丁，输入变化的草稿从共享源网格按同一烘焙规则重算，新预设与身体构建器、库导出同步工具共用 `expression_geometry.py` 的偏移规则；模型清单和目录动作清单在该数据中维护，双帧逐帧时长（`frame_ticks`，B 帧为 `frame_of`）与渲染器开口脸（`open_mouth`）在 `expressions/registry.json` 维护，不再有表情别名；`check_face_registry.py`（并入 `--check`）核对登记、预设、贴图与全部发出点。新增标准表情时先 `--bases` 只写基底模型的贴图，重建稀有形态（`export.py --family source:standards/yukkuri-library/subspecies/rare-forms/build.py --family rare-forms`）后再完整导出。`--check` 同时调用 `face_usage.py`／`FaceUsage.java`：使用本机 JDK 的语法树收集表情调用（表情取调用所匹配重载的第一个字符串参数）、字符串返回的表情提供者及其局部变量／参数转发，另读全部运行片段的 `expression_spans`，要求每个发出 ID 在全部模型上均可选或显式映射，并有对应贴图；缺失时报 ID、模型及来源。该检查不推断物种可达性，包含被覆盖片段与条件分支，任意外部输入仍由客户端未知 ID 报错处理。`build_ecology_audio.py` 制作原创短哼唱，二者支持只读 `--check`。`preview.py kit` 生成表情使用统计和运行资源实绘，表情从实时播放器的模型页选择。`preview.py strip --face <ID>` 可指定运行表情并按逐帧时长播放 A/B 帧。说明见[日常生态](../docs/features/care-and-life.md#日常生态)。
 
 头饰与头发位置适配由 `export_placement_fit.cjs` 从[制作源](../standards/yukkuri-library/presentation/placement-fit/README.md)和当前运行模型导出 `yukkuri_presentation/placement_fit.json` 与来源清单；稀有形态沿用其基础形态的适配，部件索引按自身模型重映射。`--check` 只核对，`--only id,... --out 文件` 写试验结果；`--update-only id,...` 只更新这些模型并保留其他适配。基础模型不改写。`placement_fit.py` 是 Python 导出器共用的拼接规则：`export_motion_corrections.py`（鼓腮）与 `export_hat_interactions.py`（脱帽、帽托和幼油尺寸）都读取拼接后的网格。`verify_placement_fit.cjs` 检查头饰透穿、头发进入身体、五官遮挡、蝴蝶结贴合与地面，并输出前后对比、脱帽、动作和未改形态预览；`--checks-only` 不渲染。只做离线计算与渲染，不操作界面或游戏。见[游戏适配](../art/source/placement-fit/README.md)。
+
+### Wiki参考库与抓取工具
+
+Wiki 漫画参考使用 `wiki_reference_library.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/sources.json`，从登记的公开作品正文保存原图与来源清单；缓存、失败记录放 `.local/reference/wiki-manga/`。`check` 离线只读核对解码、尺寸、哈希和文件登记；`catalog` 从已核读 manifest 生成逐作品 Markdown 目录；`sheets` 只在 `.local/` 生成联系表。它不操作浏览器、不登录站点、不绕过证书验证，不写游戏资源。详见[参考库维护](../wiki/art-references/README.md#出处索引)。
+
+E-Hentai 补充库使用 `wiki_ehentai_reference.py`（Python 3.10+、Pillow）：`fetch` 读取 `wiki/art-references/ehentai/sources.json`，按登记上限与实际公开图页链接增量保存图片及 manifest；网页缓存和总览放 `.local/reference/ehentai/`。`check` 离线只读核对登记、解码、尺寸和 SHA-256；`catalog` 生成该子库作品目录；`sheets` 生成临时总览。只保存站点图页提供的版本，不承诺作者母版；不使用登录凭据、浏览器自动化、付费下载或访问限制绕过。选页须在图集首页已经观察到，新页默认未核读。详见[补充库维护](../wiki/art-references/ehentai/README.md#来源登记)。
 
 社区 Wiki 抓取使用 `wiki_fandom.py`（Python 3.10+、标准库）：`fetch` 通过公开 MediaWiki API（`list=categorymembers`、`action=parse&prop=wikitext`）把 Category:Pet Yukkuri、Places、Meta、Memes、Behavior、Biology 的页面源码、图片文件名与说明文字缓存到 `.local/fandom/`（不入库），每请求间隔一秒、已存在页面直接跳过，`--refresh` 强制重取；`list` 列出缓存状态，`show` 打印页面源码（`--page` 指定页名），`check` 离线只读核对缓存与 `wiki/hakkei-reference/sources-fandom.md` 的登记：每个缓存页面恰好登记一次，每个登记过的收录地点文件存在且引用该 F 编号。站点图片在 Cloudflare 质询后面，脚本只从页面源码登记文件名与说明，不请求图片、不绕过质询。见[fandom 条目来源](../wiki/hakkei-reference/sources-fandom.md)。`python scripts/test_wiki_fandom.py` 离线回归 `show` 的跨分类页面归属。
 
