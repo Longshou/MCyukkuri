@@ -363,6 +363,10 @@ final class AquaticGoal extends Goal {
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
         // The night is slept in the hull on still water (R6); she settles once her body is drowsy, after what pulls her ashore (young left
         // there, hunger, load) and the care of the young aboard (feed_want 55) outrank it.
+        if (dusk) GameplayLog.limited(body, "aquatic", "night_rest.withheld", 600,
+                "night_rest {} night_ashore={} drowsy={} open={} rest_wait_ready={} energy={}", () -> new Object[]{
+                    !nightAshore && life.drowsy() && !life.carrierRestOpen() ? "offered" : "withheld", nightAshore, life.drowsy(),
+                    life.carrierRestOpen(), life.readyForCarrierRest(), Math.round(life.energy())});
         if (dusk && !nightAshore && life.drowsy() && !life.carrierRestOpen())
             out.add(Desire.of("night_rest", floor(num("night_rest_want", 50)), List.of(region(hat), night, young.size()),
                     () -> "dusk energy=" + Math.round(life.energy()) + " young=" + young.size(), () -> new NightRest(body, true)));
