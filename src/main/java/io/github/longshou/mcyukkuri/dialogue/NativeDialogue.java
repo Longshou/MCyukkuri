@@ -128,8 +128,9 @@ public final class NativeDialogue {
                          "mood_ok", "mood_bad", "harness_tug", "walk_enjoy", "swaddle_on",
                          "lead_hurry", "lead_struggle" -> 2;
             // The fright of a taut lead and the spent cry break in on the hurry or struggle line that runs; the relief that ends the fright breaks in on the alarm.
-            case "lead_alarm", "lead_spent" -> 3;
-            case "lead_relief" -> 4;
+            case "lead_alarm" -> 3;
+            // The relief and the spent cry end a fright or a struggle whose own lines (alarm, afraid) rank 3: they must break in on them.
+            case "lead_relief", "lead_spent" -> 4;
             // These lines answer an event as it happens.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
                  "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",
