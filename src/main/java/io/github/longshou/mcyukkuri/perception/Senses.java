@@ -113,8 +113,9 @@ public final class Senses {
     }
 
     public static List<Witness> witnesses(ServerLevel level, Vec3 at, BlockPos accept, Cue cue) {
+        double reach = Math.max(SEARCH, Hearing.radius(cue.loudness, 0, cue.need != null, false, false, 0));
         var found = new ArrayList<Witness>();
-        for (var body : level.getEntitiesOfClass(YukkuriEntity.class, new AABB(at, at).inflate(SEARCH))) {
+        for (var body : level.getEntitiesOfClass(YukkuriEntity.class, new AABB(at, at).inflate(reach))) {
             var via = perceives(body, at, accept, cue);
             if (via != null) found.add(new Witness(body, via));
         }

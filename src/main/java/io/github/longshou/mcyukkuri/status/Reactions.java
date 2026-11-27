@@ -31,6 +31,8 @@ import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.settlement.DenSeal;
 import io.github.longshou.mcyukkuri.settlement.FoundShelter;
 import io.github.longshou.mcyukkuri.motor.SideContact;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.settlement.SearchBudget;
 import io.github.longshou.mcyukkuri.settlement.ShelterBlock;
 import java.util.ArrayList;
@@ -139,10 +141,14 @@ public final class Reactions {
 
     // ---- shared predicates -------------------------------------------------------------------------------------
 
+    /** A living prey individual that can hear a thunder clap (on land or riding a host; not held by SceneHold). */
+    private static boolean thunderListener(YukkuriEntity y) {
+        return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
+                && !y.inert();
+    }
     /** An ordinary free-living or kept individual: not a predator, not a house yukkuri. */
     static boolean prey(YukkuriEntity y) {
-        return y.isAlive() && !y.level().isClientSide && !y.profile().dangerToYukkuri() && !y.profile().houseBody()
-                && !y.inert() && !y.isPassenger();
+        return thunderListener(y) && !y.isPassenger();
     }
     /** Whether this individual may be steered right now (not mid-contact, birth, rescue, water). */
     public static boolean free(YukkuriEntity y) {
@@ -715,8 +721,6 @@ public final class Reactions {
         static final int PARTNER_SCAN = 60;
         /** How far a pressed body may be pushed off its stand before it walks back in (blocks). */
         static final double HUDDLE_SLACK = .12;
-        /** A lightning strike is heard this far off (blocks). */
-        static final int THUNDER_HEARD = 96;
         /** Brief settle under cover looking out at the rain before releasing to routine dry-area life or huddling. */
         static final int SETTLE_TICKS = 30;
         static final int SHAKE_TICKS = EcologyPresentation.duration(Behaviors.RAIN_SHAKE),
@@ -1345,24 +1349,32 @@ public final class Reactions {
             GameplayLog.limitedEvent(y, "weather", suppressed, "huddle pressed partner={} side={} centres={} afterTicks={}",
                     partner.getUUID(), partnerLeft ? "left" : "right", Math.round(to.horizontalDistance() * 100) / 100.0, ticks);
         }
-        /** A thunder clap it heard: it flinches; a pressed pair, startled together, nestles in again after it. */
-        void clap(long now, double distance) {
-            if (!prey(y) || y.life().isSleeping() || y.isInWaterOrBubble()) return;
+        /** Whether a perceived thunder clap still frightens this individual (boldness-scaled interval and storm cap). */
+        public boolean thunderFrightened(long now) {
+            return ThunderFear.active(now, startled, y.level().isThundering(), y.life().personality().boldness());
+        }
+        /** A thunder clap it perceived through the shared perception layer: it flinches; a pressed pair, startled together, nestles in again after it. */
+        void clap(long now, double distance, Senses.Via via) {
+            if (!thunderListener(y) || y.life().isSleeping() || y.isInWaterOrBubble()) return;
             startled = now;
             y.mind().felt(EmotionEvent.FRIGHTENED, ExcitedLeak.Stimulus.LOUD_NOISE);
             if (pressedAt >= 0) pressedAt = now + STARTLE_TICKS;
-            if (stage == Stage.NONE) y.showReaction("surprise", "thunder", FaceTier.Tier.ofTicks(STARTLE_TICKS));
-            GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} stage={} partner={}", () -> new Object[]{
-                        Math.round(distance), stage, partner == null ? null : partner.getUUID()});
+            if (stage == Stage.NONE && !y.isPassenger()) y.showReaction("surprise", "thunder", FaceTier.Tier.ofTicks(STARTLE_TICKS));
+            GameplayLog.limited(y, "weather", "thunder", 600, "thunder clap heard distance={} via={} stage={} partner={}", () -> new Object[]{
+                        Math.round(distance), via, stage, partner == null ? null : partner.getUUID()});
         }
     }
 
-    /** Every yukkuri within earshot of a lightning strike hears the clap (CommonRegistration). */
+    /** Every yukkuri that sees or hears a lightning strike reacts to the clap (CommonRegistration, shared perception layer). */
     public static void lightning(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk() || !(event.getEntity() instanceof LightningBolt bolt) || !(event.getLevel() instanceof ServerLevel level)) return;
         long now = level.getGameTime();
-        for (var y : level.getEntitiesOfClass(YukkuriEntity.class, bolt.getBoundingBox().inflate(Weather.THUNDER_HEARD, 48, Weather.THUNDER_HEARD),
-                Reactions::prey)) y.status().reactions().weather.clap(now, Math.sqrt(y.distanceToSqr(bolt)));
+        var at = bolt.position();
+        for (var witness : Senses.witnesses(level, at, null, Cue.THUNDER)) {
+            var y = witness.body();
+            if (!thunderListener(y)) continue;
+            y.status().reactions().weather.clap(now, Math.sqrt(y.distanceToSqr(bolt)), witness.via());
+        }
     }
 
     // ---- goals ------------------------------------------------------------------------------------------------

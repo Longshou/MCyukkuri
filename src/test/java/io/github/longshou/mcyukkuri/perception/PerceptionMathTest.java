@@ -62,6 +62,17 @@ class PerceptionMathTest {
         assertFalse(Hearing.audible(Hearing.radius(8, 50, false, false, false, 1), 6 * 6), "one wall puts six blocks out of reach");
     }
 
+    @Test void thunderClapCarriesFarInOpenAirAndShiftsByBoldnessAndWalls() {
+        double timid = Hearing.radius(Cue.THUNDER.loudness, 0, false, false, false, 0);
+        double bold = Hearing.radius(Cue.THUNDER.loudness, 100, false, false, false, 0);
+        assertEquals(96 * 1.15, timid, 1e-6);
+        assertEquals(96 * 0.9, bold, 1e-6);
+        assertTrue(Cue.THUNDER.loud);
+        assertTrue(Hearing.audible(bold, 25 * 25));
+        assertFalse(Hearing.audible(Hearing.radius(Cue.THUNDER.loudness, 50, false, false, false, 3), 25 * 25),
+                "three walls dampen a 25-block thunder clap below earshot");
+    }
+
     @Test void emptyLookFadesFasterTheMoreUrgentTheNeed() {
         assertEquals(2400, Belief.decay(0));
         assertEquals(300, Belief.decay(1));

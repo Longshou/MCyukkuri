@@ -28,6 +28,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.ThunderFear;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -205,7 +206,9 @@ final class AquaticGoal extends Goal {
         // and she looks for food on the water instead (her stores, food afloat). Starvation stays real.
         boolean landFood = hunger > 0 && foodAshore(body);
         double landHunger = landFood ? hunger : 0;
-        double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
+        double weather = body.status().reactions().weather().thunderFrightened(body.level().getGameTime())
+                ? ThunderFear.ashoreNeed(num("thunder_need", 60), life.personality().boldness())
+                : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
         // Tired below the energy a voyage takes: rest comes only on dry ground (grounded rest), so it draws her ashore and keeps her there.
         // R6: the night is slept on the water, so dusk pulls her ashore only in rain or thunder, or on a night when no still water could be had.

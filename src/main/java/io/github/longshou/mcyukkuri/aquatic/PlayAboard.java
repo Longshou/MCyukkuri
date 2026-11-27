@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.aquatic;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.intent.DriveWeights;
@@ -17,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.ThunderFear;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
@@ -41,7 +43,7 @@ final class PlayAboard implements Intent {
     private final long started;
     private Hop outHop;
     private String act, where;
-    private boolean ended;
+    private boolean ended, reacted;
 
     private PlayAboard(YukkuriEntity body, PlacedHatEntity hat, Supplier<String> fear, boolean scared) {
         this.body = body;
@@ -135,7 +137,7 @@ final class PlayAboard implements Intent {
         boolean water = waterAct(where, out) && braidOut(braidOutYaw(out));
         boolean paddling = water && hat.owner() != null && hat.owner().motor().current() instanceof Paddle;
         String reason;
-        if (scared) { act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
+        if (scared) { reactThunderHide(); act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
         else if (water) { act = paddling ? Behaviors.KID_MIMIC_PADDLE : Behaviors.KID_BRIM_SPLASH; reason = paddling ? "captain_paddle" : "brim_water"; }
         else if ("head".equals(where)) { act = Behaviors.HAT_CRADLE; reason = "head_dry"; }
         else { act = Behaviors.BOAT_RIM_PEEK; reason = "no_water_act"; }
@@ -147,6 +149,16 @@ final class PlayAboard implements Intent {
         if (scared) return new Step.Do(Await.holding(() -> fear.get().equals("none"), (int) number("play_deadline") + 1, act,
                 ClipMarkers.of(act).ticks("tucked", 12), () -> false));
         return pause(act, (int) number("play_loops"));
+    }
+
+    /** Boldness-scaled scared face and line when hiding from a perceived thunder clap (once per hide intent). */
+    private void reactThunderHide() {
+        if (reacted || !scared || !"thunder".equals(cause)) return;
+        reacted = true;
+        int boldness = body.life().personality().boldness();
+        String face = ThunderFear.hideFace(boldness), line = ThunderFear.hideLine(boldness);
+        body.forceReaction(face, line, FaceTier.Tier.LONG);
+        body.beat("thunder_hide", face, line);
     }
 
     /** A quiet pause on the spot once the act is over: the young keeps playing where it can be seen. */
@@ -164,6 +176,7 @@ final class PlayAboard implements Intent {
      */
     private Step inside() {
         if (!"brim".equals(place(body, hat)) || !scared && !Care.upset(body)) return null;
+        reactThunderHide();
         String why = scared ? "fear:" + cause : "care";
         var cabin = hat.places(body, SeatTarget.Kind.CABIN, 1);
         var hop = cabin.isEmpty() ? null : new Hop(hat, cabin.getFirst().local());
@@ -185,6 +198,11 @@ final class PlayAboard implements Intent {
     @Override public void ended(IntentRunner.Result result) {
         if (act != null) GameplayLog.event(body, "aquatic", "play kind={} end spot={} result={} fear={} hat={}",
                 act, where, result, fear.get(), hat.getUUID());
+        if (scared && "thunder".equals(cause) && result == IntentRunner.Result.DONE && body.isAlive()) {
+            String calm = ThunderFear.calmFace(body.life().personality().boldness());
+            body.forceReaction(calm, "", FaceTier.Tier.SHORT);
+            body.beat("thunder_calm", calm, "");
+        }
     }
 
     /** Real water at the level of this young's own place just outside it: what a water act needs, and what the head never has. */
@@ -211,7 +229,7 @@ final class PlayAboard implements Intent {
 
     static String fear(YukkuriEntity body, PlacedHatEntity hat) {
         if (!hat.steady()) return "hard_rock";
-        if (body.level().isThundering()) return "thunder";
+        if (body.status().reactions().weather().thunderFrightened(body.level().getGameTime())) return "thunder";
         double range = number("play_fear_range");
         if (!body.level().getEntitiesOfClass(YukkuriEntity.class, hat.getBoundingBox().inflate(range),
                 y -> y.isAlive() && y.getVariant().isPredator() && body.hasLineOfSight(y)).isEmpty()) return "predator";

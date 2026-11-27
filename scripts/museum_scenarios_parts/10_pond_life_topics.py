@@ -150,7 +150,8 @@ pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍
                         r'\[action\][^\n]* start id=place_prop\b', r'prop_not_worn']))
 
 def kid_play_shelter(window):
-    """A free head after the cabin refusal must lead to a real parental lift and head placement."""
+    """Verify the full PD-09 thunder arc: brim play -> perceived lightning clap -> boldness-scaled hide beats (shown==declared)
+    -> real cabin/head shelter -> storm passes -> bold calms before timid -> timid returns to brim play."""
     for request in re.finditer(r'uuid=(\S+)[^\n]* play stays on brim [^\n]*cabin=none head=free reason=fear:thunder', window):
         child = request[1]
         after = window[request.end():]
@@ -158,39 +159,80 @@ def kid_play_shelter(window):
                          rf'[\s\S]*uuid={child}[^\n]* seat landed [^\n]*place=HEAD cause=braid_set_down'
                          rf'[\s\S]*uuid={child}[^\n]* play kind=kid_hide_behind start spot=head reason=fear:thunder', after):
             return f'frightened brim child {child} was not lifted to the free head and sheltered there'
+    for shown, declared in re.findall(r'\[choreo\][^\n]* beat=thunder_(?:hide|calm) face=(\S+) line=\S+ declared=(\S+)', window):
+        if shown != declared:
+            return f'thunder beat face mismatch: shown={shown} declared={declared}'
+    c1, c2 = _uuid_text('kid_boat_play', 'c1'), _uuid_text('kid_boat_play', 'c2')
+    def find_tick(pattern, text=window):
+        m = re.search(pattern, text)
+        return (int(m[1]), m) if m else (None, None)
+    brim_before, m_brim = find_tick(rf'\[aquatic\][^\n]*uuid={c1} t=(\d+)[^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim\b')
+    if brim_before is None:
+        return 'c1 never played on the brim before thunder'
+    c1_heard, m_c1_heard = find_tick(rf'\[weather\][^\n]*uuid={c1} t=(\d+)[^\n]* thunder clap heard distance=\d+ via=(?:HEARD|SAW)\b')
+    c2_heard, m_c2_heard = find_tick(rf'\[weather\][^\n]*uuid={c2} t=(\d+)[^\n]* thunder clap heard distance=\d+ via=(?:HEARD|SAW)\b')
+    if c1_heard is None or c2_heard is None:
+        return f'thunder clap not perceived by both kids (c1={c1_heard} c2={c2_heard})'
+    if c1_heard < brim_before:
+        return f'thunder clap ({c1_heard}) fired before c1 brim play ({brim_before})'
+    c1_hide, _ = find_tick(rf'\[choreo\][^\n]*uuid={c1} t=(\d+)[^\n]* beat=thunder_hide face=horrified line=afraid declared=horrified\b', window[m_c1_heard.end():])
+    c2_hide, _ = find_tick(rf'\[choreo\][^\n]*uuid={c2} t=(\d+)[^\n]* beat=thunder_hide face=surprise line=thunder declared=surprise\b', window[m_c2_heard.end():])
+    if c1_hide is None or c2_hide is None:
+        return f'missing thunder_hide beat with exact face/line (c1={c1_hide} c2={c2_hide})'
+    c1_calm, m_c1_calm = find_tick(rf'\[choreo\][^\n]*uuid={c1} t=(\d+)[^\n]* beat=thunder_calm face=closed_smile line=none declared=closed_smile\b', window[m_c1_heard.end():])
+    c2_calm, _ = find_tick(rf'\[choreo\][^\n]*uuid={c2} t=(\d+)[^\n]* beat=thunder_calm face=happy line=none declared=happy\b', window[m_c2_heard.end():])
+    if c1_calm is None or c2_calm is None:
+        return f'missing thunder_calm beat after storm cleared (c1={c1_calm} c2={c2_calm})'
+    if not (c2_calm < c1_calm):
+        return f'bold c2 did not calm before timid c1 (c2={c2_calm} c1={c1_calm})'
+    after_calm = window[m_c1_heard.end() + m_c1_calm.end():]
+    if not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim\b', after_calm):
+        return 'c1 did not return to brim play after the storm passed'
 
 
 pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐玩耍，打雷躲避',
-     '静水亲帽停在离岸三格的水面，亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳（会玩才会探头），一在舱内、一在头顶，都已吃饱。静水里帽子只轻摆起伏，不翻。'
-     '舱内那只自己跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只只做不碰水的探头。'
-     '第 13 秒打雷：舱内有空位就跳回舱内缩身，舱内无位而头顶有位时由亲油辫子托上头顶，两处都无位才留在帽檐上抓紧缩身；平静后继续玩耍。空手右击赤油看问候',
-     '约 2 分钟；可在「实用」页调整天气再看受惊',
-     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100,
+     '静水亲帽停在离岸三格的水面，沉稳的亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳，胆小的在舱内、胆大的在头顶，都已吃饱。'
+     '舱内那只先跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只安静静坐。'
+     '第 8 秒起天暗下雨，第 13 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量做出受惊表情与台词，胆小那只跳回舱内缩身、胆大那只在头顶缩身；第 20 秒雨停转晴后，胆大的先舒气平静，胆小的稍晚平静后再跳回帽檐继续玩耍。空手右击赤油看问候',
+     '约 40 秒；可按「附近落雷」再看受惊',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, boldness=80,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
-      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
-      _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', childhood=CHILDHOOD_HOPPING, also=('crew',)),
+      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', boldness=20, childhood=CHILDHOOD_HOPPING, also=('crew',)),
+      _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', boldness=75, childhood=CHILDHOOD_HOPPING, also=('crew',)),
       afloat_now('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
+     vantage=(-4, 4, -108, 16),
+     late=['schedule function mcylab:util/weather_thunder 120t replace',
+           Retry('execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~',
+                 sel('a'), tries=1, first=220),
+           'schedule function mcylab:util/weather_clear 360t replace'],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
-          '→ 之后 kind=hat_cradle 原地静玩；头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不回头转身；boat_rim_peek 的 60° 回望只在帽檐/舱内），不做水上动作。'
-          '两只都已学会短跳：新生油不能玩耍，头顶那只不会探头。'
-          '受惊：舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
-          '舱内、头顶都无位才一直在帽檐缩身；平静后继续玩耍。帽檐上真被晃到硬翻时仍会摔进水里（play fall_in）。'
+          '→ 头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不做水上动作）。'
+          '第 8 秒转雷暴（起雨预警）、第 13 秒池塘远水真实落雷：[weather] thunder clap heard via=HEARD|SAW（共享感知层）→ [choreo] beat=thunder_hide（胆小 horrified/afraid，胆大 surprise/thunder，face==declared）'
+          '→ 舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
+          '第 20 秒转晴：play kind=kid_hide_behind end result=DONE → [choreo] beat=thunder_calm（胆大 happy 先平静，胆小 closed_smile 稍晚平静）→ 胆小赤油再次跳回帽檐玩耍。'
           '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
-     reads=[('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
+     reads=[('附近落雷', 'execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~'),
+            ('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
             ('读演出与受惊计数', f'yukkuri status {sel("a")} raw'), ('读帽子乘员', f'data get entity {_HAT} Riders')],
      capture=dict(shots=(1, 40, 2400), sequences=((40, 2400, 4),), observe=False,
                   views={'port': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(1.15, .55, -.75)),
                          'starboard': dict(follow='@e[type=mcyukkuri:placed_hat,limit=1]', offset=(-1.15, .55, .75))}),
-     smoke=dict(ticks=2400, commands=[(260, 'weather thunder'), (520, 'weather clear')],
+     smoke=dict(ticks=1800,
                 expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=2\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=CABIN\b',
                         r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
                         r'\[aquatic\][^\n]* play kind=hat_cradle start spot=head reason=head_dry\b',
+                        r'\[weather\][^\n]* thunder clap heard distance=\d+ via=(?:HEARD|SAW)\b',
+                        r'\[choreo\][^\n]* beat=thunder_hide face=horrified line=afraid declared=horrified\b',
+                        r'\[choreo\][^\n]* beat=thunder_hide face=surprise line=thunder declared=surprise\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
-                        r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)'],
+                        r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)',
+                        r'\[aquatic\][^\n]* play kind=kid_hide_behind end [^\n]*result=DONE\b',
+                        r'\[choreo\][^\n]* beat=thunder_calm face=happy line=none declared=happy\b',
+                        r'\[choreo\][^\n]* beat=thunder_calm face=closed_smile line=none declared=closed_smile\b'],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains', r'\[aquatic\][^\n]* play fall_in\b',
-                        r'\[hat\][^\n]* capsized\b',
+                        r'\[hat\][^\n]* capsized\b', r'damage cause=(?:inFire|onFire|lightningBolt)\b', r'\bon_fire\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=head\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end result=(?:EXHAUSTED|LOST)\b'],
                 verify=kid_play_shelter,
