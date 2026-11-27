@@ -12,6 +12,7 @@ import io.github.longshou.mcyukkuri.motor.PlayMotion;
 import io.github.longshou.mcyukkuri.motor.TrampolineMotion;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
+import io.github.longshou.mcyukkuri.social.Contest;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.ArrayList;
@@ -316,11 +317,11 @@ public final class PlayLife {
     }
 
     /**
-     * The verdict of a station contest: the winner starts its session at once; the loser lets this station be, sulks for
+     * The verdict of a station contest: the winner starts its session after its smug beat; the loser lets this station be, sulks for
      * {@link #LOSS_COOLDOWN} ticks without playing anywhere and, once the station is free again, may take its turn.
      */
     public void contested(PlayBlockEntity target, boolean won, UUID rival) {
-        scanWait = 0;
+        scanWait = Contest.GLOAT_TICKS;
         if (won) {
             cooldown = 0;
         } else {

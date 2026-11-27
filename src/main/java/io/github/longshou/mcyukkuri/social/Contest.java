@@ -18,6 +18,8 @@ import net.minecraft.server.level.ServerLevel;
  */
 public final class Contest {
     static final int FACEOFF = 40, PUSH_EVERY = 20, VOICE_GAP = 60, VERDICT_LAG = 10;
+    /** A winner's smug beat is seen for this long before it reaches for the prize (the low end of a short face hold), so the prize's own first face cannot paint over it. */
+    public static final int GLOAT_TICKS = 30;
     private static final int SHOVE_ENERGY = 2;
 
     /** What two bodies contest: the prize owns its own take-over and give-way, the contest owns the performance. */

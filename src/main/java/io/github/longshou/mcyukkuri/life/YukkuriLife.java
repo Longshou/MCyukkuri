@@ -2313,11 +2313,11 @@ public final class YukkuriLife {
     }
 
     /**
-     * The verdict of a food contest played at the portion: the winner plans its meal again at once and takes the portion the way an
-     * uncontested arrival does; the loser lets this portion be for a while (the search goes on to other food) and eats later.
+     * The verdict of a food contest played at the portion: the winner plans its meal again after its smug beat and takes the portion
+     * the way an uncontested arrival does; the loser lets this portion be for a while (the search goes on to other food) and eats later.
      */
     public void foodVerdict(ItemEntity food, boolean won, UUID rival) {
-        replanNow();
+        planWait = Contest.GLOAT_TICKS;
         if (won) return;
         rejectedFood.reject(food.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
         GameplayLog.event(entity, "meal", "yielded contested food item={} at={} rival={} nutrition={}", food.getItem().getItem(), food.blockPosition(), rival, nutrition);
