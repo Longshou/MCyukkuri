@@ -38,6 +38,7 @@ final class LeadFollow {
     private long nextBout, boutEnd;
     private Vec3 stand;
     private boolean struggled, spentSaid, armed;
+    private int ownLine = -1;
     private double boutFrom, boutNow;
     private Vec3 lastAt;
     private int stillTicks;
@@ -78,6 +79,15 @@ final class LeadFollow {
                 && animal.onGround() && !animal.isPassenger();
     }
 
+    /**
+     * A leash beat may cut only the body's own previous leash line (hurry, then alarm, then relief; the struggle, then the spent cry), never
+     * another line, and every leash event ranks 2, so no hurt or distress line is ever refused or cut by it.
+     */
+    private void clearOwnLine() {
+        if (ownLine == animal.speechSequence() && !animal.quiet()) animal.interruptSpeech();
+    }
+    private void noteOwnLine(int before) { if (animal.speechSequence() != before) ownLine = animal.speechSequence(); }
+
     // ---- an owner's pet: hop to catch up, hurry, alarm, relief ----
 
     private void follow(Player owner) {
@@ -93,8 +103,12 @@ final class LeadFollow {
         hopping = trailing && !BodyAbility.cannotSpring(animal) && animal.childhood().canJump();
         long now = animal.level().getGameTime();
         if (!trailing) {
-            // Caught up after a hurry or a pull: the relief is asked again next tick if a held face refused it; an interrupted episode ends silently.
-            if (shown && free() && (distance <= LeadPace.CAUGHT_UP || settled && distance <= comfort) && !relief(owner, distance)) return;
+            // Caught up after a hurry or a pull: the relief is asked again next tick if a held face refused it. An episode that ends with the
+            // body standing still far out is a blocked body, not a relieved one: it is logged as stuck and gets no relief. Interrupted ends are silent.
+            if (shown && free()) {
+                if (distance <= LeadPace.CAUGHT_UP) { if (!relief(owner, distance)) return; }
+                else if (settled) GameplayLog.event(animal, "lead", "hop ended reason=stuck distance={} still={}", String.format("%.2f", distance), stillTicks);
+            }
             shown = hurried = alarmed = false;
             return;
         }
@@ -121,7 +135,7 @@ final class LeadFollow {
     private boolean relief(Player owner, double distance) {
         var personality = animal.life().personality();
         String face = scared(owner) || personality.attachment() >= 50 ? "teary_smile" : "happy";
-        return beat("lead_relief", face, "lead_relief", FaceTier.Tier.SHORT, distance, 0);
+        return beat("lead_relief", face, "lead_relief", scared(owner) ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, 0);
     }
 
     private boolean scared(Player holder) {
@@ -131,7 +145,9 @@ final class LeadFollow {
 
     private boolean beat(String name, String face, String line, FaceTier.Tier tier, double distance, double comfort) {
         int said = animal.speechSequence();
+        clearOwnLine();
         if (!animal.showReaction(face, line, tier)) return false;
+        noteOwnLine(said);
         animal.beat(name, face, line);
         GameplayLog.event(animal, "lead", "beat={} face={} line={} spoken={} distance={} comfort={} energy={} hop={}", name, face, line, animal.speechSequence() != said,
                 String.format("%.2f", distance), String.format("%.2f", comfort), animal.life().energy(), hopping);
@@ -171,7 +187,9 @@ final class LeadFollow {
         double resist = LeadPace.resist(personality.friendliness());
         int ticks = LeadPace.boutTicks(reserve);
         int said = animal.speechSequence();
+        clearOwnLine();
         if (!animal.showReaction(YukkuriAction.STRUGGLE, face, line, ticks, FaceTier.Tier.MEDIUM)) return;
+        noteOwnLine(said);
         animal.beat("lead_struggle", face, line);
         double elastic = LeadPace.ELASTIC;
         // Always a visible pull outward from where it stands, still short of the elastic start.

@@ -1395,7 +1395,7 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
     ], env=DAY,
     give=['minecraft:lead 6', 'minecraft:apple 6'],
     reads=[('读胆大的流浪油', f'yukkuri status {sel("lead_bold")} raw')], vantage=(0, 8),
-    smoke=dict(ticks=1030, verify=lead_walk_check, commands=[
+    smoke=dict(ticks=950, verify=lead_walk_check, commands=[
         (10, 'yukkuri scenario tool_operator enter'),
         (11, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"player"}}'),
         (12, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED}.Owner set from entity @s UUID'),
@@ -1408,14 +1408,16 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
         *((560 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
-        # The owner's pet (it has roamed since the start, so the player's distance cap covers it; a bare @a[name=...] never matches the
-        # museum's fake operator, which the level holds but the server player list does not): leashed, then the player walks a dozen blocks off at a quick pace (a step each 5 ticks) and stops: seven steps end before the alarm's 20-tick wait after the hurry runs out.
-        (750, f'execute at {sel("lead_pet")} positioned ~1 ~ ~ run yukkuri scenario tool_operator move'),
-        (751, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario leash {sel("lead_pet")}'),
-        *((770 + 5 * step, 'execute at @a[name=MuseumOperator,distance=..64] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(12)),
-        (930, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario unleash {sel("lead_pet")}'),
-        (980, 'yukkuri scenario tool_operator leave'),
-    ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
+        # The owner's pet is leashed with the strays, before it can roam (so its stand is the open anchor row, never a spot it wandered to); it
+        # follows the player there. Once the strays are let go the player steps west of it and walks a dozen blocks east along the open row at
+        # a quick pace (a step each 5 ticks) and stops. (A bare @a[name=...] never matches the museum's fake operator, which the level holds
+        # but the server player list does not: keep the distance cap.)
+        (29, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario leash {sel("lead_pet")}'),
+        (600, f'execute at {sel("lead_pet")} positioned ~-1 ~ ~ run yukkuri scenario tool_operator move'),
+        *((620 + 5 * step, 'execute at @a[name=MuseumOperator,distance=..64] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(12)),
+        (820, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario unleash {sel("lead_pet")}'),
+        (900, 'yukkuri scenario tool_operator leave'),
+    ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled', r'\[lead\][^\n]*hop ended reason=stuck'],
         expect=[r'\[interaction\][^\n]*action=leash reason=owner',
                 r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
                 r'\[scenario\][^\n]*action=unleash player=',
