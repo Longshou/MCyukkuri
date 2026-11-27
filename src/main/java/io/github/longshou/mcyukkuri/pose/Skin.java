@@ -2,14 +2,36 @@ package io.github.longshou.mcyukkuri.pose;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /** Skin math with explicit deformation inputs. Caller owns caches and scratch vectors. */
 public final class Skin {
+    /** Model units the expression cards sit in front of their own plane, over the head skin they were measured against (about 0.02 deep at the mouth). */
     public static final float FACE_CARD_LIFT = .04f;
+    /**
+     * Face slots are baked onto one surface, so overlapping ink of two slots would z-fight (flickering line segments).
+     * Each slot draws on its own depth layer, back to front in the approved thumbnail order: brow and mouth never
+     * overlap and share the base; the eye covers the brow, the blush the eye, the tear eye and blush, the mouth effect
+     * everything. scripts/check_face_layers.py reads FACE_LAYERS and FACE_LAYER_STEP from this file.
+     */
+    public static final float FACE_LAYER_STEP = .05f;
+    public static final String[] FACE_LAYERS = {"face_brow|face_mouth", "face_eye", "face_blush", "face_tear", "face_effect_mouth"};
     private Skin() {}
+    /** Depth of a face slot's layer above the base layer, in model units; zero for other parts. */
+    public static float faceLayerLift(String part){return LAYER_LIFTS.computeIfAbsent(part,Skin::layerLift);}
+    private static final Map<String,Float> LAYER_LIFTS=new ConcurrentHashMap<>();
+    private static float layerLift(String part){
+        String slot=part.endsWith("_left")?part.substring(0,part.length()-5):part.endsWith("_right")?part.substring(0,part.length()-6):part;
+        for(int layer=0;layer<FACE_LAYERS.length;layer++)
+            for(String name:FACE_LAYERS[layer].split("\\|"))if(name.equals(slot))return layer*FACE_LAYER_STEP;
+        return 0;
+    }
+    /** The lift of a face card along its card normal: the common card lift plus its layer. */
+    public static float faceCardLift(String part){return FACE_CARD_LIFT+faceLayerLift(part);}
     public record Binding(int first,int second,float weight) {}
     public record Patch(int start,float[] values) {}
     @FunctionalInterface public interface Deform { void deform(int index,Vector3f point); }

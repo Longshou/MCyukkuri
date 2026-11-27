@@ -28,6 +28,11 @@ DOC_TRIGGERS = ('scripts/museum_scene_numbers.json', 'scripts/playtest_watch.jso
 FACE_FIT_SOURCES = ('standards/yukkuri-library/motions/', 'standards/yukkuri-library/presentation/', 'standards/yukkuri-library/expressions/',
                     'standards/yukkuri-library/interactions/toilet-contact/', 'standards/yukkuri-library/components/common/face.json',
                     'scripts/check_face_fit.py', 'scripts/face_fit_allow.json')
+# Runtime face cards, expression textures and the renderer's layer table; a change runs scripts/check_face_layers.py before landing.
+FACE_LAYER_SOURCES = ('src/main/resources/assets/mcyukkuri/yukkuri/', 'src/main/resources/assets/mcyukkuri/textures/entity/',
+                      'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json',
+                      'src/main/java/io/github/longshou/mcyukkuri/pose/Skin.java',
+                      'scripts/check_face_layers.py', 'scripts/face_layer_allow.json')
 
 
 class Fail(SystemExit):
@@ -188,6 +193,11 @@ def check_tree(tree, scenes):
         print('face or motion sources changed: check_face_fit.py --check', flush=True)
         if subprocess.run([sys.executable, str(tree / 'scripts/check_face_fit.py'), '--check'], cwd=tree).returncode:
             raise Fail('check_face_fit.py found face timelines above the baseline')
+    if any(path.startswith(FACE_LAYER_SOURCES) for path in changed):
+        # Expression textures, face geometry and the layer table: two face slots never draw ink on one depth.
+        print('face textures or geometry changed: check_face_layers.py --check', flush=True)
+        if subprocess.run([sys.executable, str(tree / 'scripts/check_face_layers.py'), '--check'], cwd=tree).returncode:
+            raise Fail('check_face_layers.py found face slots drawing ink on one depth')
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
         code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode

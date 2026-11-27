@@ -699,7 +699,8 @@ def collection(args, stage):
     videos = sorted(p for p in source.iterdir() if p.suffix.lower() in ('.mp4', '.png'))
     if not videos:
         raise ValueError(f'No mp4 or png files: {source}')
-    return ''.join(media(copy_media(p, stage, p.stem), p.stem) for p in videos)
+    # Videos open straight into looping playback, as every page shown to the user (docs/roles/art.md).
+    return ''.join(media(copy_media(p, stage, p.stem), p.stem, loop=p.suffix.lower() == '.mp4') for p in videos)
 
 
 def moment_url(args):

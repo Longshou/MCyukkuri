@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.body.WoundShape;
 import io.github.longshou.mcyukkuri.body.WoundSurface;
 import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
+import io.github.longshou.mcyukkuri.pose.Skin;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -794,7 +795,9 @@ final class HairWoundRenderer {
             // Only actual projected overlays use a microscopic normal lift; solid
             // wound edges and wall vertices retain their authored recess/depth.
             WoundInk.lift(a,b,c,normal,offset,tri.a.u,tri.inset);
-            var card=model.woundCardNormal(part);if(card!=null){normal.set(card);a.fma(YukkuriModel.CARD_LIFT,card);b.fma(YukkuriModel.CARD_LIFT,card);c.fma(YukkuriModel.CARD_LIFT,card);}
+            var card=model.woundCardNormal(part);
+            if(card!=null){float lift=Skin.faceCardLift(part);normal.set(card);a.fma(lift,card);b.fma(lift,card);c.fma(lift,card);}
+            else{float slotLift=Skin.faceLayerLift(part);if(slotLift>0){a.fma(slotLift,normal);b.fma(slotLift,normal);c.fma(slotLift,normal);}}
             boolean perVertex=card==null&&bodySurfacePart(part)&&smoothNormals(tri);
             if(perVertex)normal.set(smooth[0]).add(smooth[1]).add(smooth[2]).normalize();
             triangleUv[0]=tri.a.u;triangleUv[1]=tri.a.v;triangleUv[2]=tri.b.u;triangleUv[3]=tri.b.v;triangleUv[4]=tri.c.u;triangleUv[5]=tri.c.v;

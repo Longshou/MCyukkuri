@@ -138,11 +138,12 @@ final class PregnancyFaces {
     }
 
     static void render(Vector3f[] points,float[] uv,float belly,float contraction,LiveBirthRenderer.Delivery delivery,
-                       PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface){
-        render(points,uv,belly,contraction,delivery,stack,buffer,light,overlay,surface,255,255,255,1,1,1);
+                       PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface,float layerLift){
+        render(points,uv,belly,contraction,delivery,stack,buffer,light,overlay,surface,layerLift,255,255,255,1,1,1);
     }
+    /** layerLift keeps the face slot's own depth layer (Skin.faceLayerLift) after the panel is fitted to the belly. */
     static void render(Vector3f[] points,float[] uv,float belly,float contraction,LiveBirthRenderer.Delivery delivery,
-                       PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface,
+                       PoseStack stack,VertexConsumer buffer,int light,int overlay,Surface surface,float layerLift,
                        int red,int green,int blue,float alphaA,float alphaB,float alphaC){
         Scratch scratch=SCRATCH.get();float low=Float.MAX_VALUE,high=-Float.MAX_VALUE;
         for(int i=0;i<3;i++){
@@ -153,7 +154,7 @@ final class PregnancyFaces {
         for(int band=0;band+1<bands;band++){
             int lower=clip(scratch.source,3,surface.band(band),true,scratch.lower);
             int strip=clip(scratch.lower,lower,surface.band(band+1),false,scratch.upper);
-            for(int i=0;i<strip;i++)surface.fit(scratch.upper[i].point);
+            for(int i=0;i<strip;i++){surface.fit(scratch.upper[i].point);scratch.upper[i].point.z-=layerLift;}
             for(int i=1;i+1<strip;i++)draw(scratch,scratch.upper[0],scratch.upper[i],scratch.upper[i+1],delivery,stack,buffer,light,overlay,red,green,blue);
         }
     }

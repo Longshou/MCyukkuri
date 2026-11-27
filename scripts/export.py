@@ -80,6 +80,11 @@ TABLE = [
         'standards/yukkuri-library/presentation/moments.json', 'standards/yukkuri-library/presentation/expressions.json',
         'standards/yukkuri-library/expressions/', 'standards/yukkuri-library/components/common/face.json', 'scripts/face_fit_allow.json',
     ], check=(), args=('--check',), note='Read-only face timing and eye-anchor lint for clip and presentation face timelines (FACE-MOTION.md).'),
+    exporter('face-layer-lint', 'scripts/check_face_layers.py', [
+        'src/main/resources/assets/mcyukkuri/yukkuri/', 'src/main/resources/assets/mcyukkuri/textures/entity/',
+        'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json',
+        'src/main/java/io/github/longshou/mcyukkuri/pose/Skin.java', 'scripts/face_layer_allow.json',
+    ], check=(), args=('--check',), note='Read-only lint: no two face slots of an expression draw ink on one depth (eye/tear z-fighting).'),
 ]
 
 # Package-local authoring commands: kept in their source directories. These have no
@@ -228,6 +233,8 @@ def table():
             row['pythonpath'] = '.local/python-audio'
         if row['id'] == 'prop-mesh-lint':
             row['after'] += ['peripheral-assets', 'living-assets', 'family-assets', 'house-assets']
+        if row['id'] == 'face-layer-lint':
+            row['after'] += MODEL_OWNERS+['ecology-expressions']
         if row['id'] in INPUT_LEDGERS:
             row['input_ledger'] = INPUT_LEDGERS[row['id']]
             row['sources'] += list(read(ROOT/row['input_ledger'])['inputs'])

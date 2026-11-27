@@ -1,0 +1,4 @@
+{
+ "note": "Face slot ink overlaps on one depth that existed when the lint landed; only ever shrinks (scripts/check_face_layers.py).",
+ "allow": []
+}

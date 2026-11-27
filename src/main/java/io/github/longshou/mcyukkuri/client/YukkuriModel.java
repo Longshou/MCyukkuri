@@ -504,8 +504,6 @@ public final class YukkuriModel {
     }
     /** cos(47 degrees): above the 44 degree rounded seams and below the 50 degree corners of the shared body model. */
     private static final float SMOOTH_ANGLE_COS=(float)Math.cos(Math.toRadians(47));
-    /** Model units the expression cards sit in front of their own plane, over the head skin they were measured against (about 0.02 deep at the mouth). */
-    static final float CARD_LIFT=Skin.FACE_CARD_LIFT;
     private static final float REMAINS_LIFT=.015f;
     private void updateAngleNormals(AngleNormals smooth){
         for(int t=0;t<smooth.firsts.length;t++){
@@ -1386,9 +1384,10 @@ public final class YukkuriModel {
                 skin(v, point);
                 if (curled != null) curled.transformPosition(point);
                 // The draw computes a unit card normal later. Enclose every possible lift direction.
-                if (part.cardNormal != null) {
-                    bounds.add(group, point.sub(CARD_LIFT, CARD_LIFT, CARD_LIFT));
-                    point.add(2 * CARD_LIFT, 2 * CARD_LIFT, 2 * CARD_LIFT);
+                float lift = part.cardNormal != null ? Skin.faceCardLift(part.name) : part.face ? Skin.faceLayerLift(part.name) : 0;
+                if (lift > 0) {
+                    bounds.add(group, point.sub(lift, lift, lift));
+                    point.add(2 * lift, 2 * lift, 2 * lift);
                 }
                 bounds.add(group, point);
             }
@@ -1466,6 +1465,9 @@ public final class YukkuriModel {
             int tint=woundDisplay!=null?woundDisplay.tint(part.name):drainTint(part.name);
             var curled=tailCurl==null?null:tailCurl.part(partIndex);
             var lifted=cardNormals.get(part.name);
+            // Each face slot keeps its own depth layer so overlapping ink of two slots never z-fights.
+            // House cards have no card lift: they take only their layer, along their own flat card's normal.
+            float cardLift=Skin.faceCardLift(part.name),layerLift=part.face?Skin.faceLayerLift(part.name):0;
             boolean projectFace=pregnancyBelly>.001f&&part.face;
             for (int first = part.start; first < part.start + part.count; first += 3) {
                 if(woundDisplay!=null&&woundDisplay.triangle(first,stack,buffer,light,overlay))continue;
@@ -1477,12 +1479,16 @@ public final class YukkuriModel {
                 if(projectFace){
                     float[] uv=triangleUv;
                     for(int corner=0;corner<3;corner++){skinBase(first+corner,triangle[corner]);uv[corner*2]=vertices[(first+corner)*8+3];uv[corner*2+1]=vertices[(first+corner)*8+4];}
-                    PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface);continue;
+                    PregnancyFaces.render(triangle,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnantSurface,layerLift);continue;
                 }
                 for (int corner = 0; corner < 3; corner++) skin(first + corner, triangle[corner]);
                 if(rearAnatomy)for(int corner=0;corner<3;corner++)rearTransform.transformPosition(triangle[corner]);
                 if(curled!=null)for(int corner=0;corner<3;corner++)curled.transformPosition(triangle[corner]);
-                if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(CARD_LIFT,lifted);
+                if(lifted!=null)for(int corner=0;corner<3;corner++)triangle[corner].fma(cardLift,lifted);
+                else if(layerLift>0){
+                    normal.set(triangle[1]).sub(triangle[0]);edge.set(triangle[2]).sub(triangle[0]);normal.cross(edge);
+                    if(normal.lengthSquared()>1e-16f){normal.normalize();for(int corner=0;corner<3;corner++)triangle[corner].fma(layerLift,normal);}
+                }
                 if(hatPart&&hatDamageDraw.fit()<.999f)for(int corner=0;corner<3;corner++)triangle[corner].sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
                 normal.set(triangle[1]).sub(triangle[0]);
                 edge.set(triangle[2]).sub(triangle[0]);
@@ -1658,7 +1664,7 @@ public final class YukkuriModel {
                 normal.normalize();
                 var card=cardNormals.get(part.name);
                 var lift=card==null?normal:card;
-                for(var point:triangle)point.fma(card==null?ExcitedLeak.STREAM_LIFT:CARD_LIFT+ExcitedLeak.STREAM_LIFT,lift);
+                for(var point:triangle)point.fma((card==null?Skin.faceLayerLift(part.name):Skin.faceCardLift(part.name))+ExcitedLeak.STREAM_LIFT,lift);
                 WoundRenderer.emit(stack,out,light,overlay,triangle[0],triangle[1],triangle[2],
                         triangleUv[0],triangleUv[1],triangleUv[2],triangleUv[3],triangleUv[4],triangleUv[5],lift,lift,lift,alpha,edge);
             }
@@ -1813,7 +1819,7 @@ public final class YukkuriModel {
                 n.set(triangle[1]).sub(triangle[0]).cross(e.set(triangle[2]).sub(triangle[0]));
                 if(n.lengthSquared()<1e-16f)continue;n.normalize();
                 // Smooth vertex normals keep neighbouring triangles on shared offset vertices (no seams); the polygon-offset render type
-                // settles the fight with the skin, and the small lift stays below CARD_LIFT so the face cards win over the overlay.
+                // settles the fight with the skin, and the small lift stays below Skin.FACE_CARD_LIFT so the face cards win over the overlay.
                 if(!woundVertexNormal(first,na))na.set(n);if(!woundVertexNormal(first+1,nb))nb.set(n);if(!woundVertexNormal(first+2,nc))nc.set(n);
                 a.set(triangle[0]).fma(REMAINS_LIFT,na);b.set(triangle[1]).fma(REMAINS_LIFT,nb);c.set(triangle[2]).fma(REMAINS_LIFT,nc);
                 WoundRenderer.emit(stack,buffer,light,overlay,a,b,c,uv[0],uv[1],uv[2],uv[3],uv[4],uv[5],na,nb,nc,255,e);
@@ -1978,7 +1984,7 @@ public final class YukkuriModel {
                        int red,int green,int blue,float alphaA,float alphaB,float alphaC){
         if(woundPregnancyFace(part)){
             PregnancyFaces.render(points,uv,pregnancyBelly,pregnancyContraction,delivery,stack,buffer,light,overlay,pregnancySurface,
-                    red,green,blue,alphaA,alphaB,alphaC);return true;
+                    Skin.faceLayerLift(part),red,green,blue,alphaA,alphaB,alphaC);return true;
         }
         return delivery!=null&&bodySurface(part)&&delivery.drawMotherTriangle(stack,buffer,light,overlay,points,uv,
                 red,green,blue,alphaA,alphaB,alphaC);

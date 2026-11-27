@@ -41,6 +41,7 @@
 - 如厕与鼓气演出（`toilet`、`behavior_window_envy`、`behavior_mold_sorrow`、`behavior_sanction_declare`）曾把普通睁眼脸直接切到 `puff` 族（眼位跳 1.18–1.44）或在短循环里塞多张脸：进出 `puff` 族改由闭眼/眯眼脸（`impact`、`impact_teary`、`hmph`、`satisfied`）过渡，0.5 秒短循环只留单脸；`toilet-contact/recipe.json` 的 `faces` 单位为 tick（导出除以 20），每段同样不少于 10 tick（0.5 秒）。
 - 半睁半闭的不对称脸（`sleepy`、`waking` 一闭一睁）与双眼全睁脸（`neutral`、`surprise`、`teary`）直接切换会触发 `eye-size > 0.9`，经双眼闭合脸（`sleep`、`yawn`、`teary_sleep`）过渡更顺；`surprise`／`blank_cry`（眼高 2.91）切到 `cry`／`squeezed_cry_tears`（1.85）同理，用 `open_cry`／`teary`（2.65）或闭眼脸衔接。
 - 无预设文件的派生脸（如 `cheek_puff`，源自 `angry` 眼位）与未登记脸在检查器里没有眼位数据会被当作闭眼，不会自动报 `eye-jump`（如 `boat_puff` 的 `puff`→`cheek_puff` 实际仍跳 1.32 单位）或退回 `neutral`（如旧 `kid_hide_behind` 写过无效 ID `nervous`），写时间线时须确认脸 ID 已登记且实际眼位相近。
+- 如厕片段换入 `impact_teary` 后眼部出现线段式闪烁，不是时间线问题：它的泪卡纵向拉长盖住眯眼，各槽位烘焙在同一深度，眼与泪墨迹互相 z-fighting（`teary` 等含泪脸同样存在，只是重叠小）。现由渲染按 `Skin.java` 的 `FACE_LAYERS` 给每个槽位分层，`scripts/check_face_layers.py` 把关；选脸时片段帧里看到细线闪动，先跑它。
 
 ## 补充规则
 

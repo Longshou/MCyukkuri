@@ -217,6 +217,15 @@ final class RenderPose implements Overlays.Contact {
                 if(turn!=null)turn.transformPosition(p);
                 if(loose){float keep=WallYield.press(faces,p.x/16,p.y/16,p.z/16);p.x*=keep;p.z*=keep;}
                 int k=i*8;output[k]=p.x;output[k+1]=p.y;output[k+2]=p.z;output[k+3]=source[k+3];output[k+4]=source[k+4];}
+            float layer=Skin.faceLayerLift(origName)*scale;
+            if(layer>0){
+                // The game's per-slot face layer (Skin.faceLayerLift) along the card normal, so overlapping slots never z-fight here either.
+                var card=new Vector3f();
+                for(int i=start;i<end;i+=3)if(source[i*8+7]<-.15f)card.add(new Vector3f(output[i*8+8]-output[i*8],output[i*8+9]-output[i*8+1],output[i*8+10]-output[i*8+2])
+                        .cross(output[i*8+16]-output[i*8],output[i*8+17]-output[i*8+1],output[i*8+18]-output[i*8+2]));
+                if(card.lengthSquared()>1e-16f){card.normalize(layer);
+                    for(int i=start;i<end;i++){output[i*8]+=card.x;output[i*8+1]+=card.y;output[i*8+2]+=card.z;}}
+            }
             for(int i=start;i<end;i+=3){int k=i*8;
                 String name=origName;
                 if(data.has("house")&&data.get("house").getAsBoolean()&&name.startsWith("face_")&&source[k+7]>=-.15){Arrays.fill(output,k,k+24,0);continue;}
