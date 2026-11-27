@@ -249,6 +249,9 @@ public final class Headwear extends Goal implements MotorOwner {
         pruneContacts(now);
     }
 
+    /** Whether another observer already scorned this body earlier on the current game tick. */
+    boolean scornedThisTick() { return lastScornedTick == entity.level().getGameTime(); }
+
     /** Target-side: increment and return how many times this body was scorned within {@link ScornLadder#HISTORY_WINDOW}. */
     int recordScorned() {
         long now = entity.level().getGameTime();

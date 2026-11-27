@@ -176,9 +176,10 @@ public final class Contempt {
         // The scorned one answers by its own nature (flee, puff back, answer or go numb), and thinks less of the scorner in turn.
         int regard = relations.affinity(target.getUUID(), observer.getUUID());
         if (regard > SCORN_FLOOR) relations.relate(target.getUUID(), observer.getUUID(), Math.max(SCORN, SCORN_FLOOR - regard));
+        boolean sameTick = target.headwear().scornedThisTick();
         int scornedRounds = target.headwear().recordScorned();
         if (!SettlementSociety.sparesHatlessBlame(observer, target)) target.groupInteraction().defense().provoke(observer);
-        sufferScorn(target, observer, scornedRounds, rounds >= 2, SCORNED, "scorned");
+        sufferScorn(target, observer, scornedRounds, rounds >= 2, sameTick, SCORNED, "scorned");
         String eventLog = taunt.event().isEmpty() ? "none" : taunt.event();
         GameplayLog.event(observer, "contempt",
                 "scorn target={} known=false intelligence={} affinity={} -> {} rounds={} event={} beat={} face={} quiet={} bored={} sanction=request_not_accepted attempted={}",
@@ -208,7 +209,7 @@ public final class Contempt {
 
     /** Target's reaction to contempt: shock on first sight, then answer, numb hunch, or leave by stats and history. */
     private static void sufferScorn(YukkuriEntity target, YukkuriEntity source, int scornedRounds, boolean repeatedFromSameTaunter,
-                                    float unease, String cause) {
+                                    boolean sameTick, float unease, String cause) {
         if (!target.isAlive()) return;
         boolean sameGroup = SettlementSociety.sameGroup(source, target);
         if (sameGroup) target.mind().addSlavePressure(unease, cause); else target.mind().add(unease, cause);
@@ -221,11 +222,13 @@ public final class Contempt {
         if (outcome.avoidTaunter()) target.headwear().avoidTaunter(source.getUUID(), ScornLadder.AVOID_TAUNTER_TICKS);
         boolean fleeRequested = outcome.kind() == ScornLadder.TargetKind.LEAVE && !target.isPanicking() && mobile(target);
         if (outcome.kind() == ScornLadder.TargetKind.LEAVE) {
-            // The hurt is what it shows while it goes: one forced face through the flight, as a departure's walk-out holds its own.
-            target.forceReaction(outcome.face(), "", FaceTier.Tier.MEDIUM);
-            target.beat(outcome.beat(), outcome.face(), "");
+            if (!sameTick) {
+                // The hurt is what it shows while it goes: one forced face through the flight, as a departure's walk-out holds its own.
+                target.forceReaction(outcome.face(), "", FaceTier.Tier.MEDIUM);
+                target.beat(outcome.beat(), outcome.face(), "");
+            }
             if (fleeRequested) target.fleeFrom(source);
-        } else if (!target.groupInteraction().defense().active() && !target.isPanicking()) {
+        } else if (!sameTick && !target.groupInteraction().defense().active() && !target.isPanicking()) {
             boolean shown = outcome.clip() != null
                     ? target.showReaction(outcome.clip(), outcome.face(), outcome.event(), outcome.clip().durationTicks(), FaceTier.Tier.MEDIUM)
                     : target.showReaction(outcome.face(), outcome.event(), FaceTier.Tier.ofTicks(80));
