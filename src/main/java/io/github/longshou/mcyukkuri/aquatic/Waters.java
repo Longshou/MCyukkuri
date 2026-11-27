@@ -205,13 +205,21 @@ final class Waters {
     }
 
     private static Edge findBerth(YukkuriEntity body) {
+        String refused = null;
         for (var e : freeEdges(body, body.position())) {
             var stand = boardingStand(e, body);
-            if (!SurfaceApproach.canApproach(body, stand)
-                    || !PlacedHatBehavior.waterFits(body.level(), hatAt(e, body), HatGeometry.wornForm(body), HatScale.of(body))) continue;
-            var frame = HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW);
-            if (Hop.entry(body, stand, frame, HullSurface.hopStops(body, HatScale.of(body))) != null) return e;
+            // A stand she already keeps is admitted as arrived: planning a route to where she stands is no approach.
+            boolean approach = SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand);
+            boolean fits = approach && PlacedHatBehavior.waterFits(body.level(), hatAt(e, body),
+                    HatGeometry.wornForm(body), HatScale.of(body));
+            boolean entry = fits && Hop.entry(body, stand,
+                    HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW),
+                    HullSurface.hopStops(body, HatScale.of(body))) != null;
+            if (entry) return e;
+            if (refused == null) refused = "stand=%s approach=%s fits=%s entry=%s".formatted(GameplayLog.at(stand), approach, fits, entry);
         }
+        if (refused != null) GameplayLog.limited(body, "aquatic", "berth.no_edge", 200, "berth none refused {} at={}",
+                refused, GameplayLog.at(body.position()));
         return null;
     }
 

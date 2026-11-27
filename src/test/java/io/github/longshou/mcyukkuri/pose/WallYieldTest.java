@@ -87,6 +87,18 @@ class WallYieldTest {
         assertFalse(WallYield.loose("mamu_left"));
     }
 
+    @Test void rigidHeadwearGivesWayToWallsButKeepsItsBrimBesideAnotherBody() {
+        var wall = new WallYield.Face(1, 0, .4f, 0, 1);
+        var body = WallYield.partnerFace(1, 0, .4f, .3, .3, 0, 1);
+        assertTrue(wall.wall());
+        assertFalse(body.wall());
+        // The brim beside another yukkuri keeps its full width (its texture is never dragged); a real wall still presses it.
+        assertEquals(1, WallYield.press(List.of(body), 1, .5f, 0, true), 1e-6);
+        assertEquals(.4f, WallYield.press(List.of(wall, body), 1, .5f, 0, true), 1e-6);
+        // Soft parts still give way to that body.
+        assertEquals(body.distance(), WallYield.press(List.of(body), 1, .5f, 0), 1e-6);
+    }
+
     @Test void turningAndSeparatingPartnersYieldTowardEachOtherUntilTheirLoosePartsClear() {
         var adult = new WallYield.Bounds(.95, -.25, 1.2);
         var young = new WallYield.Bounds(.4, -.1, .55);

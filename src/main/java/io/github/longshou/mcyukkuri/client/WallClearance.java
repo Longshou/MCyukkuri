@@ -38,7 +38,7 @@ final class WallClearance {
     private double paperCeiling;
     private float originX, originY, originZ;
     private float low, high;
-    private final Tuck tuck = new Tuck();
+    private final Tuck tuck = new Tuck(false), wallTuck = new Tuck(true);
 
     static WallYield.Bounds bounds(YukkuriView entity, YukkuriModel model) {
         double scale = entity.getScale() * entity.growthScale();
@@ -229,15 +229,26 @@ final class WallClearance {
         return tuck;
     }
 
-    void finishDraw() { tuck.source = null; }
+    /** Rigid headwear yields to block walls only, never to the body of another yukkuri: it keeps its shape and its texture
+     *  where flesh would give way. */
+    VertexConsumer tuckWalls(VertexConsumer source) {
+        wallTuck.source = source;
+        return wallTuck;
+    }
+
+    void finishDraw() { tuck.source = null; wallTuck.source = null; }
 
     final class Tuck implements VertexConsumer {
+        private final boolean wallsOnly;
         private VertexConsumer source;
+
+        Tuck(boolean wallsOnly) { this.wallsOnly = wallsOnly; }
+
         VertexConsumer source() { return source; }
 
         @Override public VertexConsumer addVertex(float x, float y, float z) {
             float side = x - originX, front = z - originZ, height = y - originY;
-            float fraction = height < low || height > high ? 1 : WallYield.press(faces, side, height, front);
+            float fraction = height < low || height > high ? 1 : WallYield.press(faces, side, height, front, wallsOnly);
             source.addVertex(originX + side * fraction, y, originZ + front * fraction);
             return this;
         }

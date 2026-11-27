@@ -139,7 +139,9 @@ public final class YukkuriModel {
             buffer=part.equals("braid_lock_root")||part.equals("braid_lock_root_outer")
                 ? drawEvidence.buffer(group,buffer,"root_ring") : drawEvidence.buffer(group,buffer);
         }
-        return wallClearance!=null&&WallYield.loose(part)?wallClearance.tuck(buffer):buffer;
+        // The worn hat is rigid: a wall presses it aside, another yukkuri's body never deforms its brim.
+        return wallClearance!=null&&WallYield.loose(part)
+                ? (evidenceGroup(part).equals("hat")?wallClearance.tuckWalls(buffer):wallClearance.tuck(buffer)):buffer;
     }
     private String evidenceGroup(String part) {
         for(var p:parts)if(p.name.equals(part)&&accessoryPart(p))return "hat";
@@ -148,7 +150,7 @@ public final class YukkuriModel {
     MultiBufferSource evidenceBuffers(String group, MultiBufferSource buffers) {
         var observed=drawEvidence==null?buffers:drawEvidence.buffers(group,buffers);
         var clearance=wallClearance;
-        return clearance!=null&&group.equals("hat")?type->clearance.tuck(observed.getBuffer(type)):observed;
+        return clearance!=null&&group.equals("hat")?type->clearance.tuckWalls(observed.getBuffer(type)):observed;
     }
 
     void poseFingerprint(String value) { poseFingerprint = value; }

@@ -17,7 +17,6 @@ import io.github.longshou.mcyukkuri.intent.Method;
 import io.github.longshou.mcyukkuri.intent.Step;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
-import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Grab;
 import io.github.longshou.mcyukkuri.motor.action.Pick;
@@ -32,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -69,6 +69,8 @@ final class SetOut implements Intent, FamilyRendezvous {
     private int calls;
     /** End of the one gather call, or zero when no gather wait is running. */
     private long gatherUntil;
+    /** The young the shared family call runs for now, or null when no call does. */
+    private UUID called;
     /** The far shore she is heading for, or null. */
     private Waters.Edge heading;
     /** The young she already called to lift this setting out: one that did not come, or was let go on the way, is led from then on. */
@@ -123,6 +125,7 @@ final class SetOut implements Intent, FamilyRendezvous {
     @Override public List<Method> methods() { return List.of(Plan.of("launch", this::derive)); }
 
     @Override public void ended(IntentRunner.Result result) {
+        endCall();
         var held = AquaticLife.carried(owner);
         // what an unfinished carry still holds goes to the carry's own set-down
         if (result != IntentRunner.Result.DONE && held != null) owner.family().carry().finish(held, id() + "_ended");
@@ -170,8 +173,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
                             gatherUntil = owner.level().getGameTime() + GATHER_YOUNG;
-                            owner.speakCue("caregiver"); // the call to the berth is heard, as the land-side call is
-                            return new Step.Wait(this::gatherOver, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
+                            return gatherCall(this::gatherOver);
                         });
             }
             if (edge != null && gatherUntil != 0) {
@@ -227,12 +229,14 @@ final class SetOut implements Intent, FamilyRendezvous {
         }
     }
 
+    /** Sets her worn hat down at a berth she can hop aboard from. With none she does not call for a boat she is wearing: the
+     *  setting out ends here (a later one looks for another shore). */
     private static List<Supplier<Step>> place(YukkuriEntity owner) {
         var edge = Waters.berth(owner);
         if (edge == null) {
             GameplayLog.limited(owner, "aquatic", "berth.none", 200, "berth none reason=no_launch_berth_with_hop_reach at={}", () -> new Object[]{
                         GameplayLog.at(owner.position())});
-            return List.of(() -> new Step.Wait(() -> Waters.berth(owner) != null, ClipMarkers.of(Behaviors.BOAT_CALL).length(), Behaviors.BOAT_CALL));
+            return null;
         }
         GameplayLog.event(owner, "aquatic", "berth stand={} water={} yaw={}", edge.stand().toShortString(), edge.water().toShortString(), edge.yaw());
         var stand = Waters.boardingStand(edge, owner);
@@ -264,11 +268,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                     asked.remove(held.getUUID());
                     return new Step.Do(new Release(held));
                 },
-                () -> {
-                    if (!lagging()) return null;
-                    long until = owner.level().getGameTime() + GATHER_YOUNG;
-                    return new Step.Wait(() -> !lagging() || owner.level().getGameTime() >= until, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
-                });
+                () -> lagging() ? gatherCall(() -> !lagging()) : null);
     }
 
     /** Her nearest young ashore that cannot get to the water by itself and that her holds can carry now, or null. */
@@ -352,6 +352,37 @@ final class SetOut implements Intent, FamilyRendezvous {
     private boolean gathered() {
         var fetch = dependentAshore(AquaticLife.hat(owner));
         return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner));
+    }
+
+    /** The gather call heard by the young herself: the shared family call to the nearest one still short of her side, the wait
+     *  ending (and taking the call with it) when {@code over} holds. */
+    private Step.Wait gatherCall(BooleanSupplier over) {
+        return new Step.Wait(() -> {
+            if (over.getAsBoolean()) return endCall();
+            var child = toCall();
+            if (child == null) return false;
+            if (!child.getUUID().equals(called)) {
+                if (called != null) owner.family().endBeckon();
+                called = child.getUUID();
+                owner.family().beginBeckon(child);
+            }
+            owner.family().beckon(child);
+            return false;
+        }, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
+    }
+
+    /** The nearest young of hers that still has to come to her side: the shared family call's own choice, minus the ones
+     *  already standing here. */
+    private YukkuriEntity toCall() {
+        return owner.family().childToBeckon(p -> SurfaceApproach.arrived(owner, Vec3.atCenterOf(p)));
+    }
+
+    /** Ends the family call if one is running; always true, so a wait ends with it. */
+    private boolean endCall() {
+        if (called == null) return true;
+        called = null;
+        owner.family().endBeckon();
+        return true;
     }
 
     /** Her own young on land within the family search range that still need to follow her. */

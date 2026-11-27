@@ -16,8 +16,11 @@ import org.joml.Vector3f;
  */
 public final class WallYield {
     /** One collision face beside the body: unit horizontal direction from the body axis to its nearest point, the distance
-     *  to it, and the height span of the shape it belongs to (above the feet). */
-    public record Face(float x, float z, float distance, float low, float high) {}
+     *  to it, the height span of the shape it belongs to (above the feet), and whether a block wall makes it: soft parts give
+     *  way to any face, rigid headwear only to a wall, never to the body of another yukkuri. */
+    public record Face(float x, float z, float distance, float low, float high, boolean wall) {
+        public Face(float x, float z, float distance, float low, float high) { this(x, z, distance, low, high, true); }
+    }
 
     /** Loose-part sweep about the feet, including the swing allowance and any worn prop. */
     public record Bounds(double reach, double low, double high) {
@@ -42,7 +45,7 @@ public final class WallYield {
     public static Face partnerFace(float x, float z, double separation, double ownReach, double peerReach, float low, float high) {
         double near = separation - peerReach;
         double middle = (separation + ownReach - peerReach) * .5;
-        return new Face(x, z, (float)Math.max(0, Math.min(near, middle) - 1.0 / 1024), low, high);
+        return new Face(x, z, (float)Math.max(0, Math.min(near, middle) - 1.0 / 1024), low, high, false);
     }
 
     @FunctionalInterface public interface SideSupport { boolean below(double x, double z, double bodyTop); }
@@ -272,10 +275,16 @@ public final class WallYield {
     /** The share of its horizontal offset from the body axis a point keeps so that it lies on the free side of every face
      *  at its height. Triangles whose corners share the same height band stay clear between their corners as well. */
     public static float press(List<Face> faces, float side, float height, float front) {
+        return press(faces, side, height, front, false);
+    }
+
+    /** {@code wallsOnly} is for rigid parts (headwear, its accessories): they give way to a block wall but keep their shape and
+     *  their texture beside the body of another yukkuri, whose soft flesh yields instead. */
+    public static float press(List<Face> faces, float side, float height, float front, boolean wallsOnly) {
         float fraction = 1;
         for (int i = 0; i < faces.size(); i++) {
             var face = faces.get(i);
-            if (height < face.low || height > face.high) continue;
+            if (wallsOnly && !face.wall || height < face.low || height > face.high) continue;
             float toward = face.x * side + face.z * front;
             if (toward > face.distance) fraction = Math.min(fraction, face.distance / toward);
         }
