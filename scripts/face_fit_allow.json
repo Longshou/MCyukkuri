@@ -97,9 +97,6 @@
    "eye-size": 1,
    "short-span": 2
   },
-  "clip:frail_walk": {
-   "eye-size": 2
-  },
   "clip:hat_brim_offer": {
    "switch-rate": 1
   },
@@ -208,9 +205,6 @@
    "eye-size": 1
   },
   "clip:reject_or_spit": {
-   "short-span": 2
-  },
-  "clip:shy": {
    "short-span": 1
   },
   "clip:snatch_pull": {
@@ -222,9 +216,6 @@
   },
   "clip:snuggle_right": {
    "short-span": 3
-  },
-  "clip:spit_alone": {
-   "short-span": 1
   },
   "clip:stamp": {
    "eye-jump": 1,
@@ -245,10 +236,6 @@
    "switch-rate": 1
   },
   "clip:water_flail": {
-   "short-span": 4,
-   "switch-rate": 1
-  },
-  "clip:water_gasp": {
    "short-span": 4,
    "switch-rate": 1
   },

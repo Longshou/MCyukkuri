@@ -1598,16 +1598,12 @@
               "open_smile"
             ],
             [
-              0.45,
+              0.6,
               "closed_smile"
             ],
             [
-              1.05,
+              1.3,
               "satisfied"
-            ],
-            [
-              1.9,
-              "closed_smile"
             ]
           ]
         }
@@ -2562,15 +2558,7 @@
               "teary_pant"
             ],
             [
-              0.42,
-              "pin_cry"
-            ],
-            [
-              0.82,
-              "squeezed_cry_tears"
-            ],
-            [
-              1.2,
+              0.8,
               "pin_cry"
             ]
           ]
@@ -4041,15 +4029,15 @@
               "ashamed"
             ],
             [
-              0.95,
+              0.8,
               "shy_peek"
             ],
             [
-              1.38,
+              1.3,
               "closed_smile"
             ],
             [
-              1.72,
+              1.8,
               "ashamed"
             ]
           ],
@@ -4065,15 +4053,15 @@
               "ashamed"
             ],
             [
-              0.95,
+              0.8,
               "shy_peek"
             ],
             [
-              1.38,
+              1.3,
               "closed_smile"
             ],
             [
-              1.72,
+              1.8,
               "ashamed"
             ]
           ]
@@ -4529,16 +4517,12 @@
               "open_smile"
             ],
             [
-              0.45,
+              0.6,
               "closed_smile"
             ],
             [
-              1.05,
+              1.3,
               "satisfied"
-            ],
-            [
-              1.9,
-              "closed_smile"
             ]
           ],
           "emote": "heart"
