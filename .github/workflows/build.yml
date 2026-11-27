@@ -3,11 +3,32 @@ name: Build
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'gradle/**'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'scripts/package_ci_runtime.py'
+      - '.github/workflows/build.yml'
   pull_request:
+    paths:
+      - 'src/**'
+      - 'gradle/**'
+      - 'build.gradle'
+      - 'gradle.properties'
+      - 'settings.gradle'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'scripts/package_ci_runtime.py'
+      - '.github/workflows/build.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
@@ -34,10 +55,12 @@ jobs:
       - name: Build mod
         run: ./gradlew build --no-daemon
       - name: Upload development jar
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: mcyukkuri-${{ github.sha }}
           path: build/libs/*.jar
+          retention-days: 3
           if-no-files-found: error
       - name: Package small local runtime
         run: python3 scripts/package_ci_runtime.py --jar build/libs --output build/ci-runtime --commit "$GITHUB_SHA"
@@ -46,4 +69,49 @@ jobs:
         with:
           name: mcyukkuri-runtime-${{ github.sha }}
           path: build/ci-runtime/
+          retention-days: 5
           if-no-files-found: error
+      - name: Prune older artifacts
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, subprocess
+          repo = os.environ['GITHUB_REPOSITORY']
+          raw = subprocess.check_output(
+              ['gh', 'api', f'repos/{repo}/actions/artifacts?per_page=100', '--paginate'],
+              text=True,
+          )
+          dec, pos, arts = json.JSONDecoder(), 0, []
+          while pos < len(raw):
+              while pos < len(raw) and raw[pos].isspace():
+                  pos += 1
+              if pos >= len(raw):
+                  break
+              obj, pos = dec.raw_decode(raw, pos)
+              arts.extend(obj.get('artifacts', []))
+          active = sorted((a for a in arts if not a.get('expired')),
+                          key=lambda a: a['created_at'], reverse=True)
+          keep, full_n, rt_n = set(), 0, 0
+          for a in active:
+              name = a['name']
+              if name.startswith('mcyukkuri-runtime-'):
+                  if rt_n < 5:
+                      keep.add(a['id'])
+                      rt_n += 1
+              elif name.startswith('mcyukkuri-'):
+                  if full_n < 1:
+                      keep.add(a['id'])
+                      full_n += 1
+          deleted = 0
+          for a in active:
+              if a['id'] not in keep:
+                  rc = subprocess.run(
+                      ['gh', 'api', '-X', 'DELETE', f"repos/{repo}/actions/artifacts/{a['id']}"],
+                      capture_output=True,
+                  ).returncode
+                  if rc == 0:
+                      deleted += 1
+          print(f'Kept {len(keep)} artifacts, pruned {deleted} older artifacts.')
+          EOF
