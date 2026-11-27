@@ -1595,6 +1595,18 @@
           "faces": [
             [
               0,
+              "open_smile"
+            ],
+            [
+              0.45,
+              "closed_smile"
+            ],
+            [
+              1.05,
+              "satisfied"
+            ],
+            [
+              1.9,
               "closed_smile"
             ]
           ]
@@ -4029,11 +4041,15 @@
               "ashamed"
             ],
             [
-              1.05,
-              "pursed"
+              0.95,
+              "shy_peek"
             ],
             [
-              1.45,
+              1.38,
+              "closed_smile"
+            ],
+            [
+              1.72,
               "ashamed"
             ]
           ],
@@ -4049,11 +4065,15 @@
               "ashamed"
             ],
             [
-              1.05,
-              "pursed"
+              0.95,
+              "shy_peek"
             ],
             [
-              1.45,
+              1.38,
+              "closed_smile"
+            ],
+            [
+              1.72,
               "ashamed"
             ]
           ]
@@ -4506,6 +4526,18 @@
           "faces": [
             [
               0,
+              "open_smile"
+            ],
+            [
+              0.45,
+              "closed_smile"
+            ],
+            [
+              1.05,
+              "satisfied"
+            ],
+            [
+              1.9,
               "closed_smile"
             ]
           ],

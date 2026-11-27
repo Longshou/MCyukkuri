@@ -863,7 +863,7 @@ final class LifeMeal {
             return false;
         }
         rememberComplaint(item.getItem());
-        o.entity().showReactionCue(YukkuriAction.foodRefusal(feeder != null), "bad_taste_small", "food_spit");
+        o.entity().showReactionCue(YukkuriAction.foodRefusal(feeder != null), "distaste_grimace", "food_spit");
         GameplayLog.event(o.entity(), "meal", "spat item={} grade={} pickiness={} taste={} nutrition={} verdict=REFUSE feeder={} tick={} drop={}",
                 item.getItem(), FoodTaste.grade(item).id(), o.pickiness(), tasteFor(feeder), o.nutrition(), feeder, mealTicks, dropped.getUUID());
         return true;

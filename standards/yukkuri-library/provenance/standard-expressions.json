@@ -609,6 +609,30 @@
       "code": "F06",
       "label": "思考",
       "preset": "expressions/presets/thinking.json"
+    },
+    {
+      "id": "shy_peek",
+      "code": "F07",
+      "label": "害羞偷看",
+      "preset": "expressions/presets/shy_peek.json"
+    },
+    {
+      "id": "distaste_grimace",
+      "code": "F08",
+      "label": "嫌难吃皱脸",
+      "preset": "expressions/presets/distaste_grimace.json"
+    },
+    {
+      "id": "distaste_bleh",
+      "code": "F09",
+      "label": "嫌难吃摇头",
+      "preset": "expressions/presets/distaste_bleh.json"
+    },
+    {
+      "id": "distaste",
+      "code": "F10",
+      "label": "轻度嫌弃",
+      "preset": "expressions/presets/distaste.json"
     }
   ],
   "deferred_ids": [],

@@ -376,7 +376,8 @@ def video(args, stage):
     models = args.model if isinstance(args.model, list) else [args.model]
     multi = len(models) > 1
     views = getattr(args, 'view', None) or [[0, 10]]
-    for model, clip, view in ((m, c, v) for m in models for c in args.clip for v in views):
+    for model, spec, view in ((m, c, v) for m in models for c in args.clip for v in views):
+        clip, face_override = spec.split('@', 1) if '@' in spec else (spec, args.face)
         try:
             seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, model, clip)
         except ValueError:
@@ -387,9 +388,9 @@ def video(args, stage):
         if before_root:
             try:
                 before_clip = resolved_clip(before_root, model, clip)
-                if multi and not args.draft_clip and before_clip == resolved_clip(ROOT, model, clip):
+                if multi and not args.draft_clip and not face_override and before_clip == resolved_clip(ROOT, model, clip):
                     continue
-                seconds = min(seconds, before_clip['duration'])
+                seconds = max(seconds, before_clip['duration'])
                 has_before = True
             except ValueError:
                 has_before = False
@@ -397,14 +398,16 @@ def video(args, stage):
         if count < 1:
             raise ValueError(f'Clip too short for {args.fps} fps: {model}/{clip}')
         times = [i/args.fps for i in range(count)]
-        opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=args.face,
+        opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=face_override,
                                   draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
                                   leash_loop=getattr(args, 'leash_loop', False),
                                   scale=getattr(args, 'scale', None),
                                   size=args.size, view=view, node=args.node)
         frames = render_strip(opts, stage, times)
         if has_before:
-            old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
+            bd = before_clip['duration']
+            old_times = [t % bd if before_clip.get('loop') else min(t, bd) for t in times]
+            old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, old_times, before=True)
             pairs = []
             for old_frame, new_frame in zip(old, frames):
                 pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
@@ -415,10 +418,12 @@ def video(args, stage):
         else:
             frames = [compose(frame, '新' if before_root else '') for frame in frames]
         angle = f'-{view[0]:g}' if len(views) > 1 else ''
-        name = (f'{model}-{clip}' if multi else clip) + angle + '.mp4'
+        slug = f'{clip}-{face_override}' if '@' in spec else clip
+        name = (f'{model}-{slug}' if multi else slug) + angle + '.mp4'
         encode_video(frames, stage/name, args.fps)
-        heading = (f'{model} / {clip}' if multi else clip) + (f' · 机位 {view[0]:g}°' if len(views) > 1 else '')
-        body += f'<h2>{E(heading)}</h2>' + media(name, f'{model} / {clip} · {"机位 %g°" % view[0] if len(views) > 1 else "正对机位"} {args.fps} fps', loop=True)
+        label = f'{clip} ({face_override})' if '@' in spec else clip
+        heading = (f'{model} / {label}' if multi else label) + (f' · 机位 {view[0]:g}°' if len(views) > 1 else '')
+        body += f'<h2>{E(heading)}</h2>' + media(name, f'{model} / {label} · {"机位 %g°" % view[0] if len(views) > 1 else "正对机位"} {args.fps} fps', loop=True)
     return body
 
 

@@ -2402,21 +2402,37 @@
     },
     "nuzzle": {
       "label": "擦擦脸",
-      "duration": 0.8,
+      "duration": 2.4,
       "loop": true,
       "applies": "all",
       "lean": -5,
       "rub": 6,
       "rub_yaw": 10,
       "rub_shift": 0.04,
+      "rub_cycles": 3,
       "faces": [
         [
           0,
-          0.8,
+          0.45,
+          "open_smile"
+        ],
+        [
+          0.45,
+          1.05,
+          "closed_smile"
+        ],
+        [
+          1.05,
+          1.9,
+          "satisfied"
+        ],
+        [
+          1.9,
+          2.4,
           "closed_smile"
         ]
       ],
-      "lore": "すーりすーり (E06, N2)",
+      "lore": "すーりすーり (E06, N2): three gentle cheek-rub strokes over 2.4s with a full affectionate face course (anticipation open_smile -> eyes closing closed_smile -> content satisfied -> soft closed_smile settle).",
       "triggers": [
         "nuzzle"
       ]
@@ -5310,29 +5326,34 @@
       "duration": 2.0,
       "loop": true,
       "applies": "all",
-      "turn": -34,
-      "peek_yaw": -8,
+      "turn": -32,
+      "peek_yaw": -4,
       "sway": 3.5,
       "shift": 0.022,
       "tuck": 0.02,
       "faces": [
         [
           0,
-          1.05,
+          0.95,
           "ashamed"
         ],
         [
-          1.05,
-          1.45,
-          "pursed"
+          0.95,
+          1.38,
+          "shy_peek"
         ],
         [
-          1.45,
+          1.38,
+          1.72,
+          "closed_smile"
+        ],
+        [
+          1.72,
           2.0,
           "ashamed"
         ]
       ],
-      "lore": "Project design: turns shyly away and slightly down with a gentle bashful huddle and side fidget, peeks back once mid-cycle, then turns away again; pitch and roll stay well under 12 degrees.",
+      "lore": "Project design: turns shyly away and softly downcast with deep blush, takes one quick bashful peek with soft eyes and a small smile (shy_peek), flusters into a gentle closed_smile as it looks away, then settles back downcast; pitch and roll stay well under 12 degrees.",
       "triggers": [
         "matchmaking meeting, breeding permit granted, wild request"
       ]
@@ -7828,8 +7849,8 @@
       "roll_keys": [[0, 0.5], [0.24, 3.8], [0.46, 4.5], [0.78, 1.2], [1.04, -0.5], [1.32, -3.6], [1.56, -4.2], [1.98, -1.0], [2.4, 0.5]],
       "reach_keys": [[0, 0.005], [0.46, 0.045], [0.82, 0.01], [1.04, 0.005], [1.56, 0.036], [2.02, 0.008], [2.4, 0.005]],
       "sway_keys": [[0, 0], [0.46, -0.024], [0.82, -0.006], [1.04, 0], [1.56, 0.022], [2.02, 0.005], [2.4, 0]],
-      "faces": [[0, 1.05, "sleepy"], [1.05, 1.65, "teary_frown"], [1.65, 2.4, "sleepy"]],
-      "lore": "Project design (BD-25 frail gait): a starving or exhausted yukkuri (BodyAbility.frail) dragging itself along with no spring or air time. Low slumped carriage (height 0.85-0.89), two uneven laboured drag-steps separated by weary stalls where the body sags and wobbles laterally; travel belongs to the motor (Slowness II / fatigue pace). Composed pitch and roll stay under 9 degrees.",
+      "faces": [[0, 1.05, "cold"], [1.05, 1.75, "teary_pant"], [1.75, 2.4, "cold"]],
+      "lore": "Project design (BD-25 frail gait): a starving or exhausted yukkuri (BodyAbility.frail) dragging itself along with no spring or air time. Low slumped carriage (height 0.85-0.89), two uneven laboured drag-steps separated by weary stalls where the body sags and wobbles laterally; travel belongs to the motor (Slowness II / fatigue pace). Faces stay tired but awake and in discomfort (cold strained half-lidded eyes into teary_pant on the effort), never sleepy. Composed pitch and roll stay under 9 degrees.",
       "triggers": [
         "frail ground walk (PresentationArbiter walking/panic when BodyAbility.frail and not crawling)"
       ]
@@ -7846,8 +7867,8 @@
       "roll_keys": [[0, 1.2], [0.52, 4.5], [0.84, 2.5], [1.22, -1.2], [1.56, -1.5], [1.82, -4.2], [2.08, -2.4], [2.48, 0.4], [2.8, 1.2]],
       "reach_keys": [[0, 0.0], [0.26, -0.008], [0.56, 0.064], [0.86, 0.02], [1.25, 0.004], [1.56, 0.0], [1.84, 0.044], [2.12, 0.012], [2.5, 0.002], [2.8, 0.0]],
       "sway_keys": [[0, 0.005], [0.52, -0.028], [0.88, -0.01], [1.25, 0.008], [1.82, 0.024], [2.15, 0.008], [2.8, 0.005]],
-      "faces": [[0, 0.9, "teary_frown"], [0.9, 1.6, "squeezed_frown"], [1.6, 2.8, "teary_frown"]],
-      "lore": "Project design (BD-25 weak crawl): a badly injured (health <= 30%) or burned-sole yukkuri dragging itself flat across the ground with zero air time. Collapsed flattened body (height 0.76-0.81), one painful forward heave followed by a trembling exhausted stall and a weaker half-pull; travel belongs to the crawl motor (crawlSpeed ~0.20 b/s). Composed pitch and roll stay under 10 degrees.",
+      "faces": [[0, 0.55, "teary_frown"], [0.55, 1.55, "squeezed_frown"], [1.55, 2.25, "teary_pant"], [2.25, 2.8, "teary_frown"]],
+      "lore": "Project design (BD-25 weak crawl): a badly injured (health <= 30%) or burned-sole yukkuri dragging itself flat across the ground with zero air time. Collapsed flattened body (height 0.76-0.81), one painful forward heave followed by a trembling exhausted stall and a weaker half-pull; travel belongs to the crawl motor (crawlSpeed ~0.20 b/s). Faces show sharper pain and exhaustion than frail_walk (teary_frown -> squeezed_frown wince through the trembling stall -> teary_pant -> teary_frown). Composed pitch and roll stay under 10 degrees.",
       "triggers": [
         "injured or burned-sole crawl (PresentationArbiter walking/panic when isCrawling and weak or footBurned)"
       ]
@@ -7863,8 +7884,8 @@
       "yaw_keys": [[0, 0], [0.55, 0], [0.7, 16], [0.9, -16], [1.1, 12], [1.3, -8], [1.5, 0], [1.8, -32], [2.6, -32], [3.0, 0]],
       "roll_keys": [[0, 0], [0.55, 0], [0.7, -2], [0.9, 2], [1.1, -1.5], [1.3, 1], [1.5, 0], [3.0, 0]],
       "markers": {"release": 0, "recoil": 0.5, "settled": 3.0},
-      "faces": [[0, 0.35, "bad_taste_small"], [0.35, 1.05, "bad_taste_closed"], [1.05, 1.55, "squeezed_frown"], [1.55, 2.65, "hmph"], [2.65, 3.0, "pursed"]],
-      "lore": "Project design (motion library base reject_or_spit; wiki picky eating and food refusal): the mouth throws the food back out, independent of the chew and swallow loop. It starts on the tick the real item leaves the mouth (marker release): the body jabs forward and down, flattened by the push, so the dropped item appears in front of the lips; then it rears back and up away from the taste, shakes the whole ball no-no-no with a fading yaw, and ends with a short hmph turned aside before settling. No hop, never airborne. Pitch and roll together stay within 9 degrees; faces follow the spit disgust into a displeased hmph and pursed settle.",
+      "faces": [[0, 0.55, "distaste_grimace"], [0.55, 1.55, "distaste_bleh"], [1.55, 2.65, "distaste"], [2.65, 3.0, "pursed"]],
+      "lore": "Project design (motion library base reject_or_spit; wiki picky eating and food refusal): the mouth throws the food back out, independent of the chew and swallow loop. It starts on the tick the real item leaves the mouth (marker release): the body jabs forward and down, flattened by the push, so the dropped item appears in front of the lips; then it rears back and up away from the taste, shakes the whole ball no-no-no with a fading yaw, and turns aside in mild distaste before settling. No hop, never airborne. Pitch and roll together stay within 9 degrees; faces stay tear-free and non-angry (distaste_grimace -> distaste_bleh -> mild distaste -> pursed).",
       "triggers": [
         "refused meal spat out (LifeMeal.spit, offered by player or peer)"
       ]
@@ -7880,8 +7901,8 @@
       "yaw_keys": [[0, 0], [0.55, 0], [0.7, 16], [0.9, -16], [1.1, 12], [1.3, -8], [1.5, 0], [2.4, 0]],
       "roll_keys": [[0, 0], [0.55, 0], [0.7, -2], [0.9, 2], [1.1, -1.5], [1.3, 1], [1.5, 0], [2.4, 0]],
       "markers": {"release": 0, "recoil": 0.5, "settled": 2.4},
-      "faces": [[0, 0.35, "bad_taste_small"], [0.35, 1.05, "bad_taste_closed"], [1.05, 1.55, "squeezed_frown"], [1.55, 2.4, "angry_stare"]],
-      "lore": "Project design (user 2026-11-27: eating alone without a feeder has no side-face pout): same spit thrust, recoil and head shake as reject_or_spit, but without the -32 degree turn away or hmph pout; ends facing forward with a brief downward let-down droop and plain displeased face before settling. Pitch and roll together stay within 8 degrees.",
+      "faces": [[0, 0.55, "distaste_grimace"], [0.55, 1.55, "distaste_bleh"], [1.55, 2.4, "distaste"]],
+      "lore": "Project design (user 2026-11-27: eating alone without a feeder has no side-face pout, no trapezoid angry mouth, no cry-to-anger jump): same spit thrust, recoil and head shake as reject_or_spit, but without the -32 degree turn away; follows a cohesive tear-free dislike arc (distaste_grimace -> distaste_bleh -> mild distaste) with a brief downward let-down droop before settling. Pitch and roll together stay within 8 degrees.",
       "triggers": [
         "refused meal spat out while eating alone (LifeMeal.spit, feeder == null)"
       ]

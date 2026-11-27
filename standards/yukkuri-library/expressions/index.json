@@ -101,7 +101,11 @@
     "ashamed": "expressions/presets/ashamed.json",
     "sparkle": "expressions/presets/sparkle.json",
     "drink_lap": "expressions/presets/drink_lap.json",
-    "thinking": "expressions/presets/thinking.json"
+    "thinking": "expressions/presets/thinking.json",
+    "shy_peek": "expressions/presets/shy_peek.json",
+    "distaste_grimace": "expressions/presets/distaste_grimace.json",
+    "distaste_bleh": "expressions/presets/distaste_bleh.json",
+    "distaste": "expressions/presets/distaste.json"
   },
   "parts": "expressions/parts/index.json",
   "source_coverage": "provenance/expression-coverage.json",

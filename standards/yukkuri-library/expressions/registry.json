@@ -426,6 +426,18 @@
     "thinking": {
       "kind": "standard"
     },
+    "shy_peek": {
+      "kind": "standard"
+    },
+    "distaste_grimace": {
+      "kind": "standard"
+    },
+    "distaste_bleh": {
+      "kind": "standard"
+    },
+    "distaste": {
+      "kind": "standard"
+    },
     "afraid": {
       "kind": "derived",
       "builder": "standards/yukkuri-library/expressions/derived/faces.py",

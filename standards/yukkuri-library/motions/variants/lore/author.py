@@ -459,7 +459,7 @@ def state(action, t, c, height):
         tidy = smooth((t-.6)/.5)*(1-smooth((t-1.8)/.6))
         r = [-2*tidy, 10*shake, -2*tidy]; s[1] = 1-.02*abs(shake)
     elif action in ('nuzzle', 'comfort_lick'):
-        w = math.sin(2*math.pi*t/d)
+        w = math.sin(2*math.pi*c.get('rub_cycles', 1)*t/d)
         r = [c['lean'], c.get('rub_yaw', 0.)*w, c['rub']*w]; shift[0] = c['rub_shift']*height*w; s = [1., 1-.015*abs(w), 1.]
     elif action in ('feed_child', 'first_toilet_assist'):
         # Both are deliberate care approaches, but they stay separate clips: mouth-to-mouth
@@ -824,17 +824,17 @@ def state(action, t, c, height):
             shift[1] = -height*(a + q*F)
             lift = c['yank_hop']*height*yank
     elif action == 'shy':
-        # Bashful turn-away and slight downward tuck with a small fidget, one quick peek back, then turning away again.
-        yaw = keyed(t, [(0, c['turn']*.55), (.35, c['turn']), (.95, c['turn']),
-                        (1.25, c['peek_yaw']), (1.42, c['peek_yaw']*1.2), (1.75, c['turn']*.85), (d, c['turn']*.55)])
-        pitch = keyed(t, [(0, -2.0), (.35, -4.2), (.95, -4.5), (1.25, -1.2), (1.42, -1.5), (1.75, -3.5), (d, -2.0)])
+        # Bashful turn-away and gentle downward tuck with a small fidget, one quick bashful peek toward viewer, then flustered look-away.
+        yaw = keyed(t, [(0, c['turn']*.55), (.35, c['turn']), (.90, c['turn']),
+                        (1.12, c['peek_yaw']), (1.34, c['peek_yaw']), (1.65, c['turn']*1.05), (d, c['turn']*.55)])
+        pitch = keyed(t, [(0, -2.0), (.35, -4.2), (.90, -4.5), (1.12, -0.8), (1.34, -1.0), (1.65, -4.0), (d, -2.0)])
         fidget = math.sin(2*math.pi*t/d)
-        roll = c['sway']*keyed(t, [(0, .4), (.4, 1.0), (.75, .5), (1.0, .9), (1.25, -.35), (1.5, .6), (d, .4)])
-        tuck = c['tuck']*keyed(t, [(0, .5), (.35, 1.0), (.95, 1.0), (1.25, 0.0), (1.45, .3), (1.75, .85), (d, .5)])
+        roll = c['sway']*keyed(t, [(0, .4), (.4, 1.0), (.75, .5), (.95, .85), (1.20, -.4), (1.50, .75), (d, .4)])
+        tuck = c['tuck']*keyed(t, [(0, .5), (.35, 1.0), (.90, 1.0), (1.12, 0.0), (1.38, .35), (1.65, .95), (d, .5)])
         s = [1+.5*tuck, 1-tuck, 1+.5*tuck]
         r = [pitch, yaw, roll]
         shift[0] = c['shift']*height*fidget
-        shift[1] = .018*height*keyed(t, [(0, .4), (.35, 1.0), (.95, .9), (1.25, .1), (1.75, .8), (d, .4)])
+        shift[1] = .018*height*keyed(t, [(0, .4), (.35, 1.0), (.90, .9), (1.15, .05), (1.65, .85), (d, .4)])
     elif action == 'doze_off':
         # Starts upright and ends in the exact sleep pose (height, slump, tilt) so the sleep clip takes over unseen.
         p = smooth(t/d); h = lerp(1., c['height'], p)
