@@ -186,7 +186,11 @@ def kid_play_shelter(window):
     if not (c2_calm < c1_calm):
         return f'bold c2 did not calm before timid c1 (c2={c2_calm} c1={c1_calm})'
     after_calm = window[m_c1_heard.end() + m_c1_calm.end():]
-    if not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim\b', after_calm):
+    lifted_to_head = re.search(rf'\[aquatic\][^\n]* care transfer end kind=shelter_young child={c1} result=DONE released=true ground=false head=true\b', window[m_c1_heard.end():])
+    if lifted_to_head:
+        if not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=hat_cradle start spot=head reason=head_dry\b', after_calm):
+            return 'c1 sheltered on head did not resume head play after the storm passed'
+    elif not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim\b', after_calm):
         return 'c1 did not return to brim play after the storm passed'
 
 
@@ -200,7 +204,7 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
       _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', boldness=20, childhood=CHILDHOOD_HOPPING, also=('crew',)),
       _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', boldness=75, childhood=CHILDHOOD_HOPPING, also=('crew',)),
       afloat_now('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
-     vantage=(-4, 4, -108, 16),
+     vantage=(-2, 2, -105, 16),
      late=['schedule function mcylab:util/weather_thunder 120t replace',
            Retry('execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~',
                  sel('a'), tries=1, first=220),
