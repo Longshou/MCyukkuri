@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽舱入座与转身几何一致（PD-09 雨后出舱） | `.worktrees/wp-cabin-turn` | aquatic/TakeSeat, motor/surface/Floor, PlacedHatEntity places |
+| 两只水生魔理沙靠近时帽子闪现弯曲 | `.worktrees/wp-hat-flicker` | client hat render (PlacedHat/HatBoardingMotion) |
 
 ## 玩法待办
 
