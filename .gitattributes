@@ -11,6 +11,7 @@
 *.md text eol=lf
 gradlew text eol=lf
 *.bat text eol=crlf
+*.cmd text eol=crlf
 *.ps1 text eol=crlf
 *.jar binary
 *.zip binary
@@ -24,4 +25,17 @@ gradlew text eol=lf
 *.html text eol=lf
 *.obj text eol=lf
 *.txt text eol=lf
-wiki/art-references/** -text
+wiki/art-references/** -text linguist-vendored=true
+wiki/reference-library/** linguist-generated=true
+preview/vendor/** linguist-vendored=true
+standards/**/*.html linguist-generated=true
+standards/**/*.json linguist-generated=true
+standards/**/*.bbmodel linguist-generated=true
+standards/**/*.js linguist-generated=true
+art/source/** linguist-generated=true
+art/audio/** linguist-generated=true
+art/dialogue/native-u/** linguist-generated=true
+art/catalog.json linguist-generated=true
+art/runtime-sources.json linguist-generated=true
+art/CATALOG.md linguist-generated=true
+src/main/resources/** linguist-generated=true
