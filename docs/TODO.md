@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 表情适配基线违例：lore 片段 | `.worktrees/wp-face-fit-lore` | lore/recipe.json (face timelines), face_fit_allow.json |
 | PD-09 打雷 | `.worktrees/wp-pd09-thunder` | kid_boat_play scene, aquatic thunder reaction |
 
 ## 玩法待办
