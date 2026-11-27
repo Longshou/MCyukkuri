@@ -732,6 +732,9 @@ def _ring_stray_fates(window):
     rest = re.search(rf'uuid={keeper} t=(\d+) [^\n]*action=outing_plaza_rest ', window)
     if rest and int(rest[1]) - start > 800:
         return f'keeper took {int(rest[1]) - start} ticks to reach the plaza bench (expected <= 800)'
+    off = _bench_sit_check(window)
+    if off:
+        return off
     for name, *_ in _RING_STRAYS:
         actor = _uuid_text(_RING, name)
         # The decision logs the ring distance its values give: 1 + 5 * shyness * (1 - .4 * interest), plus a two-block band.
@@ -845,6 +848,32 @@ next(s for s in S if s.id == 'park_walk').smoke.update(verify=_outing_crossings,
     (1090, f'execute if entity {sel("outing_shy")} if entity {sel("outing_bold")} '
      f'unless data entity {sel("outing_shy")} leash unless data entity {sel("outing_bold")} leash run say MCY_OUTING_HOME_LEADS_OFF'),
 ])
+_NUM = r'(-?\d+(?:\.\d+)?)'
+_POINT = rf'\({_NUM},{_NUM},{_NUM}\)'
+
+
+def _bench_sit_check(window):
+    """Every sit starts on the ground in front of the seat (the entity is never on the board before it sits), takes the seat half a block
+    up and about a block back, and stands up again at the spot it sat from; the drawn legs rest on the board and reach past its edge."""
+    sits = re.findall(r'action=outing_sit seat=-?\d+, -?\d+, -?\d+ facing=\w+ candidates=\d+ board_top=' + _NUM + ' hip_y=' + _NUM
+                      + ' thigh_gap=' + _NUM + ' foot_past_edge=' + _NUM + ' front_gap=' + _NUM, window)
+    if not sits:
+        return 'no sit began from the spot in front of a bench'
+    for board, _, gap, past, front in sits:
+        if abs(float(board) - .5) > .01 or float(gap) < 0 or float(gap) > .05 or float(past) <= 0 or float(front) > .5:
+            return f'sit geometry off: board_top={board} thigh_gap={gap} foot_past_edge={past} front_gap={front}'
+    settles = re.findall(rf'action=seat_settle phase=(sit|rise) from={_POINT} to={_POINT} ticks=(\d+)', window)
+    sat = [m for m in settles if m[0] == 'sit']
+    if not sat:
+        return 'the owner never took the seat (no sit settle)'
+    for phase, fx, fy, fz, tx, ty, tz, ticks in settles:
+        rise = float(ty) - float(fy)
+        back = ((float(tx) - float(fx)) ** 2 + (float(tz) - float(fz)) ** 2) ** .5
+        if abs(rise - (.5 if phase == 'sit' else -.5)) > .05 or not .5 <= back <= 1.6:
+            return f'{phase} settle moved {rise:+.2f} up and {back:.2f} across; expected half a block and about one across'
+    return None
+
+
 def _park_play_pet_fates(window):
     """Both pets choose facilities by stat, play >=2 sessions/facilities, sustain real bounces, match declared faces, and leave after wants end."""
     at_stand = re.search(r'action=outing_park_wait stand=(\([^\n]+\))', window)
@@ -852,6 +881,9 @@ def _park_play_pet_fates(window):
     turn = re.search(r'action=outing_turn reason=(park_done|park_time)\b', window)
     if not at_stand or not left or at_stand[1] != left[1] or float(left[2]) >= .5:
         return 'the keeper did not finish waiting at her park stand'
+    off = _bench_sit_check(window)
+    if off:
+        return off
     if not turn or turn[1] != 'park_done':
         return f'expected keeper leave reason=park_done after wants ended, got {turn[1] if turn else "none"}'
     first_kinds = {}
@@ -1246,6 +1278,9 @@ def _pocket_rest_verify(window):
     stood = re.search(r'action=outing_stand reason=leave', window)
     if not sat or not stood or not sat.start() < stood.start():
         return 'the keeper did not sit and then stand up from the bench'
+    off = _bench_sit_check(window)
+    if off:
+        return off
     sessions = [m for m in re.finditer(r'facility session ended kind=CERAMIC[^\n]*completed=true\b', window)]
     if not any(sat.start() < m.start() < stood.start() for m in sessions):
         return 'no tunnel session was completed while the keeper sat'

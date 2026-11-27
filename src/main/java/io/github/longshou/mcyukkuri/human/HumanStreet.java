@@ -731,12 +731,12 @@ final class HumanStreet {
         /** A wearer seen on the paving this recently still counts as the plaza's visible company at the gate. */
         private static final int COMPANY_MEMORY = 200;
         private enum Leg { NONE, GATE, TAKE, COLLECT, STOW }
-        /** A bench cell, the board top the feet rest on, and the long side the sitter faces. */
-        private record Seat(BlockPos cell, Vec3 top, Direction facing) {}
-        /** Horizontal offset from the board centre within which the hips are on the board (board 14/16 deep, hips about 0.3 wide). */
-        private static final double SEAT_CENTRE = .2;
-        /** From the cell beside the bench (1.0 from the board centre) the owner steps up by itself. */
-        private static final double REACH_SEAT = 1.2;
+        /** A bench cell, the board top the sitter's entity rests on, the long side it faces, and the ground spot in front of the seat it sits down from. */
+        private record Seat(BlockPos cell, Vec3 top, Direction facing, Vec3 front) {}
+        /** Within this of the spot in front of the seat (the cell beside the board) the owner turns round and sits down. */
+        private static final double FRONT_REACH = .5;
+        /** The walk ended this close to the spot but short of it: the owner shuffles the last bit (never onto the board). */
+        private static final double FRONT_CREEP = 1.5;
         // Beyond the park's twelve-block calling distance the owner goes to the pet herself.
         private static final double CALL_RANGE = 16;
 
@@ -1121,12 +1121,12 @@ final class HumanStreet {
                 }
                 if (!atStand()) {
                     if (!npc.getNavigation().isDone()) return;
-                    if (seatGap() > REACH_SEAT + .3) {
+                    if (frontGap() > FRONT_CREEP) {
                         if (!routeSeat(seat)) returnHome("plaza_seat");
                     } else if (++stalled >= ROUTE_TICKS) {
                         GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_step seat={}", seat.cell().toShortString());
                         returnHome("plaza_seat");
-                    } else npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .45);
+                    } else npc.getMoveControl().setWantedPosition(seat.front().x, seat.front().y, seat.front().z, .45);
                     return;
                 }
                 plazaSat = true;
@@ -1138,8 +1138,7 @@ final class HumanStreet {
             npc.getNavigation().stop();
             stalled = detours = 0;
             npc.getLookControl().setLookAt(watched());
-            if (seatGap() > SEAT_CENTRE && Math.abs(npc.getY() - seat.top().y) <= .6)
-                npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .3);
+            sitDown();
         }
 
         private void clearPlaza() {
@@ -1345,15 +1344,21 @@ final class HumanStreet {
             return seats;
         }
 
-        /** The sitter's feet rest on the board top; it must be reachable by a step, free of bodies, and see the facility. */
+        /**
+         * The sitter's entity rests on the board top (never walked onto: it sits down from the cell in front of the board). The board must
+         * be the height the sit pose is drawn for, the cell in front must be a place to stand, and the seat free of bodies with a view of
+         * the facility.
+         */
         private Seat seatAt(BlockPos cell, Direction front, Vec3 core) {
             var level = npc.level();
             double height = level.getBlockState(cell).getCollisionShape(level, cell).max(Direction.Axis.Y);
-            if (height > npc.maxUpStep() || !level.getFluidState(cell).isEmpty()
+            if (Math.abs(height - SeatPose.BOARD) > 1e-3 || !level.getFluidState(cell).isEmpty()
                     || !level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)) return null;
             var top = new Vec3(cell.getX() + .5, cell.getY() + height, cell.getZ() + .5);
             double along = (core.x - top.x) * front.getStepX() + (core.z - top.z) * front.getStepZ();
-            var seat = new Seat(cell, top, ParkSeats.facesFirstNormal(along) ? front : front.getOpposite());
+            var facing = ParkSeats.facesFirstNormal(along) ? front : front.getOpposite();
+            if (!standable(cell.relative(facing))) return null;
+            var seat = new Seat(cell, top, facing, Vec3.atBottomCenterOf(cell.relative(facing)));
             if (!seatFree(seat)) return null;
             var sight = level.clip(new ClipContext(top.add(0, 1.2, 0), core, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, npc));
             return sight.getType() == HitResult.Type.MISS || level.getBlockState(sight.getBlockPos()).getBlock() instanceof PlayBlock
@@ -1371,52 +1376,68 @@ final class HumanStreet {
         }
 
         /**
-         * A bench cell is no path node (the board blocks the node box), so walk to the cell beside the long side and step up onto the
-         * board by move control; the destination stays the board top.
+         * A bench cell is no path node (the board blocks the node box), so walk to the cell in front of the seat, the side the sitter will
+         * face; the sit starts from there and the board is never walked onto.
          */
         private boolean routeSeat(Seat target) {
             var nav = npc.getNavigation();
-            last = npc.position(); stalled = 0; destination = target.top();
-            if (npc.onGround() && Math.hypot(npc.getX() - target.top().x, npc.getZ() - target.top().z) <= REACH_SEAT
-                    && Math.abs(npc.getY() - target.top().y) <= .6) {
+            last = npc.position(); stalled = 0; destination = target.front();
+            if (atFront(target)) {
                 nav.stop();
                 return true;
             }
-            var sides = new ArrayList<>(List.of(target.facing(), target.facing().getOpposite()));
-            sides.sort(Comparator.comparingDouble(side -> npc.distanceToSqr(Vec3.atBottomCenterOf(target.cell().relative(side)))));
-            for (var side : sides) {
-                var stand = target.cell().relative(side);
-                if (!standable(stand)) continue;
-                var path = nav.createPath(stand, 0);
-                if (path != null && path.canReach() && nav.moveTo(path, moveSpeed())) return true;
-            }
-            return false;
+            var path = nav.createPath(target.cell().relative(target.facing()), 0);
+            return path != null && path.canReach() && nav.moveTo(path, moveSpeed());
         }
 
         /** The route to the standing cell, or the way back to the seat. */
         private boolean routeStand(Vec3 to) { return seat != null ? routeSeat(seat) : route(to); }
 
-        private double seatGap() { return Math.hypot(npc.getX() - seat.top().x, npc.getZ() - seat.top().z); }
+        private double frontGap() { return Math.hypot(npc.getX() - seat.front().x, npc.getZ() - seat.front().z); }
 
-        /** On the way, near the cell and the walk over, or at the stand. */
-        private boolean atStand() {
-            return atDestination() || seat != null && npc.getNavigation().isDone() && seatGap() <= .6
-                    && Math.abs(npc.getY() - seat.top().y) <= .6;
+        /** Standing on the ground at the spot in front of the seat. */
+        private boolean atFront(Seat target) {
+            return npc.onGround() && Math.abs(npc.getY() - target.front().y) <= .1
+                    && Math.hypot(npc.getX() - target.front().x, npc.getZ() - target.front().z) <= FRONT_REACH;
         }
 
-        /** The one place that decides sitting: resting on the board top, centred on it, with no walk or leg in progress. */
+        /** On the way, near the cell and the walk over, or at the stand (in front of the seat, or sitting on it). */
+        private boolean atStand() {
+            return atDestination() || seat != null && (npc.sitting() || npc.getNavigation().isDone() && atFront(seat));
+        }
+
+        /**
+         * At the spot in front of the seat the owner turns its back to the seat and sits down (one eased settle, see {@link HumanNpc#sit});
+         * a little off it, the owner shuffles back to it first. The log carries the drawn pose's real geometry against the board.
+         */
+        private void sitDown() {
+            if (npc.seated()) return;
+            if (!atFront(seat)) {
+                if (frontGap() <= FRONT_CREEP) npc.getMoveControl().setWantedPosition(seat.front().x, seat.front().y, seat.front().z, .3);
+                return;
+            }
+            var level = npc.level();
+            var shape = level.getBlockState(seat.cell()).getCollisionShape(level, seat.cell());
+            var axis = seat.facing().getAxis();
+            // The board's front edge, measured from the seated body's centre (the cell centre).
+            double edge = seat.facing().getAxisDirection() == Direction.AxisDirection.POSITIVE ? shape.max(axis) - .5 : .5 - shape.min(axis);
+            double top = seat.top().y - seat.cell().getY();
+            npc.sit(seat.facing(), seat.top());
+            GameplayLog.event(npc, "npc-care",
+                    "action=outing_sit seat={} facing={} candidates={} board_top={} hip_y={} thigh_gap={} foot_past_edge={} front_gap={}",
+                    seat.cell().toShortString(), seat.facing(), seatCandidates, fmt2(top),
+                    fmt2(SeatPose.hipY(top)), fmt3(SeatPose.thighGap(top)), fmt2(SeatPose.footPastEdge(edge)), fmt2(frontGap()));
+        }
+
+        /** The one place that ends a sit early: a walk or leg began, or the owner no longer rests here. */
         private void syncSeat() {
-            boolean sit = seat != null && (parkLingering() || plazaSat) && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()
-                    && npc.onGround() && Math.abs(npc.getY() - seat.top().y) <= .05 && seatGap() <= SEAT_CENTRE;
-            if (sit == npc.seated()) return;
-            if (!sit) { standUp("move"); return; }
-            npc.sit(seat.facing());
-            GameplayLog.event(npc, "npc-care", "action=outing_sit seat={} facing={} candidates={}",
-                    seat.cell().toShortString(), seat.facing(), seatCandidates);
+            if (!npc.sitting()) return;
+            if (!(seat != null && (parkLingering() || plazaSat) && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()))
+                standUp("move");
         }
 
         private void standUp(String reason) {
-            if (!npc.seated()) return;
+            if (!npc.sitting()) return;
             npc.standUp();
             GameplayLog.event(npc, "npc-care", "action=outing_stand reason={}", reason);
         }
@@ -1596,8 +1617,7 @@ final class HumanStreet {
             npc.getNavigation().stop();
             stalled = detours = 0;
             if (!npc.isUsingItem()) npc.getLookControl().setLookAt(watched());
-            if (seat != null && leg == Leg.NONE && resume == null && seatGap() > SEAT_CENTRE && Math.abs(npc.getY() - seat.top().y) <= .6)
-                npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .3);
+            if (seat != null && leg == Leg.NONE && resume == null) sitDown();
             if (picnicHalf != null) {
                 var half = looseHalf();
                 if (half == null) {
@@ -1633,6 +1653,8 @@ final class HumanStreet {
         }
 
         private void clearPark() {
+            // Back on the ground at the stand first: the log's gap and every route that follows start from there.
+            standUp("leave");
             if (parkLingering()) GameplayLog.event(npc, "npc-care", "action=outing_park_leave stand={} gap={}",
                     GameplayLog.at(watch), npc.distanceToSqr(watch));
             parkDestination = null;
@@ -1641,7 +1663,6 @@ final class HumanStreet {
             watch = null;
             parkOpened = 0;
             seat = null;
-            standUp("leave");
             tiredTicks = 0;
             offered = false;
             picnicTryAt = 0;
@@ -1775,14 +1796,14 @@ final class HumanStreet {
                         if (!standAside(facility)) { returnHome("blocked"); return; }
                     }
                     if (seat != null && leg == Leg.NONE && resume == null && !atStand()
-                            && npc.getNavigation().isDone() && seatGap() <= REACH_SEAT + .3) {
+                            && npc.getNavigation().isDone() && frontGap() <= FRONT_CREEP) {
                         if (++stalled >= ROUTE_TICKS) {
                             GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_step seat={}", seat.cell().toShortString());
                             seat = null;
                             if (!standAside(facility)) returnHome("blocked");
                             return;
                         }
-                        npc.getMoveControl().setWantedPosition(seat.top().x, seat.top().y, seat.top().z, .45);
+                        npc.getMoveControl().setWantedPosition(seat.front().x, seat.front().y, seat.front().z, .45);
                         return;
                     }
                     if (leg == Leg.NONE && resume == null) {
@@ -2104,6 +2125,7 @@ final class HumanStreet {
         }
 
         private static String fmt2(double value) { return String.format(Locale.ROOT, "%.2f", value); }
+        private static String fmt3(double value) { return String.format(Locale.ROOT, "%.3f", value); }
 
         private boolean followPace() {
             var list = new ArrayList<OutingPace.Companion>(companions.size());

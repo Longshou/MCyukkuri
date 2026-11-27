@@ -37,12 +37,15 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
             }
         });
     }
-    /** A bench board sits 0.5 above the cell floor; the vanilla riding legs lie flat when the hips are lowered this far, so the thighs meet the board. */
-    private static final double SIT_DROP = .6;
+    /** The body is drawn eased between the spot in front of the bench and the seat ({@link SeatPose}); the legs bend by the same progress. */
     @Override public void render(HumanNpc npc, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
         shadowRadius = .35f;
         pose.pushPose();
-        if (npc.sitsNow()) pose.translate(0, -SIT_DROP, 0);
+        model.seat = (float) npc.seatBlend(partial);
+        if (model.seat > 0) {
+            var offset = npc.seatOffset(partial);
+            pose.translate(offset.x, offset.y, offset.z);
+        }
         super.render(npc, yaw, partial, pose, buffers, light);
         pose.popPose();
     }
@@ -63,9 +66,21 @@ public final class HumanRenderer extends HumanoidMobRenderer<HumanNpc, HumanRend
                     .texOffs(18, 47).addBox(-1, -12, -1.5f, 2, 1, 3), PartPose.ZERO);
             return LayerDefinition.create(mesh, 64, 64);
         }
+        /** How far the sit pose is blended in (0 standing, 1 seated), set by the renderer each frame. */
+        float seat;
         @Override public void setupAnim(HumanNpc n, float swing, float amount, float age, float yaw, float pitch) {
-            if (n.sitsNow()) riding = true;
-            super.setupAnim(n, swing, amount, age, yaw, pitch);
+            super.setupAnim(n, swing, amount * (1 - seat), age, yaw, pitch);
+            if (seat > 0) {
+                // The vanilla riding pose, blended in.
+                rightArm.xRot -= Mth.PI / 5 * seat;
+                leftArm.xRot -= Mth.PI / 5 * seat;
+                rightLeg.xRot = Mth.lerp(seat, rightLeg.xRot, -1.4137167f);
+                rightLeg.yRot = Mth.lerp(seat, rightLeg.yRot, Mth.PI / 10);
+                rightLeg.zRot = Mth.lerp(seat, rightLeg.zRot, .07853982f);
+                leftLeg.xRot = Mth.lerp(seat, leftLeg.xRot, -1.4137167f);
+                leftLeg.yRot = Mth.lerp(seat, leftLeg.yRot, -Mth.PI / 10);
+                leftLeg.zRot = Mth.lerp(seat, leftLeg.zRot, -.07853982f);
+            }
             longHair.visible = n.look() == HumanNpc.Look.SISTER && n.job() == HumanNpc.Job.RESIDENT;
             mohawk.visible = n.look() == HumanNpc.Look.ONIISAN && n.job() == HumanNpc.Job.RESIDENT;
             if (n.resting() && n.getDeltaMovement().horizontalDistanceSqr() < .002) {

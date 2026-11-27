@@ -23,6 +23,7 @@ import io.github.longshou.mcyukkuri.motor.geom.DoorPassage;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.registry.ModItems;
 import java.util.*;
+import org.joml.Vector3f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -81,6 +82,17 @@ public final class HumanNpc extends PathfinderMob {
     private static final EntityDataAccessor<Boolean> STREET_GRAIN = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.BOOLEAN);
     /** 0 standing, else the horizontal direction (2D data value + 1) the owner faces while sitting on a bench board. Derived each tick, not saved. */
     private static final EntityDataAccessor<Integer> SEAT = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
+    /** Settle ticks: 0 while turning or standing, +n while sitting down (the entity is at the seat), -n while standing up (it is back at its spot). */
+    private static final EntityDataAccessor<Integer> SEAT_T = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.INT);
+    /** The point the entity just hopped away from (sitting: the spot in front of the seat; rising: the seat), where the drawn body starts. */
+    private static final EntityDataAccessor<Vector3f> SEAT_ANCHOR = SynchedEntityData.defineId(HumanNpc.class, EntityDataSerializers.VECTOR3);
+    /** Ticks the body may take to turn its back to the seat before the settle starts anyway. */
+    private static final int SEAT_TURN_MAX = 20;
+    private static final float SEAT_TURN_STEP = 30;
+    /** Server: where the sit began (the spot in front of the seat), the seat, the ticks spent turning, and whether it still wants the seat. Client: the last two settle values. */
+    private Vec3 seatFrom = Vec3.ZERO, seatTop = Vec3.ZERO;
+    private int seatTurn, seatPrev, seatNow;
+    private boolean sitIntent;
     private final Look look;
     private BlockPos home;
     private String siteRole = "";
@@ -196,25 +208,93 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected void defineSynchedData(SynchedEntityData.Builder b) {
         super.defineSynchedData(b); ModRandom.construct(this); b.define(JOB, 0); b.define(ATTITUDE, 1); b.define(RESTING, false); b.define(STREET_GRAIN, false);
         b.define(SEAT, 0);
+        b.define(SEAT_T, 0);
+        b.define(SEAT_ANCHOR, new Vector3f());
     }
-    /** Sitting on a bench board: the pose is drawn by the client. The body turns across the bench, the head still follows what it watches. */
+    /** Sitting on a bench board: the body turns its back to the seat, then faces away across the bench; the head still follows what it watches. */
     @Override protected BodyRotationControl createBodyControl() {
         return new BodyRotationControl(this) {
             @Override public void clientTick() {
                 if (!seated()) { super.clientTick(); return; }
-                yBodyRot = seatFacing().toYRot();
+                yBodyRot = Mth.approachDegrees(yBodyRot, seatFacing().toYRot(), SEAT_TURN_STEP);
                 yHeadRot = Mth.rotateIfNecessary(yHeadRot, yBodyRot, getMaxHeadYRot());
             }
         };
     }
+    /** In a sit session: turning, sitting down, sat, or standing up. */
     public boolean seated() { return entityData.get(SEAT) != 0; }
+    /** The owner wants to be on the seat (server only): false once it has begun to stand up. */
+    boolean sitting() { return sitIntent; }
     /** A pet running past must not shove the owner off the board. */
     @Override public boolean isPushable() { return !seated() && super.isPushable(); }
     public Direction seatFacing() { return Direction.from2DDataValue(entityData.get(SEAT) - 1); }
-    /** Seated and not being carried along: the client draws the sit pose and lowers the body onto the board only then. */
-    public boolean sitsNow() { return seated() && getDeltaMovement().horizontalDistanceSqr() < .002; }
-    void sit(Direction facing) { entityData.set(SEAT, facing.get2DDataValue() + 1); }
-    void standUp() { entityData.set(SEAT, 0); }
+
+    /**
+     * Begins a sit from the standing spot in front of the seat: the body turns its back to the seat, then the entity takes the seat and
+     * the client draws the eased settle from where it stood ({@link #seatStep}). The seat is never walked onto.
+     */
+    void sit(Direction facing, Vec3 top) {
+        seatFrom = position();
+        seatTop = top;
+        seatTurn = 0;
+        sitIntent = true;
+        entityData.set(SEAT_T, 0);
+        entityData.set(SEAT, facing.get2DDataValue() + 1);
+    }
+
+    /** Stands up: the entity is back at the spot it sat down from at once (routes start there) and the body rises to it by the settle. */
+    void standUp() {
+        if (!sitIntent) return;
+        sitIntent = false;
+        int t = entityData.get(SEAT_T);
+        if (t > 0 && level().noCollision(this, getBoundingBox().move(seatFrom.subtract(position())))) {
+            entityData.set(SEAT_ANCHOR, seatTop.toVector3f());
+            setPos(seatFrom);
+            setDeltaMovement(Vec3.ZERO);
+            entityData.set(SEAT_T, -t);
+            GameplayLog.event(this, "npc-care", "action=seat_settle phase=rise from={} to={} ticks={}",
+                    GameplayLog.at(seatTop), GameplayLog.at(seatFrom), t);
+        } else {
+            entityData.set(SEAT_T, 0);
+            entityData.set(SEAT, 0);
+        }
+    }
+
+    /** One tick of the settle: waits for the turn, takes the seat, and counts the progress the client draws (both sides keep the last two values). */
+    private void seatStep() {
+        if (level().isClientSide) { seatPrev = seatNow; seatNow = entityData.get(SEAT_T); return; }
+        if (!seated()) return;
+        int t = entityData.get(SEAT_T);
+        if (!sitIntent) {
+            if (t < -1) entityData.set(SEAT_T, t + 1);
+            else { entityData.set(SEAT_T, 0); entityData.set(SEAT, 0); }
+        } else if (t > 0) {
+            if (t < SeatPose.SETTLE) entityData.set(SEAT_T, t + 1);
+        } else if (++seatTurn > SEAT_TURN_MAX || Math.abs(Mth.degreesDifference(yBodyRot, seatFacing().toYRot())) <= 12) {
+            entityData.set(SEAT_ANCHOR, seatFrom.toVector3f());
+            setPos(seatTop);
+            setDeltaMovement(Vec3.ZERO);
+            entityData.set(SEAT_T, 1);
+            GameplayLog.event(this, "npc-care", "action=seat_settle phase=sit from={} to={} ticks={} turn={}",
+                    GameplayLog.at(seatFrom), GameplayLog.at(seatTop), SeatPose.SETTLE, seatTurn);
+        }
+    }
+
+    /** Client: how far the body has settled onto the seat (eased 0..1, the progress of this frame), and the offset to draw it at. */
+    public double seatBlend(float partial) {
+        double m = Mth.lerp(partial, Math.abs(seatPrev), Math.abs(seatNow)) / SeatPose.SETTLE;
+        return seated() ? SeatPose.ease(m) : 0;
+    }
+
+    public Vec3 seatOffset(float partial) {
+        double s = seatBlend(partial);
+        if (s <= 0) return Vec3.ZERO;
+        var anchor = entityData.get(SEAT_ANCHOR);
+        var at = getPosition(partial);
+        var out = SeatPose.offset(seatNow >= 0, s, new double[]{at.x, at.y, at.z},
+                new double[]{anchor.x(), anchor.y(), anchor.z()});
+        return new Vec3(out[0], out[1], out[2]);
+    }
     public Look look() { return look; }
     public Job job() { return Job.values()[entityData.get(JOB)]; }
     public Attitude attitude() { return Attitude.values()[entityData.get(ATTITUDE)]; }
@@ -919,6 +999,7 @@ public final class HumanNpc extends PathfinderMob {
         super.aiStep();
         if (street.kickPose > 0) street.kickPose--;
         if (street.frownPose > 0) street.frownPose--;
+        seatStep();
         if (level().isClientSide || !isAlive()) return;
         if (tickCount % 100 == 1) legacyOutput.collect(this);
         if (inert()) {
