@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
@@ -9,6 +10,7 @@ import io.github.longshou.mcyukkuri.perception.Cue;
 import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Departure;
+import io.github.longshou.mcyukkuri.social.SeveranceReaction;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
@@ -168,7 +170,39 @@ public final class DrivenOut extends Goal {
         return new Departure.Terms("family", "driven out", centre, RANGE, parent(), driver, 1f, false, true, true, null, this::siblingsCry);
     }
 
-    /** It turns to go: only siblings that actually perceived it (saw or heard via {@link Senses}) cry after it and later get PARTING. */
+    /** Perceiving ashore siblings react at once when the parent starts pronouncing severance, so none wears a plain smile during the confrontation. */
+    public static void witnessVerdict(YukkuriEntity parent, YukkuriEntity child) {
+        if (!(parent.level() instanceof ServerLevel level)) return;
+        for (var sibling : level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
+                y -> y != child && y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)
+                        && !y.isInWaterOrBubble() && !y.body().dying() && !y.life().isSleeping())) {
+            var via = Senses.perceives(sibling, parent.getEyePosition(), null, Cue.DEPARTURE_CRY);
+            if (via == null) continue;
+            var stance = SeveranceReaction.siblingStance(sibling.life().personality().temperament());
+            sibling.getLookControl().setLookAt(parent, 30, 30);
+            sibling.forceReaction(stance.verdictFace(), "", FaceTier.Tier.LONG);
+            sibling.beat("sibling_verdict", stance.verdictFace(), "");
+            GameplayLog.event(sibling, "family", "driven out sibling witnessed verdict child={} stance={} via={}",
+                    child.getUUID(), stance, via);
+        }
+    }
+
+    /** Perceiving ashore siblings react when the parent turns her back or shoves a pleading child, holding their expression through the turn. */
+    public static void witnessRebuff(YukkuriEntity parent, YukkuriEntity child) {
+        if (!(parent.level() instanceof ServerLevel level)) return;
+        for (var sibling : level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
+                y -> y != child && y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)
+                        && !y.isInWaterOrBubble() && !y.body().dying() && !y.life().isSleeping())) {
+            var via = Senses.perceives(sibling, child.getEyePosition(), null, Cue.DEPARTURE_CRY);
+            if (via == null) continue;
+            var stance = SeveranceReaction.siblingStance(sibling.life().personality().temperament());
+            sibling.getLookControl().setLookAt(child, 30, 30);
+            sibling.forceReaction(stance.rebuffFace(), "", FaceTier.Tier.LONG);
+            sibling.beat("sibling_rebuff", stance.rebuffFace(), "");
+        }
+    }
+
+    /** It turns to go: only siblings that actually perceived it (saw or heard via {@link Senses}) answer by their own temperament and hold LONG. */
     private void siblingsCry(Answer answer) {
         var parent = parent();
         if (parent == null) return;
@@ -181,13 +215,18 @@ public final class DrivenOut extends Goal {
                 continue;
             }
             witnessed.add(sibling.getUUID());
-            // Its cry follows the one leaving on the shared speech clock (the turn's own line would otherwise swallow it).
-            sibling.showWithDeferredLine(null, 0, "cry", "mold_child_cry", FaceTier.Tier.MEDIUM, SAY_PRIORITY, said -> {
-                sibling.beat("sibling_cry", "cry", said.spoken() ? "mold_child_cry" : "");
-                GameplayLog.event(sibling, "family", "driven out sibling cry tick={} event=mold_child_cry holdEnd={} spoken={}",
-                        said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken());
+            var stance = SeveranceReaction.siblingStance(sibling.life().personality().temperament());
+            String face = stance.turnFace(), line = stance.turnLine();
+            YukkuriAction clip = stance.turnClip();
+            int clipTicks = clip == null ? 0 : Math.max(40, clip.durationTicks());
+            sibling.getLookControl().setLookAt(entity, 30, 30);
+            // Its line follows the one leaving on the shared speech clock (the turn's own line would otherwise swallow it).
+            sibling.showWithDeferredLine(clip, clipTicks, face, line, FaceTier.Tier.LONG, SAY_PRIORITY, said -> {
+                sibling.beat("sibling_cry", face, said.spoken() ? line : "");
+                GameplayLog.event(sibling, "family", "driven out sibling cry tick={} event={} stance={} holdEnd={} spoken={}",
+                        said.tick() < 0 ? "none" : said.tick(), line, stance, said.holdEnd(), said.spoken());
             });
-            GameplayLog.event(sibling, "family", "driven out sibling cries child={} via={}", entity.getUUID(), via);
+            GameplayLog.event(sibling, "family", "driven out sibling cries child={} via={} stance={}", entity.getUUID(), via, stance);
         }
     }
 
@@ -220,9 +259,18 @@ public final class DrivenOut extends Goal {
         if (parent != null) {
             for (var sibling : level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                     y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y) && witnessed.contains(y.getUUID()))) {
-                sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
-                Departure.parting(sibling);
-                GameplayLog.event(sibling, "family", "driven out sibling parts child={}", entity.getUUID());
+                var t = sibling.life().personality().temperament();
+                var stance = SeveranceReaction.siblingStance(t);
+                if (stance.partsWithGrief(t)) {
+                    sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
+                    Departure.parting(sibling);
+                    GameplayLog.event(sibling, "family", "driven out sibling parts child={} stance={}", entity.getUUID(), stance);
+                } else {
+                    String face = stance.detachedAfterFace();
+                    sibling.forceReaction(face, "", FaceTier.Tier.MEDIUM);
+                    sibling.beat("sibling_part_detached", face, "");
+                    GameplayLog.event(sibling, "family", "driven out sibling detached child={} stance={}", entity.getUUID(), stance);
+                }
             }
         }
         entity.habitat().release();

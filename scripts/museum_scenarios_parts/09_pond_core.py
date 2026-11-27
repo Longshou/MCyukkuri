@@ -260,8 +260,10 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         return f'{parent}: the driven child spoke a parent-seeking line (lost_parent/caregiver/wait_family) after the order'
     # stat branch & rebuff proof
     if branch == 'plead':
-        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=mold_plea declared=teary', later):
-            return f'{parent}: pleader child did not play beat=plead face=teary line=mold_plea'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=shock face=surprise line=sever_shock declared=surprise', later):
+            return f'{parent}: pleader child did not play beat=shock face=surprise line=sever_shock'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=plead face=teary line=sever_plea declared=teary', later):
+            return f'{parent}: pleader child did not play beat=plead face=teary line=sever_plea'
         # the rebuff is asserted on the pleader really standing at her (within mouth reach), never on where it was ordered from
         reached = re.search(r'\[family\][^\n]*uuid=' + child + r' t=\d+[^\n]* driven out pleader at parent driver=' + owner + r' distance=(\S+)', later)
         if reached is None:
@@ -270,10 +272,28 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         rebuff_beat = 'rebuff_shove face=angry line=none declared=angry' if verdict == 'DRIVE_COLD' else 'rebuff_turn_back face=cry line=none declared=cry'
         if not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + rebuff_beat, later[reached.end():]):
             return f'{parent}: parent did not rebuff the pleader standing at her ({rebuff_beat}, reached at distance {reached[1]})'
-    if branch == 'stare' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=teary line=none declared=teary', later):
-        return f'{parent}: freeze child did not play beat=stare face=teary line=none'
-    if branch == 'sulk' and not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=sulk_huff declared=hmph', later):
-        return f'{parent}: sulk child did not play beat=turn_away face=hmph line=sulk_huff'
+        turn_beat = ('turn_away face=angry line=child_curse_parent declared=angry' if verdict == 'DRIVE_COLD'
+                     else 'turn_away face=cry line=sever_farewell declared=cry')
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=' + turn_beat, later):
+            return f'{parent}: pleader child did not play beat={turn_beat}'
+    if branch == 'stare':
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=shock face=surprise line=sever_shock declared=surprise', later):
+            return f'{parent}: freeze child did not play beat=shock face=surprise line=sever_shock'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=stare face=(?:teary|teary_frown) line=sever_grievance declared=(?:teary|teary_frown)', later):
+            return f'{parent}: freeze child did not play beat=stare with line=sever_grievance'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=cry line=sever_farewell declared=cry', later):
+            return f'{parent}: freeze child did not play beat=turn_away face=cry line=sever_farewell'
+    if branch == 'sulk':
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=scoff face=down_angry line=sever_cold_scoff declared=down_angry', later):
+            return f'{parent}: sulk child did not play beat=scoff face=down_angry line=sever_cold_scoff'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=turn_away face=hmph line=sever_cold_leave declared=hmph', later):
+            return f'{parent}: sulk child did not play beat=turn_away face=hmph line=sever_cold_leave'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=sulk_mutter face=hmph line=sever_cold_mutter declared=hmph', later):
+            return f'{parent}: sulk child did not play beat=sulk_mutter face=hmph line=sever_cold_mutter'
+        if re.search(r'\[choreo\][^\n]*uuid=' + child + r'[^\n]* beat=\w+ face=(?:teary|cry|side_teary|teary_frown)\b', later):
+            return f'{parent}: aloof sulk child showed a tearful beat during severance'
+        if re.search(r'\[emotion\][^\n]*uuid=' + child + r'[^\n]* course begun kind=grief\b', later):
+            return f'{parent}: aloof sulk child entered GRIEF after departure'
     # the order is answered at once (social orders pre-empt the child's occupants)
     if begins - ordered > 60:
         return f'{parent}: the child began {begins - ordered} ticks after the order (limit 60)'
@@ -295,12 +315,24 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         return f'{parent}: no sibling reacted when the child turned to go'
     if any(int(t) < begins for t in cries):
         return f'{parent}: a sibling cried before the child began to leave'
+    sib_cry_ev = re.search(r'\[family\][^\n]*uuid=' + sib2 + r'[^\n]* driven out sibling cries child=' + child + r' via=\w+ stance=(\w+)', later)
+    if sib_cry_ev:
+        expected_sib = {
+            'SORROW': ('cry', 'sibling_sever_cry'),
+            'PROTEST': ('teary_frown', 'sibling_sever_protest'),
+            'SCARED': ('afraid', 'sibling_sever_scared'),
+            'COLD': ('angry_stare', 'sibling_sever_cold'),
+            'UNEASY': ('pursed', 'sibling_sever_uneasy'),
+        }[sib_cry_ev[1]]
+        if not re.search(r'\[choreo\][^\n]*uuid=' + sib2 + r'[^\n]* beat=sibling_cry face=' + expected_sib[0]
+                         + r' line=' + expected_sib[1] + r' declared=' + expected_sib[0], later):
+            return f'{parent}: sibling ({sib_cry_ev[1]}) did not play beat=sibling_cry face={expected_sib[0]} line={expected_sib[1]}'
     # the staged far sibling (beyond sight and hearing, out of her family range) misses the departure and stays silent about it
     if far_actor:
         far = _uuid_text(scene, far_actor)
         if not re.search(r'\[family\][^\n]*uuid=' + far + r' t=\d+[^\n]* driven out sibling missed departure child=' + child + r' reason=out_of_range', later):
             return f'{parent}: the far sibling did not log missing the departure (out_of_range)'
-        if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts)|beat=sibling_cry|beat=parting_begins|course begun kind=parting)', later):
+        if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts|witnessed|detached)|beat=sibling_(?:verdict|rebuff|cry|part_detached)|beat=parting_begins|course begun kind=parting)', later):
             return f'{parent}: the far sibling reacted to a departure it never perceived'
     # witness rule: a sibling that missed the departure must never get PARTING about this child
     for missed in re.finditer(r'\[family\][^\n]*uuid=(\S+) t=\d+[^\n]* driven out sibling missed departure child=' + child, later):
@@ -336,8 +368,8 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         parting, _ = at(r'\[choreo\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* beat=parting_begins face=', later)
         if parting is None or parting < departed:
             return f'{parent}: the tearful parent showed no parting feeling after the child was gone (parting={parting})'
-    # each beat's shown face is the declared one (including verdict): no reaction layer painted over a performance
-    beats = re.findall(r'\[choreo\][^\n]*uuid=(?:' + owner + '|' + child + r') [^\n]* beat=(\w+) face=(\S+) line=\S+ declared=(\S+)', after)
+    # each beat's shown face is the declared one (including verdict and sibling beats): no reaction layer painted over a performance
+    beats = re.findall(r'\[choreo\][^\n]*uuid=(?:' + owner + '|' + child + '|' + sib2 + r') [^\n]* beat=(\w+) face=(\S+) line=\S+ declared=(\S+)', after)
     wrong = [f'{name} shown={shown} declared={declared}' for name, shown, declared in beats if shown != declared]
     if wrong:
         return f'{parent}: a beat showed another face than the declared one: {wrong[:3]}'
@@ -439,7 +471,7 @@ def _overload_growth(parent, steps, first=_GROWTH_START):
             for i, (child, nourishment) in enumerate(steps)]
 
 
-def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_traits=None,
+def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_traits=None, child2_traits=None,
                      head_childhood=CHILDHOOD_CRAWLING_READY, **traits):
     """Young start at sizes 0.16 (cabin, only with `cabin`), 0.20 and 0.355: just under the load warning for the ordinary parent
     (head 0.355 + brim 0.20: 0.83 of capacity; at 0.18 young 2 takes the cabin instead), so her own load rule seats them. The
@@ -447,7 +479,7 @@ def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_
     between; young 2 stays under that capacity on its own, so the parent that lost its largest stops overloading while the
     exceptional one keeps all three and overloading; `_WARNING_STEPS`: only the head young grows, the hull sits in its warning
     (0.96) and never overloads). The hat is empty: these scenes show the load, not the larder (`hat_larder`). `traits` pin the
-    parent's personality; `child3_traits` optionally pin the largest child's personality; `head_childhood` is the real learned
+    parent's personality; `child2_traits`/`child3_traits` optionally pin the younger/largest child's personality; `head_childhood` is the real learned
     state of the head young (the severance scenes send out one that has already learnt to crawl, so it walks out and lives on)."""
     return [yk('marisa', bank_dx(dz), dz, parent, aquatic=True, yaw=-90, lead=True,
                uuid=uid(scene, parent), label=label, **traits, **pair_ready()),
@@ -456,7 +488,7 @@ def _overload_family(scene, parent, dz, cabin, label, out=6, stick=True, child3_
                  childhood=head_childhood if i == 3 else CHILDHOOD_CRAWLING_READY,
                  uuid=uid(scene, parent + str(i)), also=(parent + '_crew',),
                  kin=f'Mother:{uuid_nbt(uid(scene, parent))}', label=f'孩子{i}',
-                 **(child3_traits if i == 3 and child3_traits else {}), **pair_ready())
+                 **(child2_traits if i == 2 and child2_traits else child3_traits if i == 3 and child3_traits else {}), **pair_ready())
               for i, offset, size, nourishment, age in ((1, -1, .16, 22909, 36000), (2, 0, .20, _YOUNG2_NOURISHMENT, 76000),
                                                        (3, 1, .355, _HEAD_NOURISHMENT, 72000)) if cabin or i != 1],
             afloat_now(parent, water_at(dz, out), True, sel_all(parent + '_crew'), stick=stick)]
@@ -905,6 +937,10 @@ _COLD = dict(intelligence=55, friendliness=20, attachment=15, self_control=40)
 _PLEAD_KID = dict(attachment=75, friendliness=60, boldness=45, self_control=70)
 _FREEZE_KID = dict(attachment=45, friendliness=60, boldness=35, self_control=70)
 _SULK_KID = dict(attachment=20, friendliness=60, boldness=45, self_control=70)
+_SIB_SORROW = dict(attachment=70, friendliness=75, boldness=45, self_control=70)
+_SIB_SCARED = dict(attachment=50, friendliness=65, boldness=25, self_control=70)
+_SIB_PROTEST = dict(attachment=70, friendliness=75, boldness=70, self_control=70)
+_SIB_COLD = dict(attachment=20, friendliness=25, boldness=55, self_control=70)
 
 _SEVER_FORBID = [r'\[body\][^\n]* invariant\b', r'\[hat\][^\n]* capsized cause=(?:shake|turbulence)\b',
                  r'\[action\][^\n]* refused id=hop [^\n]*detail=no_spot',
@@ -921,11 +957,11 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
 _SEVER_SEATS = ((2, 'HEAD'), (3, 'BRIM'))
 
 
-def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False):
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False, child2_traits=None):
     # The driven-out young is the one that has already learnt to crawl: it walks out at its own gait and can live as a stray at
     # once (a newborn that never practised crawling stays where it is put, and the severance shows nothing).
     actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits,
-                                head_childhood=CHILDHOOD_HOPPING, **parent_traits)]
+                                child2_traits=child2_traits, head_childhood=CHILDHOOD_HOPPING, **parent_traits)]
     far_actor = None
     if far_sibling:
         far_actor = 'normal_far'
@@ -963,17 +999,17 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
 
 
 _severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
-                 '翻船后含泪亲油赶走最大孩子，孩子哀求被转身拒绝后走远断亲，墙后远手足无反应',
-                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True)
+                 '翻船后含泪亲油赶走最大孩子：孩子先震惊再哀求，被转身拒绝后含泪走远断亲；依恋手足全程震惊哭泣目送，墙后远手足无反应',
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True, child2_traits=_SIB_SORROW)
 _severance_scene('hat_sever_cold', '超载断亲：冷淡推开',
-                 '翻船后冷淡亲油赶走最大孩子，孩子哀求被推开后转身走远断亲',
-                 'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead')
+                 '翻船后冷淡亲油赶走最大孩子：孩子先震惊再哀求，被推开后怒骂走远断亲；胆小手足全程害怕缩抖，绝不露笑脸',
+                 'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead', child2_traits=_SIB_SCARED)
 _severance_scene('hat_sever_freeze', '超载断亲：僵住凝望',
-                 '翻船后含泪亲油赶走最大孩子，孩子僵住凝望后转身走远断亲',
-                 'freeze', '含泪·僵望', _TEARFUL, _FREEZE_KID, 'DRIVE_TEARFUL', 'stare')
+                 '翻船后含泪亲油赶走最大孩子：孩子先震惊再委屈质问「什么都没做错」，随后含泪走远断亲；大胆手足出声抗议',
+                 'freeze', '含泪·僵望', _TEARFUL, _FREEZE_KID, 'DRIVE_TEARFUL', 'stare', child2_traits=_SIB_PROTEST)
 _severance_scene('hat_sever_sulk', '超载断亲：赌气哼走',
-                 '翻船后冷淡亲油赶走最大孩子，孩子赌气哼一声转身走远断亲',
-                 'sulk', '冷淡·哼走', _COLD, _SULK_KID, 'DRIVE_COLD', 'sulk')
+                 '翻船后冷淡亲油赶走最大孩子：感情淡薄的孩子冷嘲、哼气长留、走远途中补哼，全程不流泪；冷淡手足冷眼相待、不露笑脸',
+                 'sulk', '冷淡·哼走', _COLD, _SULK_KID, 'DRIVE_COLD', 'sulk', child2_traits=_SIB_COLD)
 
 pond('hat_load_warning', '载重警戒，亲油靠岸卸人', '载重警戒，亲油靠岸卸人',
      '两位亲油各带孩子：北侧普通亲油看到帽船吃水下沉、多晃（载重警戒）就划回岸边卸下全家，再出航只带载得下的孩子；南侧低智力高友善的亲油不理会警戒，载着全家直到翻船，之后仍认全部孩子',

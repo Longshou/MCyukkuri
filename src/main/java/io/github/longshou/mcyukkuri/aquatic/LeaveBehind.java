@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.action.Face;
 import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Departure;
+import io.github.longshou.mcyukkuri.social.SeveranceReaction;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -165,6 +166,15 @@ final class LeaveBehind implements Intent {
                 GameplayLog.event(parent, "family", "overload verdict speech tick={} beat=verdict event={} face={} holdEnd={} spoken={}",
                         said.tick() < 0 ? "none" : said.tick(), line, face, said.holdEnd(), said.spoken()));
         parent.beat("verdict", face, line);
+        if (!memo.ferry && memo.verdict != Verdict.KEEP) {
+            if (!child.isInWaterOrBubble() && !child.isPassenger() && !child.body().dying() && !child.life().isSleeping()) {
+                var ct = child.life().personality().temperament();
+                String listen = SeveranceReaction.childListenFace(ct, ct.is(Temperament.Gate.PROTESTS_EXILE), Ousting.answer(ct));
+                child.getLookControl().setLookAt(parent, 30, 30);
+                child.forceReaction(listen, "", FaceTier.Tier.MEDIUM);
+            }
+            DrivenOut.witnessVerdict(parent, child);
+        }
         GameplayLog.event(parent, "family", "overload beat start child={} verdict={} ferry={} distance={} child_in_water={}",
                 child.getUUID(), memo.verdict, memo.ferry, Math.round(parent.distanceTo(child)), child.isInWaterOrBubble());
     }
@@ -277,6 +287,7 @@ final class LeaveBehind implements Intent {
         private Step rebuff() {
             if (!child.drivenOut().pleaderAtParent()) return new Step.Wait(() -> true, 1, null);
             child.drivenOut().rebuffed(memo.verdict == Verdict.DRIVE_COLD);
+            DrivenOut.witnessRebuff(parent, child);
             if (memo.verdict == Verdict.DRIVE_COLD) {
                 // The shove is a beat of her verdict state: LONG, so it replaces the verdict's hold and renews it.
                 if (parent.showReaction("angry", "", FaceTier.Tier.LONG)) parent.beat("rebuff_shove", "angry", "");

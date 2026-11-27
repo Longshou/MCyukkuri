@@ -38,8 +38,8 @@ public final class ReactionSpeech {
     public static String ousted(Answer answer, boolean byGuardian) {
         return switch (answer) {
             case CURSE -> byGuardian ? "child_curse_parent" : "driven_curse";
-            case FAREWELL -> "driven_farewell";
-            case SHRUG -> "sulk_huff";
+            case FAREWELL -> byGuardian ? "sever_farewell" : "driven_farewell";
+            case SHRUG -> byGuardian ? "sever_cold_leave" : "sulk_huff";
         };
     }
 

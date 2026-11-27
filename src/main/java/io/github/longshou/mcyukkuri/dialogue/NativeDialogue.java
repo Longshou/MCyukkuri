@@ -140,6 +140,9 @@ public final class NativeDialogue {
             // The farewell's and the mould exile's beats are in step with their poses: none may be swallowed by chatter.
             case "farewell_say", "farewell_say_teary", "farewell_bless", "farewell_cry", "farewell_go", "farewell_look_back",
                  "driven_curse", "driven_farewell", "child_curse_parent",
+                 "sever_shock", "sever_plea", "sever_grievance", "sever_protest", "sever_farewell", "sever_look_back",
+                 "sever_cold_scoff", "sever_cold_leave", "sever_cold_mutter",
+                 "sibling_sever_cry", "sibling_sever_protest", "sibling_sever_scared", "sibling_sever_cold", "sibling_sever_uneasy",
                  "mold_itch", "mold_self_aware", "mold_notice_unaware", "mold_shun_unaware",
                  "keep_child", "drive_child_tearful", "drive_child_cold", "left_ashore_warm", "left_ashore_cold", "mold_sorrow_mate",
                  "vow_partner_young", "vow_to_mother", "vow_to_father", "vow_blame_parent", "vow_for_child",

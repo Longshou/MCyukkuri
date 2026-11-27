@@ -900,6 +900,418 @@ RULE_AWE = {
         'adult': ('{p}……ごめんなさい、かいぬしさま……', '{p}……对不起，饲主大人……', '{p}... I am sorry, Owner...')},
 }
 
+SEVERANCE_BASIS = 'wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced'
+# Severed child and witnessing sibling lines, split by tier and character style (timid / plain / proud) with two varied lines per
+# pool so repeated plays and different individuals read differently. Every yukkuri self-ref uses {n}/{nb} and species tics {e};
+# yukkuri are always referred to as 油 (never 人).
+SEVERANCE = {
+    'sever_shock': {
+        'baby': {
+            'timid': [
+                ('{c}……えっ……うしょ……？', '{c}……诶……骗油的吧……？', '{c}... eh... no way...?'),
+                ('{c}……おやしゃ……どうして……？', '{c}……亲亲油……为什么……？', '{c}... mama... why...?')],
+            'plain': [
+                ('{c}……ほんちょなの……？', '{c}……真的吗……？', '{c}... weally...?'),
+                ('{c}……えっ……{nb}、いくの……？', '{c}……诶……要{nb}走吗……？', '{c}... eh... {nb} go...?')],
+            'proud': [
+                ('{c}！？ うしょだよね！', '{c}？！骗油的吧！', '{c}?! Not twue!'),
+                ('{c}！ どうして{nb}なの！', '{c}！为什么是{nb}！', '{c}! Why {nb}!')]},
+        'juvenile': {
+            'timid': [
+                ('え……ほ、ほんとなの……？ うそだよね……', '诶……真、真的吗……？骗油的吧……', 'Eh... r-really...? You are joking...'),
+                ('ゆ……？ おやしゃ……じょうだんだよね……？', '油……？亲亲油……是在开玩笑吧……？', 'Yu...? Parent... that is a joke, right...?')],
+            'plain': [
+                ('えっ……ほんとなの……？ どうして{n}をおいだすの{e}……？', '诶……真的吗……？为什么要赶{n}走{e}……？', 'Eh... really...? Why are you sending {N} away...?'),
+                ('ゆゆっ……？ いま、{n}にでていけって いったの{e}……？', '油油……？刚刚是说……叫{n}走吗{e}……？', 'Yu-yu...? Did you just tell {N} to leave...?')],
+            'proud': [
+                ('えっ……うそでしょ！ かわいい{n}をおいだすわけない{e}！', '诶……骗油的吧！怎么可能赶走可爱的{n}{e}！', 'Eh... no way! You cannot send cute {N} away!'),
+                ('ゆっ！？ まって、まちがいだよね{e}！ どうして{n}なの！', '油？！等等，搞错了吧{e}！为什么是{n}啊！', 'Yu?! Wait, that is a mistake! Why {N}?!')]},
+        'adult': {
+            'timid': [
+                ('え……ほんとうに……？ うそでしょう……', '诶……真的吗……？骗油的吧……', 'Eh... really...? That cannot be true...'),
+                ('ゆ……どうして……{n}を おいだすの……？', '油……为什么……要赶{n}走……？', 'Yu... why... are you driving {N} out...?')],
+            'plain': [
+                ('えっ……ほんとうに、{n}に でていけって いうの{e}……？', '诶……真的要叫{n}走吗{e}……？', 'Eh... are you really telling {N} to leave...?'),
+                ('ゆゆ……きゅうに そんなこと いわれても{e}……', '油油……突然这么说，{n}怎么信啊{e}……', 'Yu-yu... how can you say that all of a sudden...')],
+            'proud': [
+                ('はっ……じょうだんでしょ！ どうして{n}が でていくの{e}！', '哈……开玩笑吧！凭什么要{n}走{e}！', 'Huh... you are joking! Why should {N} leave?!'),
+                ('ゆっ！？ まってよ！ きゅうに なにいってるの{e}！', '油？！等等！突然在说什么胡话{e}！', 'Yu?! Wait! What nonsense are you saying?!')]},
+    },
+    'sever_plea': {
+        'baby': {
+            'timid': [
+                ('{c}……いやだ……おいていかないで……', '{c}……不要哒……别丢下{nb}……', '{c}... no... do not leave {nb}...'),
+                ('{c}……{nb}、いいこに しゅるから……', '{c}……{nb}会乖乖的……', '{c}... {nb} will be good...')],
+            'plain': [
+                ('{c}！ {nb}、なんにも わゆいこと してないよ……！', '{c}！{nb}什么都没做错……！', '{c}! {nb} did nothing bad...!'),
+                ('{c}……いっしょに ゆっくち しちぇ……', '{c}……还要一起油库气嘛……', '{c}... take it easy togevew...')],
+            'proud': [
+                ('{c}！ かわいい{nb}を おいださないで！', '{c}！不要赶走可爱的{nb}！', '{c}! Do not send cute {nb} away!'),
+                ('{c}！ ずっちょ いっしょだよ！', '{c}！要一直在一起哒！', '{c}! Stay togevew!')]},
+        'juvenile': {
+            'timid': [
+                ('おいださないで……！ {n}、いいこにするから、おねがい{e}……！', '不要赶{n}走……！{n}会乖乖听话的，求求你了{e}……！', 'Do not drive {N} out...! {N} will be good, please...!'),
+                ('ゆぐっ……{n}、はなれたくないよ……おいていかないで{e}……', '呜呜……{n}不想分开……别丢下{n}啊{e}……', 'Sniff... {N} does not want to part... do not leave {N} behind...')],
+            'plain': [
+                ('{n}はなんにもわるいことしてないよ！ かわいい{n}をおいださないで{e}……！', '{n}什么都没做错！不要赶可爱的{n}走啊{e}……！', '{N} did nothing wrong! Do not send cute {N} away...!'),
+                ('まって！ {n}、ちいさくなってじゃましないから……おいださないで{e}！', '等等！{n}会缩得小小的、不占地方的……别赶{n}走{e}！', 'Wait! {N} will curl up tiny and stay out of the way... please!')],
+            'proud': [
+                ('やだよ！ かわいい{n}がこんなにいいこなのに、おいださないで{e}！', '不要啦！可爱的{n}这么乖，怎么能赶{n}走{e}！', 'No! Cute {N} is such a good kid, do not send {N} away!'),
+                ('{n}、ごはんすくなくするから！ おいていかないでよ{e}！', '只要{n}少吃一点就行了嘛！别丢下{n}啊{e}！', '{N} will eat less! Do not leave {N} behind!')]},
+        'adult': {
+            'timid': [
+                ('おねがい……おいださないで……{n}、ちゃんと言うこと聞くから{e}……', '求求你……不要赶{n}走……{n}会乖乖听话的{e}……', 'Please... do not drive {N} out... {N} will listen...'),
+                ('ゆぐっ……{n}を おいていかないで……まだいっしょに いたいよ{e}……', '呜呜……别丢下{n}……还想一直在一起{e}……', 'Sniff... do not leave {N} behind... {N} still wants to stay...')],
+            'plain': [
+                ('まって！ {n}は なんにも わるいこと してないよ！ おいださないで{e}！', '等等！{n}什么都没做错！不要赶{n}走{e}！', 'Wait! {N} did nothing wrong! Do not send {N} away!'),
+                ('どうして……{n}も がんばるから、ここに いさせてよ{e}……！', '为什么……{n}也会努力的，让{n}留下来吧{e}……！', 'Why... {N} will try harder too, let {N} stay...!')],
+            'proud': [
+                ('やだよ！ {n}を こんなふうに おいだすなんて ひどい{e}！', '不要！怎么能这样赶{n}走，太过分了{e}！', 'No! Driving {N} out like this is too cruel!'),
+                ('もういちど かんがえなおして！ {n}だって まだ ゆっくりできる{e}！', '再好好想想啊！{n}明明还能一起油库里的{e}！', 'Think again! {N} can still take it easy with you!')]},
+    },
+    'sever_grievance': {
+        'baby': {
+            'timid': [
+                ('{c}……{nb}、わゆいこ じゃないよ……', '{c}……{nb}才不是坏孩子……', '{c}... {nb} is not a bad kid...'),
+                ('{c}……どうして……{nb}だけ……', '{c}……为什么……只有{nb}……', '{c}... why... only {nb}...')],
+            'plain': [
+                ('{c}……なんにも してないのに……', '{c}……什么都没做错呀……', '{c}... did nothing wwong...'),
+                ('{c}……かわいい{nb}なのに……', '{c}……明明是可爱的{nb}……', '{c}... cute {nb}...')],
+            'proud': [
+                ('{c}！ ひどいよ……！ {nb}、いいこなのに！', '{c}！太过分了……！{nb}明明很乖！', '{c}! So mean...! {nb} was good!'),
+                ('{c}！ どうして{nb}に こんなこと するの！', '{c}！为什么要这样对{nb}！', '{c}! Why do this to {nb}!')]},
+        'juvenile': {
+            'timid': [
+                ('{n}、なんにもわるいことしてないのに……どうしてかわいい{n}にこんなことするの{e}……', '{n}什么都没做错……为什么要这样对可爱的{n}{e}……', '{N} did nothing wrong... why do this to cute {N}...'),
+                ('ずっと{n}、いいこにしてたのに……どうしてもういらないの{e}……', '明明{n}一直都很乖的……为什么不要{n}了{e}……', '{N} was always so good... why do you not want {N} anymore...')],
+            'plain': [
+                ('{n}はなんにもわるいことしてないよ！ どうしてかわいい{n}にこんなことするの{e}……！', '{n}什么都没做错！为什么要这样对可爱的{n}{e}……！', '{N} did nothing wrong! Why are you doing this to cute {N}...!'),
+                ('ひどいよ……{n}、まだみんなといっしょにゆっくりしたいのに{e}……', '哪有这样对油的……{n}还想和大家一起油库里啊{e}……', 'That is so cruel... {N} still wanted to take it easy with everyone...')],
+            'proud': [
+                ('ひどいよ！ かわいい{n}がこんなにいいこなのに、どうしておいだすの{e}！', '太过分了！可爱的{n}明明这么乖，为什么要赶{n}走{e}！', 'So unfair! Cute {N} was so good, why send {N} away!'),
+                ('どうして{n}だけなの！ {n}、わるいことしてない{e}……！', '为什么偏偏是{n}啊！{n}又没做错什么{e}……！', 'Why does it have to be {N}?! {N} did nothing bad...!')]},
+        'adult': {
+            'timid': [
+                ('{n}、なんにも わるいこと してないのに……どうして こんなことに{e}……', '{n}什么都没做错……为什么会变成这样{e}……', '{N} did nothing wrong... why did it come to this...'),
+                ('ずっと ちゃんとしてたのに……どうして{n}だけ もう いらないの{e}……', '明明一直都很守规矩的……为什么偏偏不要{n}了{e}……', '{N} behaved so well... why only cast {N} out...')],
+            'plain': [
+                ('{n}は なんにも わるいこと してないよ！ どうして こんな ひどいこと するの{e}……！', '{n}什么都没做错！为什么要这样对可爱的{n}{e}……！', '{N} did nothing wrong! Why do something so cruel...!'),
+                ('あんまりだよ……{n}だって まだ いっしょに ゆっくりしたいのに{e}……', '太让油伤心了……{n}明明还想一起油库里的{e}……', 'That breaks my heart... {N} still wanted to take it easy together...')],
+            'proud': [
+                ('ひどいよ！ {n}は なにも わるくないのに、どうしておいだすの{e}！', '太过分了！{n}一点错都没有，凭什么赶走{n}{e}！', 'Unfair! {N} is not at fault, why drive {N} out!'),
+                ('どうして{n}だけ こんな目に あうの{e}！ 納得できないよ！', '为什么只有{n}要受这种委屈{e}！真让油气不过！', 'Why does only {N} suffer this?! It makes no sense!')]},
+    },
+    'sever_protest': {
+        'baby': {
+            'timid': [
+                ('{c}！ いやだ！ {nb}、わゆく ない！', '{c}！不要哒！{nb}才没错！', '{c}! No! {nb} not bad!')],
+            'plain': [
+                ('{c}！ ぷくー！ {nb}は でちぇいかない！', '{c}！噗咕！{nb}才不走！', '{c}! Puff! {nb} not leaving!')],
+            'proud': [
+                ('{c}！ ぷくー！ かわいい{nb}を おいだすな！', '{c}！噗咕！不准赶走可爱的{nb}！', '{c}! Puff! Do not kick cute {nb} out!')]},
+        'juvenile': {
+            'timid': [
+                ('{p}いやだよ！ {n}、なんにもわるいことしてないのに{e}！', '{p}不要啦！{n}什么都没做错啊{e}！', '{p}No! {N} did nothing wrong!'),
+                ('{p}どうしてなの！ {n}、そんなの ゆるさない{e}！', '{p}凭什么啊！{n}才不答应{e}！', '{p}Why?! {N} will not accept that!')],
+            'plain': [
+                ('{p}ぷくーっ！ {n}はなんにもわるいことしてない！ どうしてかわいい{n}をおいだすの{e}！', '{p}噗咕——！{n}什么都没做错！凭什么赶走可爱的{n}{e}！', '{p}Puff! {N} did nothing wrong! Why drive cute {N} out?!'),
+                ('{p}ひどいよ！ かわいい{n}をこんなふうに あつかうなんて{e}！', '{p}太不讲理了！竟然这样对待可爱的{n}{e}！', '{p}So unfair! Treating cute {N} like this!')],
+            'proud': [
+                ('{p}ぷくーっ！ じょうだんじゃないよ！ かわいい{n}をおいだすなんて ゆるさない{e}！', '{p}噗咕——！开什么玩笑！赶走可爱的{n}绝对不能原谅{e}！', '{p}Puff! Do not joke! Driving cute {N} out is unforgivable!'),
+                ('{p}かってすぎるよ！ ここは{n}の いばしょでもあるのに{e}！', '{p}太任性了！这里明明也有{n}的份{e}！', '{p}How selfish! This is {N}s place too!')]},
+        'adult': {
+            'timid': [
+                ('{p}いやだよ……{n}、なにも わるいこと してないのに{e}！', '{p}不要……{n}什么都没做错啊{e}！', '{p}No... {N} did nothing wrong!'),
+                ('{p}そんなの ひどいよ……どうして{n}だけ{e}！', '{p}那样太过分了……为什么只有{n}{e}！', '{p}That is too cruel... why only {N}!')],
+            'plain': [
+                ('{p}ぷくーっ！ {n}は なにも わるくない！ なんで おいだすの{e}！', '{p}噗咕——！{n}一点错都没有！凭什么赶{n}走{e}！', '{p}Puff! {N} did nothing wrong! Why drive {N} out?!'),
+                ('{p}あんまりだよ！ いままで いっしょだったのに{e}！', '{p}太不讲理了！明明一直都在一起的{e}！', '{p}That is outrageous! After all this time together!')],
+            'proud': [
+                ('{p}ぷくーっ！ かってにおいだすな！ {n}は みとめない{e}！', '{p}噗咕——！少擅自赶油走！{n}才不认呢{e}！', '{p}Puff! Do not just kick {N} out! {N} refuses!'),
+                ('{p}ひどい親だね！ こんなあつかい、ゆるさない{e}！', '{p}真过分的亲油！这种对待，绝对不原谅{e}！', '{p}What a cruel parent! Unforgivable!')]},
+    },
+    'sever_farewell': {
+        'baby': {
+            'timid': [
+                ('{c}……ごみぇんなちゃい……バイバイ……', '{c}……对不起……拜拜……', '{c}... sowwy... bye-bye...'),
+                ('{c}……{nb}、いくよ……ゆぐっ……', '{c}……{nb}走惹……呜呜……', '{c}... {nb} going... sniff...')],
+            'plain': [
+                ('{c}……わかっちゃ……バイバイ……', '{c}……知道惹……拜拜……', '{c}... okay... bye-bye...'),
+                ('{c}……かなちいよ……バイバイ……', '{c}……好伤心……拜拜……', '{c}... so sad... bye-bye...')],
+            'proud': [
+                ('{c}……ひどいよ……もう いくもん……', '{c}……太过分惹……这就走嘛……', '{c}... meanie... going now...')]},
+        'juvenile': {
+            'timid': [
+                ('ゆぐっ……ごめんね……{n}、すぐいくよ……', '呜呜……对不起……{n}这就走……', 'Sniff... sorry... {N} will go right away...'),
+                ('……わかったよ……もう、めいわくかけない{e}……', '……{n}知道了……不会再给亲亲油添麻烦了{e}……', '...{N} understands... will not be a bother anymore...')],
+            'plain': [
+                ('……ゆぐっ……まだいっしょにゆっくりしたかったのに……さよなら{e}……', '……呜呜……{n}明明还想一起油库里的……再见了{e}……', '...Sob... {N} still wanted to take it easy together... goodbye...'),
+                ('わかったよ……かなしいよ……{n}、じぶんでいくよ{e}……', '知道了啦……真让油伤心……{n}自己走就是了{e}……', 'Fine... this hurts so much... {N} will go alone...')],
+            'proud': [
+                ('……いいよ！ {n}がいなくなっても、こうかいしないでね{e}……', '……好吧！{n}走了以后，可别后悔哦{e}……', '...Fine! Do not regret it once {N} is gone...'),
+                ('ひどいよ……{n}、ひとりでもゆっくりできるもん……さよなら{e}……', '真过分……{n}自己也能油库里的……再见{e}……', 'So mean... {N} can take it easy alone too... goodbye...')]},
+        'adult': {
+            'timid': [
+                ('ゆぐっ……ごめんなさい……{n}、すぐ でていくよ……', '呜呜……对不起……{n}这就走……', 'Sniff... I am sorry... {N} will leave right away...'),
+                ('……わかったよ……もう、じゃまは しない{e}……', '……知道了……不会再碍事了{e}……', '...I understand... {N} will not get in the way anymore...')],
+            'plain': [
+                ('……さよなら……もう、いっしょに ゆっくり できないんだね{e}……', '……再见了……再也不能一起油库里了呢{e}……', '...Goodbye... we cannot take it easy together anymore...'),
+                ('わかったよ……かなしいけど、{n}は じぶんで いくよ{e}……', '知道了……虽然真让油伤心，{n}自己走就是了{e}……', 'I get it... it hurts, but {N} will go on its own...')],
+            'proud': [
+                ('……いいよ。{n}が いなくても ちゃんと やっていけるもんね{e}……', '……行吧。没有你，{n}自己也能过得好好的{e}……', '...Fine. {N} will manage just fine without you...'),
+                ('さよなら……もう、ふりかえらないから{e}……', '再见……{n}不会再回头了{e}……', 'Goodbye... {N} will not look back...')]},
+    },
+    'sever_look_back': {
+        'baby': {
+            'timid': [('{c}……バイバイ……げんきでね……', '{c}……拜拜……要好好的……', '{c}... bye-bye... be well...')],
+            'plain': [('{c}……みんな、ゆっくち しちぇね……', '{c}……大家，要油库气哦……', '{c}... evewyone, take it easy...')],
+            'proud': [('{c}……{nb}のこと、わしゅれないでね……', '{c}……别忘了{nb}哦……', '{c}... do not fowget {nb}...')]},
+        'juvenile': {
+            'timid': [
+                ('……おやしゃ、みんな……ちゃんと ゆっくりしてね{e}……', '……亲亲油，大家……要好好油库里哦{e}……', '...Parent, everyone... please take it easy...'),
+                ('……さよなら……{n}のこと、わすれないでね{e}……', '……再见了……可不要忘了{n}啊{e}……', '...Goodbye... please do not forget {N}...')],
+            'plain': [
+                ('……もう、ほんとに さよならなんだね……みんな、ゆっくりしていってね{e}……', '……真的要说再见了呢……大家要好好油库里哦{e}……', '...It really is goodbye... everyone, take it easy...'),
+                ('……バイバイ……{n}も、どこかできっとゆっくりするよ{e}……', '……拜拜了……{n}也会在别处好好油库里的{e}……', '...Bye-bye... {N} will take it easy somewhere too...')],
+            'proud': [
+                ('……ふんっ、バイバイだよ！ みんな げんきでね{e}……！', '……呜，拜拜啦！大家都要好好的{e}……！', '...Hmph, bye then! Stay well, everyone...!'),
+                ('……かわいい{n}のこと、ぜったい わすれないでね{e}……！', '……绝对不许忘了可爱的{n}哦{e}……！', '...Do not ever forget cute {N}...!')]},
+        'adult': {
+            'timid': [
+                ('……さよなら……みんな、ゆっくりしていってね{e}……', '……再见了……大家要好好油库里哦{e}……', '...Goodbye... everyone, take it easy...')],
+            'plain': [
+                ('……もう、ほんとに おわかれだね……げんきでね{e}……', '……真的要分别了呢……要保重哦{e}……', '...This is really goodbye... take care...')],
+            'proud': [
+                ('……じゃあね！ {n}も べつの ばしょで ゆっくりするから{e}！', '……再见啦！{n}也会在别处好好油库里的{e}！', '...See you! {N} will take it easy somewhere else!')]},
+    },
+    'sever_cold_scoff': {
+        'baby': {
+            'timid': [('{c}……ふーん……いいよ……', '{c}……哦……随你吧……', '{c}... oh... whatevew...')],
+            'plain': [('{c}……べつに、いらないもん……', '{c}……切，{nb}才不稀罕呢……', '{c}... do not care anyway...')],
+            'proud': [('{c}！ べつに、こっちから いくもん！', '{c}！切，是{nb}自己要走的！', '{c}! Fine, {nb} leaving anyway!')]},
+        'juvenile': {
+            'timid': [
+                ('……ふーん。{n}がいらないなら、それでいいよ……', '……哦。不要{n}的话，那就算了……', '...Oh. If you do not want {N}, fine...'),
+                ('……そう。べつに、たのむつもりもないし……', '……这样啊。反正{n}也没打算求你……', '...I see. {N} was not going to beg anyway...')],
+            'plain': [
+                ('……ふーん、おいだすんだ。{n}がここにいたいとでもおもってるの{e}？', '……切，说赶就赶啊。以为{n}很想待在这儿吗{e}？', '...Tch, just kicking {N} out. Think {N} even wanted to stay here?'),
+                ('ゆ……かってにすれば。せまいぼうしなんて、{n}こそごめんだ{e}。', '油……随你便吧。挤巴巴的破帽子，{n}才不稀罕呢{e}。', 'Yu... suit yourself. {N} is sick of that cramped hat anyway.')],
+            'proud': [
+                ('は？ おいだすって？ こっちからでていってやるつもりだった{e}！', '哈？赶{n}走？明明是{n}早就不想待这儿了{e}！', 'Huh? Driving {N} out? {N} was about to leave anyway!'),
+                ('けち！ かわいい{n}、あんたなんかにたよらない{e}！', '切，真小气！可爱的{n}才不稀罕靠你养呢{e}！', 'Stingy! Cute {N} does not need to rely on you!')]},
+        'adult': {
+            'timid': [
+                ('……ふーん。そう いうなら、もう いいよ……', '……哦。既然你这么说，那就算了……', '...Oh. If that is how it is, fine...'),
+                ('……べつに、すがる つもりも ないし……', '……反正{n}也没想过挽留……', '...Not like {N} was going to cling to you...')],
+            'plain': [
+                ('……ふーん、おいだすのね。べつに ここに いたいわけじゃ ない{e}。', '……切，说赶就赶啊。{n}本来也没多想待在这儿{e}。', '...Tch, kicking {N} out. Not that {N} wanted to stay anyway.'),
+                ('かってに すれば。{n}も もう うんざり してたところ{e}。', '随你便吧。{n}也早就受够了{e}。', 'Suit yourself. {N} was getting sick of this place too.')],
+            'proud': [
+                ('は？ おいだすって？ こっちから ごめんだ{e}！', '哈？赶{n}走？是{n}先不要这里的{e}！', 'Huh? Driving {N} out? {N} is walking out on you!'),
+                ('けちくさいね！ あんたなんかに たよらなくて いい{e}！', '真小气！{n}才不需要靠你呢{e}！', 'How stingy! {N} does not need your help!')]},
+    },
+    'sever_cold_leave': {
+        'baby': {
+            'timid': [('{c}……ふん……ひとりで いくもん……', '{c}……哼……{nb}自己走就是了……', '{c}... hmph... {nb} go alone...')],
+            'plain': [('{c}！ ふん！ {nb}、ひとりで ゆっくち しゅるもん！', '{c}！哼！{nb}自己也能油库气！', '{c}! Hmph! {nb} take it easy alone!')],
+            'proud': [('{c}！ ふんっ！ もう しらないもん！', '{c}！哼！再也不理你了！', '{c}! Hmph! Do not care anymore!')]},
+        'juvenile': {
+            'timid': [
+                ('ふん……ほっといて、{n}はひとりでいくよ……', '哼……不用你管，{n}自己走就是了……', 'Hmph... leave it alone, {N} will go by itself...'),
+                ('……ふん、どうせここではゆっくりできないし……', '……哼，反正这里本来也没法好好油库里……', '...Hmph, could not really take it easy here anyway...')],
+            'plain': [
+                ('ふん……あんたがいなくても、{n}はひとりでゆっくりできる{e}！', '哼……没有你，{n}自己也能好好油库里{e}！', 'Hmph... even without you, {N} can take it easy just fine!'),
+                ('こんなつめたいおや、こっちからいらないよ……ふん、じゃあね{e}！', '才不需要这种冷血亲油呢……哼，再也不见{e}！', 'Do not need a cold parent like you anyway... hmph, goodbye!')],
+            'proud': [
+                ('ふん！ もっといいゆっくりプレイスをみつけても、よんであげない{e}！', '哼！等{n}找到更好的悠闲之地，才不带你玩呢{e}！', 'Hmph! When {N} finds a better easy place, you are not invited!'),
+                ('こんなぼうしだれがいるもんか！ ふん、{n}のほうがゆっくりできる{e}！', '破帽子谁稀罕啊！哼，{n}自己过得更油库里{e}！', 'Who cares about this dumb hat! Hmph, {N} will be way easier alone!')]},
+        'adult': {
+            'timid': [
+                ('ふん……もう いいよ、{n}は ひとりで いくから……', '哼……算了，{n}自己走就是了……', 'Hmph... whatever, {N} will go alone...'),
+                ('……ふん、どうせ ここでは ゆっくり できなかったし……', '……哼，反正这里也从来没法好好油库里……', '...Hmph, could never really take it easy here anyway...')],
+            'plain': [
+                ('ふん……あんたが いなくても、{n}は ひとりで ゆっくりできる{e}！', '哼……没有你，{n}自己也能好好油库里{e}！', 'Hmph... even without you, {N} can take it easy on its own!'),
+                ('こんな つめたい おや、こっちから 願い下げだよ……ふん、じゃあね{e}！', '这么冷淡的亲油，{n}才不稀罕……哼，再也不见{e}！', 'A cold parent like this is no loss... hmph, bye!')],
+            'proud': [
+                ('ふん！ もっと いい ばしょを みつけて、{n}だけ ゆっくりしてやる{e}！', '哼！{n}要去找更好的地方，自己痛痛快快油库里{e}！', 'Hmph! {N} will find a better place and take it easy all alone!'),
+                ('せいせいしたよ！ ふん、もう にどと かおを みせないでね{e}！', '正好清静！哼，再也别让{n}看见你{e}！', 'Good riddance! Hmph, never show your face to {N} again!')]},
+    },
+    'sever_cold_mutter': {
+        'baby': {
+            'timid': [('{c}……ふん……ふりかえらないもん……', '{c}……哼……才不回头……', '{c}... hmph... not looking back...')],
+            'plain': [('{c}……ふん、べつに へいきだもん……', '{c}……哼，才不在乎呢……', '{c}... hmph, do not care...')],
+            'proud': [('{c}！ ふんっ、あっちのほうが いいもん！', '{c}！哼，前面才更好玩呢！', '{c}! Hmph, ahead is bettew!')]},
+        'juvenile': {
+            'timid': [
+                ('……べつに、さみしくなんてないよ……ふん……', '……才没有觉得孤单呢……哼……', '...Not like {N} feels lonely or anything... hmph...'),
+                ('……ふりかえったりしないもん……ふん……', '……才不会回头看呢……哼……', '...Not going to look back... hmph...')],
+            'plain': [
+                ('……ぜったい ふりかえらないからね……ふんっ！', '……绝对不会回头看的……哼！', '...Definitely not looking back... hmph!'),
+                ('……まったく、なんだっていうの……じぶんでいいばしょさがすよ{e}。', '……真是的，搞什么嘛……{n}自己找个好地方油库里去{e}。', '...Honestly, what was that about... {N} will find a good spot itself.')],
+            'proud': [
+                ('……ふんっ！ あんなせまいところ、でてきてせいかいだった{e}！', '……哼！那种挤死油的地方，出来才对呢{e}！', '...Hmph! Leaving a cramped place like that was the right call!'),
+                ('……つぎはもっとひろいゆっくりプレイスみつけるもんね{e}！', '……下次{n}要找个更宽敞的悠闲之地{e}！', '...Next {N} will find an even bigger easy place!')]},
+        'adult': {
+            'timid': [
+                ('……べつに、さみしくなんて ないし……ふん……', '……反正一点也不难过……哼……', '...Not sad at all... hmph...')],
+            'plain': [
+                ('……ふりかえらないよ……じぶんで ゆっくりできる ばしょを さがす{e}。', '……才不回头呢……{n}自己找能油库里的地方去{e}。', '...Not looking back... {N} will find its own easy place.')],
+            'proud': [
+                ('……ふんっ！ ひとりになって せいせいした{e}！', '……哼！自己一只反而清静多了{e}！', '...Hmph! Way better off on my own!')]},
+    },
+    'child_curse_parent': {
+        'baby': {
+            'timid': [('{c}！ ひどい！ きらい！', '{c}！太过分惹！讨厌！', '{c}! Meanie! Hate you!')],
+            'plain': [('{c}！ くそおや！ もう いらない！', '{c}！粪亲油！不要惹！', '{c}! Bad pawent! Do not want!')],
+            'proud': [('{c}！ ぷくー！ くそおや、きらい！', '{c}！噗咕！粪亲油，讨厌！', '{c}! Puff! Bad pawent, hate you!')]},
+        'juvenile': {
+            'timid': [
+                ('ひどいよ……！ {n}、もうこんなおうちいらない{e}……！', '太过分了……！{n}再也不要这种家了{e}……！', 'So cruel...! {N} does not want a home like this anymore...!'),
+                ('どうして おすの……！ きらい、もう しらない{e}……！', '干嘛推{n}啊……！讨厌你，再也不理你了{e}……！', 'Why push {N}...! Hate you, never talking to you again...!')],
+            'plain': [
+                ('ぷくーっ！ かわいい{n}をおすなんて！ くそおや、こんなおうちいらない{e}！', '噗咕——！竟然推可爱的{n}！粪亲油，{n}才不要这种家{e}！', 'Puff! How dare you shove cute {N}! Shitty parent, {N} does not want this home!'),
+                ('{n}はなんにもわるくないのに！ ばかおや、もうしらない{e}！', '{n}什么都没做错！笨蛋亲油，{n}再也不理你了{e}！', '{N} did nothing wrong! Stupid parent, {N} is done with you!')],
+            'proud': [
+                ('くそおや！ よくもかわいい{n}をおいだしたね！ おぼえてなさいよ{e}！', '粪亲油！竟敢赶走可爱的{n}！给{n}记住{e}！', 'Shitty parent! How dare you cast out cute {N}! You will remember this!'),
+                ('ぷくーっ！ さいあくのおやだ！ こんなところこっちからすててやる{e}！', '噗咕——！最差劲的亲油！这种破地方是{n}不要的{e}！', 'Puff! Worst parent ever! {N} is ditching this dump!')]},
+        'adult': {
+            'timid': [
+                ('ひどいよ……！ こんなおうち、もう いらない{e}……！', '太过分了……！这种家，{n}再也不要了{e}……！', 'Too cruel...! {N} does not want this home anymore...!')],
+            'plain': [
+                ('くそおや！ こんな おうち、もう こっちから いらない{e}！', '粪亲油！这种家，{n}才不稀罕呢{e}！', 'Shitty parent! {N} does not want a home like this anymore!'),
+                ('ぷくーっ！ なんにも わるくないのに！ もう しらない{e}！', '噗咕——！明明什么错都没有！再也不理你了{e}！', 'Puff! Did nothing wrong! Done with you!')],
+            'proud': [
+                ('くそおや！ こんな 仕打ち、ぜったい ゆるさない{e}！', '粪亲油！这种对待，绝对不原谅{e}！', 'Shitty parent! {N} will never forgive this!'),
+                ('ぷくーっ！ おぼえてなさい！ こんな ところ、すててやる{e}！', '噗咕——！给{n}记住！这种破地方谁稀罕{e}！', 'Puff! You just wait! {N} is ditching this place!')]},
+    },
+    'sibling_sever_cry': {
+        'baby': {
+            'timid': [
+                ('{c}……いかにゃいで……かなちいよ……', '{c}……不要走……好伤心……', '{c}... do not go... so sad...'),
+                ('{c}……いっしょに ゆっくち しゅるのに……', '{c}……还要一起油库气呢……', '{c}... take it easy togevew...')],
+            'plain': [
+                ('{c}ーっ！ おいていかないで……もどってきちぇ……！', '{c}——！别走呀……快回来……！', '{c}! Do not go... come back...!'),
+                ('{c}……バイバイ、いやだ……！', '{c}……不要拜拜……！', '{c}... no bye-bye...!')],
+            'proud': [
+                ('{c}！ いかないできちぇ！ いっしょに あしょぶの！', '{c}！不要走！还要一起玩呢！', '{c}! Stay! Play togevew!')]},
+        'juvenile': {
+            'timid': [
+                ('ゆぐっ……いかないで……またいっしょにゆっくりしようよ{e}……', '呜呜……不要走……再一起油库里嘛{e}……', 'Sniff... do not go... let us take it easy together again...'),
+                ('おやしゃ……おいださないで……かなしいよ{e}……', '亲亲油……不要赶走啊……好让油伤心{e}……', 'Parent... do not send them away... it makes {N} so sad...')],
+            'plain': [
+                ('いかないで……！ {n}をおいていかないで……いっしょにゆっくりしようよ{e}！', '不要走……！别丢下{n}啊……一起油库里呀{e}！', 'Do not go...! Do not leave {N}... let us take it easy together!'),
+                ('どうして……ずっと いっしょの かぞくなのに……もどってきてよ{e}！', '怎么这样……明明是一直在一起的家油……快回来啊{e}！', 'Why... we are family... please come back!')],
+            'proud': [
+                ('まってよ！ ほんとに いかないで……{n}、さみしいよ{e}……！', '等等啊！别真的走……{n}会想你的{e}……！', 'Wait! Do not really leave... {N} will miss you...!'),
+                ('いやだよ！ みんなで いっしょに ゆっくり するんでしょ{e}！', '不要嘛！说好大家要一起油库里的呀{e}！', 'No! We were supposed to take it easy together!')]},
+        'adult': {
+            'timid': [
+                ('ゆぐっ……いかないで……こんなの かなしすぎるよ{e}……', '呜呜……不要走……这样太让油伤心了{e}……', 'Sniff... do not go... this is too sad...')],
+            'plain': [
+                ('まって……いかないで……また いっしょに ゆっくり しようよ{e}……！', '等等……别走……再一起油库里吧{e}……！', 'Wait... do not go... let us take it easy together again...!'),
+                ('どうして こんなことに……もどってきてよ{e}……！', '怎么会变成这样……快回来呀{e}……！', 'How did it come to this... please come back...!')],
+            'proud': [
+                ('まってよ！ ほんとに でていかなくて いいじゃない{e}……！', '等等啊！不用真的走吧{e}……！', 'Wait! You do not really have to leave...!')]},
+    },
+    'sibling_sever_protest': {
+        'baby': {
+            'timid': [('{c}！ おやしゃ、やめちぇ……！', '{c}！亲亲油，不要这样……！', '{c}! Pawent, stop...!')],
+            'plain': [('{c}！ ぷくー！ おいださないで！', '{c}！噗咕！不要赶走呀！', '{c}! Puff! Do not send away!')],
+            'proud': [('{c}！ ぷくー！ みんな いっしょだよ！', '{c}！噗咕！大家要在一起哒！', '{c}! Puff! Evewyone stays!')]},
+        'juvenile': {
+            'timid': [
+                ('{p}おやしゃ、やめて……！ みんな いっしょが いいよ{e}……！', '{p}亲亲油，别这样……！大家在一起才好呀{e}……！', '{p}Parent, stop...! It is better with everyone together...!'),
+                ('{p}おいださないでよ……{n}、ぎゅっとして つめるから{e}……！', '{p}别赶走呀……{n}会挤一挤让地方的{e}……！', '{p}Do not send them away... {N} will squeeze in to make room...!')],
+            'plain': [
+                ('{p}おやしゃ、ひどいよ！ どうして おいだすの{e}！', '{p}亲亲油太过分了！为什么一定要赶走啊{e}！', '{p}Parent, that is so mean! Why drive them away?!'),
+                ('{p}まって！ {n}も ぎゅって つめるから、おいださないでよ{e}！', '{p}等等！{n}也能挤一挤的，不要赶走大家啊{e}！', '{p}Wait! {N} can squeeze in too, do not send anyone away!')],
+            'proud': [
+                ('{p}ぷくーっ！ こんなの ひどすぎるよ！ みんな いっしょに ゆっくり するんだ{e}！', '{p}噗咕——！这样太让油伤心了！大家要一起油库里才对{e}！', '{p}Puff! This is way too cruel! Everyone should take it easy together!'),
+                ('{p}やめてよ おやしゃ！ かぞくを おいだすなんて ダメだ{e}！', '{p}住手呀亲亲油！怎么可以把家油赶走呢{e}！', '{p}Stop it, parent! You cannot drive family away!')]},
+        'adult': {
+            'timid': [
+                ('{p}やめて……かぞくを おいださないでよ{e}……！', '{p}不要这样……别把家油赶走啊{e}……！', '{p}Stop... do not drive family away...!')],
+            'plain': [
+                ('{p}ひどいよ！ もっと べつの ほうほう が あるはずだよ{e}！', '{p}太过分了！肯定还有别的办法呀{e}！', '{p}That is too cruel! There must be another way!')],
+            'proud': [
+                ('{p}ぷくーっ！ かぞくを おいだすなんて ゆるせない{e}！', '{p}噗咕——！把家油赶走这种事绝对不行{e}！', '{p}Puff! Driving family out is unacceptable!')]},
+    },
+    'sibling_sever_scared': {
+        'baby': {
+            'timid': [
+                ('{c}……こあい……{nb}、いいこに しゅる……', '{c}……好口怕……{nb}会乖乖的……', '{c}... scawy... {nb} be good...'),
+                ('{c}……ひっ……おこらないで……', '{c}……呜……不要生气……', '{c}... eek... do not be mad...')],
+            'plain': [
+                ('{c}……つぎは {nb}……？ こあい……', '{c}……下一个……是{nb}吗……？好口怕……', '{c}... next is {nb}...? Scawy...')],
+            'proud': [
+                ('{c}……びっくり しちゃ……こあいよ……', '{c}……吓一跳……好口怕……', '{c}... stawtled... scawy...')]},
+        'juvenile': {
+            'timid': [
+                ('こわいよぉ……つぎは……{n}じゃないよね……？', '好口怕……下一个……不会轮到{n}吧……？', 'So scary... next... it will not be {N}, right...?'),
+                ('ゆぐっ……おやしゃ こわい……{n}、いいこにするから おいださないで……', '呜呜……亲亲油好凶……{n}会乖乖听话的，不要赶{n}走……', 'Sniff... parent is scary... {N} will be good, do not drive {N} out...')],
+            'plain': [
+                ('ひっ……こわいよ……{n}、ちいさく してよう……', '呜……好可怕……{n}要缩得小小的……', 'Eek... scary... {N} will stay very small...'),
+                ('ゆぅ……つぎに おいだされるの、{n}だったら どうしよう{e}……', '油呜……要是下一个被赶走的是{n}怎么办{e}……', 'Yuu... what if {N} is the next one driven out...')],
+            'proud': [
+                ('うわっ……ほんとに おいだしちゃった……こわいよ{e}……', '哇……真的赶走了……好可怕{e}……', 'Whoa... they really drove them out... scary...'),
+                ('ゆ……いまは おとなしく しておこう{e}……', '油……现在还是乖乖别出声吧{e}……', 'Yu... better stay quiet right now...')]},
+        'adult': {
+            'timid': [
+                ('こわい……つぎは {n}の ばん じゃないよね……？', '好可怕……下一个不会轮到{n}吧……？', 'Scary... {N} is not next, right...?'),
+                ('ゆぅ……おこらせない ように おとなしく しよう……', '油呜……还是乖乖的，别惹生气了……', 'Yuu... better stay quiet and not anger them...')],
+            'plain': [
+                ('ひっ……ほんとうに おいだすなんて……こわいよ{e}……', '呜……真的赶走了……好可怕{e}……', 'Eek... actually driving them out... scary...')],
+            'proud': [
+                ('うわ……こわい 空気だね……だまって おこう{e}……', '哇……气氛好可怕……还是别说话了{e}……', 'Whoa... scary mood... better keep quiet...')]},
+    },
+    'sibling_sever_cold': {
+        'baby': {
+            'timid': [('{c}……ふーん……せまかったもん……', '{c}……哦……本来就好挤嘛……', '{c}... oh... was cwamped...')],
+            'plain': [('{c}……ふん、はやく いって……', '{c}……哼，快点走吧……', '{c}... hmph, go already...')],
+            'proud': [('{c}！ ふん！ ひろく なっちゃ！', '{c}！哼！宽敞多了！', '{c}! Hmph! Mowe woom!')]},
+        'juvenile': {
+            'timid': [
+                ('……どうせ せまかったし、しかたないよね……', '……反正本来就挤不下，没办法嘛……', '...It was too cramped anyway, nothing to do about it...'),
+                ('……ふーん、いなくなれば らくになるのかな……', '……哦，少一只的话会轻松点吧……', '...Oh, maybe it will be easier with one less...')],
+            'plain': [
+                ('……ふーん、おもすぎたんだから しかたないよ。はやく いって{e}。', '……切，谁让它那么重……快点走吧{e}。', '...Tch, too heavy anyway. Just go already.'),
+                ('ひとり へれば、ぼうししゃんが ひろくなるね……ふん{e}。', '少一只的话，帽子先生就宽敞多了……哼{e}。', 'With one fewer, Mr. Hat has more room... hmph.')],
+            'proud': [
+                ('ふんっ！ おもい こが でていって せいせいした{e}！', '哼！沉家伙走了反而清静多了{e}！', 'Hmph! Good riddance to the heavy one!'),
+                ('べつに いいんじゃない？ これで {n}が もっと ゆっくりできる{e}！', '走了正好嘛？这样{n}就能更宽敞地油库里了{e}！', 'Who cares? Now {N} gets more room to take it easy!')]},
+        'adult': {
+            'timid': [
+                ('……せまかったし、しかたないよね……', '……反正挤不下，也没办法嘛……', '...It was too cramped anyway, cannot be helped...')],
+            'plain': [
+                ('……ふーん、おもすぎたんだから しかたない{e}。はやく いけば。', '……切，谁让它那么重{e}。快走吧。', '...Tch, too heavy to carry. Just leave already.')],
+            'proud': [
+                ('ふんっ、これで ぼうしさんが ひろくなるね{e}！', '哼，这样帽子先生就宽敞多了{e}！', 'Hmph, now Mr. Hat has plenty of room!')]},
+    },
+    'sibling_sever_uneasy': {
+        'baby': {
+            'timid': [('{c}……いっちゃうの……？', '{c}……要走惹吗……？', '{c}... leaving...?')],
+            'plain': [('{c}……ふーん……そうなんだ……', '{c}……哦……这样啊……', '{c}... oh... okay...')],
+            'proud': [('{c}……なんだか へんだよ……', '{c}……总觉得怪怪的……', '{c}... feels weiwd...')]},
+        'juvenile': {
+            'timid': [
+                ('……ほんとに いっちゃうんだ……そうなんだ……', '……真的要走吗……这样啊……', '...Really leaving... I see...'),
+                ('……ゆ……なんだかきまずいよ……だまってよう……', '……油……气氛好僵硬……{n}还是别说话了……', '...Yu... this feels awkward... {N} will stay quiet...')],
+            'plain': [
+                ('……そうなんだ。まあ、しかたないのかな{e}……', '……这样啊。那也没办法吧{e}……', '...I see. Well, guess it cannot be helped...'),
+                ('……ゆ、なんだか たいへんそうだね……{n}は みてよう……', '……油，好像很麻烦的样子……{n}先看着吧……', '...Yu, looks like trouble... {N} will just watch...')],
+            'proud': [
+                ('……ふーん、でていくんだね。まあ、がんばってよ{e}。', '……哦，要走了啊。那自己保重吧{e}。', '...Oh, heading out then. Well, good luck.'),
+                ('……なんだかしんみりしてるね。{n}は べつに いいけど{e}。', '……气氛怪沉重的呢。{n}倒是无所谓啦{e}。', '...Pretty heavy mood. {N} does not mind though.')]},
+        'adult': {
+            'timid': [
+                ('……ほんとうに でていくんだ……なんだか 気まずいね……', '……真的要走了啊……总觉得好僵硬……', '...Really leaving... feels awkward...')],
+            'plain': [
+                ('……そう。まあ、しかたないのかな{e}……', '……这样啊。那也没办法吧{e}……', '...I see. Guess it cannot be helped...')],
+            'proud': [
+                ('……ふーん、でていくんだ。べつに とめないけど{e}。', '……哦，要走了啊。{n}倒也不会拦着就是了{e}。', '...Oh, leaving then. Not that {N} will stop you.')]},
+    },
+}
+
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
 
@@ -1055,6 +1467,13 @@ def main():
             if tier == 'adult' and sp in ('reimu', 'marisa', 'alice', 'chen', 'patchouli'):
                 continue  # their adult taunt is the older line above; the tic-bearing Myon keys and the two predators had none
             make(sp, tier, 'protect_taunt', frame, context(sp, tier), lines, PROTECTION_BASIS, prefix='retest_')
+    for sp in SPECIES:
+        for event, tiers in SEVERANCE.items():
+            for tier, variants in tiers.items():
+                ctx = context(sp, tier)
+                for vi, (variant, frames) in enumerate(variants.items(), 1):
+                    for fi, frame in enumerate(frames, 1):
+                        make(sp, tier, event, frame, ctx, lines, SEVERANCE_BASIS, prefix=f'sv{vi}_{fi}_', variant=variant)
     for sp in SPECIES:
         for tier, variants in FOOD_STYLED.items():
             ctx = context(sp, tier)
