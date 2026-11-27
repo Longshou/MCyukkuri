@@ -186,11 +186,13 @@ public final class Floor {
         var riders = host.entity().getPassengers().stream().map(p -> (YukkuriEntity) p).toList();
         int mover = riders.indexOf(body);
         var spot = host.riders().spot(body.getUUID());
+        String why = "none";
+        float asked = stepDeg;
         for (int attempt = 0; attempt < attempts; attempt++, stepDeg /= 2) {
             var proposed = new ArrayList<FloorSearch.Placed>(others(host, null));
             var turned = shape(host, body, spot.yaw() + stepDeg);
             var height = host.turnSupport(spot.local(), body, spot.yaw() + stepDeg);
-            if (height.isEmpty() || (height.getAsDouble() - spot.local().y) * host.frame().unit() > Occupancy.MARGIN) continue;
+            if (height.isEmpty() || (height.getAsDouble() - spot.local().y) * host.frame().unit() > Occupancy.MARGIN) { why = "support"; continue; }
             var at = new Vec(spot.local().x, height.getAsDouble(), spot.local().z);
             proposed.set(mover, new FloorSearch.Placed(turned, at));
             boolean fits = true;
@@ -198,17 +200,23 @@ public final class Floor {
                 if (i == mover) continue;
                 var other = proposed.get(i);
                 if (FloorSearch.clear(other.body(), other.at(), List.of(proposed.get(mover)), host.roomGap())) continue;
-                if (!standing(riders.get(i))) { fits = false; break; }
+                if (!standing(riders.get(i))) { fits = false; why = "airborne:" + riders.get(i).getUUID(); break; }
                 var obstacles = new ArrayList<>(proposed); obstacles.remove(i);
                 var destinations = FloorSearch.spots((x,z,fp) -> host.support(new Vec3(x,0,z),fp).orElse(Double.NaN),
                         host.container().floorY() / host.frame().unit(), Occupancy.MARGIN / host.frame().unit(),
                         other.body(), obstacles, other.at(), BodyAbility.of(riders.get(i)).walkSpeed() / host.frame().unit(),
                         false, host.roomGap(), 1);
-                if (destinations.isEmpty() || !Motor.clearSpot(host, riders.get(i), point(destinations.getFirst()))) { fits = false; break; }
+                if (destinations.isEmpty() || !Motor.clearSpot(host, riders.get(i), point(destinations.getFirst()))) {
+                    fits = false; why = (destinations.isEmpty() ? "no_push_room:" : "push_blocked:") + riders.get(i).getUUID(); break;
+                }
                 proposed.set(i, new FloorSearch.Placed(other.body(), destinations.getFirst()));
             }
             if (fits && Motor.clearSpot(host, body, point(at))) return new Turn(stepDeg, at, proposed);
+            if (fits) why = "turner_spot";
         }
+        String reason = why;
+        GameplayLog.limited(body, "hat", "turn_refused", 100, "turn refused body={} yaw={} step={} reason={}",
+                () -> new Object[]{body.getUUID(), spot.yaw(), asked, reason});
         return null;
     }
 

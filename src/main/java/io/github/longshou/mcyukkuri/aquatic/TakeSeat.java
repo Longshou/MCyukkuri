@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
+import io.github.longshou.mcyukkuri.motor.geom.FloorSearch;
 import io.github.longshou.mcyukkuri.motor.surface.Floor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -18,6 +19,8 @@ import java.util.List;
 
 /** A rider moves to its own cabin place after landing or a braid set-down. */
 final class TakeSeat implements Intent {
+    /** Hat units: two cells of the floor search that picks the place (one cell is its resolution; the turn of a step shifts it by about one). */
+    private static final double SEATED_WITHIN = 2 * FloorSearch.GRID_CELL;
     private final YukkuriEntity body;
     private final PlacedHatEntity hat;
     private final SeatTarget target;
@@ -41,7 +44,9 @@ final class TakeSeat implements Intent {
         var places = hat.places(body, SeatTarget.Kind.CABIN, 1);
         if (places.isEmpty()) return null;
         var target = places.getFirst();
-        if (at.distanceTo(target.local()) * hat.unit() <= .02) return null;
+        // The chosen place is read from this body's own footprint and yaw, so every short walk (which turns it) nudges it by about a
+        // search cell: within two cells of the place is already seated, or a child that arrived would be sent on again and again.
+        if (at.distanceTo(target.local()) <= SEATED_WITHIN) return null;
         if (ability.walkSpeed() > 0 && !hat.walkRoute(body, target.local(), true).isEmpty())
             return new TakeSeat(body, hat, target, new Walk(hat, target.local()));
         if (ability.hopReach() <= 0) return null;
