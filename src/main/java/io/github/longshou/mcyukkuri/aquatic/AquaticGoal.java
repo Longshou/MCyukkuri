@@ -256,7 +256,7 @@ final class AquaticGoal extends Goal {
             // a hungry young set down on the bank is fed there first (the ground feed takes a portion from the hull's stores beside the bank)
             boolean feedDue = feedDue(body, hat);
             double setOut = asleep || beyondGather || searching || birth || nursery || overladen || feedDue ? 0
-                    : num("water_life", 60) - 2 * pull - (nightAshore ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+                    : num("water_life", 60) - 2 * pull - (nightAshore ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 60) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood, feedDue);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             // A hull she has no way aboard (out of hop and stroke reach from every bank stand) is not set out for: she goes after it

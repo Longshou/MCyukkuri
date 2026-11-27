@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.registry.ModEntities;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.Sky;
 import io.github.longshou.mcyukkuri.settlement.VillageStrays;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -169,7 +170,8 @@ public final class AquaticLife {
         return t >= 12000 && t < 23460;
     }
 
-    static boolean rain(YukkuriEntity y) { return y.level().isRainingAt(y.blockPosition().above()) || y.level().isThundering(); }
+    /** Rain or a thunderstorm falling in the open here (even when this body stands dry under a canopy or roof). */
+    static boolean rain(YukkuriEntity y) { return Sky.open(y.level(), y.blockPosition()).wet() || y.level().isThundering(); }
 
     /** The hat this body rides while it floats upright (its own, or its parent's), or null. */
     static PlacedHatEntity riding(YukkuriEntity y) { return y.getVehicle() instanceof PlacedHatEntity hat && afloat(hat) ? hat : null; }

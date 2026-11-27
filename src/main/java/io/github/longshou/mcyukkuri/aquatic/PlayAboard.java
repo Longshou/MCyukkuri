@@ -264,7 +264,7 @@ final class PlayAboard implements Intent {
         }
         // Rain on its own place: nothing on the hat is a roof, so the drops it has taken are past its own tolerance while it rides.
         var personality = body.life().personality();
-        if (AquaticLife.rain(body) && body.life().wetness() >= RainShelter.tolerance(personality.boldness(), personality.intelligence()))
+        if (body.life().rainOnBody() && body.life().wetness() >= RainShelter.tolerance(personality.boldness(), personality.intelligence()))
             return "rain";
         return "none";
     }

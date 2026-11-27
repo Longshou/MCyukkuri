@@ -255,7 +255,7 @@ public final class YukkuriLife {
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().awaitingLanding() && !entity.family().laboring() && !entity.family().birthDuty()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
-                && !level().isRainingAt(entity.blockPosition()) && !temperature.unsafeSleep();
+                && !rainOnBody() && !temperature.unsafeSleep();
     }
     /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts.
      *  A body still walking to or resting at a warmth refuge does not nap over it: it warms first and the refuge hands it over to sleep. */
@@ -365,7 +365,7 @@ public final class YukkuriLife {
     private void accountEnvironmentalWake() {
         if(energy>=50 || !isSleeping())return;
         if(entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || hotFloor.active()
-                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep() && !coldPaperSleepAllowed()) {
+                || rainOnBody() || temperature.unsafeSleep() && !coldPaperSleepAllowed()) {
             GameplayLog.event(entity,"sleep","woken during interruption sleepiness={} -> 50",100-energy);
             energy=50;
         }
@@ -847,6 +847,19 @@ public final class YukkuriLife {
         if (foundCover.targeting(pos)) stopGoal();
         foundCover.removed(pos, wet);
     }
+    /** Whether rain falls directly on this body: starts at its top block and steps past any non-solid fluid it sits in
+     *  (a small rider in a hull cavity can have its top inside the surface water block, below the MOTION_BLOCKING heightmap,
+     *  while the sky above the water is open). */
+    public boolean rainOnBody() {
+        var pos = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
+        int limit = Math.min(level().getMaxBuildHeight(), pos.getY() + 4);
+        while (pos.getY() < limit && !level().getFluidState(pos).isEmpty()
+                && level().getBlockState(pos).getCollisionShape(level(), pos).isEmpty()) {
+            pos = pos.above();
+        }
+        return level().isRainingAt(pos);
+    }
+
     ServerLevel level() { return (ServerLevel)entity.level(); }
     /** Rain or leaks softening the skin: attrition, not an attack and not drowning (a bite of the death record said "drown" for it). */
     public static final ResourceKey<DamageType> SOAKING =
@@ -936,11 +949,8 @@ public final class YukkuriLife {
                 YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
         if (ageTicks % 20 == 0) {
-            // Rain is read where the body's head is: a rider's feet may sit in the water column, below the heightmap, while its
-            // head is under open sky and takes the rain all the same.
-            var rainTop = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
-            else if (entity.habitat().leaking() || level().isRainingAt(rainTop)) wetness = Math.min(100, wetness + (entity.profile().aquatic() ? 1.5f : entity.subspecies().waterGain(3)));
+            else if (entity.habitat().leaking() || rainOnBody()) wetness = Math.min(100, wetness + (entity.profile().aquatic() ? 1.5f : entity.subspecies().waterGain(3)));
             else wetness = Math.max(0, wetness - 3);
             if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % (entity.profile().aquatic() ? 200 : 100) == 0) {
                 float before = entity.getHealth();
@@ -951,7 +961,7 @@ public final class YukkuriLife {
         temperature.tick();
         if (!entity.isAlive() || entity.inert()) return;
         if(isSleeping() && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
-                || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep() && !coldPaperSleepAllowed())) wakeForDanger("environment");
+                || rainOnBody() || temperature.unsafeSleep() && !coldPaperSleepAllowed())) wakeForDanger("environment");
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
             if (mealTicks() > 0 || task != Task.NONE || sprayDelay()>0 || drugSleep()>0) interrupt();
             return;

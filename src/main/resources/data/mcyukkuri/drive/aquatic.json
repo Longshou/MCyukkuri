@@ -36,7 +36,7 @@
   "floor": 20,
   "water_life": 60,
   "night_pull": 60,
-  "rain_pull": 30,
+  "rain_pull": 60,
   "hunger_from": 55,
   "hunger_slope": 3,
   "stick_need": 50,

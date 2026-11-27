@@ -332,7 +332,8 @@ _scene_end('night_boat', [('a', _DRY), ('k1', _DRY), ('k2', _DRY)],
            [('k2', 'seen:sleep:begin source=fatigue full=true .*carrier=true'), ('k2', 'seen:sleep:beat=wake face=neutral line=awake')])
 _scene_end('kid_boat_play', [('a', _DRY), ('c1', _DRY), ('c2', _DRY)],
            [('c1', 'seen:aquatic:play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim'),
-            ('c1', 'seen:aquatic:play (?:return inside|stays on brim).*reason=fear:thunder')],
+            ('c1', 'seen:aquatic:play return inside .*reason=fear:rain'),
+            ('c1', 'seen:aquatic:play (?:return inside|stays on brim|kind=kid_hide_behind start spot=cabin).*reason=fear:thunder')],
            [('c2', 'seen:aquatic:play kind=hat_cradle start spot=head reason=head_dry')])
 _scene_end('rescue_child', [('a', _DRY), ('c1', _DRY), ('k1', _DRY)],
            *[[('a', f'seen:family:carry grip .*uuid={_uuid_text("rescue_child", child)}'),

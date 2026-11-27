@@ -911,8 +911,8 @@ public final class Reactions {
                         spoke = true;
                         boolean storm = sky == Sky.STORM;
                         if (y.life().wetness() > 0 || y.life().temperature().cold()) y.mind().felt(EmotionEvent.CHILLED); // running from rain is not cold
-                        String runFace = storm ? "surprise" : y.life().personality().boldness() < 40 ? "teary" : "neutral";
-                        String runLine = stage == Stage.FLOOD ? "afraid" : "rain_run";
+                        String runFace = storm ? "surprise" : RainShelter.face(y.life().personality().boldness());
+                        String runLine = stage == Stage.FLOOD ? "afraid" : RainShelter.line();
                         y.showReaction(runFace, runLine, FaceTier.Tier.MEDIUM);
                         queueBeat("rain_run", runFace, runLine);
                     }

@@ -185,6 +185,10 @@ def kid_play_shelter(window):
         return f'rain reactions did not come before the thunder clap (c1={c1_wet}/{c1_heard} c2={c2_wet}/{c2_heard})'
     if not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play return inside [^\n]*place=cabin reason=fear:rain\b', window[m_c1_wet.end():m_c1_heard.start()]):
         return 'c1 did not return into the free cabin place when the rain wet it'
+    if re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim\b', window[m_c1_wet.end():m_c1_heard.start()]):
+        return 'c1 left the cabin to play on the brim while it was still raining'
+    if re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play kind=kid_hide_behind end [^\n]*fear=none\b', window[m_c1_wet.end():m_c1_heard.start()]):
+        return 'c1 dried out and cleared rain fear inside the open cabin while it was still raining'
     if not re.search(rf'\[aquatic\][^\n]*uuid={c2}[^\n]* play kind=kid_hide_behind start spot=head reason=fear:rain\b', window[m_c2_wet.end():m_c2_heard.start()]):
         return 'c2 did not huddle on its open head place when the rain wet it'
     c1_hide, _ = find_tick(rf'\[choreo\][^\n]*uuid={c1} t=(\d+)[^\n]* beat=thunder_hide face=horrified line=afraid declared=horrified\b', window[m_c1_heard.end():])
@@ -293,6 +297,8 @@ def rain_ashore_result(window):
         return 'the captain never settled on her covered stand'
     if not (-159 <= int(settled.group(1)) <= -156 and 306 <= int(settled.group(3)) <= 309):
         return f'the captain walked out of the canopy and settled at {settled.group(1)},{settled.group(3)}'
+    if re.search(rf'\[intent\][^\n]*uuid={a}[^\n]* start id=set_out\b', after):
+        return 'the captain started set_out again while it was still raining'
     return None
 
 
@@ -322,6 +328,7 @@ pond('rain_ashore', '雨中湿透的亲油把全家带上岸躲雨', '雨中湿�
                         r'\[weather\][^\n]* shelter response started '],
                 forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains',
                         r'\[intent\][^\n]* end id=come_ashore result=(?:EXHAUSTED|BLOCKED|NO_PROGRESS)\b',
+                        r'\[intent\][^\n]* start id=set_out\b',
                         r'\[hat\][^\n]* capsized\b'],
                 verify=rain_ashore_result,
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
