@@ -459,7 +459,7 @@ public final class MoldExile extends Goal implements MotorOwner {
     private Departure.Terms terms() {
         boolean repeat = exile != null;
         return new Departure.Terms("settlement", "mold exile", home.centre(), home.radius(), peer, repeat ? exile.refusedBy : peer.getUUID(),
-                repeat ? .6f : 1f, repeat, !repeat && guardian(peer, entity, home), false, "mold_resist", this::youngCry);
+                repeat ? .6f : 1f, repeat, !repeat && guardian(peer, entity, home), false, false, "mold_resist", this::youngCry);
     }
 
     /**

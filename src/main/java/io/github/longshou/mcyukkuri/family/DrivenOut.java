@@ -37,7 +37,9 @@ public final class DrivenOut extends Goal {
     public enum Phase { NONE, WAITING, GOING }
 
     /** Ticks an order stays owed (the child must first reach dry ground; the walk itself is limited by {@link Departure}). */
-    private static final int WINDOW = 2400, BUDGET = 5000, WATCH_CAP = 600;
+    private static final int WINDOW = 2400, BUDGET = 5000;
+    /** A shore watch runs until the tie is cut (the child's own walk budget). */
+    private static final int WATCH_CAP = BUDGET;
     /** The range it is driven out of (blocks round where she stood), the sight it counts as gone from, and the distance that is gone anyway. */
     private static final int RANGE = 7, GONE_NEAR = 8, GONE_FAR = 16, SIBLING_SIGHT = 12, SAY_PRIORITY = 4;
     /** Lines take turns: its plea or turn waits for a neighbour's line (the parent's verdict) to end, at most this long (ticks); within this range (blocks). */
@@ -48,6 +50,8 @@ public final class DrivenOut extends Goal {
     private final Set<UUID> witnessed = new HashSet<>();
     private Departure.BannedRange banned;
     private UUID driver, watchParent, watchChild;
+    /** The stance face a watching sibling keeps through the severance, renewed while the watch lasts. */
+    private String watchFace;
     private Verdict verdict;
     private String reason = "";
     private Phase phase = Phase.NONE;
@@ -139,7 +143,21 @@ public final class DrivenOut extends Goal {
 
     private void clearWatch() {
         watchParent = watchChild = null;
+        watchFace = null;
         watchUntil = watchOrderBy = 0;
+    }
+
+    /** Keeps a witness at the child's side from the verdict to the cut, and the stance face it shows meanwhile; {@code orderBy} is when
+     *  the child should have begun its walk, after which a child still idle ends the watch. */
+    private static void watch(YukkuriEntity sibling, YukkuriEntity parent, YukkuriEntity child, String face, long orderBy) {
+        var watch = sibling.drivenOut();
+        if (watch.watchChild == null) {
+            watch.watchParent = parent.getUUID();
+            watch.watchChild = child.getUUID();
+            watch.watchOrderBy = orderBy;
+            watch.watchUntil = orderBy + WATCH_CAP;
+        }
+        watch.watchFace = face;
     }
 
     private YukkuriEntity watchTarget() {
@@ -149,9 +167,9 @@ public final class DrivenOut extends Goal {
         var parent = level().getEntity(watchParent) instanceof YukkuriEntity p && p.isAlive() ? p : null;
         var child = level().getEntity(watchChild) instanceof YukkuriEntity c && c.isAlive() ? c : null;
         if (parent == null || child == null || entity.distanceToSqr(child) > 24 * 24) { clearWatch(); return null; }
-        var driven = child.drivenOut();
-        if (driven.turned()) { clearWatch(); return null; }
-        if (now > watchOrderBy && driven.phase() == Phase.NONE) { clearWatch(); return null; }
+        // The watch runs to the cut, not to the child's turn: at the turn its stance face is just beginning, and a sibling left to its own
+        // drives wanders off (and, far enough away, breaks into tears) before the tie is severed.
+        if (now > watchOrderBy && child.drivenOut().phase() == Phase.NONE) { clearWatch(); return null; }
         return child;
     }
 
@@ -197,11 +215,11 @@ public final class DrivenOut extends Goal {
     }
 
     private Departure.Terms terms() {
-        return new Departure.Terms("family", "driven out", centre, RANGE, parent(), driver, 1f, false, true, true, null, this::siblingsCry);
+        return new Departure.Terms("family", "driven out", centre, RANGE, parent(), driver, 1f, false, true, true, true, null, this::siblingsCry);
     }
 
-    /** Perceiving ashore siblings react at once when the parent starts pronouncing severance and stay watching through the confrontation,
-     *  so none wanders off or wears a plain smile during it. */
+    /** Perceiving ashore siblings react at once when the parent starts pronouncing severance and stay watching through the confrontation
+     *  and the walk out until the tie is cut, so none wanders off or wears a plain or happy face during it. */
     public static void witnessVerdict(YukkuriEntity parent, YukkuriEntity child, int verdictTicks) {
         if (!(parent.level() instanceof ServerLevel level)) return;
         long now = level.getGameTime();
@@ -214,11 +232,7 @@ public final class DrivenOut extends Goal {
             sibling.getLookControl().setLookAt(parent, 30, 30);
             sibling.forceReaction(stance.verdictFace(), "", FaceTier.Tier.LONG);
             sibling.beat("sibling_verdict", stance.verdictFace(), "");
-            var watch = sibling.drivenOut();
-            watch.watchParent = parent.getUUID();
-            watch.watchChild = child.getUUID();
-            watch.watchOrderBy = now + verdictTicks + 20;
-            watch.watchUntil = now + WATCH_CAP;
+            watch(sibling, parent, child, stance.verdictFace(), now + verdictTicks + 20);
             GameplayLog.event(sibling, "family", "driven out sibling witnessed verdict child={} stance={} via={}",
                     child.getUUID(), stance, via);
         }
@@ -227,6 +241,7 @@ public final class DrivenOut extends Goal {
     /** Perceiving ashore siblings react when the parent turns her back or shoves a pleading child, holding their expression through the turn. */
     public static void witnessRebuff(YukkuriEntity parent, YukkuriEntity child) {
         if (!(parent.level() instanceof ServerLevel level)) return;
+        long now = level.getGameTime();
         for (var sibling : level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                 y -> y != child && y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)
                         && !y.isInWaterOrBubble() && !y.body().dying() && !y.life().isSleeping())) {
@@ -236,6 +251,7 @@ public final class DrivenOut extends Goal {
             sibling.getLookControl().setLookAt(child, 30, 30);
             sibling.forceReaction(stance.rebuffFace(), "", FaceTier.Tier.LONG);
             sibling.beat("sibling_rebuff", stance.rebuffFace(), "");
+            watch(sibling, parent, child, stance.rebuffFace(), now);
         }
     }
 
@@ -243,6 +259,7 @@ public final class DrivenOut extends Goal {
     private void siblingsCry(Answer answer) {
         var parent = parent();
         if (parent == null) return;
+        long now = level().getGameTime();
         for (var sibling : level().getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                 y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y))) {
             var via = Senses.perceives(sibling, entity.getEyePosition(), null, Cue.DEPARTURE_CRY);
@@ -257,6 +274,7 @@ public final class DrivenOut extends Goal {
             YukkuriAction clip = stance.turnClip();
             int clipTicks = clip == null ? 0 : Math.max(40, clip.durationTicks());
             sibling.getLookControl().setLookAt(entity, 30, 30);
+            watch(sibling, parent, entity, face, now);
             // Its line follows the one leaving on the shared speech clock (the turn's own line would otherwise swallow it).
             sibling.showWithDeferredLine(clip, clipTicks, face, line, FaceTier.Tier.LONG, SAY_PRIORITY, said -> {
                 sibling.beat("sibling_cry", face, said.spoken() ? line : "");
@@ -273,6 +291,9 @@ public final class DrivenOut extends Goal {
             if (target == null) return;
             SurfaceApproach.stopWalking(entity);
             entity.getLookControl().setLookAt(target, 30, 30);
+            // One stance for the whole severance, topped up as its hold lapses: an ordinary beat, so the child's turn and the sibling's
+            // own reaction (a clip or a LONG beat) still replace it, and no bound hold can swallow them.
+            if (watchFace != null) entity.showReaction(watchFace, "", FaceTier.Tier.MEDIUM);
             return;
         }
         // A terminal tick can end the order before the selector clears this goal.
@@ -305,6 +326,7 @@ public final class DrivenOut extends Goal {
                     y -> y != entity && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y) && witnessed.contains(y.getUUID()))) {
                 var t = sibling.life().personality().temperament();
                 var stance = SeveranceReaction.siblingStance(t);
+                sibling.drivenOut().clearWatch();
                 if (stance.partsWithGrief(t)) {
                     sibling.mind().feeling().begin(EmotionCourse.Kind.PARTING, .5f, entity.getUUID(), entity.blockPosition());
                     Departure.parting(sibling);

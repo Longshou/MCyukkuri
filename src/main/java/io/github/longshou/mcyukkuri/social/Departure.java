@@ -37,11 +37,12 @@ public final class Departure {
 
     /**
      * What one departure is from. {@code about} is whom its hurt is about, {@code power} how hard it hits; {@code repeat} marks a second
-     * leave-taking (it neither pleads nor protests again); {@code approach} lets a pleader step up to the driver; {@code resistLine} is
-     * what a protester says (none for a driven child); {@code onTurn} is told the answer when it turns to go.
+     * leave-taking (it neither pleads nor protests again); {@code severance} is the overload severance's own kind (a parent driving her child
+     * out), which adds its beats and keeps an aloof child's sulk; {@code approach} lets a pleader step up to the driver; {@code resistLine}
+     * is what a protester says (none for a driven child); {@code onTurn} is told the answer when it turns to go.
      */
     public record Terms(String category, String label, Vec3 centre, int radius, YukkuriEntity driver, UUID about, float power,
-                        boolean repeat, boolean byGuardian, boolean approach, String resistLine, Consumer<Answer> onTurn) {}
+                        boolean repeat, boolean byGuardian, boolean severance, boolean approach, String resistLine, Consumer<Answer> onTurn) {}
 
     /** Ticks it keeps walking beyond the range once a caller extends it; ticks a turned-away pleader still stands after a rebuff. */
     private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, REBUFF_WAIT = 40;
@@ -53,6 +54,8 @@ public final class Departure {
     private static final double SHOVE_ANGER = .3;
     /** Ticks its turning-away face is kept before a look back or mid-walk mutter may replace it; blocks it must walk before either. */
     private static final int TURN_SHOW = 40, SHOCK_HOLD = 45, FLICK_PAUSE = 24;
+    /** The cold sulker's hmph is renewed in this long a hold across the walk, so it never drops to a plain face before its mutter. */
+    private static final int SULK_FACE_HOLD = 60;
     private static final double LOOK_BACK_WALK = 2.0;
     /** Speech priority for severance/departure beats so a line is not muted by the beat that just ended. */
     private static final int SAY_PRIORITY = 4;
@@ -119,11 +122,11 @@ public final class Departure {
                 || YukkuriWorldData.get((net.minecraft.server.level.ServerLevel) entity.level())
                         .affinity(entity.getUUID(), terms.driver().getUUID()) >= BondLevels.AFFINITY_CLOSE);
         answer = Ousting.answer(t);
-        boolean guardianFresh = terms.byGuardian() && !terms.repeat();
-        shockTicks = guardianFresh && !resists && answer != Answer.SHRUG ? SHOCK_HOLD : 0;
+        boolean severedFresh = terms.severance() && !terms.repeat();
+        shockTicks = severedFresh && !resists && answer != Answer.SHRUG ? SHOCK_HOLD : 0;
         answerTicks = resists ? 50 + t.boldness() / 3
                 : pleads ? shockTicks + 50 + t.attachment() / 2
-                : guardianFresh && answer == Answer.SHRUG ? 45 + (100 - t.attachment()) / 3
+                : severedFresh && answer == Answer.SHRUG ? 45 + (100 - t.attachment()) / 3
                 : !terms.repeat() && answer != Answer.SHRUG ? shockTicks + 40 + (100 - t.boldness()) / 3 : 0;
         lookBacks = answer == Answer.FAREWELL ? t.is(Gate.DEVOTED_KIN) ? 2 : 1 : 0;
         if (terms.repeat() && terms.driver() == null) {
@@ -192,7 +195,7 @@ public final class Departure {
             if (resists) return Behaviors.MOLD_RESIST;
             if (shockTicks > 0 && ticks <= shockTicks) return null;
             if (answer == Answer.SHRUG) return null;
-            return pleads || !terms.byGuardian() ? Behaviors.MOLD_PLEAD : null;
+            return pleads || !terms.severance() ? Behaviors.MOLD_PLEAD : null;
         }
         return answer != Answer.FAREWELL ? null : lookBackTicks > 0 ? Behaviors.MOLD_LOOK_BACK : Behaviors.MOLD_LEAVE;
     }
@@ -209,7 +212,7 @@ public final class Departure {
                 || ticks == answerTicks + 1);
         if (speakingBeat && !(entity.quiet() && myTurn.getAsBoolean())) {
             if (driver != null && ticks <= answerTicks) entity.getLookControl().setLookAt(driver, 30, 30);
-            if (!listened && ticks == 1 && terms.byGuardian() && !terms.repeat()) {
+            if (!listened && ticks == 1 && terms.severance() && !terms.repeat()) {
                 listened = true;
                 String face = SeveranceReaction.childListenFace(entity.life().personality().temperament(), resists, answer);
                 entity.forceReaction(face, "", FaceTier.Tier.MEDIUM);
@@ -224,6 +227,10 @@ public final class Departure {
         if (ticks == answerTicks + 1 && !turned) turnAway();
         if (entity.reactionAction() == YukkuriAction.STAMP
                 || entity.reactionAction() == YukkuriAction.MOOD_FLICK && ticks - turnedAt < FLICK_PAUSE) return Status.RUNNING;
+        // A severed aloof child keeps its sulk the whole walk: the turn's hold is topped up as it lapses, so the cold face cannot drop to a
+        // plain one between the turn and the mid-walk mutter (a running clip or another beat's hold refuses the top-up).
+        if (terms.severance() && !terms.repeat() && answer == Answer.SHRUG && turned && entity.reactionAction() == null)
+            entity.holdReaction("hmph", "", SULK_FACE_HOLD);
         if (lookBackTicks > 0) {
             SurfaceApproach.stopWalking(entity);
             SurfaceApproach.face(entity, SurfaceApproach.yaw(entity.position(), terms.centre()));
@@ -237,8 +244,8 @@ public final class Departure {
             lookBacks--;
             lookBackTicks = 40 + entity.life().personality().attachment() / 4;
             SurfaceApproach.stopWalking(entity);
-            String line = lookBacks == 0 ? (terms.byGuardian() ? "sever_look_back" : "mold_leave") : "";
-            String style = terms.byGuardian() ? SeveranceReaction.speechStyle(entity.life().personality().temperament()) : null;
+            String line = lookBacks == 0 ? (terms.severance() ? "sever_look_back" : "mold_leave") : "";
+            String style = terms.severance() ? SeveranceReaction.speechStyle(entity.life().personality().temperament()) : null;
             // The look back keeps the walk's tearful face (a long hold: the turn's own face must not drop to the default mid-walk).
             entity.forceReaction("teary", "", FaceTier.Tier.LONG);
             boolean spoken = !line.isEmpty() && entity.speakCue(line, style, SAY_PRIORITY);
@@ -247,7 +254,7 @@ public final class Departure {
             return Status.RUNNING;
         }
         // An aloof severed child never looks back, but mutters once mid-walk so its sulk carries through the whole departure without tears.
-        if (terms.byGuardian() && !terms.repeat() && answer == Answer.SHRUG && !muttered && walked && ticks - turnedAt >= TURN_SHOW
+        if (terms.severance() && !terms.repeat() && answer == Answer.SHRUG && !muttered && walked && ticks - turnedAt >= TURN_SHOW
                 && out >= .55 && entity.quiet()) {
             muttered = true;
             String style = SeveranceReaction.speechStyle(entity.life().personality().temperament());
@@ -279,7 +286,7 @@ public final class Departure {
     private void hold(YukkuriEntity driver) {
         if (driver != null) entity.getLookControl().setLookAt(driver, 30, 30);
         var t = entity.life().personality().temperament();
-        if (terms.byGuardian() && !terms.repeat()) {
+        if (terms.severance() && !terms.repeat()) {
             if (ticks == 1) {
                 var open = SeveranceReaction.childOpening(t, resists, pleads, answer);
                 String line = resists && terms.resistLine() != null ? terms.resistLine() : open.line();
@@ -347,14 +354,14 @@ public final class Departure {
             case SHRUG -> "hmph";
         };
         String line = ReactionSpeech.ousted(answer, terms.byGuardian());
-        String style = terms.byGuardian() ? SeveranceReaction.speechStyle(entity.life().personality().temperament()) : null;
+        String style = terms.severance() ? SeveranceReaction.speechStyle(entity.life().personality().temperament()) : null;
         // The turn's face is one forced hold for the whole walk out (calming after it), not a renewal loop: the performance's
         // own beat is not refused by a reaction of another writer.
         switch (answer) {
             case CURSE -> entity.forceReaction(YukkuriAction.STAMP, "angry", "", FaceTier.Tier.LONG);
             case FAREWELL -> entity.forceReaction("cry", "", FaceTier.Tier.LONG);
             case SHRUG -> {
-                if (terms.byGuardian()) entity.forceReaction(YukkuriAction.MOOD_FLICK, "hmph", "", FaceTier.Tier.LONG);
+                if (terms.severance()) entity.forceReaction(YukkuriAction.MOOD_FLICK, "hmph", "", FaceTier.Tier.LONG);
                 else entity.forceReaction("hmph", "", FaceTier.Tier.MEDIUM);
             }
         }
@@ -367,15 +374,16 @@ public final class Departure {
     }
 
     /** After it has truly left sight, the grief or anger course begins (never before, so it neither pins nor slows the walk out).
-     *  An aloof sulker ({@link Answer#SHRUG}) keeps a cool hmph hold and never breaks into tears; one that cursed keeps its anger. */
+     *  In the overload severance an aloof sulker ({@link Answer#SHRUG}) keeps a cool hmph hold and never breaks into tears, and one that
+     *  cursed keeps its anger; a mould exile takes the old course whatever its answer. */
     public void feltLoss() {
         if (terms == null) return;
         var at = BlockPos.containing(terms.centre());
-        if (answer == Answer.SHRUG) {
+        if (terms.severance() && answer == Answer.SHRUG) {
             entity.forceReaction("hmph", "", FaceTier.Tier.LONG);
             return;
         }
-        if (answer == Answer.CURSE) {
+        if (terms.severance() && answer == Answer.CURSE) {
             entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, terms.power(), terms.about(), at);
             return;
         }
