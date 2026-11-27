@@ -30,7 +30,7 @@
       ],
       "texture": "textures/entity/house_reimu/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_reimu.json.gz",
-      "output_sha256": "613a6f1141325e07b3552b7e7641b89f7079222d3ee6231402a74f041b7326b0",
+      "output_sha256": "1702e4630048f4a560c722b884ba53982eadf0974b8c253eec99d8973539c77b",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
@@ -61,7 +61,7 @@
       ],
       "texture": "textures/entity/house_marisa/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/house_marisa.json.gz",
-      "output_sha256": "5a7168cbeea2feca173231726726287098e5b1eae4a51d703b8fede74d0f5f5e",
+      "output_sha256": "471adae4b954a57062354349749795c4dd7d5cd315e62c0a2399b2553ca6139d",
       "skin_vertices": 15198,
       "total_vertices": 16638
     },
@@ -92,7 +92,7 @@
       ],
       "texture": "textures/entity/remilia/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/remilia.json.gz",
-      "output_sha256": "43efe62e6eb7d7fa38826de7c94d730bc44ac293cc3902f56376b6a01f086160",
+      "output_sha256": "ea0a2850212b03f08097c675c17b60aa8c2b35cfaf91ac7c054770b826f001f2",
       "skin_vertices": 72669,
       "total_vertices": 126411
     },
@@ -123,7 +123,7 @@
       ],
       "texture": "textures/entity/flandre/<expression>.png",
       "output": "src/main/resources/assets/mcyukkuri/yukkuri_wounds/flandre.json.gz",
-      "output_sha256": "c824c041117ea95502933c9145f144f332b0269dcf06c373ceffdcbe1a966b57",
+      "output_sha256": "41f31dfb7604506d24770d1643d2516d0917c95c988fb904ca7188b1f4917479",
       "skin_vertices": 72669,
       "total_vertices": 126411
     }
@@ -136,6 +136,6 @@
   },
   "exporter": {
     "path": "scripts/export_wound_surfaces.cjs",
-    "sha256": "fcce2ffbeb5e87db0e4412272a31abbd2cd6355d617b259d70c329f1533835d3"
+    "sha256": "5e14b94f16f0f4a1e13680ca77f74eabe30320045d9c6ee39ce787bda9d54383"
   }
 }

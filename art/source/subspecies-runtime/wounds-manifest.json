@@ -1,16 +1,16 @@
 {
   "exporter": "scripts/export_subspecies_wounds.cjs",
-  "sha256": "e3a428cd43277f471343db30895bb25bb7fa8008b13f5ce18511e1b2c9430845",
+  "sha256": "df725d4b7e41272f0b3d4bc36224656d7e3f706beb54d6c9cce6fdf95612c7a8",
   "models": {
     "reimu_bean": {
       "runtime_sha256": "18bd5b83730aa20ebaf19ca9300e71cdeb90a82cb4b7c34102db49112273a9ab",
-      "surface_sha256": "e8c85830e3d700e51e8518e9a3dfa54dfb4b3d0a465d043893cb210b18d6bc71",
+      "surface_sha256": "86b74d5a04170ac10f7df287617863c089ca21588c48abc7ce8edb3b9422e3b0",
       "skin_vertices": 96786,
       "face_vertices": 3306
     },
     "marisa_bean": {
       "runtime_sha256": "2de7922d59119923f175a066d8f925d6034c4a7025026ba96b4fee69f959c302",
-      "surface_sha256": "623156f65b381d0ddf4315c86e4e01645e7b273d08620c39b2a5562ad0c114e5",
+      "surface_sha256": "ef1e96ec56bf2e8c22b4806b70b346aa669bc920c1eb628d5a6841c039f96bac",
       "skin_vertices": 96786,
       "face_vertices": 3306
     }

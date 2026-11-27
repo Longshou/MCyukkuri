@@ -400,7 +400,7 @@ public final class YukkuriModel {
     Vector3f woundCardNormal(String part){return cardNormals.get(part);}
     private final Vector3f puffBlendedNormal=new Vector3f();
     private final Vector3f transformedNormal=new Vector3f();
-    String geometryExpression(String expression) { return patchSources.getOrDefault(expression,expression); }
+    String geometryExpression(String expression) { return expressionPatches.containsKey(expression) ? expression : patchSources.getOrDefault(expression, expression); }
     /** Vertices any expression patch can move; the wound renderer reuses everything else across expressions. */
     private boolean[] woundExpressionVertices=new boolean[0];
     /** The patch list setExpression would apply: equal keys mean identical vertex data. */

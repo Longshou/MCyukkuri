@@ -1,8 +1,27 @@
 /* Continuous rounded skin adapter. Preserves interpolated source weights and expression geometry. */
-function roundedSurface(model,hash,presentation){
+const _fs=require('fs'),_path=require('path');
+const _revisionCache=new Map();
+function _readRevisionModels(file){
+ if(!_revisionCache.has(file))_revisionCache.set(file,_fs.existsSync(file)?JSON.parse(_fs.readFileSync(file,'utf8')).models||{}:{});
+ return _revisionCache.get(file);
+}
+function runtimeExpressionPatches(model,rootDir=_path.resolve(__dirname,'..')){
+ const patches={};
+ for(const [expr,entries]of Object.entries(model.expression_patches||{}))patches[expr]=new Map(entries.map(e=>[e.index,e.vertices]));
+ const boneNames=(model.bones||[]).map(b=>b.name);
+ const presDir=_path.join(rootDir,'src/main/resources/assets/mcyukkuri/yukkuri_presentation');
+ // Match YukkuriModelLoader splice order: motion_corrections, then face_library.
+ for(const name of ['motion_corrections.json','face_library.json']){
+  const rev=_readRevisionModels(_path.join(presDir,name))[model.id];
+  if(!rev||!rev.expression_patches||!Array.isArray(rev.bone_names)||rev.bone_names.length!==boneNames.length||!rev.bone_names.every((n,i)=>n===boneNames[i]))continue;
+  for(const [expr,entries]of Object.entries(rev.expression_patches))patches[expr]=new Map(entries.map(e=>[e.index,e.vertices]));
+ }
+ return patches;
+}
+function roundedSurface(model,hash,presentation,rootDir=_path.resolve(__dirname,'..')){
  const points=[],weights=[],replaced=[],faceParts=[],expressionPoints={};let skinCount=0;
  const round=x=>Math.round(x*1e6)/1e6;
- const patches={};for(const [expr,entries]of Object.entries(model.expression_patches||{}))patches[expr]=new Map(entries.map(e=>[e.index,e.vertices]));
+ const patches=runtimeExpressionPatches(model,rootDir);
  const blend=(a,b)=>{
   const mix=key=>a[key].map((v,k)=>(v+b[key][k])/2),w=new Map(),sources=new Map();
   for(const v of [a,b]){for(const [bone,q]of v.w)w.set(bone,(w.get(bone)||0)+q*.5);for(const [i,q]of v.source)sources.set(i,(sources.get(i)||0)+q*.5);}
@@ -32,7 +51,7 @@ function roundedSurface(model,hash,presentation){
  const envelope=model.parts.filter(p=>!p.anatomy&&!p.name.includes('puff')).map(p=>({name:p.name,x:model.vertices[p.start*8],yz:[...new Set(Array.from({length:p.count},(_,j)=>[model.vertices[(p.start+j)*8+1],model.vertices[(p.start+j)*8+2]].join(',')))].map(s=>s.split(',').map(Number))}));
  return {version:2,id:model.id,runtimeSourceHash:hash,points,weights,skinCount,replaced,faceParts,bones:model.bones,clips:model.clips,envelope,accessoryPrefixes:presentation.accessory_prefixes,expressionPoints};
 }
-module.exports={roundedSurface};
+module.exports={roundedSurface,runtimeExpressionPatches};
 if(require.main===module){
  const fs=require('fs'),path=require('path'),crypto=require('crypto'),zlib=require('zlib');
  const root=path.resolve(__dirname,'..'),assets=path.join(root,'src/main/resources/assets/mcyukkuri'),out=path.join(root,'art/source/rounded-runtime');

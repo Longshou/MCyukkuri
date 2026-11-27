@@ -1,6 +1,7 @@
 /* Runtime adapter: selected R3.1 union skin and shared binding kernel. The runtime model file is this adapter's input, so
    --check re-verifies every exported surface against the model it was cut from. */
 const fs=require('fs'),path=require('path'),crypto=require('crypto');
+const {runtimeExpressionPatches}=require('./rounded_wound_surface.cjs');
 const root=path.resolve(__dirname,'..'),base=path.join(root,'art/props/body-wounds');
 const source=require(path.join(base,'selected/wound-surface.js'));
 const out=path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_wounds');
@@ -16,7 +17,16 @@ const cutFrom=(model,expected)=>{const raw=fs.readFileSync(model),lf=Buffer.from
 if(process.argv.includes('--check')){
  const stale=(selected||fs.readdirSync(out).filter(f=>f.endsWith('.json.gz')).map(f=>f.slice(0,-8))).filter(id=>{const target=path.join(out,id+'.json.gz'),model=modelPath(id);
   const surface=fs.existsSync(target)?JSON.parse(require('zlib').gunzipSync(fs.readFileSync(target))):null;
-  const ok=surface!==null&&fs.existsSync(model)&&cutFrom(model,surface.runtimeSourceHash);
+  let ok=surface!==null&&fs.existsSync(model)&&cutFrom(model,surface.runtimeSourceHash);
+  if(ok){
+   const m=JSON.parse(fs.readFileSync(model,'utf8'));
+   const expected=runtimeExpressionPatches(m,root);
+   const faceIdx=new Set(m.parts.map((p,i)=>p.name.startsWith('face_')&&!p.anatomy?i:-1).filter(i=>i>=0));
+   const actual=surface.expressionPoints||{};
+   for(const [expr,map]of Object.entries(expected)){
+    if([...map.keys()].some(i=>faceIdx.has(i))&&!(expr in actual)){ok=false;break;}
+   }
+  }
   console.log(ok?'current':'stale',id);return !ok;});
  if(stale.length){console.error('Wound surfaces not exported from the selected model:',stale.join(','));process.exit(1);}
  return;
@@ -24,10 +34,13 @@ if(process.argv.includes('--check')){
 for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_reimu','house_marisa','remilia','flandre']){
  const file=modelPath(id),m=JSON.parse(fs.readFileSync(file));
  if(m.body_profile==='rounded_standard_v1'){delete manifest.models[id];console.log(id,'managed by rounded_wound_surface.cjs');continue;}
- const points=[],weights=[],parts=[],replaced=[];let skinCount=0;
+ const points=[],weights=[],parts=[],replaced=[],expressionPoints={};let skinCount=0;
+ const patches=runtimeExpressionPatches(m,root);
  const round=x=>Math.round(x*1e6)/1e6;
- const emit=vs=>{for(const v of vs){points.push(...v.p.map(round),...v.uv.map(round));const kept=v.w.filter(([b,w])=>w>1e-5),sum=kept.reduce((s,[b,w])=>s+w,0);weights.push(kept.map(([b,w])=>[b,round(w/sum)]));}};
- const blend=(vs,coeff)=>{const w=new Map();vs.forEach((v,i)=>v.w.forEach(([b,q])=>w.set(b,(w.get(b)||0)+q*coeff[i])));return {p:[0,1,2].map(k=>vs.reduce((s,v,i)=>s+v.p[k]*coeff[i],0)),uv:[0,1].map(k=>vs.reduce((s,v,i)=>s+v.uv[k]*coeff[i],0)),w:[...w]};};
+ const emit=(vs,changed,partIndex)=>{for(const v of vs){points.push(...v.p.map(round),...v.uv.map(round));const kept=v.w.filter(([b,w])=>w>1e-5),sum=kept.reduce((s,[b,w])=>s+w,0);weights.push(kept.map(([b,w])=>[b,round(w/sum)]));
+  if(changed)for(const [expr,outPts]of Object.entries(changed)){const vv=patches[expr].get(partIndex);outPts.push(...[0,1,2,3,4].map(k=>round(v.source.reduce((sum,[idx,q])=>sum+vv[idx*8+k]*q,0))));}
+ }};
+ const blend=(vs,coeff)=>{const w=new Map(),sources=new Map();vs.forEach((v,i)=>{v.w.forEach(([b,q])=>w.set(b,(w.get(b)||0)+q*coeff[i]));if(v.source)v.source.forEach(([idx,q])=>sources.set(idx,(sources.get(idx)||0)+q*coeff[i]));});return {p:[0,1,2].map(k=>vs.reduce((s,v,i)=>s+v.p[k]*coeff[i],0)),uv:[0,1].map(k=>vs.reduce((s,v,i)=>s+v.uv[k]*coeff[i],0)),w:[...w],source:[...sources]};};
  let pre=null;
  if(!id.startsWith('house_')&&!['remilia','flandre'].includes(id)){
   pre=source.prepare(m);replaced.push(...pre.boxes.map(b=>b.name));
@@ -39,9 +52,11 @@ for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_re
    for(let x=0;x<nx;x++)for(let y=0;y<ny;y++){const a=at(x,y),b=at(x+1,y),c=at(x+1,y+1),d=at(x,y+1);const ab=b.p.map((v,k)=>v-a.p[k]),ac=c.p.map((v,k)=>v-a.p[k]);const dot=(ab[1]*ac[2]-ab[2]*ac[1])*f.n[0]+(ab[2]*ac[0]-ab[0]*ac[2])*f.n[1]+(ab[0]*ac[1]-ab[1]*ac[0])*f.n[2];emit(dot>0?[a,b,c,a,c,d]:[a,c,b,a,d,c]);}
   }
  }
- const subdivide=part=>{const start=weights.length;replaced.push(part.name);
-  const emitFace=emit;
-  for(let i=part.start;i<part.start+part.count;i+=3){const vs=[0,1,2].map(j=>{const n=i+j,v=m.vertices.slice(n*8,n*8+8),[a,b,t]=m.weights[n];return {p:v.slice(0,3),uv:v.slice(3,5),w:[[a,1-t],[b,t]]};});
+ const subdivide=(part,partIndex)=>{const start=weights.length,changed={};replaced.push(part.name);
+  if(part.name.startsWith('face_'))for(const [expr,map]of Object.entries(patches))if(map.has(partIndex))changed[expr]=[];
+  const hasChanged=Object.keys(changed).length>0;
+  const emitFace=vs=>emit(vs,hasChanged?changed:null,partIndex);
+  for(let i=part.start;i<part.start+part.count;i+=3){const vs=[0,1,2].map(j=>{const n=i+j,v=m.vertices.slice(n*8,n*8+8),[a,b,t]=m.weights[n];return {p:v.slice(0,3),uv:v.slice(3,5),w:[[a,1-t],[b,t]],source:[[n-part.start,1]]};});
   // Match YukkuriModel's house glyph fronts; overlapping opaque backs hide ink.
   if(id.startsWith('house_')&&part.name.startsWith('face_')&&m.vertices[i*8+7]>=-.15)continue;
   if(pre&&part.name.startsWith('face_')){
@@ -56,20 +71,21 @@ for(const id of selected||['reimu','marisa','chen','alice','patchouli','house_re
     for(let k=0;k<3&&polygon.length;k++){const a=tri[k],b=tri[(k+1)%3],next=[];let prev=polygon.at(-1),pd=-side(a,b,prev);
      for(const cur of polygon){const cd=-side(a,b,cur);if((pd>=0)!=(cd>=0)){const t=pd/(pd-cd);next.push(prev.map((v,n)=>v+(cur[n]-v)*t));}if(cd>=0)next.push(cur);prev=cur;pd=cd;}polygon=next;}
     const at=p=>{const v=blend(vs,bary(xy,p)),bc=bary(tri,p),wm=new Map();skin.forEach((s,k)=>s.w.forEach(([b,w])=>wm.set(b,(wm.get(b)||0)+w*bc[k])));v.w=[...wm];return v;};
-    for(let k=1;k+1<polygon.length;k++)emit([at(polygon[0]),at(polygon[k]),at(polygon[k+1])]);
+    for(let k=1;k+1<polygon.length;k++)emitFace([at(polygon[0]),at(polygon[k]),at(polygon[k+1])]);
    }continue;
   }
   const steps=Math.max(1,Math.ceil(Math.max(...[1,2].map(j=>Math.hypot(...vs[j].p.map((v,k)=>v-vs[0].p[k]))))/.35));
   const at=(x,y)=>{const v=blend(vs,[1-x/steps-y/steps,x/steps,y/steps]);if(pre)v.w=pre.influence(v.p);return v;};
   for(let a=0;a<steps;a++)for(let b=0;b<steps-a;b++){emitFace([at(a,b),at(a+1,b),at(a,b+1)]);if(a+b<steps-1)emitFace([at(a+1,b),at(a+1,b+1),at(a,b+1)]);}
- }if(pre&&part.name.startsWith('face_')){const bone=m.weights[part.start][0];parts.push({name:part.name,start,count:weights.length-start,bone,parent:m.bones[bone].parent});}};
- if(!pre)for(const p of m.parts)if(p.name==='house_body_surface'||p.name==='predator_body_surface')subdivide(p);
+ }if(hasChanged)for(const [expr,outPts]of Object.entries(changed))(expressionPoints[expr]??=[]).push({start,points:outPts});
+ if(pre&&part.name.startsWith('face_')){const bone=m.weights[part.start][0];parts.push({name:part.name,start,count:weights.length-start,bone,parent:m.bones[bone].parent});}};
+ if(!pre)m.parts.forEach((p,idx)=>{if(p.name==='house_body_surface'||p.name==='predator_body_surface')subdivide(p,idx);});
  skinCount=weights.length;
- for(const p of m.parts)if(p.name.startsWith('face_')&&!p.anatomy)subdivide(p);
+ m.parts.forEach((p,idx)=>{if(p.name.startsWith('face_')&&!p.anatomy)subdivide(p,idx);});
  const presentation=JSON.parse(fs.readFileSync(path.join(root,'src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json'))).variants[id];
  const envelope=m.parts.filter(p=>!p.anatomy&&!p.name.includes('puff')).map(p=>({name:p.name,x:m.vertices[p.start*8],yz:[...new Set(Array.from({length:p.count},(_,j)=>[m.vertices[(p.start+j)*8+1],m.vertices[(p.start+j)*8+2]].join(',')))].map(s=>s.split(',').map(Number))}));
  const clips=['remilia','flandre'].includes(id)?{...m.clips,...m.behavior_clips}:m.clips;
- const result={version:1,id,runtimeSourceHash:sha(file),points,weights,skinCount,replaced,faceParts:parts,bones:m.bones,clips,envelope,accessoryPrefixes:presentation.accessory_prefixes};
+ const result={version:1,id,runtimeSourceHash:sha(file),points,weights,skinCount,replaced,faceParts:parts,bones:m.bones,clips,envelope,accessoryPrefixes:presentation.accessory_prefixes,expressionPoints};
  const target=path.join(out,id+'.json.gz');fs.writeFileSync(target,require('zlib').gzipSync(JSON.stringify(result),{level:9}));
  const obsolete=path.join(out,id+'.json');if(fs.existsSync(obsolete))fs.unlinkSync(obsolete);
  manifest.models[id]={geometry_identifier:id,runtime_source:path.relative(root,file).replaceAll('\\','/'),source_sha256:sha(file),bones:m.bones.length,animations:Object.keys(m.clips),texture:`textures/entity/${id}/<expression>.png`,output:path.relative(root,target).replaceAll('\\','/'),output_sha256:sha(target),skin_vertices:skinCount,total_vertices:weights.length};
