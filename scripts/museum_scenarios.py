@@ -6264,7 +6264,7 @@ _BREED_CAST = (  # name, species, dx, label, pentUp, and the five axes that spli
 
 def _breed_beats(log, rule, expected):
     """Each pet answers once; the face shown on the beat (the arbiter's [badge] line) is the declared one; the answers are the ones its numbers pick."""
-    answers = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* breeding reaction rule={rule} beat=(\w+) face=(\S+) line=(\S+) shown=(\w+)', log)
+    answers = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* breeding reaction rule={rule} beat=(\w+) face=(\S*) line=(\S+) shown=(\w+)', log)
     if len({uuid_ for uuid_, *_ in answers}) != len(answers):
         return f'a pet answered the same change twice: {answers}'
     got = sorted(beat for _, beat, *_ in answers)
