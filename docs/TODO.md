@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | TN-48 家规演出敬畏感与变更家规的反应 | `.worktrees/wp-rule-awe` | pet/rules/*, dialogue, 06_house_town_street.py |
 | TN-08 牵绳跟随与挣扎 | `.worktrees/wp-lead-follow` | leash/lead follow goal, dialogue, lead_walk scene |
+| 运行包更新允许纯文档提交 | `.worktrees/wp-runtime-docs-only` | scripts/update_museum_runtime.py, scripts/pkg.py |
 
 ## 玩法待办
 
