@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 帽舱入座与转身几何一致（PD-09 雨后出舱） | `.worktrees/wp-cabin-turn` | aquatic/TakeSeat, motor/surface/Floor, PlacedHatEntity places |
-| 两只水生魔理沙靠近时帽子闪现弯曲 | `.worktrees/wp-hat-flicker` | client hat render (PlacedHat/HatBoardingMotion) |
 | 表情整理缺口：teary_sleep 伤痕点与孤立部件 | `.worktrees/wp-face-gaps` | export_wound_surfaces.cjs, face parts |
 | R5 低温僵直 P1 状态核心 | `.worktrees/wp-cold-stiff-p1` | status/TemperatureLife, BodyLife.died, inert(), YukkuriEntity |
 
