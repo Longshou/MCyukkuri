@@ -206,7 +206,8 @@ def main():
             assert matches, f'Out of date: {path}'
         else:
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(data)
+            if not path.is_file() or path.read_bytes() != data:
+                path.write_bytes(data)
     print(f'{count} sourced lines; {voiced} recorded voices; ' + ('checked' if args.check else 'exported'))
 
 

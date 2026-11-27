@@ -59,7 +59,7 @@ TABLE = [
     exporter('item-icons', 'scripts/export_item_icons.py', ['art/props/item-icons/']),
     exporter('badges', 'scripts/export_badges.py', ['art/props/badges/']),
     exporter('human-world', 'scripts/export_human_world.py', ['art/structures/human-world/', 'art/props/badges/author_badges.py']),
-    exporter('dialogue', 'scripts/export_dialogue.py', ['art/dialogue/', 'art/audio/aquestalk/']),
+    exporter('dialogue', 'scripts/export_dialogue.py', ['art/dialogue/', 'art/audio/aquestalk/', 'src/main/resources/assets/mcyukkuri/sounds/voice/']),
     exporter('ecology-expressions', 'scripts/export_ecology_expressions.py', ['standards/yukkuri-library/expressions/', 'art/source/ecology/']),
     exporter('adult-states', 'scripts/export_adult_states.py', ['standards/yukkuri-library/drafts/rapem-alice/']),
     exporter('alice-appearance', 'scripts/export_alice_appearance.py', ['standards/yukkuri-library/body-standard/features/alice-hakkei/']),
