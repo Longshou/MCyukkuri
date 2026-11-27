@@ -830,7 +830,8 @@ GAP_FILL = {
 
 RULE_AWE_BASIS = 'wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced'
 # One neutral line per tier, short enough to fit one beat; which beat speaks it is chosen by the performance from the pet's numbers
-# (Penance, RuleReaction). Every line names the owner (adult かいぬしさま, juvenile かいぬししゃま, baby lisped かいぬちしゃま; zh 饲主大人, the 饲主先生 of ordinary address raised on purpose; en Owner) except a few where the cry or the pose already says it: a pet speaks up to it, never as to an equal.
+# (Penance, RuleReaction). Every line names the owner (adult かいぬしさま, juvenile かいぬししゃま, baby lisped かいぬちしゃま;
+# zh 饲主大人, a deliberate raise over the 饲主先生 of ordinary address; en Owner): a pet speaks up to it, never as to an equal.
 RULE_AWE = {
     # A rule was added: the pet that does not mind says it will keep it.
     'rule_tighten': {

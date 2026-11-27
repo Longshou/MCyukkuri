@@ -448,6 +448,9 @@ _rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} awa
 # observer stays through the rest of the penance (the owner's answer, the settled posture) and leaves 560 ticks after the scold.
 for _tick in range(100, 6400, 20):
     _rule_songs += [
+        # The urge the song reads stays at full pressure until the pet has broken the rule: a leisure session of another kind (an exercise)
+        # must not spend the boredom first. The beat itself (the song, the catch) is left to the pet.
+        (_tick, f'execute if score #rule_armed museum matches 0 unless data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run data modify entity {_rule_pet} YukkuriDailyLife.Boredom set value 100'),
         (_tick, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
         (_tick, f'execute if score #rule_armed museum matches 14.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
         (_tick + 1, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} run scoreboard players set #rule_armed museum 1'),
