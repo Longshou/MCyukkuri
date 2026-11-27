@@ -39,6 +39,14 @@ final class Ferry {
 
     private static Step act(Action action) { return new Step.Do(action); }
 
+    /** The shared takeoff from the bank that carries her young with her. Logged when the hop is really taken, so an approach
+     *  that never commits is no boarding; whether it landed is read from the mount that follows. */
+    private static Step boardingHop(YukkuriEntity body, Hop hop, PlacedHatEntity hat) {
+        if (!AquaticLife.aboard(body, hat)) for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
+            GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
+        return act(hop);
+    }
+
     /** One approach and up to two corrections before the shared lift. */
     static List<Supplier<Step>> rescuePickup(YukkuriEntity carrier, PlacedHatEntity hat, YukkuriEntity child) {
         return List.of(new Plan.Approach<>(3, () -> ContactGeometry.braidGrip(carrier, child).check(),
@@ -161,11 +169,7 @@ final class Ferry {
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },
                 // Logged when the boarding is really taken: an approach that never commits is no boarding.
-                () -> {
-                    for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
-                        GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
-                    return act(hop.get());
-                });
+                () -> boardingHop(body, hop.get(), hat));
     }
 
     /** A refused landing a hull nearer the bank can change: out of hop reach, or no room because its young cannot leave it from here
@@ -250,17 +254,17 @@ final class Ferry {
     private static Step boardHop(YukkuriEntity body, PlacedHatEntity hat, YukkuriEntity child, Beckoning beckoning) {
         for (var stop : reachingStops(body, hat, child)) {
             var hop = new Hop(hat, stop);
-            if (hop.check(body).ok()) return act(hop);
+            if (hop.check(body).ok()) return boardingHop(body, hop, hat);
         }
         if (AquaticLife.aboard(body, hat)) return hopAshore(body).get();
         var seat = hat.restSpot(body);
         if (seat != null) {
             var hop = new Hop(hat, seat.local());
-            if (hop.check(body).ok()) return act(hop);
+            if (hop.check(body).ok()) return boardingHop(body, hop, hat);
         }
         var entrance = Hop.ontoBrim(hat, child.position());
         var available = entrance.check(body);
-        if (available.ok()) return act(entrance);
+        if (available.ok()) return boardingHop(body, entrance, hat);
         if (beckoning != null && available.reason() == Reason.TOO_FAR) {
             var stroke = beckoning.step(body, hat);
             if (stroke != null) return stroke;

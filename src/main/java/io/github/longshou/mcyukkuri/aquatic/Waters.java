@@ -212,9 +212,12 @@ final class Waters {
             boolean approach = SurfaceApproach.arrived(body, stand) || SurfaceApproach.canApproach(body, stand);
             boolean fits = approach && PlacedHatBehavior.waterFits(body.level(), hatAt(e, body),
                     HatGeometry.wornForm(body), HatScale.of(body));
-            boolean entry = fits && Hop.entry(body, stand,
-                    HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW),
-                    HullSurface.hopStops(body, HatScale.of(body))) != null;
+            // Boarding itself takes off from the bank lip when the stand a body width back cannot reach the brim (Ferry's
+            // board approach); a berth is judged the same way, so a tired or hurt parent is not left without one.
+            var frame = HullAfloat.frame(body.level(), hatAt(e, body), HatScale.of(body), e.yaw() + (float) HullBounds.BOARDING_YAW);
+            var stops = HullSurface.hopStops(body, HatScale.of(body));
+            boolean entry = fits && (Hop.entry(body, stand, frame, stops) != null
+                    || Hop.entry(body, Hop.bankStand(e.edge(), e.normal(), hatAt(e, body)), frame, stops) != null);
             if (entry) return e;
             if (refused == null) refused = "stand=%s approach=%s fits=%s entry=%s".formatted(GameplayLog.at(stand), approach, fits, entry);
         }
