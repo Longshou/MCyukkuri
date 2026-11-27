@@ -1312,6 +1312,189 @@ SEVERANCE = {
     },
 }
 
+CONTEST_SUMO_DOLL_BASIS = 'wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced'
+# Each tier maps to a list of (variant, (jp, zh, en)). Events with two 'proud' rows let two bold rivals pick distinct lines via nearbySpeech.
+# All Japanese lines are pure kana so AquesTalk1 reads them cleanly, and every {e} attaches to a plain verb or i-adjective.
+CONTEST_SUMO_DOLL = {
+    'contest_faceoff': {
+        'juvenile': [
+            ('proud', ('{p}{n}が みちゅけた{e}！', '{p}介是{n}先看到滴{e}！', '{p}{N} saw it first!')),
+            ('proud', ('{p}ゆじゅらない{e}！', '{p}{n}才不让{e}！', '{p}{N} won\'t give it up!')),
+            ('timid', ('{p}{n}も ほちい{e}……', '{p}{n}也想油库气{e}……', '{p}{N} wants it too...')),
+            ('plain', ('{p}{n}が つかう{e}！', '{p}要给{n}用{e}！', '{p}{N} is using it!')),
+        ],
+        'adult': [
+            ('proud', ('{p}{n}が みつけた{e}！', '{p}是{n}先看到的{e}！', '{p}{N} saw it first!')),
+            ('proud', ('{p}ゆずらない{e}！', '{p}{n}才不让{e}！', '{p}{N} won\'t give it up!')),
+            ('timid', ('{p}{n}も ほしい{e}……', '{p}{n}也想要{e}……', '{p}{N} wants it too...')),
+            ('plain', ('{p}{n}が つかう{e}！', '{p}要给{n}油库里用{e}！', '{p}{N} is using it!')),
+        ],
+    },
+    'contest_tussle': {
+        'juvenile': [
+            ('proud', ('{p}まきぇない{e}！', '{p}才不输{e}！', '{p}Won\'t lose!')),
+            ('proud', ('{p}{n}が つよい{e}！', '{p}{n}最厉害{e}！', '{p}{N} is stronger!')),
+            ('timid', ('{p}おしゃないで……！', '{p}别推窝……！', '{p}Don\'t push...!')),
+            ('plain', ('{p}うぐっ、ゆじゅらない{e}！', '{p}呜咕，才不让{e}！', '{p}Ugu, not giving in!')),
+        ],
+        'adult': [
+            ('proud', ('{p}まけない{e}！', '{p}{n}才不会输{e}！', '{p}{N} won\'t lose!')),
+            ('proud', ('{p}{n}が つよい{e}！', '{p}{n}更有力气{e}！', '{p}{N} is stronger!')),
+            ('timid', ('{p}おさないで……！', '{p}别推{n}……！', '{p}Don\'t push {N}...!')),
+            ('plain', ('{p}うぐっ、ゆずらない{e}！', '{p}呜咕，才不让{e}！', '{p}Ugu, not backing down!')),
+        ],
+    },
+    'contest_won_food': {
+        'juvenile': [
+            ('proud', ('{p}ふふん！ ごはんしゃんは {n}が もらう{e}！', '{p}哼哼！饭鲜笋归{n}嚼嚼{e}！', '{p}Heh-heh! Mr. Food is {N}\'s!')),
+            ('timid', ('{p}ゆっ……ごはんしゃん、たべちぇ いい{e}……？', '{p}油……饭鲜笋，窝可以吃了吗……？', '{p}Yu... can {N} eat Mr. Food...?')),
+            ('plain', ('{p}やっちゃ{e}！ ごはんしゃん、{n}が たべりゅ{e}！', '{p}太好惹！饭鲜笋归{n}吃{e}！', '{p}Yay! {N} gets Mr. Food!')),
+        ],
+        'adult': [
+            ('proud', ('{p}ふふん！ この ごはんさんは {n}が もらう{e}！', '{p}哼哼！这份饭先生归{n}嚼嚼{e}！', '{p}Heh-heh! {N} gets to munch this Mr. Food!')),
+            ('timid', ('{p}ゆっ……ごはんさん、{n}が たべて いい{e}……？', '{p}油……这份饭先生，可以给{n}吃吗……？', '{p}Yu... may {N} eat this Mr. Food...?')),
+            ('plain', ('{p}やった{e}！ この ごはんさんは {n}が たべる{e}！', '{p}太好了！这份饭先生归{n}吃{e}！', '{p}Yay! This Mr. Food is {N}\'s to eat!')),
+        ],
+    },
+    'contest_won_bed': {
+        'juvenile': [
+            ('proud', ('{p}ふふん！ ここが {n}の おうちしゃんに なる{e}！', '{p}哼哼！这个窝鲜笋归{n}{e}！', '{p}Heh-heh! This Mr. Nest is {N}\'s!')),
+            ('timid', ('{p}ゆっ……ここで ねんね しちぇ いい{e}……？', '{p}油……窝可以在这里睡睡吗……？', '{p}Yu... can {N} sleep here...?')),
+            ('plain', ('{p}やっちゃ{e}！ この おうちしゃんで ゆっくち する{e}！', '{p}太好惹！要在窝鲜笋里油库气{e}！', '{p}Yay! {N} gets this Mr. Nest!')),
+        ],
+        'adult': [
+            ('proud', ('{p}ふふん！ ここが {n}の ゆっくり プレイスに なる{e}！', '{p}哼哼！这个窝先生就是{n}的油库里普雷斯{e}！', '{p}Heh-heh! This Mr. Nest is {N}\'s easy place now!')),
+            ('timid', ('{p}ゆっ……ここで ゆっくり して いい{e}……？ よかった{e}……', '{p}油……这里给{n}当窝先生吗……太好了{e}……', '{p}Yu... may {N} rest here...? What a relief...')),
+            ('plain', ('{p}やった{e}！ この おうちさんで ゆっくり する{e}！', '{p}太好了！{n}要在这个窝先生里油库里{e}！', '{p}Yay! {N} will take it easy in this Mr. Nest!')),
+        ],
+    },
+    'contest_won_toy': {
+        'juvenile': [
+            ('proud', ('{p}ふふん！ さきに あしょぶのは {n}に きまっちゃ{e}！', '{p}哼哼！先玩的是{n}{e}！', '{p}Heh-heh! {N} plays first!')),
+            ('timid', ('{p}ゆっ……さきに あしょんで いい{e}……？', '{p}油……窝先玩一会儿吗……？', '{p}Yu... may {N} play first...?')),
+            ('plain', ('{p}やっちゃ{e}！ さきに あしょぶ{e}！', '{p}太好惹！{n}先去玩{e}！', '{p}Yay! {N} gets first turn!')),
+        ],
+        'adult': [
+            ('proud', ('{p}ふふん！ さきに あそぶのは {n}に きまった{e}！', '{p}哼哼！先玩的油当然是{n}{e}！', '{p}Heh-heh! {N} gets to play first!')),
+            ('timid', ('{p}ゆっ……{n}が さきに あそんで いい{e}……？', '{p}油……那{n}先玩一会儿……？', '{p}Yu... may {N} play first...?')),
+            ('plain', ('{p}やった{e}！ ぽよんぽよん、さきに あそぶ{e}！', '{p}太好了！{n}先去玩玩具先生{e}！', '{p}Yay! {N} gets first turn to play!')),
+        ],
+    },
+    'contest_lost': {
+        'juvenile': [
+            ('proud', ('{p}むぅ……けちんぼ！ べちゅの ところへ いく{e}！', '{p}姆呜……小气油！{n}去别处玩{e}！', '{p}Muu... stingy! Going somewhere else!')),
+            ('timid', ('{p}ゆぅ……わかっちゃ{e}……{n}が ゆじゅる{e}……', '{p}油呜……知道惹……{n}让给你{e}……', '{p}Yuu... okay... {N} gives way...')),
+            ('plain', ('{p}ゆぅ……しかたない{e}……あっち いく{e}……', '{p}油呜……没办法……去那边{e}……', '{p}Yuu... can\'t help it... going over there...')),
+        ],
+        'adult': [
+            ('proud', ('{p}むぅ……けちんぼ！ べつの ところへ いく{e}！', '{p}姆呜……小气油！{n}才不稀罕，去别处油库里{e}！', '{p}Muu... stingy! {N} will go somewhere else!')),
+            ('timid', ('{p}ゆぅ……わかった{e}……{n}が ゆずる{e}……', '{p}油呜……知道了……{n}让给你就是了{e}……', '{p}Yuu... okay... {N} will give way...')),
+            ('plain', ('{p}ゆぅ……しかたない{e}……あとで ゆっくり する{e}……', '{p}油呜……没办法……{n}去别的地方油库里{e}……', '{p}Yuu... can\'t help it... {N} will take it easy elsewhere...')),
+        ],
+    },
+    'sumo_start': {
+        'juvenile': [
+            ('proud', ('{p}おしゅもう しよう{e}！ どしゅこい！', '{p}来玩相扑{e}！多斯阔伊！', '{p}Let\'s play sumo! Dosukoi!')),
+            ('proud', ('{p}いく{e}！ おしゅもう、まきぇない{e}！', '{p}要上啦！相扑才不输{e}！', '{p}Here I come! Won\'t lose at sumo!')),
+            ('timid', ('{p}ゆっ……おしゅもう……やさちく してね……', '{p}油……相扑……轻一点捏……', '{p}Yu... sumo... be gentle...')),
+            ('plain', ('{p}おしゅもう あしょび、はじめる{e}！', '{p}相扑游戏开始惹{e}！', '{p}Starting the sumo game!')),
+        ],
+        'adult': [
+            ('proud', ('{p}おすもう しよう{e}！ どすこい、まけない{e}！', '{p}一起来玩相扑！多斯阔伊，{n}才不会输{e}！', '{p}Let\'s play sumo! Dosukoi, {N} won\'t lose!')),
+            ('proud', ('{p}いく{e}！ はっけよい、のこった{e}！', '{p}{n}要上啦！哈克哟伊，接招{e}！', '{p}Here {N} comes! Ready, set, sumo!')),
+            ('timid', ('{p}ゆっ……おすもう……おてやわらかに たのむ{e}……', '{p}油……玩相扑吗……请轻一点推{n}{e}……', '{p}Yu... sumo...? Please go easy on {N}...')),
+            ('plain', ('{p}おすもう あそび、はじめる{e}！ どすこい！', '{p}相扑游戏开始{e}！多斯阔伊！', '{p}Sumo game, let\'s begin! Dosukoi!')),
+        ],
+    },
+    'sumo_win': {
+        'juvenile': [
+            ('proud', ('{p}どしゅこい！ {n}が かっちゃ{e}！', '{p}多斯阔伊！{n}赢惹{e}！', '{p}Dosukoi! {N} won!')),
+            ('timid', ('{p}ゆっ……かっちゃ{e}……たのちかった{e}！', '{p}油……赢惹……好开心{e}！', '{p}Yu... won... that was fun!')),
+            ('plain', ('{p}やっちゃ{e}！ おしゅもうで かっちゃ{e}！', '{p}太好惹！相扑赢了{e}！', '{p}Yay! Won the sumo!')),
+        ],
+        'adult': [
+            ('proud', ('{p}どすこい！ {n}が かった{e}！ つよい{e}！', '{p}多斯阔伊！{n}赢了！好厉害{e}！', '{p}Dosukoi! {N} won! So strong!')),
+            ('timid', ('{p}ゆっ……{n}が かった{e}……？ たのしかった{e}！', '{p}油……{n}赢了吗……？玩得好开心{e}！', '{p}Yu... {N} won...? That was fun!')),
+            ('plain', ('{p}やった{e}！ おすもうで かった{e}！', '{p}太好了！相扑是{n}赢了{e}！', '{p}Yay! {N} won the sumo match!')),
+        ],
+    },
+    'sumo_lose': {
+        'juvenile': [
+            ('proud', ('{p}ゆぐっ……おしゃりぇた{e}！ ちゅぎは まきぇない{e}！', '{p}油咕……被推倒惹！下次才不输{e}！', '{p}Yugu... pushed out! Next time I\'ll win!')),
+            ('timid', ('{p}ゆわぁ……おしゃりぇちゃった{e}……', '{p}油哇……被推出去惹{e}……', '{p}Yuwaa... got pushed out...')),
+            ('plain', ('{p}ゆわっ……まきぇちゃ{e}！ たのちかった{e}！', '{p}油哇……输惹！好开心{e}！', '{p}Yuwa... lost! That was fun!')),
+        ],
+        'adult': [
+            ('proud', ('{p}ゆぐっ……おされた{e}！ つぎは まけない{e}！', '{p}油咕……被推出去了！下次{n}才不会输{e}！', '{p}Yugu... pushed out! Next time {N} won\'t lose!')),
+            ('timid', ('{p}ゆわぁ……おされちゃった{e}……つよい{e}……', '{p}油哇……被推倒了……力气好大{e}……', '{p}Yuwaa... pushed right out... so strong...')),
+            ('plain', ('{p}ゆわっ……まけた{e}！ でも たのしかった{e}！', '{p}油哇……输了！不过玩得好开心{e}！', '{p}Yuwa... {N} lost! That was still fun!')),
+        ],
+    },
+    'doll_snatch_claim': {
+        'juvenile': [
+            ('proud', ('{p}その にんぎょうしゃん、{n}が もらう{e}！', '{p}那个布偶鲜笋归{n}{e}！', '{p}That Mr. Doll is {N}\'s now!')),
+            ('timid', ('{p}その にんぎょうしゃん……ほちい{e}……', '{p}那个布偶鲜笋……想要{e}……', '{p}That Mr. Doll... {N} wants it...')),
+            ('plain', ('{p}その にんぎょうしゃん、{n}が つれちぇいく{e}！', '{p}那个布偶鲜笋，{n}带走{e}！', '{p}{N} is taking that Mr. Doll!')),
+        ],
+        'adult': [
+            ('proud', ('{p}その にんぎょうさん、かわいい{e}！ {n}が もらう{e}！', '{p}那个布偶先生好可爱！归{n}{e}！', '{p}That Mr. Doll is so cute! {N} is taking it!')),
+            ('timid', ('{p}その にんぎょうさん……{n}にも かしてほしい{e}……', '{p}那个布偶先生……给{n}玩一下{e}……', '{p}That Mr. Doll... {N} wants a turn too...')),
+            ('plain', ('{p}その にんぎょうさん、{n}の おうちへ つれていく{e}！', '{p}那个布偶先生，{n}带回自己窝里去{e}！', '{p}{N} is taking that Mr. Doll home!')),
+        ],
+    },
+    'doll_stolen': {
+        'baby': [
+            ('proud', ('{c}ーっ！ にんぎょしゃん！ かえちちぇ！', '{c}——！布偶先森！还给{nb}！', '{c}! Mr. Doll! Give back!')),
+            ('timid', ('{c}……にんぎょしゃん……とられちゃ……', '{c}……布偶先森……被抢走惹……', '{c}... Mr. Doll... taken...')),
+            ('plain', ('{c}ーっ！ {nb}の にんぎょしゃん！', '{c}——！是{nb}的布偶先森！', '{c}! {N}\'s Mr. Doll!')),
+        ],
+        'juvenile': [
+            ('proud', ('{p}にんぎょうしゃん、かえしちぇ！', '{p}把布偶鲜笋还给{n}！', '{p}Give Mr. Doll back to {N}!')),
+            ('timid', ('{p}にんぎょうしゃん、とらないで……', '{p}别抢走{n}的布偶鲜笋……', '{p}Don\'t take {N}\'s Mr. Doll...')),
+            ('plain', ('{p}あぁっ！ にんぎょうしゃんが！', '{p}啊啊！{n}的布偶鲜笋！', '{p}Aah! {N}\'s Mr. Doll!')),
+        ],
+        'adult': [
+            ('proud', ('{p}にんぎょうさん、かえして！', '{p}把布偶先生还给{n}！', '{p}Give Mr. Doll back to {N}!')),
+            ('timid', ('{p}にんぎょうさん、とらないで……', '{p}别抢走{n}的布偶先生……', '{p}Don\'t take {N}\'s Mr. Doll...')),
+            ('plain', ('{p}あぁっ！ だいじな にんぎょうさん！', '{p}啊啊！{n}珍贵的布偶先生！', '{p}Aah! {N}\'s precious Mr. Doll!')),
+        ],
+    },
+    'doll_snatch_defy': {
+        'baby': [
+            ('proud', ('{c}！ ぷくーっ！ わるいこ、かえちちぇ！', '{c}！噗咕——！坏油，还回来！', '{c}! Puff! Bad yukkuri, give it back!')),
+            ('timid', ('{c}……ぷくっ……かえちちぇ……', '{c}……噗咕……还给{nb}……', '{c}... puff... give it back...')),
+            ('plain', ('{c}！ ぷくーっ！ にんぎょしゃん、かえちちぇ！', '{c}！噗咕——！布偶先森还回来！', '{c}! Puff! Give Mr. Doll back!')),
+        ],
+        'juvenile': [
+            ('proud', ('{p}ぷくーっ！ どろぼうゆっくり！ にんぎょうしゃん かえしちぇ！', '{p}噗咕——！小偷油！快把布偶鲜笋还给{n}{e}！', '{p}Puff! Thief yukkuri! Give Mr. Doll back to {N}!')),
+            ('timid', ('{p}ぷ、ぷくーっ……かえしちぇ ほちい{e}……！', '{p}噗、噗咕——……快还给{n}{e}……！', '{p}P-puff... please give it back to {N}...!')),
+            ('plain', ('{p}ぷくーっ！ {n}の にんぎょうしゃん、わたしゃない{e}！', '{p}噗咕——！{n}的布偶鲜笋才不给你{e}！', '{p}Puff! {N} won\'t let you keep Mr. Doll!')),
+        ],
+        'adult': [
+            ('proud', ('{p}ぷくーっ！ どろぼうゆっくり！ にんぎょうさん かえして！', '{p}噗咕——！小偷油！快把布偶先生还给{n}{e}！', '{p}Puff! Thief yukkuri! Give Mr. Doll back to {N}!')),
+            ('timid', ('{p}ぷ、ぷくーっ……かえして ほしい{e}……！', '{p}噗、噗咕——……快还给{n}{e}……！', '{p}P-puff... please give it back to {N}...!')),
+            ('plain', ('{p}ぷくーっ！ {n}の にんぎょうさん、わたさない{e}！', '{p}噗咕——！{n}的布偶先生才不给你{e}！', '{p}Puff! {N} won\'t hand over Mr. Doll!')),
+        ],
+    },
+    'doll_snatch_flee': {
+        'baby': [
+            ('proud', ('{c}ーっ！ こあい、こあい！ にげりゅ！', '{c}——！好口怕，好口怕！快逃！', '{c}! Scawy, scawy! Running away!')),
+            ('timid', ('{c}……こあい……いじめないで……', '{c}……好口怕……别欺负{nb}……', '{c}... scawy... don\'t bully {N}...')),
+            ('plain', ('{c}ーっ！ こあい、たしゅけちぇ！', '{c}——！好口怕，救命！', '{c}! Scawy, help!')),
+        ],
+        'juvenile': [
+            ('proud', ('{p}ゆわぁ！ こわい{e}！ にげりゅ{e}！', '{p}油哇！好可怕！{n}快逃{e}！', '{p}Yuwaa! Scary! {N} is running!')),
+            ('timid', ('{p}ゆぅ……いじめないで……こわい{e}……', '{p}油呜……不要欺负{n}……好可怕{e}……', '{p}Yuu... don\'t bully {N}... so scary...')),
+            ('plain', ('{p}ゆわぁ……こわい{e}、はやく にげりゅ{e}……', '{p}油哇……好可怕，快逃跑{e}……', '{p}Yuwaa... scary, gotta run...')),
+        ],
+        'adult': [
+            ('proud', ('{p}ゆわぁ！ こわい{e}！ にげる{e}！', '{p}油哇！好可怕！{n}快逃{e}！', '{p}Yuwaa! Scary! {N} is running!')),
+            ('timid', ('{p}ゆぅ……いじめないで……こわい{e}……', '{p}油呜……别欺负{n}……好可怕{e}……', '{p}Yuu... please don\'t bully {N}... so scary...')),
+            ('plain', ('{p}ゆわぁ……こわい{e}、はやく にげる{e}……', '{p}油哇……好可怕，得赶紧逃走{e}……', '{p}Yuwaa... scary, have to get away...')),
+        ],
+    },
+}
+
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
 
@@ -1483,6 +1666,12 @@ def main():
             for i, (variant, events) in enumerate(variants.items(), 1):
                 for event, frame in events.items():
                     make(sp, tier, event, frame, ctx, lines, FOOD_BASIS, prefix=f'v{i}_', variant=variant)
+    for sp in SPECIES:
+        for event, tiers in CONTEST_SUMO_DOLL.items():
+            for tier, entries in tiers.items():
+                ctx = context(sp, tier)
+                for i, (variant, frame) in enumerate(entries, 1):
+                    make(sp, tier, event, frame, ctx, lines, CONTEST_SUMO_DOLL_BASIS, prefix=f'c{i}_', variant=variant)
     ids = [l['id'] for l in lines]
     assert len(ids) == len(set(ids))
     doc = {'origin': 'project-original', 'status': 'Unvoiced project-original subtitles; wording awaits listening review.',

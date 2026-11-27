@@ -41,6 +41,7 @@ public final class GroupInteractionGoal extends Goal {
         int ticks, contactTicks;
         boolean ended;
         Choice rule = Choice.ALLOW;
+        String lastPushedFace = "";
         Bout(YukkuriEntity first, YukkuriEntity second, Kind kind) { this.first=first;this.second=second;this.kind=kind; }
     }
     private final YukkuriEntity entity;
@@ -55,7 +56,15 @@ public final class GroupInteractionGoal extends Goal {
     /** Verified contact already accumulated by the running bout; observation only. */
     public int contactProgress() { return active() ? bout.contactTicks : 0; }
     public String activity() {
-            return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.kind!=Kind.SUMO?Behaviors.IDLE:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
+        if (!active()) return Behaviors.IDLE;
+        if (defending) return Behaviors.PROTECT_PEER;
+        return switch (bout.kind) {
+            case BULLY -> Behaviors.BULLY_PEER;
+            case CONTEST -> bout.contest != null && bout.contest.tussling() ? Behaviors.CONTEST_PUSH : Behaviors.CONTEST_FACEOFF;
+            case SUMO -> bout.contactTicks < 20 ? Behaviors.SUMO_PREPARE : Behaviors.SUMO_PUSH;
+            case PROTECT -> Behaviors.IDLE;
+        };
+    }
     public int cooldown() { return cooldown; }
     public String detail() {
         return (!active()?"idle":"kind="+bout.kind
@@ -118,20 +127,30 @@ public final class GroupInteractionGoal extends Goal {
     }
     /** The pushed body is shoved away from the pusher; the one sumo and contest contact. */
     static void shove(YukkuriEntity pushed, YukkuriEntity pusher) {
+        shove(pushed, pusher, .13);
+    }
+    static void shove(YukkuriEntity pushed, YukkuriEntity pusher, double strength) {
         Vec3 direction=pushed.position().subtract(pusher.position()).multiply(1,0,1).normalize();
         if(direction.lengthSqr()<.01)direction=new Vec3(1,0,0);
-        pushed.setDeltaMovement(direction.scale(.13));pushed.hurtMarked=true;
+        pushed.setDeltaMovement(direction.scale(strength));pushed.hurtMarked=true;
     }
-    private boolean reserve(YukkuriEntity peer, Kind kind) {
+    private boolean reserve(YukkuriEntity peer, Kind kind) { return reserve(peer, kind, false); }
+    private boolean reserve(YukkuriEntity peer, Kind kind, boolean ownOpening) {
         if(kind!=Kind.SUMO&&kind!=Kind.CONTEST&&(!space(entity)||!space(peer)))return false;
         entity.social().stop();peer.social().stop();
         bout=new Bout(entity,peer,kind);peer.groupInteraction().bout=bout;bout.created=level().getGameTime();
         entity.life().personality().protectRelation(peer.getUUID());peer.life().personality().protectRelation(entity.getUUID());
         cooldown=peer.groupInteraction().cooldown=2400;
-        // A contest opens with its own face-off beats; the other bouts open with this one reaction.
-        if(kind!=Kind.CONTEST) {
-            entity.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"peer":"mine",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
-            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"known_peer":"afraid",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
+        // A contest and a keepsake snatch own their opening beats; other bouts open with this shared reaction.
+        if(kind!=Kind.CONTEST&&!ownOpening) {
+            if (kind == Kind.SUMO) {
+                entity.showReaction("smug", "sumo_start", FaceTier.Tier.SHORT);
+                peer.showReaction("smug", "sumo_start", FaceTier.Tier.SHORT);
+            } else {
+                entity.showReaction("surprise", "mine", FaceTier.Tier.MEDIUM);
+                peer.mind().felt(EmotionEvent.FRIGHTENED);
+                peer.showReaction("surprise", "afraid", FaceTier.Tier.MEDIUM);
+            }
         }
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
@@ -167,7 +186,7 @@ public final class GroupInteractionGoal extends Goal {
                     }
                     if (choice == Choice.HOLD || choice == Choice.WAIT) return false;
                 }
-                if (!reserve(peer,Kind.BULLY)) return false;
+                if (!reserve(peer,Kind.BULLY,keepsake)) return false;
                 bout.rule = choice;
                 if (keepsake) entity.keepsake().claim(peer);
                 return true;
@@ -193,8 +212,16 @@ public final class GroupInteractionGoal extends Goal {
         var current=bout;var peer=entity==current.first?current.second:current.first;
         entity.getLookControl().setLookAt(peer,30,30);
         if(current.kind==Kind.CONTEST) {
-            // Two bodies already at one lip stand where they are; the first one's clock plays the performance for both.
-            SurfaceApproach.stopWalking(entity);
+            // Stand face-to-face for the stare; during a tussle the winner steps back into contact if a shove opens a gap.
+            double contestContact = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .22;
+            if (current.contest.tussling() && current.contest.closesGap(entity) && entity.distanceToSqr(peer) > contestContact * contestContact) {
+                var stand = SurfaceApproach.beside(entity, peer, contestContact - .05, .25, contestContact);
+                if (stand == null || SurfaceApproach.walkResult(entity, stand, peer, .8) == SurfaceApproach.Result.BLOCKED) {
+                    SurfaceApproach.stopWalking(entity);
+                }
+            } else {
+                SurfaceApproach.stopWalking(entity);
+            }
             if(entity==current.first){current.ticks++;if(current.contest.tick(current.ticks))stop();}
             return;
         }
@@ -253,20 +280,37 @@ public final class GroupInteractionGoal extends Goal {
         if(current.contactTicks%20!=0)return;
         if(!entity.life().spendEnergy(2)||!peer.life().spendEnergy(2)){stop();return;}
         boolean firstStronger=Contest.might(entity)>=Contest.might(peer);
-        shove(firstStronger?peer:entity,firstStronger?entity:peer);
-        if(current.contactTicks>=80) {
-            var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
-            stop();
-            winner.showReaction(YukkuriAction.SUMO_WIN, "smug", "puff", YukkuriAction.SUMO_WIN.durationTicks(), FaceTier.Tier.MEDIUM);
-            loser.showReaction(YukkuriAction.SUMO_PUSH_OUT, "teary", "shy", YukkuriAction.SUMO_PUSH_OUT.durationTicks(), FaceTier.Tier.MEDIUM);
-            var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
-            entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
-            peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
-            // A bout that really hurt the loser ends in a quarrel; a clean one is the friendly game it started as.
-            if(YukkuriConfig.SUMO_DAMAGE.get()&&loser.hurtInBout(level().damageSources().mobAttack(winner),1))YukkuriSocial.quarrelled(winner,loser);
-            GameplayLog.event(entity, "social", "sumo completed winner={} loser={} winnerHealth={} loserHealth={} contact={}",
-                    winner.getUUID(), loser.getUUID(), winner.getHealth(), loser.getHealth(), current.contactTicks);
+        var pusher=firstStronger?entity:peer;
+        var pushed=firstStronger?peer:entity;
+        shove(pushed,pusher);
+        if(current.contactTicks<80) {
+            var pp = pushed.life().personality();
+            String pushedFace = ContestOdds.sumoPushedFace(pp.boldness(), pp.selfControl(), current.lastPushedFace, pushed.getRandom().nextDouble());
+            current.lastPushedFace = pushedFace;
+            pushed.forceReaction(pushedFace, "", FaceTier.Tier.SHORT);
+            pushed.beat("sumo_pushed_back", pushedFace, "");
+            GameplayLog.event(pushed, "social", "sumo pushed_back face={} contact={} pusher={}",
+                    pushedFace, current.contactTicks, pusher.getUUID());
+            return;
         }
+        var winner=pusher;var loser=pushed;
+        var lp = loser.life().personality();
+        String endFace = ContestOdds.sumoPushedFace(lp.boldness(), lp.selfControl(), current.lastPushedFace, loser.getRandom().nextDouble());
+        current.lastPushedFace = endFace;
+        stop();
+        winner.beat("sumo_win", "open_smile", "sumo_win");
+        winner.showWithDeferredLine(YukkuriAction.SUMO_WIN, YukkuriAction.SUMO_WIN.durationTicks(), "smug", "sumo_win", FaceTier.Tier.MEDIUM, 2,
+                res -> GameplayLog.event(winner, "social", "sumo speech role=winner event=sumo_win spoken={}", res.spoken()));
+        loser.beat("sumo_push_out", endFace, "sumo_lose");
+        loser.showWithDeferredLine(YukkuriAction.SUMO_PUSH_OUT, YukkuriAction.SUMO_PUSH_OUT.durationTicks(), endFace, "sumo_lose", FaceTier.Tier.MEDIUM, 2,
+                res -> GameplayLog.event(loser, "social", "sumo speech role=loser event=sumo_lose spoken={}", res.spoken()));
+        var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
+        entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
+        peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
+        // A bout that really hurt the loser ends in a quarrel; a clean one is the friendly game it started as.
+        if(YukkuriConfig.SUMO_DAMAGE.get()&&loser.hurtInBout(level().damageSources().mobAttack(winner),1))YukkuriSocial.quarrelled(winner,loser);
+        GameplayLog.event(entity, "social", "sumo completed winner={} loser={} winnerHealth={} loserHealth={} contact={} loserFace={}",
+                winner.getUUID(), loser.getUUID(), winner.getHealth(), loser.getHealth(), current.contactTicks, endFace);
     }
     /** Only present, awake witnesses with actual sight react to an attack. No later knowledge is fabricated. */
     public static void witnessedAttack(YukkuriEntity victim,YukkuriEntity attacker) {

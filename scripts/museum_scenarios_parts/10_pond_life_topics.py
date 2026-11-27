@@ -930,6 +930,8 @@ def _contest_core(log, prize, process, winner=None, tussles=0):
     for who, beat, shown, line, declared in beats:
         if shown != declared:
             return f'{who} beat={beat} showed {shown}, declared {declared}', None
+        if beat == 'contest_lost' and (shown == 'cheek_puff' or declared == 'cheek_puff' or line == 'puff'):
+            return f'{who} beat=contest_lost regressed to cheek_puff/puff ({shown}/{line})', None
     for who in (won, lost):
         names = [beat for u, beat, *_ in beats if u == who]
         for needed in ('contest_faceoff', 'contest_won' if who == won else 'contest_lost'):
@@ -939,6 +941,11 @@ def _contest_core(log, prize, process, winner=None, tussles=0):
         return f'fewer than {tussles} tussle beats', None
     if re.search(r'contest beat=\w+ [^\n]*accepted=false', log):
         return 'a contest beat was refused by the face layer', None
+    win_event = f'contest_won_{prize}'
+    if not re.search(rf'\[social\][^\n]*uuid={won} [^\n]*contest speech prize={prize} role=winner event={win_event} spoken=true\b', log):
+        return f'winner {won} never spoke {win_event}', None
+    if not re.search(rf'\[social\][^\n]*uuid={lost} [^\n]*contest speech prize={prize} role=loser event=contest_lost spoken=true\b', log):
+        return f'loser {lost} never spoke contest_lost', None
     return None, (int(begins[0][0]), int(verdicts[0][0]), won, lost, where)
 
 
@@ -1012,7 +1019,7 @@ def _verify_food_contest(log):
 
 add('food_contest', 'forage', '两个同样饿的成油争一个苹果', '两个同样饿的成油争一个苹果',
     '街中间地上只有一个苹果，两个同样饿的流浪成油（营养 38 与 44）从两侧走来。看它们先看一眼苹果，再在苹果旁面对面对峙，数值相当就互相顶撞几轮，'
-    '赢的认下苹果吃掉，输的按胆量鼓腮瞪着或垂泪让开、不碰这个苹果，转身走远。',
+    '赢的得意认下苹果吃掉，输的按性格垂眼赌气、哼声或垂泪让开、不碰这个苹果，转身走远。',
     '约 40 秒', [
         item('minecraft:apple', 1, 0, 0, name='contest_apple'),
         street_stray('food_contest', 'reimu', -3, 0, 'a', nutrition=38, boldness=85, yaw=-90, label='甲', lead=True),
@@ -1047,7 +1054,7 @@ def _verify_toy_contest(log):
 
 add('toy_contest', 'park', '两个无聊的成油争一个游具', '两个无聊的成油争一个游具',
     '蹦床前的空地上两个同样无聊的流浪成油并肩站着，都想玩蹦床。看它们互相对峙，数值相当就顶撞几轮，赢的先上床玩，'
-    '输的按胆量鼓腮瞪着或垂泪让开，歇一会儿再去玩自己的那一轮。',
+    '输的按性格垂眼赌气、哼声或垂泪让开，歇一会儿再去玩自己的那一轮。',
     '约 1 分半钟', [
         block(-6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
         block(6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),

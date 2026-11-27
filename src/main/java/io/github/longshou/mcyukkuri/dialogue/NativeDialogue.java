@@ -129,6 +129,9 @@ public final class NativeDialogue {
                          "lead_hurry", "lead_alarm", "lead_relief", "lead_struggle", "lead_spent" -> 2; // all leash lines rank 2: they never block or cut a hurt or distress line (rank 3)
             // These lines answer an event as it happens.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
+                 "contest_faceoff", "contest_tussle", "contest_won_food", "contest_won_bed", "contest_won_toy", "contest_lost",
+                 "sumo_start", "sumo_win", "sumo_lose",
+                 "doll_snatch_claim", "doll_stolen", "doll_snatch_defy", "doll_snatch_flee",
                  "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",
                  "addr_predator_remilia", "addr_predator_flandre" -> 2;
             // A junk headwear being put on, refused, mocked or taken off answers the person handling the wearer right now.

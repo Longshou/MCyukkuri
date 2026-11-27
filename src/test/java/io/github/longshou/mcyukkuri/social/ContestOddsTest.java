@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.longshou.mcyukkuri.social.ContestOdds.Process;
 import io.github.longshou.mcyukkuri.social.ContestOdds.Side;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class ContestOddsTest {
@@ -70,5 +72,58 @@ class ContestOddsTest {
     void pushesFollowCloseness() {
         assertTrue(ContestOdds.pushes(0) > ContestOdds.pushes(40));
         assertEquals(ContestOdds.MIN_PUSHES, ContestOdds.pushes(ContestOdds.LOPSIDED_GAP));
+    }
+
+    @Test
+    void sumoPushedFaceCoversAllFourFacesAndNeverRepeatsPrevious() {
+        Set<String> expected = Set.of("ashamed", "surprise", "teary_pant", "angry");
+        for (int boldness : new int[]{10, 50, 95}) {
+            for (int selfControl : new int[]{15, 85}) {
+                Set<String> seen = new HashSet<>();
+                for (int i = 0; i < 100; i++) {
+                    String face = ContestOdds.sumoPushedFace(boldness, selfControl, "", i / 100.0);
+                    assertTrue(expected.contains(face), "unexpected face " + face);
+                    seen.add(face);
+                }
+                assertEquals(expected, seen, "all four faces must stay reachable for boldness=" + boldness + " selfControl=" + selfControl);
+            }
+        }
+        for (String previous : expected) {
+            for (int i = 0; i < 50; i++) {
+                String next = ContestOdds.sumoPushedFace(60, 50, previous, i / 50.0);
+                assertFalse(previous.equals(next), "repeated previous face " + previous);
+            }
+        }
+    }
+
+    @Test
+    void sumoPushedFaceLeansAngryForBoldAndAshamedForTimid() {
+        int boldAngry = 0, timidAngry = 0, timidAshamed = 0, boldAshamed = 0;
+        for (int i = 0; i < 200; i++) {
+            double roll = i / 200.0;
+            String boldFace = ContestOdds.sumoPushedFace(95, 20, "", roll);
+            String timidFace = ContestOdds.sumoPushedFace(10, 85, "", roll);
+            if ("angry".equals(boldFace)) boldAngry++;
+            if ("angry".equals(timidFace)) timidAngry++;
+            if ("ashamed".equals(timidFace)) timidAshamed++;
+            if ("ashamed".equals(boldFace)) boldAshamed++;
+        }
+        assertTrue(boldAngry > timidAngry);
+        assertTrue(timidAshamed > boldAshamed);
+    }
+
+    @Test
+    void contestLoserFaceSplitsByPersonalityAndNeverPuffs() {
+        assertEquals("teary", ContestOdds.contestLoserFace(12, 80, 70));
+        assertEquals("down_angry", ContestOdds.contestLoserFace(85, 30, 70));
+        assertEquals("down_angry", ContestOdds.contestLoserFace(85, 80, 30));
+        assertEquals("hmph", ContestOdds.contestLoserFace(85, 70, 70));
+        for (int b = 0; b <= 100; b += 10) {
+            for (int c = 0; c <= 100; c += 25) {
+                for (int f = 0; f <= 100; f += 25) {
+                    assertFalse("cheek_puff".equals(ContestOdds.contestLoserFace(b, c, f)));
+                }
+            }
+        }
     }
 }

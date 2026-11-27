@@ -611,14 +611,16 @@ def _verify_doll_snatch(window):
             return f'{thief}: the bout took {grab[0] - claim[0]} ticks from claim to grab (>240)'
         if answer[0] - robbed[0] > 40:
             return f'{victim}: answer came {answer[0] - robbed[0]} ticks after the robbed beat (the 30-tick delay was missed)'
-        if (claim[2], claim[3], claim[4]) != ('smug', 'mine', 'peer') or f'victim={victim}' not in claim[5]:
-            return f'{thief}: claim is not the smug mine over {victim}: {claim}'
+        if (claim[2], claim[3], claim[4]) != ('smug', 'doll_snatch_claim', 'peer') or f'victim={victim}' not in claim[5]:
+            return f'{thief}: claim is not the smug doll_snatch_claim over {victim}: {claim}'
         if grab[2] != 'smug' or grab[3] != 'none' or grab[4] != 'ground' or f'victim={victim}' not in grab[5]:
             return f'{thief}: grab is not the silent pickup of the doll beside {victim}: {grab}'
-        if (robbed[2], robbed[3], robbed[4]) != (robbed_face, 'treasure_stolen', 'ground'):
-            return f'{victim}: robbed is not the {robbed_face} stolen-treasure reaction: {robbed}'
+        if (robbed[2], robbed[3], robbed[4]) != (robbed_face, 'doll_stolen', 'ground'):
+            return f'{victim}: robbed is not the {robbed_face} doll_stolen reaction: {robbed}'
         if (answer[2], answer[3], answer[4]) != (answer_face, answer_line, 'peer') or f'decision={decision}' not in answer[5]:
             return f'{victim}: answer is not {decision} seen as {answer_face}/{answer_line}: {answer}'
+        if not re.search(rf'\[keepsake\][^\n]*uuid={victim} [^\n]*answer speech decision={decision} event={answer_line} spoken=true\b', window):
+            return f'{victim}: answer line {answer_line} was not spoken for decision={decision}'
         if homeward:
             for name in ('leave', 'set_down'):
                 rows = [r for r in mine if r[1] == name]
@@ -658,21 +660,23 @@ def _verify_doll_snatch(window):
                 return f'{thief}: set_down is not the doll left at its own nest: {down}'
             return _keepsake_set_down_problem(down[5])
 
-    return (lane(_snatch_thief_a, _snatch_victim_a, 'angry', 'puff_back', 'cheek_puff', 'puff', homeward=False)
-            or lane(_snatch_thief_b, _snatch_victim_b, 'teary', 'flee', 'surprise', 'none', homeward=True))
+    return (lane(_snatch_thief_a, _snatch_victim_a, 'angry', 'puff_back', 'cheek_puff', 'doll_snatch_defy', homeward=False)
+            or lane(_snatch_thief_b, _snatch_victim_b, 'teary', 'flee', 'surprise', 'doll_snatch_flee', homeward=True))
 
 
 _smoke(_doll_snatch, 6400, [
     r'\[social\][^\n]*bout reserved kind=BULLY peer=',
-    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=claim shown=smug declared=smug line=mine where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=claim shown=smug declared=smug line=doll_snatch_claim where=peer ',
     rf'\[keepsake\][^\n]*uuid={_snatch_thief_a} [^\n]*beat=grab shown=smug declared=smug line=none where=ground dolls=2 ',
     rf'\[social\][^\n]*uuid={_snatch_victim_a} [^\n]*aftermath what=doll taker={_snatch_thief_a} face=angry ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed shown=angry declared=angry line=treasure_stolen where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer shown=cheek_puff declared=cheek_puff line=puff where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=robbed shown=angry declared=angry line=doll_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*beat=answer shown=cheek_puff declared=cheek_puff line=doll_snatch_defy where=peer ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_a} [^\n]*answer speech decision=puff_back event=doll_snatch_defy spoken=true\b',
     rf'\[body\][^\n]*uuid={_snatch_thief_a} [^\n]*mouth drop item=mcyukkuri:reimu_doll count=1 purpose=KEEPSAKE ',
     rf'\[social\][^\n]*uuid={_snatch_victim_b} [^\n]*aftermath what=doll taker={_snatch_thief_b} face=teary ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed shown=teary declared=teary line=treasure_stolen where=ground ',
-    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer shown=surprise declared=surprise line=none where=peer dolls=2 decision=flee',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=robbed shown=teary declared=teary line=doll_stolen where=ground ',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*beat=answer shown=surprise declared=surprise line=doll_snatch_flee where=peer dolls=2 decision=flee',
+    rf'\[keepsake\][^\n]*uuid={_snatch_victim_b} [^\n]*answer speech decision=flee event=doll_snatch_flee spoken=true\b',
     rf'\[keepsake\][^\n]*uuid={_snatch_thief_b} [^\n]*beat=set_down shown=satisfied declared=satisfied line=thing_san where=bed ',
 ], forbid=[r'\[social\][^\n]*bully strike peer=', r'\[social\][^\n]*self defense strike '])
 next(s for s in S if s.id == _doll_snatch).smoke.update(verify=_verify_doll_snatch)
@@ -1468,7 +1472,44 @@ _smoke('nuzzle_shapes', 2400, [
     (rf'\[daily\][^\n]*(?:uuid={_step_low} [^\n]*peer rub started partner={_step_high}'
      rf'|uuid={_step_high} [^\n]*peer rub started partner={_step_low}) mode=LEVEL\b'),
 ])
-_smoke('marisa_sumo', 1800, [r'\[social\][^\n]* sumo completed winner='])
+_SUMO_PUSHED_FACES = {'ashamed', 'surprise', 'teary_pant', 'angry'}
+
+
+def _verify_marisa_sumo(window):
+    """All three pairs complete sumo, pushed-back faces vary across the four allowed expressions with shown==declared and no
+    consecutive duplicates per subject, and winner/loser speak their sumo lines."""
+    done = re.findall(r'\[social\][^\n]* sumo completed winner=([\w-]+) loser=([\w-]+) [^\n]*loserFace=(\w+)', window)
+    if len(done) < 3:
+        return f'expected at least 3 completed sumo bouts, saw {len(done)}'
+    beats = re.findall(r'\[choreo\][^\n]*uuid=([\w-]+) [^\n]*beat=(sumo_(?:pushed_back|push_out|win)) face=(\w+) line=(\w+) declared=(\w+)', window)
+    pushed_faces = []
+    per_actor = {}
+    for who, beat, shown, line, declared in beats:
+        if shown != declared:
+            return f'{who} {beat} showed {shown}, declared {declared}'
+        if beat in ('sumo_pushed_back', 'sumo_push_out'):
+            if shown not in _SUMO_PUSHED_FACES:
+                return f'{who} {beat} used unexpected pushed face {shown}'
+            pushed_faces.append(shown)
+            per_actor.setdefault(who, []).append((beat, shown))
+    if len(set(pushed_faces)) < 2:
+        return f'sumo pushed faces showed no variety: {pushed_faces}'
+    for who, seq in per_actor.items():
+        for (b1, f1), (b2, f2) in zip(seq, seq[1:]):
+            # Within one bout (pushed_back -> pushed_back or pushed_back -> push_out), consecutive faces must not repeat.
+            if b1 == 'sumo_pushed_back' and f1 == f2:
+                return f'{who} repeated consecutive sumo pushed face {f1} across {b1}->{b2}'
+    if not re.search(r'\[social\][^\n]* sumo speech role=winner event=sumo_win spoken=true\b', window):
+        return 'no sumo winner spoke sumo_win'
+    if not re.search(r'\[social\][^\n]* sumo speech role=loser event=sumo_lose spoken=true\b', window):
+        return 'no sumo loser spoke sumo_lose'
+
+
+_smoke('marisa_sumo', 1800, [
+    r'\[social\][^\n]* sumo completed winner=',
+    r'\[social\][^\n]* sumo pushed_back face=',
+])
+next(s for s in S if s.id == 'marisa_sumo').smoke['verify'] = _verify_marisa_sumo
 # The north claim leaves both a quarrel record and one of them walks up to make up and is answered; the hostile south pair has its
 # record too but neither approaches.
 _qn = [_uuid_text('quarrel_makeup', n) for n in ('claimer', 'rival')]

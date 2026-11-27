@@ -396,7 +396,20 @@
     {"id":"sibling_sever_protest","event":"sibling_sever_protest","zh":"大胆关爱的手足为被断亲的兄姐抗议","ja":"強気できょうだい思いの子が親に抗議する","en":"A bold caring sibling protests the severance","basis":["P"],"status":"rule"},
     {"id":"sibling_sever_scared","event":"sibling_sever_scared","zh":"胆小的手足目击断亲后害怕发抖","ja":"臆病なきょうだいが次は自分かと怯える","en":"A timid sibling trembles in fear of being next","basis":["P"],"status":"rule"},
     {"id":"sibling_sever_cold","event":"sibling_sever_cold","zh":"冷淡刻薄的手足冷眼对待断亲","ja":"冷たいきょうだいが追い出しを冷淡に見送る","en":"A harsh sibling reacts coldly to the severance","basis":["P"],"status":"rule"},
-    {"id":"sibling_sever_uneasy","event":"sibling_sever_uneasy","zh":"疏离的手足目击断亲后局促不安","ja":"疎遠なきょうだいが気まずく見送る","en":"A detached sibling watches the severance uneasily","basis":["P"],"status":"rule"}
+    {"id":"sibling_sever_uneasy","event":"sibling_sever_uneasy","zh":"疏离的手足目击断亲后局促不安","ja":"疎遠なきょうだいが気まずく見送る","en":"A detached sibling watches the severance uneasily","basis":["P"],"status":"rule"},
+    {"id":"contest_faceoff","event":"contest_faceoff","zh":"争夺资源前的面对面对峙","ja":"資源をめぐる対峙","en":"Face-off before contesting a resource","basis":["P"],"status":"ready"},
+    {"id":"contest_tussle","event":"contest_tussle","zh":"争抢顶撞中的较劲叫喊","ja":"押し合いの最中の掛け声","en":"Straining shout during a contest tussle","basis":["P"],"status":"ready"},
+    {"id":"contest_won_food","event":"contest_won_food","zh":"争抢食物胜出","ja":"食べ物の取り合いに勝つ","en":"Winning a food contest","basis":["P"],"status":"ready"},
+    {"id":"contest_won_bed","event":"contest_won_bed","zh":"争抢窝铺胜出","ja":"寝床の取り合いに勝つ","en":"Winning a nest contest","basis":["P"],"status":"ready"},
+    {"id":"contest_won_toy","event":"contest_won_toy","zh":"争抢游具胜出","ja":"遊具の取り合いに勝つ","en":"Winning a play station contest","basis":["P"],"status":"ready"},
+    {"id":"contest_lost","event":"contest_lost","zh":"争抢落败后表态让开","ja":"取り合いに負けて身を引く","en":"Yielding after losing a contest","basis":["P"],"status":"ready"},
+    {"id":"sumo_start","event":"sumo_start","zh":"相扑开局招呼","ja":"お相撲の掛け声","en":"Starting a friendly sumo bout","basis":["P"],"status":"ready"},
+    {"id":"sumo_win","event":"sumo_win","zh":"相扑推赢欢呼","ja":"お相撲に勝って喜ぶ","en":"Cheering after winning sumo","basis":["P"],"status":"ready"},
+    {"id":"sumo_lose","event":"sumo_lose","zh":"相扑被推出后反应","ja":"お相撲で押し出された反応","en":"Reacting after being pushed out in sumo","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_claim","event":"doll_snatch_claim","zh":"抢同伴布偶前的宣称","ja":"仲間の人形を奪うときの宣言","en":"Claiming a peer's doll before snatching it","basis":["P"],"status":"ready"},
+    {"id":"doll_stolen","event":"doll_stolen","zh":"布偶被抢时的惊呼","ja":"人形を奪われたときの叫び","en":"Crying out when a kept doll is snatched","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_defy","event":"doll_snatch_defy","zh":"被抢布偶后鼓脸反抗","ja":"人形を奪われてぷくーと抗議する","en":"Puffing back in protest after a doll snatch","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_flee","event":"doll_snatch_flee","zh":"被抢布偶后受惊逃开","ja":"人形を奪われて怖がり逃げる","en":"Crying in fear while fleeing after a doll snatch","basis":["P"],"status":"ready"}
   ],
   "lines": [
     {"id":"hello.fixed","event":"hello","zh":"油库里洗跌一跌捏！","ja":"ゆっくりしていってね！","en":"Take it easy!","basis":["D01"],"status":"ready","common_ref":"common.welcome_take_it_easy"},
@@ -597,7 +610,20 @@
     {"id":"hatless_whisper.distance","event":"hatless_whisper","zh":"真的没头饰呢……离远点吧……","ja":"ほんとうに おかざり ないね……はなれて いよう……","en":"Really no ornament... better keep our distance...","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"hatless_answer.still_yukkuri","event":"hatless_answer","zh":"噗咕！没头饰{self}也是油库里！","ja":"ぷくー！ おかざりが なくても {self}は ゆっくりだよ！","en":"Puff! Even without an ornament, {self} is still a yukkuri!","basis":["P"],"status":"ready","shared_runtime":true},
     {"id":"hatless_answer.will_find","event":"hatless_answer","zh":"别老是笑{self}！头饰{mister}会找回来的！","ja":"いつまでも わらわないで！ おかざり{mister}は きっと みつかるよ！","en":"Stop laughing at {self}! The ornament will be found!","basis":["P"],"status":"ready","shared_runtime":true},
-    {"id":"hatless_answer.quiet","event":"hatless_answer","zh":"吵死了！少瞧不起{self}！","ja":"うるさい！ {self}を ばかに しないで！","en":"Be quiet! Stop looking down on {self}!","basis":["P"],"status":"ready","shared_runtime":true}
+    {"id":"hatless_answer.quiet","event":"hatless_answer","zh":"吵死了！少瞧不起{self}！","ja":"うるさい！ {self}を ばかに しないで！","en":"Be quiet! Stop looking down on {self}!","basis":["P"],"status":"ready","shared_runtime":true},
+    {"id":"contest_faceoff.claim","event":"contest_faceoff","zh":"这是{self}先看到的！才不让！","ja":"これは わたしが さきに みつけたの！ ゆずらないよ！","en":"{self} saw it first! Not giving it up!","basis":["P"],"status":"ready"},
+    {"id":"contest_tussle.push","event":"contest_tussle","zh":"油咕……才不会输！让开！","ja":"ゆぐっ……まけないよ！ どいて！","en":"Yugu... not losing! Move aside!","basis":["P"],"status":"ready"},
+    {"id":"contest_won_food.take","event":"contest_won_food","zh":"哼哼！这份饭先生归{self}嚼嚼啦！","ja":"ふふん！ この ごはんさんは わたしが もらうよ！","en":"Heh-heh! {self} gets to munch this Mr. Food!","basis":["P"],"status":"ready"},
+    {"id":"contest_won_bed.take","event":"contest_won_bed","zh":"哼哼！这个窝先生就是{self}的油库里普雷斯啦！","ja":"ふふん！ ここが わたしの ゆっくり プレイスに なるよ！","en":"Heh-heh! This Mr. Nest is {self}'s easy place now!","basis":["P"],"status":"ready"},
+    {"id":"contest_won_toy.take","event":"contest_won_toy","zh":"哼哼！先玩的油当然是{self}！","ja":"ふふん！ さきに あそぶのは わたしに きまったよ！","en":"Heh-heh! {self} gets to play first!","basis":["P"],"status":"ready"},
+    {"id":"contest_lost.yield","event":"contest_lost","zh":"油呜……没办法……去别的地方油库里吧……","ja":"ゆぅ……しかたないよ……あとで ゆっくり するよ……","en":"Yuu... can't help it... {self} will take it easy elsewhere...","basis":["P"],"status":"ready"},
+    {"id":"sumo_start.bout","event":"sumo_start","zh":"来玩相扑吧！多斯阔伊，才不会输！","ja":"おすもう しようよ！ どすこい、まけないよ！","en":"Let's play sumo! Dosukoi, won't lose!","basis":["P"],"status":"ready"},
+    {"id":"sumo_win.cheer","event":"sumo_win","zh":"多斯阔伊！{self}赢啦！好厉害！","ja":"どすこい！ わたしが かったよ！ つよいよ！","en":"Dosukoi! {self} won! So strong!","basis":["P"],"status":"ready"},
+    {"id":"sumo_lose.pushed","event":"sumo_lose","zh":"油咕……被推出去了！下次才不会输！","ja":"ゆぐっ……おされたよ！ つぎは まけないよ！","en":"Yugu... pushed out! Next time won't lose!","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_claim.take","event":"doll_snatch_claim","zh":"那个布偶先生好可爱！归{self}啦！","ja":"その にんぎょうさん、かわいいよ！ わたしが もらうよ！","en":"That Mr. Doll is so cute! {self} is taking it!","basis":["P"],"status":"ready"},
+    {"id":"doll_stolen.cry","event":"doll_stolen","zh":"油啊！快把布偶先生还回来！","ja":"ゆあっ！ にんぎょうさんを かえして！","en":"Yuaa! Give Mr. Doll back!","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_defy.puff","event":"doll_snatch_defy","zh":"噗咕——！小偷油！快把布偶先生还给{self}！","ja":"ぷくーっ！ どろぼうゆっくり！ にんぎょうさん かえして！","en":"Puff! Thief yukkuri! Give Mr. Doll back!","basis":["P"],"status":"ready"},
+    {"id":"doll_snatch_flee.run","event":"doll_snatch_flee","zh":"油哇！好可怕！快逃！","ja":"ゆわぁ！ こわいよ！ にげるよ！","en":"Yuwaa! Scary! Running away!","basis":["P"],"status":"ready"}
   ],
   "planned": [
     {

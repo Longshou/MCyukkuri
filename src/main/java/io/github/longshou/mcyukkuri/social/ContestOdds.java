@@ -76,4 +76,44 @@ public final class ContestOdds {
     public static boolean defiant(int boldness) {
         return boldness >= 50;
     }
+
+    /** The four varied faces a body pushed back in friendly sumo can show: embarrassed, startled, flustered, indignant. */
+    static final String[] SUMO_PUSHED_FACES = { "ashamed", "surprise", "teary_pant", "angry" };
+
+    /**
+     * Picks one of the four pushed-back faces for a sumo shove or push-out, weighted by boldness and self-control while keeping
+     * every face reachable and excluding {@code previousFace} so consecutive shoves vary cleanly.
+     */
+    public static String sumoPushedFace(int boldness, int selfControl, String previousFace, double roll) {
+        double b = Math.clamp(boldness, 0, 100) / 100.0;
+        double c = Math.clamp(selfControl, 0, 100) / 100.0;
+        double[] weights = {
+            0.25 + 0.55 * (1.0 - b) + 0.25 * c,
+            0.35 + 0.30 * (1.0 - b) + 0.15 * (1.0 - c),
+            0.25 + 0.45 * (1.0 - c) + 0.20 * (1.0 - b),
+            0.25 + 0.65 * b + 0.25 * (1.0 - c)
+        };
+        double total = 0;
+        for (int i = 0; i < SUMO_PUSHED_FACES.length; i++) {
+            if (SUMO_PUSHED_FACES[i].equals(previousFace)) weights[i] = 0;
+            total += weights[i];
+        }
+        double target = Math.clamp(roll, 0.0, 0.999999999) * total;
+        double acc = 0;
+        for (int i = 0; i < SUMO_PUSHED_FACES.length; i++) {
+            if (weights[i] <= 0) continue;
+            acc += weights[i];
+            if (target < acc) return SUMO_PUSHED_FACES[i];
+        }
+        return SUMO_PUSHED_FACES[0].equals(previousFace) ? SUMO_PUSHED_FACES[1] : SUMO_PUSHED_FACES[0];
+    }
+
+    /**
+     * The contest loser's parting face from its own personality: fierce sulk or haughty hmph for a defiant body, teary for a timid
+     * one. Never {@code cheek_puff}, so a loser walking away never puffs its cheeks while backing off.
+     */
+    public static String contestLoserFace(int boldness, int selfControl, int friendliness) {
+        if (!defiant(boldness)) return "teary";
+        return selfControl < 50 || friendliness < 45 ? "down_angry" : "hmph";
+    }
 }

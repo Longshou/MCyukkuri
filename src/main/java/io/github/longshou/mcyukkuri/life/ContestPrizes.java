@@ -17,7 +17,7 @@ public final class ContestPrizes {
             @Override public String where() { return bed.toString(); }
             @Override public boolean present(YukkuriEntity probe) { return NestDoorway.bed(probe, bed) != null; }
             @Override public int need(YukkuriEntity body) { return 100 - Math.round(body.life().energy()); }
-            @Override public String winLine() { return "home_declare"; }
+            @Override public String winLine() { return "contest_won_bed"; }
             @Override public void settle(YukkuriEntity body, boolean won, UUID rival) { body.life().bedVerdict(bed, won, rival); }
         };
     }
@@ -29,7 +29,7 @@ public final class ContestPrizes {
             @Override public String where() { return food.blockPosition().toString(); }
             @Override public boolean present(YukkuriEntity probe) { return food.isAlive(); }
             @Override public int need(YukkuriEntity body) { return 100 - Math.round(body.life().nutrition()); }
-            @Override public String winLine() { return "mine"; }
+            @Override public String winLine() { return "contest_won_food"; }
             @Override public void settle(YukkuriEntity body, boolean won, UUID rival) { body.life().foodVerdict(food, won, rival); }
         };
     }

@@ -234,7 +234,8 @@ public final class TreasureLife extends Goal {
     public static String aftermath(YukkuriEntity thief, YukkuriEntity victim, String what) {
         victim.mind().add(15, "treasure_stolen");
         String face = EmotionCourse.onsetFace(victim.mind().feeling().wrongedKind());
-        victim.showReaction(face, "treasure_stolen", FaceTier.Tier.LONG);
+        String line = "doll".equals(what) ? "doll_stolen" : "treasure_stolen";
+        victim.showReaction(face, line, FaceTier.Tier.LONG);
         victim.mind().feeling().wronged(thief.getUUID(), .7f);
         if (victim.level() instanceof ServerLevel level) YukkuriWorldData.get(level).relate(victim.getUUID(), thief.getUUID(), -12);
         GameplayLog.event(victim, "social", "aftermath what={} taker={} face={} closeness={}",

@@ -2681,6 +2681,28 @@
         }
       ]
     },
+    "group_contest_faceoff": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "stand_ground",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": []
+        }
+      ]
+    },
+    "group_contest_push": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "push",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": []
+        }
+      ]
+    },
     "reaction_hello": {
       "loop": false,
       "steps": [
@@ -5279,7 +5301,9 @@
     "sumo_push": "group_sumo_push",
     "bully_peer": "group_bully_peer",
     "self_defense": "group_self_defense",
-    "sumo_prepare": "group_sumo_prepare"
+    "sumo_prepare": "group_sumo_prepare",
+    "contest_faceoff": "group_contest_faceoff",
+    "contest_push": "group_contest_push"
   },
   "conditions": {
     "immersed": "condition_immersed",

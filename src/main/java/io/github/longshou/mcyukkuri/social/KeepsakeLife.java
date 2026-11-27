@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
+import io.github.longshou.mcyukkuri.mind.EmotionEvent;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -64,7 +65,6 @@ public final class KeepsakeLife implements MotorOwner {
     private static final double PEER_GUARD_RANGE = 6.0;
     private static final int ANSWER_DELAY = 30;
     private static final int LEAVE_DELAY = 45;
-    private static final int ANSWER_FACE_TICKS = 40;
     private static final double RIM_DROP_GAP = 0.32;
     private static final double SET_DOWN_MAX_RIM_DIST = 1.2;
 
@@ -386,11 +386,13 @@ public final class KeepsakeLife implements MotorOwner {
     /** Whether this body could take a doll for itself: an empty mouth and a nest to carry it to. */
     public boolean canSnatch() { return ownBed() != null && mouth().freeForExternalWork(); }
 
-    /** The claim that opens a bout fought over a peer's doll: smug, with the reservation's own line already spoken. */
+    /** The claim that opens a bout fought over a peer's doll: the taker claims it aloud, and the victim only flinches so its speech clock stays open for the theft cry. */
     public void claim(YukkuriEntity victim) {
         if (phase != Phase.IDLE || !carried().isEmpty()) return;
-        entity.showReaction("smug", "", FaceTier.Tier.MEDIUM);
-        pendingBeat = new Beat("claim", "smug", "mine", "peer", "victim=" + victim.getUUID());
+        entity.showReaction("smug", "doll_snatch_claim", FaceTier.Tier.MEDIUM);
+        victim.mind().felt(EmotionEvent.FRIGHTENED);
+        victim.showReaction("surprise", "", FaceTier.Tier.SHORT);
+        pendingBeat = new Beat("claim", "smug", "doll_snatch_claim", "peer", "victim=" + victim.getUUID());
     }
 
     /**
@@ -480,7 +482,7 @@ public final class KeepsakeLife implements MotorOwner {
         robbedFace = face;
         snatchThief = thief;
         answerWait = ANSWER_DELAY;
-        pendingBeat = new Beat("robbed", face, "treasure_stolen", where, "");
+        pendingBeat = new Beat("robbed", face, "doll_stolen", where, "");
     }
 
     /** The robbed body's own answer, decided by {@link PeerDefense} from its esteem, wariness, size and fighting ability. */
@@ -493,14 +495,19 @@ public final class KeepsakeLife implements MotorOwner {
         String face = robbedFace;
         String line = "none";
         if (decision.equals("flee")) {
-            // The flight's own face over the still-running robbed reaction; danger reads through it either way.
+            // LONG replaces the robbed LONG hold so the panic face publishes cleanly and the fleeing cry speaks right after doll_stolen.
             face = entity.panicFace();
-            entity.forceReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
+            line = "doll_snatch_flee";
+            String spokenEvent = line;
+            entity.showWithDeferredLine(null, 0, face, spokenEvent, FaceTier.Tier.LONG, 2,
+                    res -> GameplayLog.event(entity, "keepsake", "answer speech decision=flee event={} spoken={}", spokenEvent, res.spoken()));
         } else if (decision.equals("puff_back")) {
-            // The puff response's start shows the same cheek one tick later and speaks the line itself.
+            // LONG replaces the robbed LONG hold and blocks PeerDefense.start()'s SHORT generic puff line so the doll-snatch retort speaks.
             face = "cheek_puff";
-            line = "puff";
-            entity.forceReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
+            line = "doll_snatch_defy";
+            String spokenEvent = line;
+            entity.showWithDeferredLine(YukkuriAction.PUFF, YukkuriAction.PUFF.durationTicks(), face, spokenEvent, FaceTier.Tier.LONG, 2,
+                    res -> GameplayLog.event(entity, "keepsake", "answer speech decision=puff_back event={} spoken={}", spokenEvent, res.spoken()));
         }
         pendingBeat = new Beat("answer", face, line, "peer", "decision=" + decision);
     }

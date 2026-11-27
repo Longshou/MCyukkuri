@@ -43,13 +43,19 @@ public final class Contest {
     private final Prize prize;
     private final double gap, chance;
     private final int pushes;
-    private int pushed, verdictAt, lastVoice = -VOICE_GAP;
+    private int elapsed, pushed, verdictAt, lastVoice = -VOICE_GAP;
 
     private Contest(YukkuriEntity first, YukkuriEntity second, YukkuriEntity winner, Process process, Prize prize, double gap, double chance, int pushes) {
         this.first = first; this.second = second; this.winner = winner; this.loser = winner == first ? second : first;
         this.process = process; this.prize = prize; this.gap = gap; this.chance = chance; this.pushes = pushes;
         verdictAt = FACEOFF + (process == Process.TUSSLE ? PUSH_EVERY * pushes : 0) + VERDICT_LAG;
     }
+
+    /** True once a close bout has moved from the staring face-off into its push-and-pull phase. */
+    boolean tussling() { return process == Process.TUSSLE && elapsed > FACEOFF; }
+
+    /** Only the winner steps in to close any gap opened by shoves, keeping the tussle face-to-face instead of shoving across air. */
+    boolean closesGap(YukkuriEntity body) { return body == winner; }
 
     /** The one body strength: a contest, a sumo bout and a self-defence all read it. */
     static double might(YukkuriEntity body) {
@@ -83,6 +89,7 @@ public final class Contest {
 
     /** One tick of the bout clock ({@code t} counts from 1); true when the contest is over. */
     boolean tick(int t) {
+        elapsed = t;
         if (!prize.present(first)) { gone(); return true; }
         if (t == 1) { faceoff(first); faceoff(second); }
         if (process == Process.TUSSLE && pushed < pushes && t > FACEOFF && (t - FACEOFF) % PUSH_EVERY == 0) push(t);
@@ -92,8 +99,12 @@ public final class Contest {
     }
 
     private void faceoff(YukkuriEntity body) {
-        boolean defiant = ContestOdds.defiant(body.life().personality().boldness());
-        beat(body, null, "contest_faceoff", defiant ? "angry" : "surprise", defiant ? "mine" : "shy", FaceTier.Tier.MEDIUM);
+        var traits = body.life().personality();
+        boolean defiant = ContestOdds.defiant(traits.boldness());
+        String face = defiant ? (traits.boldness() >= 75 && traits.friendliness() < 40 ? "angry_stare" : "angry") : "surprise";
+        // In a lopsided bout the timid loser flinches silently so its speech clock stays open for its yielding line at the verdict.
+        boolean speaks = process == Process.TUSSLE || body == winner || defiant;
+        beat(body, null, "contest_faceoff", face, speaks ? "contest_faceoff" : "", FaceTier.Tier.MEDIUM);
     }
 
     private void push(int t) {
@@ -104,15 +115,25 @@ public final class Contest {
             return;
         }
         pushed++;
-        boolean voiced = t - lastVoice >= VOICE_GAP;
-        if (voiced) lastVoice = t;
+        double reach = (first.getBbWidth() + second.getBbWidth()) * .5 + .65;
+        if (first.distanceToSqr(second) <= reach * reach) {
+            if (pushed < pushes) {
+                boolean winnerPushes = pushed % 2 == 1;
+                GroupInteractionGoal.shove(winnerPushes ? loser : winner, winnerPushes ? winner : loser, winnerPushes ? .07 : .06);
+            } else {
+                GroupInteractionGoal.shove(loser, winner, .12);
+            }
+        }
+        boolean allowVoice = t - lastVoice >= VOICE_GAP && t + 60 <= verdictAt;
+        var speaker = pushed % 2 == 1 ? winner : loser;
+        boolean spoke = false;
         for (var body : new YukkuriEntity[]{winner, loser}) {
             boolean defiant = ContestOdds.defiant(body.life().personality().boldness());
-            // A grunt at most every three seconds, from one body at a time; the pushes between are the bodies leaning in.
-            boolean grunts = voiced && defiant && body == (pushed % 2 == 1 ? winner : loser);
-            beat(body, YukkuriAction.PUSH, "contest_tussle", defiant ? "angry" : "teary", grunts ? "puff" : "", FaceTier.Tier.MEDIUM);
+            boolean speaks = allowVoice && body == speaker && body.quiet();
+            if (speaks) spoke = true;
+            beat(body, YukkuriAction.PUSH, "contest_tussle", defiant ? "angry" : "teary", speaks ? "contest_tussle" : "", FaceTier.Tier.MEDIUM);
         }
-        GroupInteractionGoal.shove(loser, winner);
+        if (spoke) lastVoice = t;
     }
 
     private void verdict() {
@@ -121,9 +142,13 @@ public final class Contest {
         relations.relate(winner.getUUID(), loser.getUUID(), -1);
         GameplayLog.event(winner, "social", "contest verdict prize={} at={} process={} winner={} loser={} chance={} pushes={}",
                 prize.kind(), prize.where(), process, winner.getUUID(), loser.getUUID(), Math.round(chance * 100) / 100.0, pushed);
-        beat(winner, null, "contest_won", "smug", prize.winLine(), FaceTier.Tier.MEDIUM);
-        boolean defiant = ContestOdds.defiant(loser.life().personality().boldness());
-        beat(loser, null, "contest_lost", defiant ? "cheek_puff" : "teary", defiant ? "puff" : "wait_turn", FaceTier.Tier.LONG);
+        boolean quietWin = process == Process.LOPSIDED && !ContestOdds.defiant(winner.life().personality().boldness());
+        verdictBeat(winner, quietWin ? YukkuriAction.JOY_HOP : YukkuriAction.PROUD, "contest_won",
+                quietWin ? "happy" : "smug", prize.winLine(), FaceTier.Tier.MEDIUM);
+        var lp = loser.life().personality();
+        String loserFace = ContestOdds.contestLoserFace(lp.boldness(), lp.selfControl(), lp.friendliness());
+        YukkuriAction loserAction = ContestOdds.defiant(lp.boldness()) ? YukkuriAction.SULK : YukkuriAction.DROOP;
+        verdictBeat(loser, loserAction, "contest_lost", loserFace, "contest_lost", FaceTier.Tier.LONG);
         prize.settle(winner, true, loser.getUUID());
         prize.settle(loser, false, winner.getUUID());
     }
@@ -142,5 +167,17 @@ public final class Contest {
         boolean shown = action == null ? body.showReaction(face, line, tier) : body.showReaction(action, face, line, action.durationTicks(), tier);
         GameplayLog.event(body, "social", "contest beat={} prize={} role={} face={} line={} accepted={}",
                 name, prize.kind(), body == winner ? "winner" : "loser", face, line.isEmpty() ? "none" : line, shown);
+    }
+
+    /** A verdict beat defers its line to the first open speech slot inside the face hold so face-off or tussle speech never swallows it. */
+    private void verdictBeat(YukkuriEntity body, YukkuriAction action, String name, String face, String line, FaceTier.Tier tier) {
+        String role = body == winner ? "winner" : "loser";
+        body.getLookControl().setLookAt(body == first ? second : first, 30, 30);
+        body.beat(name, face, line);
+        boolean shown = body.showWithDeferredLine(action, action.durationTicks(), face, line, tier, 2,
+                res -> GameplayLog.event(body, "social", "contest speech prize={} role={} event={} spoken={}",
+                        prize.kind(), role, line, res.spoken()));
+        GameplayLog.event(body, "social", "contest beat={} prize={} role={} face={} line={} accepted={}",
+                name, prize.kind(), role, face, line.isEmpty() ? "none" : line, shown);
     }
 }

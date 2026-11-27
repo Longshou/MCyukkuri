@@ -222,6 +222,8 @@ public final class Behaviors {
     public static final String SLIDE_DOWN = "slide_down";
     public static final String STAY_HOME = "stay_home";
     public static final String STRUGGLE = "struggle";
+    public static final String CONTEST_FACEOFF = "contest_faceoff";
+    public static final String CONTEST_PUSH = "contest_push";
     public static final String SUMO_PREPARE = "sumo_prepare";
     public static final String SUMO_PUSH = "sumo_push";
     public static final String SWALLOW = "swallow";

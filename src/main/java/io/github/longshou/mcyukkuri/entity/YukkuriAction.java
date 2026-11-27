@@ -241,6 +241,8 @@ public enum YukkuriAction {
     public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP || this == RUN; }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
     public static boolean sumo(String id) { return id.startsWith("sumo_"); }
+    /** Sumo clips whose authored face timeline always owns the face: ready stance and winner pose. Shove and push-out yield to the pushed body's varied reaction face. */
+    public static boolean sumoFixedFace(String id) { return SUMO_READY.id.equals(id) || SUMO_WIN.id.equals(id); }
     /** The two end poses of a sumo bout: the pair stands in them for their authored length, so neither a stroll nor a knock-back's slide replaces them with the walk. */
     public boolean sumoEnd() { return this == SUMO_WIN || this == SUMO_PUSH_OUT; }
     /** Shared food-refusal clip choice: offered food gets the side-face pout; eating alone gets the plain disgust/let-down variant. */
