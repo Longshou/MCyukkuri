@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import headless_server as server  # noqa: E402  (git common root, user-client detection)
 import smoke_prune  # noqa: E402
+import update_museum_runtime as installer  # noqa: E402  (Build run matching shared with the installer)
 
 MAIN = server.COMMON
 TODO = 'docs/TODO.md'
@@ -313,12 +314,22 @@ def cmd_land(args):
 
 def find_run(sha):
     out = subprocess.check_output(['gh', 'run', 'list', '--workflow', 'build.yml', '--commit', sha,
-                                   '--json', 'databaseId,status,conclusion', '-L', '5'], cwd=MAIN, text=True, encoding='utf-8')
+                                   '--json', 'databaseId,status,conclusion,headSha', '-L', '5'], cwd=MAIN, text=True, encoding='utf-8')
     runs = json.loads(out)
     return runs[0] if runs else None
 
 
+def finish_run(run):
+    if run['conclusion'] not in ('success', 'cancelled'):
+        log = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--log-failed'], cwd=MAIN, text=True,
+                             encoding='utf-8', capture_output=True).stdout.splitlines()
+        print('\n'.join(log[-60:]))
+        raise Fail(f'Build run {run["databaseId"]} for {run["headSha"]} ended {run["conclusion"]}')
+    return run
+
+
 def wait_build(sha, args):
+    """Wait for a Build run of sha itself: the target is the tip of a push that changed a Build path."""
     print(f'waiting for Build run of {sha[:9]}', flush=True)
     appear_deadline = time.monotonic() + args.appear_timeout
     while True:
@@ -326,28 +337,41 @@ def wait_build(sha, args):
         if run is None and time.monotonic() > appear_deadline:
             raise Fail(f'no Build run for {sha} appeared within {args.appear_timeout}s')
         if run and run['status'] == 'completed':
-            break
+            return finish_run(run)
         time.sleep(args.poll)
-    if run['conclusion'] not in ('success', 'cancelled'):
-        log = subprocess.run(['gh', 'run', 'view', str(run['databaseId']), '--log-failed'], cwd=MAIN, text=True,
-                             encoding='utf-8', capture_output=True).stdout.splitlines()
-        print('\n'.join(log[-60:]))
-        raise Fail(f'Build run {run["databaseId"]} for {sha} ended {run["conclusion"]}')
-    return run
+
+
+def wait_run(run, args):
+    """Wait for a Build run found for an earlier push tip, whose commit covers the target on every Build path."""
+    print(f'waiting for Build run {run["databaseId"]} of {run["headSha"][:9]}', flush=True)
+    while run['status'] != 'completed':
+        time.sleep(args.poll)
+        run = json.loads(subprocess.check_output(
+            ['gh', 'run', 'view', str(run['databaseId']), '--json', 'databaseId,status,conclusion,headSha'],
+            cwd=MAIN, text=True, encoding='utf-8'))
+    return finish_run(run)
 
 
 def cmd_runtime(args):
     git(MAIN, 'fetch', '-q', 'origin')
     while True:
         sha = git(MAIN, 'rev-parse', args.commit or 'origin/main')
-        run = wait_build(sha, args)
+        covering = installer.build_run(MAIN, sha)
+        if covering is None:
+            run = wait_build(sha, args)
+        else:
+            if covering['headSha'] != sha:
+                print(f'{sha[:9]} changes no Build path; its Build is run {covering["databaseId"]} of '
+                      f'{covering["headSha"][:9]}', flush=True)
+            run = wait_run(covering, args)
         if run['conclusion'] == 'cancelled':
             # A newer push cancels the older Build of the same branch; following main means following that push.
             git(MAIN, 'fetch', '-q', 'origin')
             moved = git(MAIN, 'rev-parse', 'origin/main')
             if args.commit or moved == sha:
-                raise Fail(f'Build run {run["databaseId"]} for {sha} ended cancelled')
-            print(f'Build run {run["databaseId"]} for {sha[:9]} was cancelled; following origin/main {moved[:9]}', flush=True)
+                raise Fail(f'Build run {run["databaseId"]} for {run["headSha"]} ended cancelled')
+            print(f'Build run {run["databaseId"]} for {run["headSha"][:9]} was cancelled; following origin/main '
+                  f'{moved[:9]}', flush=True)
             continue
         print(f'Build run {run["databaseId"]} succeeded; waiting for the museum client to close', flush=True)
         # Running smoke/capture servers keep the runtime dir they started with; the next update removes it once unused.
@@ -362,7 +386,8 @@ def cmd_runtime(args):
     require_main_branch()
     require_clean(MAIN, 'main checkout')
     if args.dry_run:
-        print(f'dry run: would ff main to {sha} and run update_museum_runtime.py --run {run["databaseId"]}')
+        print(f'dry run: would ff main to {sha} and run update_museum_runtime.py --run {run["databaseId"]} '
+              f'of {run["headSha"][:9]}')
         return
     git(MAIN, 'merge', '--ff-only', sha)
     code = subprocess.run([sys.executable, str(MAIN / 'scripts/update_museum_runtime.py'), '--run', str(run['databaseId'])], cwd=MAIN).returncode
