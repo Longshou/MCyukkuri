@@ -318,16 +318,13 @@ public final class PlayLife {
 
     /**
      * The verdict of a station contest: the winner starts its session after its smug beat; the loser lets this station be, sulks for
-     * {@link #LOSS_COOLDOWN} ticks without playing anywhere and, once the station is free again, may take its turn.
+     * {@link #LOSS_COOLDOWN} ticks without playing anywhere and, once the station is free again, may take its turn. The wait is the
+     * play cooldown, not the scan wait: a stray's walk to a playground zeroes the scan wait ({@code RoamingGoal.resetScan}), so the
+     * station's first face would paint over the smug beat at once.
      */
     public void contested(PlayBlockEntity target, boolean won, UUID rival) {
-        scanWait = Contest.GLOAT_TICKS;
-        if (won) {
-            cooldown = 0;
-        } else {
-            cooldown = LOSS_COOLDOWN;
-            rememberSkip(gaveUp, target.getBlockPos());
-        }
+        cooldown = won ? Contest.GLOAT_TICKS : LOSS_COOLDOWN;
+        if (!won) rememberSkip(gaveUp, target.getBlockPos());
         GameplayLog.event(entity, "play", "contested station {} kind={} at={} rival={} boredom={}", won ? "won" : "yielded",
                 target.kind(), target.getBlockPos(), rival, entity.dailyLife().boredom());
     }
