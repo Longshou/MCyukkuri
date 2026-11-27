@@ -191,7 +191,7 @@ public final class Penance {
             return;
         }
         switch (phase) {
-            case STARTLE -> { if (age >= STARTLE_TICKS) { if (verdict != null) answer(); else posture(); } }
+            case STARTLE -> { if (age >= STARTLE_TICKS && (verdict != null || spent(now, age))) { if (verdict != null) answer(); else posture(); } }
             case MUTTER -> { if (spent(now, age)) excuse(); }
             case PLEA -> { if (spent(now, age)) { if (beat.equals("apology")) apologyFollows(); else lieLow(); } }
             case EXCUSE, VOW, BOW -> { if (spent(now, age)) lieLow(); }
@@ -457,7 +457,8 @@ public final class Penance {
         long left = beatAt + beatTicks - now();
         // Two ticks of overlap: the next beat takes over before this one runs out, so no idle face shows between two beats.
         int ticks = speak ? beatTicks + 2 : (int) Math.max(left, 20) + 2;
-        pet.holdReaction(clip, face, "", ticks);
+        // The flinch plays once; while the gasp is still being said the pet stays frozen stiff instead of flinching again.
+        pet.holdReaction(!speak && phase == Phase.STARTLE ? YukkuriAction.BRACE : clip, face, "", ticks);
         if (!speak) return;
         // The pose comes first; its line is said as soon as the shared speech clock lets this pet speak (the beat before it may still be
         // talking), and the beat is not over until it has been said (spent).

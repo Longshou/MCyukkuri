@@ -73,7 +73,7 @@ class RuleReactionTest {
         assertEquals("rule_tighten", beat.event());
     }
 
-    @Test void everyPetShowsAtLeastOneBeatWithALineAndNobodyTreatsTheOwnerAsAnEqual() {
+    @Test void everyPetShowsAtLeastOneBeatWithAFaceALineAndAHoldLongEnoughForIt() {
         for (boolean loosened : new boolean[] {true, false})
             for (double urge : new double[] {0, .3, .5, .9})
                 for (int obedience : new int[] {10, 40, 60, 90})

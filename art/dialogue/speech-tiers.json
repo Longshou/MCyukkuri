@@ -73317,9 +73317,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
-   "chinese": "油、油……好……会遵守……",
-   "english": "Yu, yu... yes... I will obey...",
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "油、油……好……会遵守，饲主大人……",
+   "english": "Yu, yu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73356,9 +73356,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
-   "chinese": "油、油……好口怕……对不起……",
-   "english": "Yu, yu... scawy... sowwy...",
+   "japanese": "ゆっ、ゆっ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……饲主大人，对不起……",
+   "english": "Yu, yu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73369,9 +73369,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜……会遵守……别生气……",
-   "english": "Eek... I will keep it... do not be angry...",
+   "japanese": "ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜……会遵守……别生气，饲主大人……",
+   "english": "Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73395,9 +73395,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
-   "chinese": "油、油……噗咕……好嘛……",
-   "english": "Yu, yu... puff... okay...",
+   "japanese": "ゆっ、ゆっ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "油、油……噗咕……好嘛，饲主大人……",
+   "english": "Yu, yu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73434,9 +73434,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
-   "chinese": "油、油！太好惹！谢谢！",
-   "english": "Yu, yu! Yay! Thank you!",
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "油、油！太好惹！谢谢饲主大人！",
+   "english": "Yu, yu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73512,9 +73512,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
-   "chinese": "油、油呀……！饲主大人……！",
-   "english": "Yu, yuEek...! Owner...!",
+   "japanese": "ゆっ、ゆっ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油！呀……！饲主大人……！",
+   "english": "Yu, yu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73551,9 +73551,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "油、油……对不起……原谅窝……",
-   "english": "Yu, yu... sowwy... forgive me...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "油、油……饲主大人……原谅窝……",
+   "english": "Yu, yu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73590,9 +73590,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "油、油对不起……再也不敢……",
-   "english": "Yu, yuSowwy... never again...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "油、油……饲主大人，对不起……再也不敢……",
+   "english": "Yu, yu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73603,9 +73603,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "对不起……再也不敢了……",
-   "english": "Sorry... never again...",
+   "japanese": "ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "对不起，饲主大人……再也不敢了……",
+   "english": "Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73616,9 +73616,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごめんなさい……もう しません……",
-   "chinese": "对不起……再也不会了……",
-   "english": "I am sorry... never again...",
+   "japanese": "ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "对不起，饲主大人……再也不会了……",
+   "english": "I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73629,9 +73629,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
-   "chinese": "油、油可是……忍不住……",
-   "english": "Yu, yuBut... could not hold it...",
+   "japanese": "ゆっ、ゆっ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "油、油……可是……忍不住……饲主大人……",
+   "english": "Yu, yu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73642,9 +73642,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だっちぇ……がまん できにゃかったにぇ……",
-   "chinese": "可是……实在忍不住捏……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だっちぇ……がまん できにゃかったにぇ……かいぬししゃま……",
+   "chinese": "可是……实在忍不住捏……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73655,9 +73655,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だって……がまん できなかったよ……",
-   "chinese": "可是……实在忍不住哦……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だって……がまん できなかったよ……かいぬしさま……",
+   "chinese": "可是……实在忍不住哦……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73668,9 +73668,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
-   "chinese": "油、油……生气了……？",
-   "english": "Yu, yu... angwy...?",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "油、油……饲主大人，生气了……？",
+   "english": "Yu, yu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73746,9 +73746,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
-   "chinese": "油、油……嗯……对不起……",
-   "english": "Yu, yu... yes... sowwy...",
+   "japanese": "ゆっ、ゆっ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……饲主大人，对不起……",
+   "english": "Yu, yu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73785,9 +73785,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
-   "chinese": "油、油……对不起……",
-   "english": "Yu, yu... sowwy...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……饲主大人，对不起……",
+   "english": "Yu, yu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73824,9 +73824,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
-   "chinese": "油、油……好……会遵守……",
-   "english": "Yu, yu... yes... I will obey...",
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "油、油……好……会遵守，饲主大人……",
+   "english": "Yu, yu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73863,9 +73863,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
-   "chinese": "油、油……好口怕……对不起……",
-   "english": "Yu, yu... scawy... sowwy...",
+   "japanese": "ゆっ、ゆっ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……饲主大人，对不起……",
+   "english": "Yu, yu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73876,9 +73876,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜……会遵守……别生气……",
-   "english": "Eek... I will keep it... do not be angry...",
+   "japanese": "ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜……会遵守……别生气，饲主大人……",
+   "english": "Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73902,9 +73902,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
-   "chinese": "油、油……噗咕……好嘛……",
-   "english": "Yu, yu... puff... okay...",
+   "japanese": "ゆっ、ゆっ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "油、油……噗咕……好嘛，饲主大人……",
+   "english": "Yu, yu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -73941,9 +73941,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
-   "chinese": "油、油！太好惹！谢谢！",
-   "english": "Yu, yu! Yay! Thank you!",
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "油、油！太好惹！谢谢饲主大人！",
+   "english": "Yu, yu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74019,9 +74019,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
-   "chinese": "油、油呀……！饲主大人……！",
-   "english": "Yu, yuEek...! Owner...!",
+   "japanese": "ゆっ、ゆっ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油！呀……！饲主大人……！",
+   "english": "Yu, yu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74058,9 +74058,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "油、油……对不起……原谅窝……",
-   "english": "Yu, yu... sowwy... forgive me...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "油、油……饲主大人……原谅窝……",
+   "english": "Yu, yu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74097,9 +74097,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "油、油对不起……再也不敢……",
-   "english": "Yu, yuSowwy... never again...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "油、油……饲主大人，对不起……再也不敢……",
+   "english": "Yu, yu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74110,9 +74110,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "对不起……再也不敢了……",
-   "english": "Sorry... never again...",
+   "japanese": "ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "对不起，饲主大人……再也不敢了……",
+   "english": "Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74123,9 +74123,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごめんなさい……もう しません……",
-   "chinese": "对不起……再也不会了……",
-   "english": "I am sorry... never again...",
+   "japanese": "ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "对不起，饲主大人……再也不会了……",
+   "english": "I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74136,9 +74136,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
-   "chinese": "油、油可是……忍不住……",
-   "english": "Yu, yuBut... could not hold it...",
+   "japanese": "ゆっ、ゆっ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "油、油……可是……忍不住……饲主大人……",
+   "english": "Yu, yu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74149,9 +74149,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だっちぇ……がまん できにゃかったのじぇ……",
-   "chinese": "可是……实在忍不住惹杰……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だっちぇ……がまん できにゃかったのじぇ……かいぬししゃま……",
+   "chinese": "可是……实在忍不住惹杰……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74162,9 +74162,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だって……がまん できなかったのぜ……",
-   "chinese": "可是……实在忍不住贼……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だって……がまん できなかったのぜ……かいぬしさま……",
+   "chinese": "可是……实在忍不住贼……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74175,9 +74175,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
-   "chinese": "油、油……生气了……？",
-   "english": "Yu, yu... angwy...?",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "油、油……饲主大人，生气了……？",
+   "english": "Yu, yu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74253,9 +74253,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
-   "chinese": "油、油……嗯……对不起……",
-   "english": "Yu, yu... yes... sowwy...",
+   "japanese": "ゆっ、ゆっ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……饲主大人，对不起……",
+   "english": "Yu, yu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74292,9 +74292,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
-   "chinese": "油、油……对不起……",
-   "english": "Yu, yu... sowwy...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……饲主大人，对不起……",
+   "english": "Yu, yu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74331,9 +74331,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
-   "chinese": "油、油……好……会遵守……",
-   "english": "Yu, yu... yes... I will obey...",
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "油、油……好……会遵守，饲主大人……",
+   "english": "Yu, yu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74370,9 +74370,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
-   "chinese": "油、油……好口怕……对不起……",
-   "english": "Yu, yu... scawy... sowwy...",
+   "japanese": "ゆっ、ゆっ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……饲主大人，对不起……",
+   "english": "Yu, yu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74383,9 +74383,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜……会遵守……别生气……",
-   "english": "Eek... I will keep it... do not be angry...",
+   "japanese": "ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜……会遵守……别生气，饲主大人……",
+   "english": "Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74409,9 +74409,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
-   "chinese": "油、油……噗咕……好嘛……",
-   "english": "Yu, yu... puff... okay...",
+   "japanese": "ゆっ、ゆっ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "油、油……噗咕……好嘛，饲主大人……",
+   "english": "Yu, yu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74448,9 +74448,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
-   "chinese": "油、油！太好惹！谢谢！",
-   "english": "Yu, yu! Yay! Thank you!",
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "油、油！太好惹！谢谢饲主大人！",
+   "english": "Yu, yu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74526,9 +74526,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
-   "chinese": "油、油呀……！饲主大人……！",
-   "english": "Yu, yuEek...! Owner...!",
+   "japanese": "ゆっ、ゆっ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油！呀……！饲主大人……！",
+   "english": "Yu, yu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74565,9 +74565,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "油、油……对不起……原谅窝……",
-   "english": "Yu, yu... sowwy... forgive me...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "油、油……饲主大人……原谅窝……",
+   "english": "Yu, yu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74604,9 +74604,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "油、油对不起……再也不敢……",
-   "english": "Yu, yuSowwy... never again...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "油、油……饲主大人，对不起……再也不敢……",
+   "english": "Yu, yu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74617,9 +74617,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "对不起……再也不敢了……",
-   "english": "Sorry... never again...",
+   "japanese": "ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "对不起，饲主大人……再也不敢了……",
+   "english": "Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74630,9 +74630,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごめんなさい……もう しません……",
-   "chinese": "对不起……再也不会了……",
-   "english": "I am sorry... never again...",
+   "japanese": "ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "对不起，饲主大人……再也不会了……",
+   "english": "I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74643,9 +74643,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
-   "chinese": "油、油可是……忍不住……",
-   "english": "Yu, yuBut... could not hold it...",
+   "japanese": "ゆっ、ゆっ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "油、油……可是……忍不住……饲主大人……",
+   "english": "Yu, yu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74656,9 +74656,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だっちぇ……がまん できにゃかったにょ……",
-   "chinese": "可是……实在忍不住哟……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だっちぇ……がまん できにゃかったにょ……かいぬししゃま……",
+   "chinese": "可是……实在忍不住哟……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74669,9 +74669,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だって……がまん できなかったわ……",
-   "chinese": "可是……实在忍不住呢……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だって……がまん できなかったわ……かいぬしさま……",
+   "chinese": "可是……实在忍不住呢……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74682,9 +74682,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
-   "chinese": "油、油……生气了……？",
-   "english": "Yu, yu... angwy...?",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "油、油……饲主大人，生气了……？",
+   "english": "Yu, yu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74760,9 +74760,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
-   "chinese": "油、油……嗯……对不起……",
-   "english": "Yu, yu... yes... sowwy...",
+   "japanese": "ゆっ、ゆっ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……饲主大人，对不起……",
+   "english": "Yu, yu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74799,9 +74799,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
-   "chinese": "油、油……对不起……",
-   "english": "Yu, yu... sowwy...",
+   "japanese": "ゆっ、ゆっ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、油……饲主大人，对不起……",
+   "english": "Yu, yu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74838,9 +74838,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "ゆ、にゃっ……あい……まもりゅ……",
-   "chinese": "油、喵……好……会遵守……",
-   "english": "Yu, nya... yes... I will obey...",
+   "japanese": "ゆ、にゃっ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "油、喵……好……会遵守，饲主大人……",
+   "english": "Yu, nya... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74877,9 +74877,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ゆ、にゃっ……こあい……ごみぇんなちゃい……",
-   "chinese": "油、喵……好口怕……对不起……",
-   "english": "Yu, nya... scawy... sowwy...",
+   "japanese": "ゆ、にゃっ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、喵……好口怕……饲主大人，对不起……",
+   "english": "Yu, nya... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74890,9 +74890,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜……会遵守……别生气……",
-   "english": "Eek... I will keep it... do not be angry...",
+   "japanese": "ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜……会遵守……别生气，饲主大人……",
+   "english": "Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74916,9 +74916,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "ゆ、にゃっ……ぷくー……あい……",
-   "chinese": "油、喵……噗咕……好嘛……",
-   "english": "Yu, nya... puff... okay...",
+   "japanese": "ゆ、にゃっ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "油、喵……噗咕……好嘛，饲主大人……",
+   "english": "Yu, nya... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -74955,9 +74955,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "ゆ、にゃっ！ やっちゃー！ ありがちょ！",
-   "chinese": "油、喵！太好惹！谢谢！",
-   "english": "Yu, nya! Yay! Thank you!",
+   "japanese": "ゆ、にゃっ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "油、喵！太好惹！谢谢饲主大人！",
+   "english": "Yu, nya! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75033,9 +75033,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "ゆ、にゃっひっ……！ かいぬちしゃま……！",
-   "chinese": "油、喵呀……！饲主大人……！",
-   "english": "Yu, nyaEek...! Owner...!",
+   "japanese": "ゆ、にゃっ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "油、喵！呀……！饲主大人……！",
+   "english": "Yu, nya! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75072,9 +75072,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "ゆ、にゃっ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "油、喵……对不起……原谅窝……",
-   "english": "Yu, nya... sowwy... forgive me...",
+   "japanese": "ゆ、にゃっ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "油、喵……饲主大人……原谅窝……",
+   "english": "Yu, nya... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75111,9 +75111,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ゆ、にゃっごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "油、喵对不起……再也不敢……",
-   "english": "Yu, nyaSowwy... never again...",
+   "japanese": "ゆ、にゃっ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "油、喵……饲主大人，对不起……再也不敢……",
+   "english": "Yu, nya... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75124,9 +75124,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "对不起……再也不敢了……",
-   "english": "Sorry... never again...",
+   "japanese": "ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "对不起，饲主大人……再也不敢了……",
+   "english": "Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75137,9 +75137,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ごめんなさい……もう しません……",
-   "chinese": "对不起……再也不会了……",
-   "english": "I am sorry... never again...",
+   "japanese": "ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "对不起，饲主大人……再也不会了……",
+   "english": "I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75150,9 +75150,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ゆ、にゃっだっちぇ……がまん、できにゃい……",
-   "chinese": "油、喵可是……忍不住……",
-   "english": "Yu, nyaBut... could not hold it...",
+   "japanese": "ゆ、にゃっ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "油、喵……可是……忍不住……饲主大人……",
+   "english": "Yu, nya... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75163,9 +75163,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だっちぇ……がまん できにゃかったよぅ……",
-   "chinese": "可是……实在忍不住哟——……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だっちぇ……がまん できにゃかったよぅ……かいぬししゃま……",
+   "chinese": "可是……实在忍不住哟——……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75176,9 +75176,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "だって……がまん できなかったよー……",
-   "chinese": "可是……实在忍不住哟——……",
-   "english": "But... I could not hold it in...",
+   "japanese": "だって……がまん できなかったよー……かいぬしさま……",
+   "chinese": "可是……实在忍不住哟——……饲主大人……",
+   "english": "But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75189,9 +75189,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "ゆ、にゃっ……おこっちぇる……？",
-   "chinese": "油、喵……生气了……？",
-   "english": "Yu, nya... angwy...?",
+   "japanese": "ゆ、にゃっ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "油、喵……饲主大人，生气了……？",
+   "english": "Yu, nya... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75267,9 +75267,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "ゆ、にゃっ……あい……ごみぇんなちゃい……",
-   "chinese": "油、喵……嗯……对不起……",
-   "english": "Yu, nya... yes... sowwy...",
+   "japanese": "ゆ、にゃっ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、喵……嗯……饲主大人，对不起……",
+   "english": "Yu, nya... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75306,9 +75306,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "ゆ、にゃっ……ごみぇんなちゃい……",
-   "chinese": "油、喵……对不起……",
-   "english": "Yu, nya... sowwy...",
+   "japanese": "ゆ、にゃっ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "油、喵……饲主大人，对不起……",
+   "english": "Yu, nya... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75345,9 +75345,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "む、きゅっ……あい……まもりゅ……",
-   "chinese": "姆、啾……好……会遵守……",
-   "english": "Mu, kyu... yes... I will obey...",
+   "japanese": "む、きゅっ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "姆、啾……好……会遵守，饲主大人……",
+   "english": "Mu, kyu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75384,9 +75384,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "む、きゅっ……こあい……ごみぇんなちゃい……",
-   "chinese": "姆、啾……好口怕……对不起……",
-   "english": "Mu, kyu... scawy... sowwy...",
+   "japanese": "む、きゅっ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "姆、啾……好口怕……饲主大人，对不起……",
+   "english": "Mu, kyu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75397,9 +75397,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "むきゅ。ひっ……まもりゅ……おこらないで……",
-   "chinese": "姆啾。呜……会遵守……别生气……",
-   "english": "Mukyu. Eek... I will keep it... do not be angry...",
+   "japanese": "むきゅ。ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "姆啾。呜……会遵守……别生气，饲主大人……",
+   "english": "Mukyu. Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75423,9 +75423,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "む、きゅっ……ぷくー……あい……",
-   "chinese": "姆、啾……噗咕……好嘛……",
-   "english": "Mu, kyu... puff... okay...",
+   "japanese": "む、きゅっ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "姆、啾……噗咕……好嘛，饲主大人……",
+   "english": "Mu, kyu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75462,9 +75462,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "む、きゅっ！ やっちゃー！ ありがちょ！",
-   "chinese": "姆、啾！太好惹！谢谢！",
-   "english": "Mu, kyu! Yay! Thank you!",
+   "japanese": "む、きゅっ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "姆、啾！太好惹！谢谢饲主大人！",
+   "english": "Mu, kyu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75540,9 +75540,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "む、きゅっひっ……！ かいぬちしゃま……！",
-   "chinese": "姆、啾呀……！饲主大人……！",
-   "english": "Mu, kyuEek...! Owner...!",
+   "japanese": "む、きゅっ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "姆、啾！呀……！饲主大人……！",
+   "english": "Mu, kyu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75579,9 +75579,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "む、きゅっ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "姆、啾……对不起……原谅窝……",
-   "english": "Mu, kyu... sowwy... forgive me...",
+   "japanese": "む、きゅっ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "姆、啾……饲主大人……原谅窝……",
+   "english": "Mu, kyu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75618,9 +75618,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "む、きゅっごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "姆、啾对不起……再也不敢……",
-   "english": "Mu, kyuSowwy... never again...",
+   "japanese": "む、きゅっ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "姆、啾……饲主大人，对不起……再也不敢……",
+   "english": "Mu, kyu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75631,9 +75631,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "むきゅ。ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "姆啾。对不起……再也不敢了……",
-   "english": "Mukyu. Sorry... never again...",
+   "japanese": "むきゅ。ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "姆啾。对不起，饲主大人……再也不敢了……",
+   "english": "Mukyu. Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75644,9 +75644,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "むきゅ。ごめんなさい……もう しません……",
-   "chinese": "姆啾。对不起……再也不会了……",
-   "english": "Mukyu. I am sorry... never again...",
+   "japanese": "むきゅ。ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "姆啾。对不起，饲主大人……再也不会了……",
+   "english": "Mukyu. I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75657,9 +75657,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "む、きゅっだっちぇ……がまん、できにゃい……",
-   "chinese": "姆、啾可是……忍不住……",
-   "english": "Mu, kyuBut... could not hold it...",
+   "japanese": "む、きゅっ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "姆、啾……可是……忍不住……饲主大人……",
+   "english": "Mu, kyu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75670,9 +75670,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "むきゅ。だっちぇ……がまん できにゃかったわ……",
-   "chinese": "姆啾。可是……实在忍不住惹哇……",
-   "english": "Mukyu. But... I could not hold it in...",
+   "japanese": "むきゅ。だっちぇ……がまん できにゃかったわ……かいぬししゃま……",
+   "chinese": "姆啾。可是……实在忍不住惹哇……饲主大人……",
+   "english": "Mukyu. But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75683,9 +75683,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "むきゅ。だって……がまん できなかったわ……",
-   "chinese": "姆啾。可是……实在忍不住哇……",
-   "english": "Mukyu. But... I could not hold it in...",
+   "japanese": "むきゅ。だって……がまん できなかったわ……かいぬしさま……",
+   "chinese": "姆啾。可是……实在忍不住哇……饲主大人……",
+   "english": "Mukyu. But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75696,9 +75696,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "む、きゅっ……おこっちぇる……？",
-   "chinese": "姆、啾……生气了……？",
-   "english": "Mu, kyu... angwy...?",
+   "japanese": "む、きゅっ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "姆、啾……饲主大人，生气了……？",
+   "english": "Mu, kyu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75774,9 +75774,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "む、きゅっ……あい……ごみぇんなちゃい……",
-   "chinese": "姆、啾……嗯……对不起……",
-   "english": "Mu, kyu... yes... sowwy...",
+   "japanese": "む、きゅっ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "姆、啾……嗯……饲主大人，对不起……",
+   "english": "Mu, kyu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75813,9 +75813,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "む、きゅっ……ごみぇんなちゃい……",
-   "chinese": "姆、啾……对不起……",
-   "english": "Mu, kyu... sowwy...",
+   "japanese": "む、きゅっ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "姆、啾……饲主大人，对不起……",
+   "english": "Mu, kyu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75852,9 +75852,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "うー、うー……あい……まもりゅ……",
-   "chinese": "呜——、呜——……好……会遵守……",
-   "english": "Uu, uu... yes... I will obey...",
+   "japanese": "うー、うー……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "呜——、呜——……好……会遵守，饲主大人……",
+   "english": "Uu, uu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75891,9 +75891,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "うー、うー……こあい……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……好口怕……对不起……",
-   "english": "Uu, uu... scawy... sowwy...",
+   "japanese": "うー、うー……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……好口怕……饲主大人，对不起……",
+   "english": "Uu, uu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75904,9 +75904,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "うー、ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜——呜……会遵守……别生气……",
-   "english": "Uu... Eek... I will keep it... do not be angry...",
+   "japanese": "うー、ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜——呜……会遵守……别生气，饲主大人……",
+   "english": "Uu... Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75930,9 +75930,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "うー、うー……ぷくー……あい……",
-   "chinese": "呜——、呜——……噗咕……好嘛……",
-   "english": "Uu, uu... puff... okay...",
+   "japanese": "うー、うー……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "呜——、呜——……噗咕……好嘛，饲主大人……",
+   "english": "Uu, uu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -75969,9 +75969,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "うー、うー！ やっちゃー！ ありがちょ！",
-   "chinese": "呜——、呜——！太好惹！谢谢！",
-   "english": "Uu, uu! Yay! Thank you!",
+   "japanese": "うー、うー！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "呜——、呜——！太好惹！谢谢饲主大人！",
+   "english": "Uu, uu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76047,9 +76047,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "うー、うーひっ……！ かいぬちしゃま……！",
-   "chinese": "呜——、呜——呀……！饲主大人……！",
-   "english": "Uu, uuEek...! Owner...!",
+   "japanese": "うー、うー！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "呜——、呜——！呀……！饲主大人……！",
+   "english": "Uu, uu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76086,9 +76086,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "うー、うー……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "呜——、呜——……对不起……原谅窝……",
-   "english": "Uu, uu... sowwy... forgive me...",
+   "japanese": "うー、うー……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "呜——、呜——……饲主大人……原谅窝……",
+   "english": "Uu, uu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76125,9 +76125,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、うーごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "呜——、呜——对不起……再也不敢……",
-   "english": "Uu, uuSowwy... never again...",
+   "japanese": "うー、うー……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "呜——、呜——……饲主大人，对不起……再也不敢……",
+   "english": "Uu, uu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76138,9 +76138,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "呜——对不起……再也不敢了……",
-   "english": "Uu... Sorry... never again...",
+   "japanese": "うー、ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "呜——对不起，饲主大人……再也不敢了……",
+   "english": "Uu... Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76151,9 +76151,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、ごめんなさい……もう しません……",
-   "chinese": "呜——对不起……再也不会了……",
-   "english": "Uu... I am sorry... never again...",
+   "japanese": "うー、ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "呜——对不起，饲主大人……再也不会了……",
+   "english": "Uu... I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76164,9 +76164,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、うーだっちぇ……がまん、できにゃい……",
-   "chinese": "呜——、呜——可是……忍不住……",
-   "english": "Uu, uuBut... could not hold it...",
+   "japanese": "うー、うー……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "呜——、呜——……可是……忍不住……饲主大人……",
+   "english": "Uu, uu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76177,9 +76177,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、だっちぇ……がまん できにゃかったなのだ……",
-   "chinese": "呜——可是……实在忍不住呀……",
-   "english": "Uu... But... I could not hold it in...",
+   "japanese": "うー、だっちぇ……がまん できにゃかったなのだ……かいぬししゃま……",
+   "chinese": "呜——可是……实在忍不住呀……饲主大人……",
+   "english": "Uu... But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76190,9 +76190,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、だって……がまん できなかったのだ……",
-   "chinese": "呜——可是……实在忍不住呀……",
-   "english": "Uu... But... I could not hold it in...",
+   "japanese": "うー、だって……がまん できなかったのだ……かいぬしさま……",
+   "chinese": "呜——可是……实在忍不住呀……饲主大人……",
+   "english": "Uu... But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76203,9 +76203,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "うー、うー……おこっちぇる……？",
-   "chinese": "呜——、呜——……生气了……？",
-   "english": "Uu, uu... angwy...?",
+   "japanese": "うー、うー……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "呜——、呜——……饲主大人，生气了……？",
+   "english": "Uu, uu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76281,9 +76281,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "うー、うー……あい……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……嗯……对不起……",
-   "english": "Uu, uu... yes... sowwy...",
+   "japanese": "うー、うー……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……嗯……饲主大人，对不起……",
+   "english": "Uu, uu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76320,9 +76320,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "うー、うー……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……对不起……",
-   "english": "Uu, uu... sowwy...",
+   "japanese": "うー、うー……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……饲主大人，对不起……",
+   "english": "Uu, uu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76359,9 +76359,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "うー、うー……あい……まもりゅ……",
-   "chinese": "呜——、呜——……好……会遵守……",
-   "english": "Uu, uu... yes... I will obey...",
+   "japanese": "うー、うー……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "呜——、呜——……好……会遵守，饲主大人……",
+   "english": "Uu, uu... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76398,9 +76398,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "うー、うー……こあい……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……好口怕……对不起……",
-   "english": "Uu, uu... scawy... sowwy...",
+   "japanese": "うー、うー……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……好口怕……饲主大人，对不起……",
+   "english": "Uu, uu... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76411,9 +76411,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "うー、ひっ……まもりゅ……おこらないで……",
-   "chinese": "呜——呜……会遵守……别生气……",
-   "english": "Uu... Eek... I will keep it... do not be angry...",
+   "japanese": "うー、ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "呜——呜……会遵守……别生气，饲主大人……",
+   "english": "Uu... Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76437,9 +76437,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "うー、うー……ぷくー……あい……",
-   "chinese": "呜——、呜——……噗咕……好嘛……",
-   "english": "Uu, uu... puff... okay...",
+   "japanese": "うー、うー……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "呜——、呜——……噗咕……好嘛，饲主大人……",
+   "english": "Uu, uu... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76476,9 +76476,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "うー、うー！ やっちゃー！ ありがちょ！",
-   "chinese": "呜——、呜——！太好惹！谢谢！",
-   "english": "Uu, uu! Yay! Thank you!",
+   "japanese": "うー、うー！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "呜——、呜——！太好惹！谢谢饲主大人！",
+   "english": "Uu, uu! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76554,9 +76554,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "うー、うーひっ……！ かいぬちしゃま……！",
-   "chinese": "呜——、呜——呀……！饲主大人……！",
-   "english": "Uu, uuEek...! Owner...!",
+   "japanese": "うー、うー！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "呜——、呜——！呀……！饲主大人……！",
+   "english": "Uu, uu! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76593,9 +76593,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "うー、うー……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "呜——、呜——……对不起……原谅窝……",
-   "english": "Uu, uu... sowwy... forgive me...",
+   "japanese": "うー、うー……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "呜——、呜——……饲主大人……原谅窝……",
+   "english": "Uu, uu... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76632,9 +76632,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、うーごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "呜——、呜——对不起……再也不敢……",
-   "english": "Uu, uuSowwy... never again...",
+   "japanese": "うー、うー……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "呜——、呜——……饲主大人，对不起……再也不敢……",
+   "english": "Uu, uu... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76645,9 +76645,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "呜——对不起……再也不敢了……",
-   "english": "Uu... Sorry... never again...",
+   "japanese": "うー、ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "呜——对不起，饲主大人……再也不敢了……",
+   "english": "Uu... Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76658,9 +76658,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "うー、ごめんなさい……もう しません……",
-   "chinese": "呜——对不起……再也不会了……",
-   "english": "Uu... I am sorry... never again...",
+   "japanese": "うー、ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "呜——对不起，饲主大人……再也不会了……",
+   "english": "Uu... I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76671,9 +76671,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、うーだっちぇ……がまん、できにゃい……",
-   "chinese": "呜——、呜——可是……忍不住……",
-   "english": "Uu, uuBut... could not hold it...",
+   "japanese": "うー、うー……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "呜——、呜——……可是……忍不住……饲主大人……",
+   "english": "Uu, uu... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76684,9 +76684,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、だっちぇ……がまん できにゃかったよぅ……",
-   "chinese": "呜——可是……实在忍不住哦……",
-   "english": "Uu... But... I could not hold it in...",
+   "japanese": "うー、だっちぇ……がまん できにゃかったよぅ……かいぬししゃま……",
+   "chinese": "呜——可是……实在忍不住哦……饲主大人……",
+   "english": "Uu... But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76697,9 +76697,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "うー、だって……がまん できなかったよ……",
-   "chinese": "呜——可是……实在忍不住哦……",
-   "english": "Uu... But... I could not hold it in...",
+   "japanese": "うー、だって……がまん できなかったよ……かいぬしさま……",
+   "chinese": "呜——可是……实在忍不住哦……饲主大人……",
+   "english": "Uu... But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76710,9 +76710,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "うー、うー……おこっちぇる……？",
-   "chinese": "呜——、呜——……生气了……？",
-   "english": "Uu, uu... angwy...?",
+   "japanese": "うー、うー……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "呜——、呜——……饲主大人，生气了……？",
+   "english": "Uu, uu... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76788,9 +76788,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "うー、うー……あい……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……嗯……对不起……",
-   "english": "Uu, uu... yes... sowwy...",
+   "japanese": "うー、うー……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……嗯……饲主大人，对不起……",
+   "english": "Uu, uu... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76827,9 +76827,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "うー、うー……ごみぇんなちゃい……",
-   "chinese": "呜——、呜——……对不起……",
-   "english": "Uu, uu... sowwy...",
+   "japanese": "うー、うー……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……饲主大人，对不起……",
+   "english": "Uu, uu... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76867,9 +76867,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "みょ、みょん……あい……まもりゅ……",
-   "chinese": "咪、咪呦……好……会遵守……",
-   "english": "Myo, myon... yes... I will obey...",
+   "japanese": "みょ、みょん……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "咪、咪呦……好……会遵守，饲主大人……",
+   "english": "Myo, myon... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76909,9 +76909,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "みょ、みょん……こあい……ごみぇんなちゃい……",
-   "chinese": "咪、咪呦……好口怕……对不起……",
-   "english": "Myo, myon... scawy... sowwy...",
+   "japanese": "みょ、みょん……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……好口怕……饲主大人，对不起……",
+   "english": "Myo, myon... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76923,9 +76923,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "みょん！ひっ……まもりゅ……おこらないで……",
-   "chinese": "咪呦！呜……会遵守……别生气……",
-   "english": "Myon! Eek... I will keep it... do not be angry...",
+   "japanese": "みょん！ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "咪呦！呜……会遵守……别生气，饲主大人……",
+   "english": "Myon! Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76951,9 +76951,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "みょ、みょん……ぷくー……あい……",
-   "chinese": "咪、咪呦……噗咕……好嘛……",
-   "english": "Myo, myon... puff... okay...",
+   "japanese": "みょ、みょん……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "咪、咪呦……噗咕……好嘛，饲主大人……",
+   "english": "Myo, myon... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -76993,9 +76993,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "みょ、みょん！ やっちゃー！ ありがちょ！",
-   "chinese": "咪、咪呦！太好惹！谢谢！",
-   "english": "Myo, myon! Yay! Thank you!",
+   "japanese": "みょ、みょん！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "咪、咪呦！太好惹！谢谢饲主大人！",
+   "english": "Myo, myon! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77077,9 +77077,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "みょ、みょんひっ……！ かいぬちしゃま……！",
-   "chinese": "咪、咪呦呀……！饲主大人……！",
-   "english": "Myo, myonEek...! Owner...!",
+   "japanese": "みょ、みょん！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "咪、咪呦！呀……！饲主大人……！",
+   "english": "Myo, myon! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77119,9 +77119,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "みょ、みょん……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "咪、咪呦……对不起……原谅窝……",
-   "english": "Myo, myon... sowwy... forgive me...",
+   "japanese": "みょ、みょん……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "咪、咪呦……饲主大人……原谅窝……",
+   "english": "Myo, myon... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77161,9 +77161,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "みょ、みょんごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "咪、咪呦对不起……再也不敢……",
-   "english": "Myo, myonSowwy... never again...",
+   "japanese": "みょ、みょん……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "咪、咪呦……饲主大人，对不起……再也不敢……",
+   "english": "Myo, myon... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77175,9 +77175,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "みょん！ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "咪呦！对不起……再也不敢了……",
-   "english": "Myon! Sorry... never again...",
+   "japanese": "みょん！ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "咪呦！对不起，饲主大人……再也不敢了……",
+   "english": "Myon! Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77189,9 +77189,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "みょん！ごめんなさい……もう しません……",
-   "chinese": "咪呦！对不起……再也不会了……",
-   "english": "Myon! I am sorry... never again...",
+   "japanese": "みょん！ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "咪呦！对不起，饲主大人……再也不会了……",
+   "english": "Myon! I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77203,9 +77203,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "みょ、みょんだっちぇ……がまん、できにゃい……",
-   "chinese": "咪、咪呦可是……忍不住……",
-   "english": "Myo, myonBut... could not hold it...",
+   "japanese": "みょ、みょん……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "咪、咪呦……可是……忍不住……饲主大人……",
+   "english": "Myo, myon... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77217,9 +77217,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "みょん！だっちぇ……がまん できにゃかったみょ……",
-   "chinese": "咪呦！可是……实在忍不住哦……",
-   "english": "Myon! But... I could not hold it in...",
+   "japanese": "みょん！だっちぇ……がまん できにゃかったみょ……かいぬししゃま……",
+   "chinese": "咪呦！可是……实在忍不住哦……饲主大人……",
+   "english": "Myon! But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77231,9 +77231,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "みょん！だって……がまん できなかったよ……",
-   "chinese": "咪呦！可是……实在忍不住哦……",
-   "english": "Myon! But... I could not hold it in...",
+   "japanese": "みょん！だって……がまん できなかったよ……かいぬしさま……",
+   "chinese": "咪呦！可是……实在忍不住哦……饲主大人……",
+   "english": "Myon! But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77245,9 +77245,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "みょ、みょん……おこっちぇる……？",
-   "chinese": "咪、咪呦……生气了……？",
-   "english": "Myo, myon... angwy...?",
+   "japanese": "みょ、みょん……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "咪、咪呦……饲主大人，生气了……？",
+   "english": "Myo, myon... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77329,9 +77329,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "みょ、みょん……あい……ごみぇんなちゃい……",
-   "chinese": "咪、咪呦……嗯……对不起……",
-   "english": "Myo, myon... yes... sowwy...",
+   "japanese": "みょ、みょん……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……嗯……饲主大人，对不起……",
+   "english": "Myo, myon... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77371,9 +77371,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "みょ、みょん……ごみぇんなちゃい……",
-   "chinese": "咪、咪呦……对不起……",
-   "english": "Myo, myon... sowwy...",
+   "japanese": "みょ、みょん……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……饲主大人，对不起……",
+   "english": "Myo, myon... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77413,9 +77413,9 @@
    "events": [
     "rule_tighten"
    ],
-   "japanese": "ちん、ちーんぽ……あい……まもりゅ……",
-   "chinese": "金、金寶……好……会遵守……",
-   "english": "Chin, chinpo... yes... I will obey...",
+   "japanese": "ちん、ちーんぽ……あい……まもりゅ、かいぬちしゃま……",
+   "chinese": "金、金寶……好……会遵守，饲主大人……",
+   "english": "Chin, chinpo... yes... I will obey, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77455,9 +77455,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ちん、ちーんぽ……こあい……ごみぇんなちゃい……",
-   "chinese": "金、金寶……好口怕……对不起……",
-   "english": "Chin, chinpo... scawy... sowwy...",
+   "japanese": "ちん、ちーんぽ……こあい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "金、金寶……好口怕……饲主大人，对不起……",
+   "english": "Chin, chinpo... scawy... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77469,9 +77469,9 @@
    "events": [
     "rule_cower"
    ],
-   "japanese": "ちーんぽ！ひっ……まもりゅ……おこらないで……",
-   "chinese": "金寶！呜……会遵守……别生气……",
-   "english": "Chinpo! Eek... I will keep it... do not be angry...",
+   "japanese": "ちーんぽ！ひっ……まもりゅ……おこらないで、かいぬししゃま……",
+   "chinese": "金寶！呜……会遵守……别生气，饲主大人……",
+   "english": "Chinpo! Eek... I will keep it... do not be angry, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77497,9 +77497,9 @@
    "events": [
     "rule_yield"
    ],
-   "japanese": "ちん、ちーんぽ……ぷくー……あい……",
-   "chinese": "金、金寶……噗咕……好嘛……",
-   "english": "Chin, chinpo... puff... okay...",
+   "japanese": "ちん、ちーんぽ……ぷくー……あい、かいぬちしゃま……",
+   "chinese": "金、金寶……噗咕……好嘛，饲主大人……",
+   "english": "Chin, chinpo... puff... okay, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77539,9 +77539,9 @@
    "events": [
     "rule_loosen"
    ],
-   "japanese": "ちん、ちーんぽ！ やっちゃー！ ありがちょ！",
-   "chinese": "金、金寶！太好惹！谢谢！",
-   "english": "Chin, chinpo! Yay! Thank you!",
+   "japanese": "ちん、ちーんぽ！ やっちゃー！ ありがちょ、かいぬちしゃま！",
+   "chinese": "金、金寶！太好惹！谢谢饲主大人！",
+   "english": "Chin, chinpo! Yay! Thank you, Owner!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77623,9 +77623,9 @@
    "events": [
     "rule_gasp"
    ],
-   "japanese": "ちん、ちーんぽひっ……！ かいぬちしゃま……！",
-   "chinese": "金、金寶呀……！饲主大人……！",
-   "english": "Chin, chinpoEek...! Owner...!",
+   "japanese": "ちん、ちーんぽ！ ひっ……！ かいぬちしゃま……！",
+   "chinese": "金、金寶！呀……！饲主大人……！",
+   "english": "Chin, chinpo! Eek...! Owner...!",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77665,9 +77665,9 @@
    "events": [
     "rule_beg"
    ],
-   "japanese": "ちん、ちーんぽ……ごみぇんなちゃい……ゆるちちぇ……",
-   "chinese": "金、金寶……对不起……原谅窝……",
-   "english": "Chin, chinpo... sowwy... forgive me...",
+   "japanese": "ちん、ちーんぽ……かいぬちしゃま……ゆるちちぇ……",
+   "chinese": "金、金寶……饲主大人……原谅窝……",
+   "english": "Chin, chinpo... Owner... forgive me...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77707,9 +77707,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ちん、ちーんぽごみぇんなちゃい……もう、ちましぇん……",
-   "chinese": "金、金寶对不起……再也不敢……",
-   "english": "Chin, chinpoSowwy... never again...",
+   "japanese": "ちん、ちーんぽ……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "金、金寶……饲主大人，对不起……再也不敢……",
+   "english": "Chin, chinpo... sowwy, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77721,9 +77721,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ちーんぽ！ごみぇんなちゃい……もう ちましぇん……",
-   "chinese": "金寶！对不起……再也不敢了……",
-   "english": "Chinpo! Sorry... never again...",
+   "japanese": "ちーんぽ！ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……",
+   "chinese": "金寶！对不起，饲主大人……再也不敢了……",
+   "english": "Chinpo! Sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77735,9 +77735,9 @@
    "events": [
     "rule_vow"
    ],
-   "japanese": "ちーんぽ！ごめんなさい……もう しません……",
-   "chinese": "金寶！对不起……再也不会了……",
-   "english": "Chinpo! I am sorry... never again...",
+   "japanese": "ちーんぽ！ごめんなさい、かいぬしさま……もう しません……",
+   "chinese": "金寶！对不起，饲主大人……再也不会了……",
+   "english": "Chinpo! I am sorry, Owner... never again...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77749,9 +77749,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ちん、ちーんぽだっちぇ……がまん、できにゃい……",
-   "chinese": "金、金寶可是……忍不住……",
-   "english": "Chin, chinpoBut... could not hold it...",
+   "japanese": "ちん、ちーんぽ……だっちぇ……がまん できにゃい……かいぬちしゃま……",
+   "chinese": "金、金寶……可是……忍不住……饲主大人……",
+   "english": "Chin, chinpo... but... could not hold it... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77763,9 +77763,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ちーんぽ！だっちぇ……がまん できにゃかったよぅ……",
-   "chinese": "金寶！可是……实在忍不住哦……",
-   "english": "Chinpo! But... I could not hold it in...",
+   "japanese": "ちーんぽ！だっちぇ……がまん できにゃかったよぅ……かいぬししゃま……",
+   "chinese": "金寶！可是……实在忍不住哦……饲主大人……",
+   "english": "Chinpo! But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77777,9 +77777,9 @@
    "events": [
     "rule_excuse"
    ],
-   "japanese": "ちーんぽ！だって……がまん できなかったよ……",
-   "chinese": "金寶！可是……实在忍不住哦……",
-   "english": "Chinpo! But... I could not hold it in...",
+   "japanese": "ちーんぽ！だって……がまん できなかったよ……かいぬしさま……",
+   "chinese": "金寶！可是……实在忍不住哦……饲主大人……",
+   "english": "Chinpo! But... I could not hold it in... Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77791,9 +77791,9 @@
    "events": [
     "rule_wait"
    ],
-   "japanese": "ちん、ちーんぽ……おこっちぇる……？",
-   "chinese": "金、金寶……生气了……？",
-   "english": "Chin, chinpo... angwy...?",
+   "japanese": "ちん、ちーんぽ……かいぬちしゃま、おこっちぇる……？",
+   "chinese": "金、金寶……饲主大人，生气了……？",
+   "english": "Chin, chinpo... Owner, are you angwy...?",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77875,9 +77875,9 @@
    "events": [
     "rule_accept"
    ],
-   "japanese": "ちん、ちーんぽ……あい……ごみぇんなちゃい……",
-   "chinese": "金、金寶……嗯……对不起……",
-   "english": "Chin, chinpo... yes... sowwy...",
+   "japanese": "ちん、ちーんぽ……あい……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "金、金寶……嗯……饲主大人，对不起……",
+   "english": "Chin, chinpo... yes... sowwy, Owner...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },
@@ -77917,9 +77917,9 @@
    "events": [
     "rule_withdraw"
    ],
-   "japanese": "ちん、ちーんぽ……ごみぇんなちゃい……",
-   "chinese": "金、金寶……对不起……",
-   "english": "Chin, chinpo... sowwy...",
+   "japanese": "ちん、ちーんぽ……かいぬちしゃま、ごみぇんなちゃい……",
+   "chinese": "金、金寶……饲主大人，对不起……",
+   "english": "Chin, chinpo... Owner, sowwy...",
    "origin": "project-original",
    "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   },

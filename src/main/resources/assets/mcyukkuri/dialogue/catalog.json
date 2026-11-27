@@ -90286,7 +90286,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -90322,7 +90322,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -90334,7 +90334,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -90358,7 +90358,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -90394,7 +90394,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -90466,7 +90466,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -90502,7 +90502,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -90538,7 +90538,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -90550,7 +90550,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -90562,7 +90562,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 83,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -90574,7 +90574,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -90586,7 +90586,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 99,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -90598,7 +90598,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -90610,7 +90610,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -90682,7 +90682,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -90718,7 +90718,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -90754,7 +90754,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -90790,7 +90790,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -90802,7 +90802,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -90826,7 +90826,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -90862,7 +90862,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -90934,7 +90934,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -90970,7 +90970,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -91006,7 +91006,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -91018,7 +91018,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -91030,7 +91030,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 83,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91042,7 +91042,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -91054,7 +91054,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 139,
     "sound": ""
   },
   {
@@ -91066,7 +91066,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -91078,7 +91078,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91150,7 +91150,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -91186,7 +91186,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -91222,7 +91222,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -91258,7 +91258,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -91270,7 +91270,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -91294,7 +91294,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91330,7 +91330,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -91402,7 +91402,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -91438,7 +91438,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -91474,7 +91474,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -91486,7 +91486,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -91498,7 +91498,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 83,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91510,7 +91510,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -91522,7 +91522,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 99,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -91534,7 +91534,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -91546,7 +91546,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91618,7 +91618,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -91654,7 +91654,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -91690,7 +91690,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -91726,7 +91726,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -91738,7 +91738,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
@@ -91762,7 +91762,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91798,7 +91798,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -91870,7 +91870,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -91906,7 +91906,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -91942,7 +91942,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -91954,7 +91954,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -91966,7 +91966,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 83,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -91978,7 +91978,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -91990,7 +91990,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 99,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92002,7 +92002,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -92014,7 +92014,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -92086,7 +92086,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -92122,7 +92122,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -92158,7 +92158,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -92194,7 +92194,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92206,7 +92206,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92230,7 +92230,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -92266,7 +92266,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -92338,7 +92338,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -92374,7 +92374,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -92410,7 +92410,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -92422,7 +92422,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 111,
+    "ticks": 143,
     "sound": ""
   },
   {
@@ -92434,7 +92434,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 99,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -92446,7 +92446,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -92458,7 +92458,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 111,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -92470,7 +92470,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92482,7 +92482,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -92554,7 +92554,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -92590,7 +92590,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -92626,7 +92626,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -92662,7 +92662,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92674,7 +92674,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -92698,7 +92698,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -92734,7 +92734,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -92806,7 +92806,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -92842,7 +92842,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -92878,7 +92878,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -92890,7 +92890,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": ""
   },
   {
@@ -92902,7 +92902,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -92914,7 +92914,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -92926,7 +92926,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 115,
+    "ticks": 151,
     "sound": ""
   },
   {
@@ -92938,7 +92938,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -92950,7 +92950,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -93022,7 +93022,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -93058,7 +93058,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -93094,7 +93094,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -93130,7 +93130,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": ""
   },
   {
@@ -93142,7 +93142,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -93166,7 +93166,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -93202,7 +93202,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 95,
+    "ticks": 127,
     "sound": ""
   },
   {
@@ -93274,7 +93274,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 99,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -93310,7 +93310,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 111,
+    "ticks": 107,
     "sound": ""
   },
   {
@@ -93346,7 +93346,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 155,
     "sound": ""
   },
   {
@@ -93358,7 +93358,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": ""
   },
   {
@@ -93370,7 +93370,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 95,
+    "ticks": 123,
     "sound": ""
   },
   {
@@ -93382,7 +93382,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -93394,7 +93394,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 111,
+    "ticks": 147,
     "sound": ""
   },
   {
@@ -93406,7 +93406,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -93418,7 +93418,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 79,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -93490,7 +93490,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": ""
   },
   {
@@ -93526,7 +93526,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": ""
   },
   {
@@ -93562,7 +93562,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93601,7 +93601,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93614,7 +93614,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93640,7 +93640,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93679,7 +93679,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 99,
+    "ticks": 131,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93757,7 +93757,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 103,
+    "ticks": 111,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93796,7 +93796,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 115,
+    "ticks": 111,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93835,7 +93835,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 119,
+    "ticks": 159,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93848,7 +93848,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 111,
+    "ticks": 143,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93861,7 +93861,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 99,
+    "ticks": 127,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93874,7 +93874,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 107,
+    "ticks": 151,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93887,7 +93887,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 115,
+    "ticks": 151,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93900,7 +93900,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93913,7 +93913,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 83,
+    "ticks": 115,
     "sound": "",
     "quirk": "miyo"
   },
@@ -93991,7 +93991,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": "",
     "quirk": "miyo"
   },
@@ -94030,7 +94030,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": "",
     "quirk": "miyo"
   },
@@ -94069,7 +94069,7 @@
     "events": [
       "rule_tighten"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94108,7 +94108,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 111,
+    "ticks": 143,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94121,7 +94121,7 @@
     "events": [
       "rule_cower"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94147,7 +94147,7 @@
     "events": [
       "rule_yield"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94186,7 +94186,7 @@
     "events": [
       "rule_loosen"
     ],
-    "ticks": 103,
+    "ticks": 135,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94264,7 +94264,7 @@
     "events": [
       "rule_gasp"
     ],
-    "ticks": 107,
+    "ticks": 115,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94303,7 +94303,7 @@
     "events": [
       "rule_beg"
     ],
-    "ticks": 119,
+    "ticks": 115,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94342,7 +94342,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 123,
+    "ticks": 163,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94355,7 +94355,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 115,
+    "ticks": 147,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94368,7 +94368,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 103,
+    "ticks": 131,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94381,7 +94381,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 111,
+    "ticks": 155,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94394,7 +94394,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 119,
+    "ticks": 155,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94407,7 +94407,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94420,7 +94420,7 @@
     "events": [
       "rule_wait"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94498,7 +94498,7 @@
     "events": [
       "rule_accept"
     ],
-    "ticks": 107,
+    "ticks": 139,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94537,7 +94537,7 @@
     "events": [
       "rule_withdraw"
     ],
-    "ticks": 91,
+    "ticks": 123,
     "sound": "",
     "quirk": "kinbao"
   },
@@ -94890,7 +94890,7 @@
     "events": [
       "rule_vow"
     ],
-    "ticks": 83,
+    "ticks": 111,
     "sound": ""
   },
   {
@@ -94902,7 +94902,7 @@
     "events": [
       "rule_excuse"
     ],
-    "ticks": 87,
+    "ticks": 119,
     "sound": ""
   },
   {
