@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| SC-09 相扑状态 | `.worktrees/wp-art-sumo` | recipe.json (sumo entries), sumo clip wiring |
 | PD-15 非水生种落水慌乱 | `.worktrees/wp-art-drown` | recipe.json (water panic entries), face sources |
 | TN-69 牵引绳绕身 | `.worktrees/wp-art-leash` | leash renderer, leash model |
 | 11-27 待看反馈：翻桶与扑腾、辫子表现力 | `.worktrees/wp-braid-redo` | BRAID.md, recipe.json (braid/bin/flail entries), species hair rigs |
