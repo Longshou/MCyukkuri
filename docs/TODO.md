@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 家规全套重做（TN-48/72/73/78/79/80/57） | `.worktrees/wp-rules-redo` | pet/rules/*, pet conscience/penance, rule dialogue, rule faces |
 | 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
-| PD-29 卡召唤、戴帽卡 boat call、帽檐形变 | `.worktrees/wp-pd29-stalls` | aquatic call/boat-call chain, hat brim render |
 
 ## 玩法待办
 
