@@ -74,6 +74,11 @@ TABLE = [
         'src/main/resources/assets/mcyukkuri/yukkuri_props/', 'src/main/resources/assets/mcyukkuri/textures/props/',
         'scripts/prop_mesh_allow.json',
     ], check=(), args=('--check',), note='Read-only mesh lint for UV boundaries, coplanar overlaps and ground/neighbour planes.'),
+    exporter('face-fit', 'scripts/check_face_fit.py', [
+        'standards/yukkuri-library/motions/variants/lore/recipe.json', 'standards/yukkuri-library/interactions/toilet-contact/recipe.json',
+        'standards/yukkuri-library/presentation/moments.json', 'standards/yukkuri-library/presentation/expressions.json',
+        'standards/yukkuri-library/expressions/', 'standards/yukkuri-library/components/common/face.json', 'scripts/face_fit_allow.json',
+    ], check=(), args=('--check',), note='Read-only face timing and eye-anchor lint for clip and presentation face timelines (FACE-MOTION.md).'),
 ]
 
 # Package-local authoring commands: kept in their source directories. These have no
@@ -462,6 +467,9 @@ def motion(args, rows):
             if result['status'] != 'PASS':
                 return 1
     failed = 0
+    # Faces ride on the clips: a new or edited timeline must meet FACE-MOTION.md (the baseline holds the old offenders).
+    if subprocess.run([sys.executable, 'scripts/check_face_fit.py', '--check'], cwd=ROOT).returncode:
+        failed = 1
     from motion_gate import body_gate
     for clip, model in product(args.clips, args.model):
         try:

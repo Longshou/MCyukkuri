@@ -23,6 +23,7 @@
 - 几何、骨架、UV 与贴图都从制作源导出。编辑 `.bbmodel` 后须同步回组件及配方；共享组件只有在确实需要影响全部引用者时才改。
 - 当前圆润身体由 `body-standard/recipe.json`、`profile.json` 与 `build.py` 构建。`author_standard_species.py` 是推广前的方块制作逻辑，不得覆盖当前登记。
 - 辫子与发束动作（骨链、做法选择、接触入水、种族适配、坑与检查）按[辫子动作制作技能](BRAID.md)，每个碰辫子的包同提交补充该页。
+- 片段与演出行里的表情时间线按[表情与动作适配技能](FACE-MOTION.md)，每个碰脸的包同提交补充该页。
 - 魔理沙单辫与爱丽丝造型分别由 `body-standard/features/marisa-single-braid/author.py` 和 `body-standard/features/alice-hakkei/author.py` 制作，再用同目录 `sync_inputs.py` 同步专属输入；按对应 README 导出。
 - 标准表情集合以 `expressions/index.json` 的 `standard_set` 与 `provenance/standard-expressions.json` 中的文件指纹为准；标准角色造型以 `provenance/standard-species.json` 为准。变更认可素材时更新对应源登记，不复制或猜测认可状态。
 - 生图画风参考包在 `style-refs/`（清单与指纹见其 README 与 `refs.json`），`storyboard.py` 默认附带，只统一画风、不给比例。

@@ -99,13 +99,13 @@ def eye(face):
 
 @lru_cache(None)
 def look(face):
-    """What a viewer reads as the expression: eye and brow images and their geometry. Mouth, tear, blush and effect parts are left
-    out, so chewing or singing (a mouth cycle under steady eyes) is one look."""
+    """What a viewer reads as the expression: eye, brow and mouth images and their geometry. Blush, tear and effect parts are left
+    out (they follow the face and never read as a change of expression by themselves)."""
     path = LIB/f'expressions/presets/{base_face(face)}.json'
     if not path.is_file():
         return face
     preset = json.loads(path.read_text(encoding='utf-8'))
-    names = ('face_eye_left', 'face_eye_right', 'face_brow_left', 'face_brow_right')
+    names = ('face_eye_left', 'face_eye_right', 'face_brow_left', 'face_brow_right', 'face_mouth')
     return json.dumps([[preset['parts'].get(n) for n in names],
                        [preset.get('geometry_offsets', {}).get(n) for n in names]], sort_keys=True)
 

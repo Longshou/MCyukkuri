@@ -55,6 +55,8 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 `<py> scripts/check_prop_meshes.py --check [--all | --changed [REV] | --model ID ...]` 是道具烘焙网格（`src/main/resources/assets/mcyukkuri/yukkuri_props/*.json`）的只读闪烁与重面检查：逐个检查（1）最近邻采样下 UV 收缩并落在相邻纹素颜色或透明不同的整数纹素边界；（2）同向或反向共面且面积重叠的三角面；（3）放置方块落在地面 `y=0` 或外轮廓邻格平面上的面。历史基线保存在 `scripts/prop_mesh_allow.json`，数量只降不升，新模型或未豁免项超标即非零退出；`export.py`（`prop-mesh-lint`）与 `pkg.py land`（改动道具或模型时）自动调用。反例自测：`<py> scripts/test_prop_mesh_lint.py`。
 
+`<py> scripts/check_face_fit.py --check [--all | --changed REV]` 是片段与演出行表情时间线的只读检查（规则见[表情与动作适配技能](../standards/yukkuri-library/FACE-MOTION.md)）：读 lore `recipe.json` 片段 `faces`、`toilet-contact` 配方、`presentation/moments.json` 步的 `faces` 与 `presentation/expressions.json`，用表情预设的眼部贴图墨迹与几何偏移算眼位，报 `short-span`（一张脸停留不足 0.5 秒）、`switch-rate`（每秒切换超过 1.5 次）、`eye-jump`（相邻两脸眼位位移超过 0.45 模型单位且无闭眼脸过渡）、`eye-size`（眼高变化超过 0.9 且无闭眼脸过渡）；`--changed REV` 只查脸时间线相对 REV 有变的条目，`--list` 列出全部发现（最差在前），`--transitions ID…` 打印某片段或演出行每段停留与相邻脸指标。既有违规的数量保存在 `scripts/face_fit_allow.json`，只降不升（`--write-baseline` 收紧），新做或修改的时间线须为零；`export.py`（`face-fit` 行与 `motion` 命令）与 `pkg.py land`（脸或动作源改动时）自动调用。反例自测：`<py> scripts/test_face_fit.py`。
+
 `bash scripts/javac_check.sh [工作树]` 用本机 JDK 直接 javac 编译主源码，并运行脚本所列各包的纯 Java 单元测试；不经 Gradle、不启动游戏。依赖 `.local/tools/` 下的 JDK 与 JUnit 控制台 jar，以及主检出里已有的 `build/moddev`、`.local/gradle-home` 依赖 jar。只作提交前自查，不替代 CI，也不算试玩验收。
 
 `python scripts/update_museum_runtime.py --run <run-id>` 为已有试玩配置安装同一提交的成功 CI 运行包，不编译、不启动游戏，在实际游玩的机器执行；安装并读回配置后删除旧运行包，仍被运行中的冒烟或截图引用的目录保留到下次更新（规则见[总负责人](../docs/roles/lead.md#合入与运行包)）。

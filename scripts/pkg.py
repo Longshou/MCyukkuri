@@ -23,6 +23,10 @@ SECTION = '## 进行中'
 PUSH_ATTEMPTS = 5
 DOC_REFS = 'scripts/check_doc_refs.py'
 DOC_TRIGGERS = ('scripts/museum_scene_numbers.json', 'scripts/playtest_watch.json')
+# Sources of face timelines and of the face geometry the checker reads; a change runs scripts/check_face_fit.py before landing.
+FACE_FIT_SOURCES = ('standards/yukkuri-library/motions/', 'standards/yukkuri-library/presentation/', 'standards/yukkuri-library/expressions/',
+                    'standards/yukkuri-library/interactions/toilet-contact/', 'standards/yukkuri-library/components/common/face.json',
+                    'scripts/check_face_fit.py', 'scripts/face_fit_allow.json')
 
 
 class Fail(SystemExit):
@@ -178,6 +182,11 @@ def check_tree(tree, scenes):
         print(f'art/models changed: check_prop_meshes.py {" ".join(lint_args)}', flush=True)
         if subprocess.run([sys.executable, str(tree / 'scripts/check_prop_meshes.py'), *lint_args], cwd=tree).returncode:
             raise Fail('check_prop_meshes.py found prop mesh defects')
+    if any(path.startswith(FACE_FIT_SOURCES) for path in changed):
+        # Face timelines in clips and presentation rows: hold, switch rate and eye anchor (FACE-MOTION.md); the baseline holds old offenders.
+        print('face or motion sources changed: check_face_fit.py --check', flush=True)
+        if subprocess.run([sys.executable, str(tree / 'scripts/check_face_fit.py'), '--check'], cwd=tree).returncode:
+            raise Fail('check_face_fit.py found face timelines above the baseline')
     if scenes:
         print(f'smoke: {" ".join(scenes)}', flush=True)
         code = subprocess.run([sys.executable, str(tree / 'scripts/smoke_museum.py'), '--worktree', str(tree), *scenes], cwd=tree).returncode

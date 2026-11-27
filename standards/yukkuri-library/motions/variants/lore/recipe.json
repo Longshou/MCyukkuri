@@ -8388,7 +8388,7 @@
         [1.14, 1.24, "old_dead"],
         [1.24, 1.36, "pursed"],
         [1.36, 1.44, "old_dead"],
-        [1.44, 61.64, "neutral"]
+        [1.44, 61.64, "pursed"]
       ],
       "lore": "Everyday sneeze (project design): nose tickles, the body stretches upward and leans slightly back across three escalating inhale hitches while the face scrunches (eyes squeezed, mouth half open); at 0.78 s it snaps sharply forward with a tiny hop and recoils onto a brief physical landing squash, then blinks twice with a small head-clearing yaw shake before settling cleanly back to neutral rest. Composed pitch+roll stays within 10.7 degrees.",
       "triggers": ["sneeze"]
