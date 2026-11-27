@@ -65,7 +65,12 @@ final class NightRest implements Intent {
                     Math.round(body.life().energy()));
             return List.of(() -> new Step.Wait(this::satisfied, 40, Behaviors.BOAT_DRIFT));
         }
-        return List.of(() -> new Step.Wait(() -> Waters.moored(hat) && body.life().readyForCarrierRest(), LOOK, Behaviors.BOAT_DRIFT));
+        // she waits for the hull to lie still and the body to be ready; a look that finds neither ends the wait (not a failure), the next one asks again
+        GameplayLog.limited(body, "aquatic", "night_rest.wait", 400, "night_rest waiting captain={} moored={} hold={}", captain, Waters.moored(hat),
+                String.valueOf(body.life().carrierRestHold()));
+        long until = body.level().getGameTime() + LOOK;
+        return List.of(() -> new Step.Wait(() -> body.level().getGameTime() >= until || Waters.moored(hat) && body.life().readyForCarrierRest(),
+                LOOK + 20, Behaviors.BOAT_DRIFT));
     }
 
     @Override public void ended(IntentRunner.Result result) {

@@ -663,7 +663,7 @@ add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊�
     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读赤油二', f'yukkuri status {sel("k2")} raw'),
            ('读帽子', f'data get entity {_HAT}')],
     capture=dict(shots=(1, 600, 1500, 2000), sequences=((300, 2000, 100),)),
-    smoke=dict(ticks=2400,
+    smoke=dict(ticks=2800,
                expect=[r'\[aquatic\][^\n]* night_rest berth=[^\n]*stay=true',
                        r'\[aquatic\][^\n]* night_rest asked captain=true\b',
                        r'\[aquatic\][^\n]* night_rest asked captain=false\b',

@@ -271,9 +271,18 @@ public final class YukkuriLife {
     public boolean carrierRestOpen() { return carrierRestAsked() || carrierRest && isSleeping(); }
     /** Exactly what the fatigue goal needs to take a carrier rest now: its rest time (or tiredness), no need that would wake it at once,
      *  nothing to eat, no recent rest cut short ({@code restWait}), and a seat that bears it. */
-    public boolean readyForCarrierRest() {
-        return !isSleeping() && restWait == 0 && drowsy() && !entity.family().stemFoodUrgent() && !entity.family().mealAwaits()
-                && mealTicks() == 0 && needWakeCause() == null && !temperature.active() && canFatigueRest(true);
+    public boolean readyForCarrierRest() { return carrierRestHold() == null; }
+    /** What keeps the body from lying down on its carrier now (the first reason), or null when it can. */
+    public String carrierRestHold() {
+        if (isSleeping()) return "asleep";
+        if (restWait > 0) return "rest_wait";
+        if (!drowsy()) return "not_drowsy";
+        if (entity.family().stemFoodUrgent()) return "stem_food";
+        if (entity.family().mealAwaits() || mealTicks() > 0) return "meal";
+        var need = needWakeCause();
+        if (need != null) return "need_" + need;
+        if (temperature.active()) return "temperature";
+        return canFatigueRest(true) ? null : "cannot_rest";
     }
     public void startFatigueRest() {
         interrupt();
