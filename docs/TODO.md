@@ -14,6 +14,7 @@
 | SC-09 相扑状态 | `.worktrees/wp-art-sumo` | recipe.json (sumo entries), sumo clip wiring |
 | PD-15 非水生种落水慌乱 | `.worktrees/wp-art-drown` | recipe.json (water panic entries), face sources |
 | TN-69 牵引绳绕身 | `.worktrees/wp-art-leash` | leash renderer, leash model |
+| PK-05 橙汁盆水位 | `.worktrees/wp-art-juice` | yukkuri_pool model/blockstates, playgrounds draft |
 
 ## 玩法待办
 
