@@ -828,6 +828,77 @@ GAP_FILL = {
             'plain': ('{p}……いや。やめてほしい{e}。', '{p}……不要。想让你停下{e}。', '{p}... no. Please stop.')}},
 }
 
+RULE_AWE_BASIS = 'wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced'
+# One neutral line per tier, short enough to fit one beat; which beat speaks it is chosen by the performance from the pet's numbers
+# (Penance, RuleReaction). The owner is always addressed as "Owner" (かいぬしさま): a pet speaks up to it, never as to an equal.
+RULE_AWE = {
+    # A rule was added: the pet that does not mind says it will keep it.
+    'rule_tighten': {
+        'baby': ('{c}……あい……まもりゅ……', '{c}……好……会遵守……', '{c}... yes... I will obey...'),
+        'juvenile': ('{p}はい……まもりゅ、かいぬししゃま。', '{p}是……会遵守，饲主大人。', '{p}Yes... I will keep it, Owner.'),
+        'adult': ('{p}はい……まもります、かいぬしさま。', '{p}是……会遵守的，饲主大人。', '{p}Yes... I will keep it, Owner.')},
+    # A rule was added and the pet fears its owner: it cowers and begs not to be punished.
+    'rule_cower': {
+        'baby': ('{c}……こあい……ごみぇんなちゃい……', '{c}……好口怕……对不起……', '{c}... scawy... sowwy...'),
+        'juvenile': ('{p}ひっ……まもりゅ……おこらないで……', '{p}呜……会遵守……别生气……', '{p}Eek... I will keep it... do not be angry...'),
+        'adult': ('{p}ひ……まもります……おこらないで、かいぬしさま……', '{p}呜……会遵守……请别生气，饲主大人……', '{p}Eek... I will keep it... please do not be angry, Owner...')},
+    # A rule was added, the pet sulked, and now it gives in: the owner decides.
+    'rule_yield': {
+        'baby': ('{c}……ぷくー……あい……', '{c}……噗咕……好嘛……', '{c}... puff... okay...'),
+        'juvenile': ('{p}……ふん。……ちたがいましゅ、かいぬししゃま。', '{p}……哼。……听从，饲主大人。', '{p}...Hmph. ...I will obey, Owner.'),
+        'adult': ('{p}……ふん。……したがいます、かいぬしさま。', '{p}……哼。……听从您，饲主大人。', '{p}...Hmph. ...I will obey, Owner.')},
+    # A rule was lifted: delight and thanks (the breeding rule keeps its own permit line).
+    'rule_loosen': {
+        'baby': ('{c}！ やっちゃー！ ありがちょ！', '{c}！太好惹！谢谢！', '{c}! Yay! Thank you!'),
+        'juvenile': ('{p}ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！', '{p}变宽松惹！谢谢，饲主大人！', '{p}It got looser! Thank you, Owner!'),
+        'adult': ('{p}ゆるくなった……！ ありがとうございます、かいぬしさま！', '{p}变宽松了……！谢谢您，饲主大人！', '{p}It got looser...! Thank you, Owner!')},
+    # After the glad jump the pet bows to the owner who allowed it.
+    'rule_grateful': {
+        'baby': ('{c}……ありがちょ……かいぬちしゃま……', '{c}……谢谢……饲主大人……', '{c}... thank you... Owner...'),
+        'juvenile': ('{p}かいぬししゃまの おかげ……ありがちょう。', '{p}多亏饲主大人……谢谢。', '{p}Thanks to you, Owner... thank you.'),
+        'adult': ('{p}かいぬしさまの おかげです……ありがとうございます。', '{p}多亏饲主大人……谢谢您。', '{p}Thanks to you, Owner... thank you.')},
+    # Caught breaking a rule: the first gasp at seeing the owner.
+    'rule_gasp': {
+        'baby': ('{c}ひっ……！ かいぬちしゃま……！', '{c}呀……！饲主大人……！', '{c}Eek...! Owner...!'),
+        'juvenile': ('{p}ひっ……！ かいぬししゃま……！', '{p}呀……！饲主大人……！', '{p}Eek...! Owner...!'),
+        'adult': ('{p}ひっ……！ かいぬしさま……！', '{p}呀……！饲主大人……！', '{p}Eek...! Owner...!')},
+    # Caught and afraid of the owner: it begs for mercy.
+    'rule_beg': {
+        'baby': ('{c}……ごみぇんなちゃい……ゆるちちぇ……', '{c}……对不起……原谅窝……', '{c}... sowwy... forgive me...'),
+        'juvenile': ('{p}ゆるちちぇ……かいぬししゃま……', '{p}原谅窝……饲主大人……', '{p}Forgive me... Owner...'),
+        'adult': ('{p}ゆるしてください……かいぬしさま……', '{p}请原谅……饲主大人……', '{p}Please forgive me... Owner...')},
+    # Caught and guilty: the apology's second breath, an oath.
+    'rule_vow': {
+        'baby': ('{c}ごみぇんなちゃい……もう、ちましぇん……', '{c}对不起……再也不敢……', '{c}Sowwy... never again...'),
+        'juvenile': ('{p}ごみぇんなちゃい……もう ちましぇん……', '{p}对不起……再也不敢了……', '{p}Sorry... never again...'),
+        'adult': ('{p}ごめんなさい……もう しません……', '{p}对不起……再也不会了……', '{p}I am sorry... never again...')},
+    # Caught and wary or sulking: it gives its reason, small, and still apologises.
+    'rule_excuse': {
+        'baby': ('{c}だっちぇ……がまん、できにゃい……', '{c}可是……忍不住……', '{c}But... could not hold it...'),
+        'juvenile': ('{p}だっちぇ……がまん できにゃかった{e}……', '{p}可是……实在忍不住{e}……', '{p}But... I could not hold it in...'),
+        'adult': ('{p}だって……がまん できなかった{e}……', '{p}可是……实在忍不住{e}……', '{p}But... I could not hold it in...')},
+    # Waiting for the verdict, lying low.
+    'rule_wait': {
+        'baby': ('{c}……おこっちぇる……？', '{c}……生气了……？', '{c}... angwy...?'),
+        'juvenile': ('{p}かいぬししゃま……おこっちぇる……？', '{p}饲主大人……生气了……？', '{p}Owner... are you angry...?'),
+        'adult': ('{p}かいぬしさま……おこって……？', '{p}饲主大人……生气了吗……？', '{p}Owner... are you angry...?')},
+    # The stroke: forgiven.
+    'rule_thanks': {
+        'baby': ('{c}！ ありがちょ！ かいぬちしゃま！', '{c}！谢谢！饲主大人！', '{c}! Thank you, Owner!'),
+        'juvenile': ('{p}ありがちょう、かいぬししゃま！', '{p}谢谢您，饲主大人！', '{p}Thank you, Owner!'),
+        'adult': ('{p}ありがとうございます、かいぬしさま！', '{p}谢谢您，饲主大人！', '{p}Thank you, Owner!')},
+    # The scold or the blow taken: it accepts the owner's judgement.
+    'rule_accept': {
+        'baby': ('{c}……あい……ごみぇんなちゃい……', '{c}……嗯……对不起……', '{c}... yes... sowwy...'),
+        'juvenile': ('{p}あい……もう ちましぇん、かいぬししゃま……', '{p}嗯……再也不敢了，饲主大人……', '{p}Yes... never again, Owner...'),
+        'adult': ('{p}はい……もう しません、かいぬしさま……', '{p}是……再也不会了，饲主大人……', '{p}Yes... never again, Owner...')},
+    # The owner said nothing: it slinks off.
+    'rule_withdraw': {
+        'baby': ('{c}……ごみぇんなちゃい……', '{c}……对不起……', '{c}... sowwy...'),
+        'juvenile': ('{p}……ごみぇんなちゃい、かいぬししゃま……', '{p}……对不起，饲主大人……', '{p}... sorry, Owner...'),
+        'adult': ('{p}……ごめんなさい、かいぬしさま……', '{p}……对不起，饲主大人……', '{p}... I am sorry, Owner...')},
+}
+
 MANY = {'baby': ('いっぱい', '好多好多', 'lots'), 'juvenile': ('いっぱい、いっぱい', '好多好多', 'lots and lots'),
         'adult': ('たくさん、たくさん', '好多好多', 'lots and lots')}
 
@@ -976,6 +1047,9 @@ def main():
             for tier, variants in tiers.items():
                 for i, (variant, frame) in enumerate(variants.items(), 1):
                     make(sp, tier, event, frame, context(sp, tier), lines, GAP_FILL_BASIS, prefix=f'g{i}_', variant=variant)
+        for event, tiers in RULE_AWE.items():
+            for tier, frame in tiers.items():
+                make(sp, tier, event, frame, context(sp, tier), lines, RULE_AWE_BASIS, prefix='w1_')
         for tier, frame in PROTECTION_TAUNT_TIERS.items():
             if tier == 'adult' and sp in ('reimu', 'marisa', 'alice', 'chen', 'patchouli'):
                 continue  # their adult taunt is the older line above; the tic-bearing Myon keys and the two predators had none

@@ -25,13 +25,17 @@ import net.minecraft.world.phys.Vec3;
 public final class Penance {
     public enum Entrance { CAUGHT, CONFESSION }
     public enum Verdict { FORGIVEN, PUNISHED }
-    private enum Phase { STARTLE, MUTTER, PLEA, BOW, WAIT, AFRAID, TORN, ACT, RESOLVE, DONE }
+    private enum Phase { STARTLE, MUTTER, PLEA, EXCUSE, VOW, BOW, WAIT, AFRAID, TORN, ACT, RESOLVE, SETTLE, DONE }
 
-    private static final int STARTLE_TICKS = 14, MUTTER_TICKS = 40, AFRAID_TICKS = 24, RESOLVE_TICKS = 64, CONTACT_PATIENCE = 60;
+    private static final int STARTLE_TICKS = 24, MUTTER_TICKS = 50, AFRAID_TICKS = 24, RESOLVE_TICKS = 80, CONTACT_PATIENCE = 60;
+    /** The posture a pet settles into once the owner has answered: held long enough for its last line to be heard. */
+    private static final int SETTLE_TICKS = 80;
+    /** A line waits for the shared speech clock (the beat before it may still be speaking) for at most this long, then is dropped and logged. */
+    private static final int SPEECH_PATIENCE = 300;
     /** The struggle looks from the child to the owner and back every second. */
     private static final int GLANCE_TICKS = 20;
     /** Stepping in front of the child or running off gives up after four seconds; the beat after the arrival holds one and a half. */
-    private static final int ACT_TICKS = 120, SETTLE_TICKS = 30;
+    private static final int ACT_TICKS = 120, ARRIVAL_TICKS = 30;
     /** The parent was not the one struck: a fright of the owner, not the victim's twenty-five. */
     private static final int TORN_FEAR_SCOLD = 8, TORN_FEAR_BLOW = 12;
     /** Farther than this from the owner the pet has lost its audience. */
@@ -50,7 +54,7 @@ public final class Penance {
     private int window, segment;
     private long waitUntil = -1, judgedAt = -1;
     private Verdict verdict;
-    private boolean blow, shown, reported, voiced;
+    private boolean blow, shown, reported, voiced, asked;
     // The child whose treatment was the answer (null when the owner's hand was on the parent), and how the parent ends its struggle.
     private YukkuriEntity child;
     private StruggleOdds.Choice struggle;
@@ -59,6 +63,9 @@ public final class Penance {
     private String outcome = "";
     // The beat on show: its declared clip, face and line, and when it started.
     private String beat = "", face = "", line = "";
+    // The line of the beat on show, waiting for the shared speech clock (empty once spoken or dropped), and when the beat's line started.
+    private String pending = "";
+    private long pendingSince;
     private YukkuriAction clip = YukkuriAction.IDLE;
     private long beatAt;
     private int beatTicks;
@@ -77,7 +84,8 @@ public final class Penance {
     static Penance caught(YukkuriEntity pet, LivingEntity owner, String rule) {
         var penance = new Penance(pet, owner, Entrance.CAUGHT, rule, () -> {});
         pet.interruptSpeech();
-        penance.enter(Phase.STARTLE, "startle", YukkuriAction.STARTLE, "horrified", "", STARTLE_TICKS);
+        // The pet registers the owner at once: it freezes, flinches and turns to face them (see tick), and gasps unless it is the defiant kind.
+        penance.enter(Phase.STARTLE, "startle", YukkuriAction.STARTLE, "horrified", penance.mutters ? "" : "rule_gasp", STARTLE_TICKS);
         return penance;
     }
 
@@ -172,7 +180,8 @@ public final class Penance {
             SurfaceApproach.halt(pet);
             SurfaceApproach.face(pet, SurfaceApproach.yaw(pet.position(), focus.position()));
         }
-        if (!reported && now - beatAt >= 2) report();
+        speakPending(now);
+        if (!reported && pending.isEmpty() && now - beatAt >= 2) report();
         long age = now - beatAt;
         // The startle is not a choice, and a struggle plays out once begun: neither takes another answer.
         boolean playing = phase == Phase.STARTLE || phase == Phase.AFRAID || phase == Phase.TORN || phase == Phase.ACT || phase == Phase.RESOLVE;
@@ -182,12 +191,15 @@ public final class Penance {
         }
         switch (phase) {
             case STARTLE -> { if (age >= STARTLE_TICKS) { if (verdict != null) answer(); else posture(); } }
-            case MUTTER, PLEA, BOW -> { if (age >= beatTicks) lieLow(); }
-            case WAIT -> { if (now >= waitUntil) resolve(); else if (age >= beatTicks) lieLow(); }
+            case MUTTER -> { if (spent(now, age)) excuse(); }
+            case PLEA -> { if (spent(now, age)) { if (beat.equals("apology")) apologyFollows(); else lieLow(); } }
+            case EXCUSE, VOW, BOW -> { if (spent(now, age)) lieLow(); }
+            case WAIT -> { if (now >= waitUntil) resolve(); else if (spent(now, age)) lieLow(); }
             case AFRAID -> { if (age >= AFRAID_TICKS) resolve(); }
             case TORN -> { if (age >= beatTicks) act(); }
             case ACT -> acting(now, age);
             case RESOLVE -> resolving(now, age);
+            case SETTLE -> { if (spent(now, age)) end(now); }
             default -> {}
         }
         if (phase != Phase.DONE && phase != Phase.RESOLVE && !pet.hasReaction()) show(false);
@@ -211,10 +223,27 @@ public final class Penance {
         }
     }
 
+    /** After the startle: the defiant mutter, the afraid one's plea for mercy, or the apology. */
     private void posture() {
         if (mutters) enter(Phase.MUTTER, "mutter", YukkuriAction.BRACE, "squeezed_frown", "sulk_huff", MUTTER_TICKS);
-        else if (fearful) enter(Phase.PLEA, "plea", YukkuriAction.THUNDER_COWER, "horrified", "plea_spare", 40);
+        else if (fearful) enter(Phase.PLEA, "plea", YukkuriAction.THUNDER_COWER, "horrified", "rule_beg", 60);
         else enter(Phase.PLEA, "apology", YukkuriAction.BOW, guilty ? "ashamed" : "look_down", "caught_guilty", YukkuriAction.BOW.durationTicks());
+    }
+
+    /** The mutterer gives its reason, still bracing, and apologises small: it is afraid of the owner's answer even if it will not say so. */
+    private void excuse() {
+        enter(Phase.EXCUSE, "excuse", YukkuriAction.BRACE, "squeezed_frown", "rule_excuse", 50);
+    }
+
+    /** The apology goes on: a guilty pet swears never again with its face hidden, a wary one gives its small reason. */
+    private void apologyFollows() {
+        if (guilty) enter(Phase.VOW, "vow", YukkuriAction.HIDE_FACE, "ashamed", "rule_vow", 50);
+        else enter(Phase.EXCUSE, "excuse", YukkuriAction.DROOP, "look_down", "rule_excuse", 50);
+    }
+
+    /** Whether the beat on show has run its time and its line (if any) has been said: only then the next beat may start. */
+    private boolean spent(long now, long age) {
+        return age >= beatTicks && pending.isEmpty() && now >= pet.speechEnd();
     }
 
     /** The owner answered while the pet still stood stiff: a scold makes it afraid first, then it takes the punishment. */
@@ -303,7 +332,7 @@ public final class Penance {
             }
         }
         // After the arrival the pose holds a moment, then the owner's answer is taken; a walk that never arrives gives up with the beat.
-        if (settledAt >= 0 ? now - settledAt >= SETTLE_TICKS : age >= beatTicks) {
+        if (settledAt >= 0 ? now - settledAt >= ARRIVAL_TICKS : age >= beatTicks) {
             if (stand != null) GameplayLog.event(pet, "rules", "penance step cut after={} toward={}", age,
                     struggle == StruggleOdds.Choice.ESCAPE ? "owner" : "child");
             stand = null;
@@ -321,7 +350,12 @@ public final class Penance {
         }
         double fright = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
         String frightened = fearful ? "horrified" : "teary";
-        if (segment++ % 2 == 1) enter(Phase.WAIT, "shiver", YukkuriAction.TREMBLE, frightened, "", (int) Math.min(Math.round(24 + 26 * fright), left));
+        if (segment++ % 2 == 1) {
+            // The first shiver asks, small, whether the owner is angry (the stiff defiant one says nothing).
+            String asks = asked ? "" : "rule_wait";
+            asked = true;
+            enter(Phase.WAIT, "shiver", YukkuriAction.TREMBLE, frightened, asks, (int) Math.min(Math.round(24 + 26 * fright), left));
+        }
         else enter(Phase.WAIT, "prostrate", fearful ? YukkuriAction.THUNDER_COWER : guilty ? YukkuriAction.HIDE_FACE : YukkuriAction.DROOP,
                 frightened, "", (int) Math.min(Math.round(50 - 20 * fright), left));
     }
@@ -333,6 +367,7 @@ public final class Penance {
         shown = false;
         // The ending is only reported once the owner's hand has let go and it is really on show (see resolving).
         reported = true;
+        pending = "";
         beatAt = now();
         pet.interruptSpeech();
         onResolved.run();
@@ -348,7 +383,7 @@ public final class Penance {
                     blow && scared ? "hurt_plea" : "scolded");
         } else if (verdict == Verdict.FORGIVEN) {
             outcome = "forgiven";
-            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.DROOP, "closed_smile", "request_thanks");
+            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.DROOP, "closed_smile", "rule_thanks");
             pet.pet().addStress(-6);
         } else {
             outcome = "withdrew";
@@ -369,10 +404,30 @@ public final class Penance {
             show(true);
             return;
         }
-        if (age >= RESOLVE_TICKS) {
-            phase = Phase.DONE;
-            GameplayLog.event(pet, "rules", "penance end outcome={} entrance={} rule={} ticks={}", outcome, entrance, rule, now - startedAt);
+        if (age >= RESOLVE_TICKS && pending.isEmpty() && now >= pet.speechEnd()) {
+            if (outcome.startsWith("punished_child")) end(now); else settle();
         } else if (!pet.hasReaction()) show(false);
+    }
+
+    /**
+     * The performance ends in a posture it holds, not in the verdict's pose: the pardoned bows low in thanks, the punished stays bowed and
+     * trembling, the ignored one slinks off apologising; a bold, disobedient pet that was not afraid sulks a little. What it says is the
+     * owner's judgement taken (a parent that ached for its punished child already said all it had to).
+     */
+    private void settle() {
+        double fear = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
+        boolean sulky = mutters && !fearful && fear < .5;
+        switch (outcome) {
+            case "forgiven" -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.DROOP : YukkuriAction.BOW, sulky ? "pursed" : "closed_smile", "", SETTLE_TICKS);
+            case "withdrew" -> enter(Phase.SETTLE, "settle", YukkuriAction.DROOP, "side_teary", "rule_withdraw", SETTLE_TICKS);
+            default -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.BRACE : fearful ? YukkuriAction.TREMBLE : YukkuriAction.BOW,
+                    sulky ? "pursed" : fearful ? "teary" : "ashamed", "rule_accept", SETTLE_TICKS);
+        }
+    }
+
+    private void end(long now) {
+        phase = Phase.DONE;
+        GameplayLog.event(pet, "rules", "penance end outcome={} entrance={} rule={} ticks={}", outcome, entrance, rule, now - startedAt);
     }
 
     // ---- showing a beat -----------------------------------------------------------------------------
@@ -385,6 +440,10 @@ public final class Penance {
     }
 
     private void enter(Phase next, String name, YukkuriAction action, String expression, String event, int ticks) {
+        if (!pending.isEmpty()) {
+            GameplayLog.event(pet, "rules", "penance line dropped beat={} line={} waited={}", beat, line, now() - pendingSince);
+            pending = "";
+        }
         phase = next;
         declare(name, action, expression, event);
         beatAt = now();
@@ -397,10 +456,26 @@ public final class Penance {
         long left = beatAt + beatTicks - now();
         // Two ticks of overlap: the next beat takes over before this one runs out, so no idle face shows between two beats.
         int ticks = speak ? beatTicks + 2 : (int) Math.max(left, 20) + 2;
-        boolean said = pet.holdReaction(clip, face, speak && !line.isEmpty() ? BadgeSocial.reactionLine(pet, line, owner) : "", ticks);
-        if (speak) {
+        pet.holdReaction(clip, face, "", ticks);
+        if (!speak) return;
+        // The pose comes first; its line is said as soon as the shared speech clock lets this pet speak (the beat before it may still be
+        // talking), and the beat is not over until it has been said (spent).
+        voiced = false;
+        pending = line.isEmpty() ? "" : BadgeSocial.reactionLine(pet, line, owner);
+        pendingSince = now();
+        speakPending(now());
+    }
+
+    private void speakPending(long now) {
+        if (pending.isEmpty()) return;
+        if (pet.quiet()) {
+            boolean said = pet.speakCue(pending, null, 2);
             var heard = NativeDialogue.byKey(pet.getDialogueKey());
             voiced = said && heard != null && heard.events().contains(line);
+            pending = "";
+        } else if (now - pendingSince >= SPEECH_PATIENCE) {
+            GameplayLog.event(pet, "rules", "penance line dropped beat={} line={} waited={}", beat, line, now - pendingSince);
+            pending = "";
         }
     }
 

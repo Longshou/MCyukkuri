@@ -2,9 +2,12 @@ package io.github.longshou.mcyukkuri.pet.rules;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.perception.Cue;
+import io.github.longshou.mcyukkuri.perception.Senses;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
@@ -18,8 +21,8 @@ public final class HouseRules extends SavedData {
     private record Entry(EnumSet<HouseRule> rules, int version) {}
     private static final Entry ORIGINAL = new Entry(EnumSet.copyOf(HouseRule.DEFAULT), 0);
     private final Map<UUID, Entry> households = new HashMap<>();
-    /** The rule-told bow lasts 40 ticks (Conscience.tell); the breeding answer starts when it ends. */
-    private static final int BREEDING_ANSWER_AFTER = 40;
+    /** The rule-told bow lasts 40 ticks (Conscience.toldBy); the answer to the change starts when it ends. */
+    private static final int ANSWER_AFTER = 40;
 
     public static HouseRules get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(
@@ -43,23 +46,31 @@ public final class HouseRules extends SavedData {
         households.put(id, new Entry(rules, version));
         setDirty();
         GameplayLog.event(target, "rules", "set owner={} rule={} on={} version={}", id, rule.key(), rules.contains(rule), version);
-        target.pet().conscience().tell(owner);
-        boolean allowed = !rules.contains(rule);
-        if (rule == HouseRule.NO_SUKKIRI) answerBreedingRule(owner, target, version, allowed, 0);
+        boolean loosened = !rules.contains(rule);
+        // Every pet of the owner that saw or heard the change is told it and answers it; the pet in the care screen is facing the owner.
+        var witnesses = new LinkedHashMap<YukkuriEntity, Senses.Via>();
+        witnesses.put(target, Senses.Via.SAW);
         int delay = 0;
-        for (var peer : owner.level().getEntitiesOfClass(YukkuriEntity.class, owner.getBoundingBox().inflate(16),
-                y -> y != target && y.pet().owned(owner) && HumanSight.sees(owner, y))) {
-            PetScenes.later(peer, delay += 10, () -> {
-                if (version(id) == version) peer.pet().conscience().tell(owner);
+        for (var witness : Senses.witnesses((ServerLevel) owner.level(), owner.getEyePosition(), null, Cue.RULE_CHANGE)) {
+            if (witness.body() != target && witness.body().pet().owned(owner)) witnesses.put(witness.body(), witness.via());
+        }
+        for (var noticed : witnesses.entrySet()) {
+            var pet = noticed.getKey();
+            GameplayLog.event(pet, "rules", "change noticed rule={} via={} version={}", rule.key(), noticed.getValue(), version);
+            // Each pet bows ten ticks after the one before it, then answers once its bow is over.
+            PetScenes.later(pet, delay, () -> {
+                if (version(id) != version) return;
+                pet.pet().conscience().toldBy(owner);
+                answer(owner, pet, rule, version, loosened);
             });
-            if (rule == HouseRule.NO_SUKKIRI) answerBreedingRule(owner, peer, version, allowed, delay);
+            delay += 10;
         }
     }
 
-    /** One answer per pet for this change, after its bow: a newer change (version) or a pet that never saw the owner drops it. */
-    private void answerBreedingRule(Player owner, YukkuriEntity pet, int version, boolean allowed, int toldAfter) {
-        PetScenes.later(pet, toldAfter + BREEDING_ANSWER_AFTER, () -> {
-            if (version(owner.getUUID()) == version) pet.pet().conscience().breedingRuleChanged(owner, allowed);
+    /** One answer per pet for this change, after its bow: a newer change (version) drops it. */
+    private void answer(Player owner, YukkuriEntity pet, HouseRule rule, int version, boolean loosened) {
+        PetScenes.later(pet, ANSWER_AFTER, () -> {
+            if (version(owner.getUUID()) == version) pet.pet().conscience().ruleChanged(owner, rule, loosened);
         });
     }
 

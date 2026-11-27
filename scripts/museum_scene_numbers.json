@@ -363,6 +363,7 @@
     "arc_confess_hit": "TN-77",
     "rule_breed_allowed": "TN-78",
     "rule_breed_denied": "TN-79",
+    "rule_change_other": "TN-80",
     "doll_snatch": "PK-20",
     "doll_take": "PK-21",
     "bully_strike": "PK-22",

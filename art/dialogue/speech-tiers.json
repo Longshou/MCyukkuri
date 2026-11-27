@@ -73309,6 +73309,4647 @@
    "english": "Chinpo! Puff! Over here! Leave the little one alone!",
    "origin": "project-original",
    "basis": "Project design: staged parental predator diversion, 2026-10-22 user request; unvoiced."
+  },
+  {
+   "id": "reimu.baby.w1_rule_tighten",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
+   "chinese": "油、油……好……会遵守……",
+   "english": "Yu, yu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_tighten",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもりゅ、かいぬししゃま。",
+   "chinese": "是……会遵守，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_tighten",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもります、かいぬしさま。",
+   "chinese": "是……会遵守的，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_cower",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……对不起……",
+   "english": "Yu, yu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_cower",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜……会遵守……别生气……",
+   "english": "Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_cower",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜……会遵守……请别生气，饲主大人……",
+   "english": "Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_yield",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
+   "chinese": "油、油……噗咕……好嘛……",
+   "english": "Yu, yu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_yield",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "……哼。……听从，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_yield",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……したがいます、かいぬしさま。",
+   "chinese": "……哼。……听从您，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_loosen",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
+   "chinese": "油、油！太好惹！谢谢！",
+   "english": "Yu, yu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_loosen",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "变宽松惹！谢谢，饲主大人！",
+   "english": "It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_loosen",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "变宽松了……！谢谢您，饲主大人！",
+   "english": "It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_grateful",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ゆっ、ゆっ……ありがちょ……かいぬちしゃま……",
+   "chinese": "油、油……谢谢……饲主大人……",
+   "english": "Yu, yu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_grateful",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "多亏饲主大人……谢谢。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_grateful",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "多亏饲主大人……谢谢您。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_gasp",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油呀……！饲主大人……！",
+   "english": "Yu, yuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_gasp",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬししゃま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_gasp",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬしさま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_beg",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "油、油……对不起……原谅窝……",
+   "english": "Yu, yu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_beg",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるちちぇ……かいぬししゃま……",
+   "chinese": "原谅窝……饲主大人……",
+   "english": "Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_beg",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるしてください……かいぬしさま……",
+   "chinese": "请原谅……饲主大人……",
+   "english": "Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_vow",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "油、油对不起……再也不敢……",
+   "english": "Yu, yuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_vow",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "对不起……再也不敢了……",
+   "english": "Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_vow",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごめんなさい……もう しません……",
+   "chinese": "对不起……再也不会了……",
+   "english": "I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_excuse",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
+   "chinese": "油、油可是……忍不住……",
+   "english": "Yu, yuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_excuse",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だっちぇ……がまん できにゃかったにぇ……",
+   "chinese": "可是……实在忍不住捏……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_excuse",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だって……がまん できなかったよ……",
+   "chinese": "可是……实在忍不住哦……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_wait",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
+   "chinese": "油、油……生气了……？",
+   "english": "Yu, yu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_wait",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬししゃま……おこっちぇる……？",
+   "chinese": "饲主大人……生气了……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_wait",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬしさま……おこって……？",
+   "chinese": "饲主大人……生气了吗……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_thanks",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ゆっ、ゆっ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "油、油！谢谢！饲主大人！",
+   "english": "Yu, yu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_thanks",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがちょう、かいぬししゃま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_thanks",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがとうございます、かいぬしさま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_accept",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……对不起……",
+   "english": "Yu, yu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_accept",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "嗯……再也不敢了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_accept",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "はい……もう しません、かいぬしさま……",
+   "chinese": "是……再也不会了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.baby.w1_rule_withdraw",
+   "species": "reimu",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
+   "chinese": "油、油……对不起……",
+   "english": "Yu, yu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.juvenile.w1_rule_withdraw",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "reimu.adult.w1_rule_withdraw",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごめんなさい、かいぬしさま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_tighten",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
+   "chinese": "油、油……好……会遵守……",
+   "english": "Yu, yu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_tighten",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもりゅ、かいぬししゃま。",
+   "chinese": "是……会遵守，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_tighten",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもります、かいぬしさま。",
+   "chinese": "是……会遵守的，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_cower",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……对不起……",
+   "english": "Yu, yu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_cower",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜……会遵守……别生气……",
+   "english": "Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_cower",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜……会遵守……请别生气，饲主大人……",
+   "english": "Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_yield",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
+   "chinese": "油、油……噗咕……好嘛……",
+   "english": "Yu, yu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_yield",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "……哼。……听从，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_yield",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……したがいます、かいぬしさま。",
+   "chinese": "……哼。……听从您，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_loosen",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
+   "chinese": "油、油！太好惹！谢谢！",
+   "english": "Yu, yu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_loosen",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "变宽松惹！谢谢，饲主大人！",
+   "english": "It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_loosen",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "变宽松了……！谢谢您，饲主大人！",
+   "english": "It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_grateful",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ゆっ、ゆっ……ありがちょ……かいぬちしゃま……",
+   "chinese": "油、油……谢谢……饲主大人……",
+   "english": "Yu, yu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_grateful",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "多亏饲主大人……谢谢。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_grateful",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "多亏饲主大人……谢谢您。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_gasp",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油呀……！饲主大人……！",
+   "english": "Yu, yuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_gasp",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬししゃま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_gasp",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬしさま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_beg",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "油、油……对不起……原谅窝……",
+   "english": "Yu, yu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_beg",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるちちぇ……かいぬししゃま……",
+   "chinese": "原谅窝……饲主大人……",
+   "english": "Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_beg",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるしてください……かいぬしさま……",
+   "chinese": "请原谅……饲主大人……",
+   "english": "Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_vow",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "油、油对不起……再也不敢……",
+   "english": "Yu, yuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_vow",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "对不起……再也不敢了……",
+   "english": "Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_vow",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごめんなさい……もう しません……",
+   "chinese": "对不起……再也不会了……",
+   "english": "I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_excuse",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
+   "chinese": "油、油可是……忍不住……",
+   "english": "Yu, yuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_excuse",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だっちぇ……がまん できにゃかったのじぇ……",
+   "chinese": "可是……实在忍不住惹杰……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_excuse",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だって……がまん できなかったのぜ……",
+   "chinese": "可是……实在忍不住贼……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_wait",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
+   "chinese": "油、油……生气了……？",
+   "english": "Yu, yu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_wait",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬししゃま……おこっちぇる……？",
+   "chinese": "饲主大人……生气了……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_wait",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬしさま……おこって……？",
+   "chinese": "饲主大人……生气了吗……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_thanks",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ゆっ、ゆっ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "油、油！谢谢！饲主大人！",
+   "english": "Yu, yu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_thanks",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがちょう、かいぬししゃま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_thanks",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがとうございます、かいぬしさま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_accept",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……对不起……",
+   "english": "Yu, yu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_accept",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "嗯……再也不敢了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_accept",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "はい……もう しません、かいぬしさま……",
+   "chinese": "是……再也不会了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.baby.w1_rule_withdraw",
+   "species": "marisa",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
+   "chinese": "油、油……对不起……",
+   "english": "Yu, yu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.juvenile.w1_rule_withdraw",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "marisa.adult.w1_rule_withdraw",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごめんなさい、かいぬしさま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_tighten",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……まもりゅ……",
+   "chinese": "油、油……好……会遵守……",
+   "english": "Yu, yu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_tighten",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもりゅ、かいぬししゃま。",
+   "chinese": "是……会遵守，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_tighten",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもります、かいぬしさま。",
+   "chinese": "是……会遵守的，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_cower",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ゆっ、ゆっ……こあい……ごみぇんなちゃい……",
+   "chinese": "油、油……好口怕……对不起……",
+   "english": "Yu, yu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_cower",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜……会遵守……别生气……",
+   "english": "Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_cower",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜……会遵守……请别生气，饲主大人……",
+   "english": "Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_yield",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ゆっ、ゆっ……ぷくー……あい……",
+   "chinese": "油、油……噗咕……好嘛……",
+   "english": "Yu, yu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_yield",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "……哼。……听从，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_yield",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……したがいます、かいぬしさま。",
+   "chinese": "……哼。……听从您，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_loosen",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆっ、ゆっ！ やっちゃー！ ありがちょ！",
+   "chinese": "油、油！太好惹！谢谢！",
+   "english": "Yu, yu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_loosen",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "变宽松惹！谢谢，饲主大人！",
+   "english": "It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_loosen",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "变宽松了……！谢谢您，饲主大人！",
+   "english": "It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_grateful",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ゆっ、ゆっ……ありがちょ……かいぬちしゃま……",
+   "chinese": "油、油……谢谢……饲主大人……",
+   "english": "Yu, yu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_grateful",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "多亏饲主大人……谢谢。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_grateful",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "多亏饲主大人……谢谢您。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_gasp",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ゆっ、ゆっひっ……！ かいぬちしゃま……！",
+   "chinese": "油、油呀……！饲主大人……！",
+   "english": "Yu, yuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_gasp",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬししゃま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_gasp",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬしさま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_beg",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "油、油……对不起……原谅窝……",
+   "english": "Yu, yu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_beg",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるちちぇ……かいぬししゃま……",
+   "chinese": "原谅窝……饲主大人……",
+   "english": "Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_beg",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるしてください……かいぬしさま……",
+   "chinese": "请原谅……饲主大人……",
+   "english": "Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_vow",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ゆっ、ゆっごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "油、油对不起……再也不敢……",
+   "english": "Yu, yuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_vow",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "对不起……再也不敢了……",
+   "english": "Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_vow",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごめんなさい……もう しません……",
+   "chinese": "对不起……再也不会了……",
+   "english": "I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_excuse",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ゆっ、ゆっだっちぇ……がまん、できにゃい……",
+   "chinese": "油、油可是……忍不住……",
+   "english": "Yu, yuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_excuse",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だっちぇ……がまん できにゃかったにょ……",
+   "chinese": "可是……实在忍不住哟……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_excuse",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だって……がまん できなかったわ……",
+   "chinese": "可是……实在忍不住呢……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_wait",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ゆっ、ゆっ……おこっちぇる……？",
+   "chinese": "油、油……生气了……？",
+   "english": "Yu, yu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_wait",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬししゃま……おこっちぇる……？",
+   "chinese": "饲主大人……生气了……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_wait",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬしさま……おこって……？",
+   "chinese": "饲主大人……生气了吗……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_thanks",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ゆっ、ゆっ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "油、油！谢谢！饲主大人！",
+   "english": "Yu, yu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_thanks",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがちょう、かいぬししゃま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_thanks",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがとうございます、かいぬしさま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_accept",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ゆっ、ゆっ……あい……ごみぇんなちゃい……",
+   "chinese": "油、油……嗯……对不起……",
+   "english": "Yu, yu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_accept",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "嗯……再也不敢了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_accept",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "はい……もう しません、かいぬしさま……",
+   "chinese": "是……再也不会了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.baby.w1_rule_withdraw",
+   "species": "alice",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ゆっ、ゆっ……ごみぇんなちゃい……",
+   "chinese": "油、油……对不起……",
+   "english": "Yu, yu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.juvenile.w1_rule_withdraw",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "alice.adult.w1_rule_withdraw",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごめんなさい、かいぬしさま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_tighten",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ゆ、にゃっ……あい……まもりゅ……",
+   "chinese": "油、喵……好……会遵守……",
+   "english": "Yu, nya... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_tighten",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもりゅ、かいぬししゃま。",
+   "chinese": "是……会遵守，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_tighten",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "はい……まもります、かいぬしさま。",
+   "chinese": "是……会遵守的，饲主大人。",
+   "english": "Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_cower",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ゆ、にゃっ……こあい……ごみぇんなちゃい……",
+   "chinese": "油、喵……好口怕……对不起……",
+   "english": "Yu, nya... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_cower",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜……会遵守……别生气……",
+   "english": "Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_cower",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜……会遵守……请别生气，饲主大人……",
+   "english": "Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_yield",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ゆ、にゃっ……ぷくー……あい……",
+   "chinese": "油、喵……噗咕……好嘛……",
+   "english": "Yu, nya... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_yield",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "……哼。……听从，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_yield",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "……ふん。……したがいます、かいぬしさま。",
+   "chinese": "……哼。……听从您，饲主大人。",
+   "english": "...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_loosen",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆ、にゃっ！ やっちゃー！ ありがちょ！",
+   "chinese": "油、喵！太好惹！谢谢！",
+   "english": "Yu, nya! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_loosen",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "变宽松惹！谢谢，饲主大人！",
+   "english": "It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_loosen",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "变宽松了……！谢谢您，饲主大人！",
+   "english": "It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_grateful",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ゆ、にゃっ……ありがちょ……かいぬちしゃま……",
+   "chinese": "油、喵……谢谢……饲主大人……",
+   "english": "Yu, nya... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_grateful",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "多亏饲主大人……谢谢。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_grateful",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "多亏饲主大人……谢谢您。",
+   "english": "Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_gasp",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ゆ、にゃっひっ……！ かいぬちしゃま……！",
+   "chinese": "油、喵呀……！饲主大人……！",
+   "english": "Yu, nyaEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_gasp",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬししゃま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_gasp",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ひっ……！ かいぬしさま……！",
+   "chinese": "呀……！饲主大人……！",
+   "english": "Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_beg",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆ、にゃっ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "油、喵……对不起……原谅窝……",
+   "english": "Yu, nya... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_beg",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるちちぇ……かいぬししゃま……",
+   "chinese": "原谅窝……饲主大人……",
+   "english": "Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_beg",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ゆるしてください……かいぬしさま……",
+   "chinese": "请原谅……饲主大人……",
+   "english": "Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_vow",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ゆ、にゃっごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "油、喵对不起……再也不敢……",
+   "english": "Yu, nyaSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_vow",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "对不起……再也不敢了……",
+   "english": "Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_vow",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ごめんなさい……もう しません……",
+   "chinese": "对不起……再也不会了……",
+   "english": "I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_excuse",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ゆ、にゃっだっちぇ……がまん、できにゃい……",
+   "chinese": "油、喵可是……忍不住……",
+   "english": "Yu, nyaBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_excuse",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だっちぇ……がまん できにゃかったよぅ……",
+   "chinese": "可是……实在忍不住哟——……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_excuse",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "だって……がまん できなかったよー……",
+   "chinese": "可是……实在忍不住哟——……",
+   "english": "But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_wait",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ゆ、にゃっ……おこっちぇる……？",
+   "chinese": "油、喵……生气了……？",
+   "english": "Yu, nya... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_wait",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬししゃま……おこっちぇる……？",
+   "chinese": "饲主大人……生气了……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_wait",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "かいぬしさま……おこって……？",
+   "chinese": "饲主大人……生气了吗……？",
+   "english": "Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_thanks",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ゆ、にゃっ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "油、喵！谢谢！饲主大人！",
+   "english": "Yu, nya! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_thanks",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがちょう、かいぬししゃま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_thanks",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ありがとうございます、かいぬしさま！",
+   "chinese": "谢谢您，饲主大人！",
+   "english": "Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_accept",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ゆ、にゃっ……あい……ごみぇんなちゃい……",
+   "chinese": "油、喵……嗯……对不起……",
+   "english": "Yu, nya... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_accept",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "嗯……再也不敢了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_accept",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "はい……もう しません、かいぬしさま……",
+   "chinese": "是……再也不会了，饲主大人……",
+   "english": "Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.baby.w1_rule_withdraw",
+   "species": "chen",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ゆ、にゃっ……ごみぇんなちゃい……",
+   "chinese": "油、喵……对不起……",
+   "english": "Yu, nya... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.juvenile.w1_rule_withdraw",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "chen.adult.w1_rule_withdraw",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "……ごめんなさい、かいぬしさま……",
+   "chinese": "……对不起，饲主大人……",
+   "english": "... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_tighten",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "む、きゅっ……あい……まもりゅ……",
+   "chinese": "姆、啾……好……会遵守……",
+   "english": "Mu, kyu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_tighten",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "むきゅ。はい……まもりゅ、かいぬししゃま。",
+   "chinese": "姆啾。是……会遵守，饲主大人。",
+   "english": "Mukyu. Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_tighten",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "むきゅ。はい……まもります、かいぬしさま。",
+   "chinese": "姆啾。是……会遵守的，饲主大人。",
+   "english": "Mukyu. Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_cower",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "む、きゅっ……こあい……ごみぇんなちゃい……",
+   "chinese": "姆、啾……好口怕……对不起……",
+   "english": "Mu, kyu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_cower",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "むきゅ。ひっ……まもりゅ……おこらないで……",
+   "chinese": "姆啾。呜……会遵守……别生气……",
+   "english": "Mukyu. Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_cower",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "むきゅ。ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "姆啾。呜……会遵守……请别生气，饲主大人……",
+   "english": "Mukyu. Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_yield",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "む、きゅっ……ぷくー……あい……",
+   "chinese": "姆、啾……噗咕……好嘛……",
+   "english": "Mu, kyu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_yield",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "むきゅ。……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "姆啾。……哼。……听从，饲主大人。",
+   "english": "Mukyu. ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_yield",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "むきゅ。……ふん。……したがいます、かいぬしさま。",
+   "chinese": "姆啾。……哼。……听从您，饲主大人。",
+   "english": "Mukyu. ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_loosen",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "む、きゅっ！ やっちゃー！ ありがちょ！",
+   "chinese": "姆、啾！太好惹！谢谢！",
+   "english": "Mu, kyu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_loosen",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "むきゅ。ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "姆啾。变宽松惹！谢谢，饲主大人！",
+   "english": "Mukyu. It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_loosen",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "むきゅ。ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "姆啾。变宽松了……！谢谢您，饲主大人！",
+   "english": "Mukyu. It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_grateful",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "む、きゅっ……ありがちょ……かいぬちしゃま……",
+   "chinese": "姆、啾……谢谢……饲主大人……",
+   "english": "Mu, kyu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_grateful",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "むきゅ。かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "姆啾。多亏饲主大人……谢谢。",
+   "english": "Mukyu. Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_grateful",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "むきゅ。かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "姆啾。多亏饲主大人……谢谢您。",
+   "english": "Mukyu. Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_gasp",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "む、きゅっひっ……！ かいぬちしゃま……！",
+   "chinese": "姆、啾呀……！饲主大人……！",
+   "english": "Mu, kyuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_gasp",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "むきゅ。ひっ……！ かいぬししゃま……！",
+   "chinese": "姆啾。呀……！饲主大人……！",
+   "english": "Mukyu. Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_gasp",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "むきゅ。ひっ……！ かいぬしさま……！",
+   "chinese": "姆啾。呀……！饲主大人……！",
+   "english": "Mukyu. Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_beg",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "む、きゅっ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "姆、啾……对不起……原谅窝……",
+   "english": "Mu, kyu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_beg",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "むきゅ。ゆるちちぇ……かいぬししゃま……",
+   "chinese": "姆啾。原谅窝……饲主大人……",
+   "english": "Mukyu. Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_beg",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "むきゅ。ゆるしてください……かいぬしさま……",
+   "chinese": "姆啾。请原谅……饲主大人……",
+   "english": "Mukyu. Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_vow",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "む、きゅっごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "姆、啾对不起……再也不敢……",
+   "english": "Mu, kyuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_vow",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "むきゅ。ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "姆啾。对不起……再也不敢了……",
+   "english": "Mukyu. Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_vow",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "むきゅ。ごめんなさい……もう しません……",
+   "chinese": "姆啾。对不起……再也不会了……",
+   "english": "Mukyu. I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_excuse",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "む、きゅっだっちぇ……がまん、できにゃい……",
+   "chinese": "姆、啾可是……忍不住……",
+   "english": "Mu, kyuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_excuse",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "むきゅ。だっちぇ……がまん できにゃかったわ……",
+   "chinese": "姆啾。可是……实在忍不住惹哇……",
+   "english": "Mukyu. But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_excuse",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "むきゅ。だって……がまん できなかったわ……",
+   "chinese": "姆啾。可是……实在忍不住哇……",
+   "english": "Mukyu. But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_wait",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "む、きゅっ……おこっちぇる……？",
+   "chinese": "姆、啾……生气了……？",
+   "english": "Mu, kyu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_wait",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "むきゅ。かいぬししゃま……おこっちぇる……？",
+   "chinese": "姆啾。饲主大人……生气了……？",
+   "english": "Mukyu. Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_wait",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "むきゅ。かいぬしさま……おこって……？",
+   "chinese": "姆啾。饲主大人……生气了吗……？",
+   "english": "Mukyu. Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_thanks",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "む、きゅっ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "姆、啾！谢谢！饲主大人！",
+   "english": "Mu, kyu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_thanks",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "むきゅ。ありがちょう、かいぬししゃま！",
+   "chinese": "姆啾。谢谢您，饲主大人！",
+   "english": "Mukyu. Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_thanks",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "むきゅ。ありがとうございます、かいぬしさま！",
+   "chinese": "姆啾。谢谢您，饲主大人！",
+   "english": "Mukyu. Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_accept",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "む、きゅっ……あい……ごみぇんなちゃい……",
+   "chinese": "姆、啾……嗯……对不起……",
+   "english": "Mu, kyu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_accept",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "むきゅ。あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "姆啾。嗯……再也不敢了，饲主大人……",
+   "english": "Mukyu. Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_accept",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "むきゅ。はい……もう しません、かいぬしさま……",
+   "chinese": "姆啾。是……再也不会了，饲主大人……",
+   "english": "Mukyu. Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.baby.w1_rule_withdraw",
+   "species": "patchouli",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "む、きゅっ……ごみぇんなちゃい……",
+   "chinese": "姆、啾……对不起……",
+   "english": "Mu, kyu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.juvenile.w1_rule_withdraw",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "むきゅ。……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "姆啾。……对不起，饲主大人……",
+   "english": "Mukyu. ... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "patchouli.adult.w1_rule_withdraw",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "むきゅ。……ごめんなさい、かいぬしさま……",
+   "chinese": "姆啾。……对不起，饲主大人……",
+   "english": "Mukyu. ... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_tighten",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、うー……あい……まもりゅ……",
+   "chinese": "呜——、呜——……好……会遵守……",
+   "english": "Uu, uu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_tighten",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、はい……まもりゅ、かいぬししゃま。",
+   "chinese": "呜——是……会遵守，饲主大人。",
+   "english": "Uu... Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_tighten",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、はい……まもります、かいぬしさま。",
+   "chinese": "呜——是……会遵守的，饲主大人。",
+   "english": "Uu... Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_cower",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、うー……こあい……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……好口怕……对不起……",
+   "english": "Uu, uu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_cower",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜——呜……会遵守……别生气……",
+   "english": "Uu... Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_cower",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜——呜……会遵守……请别生气，饲主大人……",
+   "english": "Uu... Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_yield",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、うー……ぷくー……あい……",
+   "chinese": "呜——、呜——……噗咕……好嘛……",
+   "english": "Uu, uu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_yield",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "呜——……哼。……听从，饲主大人。",
+   "english": "Uu... ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_yield",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、……ふん。……したがいます、かいぬしさま。",
+   "chinese": "呜——……哼。……听从您，饲主大人。",
+   "english": "Uu... ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_loosen",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、うー！ やっちゃー！ ありがちょ！",
+   "chinese": "呜——、呜——！太好惹！谢谢！",
+   "english": "Uu, uu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_loosen",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "呜——变宽松惹！谢谢，饲主大人！",
+   "english": "Uu... It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_loosen",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "呜——变宽松了……！谢谢您，饲主大人！",
+   "english": "Uu... It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_grateful",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、うー……ありがちょ……かいぬちしゃま……",
+   "chinese": "呜——、呜——……谢谢……饲主大人……",
+   "english": "Uu, uu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_grateful",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "呜——多亏饲主大人……谢谢。",
+   "english": "Uu... Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_grateful",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "呜——多亏饲主大人……谢谢您。",
+   "english": "Uu... Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_gasp",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、うーひっ……！ かいぬちしゃま……！",
+   "chinese": "呜——、呜——呀……！饲主大人……！",
+   "english": "Uu, uuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_gasp",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、ひっ……！ かいぬししゃま……！",
+   "chinese": "呜——呀……！饲主大人……！",
+   "english": "Uu... Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_gasp",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、ひっ……！ かいぬしさま……！",
+   "chinese": "呜——呀……！饲主大人……！",
+   "english": "Uu... Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_beg",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、うー……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "呜——、呜——……对不起……原谅窝……",
+   "english": "Uu, uu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_beg",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、ゆるちちぇ……かいぬししゃま……",
+   "chinese": "呜——原谅窝……饲主大人……",
+   "english": "Uu... Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_beg",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、ゆるしてください……かいぬしさま……",
+   "chinese": "呜——请原谅……饲主大人……",
+   "english": "Uu... Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_vow",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、うーごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "呜——、呜——对不起……再也不敢……",
+   "english": "Uu, uuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_vow",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "呜——对不起……再也不敢了……",
+   "english": "Uu... Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_vow",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、ごめんなさい……もう しません……",
+   "chinese": "呜——对不起……再也不会了……",
+   "english": "Uu... I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_excuse",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、うーだっちぇ……がまん、できにゃい……",
+   "chinese": "呜——、呜——可是……忍不住……",
+   "english": "Uu, uuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_excuse",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、だっちぇ……がまん できにゃかったなのだ……",
+   "chinese": "呜——可是……实在忍不住呀……",
+   "english": "Uu... But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_excuse",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、だって……がまん できなかったのだ……",
+   "chinese": "呜——可是……实在忍不住呀……",
+   "english": "Uu... But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_wait",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、うー……おこっちぇる……？",
+   "chinese": "呜——、呜——……生气了……？",
+   "english": "Uu, uu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_wait",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、かいぬししゃま……おこっちぇる……？",
+   "chinese": "呜——饲主大人……生气了……？",
+   "english": "Uu... Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_wait",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、かいぬしさま……おこって……？",
+   "chinese": "呜——饲主大人……生气了吗……？",
+   "english": "Uu... Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_thanks",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、うー！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "呜——、呜——！谢谢！饲主大人！",
+   "english": "Uu, uu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_thanks",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、ありがちょう、かいぬししゃま！",
+   "chinese": "呜——谢谢您，饲主大人！",
+   "english": "Uu... Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_thanks",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、ありがとうございます、かいぬしさま！",
+   "chinese": "呜——谢谢您，饲主大人！",
+   "english": "Uu... Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_accept",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、うー……あい……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……嗯……对不起……",
+   "english": "Uu, uu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_accept",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "呜——嗯……再也不敢了，饲主大人……",
+   "english": "Uu... Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_accept",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、はい……もう しません、かいぬしさま……",
+   "chinese": "呜——是……再也不会了，饲主大人……",
+   "english": "Uu... Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.baby.w1_rule_withdraw",
+   "species": "remilia",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、うー……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……对不起……",
+   "english": "Uu, uu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.juvenile.w1_rule_withdraw",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "呜——……对不起，饲主大人……",
+   "english": "Uu... ... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "remilia.adult.w1_rule_withdraw",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、……ごめんなさい、かいぬしさま……",
+   "chinese": "呜——……对不起，饲主大人……",
+   "english": "Uu... ... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_tighten",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、うー……あい……まもりゅ……",
+   "chinese": "呜——、呜——……好……会遵守……",
+   "english": "Uu, uu... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_tighten",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、はい……まもりゅ、かいぬししゃま。",
+   "chinese": "呜——是……会遵守，饲主大人。",
+   "english": "Uu... Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_tighten",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "うー、はい……まもります、かいぬしさま。",
+   "chinese": "呜——是……会遵守的，饲主大人。",
+   "english": "Uu... Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_cower",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、うー……こあい……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……好口怕……对不起……",
+   "english": "Uu, uu... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_cower",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、ひっ……まもりゅ……おこらないで……",
+   "chinese": "呜——呜……会遵守……别生气……",
+   "english": "Uu... Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_cower",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "うー、ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "呜——呜……会遵守……请别生气，饲主大人……",
+   "english": "Uu... Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_yield",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、うー……ぷくー……あい……",
+   "chinese": "呜——、呜——……噗咕……好嘛……",
+   "english": "Uu, uu... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_yield",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "呜——……哼。……听从，饲主大人。",
+   "english": "Uu... ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_yield",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "うー、……ふん。……したがいます、かいぬしさま。",
+   "chinese": "呜——……哼。……听从您，饲主大人。",
+   "english": "Uu... ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_loosen",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、うー！ やっちゃー！ ありがちょ！",
+   "chinese": "呜——、呜——！太好惹！谢谢！",
+   "english": "Uu, uu! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_loosen",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "呜——变宽松惹！谢谢，饲主大人！",
+   "english": "Uu... It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_loosen",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "うー、ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "呜——变宽松了……！谢谢您，饲主大人！",
+   "english": "Uu... It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_grateful",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、うー……ありがちょ……かいぬちしゃま……",
+   "chinese": "呜——、呜——……谢谢……饲主大人……",
+   "english": "Uu, uu... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_grateful",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "呜——多亏饲主大人……谢谢。",
+   "english": "Uu... Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_grateful",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "うー、かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "呜——多亏饲主大人……谢谢您。",
+   "english": "Uu... Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_gasp",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、うーひっ……！ かいぬちしゃま……！",
+   "chinese": "呜——、呜——呀……！饲主大人……！",
+   "english": "Uu, uuEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_gasp",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、ひっ……！ かいぬししゃま……！",
+   "chinese": "呜——呀……！饲主大人……！",
+   "english": "Uu... Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_gasp",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "うー、ひっ……！ かいぬしさま……！",
+   "chinese": "呜——呀……！饲主大人……！",
+   "english": "Uu... Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_beg",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、うー……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "呜——、呜——……对不起……原谅窝……",
+   "english": "Uu, uu... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_beg",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、ゆるちちぇ……かいぬししゃま……",
+   "chinese": "呜——原谅窝……饲主大人……",
+   "english": "Uu... Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_beg",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "うー、ゆるしてください……かいぬしさま……",
+   "chinese": "呜——请原谅……饲主大人……",
+   "english": "Uu... Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_vow",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、うーごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "呜——、呜——对不起……再也不敢……",
+   "english": "Uu, uuSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_vow",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "呜——对不起……再也不敢了……",
+   "english": "Uu... Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_vow",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "うー、ごめんなさい……もう しません……",
+   "chinese": "呜——对不起……再也不会了……",
+   "english": "Uu... I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_excuse",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、うーだっちぇ……がまん、できにゃい……",
+   "chinese": "呜——、呜——可是……忍不住……",
+   "english": "Uu, uuBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_excuse",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、だっちぇ……がまん できにゃかったよぅ……",
+   "chinese": "呜——可是……实在忍不住哦……",
+   "english": "Uu... But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_excuse",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "うー、だって……がまん できなかったよ……",
+   "chinese": "呜——可是……实在忍不住哦……",
+   "english": "Uu... But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_wait",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、うー……おこっちぇる……？",
+   "chinese": "呜——、呜——……生气了……？",
+   "english": "Uu, uu... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_wait",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、かいぬししゃま……おこっちぇる……？",
+   "chinese": "呜——饲主大人……生气了……？",
+   "english": "Uu... Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_wait",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "うー、かいぬしさま……おこって……？",
+   "chinese": "呜——饲主大人……生气了吗……？",
+   "english": "Uu... Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_thanks",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、うー！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "呜——、呜——！谢谢！饲主大人！",
+   "english": "Uu, uu! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_thanks",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、ありがちょう、かいぬししゃま！",
+   "chinese": "呜——谢谢您，饲主大人！",
+   "english": "Uu... Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_thanks",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "うー、ありがとうございます、かいぬしさま！",
+   "chinese": "呜——谢谢您，饲主大人！",
+   "english": "Uu... Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_accept",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、うー……あい……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……嗯……对不起……",
+   "english": "Uu, uu... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_accept",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "呜——嗯……再也不敢了，饲主大人……",
+   "english": "Uu... Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_accept",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "うー、はい……もう しません、かいぬしさま……",
+   "chinese": "呜——是……再也不会了，饲主大人……",
+   "english": "Uu... Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.baby.w1_rule_withdraw",
+   "species": "flandre",
+   "age": "baby",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、うー……ごみぇんなちゃい……",
+   "chinese": "呜——、呜——……对不起……",
+   "english": "Uu, uu... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.juvenile.w1_rule_withdraw",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "呜——……对不起，饲主大人……",
+   "english": "Uu... ... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "flandre.adult.w1_rule_withdraw",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "うー、……ごめんなさい、かいぬしさま……",
+   "chinese": "呜——……对不起，饲主大人……",
+   "english": "Uu... ... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_tighten",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "みょ、みょん……あい……まもりゅ……",
+   "chinese": "咪、咪呦……好……会遵守……",
+   "english": "Myo, myon... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_tighten",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "みょん！はい……まもりゅ、かいぬししゃま。",
+   "chinese": "咪呦！是……会遵守，饲主大人。",
+   "english": "Myon! Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_tighten",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "みょん！はい……まもります、かいぬしさま。",
+   "chinese": "咪呦！是……会遵守的，饲主大人。",
+   "english": "Myon! Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_cower",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "みょ、みょん……こあい……ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……好口怕……对不起……",
+   "english": "Myo, myon... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_cower",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "みょん！ひっ……まもりゅ……おこらないで……",
+   "chinese": "咪呦！呜……会遵守……别生气……",
+   "english": "Myon! Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_cower",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "みょん！ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "咪呦！呜……会遵守……请别生气，饲主大人……",
+   "english": "Myon! Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_yield",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "みょ、みょん……ぷくー……あい……",
+   "chinese": "咪、咪呦……噗咕……好嘛……",
+   "english": "Myo, myon... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_yield",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "みょん！……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "咪呦！……哼。……听从，饲主大人。",
+   "english": "Myon! ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_yield",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "みょん！……ふん。……したがいます、かいぬしさま。",
+   "chinese": "咪呦！……哼。……听从您，饲主大人。",
+   "english": "Myon! ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_loosen",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "みょ、みょん！ やっちゃー！ ありがちょ！",
+   "chinese": "咪、咪呦！太好惹！谢谢！",
+   "english": "Myo, myon! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_loosen",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "みょん！ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "咪呦！变宽松惹！谢谢，饲主大人！",
+   "english": "Myon! It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_loosen",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "みょん！ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "咪呦！变宽松了……！谢谢您，饲主大人！",
+   "english": "Myon! It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_grateful",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "みょ、みょん……ありがちょ……かいぬちしゃま……",
+   "chinese": "咪、咪呦……谢谢……饲主大人……",
+   "english": "Myo, myon... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_grateful",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "みょん！かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "咪呦！多亏饲主大人……谢谢。",
+   "english": "Myon! Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_grateful",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "みょん！かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "咪呦！多亏饲主大人……谢谢您。",
+   "english": "Myon! Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_gasp",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "みょ、みょんひっ……！ かいぬちしゃま……！",
+   "chinese": "咪、咪呦呀……！饲主大人……！",
+   "english": "Myo, myonEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_gasp",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "みょん！ひっ……！ かいぬししゃま……！",
+   "chinese": "咪呦！呀……！饲主大人……！",
+   "english": "Myon! Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_gasp",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "みょん！ひっ……！ かいぬしさま……！",
+   "chinese": "咪呦！呀……！饲主大人……！",
+   "english": "Myon! Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_beg",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "みょ、みょん……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "咪、咪呦……对不起……原谅窝……",
+   "english": "Myo, myon... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_beg",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "みょん！ゆるちちぇ……かいぬししゃま……",
+   "chinese": "咪呦！原谅窝……饲主大人……",
+   "english": "Myon! Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_beg",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "みょん！ゆるしてください……かいぬしさま……",
+   "chinese": "咪呦！请原谅……饲主大人……",
+   "english": "Myon! Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_vow",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "みょ、みょんごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "咪、咪呦对不起……再也不敢……",
+   "english": "Myo, myonSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_vow",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "みょん！ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "咪呦！对不起……再也不敢了……",
+   "english": "Myon! Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_vow",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "みょん！ごめんなさい……もう しません……",
+   "chinese": "咪呦！对不起……再也不会了……",
+   "english": "Myon! I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_excuse",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "みょ、みょんだっちぇ……がまん、できにゃい……",
+   "chinese": "咪、咪呦可是……忍不住……",
+   "english": "Myo, myonBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_excuse",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "みょん！だっちぇ……がまん できにゃかったみょ……",
+   "chinese": "咪呦！可是……实在忍不住哦……",
+   "english": "Myon! But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_excuse",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "みょん！だって……がまん できなかったよ……",
+   "chinese": "咪呦！可是……实在忍不住哦……",
+   "english": "Myon! But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_wait",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "みょ、みょん……おこっちぇる……？",
+   "chinese": "咪、咪呦……生气了……？",
+   "english": "Myo, myon... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_wait",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "みょん！かいぬししゃま……おこっちぇる……？",
+   "chinese": "咪呦！饲主大人……生气了……？",
+   "english": "Myon! Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_wait",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "みょん！かいぬしさま……おこって……？",
+   "chinese": "咪呦！饲主大人……生气了吗……？",
+   "english": "Myon! Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_thanks",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "みょ、みょん！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "咪、咪呦！谢谢！饲主大人！",
+   "english": "Myo, myon! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "みょん！ありがちょう、かいぬししゃま！",
+   "chinese": "咪呦！谢谢您，饲主大人！",
+   "english": "Myon! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "みょん！ありがとうございます、かいぬしさま！",
+   "chinese": "咪呦！谢谢您，饲主大人！",
+   "english": "Myon! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_accept",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "みょ、みょん……あい……ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……嗯……对不起……",
+   "english": "Myo, myon... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_accept",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "みょん！あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "咪呦！嗯……再也不敢了，饲主大人……",
+   "english": "Myon! Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_accept",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "みょん！はい……もう しません、かいぬしさま……",
+   "chinese": "咪呦！是……再也不会了，饲主大人……",
+   "english": "Myon! Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.baby.w1_rule_withdraw",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "miyo",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "みょ、みょん……ごみぇんなちゃい……",
+   "chinese": "咪、咪呦……对不起……",
+   "english": "Myo, myon... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.juvenile.w1_rule_withdraw",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "みょん！……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "咪呦！……对不起，饲主大人……",
+   "english": "Myon! ... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.adult.w1_rule_withdraw",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "みょん！……ごめんなさい、かいぬしさま……",
+   "chinese": "咪呦！……对不起，饲主大人……",
+   "english": "Myon! ... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_tighten",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ちん、ちーんぽ……あい……まもりゅ……",
+   "chinese": "金、金寶……好……会遵守……",
+   "english": "Chin, chinpo... yes... I will obey...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_tighten",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ちーんぽ！はい……まもりゅ、かいぬししゃま。",
+   "chinese": "金寶！是……会遵守，饲主大人。",
+   "english": "Chinpo! Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_tighten",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_tighten"
+   ],
+   "japanese": "ちーんぽ！はい……まもります、かいぬしさま。",
+   "chinese": "金寶！是……会遵守的，饲主大人。",
+   "english": "Chinpo! Yes... I will keep it, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_cower",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ちん、ちーんぽ……こあい……ごみぇんなちゃい……",
+   "chinese": "金、金寶……好口怕……对不起……",
+   "english": "Chin, chinpo... scawy... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_cower",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ちーんぽ！ひっ……まもりゅ……おこらないで……",
+   "chinese": "金寶！呜……会遵守……别生气……",
+   "english": "Chinpo! Eek... I will keep it... do not be angry...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_cower",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_cower"
+   ],
+   "japanese": "ちーんぽ！ひ……まもります……おこらないで、かいぬしさま……",
+   "chinese": "金寶！呜……会遵守……请别生气，饲主大人……",
+   "english": "Chinpo! Eek... I will keep it... please do not be angry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_yield",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ちん、ちーんぽ……ぷくー……あい……",
+   "chinese": "金、金寶……噗咕……好嘛……",
+   "english": "Chin, chinpo... puff... okay...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_yield",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ちーんぽ！……ふん。……ちたがいましゅ、かいぬししゃま。",
+   "chinese": "金寶！……哼。……听从，饲主大人。",
+   "english": "Chinpo! ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_yield",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_yield"
+   ],
+   "japanese": "ちーんぽ！……ふん。……したがいます、かいぬしさま。",
+   "chinese": "金寶！……哼。……听从您，饲主大人。",
+   "english": "Chinpo! ...Hmph. ...I will obey, Owner.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_loosen",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ちん、ちーんぽ！ やっちゃー！ ありがちょ！",
+   "chinese": "金、金寶！太好惹！谢谢！",
+   "english": "Chin, chinpo! Yay! Thank you!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_loosen",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ちーんぽ！ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！",
+   "chinese": "金寶！变宽松惹！谢谢，饲主大人！",
+   "english": "Chinpo! It got looser! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_loosen",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_loosen"
+   ],
+   "japanese": "ちーんぽ！ゆるくなった……！ ありがとうございます、かいぬしさま！",
+   "chinese": "金寶！变宽松了……！谢谢您，饲主大人！",
+   "english": "Chinpo! It got looser...! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_grateful",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ちん、ちーんぽ……ありがちょ……かいぬちしゃま……",
+   "chinese": "金、金寶……谢谢……饲主大人……",
+   "english": "Chin, chinpo... thank you... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_grateful",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ちーんぽ！かいぬししゃまの おかげ……ありがちょう。",
+   "chinese": "金寶！多亏饲主大人……谢谢。",
+   "english": "Chinpo! Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_grateful",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_grateful"
+   ],
+   "japanese": "ちーんぽ！かいぬしさまの おかげです……ありがとうございます。",
+   "chinese": "金寶！多亏饲主大人……谢谢您。",
+   "english": "Chinpo! Thanks to you, Owner... thank you.",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_gasp",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ちん、ちーんぽひっ……！ かいぬちしゃま……！",
+   "chinese": "金、金寶呀……！饲主大人……！",
+   "english": "Chin, chinpoEek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_gasp",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ちーんぽ！ひっ……！ かいぬししゃま……！",
+   "chinese": "金寶！呀……！饲主大人……！",
+   "english": "Chinpo! Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_gasp",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_gasp"
+   ],
+   "japanese": "ちーんぽ！ひっ……！ かいぬしさま……！",
+   "chinese": "金寶！呀……！饲主大人……！",
+   "english": "Chinpo! Eek...! Owner...!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_beg",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ちん、ちーんぽ……ごみぇんなちゃい……ゆるちちぇ……",
+   "chinese": "金、金寶……对不起……原谅窝……",
+   "english": "Chin, chinpo... sowwy... forgive me...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_beg",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ちーんぽ！ゆるちちぇ……かいぬししゃま……",
+   "chinese": "金寶！原谅窝……饲主大人……",
+   "english": "Chinpo! Forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_beg",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_beg"
+   ],
+   "japanese": "ちーんぽ！ゆるしてください……かいぬしさま……",
+   "chinese": "金寶！请原谅……饲主大人……",
+   "english": "Chinpo! Please forgive me... Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_vow",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ちん、ちーんぽごみぇんなちゃい……もう、ちましぇん……",
+   "chinese": "金、金寶对不起……再也不敢……",
+   "english": "Chin, chinpoSowwy... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_vow",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ちーんぽ！ごみぇんなちゃい……もう ちましぇん……",
+   "chinese": "金寶！对不起……再也不敢了……",
+   "english": "Chinpo! Sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_vow",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_vow"
+   ],
+   "japanese": "ちーんぽ！ごめんなさい……もう しません……",
+   "chinese": "金寶！对不起……再也不会了……",
+   "english": "Chinpo! I am sorry... never again...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_excuse",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ちん、ちーんぽだっちぇ……がまん、できにゃい……",
+   "chinese": "金、金寶可是……忍不住……",
+   "english": "Chin, chinpoBut... could not hold it...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_excuse",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ちーんぽ！だっちぇ……がまん できにゃかったよぅ……",
+   "chinese": "金寶！可是……实在忍不住哦……",
+   "english": "Chinpo! But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_excuse",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_excuse"
+   ],
+   "japanese": "ちーんぽ！だって……がまん できなかったよ……",
+   "chinese": "金寶！可是……实在忍不住哦……",
+   "english": "Chinpo! But... I could not hold it in...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_wait",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ちん、ちーんぽ……おこっちぇる……？",
+   "chinese": "金、金寶……生气了……？",
+   "english": "Chin, chinpo... angwy...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_wait",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ちーんぽ！かいぬししゃま……おこっちぇる……？",
+   "chinese": "金寶！饲主大人……生气了……？",
+   "english": "Chinpo! Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_wait",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_wait"
+   ],
+   "japanese": "ちーんぽ！かいぬしさま……おこって……？",
+   "chinese": "金寶！饲主大人……生气了吗……？",
+   "english": "Chinpo! Owner... are you angry...?",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_thanks",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ちん、ちーんぽ！ ありがちょ！ かいぬちしゃま！",
+   "chinese": "金、金寶！谢谢！饲主大人！",
+   "english": "Chin, chinpo! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがちょう、かいぬししゃま！",
+   "chinese": "金寶！谢谢您，饲主大人！",
+   "english": "Chinpo! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがとうございます、かいぬしさま！",
+   "chinese": "金寶！谢谢您，饲主大人！",
+   "english": "Chinpo! Thank you, Owner!",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_accept",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ちん、ちーんぽ……あい……ごみぇんなちゃい……",
+   "chinese": "金、金寶……嗯……对不起……",
+   "english": "Chin, chinpo... yes... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_accept",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ちーんぽ！あい……もう ちましぇん、かいぬししゃま……",
+   "chinese": "金寶！嗯……再也不敢了，饲主大人……",
+   "english": "Chinpo! Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_accept",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_accept"
+   ],
+   "japanese": "ちーんぽ！はい……もう しません、かいぬしさま……",
+   "chinese": "金寶！是……再也不会了，饲主大人……",
+   "english": "Chinpo! Yes... never again, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.baby.w1_rule_withdraw",
+   "species": "myon",
+   "age": "baby",
+   "quirk": "kinbao",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ちん、ちーんぽ……ごみぇんなちゃい……",
+   "chinese": "金、金寶……对不起……",
+   "english": "Chin, chinpo... sowwy...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.juvenile.w1_rule_withdraw",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ちーんぽ！……ごみぇんなちゃい、かいぬししゃま……",
+   "chinese": "金寶！……对不起，饲主大人……",
+   "english": "Chinpo! ... sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.w1_rule_withdraw",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "rule_withdraw"
+   ],
+   "japanese": "ちーんぽ！……ごめんなさい、かいぬしさま……",
+   "chinese": "金寶！……对不起，饲主大人……",
+   "english": "Chinpo! ... I am sorry, Owner...",
+   "origin": "project-original",
+   "basis": "wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced"
   }
  ]
 }

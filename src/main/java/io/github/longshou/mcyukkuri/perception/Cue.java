@@ -7,7 +7,9 @@ package io.github.longshou.mcyukkuri.perception;
  */
 public enum Cue {
     POUR_BUCKET(8, Need.WATER, false), POUR_BOTTLE(6, Need.WATER, false), FOOD_IN_BOWL(6, Need.FOOD, false),
-    DEPARTURE_CRY(12, null, false), PICKUP_ITEM(5, null, false), INSULT(20, null, true);
+    DEPARTURE_CRY(12, null, false), PICKUP_ITEM(5, null, false), INSULT(20, null, true),
+    /** The owner states or changes a house rule aloud. */
+    RULE_CHANGE(10, null, false);
 
     public enum Need { WATER, FOOD, PLAY }
 

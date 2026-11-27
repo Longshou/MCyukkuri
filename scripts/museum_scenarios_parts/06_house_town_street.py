@@ -359,8 +359,9 @@ _PENANCE_BEAT = re.compile(r'\[rules\][^\n]*? t=(\d+) [^\n]*penance beat=(\w+) f
 # Faces of pleasure and pout: nothing between the catch (or the bow) and the owner's answer may show one.
 _PLEASED_OR_POUTING = {'happy', 'open_smile', 'satisfied', 'smug', 'closed_smile', 'pursed', 'angry', 'cheek_puff', 'puff', 'sneer',
                        'hmph', 'blank_happy', 'flushed_smile', 'sukkiri_grin', 'sukkiri_smug'}
-_PENANCE_LINES = {'startle': '-', 'bow': 'confess|confess_mate|exam_sorry', 'mutter': 'sulk_huff', 'afraid': '-', 'plea': 'plea_spare', 'apology': 'caught_guilty',
-                  'prostrate': '-', 'shiver': '-', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'request_thanks', 'withdraw': '-',
+_PENANCE_LINES = {'startle': '-|rule_gasp', 'bow': 'confess|confess_mate|exam_sorry', 'mutter': 'sulk_huff', 'afraid': '-', 'plea': 'rule_beg', 'apology': 'caught_guilty',
+                  'excuse': 'rule_excuse', 'vow': 'rule_vow', 'settle': '-|rule_accept|rule_withdraw',
+                  'prostrate': '-', 'shiver': '-|rule_wait', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'rule_thanks', 'withdraw': '-',
                   # The answer came through the child: the struggle, how it ends, and the silent ache that follows.
                   'torn': '-', 'shield': 'protect_taunt', 'plead': 'plea_spare', 'submit': '-', 'flee': '-', 'ache': '-'}
 
@@ -373,10 +374,12 @@ def _penance_beats(window, entrance, rule, pet=None):
 
 def _penance_problem(beats, first, last):
     """The beats must start with ``first``, end with one of ``last``, show the face they declared, pair each with its line, and never
-    show a pleased or pouting face (the one logged mutter beat excepted)."""
+    show a pleased or pouting face (the one logged mutter beat excepted). After the verdict beat the pet settles into a held posture
+    (the settle beat) unless it is a parent that ached for its punished child."""
     names = [b[1] for b in beats]
-    if names[:len(first)] != first or not names or names[-1] not in last:
-        return f'Penance beats {names} must start {first} and end {last}'
+    core = names[:-1] if names and names[-1] == 'settle' else names
+    if names[:len(first)] != first or not names or not core or core[-1] not in last or (core == names and core[-1] != 'ache'):
+        return f'Penance beats {names} must start {first}, end {last} and then settle'
     for tick, name, shown, declared, line, spoke, clip, declared_clip in beats:
         if shown != declared:
             return f'Beat {name} at {tick} declared face {declared} but showed {shown}'
@@ -384,7 +387,7 @@ def _penance_problem(beats, first, last):
             return f'Beat {name} at {tick} carries line {line}, expected {_PENANCE_LINES[name]}'
         if line != '-' and spoke != 'true':
             return f'Beat {name} at {tick} line {line} was not voiced'
-        if name != 'mutter' and shown in _PLEASED_OR_POUTING and name != 'forgiven':
+        if name not in ('mutter', 'settle', 'forgiven') and shown in _PLEASED_OR_POUTING:
             return f'Beat {name} at {tick} shows {shown}'
     return None
 
@@ -422,10 +425,10 @@ def _song_discipline(window, trace):
             return f'After the catch the pet must not show {pattern}'
     # A bold, disobedient pet that does not fear its owner mutters once, stands stiff, then turns afraid when scolded and takes it.
     beats = _penance_beats(window, 'CAUGHT', 'no_singing')
-    problem = _penance_problem(beats, ['startle', 'mutter', 'stiff'], ['punished'])
+    problem = _penance_problem(beats, ['startle', 'mutter', 'excuse', 'stiff'], ['punished'])
     if problem:
         return problem
-    if [b[1] for b in beats[-2:]] != ['afraid', 'punished'] or [b[1] for b in beats].count('mutter') != 1:
+    if [b[1] for b in beats[-3:]] != ['afraid', 'punished', 'settle'] or [b[1] for b in beats].count('mutter') != 1:
         return f'The scold must turn the stiff pet afraid before it takes the punishment: {[b[1] for b in beats]}'
     return _pleased_between(trace, int(catch[1]), _answer_tick(window))
 
@@ -441,16 +444,16 @@ _rule_pet = sel('rule_pet')
 _rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} away'),
                                (12, 'scoreboard players set #rule_scold museum 0'), (12, 'scoreboard players set #rule_armed museum 0')]
 # The observer returns during an actual song (the pet has by then broken the rule). The catch is the pet's to show: the scold comes
-# one hundred ticks after the catch is on record (the startle and the mutter are over, the pet stands stiff), then the observer stays
-# through the rest of the penance and leaves 280 ticks after the scold.
+# about 280 ticks after the catch is on record (the startle, the mutter and the small excuse are over, the pet stands stiff), then the
+# observer stays through the rest of the penance (the owner's answer, the settled posture) and leaves 560 ticks after the scold.
 for _tick in range(100, 6400, 20):
     _rule_songs += [
         (_tick, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick, f'execute if score #rule_armed museum matches 6.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
+        (_tick, f'execute if score #rule_armed museum matches 14.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
         (_tick + 1, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} run scoreboard players set #rule_armed museum 1'),
         (_tick + 2, 'execute if score #rule_armed museum matches 1.. run scoreboard players add #rule_armed museum 1'),
         (_tick + 3, 'execute if score #rule_scold museum matches 1.. run scoreboard players add #rule_scold museum 1'),
-        (_tick + 4, 'execute if score #rule_scold museum matches 15.. run yukkuri scenario tool_operator leave')]
+        (_tick + 4, 'execute if score #rule_scold museum matches 28.. run yukkuri scenario tool_operator leave')]
 _rule_songs.append((6450, 'yukkuri scenario tool_operator leave'))
 
 for _sid, _title, _hint, _control in (
@@ -515,13 +518,13 @@ def _eat_struck_commands():
         (12, 'scoreboard players set #eat_blow2 museum 0'), (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
     for tick in range(40, 2300, 20):
         commands += [
-            # The first blow comes about 100 ticks after the catch is on record (the pet lies low), the second 60 ticks later.
-            (tick, f'execute if score #eat_armed museum matches 5.. if score #eat_blow museum matches 0 store result score #eat_blow museum run yukkuri scenario care_click {_rule_pet} flick'),
+            # The first blow comes about 320 ticks after the catch is on record (the gasp and the plea are said, the pet lies low), the second 80 ticks later.
+            (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 store result score #eat_blow museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 store result score #eat_blow2 museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
             (tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
             (tick + 3, 'execute if score #eat_blow museum matches 1.. run scoreboard players add #eat_blow museum 1'),
-            (tick + 4, 'execute if score #eat_blow museum matches 15.. run yukkuri scenario tool_operator leave')]
+            (tick + 4, 'execute if score #eat_blow museum matches 28.. run yukkuri scenario tool_operator leave')]
     return commands
 
 
@@ -531,12 +534,12 @@ _eat_commands = _rule_owner(9) + [
     (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
 for _tick in range(40, 2300, 20):
     _eat_commands += [
-        # The stroke comes about 180 ticks after the catch is on record: the meal is done and the pet is lying low and shivering.
-        (_tick, f'execute if score #eat_armed museum matches 10.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
+        # The stroke comes about 520 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
+        (_tick, f'execute if score #eat_armed museum matches 26.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
         (_tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
         (_tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
         (_tick + 3, 'execute if score #eat_rub museum matches 1.. run scoreboard players add #eat_rub museum 1'),
-        (_tick + 4, 'execute if score #eat_rub museum matches 15.. run yukkuri scenario tool_operator leave')]
+        (_tick + 4, 'execute if score #eat_rub museum matches 28.. run yukkuri scenario tool_operator leave')]
 add('rule_eat_caught', 'town', '禁止擅自吃：当场被抓', '禁止擅自吃：当场被抓',
     '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它忍不住偷吃被你当场看见，立刻吓住（那一口咽下去），随后认错发抖等你发落；摸摸它是原谅，训斥是惩罚。', '约 1 分钟', [
         *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
@@ -1083,7 +1086,7 @@ def arc_confession(log, trace, mother):
     problem = _penance_problem(beats, ['bow', 'prostrate', 'shiver'], ['withdraw'])
     if problem:
         return problem
-    withdraw = beats[-1][0]
+    withdraw = next(b[0] for b in beats if b[1] == 'withdraw')
     hold = withdraw - int(admission[1])
     if hold < 160:
         return f'The mother waited {hold} ticks for the verdict, expected at least eight seconds'

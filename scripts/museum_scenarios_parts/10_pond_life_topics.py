@@ -995,7 +995,7 @@ TOPICS = {
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4', 'family_flight_timid': 'F4', 'family_flight_hat': 'F4',
     'choice_nest': 'D1', 'choice_food': 'D1', 'choice_tool': 'D1', 'choice_snatch': 'D1', 'choice_toilet': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6', 'rule_breed_allowed': 'F6', 'rule_breed_denied': 'F6',
+    'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6', 'rule_breed_allowed': 'F6', 'rule_breed_denied': 'F6', 'rule_change_other': 'F6',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'food_sill_window': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
     'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1', 'den_raid': 'W1', 'den_monopoly': 'W1',

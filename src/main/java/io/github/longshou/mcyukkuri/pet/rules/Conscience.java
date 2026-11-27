@@ -60,7 +60,12 @@ public final class Conscience {
         return instruction.forbids(owner, rules.version(owner), rules.enabled(owner, rule), permitted);
     }
     public void tell(Player owner) {
-        if (!pet.pet().isPet() || !pet.pet().owned(owner) || told() || pet.life().isSleeping() || pet.isPassenger() || !HumanSight.sees(owner, pet)) return;
+        if (HumanSight.sees(owner, pet)) toldBy(owner);
+    }
+
+    /** The pet saw or heard the owner state or change a rule (the shared perception layer decided who): it bows once per revision. */
+    void toldBy(Player owner) {
+        if (!pet.pet().isPet() || !pet.pet().owned(owner) || told() || pet.life().isSleeping() || pet.isPassenger()) return;
         instruction = new HouseRule.Instruction(owner.getUUID(), household().version(owner.getUUID()));
         PetScenes.act(pet, YukkuriAction.BOW, "happy", "", 40, owner);
         GameplayLog.event(pet, "rules", "told version={} owner={}", instruction.version(), owner.getUUID());
@@ -68,45 +73,78 @@ public final class Conscience {
 
     /** How far from the owner's rule change a partner still counts as one this pet could turn to. */
     private static final int PARTNER_RANGE = 12;
+    /** The gap between the two beats of one answer: the first one's hold, plus the pause the settling needs (see {@link #showRuleBeat}). */
+    private static final int BEAT_GAP = 6;
+
+    /** How much this pet wants what the rule withholds, 0-1: the same pressure that tempts it to break the rule. */
+    private double urge(HouseRule rule) {
+        var personality = pet.life().personality();
+        return Math.clamp(switch (rule) {
+            case NO_SUKKIRI -> pet.family().pentUp() / 100;
+            case NO_SINGING -> pet.dailyLife().boredom() / 100.0;
+            case NO_LEAVING_YARD -> Math.max(pet.dailyLife().boredom() / 100.0, personality.temperament().curious());
+            case NO_EATING_UNASKED -> 1 - pet.life().nutrition() / 100;
+            case NO_BULLYING -> personality.escalationScore() / 100.0;
+            case NO_TUB_WHEN_HEALTHY -> Math.max(pet.dailyLife().boredom() / 100.0, pet.mind().unease() / 100.0);
+            case NO_TUB_WHEN_HURT -> Math.max(pet.body().condition().painSeverity() / 3.0, 1 - pet.body().healthRatio());
+            case GIVE_WAY -> 0;
+        }, 0, 1);
+    }
+
+    /** Whether the rule changes anything for this pet: only a fertile adult at ease has a say about the breeding ban. */
+    private boolean affectedBy(HouseRule rule) {
+        if (rule != HouseRule.NO_SUKKIRI) return true;
+        var family = pet.family();
+        return pet.status().identity().canConceive() && family.adult() && !family.sterile() && !family.elder() && family.brood() == null
+                && family.recovery() == 0 && !family.carryingOrLifting() && family.carrying().isEmpty();
+    }
 
     /**
-     * The owner flipped the breeding rule and this pet has been told: after the bow it answers once, by its own numbers
-     * ({@link BreedingReaction}). Children, sterile, pregnant, carrying and busy pets, and pets with no one to turn to, only bow.
+     * The owner changed a house rule and this pet saw or heard it ({@code Senses}) and has been told: after the bow it answers once,
+     * by its own numbers ({@link RuleReaction}), the same for every rule. Tightening and loosening differ; a breeding rule change
+     * ends in a glance at the nearest partner. Calm, unoccupied pets the rule concerns answer; the others only bow.
      */
-    void breedingRuleChanged(Player owner, boolean allowed) {
-        var family = pet.family();
-        if (!told() || !pet.isAlive() || !pet.pet().calm() || !HumanSight.sees(owner, pet) || !pet.status().identity().canConceive()
-                || !family.adult() || family.sterile() || family.elder() || family.brood() != null || family.recovery() != 0
-                || family.carryingOrLifting() || !family.carrying().isEmpty()) return;
-        var partner = pet.level().getEntitiesOfClass(YukkuriEntity.class, pet.getBoundingBox().inflate(PARTNER_RANGE),
-                        y -> y.isAlive() && family.compatibleWith(y) && pet.hasLineOfSight(y))
-                .stream().min(Comparator.comparingDouble(pet::distanceToSqr)).orElse(null);
-        if (partner == null || !PetScenes.ready(pet, "breeding_rule", 200)) return;
+    void ruleChanged(Player owner, HouseRule rule, boolean loosened) {
+        if (!told() || !pet.isAlive() || !pet.pet().calm() || !affectedBy(rule) || !PetScenes.ready(pet, "rule_change", 200)) return;
         var temper = pet.life().personality().temperament();
         int obedience = pet.pet().obedience(), fear = pet.life().personality().fear(owner.getUUID());
-        var beat = BreedingReaction.choose(allowed, family.pentUp(), obedience, fear, temper);
-        boolean shown = true;
-        if (beat != BreedingReaction.BOW_ONLY) {
-            if (beat.event().isEmpty()) shown = PetScenes.act(pet, beat.action(), beat.face(), "", beat.ticks(), owner);
-            else {
-                // The pet may still be inside the speech gap of its own heat line (or of the rule-told's answer of the other rule flip), so
-                // the answer's line waits for the shared speech clock's next gap while the face's hold still runs, instead of being lost
-                // to a refused cue (Encounter.sulk). Permit lines hold the shared floor of matchmaking and permit beats.
-                String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
-                pet.getLookControl().setLookAt(owner, 30, 30);
-                shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line,
-                        FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> GameplayLog.event(pet, "rules",
-                                "breeding reaction speech beat={} event={} tick={} holdEnd={} spoken={}",
-                                beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken()));
-            }
+        double urge = urge(rule);
+        YukkuriEntity partner = null;
+        if (rule == HouseRule.NO_SUKKIRI) {
+            var family = pet.family();
+            partner = pet.level().getEntitiesOfClass(YukkuriEntity.class, pet.getBoundingBox().inflate(PARTNER_RANGE),
+                            y -> y.isAlive() && family.compatibleWith(y) && pet.hasLineOfSight(y))
+                    .stream().min(Comparator.comparingDouble(pet::distanceToSqr)).orElse(null);
         }
-        if (shown && beat != BreedingReaction.BOW_ONLY) {
-            pet.pet().expectBeat("breeding_" + beat.name(), beat.face(), beat.event(), beat.name());
-            if (beat.toward()) PetScenes.later(pet, beat.ticks(), () -> { if (pet.isAlive() && partner.isAlive()) pet.pet().glanceAt(partner, 40); });
-        }
-        GameplayLog.event(pet, "rules", "breeding reaction rule={} beat={} face={} line={} shown={} pentUp={} obedience={} fear={} boldness={} partner={}",
-                allowed ? "off" : "on", beat.name(), beat.face(), beat.event().isEmpty() ? "none" : beat.event(), shown,
-                family.pentUp(), obedience, fear, pet.life().personality().boldness(), partner.getUUID());
+        var beats = RuleReaction.choose(loosened, urge, obedience, fear, temper, rule == HouseRule.NO_SUKKIRI ? "permit_glad" : "rule_loosen");
+        GameplayLog.event(pet, "rules", "rule reaction rule={} change={} beats={} urge={} obedience={} fear={} boldness={} partner={}",
+                rule.key(), loosened ? "loosened" : "tightened", beats.size(), urge, obedience, fear, pet.life().personality().boldness(),
+                partner == null ? "-" : partner.getUUID());
+        showRuleBeat(owner, rule, loosened, beats, 0, partner);
+    }
+
+    /** One beat of the answer; the next one follows when this one's hold ends, if the pet is still alive and calm. */
+    private void showRuleBeat(Player owner, HouseRule rule, boolean loosened, List<RuleReaction.Beat> beats, int index, YukkuriEntity partner) {
+        var beat = beats.get(index);
+        // The pet may still be inside the speech gap of its own heat line or of the previous beat, so the line waits for the shared
+        // speech clock's next gap while the face's hold still runs, instead of being lost to a refused cue.
+        String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
+        pet.getLookControl().setLookAt(owner, 30, 30);
+        boolean shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line,
+                FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> GameplayLog.event(pet, "rules",
+                        "rule reaction speech beat={} event={} tick={} holdEnd={} spoken={}",
+                        beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken()));
+        if (shown) pet.pet().expectBeat("rule_" + beat.name(), beat.face(), beat.event(), beat.name());
+        GameplayLog.event(pet, "rules", "rule reaction rule={} change={} beat={} face={} line={} shown={}",
+                rule.key(), loosened ? "loosened" : "tightened", beat.name(), beat.face(), beat.event(), shown);
+        if (!shown) return;
+        var glance = partner;
+        if (beat.toward() && glance != null)
+            PetScenes.later(pet, beat.ticks(), () -> { if (pet.isAlive() && glance.isAlive()) pet.pet().glanceAt(glance, 40); });
+        if (index + 1 < beats.size())
+            PetScenes.later(pet, beat.ticks() + BEAT_GAP, () -> {
+                if (pet.isAlive() && pet.pet().calm() && pet.pet().ownedBy(owner.getUUID())) showRuleBeat(owner, rule, loosened, beats, index + 1, partner);
+            });
     }
 
     public Choice tempted(HouseRule rule, double pressure, double restraint) {
