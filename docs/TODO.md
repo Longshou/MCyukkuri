@@ -12,6 +12,7 @@
 | TN-08 牵绳跟随与挣扎 | `.worktrees/wp-lead-follow` | leash/lead follow goal, dialogue, lead_walk scene |
 | 表情适配基线违例：lore 片段 | `.worktrees/wp-face-fit-lore` | lore/recipe.json (face timelines), face_fit_allow.json |
 | 表情适配基线违例：如厕片段 | `.worktrees/wp-face-fit-toilet` | toilet-contact recipe, face_fit_allow.json |
+| PD-15 落水慌乱预览重做 | `.worktrees/wp-pd15-preview` | .local/previews only |
 
 ## 玩法待办
 
