@@ -22,14 +22,14 @@ public final class WaitImpatienceRule {
         return Math.max(1, (int) Math.round(Math.max(1, waitBudget) * share));
     }
 
-    /** Face, dialogue event and fidget/look-around clip for the impatience beat, scaled in sharpness by {@code patient} (0..1). */
+    /** Face, dialogue event and fidget/look-around clip for the impatience beat, scaled in sharpness by {@code patient} (0..1); never escalates to puff. */
     public static Spec spec(double patient) {
         if (patient < Temperament.LOW35) {
-            return new Spec("puff", "request_sulk", YukkuriAction.MOOD_FLICK);
+            return new Spec("down_angry", "wait_impatient", YukkuriAction.MOOD_FLICK);
         }
         if (patient < Temperament.TOP35) {
-            return new Spec("hmph", "request_sulk", YukkuriAction.LOOK_AROUND);
+            return new Spec("hmph", "wait_impatient", YukkuriAction.LOOK_AROUND);
         }
-        return new Spec("pursed", "mood_bad", YukkuriAction.LOOK_AROUND);
+        return new Spec("pursed", "wait_quiet", YukkuriAction.LOOK_AROUND);
     }
 }

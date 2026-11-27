@@ -308,10 +308,6 @@
    "short-span": 1,
    "switch-rate": 1
   },
-  "moment:behavior_sanction_declare": {
-   "eye-jump": 1,
-   "short-span": 1
-  },
   "moment:behavior_window_envy": {
    "eye-jump": 2
   },

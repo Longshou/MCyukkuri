@@ -1,0 +1,32 @@
+{
+  "id": "fierce",
+  "label": "凶悍",
+  "group": "生气 / 鼓脸",
+  "recipe": {
+    "source": "tools/author_feeling_faces.py",
+    "base": "neutral",
+    "note": "fierce/menacing glare: steep heavy V-brows, sharply slanted narrowed glaring eyes, clenched gritted snarl"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/66ea4a4403aed2d19e99.png",
+    "face_eye_right": "expressions/parts/4dff0763b0bcd2caa402.png",
+    "face_brow_left": "expressions/parts/6ed781172ad4007fa49c.png",
+    "face_brow_right": "expressions/parts/2ada6d9cadccad49909b.png",
+    "face_mouth": "expressions/parts/cc4a876a271adf9adde2.png",
+    "face_blush_left": "expressions/parts/83cd598f7e2b72f72b9b.png",
+    "face_blush_right": "expressions/parts/bd95916065ebe3bd678c.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-16"
+  }
+}

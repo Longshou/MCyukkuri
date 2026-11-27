@@ -206,10 +206,10 @@ public final class PetWalk {
         boolean friendly = personality.friendliness() >= 60;
         boolean bold = !friendly && traits.is(Gate.BOLDISH);
         YukkuriAction action;
-        String face, line;
-        if (scared) { action = YukkuriAction.STARTLE; face = "surprise"; line = "harness_tug"; }
-        else if (bold) { action = YukkuriAction.PUFF; face = "puff"; line = "sulk_huff"; }
-        else { action = YukkuriAction.STARTLE; face = "surprise"; line = "wait_turn"; }
+        String face, line = "lead_stranger_on";
+        if (scared) { action = YukkuriAction.STARTLE; face = "horrified"; }
+        else if (bold) { action = YukkuriAction.PUFF; face = "fierce"; }
+        else { action = YukkuriAction.STARTLE; face = "surprise"; }
         if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
         animal.beat("stranger_leashed", face, line);
         GameplayLog.event(animal, "lead", "beat=stranger_leashed face={} line={} fear={} timid={} bold={} friendly={} holder={}",
@@ -271,10 +271,10 @@ public final class PetWalk {
 
     private boolean strangerAnswer() {
         YukkuriAction action;
-        String face, line;
-        if (strangerLeave == 1) { action = YukkuriAction.FLEE; face = "horrified"; line = "narrate_flee"; }
-        else if (strangerLeave == 2) { action = YukkuriAction.PUFF; face = "hmph"; line = "sulk_huff"; }
-        else { action = YukkuriAction.LOOK_AROUND; face = "happy"; line = "glow_hum"; }
+        String face, line = "lead_stranger_off";
+        if (strangerLeave == 1) { action = YukkuriAction.FLEE; face = "horrified"; }
+        else if (strangerLeave == 2) { action = YukkuriAction.MOOD_FLICK; face = "hmph"; }
+        else { action = YukkuriAction.LOOK_AROUND; face = "teary_smile"; }
         if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
         animal.beat("stranger_released", face, line);
         GameplayLog.event(animal, "lead", "beat=stranger_released face={} line={} leave={}", face, line, strangerLeave);
@@ -285,9 +285,9 @@ public final class PetWalk {
     private void lookBack() {
         if (strangerPoint != null)
             animal.getLookControl().setLookAt(strangerPoint.x, strangerPoint.y + animal.getEyeHeight(), strangerPoint.z, 30, 30);
-        if (!animal.showReaction(YukkuriAction.LOOK_AROUND, "teary", "shaken_after", YukkuriAction.LOOK_AROUND.durationTicks(), FaceTier.Tier.ofTicks(YukkuriAction.LOOK_AROUND.durationTicks()))) return;
-        animal.beat("stranger_release_look", "teary", "shaken_after");
-        GameplayLog.event(animal, "lead", "beat=stranger_release_look face={} line={}", "teary", "shaken_after");
+        if (!animal.showReaction(YukkuriAction.LOOK_AROUND, "teary", "lead_stranger_look", YukkuriAction.LOOK_AROUND.durationTicks(), FaceTier.Tier.ofTicks(YukkuriAction.LOOK_AROUND.durationTicks()))) return;
+        animal.beat("stranger_release_look", "teary", "lead_stranger_look");
+        GameplayLog.event(animal, "lead", "beat=stranger_release_look face={} line={}", "teary", "lead_stranger_look");
     }
 
     private Vec3 aside(LivingEntity owner) {

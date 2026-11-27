@@ -188,6 +188,7 @@ public final class Sanction extends Goal {
     public YukkuriEntity target() { return target; }
     public String reason() { return reason; }
     public boolean active() { return target != null; }
+    public String activityFace() { return active() ? "fierce" : ""; }
     public String activity() { return target == null ? Behaviors.IDLE : !declared ? Behaviors.SANCTION_APPROACH : declareTicks > 0 ? Behaviors.SANCTION_DECLARE : Behaviors.SANCTION_BULLY; }
     public String describe() {
         var c = judged(entity);
@@ -236,7 +237,8 @@ public final class Sanction extends Goal {
         if (!declared) {
             if (distance > 9 || !entity.hasLineOfSight(target)) { if (ticks % 10 == 1) entity.life().navigate(target.blockPosition(), 1.15, false); return; }
             declared = true; declareTicks = 30; entity.getNavigation().stop();
-            entity.showReaction("angry", reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_scorn" : "settlement_drive", FaceTier.Tier.MEDIUM);
+            String declareLine = reason.equals("monster") ? "hatless_monster" : hatlessReason() ? "hatless_sanction" : "settlement_drive";
+            if (entity.showReaction("fierce", declareLine, FaceTier.Tier.MEDIUM)) entity.beat("sanction_declare", "fierce", declareLine);
             // The anger starts with the declaration and carries through the acts (a huff about the accused, below being scorned).
             entity.mind().feeling().begin(EmotionCourse.Kind.RAGE, .3f, target.getUUID(), entity.blockPosition());
             target.groupInteraction().defense().provoke(entity);
@@ -256,6 +258,7 @@ public final class Sanction extends Goal {
         target.life().personality().relationshipChanged(entity.getUUID(), -5, 0);
         relations.relate(entity.getUUID(), target.getUUID(), -2);
         if (acts >= ACTS) { driveOff(); return; }
+        entity.showReaction("fierce", "", FaceTier.Tier.SHORT);
         String what;
         float healthBefore = target.getHealth();
         boolean transferred = false;
@@ -302,7 +305,8 @@ public final class Sanction extends Goal {
         return target.body().healthRatio() <= HEALTH_FLOOR || target.body().weak() || target.body().dying() || !target.body().coreIntact();
     }
     private void driveOff() {
-        entity.showReaction("angry", "settlement_drive", FaceTier.Tier.MEDIUM);
+        String line = hatlessReason() ? "hatless_sanction_drive" : "settlement_drive";
+        if (entity.showReaction("fierce", line, FaceTier.Tier.MEDIUM)) entity.beat("sanction_drive", "fierce", line);
         boolean resisted = target.respondToBullying(entity);
         target.mind().add(3, "drive_off_attempt");
         PunishmentReaction.peer(target, entity, "drive_off", false);
@@ -326,7 +330,7 @@ public final class Sanction extends Goal {
             GameplayLog.event(entity, "sanction", "executor ended target={} reason={} roundComplete={} targetAlive={} targetDying={} targetHealth={} acts={}",
                     victim.getUUID(), why, done, victim.isAlive(), victim.body().dying(), victim.getHealth(), performed);
         }
-        if (done && entity.isAlive()) entity.showReaction(YukkuriAction.MOOD_FLICK, "angry", "", 60, FaceTier.Tier.SHORT);
+        if (done && entity.isAlive()) entity.showReaction(YukkuriAction.MOOD_FLICK, "fierce", "", 60, FaceTier.Tier.SHORT);
         return false;
     }
 }

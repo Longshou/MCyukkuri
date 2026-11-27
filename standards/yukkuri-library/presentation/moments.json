@@ -1780,23 +1780,7 @@
           "faces": [
             [
               0,
-              "neutral"
-            ],
-            [
-              0.6,
-              "confused"
-            ],
-            [
-              1.6,
-              "neutral"
-            ],
-            [
-              2.4,
-              "confused"
-            ],
-            [
-              3.4,
-              "neutral"
+              "fierce"
             ]
           ]
         }
@@ -1812,15 +1796,7 @@
           "faces": [
             [
               0,
-              "angry"
-            ],
-            [
-              0.28,
-              "puff"
-            ],
-            [
-              2.352,
-              "cheek_puff"
+              "fierce"
             ]
           ],
           "emote": "anger"
@@ -1870,7 +1846,7 @@
           "faces": [
             [
               0,
-              "angry"
+              "fierce"
             ]
           ]
         }

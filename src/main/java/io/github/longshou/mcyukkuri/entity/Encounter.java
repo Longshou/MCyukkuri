@@ -367,12 +367,17 @@ public final class Encounter {
                 keeper.getId(), yielder.getId(), retreating ? "none" : GameplayLog.at(legs.getLast()), format(yielderCost), format(keeperCost), reason, minor, legs.size(), format(gap), format(length));
         if (minor) {
             beat(yielder, yielderNav, "yielder", "shift_aside", eagerness(yielder) > .5 ? "surprise" : "pursed", "", FaceTier.Tier.SHORT);
+        } else if (lock) {
+            // A locked pair's keeper is blocking the lane (asleep, eating or standing): complain about the blocked way instead of yielding a pass.
+            String style = yielder.speechStyle();
+            boolean asleep = keeper.life().isSleeping();
+            String face = style.equals("timid") ? "surprise" : style.equals("proud") ? "down_angry" : asleep ? "confused_small" : "pursed";
+            beat(yielder, yielderNav, "yielder", "yield_notice", face, asleep ? "lane_blocked_sleep" : "lane_blocked", FaceTier.Tier.MEDIUM);
         } else {
             // The line and its face take the speaker's own style: a meek body apologises and starts, a grumbling or proud one mutters.
             boolean timid = yielder.speechStyle().equals("timid");
             beat(yielder, yielderNav, "yielder", "yield_notice", timid ? "surprise" : "pursed", "yield_way", FaceTier.Tier.MEDIUM);
-            // A locked pair's keeper is not passing anyone (it may be asleep or eating): it makes no beat of its own.
-            if (!lock && keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "puff", FaceTier.Tier.SHORT);
+            if (keeper.life().personality().boldness() >= 60) beat(keeper, keeperNav, "keeper", "keep_notice", "pursed", "yield_pass", FaceTier.Tier.SHORT);
         }
     }
 
@@ -524,19 +529,18 @@ public final class Encounter {
     }
 
     /**
-     * The walk given up for good: the body stays at its stand and sulks. The bold huff, the meek only purse their lips, and the sulk
-     * holds long after that single huff (a LONG tier, unlike the notice's). The huff line follows the notice's own line and its gap: it
-     * is deferred to the first tick that gap opens (a floor-2 line waits only for the line, not the chatter quiet), still inside the
-     * sulk's hold, and is left unsaid only when the hold ends before the gap does.
+     * The walk given up for good: the body stays at its stand and complains about the blocked lane. Bold bodies flick and grumble,
+     * ordinary ones sulk, and meek ones droop and purse their lips, all under a LONG hold. The complaint line waits out the notice's
+     * gap via the shared speech clock and stays inside the sulk's hold.
      */
     private void sulk(YukkuriEntity yielder) {
-        String face = yielder.speechStyle().equals("timid") ? "pursed" : "hmph";
-        // The huff waits out the notice's own line and gap (the shared speech clock owns that rule) and is armed only while the sulk's
-        // hold still covers the tick it may start.
-        if (!yielder.showWithDeferredLine(null, 0, face, "sulk_huff", FaceTier.Tier.LONG, 2, said ->
-                GameplayLog.event(yielder, "move", "encounter sulk speech tick={} beat=yield_giveup event=sulk_huff face={} holdEnd={} spoken={}",
+        String style = yielder.speechStyle();
+        String face = style.equals("timid") ? "pursed" : "hmph";
+        YukkuriAction clip = style.equals("proud") ? YukkuriAction.MOOD_FLICK : style.equals("timid") ? YukkuriAction.DROOP : YukkuriAction.SULK;
+        if (!yielder.showWithDeferredLine(clip, clip.durationTicks(), face, "lane_giveup", FaceTier.Tier.LONG, 2, said ->
+                GameplayLog.event(yielder, "move", "encounter sulk speech tick={} beat=yield_giveup event=lane_giveup face={} holdEnd={} spoken={}",
                         said.tick() < 0 ? "none" : said.tick(), face, said.holdEnd(), said.spoken()))) return;
-        yielder.beat("yield_giveup", face, "sulk_huff");
+        yielder.beat("yield_giveup", face, "lane_giveup");
     }
 
     /** Nowhere to pass behind the yielder: the other body, whose way back is the open side, yields in one new encounter. */

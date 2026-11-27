@@ -27,13 +27,14 @@ import java.util.UUID;
  * the lead comes off. Bodies and positions are only ever driven through the navigation and shared faces.
  */
 final class LeadFollow {
-    private static final int FIRST_BOUT_DELAY = 60, HURRY_GAP = 240, ALARM_GAP = 160, HURRY_HOLD = 20;
+    private static final int FIRST_BOUT_DELAY = 35, HURRY_GAP = 100, ALARM_GAP = 80, HURRY_HOLD = 20;
     /** Past the elastic pull: at this distance the body is being dragged, not leaning on the lead. */
     private static final double BOUT_ABORT_DISTANCE = LeadPace.ELASTIC + .6;
+    private static final double SUSTAINED_PULL_DISTANCE = LeadPace.ELASTIC + .5;
 
     private final YukkuriEntity animal;
     private UUID holder;
-    private boolean trailing, hopping, hurried, alarmed, shown;
+    private boolean trailing, hopping, hurried, alarmed, shown, petAnswered;
     private long hurryAt = Long.MIN_VALUE / 2, alarmAt = Long.MIN_VALUE / 2;
     private long nextBout, boutEnd;
     private Vec3 stand;
@@ -61,7 +62,7 @@ final class LeadFollow {
     }
 
     private void reset() {
-        trailing = hopping = hurried = alarmed = shown = false;
+        trailing = hopping = hurried = alarmed = shown = petAnswered = false;
         lastAt = null; stillTicks = 0;
         boutEnd = 0; nextBout = 0; stand = null; struggled = spentSaid = armed = false;
     }
@@ -102,6 +103,16 @@ final class LeadFollow {
         trailing = free() && !settled && LeadPace.trailing(trailing, distance, comfort);
         hopping = trailing && !BodyAbility.cannotSpring(animal) && animal.childhood().canJump();
         long now = animal.level().getGameTime();
+        if (!petAnswered) {
+            petAnswered = true;
+            if (free() && distance <= comfort) {
+                boolean scaredOn = scared(owner);
+                boolean warm = !scaredOn && (personality.attachment() >= 55 || personality.friendliness() >= 60);
+                String face = scaredOn ? "surprise" : warm ? "happy" : "closed_smile";
+                YukkuriAction clip = warm && !BodyAbility.cannotSpring(animal) && animal.childhood().canJump() ? YukkuriAction.JOY_HOP : null;
+                beat("lead_pet_on", clip, face, "lead_pet_on", FaceTier.Tier.SHORT, distance, comfort);
+            }
+        }
         if (!trailing) {
             // Caught up after a hurry or a pull: the relief is asked again next tick if a held face refused it. An episode that ends with the
             // body standing still far out is a blocked body, not a relieved one: it is logged as stuck and gets no relief. Interrupted ends are silent.
@@ -117,14 +128,15 @@ final class LeadFollow {
         double taut = LeadPace.tautAt(personality.boldness(), comfort, LeadPace.ELASTIC);
         if (!hurried && distance < taut && now - hurryAt >= HURRY_GAP) {
             String face = !hopping ? "teary_pant" : scared ? "afraid" : "surprise";
-            if (beat("lead_hurry", face, "lead_hurry", scared ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, comfort)) {
+            if (beat("lead_hurry", null, face, "lead_hurry", scared ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, comfort)) {
                 hurried = shown = true;
                 hurryAt = now;
             }
         }
-        if (!alarmed && distance >= taut && now - alarmAt >= ALARM_GAP && (!hurried || now - hurryAt >= HURRY_HOLD)) {
-            String face = scared ? "horrified" : "afraid";
-            if (beat("lead_alarm", face, "lead_alarm", scared ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, comfort)) {
+        boolean sustainedPull = alarmed && distance >= SUSTAINED_PULL_DISTANCE;
+        if ((!alarmed || sustainedPull) && distance >= taut && now - alarmAt >= ALARM_GAP && (!hurried || now - hurryAt >= HURRY_HOLD)) {
+            String face = !hopping ? "teary_pant" : scared ? "horrified" : "afraid";
+            if (beat("lead_alarm", null, face, "lead_alarm", FaceTier.Tier.MEDIUM, distance, comfort)) {
                 alarmed = shown = hurried = true;
                 alarmAt = now;
             }
@@ -135,7 +147,7 @@ final class LeadFollow {
     private boolean relief(Player owner, double distance) {
         var personality = animal.life().personality();
         String face = scared(owner) || personality.attachment() >= 50 ? "teary_smile" : "happy";
-        return beat("lead_relief", face, "lead_relief", scared(owner) ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, 0);
+        return beat("lead_relief", null, face, "lead_relief", scared(owner) ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, 0);
     }
 
     private boolean scared(Player holder) {
@@ -143,10 +155,12 @@ final class LeadFollow {
         return personality.temperament().is(Gate.TIMID) || personality.fear(holder.getUUID()) >= 50;
     }
 
-    private boolean beat(String name, String face, String line, FaceTier.Tier tier, double distance, double comfort) {
+    private boolean beat(String name, YukkuriAction clip, String face, String line, FaceTier.Tier tier, double distance, double comfort) {
         int said = animal.speechSequence();
         clearOwnLine();
-        if (!animal.showReaction(face, line, tier)) return false;
+        boolean ok = clip == null ? animal.showReaction(face, line, tier)
+                : animal.showReaction(clip, face, line, clip.durationTicks(), tier);
+        if (!ok) return false;
         noteOwnLine(said);
         animal.beat(name, face, line);
         GameplayLog.event(animal, "lead", "beat={} face={} line={} spoken={} distance={} comfort={} energy={} hop={}", name, face, line, animal.speechSequence() != said,
@@ -160,7 +174,7 @@ final class LeadFollow {
         long now = animal.level().getGameTime();
         if (BodyAbility.frail(animal)) {
             if (boutEnd != 0) endBout("exhausted");
-            if (struggled && !spentSaid && beat("lead_spent", "teary_pant", "lead_spent", FaceTier.Tier.MEDIUM, animal.distanceTo(holder), 0))
+            if (struggled && !spentSaid && beat("lead_spent", YukkuriAction.DROOP, "teary_pant", "lead_spent", FaceTier.Tier.LONG, animal.distanceTo(holder), 0))
                 spentSaid = true;
             return;
         }
@@ -181,9 +195,11 @@ final class LeadFollow {
         var traits = personality.temperament();
         boolean scared = scared(holder);
         boolean bold = !scared && personality.friendliness() < 60 && traits.is(Gate.BOLDISH);
-        String face = scared ? "horrified" : bold ? "angry" : "teary";
-        String line = scared ? "afraid" : "lead_struggle";
         double reserve = LeadPace.reserve(animal.life().energy(), BodyAbility.TIRED_ENERGY);
+        boolean winded = reserve <= .45;
+        String face = winded ? (bold ? "squeezed_frown" : "teary_pant")
+                : scared ? "horrified" : bold ? "fierce" : "teary";
+        String line = winded ? "lead_struggle_tired" : "lead_struggle";
         double resist = LeadPace.resist(personality.friendliness());
         int ticks = LeadPace.boutTicks(reserve);
         int said = animal.speechSequence();

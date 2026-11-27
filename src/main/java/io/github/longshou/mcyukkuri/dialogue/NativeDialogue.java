@@ -126,7 +126,9 @@ public final class NativeDialogue {
                  "human_food_ask", "human_food_demand", "food_complain", "food_delight", "food_grudge",
                  "food_reluctant", "food_spit", "uneasy", "bitter", "glow",
                          "mood_ok", "mood_bad", "harness_tug", "walk_enjoy", "swaddle_on",
-                         "lead_hurry", "lead_alarm", "lead_relief", "lead_struggle", "lead_spent" -> 2; // all leash lines rank 2: they never block or cut a hurt or distress line (rank 3)
+                         "lead_pet_on", "lead_hurry", "lead_alarm", "lead_relief", "lead_struggle", "lead_struggle_tired",
+                         "lead_spent", "lead_stranger_on", "lead_stranger_off", "lead_stranger_look",
+                         "wait_impatient", "wait_quiet", "yield_pass", "lane_blocked", "lane_blocked_sleep", "lane_giveup" -> 2; // all leash and lane-wait lines rank 2: they never block or cut a hurt or distress line (rank 3)
             // These lines answer an event as it happens.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
                  "contest_faceoff", "contest_tussle", "contest_won_food", "contest_won_bed", "contest_won_toy", "contest_lost",
@@ -153,7 +155,8 @@ public final class NativeDialogue {
                  "mold_notice", "mold_warn", "mold_scorn", "mold_sorrow", "mold_plea", "mold_resist", "mold_leave", "mold_child_cry" -> 2;
             case "hunt_call", "hunt_join", "hunt_refuse", "hunt_back", "ration_give", "ration_get", "rule_blocked",
                  "migrate_discuss", "migrate_object", "migrate_agree", "migrate_pack", "shard_gathered", "accessory_mended",
-                 "hatless_scorn", "hatless_jeer", "hatless_shoo", "hatless_whisper", "hatless_answer", "hatless_monster", "home_declare" -> 2;
+                 "hatless_scorn", "hatless_jeer", "hatless_shoo", "hatless_whisper", "hatless_answer", "hatless_monster",
+                 "hatless_sanction", "hatless_sanction_drive", "home_declare" -> 2;
             case "idle", "chew", "sleep", "house_peek", "peer", "known_peer" -> 0;
             // Ambient restlessness during a still-running period yields to everything else.
             case "heat_want" -> 0;

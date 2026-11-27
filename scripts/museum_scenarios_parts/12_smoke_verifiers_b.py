@@ -23,14 +23,19 @@ def _hatless_scorn_verify(window):
     if not snub_by_round5:
         return 'expected at least one quiet snub or boredom beat by round 5'
     beats = list(re.finditer(
-        r'\[choreo\] \w+ #\d+ uuid=(\S+) [^\n]* beat=(scorn_\w+|scorned_\w+) face=(\S+) line=(\S+) declared=(\S+)',
+        r'\[choreo\] \w+ #\d+ uuid=(\S+) [^\n]* beat=(scorn_\w+|scorned_\w+|sanction_\w+|defense_counter) face=(\S+) line=(\S+) declared=(\S+)',
         window))
     if not beats:
-        return 'no scorn/scorned choreo beats logged'
+        return 'no scorn/scorned/sanction choreo beats logged'
+    saw_fierce = False
     for b in beats:
         actor, beat, face, _, declared = b.groups()
         if face != declared:
             return f'beat face mismatch actor={actor} beat={beat} shown={face} declared={declared}'
+        if face == 'fierce':
+            saw_fierce = True
+    if not saw_fierce:
+        return 'no harsh scorn/sanction/defense beat showed the fierce face'
     return None
 
 
@@ -1015,7 +1020,7 @@ def _park_wait_switch_verify(window):
     if not (names.index('wait_watch') < names.index('wait_impatient') < names.index('wait_give_up')):
         return f'wait_impatient beat order wrong (saw {names})'
     impatient = next(b for b in beats if b[0] == 'wait_impatient')
-    if impatient[1] != 'puff' or impatient[3] != 'request_sulk':
+    if impatient[1] != 'down_angry' or impatient[3] != 'wait_impatient':
         return f'wait_impatient impatience beat had unexpected face/line: {impatient}'
     give_up = next(b for b in beats if b[0] == 'wait_give_up')
     if give_up[1] != 'hmph' or give_up[3] != 'mood_bad':

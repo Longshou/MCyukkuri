@@ -17,6 +17,7 @@ tools. Registration in the standard set (index.json, provenance) is done once by
 """
 from pathlib import Path
 import argparse, hashlib, json
+from PIL import Image
 from author_sukkiri_faces import LIB, draw, encode, read, std
 
 ART = {
@@ -65,6 +66,39 @@ ART = {
     'mouth_mild_frown': ['..............', '..............', '..............', '..............', '.....AAAA.....',
                          '....A....A....', '..............', '..............', '..............', '..............',
                          '..............', '..............'],
+    # Fierce (凶悍) steep V-brow pressing down inward toward the center bridge (left eye; right is mirrored).
+    'brow_fierce_l': ['.AAA.............',
+                      '...AAA...........',
+                      '.....AAA.........',
+                      '.......AAAA......',
+                      '..........AAAA...',
+                      '.............AAA.'],
+    # Fierce (凶悍) slanted glaring eye: taut upper lid dropping inward over a focused dark pupil with sharp glint.
+    'eye_fierce_l': ['...............',
+                     '...............',
+                     '..AAA..........',
+                     '..ABAAAA.......',
+                     '..ABBCCAAAA....',
+                     '..ABCCCCCCCAA..',
+                     '...ABCCCBCCCA..',
+                     '...ABCCCCCCCA..',
+                     '....ABCCCCCA...',
+                     '.....AEEEEA....',
+                     '......AAAA.....',
+                     '...............'],
+    # Fierce (凶悍) clenched gritted-teeth snarl, downturned at the corners (tight, not wide-open).
+    'mouth_fierce': ['..............',
+                     '..............',
+                     '..............',
+                     '....AAAAAA....',
+                     '..AAABBBBAAA..',
+                     '..AABBBBBAAA..',
+                     '..AA......AA..',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '..............'],
 }
 # Approved parts reused by hash prefix.
 STD = dict(smug_eye_l='4e7eae754f', smug_eye_r='8ea6755ac7', smug_brow_l='4a98859cf9', smug_brow_r='87649084e1',
@@ -118,6 +152,11 @@ FACES = {
     'thinking': ('neutral', '思考', '动作表情',
                  {'face_mouth': 'mouth_hmm'},
                  'quiet thinking: bright open eyes, relaxed brows, a small closed neutral hmm line with no pout'),
+    'fierce': ('neutral', '凶悍', '生气 / 鼓脸',
+               {'face_eye_left': 'eye_fierce_l', 'face_eye_right': 'eye_fierce_r',
+                'face_brow_left': 'brow_fierce_l', 'face_brow_right': 'brow_fierce_r',
+                'face_mouth': 'mouth_fierce', 'face_effect_mouth': 'blank'},
+               'fierce/menacing glare: steep heavy V-brows, sharply slanted narrowed glaring eyes, clenched gritted snarl'),
 }
 
 
@@ -127,10 +166,14 @@ def outputs():
     parts = {}
     for name, rows in ART.items():
         image = draw(rows)
-        path, data = encode(image)
-        files[LIB/path] = data
-        registry[Path(path).stem] = dict(path=path, size=list(image.size), sha256=hashlib.sha256(data).hexdigest())
-        parts[name] = path
+        variants = {name: image}
+        if name.endswith('_l'):
+            variants[name[:-2] + '_r'] = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        for vname, vim in variants.items():
+            path, data = encode(vim)
+            files[LIB/path] = data
+            registry[Path(path).stem] = dict(path=path, size=list(vim.size), sha256=hashlib.sha256(data).hexdigest())
+            parts[vname] = path
     index = read(LIB/'expressions/index.json')
     for ident, (base, label, group, slots, note) in FACES.items():
         chosen = dict(read(LIB/index['presets'][base])['parts'])

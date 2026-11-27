@@ -18,18 +18,22 @@ final class ScornLadderTest {
     void firstSightUsesHatlessScornWhenNotParroting() {
         var taunt = ScornLadder.choose(1, HARSH_MARISA, true, 0.1, "", "");
         assertEquals("hatless_scorn", taunt.event());
-        assertEquals("sneer", taunt.face());
+        assertEquals("fierce", taunt.face());
         assertNull(taunt.clip());
         assertFalse(taunt.quietSnub());
         assertFalse(taunt.bored());
         assertEquals(1, taunt.cooldownMultiplier());
+
+        var proud = ScornLadder.choose(1, PROUD_ALICE, true, 0.1, "", "");
+        assertEquals("hatless_scorn", proud.event());
+        assertEquals("sneer", proud.face());
     }
 
     @Test
     void secondObserverDoesNotParrotFirstSightEvent() {
         var taunt = ScornLadder.choose(1, HARSH_MARISA, true, 0.1, "hatless_scorn", "");
         assertEquals("hatless_jeer", taunt.event());
-        assertEquals("smug", taunt.face());
+        assertEquals("fierce", taunt.face());
         assertEquals(YukkuriAction.PUFF, taunt.clip());
 
         var proud = ScornLadder.choose(1, PROUD_ALICE, true, 0.1, "hatless_scorn", "");
@@ -47,13 +51,14 @@ final class ScornLadderTest {
     void roundsTwoAndThreeDifferByProfileAndNeverRepeat() {
         var harshR2 = ScornLadder.choose(2, HARSH_MARISA, true, 0.0, "hatless_scorn", "hatless_scorn");
         assertEquals("hatless_jeer", harshR2.event());
-        assertEquals("smug", harshR2.face());
+        assertEquals("fierce", harshR2.face());
         assertEquals(YukkuriAction.PUFF, harshR2.clip());
 
         // Same pair on round 3 must not repeat hatless_jeer.
         var harshR3 = ScornLadder.choose(3, HARSH_MARISA, true, 0.0, "hatless_jeer", "hatless_jeer");
         assertNotEquals("hatless_jeer", harshR3.event());
         assertEquals("hatless_shoo", harshR3.event());
+        assertEquals("angry_stare", harshR3.face());
         assertEquals(YukkuriAction.TURN, harshR3.clip());
 
         var proudR2 = ScornLadder.choose(2, PROUD_ALICE, true, 0.0, "hatless_scorn", "hatless_scorn");
@@ -96,7 +101,7 @@ final class ScornLadderTest {
 
         var boredHarsh = ScornLadder.choose(5, HARSH_MARISA, true, 0.0, "hatless_jeer", "hatless_jeer");
         assertTrue(boredHarsh.bored());
-        assertEquals("pursed", boredHarsh.face());
+        assertEquals("down_angry", boredHarsh.face());
         assertEquals(2, boredHarsh.cooldownMultiplier());
 
         assertEquals(0, ScornLadder.escalationBonus(3, true, false));

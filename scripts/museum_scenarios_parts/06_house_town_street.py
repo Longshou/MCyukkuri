@@ -1368,8 +1368,10 @@ def lead_walk_check(window):
         ends = re.findall(rf'\[lead\][^\n]*uuid={who} [^\n]*struggle ended reason=(\w+)[^\n]* pulled=(-?[\d.]+)', window)
         spent = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=lead_spent ', window)
         if not bouts: return f'{stray} never strained against the lead'
-        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=(?:lead_struggle|afraid) ', window): return f'{stray} never spoke while it strained'
+        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=(?:lead_struggle|lead_struggle_tired) ', window): return f'{stray} never spoke while it strained'
         if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=lead_spent ', window): return f'{stray} never spoke its spent line'
+        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=lead_stranger_on ', window): return f'{stray} never spoke lead_stranger_on'
+        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=lead_stranger_off ', window): return f'{stray} never spoke lead_stranger_off'
         snapped = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=stranger_leashed ', window)
         if not snapped or int(snapped[1]) > bouts[0]: return f'{stray} strained before it answered the snap-on'
         if len(ends) != len(bouts): return f'{stray} began {len(bouts)} bouts but {len(ends)} ended'
@@ -1428,19 +1430,19 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
                 r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
                 r'\[scenario\][^\n]*action=unleash player=',
                 r'\[lead\][^\n]*beat=lead_hurry face=(?:surprise|afraid|teary_pant) line=lead_hurry',
-                r'\[lead\][^\n]*beat=lead_alarm face=(?:horrified|afraid) line=lead_alarm',
+                r'\[lead\][^\n]*beat=lead_alarm face=(?:horrified|afraid|teary_pant) line=lead_alarm',
                 r'\[lead\][^\n]*beat=lead_relief face=(?:teary_smile|happy) line=lead_relief',
-                r'\[lead\][^\n]*beat=lead_struggle face=teary line=lead_struggle',
-                r'\[lead\][^\n]*beat=lead_struggle face=angry line=lead_struggle',
-                r'\[lead\][^\n]*beat=lead_struggle face=horrified line=afraid',
+                r'\[lead\][^\n]*beat=lead_struggle face=(?:teary|teary_pant) line=(?:lead_struggle|lead_struggle_tired)',
+                r'\[lead\][^\n]*beat=lead_struggle face=(?:fierce|squeezed_frown) line=(?:lead_struggle|lead_struggle_tired)',
+                r'\[lead\][^\n]*beat=lead_struggle face=(?:horrified|teary_pant) line=(?:lead_struggle|lead_struggle_tired)',
                 r'\[lead\][^\n]*beat=lead_spent face=teary_pant line=lead_spent',
-                r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=wait_turn',
-                r'\[lead\][^\n]*beat=stranger_leashed face=puff line=sulk_huff',
-                r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=harness_tug',
-                r'\[lead\][^\n]*beat=stranger_released face=happy line=glow_hum',
-                r'\[lead\][^\n]*beat=stranger_released face=hmph line=sulk_huff',
-                r'\[lead\][^\n]*beat=stranger_released face=horrified line=narrate_flee',
-                r'\[lead\][^\n]*beat=stranger_release_look face=teary line=shaken_after']))
+                r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=lead_stranger_on',
+                r'\[lead\][^\n]*beat=stranger_leashed face=fierce line=lead_stranger_on',
+                r'\[lead\][^\n]*beat=stranger_leashed face=horrified line=lead_stranger_on',
+                r'\[lead\][^\n]*beat=stranger_released face=teary_smile line=lead_stranger_off',
+                r'\[lead\][^\n]*beat=stranger_released face=hmph line=lead_stranger_off',
+                r'\[lead\][^\n]*beat=stranger_released face=horrified line=lead_stranger_off',
+                r'\[lead\][^\n]*beat=stranger_release_look face=teary line=lead_stranger_look']))
 
 add('training_walk', 'town', '牵引转弯：停等或走偏', '牵引转弯：停等或走偏',
     '两位居民分别带自制力高的灵梦和自制力低的魔理沙散步。观察转弯时宠物会停下来等主人，还是沿旧方向多走几步再跟上。', '约 1–2 分钟', [

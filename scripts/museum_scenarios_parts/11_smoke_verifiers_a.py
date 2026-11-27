@@ -57,10 +57,11 @@ _dead_who = rf'uuid=(?:{_dead_logs[0]}|{_dead_logs[1]})\b'
 _encounter_smoke('street_dead_end', 2200, _dead_logs, [
     rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,\S+\) reason=nearer_place minor=false ',
     rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed ',
-    # The impatient yielder (self_control 10) stands waiting in the room mouth: one beat, its face shown or a logged holder's.
-    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter beat role=yielder beat=wait_impatient face=\w+ declared=\w+ (?:held_by=\S+ held_tier=\S+ held_face=\w+ )?line=\w+ clip=\w+ '],
+    # The impatient yielder (self_control 10) stands waiting in the room mouth: one beat, non-puff face shown or a logged holder's.
+    rf'\[move\][^\n]*{_dead_who}[^\n]* encounter beat role=yielder beat=wait_impatient face=\w+ declared=down_angry (?:held_by=\S+ held_tier=\S+ held_face=\w+ )?line=wait_impatient clip=mood_flick '],
     forbid=[rf'\[move\][^\n]*{_dead_who}[^\n]* encounter begin [^\n]* reason=(?:no_place|dead_end) ',
-            rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end [^\n]* result=no_place'])
+            rf'\[move\][^\n]*{_dead_who}[^\n]* encounter end [^\n]* result=no_place',
+            rf'\[move\][^\n]*{_dead_who}[^\n]* beat=wait_impatient [^\n]*(?:face=puff|declared=puff|line=request_sulk)'])
 
 
 def _encounter_verify(base_ticks, per_block, min_len=0, max_holds=1, who=None):
@@ -142,14 +143,15 @@ _lane_who = rf'uuid=(?:{_lane_sleeper}|{_lane_walker})\b'
 _smoke(_lock_lane, 2500, [
     rf'\[sleep\][^\n]*uuid={_lane_sleeper} [^\n]* begin source=fatigue full=true ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter begin keeper=#\d+ yielder=#\d+ place=\S+ cost=\(\S+,inf\) reason=locked_stays ',
-    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter beat role=yielder beat=yield_notice face=\w+ line=\w+ ',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter beat role=yielder beat=yield_notice face=\w+ line=lane_blocked_sleep ',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter end keeper=#\d+ yielder=#\d+ result=passed cause=placed ',
-    rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=\w+ line=sulk_huff declared=\w+',
-    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter sulk speech tick=\d+ [^\n]* spoken=true',
+    rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=\w+ line=lane_giveup declared=\w+',
+    rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* encounter sulk speech tick=\d+ [^\n]* event=lane_giveup [^\n]* spoken=true',
     rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* gave up walk target=\S+ blocker=#\d+ '],
     forbid=[rf'\[move\][^\n]*{_lane_who}[^\n]* encounter end [^\n]* result=(?:stuck|timeout|aborted|no_place)\b',
             rf'\[move\][^\n]*{_lane_who}[^\n]* ground path stopped reason=no_progress',
-            rf'\[move\][^\n]*uuid={_lane_sleeper} [^\n]* encounter begin '])
+            rf'\[move\][^\n]*uuid={_lane_sleeper} [^\n]* encounter begin ',
+            rf'\[move\][^\n]*uuid={_lane_walker} [^\n]* line=(?:yield_way|sulk_huff)\b'])
 
 
 def _lock_verify(window, trace):
@@ -176,10 +178,10 @@ def _lock_verify(window, trace):
         return f'resolved {int(end[1]) - blocked[0]} ticks after the first blocked window (> 130)'
     if int(begin[1]) - blocked[0] > 70:
         return f'the pair was decided {int(begin[1]) - blocked[0]} ticks after the first blocked window (> 70)'
-    face = re.search(rf'uuid={_lane_walker} [^\n]* encounter face role=yielder beat=yield_notice declared=(\w+) shown=(\w+) ', window)
-    if not face or face[1] != face[2]:
-        return f'the yield_notice beat did not show the face it declared ({face and face.groups()})'
-    huff = re.search(rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=(\w+) line=sulk_huff declared=(\w+)', window)
+    face = re.search(rf'uuid={_lane_walker} [^\n]* encounter face role=yielder beat=yield_notice declared=(\w+) shown=(\w+) line=(\w+) ', window)
+    if not face or face[1] != face[2] or face[3] not in ('lane_blocked_sleep', 'lane_blocked'):
+        return f'the yield_notice beat did not show the face/line it declared ({face and face.groups()})'
+    huff = re.search(rf'\[choreo\][^\n]*uuid={_lane_walker} [^\n]* beat=yield_giveup face=(\w+) line=lane_giveup declared=(\w+)', window)
     if not huff or huff[1] != huff[2]:
         return f'the give-up sulk did not show the face it declared ({huff and huff.groups()})'
     sulk = re.search(rf'uuid={_lane_walker} [^\n]* encounter sulk speech tick=(\d+)[^\n]* holdEnd=(\d+) spoken=(\w+)', window)

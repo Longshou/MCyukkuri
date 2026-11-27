@@ -33,16 +33,16 @@ class WaitImpatienceRuleTest {
         var moderate = WaitImpatienceRule.spec(0.5);
         var patient = WaitImpatienceRule.spec(1.0);
 
-        assertEquals("puff", impatient.face());
-        assertEquals("request_sulk", impatient.line());
+        assertEquals("down_angry", impatient.face());
+        assertEquals("wait_impatient", impatient.line());
         assertEquals(YukkuriAction.MOOD_FLICK, impatient.clip());
 
         assertEquals("hmph", moderate.face());
-        assertEquals("request_sulk", moderate.line());
+        assertEquals("wait_impatient", moderate.line());
         assertEquals(YukkuriAction.LOOK_AROUND, moderate.clip());
 
         assertEquals("pursed", patient.face());
-        assertEquals("mood_bad", patient.line());
+        assertEquals("wait_quiet", patient.line());
         assertEquals(YukkuriAction.LOOK_AROUND, patient.clip());
 
         // Boundary checks at LOW35 / TOP35.

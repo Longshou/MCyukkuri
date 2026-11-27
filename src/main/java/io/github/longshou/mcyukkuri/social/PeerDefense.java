@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.life.EcologyMovement;
+import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -27,6 +28,12 @@ public final class PeerDefense extends Goal {
     }
 
     public boolean active() { return attacker != null; }
+    /** Face while actively fighting or puffing back: fierce for harsh/bold fighters, angry for ordinary defenders. */
+    public String activityFace() { return !active() ? "" : puffBack ? "cheek_puff" : fierceAttacker() ? "fierce" : "angry"; }
+    private boolean fierceAttacker() {
+        var t = entity.life().personality().temperament();
+        return t.is(Gate.HARSH) || t.is(Gate.BOLD);
+    }
     /** Existing strike cooldown, only while its combat goal still owns the response. */
     public int observedStrikeWait() { return active() && !puffBack ? strikeWait : 0; }
     public String activity() { return !active() ? null : puffBack ? Behaviors.SANCTION_DECLARE : Behaviors.SELF_DEFENSE; }
@@ -104,6 +111,8 @@ public final class PeerDefense extends Goal {
             entity.playLife().stop();
             entity.life().interrupt();
             entity.life().personality().decided("defend_self");
+            String face = fierceAttacker() ? "fierce" : "angry";
+            if (entity.showReaction(face, "", FaceTier.Tier.MEDIUM)) entity.beat("defense_counter", face, "");
         } else stop();
         GameplayLog.limited(entity, "social", "defense_" + decision, 40,
                 "self defense decision={} attacker={} health={}/{} energy={} boldness={} fear={} ownPower={} attackerPower={} score={}", () -> new Object[]{
@@ -191,6 +200,7 @@ public final class PeerDefense extends Goal {
         GameplayLog.event(entity, "social", "self defense strike attacker={} accepted={} health={} -> {} energy={}",
                 target.getUUID(), accepted, before, target.getHealth(), entity.life().energy());
         if (accepted) {
+            entity.showReaction(fierceAttacker() ? "fierce" : "angry", "", FaceTier.Tier.SHORT);
             target.knockback(.25, entity.getX() - target.getX(), entity.getZ() - target.getZ());
             target.hurtMarked = true;
         }

@@ -438,6 +438,9 @@
     "distaste": {
       "kind": "standard"
     },
+    "fierce": {
+      "kind": "standard"
+    },
     "afraid": {
       "kind": "derived",
       "builder": "standards/yukkuri-library/expressions/derived/faces.py",

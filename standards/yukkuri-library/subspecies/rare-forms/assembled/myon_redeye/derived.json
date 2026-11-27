@@ -3,14 +3,14 @@
   "label": "红眼妖梦",
   "base_model": "alice",
   "base_form": "myon",
-  "base_runtime_sha256": "681ef8898f25926bdf29bfdc2c218ca6dd97302bf16983a3d1c69f502e90e095",
-  "runtime_sha256": "a7e2c56060c8b1c09b8ce995f6df6585829072a5ef50c9e99cb7f1beb2ebf707",
+  "base_runtime_sha256": "ee8cfeb33ca7802cfd2d5b299ac9ebaba584a4495764064e79ed935e9bc0b786",
+  "runtime_sha256": "af18305468daa56458510f0e7bee7287f9c1bdef2b568feb12b748aba4c426eb",
   "vertices": 37026,
   "parts": 158,
   "status": "pending_confirmation",
   "basis": "wiki species/myon L05《赤い眼のみょん》：红眼个体遭群落迷信；DEVELOPMENT_PLAN 4.2 红眼作为稀有外观",
   "operations": {
-    "recoloured_eye_pixels": 6597
+    "recoloured_eye_pixels": 6663
   },
   "textures": {
     "afraid": "df600976952b56f78547db51a9cc9a7d1940cbef836ce4ca2fdb7e3d2616970d",
@@ -51,6 +51,7 @@
     "dying_closed_b": "3d3540b2d4a380c95441b400cbef42a7b98358f890279caa8c639cced2dd758e",
     "endure": "1337350f4cd1fdc180e9c1698025cebfc55b7736e06aa582b89a9e161b8fb0c9",
     "envy": "e8f00d590e3b5c178d55b357b2ae00207be616b2e4ce9a9933ce33c983d836b9",
+    "fierce": "b758bb5f4adcdf40e5b512e0c0bfa2e241697b214620da109a80a621c076b540",
     "flick_dull": "f6fccc4fa2a9b7dbbe173fa97e366a9c1d0fa272b56937422f61e2dcae90124a",
     "flushed_smile": "8e5b6de08ba4bbf442de0662fd7ebe8e63e217a9b5c29e7e6280132c58080ab2",
     "flushed_tongue": "4828233e0ca5a79552259a3a90c8910688529faa83a83606ef33930398e8675a",

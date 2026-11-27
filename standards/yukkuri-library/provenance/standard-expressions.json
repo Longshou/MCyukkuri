@@ -2,7 +2,7 @@
   "status": "approved",
   "date": "2026-09-12",
   "user_confirmation": "作为标准表情保存吧",
-  "count": 99,
+  "count": 100,
   "entries": [
     {
       "id": "neutral",
@@ -633,6 +633,12 @@
       "code": "F10",
       "label": "轻度嫌弃",
       "preset": "expressions/presets/distaste.json"
+    },
+    {
+      "id": "fierce",
+      "code": "F11",
+      "label": "凶悍",
+      "preset": "expressions/presets/fierce.json"
     }
   ],
   "deferred_ids": [],

@@ -70,11 +70,11 @@ public final class ScornLadder {
         String pairPrev = lastPairEvent == null ? "" : lastPairEvent;
 
         if (r >= 4) {
-            String face = z >= 0.45 ? "pursed" : "dull";
+            String face = profile.harsh() ? "down_angry" : z >= 0.45 ? "pursed" : "dull";
             return new Taunt(r, "scorn_bored", "", face, null, true, true, 2, z, t, chance);
         }
         if (r == 1 && !"hatless_scorn".equals(targetPrev)) {
-            return new Taunt(1, "scorn_first", "hatless_scorn", "sneer", null, false, false, 1, z, t, chance);
+            return new Taunt(1, "scorn_first", "hatless_scorn", profile.harsh() ? "fierce" : "sneer", null, false, false, 1, z, t, chance);
         }
         if (r >= 2 && roll >= chance) {
             return new Taunt(r, "scorn_snub", "", "pursed", null, true, false, 1, z, t, chance);
@@ -92,8 +92,8 @@ public final class ScornLadder {
 
         record Candidate(String beat, String event, String face, YukkuriAction clip, double score, boolean needsWitness) {}
         List<Candidate> ranked = new ArrayList<>(3);
-        ranked.add(new Candidate("scorn_jeer", "hatless_jeer", "smug", YukkuriAction.PUFF, jeerScore, false));
-        ranked.add(new Candidate("scorn_shoo", "hatless_shoo", "pursed", YukkuriAction.TURN, shooScore, false));
+        ranked.add(new Candidate("scorn_jeer", "hatless_jeer", profile.harsh() ? "fierce" : "smug", YukkuriAction.PUFF, jeerScore, false));
+        ranked.add(new Candidate("scorn_shoo", "hatless_shoo", profile.harsh() ? "angry_stare" : "pursed", YukkuriAction.TURN, shooScore, false));
         ranked.add(new Candidate("scorn_whisper", "hatless_whisper", "pursed", null, whisperScore, true));
         ranked.sort(Comparator.comparingDouble(Candidate::score).reversed());
 
