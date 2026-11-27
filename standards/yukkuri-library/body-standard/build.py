@@ -214,6 +214,8 @@ def update_preview_links():
             continue
         out=LIB/spec['export']
         page=out/'index.html'
+        if not page.is_file():
+            continue
         original=page.read_bytes()
         updated=replace_preview_anchor(original,ident,out)
         if updated!=original:
