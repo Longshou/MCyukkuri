@@ -6,14 +6,16 @@ import io.github.longshou.mcyukkuri.entity.YukkuriView;
 import io.github.longshou.mcyukkuri.headwear.HullBounds;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatView;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
@@ -36,12 +38,18 @@ public final class HatBoardingMotion {
     private static final Map<Integer, Set<Integer>> KNOWN_RIDERS = new HashMap<>();
     private static final Map<Integer, Landing> LANDINGS = new HashMap<>();
 
+    /** One water climb belongs to exactly one hat: the nearest one when the clip starts, kept until it ends. */
+    private record Climb(int hatId, long startTick) {}
+
+    private static final Map<Integer, Climb> CLIMBS = new HashMap<>();
+
     private HatBoardingMotion() {}
 
     public static void unload(LevelEvent.Unload event) {
         if (!event.getLevel().isClientSide()) return;
         KNOWN_RIDERS.clear();
         LANDINGS.clear();
+        CLIMBS.clear();
     }
 
     public static void tick(ClientTickEvent.Post event) {
@@ -49,14 +57,17 @@ public final class HatBoardingMotion {
         if (level == null) {
             KNOWN_RIDERS.clear();
             LANDINGS.clear();
+            CLIMBS.clear();
             return;
         }
         long now = level.getGameTime();
         Set<Integer> seen = new HashSet<>();
+        List<PlacedHatEntity> hats = new ArrayList<>();
         for (var entity : level.entitiesForRendering()) {
             if (!(entity instanceof PlacedHatEntity hat) || hat.isRemoved()) continue;
             PlacedHatView view = hat;
             if (!view.profile().seated() || view.upsideDown() || view.state() == PlacedHatEntity.State.RESCUED) continue;
+            hats.add(hat);
             int hatId = hat.getId();
             seen.add(hatId);
             Set<Integer> previous = KNOWN_RIDERS.get(hatId);
@@ -71,6 +82,7 @@ public final class HatBoardingMotion {
             KNOWN_RIDERS.put(hatId, current);
         }
         KNOWN_RIDERS.keySet().retainAll(seen);
+        trackClimbs(level, hats, now);
         Iterator<Map.Entry<Integer, Landing>> it = LANDINGS.entrySet().iterator();
         while (it.hasNext()) {
             var entry = it.next();
@@ -78,6 +90,39 @@ public final class HatBoardingMotion {
                 it.remove();
             }
         }
+    }
+
+    /** Latches each climbing yukkuri to the nearest hat, so a hat beside the target never answers her weight. */
+    private static void trackClimbs(ClientLevel level, List<PlacedHatEntity> hats, long now) {
+        Set<Integer> climbing = new HashSet<>();
+        for (var entity : level.entitiesForRendering()) {
+            if (!(entity instanceof YukkuriEntity y) || y.isRemoved() || y.isPassenger()) continue;
+            YukkuriView view = y;
+            if (!CLIMB_CLIP.equals(view.getAnimationId())) continue;
+            long start = view.getAnimationStartTick();
+            if (now - start > (CLIMB_DURATION + 0.05) * 20) continue;
+            climbing.add(y.getId());
+            Climb latched = CLIMBS.get(y.getId());
+            if (latched != null && latched.startTick() == start && seenHat(hats, latched.hatId())) continue;
+            PlacedHatEntity nearest = null;
+            double best = Double.MAX_VALUE;
+            for (var hat : hats) {
+                double reach = HullBounds.RADIUS * hat.hullScale() / HullBounds.SCALE + 1.4;
+                double d = Math.hypot(y.getX() - hat.getX(), y.getZ() - hat.getZ());
+                if (d <= reach && d < best) {
+                    best = d;
+                    nearest = hat;
+                }
+            }
+            if (nearest == null) CLIMBS.remove(y.getId());
+            else CLIMBS.put(y.getId(), new Climb(nearest.getId(), start));
+        }
+        CLIMBS.keySet().retainAll(climbing);
+    }
+
+    private static boolean seenHat(List<PlacedHatEntity> hats, int id) {
+        for (var hat : hats) if (hat.getId() == id) return true;
+        return false;
     }
 
     private static void recordLanding(PlacedHatEntity hat, YukkuriEntity rider, long now) {
@@ -122,9 +167,9 @@ public final class HatBoardingMotion {
         double scale = hat.hullScale() / HullBounds.SCALE;
         double search = HullBounds.RADIUS * scale + 1.4;
         var hatPos = hat.getPosition(partial);
-        AABB box = new AABB(hatPos.x - search, hatPos.y - 1.2, hatPos.z - search,
-                hatPos.x + search, hatPos.y + 1.5, hatPos.z + search);
-        for (var entity : level.getEntitiesOfClass(YukkuriEntity.class, box)) {
+        for (var latched : CLIMBS.entrySet()) {
+            if (latched.getValue().hatId() != hat.getId()) continue;
+            if (!(level.getEntity(latched.getKey()) instanceof YukkuriEntity entity)) continue;
             YukkuriView climber = entity;
             if (climber.isPassenger() || !CLIMB_CLIP.equals(climber.getAnimationId())) continue;
             double t = (now - climber.getAnimationStartTick() + partial) / 20.0;
