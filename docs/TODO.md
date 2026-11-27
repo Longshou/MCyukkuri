@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 11-27 待看反馈：翻桶与扑腾、辫子表现力 | `.worktrees/wp-braid-redo` | BRAID.md, recipe.json (braid/bin/flail entries), species hair rigs |
-| 11-27 待看反馈：表情返修 | `.worktrees/wp-face-fix-3` | face sources (frail/shy/pin_cry/tongue_cry/spit/reject/nuzzle), recipe.json own entries |
 
 ## 玩法待办
 
