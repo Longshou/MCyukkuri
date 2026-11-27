@@ -13,6 +13,7 @@
 | 争抢分级（FG-19/FM-30/PK-24/SC-09） | `.worktrees/wp-contest-tiers` | event Contest/ContestOdds, GroupInteractionGoal contest+sumo beats, contest dialogue/faces |
 | 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
 | 台词指代油库里用油不用人 | `.worktrees/wp-speech-you` | art/dialogue sources (zh lines only), generated lang |
+| 玩偶可放置（PK-20） | `.worktrees/wp-doll-place` | doll item/entity, placement |
 
 ## 玩法待办
 
