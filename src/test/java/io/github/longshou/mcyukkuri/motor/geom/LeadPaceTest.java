@@ -24,12 +24,11 @@ class LeadPaceTest {
     }
 
     @Test void tautPointFollowsTheElasticAndNeverPrecedesTheHurry() {
-        double start = LeadPace.elasticStart(.8, .6);
-        assertEquals(4.6, start, 1e-9);
+        double start = LeadPace.ELASTIC;
         for (int b = 0; b <= 100; b += 25) {
             double comfort = LeadPace.comfort(1, 50, b);
             double taut = LeadPace.tautAt(b, comfort, start);
-            assertTrue(taut >= comfort + .3 && taut < LeadPace.ELASTIC);
+            assertTrue(taut >= comfort + .3 && taut <= LeadPace.ELASTIC);
         }
         assertTrue(LeadPace.tautAt(0, 4.2, start) <= LeadPace.tautAt(100, 4.2, start), "a timid one feels it sooner");
         assertTrue(LeadPace.tautAt(-50, 4.2, start) == LeadPace.tautAt(0, 4.2, start) && LeadPace.tautAt(500, 4.2, start) == LeadPace.tautAt(100, 4.2, start));
@@ -45,7 +44,7 @@ class LeadPaceTest {
     }
 
     @Test void boutsGetWeakerAndRarerAsTheReserveFalls() {
-        double start = LeadPace.elasticStart(.8, .6);
+        double start = LeadPace.ELASTIC;
         assertTrue(LeadPace.boutGap(0, .6) > LeadPace.boutGap(1, .6));
         assertTrue(LeadPace.boutTicks(0) < LeadPace.boutTicks(1));
         assertTrue(LeadPace.boutReach(0, start) < LeadPace.boutReach(1, start));
@@ -70,7 +69,7 @@ class LeadPaceTest {
     }
 
     @Test void aBodyThatStandsStillHasSettledWhereverVanillaStopsIt() {
-        double start = LeadPace.elasticStart(.8, .6);
+        double start = LeadPace.ELASTIC;
         assertFalse(LeadPace.settled(LeadPace.SETTLE_TICKS - 1, 3.0, start));
         assertTrue(LeadPace.settled(LeadPace.SETTLE_TICKS, LeadPace.CAUGHT_UP + .3, start));
         assertFalse(LeadPace.settled(1000, start, start), "inside the elastic only: a body held at the taut line is still trailing");

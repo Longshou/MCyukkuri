@@ -1372,7 +1372,7 @@ def lead_walk_check(window):
 
 
 add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵引绳：自家的宠物与无主的个体',
-    '手持原版牵引绳依次右键。先拴自家的灵梦，快步走开五六格再停下：它落后会蹦跳着追（嘴上喊「等等窝」），绳绷紧时着急惊慌，追上后松口气；'
+    '手持原版牵引绳依次右键。先拴自家的灵梦，快步走开十来格再停下：它落后会蹦跳着追（嘴上喊「等等窝」），绳绷紧时着急惊慌，追上后松口气；'
     '再把三只无主的流浪油拴在手上站定：它们累了一路，刚拴上时胆小的惊吓、胆大的鼓腮抗议、温顺的只是吃惊，随后不停转身往外挣、拽紧再放松，'
     '每次挣扎都耗体力、喊「放开窝」或哭叫，挣扎越来越短越稀，力竭后只喊没力气、被拖着走不再挣；松开后胆小的跑开几步回头看、胆大的哼一声走开、温顺的留在原地；'
     '院主的宠物会拒绝。', '随意', [
@@ -1404,10 +1404,10 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
         *((560 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
         # The owner's pet (it has roamed since the start, so the player's distance cap covers it; a bare @a[name=...] never matches the
-        # museum's fake operator, which the level holds but the server player list does not): leashed, then the player walks seven blocks off at a quick pace (a step each 5 ticks) and stops.
+        # museum's fake operator, which the level holds but the server player list does not): leashed, then the player walks a dozen blocks off at a quick pace (a step each 5 ticks) and stops: seven steps end before the alarm's 20-tick wait after the hurry runs out.
         (750, f'execute at {sel("lead_pet")} positioned ~1 ~ ~ run yukkuri scenario tool_operator move'),
         (751, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario leash {sel("lead_pet")}'),
-        *((770 + 5 * step, 'execute at @a[name=MuseumOperator,distance=..64] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(7)),
+        *((770 + 5 * step, 'execute at @a[name=MuseumOperator,distance=..64] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(12)),
         (930, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario unleash {sel("lead_pet")}'),
         (980, 'yukkuri scenario tool_operator leave'),
     ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],

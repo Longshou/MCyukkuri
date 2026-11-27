@@ -14,21 +14,22 @@ import net.minecraft.world.phys.Vec3;
 import java.util.UUID;
 
 /**
- * The body's side of a player's lead (docs/features/care-and-life.md). Vanilla keeps the tether (close-range follow, elastic from about 4.6
+ * The body's side of a player's lead (docs/features/care-and-life.md). Vanilla keeps the tether (close-range follow, elastic past 6
  * blocks, break past 10); this class only decides the gait of that follow and the visible answers, in two kinds:
  * <ul>
  * <li>an owner's pet that trails beyond its comfort hops to catch up (the hop-run request; a frail or baked body keeps its walk), shows
  * a hurried face when it starts, an alarmed one when the rope goes taut, and relief once it is close again;</li>
  * <li>an unowned individual strains against the lead in bouts: it turns away and walks the lead's slack out, then digs in. Each bout
  * costs energy, so the bouts get shorter, shorter-reaching and rarer, and end for good at the tired line (one spent line), after which
- * the lead only tows it (a tired body does not follow, the vanilla elastic pulls it from about 4.6 blocks).</li>
+ * the lead only tows it (a tired body does not follow, the vanilla elastic pulls it past 6 blocks).</li>
  * </ul>
  * Every state ends: the hop when it has caught up, a bout by its tick budget, the taut distance or an interruption, the whole thing when
  * the lead comes off. Bodies and positions are only ever driven through the navigation and shared faces.
  */
 final class LeadFollow {
     private static final int FIRST_BOUT_DELAY = 60, HURRY_GAP = 240, ALARM_GAP = 160, HURRY_HOLD = 20;
-    private static final double BOUT_ABORT_DISTANCE = 5.4;
+    /** Past the elastic pull: at this distance the body is being dragged, not leaning on the lead. */
+    private static final double BOUT_ABORT_DISTANCE = LeadPace.ELASTIC + .6;
 
     private final YukkuriEntity animal;
     private UUID holder;
@@ -37,7 +38,7 @@ final class LeadFollow {
     private long nextBout, boutEnd;
     private Vec3 stand;
     private boolean struggled, spentSaid, armed;
-    private double boutFrom;
+    private double boutFrom, boutNow;
     private Vec3 lastAt;
     private int stillTicks;
 
@@ -49,7 +50,7 @@ final class LeadFollow {
     /** Per tick, whoever holds the lead: a player's lead drives it, anything else (or none) ends every state. */
     void tick(Player player) {
         if (player == null || !player.getUUID().equals(holder)) {
-            if (boutEnd != 0) SurfaceApproach.stopWalking(animal);
+            if (boutEnd != 0) endBout("released"); // the lead came off mid-bout: it is paid for and logged like any other
             reset();
             holder = player == null ? null : player.getUUID();
             if (player == null) return;
@@ -87,7 +88,7 @@ final class LeadFollow {
         var at = animal.position();
         stillTicks = lastAt != null && at.distanceToSqr(lastAt) < 1e-4 ? stillTicks + 1 : 0;
         lastAt = at;
-        boolean settled = LeadPace.settled(stillTicks, distance, LeadPace.elasticStart(animal.getBbWidth(), owner.getBbWidth()));
+        boolean settled = LeadPace.settled(stillTicks, distance, LeadPace.ELASTIC);
         trailing = free() && !settled && LeadPace.trailing(trailing, distance, comfort);
         hopping = trailing && !BodyAbility.cannotSpring(animal) && animal.childhood().canJump();
         long now = animal.level().getGameTime();
@@ -99,7 +100,7 @@ final class LeadFollow {
         }
         boolean scared = scared(owner);
         // A yank that finds it already past the taut point is one beat, the alarm; the hurry is never painted over in the same tick.
-        double taut = LeadPace.tautAt(personality.boldness(), comfort, LeadPace.elasticStart(animal.getBbWidth(), owner.getBbWidth()));
+        double taut = LeadPace.tautAt(personality.boldness(), comfort, LeadPace.ELASTIC);
         if (!hurried && distance < taut && now - hurryAt >= HURRY_GAP) {
             String face = !hopping ? "teary_pant" : scared ? "afraid" : "surprise";
             if (beat("lead_hurry", face, "lead_hurry", scared ? FaceTier.Tier.MEDIUM : FaceTier.Tier.SHORT, distance, comfort)) {
@@ -141,16 +142,17 @@ final class LeadFollow {
     private void strain(Player holder) {
         long now = animal.level().getGameTime();
         if (BodyAbility.frail(animal)) {
-            if (boutEnd != 0) endBout("exhausted", holder);
+            if (boutEnd != 0) endBout("exhausted");
             if (struggled && !spentSaid && beat("lead_spent", "teary_pant", "lead_spent", FaceTier.Tier.MEDIUM, animal.distanceTo(holder), 0))
                 spentSaid = true;
             return;
         }
         if (!armed) return;
         double distance = animal.distanceTo(holder);
+        boutNow = distance;
         if (boutEnd != 0) {
-            if (!free() || distance > BOUT_ABORT_DISTANCE) endBout(!free() ? "interrupted" : "taut", holder);
-            else if (now >= boutEnd) endBout("done", holder);
+            if (!free() || distance > BOUT_ABORT_DISTANCE) endBout(!free() ? "interrupted" : "taut");
+            else if (now >= boutEnd) endBout("done");
             return;
         }
         if (now < nextBout || !free() || distance > BOUT_ABORT_DISTANCE) return;
@@ -169,21 +171,21 @@ final class LeadFollow {
         int ticks = LeadPace.boutTicks(reserve);
         if (!animal.showReaction(YukkuriAction.STRUGGLE, face, line, ticks, FaceTier.Tier.MEDIUM)) return;
         animal.beat("lead_struggle", face, line);
-        double elastic = LeadPace.elasticStart(animal.getBbWidth(), holder.getBbWidth());
+        double elastic = LeadPace.ELASTIC;
         // Always a visible pull outward from where it stands, still short of the elastic start.
         double reach = Math.min(Math.max(LeadPace.boutReach(reserve, elastic), distance + .6), elastic - .3);
         var away = animal.position().subtract(holder.position()).multiply(1, 0, 1);
         if (away.lengthSqr() < .01) away = Vec3.directionFromRotation(0, animal.getYRot()).multiply(1, 0, 1);
         stand = SurfaceApproach.floor(animal, holder.position().add(away.normalize().scale(reach)));
         boutEnd = now + ticks;
-        boutFrom = distance;
+        boutFrom = boutNow = distance;
         struggled = true;
         GameplayLog.event(animal, "lead", "beat=lead_struggle face={} line={} distance={} reach={} ticks={} energy={} resist={} walk_out={}",
                 face, line, String.format("%.2f", distance), String.format("%.2f", reach), ticks, animal.life().energy(),
                 String.format("%.2f", resist), stand != null);
     }
 
-    private void endBout(String why, Player holder) {
+    private void endBout(String why) {
         SurfaceApproach.stopWalking(animal);
         long now = animal.level().getGameTime();
         var personality = animal.life().personality();
@@ -194,7 +196,7 @@ final class LeadFollow {
         boutEnd = 0; stand = null;
         nextBout = now + gap;
         GameplayLog.event(animal, "lead", "struggle ended reason={} energy={} next_in={} pulled={}", why, animal.life().energy(), gap,
-                String.format("%.2f", animal.distanceTo(holder) - boutFrom));
+                String.format("%.2f", boutNow - boutFrom));
     }
 
     /**

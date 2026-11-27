@@ -3,7 +3,7 @@ package io.github.longshou.mcyukkuri.motor.geom;
 /**
  * Pure pace law of a body on a player's lead. Vanilla owns the tether: the close-range follow aims the body at a point 2 blocks short
  * of the holder (and, a path ending within one block of its aim being trivial, a body settles anywhere up to about 3.9 blocks out),
- * the elastic pull begins at {@link #elasticStart}, and the lead breaks past 10. These numbers only choose the gait inside that
+ * the elastic pull begins at {@link #ELASTIC}, and the lead breaks past 10. These numbers only choose the gait inside that
  * range (a walk, or the hop-run of a fast request) and the strength of a stray's pull-back bouts; nothing here writes position or speed.
  */
 public final class LeadPace {
@@ -11,13 +11,10 @@ public final class LeadPace {
     public static final double WALK_REQUEST = 1.0, HOP_REQUEST = 1.25;
     /** The hop-run ends once the body is this close again: the farthest a vanilla follow settles (smoke: 2.4, 2.8 and 3.7 blocks). */
     public static final double CAUGHT_UP = 4.0;
-    /** Vanilla's elastic pull begins at this much minus the two body widths ({@link #elasticStart}); the lead breaks at 10. */
+    /** Vanilla's elastic pull begins at this feet-to-feet distance (Leashable.tickLeash: past 6.0 elastic, past 10 the lead drops). */
     public static final double ELASTIC = 6.0;
 
     private LeadPace() {}
-
-    /** Where vanilla's elastic pull begins for a body and a holder of these widths (blocks). */
-    public static double elasticStart(double bodyWidth, double holderWidth) { return ELASTIC - bodyWidth - holderWidth; }
 
     /**
      * Distance past which the body starts to hurry (blocks, 4.2 to 4.5, always past {@link #CAUGHT_UP}): a bigger stride and a bolder
@@ -31,8 +28,8 @@ public final class LeadPace {
      * Distance at which a pulled body feels the rope go taut: a timid one just before the elastic begins, a bold one at it, never
      * before it has begun to hurry ({@code comfort} plus 0.3).
      */
-    public static double tautAt(int boldness, double comfort, double elasticStart) {
-        return Math.max(comfort + .3, elasticStart - .5 + .5 * Math.clamp(boldness, 0, 100) / 100.0);
+    public static double tautAt(int boldness, double comfort, double elastic) {
+        return Math.max(comfort + .3, elastic - .5 + .5 * Math.clamp(boldness, 0, 100) / 100.0);
     }
 
     /** Whether the body is trailing: it starts past its comfort and goes on until it has caught up, so the walk and the hop never flicker. */
@@ -47,8 +44,8 @@ public final class LeadPace {
      * The exit of a hop that does not depend on where the vanilla follow stops: the body has stood still for {@link #SETTLE_TICKS}
      * ticks inside the elastic. (Smoke run 1: it stopped at 2.4 blocks, just past the first caught-up distance, and hopped in place for ever.)
      */
-    public static boolean settled(int stillTicks, double distance, double elasticStart) {
-        return stillTicks >= SETTLE_TICKS && distance < elasticStart;
+    public static boolean settled(int stillTicks, double distance, double elastic) {
+        return stillTicks >= SETTLE_TICKS && distance < elastic;
     }
 
     /** The walk request of the lead's close-range follow. */
@@ -74,5 +71,5 @@ public final class LeadPace {
     public static int boutTicks(double reserve) { return (int) Math.round(110 + 50 * Math.clamp(reserve, 0, 1)); }
 
     /** How far from the holder the body strains (blocks): 0.8 to 0.4 short of the elastic start, nearer as it weakens, so the pull never fights the walk. */
-    public static double boutReach(double reserve, double elasticStart) { return elasticStart - .8 + .4 * Math.clamp(reserve, 0, 1); }
+    public static double boutReach(double reserve, double elastic) { return elastic - .8 + .4 * Math.clamp(reserve, 0, 1); }
 }
