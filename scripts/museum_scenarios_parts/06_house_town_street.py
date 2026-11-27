@@ -1338,27 +1338,51 @@ add('swaddle_worn', 'town', '八款布襁褓穿上并排，可亲手包', '八�
     reads=[(f'读{label}款襁褓', f'data get entity {sel("swaddle_" + style)} YukkuriPet.Care') for style, label in _SWADDLE_LOOKS], vantage=(0, 5))
 
 def lead_walk_check(window):
-    """The refused lead is tried once, not in a loop; every stray answered all three beats."""
+    """The refused lead is tried once; every lead beat shows the face it declared; the owner's pet hops, is alarmed and relieved in order;
+    every stray strains in bouts that each end, is spent once, and never strains after that; every stray answered snap-on and release."""
     refusals = re.findall(r'\[interaction\][^\n]*action=leash reason=', window)
     if len(refusals) > 1: return f'the refused lead was tried {len(refusals)} times'
-    for beat in ('stranger_leashed', 'stranger_pulled', 'stranger_released'):
+    for beat in ('stranger_leashed', 'stranger_released'):
         found = len(re.findall(rf'\[lead\][^\n]*beat={beat} ', window))
         if found < 3: return f'only {found} of the three strays answered {beat}'
     if not re.search(r'\[lead\][^\n]*beat=stranger_release_look ', window): return 'the frightened stray never looked back'
+    for shown in re.finditer(r'\[choreo\][^\n]* beat=((?:lead|stranger)_\w+) face=(\S+) line=\S+ declared=(\S+)', window):
+        if shown[2] != shown[3]: return f'beat {shown[1]} showed {shown[2]} but declared {shown[3]}'
+    pet = _uuid_of(uid('lead_walk', 'lead_pet'))
+    at = {}
+    for beat in ('lead_hurry', 'lead_alarm', 'lead_relief'):
+        found = re.search(rf'\[lead\][^\n]*uuid={pet} t=(\d+)[^\n]* beat={beat} [^\n]*', window)
+        if not found: return f'the owner\'s pet never showed {beat}'
+        at[beat] = int(found[1])
+        if beat == 'lead_hurry' and 'hop=true' not in found[0]: return 'the owner\'s pet hurried without hopping'
+    if not at['lead_hurry'] <= at['lead_alarm'] <= at['lead_relief']: return f'the owner\'s pet beats came out of order {at}'
+    for stray in ('lead_tame', 'lead_bold', 'lead_shy'):
+        who = _uuid_of(uid('lead_walk', stray))
+        bouts = [int(t) for t in re.findall(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=lead_struggle ', window)]
+        ends = re.findall(rf'\[lead\][^\n]*uuid={who} [^\n]*struggle ended reason=(\w+)[^\n]* pulled=(-?[\d.]+)', window)
+        spent = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=lead_spent ', window)
+        if not bouts: return f'{stray} never strained against the lead'
+        snapped = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=stranger_leashed ', window)
+        if not snapped or int(snapped[1]) > bouts[0]: return f'{stray} strained before it answered the snap-on'
+        if len(ends) != len(bouts): return f'{stray} began {len(bouts)} bouts but {len(ends)} ended'
+        if max(float(pulled) for _, pulled in ends) < .3: return f'{stray} never pulled away from the holder (best {max(float(p) for _, p in ends)})'
+        if not spent: return f'{stray} was never spent'
+        if bouts[-1] > int(spent[1]): return f'{stray} strained after it was spent'
     return None
 
 
 add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵引绳：自家的宠物与无主的个体',
-    '手持原版牵引绳依次右键：自家的灵梦会跟着走；无主的流浪油按性情演三段——刚拴上时胆小的惊吓、胆大的鼓腮抗议、温顺的只是吃惊，'
-    '拉紧时胆小的含泪挣扎、胆大的顶住抱怨、温顺的跟着走，松开后胆小的跑开几步回头看、胆大的哼一声走开、温顺的留在原地；'
+    '手持原版牵引绳依次右键。先拴自家的灵梦，快步走开五六格再停下：它落后会蹦跳着追（嘴上喊「等等窝」），绳绷紧时着急惊慌，追上后松口气；'
+    '再把三只无主的流浪油拴在手上站定：它们累了一路，刚拴上时胆小的惊吓、胆大的鼓腮抗议、温顺的只是吃惊，随后不停转身往外挣、拽紧再放松，'
+    '每次挣扎都耗体力、喊「放开窝」或哭叫，挣扎越来越短越稀，力竭后只喊没力气、被拖着走不再挣；松开后胆小的跑开几步回头看、胆大的哼一声走开、温顺的留在原地；'
     '院主的宠物会拒绝。', '随意', [
-        yk('reimu', -3, 0, 'lead_pet', lead=True, nutrition=60, energy=100, hygiene=100, label='自家的灵梦'), *own('lead_pet'),
+        yk('reimu', -3, 0, 'lead_pet', uuid=uid('lead_walk', 'lead_pet'), lead=True, nutrition=90, energy=100, hygiene=100, label='自家的灵梦'), *own('lead_pet'),
         yk('marisa', 0, 2, 'lead_tame', uuid=uid('lead_walk', 'lead_tame'), identity='STRAY', label='温顺的流浪魔理沙',
-           friendliness=90, boldness=60, nutrition=80),
+           friendliness=90, boldness=60, nutrition=80, energy=36),
         yk('reimu', 3, 2, 'lead_bold', uuid=uid('lead_walk', 'lead_bold'), identity='STRAY', label='胆大的流浪灵梦',
-           friendliness=40, boldness=85, nutrition=80),
+           friendliness=40, boldness=85, nutrition=80, energy=36),
         yk('alice', 6, 2, 'lead_shy', uuid=uid('lead_walk', 'lead_shy'), identity='STRAY', label='胆小的流浪爱丽丝',
-           friendliness=90, boldness=10, nutrition=80),
+           friendliness=90, boldness=10, nutrition=80, energy=36),
         human('caretaker_sister', -3, 7, 'lead_keeper', 0, yaw=0, label='院主'),
         yk('chen', -3, 4, 'lead_other', uuid=uid('lead_walk', 'lead_other'), label='院主的宠物', nutrition=80),
         f'data modify entity {sel("lead_other")} {OWNED} set value {{Use:"companion",OwnerKind:"npc"}}',
@@ -1366,29 +1390,39 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
     ], env=DAY,
     give=['minecraft:lead 6', 'minecraft:apple 6'],
     reads=[('读胆大的流浪油', f'yukkuri status {sel("lead_bold")} raw')], vantage=(0, 8),
-    smoke=dict(ticks=340, verify=lead_walk_check, commands=[
+    smoke=dict(ticks=1030, verify=lead_walk_check, commands=[
         (10, 'yukkuri scenario tool_operator enter'),
         (11, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED} set value {{Use:"companion",OwnerKind:"player"}}'),
         (12, f'execute as @a[name=MuseumOperator,distance=..32] run data modify entity {sel("lead_pet")} {OWNED}.Owner set from entity @s UUID'),
-        *((tick, f'execute at {sel(name)} positioned ~{away} ~ ~ run yukkuri scenario tool_operator move')
-          for tick, name, away in ((30, 'lead_other', 1), (40, 'lead_pet', 1), (50, 'lead_tame', 1), (60, 'lead_tame', 5),
-                                   (66, 'lead_tame', 1), (80, 'lead_bold', 1), (90, 'lead_bold', 5), (96, 'lead_bold', 1),
-                                   (110, 'lead_shy', 1), (120, 'lead_shy', 5), (126, 'lead_shy', 1))),
-        *((tick + 1, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel(name)}')
-          for tick, name in ((30, 'lead_other'), (40, 'lead_pet'), (50, 'lead_tame'), (80, 'lead_bold'), (110, 'lead_shy'))),
-        *((tick, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
-          for tick, name in ((45, 'lead_pet'), (70, 'lead_tame'), (100, 'lead_bold'), (130, 'lead_shy'))),
-        (330, 'yukkuri scenario tool_operator leave'),
+        # The refused lead first. Then the three strays on one hand, at once (they roam from the first tick): the player stands two blocks
+        # north of the middle one and waits while they strain until spent, and lets go.
+        (20, f'execute at {sel("lead_other")} positioned ~1 ~ ~ run yukkuri scenario tool_operator move'),
+        (21, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel("lead_other")}'),
+        (25, f'execute at {sel("lead_bold")} positioned ~ ~ ~-2 run yukkuri scenario tool_operator move'),
+        *((26 + i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel(name)}')
+          for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
+        *((560 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
+          for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
+        # The owner's pet (it has roamed since the start, so no distance filter on the player): leashed, then the player walks seven blocks off at a quick pace (a step each 5 ticks) and stops.
+        (750, f'execute at {sel("lead_pet")} positioned ~1 ~ ~ run yukkuri scenario tool_operator move'),
+        (751, f'execute as @a[name=MuseumOperator] run yukkuri scenario leash {sel("lead_pet")}'),
+        *((770 + 5 * step, 'execute at @a[name=MuseumOperator] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(7)),
+        (930, f'execute as @a[name=MuseumOperator] run yukkuri scenario unleash {sel("lead_pet")}'),
+        (980, 'yukkuri scenario tool_operator leave'),
     ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
         expect=[r'\[interaction\][^\n]*action=leash reason=owner',
                 r'\[scenario\][^\n]*action=leash player=[^\n]* identity=PET\b',
                 r'\[scenario\][^\n]*action=unleash player=',
+                r'\[lead\][^\n]*beat=lead_hurry face=(?:surprise|afraid|teary_pant) line=lead_hurry',
+                r'\[lead\][^\n]*beat=lead_alarm face=(?:horrified|afraid) line=lead_alarm',
+                r'\[lead\][^\n]*beat=lead_relief face=(?:teary_smile|happy) line=lead_relief',
+                r'\[lead\][^\n]*beat=lead_struggle face=teary line=lead_struggle',
+                r'\[lead\][^\n]*beat=lead_struggle face=angry line=lead_struggle',
+                r'\[lead\][^\n]*beat=lead_struggle face=horrified line=afraid',
+                r'\[lead\][^\n]*beat=lead_spent face=teary_pant line=lead_spent',
                 r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=wait_turn',
                 r'\[lead\][^\n]*beat=stranger_leashed face=puff line=sulk_huff',
                 r'\[lead\][^\n]*beat=stranger_leashed face=surprise line=harness_tug',
-                r'\[lead\][^\n]*beat=stranger_pulled face=happy line=walk_enjoy',
-                r'\[lead\][^\n]*beat=stranger_pulled face=puff line=harness_tug',
-                r'\[lead\][^\n]*beat=stranger_pulled face=horrified line=afraid',
                 r'\[lead\][^\n]*beat=stranger_released face=happy line=glow_hum',
                 r'\[lead\][^\n]*beat=stranger_released face=hmph line=sulk_huff',
                 r'\[lead\][^\n]*beat=stranger_released face=horrified line=narrate_flee',

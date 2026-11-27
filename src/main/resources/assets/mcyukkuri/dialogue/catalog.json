@@ -94954,6 +94954,66 @@
     "sound": ""
   },
   {
+    "id": "lead_hurry",
+    "key": "dialogue.mcyukkuri.original.lead_hurry",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "lead_hurry"
+    ],
+    "ticks": 71,
+    "sound": ""
+  },
+  {
+    "id": "lead_alarm",
+    "key": "dialogue.mcyukkuri.original.lead_alarm",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "lead_alarm"
+    ],
+    "ticks": 111,
+    "sound": ""
+  },
+  {
+    "id": "lead_relief",
+    "key": "dialogue.mcyukkuri.original.lead_relief",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "lead_relief"
+    ],
+    "ticks": 55,
+    "sound": ""
+  },
+  {
+    "id": "lead_struggle",
+    "key": "dialogue.mcyukkuri.original.lead_struggle",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "lead_struggle"
+    ],
+    "ticks": 63,
+    "sound": ""
+  },
+  {
+    "id": "lead_spent",
+    "key": "dialogue.mcyukkuri.original.lead_spent",
+    "origin": "project-original",
+    "species": "*",
+    "age": "*",
+    "events": [
+      "lead_spent"
+    ],
+    "ticks": 67,
+    "sound": ""
+  },
+  {
     "id": "ask_water",
     "key": "dialogue.mcyukkuri.original.ask_water",
     "origin": "project-original",

@@ -169,7 +169,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(5, landBinding(PresentationGoals.WILD_EVENT, new WildEventGoal(owner, false)));
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.COMFORT_GIVER, new ComfortGoal()));
         kindness = new Kindness(owner);
-        goalSelector.addGoal(4, kindness);
+        goalSelector.addGoal(4, landGoal(kindness, false, true));
         goalSelector.addGoal(4, landGoal(owner.outing(), false));
         // Play outranks daily SING/EXERCISE while a wanted facility is reachable; PetOuting (4) still outranks play for picnic and recall.
         goalSelector.addGoal(5, basicBinding(PresentationGoals.PLAY, new PlaygroundGoal()));
@@ -195,14 +195,22 @@ final class YukkuriGoals {
     private <G extends Goal> Goal basicBinding(PresentationGoals.Source<G> source, G delegate) {
         return presentationGoals.bind(source, landGoal(delegate, true), delegate);
     }
-    private Goal landGoal(Goal delegate, boolean basic) {
+    private Goal landGoal(Goal delegate, boolean basic) { return landGoal(delegate, basic, basic); }
+    /**
+     * The one admission gate of the ordinary-life goals. {@code voluntary} walking goals (strolls, company walks, play, daily and social
+     * walks, foraging, habitat, tempt and food notice: every {@code basic} goal with the MOVE flag, and Kindness) are neither started
+     * nor continued while the body is towed on a person's lead: the lead's follow, hop and bouts (pet/LeadFollow) are its only movers.
+     * Needs, danger, family and story goals are admitted as before.
+     */
+    private Goal landGoal(Goal delegate, boolean basic, boolean voluntary) {
+        boolean walks = voluntary && delegate.getFlags().contains(Goal.Flag.MOVE);
         return new Goal() {
             { setFlags(delegate.getFlags()); }
             @Override public boolean canUse() {
-                return !(basic && (owner.duty().claimed() || owner.family().claimHomeWatch()
+                return !(walks && owner.pet().care().walk().towed()) && !(basic && (owner.duty().claimed() || owner.family().claimHomeWatch()
                         || owner.family().stockedChildMealDue())) && delegate.canUse();
             }
-            @Override public boolean canContinueToUse() { return delegate.canContinueToUse(); }
+            @Override public boolean canContinueToUse() { return !(walks && owner.pet().care().walk().towed()) && delegate.canContinueToUse(); }
             @Override public boolean isInterruptable() { return delegate.isInterruptable(); }
             @Override public boolean requiresUpdateEveryTick() { return delegate.requiresUpdateEveryTick(); }
             @Override public void start() { delegate.start(); }

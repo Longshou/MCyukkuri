@@ -125,7 +125,8 @@ public final class NativeDialogue {
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_water", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
                  "human_food_ask", "human_food_demand", "food_complain", "food_delight", "food_grudge",
                  "food_reluctant", "food_spit", "uneasy", "bitter", "glow",
-                         "mood_ok", "mood_bad", "harness_tug", "walk_enjoy", "swaddle_on" -> 2;
+                         "mood_ok", "mood_bad", "harness_tug", "walk_enjoy", "swaddle_on",
+                         "lead_hurry", "lead_alarm", "lead_relief", "lead_struggle", "lead_spent" -> 2;
             // These lines answer an event as it happens.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
                  "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",

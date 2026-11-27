@@ -1450,9 +1450,11 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (holder instanceof HumanNpc npc && npc.strollingWith(this)) return;
         if (life().pursuingFoodOnLead()) return;
         if (shouldStayCloseToLeashHolder() && !isPanicking() && !life().isSleeping()
-                && pet().care().walk().followTurn(holder, followLeashSpeed())) return;
+                && (pet().care().walk().pullBack() || pet().care().walk().followTurn(holder, followLeashSpeed()))) return;
         super.closeRangeLeashBehaviour(holder);
     }
+    /** The lead's follow gait: the walk, or a hop-run while an owner's pet trails beyond its comfort (LeadFollow). */
+    @Override protected double followLeashSpeed() { return pet().care().walk().followSpeed(); }
     @Override protected Vec3 getLeashOffset() { return interactions().getLeashOffset(); }
     /** It does not follow while something is urgent or it is busy: the lead only holds it back past 6 blocks. */
     @Override protected boolean shouldStayCloseToLeashHolder() { return interactions().shouldStayCloseToLeashHolder(); }
