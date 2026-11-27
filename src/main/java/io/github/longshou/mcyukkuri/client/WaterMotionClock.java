@@ -17,7 +17,7 @@ final class WaterMotionClock {
     static float seconds(YukkuriView body, float partial, float ordinary) {
         String action = body.motorAction();
         String clip = body.getAnimationId();
-        boolean swimming = action.equals(Swim.ID) && clip.equals(YukkuriAction.WATER_FLAIL.id());
+        boolean swimming = action.equals(Swim.ID) && clip.equals(YukkuriAction.WATER_FLAIL.id()) && body.profile().aquatic();
         boolean paddling = action.equals(Paddle.ID) && (clip.equals(Paddle.CLIP) || clip.equals(Paddle.BRAID_CLIP));
         if (!swimming && !paddling) {
             samples.remove(body);

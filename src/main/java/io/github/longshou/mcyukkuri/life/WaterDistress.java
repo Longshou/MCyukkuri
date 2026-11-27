@@ -2,7 +2,6 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
-import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -129,8 +128,6 @@ public final class WaterDistress {
             if(entity.predatorFlying()||entity.family().flying()||!entity.isPassenger()&&bankFooting()!=BankFooting.STAND){drySupportTicks=0;return;}
             if(++drySupportTicks<3)return;
             set(Phase.RECOVER);
-            // Out of the water for real, by its own climb or a rescuer's lift: the breath it held lets go.
-            entity.showReaction("teary", null, FaceTier.Tier.SHORT);
         }
         if(phase==Phase.RECOVER&&realThreat()){set(Phase.IDLE);return;}
         if(phase==Phase.RECOVER&&phaseTicks>=56){

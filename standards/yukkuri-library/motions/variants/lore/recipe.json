@@ -244,21 +244,21 @@
       "faces": [
         [
           0,
-          0.12,
+          0.22,
           "surprise"
         ],
         [
-          0.12,
-          0.36,
-          "cry"
+          0.22,
+          0.44,
+          "horrified"
         ],
         [
-          0.36,
+          0.44,
           60.6,
-          "teary"
+          "open_cry"
         ]
       ],
-      "lore": "The synchronized twelve-tick IMPACT phase: brief compression and a frightened cry, then raise the face. Root translation stays zero; no grounded correction or artificial buoyancy. v14: pitch limited to -12..+10, roll 6.",
+      "lore": "The synchronized twelve-tick IMPACT phase: brief compression and shocked recoil with a sputtering head-twist. Root translation stays zero; no grounded correction or artificial buoyancy. v14: pitch limited to -12..+10, roll 6.",
       "triggers": [
         "water_impact"
       ]
@@ -272,21 +272,21 @@
       "faces": [
         [
           0,
-          0.35,
-          "teary"
+          0.36,
+          "horrified"
         ],
         [
-          0.35,
-          0.85,
+          0.36,
+          0.78,
           "open_cry"
         ],
         [
-          0.85,
-          1.2,
+          0.78,
+          1.14,
           "afraid"
         ],
         [
-          1.2,
+          1.14,
           1.6,
           "cry"
         ]
@@ -469,21 +469,21 @@
       "faces": [
         [
           0,
-          0.32,
-          "surprise"
+          0.36,
+          "horrified"
         ],
         [
-          0.32,
-          0.76,
-          "cry"
+          0.36,
+          0.78,
+          "open_cry"
         ],
         [
-          0.76,
-          1.12,
+          0.78,
+          1.14,
           "afraid"
         ],
         [
-          1.12,
+          1.14,
           1.6,
           "cry"
         ]
@@ -666,26 +666,26 @@
       "faces": [
         [
           0,
-          0.3,
-          "cry"
+          0.42,
+          "teary_pant"
         ],
         [
-          0.3,
-          0.7,
-          "teary"
+          0.42,
+          0.82,
+          "pin_cry"
         ],
         [
-          0.7,
-          1.05,
-          "cry"
+          0.82,
+          1.2,
+          "squeezed_cry_tears"
         ],
         [
-          1.05,
+          1.2,
           1.6,
-          "teary"
+          "pin_cry"
         ]
       ],
-      "lore": "Between real attempts or in EXHAUSTED: low body, one small breath and a weak lock twitch, with no rising root track. Sinking, injury and rescue remain server physics.",
+      "lore": "Between real attempts or in EXHAUSTED: weakened uneven gasping and desperate tilt, with no negative root lift so land catch-breath stays floor-safe. Sinking, injury and rescue remain server physics.",
       "triggers": [
         "water_exhausted",
         "water_struggle between effort windows"
@@ -699,23 +699,23 @@
       "faces": [
         [
           0,
-          0.5,
-          "sleep"
+          0.7,
+          "teary_pant"
         ],
         [
-          0.5,
-          1.4,
+          0.7,
+          1.5,
           "teary"
         ],
         [
-          1.4,
+          1.5,
           2.1,
-          "neutral"
+          "confused_small"
         ],
         [
           2.1,
           62.8,
-          "closed_smile"
+          "teary_smile"
         ]
       ],
       "lore": "Only after a real supported recovery: crouch, take two shallow breaths and look back for family before returning to neutral. This awards no health or energy and never fakes a rescue.",

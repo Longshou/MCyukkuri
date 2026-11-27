@@ -2439,7 +2439,15 @@
           "faces": [
             [
               0,
-              "cry"
+              "surprise"
+            ],
+            [
+              0.22,
+              "horrified"
+            ],
+            [
+              0.44,
+              "open_cry"
             ]
           ]
         }
@@ -2455,18 +2463,18 @@
           "faces": [
             [
               0,
-              "teary"
+              "horrified"
             ],
             [
-              0.14,
-              "cry"
+              0.36,
+              "open_cry"
             ],
             [
-              0.3,
-              "teary"
+              0.78,
+              "afraid"
             ],
             [
-              0.5,
+              1.14,
               "cry"
             ]
           ]
@@ -2483,18 +2491,18 @@
           "faces": [
             [
               0,
-              "teary"
+              "horrified"
             ],
             [
-              0.14,
-              "cry"
+              0.36,
+              "open_cry"
             ],
             [
-              0.3,
-              "teary"
+              0.78,
+              "afraid"
             ],
             [
-              0.5,
+              1.14,
               "cry"
             ]
           ]
@@ -2511,18 +2519,18 @@
           "faces": [
             [
               0,
-              "teary"
+              "horrified"
             ],
             [
-              0.14,
-              "cry"
+              0.36,
+              "open_cry"
             ],
             [
-              0.3,
-              "teary"
+              0.78,
+              "afraid"
             ],
             [
-              0.5,
+              1.14,
               "cry"
             ]
           ]
@@ -2539,19 +2547,19 @@
           "faces": [
             [
               0,
-              "cry"
+              "teary_pant"
             ],
             [
-              0.3,
-              "teary"
+              0.42,
+              "pin_cry"
             ],
             [
-              0.7,
-              "cry"
+              0.82,
+              "squeezed_cry_tears"
             ],
             [
-              1.05,
-              "teary"
+              1.2,
+              "pin_cry"
             ]
           ]
         }
@@ -2567,19 +2575,19 @@
           "faces": [
             [
               0,
-              "sleep"
+              "teary_pant"
             ],
             [
-              0.5,
+              0.7,
               "teary"
             ],
             [
-              1.4,
+              1.5,
               "confused_small"
             ],
             [
               2.1,
-              "closed_smile"
+              "teary_smile"
             ]
           ]
         }

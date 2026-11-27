@@ -176,6 +176,12 @@ public final class PresentationArbiter {
         if(e.life().spicyTicks()>0)return "teary_tongue";
         String linger=state.lingerFace();
         if(!linger.isEmpty())return linger;
+        if (source.equals("water_distress")) {
+            var phase = e.waterDistress().phase();
+            if (e.profile().aquatic()) return aquaticWaterFace(phase);
+            return ExpressionClips.sample(e.subspecies().assetId(), clip,
+                    Math.max(0, e.level().getGameTime() - start) / 20f, nonAquaticWaterFace(phase));
+        }
         // The published emotion row and the last frame of a flight precede the drain, weakness and resting faces.
         if (!source.equals(EMOTION_GOAL) && !source.equals("panic")) {
             String mood = e.mind().face("neutral");
@@ -306,9 +312,28 @@ public final class PresentationArbiter {
             var pose = actionPose(e);
             state.animation(pose != null ? pose.action() : EcologyPresentation.action(distress));
             state.animationStart(pose != null ? pose.startTick() : e.waterDistressStartTick());
-            state.expression(e.waterDistress().phase() == WaterDistress.Phase.IMPACT ? "cry" : "teary");
+            var phase = e.waterDistress().phase();
+            state.expression(e.profile().aquatic() ? aquaticWaterFace(phase) : nonAquaticWaterFace(phase));
             return;
         });
+    }
+
+    private static String aquaticWaterFace(WaterDistress.Phase phase) {
+        return switch (phase) {
+            case IMPACT -> "surprise";
+            case EXHAUSTED -> "teary_pant";
+            case RECOVER -> "closed_smile";
+            default -> "neutral";
+        };
+    }
+
+    private static String nonAquaticWaterFace(WaterDistress.Phase phase) {
+        return switch (phase) {
+            case IMPACT, STRUGGLE -> "horrified";
+            case EXHAUSTED -> "pin_cry";
+            case RECOVER -> "teary";
+            default -> "horrified";
+        };
     }
 
     private static Presentation panic(PresentationAccess state, int panicTicks) {
