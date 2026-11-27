@@ -88,7 +88,7 @@ final class LeadFollow {
         var at = animal.position();
         stillTicks = lastAt != null && at.distanceToSqr(lastAt) < 1e-4 ? stillTicks + 1 : 0;
         lastAt = at;
-        boolean settled = LeadPace.settled(stillTicks, distance, LeadPace.ELASTIC);
+        boolean settled = LeadPace.settled(stillTicks);
         trailing = free() && !settled && LeadPace.trailing(trailing, distance, comfort);
         hopping = trailing && !BodyAbility.cannotSpring(animal) && animal.childhood().canJump();
         long now = animal.level().getGameTime();

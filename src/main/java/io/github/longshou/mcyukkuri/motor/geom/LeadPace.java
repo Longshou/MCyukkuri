@@ -42,11 +42,10 @@ public final class LeadPace {
 
     /**
      * The exit of a hop that does not depend on where the vanilla follow stops: the body has stood still for {@link #SETTLE_TICKS}
-     * ticks inside the elastic. (Smoke run 1: it stopped at 2.4 blocks, just past the first caught-up distance, and hopped in place for ever.)
+     * ticks, wherever that is: just past the caught-up distance (smoke run 1 stopped at 2.4 blocks and hopped in place for ever) or
+     * beyond the elastic behind a wall it cannot cross (it is then no longer trailing, and no relief is claimed).
      */
-    public static boolean settled(int stillTicks, double distance, double elastic) {
-        return stillTicks >= SETTLE_TICKS && distance < elastic;
-    }
+    public static boolean settled(int stillTicks) { return stillTicks >= SETTLE_TICKS; }
 
     /** The walk request of the lead's close-range follow. */
     public static double request(boolean hopping) { return hopping ? HOP_REQUEST : WALK_REQUEST; }

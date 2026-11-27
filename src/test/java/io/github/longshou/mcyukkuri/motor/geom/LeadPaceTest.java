@@ -70,9 +70,8 @@ class LeadPaceTest {
 
     @Test void aBodyThatStandsStillHasSettledWhereverVanillaStopsIt() {
         double start = LeadPace.ELASTIC;
-        assertFalse(LeadPace.settled(LeadPace.SETTLE_TICKS - 1, 3.0, start));
-        assertTrue(LeadPace.settled(LeadPace.SETTLE_TICKS, LeadPace.CAUGHT_UP + .3, start));
-        assertFalse(LeadPace.settled(1000, start, start), "inside the elastic only: a body held at the taut line is still trailing");
-        assertFalse(LeadPace.settled(0, 2.4, start));
+        assertFalse(LeadPace.settled(LeadPace.SETTLE_TICKS - 1));
+        assertTrue(LeadPace.settled(LeadPace.SETTLE_TICKS), "wherever it stands, even past the elastic behind a wall");
+        assertFalse(LeadPace.settled(0));
     }
 }
