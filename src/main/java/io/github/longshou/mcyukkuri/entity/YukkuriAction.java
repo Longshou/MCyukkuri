@@ -206,7 +206,12 @@ public enum YukkuriAction {
     PAPER_PULL("paper_pull", 1.52, false),
     PAPER_COVER_UNDER("paper_cover_under", 1.4, false),
     PAPER_COVER_CHILD("paper_cover_child", 1.48, false),
-    COLD_SHIVER("cold_shiver", 2.4, true);
+    COLD_SHIVER("cold_shiver", 2.4, true),
+    // Friendly sumo bout phases (lore recipe sumo family): ritual ready stance, 20-tick charge/shove, loser push-out, winner pose.
+    SUMO_READY("sumo_ready", 1.6, true),
+    SUMO_SHOVE("sumo_shove", 1.0, true),
+    SUMO_PUSH_OUT("sumo_push_out", 1.6, false),
+    SUMO_WIN("sumo_win", 2.0, false);
 
     private final String id;
     private final double duration;
@@ -232,6 +237,9 @@ public enum YukkuriAction {
     /** A clip whose body leaves the ground: the hop-run, hops and the joy jump. YukkuriSync writes every clip through one gate that plays idle in place of these for a body that cannot spring. */
     public boolean hops() { return this == HOP || this == HOP_LEG || this == HAT_HOP_UP || this == JOY_JUMP || this == RUN; }
     public static boolean sukkiri(String id) { return id.startsWith("sukkiri_"); }
+    public static boolean sumo(String id) { return id.startsWith("sumo_"); }
+    /** The two end poses of a sumo bout: the pair stands in them for their authored length, so neither a stroll nor a knock-back's slide replaces them with the walk. */
+    public boolean sumoEnd() { return this == SUMO_WIN || this == SUMO_PUSH_OUT; }
     /** Shared food-refusal clip choice: offered food gets the side-face pout; eating alone gets the plain disgust/let-down variant. */
     public static YukkuriAction foodRefusal(boolean offered) { return offered ? REJECT_OR_SPIT : SPIT_ALONE; }
     public static Optional<YukkuriAction> byId(String id) {

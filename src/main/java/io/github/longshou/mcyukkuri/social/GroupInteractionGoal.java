@@ -55,7 +55,7 @@ public final class GroupInteractionGoal extends Goal {
     /** Verified contact already accumulated by the running bout; observation only. */
     public int contactProgress() { return active() ? bout.contactTicks : 0; }
     public String activity() {
-            return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
+            return !active()?Behaviors.IDLE:defending?Behaviors.PROTECT_PEER:bout.kind==Kind.BULLY?Behaviors.BULLY_PEER:bout.kind!=Kind.SUMO?Behaviors.IDLE:bout.contactTicks<20?Behaviors.SUMO_PREPARE:Behaviors.SUMO_PUSH; }
     public int cooldown() { return cooldown; }
     public String detail() {
         return (!active()?"idle":"kind="+bout.kind
@@ -130,8 +130,8 @@ public final class GroupInteractionGoal extends Goal {
         cooldown=peer.groupInteraction().cooldown=2400;
         // A contest opens with its own face-off beats; the other bouts open with this one reaction.
         if(kind!=Kind.CONTEST) {
-            entity.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"peer":"mine",FaceTier.Tier.MEDIUM);
-            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"happy":"surprise",kind==Kind.SUMO?"known_peer":"afraid",FaceTier.Tier.MEDIUM);
+            entity.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"peer":"mine",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
+            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"known_peer":"afraid",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
         }
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
@@ -256,7 +256,9 @@ public final class GroupInteractionGoal extends Goal {
         shove(firstStronger?peer:entity,firstStronger?entity:peer);
         if(current.contactTicks>=80) {
             var winner=firstStronger?entity:peer;var loser=firstStronger?peer:entity;
-            stop();winner.showReaction("happy","puff",FaceTier.Tier.MEDIUM);loser.showReaction("surprise","shy",FaceTier.Tier.MEDIUM);
+            stop();
+            winner.showReaction(YukkuriAction.SUMO_WIN, "smug", "puff", YukkuriAction.SUMO_WIN.durationTicks(), FaceTier.Tier.MEDIUM);
+            loser.showReaction(YukkuriAction.SUMO_PUSH_OUT, "teary", "shy", YukkuriAction.SUMO_PUSH_OUT.durationTicks(), FaceTier.Tier.MEDIUM);
             var relations=YukkuriWorldData.get(level());relations.relate(entity.getUUID(),peer.getUUID(),1);relations.relate(peer.getUUID(),entity.getUUID(),1);
             entity.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");
             peer.life().personality().experienced(Trait.FRIENDLINESS, 1, "sumo");

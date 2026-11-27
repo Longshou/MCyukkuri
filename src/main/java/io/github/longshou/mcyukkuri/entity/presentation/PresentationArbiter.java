@@ -150,6 +150,8 @@ public final class PresentationArbiter {
             return "teary_pant"; // The face library plays both authored tear frames.
         if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
+        if(YukkuriAction.sumo(clip)&&!e.body().dying())
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"smug");
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if(YukkuriAction.SNEEZE_C.id().equals(clip))
@@ -420,6 +422,8 @@ public final class PresentationArbiter {
                 : HomeClaim.declaring(e) ? e.reactionAction()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
                 : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
+                // A bout's end pose plays through the loser's knock-back slide as well: the slide is the push-out.
+                : e.reactionAction() != null && e.reactionAction().sumoEnd() && !e.life().isSleeping() ? e.reactionAction()
                 : e.species().catchingBreath() && e.onGround() && !e.isPassenger() && m.distanceSquared() <= 0.000001
                         && (e.species().sprintRequested() || behavior.equals(Behaviors.THREAT_RETREAT) || behavior.equals(Behaviors.IDLE))
                 ? EcologyPresentation.catchBreath(e)

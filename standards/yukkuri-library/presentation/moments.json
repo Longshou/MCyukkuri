@@ -2629,21 +2629,29 @@
       "loop": true,
       "steps": [
         {
-          "clip": "push",
+          "clip": "sumo_shove",
           "intensity": 1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "angry"
+              "smug"
             ],
             [
-              0.45,
-              "puff"
+              0.24,
+              "puff_open"
             ],
             [
-              0.65,
-              "angry"
+              0.42,
+              "endure"
+            ],
+            [
+              0.6,
+              "puff_open"
+            ],
+            [
+              0.78,
+              "smug"
             ]
           ]
         }
@@ -2701,10 +2709,15 @@
       "loop": true,
       "steps": [
         {
-          "clip": "brace",
+          "clip": "sumo_ready",
           "intensity": 1,
           "tempo": 1,
-          "faces": []
+          "faces": [
+            [
+              0,
+              "smug"
+            ]
+          ]
         }
       ]
     },
@@ -3611,13 +3624,29 @@
       "loop": true,
       "steps": [
         {
-          "clip": "idle",
+          "clip": "sumo_shove",
           "intensity": 1,
           "tempo": 1,
           "faces": [
             [
               0,
-              "angry"
+              "smug"
+            ],
+            [
+              0.24,
+              "puff_open"
+            ],
+            [
+              0.42,
+              "endure"
+            ],
+            [
+              0.6,
+              "puff_open"
+            ],
+            [
+              0.78,
+              "smug"
             ]
           ]
         }
