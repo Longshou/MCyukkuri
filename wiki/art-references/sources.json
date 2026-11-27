@@ -21,7 +21,10 @@
         "教育",
         "表情"
       ],
-      "limit": 8
+      "limit": 8,
+      "excluded_images": [
+        3
+      ]
     },
     {
       "id": "M03",
@@ -32,7 +35,12 @@
         "季节",
         "比例"
       ],
-      "limit": 12
+      "limit": 12,
+      "excluded_images": [
+        8,
+        10,
+        12
+      ]
     },
     {
       "id": "M04",
@@ -64,7 +72,12 @@
         "睡眠",
         "情感"
       ],
-      "limit": 12
+      "limit": 12,
+      "excluded_images": [
+        5,
+        6,
+        8
+      ]
     },
     {
       "id": "M07",
@@ -75,7 +88,12 @@
         "移动",
         "进食"
       ],
-      "limit": 12
+      "limit": 12,
+      "excluded_images": [
+        8,
+        9,
+        10
+      ]
     },
     {
       "id": "M08",
@@ -85,7 +103,10 @@
         "猫耳",
         "表情"
       ],
-      "limit": 12
+      "limit": 12,
+      "excluded_images": [
+        2
+      ]
     },
     {
       "id": "M09",
@@ -137,7 +158,12 @@
         "生活设施"
       ],
       "limit": 12,
-      "attribution_override": "無声あき（转载页作者分类）"
+      "attribution_override": "無声あき（转载页作者分类）",
+      "excluded_images": [
+        5,
+        6,
+        10
+      ]
     },
     {
       "id": "M13",
@@ -173,7 +199,8 @@
       "limit": 12,
       "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名",
       "excluded_images": [
-        2
+        2,
+        5
       ]
     }
   ]
