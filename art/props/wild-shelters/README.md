@@ -12,6 +12,6 @@
 | `cardboard_shelter_damp` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter_damp.json` | 受潮后水渍从顶边往下洇 |
 | `cardboard_shelter_soaked` | `assets/mcyukkuri/yukkuri_props/cardboard_shelter_soaked.json` | 泡透后纸板变深，顶面和箱口边向内塌陷 |
 
-以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 按实际住户的睡位组合共巢外缘，并在个人巢的原睡位显示小叶巢。野外没有便所模型，聚落的嗯嗯坑只是地形浅坑（见[聚落场地](../../../docs/FEATURES.md#聚落族规与迁徙)）。物品缩略模型复用相同导出。
+以上路径均相对 `src/main/resources/`；各图集在 `assets/mcyukkuri/textures/props/<ID>.png`。住所碰撞在 `data/mcyukkuri/shelters/<ID>.json`。无骨架或独立动作；`ShelterRenderer` 按实际住户的睡位组合共巢外缘，并在个人巢的原睡位显示小叶巢。野外没有便所模型，聚落的嗯嗯坑只是地形浅坑（见[聚落场地](../../../docs/features/wild-ecology.md#聚落族规与迁徙)）。物品缩略模型复用相同导出。
 
-重建通过制作包的 `build.py` 同步，禁止只改本目录或打包资源。指纹见 `manifest.json`；玩法规则见[生活环境说明](../../../docs/FEATURES.md#野外住所)。
+重建通过制作包的 `build.py` 同步，禁止只改本目录或打包资源。指纹见 `manifest.json`；玩法规则见[生活环境说明](../../../docs/features/wild-ecology.md#野外住所)。

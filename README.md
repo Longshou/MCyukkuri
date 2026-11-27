@@ -18,7 +18,7 @@ Minecraft **1.21.1** · NeoForge **21.1.250** · Java **21**
 ## 获取与试玩
 
 - **开发版**：在 [GitHub Actions](https://github.com/Longshou/MCyukkuri/actions/workflows/build.yml) 选 `main` 上成功的运行，下载 `mcyukkuri-<提交号>`，把 Jar 放进匹配版本 NeoForge 实例的 `mods/`。
-- **试玩场**：双击根目录 `启动动作博物馆.cmd`，进入[油库里试玩场](docs/FEATURES.md#试玩场与动作博物馆)。这是唯一的试玩与测试入口，CI 只编译。
+- **试玩场**：双击根目录 `启动动作博物馆.cmd`，进入[油库里试玩场](docs/features/museum.md#试玩场与动作博物馆)。这是唯一的试玩与测试入口，CI 只编译。
 - **素材检查**：双击 `打开素材检查.cmd` 查看各形态的动作与表情。
 
 ## 参与开发

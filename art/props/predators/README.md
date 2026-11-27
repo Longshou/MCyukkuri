@@ -6,4 +6,4 @@
 
 执行 `python art/props/predators/build.py` 同步本包 `assembled/`、运行道具网格、物品和方块模型、巢穴与巢架掉落、合成配方；`preview.py` 离线渲染巢架各阶段与完工枝巢对比（输出到 `.local/tmp/tree-predators-art/`）。帽冠更改后还需运行 `scripts/export_badges.py --mounts-only` 更新离身徽章挂点。运行目录通过独立 `predators-index.json` 登记，避免覆盖其他道具包。
 
-指纹见 [provenance.json](provenance.json)，玩法规则见[捕食种实现](../../../docs/FEATURES.md#捕食种)。
+指纹见 [provenance.json](provenance.json)，玩法规则见[捕食种实现](../../../docs/features/species-and-body.md#捕食种)。

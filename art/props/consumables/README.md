@@ -16,6 +16,6 @@
 
 去霉药与六件瓶装消耗品（`yogurt_drink`、`stimulant`、`sitataran`、`sleep_spray`、`spicy_grain`、`wheat_flour`）不做放置模型：物品模型就是原版 `item/generated` 的图标（`textures/item/<id>.png`），手持、掉落与展示框按原版方式显示，没有道具网格。生殖用馅（`reproductive_filling`）由其 16×16 物品栏图标挤出成一像素厚板（[方块道具工具](../../../standards/yukkuri-library/drafts/block-props/kit.py) `extrude`，保持原高度，正面朝 −Z），贴图即图标本身；物品模型用原版手持角度，口中与展示框的固定展示转 30°，地上由掉落物自转。四件 `*_serving` 口中份量（`water_serving`、`yogurt_serving`、`stimulant_serving`、`sitataran_serving`）用 `kit.Block` 与图标色带重制为阶梯体素，尺寸保持在口部范围内。小麦粉糊在本包只保留合成配方，物品外观是 [16×16 图标](../supply-icons/README.md)，不使用网格。
 
-原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/FEATURES.md#消耗品与胎生)。清水使用原版清水药水瓶。
+原生机制核读与 Minecraft 适配区别、普通胎生的角色模型/变形来源及验收见 [消耗品与胎生实现](../../../docs/features/family-and-breeding.md#消耗品与胎生)。清水使用原版清水药水瓶。
 
 重新导出使用 `python standards/yukkuri-library/drafts/consumables/build.py`；多人协作时先协调语言文件，或加 `--skip-language`。`--check --skip-language` 只核对制作源与导出一致性。

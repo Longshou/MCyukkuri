@@ -8,4 +8,4 @@
 
 改了图案或色板后用 `scripts/export.py --family human-world --family source:art/props/ui/author_shop_ui.py` 重出物品／佩戴贴图与界面图集；`python art/props/badges/preview.py --model <模型> --tiers bronze,silver,gold,platinum --out <目录>` 离线渲染各档佩戴效果。从仓库根目录运行 `python scripts/export_badges.py`；捕食种专用挂点更新可使用 `--mounts-only`。制作参数以 `mounts.json` 和 `author_badges.py` 为准，来源标准见[徽章来源](../../../wiki/badges.md)。
 
-玩法规则见[宠物店](../../../docs/FEATURES.md#宠物店徽章与宠物培育)。
+玩法规则见[宠物店](../../../docs/features/pets-and-shop.md#宠物店徽章与宠物培育)。

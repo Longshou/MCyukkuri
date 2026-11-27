@@ -4,4 +4,4 @@
 
 从仓库根目录运行 `python scripts/export_subspecies.py` 更新快照和运行模型；`--stage` 只生成源与快照。伤口表面通过 `node scripts/export_subspecies_wounds.cjs` 同步，离线预览通过 `python scripts/preview_subspecies.py` 生成，预览数据写在 `.local/previews/subspecies-runtime/`，不入库。`--textures-only` 只刷新表情快照与运行贴图，`--check-textures` 只读核对图集覆盖、解码、尺寸及源/快照/运行指纹。
 
-形态玩法规则见[亚种实现](../../../docs/FEATURES.md#种族与亚种)。
+形态玩法规则见[亚种实现](../../../docs/features/species-and-body.md#种族与亚种)。
