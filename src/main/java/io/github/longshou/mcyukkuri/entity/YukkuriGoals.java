@@ -126,7 +126,7 @@ final class YukkuriGoals {
         goalSelector.addGoal(4, presentationGoals.bind(PresentationGoals.PIT_SLAVE, new PitSlaveGoal()));
         homeTerritory = new HomeTerritoryGoal(owner);
         goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_TERRITORY, homeTerritory));
-        goalSelector.addGoal(3, landBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
+        goalSelector.addGoal(3, voluntaryLandBinding(PresentationGoals.HOME_CLAIM, new HomeClaimGoal(owner)));
         goalSelector.addGoal(4, basicBinding(PresentationGoals.TEMPT, new TemptGoal(owner, 1.15, Ingredient.of(YukkuriEntity.FOOD), false) {
             @Override public boolean canUse() {
                 // A free stray has its own wider, line-of-sight scan (FoodNoticeGoal); this one keeps pets, house bodies and the wild.
@@ -191,6 +191,10 @@ final class YukkuriGoals {
     /** The bound wrapper retains its selector identity and delegates the real goal only in its land territory. */
     private <G extends Goal> Goal landBinding(PresentationGoals.Source<G> source, G delegate) {
         return presentationGoals.bind(source, landGoal(delegate, false), delegate);
+    }
+    /** As {@link #landBinding}, behind the towed-on-a-lead gate of {@link #landGoal(Goal, boolean, boolean)}. */
+    private <G extends Goal> Goal voluntaryLandBinding(PresentationGoals.Source<G> source, G delegate) {
+        return presentationGoals.bind(source, landGoal(delegate, false, true), delegate);
     }
     private <G extends Goal> Goal basicBinding(PresentationGoals.Source<G> source, G delegate) {
         return presentationGoals.bind(source, landGoal(delegate, true), delegate);

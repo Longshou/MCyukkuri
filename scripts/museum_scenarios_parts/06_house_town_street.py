@@ -1356,12 +1356,17 @@ def lead_walk_check(window):
         at[beat] = int(found[1])
         if beat == 'lead_hurry' and 'hop=true' not in found[0]: return 'the owner\'s pet hurried without hopping'
     if not at['lead_hurry'] <= at['lead_alarm'] <= at['lead_relief']: return f'the owner\'s pet beats came out of order {at}'
+    # The faces are not enough: each beat's line must really be spoken (a refused line is only logged as declared).
+    for event in ('lead_hurry', 'lead_alarm', 'lead_relief'):
+        if not re.search(rf'\[speech\][^\n]*uuid={pet}[^\n]* line event={event} ', window): return f'the owner\'s pet never spoke {event}'
     for stray in ('lead_tame', 'lead_bold', 'lead_shy'):
         who = _uuid_of(uid('lead_walk', stray))
         bouts = [int(t) for t in re.findall(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=lead_struggle ', window)]
         ends = re.findall(rf'\[lead\][^\n]*uuid={who} [^\n]*struggle ended reason=(\w+)[^\n]* pulled=(-?[\d.]+)', window)
         spent = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=lead_spent ', window)
         if not bouts: return f'{stray} never strained against the lead'
+        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=(?:lead_struggle|afraid) ', window): return f'{stray} never spoke while it strained'
+        if not re.search(rf'\[speech\][^\n]*uuid={who}[^\n]* line event=lead_spent ', window): return f'{stray} never spoke its spent line'
         snapped = re.search(rf'\[lead\][^\n]*uuid={who} t=(\d+)[^\n]* beat=stranger_leashed ', window)
         if not snapped or int(snapped[1]) > bouts[0]: return f'{stray} strained before it answered the snap-on'
         if len(ends) != len(bouts): return f'{stray} began {len(bouts)} bouts but {len(ends)} ended'

@@ -130,9 +130,10 @@ final class LeadFollow {
     }
 
     private boolean beat(String name, String face, String line, FaceTier.Tier tier, double distance, double comfort) {
+        int said = animal.speechSequence();
         if (!animal.showReaction(face, line, tier)) return false;
         animal.beat(name, face, line);
-        GameplayLog.event(animal, "lead", "beat={} face={} line={} distance={} comfort={} energy={} hop={}", name, face, line,
+        GameplayLog.event(animal, "lead", "beat={} face={} line={} spoken={} distance={} comfort={} energy={} hop={}", name, face, line, animal.speechSequence() != said,
                 String.format("%.2f", distance), String.format("%.2f", comfort), animal.life().energy(), hopping);
         return true;
     }
@@ -169,6 +170,7 @@ final class LeadFollow {
         double reserve = LeadPace.reserve(animal.life().energy(), BodyAbility.TIRED_ENERGY);
         double resist = LeadPace.resist(personality.friendliness());
         int ticks = LeadPace.boutTicks(reserve);
+        int said = animal.speechSequence();
         if (!animal.showReaction(YukkuriAction.STRUGGLE, face, line, ticks, FaceTier.Tier.MEDIUM)) return;
         animal.beat("lead_struggle", face, line);
         double elastic = LeadPace.ELASTIC;
@@ -180,8 +182,8 @@ final class LeadFollow {
         boutEnd = now + ticks;
         boutFrom = boutNow = distance;
         struggled = true;
-        GameplayLog.event(animal, "lead", "beat=lead_struggle face={} line={} distance={} reach={} ticks={} energy={} resist={} walk_out={}",
-                face, line, String.format("%.2f", distance), String.format("%.2f", reach), ticks, animal.life().energy(),
+        GameplayLog.event(animal, "lead", "beat=lead_struggle face={} line={} spoken={} distance={} reach={} ticks={} energy={} resist={} walk_out={}",
+                face, line, animal.speechSequence() != said, String.format("%.2f", distance), String.format("%.2f", reach), ticks, animal.life().energy(),
                 String.format("%.2f", resist), stand != null);
     }
 
