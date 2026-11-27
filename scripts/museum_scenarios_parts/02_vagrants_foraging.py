@@ -670,7 +670,7 @@ add('den_monopoly', 'den', '自私又累的油占着窝，不让姐妹用', '自
 _CS_ROW = re.compile(r'\[(?P<cat>[\w-]+)\] \S+ #\d+ uuid=(?P<uuid>[0-9a-f-]{36}) t=(?P<t>\d+) dim=\S+ '
                      r'pos=(?P<pos>-?\d+, -?\d+, -?\d+) (?P<msg>[^\n]*)')
 # Lines a body that decides, moves or eats prints; a stiff body prints none of them.
-_CS_ACTING = ('action', 'meal', 'duty', 'habitat', 'sleep', 'move', 'social', 'family', 'home', 'needs')
+_CS_ACTING = ('action', 'meal', 'duty', 'habitat', 'sleep', 'social', 'family', 'home', 'needs')
 
 
 def _cs_still(log, uuid, ended=True):
@@ -714,24 +714,23 @@ def _cs_stray_verify(log):
 
 add('cold_stiff_stray', 'forage', '流浪：雪夜冻僵，无人管冻死，点火的解冻', '流浪：雪夜冻僵',
     '雪原冬夜，两只成年灵梦冷暴露已预设到快冻僵（2250／2400）。开场几秒后各自先发抖，随即在原地闭眼定住不动（冻僵）。'
-    '西边那只孤零零的，一分钟左右窗口耗尽冻死，留下冻死的遗体；东边那只身旁有一堆没点的篝火：用打火石点燃它，'
+    '西边那只孤零零的，一分钟左右窗口耗尽冻死，留下冻死的遗体；东边那只会在附近找暖，也在原地冻僵：走到它身边放一堆篝火，用打火石点燃，'
     '冻僵的灵梦在几十秒内解冻，继续发抖找暖。用望远镜看状态卡，写着“低温僵直，剩余约 N 秒”，点火后改为“回暖中”。'
     '冻僵时喂食、摸、开照护菜单都会被拒，提示“它冻僵了”。',
     '开场约 6 秒后冻僵，约 1 分钟内冻死或解冻', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
-        block(9, 0, 3, 'minecraft:campfire[lit=false]'),
         street_stray('cold_stiff_stray', 'reimu', -8, 3, 'stiff_alone', nutrition=60, energy=70, rest_wait=0, yaw=180,
                      label='孤零零灵梦', lead=True),
         set_status('stiff_alone', 'needs.cold_exposure', 2250),
         street_stray('cold_stiff_stray', 'reimu', 8, 3, 'stiff_warmed', nutrition=60, energy=70, rest_wait=0, yaw=180,
                      label='火边灵梦'),
         set_status('stiff_warmed', 'needs.cold_exposure', 2250),
-    ], give=['minecraft:flint_and_steel', 'minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    ], give=['minecraft:campfire', 'minecraft:flint_and_steel', 'minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
     note='待验证：新场景，尚未在游戏里实测。',
     reads=[('读孤零零灵梦', f'yukkuri status {sel("stiff_alone")} raw'), ('读火边灵梦', f'yukkuri status {sel("stiff_warmed")} raw')],
     smoke=dict(ticks=1900,
-               commands=[(420, block(9, 0, 3, 'minecraft:campfire[lit=true]')),
-                         (421, 'execute if block ~9 ~ ~3 minecraft:campfire[lit=true] run say MCYSTIFF_LIT')],
+               commands=[(420, f'execute at {sel("stiff_warmed")} run setblock ~1 ~ ~ minecraft:campfire[lit=true]'),
+                         (421, f'execute at {sel("stiff_warmed")} if block ~1 ~ ~ minecraft:campfire[lit=true] run say MCYSTIFF_LIT')],
                readout=[f'yukkuri status {sel("stiff_alone")} raw', f'yukkuri status {sel("stiff_warmed")} raw'],
                allow_fate=[dict(kind='death', who=f'uuid={_cs_alone} ', match=r'cause=freeze\b',
                                 why='nothing warms the lone body: its stiff window runs out and the cold kills it')],
@@ -761,7 +760,7 @@ add('cold_stiff_reload', 'forage', '流浪：冻僵后存档重载，仍僵着',
     ], give=['minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
     note='待验证：新场景，尚未在游戏里实测。',
     reads=[('读冻僵灵梦', f'yukkuri status {sel("stiff_reload")} raw')],
-    smoke=dict(ticks=2400, reload=(400, sel('stiff_reload')), reload_paths=('YukkuriLife.Temperature',),
+    smoke=dict(ticks=2400, reload=(400, sel('stiff_reload')), reload_paths=('YukkuriLife.Temperature.Stiff', 'YukkuriLife.Temperature.StiffMax', 'YukkuriLife.Temperature.ColdExposure'),
                readout=[f'yukkuri status {sel("stiff_reload")} raw'],
                allow_fate=[dict(kind='death', who=f'uuid={_cs_reload} ', match=r'cause=freeze\b',
                                 why='the reloaded body keeps its window and the cold kills it when it runs out')],
@@ -770,8 +769,8 @@ add('cold_stiff_reload', 'forage', '流浪：冻僵后存档重载，仍僵着',
                        rf'\[temperature\][^\n]* uuid={_cs_reload} [^\n]* freeze death reason=window_spent stiff=true '],
                verify=lambda log: _cs_still(log, _cs_reload)))
 
-# Negatives: a body by a lit fire is never frozen however much cold it carries; a stiff body does not eat the apple that is put at its feet,
-# and does not move. (The refusal of a player's hand, food and care menu sits on the interaction event, which no scenario command raises.)
+# Negatives: a body by a lit fire is never frozen however much cold it carries; a stiff body stays on its block and starts nothing,
+# and is still stiff when the scene ends. (The refusal of a player's hand, food and care menu sits on the interaction event, which no scenario command raises.)
 _cs_fire = _uuid_text('cold_stiff_negative', 'stiff_fire')
 _cs_hungry = _uuid_text('cold_stiff_negative', 'stiff_hungry')
 
@@ -782,9 +781,9 @@ def _cs_negative_verify(log):
     return _cs_still(log, _cs_hungry, ended=False)
 
 
-add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不吃苹果也不动', '流浪：暖处与冻僵对照',
+add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不动不进食', '流浪：暖处与冻僵对照',
     '雪原冬夜，两只成年灵梦冷暴露都预设到快冻僵。东边那只身旁点着篝火，暖和，一直不会冻僵。'
-    '西边那只在空地上冻僵，开场后约 7 秒在它脚边落下一个苹果：冻僵的它不吃、不动，苹果原样躺着。',
+    '西边那只在空地上冻僵，约 6 秒后冻僵，之后不动、不说话，也不进食。',
     '开场约 6 秒后冻僵，之后看 15 秒', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         block(9, 0, 3, 'minecraft:campfire[lit=true]'),
@@ -798,7 +797,6 @@ add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不吃
     note='待验证：新场景，尚未在游戏里实测。',
     reads=[('读火边灵梦', f'yukkuri status {sel("stiff_fire")} raw'), ('读冻僵灵梦', f'yukkuri status {sel("stiff_hungry")} raw')],
     smoke=dict(ticks=900,
-               commands=[(420, item('minecraft:apple', 1, -8, 3, name='late_apple'))],
                readout=[f'yukkuri status {sel("stiff_fire")} raw', f'yukkuri status {sel("stiff_hungry")} raw'],
                forbid=[rf'\[temperature\][^\n]* uuid={_cs_fire} [^\n]* stiff begin ', rf'\[meal\][^\n]* uuid={_cs_hungry} ',
                        rf'\[temperature\][^\n]* uuid={_cs_hungry} [^\n]* (?:stiff end|freeze death)',
