@@ -824,7 +824,10 @@ public final class Reactions {
             return !keepDry(animal) || !rainAt(animal, destination);
         }
         private boolean bothered() {
-            return sky.wet() || sky == Sky.SNOW && y.life().temperature().cold();
+            if (sky == Sky.SNOW) return y.life().temperature().cold();
+            if (!sky.wet()) return false;
+            var personality = y.life().personality();
+            return y.life().wetness() >= RainShelter.tolerance(personality.boldness(), personality.intelligence());
         }
         /** Body needs are the life goal's business; this goal does not hold a hungry individual under a roof. */
         private boolean pressing() {

@@ -18,6 +18,7 @@ import io.github.longshou.mcyukkuri.motor.action.Hop;
 import io.github.longshou.mcyukkuri.motor.action.Paddle;
 import io.github.longshou.mcyukkuri.motor.surface.SeatTarget;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
+import io.github.longshou.mcyukkuri.status.RainShelter;
 import io.github.longshou.mcyukkuri.status.ThunderFear;
 import java.util.Comparator;
 import java.util.List;
@@ -137,7 +138,7 @@ final class PlayAboard implements Intent {
         boolean water = waterAct(where, out) && braidOut(braidOutYaw(out));
         boolean paddling = water && hat.owner() != null && hat.owner().motor().current() instanceof Paddle;
         String reason;
-        if (scared) { reactThunderHide(); act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
+        if (scared) { reactHide(); act = Behaviors.KID_HIDE_BEHIND; reason = "fear:" + cause; }
         else if (water) { act = paddling ? Behaviors.KID_MIMIC_PADDLE : Behaviors.KID_BRIM_SPLASH; reason = paddling ? "captain_paddle" : "brim_water"; }
         else if ("head".equals(where)) { act = Behaviors.HAT_CRADLE; reason = "head_dry"; }
         else { act = Behaviors.BOAT_RIM_PEEK; reason = "no_water_act"; }
@@ -146,19 +147,43 @@ final class PlayAboard implements Intent {
             if (scared) hull.playEvent("fear_" + cause);
         }
         GameplayLog.event(body, "aquatic", "play kind={} start spot={} reason={} braid_out={} hat={}", act, where, reason, water, hat.getUUID());
-        if (scared) return new Step.Do(Await.holding(() -> fear.get().equals("none"), (int) number("play_deadline") + 1, act,
-                ClipMarkers.of(act).ticks("tucked", 12), () -> false));
+        if (scared) return new Step.Do(Await.holding(() -> {
+            String now = fear.get();
+            // A worse danger (the rain's thunder, a predator) replaces this fright: the drive starts the new one at once.
+            return now.equals("none") || rank(now) > rank(cause);
+        }, (int) number("play_deadline") + 1, act, ClipMarkers.of(act).ticks("tucked", 12), () -> false));
         return pause(act, (int) number("play_loops"));
     }
 
-    /** Boldness-scaled scared face and line when hiding from a perceived thunder clap (once per hide intent). */
-    private void reactThunderHide() {
-        if (reacted || !scared || !"thunder".equals(cause)) return;
+    /** How urgent a hide cause is: a worse one replaces the hide that answers a lesser one, a lesser never interrupts it. */
+    private static int rank(String cause) {
+        return switch (cause) {
+            case "hard_rock" -> 4;
+            case "thunder" -> 3;
+            case "predator" -> 2;
+            case "rushing_player" -> 1;
+            case "rain" -> 0;
+            default -> -1;
+        };
+    }
+
+    /** The scared face and line for the cause this hide answers (once per hide intent): a perceived thunder clap, or the
+     *  first rain the body takes on its bare place. */
+    private void reactHide() {
+        if (reacted || !scared) return;
         reacted = true;
         int boldness = body.life().personality().boldness();
-        String face = ThunderFear.hideFace(boldness), line = ThunderFear.hideLine(boldness);
-        body.forceReaction(face, line, FaceTier.Tier.LONG);
-        body.beat("thunder_hide", face, line);
+        if ("thunder".equals(cause)) {
+            String face = ThunderFear.hideFace(boldness), line = ThunderFear.hideLine(boldness);
+            body.forceReaction(face, line, FaceTier.Tier.LONG);
+            body.beat("thunder_hide", face, line);
+        } else if ("rain".equals(cause)) {
+            String face = RainShelter.face(boldness), line = RainShelter.line();
+            body.forceReaction(face, line, FaceTier.Tier.MEDIUM);
+            body.beat("rain_hide", face, line);
+            GameplayLog.event(body, "aquatic", "rain reaction face={} line={} wetness={} boldness={} hat={}",
+                    face, line, Math.round(body.life().wetness()), boldness, hat.getUUID());
+        }
     }
 
     /** A quiet pause on the spot once the act is over: the young keeps playing where it can be seen. */
@@ -176,7 +201,7 @@ final class PlayAboard implements Intent {
      */
     private Step inside() {
         if (!"brim".equals(place(body, hat)) || !scared && !Care.upset(body)) return null;
-        reactThunderHide();
+        reactHide();
         String why = scared ? "fear:" + cause : "care";
         var cabin = hat.places(body, SeatTarget.Kind.CABIN, 1);
         var hop = cabin.isEmpty() ? null : new Hop(hat, cabin.getFirst().local());
@@ -237,6 +262,10 @@ final class PlayAboard implements Intent {
             if (player.isSpectator() || !player.isSprinting() || player.distanceToSqr(hat) > range * range) continue;
             if (player.getLookAngle().dot(hat.position().subtract(player.position())) > 0) return "rushing_player";
         }
+        // Rain on its own bare place: the hat is the roof it takes, once the drops it has taken are past its tolerance.
+        var personality = body.life().personality();
+        if (AquaticLife.rain(body) && body.life().wetness() >= RainShelter.tolerance(personality.boldness(), personality.intelligence()))
+            return "rain";
         return "none";
     }
 }
