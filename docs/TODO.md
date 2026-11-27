@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 家规全套重做（TN-48/72/73/78/79/80/57） | `.worktrees/wp-rules-redo` | pet/rules/*, pet conscience/penance, rule dialogue, rule faces |
-| 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
 
 ## 玩法待办
 
