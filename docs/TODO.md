@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 帽舱入座与转身几何一致（PD-09 雨后出舱） | `.worktrees/wp-cabin-turn` | aquatic/TakeSeat, motor/surface/Floor, PlacedHatEntity places |
 | 表情整理缺口：teary_sleep 伤痕点与孤立部件 | `.worktrees/wp-face-gaps` | export_wound_surfaces.cjs, face parts |
 | R5 低温僵直 P3 搬运与挖碎 | `.worktrees/wp-cold-stiff-p3` | status/ColdStiffness, transport basket, BodyLife.died(noRemains), interaction |
 | 低占用模式覆盖导出与预览渲染 | `.worktrees/wp-quiet-render` | scripts/preview.py, scripts/export.py, render entry points |
