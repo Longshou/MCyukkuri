@@ -1188,8 +1188,10 @@ public final class Reactions {
                         outwardYaw = outwardRainYaw(level, y.blockPosition());
                         stage = Stage.WAIT; ticks = 0; shakeAfterWater = false;
                         queueBeat("rain_settle", settleFace(), "none");
-                    } else end();
-                    if (relievedAfterWater) y.showReaction("teary_smile", null, FaceTier.Tier.SHORT);
+                    } else {
+                        end();
+                        if (relievedAfterWater) y.showReaction("teary_smile", null, FaceTier.Tier.SHORT);
+                    }
                 }
                 case HUDDLE -> huddle(level);
                 default -> { }
