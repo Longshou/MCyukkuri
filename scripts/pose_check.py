@@ -10,6 +10,8 @@ import sys
 import tempfile
 import gzip
 
+import headless_server as server
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -69,6 +71,7 @@ def java_command():
 
 
 def main():
+    server.below_normal_priority()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model'); parser.add_argument('--clip'); parser.add_argument('--t', default='0')
     parser.add_argument('--metric', default='tilt'); parser.add_argument('--water', type=float)

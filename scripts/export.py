@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 from export_registry import load as read, save as write, shared_checkout
+import headless_server as server
 
 ROOT = Path(__file__).resolve().parents[1]
 TOWN = 'art/structures/human-world'
@@ -321,6 +322,7 @@ def run(row, check, logs):
 
 
 def main():
+    server.below_normal_priority()
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('command', nargs='?', choices=['motion'])
     ap.add_argument('clips', nargs='*')
@@ -348,6 +350,9 @@ def main():
         ap.error('--dry-run requires --register')
     if args.jobs < 1 or (args.jobs != 1 and not args.check):
         ap.error('--jobs must be positive and requires --check for concurrent execution')
+    cpus = server.quiet_cpus()
+    if cpus:
+        args.jobs = min(args.jobs, len(cpus))
     args.report = args.report.resolve()
     if args.beats:
         args.beats = args.beats.resolve()

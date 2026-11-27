@@ -8,6 +8,10 @@ import bpy, json, os, sys
 from mathutils import Vector
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import quiet
+
+quiet.apply()
 args = sys.argv[sys.argv.index('--') + 1:]
 OUT = args[0]
 ONLY = args[args.index('--only') + 1].split(',') if '--only' in args else None

@@ -8,6 +8,10 @@ Writes <out>/marisa_manga.blend, <out>/renders/<look>_<view>.png (--stills) and
 import bpy, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import quiet
+
+quiet.apply()
 args = sys.argv[sys.argv.index('--') + 1:]
 OUT = os.path.abspath(args[0])
 os.makedirs(OUT, exist_ok=True)

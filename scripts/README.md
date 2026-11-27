@@ -10,7 +10,7 @@
 | 导出（Export） | `<py> scripts/export.py --rebuild-motion` / `motion <片段> --beats beats.txt --model <形态>` | 重建动作族并做倾角门槛、节拍渲染条与姿态核对 | [统一导出与登记入口](#统一导出与登记入口) |
 | 检查（Check） | `bash scripts/javac_check.sh [工作树]` / `<py> scripts/pkg.py land <名>` | 纯 javac 编译加单元测试，以及包合入全链路检查 | [静态检查与包生命周期](#静态检查与包生命周期) |
 | 检查（Check） | `python scripts/check_doc_refs.py --check` / `check_architecture.py --check` / `check_prop_meshes.py --check` / `check_face_fit.py --check` | 死链、Java 架构守卫、道具网格闪烁与表情时间线只读检查 | [静态检查与包生命周期](#静态检查与包生命周期) · [架构建议检查](#架构建议检查) |
-| 运行环境（Quiet） | `<py> scripts/quiet_mode.py on [--cpus 12-15]` / `off` / `status` | 用户玩游戏时把代理重活压到少数 CPU 的空闲优先级 | [静默模式](#静默模式) |
+| 运行环境（Quiet） | `<py> scripts/quiet_mode.py on [--cpus 12-15]` / `off` / `status` | 用户玩游戏时把代理重活（冒烟、截图、导出、预览渲染、Blender）压到少数 CPU 的空闲优先级 | [静默模式](#静默模式) |
 | 试玩场（Museum） | `<py> scripts/smoke_museum.py --worktree <工作树> <场景ID...>` / `--repeat N --compare` / `--layout` | 无头试玩场冒烟、命运检查、基线对比与初态布局校验 | [试玩场冒烟与基线](#试玩场冒烟与基线) · [追踪与冒烟观察](#追踪与冒烟观察) |
 | 试玩场（Museum） | `<py> scripts/build_museum_full.py --install` / `check_museum_pack.py` / `playtest_list.py` / `feedback_intake.py` | 重建试玩世界、离线核对数据包、生成待试玩清单与反馈入档 | [试玩场生成与场景登记](#试玩场生成与场景登记) · [试玩清单与反馈入档](#试玩清单与反馈入档) |
 | 截图（Capture） | `python scripts/capture_museum.py --worktree <工作树> <场景ID...>` / `capture_review.py` | 隐藏客户端多视角截图、菜单截图、姿态取证与 AI 可读性审图 | [隐藏客户端截图与审图](#隐藏客户端截图与审图) · [客户端卡顿录制](#客户端卡顿录制) |
@@ -102,7 +102,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 
 ## 静默模式
 
-`<py> scripts/quiet_mode.py on [--cpus 12-15] | off | status` 开关全机静默模式：`on` 在主检出写 `.local/quiet-mode.json`（`--cpus` 取逻辑 CPU 区间，默认最后四个），`off` 删除该文件，`status` 读回，所有工作树共用这一文件。开启后冒烟、截图、`pkg.py` 与 `javac_serial.py` 入口调用的 `headless_server.below_normal_priority()` 改为空闲优先级并把进程限定到这些 CPU，子进程继承；冒烟服务器与截图客户端另加 `-XX:ActiveProcessorCount`，`javac_check.sh` 给 javac（`-J`）和测试 JVM 加 `-XX:ActiveProcessorCount`、`-XX:ParallelGCThreads=2`、`-XX:CICompilerCount=2`；冒烟与截图的全机名额降为 1（`MCY_SMOKE_SLOTS` 仍可覆盖）。关闭后恢复原来的低于正常优先级与按时间取名额。
+`<py> scripts/quiet_mode.py on [--cpus 12-15] | off | status` 开关全机静默模式：`on` 在主检出写 `.local/quiet-mode.json`（`--cpus` 取逻辑 CPU 区间，默认最后四个），`off` 删除该文件，`status` 读回，所有工作树共用这一文件。开启后冒烟、截图、`pkg.py` 与 `javac_serial.py` 入口，以及导出（`export.py` 及其导出器、`export_motion_corrections.py`）、预览渲染（`preview.py` 的渲染条与录像）、`pose_check.py` 和 Blender 无界面入口（`standards/yukkuri-library/easter-eggs/marisa-manga/` 的 `make.py`、`render_clips.py`）调用的 `headless_server.below_normal_priority()` 改为空闲优先级并把进程限定到这些 CPU，子进程继承；`export.py --check --jobs` 的并发数与该 Blender 入口的渲染线程另压到 `len(quiet_cpus())`，冒烟服务器与截图客户端另加 `-XX:ActiveProcessorCount`，`javac_check.sh` 给 javac（`-J`）和测试 JVM 加 `-XX:ActiveProcessorCount`、`-XX:ParallelGCThreads=2`、`-XX:CICompilerCount=2`；冒烟与截图的全机名额降为 1（`MCY_SMOKE_SLOTS` 仍可覆盖）。关闭后恢复原来的低于正常优先级与按时间取名额。
 
 ## 试玩场冒烟与基线
 

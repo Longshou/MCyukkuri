@@ -10,6 +10,7 @@ import argparse, hashlib, io, json, math, runpy
 from PIL import Image
 import placement_fit
 from motion_compile_cache import MotionCache
+import headless_server as server
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT/'standards/yukkuri-library/motions/variants/contact-safe'
@@ -137,6 +138,7 @@ def cheek_texture(model, tex, reference_mouth, cfg, patch):
 
 
 def main():
+    server.below_normal_priority()
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--check', action='store_true')
     parser.add_argument('--only', help='comma-separated model ids; alone it writes nothing, use with --trial')
     parser.add_argument('--update-only', help='Rebuild these changed models in place, preserving all other selected clips')

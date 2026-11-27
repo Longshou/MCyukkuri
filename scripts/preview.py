@@ -18,6 +18,8 @@ from urllib.parse import urlencode
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+import headless_server as server
+
 ROOT = Path(__file__).resolve().parents[1]
 SHARED = Path(subprocess.check_output(
     ['git', 'rev-parse', '--path-format=absolute', '--git-common-dir'], cwd=ROOT,
@@ -1077,6 +1079,7 @@ def parser():
 
 
 def main():
+    server.below_normal_priority()
     args = parser().parse_args()
     try:
         if args.command == 'verdicts':

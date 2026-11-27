@@ -20,11 +20,12 @@
 | 文件 | 作用 |
 | --- | --- |
 | [faces.py](faces.py) | 画脸部贴图 `textures/marisa_<表情>.png`（neutral、blink、yu、push、chew_open、chew_closed、happy、content） |
-| [build.py](build.py) | 在 Blender 场景里建模，生成集合 `COL_Marisa_marisa` 与层级 `EMPTY_marisa_body / stretch / hat / braid` |
+| [build.py](build.py) | 在 Blender 场景里建模，生成角色集合与层级 `EMPTY_marisa_body / stretch / hat / braid` |
 | [animate.py](animate.py) | 三段动作：hop（ゆっ♪ 两跳）、crawl（ずりずり）、eat（むーしゃむーしゃ…しあわせー）。表情由脸部物体的 `expr` 属性逐帧切换 |
 | [stage.py](stage.py) | 预览台：天光、地面、相机，以及五视角加脸部特写静帧 |
 | [make.py](make.py) | 无界面一键构建：模型、动作、`.blend`、静帧与动作帧 |
 | [render_clips.py](render_clips.py)、[clip_sheets.py](clip_sheets.py) | 逐帧渲染动作；输出动图 WebP 与 8 拍分拍条 |
+| [quiet.py](quiet.py) | 两个 Blender 入口启动时调用：低于正常优先级；静默模式开启时改用空闲优先级、限定到这些 CPU 并把渲染线程压到同样数量 |
 
 ## 使用
 
