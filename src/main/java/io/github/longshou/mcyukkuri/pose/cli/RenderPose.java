@@ -324,6 +324,7 @@ final class RenderPose implements Overlays.Contact {
                     if (attachment.get("part_index").getAsInt() == index) part = attachment;
                 }
             }
+            String name = part.get("name").getAsString();
             int first = start(part) * 8, end = first + count(part) * 8;
             var card = new Vector3f();
             for (int i = first; i < end; i += 24)
@@ -337,7 +338,8 @@ final class RenderPose implements Overlays.Contact {
                 var normal = triangleNormal(posed, i);
                 if (normal.lengthSquared() < 1e-16f) continue;
                 var lift = lifted ? card : normal.normalize();
-                float amount = (ExcitedLeak.STREAM_LIFT + (lifted ? Skin.FACE_CARD_LIFT : 0)) * scale;
+                // Same contract as the game's leak overlay: the card lift for the card normal, the slot layer for house cards.
+                float amount = (ExcitedLeak.STREAM_LIFT + (lifted ? Skin.faceCardLift(name) : Skin.faceLayerLift(name))) * scale;
                 for (int vertex = i; vertex < i + 24; vertex += 8) {
                     var point = new Vector3f(posed[vertex], posed[vertex + 1], posed[vertex + 2]).fma(amount, lift);
                     at = emitVert(output, at, point, posed[vertex + 3], posed[vertex + 4], lift);
