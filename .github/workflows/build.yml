@@ -60,7 +60,7 @@ jobs:
         with:
           name: mcyukkuri-${{ github.sha }}
           path: build/libs/*.jar
-          retention-days: 3
+          retention-days: 7
           if-no-files-found: error
       - name: Package small local runtime
         run: python3 scripts/package_ci_runtime.py --jar build/libs --output build/ci-runtime --commit "$GITHUB_SHA"
@@ -69,7 +69,7 @@ jobs:
         with:
           name: mcyukkuri-runtime-${{ github.sha }}
           path: build/ci-runtime/
-          retention-days: 5
+          retention-days: 14
           if-no-files-found: error
       - name: Prune older artifacts
         if: github.event_name != 'pull_request'
@@ -97,11 +97,11 @@ jobs:
           for a in active:
               name = a['name']
               if name.startswith('mcyukkuri-runtime-'):
-                  if rt_n < 5:
+                  if rt_n < 10:
                       keep.add(a['id'])
                       rt_n += 1
               elif name.startswith('mcyukkuri-'):
-                  if full_n < 1:
+                  if full_n < 3:
                       keep.add(a['id'])
                       full_n += 1
           deleted = 0
