@@ -283,7 +283,8 @@ public final class Departure {
             if (ticks == 1) {
                 var open = SeveranceReaction.childOpening(t, resists, pleads, answer);
                 String line = resists && terms.resistLine() != null ? terms.resistLine() : open.line();
-                playBeat(open.beat(), open.clip(), open.face(), line, FaceTier.Tier.MEDIUM, SeveranceReaction.speechStyle(t));
+                FaceTier.Tier tier = answer == Answer.SHRUG ? FaceTier.Tier.LONG : FaceTier.Tier.MEDIUM;
+                playBeat(open.beat(), open.clip(), open.face(), line, tier, SeveranceReaction.speechStyle(t));
             } else if (shockTicks > 0 && ticks == shockTicks + 1) {
                 var follow = SeveranceReaction.childFollow(t, pleads);
                 playBeat(follow.beat(), follow.clip(), follow.face(), follow.line(), FaceTier.Tier.MEDIUM, SeveranceReaction.speechStyle(t));
