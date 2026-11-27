@@ -367,6 +367,8 @@
     "doll_take": "PK-21",
     "bully_strike": "PK-22",
     "treasure_bully": "PK-23",
-    "bed_contest_even": "FM-30"
+    "bed_contest_even": "FM-30",
+    "food_contest": "FG-19",
+    "toy_contest": "PK-24"
   }
 }

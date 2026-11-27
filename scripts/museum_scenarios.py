@@ -1829,17 +1829,17 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
 # Two piles on the street, far enough apart that nobody at one sees the other's food. The starving stray (nutrition 5, below the
 # 30 line: it never inspects, and a second apple at 25 is still below it) has two apples of its own and eats both: it must not
 # stand at an apple at 30 or more, where its first look would be a forbidden pause, and the pair's single apple is gone before
-# it has finished (the timid one takes it after its long pause). The other pile is one apple between two strays: a stack no
-# larger than the eaters makes a hunger order, so the hungrier one (25 or more below the other) goes first and the other waits.
-# West: a timid, dull stray (long inspect pause) and the hungrier of the two. East: a bold, clever one (short pause); 27 above
-# the timid one, so it is the one that yields (a body at 75 or more is too fed to go for loose food at all). A hedge row stands
+# it has finished. The other pile is one apple between two strays: a stack no larger than the eaters is contested, and the two
+# (both fed enough to stand at it) stage a food contest over it. West: a timid, dull stray (long inspect pause) and the hungrier
+# of the two. East: a bold, clever one (short pause); 27 above the timid one (a body at 75 or more is too fed to go for loose
+# food at all), but far bolder, so it wins and the timid one gives way. A hedge row stands
 # between the piles: a hungry stray (12-49, and the starving one after its first apple) that sees a peer chewing starts a
 # BEG_BITE arc instead of taking its own turn, so neither group sees the other eat.
 _STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
     '街中间地上一个苹果，胆小的灵梦和胆大的魔理沙各站一侧；南边隔得远的另一小堆两个苹果旁是饿极的灵梦。'
-    '西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）；东边胆大、聪明的魔理沙只看一眼（不到半秒），可它比灵梦饱 27，一个苹果两只抢，'
-    '按饥饿排先后：它让灵梦先拿，站着等（头顶中性脸），灵梦盯完就吃掉。南边饿极（营养 5，低于 30）的灵梦不看直接吃，一只接一只吃掉自己的两个苹果。'
+    '西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）；东边胆大、聪明的魔理沙只看一眼（不到半秒），一个苹果两只抢，'
+    '两只在苹果旁对峙争抢：魔理沙胆大得多，灵梦很快让开，魔理沙吃掉苹果。南边饿极（营养 5，低于 30）的灵梦不看直接吃，一只接一只吃掉自己的两个苹果。'
     '约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
         item('minecraft:apple', 1, 0, 0, name='strange_apple'),
@@ -9461,32 +9461,42 @@ _shy_bed = _uuid_text('single_bed_contest', 'shy')
 _CONTEST_BEATS = r'\[choreo\][^\n]*uuid=([\w-]+) [^\n]*beat=(contest_\w+) face=(\w+) line=(\w+) declared=(\w+)'
 
 
-def _verify_bed_contest(log, process, winner=None, tussles=0):
-    """One staged contest per bed: its odds, every beat showing the face it declared, then the loser at another free bed."""
-    begins = re.findall(r'\[social\][^\n]* t=(\d+) [^\n]*contest begin prize=bed nest=(BlockPos\{[^}]+\}) process=(\w+)', log)
-    verdicts = re.findall(r'\[social\][^\n]* t=(\d+) [^\n]*contest verdict prize=bed nest=(BlockPos\{[^}]+\}) process=(\w+) winner=([\w-]+) loser=([\w-]+)', log)
+def _contest_core(log, prize, process, winner=None, tussles=0):
+    """One staged contest per prize (the shared ``Contest`` log lines): its odds, every beat showing the face it declared, a verdict
+    after the begin. Returns ``(error, None)`` or ``(None, (begin tick, verdict tick, winner, loser, where))``."""
+    begins = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest begin prize={prize} at=(.+?) process=(\w+) ', log)
+    verdicts = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest verdict prize={prize} at=(.+?) process=(\w+) winner=([\w-]+) loser=([\w-]+)', log)
     if len(begins) != 1 or len(verdicts) != 1:
-        return f'expected one contest begin and one verdict, saw {len(begins)} and {len(verdicts)}'
+        return f'expected one contest begin and one verdict, saw {len(begins)} and {len(verdicts)}', None
     if begins[0][2] != process or verdicts[0][2] != process:
-        return f'contest process {begins[0][2]}/{verdicts[0][2]}, expected {process}'
+        return f'contest process {begins[0][2]}/{verdicts[0][2]}, expected {process}', None
     if int(verdicts[0][0]) <= int(begins[0][0]):
-        return 'the verdict did not come after the contest began'
-    _, bed, _, won, lost = verdicts[0]
+        return 'the verdict did not come after the contest began', None
+    began, where, _, won, lost = verdicts[0]
     if winner and won != winner:
-        return f'{won} won the bed, expected {winner}'
+        return f'{won} won the {prize}, expected {winner}', None
     beats = re.findall(_CONTEST_BEATS, log)
     for who, beat, shown, line, declared in beats:
         if shown != declared:
-            return f'{who} beat={beat} showed {shown}, declared {declared}'
+            return f'{who} beat={beat} showed {shown}, declared {declared}', None
     for who in (won, lost):
         names = [beat for u, beat, *_ in beats if u == who]
         for needed in ('contest_faceoff', 'contest_won' if who == won else 'contest_lost'):
             if needed not in names:
-                return f'{who} never played {needed}'
+                return f'{who} never played {needed}', None
     if len([1 for _, beat, *_ in beats if beat == 'contest_tussle']) < tussles:
-        return f'fewer than {tussles} tussle beats'
+        return f'fewer than {tussles} tussle beats', None
     if re.search(r'contest beat=\w+ [^\n]*accepted=false', log):
-        return 'a contest beat was refused by the face layer'
+        return 'a contest beat was refused by the face layer', None
+    return None, (int(begins[0][0]), int(verdicts[0][0]), won, lost, where)
+
+
+def _verify_bed_contest(log, process, winner=None, tussles=0):
+    """A bed contest, then the loser at another free bed."""
+    error, facts = _contest_core(log, 'bed', process, winner, tussles)
+    if error:
+        return error
+    _, _, won, lost, bed = facts
     failed = {}
     for who, tick, event, nest, side in re.findall(r'uuid=([\w-]+) t=(\d+) [^\n]*?(refused bed approach|approaching unclaimed bed) nest=(BlockPos\{[^}]+\}) side=(\w+)', log):
         opening = (who, nest, side)
@@ -9530,6 +9540,81 @@ add('bed_contest_even', 'family', '两个同样胆大的成油争一个窝', '�
                forbid=[r'contest beat=\w+ [^\n]*accepted=false'],
                verify=lambda log: _verify_bed_contest(log, 'TUSSLE', tussles=3)))
 
+_food_a = _uuid_text('food_contest', 'a')
+_food_b = _uuid_text('food_contest', 'b')
+
+
+def _verify_food_contest(log):
+    """One contest over the one apple; the winner eats it, the loser does not touch it and eats later at the added portion."""
+    error, facts = _contest_core(log, 'food', 'TUSSLE', tussles=3)
+    if error:
+        return error
+    _, verdict_at, won, lost, _ = facts
+    ate = {who: [int(t) for t in re.findall(rf'\[meal\][^\n]* uuid={who} t=(\d+) [^\n]*swallowed item=minecraft:apple', log)]
+           for who in (won, lost)}
+    if not [t for t in ate[won] if t > verdict_at]:
+        return 'the winner did not eat the apple after the verdict'
+    if not ate[lost]:
+        return 'the loser never ate'
+    if min(ate[lost]) <= min(t for t in ate[won] if t > verdict_at):
+        return 'the loser ate before the winner took the contested apple'
+    if not re.search(rf'uuid={lost} [^\n]*yielded contested food [^\n]*rival={won}\b', log):
+        return 'the loser did not give the portion way'
+
+
+add('food_contest', 'forage', '两个同样饿的成油争一个苹果', '两个同样饿的成油争一个苹果',
+    '街中间地上只有一个苹果，两个同样饿的流浪成油（营养 38 与 44）从两侧走来。看它们先看一眼苹果，再在苹果旁面对面对峙，数值相当就互相顶撞几轮，'
+    '赢的认下苹果吃掉，输的按胆量鼓腮瞪着或垂泪让开、不碰这个苹果。约十五秒后地上添一份两个的苹果，输的去吃那一份。',
+    '约 1 分钟', [
+        item('minecraft:apple', 1, 0, 0, name='contest_apple'),
+        street_stray('food_contest', 'reimu', -3, 0, 'a', nutrition=38, boldness=85, yaw=-90, label='甲', lead=True),
+        street_stray('food_contest', 'reimu', 3, 0, 'b', nutrition=44, boldness=85, yaw=90, label='乙'),
+    ], late=[Retry(item('minecraft:apple', 2, 0, 3, name='contest_apple_two'), sel('a'), tries=1, first=800)],
+    env=DAY, spot='street', vantage=(0, 9),
+    reads=[('读甲', f'yukkuri status {sel("a")} raw'), ('读乙', f'yukkuri status {sel("b")} raw')],
+    smoke=dict(ticks=1700, expect=[rf'\[meal\][^\n]*uuid={who} [^\n]*swallowed item=minecraft:apple' for who in (_food_a, _food_b)],
+               forbid=[r'contest beat=\w+ [^\n]*accepted=false', r'food_order wait_behind'], verify=_verify_food_contest))
+
+_toy_a = _uuid_text('toy_contest', 'a')
+_toy_b = _uuid_text('toy_contest', 'b')
+
+
+def _verify_toy_contest(log):
+    """One contest over the free station; the winner plays it first, the loser gives it way and takes its own turn after."""
+    error, facts = _contest_core(log, 'toy', 'TUSSLE', tussles=3)
+    if error:
+        return error
+    _, verdict_at, won, lost, _ = facts
+    started = {who: [int(t) for t in re.findall(rf'\[play\][^\n]* uuid={who} t=(\d+) [^\n]*facility session started', log)] for who in (won, lost)}
+    ended = [int(t) for t in re.findall(rf'\[play\][^\n]* uuid={won} t=(\d+) [^\n]*facility session ended', log)]
+    first = [t for t in started[won] if t > verdict_at]
+    if not first:
+        return 'the winner did not start playing after the verdict'
+    if [t for t in started[lost] if t <= verdict_at]:
+        return 'the loser started a session before the verdict'
+    later = [t for t in started[lost] if t > verdict_at]
+    if not later or min(later) <= min(first):
+        return 'the loser did not take its own turn after the winner'
+    if not re.search(rf'\[play\][^\n]* uuid={lost} [^\n]*contested station yielded [^\n]*rival={won}\b', log):
+        return 'the loser did not give the station way'
+
+
+add('toy_contest', 'park', '两个无聊的成油争一个游具', '两个无聊的成油争一个游具',
+    '蹦床前的空地上两个同样无聊的流浪成油并肩站着，都想玩蹦床。看它们互相对峙，数值相当就顶撞几轮，赢的先上床玩，'
+    '输的按胆量鼓腮瞪着或垂泪让开，歇一会儿再去玩自己的那一轮。',
+    '约 1 分半钟', [
+        block(-6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        street_trial('toy_contest', 'marisa', -.7, -3, 'a', boldness=85, intelligence=70, adult_scale=.9, nutrition=95, energy=100, yaw=0,
+                     label='甲', lead=True, extra='YukkuriDailyLife:{Boredom:98,Affection:20}'),
+        street_trial('toy_contest', 'marisa', .7, -3, 'b', boldness=85, intelligence=70, adult_scale=.9, nutrition=95, energy=96, yaw=0,
+                     label='乙', extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
+        home('a', -6, -7), home('b', 6, -7),
+    ], env=DAY, spot='trampoline', vantage=(6, 6, 180, 18),
+    reads=[('读甲', f'yukkuri status {sel("a")} raw'), ('读乙', f'yukkuri status {sel("b")} raw')],
+    smoke=dict(ticks=2400, expect=[rf'uuid={who} [^\n]*facility session started' for who in (_toy_a, _toy_b)],
+               forbid=[r'contest beat=\w+ [^\n]*accepted=false'], verify=_verify_toy_contest))
+
 _number_scenes()
 
 
@@ -9538,6 +9623,8 @@ TOPICS = {
     'oversized_nest': 'D1',
     'single_bed_contest': 'D1',
     'bed_contest_even': 'D1',
+    'food_contest': 'D1',
+    'toy_contest': 'D1',
     'processing_plant': 'M2',
     'factory_sweet_box': 'M2',
     'factory_kin_boxes': 'M2',
@@ -11077,14 +11164,14 @@ _smoke('quarrel_makeup', 2400, [
     rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*quarrel recorded peer=(?:{_qs[0]}|{_qs[1]})\b',
 ], forbid=[rf'\[social\][^\n]*uuid=(?:{_qs[0]}|{_qs[1]}) [^\n]*reconcile (?:approach|answered)\b'])
 # The timid dull stray pauses 80 ticks and the bold clever one 8 at the strange apple, the starving one (nutrition 5, below the
-# no-pause line even after its first apple) not at all; the starving one eats first, and at least one of the others waits behind
-# it (once the pile is down to the number of eaters still contesting it, the order applies).
+# no-pause line even after its first apple) not at all; the starving one eats first, and the other two, both fed enough to stand
+# at one apple, stage a food contest over it (a verdict is logged) instead of queueing.
 _strange = {name: _uuid_text('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 _smoke('stray_strange_food', 900, [
     rf'\[meal\][^\n]*uuid={_strange["timid"]} [^\n]*strange_food_pause item=minecraft:apple ticks=(?:[7-9]\d|80) ',
     rf'\[meal\][^\n]*uuid={_strange["bold"]} [^\n]*strange_food_pause item=minecraft:apple ticks=(?:[89]|1\d) ',
     rf'\[meal\][^\n]*uuid={_strange["starving"]} [^\n]*swallowed item=minecraft:apple',
-    rf'\[meal\][^\n]*uuid=(?:{_strange["timid"]}|{_strange["bold"]}) [^\n]*food_order wait_behind ',
+    r'\[social\][^\n]* contest verdict prize=food ',
 ], forbid=[rf'\[meal\][^\n]*uuid={_strange["starving"]} [^\n]*strange_food_pause'])
 # Marisa keeps the tired Reimu company; the unknown timid Chen gives none.
 _company_friend = _uuid_text('company_visit', 'friend')

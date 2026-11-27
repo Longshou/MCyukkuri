@@ -6,6 +6,8 @@ import java.util.UUID;
 final class FoodOrder {
     /** The gap in nutrition (0-100 scale) from which the hungrier of two bodies goes first; closer bodies split by id. */
     static final float HUNGER_PRECEDENCE = 25;
+    /** From here down a body is starving: it never queues, never stands to contest a portion, and takes it. */
+    static final float STARVING_BELOW = 15;
     /** From here down a body is too hungry to inspect anything. */
     static final float NO_INSPECTION_BELOW = 30;
     /** Inspect pause at the extremes: a bold clever body looks for 8 ticks, a timid dull one for 80. */

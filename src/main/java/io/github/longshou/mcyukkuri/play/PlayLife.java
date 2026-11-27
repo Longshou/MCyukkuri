@@ -39,6 +39,8 @@ public final class PlayLife {
     private static final double MAX_APPROACH_SQR = 24 * 24;
     private static final double MAX_VALID_SQR = 28 * 28;
     private static final int MAX_REMEMBERED_GIVEUPS = 16;
+    /** A body that lost a station contest plays nowhere for this long: half the 600-tick session cap, so the winner is well into its first round. */
+    private static final int LOSS_COOLDOWN = 300;
     /** Approach stall budget (~1.25 s) before giving up and switching to another facility; interior safety bound (~2.5 s). */
     private static final int APPROACH_STALL_TICKS = 25;
     private static final int INTERIOR_STALL_TICKS = 50;
@@ -279,6 +281,8 @@ public final class PlayLife {
         for (var entry : scored) {
             var target = entry.facility();
             if (target.occupiedByOther(entity)) continue;
+            // The bout took the body: this is no session, so the goal does not start.
+            if (contestsStation(target)) return false;
             if (begin(target)) return true;
             if (!"cooldown".equals(refused) && !"occupied".equals(refused)) {
                 rememberSkip(refusedAt, target.getBlockPos());
@@ -295,6 +299,36 @@ public final class PlayLife {
             if (beginWait(target)) return true;
         }
         return false;
+    }
+
+    /**
+     * Two bored adults in sight of each other who both want one free station do not race for it: they stage a contest at it (a bout
+     * that stands both down), and the verdict lands in {@link #contested}. An occupied station is not contested; it is waited for.
+     */
+    private boolean contestsStation(PlayBlockEntity target) {
+        if (entity.outing().onOuting() || target.kind() == PlayBlock.Kind.POOL) return false;
+        var prize = new StationPrize(target);
+        var center = Vec3.atCenterOf(target.getBlockPos());
+        return entity.level().getEntitiesOfClass(YukkuriEntity.class, entity.getBoundingBox().inflate(6), o -> o != entity && o.isAlive()
+                && !o.outing().onOuting() && !o.playLife().active() && !o.playLife().waiting() && o.playLife().cooldown == 0
+                && o.distanceToSqr(center) <= MAX_APPROACH_SQR && entity.hasLineOfSight(o) && PlayWant.wants(o, target))
+                .stream().anyMatch(rival -> entity.groupInteraction().contest(rival, prize));
+    }
+
+    /**
+     * The verdict of a station contest: the winner starts its session at once; the loser lets this station be, sulks for
+     * {@link #LOSS_COOLDOWN} ticks without playing anywhere and, once the station is free again, may take its turn.
+     */
+    public void contested(PlayBlockEntity target, boolean won, UUID rival) {
+        scanWait = 0;
+        if (won) {
+            cooldown = 0;
+        } else {
+            cooldown = LOSS_COOLDOWN;
+            rememberSkip(gaveUp, target.getBlockPos());
+        }
+        GameplayLog.event(entity, "play", "contested station {} kind={} at={} rival={} boredom={}", won ? "won" : "yielded",
+                target.kind(), target.getBlockPos(), rival, entity.dailyLife().boredom());
     }
 
     /** Stand beside an occupied facility and watch the player on it without reserving the facility. */

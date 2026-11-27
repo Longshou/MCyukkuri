@@ -104,15 +104,16 @@ public final class GroupInteractionGoal extends Goal {
         return reserve(peer,Kind.SUMO);
     }
     /**
-     * Two claimants of one bed meet at its lip. Both are stood down from their errand ({@code YukkuriLife.plan} yields while a bout is
-     * on), and the bout plays the contest where they stand; a pair owned by one hand does not tussle.
+     * Two bodies reach one prize (a bed at its lip, a food portion, a free play station). Both are stood down from their errand
+     * (the life and play goals yield while a bout is on), and the bout plays the contest where they stand; a pair owned by one hand
+     * does not tussle.
      */
-    public boolean contest(YukkuriEntity rival, BlockPos bed) {
+    public boolean contest(YukkuriEntity rival, Contest.Prize prize) {
         if(rival.level()!=entity.level()||cooldown>0||rival.groupInteraction().cooldown>0||active()||rival.groupInteraction().active()
                 ||!contestant(entity)||!contestant(rival))return false;
         boolean mayPush=!(rival.pet().isPet()&&rival.pet().ownedBy(entity.pet().owner()));
         if(!reserve(rival,Kind.CONTEST))return false;
-        bout.contest=Contest.begin(entity,rival,bed,mayPush);
+        bout.contest=Contest.begin(entity,rival,prize,mayPush);
         return true;
     }
     /** The pushed body is shoved away from the pusher; the one sumo and contest contact. */

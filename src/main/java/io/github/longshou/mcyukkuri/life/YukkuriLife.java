@@ -9,7 +9,6 @@ import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.social.Kindness.ShelterReply;
 import io.github.longshou.mcyukkuri.social.SocialDisposition;
-import io.github.longshou.mcyukkuri.social.YukkuriSocial;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 
 import io.github.longshou.mcyukkuri.family.ParentCarry;
@@ -2121,10 +2120,16 @@ public final class YukkuriLife {
                 if (meal.inspectsStrangeFood(targetFood)) { pursuitTicks--; return; }
                 var rivals = level().getEntitiesOfClass(YukkuriEntity.class, targetFood.getBoundingBox().inflate(1.5), other ->
                         other != entity && other.isAlive() && other.life().canEat() && entity.hasLineOfSight(other));
-                int wait=nutrition<15?0:queueBudget;
-                // Only a stack too small for everyone makes an order: a hungrier rival (25 or more) goes first, close ones split by id.
-                // The one behind spends its waiting budget (20..220 ticks, self-control) and then goes, so it never waits for good.
-                boolean behindRival = targetFood.getItem().getCount() <= rivals.size() && rivals.stream().anyMatch(rival ->
+                int wait=nutrition<FoodOrder.STARVING_BELOW?0:queueBudget;
+                // Only a portion too small for everyone is contested. Two fed-enough adults stage a contest at it (the verdict lands in
+                // foodVerdict); a starving body never stands to contest and takes it, and a pair that cannot stage one (a child, a pair
+                // that contested a moment ago) keeps the order: a hungrier rival (25 or more) goes first, close ones split by id, and the
+                // one behind spends its waiting budget (20..220 ticks, self-control) and then goes, so it never waits for good.
+                boolean scarce = targetFood.getItem().getCount() <= rivals.size();
+                if (scarce && nutrition >= FoodOrder.STARVING_BELOW && rivals.stream().anyMatch(rival -> rival.life().contestsFood()
+                        && rival.life().nutrition() >= FoodOrder.STARVING_BELOW
+                        && entity.groupInteraction().contest(rival, ContestPrizes.food(targetFood)))) return;
+                boolean behindRival = scarce && rivals.stream().anyMatch(rival ->
                         rival.life().contestsFood() && FoodOrder.yieldsTo(nutrition, entity.getUUID(), rival.life().nutrition(), rival.getUUID()));
                 if (behindRival && queueTicks++ < wait) {
                     pursuitTicks--; entity.getNavigation().stop();
@@ -2141,13 +2146,6 @@ public final class YukkuriLife {
                             && level().getBlockEntity(targetBlock) instanceof CareBlockEntity bowl && bowl.hasFood(this::seeksFood)) {
                         GameplayLog.event(entity, "lesson", "bowl skipped for loose food bowl={}", targetBlock);
                         entity.pet().lessons().performed(Ability.FOOD_GUARD, false);
-                    }
-                    if (!rivals.isEmpty() && wait < 35 && nutrition>15) {
-                        for (var rival : rivals) YukkuriSocial.quarrelled(entity, rival);
-                        entity.showReaction("angry", "mine", FaceTier.Tier.MEDIUM);
-                        personality.decided("claim_food");
-                        for(var rival:rivals)rival.mind().add(3, "food_competition");
-                        for (YukkuriEntity rival : rivals) if (rival.life().canRecognize(entity)) YukkuriWorldData.get(level()).relate(rival.getUUID(), entity.getUUID(), -3);
                     }
                 }
             } else {
@@ -2314,6 +2312,17 @@ public final class YukkuriLife {
         if (care != null && (!care.canClaim(entity) || !assignHome(GlobalPos.of(level().dimension(), bed)))) home.refusedApproach(care);
     }
 
+    /**
+     * The verdict of a food contest played at the portion: the winner plans its meal again at once and takes the portion the way an
+     * uncontested arrival does; the loser lets this portion be for a while (the search goes on to other food) and eats later.
+     */
+    public void foodVerdict(ItemEntity food, boolean won, UUID rival) {
+        replanNow();
+        if (won) return;
+        rejectedFood.reject(food.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
+        GameplayLog.event(entity, "meal", "yielded contested food item={} at={} rival={} nutrition={}", food.getItem().getItem(), food.blockPosition(), rival, nutrition);
+    }
+
     private void approachUnclaimedBed() {
         var bed = NestDoorway.bed(entity, targetBlock);
         var stand = bed == null ? null : home.entrance(targetBlock);
@@ -2339,8 +2348,9 @@ public final class YukkuriLife {
                         && entity.hasLineOfSight(y)).stream().findFirst();
         // Two claimants at one lip contest it in a bout (the verdict lands in bedVerdict); a pair that cannot stage one settles it
         // silently by the same odds, so exactly one of them yields.
-        if (rival.isPresent() && entity.groupInteraction().contest(rival.get(), targetBlock)) return;
-        boolean beaten = rival.isPresent() && !Contest.beats(entity, rival.get());
+        var prize = ContestPrizes.bed(targetBlock);
+        if (rival.isPresent() && entity.groupInteraction().contest(rival.get(), prize)) return;
+        boolean beaten = rival.isPresent() && !Contest.beats(entity, rival.get(), prize);
         if (beaten || !bed.canClaim(entity)) {
             var winner = beaten ? rival.get().getUUID() : bed.resident();
             entity.showReaction(personality.temperament().is(Gate.WARY) ? "teary" : "cheek_puff","wait_turn",FaceTier.Tier.SHORT);
