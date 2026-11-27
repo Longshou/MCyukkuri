@@ -73,8 +73,8 @@ public final class Conscience {
 
     /** How far from the owner's rule change a partner still counts as one this pet could turn to. */
     private static final int PARTNER_RANGE = 12;
-    /** The gap between the two beats of one answer: the first one's hold, plus the pause the settling needs (see {@link #showRuleBeat}). */
-    private static final int BEAT_GAP = 6;
+    /** The gap between the two beats of one answer: the first one's hold, plus a pause; and how long the second waits for the first one's line. */
+    private static final int BEAT_GAP = 6, NEXT_PATIENCE = 300;
 
     /** How much this pet wants what the rule withholds, 0-1: the same pressure that tempts it to break the rule. */
     private double urge(HouseRule rule) {
@@ -130,10 +130,13 @@ public final class Conscience {
         // speech clock's next gap while the face's hold still runs, instead of being lost to a refused cue.
         String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
         pet.getLookControl().setLookAt(owner, 30, 30);
+        var lineDone = new boolean[1];
         boolean shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line,
-                FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> GameplayLog.event(pet, "rules",
-                        "rule reaction speech beat={} event={} tick={} holdEnd={} spoken={}",
-                        beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken()));
+                FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> {
+                    lineDone[0] = true;
+                    GameplayLog.event(pet, "rules", "rule reaction speech beat={} event={} tick={} holdEnd={} spoken={}",
+                            beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken());
+                });
         if (shown) pet.pet().expectBeat("rule_" + beat.name(), beat.face(), beat.event(), beat.name());
         GameplayLog.event(pet, "rules", "rule reaction rule={} change={} beat={} face={} line={} shown={}",
                 rule.key(), loosened ? "loosened" : "tightened", beat.name(), beat.face(), beat.event(), shown);
@@ -141,10 +144,20 @@ public final class Conscience {
         var glance = partner;
         if (beat.toward() && glance != null)
             PetScenes.later(pet, beat.ticks(), () -> { if (pet.isAlive() && glance.isAlive()) pet.pet().glanceAt(glance, 40); });
-        if (index + 1 < beats.size())
-            PetScenes.later(pet, beat.ticks() + BEAT_GAP, () -> {
-                if (pet.isAlive() && pet.pet().calm() && pet.pet().ownedBy(owner.getUUID())) showRuleBeat(owner, rule, loosened, beats, index + 1, partner);
-            });
+        if (index + 1 < beats.size()) nextRuleBeat(owner, rule, loosened, beats, index + 1, partner, lineDone, beat.ticks() + BEAT_GAP, 0);
+    }
+
+    /** The next beat starts once the one before it has said its line and the shared speech clock is free, so its own line is heard. */
+    private void nextRuleBeat(Player owner, HouseRule rule, boolean loosened, List<RuleReaction.Beat> beats, int index, YukkuriEntity partner,
+                              boolean[] lineDone, int wait, int waited) {
+        PetScenes.later(pet, wait, () -> {
+            if (!pet.isAlive() || !pet.pet().calm() || !pet.pet().ownedBy(owner.getUUID())) return;
+            if (!(lineDone[0] && pet.quiet()) && waited + wait < NEXT_PATIENCE) {
+                nextRuleBeat(owner, rule, loosened, beats, index, partner, lineDone, 10, waited + wait);
+                return;
+            }
+            showRuleBeat(owner, rule, loosened, beats, index, partner);
+        });
     }
 
     public Choice tempted(HouseRule rule, double pressure, double restraint) {

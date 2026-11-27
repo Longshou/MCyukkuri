@@ -1397,7 +1397,7 @@ for _sid, _title, _watch, _toggles, _beats, _rule, _change in (
          [(40, 0), (46, 1)], ('tighten_puff', 'tighten_yield', 'tighten_droop', 'tighten_accept', 'tighten_nod'), 'no_sukkiri', 'tightened'),
         ('rule_change_other', '改其他家规：每只都有反应', '在任一宠物的家规页依次勾选「不准唱歌」、「不准擅自吃东西」，再取消「不准唱歌」（每次隔十秒以上）。看得见或听得见的宠物鞠躬后各自反应：胆小的发抖求饶，不听话的鼓脸再服软，听话的垂头，放开时欢喜道谢。',
          [(40, 3), (400, 11), (760, 9)], None, None, None)):
-    _breed_commands = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter')]
+    _breed_commands = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter'), (2, 'yukkuri scenario house_reset')]
     _breed_commands += [(8 + i, f'data modify entity {sel(_name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID')
                         for i, (_name, *_rest) in enumerate(_BREED_CAST)]
     _breed_commands += [(_tick, f'yukkuri scenario house_rules {sel("hot_bold")} {_mask}') for _tick, _mask in _toggles]
@@ -1410,7 +1410,9 @@ for _sid, _title, _watch, _toggles, _beats, _rule, _change in (
         # No roof: uncovered stands leave the four unbonded pets without a home. A roof would give each a roof home at its own feet,
         # two to four blocks apart, and they would defend it in the middle of the answers (territory warn/yield/puff changes their faces).
         *(line for _name, _kind, _dx, _label, _pent, _axes in _BREED_CAST for line in (
-            yk(_kind, _dx, -2, _name, label=_label, lead=_name == 'hot_bold', kin=f'PentUp:{_pent}f', **_axes, **pair_ready()), *own(_name)))],
+            yk(_kind, _dx, -2, _name, label=_label, lead=_name == 'hot_bold', kin=f'PentUp:{_pent}f', **_axes, **pair_ready(),
+               # No leisure session starts in the answers' way; the song rule's pressure is the boredom (what it withholds).
+               **({} if _beats else dict(extra=f'YukkuriDailyLife:{{Boredom:{_pent},Cooldown:2400}}'))), *own(_name)))],
         env=DAY, vantage=(0, 2, 180, 15), give=['mcyukkuri:field_notebook'],
         note='四只同主人的成体都在主人视野内；各自的积压、胆量、听话与聪明黏人不同，所以同一次家规变化演出不同。'
              '没有变化的家规不演；不平静的、睡着的宠物不演；没看见也没听见主人改家规的要等下次看见主人。',

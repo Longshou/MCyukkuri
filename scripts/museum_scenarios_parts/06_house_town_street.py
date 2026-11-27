@@ -349,7 +349,7 @@ _rule_court = [
 
 def _rule_owner(mask):
     pet = sel('rule_pet')
-    return [(1, 'yukkuri scenario tool_operator enter'),
+    return [(1, 'yukkuri scenario tool_operator enter'), (2, 'yukkuri scenario house_reset'),
             (10, f'yukkuri scenario owner_at {pet} watch'),
             (11, f'yukkuri scenario house_rules {pet} {mask}')]
 

@@ -29,6 +29,11 @@ public final class HouseRules extends SavedData {
                 new Factory<>(HouseRules::new, HouseRules::load), "mcyukkuri_house_rules");
     }
 
+    /** The household's rules back to the original ones, without any reaction (scenario setup only). */
+    public void forget(UUID owner) {
+        if (households.remove(owner) != null) setDirty();
+    }
+
     public int version(UUID owner) { return households.getOrDefault(owner, ORIGINAL).version; }
     public boolean enabled(UUID owner, HouseRule rule) { return households.getOrDefault(owner, ORIGINAL).rules.contains(rule); }
     public int mask(UUID owner) {

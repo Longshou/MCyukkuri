@@ -87,6 +87,7 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
+import io.github.longshou.mcyukkuri.pet.rules.HouseRules;
 import io.github.longshou.mcyukkuri.pet.rules.HumanSight;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 
@@ -251,6 +252,10 @@ public final class ScenarioCommands {
                 .then(Commands.literal("hold").then(Commands.argument("targets", EntityArgument.entities())
                         .then(Commands.literal("on").executes(c -> hold(c, true)))
                         .then(Commands.literal("off").executes(c -> hold(c, false)))))
+                .then(Commands.literal("house_reset").executes(c -> {
+                    HouseRules.get(c.getSource().getLevel()).forget(TOOL_OPERATOR);
+                    return 1;
+                }))
                 .then(Commands.literal("house_rules").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("mask", IntegerArgumentType.integer(0, (1 << HouseRule.values().length) - 1))
                                 .executes(ScenarioCommands::houseRules))))

@@ -183,8 +183,9 @@ public final class Penance {
         speakPending(now);
         if (!reported && pending.isEmpty() && now - beatAt >= 2) report();
         long age = now - beatAt;
-        // The startle is not a choice, and a struggle plays out once begun: neither takes another answer.
-        boolean playing = phase == Phase.STARTLE || phase == Phase.AFRAID || phase == Phase.TORN || phase == Phase.ACT || phase == Phase.RESOLVE;
+        // The startle is not a choice, and a struggle plays out once begun: neither takes another answer (nor does the settling after the verdict).
+        boolean playing = phase == Phase.STARTLE || phase == Phase.AFRAID || phase == Phase.TORN || phase == Phase.ACT || phase == Phase.RESOLVE
+                || phase == Phase.SETTLE;
         if (verdict != null && !playing) {
             answer();
             return;
