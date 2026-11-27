@@ -69,10 +69,12 @@ public final class PlacedDollEntity extends Entity {
         if (level().isClientSide || isRemoved() || player.isSpectator()) return false;
         var stack = doll().copy();
         if (stack.isEmpty()) return false;
+        var item = stack.getItem();
+        int count = stack.getCount();
         discard();
         if (!player.getInventory().add(stack)) player.drop(stack, false);
-        GameplayLog.event(this, "keepsake", "doll taken player={} item={} count={} at={}", player.getUUID(), stack.getItem(),
-                stack.getCount(), GameplayLog.at(position()));
+        GameplayLog.event(this, "keepsake", "doll taken player={} item={} count={} at={}", player.getUUID(), item, count,
+                GameplayLog.at(position()));
         KeepsakeLife.dollTaken(player, this);
         return true;
     }
