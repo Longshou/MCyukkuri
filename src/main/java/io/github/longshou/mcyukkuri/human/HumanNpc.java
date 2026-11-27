@@ -215,7 +215,8 @@ public final class HumanNpc extends PathfinderMob {
     @Override protected BodyRotationControl createBodyControl() {
         return new BodyRotationControl(this) {
             @Override public void clientTick() {
-                if (!seated()) { super.clientTick(); return; }
+                // A rising body is back on the ground: vanilla turns it with the walk at once, so a leaving owner never steps backwards.
+                if (!seated() || entityData.get(SEAT_T) < 0) { super.clientTick(); return; }
                 yBodyRot = Mth.approachDegrees(yBodyRot, seatFacing().toYRot(), SEAT_TURN_STEP);
                 yHeadRot = Mth.rotateIfNecessary(yHeadRot, yBodyRot, getMaxHeadYRot());
             }
@@ -223,6 +224,8 @@ public final class HumanNpc extends PathfinderMob {
     }
     /** In a sit session: turning, sitting down, sat, or standing up. */
     public boolean seated() { return entityData.get(SEAT) != 0; }
+    /** The entity is on the board (past the turn), not standing in front of it. */
+    public boolean onSeat() { return entityData.get(SEAT_T) > 0; }
     /** The owner wants to be on the seat (server only): false once it has begun to stand up. */
     boolean sitting() { return sitIntent; }
     /** A pet running past must not shove the owner off the board. */

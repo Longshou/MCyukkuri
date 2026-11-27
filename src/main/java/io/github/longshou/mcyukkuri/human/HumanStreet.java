@@ -1432,9 +1432,16 @@ final class HumanStreet {
                     fmt2(SeatPose.hipY(top)), fmt3(SeatPose.thighGap(top)), fmt2(SeatPose.footPastEdge(edge)), fmt2(frontGap()));
         }
 
-        /** The one place that ends a sit early: a walk or leg began, or the owner no longer rests here. */
+        /** The one place that ends a sit early: the board under the owner is gone, a walk or leg began, or the owner no longer rests here. */
         private void syncSeat() {
             if (!npc.sitting()) return;
+            if (npc.onSeat() && Math.abs(npc.getY() - seat.top().y) > .05) {
+                // The bench was broken or replaced, or the owner was knocked off it: never sit on what is no longer there.
+                standUp("seat_lost");
+                if (plazaSat) returnHome("plaza_seat");
+                else seat = null;
+                return;
+            }
             if (!(seat != null && (parkLingering() || plazaSat) && leg == Leg.NONE && resume == null && npc.getNavigation().isDone()))
                 standUp("move");
         }
@@ -1539,8 +1546,9 @@ final class HumanStreet {
             if (!half.onGround()) return false;
             tried.add(Leg.COLLECT);
             var stand = half.blockPosition();
+            // Stand first: a path made from the seat starts on a node above the board and the owner would climb onto the bench.
+            standUp("collect");
             if (npc.reachesPickup(half) || routeLeg(stand)) {
-                standUp("collect");
                 beginLeg(Leg.COLLECT, then);
                 return true;
             }
