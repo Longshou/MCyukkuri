@@ -142,9 +142,7 @@ public final class InteractionDispatch {
             refuse(player, target, "exam", "busy");
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
-        } else if (target.coldStiff() && !tendsStiffBody(event.getItemStack())
-                && !(event.getItemStack().isEmpty() && player.isSecondaryUseActive())) {
-            // shift + empty hand still opens the care menu; every action in it refuses with the same reason (see refusal)
+        } else if (target.coldStiff() && !tendsStiffBody(event.getItemStack())) {
             // The one refusal for a body frozen stiff: hands, food, drink, medicine, tools and the care menu all take nothing until it thaws.
             refuse(player, target, "interact", STIFF);
             event.setCanceled(true);
