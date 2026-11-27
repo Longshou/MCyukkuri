@@ -2,9 +2,11 @@ package io.github.longshou.mcyukkuri.pet.rules;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.ProtectivePuff;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.pet.PetScenes;
+import io.github.longshou.mcyukkuri.pet.social.BadgeSocial;
 import io.github.longshou.mcyukkuri.pet.rules.RulesMath.Choice;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
@@ -83,7 +85,21 @@ public final class Conscience {
         var temper = pet.life().personality().temperament();
         int obedience = pet.pet().obedience(), fear = pet.life().personality().fear(owner.getUUID());
         var beat = BreedingReaction.choose(allowed, family.pentUp(), obedience, fear, temper);
-        boolean shown = beat == BreedingReaction.BOW_ONLY || PetScenes.act(pet, beat.action(), beat.face(), beat.event(), beat.ticks(), owner);
+        boolean shown = true;
+        if (beat != BreedingReaction.BOW_ONLY) {
+            if (beat.event().isEmpty()) shown = PetScenes.act(pet, beat.action(), beat.face(), "", beat.ticks(), owner);
+            else {
+                // The pet may still be inside the speech gap of its own heat line (or of the rule-told's answer of the other rule flip), so
+                // the answer's line waits for the shared speech clock's next gap while the face's hold still runs, instead of being lost
+                // to a refused cue (Encounter.sulk). Permit lines hold the shared floor of matchmaking and permit beats.
+                String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
+                pet.getLookControl().setLookAt(owner, 30, 30);
+                shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line,
+                        FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> GameplayLog.event(pet, "rules",
+                                "breeding reaction speech beat={} event={} tick={} holdEnd={} spoken={}",
+                                beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken()));
+            }
+        }
         if (shown && beat != BreedingReaction.BOW_ONLY) {
             pet.pet().expectBeat("breeding_" + beat.name(), beat.face(), beat.event(), beat.name());
             if (beat.toward()) PetScenes.later(pet, beat.ticks(), () -> { if (pet.isAlive() && partner.isAlive()) pet.pet().glanceAt(partner, 40); });
