@@ -297,4 +297,19 @@
 | F268 | [Yukkuri's House](https://yukkuri.fandom.com/wiki/Yukkuri's_House) | [故事目录](events/fandom-stories.md) | rev 8414；漫画，摘要 |
 | F269 | [Yukkuri: Reincarnation](https://yukkuri.fandom.com/wiki/Yukkuri:_Reincarnation) | [故事目录](events/fandom-stories.md) | rev 10474；文本故事，全页 |
 
+## 扩展世界观、照护手册与外部作品补录（F272–F279）
+
+以下八页来自上述十一个初始分类之外（含 Shops、Key Yukkuri、Games 及未归类专题页），集中汇总于[扩展世界观补录](world/extended-worldbuilding-notes.md)，用于区分社区假说、饲主建议体手册、人类社会机构设想与衍生游戏资料，不直接覆盖项目现行规则。
+
+| 编号 | 页面 | 收录地点 | 版本与范围 |
+| --- | --- | --- | --- |
+| F272 | [Diamond Café](https://yukkuri.fandom.com/wiki/Diamond_Caf%C3%A9) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | Shops 分类；帕秋莉主题咖啡馆与旅店设定，全页 |
+| F273 | [KEY YUKKURI FACTS](https://yukkuri.fandom.com/wiki/KEY_YUKKURI_FACTS) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | Key Yukkuri 分类；Key 社与跨作品联动衍生种杂记，全页 |
+| F274 | [The Official Manual for Yukkuri Care](https://yukkuri.fandom.com/wiki/The_Official_Manual_for_Yukkuri_Care) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | 未归入原十一分类；饲主建议体入门照护手册（选种、断茎糖水、食性、清洁与亲昵），全页 |
+| F275 | [Theories](https://yukkuri.fandom.com/wiki/Theories) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | 未归入原十一分类；社区并列假说汇编（起源、神经与液压运动、哭泣萌心理场、心智记忆、饰品认人与再生），全页 |
+| F276 | [YUPA](https://yukkuri.fandom.com/wiki/YUPA) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | 未归入原十一分类；保护组织 YUPA（Yukkuri Protection Agency）与油库里女王传说，全页 |
+| F277 | [Yukkuri Diary](https://yukkuri.fandom.com/wiki/Yukkuri_Diary) | [扩展世界观补录](world/extended-worldbuilding-notes.md) · [日记模型参考](../yukkuri-diary-implementation.md) | Games 分类；BlueSnow 安卓游戏《油库里日记》栖地、分级、配饰、捕食与繁殖机制概述，全页 |
+| F278 | [Yukkuri Hunt](https://yukkuri.fandom.com/wiki/Yukkuri_Hunt) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | Games 分类；Roblox 收集向东方同人游戏简介，基本不沿用油库里生态设定，全页 |
+| F279 | [Yukkuri (Sorted by rarity)](https://yukkuri.fandom.com/wiki/Yukkuri_%28Sorted_by_rarity%29) | [扩展世界观补录](world/extended-worldbuilding-notes.md) | 未归入原十一分类；十二种油库里稀有度排序画廊（仅前三项标有百分比且总和超过 100%），全页 |
+
 各页中属于单一作品的写法按[wiki 来源与记录边界](../README.md#来源与记录边界)与页面自身措辞保留，不因被反复转述升格为通行设定。
