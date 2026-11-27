@@ -3,7 +3,8 @@
 # Compiles src/main/java with javac -proc:none (no Gradle), then compiles src/test/java and runs the pure-Java unit tests.
 # Needs the local JDK under .local/tools/java, the JUnit console jar under .local/tools/junit, and the NeoForge merged jar
 # plus dependency jars that an earlier Gradle sync left in build/moddev and .local/gradle-home of the main checkout.
-# Runs below normal priority (javac and the tests inherit it) so the check yields to the desktop and the user's game.
+# Runs below normal priority (javac and the tests inherit it) so the check yields to the desktop and the user's game; in quiet
+# mode (scripts/quiet_mode.py) the JVMs are also sized to the pinned CPUs.
 [ -z "$MCY_NICED" ] && command -v nice >/dev/null && MCY_NICED=1 exec nice -n 10 bash "$0" "$@"
 R=$(cd "$(dirname "$0")/.." && git rev-parse --path-format=absolute --git-common-dir | sed 's#/\.git$##')
 W=$(cd "${1:-$R}" && pwd)
@@ -11,6 +12,13 @@ TAG=$(basename "$W")
 # Per-run names: two concurrent checks of one worktree must not delete each other's list and class files.
 OUT=$R/.local/tmp/javac-$TAG-$$
 mkdir -p "$R/.local/tmp"
+# Quiet mode: javac and the test JVM size their thread pools to the CPUs quiet_mode.py pins the work to.
+JOPTS= TOPTS=
+if [ -f "$R/.local/quiet-mode.json" ] && grep -q '\[[0-9]' "$R/.local/quiet-mode.json"; then
+  N=$(( $(grep -o '\[[0-9][0-9, ]*\]' "$R/.local/quiet-mode.json" | head -1 | tr -cd ',' | wc -c) + 1 ))
+  JOPTS="-J-XX:ActiveProcessorCount=$N -J-XX:ParallelGCThreads=2 -J-XX:CICompilerCount=2"
+  TOPTS="-XX:ActiveProcessorCount=$N -XX:ParallelGCThreads=2 -XX:CICompilerCount=2"
+fi
 JAVAC=$(find "$R/.local/tools/java" -name javac.exe -o -name javac -type f 2>/dev/null | head -1)
 JAVA=$(dirname "$JAVAC")/java
 JUNIT=$(find "$R/.local/tools/junit" -name 'junit-platform-console-standalone-*.jar' | head -1)
@@ -24,17 +32,17 @@ mp() { cygpath -m "$1" 2>/dev/null || echo "$1"; }
 echo "-cp \"$CP\"" > "$OUT.args"
 winlist "$W/src/main/java" > "$OUT.src"
 rm -rf "$OUT" "$OUT-test"; mkdir -p "$OUT" "$OUT-test"
-"$JAVAC" -J-Xmx3g -proc:none -nowarn -encoding UTF-8 -Xmaxerrs 300 -d "$(mp "$OUT")" @"$(mp "$OUT.args")" @"$(mp "$OUT.src")" 2>&1 | grep -av "^Note:" | head -"${2:-80}"
+"$JAVAC" -J-Xmx3g $JOPTS -proc:none -nowarn -encoding UTF-8 -Xmaxerrs 300 -d "$(mp "$OUT")" @"$(mp "$OUT.args")" @"$(mp "$OUT.src")" 2>&1 | grep -av "^Note:" | head -"${2:-80}"
 RC=${PIPESTATUS[0]}
 if [ -d "$W/src/test/java" ] && [ "$RC" = 0 ]; then
   winlist "$W/src/test/java" > "$OUT.tsrc"
-  "$JAVAC" -J-Xmx2g -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON");$(mp "$JOML")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
+  "$JAVAC" -J-Xmx2g $JOPTS -proc:none -nowarn -encoding UTF-8 -cp "$(mp "$OUT");$(mp "$JUNIT");$(mp "$GSON");$(mp "$JOML")" -d "$(mp "$OUT-test")" @"$(mp "$OUT.tsrc")" 2>&1 | grep -av "^Note:" | head -40
   TRC=${PIPESTATUS[0]}
   echo "test javac exit=$TRC"
   # Tests run WITHOUT Minecraft on the classpath, like CI: a test that loads a Minecraft class fails here too.
   RC=$TRC
   if [ "$TRC" = 0 ]; then
-  "$JAVA" -Xmx3g -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
+  "$JAVA" -Xmx3g $TOPTS -jar "$(mp "$JUNIT")" execute -cp "$(mp "$OUT");$(mp "$OUT-test");$(mp "$GSON");$(mp "$JOML");$(mp "$W/src/main/resources");$(mp "$W/src/test/resources")" \
     --select-package io.github.longshou.mcyukkuri \
     --details=tree --disable-banner --disable-ansi-colors 2>&1 | grep -aE "tests (successful|failed|found)|✘|\[X\]|expected|Exception" | head -30
   RC=${PIPESTATUS[0]}

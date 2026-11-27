@@ -60,7 +60,7 @@ def client_command(runtime, java, instance, mod, output, size):
     cp[1] = ';'.join(str(mod) if Path(entry) == runtime / 'mod' else entry for entry in cp[1].split(';'))
     prog = server.read_args_file(runtime / 'clientRunProgramArgs.txt')
     prog[prog.index('--gameDir') + 1] = str(instance)
-    return ([str(java), '-Xmx6G'] + vm + cp + [f'-Dfml.modFolders=mcyukkuri%%{mod}',
+    return ([str(java), '-Xmx6G'] + server.quiet_jvm_args() + vm + cp + [f'-Dfml.modFolders=mcyukkuri%%{mod}',
             '-Dmcyukkuri.capture=true', f'-Dmcyukkuri.capture.output={output}',
             'net.neoforged.devlaunch.Main'] + prog + ['--mixin', 'mcyukkuri.capture.mixins.json',
             '--username', 'CapturePlayer', '--width', str(width), '--height', str(height),

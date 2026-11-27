@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """Machine-wide queue for smoke servers and capture clients across all worktrees: at most N at once (default by time of day, see default_slots;
-``--slots`` or MCY_SMOKE_SLOTS), first come first served. Records live in the main checkout's .local/smoke/slots/
+``--slots`` or MCY_SMOKE_SLOTS), first come first served. One while quiet mode is on. Records live in the main checkout's .local/smoke/slots/
 (pid and process start time; records of exited runners are reclaimed). ``python scripts/smoke_slots.py`` lists them."""
 import json
 import os
@@ -27,6 +27,8 @@ def free_gb():
 
 
 def default_slots(now=None):
+    if server.quiet_cpus():
+        return 1
     now = now or time.localtime()
     return BUSY_SLOTS if now.tm_wday < 5 and 3 <= now.tm_hour < 19 else QUIET_SLOTS
 

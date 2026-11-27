@@ -24,16 +24,34 @@ ROOT = Path(__file__).resolve().parent.parent
 COMMON = git_common_root(ROOT)
 INSTANCES = ROOT / '.local/smoke'
 SMOKE_LOG4J2 = ROOT / 'scripts/smoke-log4j2.xml'
+QUIET_FLAG = COMMON / '.local/quiet-mode.json'
+
+
+def quiet_cpus():
+    """Logical CPUs agent heavy work is pinned to while quiet mode is on (`scripts/quiet_mode.py`); None when off."""
+    if not QUIET_FLAG.is_file():
+        return None
+    return json.loads(QUIET_FLAG.read_text(encoding='utf-8'))['cpus']
 
 
 def below_normal_priority():
-    """Run this process and every child it starts (servers, javac, git) below normal priority, so agent work yields
-    to the desktop and the user's game. Windows children inherit the priority class."""
+    """Run this process and every child it starts (servers, javac, git) below normal priority, or at idle priority on the
+    quiet-mode CPUs, so agent work yields to the desktop and the user's game. Windows children inherit both."""
     if os.name == 'nt':
         kernel32 = ctypes.windll.kernel32
         kernel32.GetCurrentProcess.restype = ctypes.c_void_p
         kernel32.SetPriorityClass.argtypes = (ctypes.c_void_p, ctypes.c_uint32)
-        kernel32.SetPriorityClass(kernel32.GetCurrentProcess(), 0x4000)  # BELOW_NORMAL_PRIORITY_CLASS
+        cpus = quiet_cpus()
+        kernel32.SetPriorityClass(kernel32.GetCurrentProcess(), 0x40 if cpus else 0x4000)  # IDLE / BELOW_NORMAL
+        if cpus:
+            kernel32.SetProcessAffinityMask.argtypes = (ctypes.c_void_p, ctypes.c_size_t)
+            kernel32.SetProcessAffinityMask(kernel32.GetCurrentProcess(), sum(1 << cpu for cpu in cpus))
+
+
+def quiet_jvm_args():
+    """Size a server or client JVM's thread pools to the quiet-mode CPUs; empty when quiet mode is off."""
+    cpus = quiet_cpus()
+    return [f'-XX:ActiveProcessorCount={len(cpus)}'] if cpus else []
 
 
 def is_client(command):
@@ -258,7 +276,7 @@ def build_java_cmd(runtime, java, rundir, mod):
             continue
         out.append(prog[i])
         i += 1
-    return ([str(java), '-Xmx2G', '-Xms512m'] + vm + cp
+    return ([str(java), '-Xmx2G', '-Xms512m'] + quiet_jvm_args() + vm + cp
             + [f'-Dfml.modFolders=mcyukkuri%%{mod}', 'net.neoforged.devlaunch.Main', main,
                '--launchTarget', 'forgeserverdev', '--gameDir', str(rundir)] + out + ['--nogui'])
 

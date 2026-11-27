@@ -10,6 +10,7 @@
 | 导出（Export） | `<py> scripts/export.py --rebuild-motion` / `motion <片段> --beats beats.txt --model <形态>` | 重建动作族并做倾角门槛、节拍渲染条与姿态核对 | [统一导出与登记入口](#统一导出与登记入口) |
 | 检查（Check） | `bash scripts/javac_check.sh [工作树]` / `<py> scripts/pkg.py land <名>` | 纯 javac 编译加单元测试，以及包合入全链路检查 | [静态检查与包生命周期](#静态检查与包生命周期) |
 | 检查（Check） | `python scripts/check_doc_refs.py --check` / `check_architecture.py --check` / `check_prop_meshes.py --check` / `check_face_fit.py --check` | 死链、Java 架构守卫、道具网格闪烁与表情时间线只读检查 | [静态检查与包生命周期](#静态检查与包生命周期) · [架构建议检查](#架构建议检查) |
+| 运行环境（Quiet） | `<py> scripts/quiet_mode.py on [--cpus 12-15]` / `off` / `status` | 用户玩游戏时把代理重活压到少数 CPU 的空闲优先级 | [静默模式](#静默模式) |
 | 试玩场（Museum） | `<py> scripts/smoke_museum.py --worktree <工作树> <场景ID...>` / `--repeat N --compare` / `--layout` | 无头试玩场冒烟、命运检查、基线对比与初态布局校验 | [试玩场冒烟与基线](#试玩场冒烟与基线) · [追踪与冒烟观察](#追踪与冒烟观察) |
 | 试玩场（Museum） | `<py> scripts/build_museum_full.py --install` / `check_museum_pack.py` / `playtest_list.py` / `feedback_intake.py` | 重建试玩世界、离线核对数据包、生成待试玩清单与反馈入档 | [试玩场生成与场景登记](#试玩场生成与场景登记) · [试玩清单与反馈入档](#试玩清单与反馈入档) |
 | 截图（Capture） | `python scripts/capture_museum.py --worktree <工作树> <场景ID...>` / `capture_review.py` | 隐藏客户端多视角截图、菜单截图、姿态取证与 AI 可读性审图 | [隐藏客户端截图与审图](#隐藏客户端截图与审图) · [客户端卡顿录制](#客户端卡顿录制) |
@@ -21,6 +22,7 @@
 - [统一导出与登记入口](#统一导出与登记入口)（统一导出、动作节拍门槛、分片登记、动作分级、标准库验证与人类世界村庄检查）
 - [追踪与冒烟观察](#追踪与冒烟观察)（trace 日志、演出导出、姿态协议、时间线、`smoke_checks.py`、场景观察契约与校准资格）
 - [静态检查与包生命周期](#静态检查与包生命周期)（架构检查、死链检查、道具网格与表情适配、`javac_check.sh`、`safe_edit.py` 与 `pkg.py`）
+- [静默模式](#静默模式)（`quiet_mode.py` 开关、空闲优先级与 CPU 限定、冒烟与截图名额降为 1）
 - [试玩场冒烟与基线](#试玩场冒烟与基线)（`smoke_museum.py`、名额与清理、`smoke_fate.py`、基线对照与 `--layout`）
 - [隐藏客户端截图与审图](#隐藏客户端截图与审图)（`capture_museum.py`、菜单与望远镜截图、`pose.jsonl` 取证、`capture_review.py` 与 [客户端卡顿录制](#客户端卡顿录制)）
 - [架构建议检查](#架构建议检查)（词法检查范围、重构守卫与 `architecture_exceptions.json` 许可规则）
@@ -97,6 +99,10 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 `<py> scripts/safe_edit.py replace <文件> <旧文本> <新文本>`（多行文本用 `--old-from-file`／`--new-from-file`）按精确匹配改文件的一处：旧文本必须恰好出现一次，匹配 0 次或多次都不写入并返回非零；写入时保留原文件的换行风格（CRLF／LF，混合换行与孤立 `\r` 直接拒绝）、UTF-8 编码（原文件有 BOM 才写 BOM）与结尾换行。用于代理改源码与文档，代替 `sed` 和临时脚本：Windows 下它们会丢掉 `\r`、把 UTF-8 写成 ANSI 代码页、吃掉文件结尾换行（曾把待办截成 11 行）。
 
 `<py> scripts/pkg.py <命令>`（`PYTHONUTF8=1`）是总负责人的包生命周期入口，出错即停并给出原因，不静默兜底：`start <名> --title <条目> --files <主要文件> [--art]` 要求主检出干净，`pull --ff-only`，在待办“进行中”表加行并以 `TODO: register <名>` 推送，基于 `origin/main` 建 `.worktrees/<名>`，缺省时写 `.local/refactor/briefs/<名>.md` 骨架（`--art` 加 `docs/roles/art.md` 指引）；`land <名> [--scene ID ...] [--dry-run]` 要求工作树干净，把 `origin/main` 并入（已包含则跳过；分支含合并提交时用 merge，避免逐个重放美术提交在生成文件上冲突；否则 rebase），改动含 Java 时跑 `javac_check.sh`，列出场景则调用本工作树的 `smoke_museum.py --worktree`（非零退出码原样返回并中止），`--dry-run` 把上述全部检查移到 `.local/tmp/pkg-dry-<名>` 的临时 detached 副本上（不动该包分支，检查完删除副本），通过后不推送、不改行、不删工作树；否则以 `TODO: <名> landed` 删除进行中行，`git push origin HEAD:main`（被拒且 `origin/main` 已前进时 fetch、把这些落地提交 rebase 到新的 `origin/main`、重跑 `javac_check.sh` 后再推，不重跑冒烟；失败后重跑 `land <名>` 从已有的落地提交继续，不因进行中行已删而拒绝），快进主检出，移除工作树（占用时 `git worktree prune` 重试，仍失败则报告残留路径）并删除本地分支，打印推送提交；`runtime [--commit <sha>] [--dry-run]` 等覆盖该提交（默认 `origin/main`，只改文档的提交不触发 Build，改用最近一次构建路径与检出一致的 Build；等待期间 `origin/main` 前进、或该 Build 被更新的推送取消时，就改等新提交）的 Build 完成，失败打印日志尾部，成功后等试玩客户端关闭（运行中的冒烟与截图不妨碍更新，它们继续用旧包），再快进主检出并运行 `update_museum_runtime.py --run <run-id>`（`--dry-run` 在此之前停止），适合合入后后台运行；`status` 每包一行（工作树、分支、领先 `origin/main` 的提交数、未提交文件数、报告 STATUS 行、待办行是否存在），并列出行无工作树、工作树无行、报告 DONE 但未合入。改动含 Markdown 或场景登记（`museum_scene_numbers.json`、`playtest_watch.json`）时，`land` 先运行 `check_doc_refs.py --check` 只查该包改动的这些文件，有发现即停止；全库检查用其 `--all`。推送成功后把该包的任务说明、报告及两者的 `-review` 副本移到 `.local/archive/refactor/<yyyy-mm>/` 下的 `briefs/`、`reports/`，共享笔记 `_*.md` 不动。
+
+## 静默模式
+
+`<py> scripts/quiet_mode.py on [--cpus 12-15] | off | status` 开关全机静默模式：`on` 在主检出写 `.local/quiet-mode.json`（`--cpus` 取逻辑 CPU 区间，默认最后四个），`off` 删除该文件，`status` 读回，所有工作树共用这一文件。开启后冒烟、截图、`pkg.py` 与 `javac_serial.py` 入口调用的 `headless_server.below_normal_priority()` 改为空闲优先级并把进程限定到这些 CPU，子进程继承；冒烟服务器与截图客户端另加 `-XX:ActiveProcessorCount`，`javac_check.sh` 给 javac（`-J`）和测试 JVM 加 `-XX:ActiveProcessorCount`、`-XX:ParallelGCThreads=2`、`-XX:CICompilerCount=2`；冒烟与截图的全机名额降为 1（`MCY_SMOKE_SLOTS` 仍可覆盖）。关闭后恢复原来的低于正常优先级与按时间取名额。
 
 ## 试玩场冒烟与基线
 
