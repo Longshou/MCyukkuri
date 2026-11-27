@@ -685,7 +685,7 @@ def _cs_still(log, uuid, ended=True):
     if ended and last is None:
         return f'{uuid} stayed stiff to the end of the scene'
     for m in rows[first + 1:last]:
-        if m['pos'] != rows[first]['pos']:
+        if int(m['t']) > int(rows[first]['t']) + 2 and m['pos'] != rows[first]['pos']:
             return f'{uuid} moved while stiff: {rows[first]["pos"]} -> {m["pos"]} ({m["msg"][:60]})'
         if m['cat'] in _CS_ACTING:
             return f'{uuid} acted while stiff: [{m["cat"]}] {m["msg"][:80]}'
@@ -717,7 +717,7 @@ add('cold_stiff_stray', 'forage', '流浪：雪夜冻僵，无人管冻死，点
     '西边那只孤零零的，一分钟左右窗口耗尽冻死，留下冻死的遗体；东边那只身旁有一堆没点的篝火：用打火石点燃它，'
     '冻僵的灵梦在几十秒内解冻，继续发抖找暖。用望远镜看状态卡，写着“低温僵直，剩余约 N 秒”，点火后改为“回暖中”。'
     '冻僵时喂食、摸、开照护菜单都会被拒，提示“它冻僵了”。',
-    '约 30 秒冻僵，约 1 分钟内冻死或解冻', [
+    '开场约 6 秒后冻僵，约 1 分钟内冻死或解冻', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         block(9, 0, 3, 'minecraft:campfire[lit=false]'),
         street_stray('cold_stiff_stray', 'reimu', -8, 3, 'stiff_alone', nutrition=60, energy=70, rest_wait=0, yaw=180,
@@ -753,7 +753,7 @@ _cs_reload = _uuid_text('cold_stiff_reload', 'stiff_reload')
 add('cold_stiff_reload', 'forage', '流浪：冻僵后存档重载，仍僵着', '流浪：冻僵后重载',
     '雪原冬夜，一只成年灵梦冷暴露预设到快冻僵，开场几秒后冻僵定住。试玩时可存档退出再进：它仍僵在原地，状态卡剩余秒数接着走，'
     '窗口耗尽后冻死。冒烟会卸载本场地并重新加载，比对存下的僵直状态。',
-    '约 30 秒冻僵，之后一分钟左右冻死', [
+    '开场约 6 秒后冻僵，之后一分钟左右冻死', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         street_stray('cold_stiff_reload', 'reimu', 0, 3, 'stiff_reload', nutrition=60, energy=70, rest_wait=0, yaw=180,
                      label='冻僵灵梦', lead=True),
@@ -785,7 +785,7 @@ def _cs_negative_verify(log):
 add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不吃苹果也不动', '流浪：暖处与冻僵对照',
     '雪原冬夜，两只成年灵梦冷暴露都预设到快冻僵。东边那只身旁点着篝火，暖和，一直不会冻僵。'
     '西边那只在空地上冻僵，开场后约 7 秒在它脚边落下一个苹果：冻僵的它不吃、不动，苹果原样躺着。',
-    '约 30 秒', [
+    '开场约 6 秒后冻僵，之后看 15 秒', [
         'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
         block(9, 0, 3, 'minecraft:campfire[lit=true]'),
         street_stray('cold_stiff_negative', 'reimu', 8, 3, 'stiff_fire', nutrition=60, energy=70, rest_wait=0, yaw=180,

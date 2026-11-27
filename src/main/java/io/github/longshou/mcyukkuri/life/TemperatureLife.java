@@ -8,6 +8,8 @@ import io.github.longshou.mcyukkuri.status.SneezeRules;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.SceneHold;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
+import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.perception.Knowledge;
@@ -166,7 +168,7 @@ public final class TemperatureLife {
                 && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
                 && !entity.family().awaitingLanding() && !entity.family().flying() && !entity.predatorFlying() && !entity.family().birthDuty()
                 && (brood == null || brood.cancelled || brood.complete() || brood.progress() < .9f)
-                && !entity.body().dying();
+                && !entity.body().dying() && entity.life().mealTicks() == 0;
     }
 
     /**
@@ -177,6 +179,11 @@ public final class TemperatureLife {
         double deficit = coldLimit() - current.felt();
         stiffMax = stiffLeft = ColdStiffness.windowTicks(YukkuriConfig.COLD_EXPOSURE_TICKS.get(), share, ageRate(), deficit);
         entity.interrupt(Interrupt.COMMAND);
+        // A young the interrupt could not set down (no support under it) must not stay aboard a body that can never set it down.
+        for (var child : entity.family().carry().riders()) {
+            ParentCarry.released(entity, child, "stiff");
+            Motor.dismount(child, child.position(), Vec3.ZERO, "stiff");
+        }
         stop();
         stiff = true;
         coldComplaint = false;
@@ -221,7 +228,10 @@ public final class TemperatureLife {
         stiff = false;
         double window = stiffLeft;
         stiffLeft = stiffMax = 0;
-        boolean accepted = entity.hurt(level().damageSources().freeze(), entity.getMaxHealth() * 2);
+        var freeze = level().damageSources().freeze();
+        boolean accepted = entity.hurt(freeze, entity.getMaxHealth() * 2);
+        // The cold's kill is unconditional: a hit the damage cooldown refused would leave a live body with no window to re-stiffen on.
+        if (entity.isAlive()) { entity.setHealth(0); entity.die(freeze); }
         GameplayLog.event(entity, "temperature", "freeze death reason={} stiff={} felt={} window={} exposure={} accepted={} alive={}",
                 reason, wasStiff, current.felt(), window, coldExposure(), accepted, entity.isAlive());
     }
