@@ -11,6 +11,7 @@
 | TN-48 家规演出敬畏感与变更家规的反应 | `.worktrees/wp-rule-awe` | pet/rules/*, dialogue, 06_house_town_street.py |
 | TN-08 牵绳跟随与挣扎 | `.worktrees/wp-lead-follow` | leash/lead follow goal, dialogue, lead_walk scene |
 | 表情适配基线违例：lore 片段 | `.worktrees/wp-face-fit-lore` | lore/recipe.json (face timelines), face_fit_allow.json |
+| 表情适配基线违例：如厕片段 | `.worktrees/wp-face-fit-toilet` | toilet-contact recipe, face_fit_allow.json |
 
 ## 玩法待办
 
