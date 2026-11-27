@@ -198,6 +198,8 @@ public final class TemperatureLife {
         stiff = true;
         coldComplaint = false;
         entity.getNavigation().stop();
+        // It freezes where it stands: the walk's last step is not left for the body to glide on after it can no longer correct it.
+        entity.setDeltaMovement(Vec3.ZERO);
         GameplayLog.event(entity, "temperature", "stiff begin felt={} deficit={} exposure={} window={} share={} ageRate={} nutrition={} health={}",
                 current.felt(), deficit, coldExposure(), stiffLeft, share, ageRate(), entity.life().nutrition(), entity.getHealth());
         entity.beat("stiff_enter", "sleep", "");
