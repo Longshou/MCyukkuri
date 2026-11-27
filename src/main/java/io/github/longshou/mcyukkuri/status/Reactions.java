@@ -371,6 +371,7 @@ public final class Reactions {
             SurfaceApproach.halt(y);
             if (human && y.pet().conscience().taking(actor)) {
                 // The owner's blow on a caught pet is its punishment, taken like the scold: no flight, no angry puff; the penance answers it.
+                y.pet().conscience().judged(actor, io.github.longshou.mcyukkuri.pet.rules.Penance.Verdict.PUNISHED, true);
                 response.clear();
                 y.setPanicTicks(0);
                 GameplayLog.event(y, "threat", "struck stance=TAKEN attacker={} loss={} cause=penance", actor.getUUID(), loss);

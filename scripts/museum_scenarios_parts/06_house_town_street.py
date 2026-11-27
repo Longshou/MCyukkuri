@@ -359,7 +359,7 @@ _PENANCE_BEAT = re.compile(r'\[rules\][^\n]*? t=(\d+) [^\n]*penance beat=(\w+) f
 # Faces of pleasure and pout: nothing between the catch (or the bow) and the owner's answer may show one.
 _PLEASED_OR_POUTING = {'happy', 'open_smile', 'satisfied', 'smug', 'closed_smile', 'pursed', 'angry', 'cheek_puff', 'puff', 'sneer',
                        'hmph', 'blank_happy', 'flushed_smile', 'sukkiri_grin', 'sukkiri_smug'}
-_PENANCE_LINES = {'startle': '-|rule_gasp', 'bow': 'confess|confess_mate|exam_sorry', 'mutter': 'sulk_huff', 'afraid': '-', 'plea': 'rule_beg', 'apology': 'caught_guilty',
+_PENANCE_LINES = {'startle': '-|rule_gasp', 'bow': 'confess|confess_mate|rule_confess', 'mutter': 'rule_mutter', 'afraid': '-', 'plea': 'rule_beg', 'apology': 'caught_guilty',
                   'excuse': 'rule_excuse', 'vow': 'rule_vow', 'settle': '-|rule_accept|rule_withdraw',
                   'prostrate': '-', 'shiver': '-|rule_wait', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'rule_thanks', 'withdraw': '-',
                   # The answer came through the child: the struggle, how it ends, and the silent ache that follows.
@@ -452,7 +452,7 @@ for _tick in range(100, 6400, 20):
         # must not spend the boredom first. The beat itself (the song, the catch) is left to the pet.
         (_tick, f'execute if score #rule_armed museum matches 0 unless data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run data modify entity {_rule_pet} YukkuriDailyLife.Boredom set value 100'),
         (_tick, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing"}} run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick, f'execute if score #rule_armed museum matches 14.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
+        (_tick, f'execute if score #rule_armed museum matches 26.. if score #rule_scold museum matches 0 store result score #rule_scold museum run yukkuri scenario care_click {_rule_pet} cold'),
         (_tick + 1, f'execute if score #rule_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_singing",Caught:1b}} run scoreboard players set #rule_armed museum 1'),
         (_tick + 2, 'execute if score #rule_armed museum matches 1.. run scoreboard players add #rule_armed museum 1'),
         (_tick + 3, 'execute if score #rule_scold museum matches 1.. run scoreboard players add #rule_scold museum 1'),
@@ -460,8 +460,8 @@ for _tick in range(100, 6400, 20):
 _rule_songs.append((6450, 'yukkuri scenario tool_operator leave'))
 
 for _sid, _title, _hint, _control in (
-        ('rule_song_hold', '禁止唱歌：想唱又憋回去', '在照料菜单的家规中勾选「不准唱歌」，面对灵梦，看它抬头又抿嘴。', 95),
-        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌愣住，随后认错发抖，等你发落。摸摸它是原谅，照料菜单里冷言训斥或打一下是惩罚，不理它它忐忑地退开。', 20)):
+        ('rule_song_hold', '禁止唱歌：想唱又憋回去', '在照料菜单的家规中勾选「不准唱歌」，面对灵梦，看它露出忍住的表情并乖乖自言自语憋回去。', 95),
+        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌惊住，随后小声辩嘟、绷着脸认错发抖，等你发落。摸摸它是含泪笑着原谅，冷言训斥或打一下是惩罚，不理它它委屈退开。', 20)):
     add(_sid, 'town', _title, _title, _hint, '约 1～3 分钟', [
         *_rule_court, yk('reimu', 0, 1, 'rule_pet', lead=True, intelligence=80, self_control=_control, boldness=85,
                           extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:40}'),
@@ -540,9 +540,9 @@ _eat_commands = _rule_owner(9) + [
     (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
 for _tick in range(40, 2300, 20):
     _eat_commands += [
-        # The stroke comes about 600 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
-        (_tick, f'execute if score #eat_armed museum matches 30.. if score #eat_rub museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick, f'execute if score #eat_armed museum matches 30.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
+        # The stroke comes about 540 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
+        (_tick, f'execute if score #eat_armed museum matches 27.. if score #eat_rub museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
+        (_tick, f'execute if score #eat_armed museum matches 27.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
         (_tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
         (_tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
         (_tick + 3, 'execute if score #eat_rub museum matches 1.. run scoreboard players add #eat_rub museum 1'),

@@ -1346,7 +1346,7 @@ for _sid, _title, _instruction, _control, _shift in (
                    forbid=[r'courtship contact ended'] if _holding else [], **({'verify': _held_pressure} if _holding else {})))
 
 
-# --- A house rule flipped: each pet that saw or heard it answers by its own numbers (RuleReaction). Four adults of one owner, in view. ---
+# --- Per-pet independent house rules: toggling one pet changes only its rules; housemates who see or hear it react as onlookers. ---
 _BREED_CAST = (  # name, species, dx, label, pentUp, and the five axes that split the beats; obedience follows from boldness and self-control
     ('hot_bold', 'reimu', 0, '憋得慌的胆大者', 90, dict(boldness=90, self_control=40, intelligence=40, attachment=40)),
     ('hot_shy', 'marisa', -2, '憋得慌的胆小者', 70, dict(boldness=10, self_control=70, intelligence=40, attachment=40)),
@@ -1354,9 +1354,9 @@ _BREED_CAST = (  # name, species, dx, label, pentUp, and the five axes that spli
     ('cool', 'reimu', 4, '没这心思的', 5, dict(boldness=55, self_control=70, intelligence=55, attachment=60)))
 
 
-def _rule_beats(log, rule, change, expected=None):
-    """Each pet answers once per change; the face shown on the beat (the arbiter's [badge] line) is the declared one, every beat's line
-    was spoken, and (when given) the answers are the ones its numbers pick."""
+def _rule_beats(log, rule, change, expected=None, witness_expected=None):
+    """Each pet answers its own change once; witnesses react without their own rules changing; every shown face equals the declared one
+    and every spoken beat is voiced."""
     answers = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* rule reaction rule={rule} change={change} beat=(\w+) face=(\S*) line=(\S+) shown=(\w+)', log)
     if len({(uuid_, beat) for uuid_, beat, *_ in answers}) != len(answers):
         return f'a pet answered the same change twice: {answers}'
@@ -1369,16 +1369,29 @@ def _rule_beats(log, rule, change, expected=None):
     for uuid_, beat, *_ in answers:
         if not any(u == uuid_ and b == beat and said == 'true' for u, b, _, said in spoken):
             return f'beat {beat} of {uuid_} was never spoken: {spoken}'
+    witnesses = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* rule witness rule={rule} change={change} beat=(\w+) face=(\S*) line=(\S+) shown=(\w+)', log)
+    if witness_expected is not None:
+        w_beats = [b for _, b, *_ in witnesses]
+        for needed in witness_expected:
+            if needed not in w_beats:
+                return f'missing witness beat {needed} in {witnesses}'
+        if any(shown != 'true' for *_, shown in witnesses):
+            return f'a witness beat was refused by the arbiter: {witnesses}'
+        w_spoken = re.findall(r'\[rules\][^\n]*uuid=(\S+)[^\n]* rule witness speech beat=(\w+) event=(\S+) tick=\S+ holdEnd=\S+ spoken=(\w+)', log)
+        for uuid_, beat, face, line, _ in witnesses:
+            if line != '-' and not any(u == uuid_ and b == beat and said == 'true' for u, b, _, said in w_spoken):
+                return f'witness beat {beat} of {uuid_} was never spoken: {w_spoken}'
     seen = re.findall(r'\[badge\][^\n]* beat=rule_(\w+) face=(\S+) declared=(\S+)', log)
-    shown_beats = sorted(name for name, _, _ in seen)
-    if expected is not None and (shown_beats != got or any(face != declared for _, face, declared in seen)):
-        return f'shown faces must equal the declared ones for {got}: {seen}'
     if any(face != declared for _, face, declared in seen):
         return f'shown faces must equal the declared ones: {seen}'
+    if expected is not None:
+        answer_seen = sorted(name for name, _, _ in seen if not name.startswith('witness_'))
+        if answer_seen != got:
+            return f'shown answer beats {answer_seen} do not match declared {got}: {seen}'
 
 
 def _rule_changes(log):
-    """Three changes of other rules (two tightenings, then a loosening), each answered by all four pets."""
+    """Three changes of other rules per pet (two tightenings, then a loosening), each answered individually by all four pets plus witnesses."""
     for rule, change in (('no_singing', 'tightened'), ('no_eating_unasked', 'tightened'), ('no_singing', 'loosened')):
         answers = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* rule reaction rule={rule} change={change} beat=(\w+) ', log)
         if len({uuid_ for uuid_, _ in answers}) != 4:
@@ -1386,22 +1399,33 @@ def _rule_changes(log):
         problem = _rule_beats(log, rule, change)
         if problem:
             return f'rule {rule} {change}: {problem}'
+    if not re.search(r'\[rules\][^\n]* rule witness rule=no_singing change=tightened beat=witness_wary ', log):
+        return 'expected at least one witness_wary reaction when tightening no_singing on one pet'
     if re.search(r'rule reaction rule=no_sukkiri', log):
         return 'the breeding rule was never changed here'
 
 
-for _sid, _title, _watch, _toggles, _beats, _rule, _change in (
-        ('rule_breed_allowed', '家规放开繁殖：各有各的反应', '在任一宠物的家规页取消勾选「不准繁殖（素鸡立）」，等它们鞠躬后各自反应：憋得慌又胆大的蹦起来看伙伴再鞠躬道谢，胆小的脸红，没心思的点头道谢。',
-         [(40, 0)], ('loosen_joy', 'loosen_thanks', 'loosen_shy', 'loosen_shy', 'loosen_nod'), 'no_sukkiri', 'loosened'),
-        ('rule_breed_denied', '家规禁止繁殖：各有各的反应', '在任一宠物的家规页先取消勾选「不准繁殖（素鸡立）」再立刻重新勾选（一秒内，只演拒绝）；间隔十秒以上再勾，两次各演一遍。鞠躬后：不听话又憋得慌的鼓脸哼声再服软，听话的垂头，聪明黏人的羞愧接受，没心思的点头应下。',
-         [(40, 0), (46, 1)], ('tighten_puff', 'tighten_yield', 'tighten_droop', 'tighten_accept', 'tighten_nod'), 'no_sukkiri', 'tightened'),
-        ('rule_change_other', '改其他家规：每只都有反应', '在任一宠物的家规页依次勾选「不准唱歌」、「不准擅自吃东西」，再取消「不准唱歌」（每次隔十秒以上）。看得见或听得见的宠物鞠躬后各自反应：胆小的发抖求饶，不听话的鼓脸再服软，听话的垂头，放开时欢喜道谢。',
-         [(40, 3), (400, 11), (760, 9)], None, None, None)):
+for _sid, _title, _watch, _toggles, _beats, _witnesses, _rule, _change in (
+        ('rule_breed_allowed', '家规放开繁殖：每只独立生效与旁观眼红',
+         '家规对每只宠物独立生效。先在第一只宠物的家规页取消勾选「不准繁殖（素鸡立）」：只有它自己欢跳道谢，旁边仍被禁止且憋得慌的同伴会眼红嘟囔或含泪张望；再依次取消其余几只的禁令，看它们各自按性格害羞或点头道谢。',
+         [(40, 'hot_bold', 0), (200, 'hot_shy', 0), (260, 'wise_tied', 0), (320, 'cool', 0)],
+         ('loosen_joy', 'loosen_thanks', 'loosen_shy', 'loosen_shy', 'loosen_nod'), ('witness_envy', 'glance'), 'no_sukkiri', 'loosened'),
+        ('rule_breed_denied', '家规禁止繁殖：每只独立生效与各自反应',
+         '家规对每只宠物独立生效。在任一宠物的家规页先取消勾选「不准繁殖（素鸡立）」再立刻重新勾选（一秒内，只演拒绝）：不服又憋得慌的鼓脸抗议再羞愧服软，听话的含泪垂头，聪明黏人的羞愧应下，没心思的礼貌点头；旁边胆小的同伴也会紧张张望。',
+         [(40, 'hot_bold', 0), (46, 'hot_bold', 1), (220, 'hot_shy', 0), (226, 'hot_shy', 1),
+          (300, 'wise_tied', 0), (306, 'wise_tied', 1), (380, 'cool', 0), (386, 'cool', 1)],
+         ('tighten_puff', 'tighten_yield', 'tighten_droop', 'tighten_accept', 'tighten_nod'), ('witness_wary',), 'no_sukkiri', 'tightened'),
+        ('rule_change_other', '改其他家规：每只独立反应与旁观',
+         '依次为每只宠物勾选「不准唱歌」、「不准擅自吃东西」，再取消「不准唱歌」（同一只间隔十秒以上）。改动只对被点的那只生效，其余看得见或听得见的同伴只作旁观反应；每只按渴望、胆量、服从和恐惧演出不同表情与台词。',
+         [(40, 'hot_bold', 3), (60, 'hot_shy', 3), (80, 'wise_tied', 3), (100, 'cool', 3),
+          (480, 'hot_bold', 11), (500, 'hot_shy', 11), (520, 'wise_tied', 11), (540, 'cool', 11),
+          (920, 'hot_bold', 9), (940, 'hot_shy', 9), (960, 'wise_tied', 9), (980, 'cool', 9)],
+         None, None, None, None)):
     _breed_commands = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter'), (2, 'yukkuri scenario house_reset')]
     _breed_commands += [(8 + i, f'data modify entity {sel(_name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID')
                         for i, (_name, *_rest) in enumerate(_BREED_CAST)]
-    _breed_commands += [(_tick, f'yukkuri scenario house_rules {sel("hot_bold")} {_mask}') for _tick, _mask in _toggles]
-    _ticks = 400 if _beats else 1150
+    _breed_commands += [(_tick, f'yukkuri scenario house_rules {sel(_target)} {_mask}') for _tick, _target, _mask in _toggles]
+    _ticks = 640 if _beats else 1400
     _breed_commands.append((_ticks - 1, 'yukkuri scenario tool_operator leave'))
     add(_sid, 'town', _title, _title, _watch, '约一分钟' if _beats else '约一分半钟', [
         box(-6, -1, -4, 6, -1, 4, 'minecraft:grass_block'), box(-6, 0, -4, 6, 3, 4, 'minecraft:air'),
@@ -1414,11 +1438,11 @@ for _sid, _title, _watch, _toggles, _beats, _rule, _change in (
                # No leisure session starts in the answers' way; the song rule's pressure is the boredom (what it withholds).
                **({} if _beats else dict(extra=f'YukkuriDailyLife:{{Boredom:{_pent},Cooldown:2400}}'))), *own(_name)))],
         env=DAY, vantage=(0, 2, 180, 15), give=['mcyukkuri:field_notebook'],
-        note='四只同主人的成体都在主人视野内；各自的积压、胆量、听话与聪明黏人不同，所以同一次家规变化演出不同。'
-             '没有变化的家规不演；不平静的、睡着的宠物不演；没看见也没听见主人改家规的要等下次看见主人。',
+        note='四只同主人的成体都在主人视野内；家规对每只宠物独立生效，改一只时其他只按旁观者反应（仍受限且想做的会眼红，收紧时胆小的发怵，无心的只瞥一眼）。'
+             '不平静的、睡着的宠物不演；快速连续开关同一只的同一条家规时只按最终状态演一遍。',
         reads=[('读' + label + '的积压', f'data get entity {sel(name)} YukkuriFamily.PentUp') for name, _, _, label, _, _ in _BREED_CAST],
         smoke=dict(ticks=_ticks, commands=_breed_commands,
-                   verify=(lambda log, _rule=_rule, _change=_change, _beats=_beats: _rule_beats(log, _rule, _change, _beats)) if _beats else _rule_changes,
+                   verify=(lambda log, _rule=_rule, _change=_change, _beats=_beats, _w=_witnesses: _rule_beats(log, _rule, _change, _beats, _w)) if _beats else _rule_changes,
                    expect=[rf'rule reaction rule={_rule} change={_change} beat={beat}' for beat in dict.fromkeys(_beats)] if _beats else
                           [r'rule reaction rule=no_singing change=tightened beat=', r'rule reaction rule=no_eating_unasked change=tightened beat=',
                            r'rule reaction rule=no_singing change=loosened beat='],

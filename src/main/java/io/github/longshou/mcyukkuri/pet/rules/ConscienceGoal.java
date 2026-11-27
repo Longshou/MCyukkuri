@@ -33,6 +33,8 @@ public final class ConscienceGoal extends Goal {
     private Penance penance;
     /** Caught in the act (the penance starts at once) rather than walking up to confess or answering a secret brood. */
     private boolean caughtStart;
+    /** Holding still and facing the owner/target while a rule-change or witness reaction plays (no Duty claimed). */
+    private boolean answering;
     private boolean finished, resuming;
     /** Three seconds: how long the owner may look elsewhere while the pet is on its way to them. */
     private static final int GLANCE_AWAY = 60;
@@ -62,6 +64,7 @@ public final class ConscienceGoal extends Goal {
             pet.duty().release(Duty.Kind.RULES, Duty.End.YIELDED, why);
         }
         conscience.expireCatch();
+        answering = false;
         if (!pet.duty().mayTake(Duty.Kind.RULES)) return false;
         caughtStart = false;
         if (conscience.catchPending() && freeToFreeze()) {
@@ -86,9 +89,16 @@ public final class ConscienceGoal extends Goal {
             }
             GameplayLog.limited(pet, "rules", "arc_wait." + why, 200, "arc waiting reason={}", why);
         }
-        if (!conscience.undiscovered() || !conscience.confesses()) return false;
-        owner = conscience.encounter();
-        return owner != null;
+        if (conscience.undiscovered() && conscience.confesses()) {
+            owner = conscience.encounter();
+            if (owner != null) return true;
+        }
+        if (conscience.answeringRule()) {
+            owner = conscience.answerFocus();
+            answering = true;
+            return true;
+        }
+        return false;
     }
 
     /** A catch freezes the pet where it stands, but not mid-meal, mid-carry or in a flight. */
@@ -155,6 +165,11 @@ public final class ConscienceGoal extends Goal {
             penance = conscience.running();
             return;
         }
+        if (answering) {
+            SurfaceApproach.halt(pet);
+            return;
+        }
+        conscience.clearAnswerHold();
         boolean long_ = caughtStart || brood == null || style == ArcStyle.CONFESS;
         pet.duty().take(Duty.Kind.RULES, long_ ? PENANCE_TICKS : APPROACH_TICKS, 600, caughtStart ? "caught" : brood == null ? "confess" : style.name());
         if (caughtStart) {
@@ -172,13 +187,14 @@ public final class ConscienceGoal extends Goal {
                 stand = child != null && !GlassSight.clearTo(owner, child.getEyePosition())
                         ? SurfaceApproach.beside(pet, child, 1, .5, BESIDE_CHILD, this::screened)
                         : Reactions.escapeStand(pet, owner, 6, at -> screened(at) && (child == null || child.distanceToSqr(at) <= 36));
-                PetScenes.act(pet, YukkuriAction.SHY, "teary", "exam_hide_fail", 30, owner);
+                String hideLine = pet.life().personality().intelligence() < 45 ? "exam_hide_fail" : "sukkiri_hide";
+                PetScenes.act(pet, YukkuriAction.SHY, "confused_small", hideLine, 40, owner);
                 if (stand == null) finish(Duty.End.FAILED, "no_cover");
             }
             case LIE -> {
                 var away = pet.position().scale(2).subtract(child.position());
                 pet.getLookControl().setLookAt(away.x, pet.getEyeY(), away.z);
-                if (say(YukkuriAction.TURN, "pursed", "sukkiri_lie", null)) {
+                if (say(YukkuriAction.TURN, "confused_small", "sukkiri_lie", null)) {
                     stand = Reactions.escapeStand(pet, child, 3, Set.of());
                 }
                 if (stand == null) finish(Duty.End.DONE, "denial_ended");
@@ -202,6 +218,7 @@ public final class ConscienceGoal extends Goal {
 
     /** The condition that ends the goal (logged by {@link #stop}), or null while it goes on. */
     private String lapse() {
+        if (answering) return pet.pet().conscience().answeringRule() ? null : "answer_ended";
         if (!pet.duty().holds(Duty.Kind.RULES)) return "duty_released";
         if (penance != null) return penance.lapse();
         if (brood != null) {
@@ -240,6 +257,15 @@ public final class ConscienceGoal extends Goal {
     }
 
     @Override public void tick() {
+        if (answering) {
+            var focus = pet.pet().conscience().answerFocus();
+            if (focus != null && focus.isAlive()) {
+                SurfaceApproach.halt(pet);
+                SurfaceApproach.face(pet, SurfaceApproach.yaw(pet.position(), focus.position()));
+                pet.getLookControl().setLookAt(focus, 30, 30);
+            }
+            return;
+        }
         if (!pet.duty().holds(Duty.Kind.RULES)) return;
         if (penance != null) {
             penance.tick();
@@ -265,7 +291,7 @@ public final class ConscienceGoal extends Goal {
             var conscience = pet.pet().conscience();
             if (brood == null) {
                 conscience.caught("confession");
-                begin(Penance.confession(pet, owner, conscience.guiltRule(), "exam_sorry", () -> {}));
+                begin(Penance.confession(pet, owner, conscience.guiltRule(), "rule_confess", () -> {}));
                 return;
             }
             if (style == ArcStyle.CONFESS) {
@@ -318,6 +344,12 @@ public final class ConscienceGoal extends Goal {
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void stop() {
+        if (answering) {
+            answering = false;
+            owner = null;
+            SurfaceApproach.stopWalking(pet);
+            return;
+        }
         var conscience = pet.pet().conscience();
         if (!finished && penance != null && penance.ownerHand() && lapseReason == null) {
             // Taken by the owner's own hand: the performance, the duty and the brood exchange stay as they are until it lets go.

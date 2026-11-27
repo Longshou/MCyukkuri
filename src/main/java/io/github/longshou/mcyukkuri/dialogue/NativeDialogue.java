@@ -118,9 +118,13 @@ public final class NativeDialogue {
                  "badge_envy", "badge_admire", "badge_glance", "badge_ask", "badge_show_kind", "badge_pull_back", "badge_envy_snark", "badge_humble",
                  "badge_thanks", "badge_mock", "badge_retort", "badge_plaza_retort", "pet_report_hurt", "plea_sad",
                  "badge_pity", "elder_warn", "elder_kind", "caught_guilty", "scolded",
-                 // The pet's awe of its owner: a changed rule's answers and every beat of a penance answer the owner right now.
-                 "rule_tighten", "rule_cower", "rule_yield", "rule_loosen", "rule_grateful",
-                 "rule_gasp", "rule_beg", "rule_vow", "rule_excuse", "rule_wait", "rule_thanks", "rule_accept", "rule_withdraw",
+                 // The pet's awe of its owner: rule-change answers, witness reactions, holding back, penance beats and secret-brood responses.
+                 "rule_tighten", "rule_tighten_sad", "rule_cower", "rule_sulk", "rule_yield", "rule_loosen", "rule_grateful",
+                 "rule_witness_envy", "rule_witness_wary",
+                 "rule_hold", "rule_hold_song", "rule_hold_eat", "rule_hold_yard", "rule_hold_bully",
+                 "rule_gasp", "rule_mutter", "rule_beg", "rule_vow", "rule_excuse", "rule_wait",
+                 "rule_thanks", "rule_accept", "rule_withdraw", "rule_confess", "rule_guilty_shy",
+                 "confess", "confess_mate", "sukkiri_hide", "sukkiri_lie", "sukkiri_naive", "sukkiri_defiant", "partner_blame",
                  // Treats, requests to the owner, mood, walks on the lead and the swaddle answer something the owner just did or ask for something now.
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_water", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
                  "human_food_ask", "human_food_demand", "food_complain", "food_delight", "food_grudge",

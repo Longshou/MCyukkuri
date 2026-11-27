@@ -182,7 +182,7 @@ public final class GroupInteractionGoal extends Goal {
                     choice = entity.pet().conscience().tempted(HouseRule.NO_BULLYING, personality.escalationScore() / 100.0, 1);
                     if (choice == Choice.HOLD) {
                         PetScenes.act(entity, YukkuriAction.PUFF, "cheek_puff", "", 30, peer);
-                        PetScenes.later(entity, 30, () -> PetScenes.act(entity, YukkuriAction.DROOP, "teary", "", 20));
+                        PetScenes.later(entity, 30, () -> entity.pet().conscience().showHold(HouseRule.NO_BULLYING, personality.escalationScore() / 100.0, peer));
                     }
                     if (choice == Choice.HOLD || choice == Choice.WAIT) return false;
                 }

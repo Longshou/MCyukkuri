@@ -173,7 +173,7 @@ public final class PetScenes {
             if (!y.isAlive() || y.hurtTime > 0 || y.isPanicking()) return;
             var away = y.position().scale(2).subtract(peer.position());
             y.getLookControl().setLookAt(away.x, y.getEyeY(), away.z);
-            act(y, YukkuriAction.TURN, "teary", "", 20);
+            act(y, YukkuriAction.TURN, y.life().personality().temperament().patient() >= .6 ? "sad" : "side_teary", "", 25);
         });
     }
 }

@@ -436,7 +436,8 @@ public final class RoamingGoal extends Goal {
         yardChoice = animal.pet().conscience().tempted(HouseRule.NO_LEAVING_YARD, pressure, 1);
     }
     private void hesitate() {
-        PetScenes.act(animal, YukkuriAction.LOOK_AROUND, "teary", "", 40);
+        double pressure = Math.max(animal.dailyLife().boredom() / 100.0, animal.life().personality().temperament().curious());
+        animal.pet().conscience().showHold(HouseRule.NO_LEAVING_YARD, pressure, null);
         animal.getLookControl().setLookAt(yard.getX() + .5, animal.getEyeY(), yard.getZ() + .5);
     }
     @Override public boolean canContinueToUse() {

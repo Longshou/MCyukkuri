@@ -62,7 +62,7 @@ public final class CareMenu extends AbstractContainerMenu {
         boolean owner = !shop && !cutter && target != null && target.pet().isPet() && target.pet().owned(player);
         if (owner) {
             var conscience = target.pet().conscience();
-            household.set(0, conscience.household().mask(player.getUUID()));
+            household.set(0, conscience.ruleMask());
             household.set(1, conscience.told() ? 1 : 0);
             int obedience = target.pet().obedience();
             household.set(2, obedience <= 35 ? 1 : obedience >= 65 ? 3 : 2);
@@ -79,7 +79,7 @@ public final class CareMenu extends AbstractContainerMenu {
     @Override public boolean clickMenuButton(Player player,int id){
         if (id >= RULE_BUTTON && id < RULE_BUTTON + HouseRule.values().length) {
             if (cutter || shop || !stillValid(player) || !target.pet().owned(player) || !target.pet().isPet()) return false;
-            target.pet().conscience().household().toggle(player, target, HouseRule.values()[id - RULE_BUTTON]);
+            target.pet().conscience().toggle(player, HouseRule.values()[id - RULE_BUTTON]);
             broadcastChanges();
             return true;
         }

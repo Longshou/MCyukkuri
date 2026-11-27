@@ -598,8 +598,10 @@ public final class PlayLife {
 
     private boolean tubPermitted(boolean hurt) {
         HouseRule rule = JuiceTub.tubRule(hurt);
-        var choice = entity.pet().conscience().tempted(rule, tubPressure(hurt), 1);
+        double pressure = tubPressure(hurt);
+        var choice = entity.pet().conscience().tempted(rule, pressure, 1);
         if (!JuiceTub.permitsSoak(choice)) {
+            if (choice == Choice.HOLD) entity.pet().conscience().showHold(rule, pressure, null);
             GameplayLog.limited(entity, "play", "tub_rule:" + rule.key(), 1200,
                     "tub refused by house rule rule={} choice={} hurt={} obedience={}",
                     rule.key(), choice, hurt, entity.pet().obedience());

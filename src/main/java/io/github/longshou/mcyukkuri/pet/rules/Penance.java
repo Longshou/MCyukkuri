@@ -84,15 +84,15 @@ public final class Penance {
     static Penance caught(YukkuriEntity pet, LivingEntity owner, String rule) {
         var penance = new Penance(pet, owner, Entrance.CAUGHT, rule, () -> {});
         pet.interruptSpeech();
-        // The pet registers the owner at once: it freezes, flinches and turns to face them (see tick), and gasps unless it is the defiant kind.
-        penance.enter(Phase.STARTLE, "startle", YukkuriAction.STARTLE, "horrified", penance.mutters ? "" : "rule_gasp", STARTLE_TICKS);
+        // The pet registers the owner at once: it freezes, flinches and turns to face them (see tick), gasping in its own voice.
+        penance.enter(Phase.STARTLE, "startle", YukkuriAction.STARTLE, penance.mutters ? "surprise" : "horrified", "rule_gasp", STARTLE_TICKS);
         return penance;
     }
 
     /** Walked up to the owner by itself: bows with {@code openingLine} (see {@link #voiced()}), then lies low and waits. */
     static Penance confession(YukkuriEntity pet, LivingEntity owner, String rule, String openingLine, Runnable onResolved) {
         var penance = new Penance(pet, owner, Entrance.CONFESSION, rule, onResolved);
-        penance.enter(Phase.BOW, "bow", YukkuriAction.BOW, "teary", openingLine, YukkuriAction.BOW.durationTicks());
+        penance.enter(Phase.BOW, "bow", YukkuriAction.BOW, "side_teary", openingLine, YukkuriAction.BOW.durationTicks());
         return penance;
     }
 
@@ -226,20 +226,22 @@ public final class Penance {
 
     /** After the startle: the defiant mutter, the afraid one's plea for mercy, or the apology. */
     private void posture() {
-        if (mutters) enter(Phase.MUTTER, "mutter", YukkuriAction.BRACE, "squeezed_frown", "sulk_huff", MUTTER_TICKS);
-        else if (fearful) enter(Phase.PLEA, "plea", YukkuriAction.THUNDER_COWER, "horrified", "rule_beg", 60);
-        else enter(Phase.PLEA, "apology", YukkuriAction.BOW, guilty ? "ashamed" : "look_down", "caught_guilty", YukkuriAction.BOW.durationTicks());
+        if (mutters) enter(Phase.MUTTER, "mutter", YukkuriAction.BRACE, "down_angry", "rule_mutter", MUTTER_TICKS);
+        else if (fearful) {
+            String face = pet.life().personality().fear(owner.getUUID()) >= 25 ? "horrified" : "teary_frown";
+            enter(Phase.PLEA, "plea", YukkuriAction.THUNDER_COWER, face, "rule_beg", 60);
+        } else enter(Phase.PLEA, "apology", YukkuriAction.BOW, guilty ? "ashamed" : "side_teary", "caught_guilty", YukkuriAction.BOW.durationTicks());
     }
 
     /** The mutterer gives its reason, still bracing, and apologises small: it is afraid of the owner's answer even if it will not say so. */
     private void excuse() {
-        enter(Phase.EXCUSE, "excuse", YukkuriAction.BRACE, "squeezed_frown", "rule_excuse", 50);
+        enter(Phase.EXCUSE, "excuse", YukkuriAction.BRACE, "down_angry", "rule_excuse", 50);
     }
 
     /** The apology goes on: a guilty pet swears never again with its face hidden, a wary one gives its small reason. */
     private void apologyFollows() {
-        if (guilty) enter(Phase.VOW, "vow", YukkuriAction.HIDE_FACE, "ashamed", "rule_vow", 50);
-        else enter(Phase.EXCUSE, "excuse", YukkuriAction.DROOP, "look_down", "rule_excuse", 50);
+        if (guilty) enter(Phase.VOW, "vow", YukkuriAction.HIDE_FACE, "side_teary", "rule_vow", 50);
+        else enter(Phase.EXCUSE, "excuse", YukkuriAction.DROOP, "confused_small", "rule_excuse", 50);
     }
 
     /** Whether the beat on show has run its time and its line (if any) has been said: only then the next beat may start. */
@@ -346,19 +348,21 @@ public final class Penance {
         if (waitUntil < 0) waitUntil = now() + window;
         long left = waitUntil - now();
         if (mutters && !fearful) {
-            enter(Phase.WAIT, "stiff", YukkuriAction.BRACE, "endure", "", (int) Math.min(60, left));
+            enter(Phase.WAIT, "stiff", YukkuriAction.BRACE, "down_angry", "", (int) Math.min(60, left));
             return;
         }
         double fright = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
-        String frightened = fearful ? "horrified" : "teary";
         if (segment++ % 2 == 1) {
             // The first shiver asks, small, whether the owner is angry (the stiff defiant one says nothing).
             String asks = asked ? "" : "rule_wait";
             asked = true;
-            enter(Phase.WAIT, "shiver", YukkuriAction.TREMBLE, frightened, asks, (int) Math.min(Math.round(24 + 26 * fright), left));
+            enter(Phase.WAIT, "shiver", YukkuriAction.TREMBLE, fearful ? "horrified" : "teary_frown", asks,
+                    (int) Math.min(Math.round(24 + 26 * fright), left));
+        } else {
+            enter(Phase.WAIT, "prostrate", fearful ? YukkuriAction.THUNDER_COWER : guilty ? YukkuriAction.HIDE_FACE : YukkuriAction.DROOP,
+                    fearful ? "horrified" : guilty ? "ashamed" : "side_teary", "",
+                    (int) Math.min(Math.round(50 - 20 * fright), left));
         }
-        else enter(Phase.WAIT, "prostrate", fearful ? YukkuriAction.THUNDER_COWER : guilty ? YukkuriAction.HIDE_FACE : YukkuriAction.DROOP,
-                frightened, "", (int) Math.min(Math.round(50 - 20 * fright), left));
     }
 
     /** What the owner did decides the ending; the pet's own state decides how it shows it. */
@@ -380,11 +384,12 @@ public final class Penance {
             declare("ache", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : "teary", "");
         } else if (verdict == Verdict.PUNISHED) {
             outcome = blow ? "punished_blow" : "punished_scold";
-            declare("punished", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP, scared ? "horrified" : blow ? "impact_teary" : "teary",
+            declare("punished", scared ? YukkuriAction.THUNDER_COWER : YukkuriAction.DROOP,
+                    scared ? "horrified" : blow ? "impact_teary" : "teary_frown",
                     blow && scared ? "hurt_plea" : "scolded");
         } else if (verdict == Verdict.FORGIVEN) {
             outcome = "forgiven";
-            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.DROOP, "closed_smile", "rule_thanks");
+            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.BOW, "teary_smile", "rule_thanks");
             pet.pet().addStress(-6);
         } else {
             outcome = "withdrew";
@@ -411,18 +416,17 @@ public final class Penance {
     }
 
     /**
-     * The performance ends in a posture it holds, not in the verdict's pose: the pardoned bows low in thanks, the punished stays bowed and
-     * trembling, the ignored one slinks off apologising; a bold, disobedient pet that was not afraid sulks a little. What it says is the
-     * owner's judgement taken (a parent that ached for its punished child already said all it had to).
+     * The performance ends in a posture it holds, not in the verdict's pose: the pardoned bows low in relieved thanks, the punished
+     * stays bowed or trembling, the ignored one slinks off apologising; a bold, disobedient pet that was not afraid keeps a tense frown.
      */
     private void settle() {
         double fear = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
         boolean sulky = mutters && !fearful && fear < .5;
         switch (outcome) {
-            case "forgiven" -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.DROOP : YukkuriAction.BOW, sulky ? "pursed" : "closed_smile", "", SETTLE_TICKS);
-            case "withdrew" -> enter(Phase.SETTLE, "settle", YukkuriAction.DROOP, "side_teary", "rule_withdraw", SETTLE_TICKS);
-            default -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.BRACE : fearful ? YukkuriAction.TREMBLE : YukkuriAction.BOW,
-                    sulky ? "pursed" : fearful ? "teary" : "ashamed", "rule_accept", SETTLE_TICKS);
+            case "forgiven" -> enter(Phase.SETTLE, "settle", YukkuriAction.BOW, sulky || fearful ? "shy_peek" : "closed_smile", "", SETTLE_TICKS);
+            case "withdrew" -> enter(Phase.SETTLE, "settle", YukkuriAction.DROOP, "sad", "rule_withdraw", SETTLE_TICKS);
+            default -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.DROOP : fearful ? YukkuriAction.TREMBLE : YukkuriAction.BOW,
+                    sulky ? "down_angry" : fearful ? "teary" : "ashamed", "rule_accept", SETTLE_TICKS);
         }
     }
 

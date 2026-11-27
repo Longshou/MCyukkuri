@@ -88,7 +88,6 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 import net.neoforged.neoforge.common.util.FakePlayer;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
-import io.github.longshou.mcyukkuri.pet.rules.HouseRules;
 import io.github.longshou.mcyukkuri.pet.rules.HumanSight;
 import io.github.longshou.mcyukkuri.interaction.InteractionDispatch;
 
@@ -254,7 +253,9 @@ public final class ScenarioCommands {
                         .then(Commands.literal("on").executes(c -> hold(c, true)))
                         .then(Commands.literal("off").executes(c -> hold(c, false)))))
                 .then(Commands.literal("house_reset").executes(c -> {
-                    HouseRules.get(c.getSource().getLevel()).forget(TOOL_OPERATOR);
+                    for (var entity : c.getSource().getLevel().getAllEntities()) {
+                        if (entity instanceof YukkuriEntity y && y.pet().ownedBy(TOOL_OPERATOR)) y.pet().conscience().resetRules();
+                    }
                     return 1;
                 }))
                 .then(Commands.literal("house_rules").then(Commands.argument("target", EntityArgument.entity())
@@ -599,9 +600,9 @@ public final class ScenarioCommands {
         if (pet == null || !(pet.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
         owner.lookAt(EntityAnchorArgument.Anchor.EYES, pet.getEyePosition());
         var conscience = pet.pet().conscience();
-        int changed = conscience.household().mask(owner.getUUID()) ^ IntegerArgumentType.getInteger(c, "mask");
+        int changed = conscience.ruleMask() ^ IntegerArgumentType.getInteger(c, "mask");
         for (var rule : HouseRule.values()) {
-            if ((changed & rule.bit()) != 0) conscience.household().toggle(owner, pet, rule);
+            if ((changed & rule.bit()) != 0) conscience.toggle(owner, rule);
         }
         conscience.tell(owner);
         return conscience.told() ? 1 : 0;

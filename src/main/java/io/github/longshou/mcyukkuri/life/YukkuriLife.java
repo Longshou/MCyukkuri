@@ -2119,7 +2119,7 @@ public final class YukkuriLife {
             foodChoice = conscience.tempted(HouseRule.NO_EATING_UNASKED, 1 - nutrition / 100, RulesMath.starvingGuard(nutrition));
             if (foodChoice == Choice.HOLD) {
                 permissionWait = RulesMath.servingWait(queueBudget, entity.skills().grade(Ability.WAIT));
-                entity.showReaction("drool", "wait_turn", FaceTier.Tier.ofTicks(permissionWait));
+                entity.showReaction("drool", "rule_hold_eat", FaceTier.Tier.ofTicks(permissionWait));
                 GameplayLog.event(entity, "rules", "waiting rule=no_eating_unasked ticks={} source={}", permissionWait, GameplayLog.at(point));
             }
         }

@@ -276,8 +276,7 @@ public final class DailyLife {
                 cooldown = 600;
                 if (song == Choice.HOLD) {
                     boredom = Math.min(100, boredom + 5);
-                    PetScenes.act(entity, YukkuriAction.LOOK_AROUND, "open_smile", "", 12);
-                    PetScenes.later(entity, 12, () -> PetScenes.act(entity, YukkuriAction.LOOK_AROUND, "pursed", "", 28, entity.pet().presentOwner()));
+                    entity.pet().conscience().showHold(HouseRule.NO_SINGING, boredom / 100.0, entity.pet().presentOwner());
                 }
                 return false;
             }

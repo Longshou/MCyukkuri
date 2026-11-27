@@ -828,76 +828,279 @@ GAP_FILL = {
             'plain': ('{p}……いや。やめてほしい{e}。', '{p}……不要。想让你停下{e}。', '{p}... no. Please stop.')}},
 }
 
-RULE_AWE_BASIS = 'wp-rule-awe: a pet answers its owner (caught breaking a house rule, or told a rule changed) in words of awe; project-original wording, unvoiced'
-# One neutral line per tier, short enough to fit one beat; which beat speaks it is chosen by the performance from the pet's numbers
-# (Penance, RuleReaction). Every line names the owner (adult かいぬしさま, juvenile かいぬししゃま, baby lisped かいぬちしゃま;
-# zh 饲主大人, a deliberate raise over the 饲主先生 of ordinary address; en Owner): a pet speaks up to it, never as to an equal.
-RULE_AWE = {
-    # A rule was added: the pet that does not mind says it will keep it.
+RULE_AWE_BASIS = 'wp-rules-redo: authentic yukkuri speech for house rules (change, witness, hold-back, penance and secret-brood arcs); project-original wording'
+# Authentic yukkuri house-rule & secret-brood dialogue across baby / juvenile / adult tiers.
+# Pets speak as lowly, dependent yukkuris who fear upsetting or losing their owner (adult かいぬしさん / 饲主先生,
+# juvenile かいぬししゃん / 饲主先森, baby かいぬちしゃん / 饲主先森), using self-names {n}/{nb}, species tics {p}/{e}
+# and yukkuri worldview concepts (油库里/乖乖/忍住/不要讨厌) — never stiff human keigo ("遵命/听从您") and never 「人」 for a yukkuri.
+# Japanese stays concise (12-26 kana, minimal ellipses) so AquesTalk1 voices each beat cleanly in ~1.8-3.6s.
+RULE_STYLED = {
+    # A rule was added and the pet calmly/meekly accepts it (low urge or sharp-attached).
     'rule_tighten': {
-        'baby': ('{c}……あい……まもりゅ、かいぬちしゃま……', '{c}……好……会遵守，饲主大人……', '{c}... yes... I will obey, Owner...'),
-        'juvenile': ('{p}はい……まもりゅ、かいぬししゃま。', '{p}是……会遵守，饲主大人。', '{p}Yes... I will keep it, Owner.'),
-        'adult': ('{p}はい……まもります、かいぬしさま。', '{p}是……会遵守的，饲主大人。', '{p}Yes... I will keep it, Owner.')},
-    # A rule was added and the pet fears its owner: it cowers and begs not to be punished.
-    'rule_cower': {
-        'baby': ('{c}……こあい……かいぬちしゃま、ごみぇんなちゃい……', '{c}……好口怕……饲主大人，对不起……', '{c}... scawy... sowwy, Owner...'),
-        'juvenile': ('{p}ひっ……まもりゅ……おこらないで、かいぬししゃま……', '{p}呜……会遵守……别生气，饲主大人……', '{p}Eek... I will keep it... do not be angry, Owner...'),
-        'adult': ('{p}ひ……まもります……おこらないで、かいぬしさま……', '{p}呜……会遵守……请别生气，饲主大人……', '{p}Eek... I will keep it... please do not be angry, Owner...')},
-    # A rule was added, the pet sulked, and now it gives in: the owner decides.
-    'rule_yield': {
-        'baby': ('{c}……ぷくー……あい、かいぬちしゃま……', '{c}……噗咕……好嘛，饲主大人……', '{c}... puff... okay, Owner...'),
-        'juvenile': ('{p}……ふん。……ちたがいましゅ、かいぬししゃま。', '{p}……哼。……听从，饲主大人。', '{p}...Hmph. ...I will obey, Owner.'),
-        'adult': ('{p}……ふん。……したがいます、かいぬしさま。', '{p}……哼。……听从您，饲主大人。', '{p}...Hmph. ...I will obey, Owner.')},
-    # A rule was lifted: delight and thanks (the breeding rule keeps its own permit line).
+        'baby': {
+            'proud': ('{c}！ わかっちゃ！ かいぬちしゃん きく！', '{c}！知道惹！窝听饲主先森的！', '{c}! Otay! I listen to Mr. Owner!'),
+            'timid': ('{c}、おこらないで……{nb} いいこちゅる……', '{c}，不要生气……{nb}乖乖忍住……', '{c}, not angwy... {nb} be good...'),
+            'plain': ('{c}、うん。かいぬちしゃん、いいこに ちゅる。', '{c}，嗯。饲主先森，{nb}会乖乖的。', '{c}, yup. Mr. Owner, {nb} will be good.')},
+        'juvenile': {
+            'proud': ('{p}むぅ、わかっちゃ{e}。かいぬししゃんが だめなら がまん{e}。', '{p}姆，知道惹啦{e}。饲主先森说不可以，{n}就忍住{e}。', '{p}Muu, got it. If Mr. Owner says no, {n} holds back.'),
+            'timid': ('{p}ゆぅ、{n} おぼえちゃ……いいこで がまんする{e}……', '{p}油呜，{n}记住惹……会乖乖听饲主先森的话，不惹您生气……', '{p}Yuu, {n} remembers... I\'ll be good and hold back...'),
+            'plain': ('{p}うん、おぼえちゃ{e}！ かいぬししゃんの いいこに にゃる{e}！', '{p}嗯，{n}记住惹{e}！要当能让饲主先森油库里的好孩子{e}！', '{p}Yup, got it! {n} will be a good pet for Mr. Owner!')},
+        'adult': {
+            'proud': ('{p}むぅ、わかった{e}。かいぬしさんが だめなら がまんする{e}。', '{p}姆，知道了啦{e}。既然是饲主先生定下的，{n}就乖乖忍住{e}。', '{p}Muu, understood. If Mr. Owner forbids it, {n} holds back.'),
+            'timid': ('{p}ゆぅ、{n} わかった……おこらせないよう いいこで いる……', '{p}油呜，{n}知道了……会乖乖听饲主先生的话，不惹饲主先生生气……', '{p}Yuu, {n} understands... I will stay good so you aren\'t mad...'),
+            'plain': ('{p}うん、おぼえた{e}！ かいぬしさんの いいこで いる{e}！', '{p}嗯，{n}记住啦{e}！想让饲主先生好好油库里，{n}乖乖遵守{e}！', '{p}Yes, remembered! {n} will be a good pet so Mr. Owner can take it easy!')}},
+    # A rule was lifted: joyful, shy, or calm gratitude.
     'rule_loosen': {
-        'baby': ('{c}！ やっちゃー！ ありがちょ、かいぬちしゃま！', '{c}！太好惹！谢谢饲主大人！', '{c}! Yay! Thank you, Owner!'),
-        'juvenile': ('{p}ゆるくにゃっちゃ！ ありがちょう、かいぬししゃま！', '{p}变宽松惹！谢谢，饲主大人！', '{p}It got looser! Thank you, Owner!'),
-        'adult': ('{p}ゆるくなった……！ ありがとうございます、かいぬしさま！', '{p}变宽松了……！谢谢您，饲主大人！', '{p}It got looser...! Thank you, Owner!')},
-    # After the glad jump the pet bows to the owner who allowed it.
-    'rule_grateful': {
-        'baby': ('{c}……ありがちょ……かいぬちしゃま……', '{c}……谢谢……饲主大人……', '{c}... thank you... Owner...'),
-        'juvenile': ('{p}かいぬししゃまの おかげ……ありがちょう。', '{p}多亏饲主大人……谢谢。', '{p}Thanks to you, Owner... thank you.'),
-        'adult': ('{p}かいぬしさまの おかげです……ありがとうございます。', '{p}多亏饲主大人……谢谢您。', '{p}Thanks to you, Owner... thank you.')},
-    # Caught breaking a rule: the first gasp at seeing the owner.
+        'baby': {
+            'proud': ('{c}♪ やっちゃー！ かいぬちしゃん だいしゅき！', '{c}♪ 太好惹！最喜欢饲主先森！', '{c}! Yay! Love you, Mr. Owner!'),
+            'timid': ('{c}、ほんとに いいの？ かいぬちしゃん ありがちょ……', '{c}，真的可以嘛？谢谢饲主先森……', '{c}, weally otay? Tank you, Mr. Owner...'),
+            'plain': ('{c}♪ できゅの？ かいぬちしゃん ありがちょー！', '{c}♪ 可以做惹？谢谢饲主先森！', '{c}! I can? Tank you, Mr. Owner!')},
+        'juvenile': {
+            'proud': ('{p}ほんとに いいの{e}？！ やっちゃー、かいぬししゃん さいこう{e}！', '{p}真的可以了嘛{e}？！太好惹，饲主先森最能油库里惹{e}！', '{p}Really allowed?! Yay, Mr. Owner is the best!'),
+            'timid': ('{p}えっ、ほんとに いいの？ ありがちょう、かいぬししゃん……', '{p}诶，真的可以做了嘛？谢、谢谢饲主先森……{n}好开心……', '{p}Eh, really okay? Th-thank you, Mr. Owner...'),
+            'plain': ('{p}わぁい、いいの{e}！ かいぬししゃん ありがちょう{e}！', '{p}哇呀，现在可以了嘛{e}！谢谢饲主先森，最喜欢饲主先森惹{e}！', '{p}Yay, it\'s allowed! Thank you, Mr. Owner!')},
+        'adult': {
+            'proud': ('{p}ほんとに いいの{e}？！ やったー、かいぬしさん だいすき{e}！', '{p}真的可以了吗{e}？！太好啦，饲主先生最能油库里啦{e}！', '{p}Really allowed?! Yay, {n} loves Mr. Owner!'),
+            'timid': ('{p}えっ、ほんとに いいの？ ありがとう、かいぬしさん……', '{p}诶，真的可以做了吗？谢、谢谢饲主先生……{n}好开心……', '{p}Eh, really allowed? Thank you, Mr. Owner...'),
+            'plain': ('{p}わぁい、もう いいの{e}！ ありがとう、かいぬしさん{e}！', '{p}哇呀，现在可以做了吗{e}！谢谢饲主先生，{n}最喜欢饲主先生啦{e}！', '{p}Yay, I can do it now! Thank you, Mr. Owner!')}},
+    # Caught breaking a rule: the first startled gasp when noticing the owner.
     'rule_gasp': {
-        'baby': ('{c}！ ひっ……！ かいぬちしゃま……！', '{c}！呀……！饲主大人……！', '{c}! Eek...! Owner...!'),
-        'juvenile': ('{p}ひっ……！ かいぬししゃま……！', '{p}呀……！饲主大人……！', '{p}Eek...! Owner...!'),
-        'adult': ('{p}ひっ……！ かいぬしさま……！', '{p}呀……！饲主大人……！', '{p}Eek...! Owner...!')},
-    # Caught and afraid of the owner: it begs for mercy.
+        'baby': {
+            'proud': ('{c}！ かいぬちしゃん？！ いつ きたの！', '{c}！饲主先森？！啥时候来的！', '{c}! Mr. Owner?! When did you get here!'),
+            'timid': ('{c}！ ひぃっ、かいぬちしゃん みられちゃ！', '{c}！呀呜，被饲主先森看见惹！', '{c}! Eek, Mr. Owner saw me!'),
+            'plain': ('{c}！ かいぬちしゃん！ ばれちゃっちゃ！', '{c}！饲主先森！露馅惹！', '{c}! Mr. Owner! Caught!')},
+        'juvenile': {
+            'proud': ('{p}ゆっ？！ かいぬししゃん、いつ もどっちゃん{e}！', '{p}油？！饲、饲主先森，什么时候回来的{e}！', '{p}Yu?! Mr. Owner, when did you get back?!'),
+            'timid': ('{p}ひゃぅっ！ かいぬししゃんに みられちゃ……！', '{p}呀呜呜！被饲主先森看见惹……糟糕惹！', '{p}Eeeek! Mr. Owner saw me...!'),
+            'plain': ('{p}ひっ！ かいぬししゃん、みつかっちゃっちゃ{e}！', '{p}呀！饲主先森……被、被抓到惹{e}！', '{p}Eek! Mr. Owner, I got caught!')},
+        'adult': {
+            'proud': ('{p}ゆっ？！ かいぬしさん、いつ もどってきたの{e}！', '{p}油？！饲、饲主先生，什么时候回来的{e}！', '{p}Yu?! Mr. Owner, when did you come back?!'),
+            'timid': ('{p}ひゃぅっ！ かいぬしさんに みられた……！', '{p}呀呜呜！被饲主先生看见了……怎么办呀！', '{p}Eeeek! Mr. Owner saw me...!'),
+            'plain': ('{p}ひっ！ かいぬしさん、みつかっちゃった{e}！', '{p}呀！饲主先生……被、被发现了{e}！', '{p}Eek! Mr. Owner, I got caught!')}},
+    # Caught breaking a rule: bowing/apologizing.
+    'caught_guilty': {
+        'baby': {
+            'proud': ('{c}、みられちゃ……ごめんにゃさい、かいぬちしゃん。', '{c}，被看见惹……对不起，饲主先森。', '{c}, got seen... sowwy, Mr. Owner.'),
+            'timid': ('{c}、ごめんにゃさい……{nb} わるいこ……', '{c}，对不起呜……{nb}是坏孩子……', '{c}, sowwy... {nb} is bad...'),
+            'plain': ('{c}、かいぬちしゃん ごめんにゃさい……ばれちゃ……', '{c}，饲主先森对不起……被发现惹……', '{c}, Mr. Owner sowwy... got caught...')},
+        'juvenile': {
+            'proud': ('{p}むぅ、みられちゃ{e}……ごめんにゃさい、かいぬししゃん。', '{p}唔，被、被看见惹{e}……对不起嘛，饲主先森。', '{p}Muu, got seen... sorry, Mr. Owner.'),
+            'timid': ('{p}ゆぅ、みつかっちゃ……ごめんにゃさい、{n} わるいこ……', '{p}呜呜，被饲主先森发现惹……对不起，{n}是坏孩子……', '{p}Yuu, caught... sorry, {n} is a bad pet...'),
+            'plain': ('{p}ゆぅ、ごめんにゃさい かいぬししゃん……こっそり やっちゃっちゃ。', '{p}油呜，对不起饲主先森……{n}偷偷不听话被发现惹。', '{p}Yuu, sorry Mr. Owner... {n} snuck past the rule.')},
+        'adult': {
+            'proud': ('{p}むぅ、みられちゃった{e}……ごめんなさい、かいぬしさん。', '{p}唔，被、被看见了{e}……对不起嘛，饲主先生。', '{p}Muu, got seen... I am sorry, Mr. Owner.'),
+            'timid': ('{p}ゆぅ、みつかった……ごめんなさい、{n} わるい ゆっくり……', '{p}呜呜，被饲主先生发现了……对不起，{n}是不听话的坏油库里……', '{p}Yuu, caught... sorry, {n} is a bad yukkuri...'),
+            'plain': ('{p}ゆぅ、ごめんなさい かいぬしさん……こっそり やぶっちゃった。', '{p}油呜，对不起饲主先生……{n}偷偷不听话被发现了。', '{p}Yuu, I am sorry Mr. Owner... {n} broke the rule in secret.')}},
+    # Scolded / punished by owner during penance.
+    'scolded': {
+        'baby': {
+            'proud': ('{c}、きびちい……わかっちゃ、もう ちにゃい。', '{c}，好凶呜……知道惹，不弄惹。', '{c}, so mean... otay, no more.'),
+            'timid': ('{c}、こあいよぉ……おこらないで、かいぬちしゃん……', '{c}，好口怕呀……不要凶窝，饲主先森……', '{c}, so scawy... don\'t yell, Mr. Owner...'),
+            'plain': ('{c}、しかられちゃ……{nb} ごめんにゃさい……', '{c}，被骂惹……{nb}错惹呜……', '{c}, got scolded... {nb} is sowwy...')},
+        'juvenile': {
+            'proud': ('{p}ゆぅ、きつく いわれて……わかっちゃ、もう しない{e}。', '{p}呜，说得这么凶……{n}知道惹啦，以后不这样惹{e}。', '{p}Yuu, so harsh... {n} gets it, never again.'),
+            'timid': ('{p}ひゃぅ、こわいよぉ……かいぬししゃん おこらないで……', '{p}呀呜呜，好可怕呀……饲主先森别那么凶，{n}好害怕……', '{p}Eeeek, so scary... Mr. Owner, please don\'t be mad...'),
+            'plain': ('{p}ゆぅ、しかられちゃ……{n} ほんとに はんせいしてる{e}……', '{p}油呜呜，被饲主先森凶惹……{n}好难过，真的知错惹{e}……', '{p}Yuu, got scolded... {n} is truly sorry...')},
+        'adult': {
+            'proud': ('{p}ゆぅ、きつく いわれて……わかった、もう しない{e}。', '{p}呜，说得这么狠……{n}知道了啦，以后不这样了{e}。', '{p}Yuu, that was harsh... {n} understands, never again.'),
+            'timid': ('{p}ひゃぅ、こわいよぉ……かいぬしさん おこらないで……', '{p}呀呜呜，好可怕……饲主先生别那么凶，{n}好害怕……', '{p}Eeeek, so scary... Mr. Owner, please don\'t be so fierce...'),
+            'plain': ('{p}ゆぅ、しかられちゃった……{n} ほんとに わるかった{e}……', '{p}油呜呜，被饲主先生凶了……{n}好难过，真的知错了{e}……', '{p}Yuu, Mr. Owner scolded me... {n} was really wrong...')}},
+    # Holding back from singing (NO_SINGING obey performance).
+    'rule_hold_song': {
+        'baby': {
+            'proud': ('{c}、うたいたい……でも がまん、ぐっ。', '{c}，想唱唱……但是忍住，咕。', '{c}, wanna sing... but hold in, guh.'),
+            'timid': ('{c}、うたっちゃ だめ……おくち ぎゅっ。', '{c}，啊不能唱……嘴巴闭紧。', '{c}, no singing... mouth shut tight.'),
+            'plain': ('{c}、うた がまんちゅる……やくそく。', '{c}，歌歌忍住……跟饲主先森约好惹。', '{c}, hold back song... pwomised.')},
+        'juvenile': {
+            'proud': ('{p}むぅ、うたいたいのに……しょうがない、がまんする{e}。', '{p}姆呜，喉咙好痒呀{e}……算了，不惹饲主先森生气，忍住不唱惹{e}。', '{p}Muu, wanna sing... fine, {n} will hold back for Mr. Owner.'),
+            'timid': ('{p}ゆぅ、うたいそうに にゃっちゃ……だめ、おこられちゃう！', '{p}油呜，差点唱出来惹……不可以，被饲主先森听到会生气的！', '{p}Yuu, almost sang... no, Mr. Owner would get mad!'),
+            'plain': ('{p}うたいたいけど だめ……かいぬししゃんと やくそく{e}。', '{p}好想唱歌呀……不行不行，饲主先森不准唱，要把嘴巴闭紧{e}。', '{p}Want to sing, no... I promised Mr. Owner to stay quiet.')},
+        'adult': {
+            'proud': ('{p}むぅ、のどが うずうず する……しかたない、がまんする{e}。', '{p}姆呜，喉咙好痒呀{e}……算了，不惹饲主先生生气，{n}忍住不唱了{e}。', '{p}Muu, my throat itches... fine, {n} will hold back.'),
+            'timid': ('{p}ゆぅ、うたいそうに なった……だめ、おこられちゃう！', '{p}油呜，差点唱出来了……不可以，被饲主先生听到会生气的！', '{p}Yuu, almost sang out loud... no, Mr. Owner would be mad!'),
+            'plain': ('{p}うたいたいけど だめ……おくちを ぎゅっと とじる{e}。', '{p}好想唱歌呀……不行不行，饲主先生不准唱，{n}要把嘴巴闭紧{e}。', '{p}I want to sing, no... {n} will shut my mouth tight.')}},
+    # Waiting at the food bowl / food (NO_EATING_UNASKED obey performance).
+    'rule_hold_eat': {
+        'baby': {
+            'proud': ('{c}、まんま たべたい……でも まっちぇる。', '{c}，饭饭想吃……但是乖乖等。', '{c}, wanna eat num-num... but waiting.'),
+            'timid': ('{c}、まんま いいにおい……かいぬちしゃん いい？', '{c}，饭饭好香……饲主先森可以嘛？', '{c}, smells good... Mr. Owner, otay?'),
+            'plain': ('{c}、じゅるり……いいって いうまで まちゅ。', '{c}，吸溜……等饲主先森点头才吃。', '{c}, drool... waiting til you say otay.')},
+        'juvenile': {
+            'proud': ('{p}むぅ、ぽんぽん ぐーぐー いう……でも ちゃんと まちゅ{e}。', '{p}姆呜，彭彭咕噜咕噜叫惹{e}……但是不能偷吃，等饲主先森点头{e}。', '{p}Muu, tummy is growling... but {n} won\'t sneak a bite.'),
+            'timid': ('{p}ごはんしゃん……でも だめ、いいこで まっちぇるよ……', '{p}饭先森就在眼前……可、可是不能偷吃，饲主先森，{n}乖乖在等哦……', '{p}Mr. Food... mustn\'t sneak it, Mr. Owner, {n} is waiting...'),
+            'plain': ('{p}いいにおい……かいぬししゃんが いいって いうまで まちゅ{e}。', '{p}好香的饭先森……不行，要乖乖等饲主先森说可以才能吃{e}。', '{p}Smells yummy... {n} will wait until Mr. Owner gives the nod.')},
+        'adult': {
+            'proud': ('{p}むぅ、ぽんぽん ぐーぐー いう……でも かってに たべない{e}。', '{p}姆呜，彭彭咕噜咕噜叫了{e}……但是不能偷吃，等饲主先生点头{e}。', '{p}Muu, my tummy is growling... but {n} won\'t eat unasked.'),
+            'timid': ('{p}ごはんさん……でも だめ、いいこで まってるよ……', '{p}饭先生就在眼前……可、可是不能偷吃，饲主先生，{n}乖乖在等哦……', '{p}Mr. Food... mustn\'t eat yet, Mr. Owner, {n} is waiting nicely...'),
+            'plain': ('{p}いいにおい……かいぬしさんが いいって いうまで まつ{e}。', '{p}好香的饭先生……不行，要乖乖等饲主先生点头才能吃{e}。', '{p}Tasty Mr. Food... {n} will wait until Mr. Owner says okay.')}},
+    # Holding back at the yard edge (NO_LEAVING_YARD obey performance).
+    'rule_hold_yard': {
+        'baby': {
+            'proud': ('{c}、おしょと みたい……でも だめ、もどる。', '{c}，想去外面看……但是不行，回去。', '{c}, wanna see outside... no, go back.'),
+            'timid': ('{c}、ここから おしょと……こあい、もどろ。', '{c}，再走就出去惹……不敢，快退回来。', '{c}, outside here... scawy, go back.'),
+            'plain': ('{c}、おしょと だめ……おうちに もどる。', '{c}，不准出院子……窝乖乖回去。', '{c}, no going out... go back home.')},
+        'juvenile': {
+            'proud': ('{p}おしょと いきたいのに……しかたない、おにわに いる{e}。', '{p}好想到外面逛逛呀{e}……哼，饲主先森不让出，就在院子里玩惹{e}。', '{p}Wanna explore outside... fine, {n} stays in the yard.'),
+            'timid': ('{p}ゆぅ、ここから そと……でちゃ だめ、はやく もどろ！', '{p}油呜，再往外走就是院子外面惹……不可以出去，快退回来！', '{p}Yuu, outside past here... mustn\'t go out, hurry back!'),
+            'plain': ('{p}おしょと ゆっくりできそう……でも だめ、いいこで もどる{e}。', '{p}外面看起来好能油库里……不行，不准出院子，{n}乖乖回去吧{e}。', '{p}Outside looks easy... no, {n} must stay inside the yard.')},
+        'adult': {
+            'proud': ('{p}おそと あるきたいのに……しかたない、おにわに いる{e}。', '{p}好想到外面逛逛呀{e}……没办法，饲主先生不让出去，就在院子里吧{e}。', '{p}Want to stroll outside... fine, {n} stays in the yard.'),
+            'timid': ('{p}ゆぅ、ここから そと……でちゃ だめ、はやく もどろう！', '{p}油呜，再往外走就是院子外面了……不可以出去，快退回来！', '{p}Yuu, outside beyond here... must not leave, hurry back!'),
+            'plain': ('{p}おそと ゆっくりできそう……でも だめ、いいこで もどる{e}。', '{p}外面看起来好能油库里……不行，饲主先生不准出院子，{n}乖乖回去吧{e}。', '{p}Outside looks easy... no, Mr. Owner forbade leaving, so {n} goes back.')}},
+    # Holding back from bullying a housemate (NO_BULLYING obey performance).
+    'rule_hold_bully': {
+        'baby': {
+            'proud': ('{c}、むかっ……でも いじめちゃ だめ、ぐっ。', '{c}，好气……但是不准欺负，忍住。', '{c}, grrr... no bullying, hold back.'),
+            'timid': ('{c}、いじめちゃ だめ……おこられちゃう。', '{c}，不可以欺负……会被骂。', '{c}, mustn\'t bully... get scolded.'),
+            'plain': ('{c}、なかよく ちゅる……やくそく。', '{c}，要好好相处……跟饲主先森约好惹。', '{c}, play nice... pwomised.')},
+        'juvenile': {
+            'proud': ('{p}ぐぅ、むかつく{e}！ でも いじめは だめ、こんかいだけ{e}！', '{p}咕呜，真让油火大{e}！要不是饲主先森不准，这次就放过你{e}！', '{p}Grrr, so annoying! Only because Mr. Owner says no, I\'ll let it slide!'),
+            'timid': ('{p}いじめちゃ だめ……かいぬししゃんに おこられちゃう……', '{p}不可以动手……要是欺负同伴，饲主先森会狠狠生气的……', '{p}Must not bully... Mr. Owner will be furious...'),
+            'plain': ('{p}ぷくーっ、はらが たつ……でも がまんする{e}。', '{p}明明好气呀……但是饲主先森不准欺负同伴，{n}乖乖忍住{e}。', '{p}Puff, so mad... but {n} will hold back for Mr. Owner.')},
+        'adult': {
+            'proud': ('{p}ぐぅ、むかつく{e}！ かいぬしさんが だめだから、こんかいだけ{e}！', '{p}咕呜，真让油火大{e}！要不是饲主先生不准，哼，这次就放过你{e}！', '{p}Grrr, infuriating! Only because Mr. Owner forbids it, {n} lets it go!'),
+            'timid': ('{p}いじめちゃ だめ……かいぬしさんに きらわれちゃう……', '{p}不可以动手……要是欺负同伴，饲主先生会讨厌{n}的……', '{p}Must not bully... Mr. Owner would hate me...'),
+            'plain': ('{p}ぷくーっ、はらが たつ……でも やくそくだから がまんする{e}。', '{p}明明好气呀……但是跟饲主先生约好不准欺负同伴，{n}忍住{e}。', '{p}Puff, so mad... but I promised Mr. Owner, so {n} holds back.')}},
+    # Holding back in general (juice tub, low-urge singing, give-way).
+    'rule_hold': {
+        'baby': {
+            'proud': ('{c}、やりちゃい……でも がまんちゅる。', '{c}，好想做……但是窝忍住。', '{c}, wanna do it... but holding back.'),
+            'timid': ('{c}、だめ……いいこに ちゅる。', '{c}，不可以……窝要当乖孩子。', '{c}, no... gonna be good.'),
+            'plain': ('{c}、だめって……がまん、がまん。', '{c}，饲主先森说不可以……忍住，忍住。', '{c}, said no... hold back, hold back.')},
+        'juvenile': {
+            'proud': ('{p}むぅ、やりちゃいのに……しかたない、がまんする{e}。', '{p}姆呜，明明好想做的说{e}……没办法，听饲主先森的，忍住就是惹{e}。', '{p}Muu, I want to... fine, {n} obeys Mr. Owner and holds back.'),
+            'timid': ('{p}ゆぅ、やぶっちゃ だめ……いいこで がまんする……', '{p}油呜，不可以违反家规……{n}会乖乖听饲主先森的话……', '{p}Yuu, mustn\'t break the rule... {n} holds back...'),
+            'plain': ('{p}やりちゃいけど だめ……かいぬししゃんと やくそく{e}。', '{p}好想做呀……不行不行，饲主先森说不可以，{n}要忍住{e}。', '{p}Really want to, no... Mr. Owner said not to, so {n} holds back.')},
+        'adult': {
+            'proud': ('{p}むぅ、やりたいのに……しかたない、がまんする{e}。', '{p}姆呜，明明好想做的说{e}……没办法，听饲主先生的，忍住就是了{e}。', '{p}Muu, I want to... fine, {n} does as Mr. Owner says.'),
+            'timid': ('{p}ゆぅ、おやくそく やぶっちゃ だめ……ちゃんと がまんする……', '{p}油呜，不可以违反家规……{n}会乖乖听饲主先生的话……', '{p}Yuu, must not break the house rule... {n} holds back...'),
+            'plain': ('{p}やりたいけど だめ……かいぬしさんとの やくそく{e}。', '{p}好想做呀……不行不行，饲主先生说不可以，{n}要忍住{e}。', '{p}I want to, no... Mr. Owner forbade it, so {n} holds back.')}},
+    # Witnessing another pet get a rule loosened while this pet is still forbidden and wants it.
+    'rule_witness_envy': {
+        'baby': {
+            'proud': ('{c}！ あっちだけ ずるい！ {nb}もー！', '{c}！只有那边可以，好狡猾！{nb}也要！', '{c}! Only that one, unfair! {nb} too!'),
+            'timid': ('{c}、あっちだけ いいの？ {nb}は だめ？', '{c}，只有那边可以嘛？{nb}不行嘛？', '{c}, only that one? Not {nb}?'),
+            'plain': ('{c}、いいにゃぁ……{nb}も やりちゃい……', '{c}，好羡慕呀……{nb}也想做……', '{c}, lucky... {nb} wants to too...')},
+        'juvenile': {
+            'proud': ('{p}むぅ！ なんで あのこだけ いいの{e}！ {n}も やりちゃい！', '{p}呜——！为什么只有那边那只可以呀{e}！{n}也好想被允许嘛！', '{p}Muu! Why is only that one allowed?! {n} wants to too!'),
+            'timid': ('{p}ゆぅ、あのこだけ いいの……{n}は まだ がまんかにゃ……', '{p}油呜，只有那边那只可以呀……{n}还要继续乖乖忍着嘛……', '{p}Yuu, only that one got allowed... does {n} still hold back...?'),
+            'plain': ('{p}えっ、あのこは いいの{e}？ うらやましいなぁ……', '{p}诶，那只可以了嘛{e}？好羡慕呀……{n}什么时候也能行捏……', '{p}Eh, that one is allowed now? So jealous...')},
+        'adult': {
+            'proud': ('{p}むぅ！ なんで あのこだけ いいの{e}！ {n}も やりたい！', '{p}呜——！为什么只有那边那只可以呀{e}！{n}也好想被允许嘛！', '{p}Muu! Why is only that one allowed?! {n} wants to too!'),
+            'timid': ('{p}ゆぅ、あのこだけ いいんだ……{n}は まだ がまんかな……', '{p}油呜，只有那边那只可以呀……{n}还要继续乖乖忍着吗……', '{p}Yuu, only that one is allowed... {n} still has to hold back...'),
+            'plain': ('{p}えっ、あのこは いいの{e}？ うらやましいなぁ……', '{p}诶，那只可以了吗{e}？好羡慕呀……{n}什么时候也能被允许呢……', '{p}Eh, that one is allowed now? So enviable...')}},
+}
+
+RULE_AWE = {
+    # A rule was added and an obedient pet really wanted it: disappointed yet submissive.
+    'rule_tighten_sad': {
+        'baby': ('{c}、やりちゃいのに……でも だめ、がまん……', '{c}，明明好想做……但是饲主先森说不可以，窝忍住……', '{c}, really wanna... but Mr. Owner said no...'),
+        'juvenile': ('{p}ゆぅ、やりちゃいけど……かいぬししゃんが だめなら がまん{e}。', '{p}油呜，明明好想做的说……可、可是饲主先森说不可以，{n}乖乖忍住惹{e}。', '{p}Yuu, I really wanted to... but if Mr. Owner says no, {n} holds back.'),
+        'adult': ('{p}ゆぅ、やりたいけど……かいぬしさんが だめなら がまんする{e}。', '{p}油呜，明明好想做的说……可、可是饲主先生说不可以，{n}乖乖忍住就是了{e}。', '{p}Yuu, I really wanted to... but if Mr. Owner forbids it, {n} will hold back.')},
+    # A rule was added and the pet fears its owner: cowers and begs not to be angry.
+    'rule_cower': {
+        'baby': ('{c}、こあいよぉ！ おこらないで、{nb} いいこちゅる！', '{c}，好口怕呀！饲主先森别生气，{nb}绝对乖乖听话！', '{c}, so scawy! Don\'t be mad, {nb} will be good!'),
+        'juvenile': ('{p}ひゃぅ！ おこらないで かいぬししゃん、ぜったい いいこに する！', '{p}呀呜呜！不要生气呀饲主先森，{n}绝对乖乖听话，不要打{n}！', '{p}Eeeek! Don\'t be mad Mr. Owner, {n} will be super good!'),
+        'adult': ('{p}ひゃぅ！ おこらないで かいぬしさん、ぜったい まもるから！', '{p}呀呜呜！不要生气呀饲主先生，{n}绝对乖乖听话，不要讨厌{n}！', '{p}Eeeek! Please don\'t be angry Mr. Owner, {n} will obey!')},
+    # A rule was added, high-urge disobedient pet briefly pouts in protest (beat 1 before rule_yield).
+    'rule_sulk': {
+        'baby': ('{c}！ ぷくーっ！ なんで だめなの！ やりちゃい！', '{c}！噗咕——！为什么不可以嘛！窝想做呀！', '{c}! Puff! Why not! I wanna!'),
+        'juvenile': ('{p}ぷくーっ、なんで だめなの{e}！ {n} やりちゃいのに！', '{p}呜呜，为什么不可以呀{e}！{n}明明好想做的说！', '{p}Puff, why is it forbidden?! {n} really wants to!'),
+        'adult': ('{p}ぷくーっ、なんで だめなの{e}！ {n} やりたいのに！', '{p}呜呜，为什么不可以呀{e}！{n}明明好想做的说！', '{p}Puff, why is it forbidden?! {n} wants to so badly!')},
+    # Beat 2 after rule_sulk: remembers owner is boss and sheepishly yields.
+    'rule_yield': {
+        'baby': ('{c}、ぐすっ……かいぬちしゃん みてる、がまんちゅる……', '{c}，抽泣……饲主先森看着呢，好嘛窝忍住……', '{c}, sniff... Mr. Owner is looking, I hold back...'),
+        'juvenile': ('{p}ゆぅ、かいぬししゃん みてる……しかたにゃい、がまんする{e}。', '{p}呜，饲主先森看着呢……没办法，{n}乖乖忍住就是惹{e}，不要生气呀。', '{p}Yuu, Mr. Owner is watching... fine, {n} will hold back.'),
+        'adult': ('{p}ゆぅ、かいぬしさん みてる……しかたない、がまんする{e}。', '{p}呜，饲主先生看着呢……没办法，{n}乖乖忍住就是了{e}，不要生气呀。', '{p}Yuu, Mr. Owner is watching... fine, {n} will hold back.')},
+    # Beat 2 after glad jump / shy relief: warm yukkuri gratitude bow.
+    'rule_grateful': {
+        'baby': ('{c}♪ かいぬちしゃん やさちい！ いっしょに ゆっくり！', '{c}♪ 饲主先森最温柔惹！一起油库里！', '{c}! Mr. Owner is so nice! Take it easy!'),
+        'juvenile': ('{p}かいぬししゃん やさしい{e}！ いっしょに ゆっくりする{e}！', '{p}饲主先森最温柔惹{e}！以后{n}也会乖乖陪饲主先森油库里{e}！', '{p}Mr. Owner is the kindest! Let\'s take it easy together!'),
+        'adult': ('{p}かいぬしさん やさしい{e}！ これからも いいこで いる{e}！', '{p}饲主先生最温柔了{e}！以后{n}也会乖乖的，陪饲主先生一起油库里{e}！', '{p}Mr. Owner is the kindest! {n} will stay good for you!')},
+    # Witnessing another pet get a rule tightened: flinches nervously / sympathizes.
+    'rule_witness_wary': {
+        'baby': ('{c}、かいぬちしゃん こあい……{nb}も いいこちゅる……', '{c}，饲主先森好严肃……{nb}也要乖乖的……', '{c}, Mr. Owner looks scawy... {nb} be good too...'),
+        'juvenile': ('{p}ゆぅ、かいぬししゃん きびしい……{n}も いいこに しにゃきゃ。', '{p}油呜，饲主先森表情好严肃……{n}也一定要乖乖守规矩才行。', '{p}Yuu, Mr. Owner is strict... {n} had better behave too.'),
+        'adult': ('{p}ゆぅ、かいぬしさん きびしい……{n}も いいこに してなきゃ。', '{p}油呜，饲主先生表情好严肃……{n}也一定要乖乖守规矩才行。', '{p}Yuu, Mr. Owner is strict... {n} must be sure to behave too.')},
+    # Caught breaking a rule: bold disobedient pet mutters defensively (before rule_excuse).
+    'rule_mutter': {
+        'baby': ('{c}、ちょっとだけ だったにょ……', '{c}，窝就偷偷弄惹一下下嘛……', '{c}, it was just a tiny bit...'),
+        'juvenile': ('{p}むぅ、{n} ちょっとだけ やっちゃん だけだもん……', '{p}呜，{n}只是实在忍不住才稍微做惹一下嘛……', '{p}Muu, {n} only slipped for a tiny moment...'),
+        'adult': ('{p}むぅ、{n} ちょっとだけ やった だけなのに……', '{p}呜，{n}只是实在忍不住才稍微做了一下的嘛……', '{p}Muu, {n} only did it for one tiny moment...')},
+    # Caught and afraid of the owner: tearful plea for mercy.
     'rule_beg': {
-        'baby': ('{c}……かいぬちしゃま……ゆるちちぇ……', '{c}……饲主大人……原谅窝……', '{c}... Owner... forgive me...'),
-        'juvenile': ('{p}ゆるちちぇ……かいぬししゃま……', '{p}原谅窝……饲主大人……', '{p}Forgive me... Owner...'),
-        'adult': ('{p}ゆるしてください……かいぬしさま……', '{p}请原谅……饲主大人……', '{p}Please forgive me... Owner...')},
-    # Caught and guilty: the apology's second breath, an oath.
+        'baby': ('{c}、ごめんにゃさい！ ぶたないで、すてないで！', '{c}，对不起呜！不要打窝，不要丢掉窝！', '{c}, sowwy! Don\'t hit me, don\'t throw me away!'),
+        'juvenile': ('{p}ゆぅ、ごめんにゃさい かいぬししゃん！ ぶたないで ゆるして！', '{p}油呜呜，对不起饲主先森！不要打{n}，不要把{n}丢掉，原谅{n}吧！', '{p}Yuu, sorry Mr. Owner! Don\'t hit me, please forgive {n}!'),
+        'adult': ('{p}ゆぅ、ごめんなさい かいぬしさん！ すてないで ゆるしてね！', '{p}油呜呜，对不起饲主先生！不要打{n}，不要把{n}丢掉，原谅{n}吧！', '{p}Yuu, sorry Mr. Owner! Don\'t throw {n} away, please forgive me!')},
+    # Caught and guilty: second breath after apology, earnest vow.
     'rule_vow': {
-        'baby': ('{c}……かいぬちしゃま、ごみぇんなちゃい……もう ちましぇん……', '{c}……饲主大人，对不起……再也不敢……', '{c}... sowwy, Owner... never again...'),
-        'juvenile': ('{p}ごみぇんなちゃい、かいぬししゃま……もう ちましぇん……', '{p}对不起，饲主大人……再也不敢了……', '{p}Sorry, Owner... never again...'),
-        'adult': ('{p}ごめんなさい、かいぬしさま……もう しません……', '{p}对不起，饲主大人……再也不会了……', '{p}I am sorry, Owner... never again...')},
-    # Caught and wary or sulking: it gives its reason, small, and still apologises.
+        'baby': ('{c}、ほんとに ごめんにゃさい……もう ぜったい しにゃい！', '{c}，真的对不起呜……再也不敢偷偷弄惹！', '{c}, weally sowwy... never ever again!'),
+        'juvenile': ('{p}ほんとに ごめんにゃさい、もう ぜったい しにゃい{e}！', '{p}真的对不起呀饲主先森……{n}是坏油库里，再也不敢偷偷做惹{e}！', '{p}Really sorry Mr. Owner... {n} will never sneak again!'),
+        'adult': ('{p}ほんとに ごめんなさい、もう ぜったい しない{e}！', '{p}真的对不起呀饲主先生……{n}是坏油库里，以后再也不敢偷偷做了{e}！', '{p}I am truly sorry Mr. Owner... {n} will never sneak again!')},
+    # Caught and wary/muttering: sheepish small excuse + apology.
     'rule_excuse': {
-        'baby': ('{c}……だっちぇ……がまん できにゃい……かいぬちしゃま……', '{c}……可是……忍不住……饲主大人……', '{c}... but... could not hold it... Owner...'),
-        'juvenile': ('{p}だっちぇ……がまん できにゃかった{e}……かいぬししゃま……', '{p}可是……实在忍不住{e}……饲主大人……', '{p}But... I could not hold it in... Owner...'),
-        'adult': ('{p}だって……がまん できなかった{e}……かいぬしさま……', '{p}可是……实在忍不住{e}……饲主大人……', '{p}But... I could not hold it in... Owner...')},
-    # Waiting for the verdict, lying low.
+        'baby': ('{c}、だっちぇ がまん できにゃかった……ごめんにゃさい。', '{c}，可、可是实在忍不住嘛……对不起，饲主先森。', '{c}, b-but couldn\'t hold it... sowwy, Mr. Owner.'),
+        'juvenile': ('{p}だって がまん できにゃかった{e}……わざとじゃ にゃいの。', '{p}可、可是真的憋得好难受嘛{e}……{n}不是故意惹饲主先森生气的，对不起。', '{p}B-but I couldn\'t hold it in... {n} didn\'t mean to upset you, sorry.'),
+        'adult': ('{p}だって がまん できなかった{e}……わざとじゃ ないの、ごめんなさい。', '{p}可、可是真的憋得好难受嘛{e}……{n}不是故意惹饲主先生生气的，对不起。', '{p}B-but I truly could not hold it in... {n} did not mean to upset you, sorry.')},
+    # Lying low waiting for the owner's verdict: anxious small question.
     'rule_wait': {
-        'baby': ('{c}……かいぬちしゃま、おこっちぇる……？', '{c}……饲主大人，生气了……？', '{c}... Owner, are you angwy...?'),
-        'juvenile': ('{p}かいぬししゃま……おこっちぇる……？', '{p}饲主大人……生气了……？', '{p}Owner... are you angry...?'),
-        'adult': ('{p}かいぬしさま……おこって……？', '{p}饲主大人……生气了吗……？', '{p}Owner... are you angry...?')},
-    # The stroke: forgiven.
+        'baby': ('{c}、かいぬちしゃん まだ おこっちぇる？ きらわれた？', '{c}，饲主先森还在生气嘛？不会讨厌{nb}吧？', '{c}, Mr. Owner still angwy? Hate {nb}?'),
+        'juvenile': ('{p}かいぬししゃん、まだ おこっちぇる？ {n} きらいに にゃっちゃ？', '{p}饲主先森，还在生气嘛？不会讨厌{n}了吧……？', '{p}Mr. Owner, still mad? Do you hate {n} now...?'),
+        'adult': ('{p}かいぬしさん、まだ おこってる？ {n} きらいに なっちゃった？', '{p}饲主先生，还在生气吗？不会讨厌{n}了吧……？', '{p}Mr. Owner, still angry? Have you come to hate {n}...?')},
+    # Forgiven by owner's stroke: tearful, relieved joy.
     'rule_thanks': {
-        'baby': ('{c}！ ありがちょ！ かいぬちしゃま！', '{c}！谢谢！饲主大人！', '{c}! Thank you, Owner!'),
-        'juvenile': ('{p}ありがちょう、かいぬししゃま！', '{p}谢谢您，饲主大人！', '{p}Thank you, Owner!'),
-        'adult': ('{p}ありがとうございます、かいぬしさま！', '{p}谢谢您，饲主大人！', '{p}Thank you, Owner!')},
-    # The scold or the blow taken: it accepts the owner's judgement.
+        'baby': ('{c}♪ ゆるちちぇ くれちゃの？！ ありがちょ、いいこちゅる！', '{c}♪ 饲主先森原谅窝惹？！谢谢饲主先森，窝当乖孩子！', '{c}! You fowgave me?! Tank you, I be good!'),
+        'juvenile': ('{p}ゆぅっ！ ゆるして くれちゃの？！ ありがちょう、いいこに にゃる{e}！', '{p}油呜！饲主先森原谅{n}惹吗？！谢谢饲主先森，{n}一定当乖孩子{e}！', '{p}Yuu! You forgave {n}?! Thank you, {n} will be good!'),
+        'adult': ('{p}ゆぅっ！ ゆるして くれたの？！ ありがとう、いいこで いる{e}！', '{p}油呜！饲主先生原谅{n}了吗？！谢谢饲主先生，{n}一定当乖孩子{e}！', '{p}Yuu! You forgave {n}?! Thank you, {n} will be a good pet!')},
+    # Settling after scold or blow: accepts the owner's judgement.
     'rule_accept': {
-        'baby': ('{c}……あい……かいぬちしゃま、ごみぇんなちゃい……', '{c}……嗯……饲主大人，对不起……', '{c}... yes... sowwy, Owner...'),
-        'juvenile': ('{p}あい……もう ちましぇん、かいぬししゃま……', '{p}嗯……再也不敢了，饲主大人……', '{p}Yes... never again, Owner...'),
-        'adult': ('{p}はい……もう しません、かいぬしさま……', '{p}是……再也不会了，饲主大人……', '{p}Yes... never again, Owner...')},
-    # The owner said nothing: it slinks off.
+        'baby': ('{c}、ぐすっ……{nb} わるかった、いいこに ちゅる。', '{c}，抽泣……{nb}错了，以后一定乖乖听饲主先森的话。', '{c}, sniff... {nb} was wrong, I listen now.'),
+        'juvenile': ('{p}ゆぅ、{n} わるかった……もう ぜったい いいつけ まもる{e}。', '{p}油呜，{n}错惹……记住教训惹，以后一定乖乖听饲主先森的话{e}。', '{p}Yuu, {n} was wrong... I learned my lesson and will obey.'),
+        'adult': ('{p}ゆぅ、{n} わるかった……もう ぜったい いいつけを まもる{e}。', '{p}油呜，{n}错了……记住教训了，以后一定乖乖听饲主先生的话{e}。', '{p}Yuu, {n} was wrong... I learned my lesson and will obey Mr. Owner.')},
+    # Ignored by owner: slinking off anxiously.
     'rule_withdraw': {
-        'baby': ('{c}……かいぬちしゃま、ごみぇんなちゃい……', '{c}……饲主大人，对不起……', '{c}... Owner, sowwy...'),
-        'juvenile': ('{p}……ごみぇんなちゃい、かいぬししゃま……', '{p}……对不起，饲主大人……', '{p}... sorry, Owner...'),
-        'adult': ('{p}……ごめんなさい、かいぬしさま……', '{p}……对不起，饲主大人……', '{p}... I am sorry, Owner...')},
+        'baby': ('{c}、みてくれにゃい……{nb} わるいこだ、ごめんにゃさい。', '{c}，饲主先森不理窝惹……都是{nb}不听话，对不起。', '{c}, won\'t look at me... {nb} was bad, sowwy.'),
+        'juvenile': ('{p}ゆぅ、むし しちゃっちゃ……{n} わるいこ だ、ごめんにゃさい。', '{p}呜，饲主先森不理{n}惹……都是{n}不听话害的，对不起。', '{p}Yuu, ignored me... {n} was bad, I am sorry.'),
+        'adult': ('{p}ゆぅ、むし しちゃった……{n} わるい ゆっくり だ、ごめんなさい。', '{p}呜，饲主先生不理{n}了……都是{n}不听话害的，对不起。', '{p}Yuu, Mr. Owner ignores {n}... it\'s my fault, I am sorry.')},
+    # Self-confessing a non-breeding house-rule breach (replaces exam_sorry).
+    'rule_confess': {
+        'baby': ('{c}、ごめんにゃさい……さっき こっそり やっちゃっちゃ。', '{c}，饲主先森对不起……窝刚才偷偷没听话。', '{c}, sowwy... I snuck and was bad just now.'),
+        'juvenile': ('{p}かいぬししゃん ごめんにゃさい……さっき こっそり やぶっちゃっちゃ。', '{p}饲主先森对不起……{n}刚才偷偷没听话，请骂{n}吧，不要讨厌{n}……', '{p}Mr. Owner sorry... {n} snuck past the rule earlier, please don\'t hate me...'),
+        'adult': ('{p}かいぬしさん ごめんなさい……さっき こっそり やぶっちゃった。', '{p}饲主先生对不起……{n}刚才偷偷没听话，请骂{n}吧，不要讨厌{n}……', '{p}Mr. Owner I am sorry... {n} secretly broke the rule earlier, don\'t hate me...')},
+    # Encountering owner within 1 day while carrying undiscovered guilt.
+    'rule_guilty_shy': {
+        'baby': ('{c}、こっち みてる……ばれてにゃいよね……', '{c}，饲主先森在看窝……不会露馅了吧……', '{c}, looking at me... not found out, wight...?'),
+        'juvenile': ('{p}ゆぅ、かいぬししゃん みてる……まだ ばれてにゃいよね……', '{p}油呜，饲主先森在看{n}……刚才偷偷做的事，不会已经露馅了吧……', '{p}Yuu, Mr. Owner is looking... not found out yet, right...?'),
+        'adult': ('{p}ゆぅ、かいぬしさん みてる……まだ ばれてないよね……', '{p}油呜，饲主先生在看{n}……刚才偷偷做的事，不会已经露馅了吧……', '{p}Yuu, Mr. Owner is watching {n}... not found out yet, right...?')},
+    # Secret-brood arcs (species-voiced, zero 「人」, authentic yukkuri speech).
+    'confess': {
+        'baby': ('{c}、ないしょで うんじゃっちゃ……おちびちゃん ゆるちちぇ！', '{c}，偷偷生惹小贝比酱……求求饲主先森，饶过小贝比酱吧！', '{c}, had little ones in secwet... pwease spare them!'),
+        'juvenile': ('{p}かいぬししゃん ごめんにゃさい……おちびちゃんだけは ゆるしてね！', '{p}饲主先森对不起……{n}偷偷生惹小贝比酱，打{n}骂{n}都可以，只求饶过小贝比酱吧！', '{p}Mr. Owner sorry... {n} had little ones in secret, please spare only them!'),
+        'adult': ('{p}かいぬしさん ごめんなさい……おちびちゃんだけは ゆるしてね！', '{p}饲主先生对不起……{n}偷偷生了小贝比酱，打{n}骂{n}都可以，求求你只饶过小贝比酱吧！', '{p}Mr. Owner I am sorry... {n} had little ones in secret, please spare only the little ones!')},
+    'confess_mate': {
+        'baby': ('{c}、ないしょで うまれちゃ……おちびちゃん ゆるちちぇ！', '{c}，小贝比酱是偷偷生下来的……求求饲主先森饶过小贝比酱吧！', '{c}, born in secwet... pwease spare the little ones!'),
+        'juvenile': ('{p}かいぬししゃん ごめんにゃさい……{n}が わるいの、おちびちゃん ゆるしてね！', '{p}饲主先森对不起……小贝比酱是偷偷生的，都是{n}不好，求求你饶过小贝比酱吧！', '{p}Mr. Owner sorry... it\'s {n}\'s fault, please spare the little ones!'),
+        'adult': ('{p}かいぬしさん ごめんなさい……{n}が わるいの、おちびちゃん ゆるしてね！', '{p}饲主先生对不起……小贝比酱是偷偷出生的，都是{n}不好，求求你饶过小贝比酱吧！', '{p}Mr. Owner I am sorry... blame {n}, please spare the little ones!')},
+    'sukkiri_hide': {
+        'baby': ('{c}、しーっ……かくれよ、みつからにゃいように。', '{c}，嘘……快躲起来，不能被饲主先森发现。', '{c}, shhh... hide so Mr. Owner doesn\'t see.'),
+        'juvenile': ('{p}ゆぅ、かげに かくれなきゃ……おちびちゃん みつからにゃいように。', '{p}油呜，快躲到挡板后面……千万不能被饲主先森看见小贝比酱。', '{p}Yuu, hurry behind cover... mustn\'t let Mr. Owner spot the little ones.'),
+        'adult': ('{p}ゆぅ、かげに かくれなきゃ……おちびちゃん みつからないように。', '{p}油呜，快躲到挡板后面……千万不能被饲主先生看见小贝比酱。', '{p}Yuu, hurry behind cover... Mr. Owner must not see the little ones.')},
+    'sukkiri_lie': {
+        'baby': ('{c}！ しらにゃい！ {nb}の おちびちゃんじゃ にゃい！', '{c}！不、不认识！才不是{nb}的小贝比酱！', '{c}! Don\'t know them! Not {nb}\'s little ones!'),
+        'juvenile': ('{p}し、しらにゃい{e}！ {n}の おちびちゃんじゃ にゃい{e}！', '{p}不、不认识{e}！{n}才不知道呢，那绝对不是{n}的小贝比酱{e}！', '{p}I-I don\'t know them! Those are not {n}\'s little ones!'),
+        'adult': ('{p}し、しらない{e}！ {n}の おちびちゃんじゃ ない{e}！', '{p}不、不认识{e}！{n}才不知道呢，那绝对不是{n}的小贝比酱{e}！', '{p}I-I don\'t know them! Those are definitely not {n}\'s little ones!')},
+    'sukkiri_naive': {
+        'baby': ('{c}♪ みてみて！ おちびちゃん、いっしょに ゆっくり！', '{c}♪ 快看呀！可爱的小贝比酱，一起油库里！', '{c}! Look! Cute little ones, take it easy!'),
+        'juvenile': ('{p}かいぬししゃん みて！ かわいい おちびちゃん{e}、いっしょに ゆっくりしようね！', '{p}饲主先森快看呀{e}！{n}的可爱小贝比酱，大家一起油库里吧{e}！', '{p}Mr. Owner look! Cute little ones, let\'s all take it easy together!'),
+        'adult': ('{p}かいぬしさん みて！ とっても ゆっくりした おちびちゃん{e}、いっしょに ゆっくりしようね！', '{p}饲主先生快看呀{e}！{n}的可爱小贝比酱，大家一起油库里吧{e}！', '{p}Mr. Owner look! Super easy-going little ones, let\'s all take it easy together!')},
+    'sukkiri_defiant': {
+        'baby': ('{c}！ かわいい おちびちゃんなのに！ わるくにゃい！', '{c}！小贝比酱这么可爱！才没有错嘛！', '{c}! Cute little ones! Nothing wrong!'),
+        'juvenile': ('{p}ぐぅ、おちびちゃん うんで なにが わるいの{e}！', '{p}咕呜，生可爱的小贝比酱有什么错嘛{e}！{n}才不想被说坏话呢！', '{p}Grrr, what\'s wrong with having cute little ones?!'),
+        'adult': ('{p}ぐぅ、おちびちゃん うんで なにが わるいの{e}！ わるく ない{e}！', '{p}咕呜，生可爱的小贝比酱有什么错嘛{e}！{n}才不是坏油库里呢{e}！', '{p}Grrr, what is wrong with having cute little ones?! {n} is not bad!')},
+    'partner_blame': {
+        'baby': ('{c}！ あっちが さきに さそっちゃん！ {nb}じゃ にゃい！', '{c}！是那边那只先缠着{nb}的！不是{nb}的错！', '{c}! That one asked first! Not {nb}\'s fault!'),
+        'juvenile': ('{p}{n}の せいじゃ にゃい{e}！ あっちが さきに さそっちゃん{e}！', '{p}不、不是{n}的错{e}！是那边那只先缠着{n}要素鸡立的{e}！', '{p}Not {n}\'s fault! That one begged {n} to do sukkiri first!'),
+        'adult': ('{p}{n}の せいじゃ ない{e}！ あっちが さきに さそった{e}！', '{p}不、不是{n}的错{e}！是那边那只先缠着{n}要素鸡立的{e}！', '{p}It is not {n}\'s fault! That one asked {n} to do sukkiri first!')},
 }
 
 SEVERANCE_BASIS = 'wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced'
@@ -1643,6 +1846,10 @@ def main():
             for tier, variants in tiers.items():
                 for i, (variant, frame) in enumerate(variants.items(), 1):
                     make(sp, tier, event, frame, context(sp, tier), lines, GAP_FILL_BASIS, prefix=f'g{i}_', variant=variant)
+        for event, tiers in RULE_STYLED.items():
+            for tier, variants in tiers.items():
+                for i, (variant, frame) in enumerate(variants.items(), 1):
+                    make(sp, tier, event, frame, context(sp, tier), lines, RULE_AWE_BASIS, prefix=f'w{i}_', variant=variant)
         for event, tiers in RULE_AWE.items():
             for tier, frame in tiers.items():
                 make(sp, tier, event, frame, context(sp, tier), lines, RULE_AWE_BASIS, prefix='w1_')
