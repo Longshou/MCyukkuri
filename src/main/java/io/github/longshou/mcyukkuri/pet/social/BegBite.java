@@ -55,7 +55,7 @@ public final class BegBite {
 
     static boolean ready(YukkuriEntity body) {
         return body.status().identity() != Identity.STOCK && !body.settlement().society().slave()
-                && !body.profile().dangerToYukkuri() && !body.profile().houseBody()
+                && !body.profile().dangerToYukkuri() && body.profile().petable()
                 && BadgeArcs.usable(body) && !body.isLeashed() && !body.isCommandPlaying() && !body.life().hasUrgentNonFoodNeed()
                 && !body.family().stemFoodUrgent() && body.life().nutrition() >= 12 && !body.body().sick()
                 && body.body().condition().readyForWildEvent();

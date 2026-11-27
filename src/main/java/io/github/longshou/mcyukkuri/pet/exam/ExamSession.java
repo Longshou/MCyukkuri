@@ -165,7 +165,7 @@ public final class ExamSession {
         var grade = pet.grade();
         if (reissue) return grade == BadgeGrade.NONE ? "need_badge" : emeralds(p) < REISSUE_FEE ? "no_fee" : null;
         if (pet.effectiveGrade() != grade) return "not_owned";
-        if (y.profile().aquatic() || y.profile().dangerToYukkuri() || y.profile().houseBody()) return "not_ready";
+        if (y.profile().aquatic() || y.profile().dangerToYukkuri() || !y.profile().petable()) return "not_ready";
         if (y.family().laboring() || y.family().birthDuty()) return "labor";
         if (y.body().mold() > 0 || y.body().toxin() > 0 || y.mind().nonYukkuri()
                 || y.getHealth() <= y.getMaxHealth() * .3f) return "sick";

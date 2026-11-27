@@ -283,7 +283,7 @@ public final class WildEvents {
     }
     /** The standing part of the adopt rule (no distance or safety): shared with the simple exam's wild-animal eligibility. */
     public static boolean canAdopt(YukkuriEntity e, Player player) {
-        return !e.profile().dangerToYukkuri()&&!e.profile().houseBody()&&HumanCommerce.mayCapture(player,e)
+        return !e.profile().dangerToYukkuri()&&HumanCommerce.mayCapture(player,e)
                 &&unowned(e)&&Bonds.trustedPlayer(e, player.getUUID());
     }
     public static boolean canAdoptHere(YukkuriEntity e, Player player) {

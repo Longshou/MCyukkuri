@@ -46,6 +46,7 @@ final class RenderPose implements Overlays.Contact {
     private WallYield wallYield;
     private boolean wallYieldBuilt;
     private SnugglePose snuggle;
+    private LeashRing leashRing;
     private float looseTop;
     private ReviewMarks.Wet wet;
     private ReviewMarks.Scratch scratchMark;
@@ -279,6 +280,11 @@ final class RenderPose implements Overlays.Contact {
                 out.add("paper_under", vertexData(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn), packed));
             }
         }
+        if (request.has("leashLoop") && request.get("leashLoop").getAsBoolean()) {
+            if (leashRing == null) leashRing = fitLeashRing();
+            leashRing.build((vertex, point) -> point.set(output[vertex * 8], output[vertex * 8 + 1], output[vertex * 8 + 2]), scale, false);
+            out.add("leash_loop", vertexData(Arrays.copyOf(leashRing.vertices(), leashRing.length()), packed));
+        }
         if (packed) return new Drawn(out,output,true);
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
         out.add("root_pose",OfflineModel.array(pose[root]));return new Drawn(out,output,false);
@@ -337,6 +343,18 @@ final class RenderPose implements Overlays.Contact {
     private static Vector3f triangleNormal(float[] v, int i) {
         return new Vector3f(v[i+8]-v[i], v[i+9]-v[i+1], v[i+10]-v[i+2])
                 .cross(v[i+16]-v[i], v[i+17]-v[i+1], v[i+18]-v[i+2]);
+    }
+    /** The leash rope fitted to this model's rest mesh: its body skin, and the hair the rope passes under. */
+    private LeashRing fitLeashRing() {
+        var body = new ArrayList<Integer>();
+        var hair = new ArrayList<Integer>();
+        for (var raw : data.getAsJsonArray("parts")) {
+            var part = raw.getAsJsonObject();
+            String name = part.get("name").getAsString();
+            var into = LeashRing.bodySurface(name) ? body : LeashRing.hair(name, part.has("anatomy") && !part.get("anatomy").getAsString().isEmpty()) ? hair : null;
+            if (into != null) { into.add(start(part)); into.add(count(part)); }
+        }
+        return LeashRing.fit(rest, 8, body.stream().mapToInt(Integer::intValue).toArray(), hair.stream().mapToInt(Integer::intValue).toArray());
     }
     private static float[] floatsOf(List<Float> list){float[] r=new float[list.size()];for(int i=0;i<r.length;i++)r[i]=list.get(i);return r;}
     private static float[] sheetTris(float[][][] pts,int rows,int cols,boolean inward,Matrix4f turn){

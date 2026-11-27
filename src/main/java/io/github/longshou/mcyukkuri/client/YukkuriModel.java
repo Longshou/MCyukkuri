@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
 import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.DishFit;
+import io.github.longshou.mcyukkuri.pose.LeashRing;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Intensity;
 import io.github.longshou.mcyukkuri.pose.ClipBlend;
@@ -519,8 +520,7 @@ public final class YukkuriModel {
             if(sum.lengthSquared()>1e-16f)sum.normalize();else sum.set(0,0,-1);
         }
     }
-    private static boolean bodySurface(String name){return name.startsWith("soft_head_slice_")||name.equals("house_body_surface")||
-            name.equals("predator_body_surface")||name.equals("deficient_body_surface")||name.equals("rounded_body_surface");}
+    private static boolean bodySurface(String name){return LeashRing.bodySurface(name);}
     private static boolean wornBody(String name){return bodySurface(name)||name.endsWith("_rump_mark");}
     /**
      * Parts that lie over a swaddle (CareWearRenderer.clearHair): every hair, sidelock, braid, tail and accessory part. The body skin,
@@ -747,6 +747,31 @@ public final class YukkuriModel {
         return wearBuffer;
     }
     int wearBodyLength() { return wearBody; }
+
+    private LeashRing leashRing;
+    private final LeashRing.Skin leashSkin = (vertex, out) -> { skin(vertex, out); out.div(16); };
+    /**
+     * The lead's rope for the last render pose, built from this body's own skinned girth points in blocks. The ring is fitted once
+     * per model from the rest mesh (the hair it must pass under included); a frame then only skins its {@link LeashRing#BINS} bins
+     * and writes into the ring's own buffers. Render thread only.
+     */
+    LeashRing leashRing(int bits) {
+        if (leashRing == null) {
+            var body = new ArrayList<Integer>();
+            var hair = new ArrayList<Integer>();
+            for (var part : parts) {
+                var into = bodySurface(part.name) ? body : LeashRing.hair(part.name, !part.anatomy.isEmpty()) ? hair : null;
+                if (into != null) { into.add(part.start); into.add(part.count); }
+            }
+            leashRing = LeashRing.fit(vertices, 8, body.stream().mapToInt(Integer::intValue).toArray(),
+                    hair.stream().mapToInt(Integer::intValue).toArray());
+        }
+        float drawn = retention;
+        retention = (bits >> 9 & 15) / 15f;
+        leashRing.build(leashSkin, 1 / 16f, CareWearRenderer.wrapOnBody(bits));
+        retention = drawn;
+        return leashRing;
+    }
 
     private Matrix4f crownMatrix(int bone) {
         var m = new Matrix4f();

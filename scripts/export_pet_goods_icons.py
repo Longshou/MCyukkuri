@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Ship the pet-care goods icons (sweet candy, custard pudding and the eight swaddle cloth styles) and the worn swaddle textures.
+"""Ship the pet-care goods icons (sweet candy, custard pudding and the eight swaddle cloth styles) and the worn on-body textures.
 
 Reads the 16x16 snapshot PNGs written by standards/yukkuri-library/drafts/care-props/build.py (goods.py) from art/props/pet-goods/
-and writes src/main/resources/assets/mcyukkuri/textures/item/<id>.png; reads the leaf sheet, trim sheet and fabric tiles written by
-drafts/care-props/wear.py and writes them to textures/misc/ (fabrics under textures/misc/swaddle/) for client/CareWearRenderer.
+and writes src/main/resources/assets/mcyukkuri/textures/item/<id>.png; reads the leaf sheet, trim sheet, fabric tiles and the
+lead's rope tile written by drafts/care-props/wear.py and writes them to textures/misc/ (fabrics under textures/misc/swaddle/)
+for client/CareWearRenderer and client/LeashLoopRenderer.
 Input and output fingerprints are recorded in art/props/pet-goods/provenance.json. The item models are hand-kept JSON
 (swaddle_cloth.json picks the style icon through its swaddle_style overrides). --check is read-only.
 """
@@ -18,8 +19,8 @@ ITEMS = ROOT / 'src/main/resources/assets/mcyukkuri/textures/item'
 MISC = ROOT / 'src/main/resources/assets/mcyukkuri/textures/misc'
 SWADDLE_STYLES = ('frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral')   # the knit is the plain swaddle_cloth icon
 NAMES = ('sweet_candy', 'custard_pudding', 'swaddle_cloth') + tuple(f'swaddle_cloth_{s}' for s in SWADDLE_STYLES)
-# on-body textures drawn by drafts/care-props/wear.py: the leaf sheet, the trim sheet and the fabric tiles
-WEAR = ('swaddle_leaf_wear', 'swaddle_trim') + tuple(f'swaddle/{f}' for f in ('knit', 'cotton', 'fleece', 'tiger', 'gingham', 'floral'))
+# on-body textures drawn by drafts/care-props/wear.py: the leaf sheet, the trim sheet, the fabric tiles and the lead's rope tile
+WEAR = ('swaddle_leaf_wear', 'swaddle_trim') + tuple(f'swaddle/{f}' for f in ('knit', 'cotton', 'fleece', 'tiger', 'gingham', 'floral')) + ('leash_rope',)
 STATUS = 'pending_user_confirmation'
 
 

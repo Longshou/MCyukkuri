@@ -98,7 +98,7 @@ public final class BadgeSocial {
 
     /** Called every 2 seconds for each individual (PetLife.tickPerformance): only newly visible badge-holders produce a sighting. */
     public static void scan(YukkuriEntity o) {
-        if (!enabled() || !(o.level() instanceof ServerLevel level) || o.profile().dangerToYukkuri() || o.profile().houseBody()) return;
+        if (!enabled() || !(o.level() instanceof ServerLevel level) || o.profile().dangerToYukkuri() || !o.profile().petable()) return;
         long now = level.getGameTime(); clock = now;
         if (!o.pet().calm() || !WildEventData.get(level).opportunitySlot(o.getUUID())) return;
         var views = VIEWS.computeIfAbsent(o.getUUID(), id -> new HashMap<>());
@@ -108,7 +108,7 @@ public final class BadgeSocial {
         var ledger = o.pet().badgeLedger();
         List<YukkuriEntity> seen = new ArrayList<>();
         for (var y : level.getEntitiesOfClass(YukkuriEntity.class, o.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != o && peer.isAlive() && !peer.isRemoved()
-                && !peer.isPassenger() && !peer.profile().houseBody() && !peer.life().isSleeping()
+                && !peer.isPassenger() && peer.profile().petable() && !peer.life().isSleeping()
                 && !peer.outing().onEscortLead())) {
             if (!Senses.sees(o, y)) continue;
             int theirs = visibleRank(y).id();
@@ -140,12 +140,12 @@ public final class BadgeSocial {
     /** While a peer holds an offerable bite, hungry onlookers can ask for it as they become available. */
     public static boolean mealSeen(YukkuriEntity subject) {
         if (!enabled() || !(subject.level() instanceof ServerLevel level)
-                || subject.profile().dangerToYukkuri() || subject.profile().houseBody()
+                || subject.profile().dangerToYukkuri() || !subject.profile().petable()
                 || subject.isLeashed() || !subject.family().canEatIndependently()) return false;
         long now = level.getGameTime(); clock = now;
         var viewer = level.getNearestPlayer(subject, AUDIENCE_RADIUS);
         for (var o : level.getEntitiesOfClass(YukkuriEntity.class, subject.getBoundingBox().inflate(SCAN_RADIUS, 3, SCAN_RADIUS), peer -> peer != subject && peer.isAlive()
-                && !peer.isRemoved() && !peer.isPassenger() && !peer.profile().houseBody() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
+                && !peer.isRemoved() && !peer.isPassenger() && peer.profile().petable() && !peer.profile().dangerToYukkuri() && !peer.life().isSleeping()
                 && BadgeArcPolicy.beggingHunger(peer.life().nutrition()))) {
             if (!Senses.sees(o, subject) || BadgeArcs.check(level, Arc.BEG_BITE, o, subject, viewer, null) != null) continue;
             sighted(level, o, subject, viewer, List.of(subject), now, false, true);

@@ -58,7 +58,7 @@ public final class PetOuting extends Goal {
         var body = pet.body().condition();
         return pet.isAlive() && !pet.inert() && pet.family().brood() == null
                 && !pet.family().tendsUnweaned() && !pet.isPassenger() && !pet.isVehicle()
-                && !pet.profile().aquatic() && !pet.profile().houseBody() && !pet.profile().dangerToYukkuri()
+                && !pet.profile().aquatic() && pet.profile().petable() && !pet.profile().dangerToYukkuri()
                 && body.readyForPlay() && !body.weak() && !body.dying() && !body.sick() && !body.hasSicknessPressure()
                 && !body.footBurned() && pet.body().toxin() == 0 && !pet.life().temperature().cold()
                 && !pet.life().hasUrgentNeed() && !pet.isPanicking() && (socialOk || !pet.pet().busy()) && !pet.operations().active();

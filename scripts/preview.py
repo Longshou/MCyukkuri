@@ -162,7 +162,7 @@ def before_checkout(value, stage):
 def render_strip(args, stage, times, before=False, unyielded=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
-    actors, textures, paper_slots = [], [], None
+    actors, textures, paper_slots, leash_slot = [], [], None, None
     specs = [(args.model, args.prop, [0, 0, 0], getattr(args, 'scale', None))]
     if args.partner:
         specs.append((args.partner, None, args.partner_offset, getattr(args, 'partner_scale', None)))
@@ -233,6 +233,11 @@ def render_strip(args, stage, times, before=False, unyielded=False):
                     (paper_assets/'newspaper_stack_fold.png', (216, 212, 202), [0, 0], [1, 1]),
                 ])
             a['paperSlots'] = paper_slots
+        if getattr(args, 'leash_loop', False) and not prop:
+            if leash_slot is None:
+                leash_slot = len(textures)
+                textures.append((source_root/'src/main/resources/assets/mcyukkuri/textures/misc/leash_rope.png', None, [0, 0], [1, 1]))
+            a['leashSlot'] = leash_slot
         actors.append(a)
     loaded = []
     for path, tint, low, extent in textures:
@@ -370,47 +375,50 @@ def video(args, stage):
     body = ''
     models = args.model if isinstance(args.model, list) else [args.model]
     multi = len(models) > 1
-    for model in models:
-        for clip in args.clip:
+    views = getattr(args, 'view', None) or [[0, 10]]
+    for model, clip, view in ((m, c, v) for m in models for c in args.clip for v in views):
+        try:
+            seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, model, clip)
+        except ValueError:
+            if multi:
+                continue
+            raise
+        has_before = False
+        if before_root:
             try:
-                seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, model, clip)
-            except ValueError:
-                if multi:
+                before_clip = resolved_clip(before_root, model, clip)
+                if multi and not args.draft_clip and before_clip == resolved_clip(ROOT, model, clip):
                     continue
-                raise
-            has_before = False
-            if before_root:
-                try:
-                    before_clip = resolved_clip(before_root, model, clip)
-                    if multi and not args.draft_clip and before_clip == resolved_clip(ROOT, model, clip):
-                        continue
-                    seconds = min(seconds, before_clip['duration'])
-                    has_before = True
-                except ValueError:
-                    has_before = False
-            count = round(seconds*args.fps)
-            if count < 1:
-                raise ValueError(f'Clip too short for {args.fps} fps: {model}/{clip}')
-            times = [i/args.fps for i in range(count)]
-            opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=args.face,
-                                      draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
-                                      size=args.size, view=[0, 10], node=args.node)
-            frames = render_strip(opts, stage, times)
-            if has_before:
-                old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
-                pairs = []
-                for old_frame, new_frame in zip(old, frames):
-                    pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
-                    pair.paste(compose(old_frame, '旧'), (0, 0))
-                    pair.paste(compose(new_frame, '新'), (args.size[0], 0))
-                    pairs.append(pair)
-                frames = pairs
-            else:
-                frames = [compose(frame, '新' if before_root else '') for frame in frames]
-            name = f'{model}-{clip}.mp4' if multi else f'{clip}.mp4'
-            encode_video(frames, stage/name, args.fps)
-            heading = f'{model} / {clip}' if multi else clip
-            body += f'<h2>{E(heading)}</h2>' + media(name, f'{model} / {clip} · 正对机位 {args.fps} fps', loop=True)
+                seconds = min(seconds, before_clip['duration'])
+                has_before = True
+            except ValueError:
+                has_before = False
+        count = round(seconds*args.fps)
+        if count < 1:
+            raise ValueError(f'Clip too short for {args.fps} fps: {model}/{clip}')
+        times = [i/args.fps for i in range(count)]
+        opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=args.face,
+                                  draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
+                                  leash_loop=getattr(args, 'leash_loop', False),
+                                  scale=getattr(args, 'scale', None),
+                                  size=args.size, view=view, node=args.node)
+        frames = render_strip(opts, stage, times)
+        if has_before:
+            old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
+            pairs = []
+            for old_frame, new_frame in zip(old, frames):
+                pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
+                pair.paste(compose(old_frame, '旧'), (0, 0))
+                pair.paste(compose(new_frame, '新'), (args.size[0], 0))
+                pairs.append(pair)
+            frames = pairs
+        else:
+            frames = [compose(frame, '新' if before_root else '') for frame in frames]
+        angle = f'-{view[0]:g}' if len(views) > 1 else ''
+        name = (f'{model}-{clip}' if multi else clip) + angle + '.mp4'
+        encode_video(frames, stage/name, args.fps)
+        heading = (f'{model} / {clip}' if multi else clip) + (f' · 机位 {view[0]:g}°' if len(views) > 1 else '')
+        body += f'<h2>{E(heading)}</h2>' + media(name, f'{model} / {clip} · {"机位 %g°" % view[0] if len(views) > 1 else "正对机位"} {args.fps} fps', loop=True)
     return body
 
 
@@ -908,6 +916,7 @@ def parser():
             p.add_argument('--scale', type=float, help='growth/body scale of --model (e.g. 0.42 for a baby)')
             p.add_argument('--partner-scale', type=float, help='growth/body scale of --partner')
             p.add_argument('--paper-cover', action='store_true', help='drape the live-fitted newspaper tent over each model')
+            p.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
             p.add_argument('--wall', type=float, nargs=3, action='append', metavar=('X', 'Z', 'BLOCKS'),
                            help='wall face beside each model: horizontal direction from the body axis and distance in blocks; '
@@ -981,6 +990,10 @@ def parser():
     vd.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model')
     vd.add_argument('--fps', type=int, default=20)
     vd.add_argument('--size', type=int, nargs=2, default=[360, 360])
+    vd.add_argument('--scale', type=float, help='growth/body scale of --model (e.g. 0.45 for a child)')
+    vd.add_argument('--view', type=float, nargs=2, action='append', metavar=('AZ', 'EL'),
+                    help='camera azimuth/elevation (default 0 10); repeat for several camera angles of each clip')
+    vd.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
     vd.add_argument('--node', default='node')
     return ap
 

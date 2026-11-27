@@ -38,7 +38,7 @@ public final class ShopPricing {
 
     private static double value(YukkuriEntity y, BadgeGrade grade) {
         var v = y.getVariant();
-        int base = SpeciesProfile.of(v).dangerToYukkuri() ? 30 : SpeciesProfile.of(v).houseBody() ? 3 : switch (v) { case ALICE, CHEN, MYON -> 8; case PATCHOULI -> 10; default -> 6; };
+        int base = SpeciesProfile.of(v).dangerToYukkuri() ? 30 : switch (v) { case ALICE, CHEN, MYON -> 8; case PATCHOULI -> 10; default -> 6; };
         double total = base + switch (grade) { case NONE -> 0; case BRONZE -> 4; case SILVER -> 12; case GOLD -> 28; case PLATINUM -> 30; };
         if (grade == BadgeGrade.NONE) total *= 0.5;
         return total * (y.family().adult() ? ADULT : 1);

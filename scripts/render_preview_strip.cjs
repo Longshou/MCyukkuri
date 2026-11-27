@@ -38,6 +38,7 @@ const frames=job.times.map((t,frame)=>{
   // Each actor stands beside its own copy of the walls: it turns by this frame's yaw and, with yield, gives way as in the game.
   if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
   if(a.pose)a.pose.paperCover=a.paperSlots?(living[a.id]?.accessory_prefixes||[]):null;
+  if(a.pose)a.pose.leashLoop=a.leashSlot!=null?true:null;
   let phase=0;
   let selectedFace;
   if(a.pose){
@@ -72,6 +73,17 @@ const frames=job.times.map((t,frame)=>{
      v[4]=(slot.y+(v[4]-slot.low[1])*slot.size)/job.textureSize;
      vertices.push(...v);
     }
+   }
+  }
+  if(a.pose&&a.leashSlot!=null&&a.pose.leashMesh){
+   const slot=job.slots[a.leashSlot],mesh=a.pose.leashMesh;
+   for(let k=0;k<mesh.length;k+=8){
+    const v=mesh.slice(k,k+8);
+    for(let c=0;c<3;c++)v[c]+=a.offset[c];
+    const u=((v[3]%1)+1)%1,vv=((v[4]%1)+1)%1;
+    v[3]=(slot.x+u*slot.size)/job.textureSize;
+    v[4]=(slot.y+vv*slot.size)/job.textureSize;
+    vertices.push(...v);
    }
   }
  }

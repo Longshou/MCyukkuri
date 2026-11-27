@@ -65,8 +65,9 @@ public final class InteractionDispatch {
     public static boolean ownsPet(Player player,YukkuriEntity target){
         return target.status().identity()==Identity.PET&&target.pet().owned(player);
     }
-    /** A player leads its own pets and unowned individuals; another owner's pet refuses. */
+    /** A player leads its own pets and unowned individuals; a house body and another owner's pet refuse. */
     public static String leashRefusal(Player player,YukkuriEntity target){
+        if(!target.profile().petable())return "house";
         if(!(ownsPet(player,target)||target.status().identity().free()))return "owner";
         if(target.pet().busy())return "busy";
         return target.isPassenger()?"carried":null;
@@ -101,6 +102,7 @@ public final class InteractionDispatch {
     public static boolean allowCapture(Player player,YukkuriEntity target){
         if(!requireReach(player,target,4))return false;
         if (ExamSession.running(target)||target.operations().table()!=null) { refuse(player, target, "capture", "busy"); return false; }
+        if(!target.profile().petable()){refuse(player,target,"capture","house");return false;}
         if(!HumanCommerce.mayCapture(player,target)){refuse(player,target,"capture","custody");return false;}
         if(target.operations().pinned()){refuse(player,target,"capture","pinned");return false;}
         return true;

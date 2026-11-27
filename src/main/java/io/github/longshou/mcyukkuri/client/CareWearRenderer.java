@@ -38,6 +38,8 @@ final class CareWearRenderer {
     private static final ResourceLocation NEWSPAPER_FOLD = MCYukkuri.id("textures/block/newspaper_stack_fold.png");
     static final int PAPER_COVER = 1 << 13;
     private static final int BINS = 24, CELLS = 32, SWADDLE = 2, LEAF_WORN = 4, LEAF_OPEN = 8, RINGS = 9;
+    /** A cloth or leaf wrap lies closed on the body (an opened leaf lies flat on the ground instead). */
+    static boolean wrapOnBody(int bits) { return (bits & (SWADDLE | LEAF_WORN)) != 0 && (bits & LEAF_OPEN) == 0; }
     /** Height cells of the skin table (the lower three quarters of the body: every rim, the leaf and the hair fade above them). */
     private static final int SKIN_CELLS = CELLS * 3 / 4;
     /** Lowest edge of every shell, as a fraction of the body height. */
