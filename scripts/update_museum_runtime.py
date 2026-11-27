@@ -21,8 +21,48 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG = ROOT / '.local/experimental-map/museum-runtime.json'
 
 
-def command(*args):
-    return subprocess.check_output(args, cwd=ROOT, text=True, encoding='utf-8').strip()
+def command(*args, root=ROOT):
+    return subprocess.check_output(args, cwd=root, text=True, encoding='utf-8').strip()
+
+
+BUILD_WORKFLOW = '.github/workflows/build.yml'
+BUILD_RUNS = 20
+
+
+def build_paths(root, ref):
+    """Paths whose change makes GitHub run Build (on.push.paths of build.yml at ref)."""
+    lines = command('git', 'show', f'{ref}:{BUILD_WORKFLOW}', root=root).splitlines()
+    start = next(i for i, line in enumerate(lines) if line == '  push:') + 1
+    paths, listed = [], False
+    for line in lines[start:]:
+        if not line.startswith('    '):
+            break
+        item = line.strip()
+        if item == 'paths:':
+            listed = True
+        elif item.endswith(':'):
+            listed = False
+        elif listed and item.startswith('- '):
+            paths.append(item[2:].strip().strip('\'"'))
+    if not paths:
+        raise ValueError(f'{BUILD_WORKFLOW} has no on.push.paths list')
+    return paths
+
+
+def run_matches(root, run, target, paths):
+    """A Build run covers target when its commit is behind target and no Build path differs between the two."""
+    if subprocess.run(['git', 'merge-base', '--is-ancestor', run['headSha'], target], cwd=root).returncode:
+        return False
+    return not command('git', 'diff', '--name-only', run['headSha'], target, '--', *paths, root=root)
+
+
+def build_run(root, target):
+    """The newest Build run whose commit matches target on every Build path. GitHub runs Build for the tip of a push
+    whose range touches a Build path, so that tip can be a docs-only commit; a later docs-only push inherits it."""
+    paths = build_paths(root, target)
+    runs = json.loads(command('gh', 'run', 'list', '--workflow', 'build.yml', '--branch', 'main',
+                              '--json', 'databaseId,status,conclusion,headSha', '-L', str(BUILD_RUNS), root=root))
+    return next((run for run in runs if run_matches(root, run, target, paths)), None)
 
 
 def read_json(path):
@@ -127,17 +167,21 @@ def unpack_resources(commit, hashes, mod):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--run', required=True, type=int, help='Successful GitHub Build run for the current main checkout')
+    parser.add_argument('--run', required=True, type=int, help='Successful GitHub Build run whose commit matches this main checkout')
     args = parser.parse_args()
     if not CONFIG.is_file():
         parser.error('Existing .local/experimental-map/museum-runtime.json is required on the gameplay machine.')
     require_closed()
     if command('git', 'diff', '--name-only', 'HEAD', '--', 'scripts', 'src'):
         parser.error('Commit or preserve script/source changes before selecting a matching CI runtime.')
-    commit = command('git', 'rev-parse', 'HEAD')
+    checkout = command('git', 'rev-parse', 'HEAD')
     run = json.loads(command('gh', 'run', 'view', str(args.run), '--json', 'status,conclusion,headSha,headBranch,name,url'))
-    if run['status'] != 'completed' or run['conclusion'] != 'success' or run['headSha'] != commit or run['headBranch'] != 'main' or run['name'] != 'Build':
-        parser.error('The selected run must be a successful main Build for the exact current checkout commit.')
+    if run['status'] != 'completed' or run['conclusion'] != 'success' or run['headBranch'] != 'main' or run['name'] != 'Build':
+        parser.error('The selected run must be a completed successful main Build.')
+    if not run_matches(ROOT, run, checkout, build_paths(ROOT, checkout)):
+        parser.error('The selected run differs from this checkout in code, resources, scenes or build config.')
+    # The Build of a docs-only head ran for an earlier push tip; its commit is the one the runtime and launcher record.
+    commit = run['headSha']
     original_config = CONFIG.read_bytes()
     config = json.loads(original_config.decode('utf-8-sig'))
     old_runtime = (ROOT / config['runtime']).resolve()
