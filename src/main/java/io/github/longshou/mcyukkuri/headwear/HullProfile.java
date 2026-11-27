@@ -70,6 +70,18 @@ public abstract class HullProfile {
         }
         return height;
     }
+    /** The highest {@link #support} of this footprint at (x, z) over a whole turn in place, every heading at once. Only a round hull
+     *  seats riders that turn on it ({@link #seated}). */
+    public double turnSupport(double x, double z, BodyFootprint body) {
+        throw new UnsupportedOperationException(id() + " seats no turning rider");
+    }
+    /** Whether a body turns a whole circle in place at (x, z): its envelope swept round rests within {@code margin} of the body's own
+     *  rest on the level floor. Nothing here is lower than the floor, so the body never stands below that rest, and no turn step
+     *  from any heading rises past {@code margin}. */
+    public boolean turnable(double x, double z, BodyFootprint body, BodyFootprint envelope, double margin) {
+        double lowest = body.columns().stream().mapToDouble(BodyFootprint.Column::bottom).min().orElseThrow();
+        return turnSupport(x, z, envelope) - (floor() - lowest) <= margin;
+    }
     /** Flat circular sweep used by birth trajectories and solid objects. */
     public double footprint(double x, double z, double r) {
         double height = surface(x, z);
@@ -107,6 +119,18 @@ public abstract class HullProfile {
             for (var p : body.columns()) {
                 double y = surface(x + p.x(), z + p.z());
                 if (Double.isFinite(y)) height = Math.max(height, y - p.bottom());
+            }
+            return height;
+        }
+        /** Each column sweeps a circle at its own distance from the turn centre, and on the round surface the highest point of that
+         *  circle is the one nearest the mouth; a column wholly off the hat is skipped, as in {@link #support}. */
+        @Override public double turnSupport(double x, double z, BodyFootprint body) {
+            if (!Double.isFinite(surface(x, z))) return Double.NaN;
+            double d = Math.sqrt(x * x + z * z), height = Double.NEGATIVE_INFINITY;
+            for (var p : body.columns()) {
+                double r = Math.sqrt(p.x() * p.x() + p.z() * p.z()), lo = Math.abs(d - r) * unit;
+                if (lo > HullBounds.RADIUS) continue;
+                height = Math.max(height, HullBounds.highest(lo, Math.min((d + r) * unit, HullBounds.RADIUS)) / unit - p.bottom());
             }
             return height;
         }

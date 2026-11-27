@@ -132,11 +132,16 @@ public final class HullSurface implements HatSurface {
         }
         double range = HullBounds.MOUTH / HullBounds.UNIT + anchor.hlen();
         var room = roomAt(hat, body);
+        // A place is one the rider can also turn round on and so leave: its hair, swept round, stays off the wall (PlacedHatEntity.turnable).
+        var turnless = new int[1];
         var candidates = FloorSearch.spots((x,z,fp) -> {
                     if (!hat.profile().inOpening(x,z)) return Double.NaN;
                     double y = hat.profile().support(x,z,fp);
                     var at = new Vec3(x, y, z);
-                    return hat.insideFloor(at) && room.test(at) ? y : Double.NaN;
+                    if (!hat.insideFloor(at) || !room.test(at)) return Double.NaN;
+                    if (hat.turnable(at, body)) return y;
+                    turnless[0]++;
+                    return Double.NaN;
                 },
                 hat.profile().floor(), Occupancy.MARGIN / hat.unit(), shape, Floor.others(hat, body), anchor,
                 range, true, hat.roomGap(), limit);
@@ -145,7 +150,8 @@ public final class HullSurface implements HatSurface {
             if (!out.contains(target)) out.add(target);
             if (out.size() == limit) return out;
         }
-        return out.isEmpty() ? none(hat, body, "room") : out;
+        // "turn": at least one floor point clear of the captain was left out because the rider could not turn round there.
+        return out.isEmpty() ? none(hat, body, turnless[0] > 0 ? "turn" : "room") : out;
     }
     private static List<SeatTarget> none(PlacedHatEntity hat, YukkuriEntity body, String reason) {
         int suppressed = GameplayLog.admit(hat, "hat", "rest_spot." + body.getUUID(), 1200);

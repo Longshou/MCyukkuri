@@ -304,6 +304,14 @@ public final class PlacedHatEntity extends Entity implements PlacedHatView, Surf
         if (!profile().seated()) return SurfaceHost.super.turnSupport(at, body, yaw);
         return support(at, BodyFootprint.envelope(body.assetId(), body.getBbWidth() / unit(), body.getBbHeight() / unit(), Math.toRadians(yaw)));
     }
+    /** Whether this body can turn a whole circle in place at {@code local} with the envelope {@link #turnSupport} turns with, within
+     *  the floor margin {@code Floor.plan} allows a turn step to rise ({@link HullProfile#turnable}). Every cabin place offered to a
+     *  rider is one. */
+    public boolean turnable(Vec3 local, YukkuriEntity body) {
+        double width = body.getBbWidth() / unit(), tall = tallOf(body);
+        return profile().turnable(local.x, local.z, BodyFootprint.of(body.assetId(), width, tall, 0),
+                BodyFootprint.envelope(body.assetId(), width, tall, 0), Occupancy.MARGIN / unit());
+    }
     public double loadRatio() {
         return HullBounds.loadRatio(hullScale() / HullBounds.SCALE, riderSizes(null));
     }

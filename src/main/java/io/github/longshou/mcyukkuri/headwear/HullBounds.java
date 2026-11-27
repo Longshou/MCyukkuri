@@ -95,4 +95,7 @@ public final class HullBounds {
         if (radius <= LEVEL_RADIUS) return BRIM;
         return BRIM + (EDGE - BRIM) * (radius - LEVEL_RADIUS) / (RADIUS - LEVEL_RADIUS);
     }
+    /** The highest {@link #surface} between two radii ({@code lo <= hi <= RADIUS}): it rises to the mouth, stays level to the level
+     *  radius and falls beyond, so the radius of that span nearest the mouth is the highest. */
+    public static double highest(double lo, double hi) { return surface(Math.clamp(MOUTH, lo, hi)); }
 }
