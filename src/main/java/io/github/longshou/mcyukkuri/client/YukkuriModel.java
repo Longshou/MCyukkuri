@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
 import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.DishFit;
+import io.github.longshou.mcyukkuri.pose.LeashLoop;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Intensity;
 import io.github.longshou.mcyukkuri.pose.ClipBlend;
@@ -530,8 +531,14 @@ public final class YukkuriModel {
             &&!name.contains("puff")&&!name.contains("rump")&&!name.contains("rear_mark");}
     private float[] wearBuffer = new float[0];
     private int wearBody;
-    private float[] leashHairBuffer = new float[0];
-    private int leashHair;
+    /** Extra radial clearance (fraction of the rope reference length) where a cloth or leaf wrap lies under the leash loop. */
+    private static final float LEASH_WRAP_CLEARANCE = .028f;
+    private final LeashLoop.Builder leashLoop = new LeashLoop.Builder();
+    /** Close-hugging hair vertices whose rest height can reach the loop; computed once, filled from the draw itself. */
+    private boolean[] leashSample;
+    private float[] leashHair = new float[0];
+    private int leashHairCount;
+    private boolean leashCapture, leashMesh;
     private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
     private int tentBodyLen, tentMeshLen, tentHatLen;
     private final PaperFitSamples<YukkuriView> paperFits = new PaperFitSamples<>();
@@ -751,31 +758,57 @@ public final class YukkuriModel {
     int wearBodyLength() { return wearBody; }
 
     /**
-     * Skins the close-hugging hair, sidelock and braid parts that are actually drawn at this hair loss of the last render pose
-     * (x, y, z in blocks), excluding hats, wings, tails, face cards and anatomy, so {@link LeashLoopRenderer} wraps outside hair
-     * without clipping a body that lost it.
+     * Close-hugging hair, sidelocks and braid, by part name: not the body skin, face cards, anatomy, puffs, rump marks,
+     * tails or wings. Whether a part is worn headwear is checked per draw, because the presentation config reloads.
      */
-    float[] posedLeashHair(int hairLoss) {
-        int count = 0;
-        for (var part : parts) if (leashHairPart(part) && !hairHidden(part, hairLoss)) count += part.count;
-        if (leashHairBuffer.length < count * 3) leashHairBuffer = new float[count * 3];
-        var point = new Vector3f(); int k = 0;
-        for (var part : parts) if (leashHairPart(part) && !hairHidden(part, hairLoss))
-            for (int i = part.start; i < part.start + part.count; i++) {
-                skin(i, point);
-                leashHairBuffer[k++] = point.x / 16; leashHairBuffer[k++] = point.y / 16; leashHairBuffer[k++] = point.z / 16;
-            }
-        leashHair = k;
-        return leashHairBuffer;
-    }
-    int leashHairLength() { return leashHair; }
-    private boolean leashHairPart(Part part) {
+    private static boolean closeHuggingHair(Part part) {
         String n = part.name;
-        if (bodySurface(n) || n.startsWith("face_") || !part.anatomy.isEmpty() || n.contains("puff")
-                || n.contains("rump") || n.contains("rear_mark") || n.contains("tail") || n.contains("wing")
-                || accessoryPart(part)) return false;
-        return true;
+        return !bodySurface(n) && !n.startsWith("face_") && part.anatomy.isEmpty() && !n.contains("puff")
+                && !n.contains("rump") && !n.contains("rear_mark") && !n.contains("tail") && !n.contains("wing");
     }
+    private boolean leashHairPart(Part part) { return closeHuggingHair(part) && !accessoryPart(part); }
+
+    /**
+     * Rest-pose sample for the loop's hair pass: the close-hugging hair whose rest height fraction can reach any bin's
+     * loop height ({@link LeashLoop#inHairBand}). Computed once from the model mesh; the draw fills the posed positions
+     * of these vertices as it skins them, so a leashed body never skins the hair a second time. Worn headwear is
+     * filtered per draw because the presentation config reloads.
+     */
+    private void prepareLeashSample() {
+        float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
+        for (var part : parts) if (wornBody(part.name))
+            for (int v = part.start; v < part.start + part.count; v++) {
+                float y = vertices[v * 8 + 1];
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        float bodyH = maxY - minY;
+        leashSample = new boolean[vertices.length / 8];
+        int count = 0;
+        for (var part : parts) if (closeHuggingHair(part))
+            for (int v = part.start; v < part.start + part.count; v++)
+                if (LeashLoop.inHairBand((vertices[v * 8 + 1] - minY) / bodyH)) {
+                    leashSample[v] = true;
+                    count++;
+                }
+        leashHair = new float[count * 3];
+    }
+
+    /**
+     * Builds this draw's rope loop from the body and hair already skinned for the draw: the hair positions were
+     * captured by {@link #renderPosed}, and the body comes from the warm skinning cache. The builder reuses its own
+     * scratch, so a frame allocates nothing.
+     */
+    private void buildLeashLoop() {
+        leashMesh = false;
+        float[] body = posedWear(wear);
+        int bodyLen = wearBody;
+        if (bodyLen < 9) return;
+        leashMesh = leashLoop.build(body, bodyLen, leashHair, leashHairCount,
+                CareWearRenderer.wrapOnBody(wear) ? LEASH_WRAP_CLEARANCE : 0f);
+    }
+    /** This draw's rope loop mesh, or null when the body had none to wrap. */
+    LeashLoop.Builder leashLoop() { return leashMesh ? leashLoop : null; }
 
     private Matrix4f crownMatrix(int bone) {
         var m = new Matrix4f();
@@ -1122,10 +1155,11 @@ public final class YukkuriModel {
     public void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
             boolean accessory, String behavior, float behaviorTicks,int hairLoss) {
         render(action, elapsed, stack, buffer, light, overlay, accessory, behavior, behaviorTicks, hairLoss,
-                null, PoseBridge.Mode.OFF, 0);
+                null, PoseBridge.Mode.OFF, 0, false);
     }
     private void render(String action, float elapsed, PoseStack stack, VertexConsumer buffer, int light, int overlay,
-            boolean accessory, String behavior, float behaviorTicks, int hairLoss, YukkuriView entity, PoseBridge.Mode mode, float partial) {
+            boolean accessory, String behavior, float behaviorTicks, int hairLoss, YukkuriView entity, PoseBridge.Mode mode,
+            float partial, boolean leashed) {
         for(int i=0;i<pose.length;i++)System.arraycopy(defaultPose[i],0,pose[i],0,9);
         String selected=action;
         if(gripBones!=null&&(action.equals("idle")||action.equals("waddle"))){
@@ -1358,7 +1392,14 @@ public final class YukkuriModel {
                     if (observe != null) observe.clear();
                 }
             }
+            leashCapture=leashed;
+            if(leashed){
+                if(leashSample==null)prepareLeashSample();
+                leashHairCount=0;
+            }
             renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss,observe);
+            // The lead's rope loop wraps this draw's body and hair; the hair positions come from the draw itself.
+            if(leashed)buildLeashLoop();
             if(entity!=null&&(wear&CareWearRenderer.PAPER_COVER)!=0)
                 paperTentGrid=paperTent(entity,stack,accessory,hairLoss,Headwear.visualJunk(entity.visibleHeadwear()));
             if (observe != null) observe.place(PoseNeighbors.basis);
@@ -1468,6 +1509,7 @@ public final class YukkuriModel {
                 }
             }
             int tint=woundDisplay!=null?woundDisplay.tint(part.name):drainTint(part.name);
+            boolean loopPart=leashCapture&&leashSample!=null&&leashHairPart(part);
             var curled=tailCurl==null?null:tailCurl.part(partIndex);
             var lifted=cardNormals.get(part.name);
             boolean projectFace=pregnancyBelly>.001f&&part.face;
@@ -1509,6 +1551,11 @@ public final class YukkuriModel {
                     Vector3f point=last?fourthCorner:triangle[index];
                     if (bound >= 0) observe.add(bound, point);
                     int vertex=last?fourth:first+index;
+                    if(loopPart&&leashSample[vertex]&&(!last||fourth>=0)){
+                        int at=leashHairCount;
+                        leashHair[at]=point.x/16;leashHair[at+1]=point.y/16;leashHair[at+2]=point.z/16;
+                        leashHairCount=at+3;
+                    }
                     int uv = vertex * 8 + 3;
                     Vector3f vertexNormal=houseNormals!=null&&houseNormals.groups[vertex]>=0
                             ?houseNormals.normals[houseNormals.groups[vertex]]:normal;
@@ -1558,7 +1605,7 @@ public final class YukkuriModel {
     public boolean woundGeometryCompatible(){return sourceHash.matches(WoundSurface.get(id).runtimeSourceHash);}
     WoundRenderer.Contact renderLiving(String action,float elapsed,PoseStack stack,VertexConsumer buffer,int light,int overlay,
             boolean accessory,String behavior,float behaviorTicks,int hairLoss,YukkuriView entity,String expression,
-            MultiBufferSource buffers,WallClearance clearance,boolean adultPose,PoseBridge.Mode mode,float partial){
+            MultiBufferSource buffers,WallClearance clearance,boolean adultPose,PoseBridge.Mode mode,float partial,boolean leashed){
         try{
             wallClearance=clearance;
             drawEvidence=PoseTap.active()?new DrawEvidence(stack.last().pose()):null;
@@ -1605,7 +1652,7 @@ public final class YukkuriModel {
             momentFrame = entity.getMomentId().isEmpty() ? null : Moments.frame(entity.getMomentId(), elapsed);
             try {
                 render(action,elapsed,stack,buffer,light,overlay,accessory||pieces||hatMotion.equals("HAT_REMOVE"),
-                        behavior,behaviorTicks,hairLoss,entity,mode,partial);
+                        behavior,behaviorTicks,hairLoss,entity,mode,partial,leashed);
             } finally { momentFrame = null; }
             if(woundDisplay!=null)WoundLod.time(WoundLod.BODY,bodyStart);
             // The shared per-asset model keeps the last capture; every mouth-held prop, including a Myon's

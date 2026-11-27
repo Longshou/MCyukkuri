@@ -1,29 +1,29 @@
 package io.github.longshou.mcyukkuri.pose;
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 final class LeashLoopTest {
     private static final Path MODELS = Path.of("src/main/resources/assets/mcyukkuri/yukkuri");
     private static final Path LIVING = Path.of("src/main/resources/assets/mcyukkuri/yukkuri_presentation/living.json");
+    private static final Path SUBSPECIES = Path.of("src/main/resources/assets/mcyukkuri/yukkuri_presentation/subspecies.json");
 
     @Test
     void buildsCleanLoopOnEverySpecies() throws IOException {
-        var living = JsonParser.parseString(Files.readString(LIVING)).getAsJsonObject().getAsJsonObject("variants");
-        String[] species = {"reimu", "marisa", "alice", "patchouli", "chen", "remilia", "flandre", "myon",
-                "house_reimu", "reimu_bean", "reimu_deibu", "reimu_wasa"};
-        for (String id : species) {
+        var variants = variantPrefixes();
+        for (String id : bodyModels()) {
             var model = JsonParser.parseString(Files.readString(MODELS.resolve(id + ".json"))).getAsJsonObject();
             var verts = model.getAsJsonArray("vertices");
-            var acc = new ArrayList<String>();
-            if (living.has(id) && living.getAsJsonObject(id).has("accessory_prefixes"))
-                for (var e : living.getAsJsonObject(id).getAsJsonArray("accessory_prefixes")) acc.add(e.getAsString());
+            List<String> acc = variants.has(id) ? prefixes(variants.getAsJsonObject(id)) : List.of();
             List<Float> body = new ArrayList<>(), hair = new ArrayList<>();
             float minY = Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
             for (var raw : model.getAsJsonArray("parts")) {
@@ -50,18 +50,19 @@ final class LeashLoopTest {
                     }
                 }
             }
-            var mesh = LeashLoop.build(toArray(body), body.size(), toArray(hair), hair.size(), 0f);
-            assertNotNull(mesh, "null mesh for " + id);
-            assertTrue(mesh.vertices().length > 1000 && mesh.vertices().length % 24 == 0, "bad tri count for " + id);
+            var loop = new LeashLoop.Builder();
+            assertTrue(loop.build(toArray(body), body.size(), toArray(hair), hair.size(), 0f), "null mesh for " + id);
+            float[] mesh = loop.vertices();
+            assertTrue(loop.vertexCount() > 1000 && loop.vertexCount() % 24 == 0, "bad tri count for " + id);
             float bodyH = maxY - minY;
             // Back knot sits behind the body (+Z) near BACK_HEIGHT.
-            float[] knot = mesh.knotAnchor();
+            float[] knot = loop.knotAnchor();
             assertTrue(knot[2] > 0, "knot should be on +Z back for " + id);
             assertEquals(minY + LeashLoop.BACK_HEIGHT * bodyH, knot[1], bodyH * .08f, "knot height for " + id);
             // Front rope stays low (below face/mouth) and never drops below the ground.
             float frontMaxY = -Float.MAX_VALUE;
-            for (int i = 0; i < mesh.vertices().length; i += 8) {
-                float y = mesh.vertices()[i + 1], z = mesh.vertices()[i + 2];
+            for (int i = 0; i < loop.vertexCount(); i += 8) {
+                float y = mesh[i + 1], z = mesh[i + 2];
                 assertTrue(y >= minY - bodyH * .02f, "rope below floor for " + id);
                 if (z < 0) frontMaxY = Math.max(frontMaxY, y);
             }
@@ -74,13 +75,44 @@ final class LeashLoopTest {
         float[] sphere = unitSphere(1f, 1f);
         float[] baby = unitSphere(.45f, .45f);
         float[] squashed = unitSphere(1.12f, .82f);
-        var mAdult = LeashLoop.build(sphere, sphere.length, null, 0, 0f);
-        var mBaby = LeashLoop.build(baby, baby.length, null, 0, 0f);
-        var mSquash = LeashLoop.build(squashed, squashed.length, null, 0, 0f);
-        assertNotNull(mAdult); assertNotNull(mBaby); assertNotNull(mSquash);
-        assertEquals(mAdult.knotAnchor()[2] * .45f, mBaby.knotAnchor()[2], .02f);
-        assertTrue(mSquash.knotAnchor()[2] > mAdult.knotAnchor()[2] * 1.07f, "squash should widen rope loop");
-        assertTrue(mSquash.knotAnchor()[1] < mAdult.knotAnchor()[1] * .88f, "squash should lower rope loop");
+        var loop = new LeashLoop.Builder();
+        assertTrue(loop.build(sphere, sphere.length, null, 0, 0f));
+        float adultBack = loop.knotAnchor()[2], adultHeight = loop.knotAnchor()[1];
+        assertTrue(loop.build(baby, baby.length, null, 0, 0f));
+        assertEquals(adultBack * .45f, loop.knotAnchor()[2], .02f);
+        assertTrue(loop.build(squashed, squashed.length, null, 0, 0f));
+        assertTrue(loop.knotAnchor()[2] > adultBack * 1.07f, "squash should widen rope loop");
+        assertTrue(loop.knotAnchor()[1] < adultHeight * .88f, "squash should lower rope loop");
+    }
+
+    /** Every body model resource: a new species cannot be added without a loop check. */
+    private static TreeSet<String> bodyModels() throws IOException {
+        var ids = new TreeSet<String>();
+        try (Stream<Path> files = Files.list(MODELS)) {
+            for (var path : (Iterable<Path>) files.sorted()::iterator) {
+                String name = path.getFileName().toString();
+                if (name.endsWith(".json") && !name.equals("badge_mounts.json")) ids.add(name.substring(0, name.length() - 5));
+            }
+        }
+        return ids;
+    }
+
+    /** Presentation variants (base and subspecies) merged, so subspecies read their own accessory prefixes. */
+    private static JsonObject variantPrefixes() throws IOException {
+        var all = new JsonObject();
+        for (var path : List.of(LIVING, SUBSPECIES)) {
+            var root = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
+            var from = root.has("variants") ? root.getAsJsonObject("variants") : root;
+            for (var entry : from.entrySet()) all.add(entry.getKey(), entry.getValue());
+        }
+        return all;
+    }
+
+    private static List<String> prefixes(JsonObject variant) {
+        var list = new ArrayList<String>();
+        if (variant.has("accessory_prefixes"))
+            for (var e : variant.getAsJsonArray("accessory_prefixes")) list.add(e.getAsString());
+        return list;
     }
 
     private static float[] unitSphere(float rx, float ry) {

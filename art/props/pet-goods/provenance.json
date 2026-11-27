@@ -22,7 +22,8 @@
     "art/props/pet-goods/swaddle/fleece.png": "9c5757a40f4e1c1c23f844500eecbc42c1601e7e28f9b096b4bfe500ec58f7e6",
     "art/props/pet-goods/swaddle/tiger.png": "950c9d32f84b8014a8a34449097c5306d48a860f6aef2072e1b99c3b876ecbe7",
     "art/props/pet-goods/swaddle/gingham.png": "8d64fdc2503029e3f303e9c8da18bb7ca9c6e98e0d799422346fc842f19b6341",
-    "art/props/pet-goods/swaddle/floral.png": "4dd2b89e220c99df11edd74965602d3cf1f58da687e0eb01804bcea75a3efbad"
+    "art/props/pet-goods/swaddle/floral.png": "4dd2b89e220c99df11edd74965602d3cf1f58da687e0eb01804bcea75a3efbad",
+    "art/props/pet-goods/leash_rope.png": "a33d890a5c96de75de6348a9e2181003b0c4f785db2b2ebf4c42a3913bd58572"
   },
   "outputs": {
     "src/main/resources/assets/mcyukkuri/textures/item/sweet_candy.png": "aa6d21325d47da582f8f9fc6f6181af9ee2ca6bee9d73f532a4ad1695ddf0411",
@@ -42,6 +43,7 @@
     "src/main/resources/assets/mcyukkuri/textures/misc/swaddle/fleece.png": "9c5757a40f4e1c1c23f844500eecbc42c1601e7e28f9b096b4bfe500ec58f7e6",
     "src/main/resources/assets/mcyukkuri/textures/misc/swaddle/tiger.png": "950c9d32f84b8014a8a34449097c5306d48a860f6aef2072e1b99c3b876ecbe7",
     "src/main/resources/assets/mcyukkuri/textures/misc/swaddle/gingham.png": "8d64fdc2503029e3f303e9c8da18bb7ca9c6e98e0d799422346fc842f19b6341",
-    "src/main/resources/assets/mcyukkuri/textures/misc/swaddle/floral.png": "4dd2b89e220c99df11edd74965602d3cf1f58da687e0eb01804bcea75a3efbad"
+    "src/main/resources/assets/mcyukkuri/textures/misc/swaddle/floral.png": "4dd2b89e220c99df11edd74965602d3cf1f58da687e0eb01804bcea75a3efbad",
+    "src/main/resources/assets/mcyukkuri/textures/misc/leash_rope.png": "a33d890a5c96de75de6348a9e2181003b0c4f785db2b2ebf4c42a3913bd58572"
   }
 }

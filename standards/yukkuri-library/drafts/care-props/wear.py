@@ -1,5 +1,5 @@
-"""Worn swaddle textures for client/CareWearRenderer: the single leaf of the leaf swaddle, the cloth swaddle's fabric tiles and
-its trim sheet.
+"""Worn on-body textures for client/CareWearRenderer and client/LeashLoopRenderer: the single leaf of the leaf swaddle, the
+cloth swaddle's fabric tiles and trim sheet, and the lead's rope tile.
 
 Drawn here in the vanilla item style of supplies.py (hue-shifted local ramps, the outline is the darkest step of its own
 material, no black, no anti-aliasing, no partial alpha). Nothing is copied from vanilla files.
@@ -17,6 +17,11 @@ swaddle_trim.png, 64x64 cutout sheet of the non-repeating parts, each mapped who
 bow, pompom (near-white, tinted per style), rubber sole, strap, pouch, tiger mark (own colours) and a 5x7 capital alphabet
 (white) for the letter style. TRIM records each rectangle; the renderer's UV constants follow it.
 
+leash_rope.png, 16x16 tile of the lead's braid in the vanilla lead's look, for the rope loop and back knot that
+LeashLoopRenderer draws round a leashed body: a brown ramp rising along the (x + y) diagonal, its crest repeating every
+eight texels, with a darker shadow line crossing it every seven texels along x (ROPE_PITCH, LEASH_ROPE_SHADOW). Drawn from
+this ramp alone; no vanilla lead pixels.
+
 Run this file to rewrite the snapshots in art/props/pet-goods/; scripts/export_pet_goods_icons.py ships them to
 textures/misc/. --check is read-only.
 """
@@ -31,6 +36,9 @@ SNAPSHOT = ROOT / 'art/props/pet-goods'
 LEAF = ['#24481a', '#33661f', '#447f27', '#579a30', '#74b443', '#98cc5e', '#bfe08a']
 PETIOLE = ['#5a5a1e', '#7f8a2c', '#a3ad45']
 STAIN = (168, 130, 64)    # muted brownish yellow of stool soaked into a leaf
+ROPE = ['#534232', '#594736', '#685038', '#6e553c', '#7e6245', '#846749', '#907150', '#967654']
+ROPE_PITCH = (1, 1, 3, 5, 7, 7, 5, 3)    # braid crest step at (x + y) % 8
+LEASH_ROPE_SHADOW = 7                    # the braid's shadow line crosses the crest every seven texels along x
 
 
 def rgba(c):
@@ -479,8 +487,19 @@ def trim_sheet():
     return sheet
 
 
+def leash_rope():
+    """The braid tile: each texel takes the crest step of its diagonal, one step darker on the shadow line."""
+    image = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            step = ROPE_PITCH[(x + y) % 8] - ((x + 4 * y) % LEASH_ROPE_SHADOW == 0)
+            image.putpixel((x, y), rgba(ROPE[step]))
+    return image
+
+
 def outputs():
-    out = {SNAPSHOT / 'swaddle_leaf_wear.png': png(leaf_sheet()), SNAPSHOT / 'swaddle_trim.png': png(trim_sheet())}
+    out = {SNAPSHOT / 'swaddle_leaf_wear.png': png(leaf_sheet()), SNAPSHOT / 'swaddle_trim.png': png(trim_sheet()),
+           SNAPSHOT / 'leash_rope.png': png(leash_rope())}
     for name, draw in FABRICS.items():
         out[SNAPSHOT / 'swaddle' / f'{name}.png'] = png(tile(draw))
     return out

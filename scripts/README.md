@@ -194,7 +194,7 @@ SPAWN 保留 0.0625 格地面支撑容差、碰撞与初始卡墙检查。悬挂
 | `export_family_assets.py` | 从生命周期和家庭配方导出共用茎形、挂接与成长参数；`--check` 核对指纹 | 只写游戏适配资源，不覆盖角色标准 |
 | `export_house_assets.py` | 从家油照料配方与遗体物品渲染配置选用源导出当前归属的方块状态、物品、合成和来源；`--check` 核对导出 | 默认写资源，检查模式只读 |
 | `export_peripheral_assets.py` | 从周边固定快照导出静态网格、贴图、物品／方块调度和合成，记录输入输出指纹；`--check` 核对导出 | 只读取所选快照，不改变标准确认；草麦引用原版贴图资源位置 |
-| `export_pet_goods_icons.py` | 把 `art/props/pet-goods/` 的三张 16×16 宠物照料图标（糖粒、布丁、襁褓布）导出到 `textures/item/`，写 `art/props/pet-goods/provenance.json`；`--check` 核对 | 只读快照；默认写资源与来源登记，检查模式只读 |
+| `export_pet_goods_icons.py` | 把 `art/props/pet-goods/` 的三张 16×16 宠物照料图标（糖粒、布丁、襁褓布）导出到 `textures/item/`，并把 `wear.py` 画的贴身穿戴贴图（襁褓叶片、边缘、布纹与牵引绳绳纹）导出到 `textures/misc/`；写 `art/props/pet-goods/provenance.json`；`--check` 核对 | 只读快照；默认写资源与来源登记，检查模式只读 |
 | `export_item_icons.py` | 把 `art/props/item-icons/` 的 16×16 物品栏图标（立体道具类的玩具、设施、药品与照料用品）导出到 `textures/item/`，并写只用于物品栏的 `models/item/icon/<ID>.json`（`client/ItemIcons` 只在物品栏格子里换成它），写 `art/props/item-icons/provenance.json`；`--check` 核对，并拒绝没有快照的图标模型 | 只读快照；默认写资源与来源登记，检查模式只读 |
 
 标准素材包的制作和局部导出脚本保留在 `standards/yukkuri-library/` 内，见其 [目录约定](../standards/yukkuri-library/AGENTS.md)。不要把有相对路径依赖的包内脚本移到这里。

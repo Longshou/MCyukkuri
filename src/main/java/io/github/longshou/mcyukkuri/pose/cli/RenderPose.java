@@ -288,9 +288,9 @@ final class RenderPose implements Overlays.Contact {
             }
         }
         if (wantLeash) {
-            var mesh = LeashLoop.build(floatsOf(pBody), pBody.size(), floatsOf(lHair), lHair.size(), 0f);
-            if (mesh != null) {
-                float[] verts = mesh.vertices();
+            var loop = new LeashLoop.Builder();
+            if (loop.build(floatsOf(pBody), pBody.size(), floatsOf(lHair), lHair.size(), 0f)) {
+                float[] verts = Arrays.copyOf(loop.vertices(), loop.vertexCount());
                 if (turn != null) {
                     var tp = new Vector3f();
                     var tn = new Vector3f();

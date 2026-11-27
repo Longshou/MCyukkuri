@@ -2,33 +2,24 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
-import io.github.longshou.mcyukkuri.pose.LeashLoop;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-/** Draws the procedural vanilla-lead rope loop and back knot around a leashed yukkuri's posed body. Client only. */
+/** Draws the rope loop and back knot that {@link YukkuriModel} built for this draw. Client only. */
 final class LeashLoopRenderer {
     private static final ResourceLocation TEXTURE = MCYukkuri.id("textures/misc/leash_rope.png");
-    /** Extra radial clearance (fraction of the rope reference length) where a cloth or leaf wrap lies under the loop. */
-    private static final float WRAP_CLEARANCE = .028f;
 
     private LeashLoopRenderer() {}
 
-    static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay, int hairLoss) {
-        float[] body = model.posedWear(wear);
-        int bodyLen = model.wearBodyLength();
-        if (bodyLen < 9) return;
-        float[] hair = model.posedLeashHair(hairLoss);
-        int hairLen = model.leashHairLength();
-        float extra = CareWearRenderer.wrapOnBody(wear) ? WRAP_CLEARANCE : 0f;
-        var mesh = LeashLoop.build(body, bodyLen, hair, hairLen, extra);
-        if (mesh == null) return;
-        var verts = mesh.vertices();
+    static void render(YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+        var loop = model.leashLoop();
+        if (loop == null) return;
+        float[] verts = loop.vertices();
         var consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
         var last = pose.last();
         var matrix = last.pose();
-        for (int i = 0; i < verts.length; i += 24) {
+        for (int i = 0; i < loop.vertexCount(); i += 24) {
             // Emit each triangle as a degenerate quad (v0, v1, v2, v2) for Minecraft's QUADS vertex format.
             for (int c = 0; c < 4; c++) {
                 int k = i + (c == 3 ? 2 : c) * 8;
