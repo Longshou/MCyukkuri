@@ -11,7 +11,7 @@ on:
       - 'settings.gradle'
       - 'gradlew'
       - 'gradlew.bat'
-      - 'scripts/package_ci_runtime.py'
+      - 'scripts/**'
       - '.github/workflows/build.yml'
   pull_request:
     paths:
@@ -22,7 +22,7 @@ on:
       - 'settings.gradle'
       - 'gradlew'
       - 'gradlew.bat'
-      - 'scripts/package_ci_runtime.py'
+      - 'scripts/**'
       - '.github/workflows/build.yml'
   workflow_dispatch:
 
