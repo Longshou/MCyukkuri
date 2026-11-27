@@ -4,37 +4,37 @@
   "spawners": [
     {
       "type": "mcyukkuri:reimu",
-      "weight": 6,
+      "weight": 8,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "mcyukkuri:marisa",
-      "weight": 6,
+      "weight": 8,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "mcyukkuri:chen",
-      "weight": 3,
+      "weight": 2,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "mcyukkuri:alice",
-      "weight": 3,
+      "weight": 2,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "mcyukkuri:patchouli",
-      "weight": 3,
+      "weight": 2,
       "minCount": 1,
       "maxCount": 1
     },
     {
       "type": "mcyukkuri:myon",
-      "weight": 3,
+      "weight": 2,
       "minCount": 1,
       "maxCount": 1
     }

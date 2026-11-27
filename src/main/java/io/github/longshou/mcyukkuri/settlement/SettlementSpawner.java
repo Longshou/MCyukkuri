@@ -36,9 +36,20 @@ import org.slf4j.LoggerFactory;
 public final class SettlementSpawner {
     public enum Preset { WANDERER, FAMILY, FOREST, FOREST_LED, BANDITS }
     public static final TagKey<Biome> FORESTS = TagKey.create(Registries.BIOME, MCYukkuri.id("forest_settlements"));
-    private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN, YukkuriVariant.ALICE, YukkuriVariant.MYON};
+    /** Wild common species in the natural-spawn order of {@code neoforge/biome_modifier/yukkuri_spawns.json}. */
+    private static final YukkuriVariant[] COMMON = {YukkuriVariant.REIMU, YukkuriVariant.MARISA, YukkuriVariant.CHEN,
+            YukkuriVariant.ALICE, YukkuriVariant.PATCHOULI, YukkuriVariant.MYON};
+    /** The same weights as that spawn list: reimu and marisa 8, the other four 2. */
+    private static final int[] COMMON_WEIGHTS = {8, 8, 2, 2, 2, 2};
+    private static final int COMMON_WEIGHT_TOTAL = Arrays.stream(COMMON_WEIGHTS).sum();
+    /** One weighted draw from {@link #COMMON}: wild settlement members, bands and village strays all share this pick. */
+    static YukkuriVariant commonVariant(ServerLevel level) {
+        int roll = ModRandom.world(level).nextInt(COMMON_WEIGHT_TOTAL);
+        for (int i = 0; i < COMMON.length - 1; i++) if ((roll -= COMMON_WEIGHTS[i]) < 0) return COMMON[i];
+        return COMMON[COMMON.length - 1];
+    }
     static YukkuriEntity common(ServerLevel level) {
-        return ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+        return ModEntities.forVariant(commonVariant(level)).create(level);
     }
     public static void discover(YukkuriEntity seed) {
         ServerLevel level = (ServerLevel)seed.level();
@@ -136,7 +147,7 @@ public final class SettlementSpawner {
             for (int i = 0; i < household.size(); i++) {
                 YukkuriVariant variant = aquaticFamily ? YukkuriVariant.MARISA
                         : i < household.parents() ? couple ? (i == 0 ? YukkuriVariant.REIMU
-                        : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : COMMON[ModRandom.world(level).nextInt(COMMON.length)]
+                        : family.getFirst().getVariant() == YukkuriVariant.MARISA ? YukkuriVariant.REIMU : YukkuriVariant.MARISA) : commonVariant(level)
                         : family.get(ModRandom.world(level).nextInt(household.parents())).getVariant();
                 YukkuriEntity member = members.isEmpty() && seed != null ? seed : ModEntities.forVariant(variant).create(level);
                 if (member == null) return List.of();
@@ -148,7 +159,7 @@ public final class SettlementSpawner {
         }
         if ((composition.leader() && !seedLeader) || preset == Preset.WANDERER) {
             YukkuriEntity member = preset == Preset.WANDERER && seed != null ? seed
-                    : ModEntities.forVariant(composition.leader() ? YukkuriVariant.PATCHOULI : COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+                    : ModEntities.forVariant(composition.leader() ? YukkuriVariant.PATCHOULI : commonVariant(level)).create(level);
             if (member == null) return List.of();
             members.add(member);
         }
@@ -236,7 +247,7 @@ public final class SettlementSpawner {
         List<YukkuriEntity> members = new ArrayList<>();
         List<YukkuriEntity> added = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(COMMON[ModRandom.world(level).nextInt(COMMON.length)]).create(level);
+            YukkuriEntity member = i == 0 && seed != null ? seed : ModEntities.forVariant(commonVariant(level)).create(level);
             if (member == null) { added.forEach(YukkuriEntity::discard); return List.of(); }
             if (member != seed) {
                 Motor.relocate(member, Vec3.atBottomCenterOf(sites.get(i)), member.getYRot(), "settlement_bandit_spawn"); member.setOnGround(true);
