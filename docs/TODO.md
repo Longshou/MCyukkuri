@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 11-27 待看反馈：翻桶与扑腾、辫子表现力 | `.worktrees/wp-braid-redo` | BRAID.md, recipe.json (braid/bin/flail entries), species hair rigs |
-| 野外普通种自然生成比例调整（R12） | `.worktrees/wp-spawn-ratio` | neoforge/biome_modifier/yukkuri_spawns.json |
 | TN-48 家规演出敬畏感与变更家规的反应 | `.worktrees/wp-rule-awe` | pet/rules/*, dialogue, 06_house_town_street.py |
 | TN-08 牵绳跟随与挣扎 | `.worktrees/wp-lead-follow` | leash/lead follow goal, dialogue, lead_walk scene |
 
