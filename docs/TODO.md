@@ -15,6 +15,7 @@
 | PD-15 落水慌乱预览重做 | `.worktrees/wp-pd15-preview` | .local/previews only |
 | PD-09 打雷 | `.worktrees/wp-pd09-thunder` | kid_boat_play scene, aquatic thunder reaction |
 | NPC 从长椅边坐下 | `.worktrees/wp-bench-sit` | HumanNpc bench sit |
+| 水生魔理沙睡眠维持在水上（R6） | `.worktrees/wp-aquatic-sleep` | aquatic/*, aquatic-marisa.md |
 
 ## 玩法待办
 
