@@ -575,7 +575,7 @@ final class AquaticGoal extends Goal {
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         if (on) BoatToilet.offer(out, body, hat);
         // At night a young in the hold sleeps once the hull lies still and its body is ready (the parent moors first, then lies down herself).
-        if (body.getVehicle() == hat && parentOn && AquaticLife.dusk(body.level()) && !AquaticLife.rain(body) && !PlayAboard.onBrim(body, hat)
+        if (on && parentOn && AquaticLife.dusk(body.level()) && !AquaticLife.rain(body) && !PlayAboard.onBrim(body, hat)
                 && Waters.moored(hat) && !body.life().carrierRestOpen() && body.life().readyForCarrierRest())
             out.add(Desire.of("night_rest", floor(num("night_rest_want", 50)), world, () -> "dusk parent=" + parent.getUUID(), () -> new NightRest(body, false)));
         var rest = TakeSeat.offer(body, hat);

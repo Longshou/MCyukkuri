@@ -655,7 +655,7 @@ add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊�
      afloat_now('a', water_at(0, 3), True, sel_all('crew'), stick=True)],
     env={'time': 'dusk'}, vantage=(-6, 6, -90),
     # the museum clock stands still: 12500 is dusk (still day for the body), 13000 is night, 23800 is the next morning
-    late=[Retry('time set 13000', sel('a'), tries=1, first=200), Retry('time set 23800', sel('a'), tries=1, first=1800)],
+    late=[Retry('time set 13000', sel('a'), tries=1, first=200), Retry('time set 23800', sel('a'), tries=1, first=2200)],
     note='日志：[aquatic] night_rest berth=…（stay=true：她这格本就是静水，原处不动）→ night_rest asked captain=true（亲油，要等帽船停稳）与 captain=false（赤油）→ '
          '[sleep] begin source=fatigue full=true … carrier=true → [sleep] beat=lie_down face=sleep line=sleep；天亮 [sleep] end source=fatigue full=true cause=rested → '
          '[sleep] beat=wake face=neutral line=awake。下雨、打雷、帽船被晃或孩子落水会先把亲油叫醒（[sleep] woken by danger reason=…），之后按白天的欲望处理（回岸或救孩子）。'
@@ -663,7 +663,7 @@ add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊�
     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读赤油二', f'yukkuri status {sel("k2")} raw'),
            ('读帽子', f'data get entity {_HAT}')],
     capture=dict(shots=(1, 600, 1500, 2000), sequences=((300, 2000, 100),)),
-    smoke=dict(ticks=2800,
+    smoke=dict(ticks=3200,
                expect=[r'\[aquatic\][^\n]* night_rest berth=[^\n]*stay=true',
                        r'\[aquatic\][^\n]* night_rest asked captain=true\b',
                        r'\[aquatic\][^\n]* night_rest asked captain=false\b',

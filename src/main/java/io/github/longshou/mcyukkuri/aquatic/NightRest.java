@@ -43,8 +43,10 @@ final class NightRest implements Intent {
     @Override public List<Method> methods() { return List.of(Plan.of(captain ? "moor_and_rest" : "rest_aboard", this::derive)); }
 
     private List<Supplier<Step>> derive() {
-        var hat = captain ? AquaticLife.hat(body) : AquaticLife.riding(body);
-        if (!AquaticLife.afloat(hat) || captain && !AquaticLife.aboard(body, hat)) return null;
+        // a young rides its parent's hull, in the hold or on her head
+        var parent = captain ? body : AquaticLife.parent(body);
+        var hat = parent == null ? null : AquaticLife.hat(parent);
+        if (!AquaticLife.afloat(hat) || !AquaticLife.aboard(body, hat)) return null;
         if (captain) {
             if (!planned) {
                 planned = true;
