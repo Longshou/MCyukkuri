@@ -519,6 +519,9 @@ def _eat_struck_commands():
     for tick in range(40, 2300, 20):
         commands += [
             # The first blow comes about 320 ticks after the catch is on record (the gasp and the plea are said, the pet lies low), the second 80 ticks later.
+            # The observer stands in front of the pet when the blow lands (the pet may have walked to the bowl since the start).
+            (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
+            (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
             (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 store result score #eat_blow museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 store result score #eat_blow2 museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
@@ -535,6 +538,7 @@ _eat_commands = _rule_owner(9) + [
 for _tick in range(40, 2300, 20):
     _eat_commands += [
         # The stroke comes about 520 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
+        (_tick, f'execute if score #eat_armed museum matches 26.. if score #eat_rub museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
         (_tick, f'execute if score #eat_armed museum matches 26.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
         (_tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
         (_tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),

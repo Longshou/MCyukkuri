@@ -75,7 +75,7 @@ public final class HouseRules extends SavedData {
     /** One answer per pet for this change, after its bow: a newer change (version) drops it. */
     private void answer(Player owner, YukkuriEntity pet, HouseRule rule, int version, boolean loosened) {
         PetScenes.later(pet, ANSWER_AFTER, () -> {
-            if (version(owner.getUUID()) == version) pet.pet().conscience().ruleChanged(owner, rule, loosened);
+            if (version(owner.getUUID()) == version) pet.pet().conscience().ruleChanged(owner, rule, loosened, version);
         });
     }
 
