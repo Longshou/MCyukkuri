@@ -210,7 +210,9 @@ public final class PetWalk {
         if (scared) { action = YukkuriAction.STARTLE; face = "horrified"; }
         else if (bold) { action = YukkuriAction.PUFF; face = "fierce"; }
         else { action = YukkuriAction.STARTLE; face = "surprise"; }
+        int said = animal.speechSequence();
         if (!animal.showReaction(action, face, line, Math.max(action.durationTicks(), 40), FaceTier.Tier.ofTicks(Math.max(action.durationTicks(), 40)))) return false;
+        follow.noteOwnLine(said);
         animal.beat("stranger_leashed", face, line);
         GameplayLog.event(animal, "lead", "beat=stranger_leashed face={} line={} fear={} timid={} bold={} friendly={} holder={}",
                 face, line, fear, traits.is(Gate.TIMID), traits.is(Gate.BOLDISH), friendly, holder.getUUID());

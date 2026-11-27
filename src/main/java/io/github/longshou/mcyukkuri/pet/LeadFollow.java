@@ -203,7 +203,9 @@ final class LeadFollow {
         double resist = LeadPace.resist(personality.friendliness());
         int ticks = LeadPace.boutTicks(reserve);
         int said = animal.speechSequence();
-        clearOwnLine();
+        // Only once its own earlier leash line has finished and rested: the first bout starts inside the snap-on answer, which it
+        // must not cut.
+        if (now >= animal.speechEnd() + 20) clearOwnLine();
         if (!animal.showReaction(YukkuriAction.STRUGGLE, face, line, ticks, FaceTier.Tier.MEDIUM)) return;
         noteOwnLine(said);
         animal.beat("lead_struggle", face, line);
