@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| BD-25 虚弱步态 | `.worktrees/wp-art-frail` | recipe.json (frail entries), frail gait wiring |
 | SC-09 相扑状态 | `.worktrees/wp-art-sumo` | recipe.json (sumo entries), sumo clip wiring |
 | PD-15 非水生种落水慌乱 | `.worktrees/wp-art-drown` | recipe.json (water panic entries), face sources |
 | TN-69 牵引绳绕身 | `.worktrees/wp-art-leash` | leash renderer, leash model |
