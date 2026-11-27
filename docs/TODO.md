@@ -12,7 +12,6 @@
 | 断亲演出与台词（PD-31~34） | `.worktrees/wp-sever-voice` | family departure/sever beats, sever dialogue, sever faces |
 | 争抢分级（FG-19/FM-30/PK-24/SC-09） | `.worktrees/wp-contest-tiers` | event Contest/ContestOdds, GroupInteractionGoal contest+sumo beats, contest dialogue/faces |
 | 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
-| 台词指代油库里用油不用人 | `.worktrees/wp-speech-you` | art/dialogue sources (zh lines only), generated lang |
 | 玩偶可放置（PK-20） | `.worktrees/wp-doll-place` | doll item/entity, placement |
 | PD-29 卡召唤、戴帽卡 boat call、帽檐形变 | `.worktrees/wp-pd29-stalls` | aquatic call/boat-call chain, hat brim render |
 | 下雨找躲雨处（PD-09 起，共用行为） | `.worktrees/wp-rain-shelter` | weather goal / shelter seeking, aquatic hat shelter |
