@@ -8508,9 +8508,9 @@
       "loop": true,
       "applies": "all",
       "faces": [
-        [0, 1.6, "angry_stare"]
+        [0, 1.6, "smug"]
       ],
-      "lore": "Ritual sumo ready stance (SC-09, W2): both participants squat low and wide, leaning forward in a locked stare while shifting weight side to side with two crisp shiko-style stomp plants per 1.6 s loop; body only, composed tilt <= 10 degrees.",
+      "lore": "Ritual sumo ready stance (SC-09, W2): both participants squat low and wide, leaning forward in a locked, playful-determined stare (smug grin, not a frown) while shifting weight side to side with two crisp shiko-style stomp plants per 1.6 s loop; body only, composed tilt <= 10 degrees.",
       "triggers": ["sumo_prepare"]
     },
     "sumo_shove": {
@@ -8519,11 +8519,11 @@
       "loop": true,
       "applies": "all",
       "faces": [
-        [0, 0.24, "angry_stare"],
-        [0.24, 0.42, "angry"],
+        [0, 0.24, "smug"],
+        [0.24, 0.42, "puff_open"],
         [0.42, 0.6, "endure"],
-        [0.6, 0.78, "puff"],
-        [0.78, 1.0, "angry_stare"]
+        [0.6, 0.78, "puff_open"],
+        [0.78, 1.0, "smug"]
       ],
       "lore": "Ritual sumo charge and body-to-body shove (SC-09, W2): synced to the 20-tick (1.0 s) sumo contact cadence — coil low, surge forward into body-to-body clash with impact squash, grind laterally under braced pressure, then reset; body only, composed tilt <= 11 degrees.",
       "triggers": ["sumo_push"]

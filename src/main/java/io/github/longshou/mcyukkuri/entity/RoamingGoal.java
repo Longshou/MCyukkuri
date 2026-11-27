@@ -93,8 +93,13 @@ public final class RoamingGoal extends Goal {
                 && (!animal.profile().houseBody() || animal.house().homeless())
                 && !animal.life().hasUrgentNeed() && !animal.life().isSleeping() && !animal.body().weak()
                 && !animal.family().active() && !animal.isCommandPlaying() && !animal.operations().active()
-                && animal.reactionAction() != YukkuriAction.JOY_JUMP
+                && !performing()
                 && !BehaviorContinuity.emergency(animal) && outsideFoundShelter(animal.blockPosition());
+    }
+    /** A joy jump or a sumo bout's end pose plays out before the next stroll starts. */
+    private boolean performing() {
+        var action = animal.reactionAction();
+        return action == YukkuriAction.JOY_JUMP || action != null && action.sumoEnd();
     }
     private boolean outsideFoundShelter(BlockPos pos) { return ShelterBlock.foundInterior(animal.level(), pos) == null; }
     private boolean qualifies() {

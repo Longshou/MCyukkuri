@@ -2635,11 +2635,11 @@
           "faces": [
             [
               0,
-              "angry_stare"
+              "smug"
             ],
             [
               0.24,
-              "angry"
+              "puff_open"
             ],
             [
               0.42,
@@ -2647,11 +2647,11 @@
             ],
             [
               0.6,
-              "puff"
+              "puff_open"
             ],
             [
               0.78,
-              "angry_stare"
+              "smug"
             ]
           ]
         }
@@ -2715,7 +2715,7 @@
           "faces": [
             [
               0,
-              "angry_stare"
+              "smug"
             ]
           ]
         }
@@ -3630,11 +3630,11 @@
           "faces": [
             [
               0,
-              "angry_stare"
+              "smug"
             ],
             [
               0.24,
-              "angry"
+              "puff_open"
             ],
             [
               0.42,
@@ -3642,11 +3642,11 @@
             ],
             [
               0.6,
-              "puff"
+              "puff_open"
             ],
             [
               0.78,
-              "angry_stare"
+              "smug"
             ]
           ]
         }

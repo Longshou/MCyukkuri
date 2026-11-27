@@ -130,8 +130,8 @@ public final class GroupInteractionGoal extends Goal {
         cooldown=peer.groupInteraction().cooldown=2400;
         // A contest opens with its own face-off beats; the other bouts open with this one reaction.
         if(kind!=Kind.CONTEST) {
-            entity.showReaction(kind==Kind.SUMO?"angry_stare":"surprise",kind==Kind.SUMO?"peer":"mine",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
-            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"angry_stare":"surprise",kind==Kind.SUMO?"known_peer":"afraid",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
+            entity.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"peer":"mine",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
+            if (kind != Kind.SUMO) peer.mind().felt(EmotionEvent.FRIGHTENED); peer.showReaction(kind==Kind.SUMO?"smug":"surprise",kind==Kind.SUMO?"known_peer":"afraid",kind==Kind.SUMO?FaceTier.Tier.SHORT:FaceTier.Tier.MEDIUM);
         }
         GameplayLog.event(entity, "social", "bout reserved kind={} peer={}", kind, peer.getUUID());
         return true;
