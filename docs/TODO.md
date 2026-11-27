@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | R5 低温僵直 P3 搬运与挖碎 | `.worktrees/wp-cold-stiff-p3` | status/ColdStiffness, transport basket, BodyLife.died(noRemains), interaction |
+| 灵梦鬓发根部变细（落水慌乱） | `.worktrees/wp-hair-root` | body-standard/features/hair-chains/author.py, lore recipe hair_chain_keys |
 
 ## 玩法待办
 
