@@ -1102,6 +1102,7 @@ final class HumanStreet {
             // A bench on the plaza lets the owner sit and watch, which keeps the pets about long enough for strays to see them.
             seat = pickPlazaSeat(null);
             plazaRest = seat != null;
+            if (!plazaRest) GameplayLog.event(npc, "npc-care", "action=outing_sit result=no_seat candidates={}", seatCandidates);
             plazaWariness = wariness;
             plazaUntil = npc.level().getGameTime() + (plazaRest ? TownMarkers.plazaRest(wariness) : TownMarkers.plazaPause(wariness));
         }
@@ -1357,6 +1358,8 @@ final class HumanStreet {
             var top = new Vec3(cell.getX() + .5, cell.getY() + height, cell.getZ() + .5);
             double along = (core.x - top.x) * front.getStepX() + (core.z - top.z) * front.getStepZ();
             var facing = ParkSeats.facesFirstNormal(along) ? front : front.getOpposite();
+            // Open ground on the watching side first; with a wall or hedge there, the other long side (the head still follows the pets).
+            if (!standable(cell.relative(facing))) facing = facing.getOpposite();
             if (!standable(cell.relative(facing))) return null;
             var seat = new Seat(cell, top, facing, Vec3.atBottomCenterOf(cell.relative(facing)));
             if (!seatFree(seat)) return null;
