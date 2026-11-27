@@ -11,7 +11,7 @@
     "birth": {"clips": ["labor", "boat_labor", "midwife", "postpartum", "first_wake", "hat_hold", "hat_hold_aq", "hat_off_self", "hat_on_self", "hat_off_self_aq", "hat_on_self_aq"], "braid_follow": true, "birth_pose": true},
     "badge": {"clips": ["snatch_pull", "stand_ground", "offer_bite", "eat", "drink", "first_toilet_assist", "newborn_crawl", "nest_harvest", "nest_place", "nest_spread", "greet", "hat_off_aq", "hat_on_aq", "water_plunge", "water_recover"], "braid_follow": true},
     "distress": {"clips": ["hat_stumble", "hat_jostle", "water_plunge", "water_struggle", "water_flail", "water_gasp", "water_recover", "boat_reassure", "boat_alarm_call", "boat_alarm_wait", "boat_answer_call", "boat_calm", "braid_rescue_reach", "braid_rescue_hold", "braid_rescue_settle", "water_hat_flip", "water_hat_grip", "water_hat_climb", "hat_brim_offer", "hat_hop_up", "water_bob_lunge", "hat_slide_over", "water_mouth_grip", "water_hat_shake", "water_hat_push", "boat_nudge_young", "braid_reach_low"]},
-    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "stamp", "walk_look_back", "run", "reject_or_spit", "spit_alone", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
+    "base-motions": {"clips": ["lunge_ram", "glass_press", "nod", "stamp", "walk_look_back", "run", "frail_walk", "weak_crawl", "reject_or_spit", "spit_alone", "farewell", "snuggle_right", "snuggle_left", "crouch_watch", "crouch_watch_weary", "mood_flutter", "mood_flick", "mood_droop", "cough_mukyu"], "braid_follow": true, "side_profile": true},
     "pet": {"clips": ["think", "nervous", "proud", "joy_jump", "sulk", "hide_face", "beg", "bow", "shy", "doze_off", "struggle", "basket_in", "basket_out", "ignore", "restrain"], "braid_follow": true},
     "territory": {"clips": ["home_declare", "home_declare_timid"], "braid_follow": true},
     "sukkiri": {"clips": ["sukkiri_after_dazed", "sukkiri_after_tender", "sukkiri_after_proud", "sukkiri_after_manic", "sukkiri_pair_loop", "sukkiri_mamu_loop", "sukkiri_pair_climax", "sukkiri_mamu_climax", "sukkiri_alice_loop", "sukkiri_held_loop", "sukkiri_held_climax", "sukkiri_alice_chase"], "braid_follow": true},
@@ -7831,6 +7831,41 @@
         "panic flight (PresentationArbiter panic, Behaviors.FLEE)"
       ]
     },
+    "frail_walk": {
+      "label": "虚弱蹒跚走",
+      "duration": 2.4,
+      "loop": true,
+      "applies": "all",
+      "height_keys": [[0, 0.86], [0.22, 0.89], [0.46, 0.855], [0.76, 0.85], [1.04, 0.875], [1.3, 0.885], [1.56, 0.855], [1.96, 0.85], [2.2, 0.865], [2.4, 0.86]],
+      "pitch_keys": [[0, -4.5], [0.22, -6.5], [0.46, -7.5], [0.76, -4.5], [1.04, -5.0], [1.3, -6.8], [1.56, -7.0], [1.96, -4.2], [2.4, -4.5]],
+      "yaw_keys": [[0, 0], [0.46, 5.0], [0.85, 2.0], [1.04, 0], [1.56, -4.5], [2.05, -2.0], [2.4, 0]],
+      "roll_keys": [[0, 0.5], [0.24, 3.8], [0.46, 4.5], [0.78, 1.2], [1.04, -0.5], [1.32, -3.6], [1.56, -4.2], [1.98, -1.0], [2.4, 0.5]],
+      "reach_keys": [[0, 0.005], [0.46, 0.045], [0.82, 0.01], [1.04, 0.005], [1.56, 0.036], [2.02, 0.008], [2.4, 0.005]],
+      "sway_keys": [[0, 0], [0.46, -0.024], [0.82, -0.006], [1.04, 0], [1.56, 0.022], [2.02, 0.005], [2.4, 0]],
+      "faces": [[0, 1.05, "sleepy"], [1.05, 1.65, "teary_frown"], [1.65, 2.4, "sleepy"]],
+      "lore": "Project design (BD-25 frail gait): a starving or exhausted yukkuri (BodyAbility.frail) dragging itself along with no spring or air time. Low slumped carriage (height 0.85-0.89), two uneven laboured drag-steps separated by weary stalls where the body sags and wobbles laterally; travel belongs to the motor (Slowness II / fatigue pace). Composed pitch and roll stay under 9 degrees.",
+      "triggers": [
+        "frail ground walk (PresentationArbiter walking/panic when BodyAbility.frail and not crawling)"
+      ]
+    },
+    "weak_crawl": {
+      "label": "重伤拖爬",
+      "duration": 2.8,
+      "loop": true,
+      "applies": "all",
+      "height_keys": [[0, 0.77], [0.26, 0.765], [0.52, 0.81], [0.84, 0.76], [1.22, 0.76], [1.56, 0.775], [1.82, 0.795], [2.08, 0.76], [2.48, 0.765], [2.8, 0.77]],
+      "quiver": [0.9, 1.5, 0.008, 6.0],
+      "pitch_keys": [[0, -5.5], [0.26, -6.0], [0.52, -8.5], [0.84, -7.2], [1.22, -5.2], [1.56, -5.8], [1.82, -7.8], [2.08, -6.8], [2.48, -5.2], [2.8, -5.5]],
+      "yaw_keys": [[0, -2.0], [0.52, 6.0], [0.88, 3.0], [1.25, -4.5], [1.56, -3.0], [1.82, -6.0], [2.15, -2.5], [2.5, -1.5], [2.8, -2.0]],
+      "roll_keys": [[0, 1.2], [0.52, 4.5], [0.84, 2.5], [1.22, -1.2], [1.56, -1.5], [1.82, -4.2], [2.08, -2.4], [2.48, 0.4], [2.8, 1.2]],
+      "reach_keys": [[0, 0.0], [0.26, -0.008], [0.56, 0.064], [0.86, 0.02], [1.25, 0.004], [1.56, 0.0], [1.84, 0.044], [2.12, 0.012], [2.5, 0.002], [2.8, 0.0]],
+      "sway_keys": [[0, 0.005], [0.52, -0.028], [0.88, -0.01], [1.25, 0.008], [1.82, 0.024], [2.15, 0.008], [2.8, 0.005]],
+      "faces": [[0, 0.9, "teary_frown"], [0.9, 1.6, "squeezed_frown"], [1.6, 2.8, "teary_frown"]],
+      "lore": "Project design (BD-25 weak crawl): a badly injured (health <= 30%) or burned-sole yukkuri dragging itself flat across the ground with zero air time. Collapsed flattened body (height 0.76-0.81), one painful forward heave followed by a trembling exhausted stall and a weaker half-pull; travel belongs to the crawl motor (crawlSpeed ~0.20 b/s). Composed pitch and roll stay under 10 degrees.",
+      "triggers": [
+        "injured or burned-sole crawl (PresentationArbiter walking/panic when isCrawling and weak or footBurned)"
+      ]
+    },
     "reject_or_spit": {
       "label": "吐出拒食",
       "duration": 3.0,
@@ -8564,6 +8599,8 @@
     "stamp",
     "walk_look_back",
     "run",
+    "frail_walk",
+    "weak_crawl",
     "reject_or_spit",
     "spit_alone",
     "farewell",

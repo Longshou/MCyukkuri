@@ -35,6 +35,8 @@
     ["side_bend", "左右侧摆"],
     ["waddle", "行走"],
     ["run", "快跑"],
+    ["frail_walk", "虚弱蹒跚走"],
+    ["weak_crawl", "重伤拖爬"],
     ["walk_look_back", "边走边回头"],
     ["brace", "撑起身体"],
     ["lunge_ram", "蓄力撞击"],

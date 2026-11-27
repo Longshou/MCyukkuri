@@ -161,6 +161,8 @@ public enum YukkuriAction {
     // Motion library gaps filled (lore recipe base-motions, all standard forms): the fast bounding gait of a panic flight, the
     // spit that throws a refused bite back out (it starts on the tick the item drops), and the parting played in place.
     RUN("run", 0.64, true),
+    FRAIL_WALK("frail_walk", 2.4, true),
+    WEAK_CRAWL("weak_crawl", 2.8, true),
     REJECT_OR_SPIT("reject_or_spit", 3.0, false),
     SPIT_ALONE("spit_alone", 2.4, false),
     FAREWELL("farewell", 6.4, false),

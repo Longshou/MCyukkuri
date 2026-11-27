@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.LiveBirthGeometry;
 import io.github.longshou.mcyukkuri.life.WaterDistress;
 import io.github.longshou.mcyukkuri.life.YukkuriConfig;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.surface.Occupancy;
 import io.github.longshou.mcyukkuri.social.EcologyPresentation;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -334,6 +335,8 @@ public final class PresentationArbiter {
                         : water ? YukkuriAction.WATER_STRUGGLE
                         : e.onGround() && e.species().catchingBreath() && e.getDeltaMovement().horizontalDistanceSqr() <= 0.000001
                         ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
+                        : e.isCrawling() && (e.body().weak() || e.body().footBurned()) ? YukkuriAction.WEAK_CRAWL
+                        : BodyAbility.frail(e) ? YukkuriAction.FRAIL_WALK
                         : e.runningGait(Behaviors.FLEE) ? YukkuriAction.RUN : YukkuriAction.WADDLE);
                 if (pose != null) state.animationStart(pose.startTick());
             }
@@ -378,7 +381,9 @@ public final class PresentationArbiter {
                 state.animation(YukkuriAction.SUKKIRI_ALICE_CHASE);
                 state.animationStart(e.agitation().presentationStart());
             }else{
-                state.animation(!e.agitation().hunting()&&m.distanceSquared()>.000001&&!e.agitation().poseLocked()?YukkuriAction.WADDLE:action);
+                state.animation(!e.agitation().hunting()&&m.distanceSquared()>.000001&&!e.agitation().poseLocked()
+                        ? (e.isCrawling() && (e.body().weak() || e.body().footBurned()) ? YukkuriAction.WEAK_CRAWL
+                        : BodyAbility.frail(e) ? YukkuriAction.FRAIL_WALK : YukkuriAction.WADDLE) : action);
             }
             state.expression(e.agitation().expression());
             return;
@@ -524,6 +529,8 @@ public final class PresentationArbiter {
 
     /** The walk, or a reaction clip that carries its own steps (YukkuriAction.walks) played in its place while travelling. */
     private static YukkuriAction walking(YukkuriEntity e, String behavior) {
+        if (e.isCrawling() && (e.body().weak() || e.body().footBurned())) return YukkuriAction.WEAK_CRAWL;
+        if (BodyAbility.frail(e)) return YukkuriAction.FRAIL_WALK;
         var reaction = e.reactionAction();
         return e.runningGait(behavior) ? YukkuriAction.RUN : reaction != null && reaction.walks() ? reaction : YukkuriAction.WADDLE;
     }

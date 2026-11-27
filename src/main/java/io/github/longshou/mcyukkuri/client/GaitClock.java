@@ -14,8 +14,8 @@ import net.minecraft.world.phys.Vec3;
  * travels at its ordinary pace.
  */
 final class GaitClock {
-    /** Ordinary ground walk at request 1.0, and the hop-run's pace (blocks per tick); see {@link Gait}. */
-    private static final double WALK = .07, RUN = .10, FLY = .16;
+    /** Ordinary ground walk at request 1.0, frail shamble, weak crawl, hop-run and flight paces (blocks per tick); see {@link Gait}. */
+    private static final double WALK = .07, FRAIL_WALK = .035, WEAK_CRAWL = .01, RUN = .10, FLY = .16;
     /** A very slow body still beats its clip at half rate; a fast one never beats more than 1.3 times. */
     private static final double LOWEST = .5, HIGHEST = 1.3;
     private record Sample(long start, Vec3 at, double time, float seconds) {}
@@ -44,6 +44,8 @@ final class GaitClock {
 
     private static double reference(String clip) {
         if (clip.equals(YukkuriAction.WADDLE.id())) return WALK;
+        if (clip.equals(YukkuriAction.FRAIL_WALK.id())) return FRAIL_WALK;
+        if (clip.equals(YukkuriAction.WEAK_CRAWL.id())) return WEAK_CRAWL;
         if (clip.equals(YukkuriAction.RUN.id())) return RUN;
         if (clip.equals(Behaviors.PREDATOR_FLY)) return FLY;
         return 0;
