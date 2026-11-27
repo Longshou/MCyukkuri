@@ -46,6 +46,7 @@ final class RenderPose implements Overlays.Contact {
     private WallYield wallYield;
     private boolean wallYieldBuilt;
     private SnugglePose snuggle;
+    private LeashRing leashRing;
     private float looseTop;
     private ReviewMarks.Wet wet;
     private ReviewMarks.Scratch scratchMark;
@@ -181,14 +182,11 @@ final class RenderPose implements Overlays.Contact {
             if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,wallFrame.scale(scale/16),faces,kind->false);else wallYield.clear();}
         }
         boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();
-        boolean wantLeash=request.has("leashLoop")&&request.get("leashLoop").isJsonArray();
         List<String> accPrefixes=new ArrayList<>();
         if(wantPaper)for(var raw:request.getAsJsonArray("paperCover"))accPrefixes.add(raw.getAsString());
-        else if(wantLeash)for(var raw:request.getAsJsonArray("leashLoop"))accPrefixes.add(raw.getAsString());
         var replaced = new ArrayList<String>();
         if (worn != null) for (var item : worn.getAsJsonArray("accessories")) replaced.add(item.getAsString());
-        List<Float> pBody=wantPaper||wantLeash?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
-        List<Float> lHair=wantLeash?new ArrayList<>():null;
+        List<Float> pBody=wantPaper?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
         Matrix4f localToWall=turn!=null?new Matrix4f(turn).scale(1/16f):new Matrix4f().scale(1/16f);
         Matrix4f wallToLocal=new Matrix4f(localToWall).invert();
         for(int pi=0;pi<data.getAsJsonArray("parts").size();pi++){
@@ -203,10 +201,8 @@ final class RenderPose implements Overlays.Contact {
             String origName=data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString();
             boolean loose=yield&&WallYield.loose(origName);
             boolean isBody=OfflineModel.group(origName).equals("body")||origName.endsWith("_rump_mark");
-            boolean isAcc=(wantPaper||wantLeash)&&accPrefixes.stream().anyMatch(origName::startsWith);
+            boolean isAcc=wantPaper&&accPrefixes.stream().anyMatch(origName::startsWith);
             boolean skipTent=origName.startsWith("face_")||origName.contains("puff");
-            boolean isLeashHair=wantLeash&&!isBody&&!isAcc&&!skipTent&&organ.isEmpty()
-                    &&!origName.contains("rump")&&!origName.contains("rear_mark")&&!origName.contains("tail")&&!origName.contains("wing");
             if (worn != null && replaced.stream().anyMatch(origName::startsWith)) continue;
             for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);
                 if(layered&&rear!=null)rear.transformPosition(p);
@@ -217,9 +213,6 @@ final class RenderPose implements Overlays.Contact {
                     if(isBody){pBody.add(tp.x);pBody.add(tp.y);pBody.add(tp.z);}
                     if(isAcc){pHat.add(tp.x);pHat.add(tp.y);pHat.add(tp.z);}
                     else{pMesh.add(tp.x);pMesh.add(tp.y);pMesh.add(tp.z);}
-                } else if (wantLeash) {
-                    if (isBody) { pBody.add(p.x); pBody.add(p.y); pBody.add(p.z); }
-                    else if (isLeashHair) { lHair.add(p.x); lHair.add(p.y); lHair.add(p.z); }
                 }
                 if(turn!=null)turn.transformPosition(p);
                 if(loose){float keep=WallYield.press(faces,p.x/16,p.y/16,p.z/16);p.x*=keep;p.z*=keep;}
@@ -287,22 +280,10 @@ final class RenderPose implements Overlays.Contact {
                 out.add("paper_under", vertexData(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn), packed));
             }
         }
-        if (wantLeash) {
-            var loop = new LeashLoop.Builder();
-            if (loop.build(floatsOf(pBody), pBody.size(), floatsOf(lHair), lHair.size(), 0f)) {
-                float[] verts = Arrays.copyOf(loop.vertices(), loop.vertexCount());
-                if (turn != null) {
-                    var tp = new Vector3f();
-                    var tn = new Vector3f();
-                    for (int i = 0; i < verts.length; i += 8) {
-                        turn.transformPosition(tp.set(verts[i], verts[i + 1], verts[i + 2]));
-                        turn.transformDirection(tn.set(verts[i + 5], verts[i + 6], verts[i + 7])).normalize();
-                        verts[i] = tp.x; verts[i + 1] = tp.y; verts[i + 2] = tp.z;
-                        verts[i + 5] = tn.x; verts[i + 6] = tn.y; verts[i + 7] = tn.z;
-                    }
-                }
-                out.add("leash_loop", vertexData(verts, packed));
-            }
+        if (request.has("leashLoop") && request.get("leashLoop").getAsBoolean()) {
+            if (leashRing == null) leashRing = fitLeashRing();
+            leashRing.build((vertex, point) -> point.set(output[vertex * 8], output[vertex * 8 + 1], output[vertex * 8 + 2]), scale, false);
+            out.add("leash_loop", vertexData(Arrays.copyOf(leashRing.vertices(), leashRing.length()), packed));
         }
         if (packed) return new Drawn(out,output,true);
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
@@ -362,6 +343,18 @@ final class RenderPose implements Overlays.Contact {
     private static Vector3f triangleNormal(float[] v, int i) {
         return new Vector3f(v[i+8]-v[i], v[i+9]-v[i+1], v[i+10]-v[i+2])
                 .cross(v[i+16]-v[i], v[i+17]-v[i+1], v[i+18]-v[i+2]);
+    }
+    /** The leash rope fitted to this model's rest mesh: its body skin, and the hair the rope passes under. */
+    private LeashRing fitLeashRing() {
+        var body = new ArrayList<Integer>();
+        var hair = new ArrayList<Integer>();
+        for (var raw : data.getAsJsonArray("parts")) {
+            var part = raw.getAsJsonObject();
+            String name = part.get("name").getAsString();
+            var into = LeashRing.bodySurface(name) ? body : LeashRing.hair(name, part.has("anatomy") && !part.get("anatomy").getAsString().isEmpty()) ? hair : null;
+            if (into != null) { into.add(start(part)); into.add(count(part)); }
+        }
+        return LeashRing.fit(rest, 8, body.stream().mapToInt(Integer::intValue).toArray(), hair.stream().mapToInt(Integer::intValue).toArray());
     }
     private static float[] floatsOf(List<Float> list){float[] r=new float[list.size()];for(int i=0;i<r.length;i++)r[i]=list.get(i);return r;}
     private static float[] sheetTris(float[][][] pts,int rows,int cols,boolean inward,Matrix4f turn){

@@ -38,7 +38,7 @@ const frames=job.times.map((t,frame)=>{
   // Each actor stands beside its own copy of the walls: it turns by this frame's yaw and, with yield, gives way as in the game.
   if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
   if(a.pose)a.pose.paperCover=a.paperSlots?(living[a.id]?.accessory_prefixes||[]):null;
-  if(a.pose)a.pose.leashLoop=a.leashSlot!=null?(living[a.id]?.accessory_prefixes||[]):null;
+  if(a.pose)a.pose.leashLoop=a.leashSlot!=null?true:null;
   let phase=0;
   let selectedFace;
   if(a.pose){

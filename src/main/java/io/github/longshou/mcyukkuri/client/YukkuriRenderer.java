@@ -306,7 +306,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if (mode != PoseBridge.Mode.OFF) PoseNeighbors.collect(source, partialTick, start, pose.last().pose());
             var toolContact=model.renderLiving(operated||behavior.equals(Behaviors.SLIDE_DOWN)?"idle":action, operated?0:clock, pose, buffer, packedLight, overlay,
                     entity.hasVisibleAccessory(), operated?Behaviors.IDLE:behavior,phaseTicks,entity.visibleHairLoss(),entity,expression,buffers,wallClearance,
-                    adultPose,mode,partialTick,source.isLeashed());
+                    adultPose,mode,partialTick);
             // Captured before anything else poses this shared model (stem fruits reuse it).
             PoseTap.body(entity,start,pose.last().pose(),partialTick);
             if(!preview&&!carried)ParentCarryPresentation.capture(entity,model,start,pose.last().pose(),renderedBodyYaw,partialTick);
@@ -317,7 +317,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var stemRoot=FamilyRenderer.visible(entity)?model.rootPose():null;
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(wear!=0)CareWearRenderer.render(model,wear,pose,buffers,packedLight,overlay);
-            if(source.isLeashed())LeashLoopRenderer.render(model,pose,buffers,packedLight,overlay);
+            // The house body is too small for a rope; its lead still ends at the entity's leash offset.
+            if(source.isLeashed()&&!entity.profile().houseBody())LeashLoopRenderer.render(model.leashRing(wear),pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
             if(!entity.getMouthBodyFood().isEmpty()) {
                 pose.pushPose();

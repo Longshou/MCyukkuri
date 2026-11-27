@@ -2,24 +2,23 @@ package io.github.longshou.mcyukkuri.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.longshou.mcyukkuri.MCYukkuri;
+import io.github.longshou.mcyukkuri.pose.LeashRing;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
-/** Draws the rope loop and back knot that {@link YukkuriModel} built for this draw. Client only. */
+/** Draws the rope and back knot that {@link LeashRing} built from this draw's skin. Client only. */
 final class LeashLoopRenderer {
     private static final ResourceLocation TEXTURE = MCYukkuri.id("textures/misc/leash_rope.png");
 
     private LeashLoopRenderer() {}
 
-    static void render(YukkuriModel model, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
-        var loop = model.leashLoop();
-        if (loop == null) return;
-        float[] verts = loop.vertices();
+    static void render(LeashRing ring, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+        float[] verts = ring.vertices();
         var consumer = buffers.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
         var last = pose.last();
         var matrix = last.pose();
-        for (int i = 0; i < loop.vertexCount(); i += 24) {
+        for (int i = 0; i < ring.length(); i += LeashRing.TRIANGLE) {
             // Emit each triangle as a degenerate quad (v0, v1, v2, v2) for Minecraft's QUADS vertex format.
             for (int c = 0; c < 4; c++) {
                 int k = i + (c == 3 ? 2 : c) * 8;
