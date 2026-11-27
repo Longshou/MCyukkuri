@@ -149,7 +149,13 @@ def resolve(item, current):
 
 
 def scene_ids_at(commit):
-    return set(re.findall(r"^add\('([a-z0-9_]+)'", git_show(commit, 'scripts/museum_scenarios.py'), re.M))
+    listed = subprocess.run(
+        ['git', '-C', str(HERE), 'ls-tree', '-r', '--name-only', commit, '--',
+         'scripts/museum_scenarios.py', 'scripts/museum_scenarios_parts'],
+        capture_output=True, text=True, encoding='utf-8', check=True,
+    ).stdout.splitlines()
+    paths = [p for p in listed if p.endswith('.py')] or ['scripts/museum_scenarios.py']
+    return {sid for path in paths for sid in re.findall(r"^add\('([a-z0-9_]+)'", git_show(commit, path), re.M)}
 
 
 def display_name(hit):
