@@ -287,6 +287,27 @@ assert.deepEqual(viewerRoute(''),{model:null,action:'idle',expression:'auto',aut
             with self.assertRaises(ValueError):
                 review_verdicts.append(dict(id='bad', verdict='pass', title=bad), log)
 
+    def test_video_sequence_chains_clips_and_labels_faces(self):
+        self.assert_rejected(self.run_cli('video', 'boundary', '--model', 'reimu',
+                                          '--sequence', 'water_plunge,no_such_clip'),
+                             'Unknown clip reimu/no_such_clip')
+        result = self.run_cli('video', 'boundary', '--model', 'reimu', 'chen',
+                              '--sequence', 'water_plunge,water_gasp',
+                              '--sequence', 'water_plunge,water_flail_tail',
+                              '--fps', '10', '--size', '96', '96')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        page_html = (self.topic/'index.html').read_text(encoding='utf-8')
+        self.assertIn('reimu-seq1.mp4', page_html)
+        self.assertNotIn('reimu-seq2.mp4', page_html)
+        self.assertIn('chen-seq1.mp4', page_html)
+        self.assertIn('chen-seq2.mp4', page_html)
+        self.assertIn('water_plunge', page_html)
+        self.assertIn('teary_pant', page_html)
+        self.assertIn('water_flail_tail', page_html)
+        probe = subprocess.run([str(ffmpeg_path()), '-hide_banner', '-i', str(self.topic/'reimu-seq1.mp4')],
+                               capture_output=True, text=True)
+        self.assertIn('Duration: 00:00:02.20', probe.stderr)
+
     def test_refresh_preserves_handwritten_inbox(self):
         from preview import refresh_inbox
 

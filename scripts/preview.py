@@ -207,15 +207,19 @@ def render_strip(args, stage, times, before=False, unyielded=False):
             # An atlas outside the face library (e.g. a wound-pipeline dry face) on the face id's geometry.
             a.setdefault('face', 'neutral')
             images = [(Path(args.texture).resolve(),None,[0,0],[1,1])]
+        schedule = getattr(args, 'clip_schedule', None) if index == 0 else None
+        if schedule:
+            a['clipSchedule'] = schedule
         if not prop and not a.get('face') and not getattr(args, 'texture', None) and 'draftClip' not in a:
             # A clip with authored face spans shows its own face at every sampled time (atlas and geometry together).
             src_assets = source_root/'src/main/resources/assets/mcyukkuri'
             library = read(src_assets/'yukkuri_presentation/face_library.json')
             data = read(a['path'])
-            clip = {**data.get('clips', {}), **data.get('behavior_clips', {}),
-                    **read(src_assets/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {}),
-                    **read(src_assets/'yukkuri_presentation/toilet_contact.json')['models'].get(model, {}).get('clips', {})}.get(args.clip, {})
-            spans = clip.get('expression_spans', [])
+            all_clips = {**data.get('clips', {}), **data.get('behavior_clips', {}),
+                         **read(src_assets/'yukkuri_presentation/motion_corrections.json')['models'].get(model, {}).get('clips', {}),
+                         **read(src_assets/'yukkuri_presentation/toilet_contact.json')['models'].get(model, {}).get('clips', {})}
+            clip_ids = list(dict.fromkeys(schedule)) if schedule else [args.clip]
+            spans = [span for cid in clip_ids for span in all_clips.get(cid, {}).get('expression_spans', [])]
             if spans:
                 names = {'neutral'} | {face for _, _, face in spans}
                 names |= {phase for face in list(names) for phase in library['animations'].get(face, {}).get('frames', [])}
@@ -376,6 +380,73 @@ def video(args, stage):
     models = args.model if isinstance(args.model, list) else [args.model]
     multi = len(models) > 1
     views = getattr(args, 'view', None) or [[0, 10]]
+    sequences = getattr(args, 'sequence', None)
+    if sequences:
+        parsed = [[c.strip() for c in seq.split(',') if c.strip()] for seq in sequences]
+        if any(not seq for seq in parsed):
+            raise ValueError('Empty clip sequence in --sequence')
+        rendered = 0
+        for model in models:
+            for seq_idx, clip_names in enumerate(parsed):
+                try:
+                    steps = [(cid, resolved_clip(ROOT, model, cid)) for cid in clip_names]
+                except ValueError:
+                    if multi or len(parsed) > 1:
+                        continue
+                    raise
+                for view in views:
+                    times, clip_schedule, frame_labels, timeline_rows = [], [], [], []
+                    offset = 0.0
+                    for cid, cdata in steps:
+                        seconds = cdata['duration']
+                        count = round(seconds * args.fps)
+                        if count < 1:
+                            raise ValueError(f'Clip too short for {args.fps} fps: {model}/{cid}')
+                        spans = cdata.get('expression_spans', [])
+                        for i in range(count):
+                            t = i / args.fps
+                            if args.face:
+                                face = args.face
+                            else:
+                                face = 'neutral'
+                                for a, b, f in spans:
+                                    if a <= t < b:
+                                        face = f
+                                        break
+                                else:
+                                    if spans and t >= spans[-1][0]:
+                                        face = spans[-1][2]
+                            times.append(t)
+                            clip_schedule.append(cid)
+                            frame_labels.append(f'{cid} · {face}')
+                        if args.face:
+                            span_text = f'{offset:.2f}–{offset+seconds:.2f}s {args.face}'
+                        elif spans:
+                            parts = [f'{offset+max(0.0, a):.2f}–{offset+min(seconds, b):.2f}s {f}'
+                                     for a, b, f in spans if min(seconds, b) > max(0.0, a) + 1e-6]
+                            span_text = ' → '.join(parts) if parts else f'{offset:.2f}–{offset+seconds:.2f}s neutral'
+                        else:
+                            span_text = f'{offset:.2f}–{offset+seconds:.2f}s neutral'
+                        timeline_rows.append(f'<li><strong>{E(cid)}</strong> ({offset:.2f}–{offset+seconds:.2f}s, {seconds:g}s)：{E(span_text)}</li>')
+                        offset += seconds
+                    opts = argparse.Namespace(model=model, prop=None, clip=clip_names[0], clip_schedule=clip_schedule,
+                                              partner=None, face=args.face, draft_clip=None, face_preset=None, texture=None,
+                                              paper_cover=False, leash_loop=getattr(args, 'leash_loop', False),
+                                              scale=getattr(args, 'scale', None), size=args.size, view=view, node=args.node)
+                    frames = [compose(frame, label) for frame, label in zip(render_strip(opts, stage, times), frame_labels)]
+                    angle = f'-{view[0]:g}' if len(views) > 1 else ''
+                    suffix = f'-seq{seq_idx+1}' if len(parsed) > 1 else '-seq'
+                    name = (f'{model}{suffix}' if multi else suffix.lstrip('-')) + angle + '.mp4'
+                    encode_video(frames, stage/name, args.fps)
+                    chain_label = ' → '.join(clip_names)
+                    heading = (f'{model} · {chain_label}' if multi or len(parsed) > 1 else chain_label) + (f' · 机位 {view[0]:g}°' if len(views) > 1 else '')
+                    body += (f'<h2>{E(heading)}</h2>'
+                             + media(name, f'{model} · {offset:.2f}s · {"机位 %g°" % view[0] if len(views) > 1 else "正对机位"} {args.fps} fps', loop=True)
+                             + '<ul>' + ''.join(timeline_rows) + '</ul>')
+                    rendered += 1
+        if not rendered:
+            raise ValueError('No matching model/clip sequence rendered')
+        return body
     for model, spec, view in ((m, c, v) for m in models for c in args.clip for v in views):
         clip, face_override = spec.split('@', 1) if '@' in spec else (spec, args.face)
         try:
@@ -990,6 +1061,8 @@ def parser():
     vd.add_argument('--decision', help='also add to the review inbox with this decision')
     vd.add_argument('--model', nargs='+', required=True, help='one or more runtime models')
     vd.add_argument('--clip', nargs='+', default=['idle'], help='one video per clip')
+    vd.add_argument('--sequence', action='append', metavar='CLIP,CLIP,...',
+                    help='comma-separated clip chain rendered as one continuous video per model, with phase and face timeline under each video; repeat for variants')
     vd.add_argument('--before', help='before checkout path or Git ref, played beside the current clip')
     vd.add_argument('--face', help='runtime expression id')
     vd.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model')
@@ -1032,6 +1105,8 @@ def main():
                 raise ValueError('fps and size must be positive')
             if args.command == 'video' and args.draft_clip and args.before:
                 raise ValueError('--draft-clip needs no --before')
+            if args.command == 'video' and args.sequence and (args.before or args.draft_clip):
+                raise ValueError('--sequence cannot be combined with --before or --draft-clip')
             with staging(args.topic) as stage:
                 body = globals()[args.command](args, stage)
                 title = args.title or args.topic

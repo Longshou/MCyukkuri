@@ -28,8 +28,15 @@ const actors=job.actors.map(a=>{
  if(a.draftClip)model.clips={...model.clips,[a.clip]:a.draftClip};
  const pose=a.prop?null:new RuntimePose(model,a.scale,revised(a.id,model),fits[a.id]);
  // Walls stand beside the first actor only: it turns by the wall's yaw and, with yield, gives way as in the game.
- if(pose&&!pose.clips[a.clip])throw Error('Unknown clip '+a.id+'/'+a.clip);
- if(pose&&job.times.some(t=>t>pose.clips[a.clip].duration))throw Error('Beat time exceeds clip duration: '+a.id+'/'+a.clip);
+ if(pose){
+  const clipAt=frame=>a.clipSchedule?a.clipSchedule[frame]:a.clip;
+  if(a.clipSchedule&&a.clipSchedule.length!==job.times.length)throw Error('Clip schedule length mismatch: '+a.id);
+  for(let f=0;f<job.times.length;f++){
+   const c=clipAt(f);
+   if(!pose.clips[c])throw Error('Unknown clip '+a.id+'/'+c);
+   if(job.times[f]>pose.clips[c].duration)throw Error('Beat time exceeds clip duration: '+a.id+'/'+c);
+  }
+ }
  return {...a,model,pose};
 });
 const frames=job.times.map((t,frame)=>{
@@ -41,8 +48,9 @@ const frames=job.times.map((t,frame)=>{
   if(a.pose)a.pose.leashLoop=a.leashSlot!=null?true:null;
   let phase=0;
   let selectedFace;
+  const clip=a.clipSchedule?a.clipSchedule[frame]:a.clip;
   if(a.pose){
-   let face=a.face||a.pose.expressionFor(a.clip,t);
+   let face=a.face||a.pose.expressionFor(clip,t);
    
    const animation=a.draftFace?null:faces?.animations[face];
    if(animation){let tick=Math.floor(t*20)%animation.frame_ticks.reduce((a,b)=>a+b,0);while(tick>=animation.frame_ticks[phase])tick-=animation.frame_ticks[phase++];face=animation.frames[phase];}
@@ -50,7 +58,7 @@ const frames=job.times.map((t,frame)=>{
    if(a.face&&!faces)throw Error('Checkout has no face library: '+job.root);
    a.pose.expression(face);selectedFace=face;
   }
-  const raw=a.pose?a.pose.frame(a.clip,t):a.model.vertices;
+  const raw=a.pose?a.pose.frame(clip,t):a.model.vertices;
   const parts=a.pose?[{start:0,count:raw.length/8,slot:a.faceSlots?a.faceSlots[selectedFace]:a.slots[a.face?phase:0]}]:a.model.parts.map((p,i)=>({...p,slot:a.slots[i]}));
   for(const p of parts){
    const out=p.translucent?translucent:vertices;
