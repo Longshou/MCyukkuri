@@ -2695,8 +2695,8 @@ def _verify_pred_watch_gait(window, trace):
         return f'The frail body hopped: {hops[0]}'
     if not any(row[1] == 'threat_retreat' and row[2] == 'run' for row in ordinary):
         return 'The healthy control did not retreat with the hop-run gait'
-    if not any(row[1] == 'threat_retreat' and row[2] == 'waddle' for row in weak):
-        return 'The frail body did not retreat on the waddle gait'
+    if not any(row[1] == 'threat_retreat' and row[2] == 'frail_walk' for row in weak):
+        return 'The frail body did not retreat on the frail-walk gait'
 
 
 next(s for s in S if s.id == 'pred_watch').smoke.update(verify=_verify_pred_watch_gait, verify_trace=True)
