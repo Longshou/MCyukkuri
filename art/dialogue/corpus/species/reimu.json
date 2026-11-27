@@ -50,7 +50,7 @@
     },
     {
       "id": "adult_example",
-      "zh": "这边可以，里面有人在油库里呢。",
+      "zh": "这边可以，里面有油在油库里呢。",
       "ja": "こちらならいいよ、奥でゆっくりしている子がいるよ。",
       "en": "This side is fine; someone is taking it easy inside.",
       "basis": ["P"],
