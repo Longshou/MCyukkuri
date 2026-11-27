@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | 通用争抢演出（食物、玩具） | `.worktrees/wp-contest-food` | YukkuriLife.java, PlayLife.java, Contest, museum_scenarios.py |
 | 繁殖许可改为家规（切换演出） | `.worktrees/wp-breed-toggle` | HouseRules.java, PetScenes.java, BreedingReaction, dialogue, museum_scenarios.py |
+| BD-25 虚弱步态 | `.worktrees/wp-art-frail` | recipe.json (frail entries), frail gait wiring |
 
 ## 玩法待办
 
