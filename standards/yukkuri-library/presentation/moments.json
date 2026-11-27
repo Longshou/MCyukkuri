@@ -191,7 +191,7 @@
           "clip": "eat",
           "intensity": 1,
           "tempo": 0.65,
-          "faces": [[0, "bad_taste_small"], [0.4, "bad_taste_closed"], [0.8, "pursed"], [1.2, "bad_taste_closed"]]
+          "faces": [[0, "bad_taste_closed"], [0.9, "pursed"]]
         }
       ]
     },
@@ -202,7 +202,7 @@
           "clip": "eat",
           "intensity": 1,
           "tempo": 0.6,
-          "faces": [[0, "bad_taste_small"], [0.45, "bad_taste_closed"], [0.9, "squeezed_cry_tears"], [1.35, "bad_taste_closed"]]
+          "faces": [[0, "bad_taste_small"], [1.0, "squeezed_cry_tears"]]
         }
       ]
     },
@@ -296,23 +296,7 @@
           "faces": [
             [
               0,
-              "chewing_closed"
-            ],
-            [
-              0.25,
               "chewing"
-            ],
-            [
-              0.55,
-              "chewing_closed"
-            ],
-            [
-              0.85,
-              "chewing"
-            ],
-            [
-              1.05,
-              "chewing_closed"
             ]
           ]
         }
@@ -328,14 +312,10 @@
           "faces": [
             [
               0,
-              "closed_smile"
-            ],
-            [
-              0.2,
               "happy"
             ],
             [
-              0.4,
+              0.7,
               "satisfied"
             ]
           ]
@@ -1454,11 +1434,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -1478,11 +1454,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -1815,11 +1787,15 @@
               "angry"
             ],
             [
-              0.28,
+              0.6,
+              "hmph"
+            ],
+            [
+              1.15,
               "puff"
             ],
             [
-              2.352,
+              2.25,
               "cheek_puff"
             ]
           ],
@@ -2141,7 +2117,7 @@
               "cry"
             ],
             [
-              2.75,
+              2.6,
               "teary"
             ]
           ],
@@ -2247,7 +2223,7 @@
           "clip": "boat_answer_call",
           "intensity": 1,
           "tempo": 1,
-          "faces": [[0, "surprise"], [0.25, "happy"]]
+          "faces": [[0, "surprise"], [0.5, "happy"]]
         }
       ]
     },
@@ -2694,11 +2670,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -2718,11 +2690,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -2742,11 +2710,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -2766,11 +2730,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -2790,11 +2750,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -2814,11 +2770,7 @@
               "happy"
             ],
             [
-              0.8,
-              "closed_smile"
-            ],
-            [
-              1.3,
+              0.7,
               "open_smile"
             ]
           ]
@@ -3119,11 +3071,7 @@
               "sleep"
             ],
             [
-              0.5,
-              "sleepy"
-            ],
-            [
-              0.9,
+              0.6,
               "surprise"
             ],
             [
@@ -3670,10 +3618,6 @@
           "faces": [
             [
               0,
-              "impact_teary"
-            ],
-            [
-              0.6,
               "cry"
             ]
           ]
@@ -3804,10 +3748,6 @@
           "faces": [
             [
               0,
-              "surprise"
-            ],
-            [
-              0.3,
               "closed_smile"
             ]
           ],
@@ -3982,11 +3922,11 @@
               "smug"
             ],
             [
-              1.0,
+              0.95,
               "closed_smile"
             ],
             [
-              1.4,
+              1.5,
               "smug"
             ]
           ],
@@ -4053,15 +3993,15 @@
               "ashamed"
             ],
             [
-              0.8,
+              0.7,
               "shy_peek"
             ],
             [
-              1.3,
+              1.2,
               "closed_smile"
             ],
             [
-              1.8,
+              1.7,
               "ashamed"
             ]
           ]
@@ -4193,11 +4133,15 @@
           "faces": [
             [
               0,
-              "envy"
+              "hmph"
             ],
             [
-              0.28,
+              0.55,
               "puff_open"
+            ],
+            [
+              2.25,
+              "hmph"
             ]
           ],
           "emote": "anger"
@@ -4322,7 +4266,7 @@
               "flushed_smile"
             ],
             [
-              0.9,
+              0.6,
               "open_smile"
             ]
           ],
@@ -4662,10 +4606,18 @@
           "faces": [
             [
               0,
+              "impact_teary"
+            ],
+            [
+              0.55,
               "puff_teary"
             ],
             [
               1.6,
+              "impact_teary"
+            ],
+            [
+              2.15,
               "teary"
             ]
           ],

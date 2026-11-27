@@ -38,6 +38,7 @@
 - 脸时间线可以长于运动循环（表演时钟长于 1 秒循环，末段常写到 63 秒当“直到结束”）：检查器对这种片段不做首尾衔接，也不拿尾段长度算切换率。
 - A/`_b` 帧是同一张脸的逐帧动画（`registry.json` 的 `frame_ticks`），不当切换；片段里只写 A 帧 ID。
 - 缺素材的脸会按片段的 `face_fallback` 退到别的脸（如 `puff`→`chewing_closed`/`cry`/`angry`）：检查器按预设本身算，新增回退链时核对退到的脸眼位是否相近。
+- 如厕与鼓气演出（`toilet`、`behavior_window_envy`、`behavior_mold_sorrow`、`behavior_sanction_declare`）曾把普通睁眼脸直接切到 `puff` 族（眼位跳 1.18–1.44）或在短循环里塞多张脸：进出 `puff` 族改由闭眼/眯眼脸（`impact`、`impact_teary`、`hmph`、`satisfied`）过渡，0.5 秒短循环只留单脸；`toilet-contact/recipe.json` 的 `faces` 单位为 tick（导出除以 20），每段同样不少于 10 tick（0.5 秒）。
 
 ## 补充规则
 
