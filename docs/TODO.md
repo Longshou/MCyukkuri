@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 通用争抢演出（食物、玩具） | `.worktrees/wp-contest-food` | YukkuriLife.java, PlayLife.java, Contest, museum_scenarios.py |
 
 ## 玩法待办
 
