@@ -17,8 +17,8 @@
 | 螺壳与水生 | 螺壳亚种较耐水；水生类型用帽船，本体仍怕水 | [壳型故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/2013.html)与[帽船故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/602.html)支持不同外形和行动，近名不合并；后续见“螺壳的全水生个体” |
 | 被炉名称与能力 | 单列为魔理沙的被炉饰物变体，冬季活动、夏眠；独立于螺壳与帽船（A2） | [被炉资料](species/marisa/kotatsu-marisa.md)的 L12、L22、L23 分类不同；仅选定分类与季节习性，不一并采纳凭空产物等能力（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)） |
 | 馅料 | 已明确者统一名称，其他只称“馅” | [身体与馅料出处](entities-sources.md)收录成分、气味、中枢与记忆的多种版本；新鲜吐馅不臭等为本设定 |
-| DOS | 项目定下的 Dosu 规则：极罕见巨型魔理沙，带立场与可造成真实伤害的魔炮，自然成为族长、帕秋莉任军师、不可生育（[功能说明](../../../docs/FEATURES.md#妖梦与稀有变体)） | 站点写比人高、成群的追随者，有时放类似 Master Spark 的一击（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)）；[《解体新书》](https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html)与[族群故事](../events/traditional-motifs.md)各有自己的等级与领袖情节。项目采用 L36 的立场、魔炮与族长／军师写法；身高、追随者与吨位不采用，DOS 本体尚未实现 |
-| 饰品与徽章 | 无饰目标只有智力至少 75 的观察者认得出，水生魔理沙例外；徽章与亲缘不参与识别；亲缘仍存在，无饰更易受排斥和自卑（[头饰](../../../docs/FEATURES.md#头饰)） | [失帽故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/3183.html)和[徽章故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/3067.html)提供社会母题，但不单独证明本设定的全部识别规则 |
+| DOS | 项目定下的 Dosu 规则：极罕见巨型魔理沙，带立场与可造成真实伤害的魔炮，自然成为族长、帕秋莉任军师、不可生育（[功能说明](../../../docs/features/species-and-body.md#妖梦与稀有变体)） | 站点写比人高、成群的追随者，有时放类似 Master Spark 的一击（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)）；[《解体新书》](https://w.atwiki.jp/yukkuri_gyakutai/pages/3102.html)与[族群故事](../events/traditional-motifs.md)各有自己的等级与领袖情节。项目采用 L36 的立场、魔炮与族长／军师写法；身高、追随者与吨位不采用，DOS 本体尚未实现 |
+| 饰品与徽章 | 无饰目标只有智力至少 75 的观察者认得出，水生魔理沙例外；徽章与亲缘不参与识别；亲缘仍存在，无饰更易受排斥和自卑（[头饰](../../../docs/features/species-and-body.md#头饰)） | [失帽故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/3183.html)和[徽章故事](https://w.atwiki.jp/yukkuri_gyakutai/pages/3067.html)提供社会母题，但不单独证明本设定的全部识别规则 |
 | 语言与认知 | 高度相关而非绝对，保留幼语和个体例外 | [橙的交流](https://w.atwiki.jp/slowlove/pages/400.html)与[成体螺壳幼语](https://w.atwiki.jp/futabayukkuriss/pages/167.html)各提供具体例子 |
 | 形态 | 保留无胴体馒头状与豆形细长不足油 | [萌娘百科](https://zh.moegirl.org.cn/油库里)所指带倒三角状腿的长条种是另一种形态 |
 
@@ -43,7 +43,7 @@
 | 馅料流动与记忆 | 普通个体遇到好事就因馅料更替忘记坏事，改造者的馅不流动而能记忆（[F246](https://yukkuri.fandom.com/wiki/Smart_Reimu)） | 关系与经历按实际事件记忆，不以馅料更替清除，也没有这类改造路径 |
 | 世界与种族原型 | 各型源于东方角色，故事可使用幻想乡与匿名者背景；灵梦是第一只油库里，同页另列又被质疑的“放置过久的馒头成精”起源猜想（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)、[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)） | 世界由人类与油库里共同生活，东方人物不存在；角色名只作种族名，不继承人物身份与经历；油库里的起源未定，也不作设定 |
 | 人类角色的版本 | 故事里的无名人类被当作一个身份，分施虐者、饲主与无能者三类，无能者出于好意造成伤害（[F211](https://yukkuri.fandom.com/wiki/Anonymous)）；东方人物条另写各自的态度：灵梦中立或友善、咲夜养蕾米莉亚型、爱丽丝把感情投射到魔理沙型、永琳与阿求做实验、幽香护花、魔理沙多当旁观者（[F209](https://yukkuri.fandom.com/wiki/Alice_Margatroid)、[F218](https://yukkuri.fandom.com/wiki/Eirin_Yagokoro)、[F224](https://yukkuri.fandom.com/wiki/Hieda_no_Akyu)、[F227](https://yukkuri.fandom.com/wiki/Marisa_Kirisame)、[F236](https://yukkuri.fandom.com/wiki/Reimu_Hakurei)、[F242](https://yukkuri.fandom.com/wiki/Sakuya_Izayoi)、[F271](https://yukkuri.fandom.com/wiki/Yuuka_Kazami)） | 世界由人类与油库里共同生活，东方人物不存在，角色名只作种族名；人类 NPC 按职业与立场区分（店主、工厂职员、鬼威惨、爱派照顾者），没有以“Anon”为身份的固定角色，也没有“好意误伤”一类，见[商店、加工所与人类 NPC](../../shops-factory-npcs.md) |
-| 人为改造与高智能个体 | 永琳把灵梦改造成高产又高智商的个体送给幽幽子（[F246](https://yukkuri.fandom.com/wiki/Smart_Reimu)）；理香子型能读写、在实验室与工厂供数据（[F263](https://yukkuri.fandom.com/wiki/Yukkuri_Rikako)）；电击实验使个体变为胶质怪物（[F267](https://yukkuri.fandom.com/wiki/Yukkuri_studies)） | 没有改造与实验路径；智力是连续属性，数数上限按阶段与种族；读字与算术只在完成真实课程与考试后建立（[宠物店、徽章与宠物培育](../../../docs/FEATURES.md#宠物店徽章与宠物培育)） |
+| 人为改造与高智能个体 | 永琳把灵梦改造成高产又高智商的个体送给幽幽子（[F246](https://yukkuri.fandom.com/wiki/Smart_Reimu)）；理香子型能读写、在实验室与工厂供数据（[F263](https://yukkuri.fandom.com/wiki/Yukkuri_Rikako)）；电击实验使个体变为胶质怪物（[F267](https://yukkuri.fandom.com/wiki/Yukkuri_studies)） | 没有改造与实验路径；智力是连续属性，数数上限按阶段与种族；读字与算术只在完成真实课程与考试后建立（[宠物店、徽章与宠物培育](../../../docs/features/pets-and-shop.md#宠物店徽章与宠物培育)） |
 | 作品地点 | 竹林对人类危险、在油库里故事里几乎不危险；红魔馆住着馆主与女仆，蕾米莉亚型受宠，东方人物帕秋莉·诺蕾姬在这里对油库里做实验（[F47](https://yukkuri.fandom.com/wiki/Bamboo_Forest)、[F48](https://yukkuri.fandom.com/wiki/Scarlet_Devil_Mansion)） | 世界没有幻想乡与东方人物，作品地点不作世界设施；地形按真实群系（森林、竹林群系），其余由玩家或村庄建筑承担 |
 | 体型与成长 | 成体约篮球大小、3 kg，食物充足可长到两米以上；幼体超过橘子即算成年（[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F09](https://yukkuri.fandom.com/wiki/Koyukkuri)） | 按赤油、子油、亚成油、成油与真实年龄成长，体型是相对标准成体的分档范围，总寿命约 44 个游戏日，不无限增体 |
 | 配对类型 | 油库里雌雄同体，同种之间通常不能受孕，需要不同种的馅料（[F28](https://yukkuri.fandom.com/wiki/Mamu_Mamu)、[F30](https://yukkuri.fandom.com/wiki/Peni_Peni)、[F33](https://yukkuri.fandom.com/wiki/Reproduction)）；另把同种配对写成禁忌、按“血统纯度”区别对待子代（[F229](https://yukkuri.fandom.com/wiki/My_Precious_Marisa)、[F238](https://yukkuri.fandom.com/wiki/Reimu's_mortal_sin)） | 同种可以配对；实际限制是生育资格、近亲、家油／非家油、捕食／普通与水生／非水生等真实条件，父母角色不由性别决定 |
@@ -97,14 +97,14 @@
 | 中枢馅 | 兼作脑与遗传核，可移植、换心或以馅料污染制造混合特征（[F29](https://yukkuri.fandom.com/wiki/Paste_Core)）；另有人类死后转生为油库里的写法（[F269](https://yukkuri.fandom.com/wiki/Yukkuri:_Reincarnation)） | 中枢是致命弱点，并可从符合条件的新鲜遗体取出；个体只由真实繁殖出生，没有移植、换心、转生或杂合机制 |
 | 超能力与飞行 | 各型继承原作人物的能力，辫子经“相信之力”进化为持物部位，会飞的型都能飞（[F31](https://yukkuri.fandom.com/wiki/Piko_piko)、[F35](https://yukkuri.fandom.com/wiki/Yukkuri)、[F36](https://yukkuri.fandom.com/wiki/Yukkuri_Types)）；灵梦以鬓发扇动飞行、魔理沙放 Master Spark、爱丽丝操控 Peni Peni、帕秋莉施法均属此类（[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)、[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)、[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice)、[F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli)） | 已实现的普通种无超能力，辫子等只是真实身体部位；飞行只属于蕾米莉亚与芙兰，且作为捕食移动 |
 | 站点另收录的类型 | 稀神型用言语反转局面、赫卡提亚型三形态三色馅、Key 联动的秋子型能吐馅护幼、迷因亚种 Su----per Cute 被接近会跑（[F42](https://yukkuri.fandom.com/wiki/Yukkuri_Akiko)、[F45](https://yukkuri.fandom.com/wiki/Yukkuri_Sagume)、[F46](https://yukkuri.fandom.com/wiki/Yukkuri_Hecatia)、[F57](https://yukkuri.fandom.com/wiki/Su----per_Cute)） | 当前只实现十个种族；上列类型与超自然能力均未实现，见[种族与亚种](species/README.md) |
-| 灵胖与 Deibu | 肥胖好怒的灵梦自称 Deibu、子代称 Weibu，常成为施虐对象（[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)） | 灵胖是亚成期营养与压力跨过阈值后的后天体型变化，体型扩 1.5 倍、不可逆，不改变性格评价也没有子代称呼，见[种族与亚种](../../../docs/FEATURES.md#种族与亚种) |
+| 灵胖与 Deibu | 肥胖好怒的灵梦自称 Deibu、子代称 Weibu，常成为施虐对象（[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)） | 灵胖是亚成期营养与压力跨过阈值后的后天体型变化，体型扩 1.5 倍、不可逆，不改变性格评价也没有子代称呼，见[种族与亚种](../../../docs/features/species-and-body.md#种族与亚种) |
 | 灵梦的紫眼与水生灵梦 | 紫眼紫发个体约 1/500；另有把丝带当筏的“水生灵梦”，市面多为假货，假货会因压力生病（[F151](https://yukkuri.fandom.com/wiki/Yukkuri_Reimu)） | 两者都未实现；项目没有假饰物买卖，只有水生魔理沙一种水生类型，见“水与游泳” |
 | 帽船归属 | 魔理沙的帽子可装食物、运幼体，也能当船渡小水，写法从“只能浮一会儿”到“泡水下沉”不一（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)） | 能装食物、运幼体与乘船的是水生魔理沙亚种；陆生魔理沙不乘帽船，空间与载重按真实体积结算，见[水生魔理沙](species/marisa/aquatic-marisa.md) |
 | 魔理沙的战力与飞行冲动 | 魔理沙有暴力倾向、常自称最强（也有被打破的写法），部分故事能放 Master Spark，非飞行型里最想“飞”（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)）；另有能实现愿望的魔法帽（[F228](https://yukkuri.fandom.com/wiki/Marisa's_magic_hat)） | 相扑挑战 ×2、挑衅阈值 ×1.5，探险队长只由魔理沙担任；没有超能力与飞行，强弱按属性与真实体型结算 |
 | 魔理沙的另两种变体 | Para-Marisa 以过大的帽子当降落伞、能随风飞行；红发魔理沙在早产儿中占 5–10%，长大持 Mima 的法杖（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)） | 两个变体都未实现，项目也没有 Para-Marisa、红发与法杖 |
 | 螺壳的全水生个体 | 水中的壳型浸水不溶、可整天生活在水中；陆生壳型未必防水，有被一小滩嘘嘘泡死的例子（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)）；另有把壳写成遗传突变而非水生适应的单篇（[F245](https://yukkuri.fandom.com/wiki/Shell_Marisa)） | 项目只有相对耐水：进水增量约 1/4，浸水照常结算水伤，没有全水生壳型（A1） |
 | 被炉的产食能力 | 吃得够时被炉长出小橘子与热茶，被炉损坏即失去能力，子油离开被炉会大叫很冷（[F126](https://yukkuri.fandom.com/wiki/Yukkuri_Marisa)） | 被炉是热源（3 格内补暖到暖）、冬季不越冬、夏季休息；不生成食物，也没有失炉即死的规则 |
-| 爱丽丝的攻击性 | 掠食型爱丽丝袭击别的个体以产子，并能操控 Peni Peni 使其飞行或造出气流（[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice)） | 攻击性是真实的“攻击素鸡立”茎生规则（追击、体力消耗、受孕抽取）；没有 Peni Peni 操控与飞行，见[成体发情与攻击素鸡立](../../../docs/FEATURES.md#成体发情与攻击素鸡立) |
+| 爱丽丝的攻击性 | 掠食型爱丽丝袭击别的个体以产子，并能操控 Peni Peni 使其飞行或造出气流（[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice)） | 攻击性是真实的“攻击素鸡立”茎生规则（追击、体力消耗、受孕抽取）；没有 Peni Peni 操控与飞行，见[成体发情与攻击素鸡立](../../../docs/features/family-and-breeding.md#成体发情与攻击素鸡立) |
 | 爱丽丝的手工 | 无手的爱丽丝能做出桌椅、软床、玩具与花冠，并把做出玩具当作成年仪式（[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice)） | 项目无手工艺：只能用嘴、辫子、尾巴推压堆；家务系数 ×1.5 只影响真实家务动作，不做家具 |
 | 帕秋莉的施法与智力 | 极少数帕秋莉能施法，个别接近人类智力，会为书闯屋（[F147](https://yukkuri.fandom.com/wiki/Yukkuri_Patchouli)） | 项目没有魔法与读书规则；智力是连续属性，数数到 9；易吐按冷却 3600 tick、最多耗 2 精力结算 |
 | 橙的领地标记与配对 | 发情期以嘘嘘标记物件；先找蓝型、找不到才配妖梦型（[F74](https://yukkuri.fandom.com/wiki/Yukkuri_Chen)） | 发情与求偶按成体发情规则结算，嘘嘘不单独成为物品也不标记领地；配对只看生育资格、亲缘与真实条件 |
@@ -112,7 +112,7 @@
 | 捕食种的馅 | 蕾米莉亚馅写作各种肉，芙兰写作红豆包，部分作品中的带胴体蕾米莉亚只要甜食（[F153](https://yukkuri.fandom.com/wiki/Yukkuri_Remilia)、[F86](https://yukkuri.fandom.com/wiki/Yukkuri_Flandre)） | 用户明确指定捕食种用肉包馅，只改创口与配色显示，不改变捕食与饮食规则 |
 | 捕食种的再生 | 蕾米莉亚与芙兰的伤几秒愈合、近似有限不死；失去翅膀就不能飞直到长回（[F153](https://yukkuri.fandom.com/wiki/Yukkuri_Remilia)、[F86](https://yukkuri.fandom.com/wiki/Yukkuri_Flandre)） | 捕食种飞行按身体状况与体力结算；伤势按等级真实结算，没有秒级再生与不死 |
 | 芙兰的巢饰 | 野生芙兰把猎物插在巢周围的尖桩上作装饰，专门折磨同类（[F86](https://yukkuri.fandom.com/wiki/Yukkuri_Flandre)） | 捕食只为真实饥饿，捕食种没有穿刺装饰与虐待演出 |
-| 家油的害虫生态 | 家油是屋里的害虫型，永远长不到子油以上，吃虫与垃圾，一次留下大量糖壳卵，可用粘板、毒气与“训练成帮工”处理（[F63](https://yukkuri.fandom.com/wiki/House_yu)） | 家油由絮尘与食屑引来、按自己的阶段成长并产 2–4 枚卵；只有抹布清扫与驱油剂，没有毒气、粘板与帮工训练，见[家油生态](../../../docs/FEATURES.md#家油生态) |
+| 家油的害虫生态 | 家油是屋里的害虫型，永远长不到子油以上，吃虫与垃圾，一次留下大量糖壳卵，可用粘板、毒气与“训练成帮工”处理（[F63](https://yukkuri.fandom.com/wiki/House_yu)） | 家油由絮尘与食屑引来、按自己的阶段成长并产 2–4 枚卵；只有抹布清扫与驱油剂，没有毒气、粘板与帮工训练，见[家油生态](../../../docs/features/wild-ecology.md#家油生态) |
 | 子代的亲子型 | 个别型有固定的亲子型：爱丽丝极少生上海与蓬莱，神奈子与泄矢配对生早苗（[F66](https://yukkuri.fandom.com/wiki/Yukkuri_Alice)、[F160](https://yukkuri.fandom.com/wiki/Yukkuri_Sanae)、[F177](https://yukkuri.fandom.com/wiki/Yukkuri_Suwako)） | 子代只承父母的一种已登记类型，没有上海、蓬莱与早苗型 |
 
 ## 项目已经决定的边界
@@ -137,9 +137,9 @@
 | A1 | 普通种怕水、不能自行渡水；螺壳相对耐水，帽船只提供载体浮力 | 八景与《にっき》的机制分开；不能以另一游戏会游泳覆盖本项目 |
 | A2 | 被炉饰物变体，冬活夏眠 | L12 的分类与 L23 的季节行为由项目组合采用，并非一个作者完整体系 |
 | A3 | 越冬取储粮与暖巢方案 | E07／E08；E09 的相反版本保留为异说，不混用冬眠免食等机制 |
-| A4 | DOS 不可育；不足形态中多毛可育，其余不可育 | DOS 本体尚未实现；不足形态见[生育资格](../../../docs/FEATURES.md#消耗品与胎生)，均为项目约束 |
+| A4 | DOS 不可育；不足形态中多毛可育，其余不可育 | DOS 本体尚未实现；不足形态见[生育资格](../../../docs/features/family-and-breeding.md#消耗品与胎生)，均为项目约束 |
 | A5 | 多毛可教育但成功率低 | 替代旧“几乎无法正常教育”的笼统句；具体概率仍以实现配置为准，不补造百分比 |
-| A6 | 母体大小、胎数与茎尺寸采用线性配置 | 已实现，服务器配置 `family.offspringSizeInfluence`，默认 0.70；公式见[家庭生长平衡](../../../docs/FEATURES.md#行为性格与成长) |
+| A6 | 母体大小、胎数与茎尺寸采用线性配置 | 已实现，服务器配置 `family.offspringSizeInfluence`，默认 0.70；公式见[家庭生长平衡](../../../docs/features/behavior-and-mind.md#行为性格与成长) |
 | A7 | 季节由群系决定，不随日历轮转；温度温差配置化 | 已实现（`season/Seasons.at`）；作品没有共同的摄氏阈值，项目温差为原创配置 |
 
 没有共同依据的作品身高、重量、寿命换算、耐温阈值与繁殖率保持未明确；项目可以另定参数，但必须标 P 并注明状态。种族偏好不固定全族性格、性别或职位；某篇出现的特殊能力与悲剧结局也不自动推广到其他作品。
@@ -151,8 +151,8 @@
 | 主题 | 作品差异 | 项目边界 |
 | --- | --- | --- |
 | 有主与有章的保护 | [R4](../../shops-factory-npcs.md#作品来源)的虐杀者顾及朋友的宠物；[L18](../sources-lore.md)把金章写作广泛保护并许可跑腿；[F38](https://yukkuri.fandom.com/wiki/Badges)按章级分社会待遇，铜章甚至缺少实际保护。 | 鬼威惨按归属、照料位置与有效信任识别保护。徽章由个体注册、用于资格与社会反应，章色不赋予单独的伤害豁免。 |
-| 驱除、安置与公共权力 | [R5](../../shops-factory-npcs.md#作品来源)的农户因实际损失要求驱除，爱护派反对全清；[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)有专业灭杀与社区章例外；[R9–R11](../../shops-factory-npcs.md#作品来源)则有塑料庇护所、免费转养及团体与厂方冲突的不同写法。 | 田边取食会被居民喝斥赶离，虐派至多轻踢；玩家可收养信任的流浪油，收容所只提供纸箱，见[人类世界](../../../docs/FEATURES.md#人类世界)。无专业灭杀队、社区章或成套保护组织。 |
-| 施虐用品在哪里卖 | [F44](https://yukkuri.fandom.com/wiki/Yukkuri_Pet_Shop)允许普通宠物店兼卖并要求顾客不当众谈计划；[R7](../../shops-factory-npcs.md#作品来源)公开挂虐具招牌且兼卖日用品；八景 [R8](../../shops-factory-npcs.md#作品来源)把专门菜单放在二号店。 | 鬼威惨商店已生成，工具墙出售操作工具与原版剪刀；普通宠物店另设（[人类世界](../../../docs/FEATURES.md#人类世界)）。商品效果须按项目身体与交互规则核对，八景的强化品系及非油症预防药属于版本差异。 |
+| 驱除、安置与公共权力 | [R5](../../shops-factory-npcs.md#作品来源)的农户因实际损失要求驱除，爱护派反对全清；[F04](https://yukkuri.fandom.com/wiki/Gutter_Trash_Yukkuris)有专业灭杀与社区章例外；[R9–R11](../../shops-factory-npcs.md#作品来源)则有塑料庇护所、免费转养及团体与厂方冲突的不同写法。 | 田边取食会被居民喝斥赶离，虐派至多轻踢；玩家可收养信任的流浪油，收容所只提供纸箱，见[人类世界](../../../docs/features/human-world.md#人类世界)。无专业灭杀队、社区章或成套保护组织。 |
+| 施虐用品在哪里卖 | [F44](https://yukkuri.fandom.com/wiki/Yukkuri_Pet_Shop)允许普通宠物店兼卖并要求顾客不当众谈计划；[R7](../../shops-factory-npcs.md#作品来源)公开挂虐具招牌且兼卖日用品；八景 [R8](../../shops-factory-npcs.md#作品来源)把专门菜单放在二号店。 | 鬼威惨商店已生成，工具墙出售操作工具与原版剪刀；普通宠物店另设（[人类世界](../../../docs/features/human-world.md#人类世界)）。商品效果须按项目身体与交互规则核对，八景的强化品系及非油症预防药属于版本差异。 |
 | 考试与保护会馆 | [L18](../sources-lore.md)把免费铜章、白金生存考和公共交流写在同一会馆背景里；[M02](../../art-references/works/M02.md)描绘另一套情景判断；[R10](../../shops-factory-npcs.md#作品来源)另将转养设施交给保护团体。 | 现行考核由徽章会馆的考官组织，以个体实际技能与行为为依据，资格永久绑定个体；无白金生存考或自动继承资格。转养设施不接入。 |
 
 ## 野外与交互新增异说

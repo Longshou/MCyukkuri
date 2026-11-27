@@ -22,7 +22,7 @@
 
 **W：[F60](https://yukkuri.fandom.com/wiki/Yukkuri_Shitette_Ne!)** 是歌曲条：以初音未来演唱的油库里题材曲，页面自身信息零散（分类里另有 V2 与制作方字段），只能确认它属于粉丝创作而非设定。油库里题材的常见迷因另有“咻咻车”与 U-Pack（见[资源与生活生态](hakkei-reference/world/resources-ecology.md#载具与搬运道具)）和迷因亚种 Su----per Cute（见[种族与亚种](hakkei-reference/lore/species/README.md#站点另收录的未实现类型)）。
 
-**项目边界：** 声音与台词只用制作源里的选定素材，不引外部歌曲；见[对白与配音](../docs/FEATURES.md#对白与配音)。
+**项目边界：** 声音与台词只用制作源里的选定素材，不引外部歌曲；见[对白与配音](../docs/features/behavior-and-mind.md#对白与配音)。
 
 ## 外站、版块与署名
 

@@ -23,7 +23,7 @@ import sys
 import urllib.parse
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ('docs/FEATURES.md', 'docs/TODO.md', 'docs/roles/*.md', 'AGENTS.md', 'scripts/README.md',
+DOCS = ('docs/FEATURES.md', 'docs/features/*.md', 'docs/TODO.md', 'docs/roles/*.md', 'AGENTS.md', 'scripts/README.md',
         'art/CATALOG.md', 'wiki/**/*.md')
 GENERATED = 'wiki/reference-library/'
 SCENE_DOCS = {'docs/FEATURES.md', 'docs/TODO.md'}

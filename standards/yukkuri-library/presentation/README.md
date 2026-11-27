@@ -6,4 +6,4 @@
 
 运行 `scripts/export_moments.py` 导出，`--check` 只检查引用及导出一致性。表情复用既有全模型覆盖检查。运行 `scripts/preview.py moment wet_relief` 生成实时播放链接，`--decision <问题>` 登记待查看。用 `scripts/preview.py kit` 查看动作、表情、演出行与符号目录。启动服务和查看演出的方法见[放映室说明](../../../preview/README.md)。
 
-符号显示规则见[日常生态](../../../docs/FEATURES.md#日常生态)。粒子与声音在服务端步开始时触发。演出只观察既有行为，不决定实际移动或行为成功。
+符号显示规则见[日常生态](../../../docs/features/care-and-life.md#日常生态)。粒子与声音在服务端步开始时触发。演出只观察既有行为，不决定实际移动或行为成功。

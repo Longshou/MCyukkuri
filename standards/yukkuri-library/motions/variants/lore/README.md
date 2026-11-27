@@ -2,7 +2,7 @@
 
 本包为生态行为和关系演出提供动作片段。来源分组与设计边界见 [Wiki 总入口](../../../../../wiki/README.md)；`recipe.json` 是动作 ID、时长、循环、变换、表情编排、形态门控与出处的唯一配置源。Wiki 无明确依据的动作标为项目设计。
 
-动作按主题分为日常、社交与情绪，宠物店与考试，生育与接生，以及水生魔理沙帽船行为。服务端行为选择阶段和播放时钟；客户端只采样对应片段，不以动画驱动业务状态。具体触发见玩法专题：[宠物店](../../../../../docs/FEATURES.md#宠物店徽章与宠物培育)、[生育与接生](../../../../../docs/FEATURES.md#消耗品与胎生)、[水边生活](../../../../../docs/FEATURES.md#水生魔理沙)。
+动作按主题分为日常、社交与情绪，宠物店与考试，生育与接生，以及水生魔理沙帽船行为。服务端行为选择阶段和播放时钟；客户端只采样对应片段，不以动画驱动业务状态。具体触发见玩法专题：[宠物店](../../../../../docs/features/pets-and-shop.md#宠物店徽章与宠物培育)、[生育与接生](../../../../../docs/features/family-and-breeding.md#消耗品与胎生)、[水边生活](../../../../../docs/features/aquatic-marisa.md#水生魔理沙)。
 
 无颈圆团子的动作以压扁、拉伸、小位移、转向和表情表达；整体俯仰与侧倾合计应控制在约 12°。表情片段由 `expression_spans` 编排，哭脸等服务端状态可按 `expression_yield` 优先显示。魔理沙辫子随身体动作的规则见 [单辫动作](../contact-safe/README.md#魔理沙辫子跟随)。`author.py` 用部位分类器 `appendage_group` 区分魔理沙多骨辫链（`braid_chain`）与其他种族单骨附属部位（`sideburn`、`chen_side_lock`、`front_lock`、`cheek_lock`、`predator_lock`、`chen_tail`、`predator_wing`）：手势与 `braid_keys` 只用于 `braid_chain`，非魔理沙形态通过配方变体的 `appendage_keys` 显式驱动各自附属部位并在编译时过 `appendage_gate`（身体、头饰、地面、入水深度与眼部不遮挡检查）；无发骨形态（`*_bean`、`*_sparse`、`reimu_wasa*`）仍只随身体。
 

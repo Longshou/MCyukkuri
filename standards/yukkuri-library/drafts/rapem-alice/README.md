@@ -42,7 +42,7 @@
 - `alice-agitated-closeup.png`、`alice-agitated.gif`、`alice-agitated-storyboard.png`：搜寻与追击的前倾姿态示意（标准表情 N048）。
 - `contact.png` 汇总当前近景；`index.html` 可手动拖动查看。全部不是游戏录屏。
 
-多角色行进路线、画面切换和消耗时序为离线编排。事后茎长读取每个阶段的 `stemProgress`，按 `smoothstep(progress / .15)` 从0连续增长；正常配对后的绿茎也从0逐渐长到示例进度0.08。营养低于30时停育，但 `FamilyLife.advanceStem` 仍按节拍吸取母体营养与体力，营养不足的部分由 `BodyLife.stemDepletionDamage` 转为真实损伤；营养归零后的60刻内伤害保留1点生命，之后才可能死亡。遗体复用 `RemainsRenderer` 的 `sleep`、`idle(0)` 和纵向0.65缩放，不再附着茎。营养仍足够时继续发育，与预览后段的过度消耗分支分开。游戏事后结算条件见 [行为说明](../../../../docs/FEATURES.md#成体发情与攻击素鸡立)。
+多角色行进路线、画面切换和消耗时序为离线编排。事后茎长读取每个阶段的 `stemProgress`，按 `smoothstep(progress / .15)` 从0连续增长；正常配对后的绿茎也从0逐渐长到示例进度0.08。营养低于30时停育，但 `FamilyLife.advanceStem` 仍按节拍吸取母体营养与体力，营养不足的部分由 `BodyLife.stemDepletionDamage` 转为真实损伤；营养归零后的60刻内伤害保留1点生命，之后才可能死亡。遗体复用 `RemainsRenderer` 的 `sleep`、`idle(0)` 和纵向0.65缩放，不再附着茎。营养仍足够时继续发育，与预览后段的过度消耗分支分开。游戏事后结算条件见 [行为说明](../../../../docs/features/family-and-breeding.md#成体发情与攻击素鸡立)。
 
 ## 重建
 
