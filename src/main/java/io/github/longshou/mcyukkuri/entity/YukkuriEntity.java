@@ -1078,11 +1078,14 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** What holds a shown face instead of a beat's declared one: the reaction event, the hold itself, or a course stage; its tier and face. */
     public record FaceHold(String source, FaceTier.Tier tier, String face) {}
 
-    /** The reaction slot's own face, when the precedence order would show it (an ambient one yields to a declared activity face). */
+    /** The reaction slot's own face, when the precedence order would show it (an ambient one yields to a declared activity face or a real water distress). */
     private String reactionFace() {
         return reactionTicks > 0 && !reactionExpression.isEmpty()
-                && FacePrecedence.reactionOffers(reactionDecorative, !activityFace().isEmpty()) ? reactionExpression : "";
+                && FacePrecedence.reactionOffers(reactionDecorative, strongFace()) ? reactionExpression : "";
     }
+
+    /** A face the body's real state declares over an ambient flourish: what it is doing right now, or the water it is in. */
+    private boolean strongFace() { return !activityFace().isEmpty() || waterDistress().active(); }
 
     /** The face a finished hold calms through, before an emotion course takes the face back. */
     private String lingerFace() {
@@ -1157,10 +1160,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return true;
     }
 
-    /** A decorative reaction never repaints a declared activity face and never replaces a signal reaction that is still running. */
+    /** A decorative reaction never repaints a declared activity face or a real water distress and never replaces a signal reaction that is still running. */
     private boolean ambientDropped(String expression) {
         boolean signalRunning = reactionTicks > 0 && !reactionDecorative;
-        if (!signalRunning && FacePrecedence.reactionOffers(true, !activityFace().isEmpty())) return false;
+        if (!signalRunning && FacePrecedence.reactionOffers(true, strongFace())) return false;
         GameplayLog.limited(this, "face", "ambient_dropped", 200, "ambient_dropped face={} activity={} running={}", expression, activityFace(),
                 signalRunning ? reactionEvent + "/" + reactionExpression : "none");
         return true;

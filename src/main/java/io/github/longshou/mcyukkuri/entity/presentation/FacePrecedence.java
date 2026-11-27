@@ -4,13 +4,14 @@ import java.util.Set;
 
 /**
  * The one order in which the sources of a yukkuri's face compete; PresentationArbiter.face walks it top to bottom:
- * operation, clip, reaction, dying, leak, pain, lingering line face, emotion course, activity, aftermath, weakness, rest.
+ * operation, clip, reaction, dying, leak, pain, lingering line face, water distress, emotion course, activity, aftermath,
+ * weakness, rest.
  * <p>
  * Reactions come in two classes (see {@link #reactionOffers}). A SIGNAL reaction is the body's answer to something that
  * happened to it (pain, fear, being caught, a parting, a performance beat) and holds the REACTION rank. A DECORATIVE reaction
  * is an ambient flourish (a learned-skill sparkle, a meal's face, a passing blink): it is shown only while no ACTIVITY face is
- * declared, otherwise it is dropped. Only the call that publishes a decorative reaction names it so
- * (YukkuriEntity.showAmbient); every other reaction is a signal.
+ * declared and the body is not in water distress, otherwise it is dropped. Only the call that publishes a decorative reaction
+ * names it so (YukkuriEntity.showAmbient); every other reaction is a signal.
  */
 public enum FacePrecedence {
     /** A physical operation (hat removal, pin, grip ...) owns the face. */
@@ -38,9 +39,9 @@ public enum FacePrecedence {
     /** The resting face of the current moment or behavior. */
     REST;
 
-    /** Whether a reaction of this class may show its face now: a signal always, a decorative one only without a declared activity face. */
-    public static boolean reactionOffers(boolean decorative, boolean activityDeclared) {
-        return !decorative || !activityDeclared;
+    /** Whether a reaction of this class may show its face now: a signal always, a decorative one only while no stronger face is declared. */
+    public static boolean reactionOffers(boolean decorative, boolean strongFaceDeclared) {
+        return !decorative || !strongFaceDeclared;
     }
 
     /** The highest-ranked source among those currently offering a face, or REST. */
