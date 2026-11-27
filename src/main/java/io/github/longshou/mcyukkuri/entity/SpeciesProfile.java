@@ -48,6 +48,8 @@ public record SpeciesProfile(Ecology ecology, BreedingPool pool, FamilyData.Birt
     }
     /** Exact identity predicates for existing asymmetric capability checks. */
     public boolean houseBody() { return ecology == Ecology.HOUSE; }
+    /** A house yukkuri is nobody's pet: it cannot be kept, led, sold, registered or given an owner. */
+    public boolean petable() { return !houseBody(); }
     public boolean surfaceForager() { return !houseBody(); }
     public float woundSize() { return portionScale; }
     public float shadowRadius() { return houseBody() ? .12f : .32f; }

@@ -402,8 +402,8 @@ public final class ShopTrade {
     static String sellRefusal(ServerLevel level, ShopRegistry.Entry shop, YukkuriEntity y, Player p) {
         if (!level.isDay()) return "closed";
         if (y == null || !y.isAlive() || !y.pet().ownedBy(p.getUUID())) return "gone";
-        // The shop has land pens only: no water for an aquatic Marisa, and house yukkuri are not pets.
-        if (y.profile().aquatic() || y.profile().houseBody()) return "unsuited";
+        // The shop has land pens only: no water for an aquatic Marisa.
+        if (y.profile().aquatic()) return "unsuited";
         if (!shop.kind.accepts(y)) return "oni_predator";
         if (!shop.contains(y.position())) return "outside";
         if (y.pet().busy() || shop.orders.containsKey(y.getUUID()) || y.isPassenger() || y.isVehicle()) return "busy";

@@ -600,6 +600,7 @@
   "operation.mcyukkuri.refuse.hair": "There is no hair left to cut there.",
   "operation.mcyukkuri.refuse.condition": "The yukkuri’s current condition prevents this.",
   "operation.mcyukkuri.refuse.custody": "You cannot take this yukkuri from its current keeper.",
+  "operation.mcyukkuri.refuse.house": "A house yukkuri cannot be leashed or kept as a pet.",
   "operation.mcyukkuri.refuse.single_carrier": "Hold a single transport basket.",
   "operation.mcyukkuri.refuse.carrier_full": "This yukkuri needs more room in the basket.",
   "operation.mcyukkuri.result.released": "Operation ended.",

@@ -76,8 +76,8 @@ public final class HumanCommands {
                                 .executes(c -> walker(c, StringArgumentType.getString(c, "who").equals("sister"), YukkuriVariant.REIMU))
                                 .then(Commands.argument("variant", StringArgumentType.word())
                                         .suggests((c,
-                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v)
-                                                        .houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()).map(YukkuriVariant::assetId), b))
+                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> SpeciesProfile.of(v)
+                                                        .petable() && !SpeciesProfile.of(v).dangerToYukkuri()).map(YukkuriVariant::assetId), b))
                                         .executes(c -> {
                                             var v = variant(StringArgumentType.getString(c, "variant"));
                                             if (v == null) { say(c, "unknown variant"); return 0; }
@@ -105,8 +105,8 @@ public final class HumanCommands {
                         .then(Commands.literal("stock").then(Commands.argument("keeper", EntityArgument.entity())
                                 .then(Commands.argument("variant", StringArgumentType.word())
                                         .suggests((c,
-                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> !SpeciesProfile.of(v)
-                                                        .houseBody()).map(YukkuriVariant::assetId), b))
+                                                b) -> SharedSuggestionProvider.suggest(Arrays.stream(YukkuriVariant.values()).filter(v -> SpeciesProfile.of(v)
+                                                        .petable()).map(YukkuriVariant::assetId), b))
                                         .then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(HumanCommands::stock)))))
                         .then(Commands.literal("carrier").then(Commands.argument("item", EntityArgument.entity()).executes(HumanCommands::carrier)))
                         .then(Commands.literal("buy").then(Commands.argument("keeper", EntityArgument.entity())

@@ -785,6 +785,7 @@
   "operation.mcyukkuri.refuse.hair": "そこには切れる髪がありません。",
   "operation.mcyukkuri.refuse.condition": "ゆっくりの今の状態ではできません。",
   "operation.mcyukkuri.refuse.custody": "現在の飼い主からこのゆっくりを連れ出せません。",
+  "operation.mcyukkuri.refuse.house": "家ゆっくりは引き綱も付けられず、ペットにもできません。",
   "operation.mcyukkuri.refuse.single_carrier": "運搬かごを一つ持ってください。",
   "operation.mcyukkuri.refuse.carrier_full": "このゆっくりを入れる空きが足りません。",
   "operation.mcyukkuri.result.released": "操作を解除しました。",

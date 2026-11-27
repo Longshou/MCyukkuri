@@ -256,6 +256,11 @@ public final class Custody {
 
     /** Unknown legacy/template Use values must pass through unchanged. Identity must come from positive evidence. */
     public static void assignRaw(YukkuriEntity animal, UUID owner, OwnerKind kind, String use) {
+        if (!animal.profile().petable()) {
+            GameplayLog.limited(animal, "custody", "assign.house", 200,
+                    "assignment refused owner={} role={} reason=house_ecology", owner, use);
+            return;
+        }
         if (!cleanup(animal)) throw new IllegalStateException("Pending custody cleanup before assignment");
         if (animal.level() instanceof ServerLevel level) {
             CustodyData.get(level).remember(owner, kind);
@@ -371,6 +376,7 @@ public final class Custody {
     }
 
     public static boolean mayCapture(Player player, YukkuriEntity animal) {
+        if (!animal.profile().petable()) return false;
         var custody = view(animal);
         if (custody.role() == Role.PLANT_STOCK) return plantContact(player, animal, custody);
         return !custody.hasPendingStaffRole() && (custody.owner() == null || custody.owner().equals(player.getUUID())

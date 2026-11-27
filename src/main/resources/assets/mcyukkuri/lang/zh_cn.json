@@ -600,6 +600,7 @@
   "operation.mcyukkuri.refuse.hair": "这个部位已经没有可剪的头发。",
   "operation.mcyukkuri.refuse.condition": "它现在的身体状态不适合这项操作。",
   "operation.mcyukkuri.refuse.custody": "你不能从当前照管者那里带走它。",
+  "operation.mcyukkuri.refuse.house": "家油不能拴绳，也不能当宠物。",
   "operation.mcyukkuri.refuse.single_carrier": "请手持一个运输篮。",
   "operation.mcyukkuri.refuse.carrier_full": "运输篮剩余空间不足，装不下这只油库里。",
   "operation.mcyukkuri.result.released": "已解除操作。",

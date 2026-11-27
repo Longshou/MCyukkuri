@@ -141,7 +141,7 @@ public final class HumanScenes {
     }
     private static YukkuriVariant petVariant(HumanNpc npc) {
         var pool = new ArrayList<YukkuriVariant>();
-        for (var v : YukkuriVariant.values()) if (!SpeciesProfile.of(v).houseBody() && !SpeciesProfile.of(v).dangerToYukkuri()) pool.add(v);
+        for (var v : YukkuriVariant.values()) if (SpeciesProfile.of(v).petable() && !SpeciesProfile.of(v).dangerToYukkuri()) pool.add(v);
         return pool.get(npc.getRandom().nextInt(pool.size()));
     }
     private static YukkuriEntity spawnPet(ServerLevel level, HumanNpc npc, YukkuriVariant variant) {
