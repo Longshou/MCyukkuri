@@ -1406,7 +1406,10 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
         (25, f'execute at {sel("lead_bold")} positioned ~ ~ ~-2 run yukkuri scenario tool_operator move'),
         *((26 + i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario leash {sel(name)}')
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
-        *((560 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
+        # The player steps up to each stray (spent ones sit at the taut end of the lead, out of reach) and lets it go.
+        *((560 + 10 * i, f'execute at {sel(name)} positioned ~1 ~ ~ run yukkuri scenario tool_operator move')
+          for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
+        *((561 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario unleash {sel(name)}')
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
         # The owner's pet is leashed with the strays, before it can roam (so its stand is the open anchor row, never a spot it wandered to); it
         # follows the player there. Once the strays are let go the player steps west of it and walks a dozen blocks east along the open row at
