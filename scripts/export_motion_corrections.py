@@ -205,7 +205,9 @@ def main():
                          'mouth_geometry': mouth_source,
                          'texture': rel(tex/'cheek_puff.png'), 'texture_sha256': hashlib.sha256(png).hexdigest()}
         print(ident, 'puff', models[ident]['clips']['puff']['expression_spans'], flush=True)
-    print(f'motion cache: {sum(c.hits for c in caches)} reused, {sum(c.misses for c in caches)} compiled', flush=True)
+    skipped = sum(c.write_failures for c in caches)
+    print(f'motion cache: {sum(c.hits for c in caches)} reused, {sum(c.misses for c in caches)} compiled'
+          + (f', {skipped} skipped (write refused)' if skipped else ''), flush=True)
     assert all(sha(path) == fingerprint for path, fingerprint in source_hashes.items()), 'Motion source changed during export; rerun from the current source'
     payload = json.dumps({'format': 2, 'revision': resource_revision, 'models': models}, separators=(',', ':'), ensure_ascii=False)+'\n'
     if args.trial:

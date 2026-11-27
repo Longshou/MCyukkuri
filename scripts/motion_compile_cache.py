@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import tempfile
+import time
 
 
 def encoded(value):
@@ -19,7 +20,7 @@ class MotionCache:
         self.directory = Path(directory)
         self.scope = fingerprint(scope)
         self.full = full
-        self.hits = self.misses = 0
+        self.hits = self.misses = self.write_failures = 0
 
     def key(self, stage, name, inputs):
         return fingerprint([self.scope, stage, name, inputs])
@@ -34,7 +35,8 @@ class MotionCache:
                 if entry['input'] == key and entry['sha256'] == fingerprint(entry['value']):
                     self.hits += 1
                     return entry['value']
-            except (ValueError, KeyError, TypeError):
+            except (OSError, ValueError, KeyError, TypeError):
+                # A file locked by antivirus is a miss, never a build failure.
                 pass
         self.misses += 1
         return None
@@ -48,9 +50,23 @@ class MotionCache:
         try:
             with os.fdopen(fd, 'wb') as stream:
                 stream.write(data)
-            os.replace(temporary, path)
+            # Antivirus briefly locks fresh files on some machines. Caching is an
+            # optimisation: retry briefly, then skip the entry instead of failing.
+            for delay in (0.05, 0.1, 0.2, None):
+                try:
+                    os.replace(temporary, path)
+                    break
+                except OSError:
+                    if delay is None:
+                        self.write_failures += 1
+                    else:
+                        time.sleep(delay)
         finally:
-            Path(temporary).unlink(missing_ok=True)
+            # A temp file the locks still hold stays behind; it is never read as an entry.
+            try:
+                Path(temporary).unlink(missing_ok=True)
+            except OSError:
+                pass
 
     def memo(self, stage, name, inputs, build):
         key = self.key(stage, name, inputs)
