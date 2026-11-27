@@ -641,10 +641,45 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
                 readout=[f'yukkuri status {sel("c1")} raw']))
 
 
+# R6 (ruling 2026-11-27): the family sleeps on the water. Dusk starts the scene; the one time command lapses the night.
+_NB = 'night_boat'
+add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊静水，全家睡到天亮',
+    '黄昏，亲油和两只赤油坐在离岸 3 格的帽船上（帽里有木棍），池中央是静水：亲油不上岸，天黑后在原处等孩子坐稳、帽船停稳，然后躺下睡；两只赤油各自在舱里躺下睡。'
+    '过一阵（场景用一条时间命令快进整夜）天亮，亲油先醒、说早安，赤油也醒，一家照常继续白天',
+    '约 2–3 分钟（夜里的睡眠已快进）',
+    [*BY_ID['pond'].biome_commands(),
+     yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, uuid=uid(_NB, 'a'), nutrition=100, energy=60, hygiene=100),
+     *[yk('marisa', bank_dx(dz), dz, name, stage='baby', aquatic=True, yaw=-90, uuid=uid(_NB, name), also=('crew',),
+          kin=f'Mother:{uuid_nbt(uid(_NB, "a"))}', fam=_seat_family(size, nourishment, age), childhood=CHILDHOOD_CRAWLING_READY, **pair_ready())
+       for name, dz, size, nourishment, age in (('k1', 1, .16, 22909, 36000), ('k2', -1, .20, 84000, 76000))],
+     afloat_now('a', water_at(0, 3), True, sel_all('crew'), stick=True)],
+    env={'time': 'dusk'}, vantage=(-6, 6, -90),
+    late=[Retry('time set 23800', sel('a'), tries=1, first=1500)],
+    note='日志：[aquatic] night_rest berth=…（stay=true：她这格本就是静水，原处不动）→ night_rest asked captain=true（亲油，要等帽船停稳）与 captain=false（赤油）→ '
+         '[sleep] begin source=fatigue full=true … carrier=true → [sleep] beat=lie_down face=sleep line=sleep；天亮 [sleep] end source=fatigue full=true cause=rested → '
+         '[sleep] beat=wake face=neutral line=awake。下雨、打雷、帽船被晃或孩子落水会先把亲油叫醒（[sleep] woken by danger reason=…），之后按白天的欲望处理（回岸或救孩子）。'
+         + _DESIRE_NOTE,
+    reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读赤油二', f'yukkuri status {sel("k2")} raw'),
+           ('读帽子', f'data get entity {_HAT}')],
+    capture=dict(shots=(1, 400, 1400, 1900), sequences=((300, 1900, 100),)),
+    smoke=dict(ticks=2400,
+               expect=[r'\[aquatic\][^\n]* night_rest berth=[^\n]*stay=true',
+                       r'\[aquatic\][^\n]* night_rest asked captain=true\b',
+                       r'\[aquatic\][^\n]* night_rest asked captain=false\b',
+                       r'\[sleep\][^\n]* begin source=fatigue full=true [^\n]*carrier=true',
+                       r'\[sleep\][^\n]* beat=lie_down face=sleep line=sleep carrier=true',
+                       r'\[sleep\][^\n]* end source=fatigue full=true cause=rested\b',
+                       r'\[sleep\][^\n]* beat=wake face=neutral line=awake carrier=true cause=rested'],
+               forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled', r'\[sleep\][^\n]* woken by danger',
+                       r'\[intent\][^\n]* start id=come_ashore\b', r'\[intent\][^\n]* start id=set_out\b',
+                       r'\[aquatic\][^\n]* night_rest end result=(?:EXHAUSTED|LOST)',
+                       r'\[needs\][^\n]* starvation damage accepted=true'],
+               readout=[f'yukkuri status {sel(who)} raw' for who in ('a', 'k1', 'k2')] + [f'data get entity {_HAT} Riders']))
+
 # Deck order of the pond field: solo life, family on the boat, falling in and rescue, birth, then hat handling and hull physics.
 POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo', 'hat_larder',
-    'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family',
+    'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family', 'night_boat',
     'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim',
     'hat_sever_tearful', 'hat_sever_cold', 'hat_sever_freeze', 'hat_sever_sulk', 'hat_load_warning',
     'self_rescue', 'shake_ashore', 'ledge_spit', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
@@ -1029,7 +1064,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_larder': 'A2', 'hat_sever_tearful': 'A3', 'hat_sever_cold': 'A3', 'hat_sever_freeze': 'A3', 'hat_sever_sulk': 'A3', 'hat_load_warning': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'night_boat': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shake_ashore': 'A5', 'ledge_spit': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
     'hatless_monster': 'C2', 'puff_response': 'C2',

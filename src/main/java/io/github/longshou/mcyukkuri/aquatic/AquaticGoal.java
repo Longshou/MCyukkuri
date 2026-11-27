@@ -73,6 +73,8 @@ final class AquaticGoal extends Goal {
     private Map<UUID, Long> comforted;
     /** A first voyage that ended unfinished: not tried again before this game tick (the next morning). Never saved. */
     private long voyageAfter;
+    /** The day whose night found her no still water to lie on: that night she sleeps ashore (not saved). */
+    private long shoreNight = Long.MIN_VALUE;
     private long fearTick = Long.MIN_VALUE;
     private String fear;
     /** The brood whose late interval was already reported: the shore return is announced once per brood. */
@@ -206,7 +208,12 @@ final class AquaticGoal extends Goal {
         double weather = body.level().isThundering() ? num("thunder_need", 60) : rain && life.wetness() >= num("wet_from", 60) ? num("wet_need", 70) : 0;
         double breed = body.family().ready(false) && body.family().partner() != null ? num("breed_need", 35) : 0;
         // Tired below the energy a voyage takes: rest comes only on dry ground (grounded rest), so it draws her ashore and keeps her there.
-        double tired = Math.max(0, num("voyage_energy", 30) - life.energy()) * num("tired_slope", 2);
+        // R6: the night is slept on the water, so dusk pulls her ashore only in rain or thunder, or on a night when no still water could be had.
+        long night = Math.floorDiv(body.level().getDayTime(), 24000L);
+        if (dusk && drive().failed("night_rest")) shoreNight = night;
+        boolean nightAshore = dusk && (rain || shoreNight == night);
+        // Tired below the energy a voyage takes at night is slept off aboard (night_rest); by day rest comes only on dry ground.
+        double tired = dusk && !nightAshore ? 0 : Math.max(0, num("voyage_energy", 30) - life.energy()) * num("tired_slope", 2);
         // The birth's own lead also forbids departures after landing, until delivery is complete.
         var brood = body.family().brood();
         boolean birth = body.family().shoreBirthDue();
@@ -246,7 +253,7 @@ final class AquaticGoal extends Goal {
             // a hungry young set down on the bank is fed there first (the ground feed takes a portion from the hull's stores beside the bank)
             boolean feedDue = feedDue(body, hat);
             double setOut = asleep || beyondGather || searching || birth || nursery || overladen || feedDue ? 0
-                    : num("water_life", 60) - 2 * pull - (dusk ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
+                    : num("water_life", 60) - 2 * pull - (nightAshore ? num("night_pull", 60) : 0) - (rain ? num("rain_pull", 30) : 0);
             var world = List.of(body.blockPosition(), stick, nearStick, young.size(), beyondGather, searching, birth, nursery, overladen, landFood, feedDue);
             boolean usable = hat == null ? life.custody().worn() : AquaticLife.afloat(hat);
             // A hull she has no way aboard (out of hop and stroke reach from every bank stand) is not set out for: she goes after it
@@ -336,10 +343,10 @@ final class AquaticGoal extends Goal {
         double pull = Math.max(verdictAshore ? num("leave_want", 100) : 0,
                 Math.max(Math.max(Math.max(fed ? 0 : landHunger, toHave ? num("stick_need", 50) : 0), Math.max(heavy ? num("load_need", 70) : 0, tired)),
                 Math.max(Math.max(birthWant, headFeed ? num("head_feed_need", 70) : 0),
-                        Math.max(Math.max(weather, breed), Math.max(dusk ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)))));
+                        Math.max(Math.max(weather, breed), Math.max(nightAshore ? num("night_pull", 60) : 0, ashore > 0 ? num("young_ashore_need", 60) : 0)))));
         // Where she lies is the hull's four-cell region, not its cell: a landing that failed (its dock paddles the hull cell to cell) is not
         // offered again on the same facts until she has really moved on, and then the next bank is another try.
-        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, floor(tired) > 0, landFood, headFeed, verdictAshore);
+        var world = List.of(region(hat), stick, young.size(), ashore, birth, heavy, List.of(floor(tired) > 0, nightAshore), landFood, headFeed, verdictAshore);
         Supplier<String> why = () -> String.format(Locale.ROOT, "hunger=%.0f food_aboard=%b land_food=%b stick=%b stick_ashore=%b weather=%.0f breed=%.0f birth=%.0f young_ashore=%d dusk=%b rain=%b heavy=%b tired=%.0f head_feed=%b",
                 hunger, food, landFood, stick, toHave, weather, breed, birthWant, ashore, dusk, rain, heavy, tired, headFeed);
         var ashoreDesire = Desire.of("come_ashore", floor(pull), world, why, () -> {
@@ -354,6 +361,11 @@ final class AquaticGoal extends Goal {
         // At the desire ceiling, labour's shore requirement wins ties with hunger; other bodily emergencies still own their goals.
         if (birth) out.addFirst(ashoreDesire); else out.add(ashoreDesire);
         out.add(Desire.of("cruise", dusk ? 0 : floor(num("cruise_want", 30)), world, () -> "energy=" + Math.round(life.energy()), () -> new Cruise(body)));
+        // The night is slept in the hull on still water (R6); she settles once her body is drowsy, after what pulls her ashore (young left
+        // there, hunger, load) and the care of the young aboard (feed_want 55) outrank it.
+        if (dusk && !nightAshore && life.drowsy() && !life.carrierRestOpen())
+            out.add(Desire.of("night_rest", floor(num("night_rest_want", 50)), List.of(region(hat), night, young.size()),
+                    () -> "dusk energy=" + Math.round(life.energy()) + " young=" + young.size(), () -> new NightRest(body, true)));
     }
 
     /** A hungry young she has food for (her hull's stores or her mouth) and whose feeding her care decision accepted. A head rider is out of
@@ -558,6 +570,10 @@ final class AquaticGoal extends Goal {
                 : on ? List.of(hat.getUUID(), "head", parentOn) : List.of(cell(hat), body.blockPosition(), parentOn);
         if (on && parentOn && body.family().stage() == FamilyLife.Stage.BABY) play(out, hat, world);
         if (on) BoatToilet.offer(out, body, hat);
+        // At night a young in the hold sleeps once the hull lies still and its body is ready (the parent moors first, then lies down herself).
+        if (body.getVehicle() == hat && parentOn && AquaticLife.dusk(body.level()) && !AquaticLife.rain(body) && !PlayAboard.onBrim(body, hat)
+                && Waters.moored(hat) && !body.life().carrierRestOpen() && body.life().readyForCarrierRest())
+            out.add(Desire.of("night_rest", floor(num("night_rest_want", 50)), world, () -> "dusk parent=" + parent.getUUID(), () -> new NightRest(body, false)));
         var rest = TakeSeat.offer(body, hat);
         if (rest != null)
             out.add(Desire.of("take_seat", num("take_seat_want", 70), rest.world(), rest::why, () -> rest));

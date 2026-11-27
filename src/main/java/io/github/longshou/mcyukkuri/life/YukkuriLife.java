@@ -210,6 +210,12 @@ public final class YukkuriLife {
     private int starvingTicks, fatigueTicks, fatigueLength;
     private boolean observedNeedSlowness;
     private boolean napReady, fullFatigueSleep;
+    /** A full night rest taken on a carrier that bears the body (a hull afloat), asked for by the carrier's own domain: it stands in for the
+     *  bed. {@link #carrierRestUntil} is the game tick the ask lapses; {@link #carrierRest} is set while the rest it started runs. Not saved. */
+    private long carrierRestUntil;
+    private boolean carrierRest;
+    /** How long (ticks) an ask for a carrier rest waits for the goal to take it; the awake ticks after a carrier rest that a need, a danger or the rain cut short. */
+    private static final int CARRIER_REST_ASK = 40, CARRIER_REST_RETRY = 400;
     /** Project design: awake ticks that must pass after a short nap before the next roll; transient, not saved. */
     private int napCooldown;
     private static final int NAP_MIN_GAP = 300;
@@ -242,8 +248,10 @@ public final class YukkuriLife {
     public int sleepDuration() { return 200 + 4 * personality.boldness(); }
     public String fatigueDetail() { return "ready="+napReady+" gap="+napCooldown+" ticks="+fatigueTicks+" duration="+fatigueLength+" full="+fullFatigueSleep+" starvation="+starvingTicks; }
     public boolean fatigueActive() { return fatigueTicks > 0; }
-    public boolean canFatigueRest() {
-        return entity.isAlive() && !entity.inert() && !entity.isPassenger() && entity.onGround()
+    public boolean canFatigueRest() { return canFatigueRest(carrierRest); }
+    /** {@code carrier}: the footing is a seat on whatever bears the body (it rides); otherwise dry ground under its own feet. */
+    private boolean canFatigueRest(boolean carrier) {
+        return entity.isAlive() && !entity.inert() && (carrier ? entity.isPassenger() : !entity.isPassenger() && entity.onGround())
                 && !entity.isPanicking() && !entity.isCommandPlaying() && !entity.operations().active()
                 && !entity.family().awaitingLanding() && !entity.family().laboring() && !entity.family().birthDuty()
                 && !entity.isOnFire() && !entity.isInWaterOrBubble() && !hotFloor.active() && !entity.body().dying()
@@ -252,17 +260,35 @@ public final class YukkuriLife {
     /** A nap is leisure: a body that really needs food stays awake to eat it; only a full sleep at energy 0 still starts.
      *  A body still walking to or resting at a warmth refuge does not nap over it: it warms first and the refuge hands it over to sleep. */
     public boolean wantsFatigueRest() {
+        boolean asked = carrierRestAsked();
         return !isSleeping() && !entity.family().stemFoodUrgent() && !temperature.active()
-                && (energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest();
+                && (asked || energy <= 0 || napReady && energy <= 25 && nutrition >= 30) && canFatigueRest(asked);
+    }
+    private boolean carrierRestAsked() { return level().getGameTime() < carrierRestUntil; }
+    /** The carrier's own domain asks for the night rest on its seat: the fatigue goal takes it within {@link #CARRIER_REST_ASK} ticks. */
+    public void askCarrierRest() { carrierRestUntil = level().getGameTime() + CARRIER_REST_ASK; }
+    /** The ask is open or its rest runs: the carrier's domain offers nothing more to do. */
+    public boolean carrierRestOpen() { return carrierRestAsked() || carrierRest && isSleeping(); }
+    /** Exactly what the fatigue goal needs to take a carrier rest now: its rest time (or tiredness), no need that would wake it at once,
+     *  nothing to eat, no recent rest cut short ({@code restWait}), and a seat that bears it. */
+    public boolean readyForCarrierRest() {
+        return !isSleeping() && restWait == 0 && drowsy() && !entity.family().stemFoodUrgent() && !entity.family().mealAwaits()
+                && mealTicks() == 0 && needWakeCause() == null && !temperature.active() && canFatigueRest(true);
     }
     public void startFatigueRest() {
         interrupt();
         entity.keepsake().releaseForSleep();
-        fullFatigueSleep = energy <= 0;
+        carrierRest = carrierRestAsked();
+        carrierRestUntil = 0;
+        fullFatigueSleep = carrierRest || energy <= 0;
         fatigueLength = fullFatigueSleep ? sleepDuration() : 20 + entity.getRandom().nextInt(41);
         fatigueTicks = 1; napReady = false;
         SurfaceApproach.halt(entity);
-        GameplayLog.event(entity,"sleep","begin source=fatigue full={} duration={} boldness={} energy={}",fullFatigueSleep,fatigueLength,personality.boldness(),energy);
+        GameplayLog.event(entity,"sleep","begin source=fatigue full={} duration={} boldness={} energy={} carrier={}",fullFatigueSleep,fatigueLength,personality.boldness(),energy,carrierRest);
+        if (carrierRest) {
+            entity.speak("sleep");
+            GameplayLog.event(entity,"sleep","beat=lie_down face=sleep line=sleep carrier=true");
+        }
     }
     public void tickFatigueRest() {
         // An ended rest stays ended: the goal may still be ticked once before its continue check, and counting on from zero there
@@ -300,7 +326,17 @@ public final class YukkuriLife {
         boolean rested = fullFatigueSleep && fatigueTicks > fatigueLength;
         if(!fullFatigueSleep) napCooldown = NAP_MIN_GAP;
         fatigueTicks = 0; napReady = false;
-        if(rested) { restWait = restInterval(); entity.family().woke(); }
+        boolean carried = carrierRest;
+        carrierRest = false;
+        boolean grew = false;
+        if(rested) { restWait = restInterval(); grew = entity.family().woke(); }
+        else if (carried) restWait = Math.max(restWait, CARRIER_REST_RETRY);
+        if (carried) {
+            // a rested wake greets the morning (the face and the line the bed sleep gives); a need, a danger or the rain that cut it short says nothing of it
+            boolean greeted = "rested".equals(cause) && !grew && entity.showReaction("neutral", "awake", FaceTier.Tier.SHORT);
+            GameplayLog.event(entity,"sleep","beat=wake face={} line={} carrier=true cause={}",greeted ? "neutral" : "none", greeted ? "awake" : "none",
+                    cause == null ? "interrupted" : cause);
+        }
     }
     public void wakeForDanger(String reason) {
         if (!isSleeping()) return;

@@ -220,6 +220,7 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (!floats(hat.level(), hat.position(), hat.hullScale())) { ground(); return; }
         long now = hat.level().getGameTime();
         impact = 0;
+        wakeOnSplash();
         double loadRatio = hat.loadRatio();
         var sample = turbulence(water);
         if (triggers.water(sample)) trigger("turbulence", sample.angle(), sample.falling());
@@ -269,6 +270,19 @@ public final class HullAfloat implements PlacedHatBehavior {
         if (triggers.impact(impact)) trigger("impact", impact, false);
     }
 
+    /** A captain asleep aboard hears her young splash into the water (the cry and the splash are heard, a sleeper does not look): she
+     *  wakes, and her ordinary rescue decision takes it from there. */
+    private void wakeOnSplash() {
+        if (!hat.isVehicle()) return;
+        var captain = hat.owner();
+        if (captain == null || !captain.life().isSleeping() || !AquaticLife.aboard(captain, hat)) return;
+        for (var young : AquaticLife.young(captain)) if (young.isInWaterOrBubble()) {
+            GameplayLog.event(captain, "aquatic", "night_rest heard splash young={} hat={}", young.getUUID(), hat.getUUID());
+            captain.life().wakeForDanger("young_in_water");
+            return;
+        }
+    }
+
     /** The owner notices a real outward drift of the unattended hull once while it is afloat. */
     private void noticeDrift(Vec3 actual) {
         if (driftNoticed || hat.isVehicle() || drive.horizontalDistanceSqr() != 0 || actual.horizontalDistanceSqr() == 0) return;
@@ -306,6 +320,8 @@ public final class HullAfloat implements PlacedHatBehavior {
     private void startle() {
         int ticks = (int) (HullPresentation.number("rock_ticks") + HullPresentation.number("flip_ticks"));
         for (var passenger : hat.getPassengers()) if (passenger instanceof YukkuriEntity y) {
+            // a sleeper is thrown awake by the rocking before it is startled
+            y.life().wakeForDanger("hull_rocked");
             boolean adult = y.family().adult();
             if (!adult) y.mind().felt(EmotionEvent.FRIGHTENED);
             y.showReaction(adult ? "surprise" : "teary", adult ? Behaviors.BOAT_ROCK_STARTLE : "afraid", FaceTier.Tier.ofTicks(ticks));

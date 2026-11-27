@@ -163,7 +163,7 @@ public final class AquaticLife {
         });
     }
 
-    /** From dusk to the end of the night (vanilla's sleep window): the hours the family returns ashore to rest. */
+    /** From dusk to the end of the night (vanilla's sleep window): the hours the family sleeps on the water (ashore only in rain, thunder or with no still water). */
     static boolean dusk(Level level) {
         long t = Math.floorMod(level.getDayTime(), 24000L);
         return t >= 12000 && t < 23460;

@@ -604,6 +604,46 @@ final class Waters {
         return sides + (level.canSeeSky(p.above()) ? 0 : 2);
     }
 
+    /** Still water a hull lies on through the night: a calm cell whose eight neighbours are all calm too (room for the hull, no current
+     *  or falling water beside it). */
+    static boolean quiet(Level level, BlockPos p) {
+        if (!calm(level, p)) return false;
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) if ((dx != 0 || dz != 0) && !calm(level, p.offset(dx, 0, dz))) return false;
+        return true;
+    }
+
+    /** Whether dry land lies within {@code reach} cells of {@code p} at its level: a bank the family sleeps within sight of. */
+    private static boolean bankNear(Level level, BlockPos p, int reach) {
+        for (int dx = -reach; dx <= reach; dx++) for (int dz = -reach; dz <= reach; dz++) {
+            var at = p.offset(dx, 0, dz);
+            if (level.hasChunkAt(at) && level.getFluidState(at).isEmpty() && !level.getBlockState(at.below()).isAir()
+                    && !level.getFluidState(at.below()).is(FluidTags.WATER)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Where a hull lies for the night: its own cell when that is still water, else the nearest still-water cell within reach
+     * that it can be paddled to, one with a bank within four cells first (the shore it came from stays close, a land
+     * animal cannot step onto the hull); null when there is none, so she does not lie down on water that moves.
+     */
+    static BlockPos mooring(PlacedHatEntity hat) {
+        var level = hat.level();
+        var from = cell(hat);
+        if (from == null) return null;
+        if (quiet(level, from)) return from;
+        var found = new ArrayList<BlockPos>();
+        for (var p : BlockPos.betweenClosed(from.offset(-RANGE, 0, -RANGE), from.offset(RANGE, 0, RANGE)))
+            if (quiet(level, p)) found.add(p.immutable());
+        found.sort(Comparator.comparingDouble(p -> (bankNear(level, p, 4) ? 0 : 4096) + p.distSqr(from)));
+        int asked = 0;
+        for (var p : found) {
+            if (asked++ >= ASKED) break;
+            if (!route(hat, p).isEmpty()) return p;
+        }
+        return null;
+    }
+
     /** A calm cell {@code min}..{@code max} blocks from the hat that it can be paddled to, picked at random among the open water
      *  on that ring, or null. */
     static BlockPos wander(PlacedHatEntity hat, int min, int max) {
