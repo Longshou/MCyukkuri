@@ -18,6 +18,7 @@
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
     "braid-eat": {"clips": ["braid_eat", "braid_eat_bin"]},
     "paper": {"clips": ["paper_pull", "paper_cover_under", "paper_cover_child", "cold_shiver"], "braid_follow": true},
+    "sumo": {"clips": ["sumo_ready", "sumo_shove", "sumo_push_out", "sumo_win"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
   "status": "pending_user_review",
@@ -8500,6 +8501,58 @@
       ],
       "lore": "Project design (N79): drawn in flatter and tucked forward against the cold, shivering in small fast 9.5 Hz tremors with two crisp shudder bursts per 2.4 s cycle; face stays on cold (animated cold/cold_b) rather than fear or crying. Composed tilt stays within 9 degrees.",
       "triggers": ["FoundShelter cold plain-gap rest"]
+    },
+    "sumo_ready": {
+      "label": "相扑起势",
+      "duration": 1.6,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [0, 1.6, "angry_stare"]
+      ],
+      "lore": "Ritual sumo ready stance (SC-09, W2): both participants squat low and wide, leaning forward in a locked stare while shifting weight side to side with two crisp shiko-style stomp plants per 1.6 s loop; body only, composed tilt <= 10 degrees.",
+      "triggers": ["sumo_prepare"]
+    },
+    "sumo_shove": {
+      "label": "相扑冲撞推挤",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "faces": [
+        [0, 0.24, "angry_stare"],
+        [0.24, 0.42, "angry"],
+        [0.42, 0.6, "endure"],
+        [0.6, 0.78, "puff"],
+        [0.78, 1.0, "angry_stare"]
+      ],
+      "lore": "Ritual sumo charge and body-to-body shove (SC-09, W2): synced to the 20-tick (1.0 s) sumo contact cadence — coil low, surge forward into body-to-body clash with impact squash, grind laterally under braced pressure, then reset; body only, composed tilt <= 11 degrees.",
+      "triggers": ["sumo_push"]
+    },
+    "sumo_push_out": {
+      "label": "相扑被推出倾倒",
+      "duration": 1.6,
+      "loop": false,
+      "applies": "all",
+      "faces": [
+        [0, 0.35, "impact"],
+        [0.35, 1.1, "impact_teary"],
+        [1.1, 1.6, "teary"]
+      ],
+      "lore": "Sumo push-out loser reaction (SC-09, W2): driven backward off balance by the decisive shove, pitching back and tipping sideways with a yaw skid and landing wobble before righting upright; body only, composed tilt <= 11 degrees.",
+      "triggers": ["sumo_push_out"]
+    },
+    "sumo_win": {
+      "label": "相扑胜者得意",
+      "duration": 2.0,
+      "loop": false,
+      "applies": "all",
+      "faces": [
+        [0, 0.35, "puff"],
+        [0.35, 0.9, "open_smile"],
+        [0.9, 2.0, "smug"]
+      ],
+      "lore": "Sumo winner's proud pose (SC-09, W2): rises tall and puffed from the low stance into a crisp victory hop, then holds a chin-up proud swagger side to side before settling; body only, composed tilt <= 9 degrees.",
+      "triggers": ["sumo_win"]
     }
   },
   "flourishes": {
@@ -8611,7 +8664,11 @@
     "paper_pull",
     "paper_cover_under",
     "paper_cover_child",
-    "cold_shiver"
+    "cold_shiver",
+    "sumo_ready",
+    "sumo_shove",
+    "sumo_push_out",
+    "sumo_win"
   ],
   "braid_use": {
     "note": "Project design (user 2026-11-05 feedback 2: what the braid already holds decides what it can do): clips whose own authored braid grips, carries or strokes something (the hat, a child, a brim, the water; in the water she flails and swims with it while the stack stays in her hat) use the braid, so the game never lays the held stack's hold over them; a held stack shows there only by the clip's own props.item, otherwise it stays stowed in her hat and is not drawn. A hat clip with `hat.stick` (her own hat on and off at the water, the clips the game plays while she holds the stick) keeps the stick in the tuft: it lies along the brim the tuft hooks, its long end along the keyed direction in the worn hat's frame ([t, x, y, z]: out to her braid side on the worn brim, out over the water on the hat set down; re-aimed in the tuft while the hat swings over) and turning with the hat, so the stick never leaves the braid, never pops and never crosses her face (user 2026-11-05 feedback 2; user 2026-11-04 feedback 6: held in the braid, not hidden). Markers `braid_busy` (the braid has left the hold by here) and `braid_free` (from here it returns to the hold by the clip's end) let a one-shot clip hand the braid over from and back to the hold. Exported as the clip field braid_use.",

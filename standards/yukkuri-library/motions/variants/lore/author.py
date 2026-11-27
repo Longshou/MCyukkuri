@@ -198,6 +198,61 @@ def state(action, t, c, height):
         s = [w, h, w]
         r = [-5.5-1.5*env, 1.4*trem, 1.6*math.sin(2*math.pi*9.5*t+.7)*(.18+.82*env)]
         shift = [.008*height*trem, -.020*height*(1+.25*env)]
+    elif action == 'sumo_ready':
+        # Ritual sumo ready stance: low wide squat leaning forward in a locked stare with two shiko-style stomp-sways per 1.6 s loop.
+        w = 2*math.pi*t/d
+        stomp_l = bump((t-.10)/.24) if .10 <= t <= .34 else 0.
+        stomp_r = bump((t-.90)/.24) if .90 <= t <= 1.14 else 0.
+        plant_l = bump((t-.32)/.26) if .32 <= t <= .58 else 0.
+        plant_r = bump((t-1.12)/.26) if 1.12 <= t <= 1.38 else 0.
+        plant = plant_l + plant_r
+        sway = math.sin(w)
+        h = .88 - .04*plant + .02*(stomp_l + stomp_r)
+        wide = 1.07 + .03*plant - .015*(stomp_l + stomp_r)
+        s = [wide, h, wide]
+        r = [-6.8 - 1.5*plant, -6.5*sway, 4.4*sway]
+        lift = .038*height*(stomp_l + stomp_r)
+        shift = [-.055*height*sway, -.035*height*(1 + .3*plant)]
+    elif action == 'sumo_shove':
+        # Ritual sumo charge & body-to-body shove synced to the 1.0 s (20-tick) shove cadence:
+        # coil low (0..0.24), surge & clash with impact squash (0.24..0.42), braced lateral heave (0.42..0.78), reset (0.78..1.0).
+        coil = keyed(t, [(0, .4), (.22, 1), (.38, 0), (.80, 0), (1.0, .4)])
+        clash = bump((t-.32)/.22) if .32 <= t <= .54 else 0.
+        heave = keyed(t, [(0, 0), (.36, 0), (.44, 1), (.76, 1), (.90, 0), (1.0, 0)])
+        grind = math.sin(2*math.pi*(t-.42)/.36)*heave if .42 <= t <= .78 else 0.
+        sy = 1 - .12*coil - .10*clash - .09*heave
+        sx = 1 + .08*coil + .11*clash + .09*heave
+        sz = 1 + .05*coil - .10*clash - .04*heave
+        s = [sx, sy, sz]
+        r = [keyed(t, [(0, -4.5), (.22, -4.0), (.40, -9.5), (.60, -8.5), (.78, -8.0), (1.0, -4.5)]),
+             keyed(t, [(0, -2.5), (.22, -5.0), (.40, 2.0), (.56, 7.5), (.72, -7.5), (1.0, -2.5)]),
+             5.0*grind]
+        shift = [.022*height*grind,
+                 height*keyed(t, [(0, .02), (.22, .065), (.40, -.145), (.74, -.12), (1.0, .02)])]
+    elif action == 'sumo_push_out':
+        # Loser driven back and tips off balance: knocked back (0..0.28), side-back tip & yaw skid (0.28..0.72),
+        # counter-wobble (0.72..1.15), righting settle (1.15..1.60). Composed tilt <= 11 deg.
+        hit = bump((t-.02)/.30) if .02 <= t <= .32 else 0.
+        land = bump((t-.46)/.28) if .46 <= t <= .74 else 0.
+        sq = hit + .9*land
+        s = [1 + .085*sq, 1 - .13*sq, 1 - .05*hit + .04*land]
+        r = [keyed(t, [(0, 0), (.22, 8.5), (.50, 7.0), (.85, 3.2), (1.20, .8), (d, 0)]),
+             keyed(t, [(0, 0), (.24, 12.0), (.52, 26.0), (.92, -10.0), (1.30, 3.0), (d, 0)]),
+             keyed(t, [(0, 0), (.20, 2.5), (.50, 8.0), (.88, -5.5), (1.25, 1.5), (d, 0)])]
+        lift = .042*height*(bump((t-.24)/.26) if .24 <= t <= .50 else 0.)
+        shift = [height*keyed(t, [(0, 0), (.50, .075), (.90, -.035), (1.30, .01), (d, 0)]),
+                 height*keyed(t, [(0, 0), (.24, .16), (.56, .21), (1.05, .10), (d, 0)])]
+    elif action == 'sumo_win':
+        # Winner's proud pose: rise tall & puffed (0..0.28), victory hop (0.25..0.78), chin-up swagger hold (0.78..1.58), settle (1.58..2.0).
+        tall = keyed(t, [(0, 0), (.26, 1), (1.55, 1), (d, 0)])
+        hs, hlift, hair = hop(t, .22, .36, .66, .80, height*.16, .7)
+        s = times([1 + .045*tall, 1 + .095*tall, 1 + .045*tall], hs)
+        r = [keyed(t, [(0, 0), (.26, 7.0), (.50, 8.5), (.85, 6.5), (1.55, 6.5), (d, 0)]),
+             keyed(t, [(0, 0), (.45, -8.0), (.85, -13.0), (1.25, 13.0), (1.58, -5.0), (d, 0)]),
+             keyed(t, [(0, 0), (.75, 0), (.95, 4.0), (1.30, -4.0), (1.60, 1.5), (d, 0)])]
+        lift = hlift
+        shift = [height*keyed(t, [(0, 0), (.95, -.025), (1.30, .025), (1.65, 0), (d, 0)]),
+                 height*keyed(t, [(0, 0), (.26, -.03), (1.55, -.02), (d, 0)])]
     elif action in ('braid_brim_lift', 'braid_brim_lower'):
         s, r, lift, shift = BRAID_KEYS['state'](action, t, c)
     elif action.startswith('braid_rescue_'):

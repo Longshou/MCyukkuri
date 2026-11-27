@@ -150,6 +150,8 @@ public final class PresentationArbiter {
             return "teary_pant"; // The face library plays both authored tear frames.
         if(YukkuriAction.sukkiri(clip)&&!e.body().dying())
             return ExpressionClips.sukkiri(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f);
+        if(YukkuriAction.sumo(clip)&&!e.body().dying())
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"angry_stare");
         if(YukkuriAction.COUGH_MUKYU.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if(YukkuriAction.SNEEZE_C.id().equals(clip))
