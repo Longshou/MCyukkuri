@@ -23,6 +23,7 @@ import soundfile as sf
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'art/audio/aquestalk'
+VOICE_ASSETS = ROOT / 'src/main/resources/assets/mcyukkuri/sounds/voice'
 SHARED_SPECIES = ('reimu', 'marisa', 'alice', 'chen', 'patchouli', 'myon', 'remilia', 'flandre')
 TIERS = ('baby', 'juvenile', 'young', 'adult')
 SPECIAL_SHARED = (
@@ -101,26 +102,41 @@ def raw_input(text):
     return value
 
 
+def voice_namespace(line):
+    origin = line.get('origin') or 'native'
+    return 'native' if origin == 'native' else 'native112' if origin == 'hakkei112' else 'original'
+
+
+def voice_ogg_path(line):
+    return VOICE_ASSETS / voice_namespace(line) / f'{line["id"]}.ogg'
+
+
+def audition_src(ogg_rel_path):
+    return os.path.relpath(ROOT / ogg_rel_path, OUT).replace('\\', '/')
+
+
 def origin_label(line):
     origin = line.get('origin') or 'native'
     return '八景 U 原版' if origin == 'native' else '八景 ver1.12 迁入' if origin == 'hakkei112' else '项目原创（非原版引文）'
 
 
-def card(line):
+def card(line, ogg_rel_path):
     ident = line['id']
+    src = html.escape(audition_src(ogg_rel_path))
     return (f'<article><strong>{ident}</strong><small>{origin_label(line)}</small>'
             f'<p>{html.escape(line["japanese"])}</p><p>{html.escape(line.get("chinese", ""))}</p>'
             f'<small>{", ".join(line.get("events", []))}</small>'
-            f'<audio controls preload="none" src="ogg/{ident}.ogg"></audio></article>')
+            f'<audio controls preload="none" src="{src}"></audio></article>')
 
 
 def shared_card(shared_id, japanese, chinese, variants):
-    options = ''.join(f'<option value="{html.escape(cid)}">{html.escape(cid[len(shared_id)+1:])}</option>'
-                      for cid in variants)
+    options = ''.join(f'<option value="{html.escape(audition_src(ogg_path))}">{html.escape(cid[len(shared_id)+1:])}</option>'
+                      for cid, ogg_path in variants)
+    first_src = html.escape(audition_src(variants[0][1]))
     return (f'<article><strong>{html.escape(shared_id)}</strong><small>共享情境（按说话者种族与阶段各录一版）</small>'
             f'<p>{html.escape(japanese)}</p><p>{html.escape(chinese)}</p>'
-            f'<select onchange="this.nextElementSibling.src=\'ogg/\'+this.value+\'.ogg\'">{options}</select>'
-            f'<audio controls preload="none" src="ogg/{html.escape(variants[0])}.ogg"></audio></article>')
+            f'<select onchange="this.nextElementSibling.src=this.value">{options}</select>'
+            f'<audio controls preload="none" src="{first_src}"></audio></article>')
 
 
 def shared_lines(situation):
@@ -210,7 +226,7 @@ def main():
     scratch.mkdir(parents=True, exist_ok=True)
     masters = args.masters_directory.resolve()
     masters.mkdir(parents=True, exist_ok=True)
-    (OUT / 'ogg').mkdir(parents=True, exist_ok=True)
+    VOICE_ASSETS.mkdir(parents=True, exist_ok=True)
     prior_path=args.manifest
     prior=json.loads(prior_path.read_text(encoding='utf-8')) if prior_path.exists() else {}
     # Keep entries for lines that are not selected in this run, so a partial batch or an
@@ -288,7 +304,8 @@ def main():
             ceiling = 10**(recipe['peak_limit_dbfs']/20)
             gain = min(1, ceiling / max(np.max(np.abs(wave)), 1e-12))
             wave *= gain
-            wav, ogg = masters / (ident+'.wav'), OUT / 'ogg' / (ident+'.ogg')
+            wav, ogg = masters / (ident+'.wav'), voice_ogg_path(line)
+            ogg.parent.mkdir(parents=True, exist_ok=True)
             sf.write(wav, wave, target_rate, subtype='PCM_16')
             sf.write(ogg, wave, target_rate, format='OGG', subtype='VORBIS')
             decoded, check_rate = sf.read(ogg)
@@ -344,7 +361,7 @@ def main():
             sys.exit(1)
         return
     normal = [line for line in all_lines if not line.get('shared_id')]
-    normal_cards = [card(line) for line in normal if line['id'] in clips]
+    normal_cards = [card(line, clips[line['id']]['ogg']) for line in normal if line['id'] in clips]
     grouped = {}
     for line in all_lines:
         shared_id = line.get('shared_id')
@@ -357,7 +374,7 @@ def main():
         row = shared_by_id[shared_id]
         japanese = row.get('ja') or row.get('japanese')
         chinese = row.get('zh') or row.get('chinese')
-        shared_cards.append(shared_card(shared_id, japanese, chinese, [line['id'] for line in lines]))
+        shared_cards.append(shared_card(shared_id, japanese, chinese, [(line['id'], clips[line['id']]['ogg']) for line in lines]))
     cards = shared_cards + normal_cards
     page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>油库里对白 · AquesTalk 试听</title>
 <style>body{font:16px/1.6 system-ui;background:#f4f0e6;color:#29271f;margin:32px auto;max-width:1100px;padding:0 20px}input,select{padding:12px;font:inherit}#clips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}article{padding:18px;background:#fffdf5;border:1px solid #d4cbbc;border-radius:8px}p{margin:8px 0}small{display:block;color:#71634d}audio{width:100%;margin-top:12px}select{width:100%;margin-top:12px}</style>

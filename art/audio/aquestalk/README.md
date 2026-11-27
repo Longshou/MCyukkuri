@@ -21,9 +21,9 @@
 
 ## 文件与母带
 
-打包的 OGG 在 `ogg/`，运行副本由导出器复制到 `src/main/resources/assets/mcyukkuri/sounds/voice/`。ogg 为 32 kHz 单声道 Vorbis。
+语音 OGG 直接单一源保存在 `src/main/resources/assets/mcyukkuri/sounds/voice/{native,native112,original}/`，不再在 `art/audio/aquestalk/ogg/` 保存重复副本，格式为 32 kHz 单声道 Vorbis。[manifest.json](manifest.json) 的 `ogg` 字段直接指向运行态路径，导出器 `scripts/export_dialogue.py` 原地校验哈希并生成 `catalog.json`、`sounds.json` 与多语言条目。
 
-新增录音只提交 OGG，WAV 母带写在 `--masters-directory`（默认 `.local/aquestalk-masters/`），manifest 用 `master`／`master_sha256` 记录本机路径与指纹。此前已入库的 501 条母带仍在 `masters/`，58 条八景 1.12 母带按原文件名保存在本机母带目录。旧条目的 `wav`／`wav_sha256` 保留制作时的路径与指纹，缓存检查只读取对应的 OGG。
+录音只提交 OGG，WAV 母带保存在本机 `--masters-directory`（默认 `.local/aquestalk-masters/`，不入库），manifest 用 `master`／`master_sha256` 记录本机路径与指纹。早期旧条目的 `wav`／`wav_sha256` 仅保留历史制作指纹，历史 `masters/` 目录已移出仓库，缓存检查只读取对应的 OGG。
 
 ## 制作
 
