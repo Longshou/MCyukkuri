@@ -26,7 +26,8 @@ public final class LeashRing {
     /** Floats per triangle in {@link #vertices()}: three vertices of position, uv and normal. */
     public static final int TRIANGLE = 24;
     private static final int KNOT_TRIANGLES = 12;
-    /** The rope's extra lift over a worn wrap, as a fraction of the body height (CareWearRenderer's cloth stands .022 clear of the skin). */
+    /** The rope's extra lift over a worn wrap, as a fraction of the body height (CareWearRenderer's cloth adds CLOTH_INSET + SHELL_OUT,
+     *  .022 of the body height, to the skin before its fullness, flap and margin). */
     private static final float WRAP = .03f;
     private static final float U0 = .06f, U1 = .94f;
 
