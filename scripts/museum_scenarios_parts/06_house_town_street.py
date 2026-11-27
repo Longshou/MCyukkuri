@@ -537,9 +537,9 @@ _eat_commands = _rule_owner(9) + [
     (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
 for _tick in range(40, 2300, 20):
     _eat_commands += [
-        # The stroke comes about 520 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
-        (_tick, f'execute if score #eat_armed museum matches 26.. if score #eat_rub museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
-        (_tick, f'execute if score #eat_armed museum matches 26.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
+        # The stroke comes about 600 ticks after the catch is on record: the gasp, the apology and the oath are said and the pet is lying low and shivering.
+        (_tick, f'execute if score #eat_armed museum matches 30.. if score #eat_rub museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
+        (_tick, f'execute if score #eat_armed museum matches 30.. if score #eat_rub museum matches 0 store result score #eat_rub museum run yukkuri scenario care_click {_rule_pet} rub'),
         (_tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
         (_tick + 2, 'execute if score #eat_armed museum matches 1.. run scoreboard players add #eat_armed museum 1'),
         (_tick + 3, 'execute if score #eat_rub museum matches 1.. run scoreboard players add #eat_rub museum 1'),

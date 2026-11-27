@@ -191,7 +191,7 @@ public final class Penance {
             return;
         }
         switch (phase) {
-            case STARTLE -> { if (age >= STARTLE_TICKS && (verdict != null || spent(now, age))) { if (verdict != null) answer(); else posture(); } }
+            case STARTLE -> { if (age >= STARTLE_TICKS && (verdict != null || line.isEmpty() || spent(now, age))) { if (verdict != null) answer(); else posture(); } }
             case MUTTER -> { if (spent(now, age)) excuse(); }
             case PLEA -> { if (spent(now, age)) { if (beat.equals("apology")) apologyFollows(); else lieLow(); } }
             case EXCUSE, VOW, BOW -> { if (spent(now, age)) lieLow(); }
