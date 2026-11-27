@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 帽舱入座与转身几何一致（PD-09 雨后出舱） | `.worktrees/wp-cabin-turn` | aquatic/TakeSeat, motor/surface/Floor, PlacedHatEntity places |
 | 表情整理缺口：teary_sleep 伤痕点与孤立部件 | `.worktrees/wp-face-gaps` | export_wound_surfaces.cjs, face parts |
-| R5 低温僵直 P1 状态核心 | `.worktrees/wp-cold-stiff-p1` | status/TemperatureLife, BodyLife.died, inert(), YukkuriEntity |
 
 ## 玩法待办
 
