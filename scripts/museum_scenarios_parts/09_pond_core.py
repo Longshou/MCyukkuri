@@ -957,7 +957,7 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
 _SEVER_SEATS = ((2, 'HEAD'), (3, 'BRIM'))
 
 
-def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=3.5, first=120, far_sibling=False, child2_traits=None):
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=8.0, first=80, far_sibling=False, child2_traits=None):
     # The driven-out young is the one that has already learnt to crawl: it walks out at its own gait and can live as a stray at
     # once (a newborn that never practised crawling stays where it is put, and the severance shows nothing).
     actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits,

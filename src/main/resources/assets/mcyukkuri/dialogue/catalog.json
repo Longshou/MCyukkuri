@@ -94654,7 +94654,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -94667,7 +94667,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -94680,7 +94680,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -94693,7 +94693,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -94706,7 +94706,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 63,
     "sound": "",
     "variant": "proud"
   },
@@ -94719,7 +94719,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -94732,7 +94732,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -94745,7 +94745,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -94758,7 +94758,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -94771,7 +94771,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -94784,7 +94784,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -94797,7 +94797,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -95889,7 +95889,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -95902,7 +95902,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -95915,7 +95915,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 159,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -95928,7 +95928,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 151,
+    "ticks": 67,
     "sound": "",
     "variant": "plain"
   },
@@ -95941,7 +95941,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -95954,7 +95954,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 127,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -97501,7 +97501,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -97514,7 +97514,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -97527,7 +97527,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 147,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -97540,7 +97540,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 83,
     "sound": "",
     "variant": "plain"
   },
@@ -97553,7 +97553,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 67,
     "sound": "",
     "variant": "proud"
   },
@@ -97566,7 +97566,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 79,
     "sound": "",
     "variant": "proud"
   },
@@ -97579,7 +97579,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -97592,7 +97592,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -97605,7 +97605,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -97618,7 +97618,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 111,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -97631,7 +97631,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -97644,7 +97644,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 119,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -98736,7 +98736,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -98749,7 +98749,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -98762,7 +98762,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 163,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -98775,7 +98775,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 155,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -98788,7 +98788,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 147,
+    "ticks": 79,
     "sound": "",
     "variant": "proud"
   },
@@ -98801,7 +98801,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 131,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -100348,7 +100348,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -100361,7 +100361,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -100374,7 +100374,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -100387,7 +100387,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -100400,7 +100400,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 63,
     "sound": "",
     "variant": "proud"
   },
@@ -100413,7 +100413,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -100426,7 +100426,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -100439,7 +100439,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -100452,7 +100452,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -100465,7 +100465,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -100478,7 +100478,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -100491,7 +100491,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -101583,7 +101583,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -101596,7 +101596,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -101609,7 +101609,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 159,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -101622,7 +101622,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 151,
+    "ticks": 67,
     "sound": "",
     "variant": "plain"
   },
@@ -101635,7 +101635,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -101648,7 +101648,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 127,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -103195,7 +103195,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -103208,7 +103208,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -103221,7 +103221,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -103234,7 +103234,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -103247,7 +103247,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 63,
     "sound": "",
     "variant": "proud"
   },
@@ -103260,7 +103260,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -103273,7 +103273,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -103286,7 +103286,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -103299,7 +103299,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -103312,7 +103312,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 111,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -103325,7 +103325,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -103338,7 +103338,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 119,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -104430,7 +104430,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -104443,7 +104443,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -104456,7 +104456,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 155,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -104469,7 +104469,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 147,
+    "ticks": 67,
     "sound": "",
     "variant": "plain"
   },
@@ -104482,7 +104482,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -104495,7 +104495,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 123,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -106042,7 +106042,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -106055,7 +106055,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -106068,7 +106068,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 67,
     "sound": "",
     "variant": "plain"
   },
@@ -106081,7 +106081,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -106094,7 +106094,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 59,
     "sound": "",
     "variant": "proud"
   },
@@ -106107,7 +106107,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -106120,7 +106120,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -106133,7 +106133,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 111,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -106146,7 +106146,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -106159,7 +106159,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -106172,7 +106172,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -106185,7 +106185,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -107277,7 +107277,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -107290,7 +107290,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -107303,7 +107303,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 151,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -107316,7 +107316,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 63,
     "sound": "",
     "variant": "plain"
   },
@@ -107329,7 +107329,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 139,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -107342,7 +107342,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 67,
     "sound": "",
     "variant": "proud"
   },
@@ -108889,7 +108889,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -108902,7 +108902,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -108915,7 +108915,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 147,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -108928,7 +108928,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 83,
     "sound": "",
     "variant": "plain"
   },
@@ -108941,7 +108941,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 67,
     "sound": "",
     "variant": "proud"
   },
@@ -108954,7 +108954,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 79,
     "sound": "",
     "variant": "proud"
   },
@@ -108967,7 +108967,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -108980,7 +108980,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -108993,7 +108993,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -109006,7 +109006,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 111,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -109019,7 +109019,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -109032,7 +109032,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 119,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -110124,7 +110124,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -110137,7 +110137,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -110150,7 +110150,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 163,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -110163,7 +110163,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 155,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -110176,7 +110176,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 147,
+    "ticks": 79,
     "sound": "",
     "variant": "proud"
   },
@@ -110189,7 +110189,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 131,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -111736,7 +111736,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -111749,7 +111749,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -111762,7 +111762,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 143,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -111775,7 +111775,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 79,
     "sound": "",
     "variant": "plain"
   },
@@ -111788,7 +111788,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 63,
     "sound": "",
     "variant": "proud"
   },
@@ -111801,7 +111801,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -111814,7 +111814,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "variant": "timid"
   },
@@ -111827,7 +111827,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "variant": "timid"
   },
@@ -111840,7 +111840,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "variant": "plain"
   },
@@ -111853,7 +111853,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -111866,7 +111866,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -111879,7 +111879,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -112971,7 +112971,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 119,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -112984,7 +112984,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "variant": "timid"
   },
@@ -112997,7 +112997,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 159,
+    "ticks": 75,
     "sound": "",
     "variant": "plain"
   },
@@ -113010,7 +113010,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 151,
+    "ticks": 67,
     "sound": "",
     "variant": "plain"
   },
@@ -113023,7 +113023,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "variant": "proud"
   },
@@ -113036,7 +113036,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 127,
+    "ticks": 71,
     "sound": "",
     "variant": "proud"
   },
@@ -114589,7 +114589,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -114603,7 +114603,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -114617,7 +114617,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -114631,7 +114631,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 79,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -114645,7 +114645,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 63,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -114659,7 +114659,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 75,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -114673,7 +114673,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -114687,7 +114687,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -114701,7 +114701,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -114715,7 +114715,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -114729,7 +114729,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -114743,7 +114743,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -115919,7 +115919,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -115933,7 +115933,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "timid"
@@ -115947,7 +115947,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 155,
+    "ticks": 75,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -115961,7 +115961,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 147,
+    "ticks": 67,
     "sound": "",
     "quirk": "miyo",
     "variant": "plain"
@@ -115975,7 +115975,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -115989,7 +115989,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 123,
+    "ticks": 71,
     "sound": "",
     "quirk": "miyo",
     "variant": "proud"
@@ -117655,7 +117655,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 99,
+    "ticks": 59,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -117669,7 +117669,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 59,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -117683,7 +117683,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 139,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -117697,7 +117697,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 79,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -117711,7 +117711,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 63,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
@@ -117725,7 +117725,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 75,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
@@ -117739,7 +117739,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 95,
+    "ticks": 59,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -117753,7 +117753,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 103,
+    "ticks": 55,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -117767,7 +117767,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 131,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -117781,7 +117781,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 107,
+    "ticks": 75,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -117795,7 +117795,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 135,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
@@ -117809,7 +117809,7 @@
     "events": [
       "sever_shock"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
@@ -118985,7 +118985,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 115,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -118999,7 +118999,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 99,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "timid"
@@ -119013,7 +119013,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 155,
+    "ticks": 75,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -119027,7 +119027,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 147,
+    "ticks": 67,
     "sound": "",
     "quirk": "kinbao",
     "variant": "plain"
@@ -119041,7 +119041,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 143,
+    "ticks": 75,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"
@@ -119055,7 +119055,7 @@
     "events": [
       "sever_cold_scoff"
     ],
-    "ticks": 123,
+    "ticks": 71,
     "sound": "",
     "quirk": "kinbao",
     "variant": "proud"

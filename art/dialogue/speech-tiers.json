@@ -78042,7 +78042,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -78056,8 +78056,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -78070,7 +78070,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてれいみゅをおいだすのにぇ……？",
+   "japanese": "えっ……ほんとなのにぇ……？",
    "chinese": "诶……真的吗……？为什么要赶灵梦走捏……？",
    "english": "Eh... really...? Why are you sending Reimu away...?",
    "origin": "project-original",
@@ -78084,8 +78084,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、れいみゅにでていけって いったのにぇ……？",
-   "chinese": "油油……？刚刚是说……叫灵梦走吗捏……？",
+   "japanese": "ゆゆっ……でていけってにぇ……？",
+   "chinese": "油油……？刚刚是叫灵梦走吗捏……？",
    "english": "Yu-yu...? Did you just tell Reimu to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -78098,7 +78098,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいれいみゅをおいだすわけないにぇ！",
+   "japanese": "えっ……うそでしょにぇ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的灵梦捏！",
    "english": "Eh... no way! You cannot send cute Reimu away!",
    "origin": "project-original",
@@ -78112,7 +78112,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねにぇ！ どうしてれいみゅなの！",
+   "japanese": "ゆっ！？ まちがいだよねにぇ！",
    "chinese": "油？！等等，搞错了吧捏！为什么是灵梦啊！",
    "english": "Yu?! Wait, that is a mistake! Why Reimu?!",
    "origin": "project-original",
@@ -78126,7 +78126,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -78140,7 +78140,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……れいむを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶灵梦走……？",
    "english": "Yu... why... are you driving Reimu out...?",
    "origin": "project-original",
@@ -78154,7 +78154,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、れいむに でていけって いうのよ……？",
+   "japanese": "えっ……でていけってよ……？",
    "chinese": "诶……真的要叫灵梦走吗哦……？",
    "english": "Eh... are you really telling Reimu to leave...?",
    "origin": "project-original",
@@ -78168,7 +78168,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもよ……",
+   "japanese": "ゆゆ……きゅうにどうしてよ……",
    "chinese": "油油……突然这么说，灵梦怎么信啊哦……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -78182,7 +78182,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてれいむが でていくのよ！",
+   "japanese": "はっ……じょうだんでしょよ！",
    "chinese": "哈……开玩笑吧！凭什么要灵梦走哦！",
    "english": "Huh... you are joking! Why should Reimu leave?!",
    "origin": "project-original",
@@ -78196,7 +78196,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのよ！",
+   "japanese": "ゆっ！？ なにいってるのよ！",
    "chinese": "油？！等等！突然在说什么胡话哦！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -79372,7 +79372,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。れいみゅがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要灵梦的话，那就算了……",
    "english": "...Oh. If you do not want Reimu, fine...",
    "origin": "project-original",
@@ -79386,7 +79386,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正灵梦也没打算求你……",
    "english": "...I see. Reimu was not going to beg anyway...",
    "origin": "project-original",
@@ -79400,7 +79400,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。れいみゅがここにいたいとでもおもってるのにぇ？",
+   "japanese": "……ふーん、おいだすんだにぇ。",
    "chinese": "……切，说赶就赶啊。以为灵梦很想待在这儿吗捏？",
    "english": "...Tch, just kicking Reimu out. Think Reimu even wanted to stay here?",
    "origin": "project-original",
@@ -79414,7 +79414,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、れいみゅこそごめんだにぇ。",
+   "japanese": "ゆ……かってにすればにぇ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，灵梦才不稀罕呢捏。",
    "english": "Yu... suit yourself. Reimu is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -79428,7 +79428,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったにぇ！",
+   "japanese": "は？ こっちからでていくにぇ！",
    "chinese": "哈？赶灵梦走？明明是灵梦早就不想待这儿了捏！",
    "english": "Huh? Driving Reimu out? Reimu was about to leave anyway!",
    "origin": "project-original",
@@ -79442,7 +79442,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいれいみゅ、あんたなんかにたよらないにぇ！",
+   "japanese": "けち！ たよらないもんにぇ！",
    "chinese": "切，真小气！可爱的灵梦才不稀罕靠你养呢捏！",
    "english": "Stingy! Cute Reimu does not need to rely on you!",
    "origin": "project-original",
@@ -81108,7 +81108,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -81122,8 +81122,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -81136,7 +81136,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてまりちゃをおいだすののじぇ……？",
+   "japanese": "えっ……ほんとなののじぇ……？",
    "chinese": "诶……真的吗……？为什么要赶魔理沙走惹杰……？",
    "english": "Eh... really...? Why are you sending Marisa away...?",
    "origin": "project-original",
@@ -81150,8 +81150,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、まりちゃにでていけって いったののじぇ……？",
-   "chinese": "油油……？刚刚是说……叫魔理沙走吗惹杰……？",
+   "japanese": "ゆゆっ……でていけってのじぇ……？",
+   "chinese": "油油……？刚刚是叫魔理沙走吗惹杰……？",
    "english": "Yu-yu...? Did you just tell Marisa to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -81164,7 +81164,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいまりちゃをおいだすわけないのじぇ！",
+   "japanese": "えっ……うそでしょのじぇ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的魔理沙惹杰！",
    "english": "Eh... no way! You cannot send cute Marisa away!",
    "origin": "project-original",
@@ -81178,7 +81178,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねのじぇ！ どうしてまりちゃなの！",
+   "japanese": "ゆっ！？ まちがいだよねのじぇ！",
    "chinese": "油？！等等，搞错了吧惹杰！为什么是魔理沙啊！",
    "english": "Yu?! Wait, that is a mistake! Why Marisa?!",
    "origin": "project-original",
@@ -81192,7 +81192,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -81206,7 +81206,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……まりさを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶魔理沙走……？",
    "english": "Yu... why... are you driving Marisa out...?",
    "origin": "project-original",
@@ -81220,7 +81220,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、まりさに でていけって いうののぜ……？",
+   "japanese": "えっ……でていけってのぜ……？",
    "chinese": "诶……真的要叫魔理沙走吗贼……？",
    "english": "Eh... are you really telling Marisa to leave...?",
    "origin": "project-original",
@@ -81234,7 +81234,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてものぜ……",
+   "japanese": "ゆゆ……きゅうにどうしてのぜ……",
    "chinese": "油油……突然这么说，魔理沙怎么信啊贼……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -81248,7 +81248,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてまりさが でていくののぜ！",
+   "japanese": "はっ……じょうだんでしょのぜ！",
    "chinese": "哈……开玩笑吧！凭什么要魔理沙走贼！",
    "english": "Huh... you are joking! Why should Marisa leave?!",
    "origin": "project-original",
@@ -81262,7 +81262,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるののぜ！",
+   "japanese": "ゆっ！？ なにいってるののぜ！",
    "chinese": "油？！等等！突然在说什么胡话贼！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -82438,7 +82438,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。まりちゃがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要魔理沙的话，那就算了……",
    "english": "...Oh. If you do not want Marisa, fine...",
    "origin": "project-original",
@@ -82452,7 +82452,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正魔理沙也没打算求你……",
    "english": "...I see. Marisa was not going to beg anyway...",
    "origin": "project-original",
@@ -82466,7 +82466,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。まりちゃがここにいたいとでもおもってるののじぇ？",
+   "japanese": "……ふーん、おいだすんだのじぇ。",
    "chinese": "……切，说赶就赶啊。以为魔理沙很想待在这儿吗惹杰？",
    "english": "...Tch, just kicking Marisa out. Think Marisa even wanted to stay here?",
    "origin": "project-original",
@@ -82480,7 +82480,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、まりちゃこそごめんだのじぇ。",
+   "japanese": "ゆ……かってにすればのじぇ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，魔理沙才不稀罕呢惹杰。",
    "english": "Yu... suit yourself. Marisa is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -82494,7 +82494,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったのじぇ！",
+   "japanese": "は？ こっちからでていくのじぇ！",
    "chinese": "哈？赶魔理沙走？明明是魔理沙早就不想待这儿了惹杰！",
    "english": "Huh? Driving Marisa out? Marisa was about to leave anyway!",
    "origin": "project-original",
@@ -82508,7 +82508,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいまりちゃ、あんたなんかにたよらないのじぇ！",
+   "japanese": "けち！ たよらないもんのじぇ！",
    "chinese": "切，真小气！可爱的魔理沙才不稀罕靠你养呢惹杰！",
    "english": "Stingy! Cute Marisa does not need to rely on you!",
    "origin": "project-original",
@@ -84174,7 +84174,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -84188,8 +84188,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -84202,7 +84202,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてありちゅをおいだすのにょ……？",
+   "japanese": "えっ……ほんとなのにょ……？",
    "chinese": "诶……真的吗……？为什么要赶爱丽丝走哟……？",
    "english": "Eh... really...? Why are you sending Alice away...?",
    "origin": "project-original",
@@ -84216,8 +84216,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、ありちゅにでていけって いったのにょ……？",
-   "chinese": "油油……？刚刚是说……叫爱丽丝走吗哟……？",
+   "japanese": "ゆゆっ……でていけってにょ……？",
+   "chinese": "油油……？刚刚是叫爱丽丝走吗哟……？",
    "english": "Yu-yu...? Did you just tell Alice to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -84230,7 +84230,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいありちゅをおいだすわけないにょ！",
+   "japanese": "えっ……うそでしょにょ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的爱丽丝哟！",
    "english": "Eh... no way! You cannot send cute Alice away!",
    "origin": "project-original",
@@ -84244,7 +84244,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねにょ！ どうしてありちゅなの！",
+   "japanese": "ゆっ！？ まちがいだよねにょ！",
    "chinese": "油？！等等，搞错了吧哟！为什么是爱丽丝啊！",
    "english": "Yu?! Wait, that is a mistake! Why Alice?!",
    "origin": "project-original",
@@ -84258,7 +84258,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -84272,7 +84272,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……ありすを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶爱丽丝走……？",
    "english": "Yu... why... are you driving Alice out...?",
    "origin": "project-original",
@@ -84286,7 +84286,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、ありすに でていけって いうのわ……？",
+   "japanese": "えっ……でていけってわ……？",
    "chinese": "诶……真的要叫爱丽丝走吗呢……？",
    "english": "Eh... are you really telling Alice to leave...?",
    "origin": "project-original",
@@ -84300,7 +84300,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもわ……",
+   "japanese": "ゆゆ……きゅうにどうしてわ……",
    "chinese": "油油……突然这么说，爱丽丝怎么信啊呢……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -84314,7 +84314,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてありすが でていくのわ！",
+   "japanese": "はっ……じょうだんでしょわ！",
    "chinese": "哈……开玩笑吧！凭什么要爱丽丝走呢！",
    "english": "Huh... you are joking! Why should Alice leave?!",
    "origin": "project-original",
@@ -84328,7 +84328,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのわ！",
+   "japanese": "ゆっ！？ なにいってるのわ！",
    "chinese": "油？！等等！突然在说什么胡话呢！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -85504,7 +85504,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。ありちゅがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要爱丽丝的话，那就算了……",
    "english": "...Oh. If you do not want Alice, fine...",
    "origin": "project-original",
@@ -85518,7 +85518,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正爱丽丝也没打算求你……",
    "english": "...I see. Alice was not going to beg anyway...",
    "origin": "project-original",
@@ -85532,7 +85532,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。ありちゅがここにいたいとでもおもってるのにょ？",
+   "japanese": "……ふーん、おいだすんだにょ。",
    "chinese": "……切，说赶就赶啊。以为爱丽丝很想待在这儿吗哟？",
    "english": "...Tch, just kicking Alice out. Think Alice even wanted to stay here?",
    "origin": "project-original",
@@ -85546,7 +85546,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、ありちゅこそごめんだにょ。",
+   "japanese": "ゆ……かってにすればにょ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，爱丽丝才不稀罕呢哟。",
    "english": "Yu... suit yourself. Alice is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -85560,7 +85560,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったにょ！",
+   "japanese": "は？ こっちからでていくにょ！",
    "chinese": "哈？赶爱丽丝走？明明是爱丽丝早就不想待这儿了哟！",
    "english": "Huh? Driving Alice out? Alice was about to leave anyway!",
    "origin": "project-original",
@@ -85574,7 +85574,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいありちゅ、あんたなんかにたよらないにょ！",
+   "japanese": "けち！ たよらないもんにょ！",
    "chinese": "切，真小气！可爱的爱丽丝才不稀罕靠你养呢哟！",
    "english": "Stingy! Cute Alice does not need to rely on you!",
    "origin": "project-original",
@@ -87240,7 +87240,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -87254,8 +87254,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -87268,7 +87268,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてちぇんをおいだすのよぅ……？",
+   "japanese": "えっ……ほんとなのよぅ……？",
    "chinese": "诶……真的吗……？为什么要赶橙走哟——……？",
    "english": "Eh... really...? Why are you sending Chen away...?",
    "origin": "project-original",
@@ -87282,8 +87282,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、ちぇんにでていけって いったのよぅ……？",
-   "chinese": "油油……？刚刚是说……叫橙走吗哟——……？",
+   "japanese": "ゆゆっ……でていけってよぅ……？",
+   "chinese": "油油……？刚刚是叫橙走吗哟——……？",
    "english": "Yu-yu...? Did you just tell Chen to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -87296,7 +87296,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいちぇんをおいだすわけないよぅ！",
+   "japanese": "えっ……うそでしょよぅ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的橙哟——！",
    "english": "Eh... no way! You cannot send cute Chen away!",
    "origin": "project-original",
@@ -87310,7 +87310,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねよぅ！ どうしてちぇんなの！",
+   "japanese": "ゆっ！？ まちがいだよねよぅ！",
    "chinese": "油？！等等，搞错了吧哟——！为什么是橙啊！",
    "english": "Yu?! Wait, that is a mistake! Why Chen?!",
    "origin": "project-original",
@@ -87324,7 +87324,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -87338,7 +87338,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……ちぇんを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶橙走……？",
    "english": "Yu... why... are you driving Chen out...?",
    "origin": "project-original",
@@ -87352,7 +87352,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、ちぇんに でていけって いうのよー……？",
+   "japanese": "えっ……でていけってよー……？",
    "chinese": "诶……真的要叫橙走吗哟——……？",
    "english": "Eh... are you really telling Chen to leave...?",
    "origin": "project-original",
@@ -87366,7 +87366,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもよー……",
+   "japanese": "ゆゆ……きゅうにどうしてよー……",
    "chinese": "油油……突然这么说，橙怎么信啊哟——……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -87380,7 +87380,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてちぇんが でていくのよー！",
+   "japanese": "はっ……じょうだんでしょよー！",
    "chinese": "哈……开玩笑吧！凭什么要橙走哟——！",
    "english": "Huh... you are joking! Why should Chen leave?!",
    "origin": "project-original",
@@ -87394,7 +87394,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのよー！",
+   "japanese": "ゆっ！？ なにいってるのよー！",
    "chinese": "油？！等等！突然在说什么胡话哟——！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -88570,7 +88570,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。ちぇんがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要橙的话，那就算了……",
    "english": "...Oh. If you do not want Chen, fine...",
    "origin": "project-original",
@@ -88584,7 +88584,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正橙也没打算求你……",
    "english": "...I see. Chen was not going to beg anyway...",
    "origin": "project-original",
@@ -88598,7 +88598,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。ちぇんがここにいたいとでもおもってるのよぅ？",
+   "japanese": "……ふーん、おいだすんだよぅ。",
    "chinese": "……切，说赶就赶啊。以为橙很想待在这儿吗哟——？",
    "english": "...Tch, just kicking Chen out. Think Chen even wanted to stay here?",
    "origin": "project-original",
@@ -88612,7 +88612,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、ちぇんこそごめんだよぅ。",
+   "japanese": "ゆ……かってにすればよぅ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，橙才不稀罕呢哟——。",
    "english": "Yu... suit yourself. Chen is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -88626,7 +88626,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったよぅ！",
+   "japanese": "は？ こっちからでていくよぅ！",
    "chinese": "哈？赶橙走？明明是橙早就不想待这儿了哟——！",
    "english": "Huh? Driving Chen out? Chen was about to leave anyway!",
    "origin": "project-original",
@@ -88640,7 +88640,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいちぇん、あんたなんかにたよらないよぅ！",
+   "japanese": "けち！ たよらないもんよぅ！",
    "chinese": "切，真小气！可爱的橙才不稀罕靠你养呢哟——！",
    "english": "Stingy! Cute Chen does not need to rely on you!",
    "origin": "project-original",
@@ -90306,7 +90306,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -90320,8 +90320,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -90334,7 +90334,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてぱちゅをおいだすのわ……？",
+   "japanese": "えっ……ほんとなのわ……？",
    "chinese": "诶……真的吗……？为什么要赶帕秋莉走惹哇……？",
    "english": "Eh... really...? Why are you sending Patchouli away...?",
    "origin": "project-original",
@@ -90348,8 +90348,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、ぱちゅにでていけって いったのわ……？",
-   "chinese": "油油……？刚刚是说……叫帕秋莉走吗惹哇……？",
+   "japanese": "ゆゆっ……でていけってわ……？",
+   "chinese": "油油……？刚刚是叫帕秋莉走吗惹哇……？",
    "english": "Yu-yu...? Did you just tell Patchouli to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -90362,7 +90362,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいぱちゅをおいだすわけないわ！",
+   "japanese": "えっ……うそでしょわ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的帕秋莉惹哇！",
    "english": "Eh... no way! You cannot send cute Patchouli away!",
    "origin": "project-original",
@@ -90376,7 +90376,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねわ！ どうしてぱちゅなの！",
+   "japanese": "ゆっ！？ まちがいだよねわ！",
    "chinese": "油？！等等，搞错了吧惹哇！为什么是帕秋莉啊！",
    "english": "Yu?! Wait, that is a mistake! Why Patchouli?!",
    "origin": "project-original",
@@ -90390,7 +90390,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -90404,7 +90404,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……ぱちゅりーを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶帕秋莉走……？",
    "english": "Yu... why... are you driving Patchouli out...?",
    "origin": "project-original",
@@ -90418,7 +90418,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、ぱちゅりーに でていけって いうのわ……？",
+   "japanese": "えっ……でていけってわ……？",
    "chinese": "诶……真的要叫帕秋莉走吗哇……？",
    "english": "Eh... are you really telling Patchouli to leave...?",
    "origin": "project-original",
@@ -90432,7 +90432,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもわ……",
+   "japanese": "ゆゆ……きゅうにどうしてわ……",
    "chinese": "油油……突然这么说，帕秋莉怎么信啊哇……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -90446,7 +90446,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてぱちゅりーが でていくのわ！",
+   "japanese": "はっ……じょうだんでしょわ！",
    "chinese": "哈……开玩笑吧！凭什么要帕秋莉走哇！",
    "english": "Huh... you are joking! Why should Patchouli leave?!",
    "origin": "project-original",
@@ -90460,7 +90460,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのわ！",
+   "japanese": "ゆっ！？ なにいってるのわ！",
    "chinese": "油？！等等！突然在说什么胡话哇！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -91636,7 +91636,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。ぱちゅがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要帕秋莉的话，那就算了……",
    "english": "...Oh. If you do not want Patchouli, fine...",
    "origin": "project-original",
@@ -91650,7 +91650,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正帕秋莉也没打算求你……",
    "english": "...I see. Patchouli was not going to beg anyway...",
    "origin": "project-original",
@@ -91664,7 +91664,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。ぱちゅがここにいたいとでもおもってるのわ？",
+   "japanese": "……ふーん、おいだすんだわ。",
    "chinese": "……切，说赶就赶啊。以为帕秋莉很想待在这儿吗惹哇？",
    "english": "...Tch, just kicking Patchouli out. Think Patchouli even wanted to stay here?",
    "origin": "project-original",
@@ -91678,7 +91678,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、ぱちゅこそごめんだわ。",
+   "japanese": "ゆ……かってにすればわ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，帕秋莉才不稀罕呢惹哇。",
    "english": "Yu... suit yourself. Patchouli is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -91692,7 +91692,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったわ！",
+   "japanese": "は？ こっちからでていくわ！",
    "chinese": "哈？赶帕秋莉走？明明是帕秋莉早就不想待这儿了惹哇！",
    "english": "Huh? Driving Patchouli out? Patchouli was about to leave anyway!",
    "origin": "project-original",
@@ -91706,7 +91706,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいぱちゅ、あんたなんかにたよらないわ！",
+   "japanese": "けち！ たよらないもんわ！",
    "chinese": "切，真小气！可爱的帕秋莉才不稀罕靠你养呢惹哇！",
    "english": "Stingy! Cute Patchouli does not need to rely on you!",
    "origin": "project-original",
@@ -93372,7 +93372,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -93386,8 +93386,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -93400,7 +93400,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてれみりゃをおいだすのなのだ……？",
+   "japanese": "えっ……ほんとなのなのだ……？",
    "chinese": "诶……真的吗……？为什么要赶蕾米莉亚走呀……？",
    "english": "Eh... really...? Why are you sending Remilia away...?",
    "origin": "project-original",
@@ -93414,8 +93414,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、れみりゃにでていけって いったのなのだ……？",
-   "chinese": "油油……？刚刚是说……叫蕾米莉亚走吗呀……？",
+   "japanese": "ゆゆっ……でていけってなのだ……？",
+   "chinese": "油油……？刚刚是叫蕾米莉亚走吗呀……？",
    "english": "Yu-yu...? Did you just tell Remilia to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -93428,7 +93428,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいれみりゃをおいだすわけないなのだ！",
+   "japanese": "えっ……うそでしょなのだ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的蕾米莉亚呀！",
    "english": "Eh... no way! You cannot send cute Remilia away!",
    "origin": "project-original",
@@ -93442,7 +93442,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねなのだ！ どうしてれみりゃなの！",
+   "japanese": "ゆっ！？ まちがいだよねなのだ！",
    "chinese": "油？！等等，搞错了吧呀！为什么是蕾米莉亚啊！",
    "english": "Yu?! Wait, that is a mistake! Why Remilia?!",
    "origin": "project-original",
@@ -93456,7 +93456,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -93470,7 +93470,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……れみりあを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶蕾米莉亚走……？",
    "english": "Yu... why... are you driving Remilia out...?",
    "origin": "project-original",
@@ -93484,7 +93484,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、れみりあに でていけって いうののだ……？",
+   "japanese": "えっ……でていけってのだ……？",
    "chinese": "诶……真的要叫蕾米莉亚走吗呀……？",
    "english": "Eh... are you really telling Remilia to leave...?",
    "origin": "project-original",
@@ -93498,7 +93498,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてものだ……",
+   "japanese": "ゆゆ……きゅうにどうしてのだ……",
    "chinese": "油油……突然这么说，蕾米莉亚怎么信啊呀……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -93512,7 +93512,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてれみりあが でていくののだ！",
+   "japanese": "はっ……じょうだんでしょのだ！",
    "chinese": "哈……开玩笑吧！凭什么要蕾米莉亚走呀！",
    "english": "Huh... you are joking! Why should Remilia leave?!",
    "origin": "project-original",
@@ -93526,7 +93526,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるののだ！",
+   "japanese": "ゆっ！？ なにいってるののだ！",
    "chinese": "油？！等等！突然在说什么胡话呀！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -94702,7 +94702,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。れみりゃがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要蕾米莉亚的话，那就算了……",
    "english": "...Oh. If you do not want Remilia, fine...",
    "origin": "project-original",
@@ -94716,7 +94716,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正蕾米莉亚也没打算求你……",
    "english": "...I see. Remilia was not going to beg anyway...",
    "origin": "project-original",
@@ -94730,7 +94730,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。れみりゃがここにいたいとでもおもってるのなのだ？",
+   "japanese": "……ふーん、おいだすんだなのだ。",
    "chinese": "……切，说赶就赶啊。以为蕾米莉亚很想待在这儿吗呀？",
    "english": "...Tch, just kicking Remilia out. Think Remilia even wanted to stay here?",
    "origin": "project-original",
@@ -94744,7 +94744,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、れみりゃこそごめんだなのだ。",
+   "japanese": "ゆ……かってにすればなのだ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，蕾米莉亚才不稀罕呢呀。",
    "english": "Yu... suit yourself. Remilia is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -94758,7 +94758,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったなのだ！",
+   "japanese": "は？ こっちからでていくなのだ！",
    "chinese": "哈？赶蕾米莉亚走？明明是蕾米莉亚早就不想待这儿了呀！",
    "english": "Huh? Driving Remilia out? Remilia was about to leave anyway!",
    "origin": "project-original",
@@ -94772,7 +94772,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいれみりゃ、あんたなんかにたよらないなのだ！",
+   "japanese": "けち！ たよらないもんなのだ！",
    "chinese": "切，真小气！可爱的蕾米莉亚才不稀罕靠你养呢呀！",
    "english": "Stingy! Cute Remilia does not need to rely on you!",
    "origin": "project-original",
@@ -96438,7 +96438,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -96452,8 +96452,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -96466,7 +96466,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてふりゃんをおいだすのよぅ……？",
+   "japanese": "えっ……ほんとなのよぅ……？",
    "chinese": "诶……真的吗……？为什么要赶芙兰走哦……？",
    "english": "Eh... really...? Why are you sending Flandre away...?",
    "origin": "project-original",
@@ -96480,8 +96480,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、ふりゃんにでていけって いったのよぅ……？",
-   "chinese": "油油……？刚刚是说……叫芙兰走吗哦……？",
+   "japanese": "ゆゆっ……でていけってよぅ……？",
+   "chinese": "油油……？刚刚是叫芙兰走吗哦……？",
    "english": "Yu-yu...? Did you just tell Flandre to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -96494,7 +96494,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいふりゃんをおいだすわけないよぅ！",
+   "japanese": "えっ……うそでしょよぅ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的芙兰哦！",
    "english": "Eh... no way! You cannot send cute Flandre away!",
    "origin": "project-original",
@@ -96508,7 +96508,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねよぅ！ どうしてふりゃんなの！",
+   "japanese": "ゆっ！？ まちがいだよねよぅ！",
    "chinese": "油？！等等，搞错了吧哦！为什么是芙兰啊！",
    "english": "Yu?! Wait, that is a mistake! Why Flandre?!",
    "origin": "project-original",
@@ -96522,7 +96522,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -96536,7 +96536,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……ふらんを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶芙兰走……？",
    "english": "Yu... why... are you driving Flandre out...?",
    "origin": "project-original",
@@ -96550,7 +96550,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、ふらんに でていけって いうのよ……？",
+   "japanese": "えっ……でていけってよ……？",
    "chinese": "诶……真的要叫芙兰走吗哦……？",
    "english": "Eh... are you really telling Flandre to leave...?",
    "origin": "project-original",
@@ -96564,7 +96564,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもよ……",
+   "japanese": "ゆゆ……きゅうにどうしてよ……",
    "chinese": "油油……突然这么说，芙兰怎么信啊哦……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -96578,7 +96578,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてふらんが でていくのよ！",
+   "japanese": "はっ……じょうだんでしょよ！",
    "chinese": "哈……开玩笑吧！凭什么要芙兰走哦！",
    "english": "Huh... you are joking! Why should Flandre leave?!",
    "origin": "project-original",
@@ -96592,7 +96592,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのよ！",
+   "japanese": "ゆっ！？ なにいってるのよ！",
    "chinese": "油？！等等！突然在说什么胡话哦！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -97768,7 +97768,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。ふりゃんがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要芙兰的话，那就算了……",
    "english": "...Oh. If you do not want Flandre, fine...",
    "origin": "project-original",
@@ -97782,7 +97782,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正芙兰也没打算求你……",
    "english": "...I see. Flandre was not going to beg anyway...",
    "origin": "project-original",
@@ -97796,7 +97796,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。ふりゃんがここにいたいとでもおもってるのよぅ？",
+   "japanese": "……ふーん、おいだすんだよぅ。",
    "chinese": "……切，说赶就赶啊。以为芙兰很想待在这儿吗哦？",
    "english": "...Tch, just kicking Flandre out. Think Flandre even wanted to stay here?",
    "origin": "project-original",
@@ -97810,7 +97810,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、ふりゃんこそごめんだよぅ。",
+   "japanese": "ゆ……かってにすればよぅ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，芙兰才不稀罕呢哦。",
    "english": "Yu... suit yourself. Flandre is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -97824,7 +97824,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったよぅ！",
+   "japanese": "は？ こっちからでていくよぅ！",
    "chinese": "哈？赶芙兰走？明明是芙兰早就不想待这儿了哦！",
    "english": "Huh? Driving Flandre out? Flandre was about to leave anyway!",
    "origin": "project-original",
@@ -97838,7 +97838,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいふりゃん、あんたなんかにたよらないよぅ！",
+   "japanese": "けち！ たよらないもんよぅ！",
    "chinese": "切，真小气！可爱的芙兰才不稀罕靠你养呢哦！",
    "english": "Stingy! Cute Flandre does not need to rely on you!",
    "origin": "project-original",
@@ -99511,7 +99511,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -99526,8 +99526,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -99541,7 +99541,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてみょんをおいだすのみょ……？",
+   "japanese": "えっ……ほんとなのみょ……？",
    "chinese": "诶……真的吗……？为什么要赶妖梦走哦……？",
    "english": "Eh... really...? Why are you sending Myon away...?",
    "origin": "project-original",
@@ -99556,8 +99556,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、みょんにでていけって いったのみょ……？",
-   "chinese": "油油……？刚刚是说……叫妖梦走吗哦……？",
+   "japanese": "ゆゆっ……でていけってみょ……？",
+   "chinese": "油油……？刚刚是叫妖梦走吗哦……？",
    "english": "Yu-yu...? Did you just tell Myon to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -99571,7 +99571,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいみょんをおいだすわけないみょ！",
+   "japanese": "えっ……うそでしょみょ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的妖梦哦！",
    "english": "Eh... no way! You cannot send cute Myon away!",
    "origin": "project-original",
@@ -99586,7 +99586,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねみょ！ どうしてみょんなの！",
+   "japanese": "ゆっ！？ まちがいだよねみょ！",
    "chinese": "油？！等等，搞错了吧哦！为什么是妖梦啊！",
    "english": "Yu?! Wait, that is a mistake! Why Myon?!",
    "origin": "project-original",
@@ -99601,7 +99601,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -99616,7 +99616,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……みょんを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶妖梦走……？",
    "english": "Yu... why... are you driving Myon out...?",
    "origin": "project-original",
@@ -99631,7 +99631,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、みょんに でていけって いうのよ……？",
+   "japanese": "えっ……でていけってよ……？",
    "chinese": "诶……真的要叫妖梦走吗哦……？",
    "english": "Eh... are you really telling Myon to leave...?",
    "origin": "project-original",
@@ -99646,7 +99646,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもよ……",
+   "japanese": "ゆゆ……きゅうにどうしてよ……",
    "chinese": "油油……突然这么说，妖梦怎么信啊哦……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -99661,7 +99661,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてみょんが でていくのよ！",
+   "japanese": "はっ……じょうだんでしょよ！",
    "chinese": "哈……开玩笑吧！凭什么要妖梦走哦！",
    "english": "Huh... you are joking! Why should Myon leave?!",
    "origin": "project-original",
@@ -99676,7 +99676,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのよ！",
+   "japanese": "ゆっ！？ なにいってるのよ！",
    "chinese": "油？！等等！突然在说什么胡话哦！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -100936,7 +100936,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。みょんがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要妖梦的话，那就算了……",
    "english": "...Oh. If you do not want Myon, fine...",
    "origin": "project-original",
@@ -100951,7 +100951,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正妖梦也没打算求你……",
    "english": "...I see. Myon was not going to beg anyway...",
    "origin": "project-original",
@@ -100966,7 +100966,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。みょんがここにいたいとでもおもってるのみょ？",
+   "japanese": "……ふーん、おいだすんだみょ。",
    "chinese": "……切，说赶就赶啊。以为妖梦很想待在这儿吗哦？",
    "english": "...Tch, just kicking Myon out. Think Myon even wanted to stay here?",
    "origin": "project-original",
@@ -100981,7 +100981,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、みょんこそごめんだみょ。",
+   "japanese": "ゆ……かってにすればみょ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，妖梦才不稀罕呢哦。",
    "english": "Yu... suit yourself. Myon is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -100996,7 +100996,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったみょ！",
+   "japanese": "は？ こっちからでていくみょ！",
    "chinese": "哈？赶妖梦走？明明是妖梦早就不想待这儿了哦！",
    "english": "Huh? Driving Myon out? Myon was about to leave anyway!",
    "origin": "project-original",
@@ -101011,7 +101011,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいみょん、あんたなんかにたよらないみょ！",
+   "japanese": "けち！ たよらないもんみょ！",
    "chinese": "切，真小气！可爱的妖梦才不稀罕靠你养呢哦！",
    "english": "Stingy! Cute Myon does not need to rely on you!",
    "origin": "project-original",
@@ -102796,7 +102796,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほ、ほんとなの……？ うそだよね……",
+   "japanese": "え……ほんとなの……？",
    "chinese": "诶……真、真的吗……？骗油的吧……",
    "english": "Eh... r-really...? You are joking...",
    "origin": "project-original",
@@ -102811,8 +102811,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……？ おやしゃ……じょうだんだよね……？",
-   "chinese": "油……？亲亲油……是在开玩笑吧……？",
+   "japanese": "ゆ……うそだよね……？",
+   "chinese": "油……？亲亲油……在开玩笑吧……？",
    "english": "Yu...? Parent... that is a joke, right...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -102826,7 +102826,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとなの……？ どうしてようむをおいだすのよぅ……？",
+   "japanese": "えっ……ほんとなのよぅ……？",
    "chinese": "诶……真的吗……？为什么要赶妖梦走哦……？",
    "english": "Eh... really...? Why are you sending Youmu away...?",
    "origin": "project-original",
@@ -102841,8 +102841,8 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆっ……？ いま、ようむにでていけって いったのよぅ……？",
-   "chinese": "油油……？刚刚是说……叫妖梦走吗哦……？",
+   "japanese": "ゆゆっ……でていけってよぅ……？",
+   "chinese": "油油……？刚刚是叫妖梦走吗哦……？",
    "english": "Yu-yu...? Did you just tell Youmu to leave...?",
    "origin": "project-original",
    "basis": "wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced",
@@ -102856,7 +102856,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……うそでしょ！ かわいいようむをおいだすわけないよぅ！",
+   "japanese": "えっ……うそでしょよぅ！",
    "chinese": "诶……骗油的吧！怎么可能赶走可爱的妖梦哦！",
    "english": "Eh... no way! You cannot send cute Youmu away!",
    "origin": "project-original",
@@ -102871,7 +102871,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まって、まちがいだよねよぅ！ どうしてようむなの！",
+   "japanese": "ゆっ！？ まちがいだよねよぅ！",
    "chinese": "油？！等等，搞错了吧哦！为什么是妖梦啊！",
    "english": "Yu?! Wait, that is a mistake! Why Youmu?!",
    "origin": "project-original",
@@ -102886,7 +102886,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "え……ほんとうに……？ うそでしょう……",
+   "japanese": "え……ほんとうに……？",
    "chinese": "诶……真的吗……？骗油的吧……",
    "english": "Eh... really...? That cannot be true...",
    "origin": "project-original",
@@ -102901,7 +102901,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆ……どうして……ようむを おいだすの……？",
+   "japanese": "ゆ……どうして……？",
    "chinese": "油……为什么……要赶妖梦走……？",
    "english": "Yu... why... are you driving Youmu out...?",
    "origin": "project-original",
@@ -102916,7 +102916,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "えっ……ほんとうに、ようむに でていけって いうのよ……？",
+   "japanese": "えっ……でていけってよ……？",
    "chinese": "诶……真的要叫妖梦走吗哦……？",
    "english": "Eh... are you really telling Youmu to leave...?",
    "origin": "project-original",
@@ -102931,7 +102931,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆゆ……きゅうに そんなこと いわれてもよ……",
+   "japanese": "ゆゆ……きゅうにどうしてよ……",
    "chinese": "油油……突然这么说，妖梦怎么信啊哦……",
    "english": "Yu-yu... how can you say that all of a sudden...",
    "origin": "project-original",
@@ -102946,7 +102946,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "はっ……じょうだんでしょ！ どうしてようむが でていくのよ！",
+   "japanese": "はっ……じょうだんでしょよ！",
    "chinese": "哈……开玩笑吧！凭什么要妖梦走哦！",
    "english": "Huh... you are joking! Why should Youmu leave?!",
    "origin": "project-original",
@@ -102961,7 +102961,7 @@
    "events": [
     "sever_shock"
    ],
-   "japanese": "ゆっ！？ まってよ！ きゅうに なにいってるのよ！",
+   "japanese": "ゆっ！？ なにいってるのよ！",
    "chinese": "油？！等等！突然在说什么胡话哦！",
    "english": "Yu?! Wait! What nonsense are you saying?!",
    "origin": "project-original",
@@ -104221,7 +104221,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん。ようむがいらないなら、それでいいよ……",
+   "japanese": "……ふーん、それでいいよ……",
    "chinese": "……哦。不要妖梦的话，那就算了……",
    "english": "...Oh. If you do not want Youmu, fine...",
    "origin": "project-original",
@@ -104236,7 +104236,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……そう。べつに、たのむつもりもないし……",
+   "japanese": "……べつに、たのまないし……",
    "chinese": "……这样啊。反正妖梦也没打算求你……",
    "english": "...I see. Youmu was not going to beg anyway...",
    "origin": "project-original",
@@ -104251,7 +104251,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "……ふーん、おいだすんだ。ようむがここにいたいとでもおもってるのよぅ？",
+   "japanese": "……ふーん、おいだすんだよぅ。",
    "chinese": "……切，说赶就赶啊。以为妖梦很想待在这儿吗哦？",
    "english": "...Tch, just kicking Youmu out. Think Youmu even wanted to stay here?",
    "origin": "project-original",
@@ -104266,7 +104266,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "ゆ……かってにすれば。せまいぼうしなんて、ようむこそごめんだよぅ。",
+   "japanese": "ゆ……かってにすればよぅ。",
    "chinese": "油……随你便吧。挤巴巴的破帽子，妖梦才不稀罕呢哦。",
    "english": "Yu... suit yourself. Youmu is sick of that cramped hat anyway.",
    "origin": "project-original",
@@ -104281,7 +104281,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "は？ おいだすって？ こっちからでていってやるつもりだったよぅ！",
+   "japanese": "は？ こっちからでていくよぅ！",
    "chinese": "哈？赶妖梦走？明明是妖梦早就不想待这儿了哦！",
    "english": "Huh? Driving Youmu out? Youmu was about to leave anyway!",
    "origin": "project-original",
@@ -104296,7 +104296,7 @@
    "events": [
     "sever_cold_scoff"
    ],
-   "japanese": "けち！ かわいいようむ、あんたなんかにたよらないよぅ！",
+   "japanese": "けち！ たよらないもんよぅ！",
    "chinese": "切，真小气！可爱的妖梦才不稀罕靠你养呢哦！",
    "english": "Stingy! Cute Youmu does not need to rely on you!",
    "origin": "project-original",

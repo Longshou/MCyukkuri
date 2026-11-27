@@ -37,7 +37,7 @@ public final class DrivenOut extends Goal {
     public enum Phase { NONE, WAITING, GOING }
 
     /** Ticks an order stays owed (the child must first reach dry ground; the walk itself is limited by {@link Departure}). */
-    private static final int WINDOW = 2400, BUDGET = 5000;
+    private static final int WINDOW = 2400, BUDGET = 5000, WATCH_CAP = 600;
     /** The range it is driven out of (blocks round where she stood), the sight it counts as gone from, and the distance that is gone anyway. */
     private static final int RANGE = 7, GONE_NEAR = 8, GONE_FAR = 16, SIBLING_SIGHT = 12, SAY_PRIORITY = 4;
     /** Lines take turns: its plea or turn waits for a neighbour's line (the parent's verdict) to end, at most this long (ticks); within this range (blocks). */
@@ -47,12 +47,12 @@ public final class DrivenOut extends Goal {
     private final Departure departure;
     private final Set<UUID> witnessed = new HashSet<>();
     private Departure.BannedRange banned;
-    private UUID driver;
+    private UUID driver, watchParent, watchChild;
     private Verdict verdict;
     private String reason = "";
     private Phase phase = Phase.NONE;
     /** The tick the order lapses at: {@link #WINDOW} to reach dry ground, then {@link #BUDGET} for the whole departure. */
-    private long deadline;
+    private long deadline, watchUntil, watchOrderBy;
     private Vec3 centre;
     private boolean begun;
 
@@ -70,6 +70,8 @@ public final class DrivenOut extends Goal {
     public Verdict verdict() { return verdict; }
     /** It stands in the hold of its plea or protest, before it turns to go. */
     public boolean holding() { return phase == Phase.GOING && departure.holding(); }
+    /** It has already turned away to leave. */
+    public boolean turned() { return phase == Phase.GOING && departure.turned(); }
     /** The pleader stands at her feet and waits for her answer. */
     public boolean pleaderAtParent() { return holding() && departure.atDriver(); }
     /** She turned it away: its plea ends. */
@@ -135,23 +137,51 @@ public final class DrivenOut extends Goal {
         return null;
     }
 
+    private void clearWatch() {
+        watchParent = watchChild = null;
+        watchUntil = watchOrderBy = 0;
+    }
+
+    private YukkuriEntity watchTarget() {
+        if (watchChild == null || watchParent == null) return null;
+        long now = level().getGameTime();
+        if (now > watchUntil) { clearWatch(); return null; }
+        var parent = level().getEntity(watchParent) instanceof YukkuriEntity p && p.isAlive() ? p : null;
+        var child = level().getEntity(watchChild) instanceof YukkuriEntity c && c.isAlive() ? c : null;
+        if (parent == null || child == null || entity.distanceToSqr(child) > 24 * 24) { clearWatch(); return null; }
+        var driven = child.drivenOut();
+        if (driven.turned()) { clearWatch(); return null; }
+        if (now > watchOrderBy && driven.phase() == Phase.NONE) { clearWatch(); return null; }
+        return child;
+    }
+
     @Override public boolean canUse() {
-        if (phase == Phase.NONE) return false;
-        String why = stale();
-        if (why != null) { lapse(why); return false; }
-        return available();
+        if (phase != Phase.NONE) {
+            String why = stale();
+            if (why != null) { lapse(why); return false; }
+            return available();
+        }
+        return available() && watchTarget() != null;
     }
 
     @Override public boolean canContinueToUse() {
-        if (phase != Phase.GOING) return false;
-        String why = stale();
-        if (why != null) { lapse(why); return false; }
-        return available();
+        if (phase == Phase.GOING) {
+            String why = stale();
+            if (why != null) { lapse(why); return false; }
+            return available();
+        }
+        if (phase != Phase.NONE) return false;
+        return available() && watchTarget() != null;
     }
 
     @Override public boolean requiresUpdateEveryTick() { return true; }
 
     @Override public void start() {
+        if (phase == Phase.NONE) {
+            SurfaceApproach.halt(entity);
+            return;
+        }
+        clearWatch();
         phase = Phase.GOING;
         var terms = terms();
         if (begun) departure.resume(terms);
@@ -170,9 +200,11 @@ public final class DrivenOut extends Goal {
         return new Departure.Terms("family", "driven out", centre, RANGE, parent(), driver, 1f, false, true, true, null, this::siblingsCry);
     }
 
-    /** Perceiving ashore siblings react at once when the parent starts pronouncing severance, so none wears a plain smile during the confrontation. */
-    public static void witnessVerdict(YukkuriEntity parent, YukkuriEntity child) {
+    /** Perceiving ashore siblings react at once when the parent starts pronouncing severance and stay watching through the confrontation,
+     *  so none wanders off or wears a plain smile during it. */
+    public static void witnessVerdict(YukkuriEntity parent, YukkuriEntity child, int verdictTicks) {
         if (!(parent.level() instanceof ServerLevel level)) return;
+        long now = level.getGameTime();
         for (var sibling : level.getEntitiesOfClass(YukkuriEntity.class, parent.getBoundingBox().inflate(24),
                 y -> y != child && y != parent && y.isAlive() && !y.family().adult() && Bonds.parentOf(parent, y)
                         && !y.isInWaterOrBubble() && !y.body().dying() && !y.life().isSleeping())) {
@@ -182,6 +214,11 @@ public final class DrivenOut extends Goal {
             sibling.getLookControl().setLookAt(parent, 30, 30);
             sibling.forceReaction(stance.verdictFace(), "", FaceTier.Tier.LONG);
             sibling.beat("sibling_verdict", stance.verdictFace(), "");
+            var watch = sibling.drivenOut();
+            watch.watchParent = parent.getUUID();
+            watch.watchChild = child.getUUID();
+            watch.watchOrderBy = now + verdictTicks + 20;
+            watch.watchUntil = now + WATCH_CAP;
             GameplayLog.event(sibling, "family", "driven out sibling witnessed verdict child={} stance={} via={}",
                     child.getUUID(), stance, via);
         }
@@ -231,6 +268,13 @@ public final class DrivenOut extends Goal {
     }
 
     @Override public void tick() {
+        if (phase == Phase.NONE) {
+            var target = watchTarget();
+            if (target == null) return;
+            SurfaceApproach.stopWalking(entity);
+            entity.getLookControl().setLookAt(target, 30, 30);
+            return;
+        }
         // A terminal tick can end the order before the selector clears this goal.
         if (phase != Phase.GOING) return;
         switch (departure.tick()) {
@@ -284,5 +328,6 @@ public final class DrivenOut extends Goal {
     @Override public void stop() {
         SurfaceApproach.halt(entity);
         if (phase == Phase.GOING) phase = Phase.WAITING;
+        else if (watchTarget() == null) clearWatch();
     }
 }

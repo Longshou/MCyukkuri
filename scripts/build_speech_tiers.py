@@ -918,24 +918,24 @@ SEVERANCE = {
                 ('{c}！ どうして{nb}なの！', '{c}！为什么是{nb}！', '{c}! Why {nb}!')]},
         'juvenile': {
             'timid': [
-                ('え……ほ、ほんとなの……？ うそだよね……', '诶……真、真的吗……？骗油的吧……', 'Eh... r-really...? You are joking...'),
-                ('ゆ……？ おやしゃ……じょうだんだよね……？', '油……？亲亲油……是在开玩笑吧……？', 'Yu...? Parent... that is a joke, right...?')],
+                ('え……ほんとなの……？', '诶……真、真的吗……？骗油的吧……', 'Eh... r-really...? You are joking...'),
+                ('ゆ……うそだよね……？', '油……？亲亲油……在开玩笑吧……？', 'Yu...? Parent... that is a joke, right...?')],
             'plain': [
-                ('えっ……ほんとなの……？ どうして{n}をおいだすの{e}……？', '诶……真的吗……？为什么要赶{n}走{e}……？', 'Eh... really...? Why are you sending {N} away...?'),
-                ('ゆゆっ……？ いま、{n}にでていけって いったの{e}……？', '油油……？刚刚是说……叫{n}走吗{e}……？', 'Yu-yu...? Did you just tell {N} to leave...?')],
+                ('えっ……ほんとなの{e}……？', '诶……真的吗……？为什么要赶{n}走{e}……？', 'Eh... really...? Why are you sending {N} away...?'),
+                ('ゆゆっ……でていけって{e}……？', '油油……？刚刚是叫{n}走吗{e}……？', 'Yu-yu...? Did you just tell {N} to leave...?')],
             'proud': [
-                ('えっ……うそでしょ！ かわいい{n}をおいだすわけない{e}！', '诶……骗油的吧！怎么可能赶走可爱的{n}{e}！', 'Eh... no way! You cannot send cute {N} away!'),
-                ('ゆっ！？ まって、まちがいだよね{e}！ どうして{n}なの！', '油？！等等，搞错了吧{e}！为什么是{n}啊！', 'Yu?! Wait, that is a mistake! Why {N}?!')]},
+                ('えっ……うそでしょ{e}！', '诶……骗油的吧！怎么可能赶走可爱的{n}{e}！', 'Eh... no way! You cannot send cute {N} away!'),
+                ('ゆっ！？ まちがいだよね{e}！', '油？！等等，搞错了吧{e}！为什么是{n}啊！', 'Yu?! Wait, that is a mistake! Why {N}?!')]},
         'adult': {
             'timid': [
-                ('え……ほんとうに……？ うそでしょう……', '诶……真的吗……？骗油的吧……', 'Eh... really...? That cannot be true...'),
-                ('ゆ……どうして……{n}を おいだすの……？', '油……为什么……要赶{n}走……？', 'Yu... why... are you driving {N} out...?')],
+                ('え……ほんとうに……？', '诶……真的吗……？骗油的吧……', 'Eh... really...? That cannot be true...'),
+                ('ゆ……どうして……？', '油……为什么……要赶{n}走……？', 'Yu... why... are you driving {N} out...?')],
             'plain': [
-                ('えっ……ほんとうに、{n}に でていけって いうの{e}……？', '诶……真的要叫{n}走吗{e}……？', 'Eh... are you really telling {N} to leave...?'),
-                ('ゆゆ……きゅうに そんなこと いわれても{e}……', '油油……突然这么说，{n}怎么信啊{e}……', 'Yu-yu... how can you say that all of a sudden...')],
+                ('えっ……でていけって{e}……？', '诶……真的要叫{n}走吗{e}……？', 'Eh... are you really telling {N} to leave...?'),
+                ('ゆゆ……きゅうにどうして{e}……', '油油……突然这么说，{n}怎么信啊{e}……', 'Yu-yu... how can you say that all of a sudden...')],
             'proud': [
-                ('はっ……じょうだんでしょ！ どうして{n}が でていくの{e}！', '哈……开玩笑吧！凭什么要{n}走{e}！', 'Huh... you are joking! Why should {N} leave?!'),
-                ('ゆっ！？ まってよ！ きゅうに なにいってるの{e}！', '油？！等等！突然在说什么胡话{e}！', 'Yu?! Wait! What nonsense are you saying?!')]},
+                ('はっ……じょうだんでしょ{e}！', '哈……开玩笑吧！凭什么要{n}走{e}！', 'Huh... you are joking! Why should {N} leave?!'),
+                ('ゆっ！？ なにいってるの{e}！', '油？！等等！突然在说什么胡话{e}！', 'Yu?! Wait! What nonsense are you saying?!')]},
     },
     'sever_plea': {
         'baby': {
@@ -1091,14 +1091,14 @@ SEVERANCE = {
             'proud': [('{c}！ べつに、こっちから いくもん！', '{c}！切，是{nb}自己要走的！', '{c}! Fine, {nb} leaving anyway!')]},
         'juvenile': {
             'timid': [
-                ('……ふーん。{n}がいらないなら、それでいいよ……', '……哦。不要{n}的话，那就算了……', '...Oh. If you do not want {N}, fine...'),
-                ('……そう。べつに、たのむつもりもないし……', '……这样啊。反正{n}也没打算求你……', '...I see. {N} was not going to beg anyway...')],
+                ('……ふーん、それでいいよ……', '……哦。不要{n}的话，那就算了……', '...Oh. If you do not want {N}, fine...'),
+                ('……べつに、たのまないし……', '……这样啊。反正{n}也没打算求你……', '...I see. {N} was not going to beg anyway...')],
             'plain': [
-                ('……ふーん、おいだすんだ。{n}がここにいたいとでもおもってるの{e}？', '……切，说赶就赶啊。以为{n}很想待在这儿吗{e}？', '...Tch, just kicking {N} out. Think {N} even wanted to stay here?'),
-                ('ゆ……かってにすれば。せまいぼうしなんて、{n}こそごめんだ{e}。', '油……随你便吧。挤巴巴的破帽子，{n}才不稀罕呢{e}。', 'Yu... suit yourself. {N} is sick of that cramped hat anyway.')],
+                ('……ふーん、おいだすんだ{e}。', '……切，说赶就赶啊。以为{n}很想待在这儿吗{e}？', '...Tch, just kicking {N} out. Think {N} even wanted to stay here?'),
+                ('ゆ……かってにすれば{e}。', '油……随你便吧。挤巴巴的破帽子，{n}才不稀罕呢{e}。', 'Yu... suit yourself. {N} is sick of that cramped hat anyway.')],
             'proud': [
-                ('は？ おいだすって？ こっちからでていってやるつもりだった{e}！', '哈？赶{n}走？明明是{n}早就不想待这儿了{e}！', 'Huh? Driving {N} out? {N} was about to leave anyway!'),
-                ('けち！ かわいい{n}、あんたなんかにたよらない{e}！', '切，真小气！可爱的{n}才不稀罕靠你养呢{e}！', 'Stingy! Cute {N} does not need to rely on you!')]},
+                ('は？ こっちからでていく{e}！', '哈？赶{n}走？明明是{n}早就不想待这儿了{e}！', 'Huh? Driving {N} out? {N} was about to leave anyway!'),
+                ('けち！ たよらないもん{e}！', '切，真小气！可爱的{n}才不稀罕靠你养呢{e}！', 'Stingy! Cute {N} does not need to rely on you!')]},
         'adult': {
             'timid': [
                 ('……ふーん。そう いうなら、もう いいよ……', '……哦。既然你这么说，那就算了……', '...Oh. If that is how it is, fine...'),

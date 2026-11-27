@@ -173,7 +173,7 @@ final class LeaveBehind implements Intent {
                 child.getLookControl().setLookAt(parent, 30, 30);
                 child.forceReaction(listen, "", FaceTier.Tier.MEDIUM);
             }
-            DrivenOut.witnessVerdict(parent, child);
+            DrivenOut.witnessVerdict(parent, child, beat);
         }
         GameplayLog.event(parent, "family", "overload beat start child={} verdict={} ferry={} distance={} child_in_water={}",
                 child.getUUID(), memo.verdict, memo.ferry, Math.round(parent.distanceTo(child)), child.isInWaterOrBubble());
