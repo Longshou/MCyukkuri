@@ -212,10 +212,10 @@ public final class GroupInteractionGoal extends Goal {
         var current=bout;var peer=entity==current.first?current.second:current.first;
         entity.getLookControl().setLookAt(peer,30,30);
         if(current.kind==Kind.CONTEST) {
-            // Stand face-to-face for the stare; during a tussle the winner steps back into contact if a shove opens a gap.
-            double contestContact = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .22;
+            // Stand face-to-face for the stare; at tussle onset the winner steps into contact once (wide enough that body separation does not restart walking).
+            double contestContact = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .30;
             if (current.contest.tussling() && current.contest.closesGap(entity) && entity.distanceToSqr(peer) > contestContact * contestContact) {
-                var stand = SurfaceApproach.beside(entity, peer, contestContact - .05, .25, contestContact);
+                var stand = SurfaceApproach.beside(entity, peer, contestContact - .10, .25, contestContact);
                 if (stand == null || SurfaceApproach.walkResult(entity, stand, peer, .8) == SurfaceApproach.Result.BLOCKED) {
                     SurfaceApproach.stopWalking(entity);
                 }

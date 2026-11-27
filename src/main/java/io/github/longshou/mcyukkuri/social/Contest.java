@@ -54,8 +54,8 @@ public final class Contest {
     /** True once a close bout has moved from the staring face-off into its push-and-pull phase. */
     boolean tussling() { return process == Process.TUSSLE && elapsed > FACEOFF; }
 
-    /** Only the winner steps in to close any gap opened by shoves, keeping the tussle face-to-face instead of shoving across air. */
-    boolean closesGap(YukkuriEntity body) { return body == winner; }
+    /** Only the winner steps in once to reach face-to-face contact before the decisive final shove. */
+    boolean closesGap(YukkuriEntity body) { return body == winner && pushed < pushes; }
 
     /** The one body strength: a contest, a sumo bout and a self-defence all read it. */
     static double might(YukkuriEntity body) {
@@ -115,13 +115,10 @@ public final class Contest {
             return;
         }
         pushed++;
-        double reach = (first.getBbWidth() + second.getBbWidth()) * .5 + .65;
-        if (first.distanceToSqr(second) <= reach * reach) {
-            if (pushed < pushes) {
-                boolean winnerPushes = pushed % 2 == 1;
-                GroupInteractionGoal.shove(winnerPushes ? loser : winner, winnerPushes ? winner : loser, winnerPushes ? .07 : .06);
-            } else {
-                GroupInteractionGoal.shove(loser, winner, .12);
+        if (pushed == pushes) {
+            double reach = (first.getBbWidth() + second.getBbWidth()) * .5 + .65;
+            if (first.distanceToSqr(second) <= reach * reach) {
+                GroupInteractionGoal.shove(loser, winner, .13);
             }
         }
         boolean allowVoice = t - lastVoice >= VOICE_GAP && t + 60 <= verdictAt;
