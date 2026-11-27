@@ -751,15 +751,16 @@ public final class YukkuriModel {
     int wearBodyLength() { return wearBody; }
 
     /**
-     * Skins the close-hugging hair, sidelock and braid parts of the last render pose (x, y, z in blocks),
-     * excluding hats, wings, tails, face cards and anatomy, so {@link LeashLoopRenderer} wraps outside hair without clipping.
+     * Skins the close-hugging hair, sidelock and braid parts that are actually drawn at this hair loss of the last render pose
+     * (x, y, z in blocks), excluding hats, wings, tails, face cards and anatomy, so {@link LeashLoopRenderer} wraps outside hair
+     * without clipping a body that lost it.
      */
-    float[] posedLeashHair() {
+    float[] posedLeashHair(int hairLoss) {
         int count = 0;
-        for (var part : parts) if (leashHairPart(part)) count += part.count;
+        for (var part : parts) if (leashHairPart(part) && !hairHidden(part, hairLoss)) count += part.count;
         if (leashHairBuffer.length < count * 3) leashHairBuffer = new float[count * 3];
         var point = new Vector3f(); int k = 0;
-        for (var part : parts) if (leashHairPart(part))
+        for (var part : parts) if (leashHairPart(part) && !hairHidden(part, hairLoss))
             for (int i = part.start; i < part.start + part.count; i++) {
                 skin(i, point);
                 leashHairBuffer[k++] = point.x / 16; leashHairBuffer[k++] = point.y / 16; leashHairBuffer[k++] = point.z / 16;

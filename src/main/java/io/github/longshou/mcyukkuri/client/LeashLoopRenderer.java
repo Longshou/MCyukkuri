@@ -10,16 +10,18 @@ import net.minecraft.resources.ResourceLocation;
 /** Draws the procedural vanilla-lead rope loop and back knot around a leashed yukkuri's posed body. Client only. */
 final class LeashLoopRenderer {
     private static final ResourceLocation TEXTURE = MCYukkuri.id("textures/misc/leash_rope.png");
+    /** Extra radial clearance (fraction of the rope reference length) where a cloth or leaf wrap lies under the loop. */
+    private static final float WRAP_CLEARANCE = .028f;
 
     private LeashLoopRenderer() {}
 
-    static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay) {
+    static void render(YukkuriModel model, int wear, PoseStack pose, MultiBufferSource buffers, int light, int overlay, int hairLoss) {
         float[] body = model.posedWear(wear);
         int bodyLen = model.wearBodyLength();
         if (bodyLen < 9) return;
-        float[] hair = model.posedLeashHair();
+        float[] hair = model.posedLeashHair(hairLoss);
         int hairLen = model.leashHairLength();
-        float extra = (wear & (2 | 4)) != 0 && (wear & 8) == 0 ? .028f : 0f;
+        float extra = CareWearRenderer.wrapOnBody(wear) ? WRAP_CLEARANCE : 0f;
         var mesh = LeashLoop.build(body, bodyLen, hair, hairLen, extra);
         if (mesh == null) return;
         var verts = mesh.vertices();

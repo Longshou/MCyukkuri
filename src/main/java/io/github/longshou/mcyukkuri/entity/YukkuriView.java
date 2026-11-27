@@ -63,7 +63,6 @@ public interface YukkuriView {
     boolean isSilent();
     boolean isPassenger();
     boolean isVehicle();
-    boolean isLeashed();
     boolean onGround();
     boolean hasCustomName();
     Component getTypeName();
