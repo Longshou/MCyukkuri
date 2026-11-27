@@ -1403,11 +1403,12 @@ add('lead_walk', 'town', '牵引绳：自家的宠物与无主的个体', '牵�
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
         *((560 + 10 * i, f'execute as @a[name=MuseumOperator,distance=..32] run yukkuri scenario unleash {sel(name)}')
           for i, name in enumerate(('lead_tame', 'lead_bold', 'lead_shy'))),
-        # The owner's pet (it has roamed since the start, so no distance filter on the player): leashed, then the player walks seven blocks off at a quick pace (a step each 5 ticks) and stops.
+        # The owner's pet (it has roamed since the start, so the player's distance cap covers it; a bare @a[name=...] never matches the
+        # museum's fake operator, which the level holds but the server player list does not): leashed, then the player walks seven blocks off at a quick pace (a step each 5 ticks) and stops.
         (750, f'execute at {sel("lead_pet")} positioned ~1 ~ ~ run yukkuri scenario tool_operator move'),
-        (751, f'execute as @a[name=MuseumOperator] run yukkuri scenario leash {sel("lead_pet")}'),
-        *((770 + 5 * step, 'execute at @a[name=MuseumOperator] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(7)),
-        (930, f'execute as @a[name=MuseumOperator] run yukkuri scenario unleash {sel("lead_pet")}'),
+        (751, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario leash {sel("lead_pet")}'),
+        *((770 + 5 * step, 'execute at @a[name=MuseumOperator,distance=..64] positioned ~1 ~ ~ run yukkuri scenario tool_operator move') for step in range(7)),
+        (930, f'execute as @a[name=MuseumOperator,distance=..64] run yukkuri scenario unleash {sel("lead_pet")}'),
         (980, 'yukkuri scenario tool_operator leave'),
     ], forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* in wall', r'\[body\][^\n]* death settled'],
         expect=[r'\[interaction\][^\n]*action=leash reason=owner',
