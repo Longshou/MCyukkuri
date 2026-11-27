@@ -6,10 +6,10 @@ ASSETS=ROOT/'src/main/resources/assets/mcyukkuri'
 for lang in ('zh_cn','en_us','ja_jp'):
     zh=lang=='zh_cn';ja=lang=='ja_jp'
     keys={}
-    for ident,cn,en,jp in [('remilia','蕾米莉亚','Remilia','れみりゃ'),('flandre','弗兰','Flandre','ふらん')]:
+    for ident,cn,en,jp in [('remilia','蕾米莉亚','Remilia','れみりゃ'),('flandre','芙兰','Flandre','ふらん')]:
         name=cn if zh else jp if ja else en
         keys['entity.mcyukkuri.'+ident]=name
-        keys['item.mcyukkuri.'+ident+'_spawn_egg']=name+('生成蛋' if zh else 'のスポーンエッグ' if ja else ' Spawn Egg')
+        keys['item.mcyukkuri.'+ident+'_spawn_egg']=name+('刷怪蛋' if zh else 'のスポーンエッグ' if ja else ' Spawn Egg')
         keys['item.mcyukkuri.'+ident+'_bonnet']=name+('软帽' if zh else 'の帽子' if ja else ' Bonnet')
         (ASSETS/f'models/item/{ident}_spawn_egg.json').write_text('{"parent":"minecraft:item/template_spawn_egg"}\n',encoding='utf-8',newline='\n')
     keys['block.mcyukkuri.predator_nest']=keys['item.mcyukkuri.predator_nest']='捕食种枝巢' if zh else '捕食種の枝巣' if ja else 'Predator Twig Nest'
