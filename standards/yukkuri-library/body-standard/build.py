@@ -285,6 +285,8 @@ def export(ident):
     hair_config = read(hair_recipe)
     fit_hair = runpy.run_path(str(hair_recipe.parent/'author.py'))['fit']
     elements = fit_hair(elements, ident, hair_config, PROFILE, profile_at, mesh, vertices, atlas_size)
+    hair_chains = runpy.run_path(str(HERE/'features/hair-chains/author.py'))
+    elements = hair_chains['segment'](ident, elements, rig, mesh, vertices, atlas_size)
     for name, clip in rig['clips'].items():
         for bone, channels in clip['tracks'].items():
             for key, value in channels.get('position', {}).items():
@@ -372,7 +374,9 @@ def export(ident):
                 a,b,q=continuous_binding(vv[i+1],names)
                 a=int(rig['bones'][a]['name'].split('_')[3]);b=int(rig['bones'][b]['name'].split('_')[3])
                 weights.append([names[e['bone']+'_deform_'+str(a)],names[e['bone']+'_deform_'+str(b)],q])
-            else:weights.append(continuous_binding(vv[i+1],names) if flexible else [names[e['bone']],names[e['bone']],0])
+            else:
+                chain_w=hair_chains['binding'](ident,e['name'],e['bone'],vv[i+1],names)
+                weights.append(chain_w if chain_w is not None else continuous_binding(vv[i+1],names) if flexible else [names[e['bone']],names[e['bone']],0])
         flat.extend(round(v,7) for v in vv)
         parts.append(dict(name=e['name'],start=start,count=len(vv)//8,anatomy=e['bone'].removeprefix('anatomy_') if e['bone'].startswith('anatomy_') else ''))
     rig.update(groups=[e['bone'] for e in elements],element_vertex_counts=[p['count'] for p in parts],
@@ -512,7 +516,7 @@ def main():
    if(!channels||!Object.values(channels).flat().some(v=>Math.abs(v)>1e-9))continue;
   }""")
     (preview/'pose.js').write_text(core,encoding='utf-8')
-    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'expression_geometry.py',HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py']
+    inputs=[HERE/'recipe.json',HERE/'profile.json',Path(__file__),HERE/'expression_geometry.py',HERE/'runtime/birth.js',HERE/'inputs/manifest.json',LIB/'runtime/motion.js',LIB/'runtime/viewer.html',HERE/'features/hair-contact/recipe.json',HERE/'features/hair-contact/author.py',HERE/'features/hair-chains/author.py']
     inputs.append(LIB/'character_appearance.py')
     for ident in CFG['characters']:
         registration=LIB/'characters'/(ident+'.json')

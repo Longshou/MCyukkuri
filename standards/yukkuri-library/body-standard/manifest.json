@@ -51,11 +51,11 @@
     ]
   ],
   "recipe_sha256": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
-  "builder_sha256": "da2c271ba26982b893c38f4b9412e4990b0d8489f5f2134f9ac1daa88b291a86",
+  "builder_sha256": "ca3e62f48008c010ff2174627d082ba5e8f5299186258272a1a7fd0314d6f2ab",
   "inputs": {
     "standards\\yukkuri-library\\body-standard\\recipe.json": "7806e426031917b35fec519c4caa1bcb585a265d55783fe769e68c7f9542dd9c",
     "standards\\yukkuri-library\\body-standard\\profile.json": "4d302a3ca93ef9b78e2a3db5c849a26fe00051df65ba23bf2f84f1a616b571ad",
-    "standards\\yukkuri-library\\body-standard\\build.py": "da2c271ba26982b893c38f4b9412e4990b0d8489f5f2134f9ac1daa88b291a86",
+    "standards\\yukkuri-library\\body-standard\\build.py": "ca3e62f48008c010ff2174627d082ba5e8f5299186258272a1a7fd0314d6f2ab",
     "standards\\yukkuri-library\\body-standard\\expression_geometry.py": "2aaae48887ca2b3f9a1d3d9a5ee6f32fc25301a0d438dac6652ccb3b3c667315",
     "standards\\yukkuri-library\\body-standard\\runtime\\birth.js": "35ae01f495fe27dabb437bf718a2cba736c2e0e0e2836bacb43f0a07fbf90cd1",
     "standards\\yukkuri-library\\body-standard\\inputs\\manifest.json": "31c5141ebdb01302a7440765f85fe0f3b142d9dbdb35e922e7d55574a8900420",
@@ -63,6 +63,7 @@
     "standards\\yukkuri-library\\runtime\\viewer.html": "38a52c60766699fb08d18b2a35644d0d62ecef9a7f77e6ba109643e69ea25b9e",
     "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\recipe.json": "32e2d58b061ca9cd869997ed3130e80c5f9643f9f18745bb9d75cec3e48bfc12",
     "standards\\yukkuri-library\\body-standard\\features\\hair-contact\\author.py": "6fb96a84fd34fd751f5828e2f56c3fe7eae233c2955cd6157b7c125ebabffa2c",
+    "standards\\yukkuri-library\\body-standard\\features\\hair-chains\\author.py": "7e1f8d06d20cd006d73f32b7ecc0b60f05bf4c6a9e6de5fa49d9c6b6bf9c1973",
     "standards\\yukkuri-library\\character_appearance.py": "cbfe72ad91393b0d439a424c5c479686b19809ee437b4174c222bc14b86fdc1d",
     "standards\\yukkuri-library\\characters\\alice.json": "2e981fbb5f31ef86af2955f463cb064818657267084e39f6b38b89c705ea6ef0",
     "standards\\yukkuri-library\\body-standard\\features\\alice-hakkei\\sync_inputs.py": "92a9ce6db143591fe0b75d440e337d66d57ed8abe8939c63ad400386210ae08b",
@@ -76,11 +77,11 @@
       "source_model_sha256": "dbe3268523e4466714f3b7befd1e1bd549552b1df851f51235b44517c90bc6e8",
       "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\reimu\\selected-rig.json",
       "source_rig_sha256": "fd474448a295c8594c5857f10b6b390f5b88a6497fddc2091fe5e81da6674dce",
-      "model_sha256": "465d2fd086ad366ba617783db773a00a97fcc74ef4ce3cdd925c326760151be2",
-      "rig_sha256": "be50b5cb2da24401a6c518108b41e1eb007a34109780a449420b55003a44fb89",
-      "runtime_sha256": "39c24da665b1f9199ffd598059c17d50a747d0f231bfcecbb5a487ca1367ff48",
+      "model_sha256": "0995348fa2a606e4d8f00f93126c0966e66f5d8f4b895ac4abceb7b56458218e",
+      "rig_sha256": "e5f98e00808e4313b71baa4f9dc1b681f0f2df3857df9c0a6bccf2c7c3ba7e33",
+      "runtime_sha256": "8c5322e28ceaa7cc06ec839b5379c0e01ac712930ccd1fb8628bea8d1e2cb3b2",
       "elements": 95,
-      "vertices": 18966
+      "vertices": 21462
     },
     "marisa": {
       "source_model": "standards\\yukkuri-library\\body-standard\\inputs\\marisa\\marisa.bbmodel",
@@ -89,7 +90,7 @@
       "source_rig_sha256": "d063193682107c1f1b15d53dc4fb386782e45f5ecc680f0398747263e978ec01",
       "model_sha256": "4d66e59b87515a4970458cb32db2275f17d3e29bff840483096dcb90ef9b0d23",
       "rig_sha256": "ae7cd162b5f51bb10c0558689654a44f1b33910f7e0be2d4649dcf620abff456",
-      "runtime_sha256": "7ffd302594ffc4db0f43e845b1f6f84bb536bca21c596f0ae0174ac3c2de84e7",
+      "runtime_sha256": "5646785ade495ad984a3ccfeea25891a079a297f5d903ac4c91d58923d116581",
       "elements": 92,
       "vertices": 15354
     },
@@ -100,7 +101,7 @@
       "source_rig_sha256": "df21d1e7696f0b9e1664e5edae66bdc1a7e6fe3bdbe9a5d8f9e50653ffba564e",
       "model_sha256": "7c51303823a0795c36884e52796db49166075748f2f0c7de0fb3ace5af9cbacb",
       "rig_sha256": "ff4b79134043cffb88ba0bda0de4c1ad0607c5d7fab629031541e2f416ce6243",
-      "runtime_sha256": "5300573619f263e7726af73c5058bf70722bd53f1ca82157a450ff05b70cbbe7",
+      "runtime_sha256": "36479b22aad9ad5045c9d07cbec50983c81af31de1cce8b5f51e89b57891c62b",
       "elements": 159,
       "vertices": 29484
     },
@@ -111,7 +112,7 @@
       "source_rig_sha256": "d2dfd3f93b0cfa558a21dc58c657bbfe9b023d017646db90fc27ad8b5939d3a9",
       "model_sha256": "68c1f3606a801ba5ab43444d831727b900a2373598f129988c6899ebb00b51b2",
       "rig_sha256": "947e690b59e33a06151150ecbfbe2e31eab197be73f52643cd4c3decd1802026",
-      "runtime_sha256": "57ddcab0f927b1bd246e80f1a796d89cf75e9a719f56e8271e8f93df42c99b02",
+      "runtime_sha256": "d8f888a7d2efa757e1f09cffa7a96b8d017028772a228d17e13e8e38425d2481",
       "elements": 151,
       "vertices": 36774
     },
@@ -120,9 +121,9 @@
       "source_model_sha256": "a7654d3bc03bb0e62db6a43464ba598c231800eccc36ee7e7da8becf509916ad",
       "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\patchouli\\selected-rig.json",
       "source_rig_sha256": "caa8045cc242cb4d8df33ac4b1a0e1d1f43f4419ca9c583e878100291745aa8f",
-      "model_sha256": "49b16d02a36a97d1ddb9d5b61a3d63d81d991e4c5509b5d777258ceedc01ce1a",
-      "rig_sha256": "0c0fa549f4e34ee7c972b0f1f1a781c1dcf53f326beee1bdbb855ea2cb59f579",
-      "runtime_sha256": "9926367b6d0cdee104ae846865cade587ffb3927b3c8f61931c41e4d310e3c71",
+      "model_sha256": "eea1ecc5809000716b639ab06054a7eaad994fe33e4502681c13b2f21a8f9aca",
+      "rig_sha256": "cfe7673f61ca8835199338844fd61b775fe3ba0fd879993e1a1a7e890cd15054",
+      "runtime_sha256": "ebf9b30ec374b8ef507b7897a9021b45e2d52f8ed2952082b9a2c9979d076f7b",
       "elements": 715,
       "vertices": 92550
     },
@@ -133,7 +134,7 @@
       "source_rig_sha256": "0411802f2fae1cf48c8bf973a4987a0772eda21e700bf120d43d0b08b7b457cf",
       "model_sha256": "26a408119a9208cabb21e04534c2e4e8490b2476298a3dca01154a21e5680dea",
       "rig_sha256": "b6a70c4c559f2e68c098efd24e48f6cfd51038cfb9f77ccee135178b3afffab9",
-      "runtime_sha256": "0f71aded9c413d7bb52d3a3169e5da8bdd189007d0b63d7a8f8ac44310463484",
+      "runtime_sha256": "215774c0c18d0700162fb899160f0dac1f40889d72b9eb2b7c29feb4bebbf1ca",
       "elements": 1288,
       "vertices": 58410
     },
@@ -153,9 +154,9 @@
       "source_model_sha256": "f12fb8f8cac8386f3f2af0e320d6e24146b8a21b2b8b98fe5f9b0c7d04c654ae",
       "source_rig": "standards\\yukkuri-library\\body-standard\\inputs\\reimu_deibu\\animation-rig.json",
       "source_rig_sha256": "8929a95fccc8e9cb322a7de594d72bb5b7fdf99cfaad79cca0080c961043dc11",
-      "model_sha256": "4ca7f58f7829b8caead9b8362879ebf36264225389525b1333ee3c3823eeff18",
-      "rig_sha256": "25cdbf7d337687dd95975bb0bb51fa11904be52a18e1beb08fcdd14a7a472c2c",
-      "runtime_sha256": "d9b055ccbb7127ae65d153c9332b0817178e2231a80e6bf4d249fb09fa0c6ffd",
+      "model_sha256": "72ba760a475bc5f64e51f203dd19dd882cdff41438c76bb98564792c2bbc1458",
+      "rig_sha256": "adaffa23c3258efea79174cd97185593b63dbf4029894ea20f1f97c6c6e59ed3",
+      "runtime_sha256": "6c176f0df46b8a9a8fb16d852fa5c87848741be3d5ad98ebb286a368ebf21b68",
       "elements": 215,
       "vertices": 23226
     }

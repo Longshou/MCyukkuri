@@ -3,7 +3,9 @@ package io.github.longshou.mcyukkuri.settlement;
 import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyData;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
@@ -325,11 +327,15 @@ public final class GarbageSearch implements MotorOwner {
         var pos = bin.getBlockPos();
         var facing = bin.getBlockState().getValue(GarbageBinBlock.FACING);
         phase = Phase.NOSE_IN;
-        stroke = new Shove(pos, facing, Behaviors.BIN_NOSE_IN, "contact", "pull",
+        // Chen occasionally sweeps the bin with its tail (25%-40% by boldness); otherwise uses the mouth like other species.
+        boolean tail = body.getVariant() == YukkuriVariant.CHEN
+                && body.getRandom().nextFloat() < 0.25f + 0.15f * (body.life().personality().boldness() / 100f);
+        String clip = tail ? YukkuriAction.BIN_NOSE_IN_TAIL.id() : Behaviors.BIN_NOSE_IN;
+        stroke = new Shove(pos, facing, clip, "contact", "pull",
                 () -> present(bin) && bin.tipped() && bin.getBlockState().getValue(GarbageBinBlock.FACING) == facing,
                 travel -> take(bin, travel));
         if (!body.motor().run(this, stroke)) { decline("rummage_refused"); return false; }
-        GameplayLog.event(body, "forage", "garbage nose_in point={}", pos);
+        GameplayLog.event(body, "forage", "garbage nose_in point={} tail={}", pos, tail);
         return true;
     }
 

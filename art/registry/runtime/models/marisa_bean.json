@@ -4,10 +4,10 @@
   "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/marisa_bean.bbmodel",
   "selected_model_sha256": "1aea3b07044b51a5a013f0ca036a067a2c25fccbbaad29410f5d3bdd1ef284c2",
   "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/marisa_bean/animation-rig.json",
-  "selected_rig_sha256": "818ad2d4c07502ea79600e3245a557436dc18bee02eb9957681d46beb8bbebca",
+  "selected_rig_sha256": "d4b3ae8dbd81b167c759026846d732b15ae9b6b22f10f7d941c5d6c656e5334c",
   "snapshot": "art/source/subspecies-runtime/marisa_bean/marisa_bean.bbmodel",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json",
-  "runtime_sha256": "f4bb1b7d109a0ca66925dc54963b7fd1a9c88c2420023e67f6a51023d60a953a",
+  "runtime_sha256": "2de7922d59119923f175a066d8f925d6034c4a7025026ba96b4fee69f959c302",
   "bone_count": 204,
   "clips": [
     "idle",
@@ -160,7 +160,7 @@
     }
   },
   "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-  "motion_source_sha256": "5995a96252f2f82512681bb7a17cfd979ff69ef43731e547e59e04ad3cf4bef3",
+  "motion_source_sha256": "9146587146c184f673b970a004ffd56aece87450d82deb767b9f9d76d4fba230",
   "shape_status": "pending_user_confirmation",
   "approval_note": "",
   "runtime_acceptance": "not_executed",

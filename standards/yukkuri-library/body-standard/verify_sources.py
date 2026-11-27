@@ -40,7 +40,7 @@ for id in cfg['characters']:
         check(id+'/cube_geometry/'+e['name'],g['origin']==e['from'] and g['size']==[e['to'][k]-e['from'][k] for k in range(3)] and g.get('rotation',[0,0,0])==e.get('rotation',[0,0,0]))
     if id in ['reimu','marisa']:
         approved=read(L/'drafts/rounded-standard-body/assembled'/id/'runtime.model.json')
-        changed={e['name'] for e in component['elements'] if e.get('body_follow')}
+        changed={e['name'] for e in component['elements'] if e.get('body_follow') or e.get('chain_subdivided')}
         revision=P/'features/marisa-single-braid/candidate.json'
         if id=='marisa' and revision.exists():changed|=set(read(revision)['changed_parts'])
         old_parts={p['name']:p for p in approved['parts']}

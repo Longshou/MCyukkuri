@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -43,6 +44,8 @@ public final class WaterDistress {
     private boolean wading;
     /** The last dry tick had her off the ground (a fall, a missed hop): the tick she meets water she falls in. */
     private boolean airborneDry;
+    /** Chen occasionally slaps water with her tails for this immersion (rolled once on entry, else body-only flail). */
+    private boolean tailFlail;
     private long lastTick=Long.MIN_VALUE, closedTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
@@ -53,6 +56,7 @@ public final class WaterDistress {
     public Phase phase(){return phase;}
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
+    public boolean tailFlail(){return tailFlail;}
     /** Its water incident ended (the breath after it included) within the last {@code ticks}. */
     public boolean closedWithin(long ticks){return closedTick!=Long.MIN_VALUE&&entity.level().getGameTime()-closedTick<=ticks;}
     public boolean active(){return phase!=Phase.IDLE;}
@@ -87,6 +91,7 @@ public final class WaterDistress {
         if(phase!=next){
             Phase before = phase; int elapsed = phaseTicks;
             phase=next;phaseTicks=0;
+            if(next==Phase.IDLE)tailFlail=false;
             if(before==Phase.RECOVER&&next==Phase.IDLE)closedTick=entity.level().getGameTime();
             GameplayLog.limited(entity, "water", "phase." + next, 200,
                     "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}", () -> new Object[]{
@@ -96,9 +101,11 @@ public final class WaterDistress {
     private void enterWater(){
         var action=entity.motor().current();
         var owner=entity.motor().owner();
-        GameplayLog.event(entity,"water","entered at={} action={} owner={} last={} velocity={}",
+        tailFlail = entity.getVariant() == YukkuriVariant.CHEN
+                && entity.getRandom().nextFloat() < 0.25f + 0.15f * (entity.life().personality().boldness() / 100f);
+        GameplayLog.event(entity,"water","entered at={} action={} owner={} last={} velocity={} tail={}",
                 GameplayLog.at(entity.position()),action==null?"none":action.id(),owner==null?"none":owner.ownerId(),
-                entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()));
+                entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()),tailFlail);
         immersionTicks=0;set(Phase.entry(airborneDry,pendingPlunge,entity.isEyeInFluid(FluidTags.WATER)));pendingPlunge=0;
         if(!entity.inert()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
     }
@@ -190,6 +197,7 @@ public final class WaterDistress {
         var tag=new CompoundTag();tag.putString("Phase",phase.name());tag.putInt("PhaseTicks",phaseTicks);
         tag.putInt("Immersion",immersionTicks);
         tag.putInt("PendingPlunge",pendingPlunge);
+        tag.putBoolean("TailFlail",tailFlail);
         return tag;
     }
     public void load(CompoundTag tag){
@@ -197,6 +205,7 @@ public final class WaterDistress {
         phaseTicks=Math.clamp(tag.getInt("PhaseTicks"),0,24000);immersionTicks=Math.clamp(tag.getInt("Immersion"),0,24000);
         drySupportTicks=0;
         pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,12);
+        tailFlail=tag.getBoolean("TailFlail")&&entity.getVariant()==YukkuriVariant.CHEN;
         callWait=0;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
     }
 }

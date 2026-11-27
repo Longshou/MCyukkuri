@@ -1,7 +1,7 @@
 {
   "status": "pending_user_confirmation",
   "exporter": "scripts/export_marisa_deficient_rounded.py",
-  "exporter_sha256": "bfc077601c4d2819b3b1a4ffc3a62fe2bf12560c16063d88f2b9c6bacdc428cf",
+  "exporter_sha256": "235747fc9ff0fec7dcfc4ad59a2fb3fb200da2202aeb31e9e735e26045a6ac28",
   "models": {
     "marisa_sparse": {
       "geometry_identifier": "marisa_sparse",

@@ -87,7 +87,7 @@ BUILDERS = [
     'art/structures/human-world/build.py', 'art/props/body-marks/build.py', 'art/props/predators/build.py',
     'standards/yukkuri-library/build.py', 'standards/yukkuri-library/body-standard/build.py',
     *['standards/yukkuri-library/body-standard/features/'+p+'/author.py' for p in
-      ('marisa-single-braid', 'hair-contact', 'deibu-mature', 'alice-hakkei')],
+      ('marisa-single-braid', 'hair-contact', 'deibu-mature', 'alice-hakkei', 'hair-chains')],
     *['standards/yukkuri-library/interactions/'+p+'/build.py' for p in
       ('toilet-contact', 'marisa-hat-vessel', 'marisa-braids', 'aquatic-marisa-hat')],
     'standards/yukkuri-library/interactions/aquatic-marisa-hat/export.py',

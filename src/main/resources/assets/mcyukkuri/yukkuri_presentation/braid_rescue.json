@@ -2383,9 +2383,9 @@
     -3.37601
   ],
   "source_model": "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json",
-  "source_model_sha256": "faaffbbbd751a82d06d7684d419bb88412380b46f1bafa38c92b4f92acd806b9",
+  "source_model_sha256": "9146587146c184f673b970a004ffd56aece87450d82deb767b9f9d76d4fba230",
   "source_placement": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "source_placement_sha256": "1a38b7c104859827f0c0db401c1722dc167ed42c7613821397cc42d94e756582",
+  "source_placement_sha256": "abebd326ed202e447770f08e9346e0cf7102a49cf8ae8730d56ba150a189a522",
   "source_recipe": "standards/yukkuri-library/interactions/braid-water-rescue/recipe.json",
   "source_recipe_sha256": "14f98a0ad4e248348106310d5250180b67960514753f978cf407f1de1752bcea",
   "source_braid_solver": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",

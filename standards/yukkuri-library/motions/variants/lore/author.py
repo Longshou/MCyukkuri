@@ -939,11 +939,15 @@ def carried(model, bone):
 
 
 def appendage_group(model, bone):
-    """Classify the non-skin appendage carried by `bone`: (bone_idx, group_name, parts).
+    """Classify the active appendage carried by `bone`: (bone_idx, group_name, parts).
 
-    `braid_chain` is reserved strictly for true multi-bone braid chains (Marisa's hand_right with
-    hand_right_braid_1); single-bone locks, tails and wings get their own group names so species
-    variants in recipe.json can animate them explicitly without ever applying braid_keys to rigid locks.
+    Only species whose hair/tail acts as a bin-rummage or water-flail limb get active groups:
+      - `braid_chain`: Marisa's 7-bone braid (hand_right + hand_right_braid_1..5 + tip)
+      - `sideburn`: Reimu's cuffed sideburns (4-bone chain on rounded/face/deibu)
+      - `cheek_lock`: Patchouli's long cheek locks (6-bone chain)
+      - `chen_tail`: Chen's two tails (used only on Chen's occasional *_tail clips)
+    Alice/Youmu front locks, Chen side locks, and predator wings/locks return `loose_hair`
+    and are never driven as active rummage/flail limbs.
     """
     idx, parts = carried(model, bone)
     if idx is None or not parts:
@@ -954,19 +958,29 @@ def appendage_group(model, bone):
         return idx, 'braid_chain', parts
     if bone.startswith('chen_tail_') or any(n.startswith('chen_tail_') for n in pnames):
         return idx, 'chen_tail', parts
-    if bone.startswith('predator_wing_') or any(n.startswith(('predator_wing_', 'predator_membrane_')) for n in pnames):
-        return idx, 'predator_wing', parts
     if any(n.startswith(('tied_lock_', 'cuff_')) for n in pnames):
         return idx, 'sideburn', parts
-    if any(n.startswith(('chen_side_lock_', 'chen_tuft_')) for n in pnames):
-        return idx, 'chen_side_lock', parts
-    if any(n.startswith('alice_hair_front_') for n in pnames):
-        return idx, 'front_lock', parts
     if any(n.startswith('patchouli_cheek_lock_') for n in pnames):
         return idx, 'cheek_lock', parts
-    if any(n.startswith(('predator_side_lock_', 'predator_ponytail')) for n in pnames):
-        return idx, 'predator_lock', parts
     return idx, 'loose_hair', parts
+
+
+def hair_chain_bones(model, root_bone):
+    """Return ordered bone indices [root, seg_1, ..., tip] for a multi-bone braid or hair-lock chain, or None."""
+    names = {b['name']: i for i, b in enumerate(model['bones'])}
+    if root_bone not in names:
+        return None
+    tip = f'{root_bone}_tip'
+    if tip not in names:
+        return None
+    for prefix in ('braid', 'lock'):
+        if f'{root_bone}_{prefix}_1' in names:
+            out, k = [names[root_bone]], 1
+            while f'{root_bone}_{prefix}_{k}' in names:
+                out.append(names[f'{root_bone}_{prefix}_{k}'])
+                k += 1
+            return out + [names[tip]]
+    return None
 
 
 def braid_carried(model, bone):
@@ -977,17 +991,120 @@ def braid_carried(model, bone):
     return hand, [p for p in parts if p['name'].startswith('braid_lock_')]
 
 
-FRONT_LOCK_GROUPS = {'sideburn', 'chen_side_lock', 'front_lock', 'cheek_lock', 'predator_lock'}
+FRONT_LOCK_GROUPS = {'sideburn', 'cheek_lock'}
 HEADWEAR_PREFIXES = ('brim_', 'hat_', 'bow_', 'chen_hat', 'alice_band', 'patchouli_bonnet', 'predator_cap_')
 
 
-def appendage_tracks(model, samples, c):
-    """Explicit single-bone appendage rotation tracks from `appendage_keys` in a recipe variant.
+def _keyed_vec(t, keys, duration, loop):
+    """Smoothly sample [[t, [rx, ry, rz]], ...], wrapping seamlessly when `loop` is True."""
+    if not keys:
+        return [0.0, 0.0, 0.0]
+    if loop:
+        t = t % duration
+    if t <= keys[0][0]:
+        return list(keys[0][1])
+    for (ta, va), (tb, vb) in zip(keys, keys[1:]):
+        if t <= tb:
+            q = smooth((t - ta) / (tb - ta)) if tb > ta else 0.0
+            return [a + (b - a) * q for a, b in zip(va, vb)]
+    return list(keys[-1][1])
 
-    Each entry maps bone name -> `{"group": "<appendage_group>", "keys": [[t, [rx, ry, rz]], ...]}`.
-    Verifies the model's bone actually belongs to the declared appendage group so rigid locks, tails
-    and wings are only driven on forms that really carry them (never on bean/sparse/wasa forms).
+
+def hair_chain_tracks(model, samples, c):
+    """Gravity-draped, follow-through, tip-driven multi-bone chain tracks from `hair_chain_keys`.
+
+    Each entry maps a chain root bone (`hand_right`, `hand_left`) to:
+      - `group`: expected active appendage group (`braid_chain`, `sideburn`, `cheek_lock`)
+      - `weights`: per-bone share of `drive_keys` (small at root, rising toward tip)
+      - `lag`: per-joint phase lag in seconds (travelling wave from root to tip)
+      - `sag`: per-bone gravity droop in degrees toward world -Y whenever lifted off rest
+      - `root_keys`: optional gentle root sway on bone 0 (degrees)
+      - `drive_keys`: wave-propagated bend along the chain (degrees)
+      - `tip_keys`: sharp terminal force (slap/hook/scoop/flick) concentrated on distal joints
+      - `tip_shares`: weights of `tip_keys` on the final N joints (default `[0.35, 0.65]`)
     """
+    spec_map = c.get('hair_chain_keys')
+    if not spec_map:
+        return []
+    bc = BRAID_KEYS['braid_chain']
+    d, loop = c['duration'], c['loop']
+    settle = float(c.get('settle', 0.30))
+    tracks = []
+    for root_bone, spec in spec_map.items():
+        idx, group, parts = appendage_group(model, root_bone)
+        expected = spec['group']
+        if idx is None or group != expected or not parts:
+            raise ValueError(f'{model["id"]}: hair_chain_keys[{root_bone}] expected group {expected!r}, got {group!r}')
+        chain = hair_chain_bones(model, root_bone)
+        if not chain or len(chain) < 3:
+            raise ValueError(f'{model["id"]}: hair_chain_keys[{root_bone}] requires a multi-bone chain (>= 3 bones), got {chain}')
+        n = len(chain)
+        weights = spec['weights']
+        if len(weights) != n:
+            raise ValueError(f'{model["id"]}: hair_chain_keys[{root_bone}] weights len {len(weights)} != chain len {n}')
+        sag_vals = spec.get('sag', [0.0] * n)
+        if isinstance(sag_vals, (int, float)):
+            sag_vals = [float(sag_vals) * (k / max(1, n - 1)) for k in range(n)]
+        lag = float(spec.get('lag', 0.035))
+        tip_shares = spec.get('tip_shares', [0.35, 0.65])
+        root_keys = spec.get('root_keys', [])
+        drive_keys = spec.get('drive_keys', [])
+        tip_keys = spec.get('tip_keys', [])
+        tip_lag = float(spec.get('tip_lag', (n - 1) * lag))
+        # Rest segment directions in chain-local space (used so gravity sag pulls along actual bone axis).
+        pivots = [np.array(model['bones'][b]['pivot'], float) for b in chain]
+        seg_dirs = []
+        for k in range(n):
+            if k + 1 < n:
+                v = pivots[k + 1] - pivots[k]
+                ln = float(np.linalg.norm(v))
+                seg_dirs.append(v / ln if ln > 1e-6 else np.array([0.0, -1.0, 0.0]))
+            else:
+                seg_dirs.append(seg_dirs[-1] if seg_dirs else np.array([0.0, -1.0, 0.0]))
+        rows = {b: [] for b in chain}
+        last = {}
+        down = np.array([0.0, -1.0, 0.0])
+        for t in samples:
+            fade = 1.0 if loop else min(1.0, max(0.0, (d - t) / settle)) if settle > 0 else 1.0
+            r0 = _keyed_vec(t, root_keys, d, loop) if root_keys else [0.0, 0.0, 0.0]
+            tip_t = (t - tip_lag) % d if loop else max(0.0, t - tip_lag * fade)
+            tv = _keyed_vec(tip_t, tip_keys, d, loop) if tip_keys else [0.0, 0.0, 0.0]
+            above = np.eye(3)
+            for k, b in enumerate(chain):
+                tk = (t - k * lag) % d if loop else max(0.0, t - k * lag * fade)
+                dv = _keyed_vec(tk, drive_keys, d, loop) if drive_keys else [0.0, 0.0, 0.0]
+                ang = [weights[k] * dv[a] + (r0[a] if k == 0 else 0.0) for a in range(3)]
+                tail_pos = k - (n - len(tip_shares))
+                if tail_pos >= 0:
+                    sh = tip_shares[tail_pos]
+                    ang = [ang[a] + sh * tv[a] for a in range(3)]
+                R_local = bc.euler(ang)
+                world = above @ R_local
+                # Apply gravity droop toward -Y proportional to how far this segment lifted from rest.
+                sag_deg = float(sag_vals[k]) if k < len(sag_vals) else 0.0
+                if sag_deg > 0.0:
+                    rest_dir = seg_dirs[k]
+                    cur_dir = world @ rest_dir
+                    rest_sin = float(np.linalg.norm(np.cross(rest_dir, down)))
+                    cur_sin = float(np.linalg.norm(np.cross(cur_dir, down)))
+                    lifted = max(0.0, cur_sin - rest_sin)
+                    if lifted > 1e-4:
+                        # Scale by lifted/cur_sin so sag is 0 at rest and full when held out.
+                        world = bc._sag(world, rest_dir, sag_deg * min(1.0, lifted / max(cur_sin, 1e-4)))
+                local = above.T @ world
+                above = world
+                last[b] = bc.to_euler(local, last.get(b))
+                rows[b].append([round(t, 8), *[round(v, 5) for v in last[b]]])
+        if loop:
+            for b in chain:
+                rows[b][-1][1:] = rows[b][0][1:]
+        for b in chain:
+            tracks.append({'bone': b, 'channel': 'rotation', 'keys': rows[b]})
+    return tracks
+
+
+def appendage_tracks(model, samples, c):
+    """Explicit single-bone appendage rotation tracks from `appendage_keys` (Chen's tails on *_tail clips)."""
     spec_map = c.get('appendage_keys')
     if not spec_map:
         return []
@@ -1005,8 +1122,11 @@ def appendage_tracks(model, samples, c):
 
 
 def appendage_gate(model, name, samples, all_tracks, c, height, palette):
-    """Clearance, water-depth, front eye non-occlusion and step smoothness gate for `appendage_keys` clips."""
-    spec_map = c.get('appendage_keys')
+    """Clearance, water-depth, front eye non-occlusion and step smoothness gate for `appendage_keys` and `hair_chain_keys`."""
+    spec_map = {}
+    for field in ('appendage_keys', 'hair_chain_keys'):
+        if c.get(field):
+            spec_map.update(c[field])
     if not spec_map:
         return {}
     touch = BRAID_KEYS['TOUCH']
@@ -1017,10 +1137,18 @@ def appendage_gate(model, name, samples, all_tracks, c, height, palette):
     body_check_verts = []
     front_lock_verts = []
     authored_bones = set()
+    root_bones = set()
+    distal_bones = set()
     raw_v = np.array(model['vertices']).reshape(-1, 8)[:, :3]
     for bone, spec in spec_map.items():
         idx, group, parts = appendage_group(model, bone)
-        authored_bones.add(idx)
+        root_bones.add(idx)
+        chain = hair_chain_bones(model, bone)
+        if chain:
+            authored_bones.update(chain)
+            distal_bones.update(chain[1:])
+        else:
+            authored_bones.add(idx)
         verts = sorted({i for p in parts for i in span(p)})
         app_verts.extend(verts)
         if group == 'chen_tail':
@@ -1098,8 +1226,10 @@ def appendage_gate(model, name, samples, all_tracks, c, height, palette):
         ez_cut = float(E0[:, 2].max()) + 0.25
         eye_mask_rest = (F0[:, 2] < ez_cut) & (F0[:, 0] >= ex0) & (F0[:, 0] <= ex1) & (F0[:, 1] >= ey0) & (F0[:, 1] <= ey1)
     # Water-depth minimum Y (BRAID.md §4/§7: floating waterline 4.0, max dip 2.2 => min y 1.8 at standard 9.6 height).
-    water_min_y = 1.8 * (height / 9.6) if c.get('root_support') == 'free_water' else None
-    worst = {k: [-math.inf, 0.] for k in ('app_body', 'app_hat', 'app_floor')}
+    water_flail = name.startswith(('water_flail', 'water_struggle'))
+    water_min_y = 1.8 * (height / 9.6) if (c.get('root_support') == 'free_water' and water_flail) else None
+    check_floor = c.get('root_support') != 'free_water' or water_flail
+    worst = {k: [-math.inf, 0.] for k in ('app_body', 'app_hat') + (('app_floor',) if check_floor else ())}
     if water_min_y is not None:
         worst['app_water'] = [-math.inf, 0.]
     min_y_seen, max_y_seen = math.inf, -math.inf
@@ -1120,7 +1250,8 @@ def appendage_gate(model, name, samples, all_tracks, c, height, palette):
         note('app_hat', hat_pen, t)
         by_min, by_max = float(P[body_check_verts, 1].min()), float(P[body_check_verts, 1].max())
         min_y_seen = min(min_y_seen, by_min); max_y_seen = max(max_y_seen, by_max)
-        note('app_floor', -float(B[:, 1].min()), t)
+        if check_floor:
+            note('app_floor', -float(B[:, 1].min()), t)
         if water_min_y is not None:
             note('app_water', water_min_y - by_min, t)
         if front_lock_verts and eye_verts:
@@ -1128,19 +1259,26 @@ def appendage_gate(model, name, samples, all_tracks, c, height, palette):
             occl = (F[:, 2] < ez_cut) & (F[:, 0] >= ex0) & (F[:, 0] <= ex1) & (F[:, 1] >= ey0) & (F[:, 1] <= ey1) & (~eye_mask_rest)
             if occl.any():
                 eye_hits.append((round(t, 3), int(occl.sum())))
-    # Smoothness & loop-seam continuity on authored appendage bones.
+    # Smoothness, loop-seam continuity & root-vs-distal bend report on authored appendage bones.
     max_step, seam_err = 0.0, 0.0
+    root_max, distal_max = 0.0, 0.0
     for tr in all_tracks:
         if tr['channel'] != 'rotation' or tr['bone'] not in authored_bones:
             continue
         ks = tr['keys']
+        peak = max(math.sqrt(k[1]**2 + k[2]**2 + k[3]**2) for k in ks)
+        if tr['bone'] in root_bones:
+            root_max = max(root_max, peak)
+        elif tr['bone'] in distal_bones:
+            distal_max = max(distal_max, peak)
         for a, b in zip(ks, ks[1:]):
             diff = max(abs(y - x) for x, y in zip(a[1:], b[1:]))
             max_step = max(max_step, diff)
         if c['loop']:
             seam_err = max(seam_err, max(abs(y - x) for x, y in zip(ks[0][1:], ks[-1][1:])))
     summary = ', '.join(f'{k} {v[0]:+.2f}@{v[1]:.2f}' for k, v in worst.items())
-    print(f'  {model["id"]} {name} (appendage): {summary}, y=[{min_y_seen:.2f},{max_y_seen:.2f}], step {max_step:.1f} deg, eye_hits {len(eye_hits)}', flush=True)
+    extra = f', root_max {root_max:.1f} deg, distal_max {distal_max:.1f} deg' if distal_bones else ''
+    print(f'  {model["id"]} {name} (appendage): {summary}, y=[{min_y_seen:.2f},{max_y_seen:.2f}], step {max_step:.1f} deg, eye_hits {len(eye_hits)}{extra}', flush=True)
     bad = {k: v for k, v in worst.items() if v[0] > touch}
     if bad or eye_hits or max_step > BRAID_KEYS['STEP'] or seam_err > 1e-3:
         raise ValueError(f'{model["id"]} {name}: appendage gate failed bad={bad} eye_hits={eye_hits[:4]} max_step={max_step:.1f} seam={seam_err:.4f}')
@@ -1384,6 +1522,7 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
         tracks += flourish_tracks(model, name, samples, cfg, c)+family_braid_tracks(model, name, samples, keys, root, hat, c)
         tracks += push_tracks(model, c, height)
         tracks += appendage_tracks(model, samples, c)
+        tracks += hair_chain_tracks(model, samples, c)
         fields = {}
         if BRAID_KEYS['authored'](c):
             tracks += BRAID_KEYS['tracks'](model, name, c, samples, tracks, TOOLS['palette'])
@@ -1395,7 +1534,11 @@ def compile_clips(model, cfg, root, ground, height, cache=None):
             if name not in NEW_BRAID_CLIPS: tracks += TOOLS['braid_tracks'](model, name, samples, c)
             more, fields = TOOLS['extras'](model, name, samples, tracks, c); tracks += more
         elif 'markers' in c: fields = {'markers': dict(c['markers'])}  # beats the game reads (ClipMarkers), e.g. hop_leg
-        if 'appendage_keys' in c:
+        if 'hair_chain_keys' in c and any(v.get('group') == 'braid_chain' for v in c['hair_chain_keys'].values()):
+            tip = BRAID_KEYS['tip_track'](model, samples, tracks, TOOLS['palette'])
+            BRAID_KEYS['continuity'](model, name, tracks)
+            fields['tip'] = tip
+        if 'appendage_keys' in c or 'hair_chain_keys' in c:
             appendage_gate(model, name, samples, tracks, c, height, TOOLS['palette'])
         out[name] = {'duration': d, 'loop': c['loop'], 'tracks': tracks,
                      'expression_spans': faces(cfg, c, ident), 'expression_yield': cfg['expression_yield'], **fields}
@@ -1470,7 +1613,8 @@ def export_family(family, prune_only=False, check=False):
         if follows:
             # A clip whose braid this model lays by key poses keeps them; the follow would replace its chain root.
             follow=dict(contact_cfg['braid_follow'],actions=[name for name in cfg['braid_follow'] if name in names and name in authored
-                                                             and not BRAID_KEYS['authored'](variant(cfg['clips'][name],ident))])
+                                                             and not BRAID_KEYS['authored'](variant(cfg['clips'][name],ident))
+                                                             and 'hair_chain_keys' not in variant(cfg['clips'][name],ident)])
             authored.update(contact_author['braid_follow'](model,dict(contact_cfg,braid_follow=follow),authored))
         authored=contact_author['finish_chain'](model,contact_cfg,authored,set(TOOLS['EXPORT_CLIPS']))
         if include_birth:

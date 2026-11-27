@@ -5,7 +5,7 @@
   "selected_model_sha256": "68c1f3606a801ba5ab43444d831727b900a2373598f129988c6899ebb00b51b2",
   "selected_rig": "standards/yukkuri-library/assembled/alice/animation-rig.json",
   "selected_rig_sha256": "947e690b59e33a06151150ecbfbe2e31eab197be73f52643cd4c3decd1802026",
-  "selected_runtime_sha256": "57ddcab0f927b1bd246e80f1a796d89cf75e9a719f56e8271e8f93df42c99b02",
+  "selected_runtime_sha256": "d8f888a7d2efa757e1f09cffa7a96b8d017028772a228d17e13e8e38425d2481",
   "snapshot": "art/source/rounded-runtime/alice/selected/alice.bbmodel",
   "retargeting": {
     "source_weights_preserved": true,
@@ -16,7 +16,7 @@
   "runtime_acceptance": "pending_current_verification",
   "appearance_note": "Confirmed rounded-body baseline; selected hair-contact revision and Deibu face/bow remain pending visual confirmation",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
-  "runtime_sha256": "4777144ed9e0c6a0d84d1b2bf9afc14237694cfffe8073c665d895d22f0df97d",
+  "runtime_sha256": "44ace2e0676afd2bbe2dc714fe9de39539bdad689e932d0da8dfefe541db86bf",
   "rig": "art/source/rounded-runtime/alice/animation-rig.json",
   "bone_count": 262,
   "clips": [

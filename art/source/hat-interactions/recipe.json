@@ -13,14 +13,14 @@
   "exporter": "scripts/export_hat_interactions.py",
   "exporter_sha256": "3f459c6e30765f6bf023048eef95d3a9456cec4744a5e8e4dd03196a5c321c13",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/hat_interactions.json",
-  "runtime_sha256": "f1c910fbb783114240900b4ecb67fa2313646e2eb2bdb66dc40356d5fba615f8",
+  "runtime_sha256": "82a9ddff18b4995a73936a0d9e62d639c8f6a7f728a9c48bc5c6962831bdd1c9",
   "sources": {
     "src/main/resources/assets/mcyukkuri/yukkuri/house_marisa.json": "13f29f47985ea5b740bfa94f5576e2d18a9a75747f571f39b4b2bf47f3fd32fe",
-    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "faaffbbbd751a82d06d7684d419bb88412380b46f1bafa38c92b4f92acd806b9",
+    "src/main/resources/assets/mcyukkuri/yukkuri/marisa.json": "9146587146c184f673b970a004ffd56aece87450d82deb767b9f9d76d4fba230",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_bean.json": "2de7922d59119923f175a066d8f925d6034c4a7025026ba96b4fee69f959c302",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "79beba8e355e3e5ace3c8b4f33e79c0eacdedebb364647c1ba4c11bfe24ce4c1",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "557207874b9164fce46a7172c216bf9fc6df4191a077afbb1ba7d22e3d864ce3"
   },
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "ff8412721a9463898f63217033d565484bceb55ddc008474362aee4c7bfe7b3d"
+  "placement_fit_sha256": "abebd326ed202e447770f08e9346e0cf7102a49cf8ae8730d56ba150a189a522"
 }

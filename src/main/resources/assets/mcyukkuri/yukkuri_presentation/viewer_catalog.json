@@ -58,6 +58,7 @@
     ["braid_eat_bin", "从倒地垃圾桶辫梢取食"],
     ["bin_sniff", "嗅垃圾桶"],
     ["bin_nose_in", "探进垃圾桶翻找"],
+    ["bin_nose_in_tail", "探进垃圾桶翻找（甩尾）"],
     ["joy_hop", "饭后幸福"],
     ["meal_content", "吃饱满足瘫软"],
     ["reject_or_spit", "吐出拒食"],
@@ -181,6 +182,7 @@
     ["bank_beckon", "岸边拨水"],
     ["water_beckon", "水中拨水"],
     ["water_flail", "水中扑腾前行"],
+    ["water_flail_tail", "水中扑腾前行（甩尾）"],
     ["boat_gather", "收集口粮"],
     ["boat_eat", "船上进食"],
     ["boat_drink", "船上饮水"],
@@ -215,6 +217,7 @@
    "clips": [
     ["water_plunge", "落水冲击"],
     ["water_struggle", "水中扑腾"],
+    ["water_struggle_tail", "水中扑腾（甩尾）"],
     ["water_gasp", "呼救喘息"],
     ["water_recover", "获救喘息"],
     ["water_hat_flip", "翻正帽子"],

@@ -9,6 +9,9 @@
 - 接触点是发尾网格离辫根最远的顶点（游戏 `BraidPose.resolve`、制作 `braid_keys.Chain.end` 同法），不是 `hand_right_tip` 骨的枢轴；导出的 `tip` 轨道就是这一点，幼油、食物、木棍都按它画。
 - 标准体辫长约 9.7 模型单位、粗约 2.5，辫根在帽檐下。辫长从辫根到静止辫梢量（`braid_rescue.json` 的 `braid_root`／`braid_tip`），服务端按 `growthScale × scale / 16` 换算成格；各节长度固定，任何解算都不拉长辫子。唯一例外是片段显式声明的拉长（无棍划水的 `lean_stretch`、取戴帽），发梢保持原大。
 - 辫根随身体动：身体侧倾、压扁会移动辫根，`reach_lean_root` 是低位俯身时的辫根；够取判定按片段实际所处的姿态取辫根。
+- 非魔理沙多骨发束链（`body-standard/features/hair-chains/author.py` 导出，保持静止外廓与旧骨索引不变）：
+  - 灵梦（`reimu`、`reimu_face`、`reimu_deibu`）：左右鬓发各 4 骨链 `hand_{side}` → `hand_{side}_lock_1`（`y=6.65`）→ `hand_{side}_lock_2`（`y=4.00`，刚性携带纸筒与筒内发束防穿筒）→ `hand_{side}_tip`（`y=1.75`）。
+  - 帕秋莉（`patchouli`）：左右长脸颊发束各 6 骨链 `hand_{side}` → `hand_{side}_lock_1..4`（`y=7.45/5.50/3.55/1.90`）→ `hand_{side}_tip`（`y=0.80`，携带发结与发尾簇）。
 
 | 形态 | 辫子 | 能做的辫子动作 |
 | --- | --- | --- |
@@ -21,16 +24,19 @@
 | `house_marisa` | 自身缩小骨链，夹点都在发尾骨 | 家油专用夹取、搬运、放下（`scripts/runtime_house_interactions.py`）与水中扑腾（`water_flail`／`water_struggle`） |
 | 捕食种 | 辫链已剥除，`hand_right_tip` 直接挂在 `hand_right` | 无 |
 
-## 2. 四种制作方式
+## 2. 制作方式与垂坠手感
 
-一个片段的辫子只有一个制作者；同一片段不叠两种做法。先按下表选，组装做不到才用更定制的一种。
+所有主动摆辫与长发束动作必须遵守**垂坠感 + 自然弯曲 + 末端发力**：发根受重力制约只作小幅偏转（一般 `root_max ≤ 18°`），弯曲沿中下段逐节展开并带行波滞后，发力集中在发梢末端（拍水、勾檐、掏翻、拨扫），禁止从发根整根僵硬直抬成触角。
+
+一个片段的辫子／发束只有一个制作者；同一片段不叠两种做法。先按下表选，组装做不到才用更定制的一种。
 
 | 做法 | 用在 | 入口 |
 | --- | --- | --- |
 | 跟随 | 辫子不干活，只随身体摆动 | `contact-safe/braid_chain.follow`；clip 列在 `contact-safe/recipe.json` 与 lore `recipe.json` 的 `braid_follow`，或家族 `braid_follow: true` |
-| 关键姿态 | 辫梢在身旁的地面、帽檐、食物、幼油上做接触 | lore `braid_keys.py`，配方 `braid_keys` |
-| 目标点轨迹 | 辫梢按时间走到给定点：划水、船上姿态、托幼上头、持物 | lore `aquatic_tools.py`，配方 `braid_path` |
-| 手骨手势 | 只转 `hand_right` 根部的整体姿势：落水冲击、喘息、情绪垂发、挥手 | lore `author.py` 的 `flourish_tracks`、`display`、`flourishes.braid_wave` |
+| 垂坠发链（`hair_chain_keys`） | 拍水扑腾、灵梦／帕秋莉翻桶、翻正推帽、推出帽檐等动态甩拍与软弯 | lore `author.py:hair_chain_tracks`，配方 `hair_chain_keys`（小根角 `root_keys` + 按节递增权重与行波滞后 `lag` 的 `drive_keys` + 重力下垂 `sag` + 末端 `tip_keys` 发力） |
+| 关键姿态（`braid_keys`） | 魔理沙辫梢在身旁的地面、帽檐、食物、幼油、桶口上做精确接触 | lore `braid_keys.py`，配方 `braid_keys`（配合 `root_weight` 非对称根手柄保持上段垂坠，及逐键 `tip_curl` 末端勾卷） |
+| 目标点轨迹（`braid_path`） | 辫梢按时间走到给定点：拨水、船上姿态、托幼上头、持物 | lore `aquatic_tools.py`，配方 `braid_path`（可配 `braid_drape` 改用垂坠贝塞尔引导线替代等曲率圆弧） |
+| 手骨手势 | 仅限小幅根部姿态与情绪展示：落水冲击、喘息、情绪垂发、挥手 | lore `author.py` 的 `flourish_tracks`、`display`、`flourishes.braid_wave` |
 
 另有两类专用解算：取帽、戴帽、扶帽、水生护帽由 `lore/hat.py` 把辫子弯到帽檐握点；持棍划桨由 `paddle_shared`（`curl`、`aim`、`braid_raise`）铺辫。
 
@@ -44,8 +50,8 @@
 
 ### 关键姿态（`braid_keys`）
 
-- 每个键 `[t, "rest"]` 或 `[t, {"tip", "root", "arrive"}]`：`tip` 是接触点位置，`root` 是辫子离开辫根的方向，`arrive` 是到达辫梢的方向，模型坐标。整条辫沿贝塞尔引导线铺下，各节保持原长，引导线手柄缩放到最后一节正好落在 `tip`。
-- 键间的 `tip`、`root`、`arrive` 走 C1 三次曲线，只在标 `stop` 的键（保持与首尾）速度为零；不标 `stop` 的键辫子连续经过、不停顿不回折。
+- 每个键 `[t, "rest"]` 或 `[t, {"tip", "root", "arrive", "tip_curl"?}]`：`tip` 是接触点位置，`root` 是辫子离开辫根的方向（保持接近竖直向下、略向外展让开脸颊，如 `[0.24, -1.0, -0.14]`），`arrive` 是到达辫梢的方向，`tip_curl` 是加在 `hand_right_tip` 上的末端勾卷欧拉角，模型坐标。整条辫沿贝塞尔引导线铺下，各节保持原长；片段级 `root_weight`（约 `1.2–1.45`）加长根部手柄使上段自然下垂、弯曲集中在中下段，引导线根控制点下限锁在地面 `y=0.2` 防止下冲折返。
+- 键间的 `tip`、`root`、`arrive`、`tip_curl` 走 C1 三次曲线，只在标 `stop` 的键（保持与首尾）速度为零；不标 `stop` 的键辫子连续经过、不停顿不回折。
 - 从垂直静止抬起或落回静止时，引导线会折回自身导致关节翻转：这一段的键标 `turn`，改为各骨从上一键的铺放姿态逐骨转到本键（最短弧），离开静止时辫梢先动、辫根后动，回到静止时相反；`swap_lead` 交换先后（贴身低伸而不是先在脸旁卷起时用）。
 - `braid_frame: "body"` 让键写在身体自身坐标里，随根骨转身与侧倾；身体在辫子干活时转身的片段用它。
 - 配方 `mirror` 只是倒放另一个片段的键与身体；需要不同路线（如放下不能原路退回）时另写一段键。
@@ -100,15 +106,13 @@
 
 ## 5. 种族适配
 
-- 只有魔理沙的辫子是能弯的多骨链与工具（`braid_chain`）。其他种族的发束挂在 `hand_left`／`hand_right` 单骨上，只能绕手骨枢轴整体转动，不能弯：灵梦为侧发加发筒（`tied_lock_*`、`cuff_*`），橙为侧发与发簇（`chen_side_lock_*`、`chen_tuft_*`），另有两条尾巴骨 `chen_tail_left`／`chen_tail_right`（托幼时程序卷尾），爱丽丝与妖梦为前侧发束（`alice_hair_front_*`），帕秋莉为长脸颊发束（`patchouli_cheek_lock_*`），蕾米莉亚与芙兰朵露为双翼（`predator_wing_*`）加侧发／马尾（`predator_side_lock_*`、`predator_ponytail*`）；`reimu_wasa*` 没有手骨，`reimu_bean` 与 `reimu_sparse` 的发辫不挂手骨。
-- 现行规则（部位分类器 `author.py:appendage_group`）：
-  - `appendage_group(model, bone)` 按骨链与网格部件名把附属部位分为 `braid_chain`、`sideburn`、`chen_side_lock`、`front_lock`、`cheek_lock`、`predator_lock`、`chen_tail`、`predator_wing`、`loose_hair` 与 `None`；`braid_carried` 与 `braid_keys` 仍只用于真正的多骨辫链（`braid_chain`：含 `braid_lock_*` 且骨架有 `hand_right_braid_1`），绝不套到单骨发束上。
-  - 非魔理沙形态可在 `recipe.json` 的 `variants`（`match`）里用 `appendage_keys` 显式驱动自身附属部位（每根骨声明 `group` 与 `[t, [rx, ry, rz]]` 关键帧），编译时校验骨属分组并自动过 `appendage_gate`（身体、头饰、地面、入水深度、身体局部系眼部不遮挡、单步转角 ≤ 40° 与循环首尾闭合）。
-  - 当前已落地的非魔理沙适配（纯视觉、现有单骨）：
-    - `water_flail`／`water_struggle`：灵梦（`reimu`、`reimu_face`、`reimu_deibu`、`house_reimu`）双鬓发加发筒交替外张拍水；橙（`chen`、`chen_longtail`、`chen_roundtail`）双尾交替甩拍加侧发抖动；爱丽丝／妖梦（`alice`、`myon`、`myon_redeye`）前侧发束外张拍打；帕秋莉（`patchouli`）长脸颊发束整体外张拍水；蕾米莉亚／芙兰朵露（`remilia`、`flandre`）双翼不对称急拍加侧发／马尾甩动。无发骨形态（`reimu_bean`、`reimu_sparse`、`reimu_wasa*`）及排除的魔理沙形态（`marisa_kotatsu`、`marisa_bean`、`marisa_sparse`）保持纯身体扑腾。
-    - `bin_nose_in`：灵梦（`reimu`、`reimu_face`、`reimu_deibu`）、爱丽丝／妖梦与帕秋莉停在桶沿轻俯（不压扁脸），双发束在桶口外沿交替扫拍（不假装卷握拉出）；橙（`chen`、`chen_longtail`、`chen_roundtail`）侧转身用右尾探扫桶口、左尾平衡；捕食种不进 `GarbageSearch`（不适用），家油由 `applies: not_house` 排除，无发骨形态留在嘴路线。
-  - 后续扩展（需另开包）：需要真弯曲或卷握持物时，先在 `body-standard`／亚种制作源给对应发束或尾巴分段加骨链与权重（如帕秋莉 4–5 节脸颊发束、橙 3–4 节尾链、灵梦 3 节侧发链），再同步把服务端能力与占用登记到 `ContactGeometry` 与 `motor/Braid.use`。
-  - 单骨发束前摆容易盖住眼睛、穿进脸颊或压进帽檐：每个形态都必须过 `appendage_gate`、`pose_check` 并看正面渲染条。
+- 按用户 2026-11-27 验收口径，**翻垃圾桶与水中扑腾的发束／尾部适配严格按种族分工**：
+  - **魔理沙**（`marisa`、`marisa_face`、`marisa_tsumuri`；`house_marisa` 仅水中扑腾）：7 骨单辫链（`braid_chain`），`bin_nose_in` 用 `braid_keys`（`root_weight` + `tip_curl`），`water_flail`／`water_struggle` 用 `hair_chain_keys`。被炉／稀发／豆形魔理沙留在嘴／纯身体路线。
+  - **灵梦**（`reimu`、`reimu_face`、`reimu_deibu`）：4 骨纸筒鬓发链（`sideburn`），`bin_nose_in` 与 `water_flail`／`water_struggle` 均用 `hair_chain_keys`（小根角、纸筒节刚性、下段弯出、发尾发力）。`house_reimu`、`reimu_bean`、`reimu_sparse`、`reimu_wasa*` 留在嘴／纯身体路线。
+  - **帕秋莉**（`patchouli`）：6 骨长脸颊发束链（`cheek_lock`），`bin_nose_in` 与 `water_flail`／`water_struggle` 均用 `hair_chain_keys`（根部贴帽檐下方几乎不动 `root_max ≤ 10°`，中下段弯出、末端发力）。
+  - **橙**（`chen`、`chen_longtail`、`chen_roundtail`）：默认翻桶用嘴（`bin_nose_in`）、扑腾用纯身体（`water_flail`／`water_struggle`）；**偶尔**按胆量随机（25%–40%）改播双尾专用片段 `bin_nose_in_tail`／`water_flail_tail`／`water_struggle_tail`（仅驱动 `chen_tail_left`／`chen_tail_right`，侧发 `loose_hair` 保持自然不乱动）。
+  - **其余全部种族**（爱丽丝 `alice`、妖梦 `myon`／`myon_redeye`、蕾米莉亚 `remilia`、芙兰朵露 `flandre` 等）：翻垃圾桶只用嘴，水中扑腾只用纯身体，不做发束或翅膀扑腾／翻桶适配。
+- 部位分类器 `author.py:appendage_group(model, bone)` 只将上述四类真正参与动作的部位归为 `braid_chain`、`sideburn`、`cheek_lock`、`chen_tail`，其余发束与翅膀一律归为 `loose_hair`（不参与主动驱动）。`hair_chain_keys` 与 `appendage_keys` 编译时统一过 `appendage_gate`（身体、头饰、地面、扑腾入水深度、身体局部系眼部不遮挡、单步转角 ≤ 40°、循环闭合，并打印 `root_max` 与 `distal_max`）；魔理沙的 `hair_chain_keys` 片段同步过 `braid_keys.continuity` 并导出 `tip` 轨道。
 - 魔理沙各形态的取舍见第 1 节的表；把片段推广到新形态前在该形态上跑门槛，过不了就留在嘴或纯身体路线并写明原因。
 
 ## 6. 已踩过的坑
@@ -139,16 +143,19 @@
 - 单骨长发束水中扑腾下沉超深与帽檐冲突：灵梦、爱丽丝／妖梦、帕秋莉与捕食种的静止侧发下沿低至 `y=0.00..1.90`，叠加扑腾时身体下沉（`-0.4`）与侧倾（`-6.5°`），外张角不足会把发梢压进水线 `1.8` 以下；扑腾需保持较大外张（`Rz ≥ 54°..64°`），帕秋莉因发顶紧贴睡帽檐（`y=10.02` vs `9.78`）须同时把外张压在 `≤ 67°`、前倾 `≤ 10°`；捕食种侧发向后延伸至 `z=+4.1`，负 `Rx` 会把后段抬进帽边，须保持 `Rx ≥ 0`。
 - 橙的长尾与圆尾几何差异：`chen_longtail` 尾长至 `z=21.38`，扑腾时身体抬头（`+7°`）会把尾部大幅下压，必须全程抬尾（`Rx ≤ -6°..-16°`）并在翻桶时减小转体偏航（`96°`）以控制 `RamContact` 最前 `-Z` 在 `11.6` 内；`chen_roundtail` 球尾前缘伸到骨枢轴前方（`z=4.50 < 6.27`），过度负 `Rx` 反而压低前缘，且埋在臀窝内的根塞（`rest_z < pivot_z`）与露在体外的尾身须分开核对。
 - 非凸／开口头饰穿插误报：蕾米莉亚／芙兰朵露的圆形帽边（`predator_cap_ruffle`）与灵梦后垂丝带（`bow_tail_mid_*`）不是单盒体，直接用三角有符号距离会在开口面背侧产生十余单位误报，用世界轴 AABB 又会在身体偏航／侧倾时膨胀并吞进圆边外的空角；`appendage_gate` 在身体根骨局部系内做 AABB 预筛并核对实际表面顶点距离（`< 0.45`），杜绝误报同时抓住真实穿帽。
+- 辫根直抬成触角与单骨硬转：旧版 `water_flail`／`water_struggle` 的 `arrive.y < 0` 令辫梢上翘、根部斜抬 > 30°，灵梦与帕秋莉旧单骨更是从根部硬转 60–80°；改用多骨链 `hair_chain_keys`（根角 ≤ 20°、弯曲集中在中下段并带行波 `lag` 与重力 `sag`、末端 `tip_keys` 甩拍）和 `braid_keys` 的 `root_weight`（`1.2–1.45`）+ `tip_curl`，彻底消除触角感。
+- 贝塞尔根手柄下冲与反平行折返：`braid_keys.Chain.lay` 若 `root_weight` 过大（`1.8–2.0`），低位目标会让控制点 `P1` 钻到地面下形成折返，而把 `P1.y` 下限错误锁到 `min(r.y, tip.y)` 又会把高位托举（`braid_brim_lift`）顶进帽檐；下限只锁在地面 `y=0.2`，同时保持 `root` 与 `arrive` 朝同侧外展（`root.x > 0, arrive.x > 0`，绝不反平行）、出入 `rest` 加 `turn`，单步角即可稳定在 30° 以内。
+- 新加发束子骨必须追加到 `rig.bones` 末尾：在 `hair-chains/author.py` 切分灵梦／帕秋莉发束时，把新增骨全部追加在骨架末尾，不移动既有骨索引，避免破坏 `reimu_face` 等共享权重供体的索引映射。
 
 ## 7. 检查方法
 
 命令在仓库根目录运行，`<py>` 见根目录约定，用法详见[脚本说明](../../scripts/README.md)。
 
-- 导出与门槛：`<py> scripts/export.py motion <片段> --beats <节拍文件> --model marisa,marisa_face,...` 导出所属家族，检查整身倾角、`braid_*` 片段的辫节连续性、节拍姿态报告并出渲染条；`--check` 不重导出。带辫子的家族：`brim-carry`、`braid-eat`、`dig`、`distress`、`aquatic`、`badge`、`paper`、`braid-water-rescue`、`bin-rummage`，跟随类在 `motion-corrections`。
-- 辫子与发束专项：`<py> standards/yukkuri-library/motions/variants/lore/braid_keys.py --check` 对魔理沙关键姿态片段跑辫子、幼油与身体、帽子、地面的穿插门槛，对全部 `braid_*` 片段跑连续性；非魔理沙含 `appendage_keys` 的变体在 `lore/author.py` 编译时自动跑 `appendage_gate`（核对 `app_body`、`app_hat`、`app_floor`、`app_water`、`eye_hits`、单步转角与循环闭合）；`<py> scripts/export_motion_corrections.py --check` 核对整份动作覆盖；`aquatic_tools` 的 `stroke_gate`、`held_gate`、`stow_gate`、`hull_gate` 在水上家族导出时自动跑，`<py> scripts/check_pose_consumers.py <基线> --lore --stow` 复核持物交接。
+- 导出与门槛：`<py> scripts/export.py motion <片段> --beats <节拍文件> --model marisa,reimu,patchouli,chen,alice` 导出所属家族，检查整身倾角、`braid_*` 片段的辫节连续性、节拍姿态报告并出渲染条；`--check` 不重导出。带辫子的家族：`brim-carry`、`braid-eat`、`dig`、`distress`、`aquatic`、`badge`、`paper`、`braid-water-rescue`、`bin-rummage`，跟随类在 `motion-corrections`。
+- 辫子与发束专项：`<py> standards/yukkuri-library/motions/variants/lore/braid_keys.py --check` 对魔理沙关键姿态片段跑辫子、幼油与身体、帽子、地面的穿插门槛，对全部 `braid_*` 与 `hair_chain_keys` 辫子片段跑连续性；含 `hair_chain_keys`／`appendage_keys` 的变体在 `lore/author.py` 编译时自动跑 `appendage_gate`（核对 `app_body`、`app_hat`、`app_floor`、扑腾 `app_water`、`eye_hits`、单步转角、循环闭合与 `root_max`/`distal_max`）；`<py> scripts/export_motion_corrections.py --check` 核对整份动作覆盖；`aquatic_tools` 的 `stroke_gate`、`held_gate`、`stow_gate`、`hull_gate` 在水上家族导出时自动跑，`<py> scripts/check_pose_consumers.py <基线> --lore --stow` 复核持物交接。
 - 离线看图：`<py> scripts/preview.py strip <主题> --model marisa --clip <片段> --times ... --view 0 4 --view 90 4`，至少看正面（辫子在画面左）和辫侧；`--wall` 看避墙；`--before <ref>` 出新旧对比。划桨与拨水看 `lore/aquatic_paddle_preview.py`（`--form`、`--against`）与 `lore/aquatic_strokes_preview.py`。逐帧数值用 `<py> scripts/pose_check.py --model marisa --clip <片段> --t 0:<时长>:0.05 --metric tilt,pass[,wet]`。
-- 读哪些帧：每个标记时刻（`contact`、`lift_start`、`place`、`release`、`pick`、`mouth`、`power_start`、`power_end`、`grip`）；每段 `turn` 的起点、中点、终点；门槛报告打印的最差时刻；首帧与末帧（与前后片段的衔接）；跨水面扑腾另核 `tip` 轨道 `y` 区间（水上高点高于水线 `4.0`、拍水低点入水不超过第 4 节允许深度 `2.2` 且不低于地面）。
-- 交给用户：`<py> scripts/preview.py viewer <主题> --model marisa --clip <片段> --decision <要用户决定什么>`；最后一轮做游戏内截图审图（`capture_review.py`），确认真实接触与遮挡。
+- 读哪些帧：每个标记时刻（`contact`、`lift_start`、`place`、`release`、`pick`、`mouth`、`power_start`、`power_end`、`grip`）；每段 `turn` 的起点、中点、终点；门槛报告打印的最差时刻；首帧与末帧（与前后片段的衔接）；跨水面扑腾另核最低点高于 `1.8`（水线 `4.0` 下最多入水 `2.2`）且不低于地面。
+- 交给用户：`<py> scripts/preview.py video <主题> --model marisa reimu patchouli chen alice --clip ... --before <基线> --decision <要用户决定什么>` 出单页 MP4 对比视频登记到待你查看页（动作验收优先视频，不再堆多帧静态图条）。
 
 ## 补充规则
 

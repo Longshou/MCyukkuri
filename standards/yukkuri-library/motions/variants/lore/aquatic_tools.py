@@ -321,11 +321,13 @@ def braid_rotation(action, t, c, side):
         if side < 0: return [0, 0, -(10+8*bump((t-.80)/.75))]
         return None
     if action == 'water_hat_right':
+        if 'hair_chain_keys' in c and side > 0: return None
         if side < 0: return [0, 0, -(10+6*bump((t-.6)/1.0))]
         # Rest, then swing forward-up under the lifting far brim and push it over.
         return [keyed(t, [(0, 0), (.8, 20), (1.0, 55), (1.4, 92), (1.7, 70), (2.0, 0)]), 0,
                 keyed(t, [(0, 0), (.8, 18), (1.2, 10), (1.6, 8), (2.0, 0)])]
     if action == 'boat_jettison' and side > 0:
+        if 'hair_chain_keys' in c: return None
         return [keyed(t, [(0, 0), (.3, 30), (.6, 8), (1.0, 0)]), 0, keyed(t, [(0, 0), (.3, 14), (.6, 44), (1.0, 0)])]
     if action in ('boat_cargo_stow', 'boat_cargo_fetch'):
         return [0, 0, side*(10+6*bump(t/c['duration']))]  # locks swing aside as the head goes down
@@ -336,11 +338,13 @@ def tip_rotation(action, t, c):
     """Rotation of the braid tuft (hand_right_tip) for the curl, hook and push; paddle clips aim it along the stick instead."""
     if action in AUTHORED: t = t*AUTHORED[action]/c['duration']
     if action == 'boat_jettison':
+        if 'hair_chain_keys' in c: return None
         flat = keyed(t, [(0, 0), (.3, 1), (.6, 1), (1.0, 0)]); return [-30*flat, 0, 0]
     if action == 'water_hat_climb':
         hook = keyed(t, [(0, 0), (.55, .15), (.75, 1), (1.10, 1), (1.30, 0), (1.8, 0)])
         return [48*hook, 0, -8*hook]  # tuft folds down over the brim lip while hooked, then opens on release
     if action == 'water_hat_right':
+        if 'hair_chain_keys' in c: return None
         flat = keyed(t, [(0, 0), (.9, 0), (1.1, 1), (1.6, 1), (2.0, 0)]); return [-35*flat, 0, 0]  # open tuft pressing like a palm
     return None
 
@@ -402,6 +406,38 @@ def path_tracks(model, action, samples, tracks, c):
     rest = np.array([bones[i]['pivot'] for i in chain]+[end.tolist()], float)
     rows, last, sizes = {i: [] for i in chain}, {}, []; stretch = c.get('lean_stretch')
     def size(t): return 1+(stretch-1)*lean_share(paddle_phase(t, c)) if stretch else 1.
+    drape = c.get('braid_drape')
+    drape_chain = None
+    if drape:
+        # Gravity-draped Bezier solver on the same chain slice: upper segments hang close to vertical while
+        # lower segments and tip carry the reach, stroke pull and drooped recovery instead of a stiff circular arc.
+        class _SubChain:
+            def __init__(self, r): self.rest = r; self.seg = np.linalg.norm(np.diff(r, axis=0), axis=1)
+            def along(self, curve):
+                J, k = [curve[0]], 0
+                for s in self.seg:
+                    cc = J[-1]
+                    while k < len(curve)-1 and np.linalg.norm(curve[k+1]-cc) < s: k += 1
+                    if k >= len(curve)-1: return None
+                    a, dd = curve[k], curve[k+1]-curve[k]; f = a-cc
+                    A, B, C = dd@dd, 2*f@dd, f@f-s*s; J.append(a+dd*(-B+math.sqrt(max(B*B-4*A*C, 0)))/(2*A))
+                return np.array(J)
+            def lay(self, tip, d0, d1, rw):
+                u = np.linspace(0, 1, 1600)[:, None]; r0 = self.rest[0]
+                d0 = np.asarray(d0, float)/np.linalg.norm(d0); d1 = np.asarray(d1, float)/np.linalg.norm(d1)
+                y_floor = min(r0[1], tip[1]) + 0.15
+                def bez(lam):
+                    p1 = r0 + lam * rw * d0
+                    if d0[1] < 0 and p1[1] < y_floor:
+                        p1 = np.array([p1[0], y_floor, p1[2]])
+                    return (1-u)**3*r0+3*(1-u)**2*u*p1+3*(1-u)*u**2*(tip+lam*d1)+u**3*tip
+                lo, hi = 0., 30.
+                for _ in range(50):
+                    mid = (lo+hi)/2
+                    if self.along(bez(mid)) is None: lo = mid
+                    else: hi = mid
+                return self.along(bez(hi))
+        drape_chain = _SubChain
     def laid(t):
         yaw = sample(own['rotation'], t)[1] if 'rotation' in own else 0.
         shift = sample(own['position'], t) if 'position' in own else [0., 0., 0.]
@@ -409,7 +445,24 @@ def path_tracks(model, action, samples, tracks, c):
         world = np.array([x, y, z]) if water else np.array([flat[0]+pivot[0]+shift[0], y, flat[2]+pivot[2]+shift[2]])
         M = palette(model, tracks, t); local = (np.linalg.inv(M[bones[chain[0]]['parent']])@np.r_[world, 1])[:3]
         taut = rest[0]+(rest-rest[0])*[1., size(t), 1.]
-        solved = braid_chain.rotations(taut, braid_chain.arc(taut, local))
+        joints = None
+        if drape:
+            sub = drape_chain(taut)
+            if np.linalg.norm(local - taut[0]) < sub.seg.sum() * 0.992:
+                if water:
+                    u = paddle_phase(t, c)
+                    # Smooth blend between underwater pull arrival and gravity-drooped recovery arrival.
+                    rec = smooth((u - 0.5) / 0.14) * (1 - smooth((u - 0.88) / 0.12)) if u >= 0.5 else 0.
+                    a0 = np.asarray(drape.get('arrive_pull', [0.0, 0.85, 0.52]), float)
+                    a1 = np.asarray(drape.get('arrive_recover', [0.15, 0.95, 0.25]), float)
+                    arr = a0 * (1 - rec) + a1 * rec
+                else:
+                    arr = np.asarray(drape.get('arrive', [0.15, 0.92, 0.25]), float)
+                d0 = np.asarray(drape.get('root', [0.10, -1.0, -0.05]), float)
+                joints = sub.lay(local, d0, arr, float(drape.get('root_weight', 1.7)))
+        if joints is None:
+            joints = braid_chain.arc(taut, local)
+        solved = braid_chain.rotations(taut, joints)
         curl = tip_rotation(action, t, c)
         if curl is not None: solved[-1] = solved[-1]@euler(curl)
         return solved

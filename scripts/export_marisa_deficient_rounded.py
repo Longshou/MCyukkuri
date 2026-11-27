@@ -214,6 +214,14 @@ def author(ident):
         for bone in rig['bones']:
             if bone['name'].startswith('bow'):
                 bone['pivot']=[bone['pivot'][k]+offset[k] for k in range(3)]
+    hair_chains = None
+    if ident == 'reimu_face':
+        import runpy as _runpy
+        hair_chains = _runpy.run_path(str(LIB/'body-standard/features/hair-chains/author.py'))
+        elems_with_bone = [dict(e, bone=g) for e, g, _ in pairs]
+        elems_with_bone = hair_chains['segment'](ident, elems_with_bone, rig, body.mesh, body.vertices, bb['resolution']['width'])
+        names = {b['name']: i for i, b in enumerate(rig['bones'])}
+        pairs = [(e, g, ch or bool(e.get('chain_subdivided'))) for e, (_, g, ch) in zip(elems_with_bone, pairs)]
     flat, weights, parts = [], [], []
     for e, group, changed in pairs:
         p = oldparts[e['name']]
@@ -224,11 +232,14 @@ def author(ident):
                 normal=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
                 if sum(normal[k]*values[i+5+k] for k in range(3))<0:
                     values[i+8:i+24]=values[i+16:i+24]+values[i+8:i+16]
-            ww = [body.continuous_binding(values[i+1], names) if e.get('body_follow') or e['name'].startswith('face_')
-                  else [names[group],names[group],0] for i in range(0,len(values),8)]
+            ww = [(hair_chains['binding'](ident, e['name'], group, values[i+1], names) if hair_chains else None)
+                  or (body.continuous_binding(values[i+1], names) if e.get('body_follow') or e['name'].startswith('face_')
+                      else [names[group],names[group],0]) for i in range(0,len(values),8)]
         else:
             values = donor['vertices'][p['start']*8:(p['start']+p['count'])*8]
             ww = donor['weights'][p['start']:p['start']+p['count']]
+            if hair_chains and group in ('hand_left', 'hand_right'):
+                ww = [hair_chains['binding'](ident, e['name'], group, values[i+1], names) for i in range(0,len(values),8)]
             if group == 'rear_hair':
                 # The frozen back hem and locks lie on the body-following back hair (hair-contact body_follow);
                 # held rigid, the walk's rear sway slid it through them. Same geometry, continuous binding.
@@ -249,7 +260,14 @@ def author(ident):
                 node['children']=[n for n in node['children'] if isinstance(n,dict)]
                 collect(node['children'])
     collect(bb['outliner'])
-    for bone in rig['bones']:nodes[bone['name']]['origin']=bone['pivot']
+    import uuid as _uuid
+    for bone in rig['bones']:
+        if bone['name'] not in nodes:
+            node = dict(name=bone['name'], uuid=str(_uuid.uuid5(_uuid.NAMESPACE_URL, f'rounded-standard-body/{ident}/bone/{bone["name"]}')), origin=bone['pivot'], children=[])
+            nodes[bone['name']] = node
+            if bone['parent'] and bone['parent'] in nodes:
+                nodes[bone['parent']]['children'].append(node)
+        nodes[bone['name']]['origin']=bone['pivot']
     for e,group,_ in pairs:nodes[group]['children'].append(e['uuid'])
     rig.update(groups=[p[1] for p in pairs],element_vertex_counts=[p['count'] for p in parts],vertex_weights=weights)
     for clip in rig['clips'].values():

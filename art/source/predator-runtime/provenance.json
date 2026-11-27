@@ -4,7 +4,7 @@
   "entities": {
     "remilia": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/remilia/remilia.bbmodel",
-      "selected_model_sha256": "fdf8d14de363affe4981ea472b83df4edc82d8f73463880ee90ba671b18265bd",
+      "selected_model_sha256": "39d51b722e340d0fdeff87dd61601793715147ea4fbb835650b09ec026b1542f",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
       "selected_rig_sha256": "b142da91714a839c2b090c6a569185134ae5e0000d71aa6142dfd2ecb8bca677",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/remilia/animation-rig.json",
@@ -114,7 +114,7 @@
     },
     "flandre": {
       "selected_model": "standards/yukkuri-library/subspecies/predator/assembled/flandre/flandre.bbmodel",
-      "selected_model_sha256": "e74565a8a46779b6aa01a0546d0d4fd419828db9e1bfa522bfed36ddcab76594",
+      "selected_model_sha256": "54ebac7085e6c07baf91aac410eff78de8fcaa24e08e8744f642271002b56be6",
       "selected_rig": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",
       "selected_rig_sha256": "6ac5b466ab0d133adb7e2a3e77e66d2279927b1ca46e57c240ab4b3059c3e13f",
       "standard_motion_source": "standards/yukkuri-library/subspecies/predator/assembled/flandre/animation-rig.json",

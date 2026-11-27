@@ -123,11 +123,19 @@ class Chain:
             A, B, C = d@d, 2*f@d, f@f-s*s; J.append(a+d*(-B+math.sqrt(max(B*B-4*A*C, 0)))/(2*A))
         return np.array(J)
 
-    def lay(self, tip, root, arrive):
-        """Joints (local frame) along the Bezier guide root -> tip, its handles scaled until the chain ends on the tip."""
+    def lay(self, tip, root, arrive, root_weight=1.0):
+        """Joints (local frame) along the Bezier guide root -> tip, its handles scaled until the chain ends on the tip.
+        `root_weight` > 1 lengthens the root handle so upper segments hang closer to `root` (gravity vertical) while curvature
+        concentrates toward the lower segments and tip."""
         u = np.linspace(0, 1, 2000)[:, None]; r = self.rest[0]
         d0 = np.asarray(root, float)/np.linalg.norm(root); d1 = np.asarray(arrive, float)/np.linalg.norm(arrive)
-        bez = lambda lam: (1-u)**3*r+3*(1-u)**2*u*(r+lam*d0)+3*(1-u)*u**2*(tip+lam*d1)+u**3*tip
+        rw = float(root_weight)
+        y_floor = 0.2
+        def bez(lam):
+            p1 = r + lam * rw * d0
+            if d0[1] < 0 and p1[1] < y_floor:
+                p1 = np.array([p1[0], y_floor, p1[2]])
+            return (1-u)**3*r+3*(1-u)**2*u*p1+3*(1-u)*u**2*(tip+lam*d1)+u**3*tip
         if np.linalg.norm(tip-r) >= self.seg.sum(): raise ValueError(f'braid key tip {tip} out of the braid reach')
         lo, hi = 0., 30.
         for _ in range(60):
@@ -175,16 +183,19 @@ def tracks(model, name, c, samples, root_tracks, palette):
     own = [{'bone': tr['bone'], 'channel': tr['channel'], 'keys': [[k[0], *sample_root(tr['keys'], back(k[0]))] for k in tr['keys']]}
            for tr in root_tracks] if of != name else root_tracks
     parent = model['bones'][chain.bones[0]]['parent']
-    rest = {'tip': chain.rest[-1], 'root': chain.rest[1]-chain.rest[0], 'arrive': chain.rest[-2]-chain.rest[-1]}
+    rest = {'tip': chain.rest[-1], 'root': chain.rest[1]-chain.rest[0], 'arrive': chain.rest[-2]-chain.rest[-1], 'tip_curl': np.zeros(3)}
     keys = c['braid_keys']; times = [k[0] for k in keys]; stops = ['stop' in k[2:] for k in keys]
-    specs = [rest if k[1] == 'rest' else {f: np.asarray(v, float) for f, v in k[1].items()} for k in keys]
+    specs = [rest if k[1] == 'rest' else {**{f: np.asarray(v, float) for f, v in k[1].items()},
+             'tip_curl': np.asarray(k[1].get('tip_curl', [0., 0., 0.]), float)} for k in keys]
+    has_curl = any(np.linalg.norm(s['tip_curl']) > 1e-6 for s in specs)
+    root_weight = float(c.get('root_weight', 1.0))
     body = c.get('braid_frame') == 'body'  # keys in the body's own rest frame, turning and leaning with the root
     root = next(i for i, b in enumerate(model['bones']) if b['name'] == 'root')
     def lay(spec, t, frame):
         M = palette(model, own, t) if frame else None
         inv = np.linalg.inv(M[parent])@(M[root] if body else np.eye(4)) if frame else np.eye(4)
         tip = (inv@np.r_[spec['tip'], 1])[:3]; dirs = [inv[:3, :3]@spec[f] for f in ('root', 'arrive')]
-        return np.array([rotvec(R) for R in braid_chain.rotations(chain.rest, chain.lay(tip, *dirs))])
+        return np.array([rotvec(R) for R in braid_chain.rotations(chain.rest, chain.lay(tip, *dirs, root_weight=root_weight))])
     # The rest guide is laid in the chain's own rest frame; its offset from the true rest eases out away from each rest key.
     offset = -lay(rest, 0, False)
     def laid(u):
@@ -197,9 +208,12 @@ def tracks(model, name, c, samples, root_tracks, palette):
     ends = {j: [[matrix(x) for x in laid(times[i])] for i in (j-1, j)] for j, k in enumerate(keys) if 'turn' in k[2:]}
     def pose(u):
         j = next((j for j in ends if times[j-1] < u <= times[j]), None)
-        if j is None: return laid(u)
-        s = (u-times[j-1])/(times[j]-times[j-1])
-        return np.array([rotvec(R) for R in turned(*ends[j], s, (keys[j-1][1] == 'rest') != ('swap_lead' in keys[j][2:]))])
+        v = laid(u) if j is None else np.array([rotvec(R) for R in turned(*ends[j], (u-times[j-1])/(times[j]-times[j-1]), (keys[j-1][1] == 'rest') != ('swap_lead' in keys[j][2:]))])
+        if has_curl:
+            curl = hermite(times, [s['tip_curl'] for s in specs], stops, u)
+            if np.linalg.norm(curl) > 1e-6:
+                v[-1] = rotvec(matrix(v[-1])@braid_chain.euler(curl))
+        return v
     rows, last = {b: [] for b in chain.bones}, {}
     for t in samples:
         v = pose(at(t))
@@ -330,8 +344,9 @@ if __name__ == '__main__':
     own = {name: next(({**c, **{k: x for k, x in v.items() if k != 'match'}} for v in c.get('variants', {}).values() if 'marisa' in v['match']), c)
            for name, c in RECIPE['clips'].items()}
     keyed = [name for name, c in own.items() if authored(c)]
+    extra = sorted(n for n in rev['clips'] if (n.startswith('braid_') or 'hair_chain_keys' in own.get(n, {})) and n not in keyed)
     failed = []
-    for name in keyed+sorted(n for n in rev['clips'] if n.startswith('braid_') and n not in keyed):
+    for name in keyed+extra:
         clip = rev['clips'][name]
         tr = [dict(t, bone=names[rev['bone_names'][t['bone']]]) for t in clip['tracks'] if rev['bone_names'][t['bone']] in names]
         try:

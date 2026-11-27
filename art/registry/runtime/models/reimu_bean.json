@@ -4,10 +4,10 @@
   "selected_model": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/reimu_bean.bbmodel",
   "selected_model_sha256": "54949f3478dc495da1b0e1ab781f529ebbc0237315ff11a9a8a4974b0a6c1479",
   "selected_rig": "standards/yukkuri-library/subspecies/deficient/assembled/reimu_bean/animation-rig.json",
-  "selected_rig_sha256": "4afe13b66a83a283c40d9c3aee53496ac0037a389540f7c0270b43f4819b88dd",
+  "selected_rig_sha256": "e99e07fa74a1b31ad9c9cdda1db457545cb628961a0faf303ac52a0292013421",
   "snapshot": "art/source/subspecies-runtime/reimu_bean/reimu_bean.bbmodel",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_bean.json",
-  "runtime_sha256": "8e7d29ce684e1c5ab38dd6a7b41a5fba8d7a505bc413b661370d0dd45d87f83e",
+  "runtime_sha256": "18bd5b83730aa20ebaf19ca9300e71cdeb90a82cb4b7c34102db49112273a9ab",
   "bone_count": 197,
   "clips": [
     "idle",
@@ -160,7 +160,7 @@
     }
   },
   "motion_source": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
-  "motion_source_sha256": "2f726f5cada06ae053f2f21dbfcbd1f86bb541f070bdae769eb954e52c0c226b",
+  "motion_source_sha256": "4e5f98cc46961789df689550f47dc763166ed569ef6af3bce9bb3ef6218c013e",
   "shape_status": "pending_user_confirmation",
   "approval_note": "",
   "runtime_acceptance": "not_executed",

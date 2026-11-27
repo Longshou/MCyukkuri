@@ -162,7 +162,7 @@ public final class PresentationArbiter {
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"distaste_grimace");
         if (clip.equals(e.life().braidMealClip()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "look_down");
-        if (clip.equals(Behaviors.BIN_SNIFF) || clip.equals(Behaviors.BIN_NOSE_IN))
+        if (clip.equals(Behaviors.BIN_SNIFF) || clip.equals(Behaviors.BIN_NOSE_IN) || clip.equals(YukkuriAction.BIN_NOSE_IN_TAIL.id()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "neutral");
         if (HomeClaim.declaring(e) && clip.equals(e.reactionAction().id()))
             return ExpressionClips.sample(e.assetId(), clip, (e.level().getGameTime()-start)/20f, "smug");
@@ -300,6 +300,10 @@ public final class PresentationArbiter {
         publish(id, new Presentation(() -> ordinary(state, motion, behavior, actions, travelling && stillTicks < STILL_HOLD)));
     }
 
+    private static YukkuriAction waterStruggle(YukkuriEntity e) {
+        return e.waterDistress().tailFlail() ? YukkuriAction.WATER_STRUGGLE_TAIL : YukkuriAction.WATER_STRUGGLE;
+    }
+
     private static Presentation waterDistress(PresentationAccess state, Motion m) {
         var e = state.owner();
         return new Presentation(() -> {
@@ -310,7 +314,8 @@ public final class PresentationArbiter {
             state.behavior(distress);
             // A running water action (righting, climbing) shows its own clip from its phase; otherwise the distress phase's clip.
             var pose = actionPose(e);
-            state.animation(pose != null ? pose.action() : EcologyPresentation.action(distress));
+            state.animation(pose != null ? pose.action()
+                    : distress.equals(Behaviors.WATER_STRUGGLE) ? waterStruggle(e) : EcologyPresentation.action(distress));
             state.animationStart(pose != null ? pose.startTick() : e.waterDistressStartTick());
             var phase = e.waterDistress().phase();
             state.expression(e.profile().aquatic() ? aquaticWaterFace(phase) : nonAquaticWaterFace(phase));
@@ -359,7 +364,7 @@ public final class PresentationArbiter {
                 // its clock; the fright still sets the behaviour and the face below. In water the struggle clip stays the panic's.
                 var pose = water ? null : actionPose(e);
                 state.animation(pose != null ? pose.action()
-                        : water ? YukkuriAction.WATER_STRUGGLE
+                        : water ? waterStruggle(e)
                         : e.onGround() && e.species().catchingBreath() && e.getDeltaMovement().horizontalDistanceSqr() <= 0.000001
                         ? EcologyPresentation.catchBreath(e) : panicTicks > 100 ? YukkuriAction.STARTLE
                         : e.isCrawling() && (e.body().weak() || e.body().footBurned()) ? YukkuriAction.WEAK_CRAWL
@@ -446,7 +451,7 @@ public final class PresentationArbiter {
                 : pose != null ? pose.action()
                 : HomeClaim.declaring(e) ? e.reactionAction()
                 : e.getVehicle() instanceof PlacedHatEntity placed ? hatRiderAction(state, placed, behavior)
-                : e.isInWaterOrBubble() ? YukkuriAction.WATER_STRUGGLE
+                : e.isInWaterOrBubble() ? waterStruggle(e)
                 // A bout's end pose plays through the loser's knock-back slide as well: the slide is the push-out.
                 : e.reactionAction() != null && e.reactionAction().sumoEnd() && !e.life().isSleeping() ? e.reactionAction()
                 : e.species().catchingBreath() && e.onGround() && !e.isPassenger() && m.distanceSquared() <= 0.000001
