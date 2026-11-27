@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 灵梦鬓发根部变细（落水慌乱） | `.worktrees/wp-hair-root` | body-standard/features/hair-chains/author.py, lore recipe hair_chain_keys |
 | 翻船被甩出 boat_thrown 接入与单侧辫子 | `.worktrees/wp-boat-thrown` | lore aquatic_tools.py boat_thrown, recipe boat_thrown, aquatic capsize |
 
 ## 玩法待办
