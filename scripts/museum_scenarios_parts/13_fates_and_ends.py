@@ -328,7 +328,8 @@ _scene_end('afloat_stick', [('a', _DRY + ' and hold.kit.item=minecraft:stick')],
 _scene_end('night_boat', [('a', _DRY), ('k1', _DRY), ('k2', _DRY)],
            dict(steps=[('a', 'seen:aquatic:night_rest asked captain=true'), ('a', 'seen:sleep:beat=lie_down face=sleep line=sleep'),
                        ('a', 'seen:sleep:end source=fatigue full=true cause=rested'), ('a', 'seen:sleep:beat=wake face=neutral line=awake')]),
-           [('k1', 'seen:sleep:begin source=fatigue full=true .*carrier=true'), ('k2', 'seen:sleep:begin source=fatigue full=true .*carrier=true')])
+           [('k1', 'seen:sleep:begin source=fatigue full=true .*carrier=true'), ('k1', 'seen:sleep:beat=wake face=neutral line=awake')],
+           [('k2', 'seen:sleep:begin source=fatigue full=true .*carrier=true'), ('k2', 'seen:sleep:beat=wake face=neutral line=awake')])
 _scene_end('kid_boat_play', [('a', _DRY), ('c1', _DRY), ('c2', _DRY)],
            [('c1', 'seen:aquatic:play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim'),
             ('c1', 'seen:aquatic:play (?:return inside|stays on brim).*reason=fear:thunder')],
