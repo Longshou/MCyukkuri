@@ -3,10 +3,10 @@ def captain(name='a', *, dx=0, dz=0, **kw):
     return yk('marisa', dx, dz, name, aquatic=True, yaw=-90, lead=True, **pair_ready(), **kw)
 
 
-def pond(sid, title, hint, watch, wait, lines, note='', vantage=(-6, 6, -90), **kw):
+def pond(sid, title, hint, watch, wait, lines, note='', vantage=(-6, 6, -90), env=DAY, **kw):
     # Restore the entire shared field before actors spawn; specialised scenes may override it below.
     add(sid, 'pond', title, hint, watch, wait, [*BY_ID['pond'].biome_commands(), *lines],
-        env=DAY, note=note, vantage=vantage, **kw)
+        env=env, note=note, vantage=vantage, **kw)
 
 
 def bank_dx(dz):

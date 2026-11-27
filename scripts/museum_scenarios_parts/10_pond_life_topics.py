@@ -150,8 +150,9 @@ pond('afloat_stick', '划去捞水面上的木棍', '划去捞水面上的木棍
                         r'\[action\][^\n]* start id=place_prop\b', r'prop_not_worn']))
 
 def kid_play_shelter(window):
-    """Verify the full PD-09 thunder arc: brim play -> perceived lightning clap -> boldness-scaled hide beats (shown==declared)
-    -> real cabin/head shelter -> storm passes -> bold calms before timid -> timid returns to brim play."""
+    """Verify the full PD-09 weather arc: brim play -> the rain wets both riders (brim kid back inside, head kid tucked) ->
+    perceived lightning clap -> boldness-scaled hide beats (shown==declared) -> real cabin/head shelter -> storm passes ->
+    bold calms before timid -> timid returns to brim play."""
     for request in re.finditer(r'uuid=(\S+)[^\n]* play stays on brim [^\n]*cabin=none head=free reason=fear:thunder', window):
         child = request[1]
         after = window[request.end():]
@@ -159,9 +160,9 @@ def kid_play_shelter(window):
                          rf'[\s\S]*uuid={child}[^\n]* seat landed [^\n]*place=HEAD cause=braid_set_down'
                          rf'[\s\S]*uuid={child}[^\n]* play kind=kid_hide_behind start spot=head reason=fear:thunder', after):
             return f'frightened brim child {child} was not lifted to the free head and sheltered there'
-    for shown, declared in re.findall(r'\[choreo\][^\n]* beat=thunder_(?:hide|calm) face=(\S+) line=\S+ declared=(\S+)', window):
+    for shown, declared in re.findall(r'\[choreo\][^\n]* beat=(?:thunder_(?:hide|calm)|rain_hide) face=(\S+) line=\S+ declared=(\S+)', window):
         if shown != declared:
-            return f'thunder beat face mismatch: shown={shown} declared={declared}'
+            return f'weather beat face mismatch: shown={shown} declared={declared}'
     c1, c2 = _uuid_text('kid_boat_play', 'c1'), _uuid_text('kid_boat_play', 'c2')
     def find_tick(pattern, text=window):
         m = re.search(pattern, text)
@@ -175,6 +176,17 @@ def kid_play_shelter(window):
         return f'thunder clap not perceived by both kids (c1={c1_heard} c2={c2_heard})'
     if c1_heard < brim_before:
         return f'thunder clap ({c1_heard}) fired before c1 brim play ({brim_before})'
+    wet_line = r'[^\n]* rain reaction [^\n]*line=rain_run [^\n]*wetness=([1-9]\d*) [^\n]*boldness='
+    c1_wet, m_c1_wet = find_tick(rf'\[aquatic\][^\n]*uuid={c1} t=(\d+){wet_line}', window)
+    c2_wet, m_c2_wet = find_tick(rf'\[aquatic\][^\n]*uuid={c2} t=(\d+){wet_line}', window)
+    if c1_wet is None or c2_wet is None:
+        return f"missing a wet rider's rain reaction (c1={c1_wet} c2={c2_wet})"
+    if c1_wet >= c1_heard or c2_wet >= c2_heard:
+        return f'rain reactions did not come before the thunder clap (c1={c1_wet}/{c1_heard} c2={c2_wet}/{c2_heard})'
+    if not re.search(rf'\[aquatic\][^\n]*uuid={c1}[^\n]* play return inside [^\n]*place=cabin reason=fear:rain\b', window[m_c1_wet.end():m_c1_heard.start()]):
+        return 'c1 did not return into the free cabin place when the rain wet it'
+    if not re.search(rf'\[aquatic\][^\n]*uuid={c2}[^\n]* play kind=kid_hide_behind start spot=head reason=fear:rain\b', window[m_c2_wet.end():m_c2_heard.start()]):
+        return 'c2 did not huddle on its open head place when the rain wet it'
     c1_hide, _ = find_tick(rf'\[choreo\][^\n]*uuid={c1} t=(\d+)[^\n]* beat=thunder_hide face=horrified line=afraid declared=horrified\b', window[m_c1_heard.end():])
     c2_hide, _ = find_tick(rf'\[choreo\][^\n]*uuid={c2} t=(\d+)[^\n]* beat=thunder_hide face=surprise line=thunder declared=surprise\b', window[m_c2_heard.end():])
     if c1_hide is None or c2_hide is None:
@@ -197,8 +209,8 @@ def kid_play_shelter(window):
 pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐玩耍，打雷躲避',
      '静水亲帽停在离岸三格的水面，沉稳的亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳，个头小些的胆小那只在舱内（舱内能转身的位置只容得下它这么大）、胆大的在头顶，都已吃饱。'
      '舱内那只先跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只安静静坐。'
-     '第 8 秒起天暗下雨：帽子遮着舱内和帽檐，那里的赤油淋不到雨，帽檐那只照常拍水；头顶那只淋着雨，按自己的胆量说 `rain_run` 后原地缩身避雨；第 13 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量改演受惊表情与台词，胆大那只仍在头顶缩身；落雷后雨势渐收，雨一停，淋得着的胆大那只先舒气平静；舱里没淋到雨的胆小那只只等雷声的惊吓余量过去，稍晚才平静，然后跳回帽檐继续玩耍。空手右击赤油看问候',
-     '约 40 秒；可按「附近落雷」再看受惊',
+     '第 8 秒起天暗下雨：帽船露天，舱口和帽檐都淋得到雨，两只赤油都按自己淋到的雨躲——胆小的舱内那只先露出受惊表情说 `rain_run`，舱内还有它自己的空位，就跳回舱里缩身；头顶那只按自己的胆量晚一点受惊缩身，头顶无处可躲，只在原处等；第 17 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量改演受惊表情与台词，胆大那只仍在头顶缩身；落雷后雨势渐收，雨一停，胆大那只先舒气平静；舱里的胆小那只按自己更长的雷声余量稍晚才平静，然后跳回帽檐继续玩耍。空手右击赤油看问候',
+     '约 45 秒；可按「附近落雷」再看受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, boldness=80,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
       # 0.16: the cabin in front of the seated captain has a place where a young can turn round (hair included) up to about this
@@ -210,14 +222,14 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
      vantage=(-2, 2, -105, 16),
      late=['schedule function mcylab:util/weather_thunder 120t replace',
            Retry('execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~',
-                 sel('a'), tries=1, first=220),
-           'schedule function mcylab:util/weather_clear 300t replace'],
+                 sel('a'), tries=1, first=300),
+           'schedule function mcylab:util/weather_clear 340t replace'],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
           '→ 头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不做水上动作）。'
-          '第 8 秒转雷暴（起雨预警）：帽檐下淋不到雨，帽檐那只照常拍水；头顶那只按自己淋到的雨受惊，[aquatic] rain reaction → [choreo] beat=rain_hide（neutral/rain_run，face==declared）后原地缩身。'
-          '第 13 秒池塘远水真实落雷：[weather] thunder clap heard via=HEARD|SAW（共享感知层）→ 躲雨改成躲雷，[choreo] beat=thunder_hide（胆小 horrified/afraid，胆大 surprise/thunder，face==declared）'
+          '第 8 秒转雷暴（起雨预警）：帽船露天，帽檐那只先按自己淋到的雨受惊，[aquatic] rain reaction（teary/rain_run）→ [choreo] beat=rain_hide（face==declared）→ 舱内还有它的空位，play return inside place=cabin reason=fear:rain 后跳回舱里缩身；头顶那只按自己的胆量晚一点受惊（neutral/rain_run）→ beat=rain_hide → 头顶无处可躲，play kind=kid_hide_behind start spot=head reason=fear:rain 原地缩身。'
+          '第 17 秒池塘远水真实落雷：[weather] thunder clap heard via=HEARD|SAW（共享感知层）→ 躲雨改成躲雷，[choreo] beat=thunder_hide（胆小 horrified/afraid，胆大 surprise/thunder，face==declared）'
           '→ 帽檐那只舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
-          '雨停转晴：头顶那只淋着雨，躲到雨停才 play kind=kid_hide_behind end result=DONE 先平静（happy）；舱里的胆小那只淋不到雨，只按雷声的惊吓余量（胆量越小越久）等到自己的时限再平静（closed_smile），随后再次跳回帽檐玩耍。'
+          '雨停转晴：头顶那只先按自己较短的雷声余量平静（happy）；舱里的胆小那只按更长的雷声余量（胆量越小越久）稍晚再平静（closed_smile），随后再次跳回帽檐玩耍。'
           '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('附近落雷', 'execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~'),
             ('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
@@ -231,11 +243,14 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                         r'\[hat\][^\n]* scenario place [^\n]*place=HEAD\b',
                         r'\[aquatic\][^\n]* play kind=(?:kid_brim_splash|kid_mimic_paddle) start spot=brim [^\n]*braid_out=true\b',
                         r'\[aquatic\][^\n]* play kind=hat_cradle start spot=head reason=head_dry\b',
+                        r'\[aquatic\][^\n]* rain reaction [^\n]*line=rain_run [^\n]*wetness=[1-9]\d* [^\n]*boldness=',
+                        r'\[aquatic\][^\n]* play return inside [^\n]*place=cabin reason=fear:rain\b',
+                        r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=head reason=fear:rain\b',
                         r'\[weather\][^\n]* thunder clap heard distance=\d+ via=(?:HEARD|SAW)\b',
                         r'\[choreo\][^\n]* beat=thunder_hide face=horrified line=afraid declared=horrified\b',
                         r'\[choreo\][^\n]* beat=thunder_hide face=surprise line=thunder declared=surprise\b',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind start spot=\w+ reason=fear:thunder\b',
-                        r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)',
+                        r'\[aquatic\][^\n]*(?: play (?:return inside [^\n]*place=cabin|stays on brim [^\n]*cabin=none head=none|kind=kid_hide_behind start spot=cabin) [^\n]*reason=fear:thunder\b| care transfer end kind=shelter_young [^\n]*result=DONE released=true [^\n]*head=true)',
                         r'\[aquatic\][^\n]* play kind=kid_hide_behind end [^\n]*result=DONE\b',
                         r'\[choreo\][^\n]* beat=thunder_calm face=happy line=none declared=happy\b',
                         r'\[choreo\][^\n]* beat=thunder_calm face=closed_smile line=none declared=closed_smile\b'],
@@ -246,6 +261,70 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
                 verify=kid_play_shelter,
                 readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw',
                          f'yukkuri status {sel("c2")} raw', f'data get entity {_HAT} Riders']))
+
+
+def rain_ashore_result(window):
+    """A captain soaked by the rain takes her hull and her crawling child ashore on her own wetness; on land the shared
+    weather arbiter takes her under the bank canopy and settles her there."""
+    a, c1 = _uuid_text('rain_ashore', 'a'), _uuid_text('rain_ashore', 'c1')
+    if not re.search(rf'\[status\][^\n]*uuid={a}[^\n]*come_ashore:70\([^)]*weather=70\b[^)]*rain=true\b', window):
+        return 'the captain never wanted the bank on her own rain wetness'
+    started = re.search(rf'\[intent\][^\n]*uuid={a}[^\n]* start id=come_ashore\b[^\n]* top=\[come_ashore:70\b[^\n]* weather=70\b', window)
+    if started is None:
+        return 'the soaked captain never started the rain landing'
+    landed = re.search(rf'\[intent\][^\n]*uuid={a}[^\n]* end id=come_ashore result=DONE\b', window[started.end():])
+    if landed is None:
+        return 'the rain landing never completed'
+    landing = window[started.end(): started.end() + landed.start()]
+    if not re.search(rf'\[family\][^\n]*uuid={a}[^\n]* carry grip [^\n]*uuid={c1}', landing):
+        return 'the crawling young was not carried off the hull on the rain landing'
+    if not re.search(rf'\[action\][^\n]*uuid={a}[^\n]* end id=take_prop outcome=DONE\b', landing):
+        return 'the captain did not take her hat back after the rain landing'
+    after = window[started.end() + landed.end():]
+    cover = re.search(rf'\[weather\][^\n]*uuid={a}[^\n]*cover chosen pos=(-?\d+),\s*(-?\d+),\s*(-?\d+) depth=\d+ preferred=', after)
+    if cover is None:
+        return 'the soaked captain found no covered stand on the bank'
+    if not (-159 <= int(cover.group(1)) <= -156 and 306 <= int(cover.group(3)) <= 309):
+        return f'the captain chose an open stand at {cover.group(1)},{cover.group(3)}, not the bank canopy'
+    if not re.search(rf'\[weather\][^\n]*uuid={a}[^\n]* shelter response started [^\n]*cover=', after):
+        return 'the land weather response never started for the captain'
+    settled = re.search(rf'\[weather\][^\n]*uuid={a}[^\n]* shelter response ended [^\n]*at=(-?\d+),\s*(-?\d+),\s*(-?\d+)', after)
+    if settled is None:
+        return 'the captain never settled on her covered stand'
+    if not (-159 <= int(settled.group(1)) <= -156 and 306 <= int(settled.group(3)) <= 309):
+        return f'the captain walked out of the canopy and settled at {settled.group(1)},{settled.group(3)}'
+    return None
+
+
+pond('rain_ashore', '雨中湿透的亲油把全家带上岸躲雨', '雨中湿透的亲油把全家带上岸躲雨',
+     '雨天，亲油已经淋透（湿度 65），和一只还在学爬的赤油坐在近岸水面的帽船上，帽里有木棍和四份苹果。雨还在下，亲油按自己淋到的雨生出去岸的欲望（`wet_need` 压过水上闲游）：把帽靠到最近岸，赤油不会跳，由她用辫子抱上岸放下，她收回帽子戴上。上陆后共享的陆上避雨（`status/Reactions`）把湿透的她带到岸边树冠下的干地，在树下安顿（WAIT 30 刻）；雨还下着，她只走干地，不踏回雨里',
+     '约 45 秒',
+     [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, boldness=80,
+         uuid=uid('rain_ashore', 'a'), **pair_ready()),
+      _aquatic_young('rain_ashore', 'c1', bank_dx(1), 1, 'baby', 'a', childhood=_FED_NEWBORN, also=('crew',),
+                     fam=_seat_family(.16, 22909, 36000)),
+      afloat_now('a', water_at(4, 2), True, sel_all('crew'), food=4, stick=True),
+      set_status('a', 'needs.wetness', 65)],
+     env={'time': 'noon', 'weather': 'rain'}, vantage=(-6, 6, -90),
+     note='日志：`set_status` 先把亲油淋到 65（雨里还在变湿）：[status] aquatic.desire 的 come_ashore 出现 weather=70、rain=true → '
+          '[intent] start id=come_ashore → paddle 到最近的岸 → [family] carry grip（爬行的赤油由辫子抱下船）→ '
+          '[action] end id=take_prop（收回帽子戴上）→ [intent] end id=come_ashore result=DONE → 上陆后 [weather] shelter response started / '
+          'cover chosen（树冠下的干地）→ 在树下 settle（WAIT 30 刻后 response ended，at 仍是树冠格）。' + _DESIRE_NOTE,
+     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油', f'yukkuri status {sel("c1")} raw'),
+            ('读帽子乘员', f'data get entity {_HAT} Riders')],
+     smoke=dict(ticks=700,
+                expect=[r'\[hat\][^\n]* scenario afloat prepared [^\n]*owner_aboard=true[^\n]*young=1\b',
+                        r'\[status\][^\n]*come_ashore:70\([^)]*weather=70\b',
+                        r'\[intent\][^\n]* start id=come_ashore\b',
+                        r'\[intent\][^\n]* end id=come_ashore result=DONE\b',
+                        r'\[family\][^\n]* carry grip ',
+                        r'\[weather\][^\n]* cover chosen [^\n]*depth=\d+ preferred=',
+                        r'\[weather\][^\n]* shelter response started '],
+                forbid=[r'\[body\][^\n]* invariant\b', r'\[body\][^\n]* death settled into remains',
+                        r'\[intent\][^\n]* end id=come_ashore result=(?:EXHAUSTED|BLOCKED|NO_PROGRESS)\b',
+                        r'\[hat\][^\n]* capsized\b'],
+                verify=rain_ashore_result,
+                readout=[f'yukkuri status {sel("a")} raw', f'yukkuri status {sel("c1")} raw']))
 
 def boat_toilet_result(window):
     """Every stool leaves the body's own rear (the release point is the drawn stool, inside the rim for the hollow), really comes down
@@ -731,7 +810,7 @@ add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊�
 POND_TOUR = (
     'water_colony', 'sail', 'afloat_stick', 'cargo', 'hat_larder',
     'afloat_family', 'afloat_family_gather', 'afloat_family_ashore', 'shore_family', 'night_boat',
-    'kid_boat_play', 'boat_toilet', 'first_voyage', 'first_voyage_brim',
+    'kid_boat_play', 'rain_ashore', 'boat_toilet', 'first_voyage', 'first_voyage_brim',
     'hat_sever_tearful', 'hat_sever_cold', 'hat_sever_freeze', 'hat_sever_sulk', 'hat_load_warning',
     'self_rescue', 'shake_ashore', 'ledge_spit', 'worn_hat_boat', 'rescue_child', 'rescue_no_seat',
     'birth_boat_missed', 'birth_hat_own', 'shore_capsized', 'shore_capsized_far',
@@ -1124,7 +1203,7 @@ TOPICS = {
     'body_mold': 'R5', 'wound_materials': 'R5', 'thermal_body': 'R5', 'wound_sources': 'R5', 'punishment': 'R5', 'learned_holder': 'R5', 'hook_kin_rescue': 'R5', 'learned_fire': 'R5', 'wound_leak': 'R5', 'treatment_severe': 'R5', 'treatment_scars': 'R5', 'treatment_care': 'R5', 'magma_sole': 'R5', 'core_exposed': 'R5', 'core_filling': 'R5', 'remains_rot': 'R6', 'remains_forms': 'R6', 'carrion': 'R6', 'cannibal_hunt': 'R6',
     'last_words': 'R7', 'offering': 'R7', 'sacrifice': 'R7',
     'hat_push': 'A1', 'hat_current': 'A1', 'hat_grounded_capsized': 'A4', 'cargo': 'A2', 'hat_larder': 'A2', 'hat_sever_tearful': 'A3', 'hat_sever_cold': 'A3', 'hat_sever_freeze': 'A3', 'hat_sever_sulk': 'A3', 'hat_load_warning': 'A3', 'shake_capsize': 'A4',
-    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'night_boat': 'A6', 'kid_boat_play': 'A6', 'boat_toilet': 'A6',
+    'water_colony': 'A6', 'sail': 'A6', 'afloat_stick': 'A6', 'afloat_family': 'A6', 'afloat_family_gather': 'A6', 'afloat_family_ashore': 'A6', 'shore_family': 'A6', 'night_boat': 'A6', 'kid_boat_play': 'A6', 'rain_ashore': 'A6', 'boat_toilet': 'A6',
     'rescue_child': 'A5', 'rescue_no_seat': 'A5', 'birth_boat_missed': 'A6', 'birth_hat_own': 'A6', 'first_voyage': 'A6', 'first_voyage_brim': 'A6',
     'self_rescue': 'A5', 'shake_ashore': 'A5', 'ledge_spit': 'A5', 'shore_capsized': 'A5', 'shore_capsized_far': 'A5', 'worn_hat_boat': 'A5', 'hat_swap': 'C1', 'hat_damage': 'C1', 'hat_shatter': 'C1', 'hatless_kin': 'C2', 'hatless_scorn': 'C2',
     'hatless_monster': 'C2', 'puff_response': 'C2',

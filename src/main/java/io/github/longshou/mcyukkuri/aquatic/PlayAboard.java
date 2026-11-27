@@ -262,7 +262,7 @@ final class PlayAboard implements Intent {
             if (player.isSpectator() || !player.isSprinting() || player.distanceToSqr(hat) > range * range) continue;
             if (player.getLookAngle().dot(hat.position().subtract(player.position())) > 0) return "rushing_player";
         }
-        // Rain on its own bare place: the hat is the roof it takes, once the drops it has taken are past its tolerance.
+        // Rain on its own place: nothing on the hat is a roof, so the drops it has taken are past its own tolerance while it rides.
         var personality = body.life().personality();
         if (AquaticLife.rain(body) && body.life().wetness() >= RainShelter.tolerance(personality.boldness(), personality.intelligence()))
             return "rain";

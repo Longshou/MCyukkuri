@@ -936,8 +936,11 @@ public final class YukkuriLife {
                 YukkuriConfig.ENERGY_INTERVAL.get() / (entity.family().needsMash() ? 2 : 1))) { energyTicks = 0; if (!isSleeping()) energy = Math.max(0, energy - entity.species().drain()); }
         if (++hygieneTicks >= YukkuriConfig.HYGIENE_INTERVAL.get()) { hygieneTicks = 0; hygiene = Math.max(0, hygiene - 1); }
         if (ageTicks % 20 == 0) {
+            // Rain is read where the body's head is: a rider's feet may sit in the water column, below the heightmap, while its
+            // head is under open sky and takes the rain all the same.
+            var rainTop = BlockPos.containing(entity.getX(), entity.getBoundingBox().maxY, entity.getZ());
             if (entity.isInWaterOrBubble()) wetness = Math.min(100, wetness + entity.subspecies().waterGain(8));
-            else if (entity.habitat().leaking() || level().isRainingAt(entity.blockPosition())) wetness = Math.min(100, wetness + (entity.profile().aquatic() ? 1.5f : entity.subspecies().waterGain(3)));
+            else if (entity.habitat().leaking() || level().isRainingAt(rainTop)) wetness = Math.min(100, wetness + (entity.profile().aquatic() ? 1.5f : entity.subspecies().waterGain(3)));
             else wetness = Math.max(0, wetness - 3);
             if (!entity.isInWaterOrBubble() && wetness >= YukkuriConfig.WET_DAMAGE_THRESHOLD.get() && ageTicks % (entity.profile().aquatic() ? 200 : 100) == 0) {
                 float before = entity.getHealth();
