@@ -734,7 +734,7 @@ public final class Reactions {
         private boolean beatWaits;
         private long searchAfter, shakeAfter, huddleAfter, partnerScanAfter, startled = Long.MIN_VALUE / 2;
         private int ticks;
-        private boolean spoke;
+        private boolean spoke, shakeAfterWater;
         /** HUDDLE: who it presses beside (null alone), whether it walked over (the other holds still), the tick the pair pressed
          *  together (their shared clip clock, -1 before), which side the partner is on and the way both face. */
         private YukkuriEntity partner, unreachable;
@@ -882,9 +882,10 @@ public final class Reactions {
             switch (stage) {
                 case SHAKE -> {
                     y.cancelReaction();
+                    shakeAfterWater = y.waterDistress().closedWithin(200);
                     queueBeat("rain_shake", "chewing_closed", "none");
                     GameplayLog.limited(y, "weather", "shake.start", 600, "shaking water off wetness={} after={}", () -> new Object[]{
-                            y.life().wetness(), y.waterDistress().closedWithin(200) ? "water" : y.level().isRaining() ? "rain" : "rain_stopped"});
+                            y.life().wetness(), shakeAfterWater ? "water" : y.level().isRaining() ? "rain" : "rain_stopped"});
                 }
                 case HUDDLE -> beginHuddle();
                 default -> {
@@ -917,7 +918,7 @@ public final class Reactions {
             } else if (stage != Stage.NONE) GameplayLog.limited(y, "weather", "end", 1200,
                     "shelter response ended stage={} phaseTicks={} cover={} at={}", stage, ticks, cover, y.blockPosition().toShortString());
             if (!y.level().isRaining() || Sky.at(y.level(), y.blockPosition()) == Sky.CLEAR) shelterAttempts = new Attempts();
-            stage = Stage.NONE; ticks = 0; cover = null; chosenCover = null; pendingBeat = null; beatWaits = false;
+            stage = Stage.NONE; ticks = 0; cover = null; chosenCover = null; pendingBeat = null; beatWaits = false; shakeAfterWater = false;
             y.getNavigation().stop();
         }
 
@@ -1182,11 +1183,13 @@ public final class Reactions {
                     float before = life.shakeOff();
                     shakeAfter = level.getGameTime() + SHAKE_REST;
                     GameplayLog.limited(y, "weather", "shake.done", 600, "shook the water off wetness={} -> {}", before, life.wetness());
+                    boolean relievedAfterWater = shakeAfterWater && !y.profile().aquatic();
                     if (raining && Sky.at(level, y.blockPosition()) == Sky.CLEAR) {
                         outwardYaw = outwardRainYaw(level, y.blockPosition());
-                        stage = Stage.WAIT; ticks = 0;
+                        stage = Stage.WAIT; ticks = 0; shakeAfterWater = false;
                         queueBeat("rain_settle", settleFace(), "none");
                     } else end();
+                    if (relievedAfterWater) y.showReaction("teary_smile", null, FaceTier.Tier.SHORT);
                 }
                 case HUDDLE -> huddle(level);
                 default -> { }

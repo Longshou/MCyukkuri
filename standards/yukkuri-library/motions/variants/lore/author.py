@@ -289,34 +289,39 @@ def state(action, t, c, height):
         s=[1+.075*press,1-.15*press,1+.06*press]
         r=[-9*press,keyed(t,[(0,-3),(.32,5),(.62,-4),(1,-3)]),keyed(t,[(0,-2),(.18,4),(.5,-3),(1,-2)])]
     elif action == 'water_plunge':
-        impact=keyed(t,[(0,.1),(.12,1),(.30,.55),(.6,.15)])
+        impact=keyed(t,[(0,.1),(.12,1),(.28,.55),(.45,.2),(.6,.12)])
         s=[1+.10*impact,1-.22*impact,1+.08*impact]
-        r=[keyed(t,[(0,-7),(.12,-10),(.3,3),(.48,8),(.6,5)]),0,keyed(t,[(0,-4),(.16,5),(.36,-3),(.6,0)])]
+        r=[keyed(t,[(0,-7),(.12,-9.5),(.28,4),(.44,9.5),(.6,6.5)]),
+           keyed(t,[(0,0),(.14,-6),(.30,11),(.46,-9),(.6,3)]),
+           keyed(t,[(0,-3.5),(.16,5.5),(.34,-4.5),(.50,3.5),(.6,-1.5)])]
+        lift = keyed(t,[(0,.02),(.12,-.07),(.32,.04),(.50,-.02),(.6,.01)])*height
     elif action == 'water_struggle':
-        # Panicked in-place flail crying for help: uneven bobbing and head-up tilting on the waterline across the full loop
-        # (no dead pause), while braided forms slap the water surface via braid_keys. Composed tilt stays <= 10.5 degrees.
-        bob = keyed(t, [(0, .35), (.22, -.5), (.44, .45), (.72, -.45), (1.02, .5), (1.28, -.55), (1.6, .35)])
-        effort = keyed(t, [(0, .2), (.22, .95), (.44, .3), (.72, .85), (1.02, .25), (1.28, 1.), (1.6, .2)])
+        # Panicked in-place flail crying for help: uneven bobbing, head-up tilting and sputtering water-spit head-shakes
+        # across the full loop (no dead pause), while braided/appendage forms slap via braid_keys/appendage_keys. Tilt <= 10.5 deg.
+        bob = keyed(t, [(0, .35), (.22, -.5), (.44, .45), (.72, -.45), (.90, .48), (1.04, .5), (1.28, -.55), (1.6, .35)])
+        effort = keyed(t, [(0, .2), (.22, .95), (.44, .3), (.72, .85), (.94, -.3), (1.06, .25), (1.28, 1.), (1.6, .2)])
         s = [1+.035*effort, .97-.04*effort, 1+.035*effort]
-        r = [keyed(t, [(0, 6.5), (.22, 2.0), (.44, 8.0), (.72, 2.5), (1.02, 7.5), (1.28, 1.5), (1.6, 6.5)]),
-             keyed(t, [(0, -6), (.26, 12), (.54, -10), (.84, 9), (1.16, -12), (1.42, 6), (1.6, -6)]),
-             keyed(t, [(0, 3.0), (.22, -5.5), (.44, 4.0), (.72, -5.0), (1.02, 3.5), (1.28, -6.0), (1.6, 3.0)])]
+        r = [keyed(t, [(0, 6.5), (.22, 2.0), (.44, 8.0), (.72, 2.5), (.90, 7.8), (1.04, 7.5), (1.28, 1.5), (1.6, 6.5)]),
+             keyed(t, [(0, -6), (.26, 12), (.54, -11), (.80, 10), (.92, -16), (1.04, 14), (1.18, -12), (1.42, 7), (1.6, -6)]),
+             keyed(t, [(0, 3.0), (.22, -5.5), (.44, 4.0), (.72, -5.0), (.90, 3.8), (1.04, 3.5), (1.28, -6.0), (1.6, 3.0)])]
         lift = .06*height*bob
     elif action == 'water_flail':
         # Panicked water flail (Swim, replacing the non-existent orderly swimming stroke): body bobs and tilts unevenly on the
-        # water line in three frantic bursts (0.24 s, 0.68 s, 1.28 s) with no rowing or paddling cycle; Marisa's braid slaps
-        # the surface via braid_keys. Composed tilt stays <= 10.5 degrees; server owns travel.
-        bob = keyed(t, [(0, .3), (.24, -.55), (.44, .45), (.68, -.45), (1.00, .55), (1.28, -.65), (1.6, .3)])
-        slap = keyed(t, [(0, .15), (.24, 1.0), (.44, .2), (.68, .85), (1.00, .1), (1.28, 1.0), (1.6, .15)])
+        # water line in three frantic bursts (0.24 s, 0.68 s, 1.28 s) with a sputtering water-spit head-shake at 0.84-1.08 s;
+        # Marisa's braid and non-Marisa appendages slap the surface via braid_keys/appendage_keys. Composed tilt <= 10.5 deg.
+        bob = keyed(t, [(0, .3), (.24, -.55), (.44, .45), (.68, -.45), (.88, .52), (1.02, .55), (1.28, -.65), (1.6, .3)])
+        slap = keyed(t, [(0, .15), (.24, 1.0), (.44, .2), (.68, .85), (.94, -.35), (1.06, .1), (1.28, 1.0), (1.6, .15)])
         s = [1+.035*slap, .975-.045*slap, 1+.035*slap]
-        r = [keyed(t, [(0, 5.5), (.24, -1.5), (.44, 6.5), (.68, -.5), (1.00, 7.0), (1.28, -2.0), (1.6, 5.5)]),
-             keyed(t, [(0, -8), (.24, 10), (.48, -11), (.72, 8), (1.00, -13), (1.28, 12), (1.6, -8)]),
-             keyed(t, [(0, 3.5), (.24, -6.0), (.44, 4.0), (.68, -5.0), (1.00, 4.5), (1.28, -6.5), (1.6, 3.5)])]
+        r = [keyed(t, [(0, 5.5), (.24, -1.5), (.44, 6.5), (.68, -.5), (.88, 7.5), (1.02, 7.0), (1.28, -2.0), (1.6, 5.5)]),
+             keyed(t, [(0, -8), (.24, 11), (.48, -12), (.72, 10), (.86, -16), (.96, 15), (1.08, -14), (1.28, 13), (1.6, -8)]),
+             keyed(t, [(0, 3.5), (.24, -6.0), (.44, 4.0), (.68, -5.0), (.88, 4.2), (1.00, 4.5), (1.28, -6.5), (1.6, 3.5)])]
         lift = .065*height*bob
     elif action == 'water_gasp':
-        breath=keyed(t,[(0,0),(.3,0),(.5,1),(.75,.1),(1.2,0),(1.6,0)])
-        s=[1.035,.81+.035*breath,1.045]
-        r=[keyed(t,[(0,2),(.32,2),(.52,9),(.8,2),(1.6,2)]),0,keyed(t,[(0,-3),(.55,-1),(1.1,-4),(1.6,-3)])]
+        breath=keyed(t,[(0,.1),(.26,0),(.50,1),(.78,.15),(1.02,.05),(1.24,.65),(1.46,.1),(1.6,.1)])
+        s=[1.025-.01*breath,.94+.05*breath,1.025-.01*breath]
+        r=[keyed(t,[(0,2.5),(.28,1.5),(.50,9.0),(.80,2.0),(1.04,1.5),(1.24,6.5),(1.6,2.5)]),
+           keyed(t,[(0,-3),(.42,4.5),(.86,-5.0),(1.26,3.5),(1.6,-3)]),
+           keyed(t,[(0,-3.5),(.50,-1.5),(.92,-4.5),(1.24,-2.0),(1.6,-3.5)])]
     elif action == 'water_recover':
         regain=smooth((t-1.5)/1.3)
         breath=keyed(t,[(0,0),(.22,.7),(.5,0),(.85,1),(1.2,0),(2.8,0)])
