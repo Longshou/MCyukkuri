@@ -197,7 +197,7 @@ def kid_play_shelter(window):
 pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐玩耍，打雷躲避',
      '静水亲帽停在离岸三格的水面，沉稳的亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳，个头小些的胆小那只在舱内（舱内能转身的位置只容得下它这么大）、胆大的在头顶，都已吃饱。'
      '舱内那只先跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只安静静坐。'
-     '第 8 秒起天暗下雨：两只赤油按各自淋到的雨先后受惊（胆小先、胆大后，说 `rain_run`），帽檐那只跳回舱内、头顶那只原地缩身避雨；第 13 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量改演受惊表情与台词，胆大那只仍在头顶缩身；第 20 秒雨停转晴后，胆大的先舒气平静，胆小的稍晚平静后再跳回帽檐继续玩耍。空手右击赤油看问候',
+     '第 8 秒起天暗下雨：帽子遮着舱内和帽檐，那里的赤油淋不到雨，帽檐那只照常拍水；头顶那只淋着雨，按自己的胆量说 `rain_run` 后原地缩身避雨；第 13 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量改演受惊表情与台词，胆大那只仍在头顶缩身；落雷后雨势渐收，雨一停，淋得着的胆大那只先舒气平静；舱里没淋到雨的胆小那只只等雷声的惊吓余量过去，稍晚才平静，然后跳回帽檐继续玩耍。空手右击赤油看问候',
      '约 40 秒；可按「附近落雷」再看受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, boldness=80,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
@@ -211,13 +211,13 @@ pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐�
      late=['schedule function mcylab:util/weather_thunder 120t replace',
            Retry('execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~',
                  sel('a'), tries=1, first=220),
-           'schedule function mcylab:util/weather_clear 360t replace'],
+           'schedule function mcylab:util/weather_clear 300t replace'],
      note='日志：舱内赤油自己 hop 上帽檐 → [aquatic] play kind=kid_brim_splash start spot=brim reason=brim_water braid_out=true（亲油在划桨时是 kind=kid_mimic_paddle reason=captain_paddle，两者都是水上动作）'
           '→ 头顶那只 play kind=hat_cradle start spot=head reason=head_dry（静坐，不做水上动作）。'
-          '第 8 秒转雷暴（起雨预警）：赤油按各自淋到的雨先后受惊（胆小先、胆大后），[aquatic] rain reaction → [choreo] beat=rain_hide（胆小 teary/rain_run，胆大 neutral/rain_run，face==declared）；舱内那只 play return inside place=cabin reason=fear:rain 后缩身，头顶那只原地缩身。'
+          '第 8 秒转雷暴（起雨预警）：帽檐下淋不到雨，帽檐那只照常拍水；头顶那只按自己淋到的雨受惊，[aquatic] rain reaction → [choreo] beat=rain_hide（neutral/rain_run，face==declared）后原地缩身。'
           '第 13 秒池塘远水真实落雷：[weather] thunder clap heard via=HEARD|SAW（共享感知层）→ 躲雨改成躲雷，[choreo] beat=thunder_hide（胆小 horrified/afraid，胆大 surprise/thunder，face==declared）'
-          '→ 舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
-          '第 20 秒转晴：play kind=kid_hide_behind end result=DONE → [choreo] beat=thunder_calm（胆大 happy 先平静，胆小 closed_smile 稍晚平静）→ 胆小赤油再次跳回帽檐玩耍。'
+          '→ 帽檐那只舱内有空位时 play return inside place=cabin reason=fear:thunder，再 play kind=kid_hide_behind start spot=cabin；舱内无位且 head=free 时先在帽檐缩身，亲油 shelter_young → carry lowering clip=braid_head_set → seat landed place=HEAD，随后在头顶缩身。'
+          '雨停转晴：头顶那只淋着雨，躲到雨停才 play kind=kid_hide_behind end result=DONE 先平静（happy）；舱里的胆小那只淋不到雨，只按雷声的惊吓余量（胆量越小越久）等到自己的时限再平静（closed_smile），随后再次跳回帽檐玩耍。'
           '读 hat.float 的 play：各类演出开始次数、fear_* 原因次数；body.attach 看实际帽内坐标。点击赤油与点击空帽檐不同：前者问候，后者摇船；准备入座不算行为成功。' + _DESIRE_NOTE,
      reads=[('附近落雷', 'execute positioned ~25 ~-1 ~ unless entity @e[distance=..8] run summon minecraft:lightning_bolt ~ ~ ~'),
             ('读舱内赤油动作与点击', f'yukkuri status {sel("c1")} raw'), ('读头顶赤油', f'yukkuri status {sel("c2")} raw'),
