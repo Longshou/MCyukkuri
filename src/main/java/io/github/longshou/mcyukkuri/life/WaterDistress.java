@@ -1,11 +1,13 @@
 package io.github.longshou.mcyukkuri.life;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.intent.AskLedger;
 import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.motor.action.Climb;
 import io.github.longshou.mcyukkuri.motor.action.Swim;
@@ -46,6 +48,10 @@ public final class WaterDistress {
     private boolean airborneDry;
     /** Chen occasionally slaps water with her tails for this immersion (rolled once on entry, else body-only flail). */
     private boolean tailFlail;
+    /** Authored plunge/impact clip for the current fall or IMPACT phase (defaults to {@link YukkuriAction#WATER_PLUNGE}). */
+    private YukkuriAction impactClip=YukkuriAction.WATER_PLUNGE;
+    private boolean impactLogged;
+    private long enteredTick=Long.MIN_VALUE;
     private long lastTick=Long.MIN_VALUE, closedTick=Long.MIN_VALUE;
     private ServerLevel lastLevel;
     private long threatTick=Long.MIN_VALUE;
@@ -57,6 +63,8 @@ public final class WaterDistress {
     public int phaseTicks(){return phaseTicks;}
     public int immersionTicks(){return immersionTicks;}
     public boolean tailFlail(){return tailFlail;}
+    public YukkuriAction impactClip(){return impactClip;}
+    private int impactLength(){return ClipMarkers.of(impactClip.id()).length();}
     /** Its water incident ended (the breath after it included) within the last {@code ticks}. */
     public boolean closedWithin(long ticks){return closedTick!=Long.MIN_VALUE&&entity.level().getGameTime()-closedTick<=ticks;}
     public boolean active(){return phase!=Phase.IDLE;}
@@ -73,16 +81,29 @@ public final class WaterDistress {
     }
     /** Called where a body really falls in: it shows the plunge pose until it touches the water. */
     public void wade(){wading=true;}
-    public void plunge(){
+    public void plunge(){plunge(YukkuriAction.WATER_PLUNGE);}
+    /** Called where a body is thrown or falls in with a specific authored impact clip (e.g. {@link YukkuriAction#BOAT_THROWN}). */
+    public void plunge(YukkuriAction clip){
         if(entity.level().isClientSide)return;
-        pendingPlunge=12;
+        impactClip=clip==null?YukkuriAction.WATER_PLUNGE:clip;
+        impactLogged=false;
+        pendingPlunge=impactLength();
+        enteredTick=entity.level().getGameTime();
         GameplayLog.limited(entity, "water", "plunge", 200,
-                "body fell immersed={} phase={}", () -> new Object[]{entity.isInWaterOrBubble(), phase});
+                "body fell immersed={} phase={} clip={}", () -> new Object[]{entity.isInWaterOrBubble(), phase, impactClip.id()});
         if(entity.isInWaterOrBubble()&&(phase==Phase.IDLE||phase==Phase.RECOVER))enterWater();
+    }
+    /** Logs once when a caller-supplied plunge clip (such as {@link YukkuriAction#BOAT_THROWN}) is actually published. */
+    public void observePresentation(String clip, long start, String shown){
+        if(impactLogged||impactClip==YukkuriAction.WATER_PLUNGE||!impactClip.id().equals(clip))return;
+        impactLogged=true;
+        String declared=entity.profile().aquatic()?"surprise":"horrified";
+        GameplayLog.event(entity,"water","thrown clip={} start={} face={} declared={} phase={} ticks={}",
+                clip,start,shown,declared,airbornePlunge()?"FALLING":phase.name(),impactLength());
     }
     public boolean airbornePlunge(){return pendingPlunge>0&&!entity.isInWaterOrBubble()&&!entity.onGround()
             &&!entity.family().flying();}
-    public int airbornePlungeTicks(){return Math.clamp(12-pendingPlunge,0,12);}
+    public int airbornePlungeTicks(){int len=impactLength();return Math.clamp(len-pendingPlunge,0,len);}
     public String activity(){return switch(phase){
         case IDLE->Behaviors.IDLE;case IMPACT->Behaviors.WATER_IMPACT;case STRUGGLE->Behaviors.WATER_STRUGGLE;
         case EXHAUSTED->Behaviors.WATER_EXHAUSTED;case RECOVER->Behaviors.WATER_RECOVER;
@@ -92,6 +113,7 @@ public final class WaterDistress {
             Phase before = phase; int elapsed = phaseTicks;
             phase=next;phaseTicks=0;
             if(next==Phase.IDLE)tailFlail=false;
+            if(next!=Phase.IMPACT&&pendingPlunge==0){impactClip=YukkuriAction.WATER_PLUNGE;impactLogged=false;}
             if(before==Phase.RECOVER&&next==Phase.IDLE)closedTick=entity.level().getGameTime();
             GameplayLog.limited(entity, "water", "phase." + next, 200,
                     "phase={} -> {} previousTicks={} immersion={} energy={} air={} sheltered={}", () -> new Object[]{
@@ -106,7 +128,11 @@ public final class WaterDistress {
         GameplayLog.event(entity,"water","entered at={} action={} owner={} last={} velocity={} tail={}",
                 GameplayLog.at(entity.position()),action==null?"none":action.id(),owner==null?"none":owner.ownerId(),
                 entity.motor().lastDetail(),GameplayLog.at(entity.getDeltaMovement()),tailFlail);
+        int elapsed=impactClip!=YukkuriAction.WATER_PLUNGE&&pendingPlunge>0?airbornePlungeTicks():0;
         immersionTicks=0;set(Phase.entry(airborneDry,pendingPlunge,entity.isEyeInFluid(FluidTags.WATER)));pendingPlunge=0;
+        if(phase==Phase.IMPACT&&elapsed>0)phaseTicks=Math.min(elapsed,Math.max(0,impactLength()-1));
+        if(phase!=Phase.IMPACT){impactClip=YukkuriAction.WATER_PLUNGE;impactLogged=false;}
+        enteredTick=entity.level().getGameTime();
         if(!entity.inert()){entity.life().wakeInHat();if(!entity.predatorFlying())entity.getNavigation().stop();}
     }
     /** Entity-owned server clock, including disabled AI. YukkuriLife alone applies immersion damage. */
@@ -114,15 +140,17 @@ public final class WaterDistress {
         if(entity.level().isClientSide||!entity.isAlive())return;
         var current=level();long now=current.getGameTime();
         if(lastLevel==current&&lastTick==now)return;lastLevel=current;lastTick=now;
-        if(callWait>0)callWait--;if(pendingPlunge>0)pendingPlunge--;
-        phaseTicks++;
+        boolean sameTick=enteredTick==now;
+        if(callWait>0)callWait--;
+        if(!sameTick&&pendingPlunge>0&&--pendingPlunge==0&&phase!=Phase.IMPACT){impactClip=YukkuriAction.WATER_PLUNGE;impactLogged=false;}
+        if(!sameTick)phaseTicks++;
         if(entity.isInWaterOrBubble()){
             drySupportTicks=0;
             if(phase==Phase.IDLE||phase==Phase.RECOVER)enterWater();
             shedHeadRiders();
             airborneDry=false;
             immersionTicks=Math.min(24000,immersionTicks+1);
-            if(phase==Phase.IMPACT&&phaseTicks>=12)set(Phase.STRUGGLE);
+            if(phase==Phase.IMPACT&&phaseTicks>=impactLength())set(Phase.STRUGGLE);
             if(phase!=Phase.IMPACT&&worn())set(Phase.EXHAUSTED);
             if(!entity.inert()&&!entity.isCommandPlaying()&&!entity.operations().active()
                     &&callWait==0&&phase!=Phase.IMPACT&&(!wading||phase==Phase.EXHAUSTED)){entity.speak("water_help");callWait=phase==Phase.EXHAUSTED?90:55;}
@@ -198,13 +226,17 @@ public final class WaterDistress {
         tag.putInt("Immersion",immersionTicks);
         tag.putInt("PendingPlunge",pendingPlunge);
         tag.putBoolean("TailFlail",tailFlail);
+        if(impactClip!=YukkuriAction.WATER_PLUNGE)tag.putString("ImpactClip",impactClip.id());
         return tag;
     }
     public void load(CompoundTag tag){
         try{phase=Phase.valueOf(tag.getString("Phase"));}catch(IllegalArgumentException ex){phase=Phase.IDLE;}
         phaseTicks=Math.clamp(tag.getInt("PhaseTicks"),0,24000);immersionTicks=Math.clamp(tag.getInt("Immersion"),0,24000);
         drySupportTicks=0;
-        pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,12);
+        impactClip=tag.contains("ImpactClip")?YukkuriAction.byId(tag.getString("ImpactClip")).orElse(YukkuriAction.WATER_PLUNGE):YukkuriAction.WATER_PLUNGE;
+        pendingPlunge=Math.clamp(tag.getInt("PendingPlunge"),0,impactLength());
+        if(phase!=Phase.IMPACT&&pendingPlunge==0)impactClip=YukkuriAction.WATER_PLUNGE;
+        impactLogged=true;enteredTick=Long.MIN_VALUE;
         tailFlail=tag.getBoolean("TailFlail")&&entity.getVariant()==YukkuriVariant.CHEN;
         callWait=0;lastLevel=threatLevel=null;lastTick=threatTick=Long.MIN_VALUE;
     }

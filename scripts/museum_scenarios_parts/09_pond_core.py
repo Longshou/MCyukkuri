@@ -362,6 +362,13 @@ def _load_warning_choice(window):
                 return f'{parent}: no real growth into overload'
             if capsized is None:
                 return f'{parent}: no overload capsize in this random run'
+            thrown = re.search(
+                r'\[water\][^\n]*uuid=' + owner + r'[^\n]* thrown clip=boat_thrown start=\d+ face=(\S+) declared=(\S+)',
+                window[capsized.end():])
+            if thrown is None:
+                return f'{parent}: captain did not play boat_thrown on capsize'
+            if thrown[1] != thrown[2]:
+                return f'{parent}: boat_thrown showed face={thrown[1]} declared={thrown[2]}'
             if dismissals or not re.search(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* overload keeps children', window[capsized.end():]):
                 return 'exceptional parent did not keep all children after overload'
             if re.search(r'\[aquatic\][^\n]*uuid=' + owner + r'[^\n]* load heavy ', window):

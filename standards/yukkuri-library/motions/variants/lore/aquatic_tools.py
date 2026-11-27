@@ -315,8 +315,11 @@ def braid_rotation(action, t, c, side):
     if action == 'mouth_bite_hold':
         u = (t % (d/2))/(d/2); tug = smooth(u/.3) if u < .3 else 1-smooth((u-.3)/.7); return [-5*tug, 0, side*(8+10*tug)]
     if action == 'boat_thrown':
-        # flung up and out, high over the brim while she spins
-        flail = math.sin(2*math.pi*t/.42)*(1-smooth((t-.8)/.3)); return [-20*flail*side, side*6, side*(64+14*abs(flail))]
+        if 'hair_chain_keys' in c and side > 0: return None
+        # Short non-braid side lock: follows the body naturally with small inertial lag and gravity flare, never flailing like a braid.
+        lag_spin = bump((t - .10) / .72)
+        splash = bump((t - .84) / .34)
+        return [6*lag_spin - 3*splash, 0, -(3 + 8*lag_spin + 4*splash)]
     if action == 'water_hat_climb':
         if side < 0: return [0, 0, -(10+8*bump((t-.80)/.75))]
         return None

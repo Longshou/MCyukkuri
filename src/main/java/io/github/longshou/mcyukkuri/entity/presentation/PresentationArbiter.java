@@ -94,6 +94,7 @@ public final class PresentationArbiter {
         e.life().observeUrge(shown);
         e.status().reactions().weather().observeFace(shown);
         e.status().sneeze().observeFace(shown);
+        e.waterDistress().observePresentation(e.getAnimationId(), e.getAnimationStartTick(), shown);
         if (e.getNavigation() instanceof YukkuriGroundNavigation nav) nav.observeFace(shown);
         for (var beat = noted.poll(); beat != null; beat = noted.poll())
             GameplayLog.event(e, "choreo", "beat={} face={} line={} declared={}", beat.name(), shown, beat.line(), beat.face());
@@ -189,7 +190,7 @@ public final class PresentationArbiter {
         String linger=state.lingerFace();
         if(!linger.isEmpty())return linger;
         if (source.equals("water_distress")) {
-            var phase = e.waterDistress().phase();
+            var phase = e.waterDistress().airbornePlunge() ? WaterDistress.Phase.IMPACT : e.waterDistress().phase();
             if (e.profile().aquatic()) return aquaticWaterFace(phase);
             return ExpressionClips.sample(e.subspecies().assetId(), clip,
                     Math.max(0, e.level().getGameTime() - start) / 20f, nonAquaticWaterFace(phase));
@@ -327,14 +328,19 @@ public final class PresentationArbiter {
             // The water clock still records immersion and damage. A returning flier uses its real wings,
             // not the generic swimmer's hand bones (which are a predator's side locks).
             if (presentPredatorFlight(state)) { state.expression("teary"); return; }
-            String distress = e.waterDistress().airbornePlunge() ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
+            boolean airborne = e.waterDistress().airbornePlunge();
+            String distress = airborne ? Behaviors.HAT_SLIPPING : e.waterDistress().activity();
             state.behavior(distress);
             // A running water action (righting, climbing) shows its own clip from its phase; otherwise the distress phase's clip.
             var pose = actionPose(e);
+            var impact = e.waterDistress().impactClip();
+            boolean customImpact = impact != YukkuriAction.WATER_PLUNGE
+                    && (airborne || e.waterDistress().phase() == WaterDistress.Phase.IMPACT);
             state.animation(pose != null ? pose.action()
+                    : customImpact ? impact
                     : distress.equals(Behaviors.WATER_STRUGGLE) ? waterStruggle(e) : EcologyPresentation.action(distress));
             state.animationStart(pose != null ? pose.startTick() : e.waterDistressStartTick());
-            var phase = e.waterDistress().phase();
+            var phase = airborne ? WaterDistress.Phase.IMPACT : e.waterDistress().phase();
             state.expression(e.profile().aquatic() ? aquaticWaterFace(phase) : nonAquaticWaterFace(phase));
             return;
         });

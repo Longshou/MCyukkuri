@@ -6395,6 +6395,7 @@
       "duration": 0.6,
       "loop": false,
       "applies": "aquatic_marisa",
+      "settle": 0.16,
       "faces": [
         [
           0,
@@ -6407,12 +6408,24 @@
           "cry"
         ]
       ],
-      "lore": "Project original: thrown out as the hat capsizes; a stretched startle with a half yaw spin and a braid flail, then the splash squash at the marker. The server owns the arc and the water entry.",
+      "lore": "Project original: thrown out as the hat capsizes; a stretched startle with a half yaw spin and a draped braid-only flail (non-braid side lock follows naturally with small lag), then the splash squash at the marker. The server owns the arc and the water entry.",
       "triggers": [
-        "HullHazards capsize (captain)"
+        "HullAfloat capsize (captain)"
       ],
       "markers": {
         "splash": 0.425
+      },
+      "hair_chain_keys": {
+        "hand_right": {
+          "group": "braid_chain",
+          "weights": [0.04, 0.14, 0.22, 0.24, 0.18, 0.11, 0.07],
+          "lag": 0.024,
+          "sag": [0.0, 1.0, 2.5, 4.5, 6.5, 8.5, 10.5],
+          "root_keys": [[0.0, [0, 0, 6]], [0.12, [-4, -2, 11]], [0.24, [-2, 0, 13]], [0.36, [4, 2, 12]], [0.46, [3, 0, 10]], [0.6, [1, 0, 6]]],
+          "drive_keys": [[0.0, [0, 0, 18]], [0.12, [-32, -8, 68]], [0.24, [-12, 4, 86]], [0.36, [36, 10, 74]], [0.46, [18, 4, 60]], [0.6, [6, 0, 28]]],
+          "tip_keys": [[0.0, [0, 0, 4]], [0.12, [-26, -8, 18]], [0.24, [16, 6, 26]], [0.36, [32, 10, -14]], [0.46, [-16, -4, 14]], [0.6, [-4, 0, 4]]],
+          "tip_shares": [0.35, 0.65]
+        }
       }
     },
     "water_hat_right": {
@@ -8291,6 +8304,7 @@
       "water_hat_shake",
       "water_hat_push",
       "boat_paddle_braid",
+      "boat_thrown",
       "water_hat_climb",
       "water_hat_right",
       "boat_jettison",
