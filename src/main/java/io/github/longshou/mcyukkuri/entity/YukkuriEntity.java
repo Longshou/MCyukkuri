@@ -1062,6 +1062,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean hasReaction() { return reactionTicks > 0 && !reactionEvent.equals("need_tell"); }
     /** Logs one beat of a performance with the face that is really shown next (declared face and line event; {@code ""} for none). */
     public void beat(String name, String face, String line) { presentation.note(name, face, line); }
+    /** The last beat of a stiff body that leaves the world this tick (see PresentationArbiter#noteLast). */
+    public void beatLast(String name, String line) { presentation.noteLast(name, line); }
     private YukkuriAction reactionAction, reactionAfter;
     private long reactionStartedAt = -1;
     public YukkuriAction reactionAction() { return reactionTicks > 0 ? reactionAction : null; }

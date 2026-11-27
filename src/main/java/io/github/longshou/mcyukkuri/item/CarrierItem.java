@@ -146,7 +146,8 @@ public final class CarrierItem extends Item {
         return InteractionResult.CONSUME;
     }
     private static Admission admission(Player player, YukkuriEntity entity, float weakness, double resistance) {
-        if (entity.life().drugSleep() > 0) return Admission.UNCONSCIOUS;
+        // A body frozen stiff is lifted like one that is out cold: it neither agrees nor resists.
+        if (entity.life().drugSleep() > 0 || entity.coldStiff()) return Admission.UNCONSCIOUS;
         if (willing(player, entity)) return Admission.WILLING;
         return CarrierLoad.overpowered(weakness, resistance) ? Admission.WEAK : Admission.REFUSED;
     }
@@ -253,9 +254,10 @@ public final class CarrierItem extends Item {
             return "condition";
         }
         CarrierContents.add(stack, token, world.captiveSnapshot(token));
+        if (entity.coldStiff()) entity.beatLast("stiff_lift", "");
         player.displayClientMessage(Component.translatable("care.mcyukkuri.carrier.captured", entity.getName()), true);
-        GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={} admission={}",
-                entity.getUUID(),token,before,before + added,grade.capacity(),admission);
+        GameplayLog.event(player,"carrier","action=capture result=committed target={} token={} load={}->{} capacity={} admission={} stiff={}",
+                entity.getUUID(),token,before,before + added,grade.capacity(),admission,entity.coldStiff());
         return null;
     }
     @Override public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {

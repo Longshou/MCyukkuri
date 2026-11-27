@@ -46,6 +46,14 @@ public final class PresentationArbiter {
         if (noted.size() < 8) noted.add(new Beat(name, face, line.isEmpty() ? "none" : line));
     }
 
+    /**
+     * The last beat of a stiff body that leaves the world this tick (a shell shattered, a lift into the basket): no later frame would log it,
+     * so it is logged now with the face the body still shows against the stiff face it declares.
+     */
+    public void noteLast(String name, String line) {
+        GameplayLog.event(state.owner(), "choreo", "beat={} face={} line={} declared={}", name, face("last"), line.isEmpty() ? "none" : line, STIFF_FACE);
+    }
+
     /** Publishes the controls already advanced by the entity; no gameplay clocks or navigation writes. */
     public void tick(YukkuriControl.Frame frame, double travelledX, double travelledZ, boolean passive, boolean driven) {
         // passive: this tick's travel is contact (a shove or separation shift), not the body's own walk; driven: it is the own walk.

@@ -22,6 +22,7 @@ import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.exam.ExamSession;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Objects;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -31,7 +32,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /** Shared server checks for player interaction. Care buttons use the same refusal as execution. */
@@ -155,6 +158,22 @@ public final class InteractionDispatch {
                 event.setCancellationResult(InteractionResult.FAIL);
             }
         }
+    }
+    /**
+     * A player's melee on a body frozen stiff is chisel progress, never a blow (the shop guard has already had its say at HIGH priority).
+     * Tool speed is the item's mining speed on ice; a tool that cuts nothing special still beats a bare hand. The server's attack
+     * cooldown is spent here, since the cancelled attack would otherwise leave it full for the next swing.
+     */
+    public static void chisel(AttackEntityEvent event){
+        var player=event.getEntity();
+        if(player.level().isClientSide()||!(event.getTarget() instanceof YukkuriEntity target)||!target.coldStiff())return;
+        event.setCanceled(true);
+        var held=player.getMainHandItem();
+        double speed=held.getDestroySpeed(Blocks.ICE.defaultBlockState());
+        if(speed<=1&&held.has(DataComponents.TOOL))speed=1.5;
+        float cooldown=player.getAttackStrengthScale(.5f);
+        player.resetAttackStrengthTicker();
+        target.life().temperature().chiselled(player,speed,cooldown);
     }
     public static void openCare(ServerPlayer player,YukkuriEntity target){
         if (!requireReach(player, target, 5)) return;

@@ -66,4 +66,30 @@ final class ColdStiffness {
 
     /** The exposure at which a body that cannot stiffen yet (it is swimming, riding, in labour) freezes outright: the window past the stiffening one. */
     static double deathExposure(double exposureToStiffen, double share) { return exposureToStiffen * (1 + share); }
+
+    // ---- chiselling: a player's melee on the shell is progress, never health damage ----------------------------------------------
+    /** The shell breaks at this much progress: a bare hand (1 a full swing) needs 9 swings. */
+    static final double CHISEL_FULL = 9;
+    /** One swing never gives more than a third of the shell, so even the best pickaxe needs three: a stiff body is never killed by one hit. */
+    static final double CHISEL_MAX_HIT = CHISEL_FULL / 3;
+    /** Cracks show at each quarter of the progress: levels 1 to 3, and the break is the fourth step. */
+    static final int CRACK_LEVELS = 3;
+    /** A level of cracks mends after this many ticks without a swing (a stray touch never adds up). */
+    static final int CHISEL_IDLE = 100;
+
+    /**
+     * Progress of one swing: the tool's mining speed on ice ({@code 1} bare hand) counted at half its excess over a hand, times how
+     * far the attack cooldown has recovered (0-1). A pickaxe is the fastest, a bare hand the slowest.
+     */
+    static double chiselHit(double toolSpeed, double cooldown) {
+        return Math.min(CHISEL_MAX_HIT, (1 + (Math.max(1, toolSpeed) - 1) * .5) * Math.clamp(cooldown, 0, 1));
+    }
+
+    /** Crack level 0-3 of a progress (the quarter it has reached). */
+    static int crackLevel(double progress) { return (int) Math.min(CRACK_LEVELS, Math.floor(progress / (CHISEL_FULL / (CRACK_LEVELS + 1)))); }
+
+    static boolean shattered(double progress) { return progress >= CHISEL_FULL; }
+
+    /** One level of cracks mends: back to the start of the level below. */
+    static double mended(double progress) { return Math.max(0, (crackLevel(progress) - 1) * CHISEL_FULL / (CRACK_LEVELS + 1)); }
 }

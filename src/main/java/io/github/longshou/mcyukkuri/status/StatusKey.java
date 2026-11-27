@@ -77,6 +77,8 @@ public enum StatusKey {
     }),
     /** Seconds left of the stiffened body's window (0 when it is not stiff). */
     COLD_STIFF("needs", "cold_stiff", 10, y -> y.life().temperature().stiff() ? y.life().temperature().stiffSeconds() : 0, null),
+    /** Crack level 0-3 a player's chisel has put on a stiff body's shell. */
+    COLD_CRACK("needs", "cold_crack", 10, y -> y.life().temperature().crack(), null),
     // ---- mood --------------------------------------------------------------------------------------------------
     STRESS("mood", "stress", 10, y -> y.pet().stress(), (y, raw) -> {
         Float v = number(raw);

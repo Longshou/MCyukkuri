@@ -57,6 +57,8 @@ final class YukkuriDamage {
 
     private HurtResult apply(DamageSource source,float amount,BodyHit.Kind kind) {
         if(!Float.isFinite(amount)||amount<=0)return HurtResult.REJECTED;
+        // A melee swing at a stiff body is chiselling (InteractionDispatch#chisel); only a sweep of another target reaches here, and the shell takes nothing from it.
+        if(owner.coldStiff()&&source.is(DamageTypes.PLAYER_ATTACK)&&source.getDirectEntity() instanceof Player)return HurtResult.REJECTED;
         exhaustionDamageDepth++;
         Transaction previous=current;
         try {

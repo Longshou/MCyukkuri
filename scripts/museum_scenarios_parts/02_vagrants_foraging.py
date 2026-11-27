@@ -803,3 +803,201 @@ add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不动
                        r'\[body\][^\n]* invariant\b'],
                expect=[rf'\[temperature\][^\n]* uuid={_cs_hungry} [^\n]* stiff begin '],
                verify=_cs_negative_verify))
+
+
+# ---- Cold stiffening P3: a body frozen stiff is lifted in the basket or chiselled to pieces (docs/features/wild-ecology.md, 低温僵直). ----
+# Every body is started with a cold backlog just under the 2400 that freezes it (as in cold_stiff_stray); the player's part is a real
+# swing (`scenario chisel` raises the AttackEntityEvent through Player#attack) or the real basket click, once the bodies are stiff.
+# The same 41 x 16 x 38 field as the first three scenes: fillbiome refuses more than 32768 blocks and the scene would stay temperate.
+_CS_FIELD = 'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains'
+_CS_HITS = 'yukkuri scenario chisel'
+
+
+def _cs_swings(name, tool, first, count, gap):
+    return [(first + i * gap, f'{_CS_HITS} {sel(name)} {tool}') for i in range(count)]
+
+
+def _cs_shattered(log, uuid):
+    """The shell broke: a shatter line, a death without remains, and not one accepted blow on the body (the swings did no damage)."""
+    for pattern, what in ((rf'\[temperature\][^\n]* uuid={uuid} [^\n]* chisel shatter ', 'a chisel shatter line'),
+                          (rf'\[body\][^\n]* uuid={uuid} [^\n]* death settled without remains; cause=player ', 'a death without remains by the player')):
+        if not re.search(pattern, log):
+            return f'{uuid}: missing {what}'
+    if re.search(rf'\[body\][^\n]* uuid={uuid} [^\n]* death settled into remains', log):
+        return f'{uuid}: left remains'
+    if re.search(rf'\[body\][^\n]* uuid={uuid} [^\n]* accepted damage cause=player', log):
+        return f'{uuid}: a swing did health damage'
+    return None
+
+
+_cm_pick = _uuid_text('cold_stiff_mined', 'mine_pick')
+_cm_hand = _uuid_text('cold_stiff_mined', 'mine_hand')
+_cm_sword = _uuid_text('cold_stiff_mined', 'mine_sword')
+_cm_junk = _uuid_text('cold_stiff_mined', 'mine_junk')
+
+
+def _cs_mined_verify(log):
+    for uuid in (_cm_pick, _cm_hand, _cm_junk):
+        problem = _cs_shattered(log, uuid)
+        if problem:
+            return problem
+    # Swing counts are read from the hits themselves: the pickaxe never breaks a shell in fewer than three, a bare hand needs nine.
+    for uuid, swings in ((_cm_pick, 3), (_cm_junk, 3), (_cm_hand, 9)):
+        hits = re.findall(rf'\[temperature\][^\n]* uuid={uuid} [^\n]* chisel hit ', log)
+        if len(hits) != swings:
+            return f'{uuid}: {len(hits)} chisel swings, expected {swings}'
+    # The sword body is cracked, then mends with no further swing, and is still stiff when the scene ends.
+    if not re.search(rf'\[temperature\][^\n]* uuid={_cm_sword} [^\n]* chisel hit [^\n]*crack=1 ', log):
+        return 'the sword body never showed a first crack'
+    if not re.search(rf'\[temperature\][^\n]* uuid={_cm_sword} [^\n]* chisel mended progress=[^\n]* crack=0\b', log):
+        return 'the idle cracks of the sword body never mended'
+    if re.search(rf'\[(?:temperature|body)\][^\n]* uuid={_cm_sword} [^\n]* (?:chisel shatter|death settled)', log):
+        return 'the sword body died'
+    return _cs_still(log, _cm_sword, ended=False)
+
+
+add('cold_stiff_mined', 'forage', '流浪：冻僵的被镐、拳、剑凿，镐三下碎，空手九下碎', '流浪：凿冻僵的',
+    '雪原冬夜，四只成年灵梦冷暴露预设到快冻僵，开场约 6 秒后冻僵。之后各有一位玩家挥击：左一只挨三下铁镐，碎裂；左二只空手挥九下，'
+    '每满四分之一多一级裂纹（冰屑与玻璃声），碎裂；右二只只挨两下铁剑，一级裂纹，停手一百刻后裂纹退回去，仍僵着；'
+    '右一只挨三下铁镐，它失去了头饰、头上戴着垃圾头饰，碎裂时垃圾头饰作为真实掉落物留在原处。碎裂的都直接死，没有遗体，挥击不扣血。'
+    '亲手试：拿镐、剑、空手左键打冻僵的灵梦，用望远镜看状态卡（无裂纹读数），创造模式一下碎。',
+    '开场约 6 秒冻僵，凿击在约 6 秒后，之后看 15 秒', [
+        _CS_FIELD,
+        street_stray('cold_stiff_mined', 'reimu', -12, 3, 'mine_pick', nutrition=60, energy=70, rest_wait=0, yaw=180, label='挨镐灵梦', lead=True),
+        set_status('mine_pick', 'needs.cold_exposure', 2250),
+        street_stray('cold_stiff_mined', 'reimu', -6, 3, 'mine_hand', nutrition=60, energy=70, rest_wait=0, yaw=180, label='挨拳灵梦'),
+        set_status('mine_hand', 'needs.cold_exposure', 2250),
+        street_stray('cold_stiff_mined', 'reimu', 0, 3, 'mine_sword', nutrition=60, energy=70, rest_wait=0, yaw=180, label='挨剑灵梦'),
+        set_status('mine_sword', 'needs.cold_exposure', 2250),
+        street_stray('cold_stiff_mined', 'reimu', 6, 3, 'mine_junk', nutrition=60, energy=70, rest_wait=0, yaw=180, accessory=False,
+                     label='戴垃圾头饰灵梦'),
+        f'data merge entity {sel("mine_junk")} {{YukkuriLife:{{HatCustody:{{State:"LOST",JunkHeadwear:"paper_box"}}}}}}',
+        set_status('mine_junk', 'needs.cold_exposure', 2250),
+    ], give=['minecraft:spyglass', 'minecraft:iron_pickaxe', 'minecraft:iron_sword'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[(f'读{label}', f'yukkuri status {sel(name)} raw') for name, label in
+           (('mine_pick', '挨镐灵梦'), ('mine_hand', '挨拳灵梦'), ('mine_sword', '挨剑灵梦'), ('mine_junk', '戴垃圾头饰灵梦'))],
+    smoke=dict(ticks=900,
+               commands=[*_cs_swings('mine_pick', 'iron_pickaxe', 330, 3, 15), *_cs_swings('mine_junk', 'iron_pickaxe', 340, 3, 15),
+                         *_cs_swings('mine_hand', 'hand', 330, 9, 12), *_cs_swings('mine_sword', 'iron_sword', 330, 2, 15)],
+               readout=[f'yukkuri status {sel("mine_sword")} raw'],
+               allow_fate=[dict(kind='death', who=f'uuid={uuid} ', match=r'cause=player\b',
+                                why='the player chiselled the stiff body to pieces: the real result of the scene')
+                           for uuid in (_cm_pick, _cm_hand, _cm_junk)],
+               forbid=[r'\[body\][^\n]* invariant\b', rf'\[temperature\][^\n]* uuid={_cm_sword} [^\n]* freeze death',
+                       r'\[scenario\][^\n]* action=chisel [^\n]*stiff=false'],
+               expect=[*(rf'\[temperature\][^\n]* uuid={uuid} [^\n]* stiff begin ' for uuid in (_cm_pick, _cm_hand, _cm_sword, _cm_junk)),
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_1 face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_2 face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_3 face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cm_pick} [^\n]* beat=chisel_shatter face=sleep line=none declared=sleep',
+                       rf'\[headwear\][^\n]* uuid={_cm_junk} [^\n]* junk death transfer item=\S*junk_headwear destination=world'],
+               verify=_cs_mined_verify))
+
+# Kin witness: the mate beside a fire sees the break and grieves; the mate far away does not (the scene reads that, not a wait for its search to end).
+_cw_seen = _uuid_text('cold_stiff_witness', 'witness_body')
+_cw_mate = _uuid_text('cold_stiff_witness', 'witness_mate')
+_cw_far = _uuid_text('cold_stiff_witness', 'far_body')
+_cw_far_mate = _uuid_text('cold_stiff_witness', 'far_mate')
+_cw_seen_id, _cw_mate_id = uid('cold_stiff_witness', 'witness_body'), uid('cold_stiff_witness', 'witness_mate')
+_cw_far_id, _cw_far_mate_id = uid('cold_stiff_witness', 'far_body'), uid('cold_stiff_witness', 'far_mate')
+
+
+def _cs_witness_verify(log):
+    for uuid in (_cw_seen, _cw_far):
+        problem = _cs_shattered(log, uuid)
+        if problem:
+            return problem
+    if not re.search(rf'\[family\][^\n]* uuid={_cw_mate} [^\n]* witnessed kin death dead={_cw_seen} ', log):
+        return 'the mate beside the fire did not witness the break'
+    if re.search(rf'\[family\][^\n]* uuid={_cw_far_mate} [^\n]* witnessed kin death', log):
+        return 'the mate out of sight grieved at a death it did not see'
+    for uuid in (_cw_mate, _cw_far_mate):
+        if re.search(rf'\[temperature\][^\n]* uuid={uuid} [^\n]* stiff begin ', log):
+            return f'{uuid}: the warm mate froze stiff'
+    return None
+
+
+add('cold_stiff_witness', 'forage', '流浪：伴侣眼前冻僵的被凿碎，伴侣悲痛；远处的不知道', '流浪：凿碎时伴侣在场与不在场',
+    '雪原冬夜。西边一只冷暴露预设到快冻僵的灵梦，旁边六格外的篝火边是它的伴侣魔理沙；东边另一只同样的灵梦，伴侣在十五格外自己的篝火边。'
+    '开场约 6 秒后两只灵梦冻僵，玩家挥三下铁镐把它们都凿碎：西边的伴侣亲眼看到，悲痛并对玩家有戒心；东边的伴侣没看见，不会悲痛。',
+    '开场约 6 秒冻僵，凿击在约 6 秒后，之后看 20 秒', [
+        _CS_FIELD,
+        block(-2, 0, 3, 'minecraft:campfire[lit=true]'),
+        block(14, 0, -13, 'minecraft:campfire[lit=true]'),
+        yk('reimu', -8, 3, 'witness_body', uuid=_cw_seen_id, yaw=180, nutrition=60, energy=70, rest_wait=0, lead=True, label='西边冻僵灵梦',
+           kin=f'Partner:{uuid_nbt(_cw_mate_id)}'),
+        # Just under the line: the body near a fire would otherwise walk toward it and freeze late, after the swings (it must be stiff first).
+        set_status('witness_body', 'needs.cold_exposure', 2390),
+        yk('marisa', -3, 3, 'witness_mate', uuid=_cw_mate_id, yaw=90, nutrition=80, energy=100, rest_wait=2400, label='西边伴侣',
+           kin=f'Partner:{uuid_nbt(_cw_seen_id)}'),
+        yk('reimu', 14, 3, 'far_body', uuid=_cw_far_id, yaw=180, nutrition=60, energy=70, rest_wait=0, label='东边冻僵灵梦',
+           kin=f'Partner:{uuid_nbt(_cw_far_mate_id)}'),
+        set_status('far_body', 'needs.cold_exposure', 2390),
+        yk('marisa', 14, -12, 'far_mate', uuid=_cw_far_mate_id, yaw=0, nutrition=80, energy=100, rest_wait=2400, label='东边伴侣',
+           kin=f'Partner:{uuid_nbt(_cw_far_id)}'),
+    ], give=['minecraft:spyglass', 'minecraft:iron_pickaxe'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[(f'读{label}', f'yukkuri status {sel(name)} raw') for name, label in
+           (('witness_body', '西边冻僵灵梦'), ('witness_mate', '西边伴侣'), ('far_body', '东边冻僵灵梦'), ('far_mate', '东边伴侣'))],
+    smoke=dict(ticks=900,
+               commands=[*_cs_swings('witness_body', 'iron_pickaxe', 330, 3, 15), *_cs_swings('far_body', 'iron_pickaxe', 335, 3, 15)],
+               readout=[f'yukkuri status {sel("witness_mate")} raw', f'yukkuri status {sel("far_mate")} raw'],
+               allow_fate=[dict(kind='death', who=f'uuid={uuid} ', match=r'cause=player\b',
+                                why='the player chiselled the stiff body to pieces: the real result of the scene')
+                           for uuid in (_cw_seen, _cw_far)],
+               forbid=[r'\[body\][^\n]* invariant\b', r'\[scenario\][^\n]* action=chisel [^\n]*stiff=false',
+                       rf'\[emotion\][^\n]* uuid={_cw_far_mate} [^\n]* course begun kind=grief'],
+               expect=[rf'\[temperature\][^\n]* uuid={_cw_seen} [^\n]* stiff begin ', rf'\[temperature\][^\n]* uuid={_cw_far} [^\n]* stiff begin ',
+                       rf'\[family\][^\n]* uuid={_cw_mate} [^\n]* witnessed kin death dead={_cw_seen} ',
+                       rf'\[threat\][^\n]* uuid={_cw_mate} [^\n]* response started source=',
+                       rf'\[emotion\][^\n]* uuid={_cw_mate} [^\n]* course begun kind=grief [^\n]*about={_cw_seen}'],
+               verify=_cs_witness_verify))
+
+# The basket lifts a stiff body like one out cold and sets it down beside a lit fire, where it thaws; the same body is first refused a flame
+# to be set down in. A stiff body left 6 blocks from the same fire (outside the 4-block reach of its warmth) stays stiff.
+_cf_lift = _uuid_text('cold_stiff_rewarm_fire', 'lift_body')
+_cf_left = _uuid_text('cold_stiff_rewarm_fire', 'left_body')
+
+
+def _cs_rewarm_verify(log):
+    begin = re.search(rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff begin ', log)
+    lift = re.search(rf'\[carrier\][^\n]* action=capture result=committed target={_cf_lift} [^\n]*admission=UNCONSCIOUS stiff=true', log)
+    refused = re.search(r'\[transport\][^\n]* action=release result=refused [^\n]*reason=fire', log)
+    released = re.search(rf'\[transport\][^\n]* uuid={_cf_lift} [^\n]* action=release result=committed ', log)
+    thawed = re.search(rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff end reason=warmed ', log)
+    if not (begin and lift and refused and released and thawed):
+        return f'missing a step: begin={bool(begin)} lift={bool(lift)} fire refusal={bool(refused)} release={bool(released)} thaw={bool(thawed)}'
+    if not begin.start() < lift.start() < refused.start() < released.start() < thawed.start():
+        return 'the steps are out of order (freeze, lift, refused flame, release, thaw)'
+    if re.search(rf'\[(?:choreo|speech)\][^\n]* uuid={_cf_lift} [^\n]*(?:basket_out|basket_exit|basket_enter|request_thanks)', log):
+        return 'the lifted stiff body performed a basket reaction'
+    return _cs_still(log, _cf_left, ended=False)
+
+
+add('cold_stiff_rewarm_fire', 'forage', '流浪：篮子端起冻僵的放到篝火边解冻，不放进火里，留在冷处的仍僵', '流浪：端到火边解冻',
+    '雪原冬夜，两只成年灵梦冷暴露预设到快冻僵，开场约 6 秒后冻僵。篝火点在北边，西边一只离火很远；玩家用篮子端起西边那只'
+    '（它不跳进篮子、不笑、不道谢），先试着放进西南角的一格火焰里（被拒绝，仍在篮里），再放在篝火边：它仍僵着，几十秒后壳化开解冻，继续发抖找暖。'
+    '东边那只离火八九格，留在原处一直僵着。',
+    '开场约 6 秒冻僵，端起放下在约 6 秒后，之后看半分钟', [
+        _CS_FIELD,
+        block(0, 0, 8, 'minecraft:campfire[lit=true]'),
+        block(-16, -1, 12, 'minecraft:netherrack'),
+        block(-16, 0, 12, 'minecraft:fire'),
+        street_stray('cold_stiff_rewarm_fire', 'reimu', -10, 3, 'lift_body', nutrition=60, energy=70, rest_wait=0, yaw=180, label='被端起的灵梦', lead=True),
+        set_status('lift_body', 'needs.cold_exposure', 2250),
+        street_stray('cold_stiff_rewarm_fire', 'reimu', 6, 14, 'left_body', nutrition=60, energy=70, rest_wait=0, yaw=180, label='留在冷处的灵梦'),
+        set_status('left_body', 'needs.cold_exposure', 2250),
+    ], give=['minecraft:spyglass', 'mcyukkuri:yukkuri_carrier'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读被端起的灵梦', f'yukkuri status {sel("lift_body")} raw'), ('读留在冷处的灵梦', f'yukkuri status {sel("left_body")} raw')],
+    smoke=dict(ticks=1300,
+               commands=[(300, 'yukkuri scenario basket plain'), (330, f'yukkuri scenario basket capture {sel("lift_body")}'),
+                         (345, 'yukkuri scenario basket release ~-16 ~-1 ~12'), (360, 'yukkuri scenario basket release ~1 ~-1 ~8')],
+               readout=[f'yukkuri status {sel("lift_body")} raw', f'yukkuri status {sel("left_body")} raw'],
+               forbid=[r'\[body\][^\n]* invariant\b', rf'\[temperature\][^\n]* uuid={_cf_left} [^\n]* (?:stiff end|freeze death)',
+                       rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* freeze death'],
+               expect=[rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff begin ', rf'\[temperature\][^\n]* uuid={_cf_left} [^\n]* stiff begin ',
+                       rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff end reason=warmed ',
+                       rf'\[choreo\][^\n]* uuid={_cf_lift} [^\n]* beat=stiff_lift face=sleep line=none declared=sleep'],
+               verify=_cs_rewarm_verify))

@@ -374,6 +374,9 @@
     "toy_contest": "PK-24",
     "cold_stiff_stray": "FG-20",
     "cold_stiff_reload": "FG-21",
-    "cold_stiff_negative": "FG-22"
+    "cold_stiff_negative": "FG-22",
+    "cold_stiff_mined": "FG-23",
+    "cold_stiff_witness": "FG-24",
+    "cold_stiff_rewarm_fire": "FG-25"
   }
 }

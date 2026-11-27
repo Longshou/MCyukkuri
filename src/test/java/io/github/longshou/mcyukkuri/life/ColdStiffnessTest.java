@@ -74,4 +74,42 @@ class ColdStiffnessTest {
     @Test void aBodyThatCannotStiffenFreezesOnePastTheWindowOnTheExposure() {
         assertEquals(T * 1.72, ColdStiffness.deathExposure(T, .72), 1e-9);
     }
+
+    @Test void noToolBreaksTheShellInOneSwingAndAPickaxeIsFasterThanAHand() {
+        double hand = ColdStiffness.chiselHit(1, 1), sword = ColdStiffness.chiselHit(1.5, 1), wood = ColdStiffness.chiselHit(2, 1);
+        double iron = ColdStiffness.chiselHit(6, 1), gold = ColdStiffness.chiselHit(12, 1);
+        assertTrue(hand < sword && sword < wood && wood < iron, "tool order");
+        assertEquals(iron, gold, 1e-9, "the cap: the best tools are all three swings");
+        assertTrue(ColdStiffness.chiselHit(1000, 1) * 2 < ColdStiffness.CHISEL_FULL, "never fewer than three full swings");
+        assertEquals(9, Math.ceil(ColdStiffness.CHISEL_FULL / hand), "a bare hand needs nine");
+        assertEquals(3, Math.ceil(ColdStiffness.CHISEL_FULL / iron), "an iron pickaxe needs three");
+    }
+
+    @Test void aHalfRecoveredCooldownGivesHalfTheProgress() {
+        assertEquals(ColdStiffness.chiselHit(1, 1) / 2, ColdStiffness.chiselHit(1, .5), 1e-9);
+        assertEquals(0, ColdStiffness.chiselHit(6, 0), 1e-9);
+    }
+
+    @Test void theShellShowsThreeCrackLevelsAndBreaksAtTheFourthStep() {
+        double quarter = ColdStiffness.CHISEL_FULL / 4;
+        assertEquals(0, ColdStiffness.crackLevel(quarter - .01));
+        assertEquals(1, ColdStiffness.crackLevel(quarter));
+        assertEquals(2, ColdStiffness.crackLevel(2 * quarter));
+        assertEquals(3, ColdStiffness.crackLevel(3 * quarter));
+        assertEquals(3, ColdStiffness.crackLevel(ColdStiffness.CHISEL_FULL - .01));
+        assertFalse(ColdStiffness.shattered(ColdStiffness.CHISEL_FULL - .01));
+        assertTrue(ColdStiffness.shattered(ColdStiffness.CHISEL_FULL));
+    }
+
+    @Test void idleCracksMendOneLevelAtATimeDownToNothing() {
+        double quarter = ColdStiffness.CHISEL_FULL / 4;
+        assertEquals(2 * quarter, ColdStiffness.mended(3 * quarter + .5), 1e-9);
+        assertEquals(quarter, ColdStiffness.mended(2 * quarter), 1e-9);
+        assertEquals(0, ColdStiffness.mended(quarter + .5), 1e-9);
+        assertEquals(0, ColdStiffness.mended(.5), 1e-9);
+        double progress = ColdStiffness.CHISEL_FULL - .5;
+        int steps = 0;
+        while (progress > 0 && steps < 10) { progress = ColdStiffness.mended(progress); steps++; }
+        assertEquals(3, steps, "three idle periods clear the worst cracks");
+    }
 }

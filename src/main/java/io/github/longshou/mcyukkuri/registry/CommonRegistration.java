@@ -209,6 +209,8 @@ public final class CommonRegistration {
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::spyglassScoping);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, InteractionDispatch::interact);
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, Naming::nameTag);
+        // A melee swing at a body frozen stiff is chisel progress; after the shop guard (HIGH) that cancels what must not be touched.
+        NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, AttackEntityEvent.class, InteractionDispatch::chisel);
 
         NeoForge.EVENT_BUS.addListener(EventPriority.NORMAL, false, PlayerEvent.ItemCraftedEvent.class, HouseholdEcology::crafted);
 

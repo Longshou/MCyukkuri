@@ -23,12 +23,12 @@ EVENT = re.compile(r'\[(?P<cat>[\w-]+)\] (?P<variant>\S+) #(?P<id>\d+) uuid=(?P<
 # kind -> (category, message pattern) of the lines that show it
 FATES = {
     # body/BodyLife.died; body/BodyLife.startDying (the core is hurt: death follows without a way back)
-    'death': (('body', r'^death settled into remains; cause=(?P<cause>\S+)'), ('body', r'^core hurt \((?P<cause>[^)]*)\), dying for ')),
+    'death': (('body', r'^death settled (?:into|without) remains; cause=(?P<cause>\S+)'), ('body', r'^core hurt \((?P<cause>[^)]*)\), dying for ')),
     # entity/YukkuriDamage: health lost to immersion (life/YukkuriLife hurts every 20 ticks in water, 60 for aquatic bodies)
     'drown': (('water', r'^damage cause=drown\b'),),
     # Accepted suffocation damage, the surviving victim's flight, or a death by suffocation.
     'in_wall': (('body', r'^in wall damage\b'), ('threat', r'^struck stance=FLEE cause=inWall\b'),
-                ('body', r'^death settled into remains; cause=inWall\b')),
+                ('body', r'^death settled (?:into|without) remains; cause=inWall\b')),
     # life/YukkuriLife.tick: nutrition at zero for the starvation interval
     'starve': (('needs', r'^starvation damage accepted=true\b'),),
 }
@@ -826,7 +826,7 @@ def orphans(samples, records=()):
             if phase:
                 water_phases[r['u']].append((r['t'], r['seq'], phase))
         if (r['k'] == 'life' and r.get('out') == 'killed' or
-                r['k'] == 'ev' and r.get('cat') == 'body' and r.get('msg', '').startswith('death settled into remains;')):
+                r['k'] == 'ev' and r.get('cat') == 'body' and r.get('msg', '').startswith(('death settled into remains;', 'death settled without remains;'))):
             deaths[r['u']] = min(deaths.get(r['u'], r['t']), r['t'])
     for r in samples:
         all_ticks[r['t']][r['u']] = r['state']
@@ -1279,7 +1279,7 @@ def observations(records, issues=(), raw='', allow=(), end=(), seed=None, rerun=
                       for entry in allow if entry.get('who') is not None}
     damage_lines = defaultdict(list)
     deaths = {(r['u'], r['t'], re.search(r'\bcause=(\S+)', r['msg'])[1].rsplit('.', 1)[-1])
-              for r in records if r['k'] == 'ev' and r.get('msg', '').startswith('death settled into remains; cause=')}
+              for r in records if r['k'] == 'ev' and r.get('msg', '').startswith(('death settled into remains; cause=', 'death settled without remains; cause='))}
     for line in raw.splitlines():
         if event := EVENT.search(line):
             damage_lines[event['uuid'], int(re.search(r'\bt=(\d+)', line)[1]), event['cat']].append(line)

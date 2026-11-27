@@ -84,8 +84,8 @@ public final class CarrierRelease {
         int remaining = CarrierContents.tokens(stack).size() - 1;
         YukkuriEntity entity = YukkuriWorldData.get(level).releaseOnGround(token, level, Vec3.atBottomCenterOf(pos), yaw);
         if (entity == null) return blocked(player);
-        // A sedated animal simply keeps sleeping.
-        if (!entity.life().sedated()) { entity.playAction("basket_out"); entity.speak("basket_exit"); }
+        // A sedated animal simply keeps sleeping, and a body frozen stiff is set down as stiff as it was lifted.
+        if (!entity.life().sedated() && !entity.coldStiff()) { entity.playAction("basket_out"); entity.speak("basket_exit"); }
         CarrierContents.remove(stack, token);
         GameplayLog.event(player, "carrier", "action=release result=committed target={} token={} remaining={}",
                 entity.getUUID(), token, remaining);

@@ -27,10 +27,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -66,6 +71,9 @@ public final class TemperatureLife {
      *  ticks, {@code stiffMax} the window it entered with (see {@link ColdStiffness}). The exposure stays where it was until the thaw. */
     private boolean stiff;
     private double stiffLeft, stiffMax;
+    /** Chisel progress on the shell and the tick of the last swing; not saved: the cracks mend by themselves ({@link ColdStiffness#CHISEL_IDLE}). */
+    private double chisel;
+    private long chiselAt;
     private BlockPos target, targetFire, temporarySleepSite;
     private boolean seekingWarmth, basking;
 
@@ -89,6 +97,8 @@ public final class TemperatureLife {
     public boolean stiff() { return stiff; }
     /** Seconds the window has left, for the observation card. */
     public int stiffSeconds() { return (int) Math.ceil(stiffLeft / 20); }
+    /** Crack level 0-3 on the shell, for the observation card and the scenes. */
+    public int crack() { return ColdStiffness.crackLevel(chisel); }
     /** A stiff body is rewarming when it stands in a place that is no longer cold. */
     public boolean rewarming() { return stiff && !tooCold(current.felt()); }
     public boolean cold() { return tooCold(current.felt()); }
@@ -196,6 +206,12 @@ public final class TemperatureLife {
     /** The window drains in the cold, refills in the warm; fire thaws at once. Nothing else of the body advances. */
     private void tickStiff() {
         if (entity.isOnFire()) { thaw("fire"); return; }
+        if (chisel > 0 && level().getGameTime() - chiselAt >= ColdStiffness.CHISEL_IDLE) {
+            double was = chisel;
+            chisel = ColdStiffness.mended(chisel);
+            chiselAt = level().getGameTime();
+            GameplayLog.event(entity, "temperature", "chisel mended progress={} -> {} crack={}", was, chisel, crack());
+        }
         if (initialSample) { current = sample(entity.blockPosition()); initialSample = false; }
         if (++sampleTicks < ColdStiffness.SAMPLE) return;
         sampleTicks = 0;
@@ -212,7 +228,7 @@ public final class TemperatureLife {
     private void thaw(String reason) {
         stiff = false;
         double window = stiffLeft;
-        stiffLeft = stiffMax = 0;
+        stiffLeft = stiffMax = chisel = 0;
         coldExposure = ColdStiffness.THAWED_EXPOSURE * YukkuriConfig.COLD_EXPOSURE_TICKS.get();
         cooldown = 0; coldComplaint = false;
         var life = entity.life();
@@ -227,13 +243,53 @@ public final class TemperatureLife {
         boolean wasStiff = stiff;
         stiff = false;
         double window = stiffLeft;
-        stiffLeft = stiffMax = 0;
+        stiffLeft = stiffMax = chisel = 0;
         var freeze = level().damageSources().freeze();
         boolean accepted = entity.hurt(freeze, entity.getMaxHealth() * 2);
         // The cold's kill is unconditional: a hit the damage cooldown refused would leave a live body with no window to re-stiffen on.
         if (entity.isAlive()) { entity.setHealth(0); entity.die(freeze); }
         GameplayLog.event(entity, "temperature", "freeze death reason={} stiff={} felt={} window={} exposure={} accepted={} alive={}",
                 reason, wasStiff, current.felt(), window, coldExposure(), accepted, entity.isAlive());
+    }
+
+    /**
+     * A player's melee on the shell (the one entry: {@code InteractionDispatch#chisel}, after the shop guard): no health damage, only
+     * progress by tool speed and how far the attack cooldown has recovered, a creative player in one swing. The kin within earshot are told
+     * who it is; at the last step the shell breaks and the body dies without remains, whatever it carried falling as real items.
+     */
+    public void chiselled(Player player, double toolSpeed, float cooldown) {
+        long now = level().getGameTime();
+        int before = crack();
+        double swing = player.getAbilities().instabuild ? ColdStiffness.CHISEL_FULL : ColdStiffness.chiselHit(toolSpeed, cooldown);
+        chisel += swing;
+        chiselAt = now;
+        entity.status().reactions().threat().chiselled(player);
+        GameplayLog.event(entity, "temperature", "chisel hit player={} tool_speed={} cooldown={} swing={} progress={}/{} crack={} window={}",
+                player.getUUID(), toolSpeed, cooldown, swing, chisel, ColdStiffness.CHISEL_FULL, crack(), stiffLeft);
+        var at = entity.position().add(0, entity.getBbHeight() / 2, 0);
+        float width = entity.getBbWidth() / 2, height = entity.getBbHeight() / 2;
+        var ice = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ICE.defaultBlockState());
+        if (ColdStiffness.shattered(chisel)) {
+            level().sendParticles(ice, at.x, at.y, at.z, 40, width, height, width, .1);
+            level().playSound(null, entity.blockPosition(), SoundType.GLASS.getBreakSound(), SoundSource.NEUTRAL, 1, 1);
+            entity.beatLast("chisel_shatter", "");
+            shatter(player);
+            return;
+        }
+        level().sendParticles(ice, at.x, at.y, at.z, 6 + 6 * crack(), width, height, width, .05);
+        level().playSound(null, entity.blockPosition(), SoundType.GLASS.getHitSound(), SoundSource.NEUTRAL, 1, .8f + .1f * crack());
+        if (crack() > before) entity.beat("chisel_crack_" + crack(), "sleep", "");
+    }
+
+    /** The shell goes to pieces: no corpse (the carried items fall where it stood), the ordinary death for everything else. */
+    private void shatter(Player player) {
+        double window = stiffLeft;
+        stiff = false;
+        stiffLeft = stiffMax = chisel = 0;
+        var source = level().damageSources().playerAttack(player);
+        entity.setHealth(0);
+        entity.dieWithoutRemains(source);
+        GameplayLog.event(entity, "temperature", "chisel shatter player={} window={} alive={}", player.getUUID(), window, entity.isAlive());
     }
 
     private void sampleHere() {

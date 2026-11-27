@@ -327,6 +327,11 @@ public final class Reactions {
             }
         }
         void heard(LivingEntity danger, long now) { heard(danger, now, HEARD); }
+        /**
+         * Someone chisels at this body frozen stiff: it takes no blow and answers nothing, but its kin within earshot learn who it is,
+         * as for any strike on it (the one entry for every swing; the sight of the break itself is {@code FamilyLife#died}).
+         */
+        public void chiselled(LivingEntity actor) { warnKin(actor, true); }
         /** A guard's visible warning or shoo. The threat goal can steer once the mouth is free to move. */
         public void warnedBy(LivingEntity guard) {
             long now = y.level().getGameTime();

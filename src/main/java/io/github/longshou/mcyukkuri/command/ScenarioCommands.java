@@ -307,6 +307,8 @@ public final class ScenarioCommands {
                                 .executes(ScenarioCommands::basketPlantReceive)))
                         .then(Commands.literal("release").then(Commands.argument("floor", BlockPosArgument.blockPos())
                                 .executes(ScenarioCommands::basketRelease))))
+                .then(Commands.literal("chisel").then(Commands.argument("target", EntityArgument.entity())
+                        .then(Commands.argument("tool", StringArgumentType.word()).executes(ScenarioCommands::chisel))))
                 .then(Commands.literal("unwrap").then(Commands.argument("targets", EntityArgument.entities()).executes(c -> {
                     int count = 0;
                     for (var target : EntityArgument.getEntities(c, "targets"))
@@ -864,6 +866,30 @@ public final class ScenarioCommands {
         var result = player.getItemInHand(hand).interactLivingEntity(player, target, hand);
         if (spray) player.setItemInHand(hand, ItemStack.EMPTY);
         return result.consumesAction() ? 1 : 0;
+    }
+
+    /**
+     * One real melee swing at a body by a player with a recovered attack cooldown (a fresh fake player, whose ticker never runs):
+     * {@code Player#attack} raises the same {@code AttackEntityEvent} a click does, so the chisel entry is the one a player reaches.
+     */
+    private static int chisel(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var target = yukkuri(c, "target");
+        if (target == null) return 0;
+        String name = StringArgumentType.getString(c, "tool");
+        var tool = switch (name) {
+            case "hand" -> ItemStack.EMPTY;
+            case "iron_pickaxe" -> new ItemStack(Items.IRON_PICKAXE);
+            case "iron_sword" -> new ItemStack(Items.IRON_SWORD);
+            default -> null;
+        };
+        if (tool == null) return refused(c.getSource(), target, "凿击", "tool 须为 hand、iron_pickaxe 或 iron_sword");
+        var level = c.getSource().getLevel();
+        var player = new FakePlayer(level, FakePlayerFactory.getMinecraft(level).getGameProfile()) { { attackStrengthTicker = 100; } };
+        player.setPos(target.getX() + 1, target.getY(), target.getZ());
+        player.setItemInHand(InteractionHand.MAIN_HAND, tool);
+        GameplayLog.event(target, "scenario", "action=chisel tool={} stiff={}", name, target.coldStiff());
+        player.attack(target);
+        return 1;
     }
 
     private static int basketFrame(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
