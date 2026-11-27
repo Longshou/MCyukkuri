@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 家规全套重做（TN-48/72/73/78/79/80/57） | `.worktrees/wp-rules-redo` | pet/rules/*, pet conscience/penance, rule dialogue, rule faces |
+| 凶悍个体追打时不被轻伤与喘气顶成哭脸（HD-04） | `.worktrees/wp-fierce-face` | status/BodyCondition pain face, BodyLife WOUND_DISTRESS, PresentationArbiter catchingBreath |
 
 ## 玩法待办
 
