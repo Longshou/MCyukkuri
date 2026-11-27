@@ -11,6 +11,7 @@
 | 灵梦鬓发根部变细（落水慌乱） | `.worktrees/wp-hair-root` | body-standard/features/hair-chains/author.py, lore recipe hair_chain_keys |
 | 如厕表情眼部闪烁（回归） | `.worktrees/wp-eye-flicker` | expression presets/parts, toilet-contact recipe, face checks |
 | 翻船被甩出 boat_thrown 接入与单侧辫子 | `.worktrees/wp-boat-thrown` | lore aquatic_tools.py boat_thrown, recipe boat_thrown, aquatic capsize |
+| 撤回两包表情适配批量改动（恢复被省略的表情） | `.worktrees/wp-face-revert` | lore recipe.json faces, toilet-contact recipe, moments.json, face_fit_allow.json |
 
 ## 玩法待办
 
