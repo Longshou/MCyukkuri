@@ -644,7 +644,7 @@ pond('first_voyage_brim', '子油在帽檐脱帽放水划一圈', '子油在帽�
 # R6 (ruling 2026-11-27): the family sleeps on the water. Dusk starts the scene; the one time command lapses the night.
 _NB = 'night_boat'
 add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊静水，全家睡到天亮',
-    '黄昏，亲油和两只赤油坐在离岸 3 格的帽船上（帽里有木棍），池中央是静水：亲油不上岸，天黑后在原处等孩子坐稳、帽船停稳，然后躺下睡；两只赤油各自在舱里躺下睡。'
+    '黄昏，亲油和两只赤油坐在离岸 3 格的帽船上（帽里有木棍），池中央是静水：亲油不上岸，场景几秒后天黑，她在原处等孩子坐稳、帽船停稳，然后躺下睡；两只赤油各自在舱里躺下睡。'
     '过一阵（场景用一条时间命令快进整夜）天亮，亲油先醒、说早安，赤油也醒，一家照常继续白天',
     '约 2–3 分钟（夜里的睡眠已快进）',
     [*BY_ID['pond'].biome_commands(),
@@ -654,14 +654,15 @@ add(_NB, 'pond', '黄昏帽船泊静水，全家睡到天亮', '黄昏帽船泊�
        for name, dz, size, nourishment, age in (('k1', 1, .16, 22909, 36000), ('k2', -1, .20, 84000, 76000))],
      afloat_now('a', water_at(0, 3), True, sel_all('crew'), stick=True)],
     env={'time': 'dusk'}, vantage=(-6, 6, -90),
-    late=[Retry('time set 23800', sel('a'), tries=1, first=1500)],
+    # the museum clock stands still: 12500 is dusk (still day for the body), 13000 is night, 23800 is the next morning
+    late=[Retry('time set 13000', sel('a'), tries=1, first=200), Retry('time set 23800', sel('a'), tries=1, first=1800)],
     note='日志：[aquatic] night_rest berth=…（stay=true：她这格本就是静水，原处不动）→ night_rest asked captain=true（亲油，要等帽船停稳）与 captain=false（赤油）→ '
          '[sleep] begin source=fatigue full=true … carrier=true → [sleep] beat=lie_down face=sleep line=sleep；天亮 [sleep] end source=fatigue full=true cause=rested → '
          '[sleep] beat=wake face=neutral line=awake。下雨、打雷、帽船被晃或孩子落水会先把亲油叫醒（[sleep] woken by danger reason=…），之后按白天的欲望处理（回岸或救孩子）。'
          + _DESIRE_NOTE,
     reads=[('读亲油', f'yukkuri status {sel("a")} raw'), ('读赤油一', f'yukkuri status {sel("k1")} raw'), ('读赤油二', f'yukkuri status {sel("k2")} raw'),
            ('读帽子', f'data get entity {_HAT}')],
-    capture=dict(shots=(1, 400, 1400, 1900), sequences=((300, 1900, 100),)),
+    capture=dict(shots=(1, 600, 1500, 2000), sequences=((300, 2000, 100),)),
     smoke=dict(ticks=2400,
                expect=[r'\[aquatic\][^\n]* night_rest berth=[^\n]*stay=true',
                        r'\[aquatic\][^\n]* night_rest asked captain=true\b',
