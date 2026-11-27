@@ -194,18 +194,8 @@
       "faces": [
         [
           0,
-          0.2,
-          "surprise"
-        ],
-        [
-          0.2,
-          0.7,
-          "cry"
-        ],
-        [
-          0.7,
           1.2,
-          "teary"
+          "cry"
         ]
       ],
       "lore": "Server-timed rider balance: compress, brace the hair against the brim and take small supported steps. Real seat travel, pivot and falling belong to the boat; no visual jump or enlarged newborn.",
@@ -221,18 +211,8 @@
       "faces": [
         [
           0,
-          0.28,
-          "teary"
-        ],
-        [
-          0.28,
-          0.62,
-          "surprise"
-        ],
-        [
-          0.62,
           1.0,
-          "cry"
+          "teary"
         ]
       ],
       "lore": "A real contact-pressure session makes room with two low bracing beats. The server moves feet along support and alone decides whether a rider crosses the brim.",
@@ -249,18 +229,8 @@
       "faces": [
         [
           0,
-          0.22,
-          "surprise"
-        ],
-        [
-          0.22,
-          0.44,
-          "horrified"
-        ],
-        [
-          0.44,
           60.6,
-          "open_cry"
+          "horrified"
         ]
       ],
       "lore": "The synchronized twelve-tick IMPACT phase: brief compression and shocked recoil with a sputtering head-twist. Root translation stays zero; no grounded correction or artificial buoyancy. v14: pitch limited to -12..+10, roll 6.",
@@ -658,16 +628,11 @@
       "faces": [
         [
           0,
-          0.45,
-          "surprise"
-        ],
-        [
-          0.45,
-          1.25,
+          1.1,
           "teary"
         ],
         [
-          1.25,
+          1.1,
           2,
           "cry"
         ]
@@ -958,21 +923,21 @@
       "faces": [
         [
           0,
-          0.6,
+          0.55,
           "closed_smile"
         ],
         [
-          0.6,
+          0.55,
           1.05,
           "chewing_closed"
         ],
         [
           1.05,
-          1.55,
+          1.6,
           "open_smile"
         ],
         [
-          1.55,
+          1.6,
           62.4,
           "happy"
         ]
@@ -1351,11 +1316,11 @@
       "faces": [
         [
           0,
-          0.6,
+          0.55,
           "drool"
         ],
         [
-          0.6,
+          0.55,
           1.05,
           "chewing_closed"
         ],
@@ -1424,16 +1389,11 @@
       "faces": [
         [
           0,
-          0.6,
-          "neutral"
-        ],
-        [
-          0.6,
-          1.1,
+          0.9,
           "drink_lap"
         ],
         [
-          1.1,
+          0.9,
           1.6,
           "closed_smile"
         ]
@@ -1453,11 +1413,6 @@
       "faces": [
         [
           0,
-          0.4,
-          "chewing_closed"
-        ],
-        [
-          0.4,
           0.8,
           "happy"
         ]
@@ -1547,7 +1502,7 @@
       "bite_pitch": -6,
       "roll": -4,
       "end_lean": -8,
-      "faces": [[0, 0.6, "look_down"], [0.6, 1.25, "open_smile"], [1.25, 1.45, "chewing"], [1.45, 1.9, "chewing_closed"]],
+      "faces": [[0, 0.6, "look_down"], [0.6, 1.4, "open_smile"], [1.4, 1.9, "chewing_closed"]],
       "mouth_comp": {"pitch": 10, "forward": 0.01, "sink": 0.02},
       "root_weight": 1.35,
       "braid_keys": [
@@ -1594,16 +1549,16 @@
       "faces": [
         [
           0,
-          0.3,
+          0.5,
           "closed_smile"
         ],
         [
-          0.3,
-          0.95,
+          0.5,
+          1.15,
           "happy"
         ],
         [
-          0.95,
+          1.15,
           62,
           "satisfied"
         ]
@@ -1724,7 +1679,7 @@
       "pitch_keys": [[0, 0], [0.28, -5], [0.66, -5], [0.92, -2.5], [1.1, -5.5], [1.48, -5.5], [1.82, -2.5], [2.0, -5.5], [2.38, -5.5], [2.6, 3], [2.8, 3], [3.1, 0]],
       "yaw_keys": [[0, 0], [0.66, 0], [0.92, -28], [1.48, -28], [1.82, 26], [2.38, 26], [2.6, 0], [3.1, 0]],
       "roll_keys": [[0, 0], [0.66, 0], [0.92, -2], [1.48, -2], [1.82, 2], [2.38, 2], [2.6, 0], [3.1, 0]],
-      "faces": [[0, 0.28, "neutral"], [0.28, 2.38, "pursed"], [2.38, 63.1, "open_smile"]],
+      "faces": [[0, 0.5, "neutral"], [0.5, 2.38, "pursed"], [2.38, 63.1, "open_smile"]],
       "lore": "Project design (GarbageSearch SNIFF, the beat before a ram or a rummage; user 2026-11-17 feedback 25 on FG-10): standing at the bin, it stretches its nose toward the can and takes two quick sniffs (short height pulses), turns to one side of the rim and sniffs there, swings over to the other side and sniffs again, then lifts its head with an open smile: it smells something. Starts and ends at rest, so lunge_ram, braid_eat_bin or bin_nose_in follow it directly. Pitch and roll stay within 7.5 degrees; the forward reach stays within the body.",
       "triggers": ["GarbageSearch SNIFF at a standing or fallen bin (activity house_sniff)"]
     },
@@ -2078,28 +2033,18 @@
       "faces": [
         [
           0,
-          0.25,
-          "squeezed_frown"
-        ],
-        [
-          0.25,
-          1.2,
+          1.3,
           "puff_teary"
         ],
         [
-          1.2,
-          1.9,
-          "side_teary"
+          1.3,
+          1.85,
+          "teary_sleep"
         ],
         [
-          1.9,
-          2.95,
-          "puff_teary"
-        ],
-        [
-          2.95,
+          1.85,
           63.2,
-          "teary"
+          "puff_teary"
         ]
       ],
       "lore": "ぷくー when scared but standing its ground (ecology: puku can be startled or wary as well as threatening; face after the Hakkei U side ぷくー2 sprite with tears): startled, it leans back and puffs with tears, trembling; its nerve slips as it glances away and the puff sags, then it turns back and puffs bigger again (project design; user 2026-11-08 kept it for the scenes where a frightened yukkuri still puffs, beside the original puff).",
@@ -2300,26 +2245,21 @@
       "faces": [
         [
           0,
-          0.2,
+          0.5,
           "sleep"
         ],
         [
-          0.2,
           0.5,
-          "sleepy"
-        ],
-        [
-          0.5,
-          2.0,
-          "yawn"
-        ],
-        [
-          2.0,
-          2.4,
+          1.0,
           "waking"
         ],
         [
-          2.4,
+          1.0,
+          2.2,
+          "yawn"
+        ],
+        [
+          2.2,
           63.4,
           "neutral"
         ]
@@ -2393,23 +2333,13 @@
       "faces": [
         [
           0,
-          0.35,
-          "closed_smile"
-        ],
-        [
-          0.35,
-          0.75,
+          0.9,
           "chewing_closed"
         ],
         [
-          0.75,
-          1.25,
-          "open_smile"
-        ],
-        [
-          1.25,
+          0.9,
           1.8,
-          "happy"
+          "closed_smile"
         ]
       ],
       "lore": "User 2026-10-16: a slight six-degree inclination and gentle settling keep the parent's weight supported. Expressions and care speech convey the handoff. Contact tracking shares a ten-degree total pitch budget with this source clip and must not add a second deep bend.",
@@ -2465,11 +2395,6 @@
       "faces": [
         [
           0,
-          0.3,
-          "surprise"
-        ],
-        [
-          0.3,
           1.2,
           "happy"
         ]
@@ -2544,16 +2469,16 @@
       "faces": [
         [
           0,
-          1.0,
+          0.9,
           "closed_smile"
         ],
         [
-          1.0,
-          1.4,
+          0.9,
+          1.5,
           "happy"
         ],
         [
-          1.4,
+          1.5,
           2.4,
           "closed_smile"
         ]
@@ -2892,36 +2817,16 @@
       "faces": [
         [
           0,
-          0.3,
+          0.5,
           "teary"
         ],
         [
-          0.3,
-          0.8,
+          0.5,
+          2.7,
           "cry"
         ],
         [
-          0.8,
-          1.1,
-          "teary"
-        ],
-        [
-          1.1,
-          1.55,
-          "cry"
-        ],
-        [
-          1.55,
-          1.8,
-          "teary"
-        ],
-        [
-          1.8,
-          2.75,
-          "cry"
-        ],
-        [
-          2.75,
+          2.7,
           63.2,
           "teary"
         ]
@@ -3009,7 +2914,7 @@
         [
           0.7,
           1.4,
-          "puff"
+          "squeezed_frown"
         ],
         [
           1.4,
@@ -3309,11 +3214,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "neutral"
         ],
         [
-          0.35,
+          0.5,
           1.3,
           "closed_smile"
         ],
@@ -3347,26 +3252,11 @@
       "faces": [
         [
           0,
-          0.3,
-          "neutral"
-        ],
-        [
-          0.3,
           1.4,
           "open_smile"
         ],
         [
           1.4,
-          1.8,
-          "teary"
-        ],
-        [
-          1.8,
-          2.0,
-          "happy"
-        ],
-        [
-          2.0,
           2.4,
           "closed_smile"
         ]
@@ -3418,11 +3308,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "neutral"
         ],
         [
-          0.35,
+          0.5,
           1.3,
           "closed_smile"
         ],
@@ -3485,11 +3375,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "teary"
         ],
         [
-          0.35,
+          0.5,
           1.25,
           "chewing_closed"
         ],
@@ -3613,11 +3503,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "neutral"
         ],
         [
-          0.35,
+          0.5,
           1.3,
           "closed_smile"
         ],
@@ -3654,26 +3544,11 @@
       "faces": [
         [
           0,
-          0.3,
-          "neutral"
-        ],
-        [
-          0.3,
           1.4,
           "open_smile"
         ],
         [
           1.4,
-          1.8,
-          "teary"
-        ],
-        [
-          1.8,
-          2.0,
-          "happy"
-        ],
-        [
-          2.0,
           2.4,
           "closed_smile"
         ]
@@ -3725,11 +3600,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "neutral"
         ],
         [
-          0.35,
+          0.5,
           1.3,
           "closed_smile"
         ],
@@ -3809,11 +3684,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "teary"
         ],
         [
-          0.35,
+          0.5,
           1.25,
           "chewing_closed"
         ],
@@ -3950,6 +3825,11 @@
         ],
         [
           3.0,
+          3.7,
+          "open_cry"
+        ],
+        [
+          3.7,
           65,
           "cry"
         ]
@@ -4027,21 +3907,16 @@
       "faces": [
         [
           0,
-          0.5,
+          0.6,
           "sleep"
         ],
         [
-          0.5,
-          0.9,
-          "waking"
-        ],
-        [
-          0.9,
-          1.2,
+          0.6,
+          1.3,
           "surprise"
         ],
         [
-          1.2,
+          1.3,
           62,
           "happy"
         ]
@@ -4144,21 +4019,11 @@
       "faces": [
         [
           0,
-          0.4,
+          0.9,
           "cry"
         ],
         [
-          0.4,
-          1.0,
-          "teary"
-        ],
-        [
-          1.0,
-          1.4,
-          "cry"
-        ],
-        [
-          1.4,
+          0.9,
           2.0,
           "teary"
         ]
@@ -4218,7 +4083,7 @@
         [
           0.7,
           1.4,
-          "puff"
+          "squeezed_frown"
         ],
         [
           1.4,
@@ -4524,21 +4389,11 @@
       "faces": [
         [
           0,
-          0.375,
+          0.75,
           "teary"
         ],
         [
-          0.375,
           0.75,
-          "confused"
-        ],
-        [
-          0.75,
-          1.125,
-          "teary"
-        ],
-        [
-          1.125,
           1.5,
           "confused"
         ]
@@ -4559,16 +4414,16 @@
       "faces": [
         [
           0,
-          0.9,
+          0.85,
           "smug"
         ],
         [
-          0.9,
-          1.25,
+          0.85,
+          1.35,
           "closed_smile"
         ],
         [
-          1.25,
+          1.35,
           62,
           "smug"
         ]
@@ -4725,21 +4580,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.7,
           "teary"
         ],
         [
-          0.35,
           0.7,
-          "open_smile"
-        ],
-        [
-          0.7,
-          1.05,
-          "teary"
-        ],
-        [
-          1.05,
           1.4,
           "open_smile"
         ]
@@ -4782,18 +4627,13 @@
       "faces": [
         [
           0,
-          0.24,
+          0.55,
           "surprise"
         ],
         [
-          0.24,
-          0.7,
-          "cry"
-        ],
-        [
-          0.7,
+          0.55,
           61.2,
-          "teary"
+          "open_cry"
         ]
       ],
       "lore": "The actual synchronized alarm starts with a short brace and frightened family call. No root travel is supplied by this clip.",
@@ -4809,16 +4649,11 @@
       "faces": [
         [
           0,
-          0.45,
-          "surprise"
-        ],
-        [
-          0.45,
-          1.2,
+          1.0,
           "teary"
         ],
         [
-          1.2,
+          1.0,
           2,
           "cry"
         ]
@@ -4836,18 +4671,13 @@
       "faces": [
         [
           0,
-          0.25,
+          0.5,
           "surprise"
         ],
         [
-          0.25,
-          0.6,
-          "cry"
-        ],
-        [
-          0.6,
+          0.5,
           61,
-          "teary"
+          "open_cry"
         ]
       ],
       "lore": "A child's real staggered response to its parent's heard alarm; its own hat then follows the existing physical return route.",
@@ -4896,11 +4726,11 @@
       "faces": [
         [
           0,
-          0.3,
+          0.55,
           "surprise"
         ],
         [
-          0.3,
+          0.55,
           61.1,
           "teary"
         ]
@@ -4941,11 +4771,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.55,
           "cry"
         ],
         [
-          0.35,
+          0.55,
           63.0,
           "teary"
         ]
@@ -5056,11 +4886,11 @@
       "faces": [
         [
           0,
-          0.4,
+          0.5,
           "surprise"
         ],
         [
-          0.4,
+          0.5,
           1.05,
           "teary"
         ],
@@ -5101,11 +4931,11 @@
       "faces": [
         [
           0,
-          0.35,
+          0.5,
           "cry"
         ],
         [
-          0.35,
+          0.5,
           61.0,
           "teary"
         ]
@@ -5231,31 +5061,21 @@
       "faces": [
         [
           0,
-          0.6,
+          0.7,
           "neutral"
         ],
         [
-          0.6,
-          1.5,
+          0.7,
+          1.4,
+          "sleep"
+        ],
+        [
+          1.4,
+          2.2,
           "sleepy"
         ],
         [
-          1.5,
-          1.9,
-          "neutral"
-        ],
-        [
-          1.9,
-          3.0,
-          "sleepy"
-        ],
-        [
-          3.0,
-          3.4,
-          "neutral"
-        ],
-        [
-          3.4,
+          2.2,
           64.5,
           "sleep"
         ]
@@ -5298,11 +5118,11 @@
       "faces": [
         [
           0,
-          0.3,
+          0.5,
           "closed_smile"
         ],
         [
-          0.3,
+          0.5,
           60.8,
           "open_smile"
         ]
@@ -5396,26 +5216,11 @@
       "faces": [
         [
           0,
-          0.18,
-          "teary"
-        ],
-        [
-          0.18,
-          0.48,
+          0.65,
           "chewing_closed"
         ],
         [
-          0.48,
-          0.74,
-          "teary"
-        ],
-        [
-          0.74,
-          1.08,
-          "chewing_closed"
-        ],
-        [
-          1.08,
+          0.65,
           61.2,
           "teary"
         ]
@@ -5462,11 +5267,6 @@
       "faces": [
         [
           0,
-          0.5,
-          "teary"
-        ],
-        [
-          0.5,
           1.2,
           "closed_smile"
         ]
@@ -5505,18 +5305,8 @@
       "faces": [
         [
           0,
-          0.3,
-          "teary"
-        ],
-        [
-          0.3,
-          0.55,
-          "open_smile"
-        ],
-        [
-          0.55,
           0.8,
-          "happy"
+          "open_smile"
         ]
       ],
       "lore": "Crouch (h .88, w 1.065, pitch -4), spring (stretch, pitch -6 to +3) and a compressed landing. HatBoarding supplies the arc, limited to .08 of the body size; no lift here. EH07-006 and EH10-008 for the small quick hop.",
@@ -5573,18 +5363,8 @@
       "faces": [
         [
           0,
-          0.22,
-          "chewing_closed"
-        ],
-        [
-          0.22,
-          0.5,
-          "cry"
-        ],
-        [
-          0.5,
           0.7,
-          "teary"
+          "chewing_closed"
         ]
       ],
       "lore": "Project original: one darting surge while the mouth holds the dipped rim, squash h .86 then stretch h 1.11, pitch -8 to +1, roll 4. Both ends match so it can repeat; HatBoarding LIFT plays it twice (.58 and .42 pull split) and owns the path.",
@@ -5601,16 +5381,11 @@
       "faces": [
         [
           0,
-          0.5,
-          "teary"
-        ],
-        [
-          0.5,
-          1.1,
+          0.85,
           "chewing_closed"
         ],
         [
-          1.1,
+          0.85,
           1.4,
           "neutral"
         ]
@@ -5630,13 +5405,8 @@
       "faces": [
         [
           0,
-          0.5,
-          "chewing_closed"
-        ],
-        [
-          0.5,
           0.8,
-          "teary"
+          "chewing_closed"
         ]
       ],
       "lore": "Project original (not canon): the mouth bites a rim edge of the parent hat or the child's small hat. Head rides back, pitch +5; squash h .95; braids only touch. Contact is the mouth point within mouth_reach (braid_rescue.json) for 8 continuous ticks.",
@@ -5655,11 +5425,11 @@
       "faces": [
         [
           0,
-          0.3,
+          0.55,
           "cry"
         ],
         [
-          0.3,
+          0.55,
           1.2,
           "teary"
         ]
@@ -5678,18 +5448,8 @@
       "faces": [
         [
           0,
-          0.25,
-          "teary"
-        ],
-        [
-          0.25,
-          0.55,
-          "cry"
-        ],
-        [
-          0.55,
           0.8,
-          "teary"
+          "cry"
         ]
       ],
       "lore": "Project original: the head and body push the upturned hat from below, squash then stretch, pitch -8, roll 4. Three pushes (PushIndex 0 to 2) each add a third of the righting progress.",
@@ -5743,26 +5503,11 @@
       "faces": [
         [
           0,
-          0.22,
-          "surprise"
-        ],
-        [
-          0.22,
-          0.65,
+          0.9,
           "teary"
         ],
         [
-          0.65,
-          0.85,
-          "chewing_closed"
-        ],
-        [
-          0.85,
-          1.35,
-          "teary"
-        ],
-        [
-          1.35,
+          0.9,
           1.6,
           "chewing_closed"
         ]
@@ -5825,16 +5570,11 @@
       "faces": [
         [
           0,
-          0.2,
-          "angry"
-        ],
-        [
-          0.2,
-          0.78,
+          0.7,
           "chewing_closed"
         ],
         [
-          0.78,
+          0.7,
           1.2,
           "smug"
         ]
@@ -5885,16 +5625,11 @@
       "faces": [
         [
           0,
-          0.3,
-          "neutral"
-        ],
-        [
-          0.3,
-          0.95,
+          0.85,
           "chewing_closed"
         ],
         [
-          0.95,
+          0.85,
           1.4,
           "happy"
         ]
@@ -6398,13 +6133,8 @@
       "faces": [
         [
           0,
-          0.4,
-          "surprise"
-        ],
-        [
-          0.4,
           0.6,
-          "cry"
+          "surprise"
         ]
       ],
       "lore": "Project original: thrown out as the hat capsizes; a stretched startle with a half yaw spin and a braid flail, then the splash squash at the marker. The server owns the arc and the water entry.",
@@ -6424,16 +6154,11 @@
       "faces": [
         [
           0,
-          0.24,
-          "teary"
-        ],
-        [
-          0.24,
-          1.2,
+          1.1,
           "chewing_closed"
         ],
         [
-          1.2,
+          1.1,
           1.6,
           "teary"
         ]
@@ -6487,11 +6212,11 @@
       "faces": [
         [
           0,
-          0.55,
+          0.5,
           "chewing_closed"
         ],
         [
-          0.55,
+          0.5,
           1.0,
           "closed_smile"
         ]
@@ -6553,11 +6278,11 @@
       "faces": [
         [
           0,
-          0.6,
+          0.5,
           "chewing_closed"
         ],
         [
-          0.6,
+          0.5,
           1.0,
           "neutral"
         ]
@@ -6647,21 +6372,11 @@
       "faces": [
         [
           0,
-          0.5,
+          0.6,
           "open_smile"
         ],
         [
-          0.5,
-          1.0,
-          "happy"
-        ],
-        [
-          1.0,
-          1.3,
-          "open_smile"
-        ],
-        [
-          1.3,
+          0.6,
           2.4,
           "happy"
         ]
@@ -6711,11 +6426,6 @@
       "faces": [
         [
           0,
-          0.3,
-          "open_smile"
-        ],
-        [
-          0.3,
           1.1,
           "chewing_closed"
         ],
@@ -6797,13 +6507,13 @@
         ],
         [
           0.6,
-          1.5,
+          1.4,
           "teary"
         ],
         [
-          1.5,
+          1.4,
           1.95,
-          "nervous"
+          "side_teary"
         ],
         [
           1.95,
@@ -6856,16 +6566,11 @@
       "faces": [
         [
           0,
-          0.3,
-          "cheek_puff"
-        ],
-        [
-          0.3,
-          1.3,
+          1.1,
           "yawn"
         ],
         [
-          1.3,
+          1.1,
           1.6,
           "chewing_closed"
         ]
@@ -7195,13 +6900,8 @@
       "faces": [
         [
           0,
-          2.352,
-          "puff"
-        ],
-        [
-          2.352,
           2.8,
-          "cheek_puff"
+          "puff"
         ]
       ],
       "lore": "Project design (user 2026-11-04 feedback 2: parents puff at an attacker; the triage item 2 check): the land puff lifts and swells 15% and leaves the braid at its land rest, which sinks it 1.5 model units into the hull aboard. Seated variant: puff face, a 5% swell with a small tremble and a 3 degree glare toward the attacker (the body yaw), no hop, the braid laid out at its boat rest.",
@@ -7319,7 +7019,7 @@
         [
           2.8,
           4.0,
-          "sleepy"
+          "teary_sleep"
         ]
       ],
       "lore": "Project design (TODO 陆 14, art-dir-life rain_huddle): pressed against a kin or friend under a roof in the rain. Each cycle opens with a nestle (squash low and wide, slide and lean into the partner, eyes squeezed), then holds pressed with a shiver that is not mirrored, so a pair started on one clip clock shivers in step, and a slow breath with calmer half-closed eyes; it eases back to the held pose at the seam. The worn hat remains seated on the head and follows only the body pose. Real posed brim, hair and ribbon surfaces determine the contact spacing; cheek contact must not force accessories through each other. A thunder clap restarts the cycle after the startle, which reads as nestling closer. side +1: the partner is toward model +X, the body's right (the game turns the model by 180 - yaw, its face is -Z).",
@@ -7372,13 +7072,8 @@
       "faces": [
         [
           0,
-          0.7,
-          "closed_smile"
-        ],
-        [
-          0.7,
           0.9,
-          "happy"
+          "closed_smile"
         ]
       ],
       "lore": "Project design (motion library base nod, art decision B3; wiki greeting_bow N1, F17, L36): the bow at half its pitch, two quick dips, a small height dip and forward shift so it reads at real size; a busy yukkuri's reply to a greeting.",
@@ -7525,10 +7220,8 @@
       "sway": {"start": 2.6, "end": 4.0, "degrees": 3.5, "shift": 0.025},
       "faces": [
         [0, 0.8, "closed_smile"],
-        [0.8, 1.25, "satisfied"],
-        [1.25, 1.7, "closed_smile"],
-        [1.7, 2.15, "satisfied"],
-        [2.15, 4.0, "closed_smile"]
+        [0.8, 2.6, "satisfied"],
+        [2.6, 4.0, "closed_smile"]
       ],
       "lore": "Project design (motion library composite snuggle = cling + nuzzle + sway; wiki warm_huddle F05, F14, L36 and rub_nuzzle F14, L36, N2): the calm side-press of cling, then a cheek rub while still pressed (the body slides forward and back along the partner, rolling into it with each stroke; the slide is mirrored by side, so two partners on one clip clock slide against each other), then one slow sway that is not mirrored, so the pressed pair rocks together as one. Closed-eye smile, melting on each stroke. The snuggle holds the press and slides farther in than the rain huddle. SideContact uses the snuggle's fitted side profiles for different body scales or support heights. Pitch and roll together stay within 12 degrees.",
       "triggers": [
@@ -7570,23 +7263,13 @@
       "faces": [
         [
           0,
-          0.36,
+          0.52,
           "angry"
         ],
         [
-          0.36,
           0.52,
-          "endure"
-        ],
-        [
-          0.52,
-          0.85,
-          "impact"
-        ],
-        [
-          0.85,
           1.1,
-          "angry"
+          "impact"
         ]
       ],
       "variants": {
@@ -7864,7 +7547,7 @@
       "label": "被压住的受方·四拍与 3 秒",
       "applies": "prey",
       "height_keys": [[0, 1], [3.5, 1], [3.6, 1.04], [3.9, 1], [6.5, 1]],
-      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "pressed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 63.0, "squeezed_cry_tears"]],
+      "faces": [[0, 1.5, "horrified"], [1.5, 2.6, "pressed_cry"], [2.6, 3.5, "pin_cry"], [3.5, 4.4, "blank_cry"], [4.4, 5.1, "open_cry"], [5.1, 63.0, "squeezed_cry_tears"]],
       "lore": "Project design (user 2026-11-13: keep the mother pinned until the performance is complete): the held body takes Alice's four beats, each a fresh face (horror, squeezed wail, grey-eyed wail), jolts once at the release with the blank-eyed cry and stays pinned, crying, through the 3 s peak.",
       "triggers": ["agitation HELD climax (wiring package)"]
     },
@@ -8017,10 +7700,9 @@
         "tug": 0.8
       },
       "faces": [
-        [0, 0.34, "pursed"],
-        [0.34, 0.64, "chewing_closed"],
-        [0.64, 0.84, "squeezed_cry_tears"],
-        [0.84, 61.52, "chewing_closed"]
+        [0, 0.5, "pursed"],
+        [0.5, 1.0, "squeezed_cry_tears"],
+        [1.0, 61.52, "chewing_closed"]
       ],
       "variants": {
         "marisa": {
@@ -8047,8 +7729,7 @@
         "drape": 0.76
       },
       "faces": [
-        [0, 0.38, "pursed"],
-        [0.38, 0.76, "chewing_closed"],
+        [0, 0.76, "chewing_closed"],
         [0.76, 61.4, "cold"]
       ],
       "lore": "Project design (N79): resting in a cold plain gap with paper, it dips its nose to catch the sheet edge, lifts its chin to flip the folded newspaper upward, and pushes forward under it at `drape` (transferring one real paper sheet into the worn paper-cover slot) with a quick nestle before settling. Composed tilt stays within 7.5 degrees.",
@@ -8063,8 +7744,7 @@
         "drape": 0.76
       },
       "faces": [
-        [0, 0.36, "pursed"],
-        [0.36, 0.76, "chewing_closed"],
+        [0, 0.76, "chewing_closed"],
         [0.76, 1.48, "closed_smile"]
       ],
       "variants": {
