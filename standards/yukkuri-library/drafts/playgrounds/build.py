@@ -19,8 +19,8 @@ shaded deflection well under the bed so pressing down up to 2 units shows a taut
 yukkuri_pool (orange-juice tub, id kept for saves): a low 16-sided faceted white-enamel washtub with a navy rim, fluted
 outer walls, pinstripe and foot ring, ceramic floor drain, symmetric box-section lug handles, an inner bench step at
 z < -6.5 (top 3.25) and a two-plank wooden step stool with legs and stretcher outside at z -21.5..-16.6 (top 3.5).
-yukkuri_pool_juice: four opaque pixel-art orange-juice surfaces (juice_u1..juice_u4, units 1..4) at y 2/3/4/5 with a
-bright meniscus and crisp citrus sheen bars.
+yukkuri_pool_juice: four opaque pixel-art orange-juice surfaces (juice_u1..juice_u4, units 1..4) at y 1.6/2.8/4.0/5.2
+with a grounded contact meniscus, bench clipping below y 3.25 and depth-graded citrus shading.
 --check verifies every export.
 """
 import argparse, base64, importlib.util, io, json, math, sys, uuid
@@ -928,12 +928,12 @@ def yukkuri_trampoline():
 # ---- orange-juice tub -------------------------------------------------------------------------------------------------
 # Contract numbers (data/mcyukkuri/playgrounds/yukkuri_pool.json + play/JuiceTub.java):
 # floor 1, rim 7, bench 3.25 at z < -6.5, stool 3.5 at x -4.5..4.5 z -21.5..-16.6, rim at z -15, bench entry z -11.5,
-# juice levels 1-4 = 2/3/4/5.
+# juice levels 1-4 = 1.6/2.8/4.0/5.2 (evenly spaced 1.2-unit steps; levels 1-2 below bench 3.25, 3-4 above bench).
 TUB_HX, TUB_HZ, TUB_RC = 21.0, 14.5, 7.5   # inner half-extents at wall top, beveled corner radius
 FLOOR_Y, WALL_TOP, RIM_Y = 1.0, 6.1, 7.0
 WALL_FOOT = -1.5                            # slight outward flare from floor to rim
 BENCH = (-6.5, 3.25)
-LEVELS = (2.0, 3.0, 4.0, 5.0)
+LEVELS = (1.6, 2.8, 4.0, 5.2)
 STOOL = ((-4.5, -21.5), (4.5, -16.6), 3.5)
 CORNER_ARC = 3                              # 3 facets per corner -> crisp 16-sided faceted rounded-rectangle
 
@@ -992,31 +992,42 @@ def yukkuri_pool():
         (-2.5, FLOOR_Y), (WALL_FOOT, FLOOR_Y), (0.0, WALL_TOP), (0.0, RIM_Y),
         (1.25, RIM_Y), (1.25, 6.0), (.85, 5.8), (-.8, .8), (-1.2, 0.0),
     ]
-    # Painted 1-texel-per-unit band around the tub (perimeter ~128 units -> W = 128, H = 16 rows)
-    TW, TH = 128, 16
+    # Painted 1-texel-per-unit band around the tub (perimeter ~128 units -> W = 128, H = 24 rows).
+    # Inner wall gets 11 rows (~2 texels/unit, y 1.0..6.1) with depth shading, tile courses and a sky-blue fill-line
+    # near level 4 so each 1.2-unit drop visibly exposes another course of basin wall.
+    TW, TH = 128, 24
     band = canvas(TW, TH, white[3])
     for u in range(TW):
         flute = (u % 4 == 0)
-        # Rows 0..4: inside wall (floor -> rim)
-        put(band, u, 0, white[2])
-        put(band, u, 1, white[2] if flute else white[3])
-        put(band, u, 2, white[3])
-        put(band, u, 3, white[4])
-        put(band, u, 4, white[3])                    # clean bright inner lip meeting the navy rim
-        # Rows 5..7: navy rolled rim (top + outer edge)
-        put(band, u, 5, navy[2])                     # lit rim top
-        put(band, u, 6, navy[1])                     # outer rim face
-        put(band, u, 7, navy[0])                     # rim underside lip
-        # Rows 8..13: white enamel outer wall with pressed vertical fluting & navy pinstripe
-        put(band, u, 8, white[2])                    # shadow under rim overhang
-        put(band, u, 9, white[4] if flute else white[3])
-        put(band, u, 10, navy[1])                    # crisp navy pinstripe around the tub!
-        put(band, u, 11, white[4] if flute else white[3])
-        put(band, u, 12, white[3] if flute else white[2])
-        put(band, u, 13, white[1])
-        # Rows 14..15: navy foot ring & underside
-        put(band, u, 14, navy[1])
-        put(band, u, 15, navy[0])
+        tile = (u % 6 == 0)
+        # Rows 0..11: inside floor cove & inner wall (floor y=1.0 -> wall top y=6.1)
+        put(band, u, 0, white[1])                                        # floor-wall shadow cove
+        put(band, u, 1, white[0] if tile else white[1])                  # deep bottom shade (y 1.0..1.5)
+        put(band, u, 2, white[0] if tile else white[1])                  # lower wall (y 1.5..2.0, level 1)
+        put(band, u, 3, white[1] if tile else white[2])                  # mid-lower course (y 2.0..2.5)
+        put(band, u, 4, white[1])                                        # horizontal tile course seam (near level 2)
+        put(band, u, 5, white[1] if tile else white[2])                  # mid course (y 3.0..3.5)
+        put(band, u, 6, white[2] if tile else white[3])                  # upper-mid course (y 3.5..4.0)
+        put(band, u, 7, white[1])                                        # horizontal tile course seam (level 3)
+        put(band, u, 8, white[2] if tile else white[3])                  # bright upper course (y 4.5..5.0)
+        put(band, u, 9, navy[2] if flute else navy[3])                   # crisp sky-blue inner fill-line (level 4)
+        put(band, u, 10, white[3])                                       # bright upper enamel lip (y 5.5..6.0)
+        put(band, u, 11, white[4])                                       # clean bright inner lip meeting navy rim
+        # Rows 12..14: navy rolled rim (top + outer edge)
+        put(band, u, 12, navy[2])                                        # lit rim top
+        put(band, u, 13, navy[1])                                        # outer rim face
+        put(band, u, 14, navy[0])                                        # rim underside lip
+        # Rows 15..20: white enamel outer wall with pressed vertical fluting & navy pinstripe
+        put(band, u, 15, white[2])                                       # shadow under rim overhang
+        put(band, u, 16, white[4] if flute else white[3])
+        put(band, u, 17, navy[1])                                        # crisp navy pinstripe around the tub!
+        put(band, u, 18, white[4] if flute else white[3])
+        put(band, u, 19, white[3] if flute else white[2])
+        put(band, u, 20, white[1])
+        # Rows 21..23: navy foot ring & underside
+        put(band, u, 21, navy[1])
+        put(band, u, 22, navy[0])
+        put(band, u, 23, navy[0])
 
     rows = [tub_loop(o, y) for o, y in prof]
     # Arc-length u coordinates around the rounded-rectangle so pixels stay square (1:1 density)
@@ -1025,7 +1036,7 @@ def yukkuri_pool():
     for a, b in zip(ref, ref[1:] + [ref[0]]):
         acc.append(acc[-1] + math.hypot(b[0] - a[0], b[2] - a[2]))
     us = [TW * s / acc[-1] for s in acc]
-    vs = [0.0, 0.5, 4.8, 5.2, 6.2, 7.2, 8.0, 13.8, 15.0]
+    vs = [0.0, 1.0, 11.2, 12.0, 13.0, 14.0, 15.0, 21.0, 22.5]
 
     def tub_facing(i, j, c):
         (o0, y0), (o1, y1) = prof[i], prof[i + 1]
@@ -1143,34 +1154,99 @@ def yukkuri_pool():
     return m, columns(cells), {}
 
 
+def _juice_loop(o, y):
+    """Flat liquid polygon at height y: full inner contour above the bench, clipped cleanly at the bench riser below."""
+    loop = tub_loop(o, y)
+    if y >= BENCH[1]:
+        return loop
+    z_cut = BENCH[0] + .06
+    bx = tub_x_span(z_cut, o)
+    return [(bx, y, z_cut)] + [p for p in loop if p[2] > z_cut] + [(-bx, y, z_cut)]
+
+
 def yukkuri_pool_juice():
-    """Four opaque pixel-art orange-juice liquid surfaces (juice_u1..juice_u4, units 1..4) at y = 2, 3, 4, 5."""
+    """Four opaque pixel-art orange-juice liquid surfaces (juice_u1..juice_u4, units 1..4) at LEVELS.
+
+    Each level is a flat plane grounded to the inner wall (and bench riser when y < bench) by a dark-amber contact
+    meniscus, and shifts from rich deep orange (level 4) to bright shallow citrus with a faint floor-tile and drain
+    silhouette showing through (level 1).
+    """
     m = Model('yukkuri_pool_juice')
     juice = kit.ramp('JUICE')
+    z_cut = BENCH[0] + .06
     for k, y in enumerate(LEVELS, 1):
-        o = wall_offset(y) - .04
+        o = wall_offset(y) - .06
+        below_bench = y < BENCH[1]
         W = int(math.ceil(2 * (TUB_HX + o))) + 2
         H = int(math.ceil(2 * (TUB_HZ + o))) + 2
         img = canvas(W, H, juice[2])
         for v in range(H):
             for u in range(W):
                 x, z = u + .5 - W / 2, v + .5 - H / 2
-                dist = o - tub_offset(x, z)          # distance inward from the tub wall
-                if dist < 1.2:
-                    col = juice[3]                   # crisp 1-px bright citrus meniscus along the wall
-                elif dist < 2.2 and z > 6:
-                    col = juice[1]                   # subtle shade against the back wall
-                elif (v % 5 == 1 and (u + v * 3) % 11 in (0, 1, 2)):
-                    col = juice[3]                   # clean pixel-art horizontal surface ripple bars
-                elif (-12 <= x <= -4 and 3 <= z <= 5) or (-10 <= x <= -6 and z == 6):
-                    col = juice[4]                   # crisp pixel specular highlight patch
-                elif (6 <= x <= 11 and -2 <= z <= -1):
-                    col = juice[3]                   # secondary gentle highlight
+                dist_wall = o - tub_offset(x, z)
+                dist = min(dist_wall, z - z_cut) if below_bench else dist_wall
+                shaded_side = (z > 2.0) or (x < -8.0)
+                if dist < 1.0:
+                    # Grounded dark-amber contact meniscus anchoring the flat plane to the inner wall / bench riser
+                    col = juice[0] if (k >= 3 and shaded_side) or (z > 6.0) else juice[1]
+                elif dist < 1.9 and not shaded_side:
+                    # Crisp 1-px lit inner meniscus glint on the sunward edge
+                    col = juice[4] if k <= 2 else juice[3]
+                elif k == 4:
+                    # Deepest brimming juice: broad rich wall shade, deep amber body, bright specular sheen
+                    if dist < 3.4 and z > 1.0:
+                        col = juice[1]
+                    elif dist < 2.4:
+                        col = juice[1]
+                    elif (-11 <= x <= -4 and 3 <= z <= 5) or (-9 <= x <= -6 and z == 6):
+                        col = juice[4]
+                    elif (v % 5 == 1 and (u + v * 3) % 11 in (0, 1, 2)):
+                        col = juice[3]
+                    elif 6 <= x <= 11 and -2 <= z <= -1:
+                        col = juice[3]
+                    else:
+                        col = juice[2]
+                elif k == 3:
+                    # Medium-deep juice: narrower wall shade, classic orange body
+                    if dist < 2.4 and z > 3.0:
+                        col = juice[1]
+                    elif (-10 <= x <= -5 and 3 <= z <= 4):
+                        col = juice[4]
+                    elif (v % 6 == 2 and (u + v * 2) % 12 in (0, 1, 2)):
+                        col = juice[3]
+                    elif 5 <= x <= 10 and -1 <= z <= 0:
+                        col = juice[3]
+                    else:
+                        col = juice[2]
+                elif k == 2:
+                    # Medium-shallow juice (below bench): lighter floor-bounced interior following the basin contour
+                    if dist < 2.2 and z > 4.0:
+                        col = juice[1]
+                    elif (-9 <= x <= -4 and 3 <= z <= 4):
+                        col = juice[4]
+                    elif dist > 3.6 and (v % 4 != 0 or (u + v) % 5 != 0):
+                        col = juice[3]
+                    elif (v % 5 == 0 and (u + v * 3) % 10 in (0, 1)):
+                        col = juice[3]
+                    else:
+                        col = juice[2]
                 else:
-                    col = juice[2]
+                    # Level 1 (very shallow, 0.6 above floor): bright thin orange with faint floor tile grid & drain hint
+                    fx, fz = int(math.floor(x + 22.0)), int(math.floor(z + 16.0))
+                    r_drain = math.hypot(x, z - 3.0)
+                    if r_drain <= 1.8:
+                        col = juice[1] if (fx + fz) % 2 == 0 else juice[2]
+                    elif r_drain <= 2.4:
+                        col = juice[2]
+                    elif fx % 6 == 0 or fz % 6 == 0:
+                        col = juice[2]               # faint ceramic floor tile seams visible through shallow juice
+                    elif (-8 <= x <= -3 and 3 <= z <= 4) or (abs(x) < 9.0 and 0.0 < z < 6.0 and (u + v) % 7 == 0):
+                        col = juice[4]
+                    else:
+                        col = juice[3]
                 put(img, u, v, col)
         part = m.part(f'juice_u{k}', unit=k)
-        m.polygon(part, tub_loop(o, y), (0.0, 1.0, 0.0), img,
+        m.polygon(part, _juice_loop(o, y), (0.0, 1.0, 0.0), img,
                   lambda p, W=W, H=H: (p[0] + W / 2, p[2] + H / 2), f'juice_l{k}')
     return m, None, {}
 
