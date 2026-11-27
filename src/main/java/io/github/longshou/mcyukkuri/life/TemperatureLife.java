@@ -6,6 +6,10 @@ import io.github.longshou.mcyukkuri.status.Sneeze;
 import io.github.longshou.mcyukkuri.status.SneezeRules;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
+import io.github.longshou.mcyukkuri.entity.SceneHold;
+import io.github.longshou.mcyukkuri.entity.component.Interrupt;
+import io.github.longshou.mcyukkuri.motor.Attach;
+import io.github.longshou.mcyukkuri.motor.AttachState;
 import io.github.longshou.mcyukkuri.perception.Knowledge;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
@@ -54,8 +58,12 @@ public final class TemperatureLife {
     private boolean initialSample = true;
     private boolean coldComplaint;
     /** Sampling is staggered; exposure keeps its legacy 20 loaded-and-AI-enabled tick cadence. */
-    private int sampleTicks, temperatureSampleTicks, damageTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
+    private int sampleTicks, temperatureSampleTicks, coldTicks, hotTicks, cooldown, baskCooldown, taskTicks, restTicks;
     private double coldExposure, departureFelt;
+    /** Cold stiffening: while {@code stiff} the body is {@link YukkuriEntity#inert} and only this layer runs; {@code stiffLeft} is its window in
+     *  ticks, {@code stiffMax} the window it entered with (see {@link ColdStiffness}). The exposure stays where it was until the thaw. */
+    private boolean stiff;
+    private double stiffLeft, stiffMax;
     private BlockPos target, targetFire, temporarySleepSite;
     private boolean seekingWarmth, basking;
 
@@ -66,15 +74,21 @@ public final class TemperatureLife {
     private double freezeLimit() { return Math.min(coldLimit(), YukkuriConfig.FREEZE_THRESHOLD.get()); }
     double hotLimit() { return Math.max(coldLimit() + .5, YukkuriConfig.HOT_THRESHOLD.get()); }
     public int coldExposure() { return (int)coldExposure; }
+    /** Controlled write for the status registry (scenarios, commands): the chill the body starts from. */
+    public void setColdExposure(int exposure) { coldExposure = Math.clamp(exposure, 0, 1_728_000); }
     /** Actual reached-refuge rest counter, read without evaluating a thermal task. */
     public int observedRestTicks() { return restTicks; }
     private boolean freezing(double felt) { return felt <= freezeLimit(); }
     private boolean tooCold(double felt) { return felt < coldLimit() || freezing(felt); }
     private boolean comfortable(double felt) { return !tooCold(felt) && felt < hotLimit(); }
-    private double exposureRate(double felt) {
-        double ageRate = entity.family().stage() == FamilyLife.Stage.BABY ? 2 : entity.family().adult() ? 1 : 1.5;
-        return ThermalComfort.exposureRate(felt, coldLimit(), ageRate);
-    }
+    private double ageRate() { return entity.family().stage() == FamilyLife.Stage.BABY ? 2 : entity.family().adult() ? 1 : 1.5; }
+    private double exposureRate(double felt) { return ThermalComfort.exposureRate(felt, coldLimit(), ageRate()); }
+    /** Frozen stiff by the cold; the body is inert and cannot be fed, tended or moved by its own will until it thaws or the window is spent. */
+    public boolean stiff() { return stiff; }
+    /** Seconds the window has left, for the observation card. */
+    public int stiffSeconds() { return (int) Math.ceil(stiffLeft / 20); }
+    /** A stiff body is rewarming when it stands in a place that is no longer cold. */
+    public boolean rewarming() { return stiff && !tooCold(current.felt()); }
     public boolean cold() { return tooCold(current.felt()); }
     public double coldDeficit() { return Math.max(0, coldLimit() - current.felt()); }
     public boolean needsKinWarmth() {
@@ -91,8 +105,10 @@ public final class TemperatureLife {
         return cold() ? Behaviors.COLD_SHIVER : Behaviors.WARM_UP;
     }
 
+    /** The one layer that runs in a stiff body: {@code inert()} also holds a stiff body, so it is asked of the scene hold and NoAI alone. */
     public void tick() {
-        if (entity.level().isClientSide || !entity.isAlive() || entity.inert()) return;
+        if (entity.level().isClientSide || !entity.isAlive() || SceneHold.inert(entity)) return;
+        if (stiff) { tickStiff(); return; }
         if (cooldown > 0) cooldown--;
         if (baskCooldown > 0) baskCooldown--;
         if (initialSample) {
@@ -109,13 +125,13 @@ public final class TemperatureLife {
         if (entity.life().usingPaperCoverAt(entity.blockPosition()) && !tooCold(current.uncoveredFelt()))
             entity.life().releasePaperCover("warmed");
         coldExposure = Math.clamp(coldExposure + 20 * exposureRate(current.felt()), 0, 1_728_000);
-        if (freezing(current.felt()) && coldExposure >= YukkuriConfig.COLD_EXPOSURE_TICKS.get()) {
-            damageTicks += 20;
-            if (damageTicks >= YukkuriConfig.FREEZE_DAMAGE_INTERVAL.get()) {
-                damageTicks = 0;
-                entity.hurt(level().damageSources().freeze(), 1);
-            }
-        } else damageTicks = 0;
+        int stiffens = YukkuriConfig.COLD_EXPOSURE_TICKS.get();
+        if (freezing(current.felt()) && coldExposure >= stiffens) {
+            double share = windowShare();
+            if (canStiffen()) { beginStiff(share); return; }
+            // A body that cannot stiffen yet (swimming, riding, in labour) keeps chilling: past the window it freezes outright.
+            if (coldExposure >= ColdStiffness.deathExposure(stiffens, share)) { freezeToDeath("unable_to_stiffen"); return; }
+        }
         if (cold()) {
             coldTicks += 20;
             if (coldTicks >= 100) {
@@ -134,6 +150,82 @@ public final class TemperatureLife {
         } else hotTicks = 0;
     }
 
+    private double windowShare() {
+        return ColdStiffness.windowShare(YukkuriConfig.STIFF_WINDOW_FACTOR.get(), entity.life().nutrition(),
+                entity.growthScale() * entity.getScale(), entity.body().healthRatio());
+    }
+
+    /**
+     * A body stiffens only where it can stand still for good: on the ground, dry, not in a performance, an operation, the water, on a
+     * ride, a hat, or in the last stretch of a birth. Otherwise the exposure keeps rising ({@link ColdStiffness#deathExposure}).
+     */
+    private boolean canStiffen() {
+        var brood = entity.family().brood();
+        return Attach.of(entity) instanceof AttachState.Free free && !free.inWater() && entity.onGround()
+                && !entity.isInWaterOrBubble() && !entity.isOnFire() && !entity.isPassenger() && !entity.isPanicking()
+                && !entity.isCommandPlaying() && !entity.operations().active() && !entity.pet().busy()
+                && !entity.family().awaitingLanding() && !entity.family().flying() && !entity.predatorFlying() && !entity.family().birthDuty()
+                && (brood == null || brood.cancelled || brood.complete() || brood.progress() < .9f)
+                && !entity.body().dying();
+    }
+
+    /**
+     * The body takes in all the cold it can and freezes where it stands. The interrupt ends everything it held or was doing (mouth, young
+     * on the head or in the arms, errands, tables, the warmth walk); from here the body is inert and only {@link #tickStiff} runs.
+     */
+    private void beginStiff(double share) {
+        double deficit = coldLimit() - current.felt();
+        stiffMax = stiffLeft = ColdStiffness.windowTicks(YukkuriConfig.COLD_EXPOSURE_TICKS.get(), share, ageRate(), deficit);
+        entity.interrupt(Interrupt.COMMAND);
+        stop();
+        stiff = true;
+        coldComplaint = false;
+        entity.getNavigation().stop();
+        GameplayLog.event(entity, "temperature", "stiff begin felt={} deficit={} exposure={} window={} share={} ageRate={} nutrition={} health={}",
+                current.felt(), deficit, coldExposure(), stiffLeft, share, ageRate(), entity.life().nutrition(), entity.getHealth());
+        entity.beat("stiff_enter", "sleep", "");
+    }
+
+    /** The window drains in the cold, refills in the warm; fire thaws at once. Nothing else of the body advances. */
+    private void tickStiff() {
+        if (entity.isOnFire()) { thaw("fire"); return; }
+        if (initialSample) { current = sample(entity.blockPosition()); initialSample = false; }
+        if (++sampleTicks < ColdStiffness.SAMPLE) return;
+        sampleTicks = 0;
+        current = sample(entity.blockPosition());
+        double before = stiffLeft;
+        stiffLeft = ColdStiffness.advance(stiffLeft, stiffMax, ColdStiffness.change(current.felt(), coldLimit(), freezeLimit(), YukkuriConfig.THAW_RATE.get()));
+        GameplayLog.limited(entity, "temperature", "stiff.sample", 200, "stiff window felt={} left={} -> {} of {} rewarming={}",
+                current.felt(), before, stiffLeft, stiffMax, rewarming());
+        if (ColdStiffness.spent(stiffLeft)) freezeToDeath("window_spent");
+        else if (ColdStiffness.thawed(stiffLeft, stiffMax, !tooCold(current.felt()))) thaw("warmed");
+    }
+
+    /** The shell lets go: the exposure starts again from just under the stiffening line and the body is spent (project design). */
+    private void thaw(String reason) {
+        stiff = false;
+        double window = stiffLeft;
+        stiffLeft = stiffMax = 0;
+        coldExposure = ColdStiffness.THAWED_EXPOSURE * YukkuriConfig.COLD_EXPOSURE_TICKS.get();
+        cooldown = 0; coldComplaint = false;
+        var life = entity.life();
+        life.spendNutrition(Math.min(ColdStiffness.THAW_NUTRITION, life.nutrition()));
+        life.applyEnvironment(0, 0, Math.round(ColdStiffness.THAW_ENERGY));
+        GameplayLog.event(entity, "temperature", "stiff end reason={} felt={} window={} exposure={} nutrition={} energy={}",
+                reason, current.felt(), window, coldExposure(), life.nutrition(), life.energy());
+    }
+
+    /** The window ran out (or a body that could not stiffen chilled through): the cold kills it and it leaves frozen remains. */
+    private void freezeToDeath(String reason) {
+        boolean wasStiff = stiff;
+        stiff = false;
+        double window = stiffLeft;
+        stiffLeft = stiffMax = 0;
+        boolean accepted = entity.hurt(level().damageSources().freeze(), entity.getMaxHealth() * 2);
+        GameplayLog.event(entity, "temperature", "freeze death reason={} stiff={} felt={} window={} exposure={} accepted={} alive={}",
+                reason, wasStiff, current.felt(), window, coldExposure(), accepted, entity.isAlive());
+    }
+
     private void sampleHere() {
         current = sample(entity.blockPosition(), baskingNow());
         if (!cold()) { coldComplaint = false; return; }
@@ -150,15 +242,19 @@ public final class TemperatureLife {
     /** No offline time, pending route or remembered weather is restored. */
     public CompoundTag save() {
         var tag = new CompoundTag();
-        tag.putInt("Version", 1); tag.putInt("ColdExposure", coldExposure()); tag.putInt("DamageTicks", damageTicks);
+        tag.putInt("Version", 1); tag.putInt("ColdExposure", coldExposure());
         tag.putInt("ColdTicks", coldTicks); tag.putInt("HotTicks", hotTicks);
+        if (stiff) { tag.putBoolean("Stiff", true); tag.putDouble("StiffLeft", stiffLeft); tag.putDouble("StiffMax", stiffMax); }
         return tag;
     }
+    /** A stiff body keeps its window across a reload; {@code stop()} only ends the warmth walk and leaves the stiffness alone. */
     public void load(CompoundTag tag) {
         coldExposure = Math.clamp(tag.getInt("ColdExposure"), 0, 1_728_000);
-        damageTicks = Math.clamp(tag.getInt("DamageTicks"), 0, 23_999);
         coldTicks = Math.clamp(tag.getInt("ColdTicks"), 0, 99);
         hotTicks = Math.clamp(tag.getInt("HotTicks"), 0, 23_999);
+        stiff = tag.getBoolean("Stiff");
+        stiffMax = stiff ? Math.clamp(tag.getDouble("StiffMax"), 1, ColdStiffness.MAX_LEFT) : 0;
+        stiffLeft = stiff ? Math.clamp(tag.getDouble("StiffLeft"), 1, stiffMax) : 0;
         initialSample = true; coldComplaint = false; sampleTicks = temperatureSampleTicks = 0; cooldown = 0; stop();
     }
 
@@ -523,8 +619,11 @@ public final class TemperatureLife {
 
     public Component observation() {
         var at = sample(entity.blockPosition(), baskingNow());
-        String state = freezing(at.felt()) ? "freezing" : tooCold(at.felt()) ? "cold" : at.felt() >= hotLimit() ? "hot" : "comfortable";
-        return Component.translatable("notebook.mcyukkuri.temperature", Component.translatable("temperature.mcyukkuri." + state),
+        Component state = stiff
+                ? Component.translatable(rewarming() ? "temperature.mcyukkuri.stiff_rewarming" : "temperature.mcyukkuri.stiff", stiffSeconds())
+                : Component.translatable("temperature.mcyukkuri." + (freezing(at.felt()) ? "freezing" : tooCold(at.felt()) ? "cold"
+                        : at.felt() >= hotLimit() ? "hot" : "comfortable"));
+        return Component.translatable("notebook.mcyukkuri.temperature", state,
                 String.format(Locale.ROOT, "%.2f", at.felt()), coldExposure(), YukkuriConfig.COLD_EXPOSURE_TICKS.get(),
                 at.shade() ? "✓" : "—", at.insulated() ? "✓" : "—", at.warmth() > 0 ? "✓" : "—");
     }

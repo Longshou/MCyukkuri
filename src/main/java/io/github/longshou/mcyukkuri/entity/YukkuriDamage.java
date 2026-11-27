@@ -28,7 +28,7 @@ final class YukkuriDamage {
     YukkuriDamage(YukkuriEntity owner) { this.owner = owner; }
     private boolean deathRecorded;
     private boolean discardCleanupStarted;
-    private boolean sukkiriExhaustion;
+    private boolean sukkiriExhaustion, noRemains;
     private int exhaustionDamageDepth;
     private Transaction current;
 
@@ -110,6 +110,11 @@ final class YukkuriDamage {
             if(--exhaustionDamageDepth==0)sukkiriExhaustion=false;
         }
     }
+    /** The death of a body that leaves no corpse (BodyLife#died): everything it carried falls to the ground and the rest of the death is the ordinary one. */
+    void dieWithoutRemains(DamageSource source) {
+        noRemains = true;
+        try { die(source); } finally { noRemains = false; }
+    }
     void die(DamageSource source) {
         if (!owner.level().isClientSide) {
             var interruption = InterruptContext.death(source, false, false);
@@ -121,7 +126,7 @@ final class YukkuriDamage {
                 boolean stemDepletion=source.is(DamageTypes.STARVE)&&owner.body().stemDepleting();
                 boolean sukkiriExhaustion=this.sukkiriExhaustion;
                 deathRecorded = true;
-                owner.interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion, RemainsStem.capture(owner)), InterruptPhase.DEATH_ONCE);
+                owner.interrupt(InterruptContext.death(source, stemDepletion, sukkiriExhaustion, RemainsStem.capture(owner), noRemains), InterruptPhase.DEATH_ONCE);
             }
             owner.interrupt(interruption, InterruptPhase.DEATH_FINISH);
         }

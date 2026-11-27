@@ -10,7 +10,10 @@ import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanCommerce;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.item.AccessoryItem;
+import io.github.longshou.mcyukkuri.item.CarrierItem;
+import io.github.longshou.mcyukkuri.item.NotebookItem;
 import io.github.longshou.mcyukkuri.item.OperationToolItem;
+import io.github.longshou.mcyukkuri.item.SwaddleItem;
 import io.github.longshou.mcyukkuri.social.BondLevels;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.DailyLife;
@@ -124,6 +127,10 @@ public final class InteractionDispatch {
             event.setCancellationResult(InteractionResult.PASS);
         }
     }
+    /** What may still be done to a body frozen stiff: carry it to warmth in the basket, wrap it (warmth), read its card. */
+    private static boolean tendsStiffBody(ItemStack stack){
+        return stack.getItem() instanceof CarrierItem||stack.getItem() instanceof SwaddleItem||stack.getItem() instanceof NotebookItem;
+    }
     /** Vanilla naming and leashing, as well as held-item interactions, enter through this event. */
     public static void interact(PlayerInteractEvent.EntityInteract event){
         if(event.getLevel().isClientSide()||!(event.getTarget() instanceof YukkuriEntity target))return;
@@ -133,6 +140,11 @@ public final class InteractionDispatch {
             event.setCancellationResult(InteractionResult.FAIL);
         } else if (ExamSession.running(target)) {
             refuse(player, target, "exam", "busy");
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.FAIL);
+        } else if (target.coldStiff() && !tendsStiffBody(event.getItemStack())) {
+            // The one refusal for a body frozen stiff: hands, food, drink, medicine, tools and the care menu all take nothing until it thaws.
+            refuse(player, target, "interact", STIFF);
             event.setCanceled(true);
             event.setCancellationResult(InteractionResult.FAIL);
         }else if(event.getItemStack().is(Items.LEAD)&&!target.isLeashed()){
@@ -245,7 +257,10 @@ public final class InteractionDispatch {
         return false;
     }
 
+    /** The reason every hand, food and care action on a body frozen stiff is refused with (lang {@code operation.mcyukkuri.refuse.stiff}). */
+    public static final String STIFF="stiff";
     static String refusal(Player player,YukkuriEntity target,CareAction action){
+        if(target.coldStiff())return STIFF;
         if(action.tool!=null)return toolRefusal(player,target,action);
         double range=switch(action){
             case RUB -> 1.5;
@@ -313,7 +328,7 @@ public final class InteractionDispatch {
     }
     public static boolean perform(Player player,YukkuriEntity target,CareAction action){
         if (action == CareAction.LIFT && reachRefusal(player, target, 5) == null) target.homeTerritory().offended(player);
-        var reason=action.tool!=null?performTool(player,target,action):refusal(player,target,action);
+        var reason=target.coldStiff()?STIFF:action.tool!=null?performTool(player,target,action):refusal(player,target,action);
         if(reason==null){
             if(action.tool!=null||target.operations().perform(player,action))return true;
             reason="condition";

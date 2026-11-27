@@ -663,3 +663,145 @@ add('den_monopoly', 'den', '自私又累的油占着窝，不让姐妹用', '自
     smoke=dict(ticks=1400, expect=[r'\[wild-event\][^\n]*event=started[^\n]*card=nest-monopoly',
                                    r'\[wild-event\][^\n]*event=ended[^\n]*card=nest-monopoly'],
                forbid=[r'\[body\][^\n]* invariant\b']))
+
+# Cold stiffening (docs/features/wild-ecology.md, 低温僵直). A body is started with a cold backlog just under the 2400 that freezes it
+# (status needs.cold_exposure) on open snow at night, where nothing warms it: the exposure then climbs for real, the body shivers as
+# ever, freezes where it stands, and from then on only the temperature layer runs. The scene writes the backlog, never the freeze.
+_CS_ROW = re.compile(r'\[(?P<cat>[\w-]+)\] \S+ #\d+ uuid=(?P<uuid>[0-9a-f-]{36}) t=(?P<t>\d+) dim=\S+ '
+                     r'pos=(?P<pos>-?\d+, -?\d+, -?\d+) (?P<msg>[^\n]*)')
+# Lines a body that decides, moves or eats prints; a stiff body prints none of them.
+_CS_ACTING = ('action', 'meal', 'duty', 'habitat', 'sleep', 'move', 'social', 'family', 'home', 'needs')
+
+
+def _cs_still(log, uuid, ended=True):
+    """From the stiff begin to its end (a thaw or the freeze death; with ``ended`` False the body may still be stiff when the scene ends)
+    the body stays on one block, starts no action and eats nothing: only the temperature layer prints for it. A problem text, or None."""
+    rows = [m for m in _CS_ROW.finditer(log) if m['uuid'] == uuid]
+    first = next((i for i, m in enumerate(rows) if m['cat'] == 'temperature' and m['msg'].startswith('stiff begin ')), None)
+    if first is None:
+        return f'{uuid} never froze stiff'
+    last = next((i for i, m in enumerate(rows) if i > first and m['cat'] == 'temperature'
+                 and m['msg'].startswith(('stiff end ', 'freeze death '))), None)
+    if ended and last is None:
+        return f'{uuid} stayed stiff to the end of the scene'
+    for m in rows[first + 1:last]:
+        if m['pos'] != rows[first]['pos']:
+            return f'{uuid} moved while stiff: {rows[first]["pos"]} -> {m["pos"]} ({m["msg"][:60]})'
+        if m['cat'] in _CS_ACTING:
+            return f'{uuid} acted while stiff: [{m["cat"]}] {m["msg"][:80]}'
+    return None
+
+
+_cs_alone = _uuid_text('cold_stiff_stray', 'stiff_alone')
+_cs_warmed = _uuid_text('cold_stiff_stray', 'stiff_warmed')
+
+
+def _cs_stray_verify(log):
+    """The lone body freezes stiff, stays put and dies with its window; the one by the fire freezes first, then thaws only after the fire is lit."""
+    for uuid in (_cs_alone, _cs_warmed):
+        problem = _cs_still(log, uuid)
+        if problem:
+            return problem
+    lit = log.find('MCYSTIFF_LIT')
+    begin = re.search(rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff begin ', log)
+    end = re.search(rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff end reason=warmed ', log)
+    if lit < 0 or not begin or not end:
+        return 'missing the fire-lit marker, or the warmed body never froze or never thawed'
+    if not begin.start() < lit < end.start():
+        return 'the body by the fire must freeze before the fire is lit and thaw only after it'
+    return None
+
+
+add('cold_stiff_stray', 'forage', '流浪：雪夜冻僵，无人管冻死，点火的解冻', '流浪：雪夜冻僵',
+    '雪原冬夜，两只成年灵梦冷暴露已预设到快冻僵（2250／2400）。开场几秒后各自先发抖，随即在原地闭眼定住不动（冻僵）。'
+    '西边那只孤零零的，一分钟左右窗口耗尽冻死，留下冻死的遗体；东边那只身旁有一堆没点的篝火：用打火石点燃它，'
+    '冻僵的灵梦在几十秒内解冻，继续发抖找暖。用望远镜看状态卡，写着“低温僵直，剩余约 N 秒”，点火后改为“回暖中”。'
+    '冻僵时喂食、摸、开照护菜单都会被拒，提示“它冻僵了”。',
+    '约 30 秒冻僵，约 1 分钟内冻死或解冻', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        block(9, 0, 3, 'minecraft:campfire[lit=false]'),
+        street_stray('cold_stiff_stray', 'reimu', -8, 3, 'stiff_alone', nutrition=60, energy=70, rest_wait=0, yaw=180,
+                     label='孤零零灵梦', lead=True),
+        set_status('stiff_alone', 'needs.cold_exposure', 2250),
+        street_stray('cold_stiff_stray', 'reimu', 8, 3, 'stiff_warmed', nutrition=60, energy=70, rest_wait=0, yaw=180,
+                     label='火边灵梦'),
+        set_status('stiff_warmed', 'needs.cold_exposure', 2250),
+    ], give=['minecraft:flint_and_steel', 'minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读孤零零灵梦', f'yukkuri status {sel("stiff_alone")} raw'), ('读火边灵梦', f'yukkuri status {sel("stiff_warmed")} raw')],
+    smoke=dict(ticks=1900,
+               commands=[(420, block(9, 0, 3, 'minecraft:campfire[lit=true]')),
+                         (421, 'execute if block ~9 ~ ~3 minecraft:campfire[lit=true] run say MCYSTIFF_LIT')],
+               readout=[f'yukkuri status {sel("stiff_alone")} raw', f'yukkuri status {sel("stiff_warmed")} raw'],
+               allow_fate=[dict(kind='death', who=f'uuid={_cs_alone} ', match=r'cause=freeze\b',
+                                why='nothing warms the lone body: its stiff window runs out and the cold kills it')],
+               forbid=[rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* freeze death', rf'\[body\][^\n]* uuid={_cs_warmed} [^\n]* death settled',
+                       rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* stiff end', r'\[body\][^\n]* invariant\b'],
+               expect=[rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* stiff begin ',
+                       rf'\[choreo\][^\n]* uuid={_cs_alone} [^\n]* beat=stiff_enter face=sleep line=none declared=sleep',
+                       rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* freeze death reason=window_spent stiff=true ',
+                       rf'\[body\][^\n]* uuid={_cs_alone} [^\n]* death settled into remains; cause=freeze [^\n]*category=frozen',
+                       rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff begin ',
+                       rf'\[choreo\][^\n]* uuid={_cs_warmed} [^\n]* beat=stiff_enter face=sleep line=none declared=sleep',
+                       rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff end reason=warmed ',
+                       r'MCYSTIFF_LIT'],
+               verify=_cs_stray_verify))
+
+# The reload check unloads the field and loads it back: a stiff body must keep its stiffness and its window across it, and still run
+# its window out afterwards (a body whose stiffness the load cleared would walk off and never die of the cold).
+_cs_reload = _uuid_text('cold_stiff_reload', 'stiff_reload')
+add('cold_stiff_reload', 'forage', '流浪：冻僵后存档重载，仍僵着', '流浪：冻僵后重载',
+    '雪原冬夜，一只成年灵梦冷暴露预设到快冻僵，开场几秒后冻僵定住。试玩时可存档退出再进：它仍僵在原地，状态卡剩余秒数接着走，'
+    '窗口耗尽后冻死。冒烟会卸载本场地并重新加载，比对存下的僵直状态。',
+    '约 30 秒冻僵，之后一分钟左右冻死', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        street_stray('cold_stiff_reload', 'reimu', 0, 3, 'stiff_reload', nutrition=60, energy=70, rest_wait=0, yaw=180,
+                     label='冻僵灵梦', lead=True),
+        set_status('stiff_reload', 'needs.cold_exposure', 2250),
+    ], give=['minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读冻僵灵梦', f'yukkuri status {sel("stiff_reload")} raw')],
+    smoke=dict(ticks=2400, reload=(400, sel('stiff_reload')), reload_paths=('YukkuriLife.Temperature',),
+               readout=[f'yukkuri status {sel("stiff_reload")} raw'],
+               allow_fate=[dict(kind='death', who=f'uuid={_cs_reload} ', match=r'cause=freeze\b',
+                                why='the reloaded body keeps its window and the cold kills it when it runs out')],
+               forbid=[r'\[body\][^\n]* invariant\b'],
+               expect=[rf'\[temperature\][^\n]* uuid={_cs_reload} [^\n]* stiff begin ',
+                       rf'\[temperature\][^\n]* uuid={_cs_reload} [^\n]* freeze death reason=window_spent stiff=true '],
+               verify=lambda log: _cs_still(log, _cs_reload)))
+
+# Negatives: a body by a lit fire is never frozen however much cold it carries; a stiff body does not eat the apple that is put at its feet,
+# and does not move. (The refusal of a player's hand, food and care menu sits on the interaction event, which no scenario command raises.)
+_cs_fire = _uuid_text('cold_stiff_negative', 'stiff_fire')
+_cs_hungry = _uuid_text('cold_stiff_negative', 'stiff_hungry')
+
+
+def _cs_negative_verify(log):
+    if re.search(rf'\[temperature\][^\n]* uuid={_cs_fire} [^\n]* stiff begin ', log):
+        return 'the body beside the lit fire froze stiff'
+    return _cs_still(log, _cs_hungry, ended=False)
+
+
+add('cold_stiff_negative', 'forage', '流浪：暖处不冻僵，冻僵的不吃苹果也不动', '流浪：暖处与冻僵对照',
+    '雪原冬夜，两只成年灵梦冷暴露都预设到快冻僵。东边那只身旁点着篝火，暖和，一直不会冻僵。'
+    '西边那只在空地上冻僵，开场后约 7 秒在它脚边落下一个苹果：冻僵的它不吃、不动，苹果原样躺着。',
+    '约 30 秒', [
+        'fillbiome ~-20 56 ~-18 ~20 71 ~19 minecraft:snowy_plains',
+        block(9, 0, 3, 'minecraft:campfire[lit=true]'),
+        street_stray('cold_stiff_negative', 'reimu', 8, 3, 'stiff_fire', nutrition=60, energy=70, rest_wait=0, yaw=180,
+                     label='火边灵梦'),
+        set_status('stiff_fire', 'needs.cold_exposure', 2300),
+        street_stray('cold_stiff_negative', 'reimu', -8, 3, 'stiff_hungry', nutrition=45, energy=70, rest_wait=0, yaw=180,
+                     label='冻僵灵梦', lead=True),
+        set_status('stiff_hungry', 'needs.cold_exposure', 2250),
+    ], give=['minecraft:spyglass'], env={'time': 'night'}, spot='street', vantage=(0, 9, 180, 15),
+    note='待验证：新场景，尚未在游戏里实测。',
+    reads=[('读火边灵梦', f'yukkuri status {sel("stiff_fire")} raw'), ('读冻僵灵梦', f'yukkuri status {sel("stiff_hungry")} raw')],
+    smoke=dict(ticks=900,
+               commands=[(420, item('minecraft:apple', 1, -8, 3, name='late_apple'))],
+               readout=[f'yukkuri status {sel("stiff_fire")} raw', f'yukkuri status {sel("stiff_hungry")} raw'],
+               forbid=[rf'\[temperature\][^\n]* uuid={_cs_fire} [^\n]* stiff begin ', rf'\[meal\][^\n]* uuid={_cs_hungry} ',
+                       rf'\[temperature\][^\n]* uuid={_cs_hungry} [^\n]* (?:stiff end|freeze death)',
+                       r'\[body\][^\n]* invariant\b'],
+               expect=[rf'\[temperature\][^\n]* uuid={_cs_hungry} [^\n]* stiff begin '],
+               verify=_cs_negative_verify))

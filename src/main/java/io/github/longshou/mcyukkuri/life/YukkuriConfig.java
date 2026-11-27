@@ -33,7 +33,8 @@ public final class YukkuriConfig {
     public static final ModConfigSpec.BooleanValue CANNIBAL_CARRION, CANNIBAL_UNRECOGNIZED, SACRIFICE, SELF_OFFERING;
     public static final ModConfigSpec.DoubleValue COLD_THRESHOLD, FREEZE_THRESHOLD, HOT_THRESHOLD, NEST_INSULATION,
             PAPER_BEDDING_INSULATION, PAPER_COVER_INSULATION;
-    public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, FREEZE_DAMAGE_INTERVAL, HEAT_DRYNESS_INTERVAL;
+    public static final ModConfigSpec.IntValue COLD_EXPOSURE_TICKS, HEAT_DRYNESS_INTERVAL;
+    public static final ModConfigSpec.DoubleValue STIFF_WINDOW_FACTOR, THAW_RATE;
     public static final ModConfigSpec.DoubleValue SPRING_TEMPERATURE, SUMMER_TEMPERATURE, AUTUMN_TEMPERATURE, WINTER_TEMPERATURE;
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -52,7 +53,7 @@ public final class YukkuriConfig {
         builder.pop().push("temperature");
         COLD_THRESHOLD = builder.comment("Original gameplay thresholds in Minecraft biome-temperature units, not Celsius.")
                 .defineInRange("coldBelow", .2, -2.0, 1.0);
-        FREEZE_THRESHOLD = builder.comment("Felt temperature at or below which accumulated cold exposure can cause freezing injury; capped at coldBelow.")
+        FREEZE_THRESHOLD = builder.comment("Felt temperature at or below which accumulated cold exposure stiffens the body (and drains a stiff body's window fastest); capped at coldBelow.")
                 .defineInRange("freezeAtOrBelow", 0.0, -2.0, 1.0);
         HOT_THRESHOLD = builder.comment("Hot weather adds dryness. Effective threshold stays at least 0.5 above coldBelow.")
                 .defineInRange("hotAtOrAbove", 1.5, .5, 4.0);
@@ -62,9 +63,12 @@ public final class YukkuriConfig {
                 .defineInRange("paperBeddingInsulation", 0.45, 0.0, 3.0);
         PAPER_COVER_INSULATION = builder.comment("Partial warmth from a folded newspaper sheet draped over the body in a plain wind-cover gap.")
                 .defineInRange("paperCoverInsulation", 0.40, 0.0, 3.0);
-        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units before freezing injury. Per unit of felt deficit, adults gain 1 per tick, juveniles 1.5, babies 2.")
+        COLD_EXPOSURE_TICKS = builder.comment("Loaded cold-exposure units that stiffen the body in a freezing place. Per unit of felt deficit, adults gain 1 per tick, juveniles 1.5, babies 2.")
                 .defineInRange("coldExposureTicks", 2400, 20, 1728000);
-        FREEZE_DAMAGE_INTERVAL = builder.defineInRange("freezeDamageInterval", 200, 20, 24000);
+        STIFF_WINDOW_FACTOR = builder.comment("Cold stiffening (project design): the typical share of the exposure that stiffens a body that it then lasts as a stiff body, before nourishment, size and health shift it (an adult on a winter night keeps about a minute). Capped at 6000 ticks.")
+                .defineInRange("stiffWindowFactor", .75, .1, 3.0);
+        THAW_RATE = builder.comment("Cold stiffening (project design): how fast a stiff body in the warm refills its window, against the rate the ordinary exposure falls there (a campfire refills about 1 tick per tick, a torch 0.4, a nest 0.5 at the default).")
+                .defineInRange("thawRate", .5, .05, 4.0);
         HEAT_DRYNESS_INTERVAL = builder.defineInRange("heatDrynessInterval", 100, 20, 24000);
         builder.pop().push("seasons");
         SPRING_TEMPERATURE = builder.comment("MC biome-temperature offsets, only in dimensions with skylight and a moving sun. Not Celsius.")

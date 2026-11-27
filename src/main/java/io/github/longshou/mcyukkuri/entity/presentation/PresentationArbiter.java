@@ -21,6 +21,8 @@ import net.minecraft.nbt.CompoundTag;
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
     private static final String EMOTION_GOAL = "goal." + PresentationGoals.EMOTION.id();
+    /** The placeholder face of a body frozen stiff: the closed-eyes face of sleep. */
+    private static final String STIFF_FACE = "sleep";
     private final PresentationAccess state;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
@@ -130,6 +132,8 @@ public final class PresentationArbiter {
     /** Walks {@link FacePrecedence} top to bottom: the first source with a face wins. */
     private String face(String source){
         var e=state.owner();
+        // A stiff body keeps its eyes shut whatever else paints a face (the frost face is art, wp-cold-stiff-p2).
+        if(e.coldStiff())return STIFF_FACE;
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
             case HAT_RETURN,RUB->"closed_smile";
@@ -239,6 +243,11 @@ public final class PresentationArbiter {
     private void presentOrdinary(Motion motion) {
         var e = state.owner();
         var running = state.runningGoals(); // Exactly one snapshot; never ask canUse/continue/plan here.
+        // Frozen stiff by the cold: nothing else of the body is running. The placeholder pose is the shiver clip (the frozen pose is art, wp-cold-stiff-p2).
+        if (e.coldStiff()) {
+            publishOrdinary("state.cold_stiff", motion, Behaviors.COLD_SHIVER, Actions.ORDINARY);
+            return;
+        }
         if (!running.contains(PresentationGoals.MIND) && e.mind().active()) {
             publishOrdinary("state.mind", motion, e.mind().activity(), Actions.ORDINARY);
             return;

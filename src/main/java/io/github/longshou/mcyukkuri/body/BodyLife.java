@@ -38,6 +38,7 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -678,17 +679,26 @@ public final class BodyLife {
         died(source,stemDepletion,sukkiriExhaustion,null);
     }
     public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion,RemainsStem stem){
+        died(source,stemDepletion,sukkiriExhaustion,stem,false);
+    }
+    /**
+     * The one death settlement. {@code noRemains}: the body leaves no corpse (one chiselled to pieces); the same list of what the remains
+     * would have carried (mouth load, paper cover, the stem, the junk headwear) falls as real items where it stood instead, and the
+     * rest of the settlement (shelter claim, {@code settled}, the ledgers of the other death hooks) is unchanged.
+     */
+    public void died(DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion,RemainsStem stem,boolean noRemains){
         if(settled||!(entity.level() instanceof ServerLevel level))return;
         if(source!=null&&source.is(DamageTypes.FELL_OUT_OF_WORLD))return;
         String internal=internalDeathCause();
         // Retention kills by holding everything in: nothing came out, so the body keeps its whole filling and its swollen shape
         // (lead decision, art decision wp-eu full pass) instead of the empty-corpse balance of a body worn down to 0 health.
         if(LeafSwaddle.RETENTION.equals(internal))deathFood=BodyFood.capacity(entity);
-        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem);
         var mouth=entity.component(YukkuriComponents.MOUTH);
         var carried=mouth.itemsForRemains();
         int paperSheets=entity.life().paperCoverCount();
         carried.addAll(entity.life().paperCoverItems());
+        if(noRemains){diedWithoutRemains(level,source,stemDepletion,sukkiriExhaustion,stem,internal,carried,paperSheets);return;}
+        var remains=RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem);
         RemainsEntity.retainCarriedItems(remains,carried);
         var found = entity.life().foundShelter();
         var opening = found == null ? null : Vec3.atBottomCenterOf(found.entrance());
@@ -721,6 +731,36 @@ public final class BodyLife {
                 source==null?"none":source.getMsgId(),internal.isEmpty()?"none":internal,RemainsCause.of(stored),coreHurt,remainsFood(),stemDepletion,sukkiriExhaustion);
         if(stem!=null)GameplayLog.event(entity,"body","stem remains brood={} progress={} count={} absent={} placement={}",
                 stem.brood(),stem.progress(),stem.count(),stem.absentMask(),placedBody?"body":"item");
+    }
+    /**
+     * The death that leaves no corpse. Every item the remains would have carried is released where the body stood, a refused spawn is kept
+     * by the world data and dropped later (nothing vanishes); a brood stem leaves as the remains item that holds it, because the stem is
+     * only ever the remains' own.
+     */
+    private void diedWithoutRemains(ServerLevel level,DamageSource source,boolean stemDepletion,boolean sukkiriExhaustion,RemainsStem stem,
+                                    String internal,ListTag carried,int paperSheets){
+        var at=entity.position().add(0,.05,0);
+        var items=new ArrayList<ItemStack>();
+        for(int i=0;i<carried.size();i++){
+            var stack=ItemStack.parseOptional(level.registryAccess(),carried.getCompound(i));
+            if(!stack.isEmpty())items.add(stack);
+        }
+        if(stem!=null)items.add(RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem));
+        for(var stack:items){
+            boolean spawned=ItemContact.release(entity,stack,at,Vec3.ZERO)!=null;
+            if(!spawned)YukkuriWorldData.get(level).deferDrop(level,at,stack);
+            GameplayLog.event(entity,"body","no-remains death drop item={} count={} spawned={}",stack.getItem(),stack.getCount(),spawned);
+        }
+        var head=entity.life().custody();
+        if(head.junk()!=null&&head.releaseJunk(variant->YukkuriWorldData.get(level).dropDeathHeadwear(entity)))
+            GameplayLog.event(entity,"headwear","junk death transfer item={} destination=world",JunkHeadwear.item().getItem());
+        entity.component(YukkuriComponents.MOUTH).remainsAcceptedItems();
+        if(paperSheets>0)entity.life().clearPaperCoverForRemains();
+        var found=entity.life().foundShelter();
+        if(found!=null)found.release(entity.getUUID());
+        settled=true;settledCause=internal;entity.syncBody();
+        GameplayLog.event(entity,"body","death settled without remains; cause={} internal={} dropped={} stem={}",
+                source==null?"none":source.getMsgId(),internal.isEmpty()?"none":internal,items.size(),stem!=null);
     }
     public CompoundTag save(){var tag=WoundTags.write(wounds);tag.putInt("Version",3);if(!wounds.isEmpty())WoundMigration.record(tag,
             WoundSurface.get(entity.subspecies().assetId()));tag.putInt("ReleaseCursor",releaseCursor);tag.putInt("HealthVersion",1);

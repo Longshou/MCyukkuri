@@ -262,7 +262,8 @@ final class LifeMeal {
         return !occupancy().kitInMouth() && !o.entity().family().carry().mouthBusy();
     }
 
-    private boolean hasAppetite() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
+    /** The root of every "may it take food" question (eating alone, being fed, a parent's care food): a body frozen stiff takes none. */
+    private boolean hasAppetite() { return needsFood() && mouthForMeal() && !o.entity().body().dying() && !o.entity().coldStiff() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking() && !o.entity().isCommandPlaying() && o.entity().isAlive(); }
 
     private boolean canEatSolid() { return hasAppetite() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid(); }
 
@@ -280,7 +281,7 @@ final class LifeMeal {
 
     boolean canTakeSweet(ItemStack food) {
         return Sweets.is(food) && o.nutrition() <= Sweets.FULL && mouthForMeal() && cargoAllowsMeal()
-                && !hasMouthFood() && mealTicks == 0 && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
+                && !hasMouthFood() && mealTicks == 0 && !o.entity().coldStiff() && !o.entity().family().awaitingLanding() && !o.entity().isPanicking()
                 && !o.entity().isCommandPlaying() && o.entity().isAlive() && o.entity().family().canEatIndependently() && o.entity().childhood().canEatSolid();
     }
 

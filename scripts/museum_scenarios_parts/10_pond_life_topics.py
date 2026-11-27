@@ -1084,6 +1084,7 @@ TOPICS = {
     'family_absence': 'W9',
     'wall_tuck': 'M5',
     'stray_boxes': 'M5', 'stray_strange_food': 'D1','stray_rain': 'R1', 'stray_rubbish': 'M5', 'stray_junk_headwear': 'M5', 'stray_wind': 'R1', 'stray_paper': 'M5', 'stray_paper_young': 'M5',
+    'cold_stiff_stray': 'R1', 'cold_stiff_reload': 'R1', 'cold_stiff_negative': 'R1',
     'oni_shop': 'M1', 'oni_stress_room': 'M1', 'shop_care': 'M1', 'shop_water': 'M1', 'shop_kin_room': 'M1', 'pet_water': 'M1', 'pet_water_away': 'M1', 'pet_food_walled': 'M1', 'pet_food_empty': 'M1',
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',

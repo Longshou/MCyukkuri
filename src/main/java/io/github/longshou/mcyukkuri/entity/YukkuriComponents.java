@@ -330,7 +330,7 @@ public final class YukkuriComponents {
                 .tick(360, BodyLife::tick)
                 .save(220, (c, tag) -> tag.put("YukkuriBody", c.save()))
                 .load(210, (c, ctx) -> { if (ctx.root().contains("YukkuriBody")) c.load(ctx.root().getCompound("YukkuriBody")); })
-                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 70, (c, ctx) -> c.died(ctx.source(), ctx.stemDepletion(), ctx.sukkiriExhaustion(), ctx.stem())).build(),
+                .interrupt(Interrupt.DEATH, InterruptPhase.DEATH_ONCE, 70, (c, ctx) -> c.died(ctx.source(), ctx.stemDepletion(), ctx.sukkiriExhaustion(), ctx.stem(), ctx.noRemains())).build(),
         ComponentSpec.ready(SANCTION, YukkuriEntity::sanction)
                 .interrupt(Interrupt.REMOVED, InterruptPhase.MAIN, 10, (c, ctx) -> c.stop()).build(),
         ComponentSpec.ready(FORAGE_TRIP, YukkuriEntity::forageTrip)

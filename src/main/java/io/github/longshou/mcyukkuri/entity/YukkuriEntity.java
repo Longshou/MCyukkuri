@@ -128,6 +128,7 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
@@ -468,10 +469,12 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         return getScale() * Math.max(1, growthScale()) * (.7 + .3 * growth)
                 * mobility * BodyAbility.temperament(this) * BodyAbility.carrying(this);
     }
-    /** Decides nothing and starts nothing: deliberately NoAI, or in the scene start hold (see SceneHold). */
-    public boolean inert() { return SceneHold.inert(this); }
-    /** The hold skips the AI step but not travel: the body keeps falling, floating and being pushed. */
-    @Override protected boolean isImmobile() { return super.isImmobile() || SceneHold.held(this); }
+    /** Decides nothing and starts nothing: deliberately NoAI, in the scene start hold (see SceneHold), or frozen stiff by the cold. */
+    public boolean inert() { return SceneHold.inert(this) || coldStiff(); }
+    /** Frozen stiff by the cold (TemperatureLife): immobile and inert until it thaws or its window is spent. */
+    public boolean coldStiff() { return life != null && life.temperature().stiff(); }
+    /** The hold skips the AI step but not travel: the body keeps falling, floating and being pushed. A stiff body is held the same way. */
+    @Override protected boolean isImmobile() { return super.isImmobile() || SceneHold.held(this) || coldStiff(); }
     public boolean canCrawlNow() { return !isPassenger() && crawler(); }
     /** The crawl is this body's gait now: on the ground, or riding a host's surface (a hat floor), where the host walk drives it. */
     public boolean crawler() {
@@ -576,7 +579,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public YukkuriLife life() { return life; }
     public PetLife pet() { return pet; }
     @Override public boolean removeWhenFarAway(double distance) {
-        return !VillageStrays.rooted(this) && super.removeWhenFarAway(distance);
+        return !VillageStrays.rooted(this) && !coldStiff() && super.removeWhenFarAway(distance);
     }
     private PetOuting outing;
     public PetOuting outing() { if (outing == null) outing = new PetOuting(this); return outing; }
@@ -627,7 +630,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public ChildhoodLife childhood() { return childhood; }
     public CareApproach careApproach() { return careApproach; }
     /** A newborn crossing from its mother's outlet to the hat is not shoved off its arc by the body it overlaps. */
-    @Override public boolean isPushable() { return !(family != null && family.newbornLaunching()) && super.isPushable(); }
+    @Override public boolean isPushable() { return !(family != null && family.newbornLaunching()) && !coldStiff() && super.isPushable(); }
     @Override public void push(Entity other) {
         if (other instanceof YukkuriEntity peer) {
             if (!level().isClientSide && peer != this) {
@@ -1360,7 +1363,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private boolean speak(String event, String tier, String style, int priorityFloor) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
-        if (level().isClientSide || !isAlive() || event.isEmpty()) return false;
+        // A body frozen stiff says nothing, whatever layer asks (its last words come before the freeze).
+        if (level().isClientSide || !isAlive() || event.isEmpty() || coldStiff()) return false;
         long now = level().getGameTime();
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
@@ -1420,6 +1424,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void die(DamageSource source) { damage().die(source); }
+    /** Dies leaving no corpse: the carried items fall where it stood (BodyLife#died); every other part of the death is the ordinary one. */
+    public void dieWithoutRemains(DamageSource source) { damage().dieWithoutRemains(source); }
 
     @Override
     public void remove(Entity.RemovalReason reason) { damage().remove(reason); }
@@ -1443,6 +1449,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Only a pet or an unowned individual can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override public boolean handleLeashAtDistance(Entity holder, float distance) {
+        // A stiff body is not pulled along: the lead only holds until it is too far, where it breaks as for any body.
+        if (coldStiff() && distance <= Leashable.LEASH_TOO_FAR_DIST) return false;
         // Outings use neither the vanilla moving restriction nor its close-range navigation.
         return holder instanceof HumanNpc npc && npc.strollingWith(this) || super.handleLeashAtDistance(holder, distance);
     }

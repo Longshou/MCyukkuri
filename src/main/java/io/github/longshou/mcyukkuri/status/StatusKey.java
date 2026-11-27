@@ -68,7 +68,15 @@ public enum StatusKey {
         return null;
     }),
     TEMPERATURE("needs", "temperature", 0, y -> y.life().temperature().cold() ? "cold" : y.life().temperature().hot() ? "hot" : "comfortable", null),
-    COLD_EXPOSURE("needs", "cold_exposure", 0, y -> y.life().temperature().coldExposure(), null),
+    /** The chill the body has taken in (the cold the stiffening counts); a scene writes the backlog it starts from, in exposure units. */
+    COLD_EXPOSURE("needs", "cold_exposure", 0, y -> y.life().temperature().coldExposure(), (y, raw) -> {
+        Float v = number(raw);
+        if (v == null || v < 0 || v > 1_728_000) return "need a number 0-1728000";
+        y.life().temperature().setColdExposure(Math.round(v));
+        return null;
+    }),
+    /** Seconds left of the stiffened body's window (0 when it is not stiff). */
+    COLD_STIFF("needs", "cold_stiff", 10, y -> y.life().temperature().stiff() ? y.life().temperature().stiffSeconds() : 0, null),
     // ---- mood --------------------------------------------------------------------------------------------------
     STRESS("mood", "stress", 10, y -> y.pet().stress(), (y, raw) -> {
         Float v = number(raw);

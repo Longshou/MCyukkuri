@@ -888,7 +888,8 @@ public final class YukkuriLife {
         if (mouth.purpose() == MouthOccupancy.Purpose.PAPER && !foundCover.carryingPaper()) {
             mouth.releaseItems(MouthOccupancy.Purpose.PAPER, 20);
         }
-        if (entity.inert()) return;
+        // A stiff body is inert, so nutrition, water, energy, wetness and age wait; the temperature layer alone runs on (it ignores a held or NoAI body).
+        if (entity.inert()) { temperature.tick(); return; }
         ageTicks++;
         personality.tick();
         if(exerciseReliefTicks>0)exerciseReliefTicks--;
@@ -945,7 +946,7 @@ public final class YukkuriLife {
             }
         }
         temperature.tick();
-        if (!entity.isAlive()) return;
+        if (!entity.isAlive() || entity.inert()) return;
         if(isSleeping() && (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()
                 || level().isRainingAt(entity.blockPosition()) || temperature.unsafeSleep() && !coldPaperSleepAllowed())) wakeForDanger("environment");
         if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble()) {
