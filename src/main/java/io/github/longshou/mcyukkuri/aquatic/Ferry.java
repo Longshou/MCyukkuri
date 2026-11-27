@@ -42,6 +42,11 @@ final class Ferry {
     /** The shared takeoff from the bank that carries her young with her. Logged when the hop is really taken, so an approach
      *  that never commits is no boarding; whether it landed is read from the mount that follows. */
     private static Step boardingHop(YukkuriEntity body, Hop hop, PlacedHatEntity hat) {
+        if (hat.upsideDown()) {
+            GameplayLog.limited(body, "aquatic", "boarding.capsized", 200, "boarding none reason=hat_capsized hat={} carrying={}",
+                    hat.getUUID(), body.getPassengers().size());
+            return act(hop);
+        }
         if (!AquaticLife.aboard(body, hat)) for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
             GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
         return act(hop);
@@ -114,7 +119,9 @@ final class Ferry {
         steps.add(new Plan.Approach<>(() -> grab.check(carrier), () -> grab.nextContactStand(carrier),
                 stand -> act(Walk.around(stand, child))));
         steps.add(() -> act(grab));
-        steps.addAll(hopAboard(carrier, hat, beckoning));
+        var board = hopAboard(carrier, hat, beckoning);
+        if (board == null) return null;
+        steps.addAll(board);
         steps.add(() -> act(new Release(child, hat)));
         return steps;
     }
@@ -158,13 +165,14 @@ final class Ferry {
             return null;
         }
         Supplier<Hop> hop = () -> new Hop(hat);
-        return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"),
-                () -> approachHull(body, hat, beckoning),
-                () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
-                () -> beckoning == null || !drawnToBank(hop.get().check(body)) ? null : beckoning.step(body, hat),
+        return List.of(() -> hat.upsideDown() ? null : new Step.Wait(() -> hat.steady() || hat.upsideDown(), 60, "hat_settles"),
+                () -> hat.upsideDown() ? null : approachHull(body, hat, beckoning),
+                () -> hat.upsideDown() ? null : act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
+                () -> hat.upsideDown() || beckoning == null || !drawnToBank(hop.get().check(body)) ? null : beckoning.step(body, hat),
                 // after the turn the way aboard is read again from where she now stands (a lip leg, a stroke already paid)
-                () -> approachHull(body, hat, null),
+                () -> hat.upsideDown() ? null : approachHull(body, hat, null),
                 () -> {
+                    if (hat.upsideDown()) return null;
                     var action = hop.get();
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },

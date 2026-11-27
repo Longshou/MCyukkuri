@@ -141,6 +141,7 @@ final class ChildCall {
     private void beginCall(UUID relative, Vec3 toward, String line) {
         called = relative;
         phase = Phase.CALL;
+        beckon = false;
         ticks = 0;
         callStart = o.level().getGameTime();
         SurfaceApproach.halt(o.entity());
@@ -161,6 +162,7 @@ final class ChildCall {
 
     void beginBeckon(YukkuriEntity child) {
         called = child.getUUID();
+        beckon = true;
         rounds = 0;
         nextCall = 0;
     }
@@ -184,7 +186,6 @@ final class ChildCall {
                 ticks = 0;
             } else {
                 phase = Phase.NONE;
-                beckon = false;
                 nextCall = now + interval(e);
             }
         }
@@ -198,6 +199,7 @@ final class ChildCall {
 
     void endBeckon() {
         stop();
+        beckon = false;
         called = null;
         rounds = 0;
         nextCall = 0;
@@ -223,7 +225,7 @@ final class ChildCall {
 
     /** The child it searches for was seen again or reunited: the next loss starts with a fresh set of rounds. */
     void found(UUID child) {
-        if (child != null && child.equals(called) && phase == Phase.NONE) { called = null; rounds = 0; nextCall = 0; }
+        if (!beckon && child != null && child.equals(called) && phase == Phase.NONE) { called = null; rounds = 0; nextCall = 0; }
     }
 
     /**

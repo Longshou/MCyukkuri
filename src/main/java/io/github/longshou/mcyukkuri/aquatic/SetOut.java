@@ -25,6 +25,7 @@ import io.github.longshou.mcyukkuri.motor.action.Release;
 import io.github.longshou.mcyukkuri.motor.action.Walk;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.social.Bonds;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -173,7 +174,7 @@ final class SetOut implements Intent, FamilyRendezvous {
                             return current.isEmpty() ? null : new Step.Do(new Face(SurfaceApproach.yaw(owner.position(), current.getFirst().position())));
                         }, () -> {
                             gatherUntil = owner.level().getGameTime() + GATHER_YOUNG;
-                            return gatherCall(this::gatherOver);
+                            return gatherCall(this::gatherOver, () -> dependentAshore(AquaticLife.hat(owner)));
                         });
             }
             if (edge != null && gatherUntil != 0) {
@@ -268,7 +269,11 @@ final class SetOut implements Intent, FamilyRendezvous {
                     asked.remove(held.getUUID());
                     return new Step.Do(new Release(held));
                 },
-                () -> lagging() ? gatherCall(() -> !lagging()) : null);
+                () -> {
+                    if (!lagging()) return null;
+                    long until = owner.level().getGameTime() + GATHER_YOUNG;
+                    return gatherCall(() -> !lagging() || owner.level().getGameTime() >= until, () -> strays(owner));
+                });
     }
 
     /** Her nearest young ashore that cannot get to the water by itself and that her holds can carry now, or null. */
@@ -354,27 +359,39 @@ final class SetOut implements Intent, FamilyRendezvous {
         return fetch.stream().allMatch(y -> y.family().withinFollowDistance(owner));
     }
 
-    /** The gather call heard by the young herself: the shared family call to the nearest one still short of her side, the wait
-     *  ending (and taking the call with it) when {@code over} holds. */
-    private Step.Wait gatherCall(BooleanSupplier over) {
+    /** The gather call heard by the young herself: calls each un-gathered young in turn through the shared family call and moves
+     *  on once it answers, instead of switching every tick between two young at equal distance. Ends the call when {@code over} holds. */
+    private Step.Wait gatherCall(BooleanSupplier over, Supplier<List<YukkuriEntity>> waiting) {
+        var answered = new HashSet<UUID>();
+        YukkuriEntity[] current = { null };
         return new Step.Wait(() -> {
             if (over.getAsBoolean()) return endCall();
-            var child = toCall();
-            if (child == null) return false;
-            if (!child.getUUID().equals(called)) {
-                if (called != null) owner.family().endBeckon();
-                called = child.getUUID();
-                owner.family().beginBeckon(child);
+            var target = current[0];
+            if (target != null) {
+                boolean heard = owner.family().beckonAnswered(target);
+                if (heard) answered.add(target.getUUID());
+                if (heard || !target.isAlive() || target.isPassenger() || target.isInWaterOrBubble()
+                        || target.family().withinFollowDistance(owner) || !owner.life().canRecognize(target)) {
+                    endCall();
+                    current[0] = target = null;
+                }
             }
-            owner.family().beckon(child);
+            if (target == null) {
+                target = waiting.get().stream()
+                        .filter(y -> !answered.contains(y.getUUID()) && !y.family().withinFollowDistance(owner)
+                                && y.isAlive() && !y.isPassenger() && !y.isInWaterOrBubble()
+                                && y.childhood().shouldStayWithParents() && owner.life().canRecognize(y)
+                                && owner.distanceToSqr(y) <= 24 * 24)
+                        .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null);
+                if (target != null) {
+                    current[0] = target;
+                    called = target.getUUID();
+                    owner.family().beginBeckon(target);
+                }
+            }
+            if (target != null) owner.family().beckon(target);
             return false;
         }, GATHER_YOUNG + 1, Behaviors.BOAT_CALL);
-    }
-
-    /** The nearest young of hers that still has to come to her side: the shared family call's own choice, minus the ones
-     *  already standing here. */
-    private YukkuriEntity toCall() {
-        return owner.family().childToBeckon(p -> SurfaceApproach.arrived(owner, Vec3.atCenterOf(p)));
     }
 
     /** Ends the family call if one is running; always true, so a wait ends with it. */
