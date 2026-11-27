@@ -4,7 +4,7 @@
   "models": {
     "reimu": {
       "runtime_sha256": "f68e81eb6a75d80cb7b8116cf6031b8b6e8188ce1923d8ac8270a975311c62a0",
-      "surface_sha256": "76065d25b93a45478537473eae4598d29fe51bfcf1799dca4d8c6a163ec9e7f1",
+      "surface_sha256": "f47b938fd6735fe3c8ae12063b0b3753144ebe3e0e68b938401c2a554ec1bb58",
       "skin_vertices": 50124,
       "total_vertices": 100716
     },
@@ -46,7 +46,7 @@
     },
     "reimu_deibu": {
       "runtime_sha256": "538bfb65d2c4e87e326475e45ed92da83a99fe82a17f8201a6b2903373185431",
-      "surface_sha256": "5abcf5f29da88e1b3d999a1be710411c8f7d56811331169b059dd8b3fceef613",
+      "surface_sha256": "9b92defc01ca138c21392a99d7bd4cd5de106d48ee39e8fa11dff8458aa51d29",
       "skin_vertices": 50124,
       "total_vertices": 75744
     },
