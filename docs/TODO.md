@@ -14,6 +14,7 @@
 | 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
 | 台词指代油库里用油不用人 | `.worktrees/wp-speech-you` | art/dialogue sources (zh lines only), generated lang |
 | 玩偶可放置（PK-20） | `.worktrees/wp-doll-place` | doll item/entity, placement |
+| PD-29 卡召唤、戴帽卡 boat call、帽檐形变 | `.worktrees/wp-pd29-stalls` | aquatic call/boat-call chain, hat brim render |
 
 ## 玩法待办
 
