@@ -6293,7 +6293,8 @@ for _sid, _title, _watch, _toggles, _beats, _rule in (
         box(-6, -1, -4, 6, -1, 4, 'minecraft:grass_block'), box(-6, 0, -4, 6, 3, 4, 'minecraft:air'),
         *(box(-6, 0, z, 6, 1, z, 'minecraft:glass') for z in (-4, 4)),
         *(box(x, 0, -3, x, 1, 3, 'minecraft:glass') for x in (-6, 6)),
-        box(-6, 3, -4, 6, 3, 0, 'minecraft:oak_planks'),
+        # No roof: uncovered stands leave the four unbonded pets without a home. A roof would give each a roof home at its own feet,
+        # two to four blocks apart, and they would defend it in the middle of the answers (territory warn/yield/puff changes their faces).
         *(line for _name, _kind, _dx, _label, _pent, _axes in _BREED_CAST for line in (
             yk(_kind, _dx, -2, _name, label=_label, lead=_name == 'hot_bold', kin=f'PentUp:{_pent}f', **_axes, **pair_ready()), *own(_name)))],
         env=DAY, vantage=(0, 2, 180, 15), give=['mcyukkuri:field_notebook'],
