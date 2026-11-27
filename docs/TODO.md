@@ -9,6 +9,7 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 家规全套重做（TN-48/72/73/78/79/80/57） | `.worktrees/wp-rules-redo` | pet/rules/*, pet conscience/penance, rule dialogue, rule faces |
+| 断亲演出与台词（PD-31~34） | `.worktrees/wp-sever-voice` | family departure/sever beats, sever dialogue, sever faces |
 
 ## 玩法待办
 
