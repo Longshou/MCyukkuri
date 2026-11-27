@@ -13,7 +13,9 @@ public final class DollItem extends Item {
 
     @Override public InteractionResult useOn(UseOnContext context) {
         var level = context.getLevel();
-        var spot = context.getClickedPos().relative(context.getClickedFace());
+        var clicked = context.getClickedPos();
+        var spot = level.getBlockState(clicked).canBeReplaced() && level.getFluidState(clicked).isEmpty()
+                ? clicked : clicked.relative(context.getClickedFace());
         var below = spot.below();
         var floor = level.getBlockState(below).getCollisionShape(level, below);
         if (floor.isEmpty() || !level.getBlockState(spot).canBeReplaced() || !level.getFluidState(spot).isEmpty())

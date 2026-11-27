@@ -7,6 +7,8 @@ import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.family.RemainsStem;
 import io.github.longshou.mcyukkuri.body.GraveBlockEntity;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.headwear.Headwear;
 import io.github.longshou.mcyukkuri.registry.ModBlocks;
@@ -205,12 +207,18 @@ public final class RemainsEntity extends Entity {
         var items = data().getList(CARRIED_ITEMS, Tag.TAG_COMPOUND);
         if (items.isEmpty()) return;
         var at = position().add(0, .05, 0);
-        if (!ItemContact.hasReleaseSupport(this, at)) return;
+        var ground = ItemContact.releaseSurface(this, at);
+        if (ground == null) return;
         while (!items.isEmpty()) {
             var stack = ItemStack.parseOptional(registryAccess(), items.getCompound(0));
-            if (!stack.isEmpty() && ItemContact.release(this, stack, at, Vec3.ZERO) == null) {
-                refusedCarriedDrop = blockPosition();
-                break;
+            if (!stack.isEmpty()) {
+                boolean placed = Facilities.doll(stack)
+                        ? PlacedDollEntity.place((ServerLevel) level(), stack, ground, getYRot()) != null
+                        : ItemContact.release(this, stack, at, Vec3.ZERO) != null;
+                if (!placed) {
+                    refusedCarriedDrop = blockPosition();
+                    break;
+                }
             }
             items.removeFirst();
         }

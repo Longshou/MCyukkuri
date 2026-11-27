@@ -26,9 +26,10 @@ public final class PlacedDollRenderer extends EntityRenderer<PlacedDollEntity> {
     @Override public void render(PlacedDollEntity doll, float yaw, float partial, PoseStack pose, MultiBufferSource buffers, int light) {
         if (doll.doll().isEmpty()) return;
         String name = BuiltInRegistries.ITEM.getKey(doll.doll().getItem()).getPath();
+        if (!PropModels.has(name)) return;
         pose.pushPose();
-        PropModels.center(name, pose, true);
         pose.mulPose(Axis.YP.rotationDegrees(180 - yaw));
+        PropModels.center(name, pose, true);
         PropModels.render(name, Integer.MAX_VALUE, pose, buffers, light, OverlayTexture.NO_OVERLAY);
         pose.popPose();
         super.render(doll, yaw, partial, pose, buffers, light);

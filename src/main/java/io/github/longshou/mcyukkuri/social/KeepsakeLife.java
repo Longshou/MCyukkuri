@@ -802,7 +802,12 @@ public final class KeepsakeLife implements MotorOwner {
                 return ContactGeometry.inMouthReach(body, doll) ? 0
                         : Math.max(1E-3, ContactGeometry.mouthGap(body, doll) - ContactGeometry.GRAB_MARGIN);
             }
-            @Override public void take() { doll.discard(); }
+            @Override public void take() {
+                var left = doll.doll().copy();
+                left.shrink(1);
+                if (left.isEmpty()) doll.discard();
+                else doll.doll(left);
+            }
             @Override public Vec3 at() { return doll.position(); }
         };
     }

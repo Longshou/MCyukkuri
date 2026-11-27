@@ -36,35 +36,43 @@ public final class PlacedDollEntity extends Entity {
     public ItemStack doll() { return entityData.get(DOLL); }
     public void doll(ItemStack stack) { entityData.set(DOLL, stack); }
 
+    @Override public boolean isPickable() { return !isRemoved(); }
+
     /** The small prop is easier to reach with a hand than its own box. */
     @Override public float getPickRadius() { return .25f; }
 
     @Override public InteractionResult interact(Player player, InteractionHand hand) {
-        if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
+        if (hand != InteractionHand.MAIN_HAND || isRemoved() || player.isSpectator() || !player.getItemInHand(hand).isEmpty())
+            return InteractionResult.PASS;
         if (level().isClientSide) return InteractionResult.SUCCESS;
         return take(player) ? InteractionResult.CONSUME : InteractionResult.PASS;
     }
 
     /** A player's blow is the same take as a click; other blows leave it standing. */
     @Override public boolean hurt(DamageSource source, float amount) {
-        return source.getEntity() instanceof Player player && take(player);
+        return !isRemoved() && source.getEntity() instanceof Player player && !player.isSpectator() && take(player);
     }
 
     /** Fire and lava destroy the doll as they would a loose item; only a hand or a blow takes it back. */
     @Override public void tick() {
         super.tick();
-        if (!isRemoved() && (isInLava() || level().getBlockState(blockPosition()).is(BlockTags.FIRE))) discard();
+        if (level().isClientSide || isRemoved()) return;
+        if (isInLava() || isOnFire() || level().getBlockState(blockPosition()).is(BlockTags.FIRE)) {
+            GameplayLog.event(this, "keepsake", "doll destroyed cause={} item={} count={} at={}",
+                    isInLava() ? "lava" : "fire", doll().getItem(), doll().getCount(), GameplayLog.at(position()));
+            discard();
+        }
     }
 
     /** The player takes the doll back as its item, and whoever kept it answers the take ({@link KeepsakeLife#dollTaken}). */
     public boolean take(Player player) {
-        if (level().isClientSide) return false;
+        if (level().isClientSide || isRemoved() || player.isSpectator()) return false;
         var stack = doll().copy();
         if (stack.isEmpty()) return false;
+        discard();
         if (!player.getInventory().add(stack)) player.drop(stack, false);
         GameplayLog.event(this, "keepsake", "doll taken player={} item={} count={} at={}", player.getUUID(), stack.getItem(),
                 stack.getCount(), GameplayLog.at(position()));
-        discard();
         KeepsakeLife.dollTaken(player, this);
         return true;
     }
@@ -79,6 +87,7 @@ public final class PlacedDollEntity extends Entity {
 
     /** The one way a placed doll comes into the world, standing on {@code at} (its ground top); the stack is kept whole. */
     public static PlacedDollEntity place(ServerLevel level, ItemStack stack, Vec3 at, float yaw) {
+        if (stack.isEmpty()) return null;
         var doll = ModEntities.PLACED_DOLL.get().create(level);
         if (doll == null) return null;
         doll.setPos(at.x, at.y, at.z);

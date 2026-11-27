@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.family.FamilyNest;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.headwear.HeadTop;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.intent.Conductor;
 import io.github.longshou.mcyukkuri.intent.IntentRunner;
 import io.github.longshou.mcyukkuri.motor.Attach;
@@ -424,7 +425,7 @@ public final class TraceRecorder {
             }
         }
         for (Entity item : entities) {
-            if (!(item instanceof ItemEntity) || selected.containsKey(item.getUUID())) continue;
+            if (!(item instanceof ItemEntity || item instanceof PlacedDollEntity) || selected.containsKey(item.getUUID())) continue;
             if (current != null && current.box() != null && current.box().contains(item.position())) {
                 selected.put(item.getUUID(), current);
                 continue;
@@ -448,6 +449,7 @@ public final class TraceRecorder {
             }
             if (entity instanceof YukkuriEntity y) sampleYukkuri(y, cache);
             else if (entity instanceof PlacedHatEntity hat) sampleSimple(hat, cache, placedHatState(hat));
+            else if (entity instanceof PlacedDollEntity doll) sampleSimple(doll, cache, placedDollState(doll));
             else if (entity instanceof ItemEntity item) sampleSimple(item, cache, itemState(item));
         }
 
@@ -796,6 +798,14 @@ public final class TraceRecorder {
         }
         out.add("riders", riders);
         out.add("kit", hat.kit().isEmpty() ? JsonNull.INSTANCE : item(hat.kit()));
+        return out;
+    }
+
+    private static JsonObject placedDollState(PlacedDollEntity entity) {
+        JsonObject out = new JsonObject();
+        out.add("p", vec(entity.position()));
+        out.addProperty("item", BuiltInRegistries.ITEM.getKey(entity.doll().getItem()).toString());
+        out.addProperty("n", entity.doll().getCount());
         return out;
     }
 

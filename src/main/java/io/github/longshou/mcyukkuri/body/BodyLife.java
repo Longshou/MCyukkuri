@@ -16,6 +16,8 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.family.LeafSwaddle;
 import io.github.longshou.mcyukkuri.headwear.JunkHeadwear;
 import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
@@ -747,7 +749,9 @@ public final class BodyLife {
         }
         if(stem!=null)items.add(RemainsEntity.snapshot(entity,source,stemDepletion,sukkiriExhaustion,internal,stem));
         for(var stack:items){
-            boolean spawned=ItemContact.release(entity,stack,at,Vec3.ZERO)!=null;
+            Vec3 ground=Facilities.doll(stack)?ItemContact.releaseSurface(entity,at):null;
+            boolean spawned=ground!=null?PlacedDollEntity.place(level,stack,ground,entity.yBodyRot)!=null
+                    :ItemContact.release(entity,stack,at,Vec3.ZERO)!=null;
             if(!spawned)YukkuriWorldData.get(level).deferDrop(level,at,stack);
             GameplayLog.event(entity,"body","no-remains death drop item={} count={} spawned={}",stack.getItem(),stack.getCount(),spawned);
         }
