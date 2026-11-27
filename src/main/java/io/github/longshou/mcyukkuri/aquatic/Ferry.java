@@ -139,15 +139,18 @@ final class Ferry {
     }
 
     /** Approach the bank, then land at the host's current admitted seat. A body standing in the takeoff arc — one not riding the
-     *  hull — is waited out with the boat call; a body entering after takeoff remains an honest flight failure. */
+     *  hull — is waited out with the boat call; a body entering after takeoff remains an honest flight failure. A capsized hull is
+     *  no footing to board: its righting belongs to the reclaim, so the boarding ends there instead of waiting for it to steady. */
     static List<Supplier<Step>> hopAboard(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning) {
         if (AquaticLife.aboard(body, hat)) return hat.settled(body) ? null : List.of(() -> act(new Hop(hat)));
+        // Only a righting makes a capsized hull steady again; that is the reclaim's own way, not a wait a boarding could end.
+        if (hat.upsideDown()) {
+            GameplayLog.limited(body, "aquatic", "boarding.capsized", 200, "boarding none reason=hat_capsized hat={} carrying={}",
+                    hat.getUUID(), body.getPassengers().size());
+            return null;
+        }
         Supplier<Hop> hop = () -> new Hop(hat);
-        return List.of(() -> {
-                    for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
-                        GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
-                    return new Step.Wait(hat::steady, 60, "hat_settles");
-                },
+        return List.of(() -> new Step.Wait(hat::steady, 60, "hat_settles"),
                 () -> approachHull(body, hat, beckoning),
                 () -> act(new Face(SurfaceApproach.yaw(body.position(), hat.position()))),
                 () -> beckoning == null || !drawnToBank(hop.get().check(body)) ? null : beckoning.step(body, hat),
@@ -157,7 +160,12 @@ final class Ferry {
                     var action = hop.get();
                     return action.blockedByBody(body) ? bodyWait(body, action) : null;
                 },
-                () -> act(hop.get()));
+                // Logged when the boarding is really taken: an approach that never commits is no boarding.
+                () -> {
+                    for (var rider : body.getPassengers()) if (rider instanceof YukkuriEntity child)
+                        GameplayLog.event(body, "aquatic", "boarding from bank child={} hat={}", child.getUUID(), hat.getUUID());
+                    return act(hop.get());
+                });
     }
 
     /** A refused landing a hull nearer the bank can change: out of hop reach, or no room because its young cannot leave it from here

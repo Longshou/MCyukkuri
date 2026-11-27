@@ -289,11 +289,22 @@ public final class Hop implements Action {
     /** The nearest stop whose own arc from {@code from} is admitted at the enclosing call's delay: a planned stand and the hop
      *  from it are weighed in the same pose, a real takeoff (delay 0) in the one the body stands in. */
     private Vec3 entryFrom(YukkuriEntity body, Vec3 from, HostFrame frame, List<Vec3> stops, int delay) {
-        return stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(entryNear == null ? from : entryNear)))
-                .filter(p -> !body.level().getBlockCollisions(body,
-                        body.getBoundingBox().move(frame.toWorld(p).subtract(body.position()))).iterator().hasNext())
-                .filter(p -> arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p)), delay) instanceof ArcSolver.Plan)
-                .findFirst().orElse(null);
+        var ordered = stops.stream().sorted(Comparator.comparingDouble(p -> frame.toWorld(p).distanceToSqr(entryNear == null ? from : entryNear)))
+                .toList();
+        int clear = 0;
+        ArcSolver.Result refusal = null;
+        for (var p : ordered) {
+            if (body.level().getBlockCollisions(body,
+                    body.getBoundingBox().move(frame.toWorld(p).subtract(body.position()))).iterator().hasNext()) continue;
+            clear++;
+            var answer = arc(body, vec(from), null, hosts(body, from, frame.toWorld(p)), vec(frame.toWorld(p)), delay);
+            if (answer instanceof ArcSolver.Plan) return p;
+            if (refusal == null) refusal = answer;
+        }
+        // A refused entry leaves the caller without a reason: name the stand and what the arc budget lacked.
+        GameplayLog.limited(body, "move", "hop.entry.none", 200, "hop entry none from={} stops={} clear={} refusal={}",
+                GameplayLog.at(from), ordered.size(), clear, refusal == null ? "no_stop" : refusal);
+        return null;
     }
 
     /** Whether no takeoff arc passes the shared sweep and another body is in a swept arc. The action's own check still has
