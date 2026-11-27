@@ -198,7 +198,14 @@
       "page_sha256": "eaba669110a6afded25287a53e298d2cc206669d86f458d1958ad8e87efdf2f2",
       "available_images": 13,
       "selection": "正文前 12 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        1,
+        2,
+        10,
+        11,
+        12
+      ]
     },
     {
       "id": "M11",
@@ -300,7 +307,10 @@
       "available_images": 35,
       "selection": "正文前 12 张不同原图链接",
       "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
-      "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名"
+      "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名",
+      "excluded_images": [
+        2
+      ]
     }
   ],
   "images": [
@@ -2269,58 +2279,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M10-001",
-      "source_id": "M10",
-      "article_image_order": 1,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/6/96060d68.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/6/96060d68.png",
-      "retrieved_at": "2026-10-14T13:00:25.505712+00:00",
-      "path": "wiki/art-references/images/M10/001-96060d68.png",
-      "bytes": 143400,
-      "sha256": "bbf49ec6a4912800c3e2aeb0d3edc8b5288fefd92a143364f3c41fe417e223ca",
-      "width": 900,
-      "height": 1200,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "001",
-      "tags": [
-        "工厂",
-        "收容",
-        "人类",
-        "设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "工厂参观与作文叙述框架；文字叙述和实际画面有反差。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M10-002",
-      "source_id": "M10",
-      "article_image_order": 2,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/f/4fc7671f.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/f/4fc7671f.png",
-      "retrieved_at": "2026-10-14T13:00:26.630718+00:00",
-      "path": "wiki/art-references/images/M10/002-4fc7671f.png",
-      "bytes": 112505,
-      "sha256": "18b97bc17f0b99fc2c12dcbe73bbb019ceae2bff7f3da5e37f38c7ea7c3462dc",
-      "width": 900,
-      "height": 1200,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "002",
-      "tags": [
-        "工厂",
-        "收容",
-        "人类",
-        "设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "导览人物与走道；观察设施尺度。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M10-003",
       "source_id": "M10",
       "article_image_order": 3,
@@ -2500,84 +2458,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "加工暴力画面；与活体售卖分开。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M10-010",
-      "source_id": "M10",
-      "article_image_order": 10,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/7/6/76bf9f17.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/7/6/76bf9f17.png",
-      "retrieved_at": "2026-10-14T13:00:36.168552+00:00",
-      "path": "wiki/art-references/images/M10/010-76bf9f17.png",
-      "bytes": 136944,
-      "sha256": "54f29b16daf89ea3b2240d067811811674dca7a0a2e90113e82872d813433fd1",
-      "width": 900,
-      "height": 1200,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "010",
-      "tags": [
-        "工厂",
-        "收容",
-        "人类",
-        "设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "学校与盒装点心；不由包装反推生产链。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M10-011",
-      "source_id": "M10",
-      "article_image_order": 11,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/6/5/6562ef63.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/6/5/6562ef63.png",
-      "retrieved_at": "2026-10-14T13:00:37.168937+00:00",
-      "path": "wiki/art-references/images/M10/011-6562ef63.png",
-      "bytes": 144393,
-      "sha256": "e4e2492938c2270ac7b4d8eadee97ba38f690a47bc9f34c72e280a37fe83ca1b",
-      "width": 900,
-      "height": 1200,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "011",
-      "tags": [
-        "工厂",
-        "收容",
-        "人类",
-        "设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "赠礼与人类交往；仅画面总览。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M10-012",
-      "source_id": "M10",
-      "article_image_order": 12,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29550422.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/f/b/fb165eda.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/f/b/fb165eda.png",
-      "retrieved_at": "2026-10-14T13:00:37.969564+00:00",
-      "path": "wiki/art-references/images/M10/012-fb165eda.png",
-      "bytes": 79078,
-      "sha256": "d10ec497facb9424a4f3cfe492f4ea674c88e89f488c5813762efbb2e037f662",
-      "width": 900,
-      "height": 1200,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "012",
-      "tags": [
-        "工厂",
-        "收容",
-        "人类",
-        "设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "赠礼场景后段；本库存12/13张，不标全篇已读。",
       "reviewed_date": "2026-10-14"
     },
     {
@@ -3488,32 +3368,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "三维效果宣传拼图，非漫画第1页；保留为转载页组成部分。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M15-002",
-      "source_id": "M15",
-      "article_image_order": 2,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/36411281.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/a/4abfd3c1.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/a/4abfd3c1.jpg",
-      "retrieved_at": "2026-10-14T13:01:11.039878+00:00",
-      "path": "wiki/art-references/images/M15/002-4abfd3c1.jpg",
-      "bytes": 259880,
-      "sha256": "21953f885032effb2a6d67472fb90c141618d8daa5f38bde86368dac7378df17",
-      "width": 629,
-      "height": 953,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "001",
-      "tags": [
-        "宠物",
-        "庭院",
-        "人类共处",
-        "亲子"
-      ],
-      "review_status": "detail_reviewed",
-      "review_note": "印刷第1页：作品编号0467、标题与 D.O 署名；分开记录原作 SS 与未知漫画作者。",
       "reviewed_date": "2026-10-14"
     },
     {

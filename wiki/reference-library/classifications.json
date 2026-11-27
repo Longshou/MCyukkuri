@@ -17018,40 +17018,6 @@
       }
     },
     {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-5253.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-5253.png",
-      "sha256": "f5a4d3b3f5af7d08c9cc13d973adc6ee78fc6d835d5055fe92e957d2d89e6dc8",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [],
-        "emotions": [],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "像素Sprite"
-        ],
-        "reference_value": "none",
-        "delete_candidate": "unreadable",
-        "observation": "浅灰背景上出现严重斜向条纹撕裂与像素错位的残破表情贴图，原眼嘴线条均已碎裂散乱。",
-        "game_use": "",
-        "delete_reason": "贴图发生严重错位与条纹撕裂损坏，五官轮廓支离破碎，无法作为有效表情参考。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "f5a4d3b3f5af7d08c9cc13d973adc6ee78fc6d835d5055fe92e957d2d89e6dc8"
-      }
-    },
-    {
       "id": "game/hakkei-u-expression-audit/sprites/sprite-5276.png",
       "source_id": "game",
       "kind": "inventory",
@@ -17979,33 +17945,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "591f2e4082d6bc2af943fa74f916e9f0cf6c699c0cbe448fccfce93de53a5961"
-      }
-    },
-    {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-5514.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-5514.png",
-      "sha256": "1644f9acb2b914e8d910244f051e2c044f844b5e0da42c5b28c6c2f383041fe7",
-      "image_tags": {
-        "entities": [],
-        "scenarios": [],
-        "emotions": [],
-        "targets": [],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "unreadable",
-        "observation": "仅有一条浅灰蓝色的极窄横向条带及微弱白斑，无法辨识出任何油库里五官或图案。",
-        "game_use": "",
-        "delete_reason": "画面仅为一条极窄的浅灰蓝底色残片，未包含可辨识的五官或表情结构，无实际美术参考价值。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "1644f9acb2b914e8d910244f051e2c044f844b5e0da42c5b28c6c2f383041fe7"
       }
     },
     {
@@ -34808,77 +34747,6 @@
       }
     },
     {
-      "id": "M10-001",
-      "source_id": "M10",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M10/001-96060d68.png",
-      "sha256": "bbf49ec6a4912800c3e2aeb0d3edc8b5288fefd92a143364f3c41fe417e223ca",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "喜悦",
-          "认真"
-        ],
-        "targets": [
-          "场景"
-        ],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "no_game_value",
-        "observation": "笔记本内画着浇灌牵牛花的女孩涂鸦，下方三格描绘教室黑板前女老师鼓掌，女生发表后男孩起身走向讲台朗读笔记。",
-        "game_use": "",
-        "delete_reason": "画面仅为人类小学课堂自由研究发表与牵牛花涂鸦，未出现任何油库里角色、生态或相关道具，无游戏制作参考价值。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "bbf49ec6a4912800c3e2aeb0d3edc8b5288fefd92a143364f3c41fe417e223ca"
-      }
-    },
-    {
-      "id": "M10-002",
-      "source_id": "M10",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M10/002-4fc7671f.png",
-      "sha256": "18b97bc17f0b99fc2c12dcbe73bbb019ceae2bff7f3da5e37f38c7ea7c3462dc",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "惊讶"
-        ],
-        "targets": [
-          "场景"
-        ],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "no_game_value",
-        "observation": "上格笔记本里画着太阳、建筑与两名张开双臂的简笔人物，下排描绘女引导员带两名人类走过走廊以及男孩睁眼注视的特写。",
-        "game_use": "",
-        "delete_reason": "画面仅为儿童简笔画与人类在普通走廊内行走参观的分镜，未绘制任何油库里或相关设施，无游戏制作参考价值。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "18b97bc17f0b99fc2c12dcbe73bbb019ceae2bff7f3da5e37f38c7ea7c3462dc"
-      }
-    },
-    {
       "id": "M10-003",
       "source_id": "M10",
       "kind": "reference",
@@ -35267,123 +35135,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "c0244992b230c4da5892ebad885dca74a609309f5974e3351c00cdb71a932c89"
-      }
-    },
-    {
-      "id": "M10-010",
-      "source_id": "M10",
-      "kind": "reference",
-      "topics": [
-        "motion",
-        "human"
-      ],
-      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M10/010-76bf9f17.png",
-      "sha256": "54f29b16daf89ea3b2240d067811811674dca7a0a2e90113e82872d813433fd1",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "纸箱"
-        ],
-        "scenarios": [
-          "日常活动",
-          "认知教学",
-          "赠礼答谢"
-        ],
-        "emotions": [
-          "喜悦",
-          "认真"
-        ],
-        "targets": [
-          "场景",
-          "道具"
-        ],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "五格黑白漫画中，一名人类男孩站在黑板前合掌发言，一名长发女性微笑鼓掌，下方画有一箱排列整齐的独立包装点心。",
-        "game_use": "",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "54f29b16daf89ea3b2240d067811811674dca7a0a2e90113e82872d813433fd1"
-      }
-    },
-    {
-      "id": "M10-011",
-      "source_id": "M10",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M10/011-6562ef63.png",
-      "sha256": "e4e2492938c2270ac7b4d8eadee97ba38f690a47bc9f34c72e280a37fe83ca1b",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "喜悦",
-          "惊讶",
-          "困惑"
-        ],
-        "targets": [
-          "事件"
-        ],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "no_game_value",
-        "observation": "六格黑白漫画中，一名戴鸭舌帽的人类少年在街道上抱住另一名长发少年并拿着零食欢笑，随后长发少年表示要把自己的那份也送给对方。",
-        "game_use": "",
-        "delete_reason": "画面仅描绘两名人类少年在街道上拥抱并分食零食的对话分镜，未出现任何油库里角色、道具或栖息环境，对游戏模组制作无参考价值。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "e4e2492938c2270ac7b4d8eadee97ba38f690a47bc9f34c72e280a37fe83ca1b"
-      }
-    },
-    {
-      "id": "M10-012",
-      "source_id": "M10",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M10/012-fb165eda.png",
-      "sha256": "d10ec497facb9424a4f3cfe492f4ea674c88e89f488c5813762efbb2e037f662",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "采集进食"
-        ],
-        "emotions": [
-          "困惑"
-        ],
-        "targets": [
-          "事件"
-        ],
-        "behaviors": [
-          "进食"
-        ],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "no_game_value",
-        "observation": "两格黑白漫画中，上方长发人类少年汗颜说话，下方戴鸭舌帽的人类少年手持包装食物咀嚼，嘴角沾有少许碎屑。",
-        "game_use": "",
-        "delete_reason": "画面仅为两名人类少年近景交谈与咀嚼普通零食的分镜，没有任何油库里本体、交互道具或环境参考，与模组美术制作无关。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "d10ec497facb9424a4f3cfe492f4ea674c88e89f488c5813762efbb2e037f662"
       }
     },
     {
@@ -37263,35 +37014,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "f167e970c7a794b93bd5096329f4c9bad33e2927728d2390e466ce23421f1dd2"
-      }
-    },
-    {
-      "id": "M15-002",
-      "source_id": "M15",
-      "kind": "provenance",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M15/002-4abfd3c1.jpg",
-      "sha256": "21953f885032effb2a6d67472fb90c141618d8daa5f38bde86368dac7378df17",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [],
-        "emotions": [],
-        "targets": [],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "none",
-        "delete_candidate": "no_game_value",
-        "observation": "黑白漫画页包含大量日文旁白框，画面仅绘有杂草丛生的老旧日式木屋、门廊上的人影、乡村公路远景以及一名短发人类男子的半身特写，未出现油库里。",
-        "game_use": "",
-        "delete_reason": "画面仅含大量日文旁白与老旧木屋、乡村道路及人类男子半身像，未出现任何油库里或相关道具，无游戏制作参考价值。",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "21953f885032effb2a6d67472fb90c141618d8daa5f38bde86368dac7378df17"
       }
     },
     {
