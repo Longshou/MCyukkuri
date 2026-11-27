@@ -10,6 +10,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import io.github.longshou.mcyukkuri.badge.BadgeConduct;
 import io.github.longshou.mcyukkuri.life.BehaviorContinuity;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,35 @@ public final class Conscience {
         instruction = new HouseRule.Instruction(owner.getUUID(), household().version(owner.getUUID()));
         PetScenes.act(pet, YukkuriAction.BOW, "happy", "", 40, owner);
         GameplayLog.event(pet, "rules", "told version={} owner={}", instruction.version(), owner.getUUID());
+    }
+
+    /** How far from the owner's rule change a partner still counts as one this pet could turn to. */
+    private static final int PARTNER_RANGE = 12;
+
+    /**
+     * The owner flipped the breeding rule and this pet has been told: after the bow it answers once, by its own numbers
+     * ({@link BreedingReaction}). Children, sterile, pregnant, carrying and busy pets, and pets with no one to turn to, only bow.
+     */
+    void breedingRuleChanged(Player owner, boolean allowed) {
+        var family = pet.family();
+        if (!told() || !pet.isAlive() || !pet.pet().calm() || !HumanSight.sees(owner, pet) || !pet.status().identity().canConceive()
+                || !family.adult() || family.sterile() || family.elder() || family.brood() != null || family.recovery() != 0
+                || family.carryingOrLifting() || !family.carrying().isEmpty()) return;
+        var partner = pet.level().getEntitiesOfClass(YukkuriEntity.class, pet.getBoundingBox().inflate(PARTNER_RANGE),
+                        y -> y.isAlive() && family.compatibleWith(y) && pet.hasLineOfSight(y))
+                .stream().min(Comparator.comparingDouble(pet::distanceToSqr)).orElse(null);
+        if (partner == null || !PetScenes.ready(pet, "breeding_rule", 200)) return;
+        var temper = pet.life().personality().temperament();
+        int obedience = pet.pet().obedience(), fear = pet.life().personality().fear(owner.getUUID());
+        var beat = BreedingReaction.choose(allowed, family.pentUp(), obedience, fear, temper);
+        boolean shown = beat == BreedingReaction.BOW_ONLY || PetScenes.act(pet, beat.action(), beat.face(), beat.event(), beat.ticks(), owner);
+        if (shown && beat != BreedingReaction.BOW_ONLY) {
+            pet.pet().expectBeat("breeding_" + beat.name(), beat.face(), beat.event(), beat.name());
+            if (beat.toward()) PetScenes.later(pet, beat.ticks(), () -> { if (pet.isAlive() && partner.isAlive()) pet.pet().glanceAt(partner, 40); });
+        }
+        GameplayLog.event(pet, "rules", "breeding reaction rule={} beat={} face={} line={} shown={} pentUp={} obedience={} fear={} boldness={} partner={}",
+                allowed ? "off" : "on", beat.name(), beat.face(), beat.event().isEmpty() ? "none" : beat.event(), shown,
+                family.pentUp(), obedience, fear, pet.life().personality().boldness(), partner.getUUID());
     }
 
     public Choice tempted(HouseRule rule, double pressure, double restraint) {

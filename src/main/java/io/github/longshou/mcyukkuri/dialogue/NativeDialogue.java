@@ -108,8 +108,8 @@ public final class NativeDialogue {
                  "shop_sold_sad", "shop_sold_proud",
                  "beg_ask", "beg_offer", "beg_refuse", "beg_plead_again", "beg_pester", "beg_cry", "beg_thanks",
                  "beg_robbed", "beg_chase", "beg_grudge", "beg_help", "beg_curse",
-                 // Matchmaking, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
-                 "date_meet", "date_fond", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
+                 // Matchmaking, permit, badge-wearing, basket, spray and wild-plea reactions are one-off moments tied to a player action.
+                 "date_meet", "date_fond", "permit_glad", "courtship_held", "badge_pinned", "badge_taken", "spray_drowsy",
                  "basket_refuse", "basket_refuse_guarded", "basket_refuse_defiant", "basket_refuse_weary", "basket_enter", "basket_exit",
                  "factory_receive_insult", "handover_plea", "tool_appease", "scorn_hurt", "refuse", "wash_refuse", "receive_mash",
                  "thunder", "deibu_developed", "wild_plea_keep", "pet_report_owner",

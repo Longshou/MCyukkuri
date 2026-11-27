@@ -6254,6 +6254,58 @@ for _sid, _title, _instruction, _control, _shift in (
                    forbid=[r'courtship contact ended'] if _holding else [], **({'verify': _held_pressure} if _holding else {})))
 
 
+# --- Breeding house rule flipped: each pet answers by its own numbers (BreedingReaction). Four adults of one owner, in view. ---
+_BREED_CAST = (  # name, species, dx, label, pentUp, and the five axes that split the beats; obedience follows from boldness and self-control
+    ('hot_bold', 'reimu', 0, '憋得慌的胆大者', 90, dict(boldness=90, self_control=40, intelligence=40, attachment=40)),
+    ('hot_shy', 'marisa', -2, '憋得慌的胆小者', 70, dict(boldness=10, self_control=70, intelligence=40, attachment=40)),
+    ('wise_tied', 'marisa', 2, '聪明黏人者', 60, dict(boldness=30, self_control=60, intelligence=85, attachment=85)),
+    ('cool', 'reimu', 4, '没这心思的', 5, dict(boldness=55, self_control=70, intelligence=55, attachment=60)))
+
+
+def _breed_beats(log, rule, expected):
+    """Each pet answers once; the face shown on the beat (the arbiter's [badge] line) is the declared one; the answers are the ones its numbers pick."""
+    answers = re.findall(rf'\[rules\][^\n]*uuid=(\S+)[^\n]* breeding reaction rule={rule} beat=(\w+) face=(\S+) line=(\S+) shown=(\w+)', log)
+    if len({uuid_ for uuid_, *_ in answers}) != len(answers):
+        return f'a pet answered the same change twice: {answers}'
+    got = sorted(beat for _, beat, *_ in answers)
+    if got != sorted(expected):
+        return f'wanted beats {sorted(expected)}, got {got}: {answers}'
+    if any(shown != 'true' for *_, shown in answers):
+        return f'a declared beat was refused by the arbiter: {answers}'
+    seen = re.findall(r'\[badge\][^\n]* beat=breeding_(\w+) face=(\S+) declared=(\S+)', log)
+    shown_beats = sorted(name for name, _, _ in seen)
+    wanted = sorted(beat for beat in expected if beat != 'bow_only')
+    if shown_beats != wanted or any(face != declared for _, face, declared in seen):
+        return f'shown faces must equal the declared ones for {wanted}: {seen}'
+
+
+for _sid, _title, _watch, _toggles, _beats, _rule in (
+        ('rule_breed_allowed', '家规放开繁殖：各有各的反应', '在任一宠物的家规页取消勾选「不准繁殖（素鸡立）」，等它们鞠躬后各自反应：憋得慌又胆大的蹦起来看伙伴，胆小的脸红，没心思的只鞠躬。',
+         [(40, 0)], ('allowed_joy', 'allowed_shy', 'allowed_shy', 'bow_only'), 'off'),
+        ('rule_breed_denied', '家规禁止繁殖：各有各的反应', '在任一宠物的家规页先取消勾选「不准繁殖（素鸡立）」再立刻重新勾选（一秒内，只演拒绝）；间隔十秒以上再勾，两次各演一遍。鞠躬后：不听话又憋得慌的鼓脸哼声，听话的垂头，聪明黏人的羞愧接受。',
+         [(40, 0), (46, 1)], ('denied_puff', 'denied_droop', 'denied_accept', 'bow_only'), 'on')):
+    _breed_commands = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter')]
+    _breed_commands += [(8 + i, f'data modify entity {sel(_name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID')
+                        for i, (_name, *_rest) in enumerate(_BREED_CAST)]
+    _breed_commands += [(_tick, f'yukkuri scenario house_rules {sel("hot_bold")} {_mask}') for _tick, _mask in _toggles]
+    _breed_commands.append((399, 'yukkuri scenario tool_operator leave'))
+    add(_sid, 'town', _title, _title, _watch, '约一分钟', [
+        box(-6, -1, -4, 6, -1, 4, 'minecraft:grass_block'), box(-6, 0, -4, 6, 3, 4, 'minecraft:air'),
+        *(box(-6, 0, z, 6, 1, z, 'minecraft:glass') for z in (-4, 4)),
+        *(box(x, 0, -3, x, 1, 3, 'minecraft:glass') for x in (-6, 6)),
+        box(-6, 3, -4, 6, 3, 0, 'minecraft:oak_planks'),
+        *(line for _name, _kind, _dx, _label, _pent, _axes in _BREED_CAST for line in (
+            yk(_kind, _dx, -2, _name, label=_label, lead=_name == 'hot_bold', kin=f'PentUp:{_pent}f', **_axes, **pair_ready()), *own(_name)))],
+        env=DAY, vantage=(0, 2, 180, 15), give=['mcyukkuri:field_notebook'],
+        note='四只同主人的成体都在主人视野内；各自的积压、胆量、听话与聪明黏人不同，所以同一次家规变化演出不同。'
+             '没有伴侣能转向的、不平静的、幼体、绝育、怀孕、叼着东西的宠物不演；没看见主人改家规的要等下次看见主人。',
+        reads=[('读' + label + '的积压', f'data get entity {sel(name)} YukkuriFamily.PentUp') for name, _, _, label, _, _ in _BREED_CAST],
+        smoke=dict(ticks=400, commands=_breed_commands,
+                   verify=lambda log, _rule=_rule, _beats=_beats: _breed_beats(log, _rule, _beats),
+                   expect=[rf'breeding reaction rule={_rule} beat={beat}' for beat in dict.fromkeys(_beats)],
+                   forbid=[r'breeding reaction rule=' + ('on' if _rule == 'off' else 'off')]))
+
+
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
         *(box(-2, 0, z, 5, 1, z, 'minecraft:glass') for z in (-2, 2)),
@@ -9494,7 +9546,7 @@ TOPICS = {
     'waste_demo': 'F5', 'family_walk_home': 'F4', 'family_flight_home': 'F4', 'family_flight_timid': 'F4', 'family_flight_hat': 'F4',
     'choice_nest': 'D1', 'choice_food': 'D1', 'choice_tool': 'D1', 'choice_snatch': 'D1', 'choice_toilet': 'D1',
     'agitation_relief': 'D2', 'adult_pairing': 'F6', 'widow_repair': 'F6', 'alice_hunt': 'R4', 'aftermath_growth': 'F7', 'aftermath_depletion': 'F7',
-    'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6',
+    'pentup_heat': 'F6', 'pentup_hold': 'F6', 'pentup_breach': 'F6', 'rule_breed_allowed': 'F6', 'rule_breed_denied': 'F6',
     'den_family': 'W1', 'den_mold_exile': 'W1', 'dig': 'W2', 'indep_near': 'W3', 'den_move': 'W4', 'home_greedy': 'W4', 'forage': 'W5', 'graze': 'W6', 'food_behind_glass': 'W6', 'food_sill_window': 'W6',
     'den_barrier': 'W8', 'den_barrier_predator': 'W8', 'den_barrier_threat': 'W8', 'den_lead_away': 'W8', 'den_call_timeout': 'W8',
     'den_mold_child_exile': 'W1', 'den_mold_keep': 'W1', 'den_raid': 'W1', 'den_monopoly': 'W1',

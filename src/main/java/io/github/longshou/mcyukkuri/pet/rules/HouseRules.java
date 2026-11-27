@@ -18,6 +18,8 @@ public final class HouseRules extends SavedData {
     private record Entry(EnumSet<HouseRule> rules, int version) {}
     private static final Entry ORIGINAL = new Entry(EnumSet.copyOf(HouseRule.DEFAULT), 0);
     private final Map<UUID, Entry> households = new HashMap<>();
+    /** The rule-told bow lasts 40 ticks (Conscience.tell); the breeding answer starts when it ends. */
+    private static final int BREEDING_ANSWER_AFTER = 40;
 
     public static HouseRules get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(
@@ -42,13 +44,23 @@ public final class HouseRules extends SavedData {
         setDirty();
         GameplayLog.event(target, "rules", "set owner={} rule={} on={} version={}", id, rule.key(), rules.contains(rule), version);
         target.pet().conscience().tell(owner);
+        boolean allowed = !rules.contains(rule);
+        if (rule == HouseRule.NO_SUKKIRI) answerBreedingRule(owner, target, version, allowed, 0);
         int delay = 0;
         for (var peer : owner.level().getEntitiesOfClass(YukkuriEntity.class, owner.getBoundingBox().inflate(16),
                 y -> y != target && y.pet().owned(owner) && HumanSight.sees(owner, y))) {
             PetScenes.later(peer, delay += 10, () -> {
                 if (version(id) == version) peer.pet().conscience().tell(owner);
             });
+            if (rule == HouseRule.NO_SUKKIRI) answerBreedingRule(owner, peer, version, allowed, delay);
         }
+    }
+
+    /** One answer per pet for this change, after its bow: a newer change (version) or a pet that never saw the owner drops it. */
+    private void answerBreedingRule(Player owner, YukkuriEntity pet, int version, boolean allowed, int toldAfter) {
+        PetScenes.later(pet, toldAfter + BREEDING_ANSWER_AFTER, () -> {
+            if (version(owner.getUUID()) == version) pet.pet().conscience().breedingRuleChanged(owner, allowed);
+        });
     }
 
     @Override public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {

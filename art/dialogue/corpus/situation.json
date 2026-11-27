@@ -212,6 +212,7 @@
     {"id":"offer_refuse","event":"offer_refuse","zh":"拒绝吃亲油","ja":"親を食べることを拒否","en":"Refuse offering","basis":["P"],"status":"ready"},
     {"id":"offer_spared","event":"offer_spared","zh":"献身被避免","ja":"献身が回避される","en":"Offering spared","basis":["P"],"status":"ready","axis_refs":["common.thanks_comfort"]},
     {"id":"peer","event":"peer","zh":"遇见同伴","ja":"仲間に会う","en":"Peer","basis":["P"],"status":"ready","axis_refs":["common.greeting_calm"]},
+    {"id":"permit_glad","event":"permit_glad","zh":"为获准繁殖而高兴","ja":"繁殖の許可をもらって喜ぶ","en":"Rejoice at permission to breed","basis":["P"],"status":"candidate","axis_refs":["common.little_one","common.happiness"]},
     {"id":"pet_report_hurt","event":"pet_report_hurt","zh":"向主人报告被欺负","ja":"飼い主にいじめを報告する","en":"Report being hurt","basis":["P"],"status":"candidate","axis_refs":["common.owner_address","special.pet_identity_voice"]},
     {"id":"pet_report_owner","event":"pet_report_owner","zh":"向饲主报告自己如何应对野良","ja":"野良にどう対応したか飼い主に報告する","en":"Report to the owner how a stray was handled","basis":["P"],"status":"candidate","axis_refs":["common.owner_address","special.pet_identity_voice"]},
     {"id":"plea_sad","event":"plea_sad","zh":"求收留落空后失落","ja":"引き取ってもらえず落ち込む","en":"Feel let down after a plea to be taken in","basis":["P"],"status":"candidate","axis_refs":["common.self_pity"]},

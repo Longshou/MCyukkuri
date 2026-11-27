@@ -44761,6 +44761,34 @@
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },
   {
+   "id": "myon.miyo.adult.s_permit_glad",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "permit_glad"
+   ],
+   "japanese": "あかちゃん、いいの？ みょん！ ぜったい、まもる！",
+   "chinese": "可以要宝宝了？咪呦！一定会保护好！",
+   "english": "We can have babies? Myon! I'll protect them!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.miyo.young.s_permit_glad",
+   "species": "myon",
+   "age": "young",
+   "quirk": "miyo",
+   "events": [
+    "permit_glad"
+   ],
+   "japanese": "あかちゃん、いいにょ？ みょん！ しあわちぇー！",
+   "chinese": "可以要宝宝吗？咪呦！好幸福——！",
+   "english": "Babies? Myon! So happy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
+  },
+  {
    "id": "myon.miyo.adult.s_pet_report_hurt",
    "species": "myon",
    "age": "adult",
@@ -49301,6 +49329,34 @@
    "japanese": "ちーんぽ？ だぁれ？ ゆっくちちていっちぇにぇ！",
    "chinese": "金寶？是谁？油库气洗切一切捏！",
    "english": "Chinpo? Who? Take it eashy!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.adult.s_permit_glad",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "permit_glad"
+   ],
+   "japanese": "あかちゃん、いいの？ ちーんぽ！ ぜったい、まもる！",
+   "chinese": "可以要宝宝了？金寶！一定会保护好！",
+   "english": "We can have babies? Chinpo! I'll protect them!",
+   "origin": "project-original",
+   "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
+  },
+  {
+   "id": "myon.kinbao.young.s_permit_glad",
+   "species": "myon",
+   "age": "young",
+   "quirk": "kinbao",
+   "events": [
+    "permit_glad"
+   ],
+   "japanese": "あかちゃん、いいにょ？ ちーんぽ！ しあわちぇー！",
+   "chinese": "可以要宝宝吗？金寶！好幸福——！",
+   "english": "Babies? Chinpo! So happy!",
    "origin": "project-original",
    "basis": "komicolle 40720 11518905 Myon tics/brave, dim, stick sword; project-original wording, unvoiced"
   },

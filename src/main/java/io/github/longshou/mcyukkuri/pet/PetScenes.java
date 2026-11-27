@@ -37,13 +37,16 @@ public final class PetScenes {
     }
 
     /** Ordinary reaction beats for a performer that already holds a duty. */
-    public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks) {
-        act(y, action, face, event, ticks, null);
+    public static boolean act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks) {
+        return act(y, action, face, event, ticks, null);
     }
 
-    public static void act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
+    /** True when the face and clip were taken (a more urgent reaction can refuse them). */
+    public static boolean act(YukkuriEntity y, YukkuriAction action, String face, String event, int ticks, Entity look) {
         if (look != null) y.getLookControl().setLookAt(look, 30, 30);
-        if (y.showReaction(action, face, "", ticks, FaceTier.Tier.ofTicks(ticks)) && !event.isEmpty()) y.speakCue(BadgeSocial.reactionLine(y, event, look));
+        if (!y.showReaction(action, face, "", ticks, FaceTier.Tier.ofTicks(ticks))) return false;
+        if (!event.isEmpty()) y.speakCue(BadgeSocial.reactionLine(y, event, look));
+        return true;
     }
 
     /** Report only intelligible words actually delivered, including when a speaker can only babble. */
