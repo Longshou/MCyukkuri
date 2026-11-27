@@ -73,7 +73,8 @@ def collect():
     for c in config['items']:
         assert c['path'] and c['sha256'] and (ROOT/c['path']).is_file(),c['id']
         tags=c.get('image_tags');assert tags,c['id']
-        assert tags['model']=='kimi-coding/k3.1-pro' and tags['prompt_version']==annotations['image_tagging']['prompt_version'],c['id']
+        allowed_models=set(annotations['image_tagging'].get('allowed_models',['kimi-coding/k3.1-pro']))
+        assert tags['model'] in allowed_models and tags['prompt_version']==annotations['image_tagging']['prompt_version'],c['id']
         assert tags['tagged_sha256']==c['sha256'],c['id']
         validate_result({key:tags[key] for key in set(TAG_FACETS)|{'reference_value','delete_candidate','observation','game_use','delete_reason'}},all_facets)
         row=dict(id=c['id'],path=c['path'],source_id=c['source_id'],kind=c['kind'],sha256=c['sha256'],

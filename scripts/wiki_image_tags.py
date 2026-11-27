@@ -351,7 +351,8 @@ def validate_inventory(config, paths):
             image.verify()
         tags = item.get('image_tags')
         assert tags, f'untagged image: {relative}'
-        assert tags['model'] == 'kimi-coding/k3.1-pro' and tags['prompt_version'] == tagging['prompt_version'], relative
+        allowed_models = set(tagging.get('allowed_models', ['kimi-coding/k3.1-pro']))
+        assert tags['model'] in allowed_models and tags['prompt_version'] == tagging['prompt_version'], relative
         assert tags['tagged_sha256'] == item['sha256'], f'stale tagged SHA: {relative}'
         validate_result({key: tags[key] for key in set(TAG_FACETS) | {'reference_value', 'delete_candidate', 'observation', 'game_use', 'delete_reason'}}, facets)
         for key in TAG_FACETS:
