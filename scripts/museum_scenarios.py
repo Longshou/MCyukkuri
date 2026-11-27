@@ -1838,13 +1838,16 @@ add('quarrel_makeup', 'meadow', '抢食吵架后，温和的走去和好；敌�
 _STRANGE = {name: uid('stray_strange_food', name) for name in ('timid', 'bold', 'starving')}
 add('stray_strange_food', 'forage', '流浪：陌生的食物，胆小的先看再吃，饿极的直接吃', '流浪：陌生食物前的迟疑',
     '街中间地上一个苹果，胆小的灵梦和胆大的魔理沙各站一侧；南边隔得远的另一小堆两个苹果旁是饿极的灵梦。'
-    '西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒以上）；东边胆大、聪明的魔理沙只看一眼（不到半秒），一个苹果两只抢，'
+    '西边胆小、迟钝的灵梦站在苹果前先盯着看一会儿（约 3 秒）；东边胆大、聪明的魔理沙只看一眼（不到半秒），一个苹果两只抢，'
     '两只在苹果旁对峙争抢：魔理沙胆大得多，灵梦很快让开，魔理沙吃掉苹果。南边饿极（营养 5，低于 30）的灵梦不看直接吃，一只接一只吃掉自己的两个苹果。'
     '约 10 秒内发生；一次没看到可在 M 菜单重开',
     '约 10–40 秒', [
         item('minecraft:apple', 1, 0, 0, name='strange_apple'),
-        street_stray('stray_strange_food', 'reimu', -.6, 0, 'timid', nutrition=45, boldness=10, intelligence=10, label='胆小·迟钝', lead=True),
-        street_stray('stray_strange_food', 'marisa', 2.4, 0, 'bold', nutrition=72, boldness=95, intelligence=95, label='胆大·聪明'),
+        # The timid one stands on the apple's west contact stand (mouth in reach, facing east), so its look starts without a walk
+        # that would cross the bold one's path (a pedestrian encounter would break it); the bold one starts far enough east that
+        # its walk leaves the look on screen for about three seconds before the contest takes over the apple.
+        street_stray('stray_strange_food', 'reimu', -.326, 0, 'timid', nutrition=45, boldness=10, intelligence=10, label='胆小·迟钝', yaw=-90, lead=True),
+        street_stray('stray_strange_food', 'marisa', 4.4, 0, 'bold', nutrition=72, boldness=95, intelligence=95, label='胆大·聪明', yaw=90),
         box(-9, 0, 5, 9, 0, 5, 'minecraft:oak_leaves[persistent=true]'),
         item('minecraft:apple', 2, 0, 9, name='strange_apple_far'),
         # It starts on its own pile's north contact stand: only one body stands at that pile.
