@@ -11,6 +11,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.life.CareBlockEntity;
 import io.github.longshou.mcyukkuri.life.NestDoorway;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.life.SurfaceApproach;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.mind.EmotionCourse;
@@ -38,13 +39,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 /**
  * General keepsake behaviour in the same Goal: carrying one to the nest, a child's talk to it, a bully's grab of one a peer
@@ -74,7 +73,7 @@ public final class KeepsakeLife implements MotorOwner {
 
     private final YukkuriEntity entity;
     private Phase phase = Phase.IDLE;
-    private ItemEntity target;
+    private PlacedDollEntity target;
     private DropSpot dropSpot;
     private PlaceMouthItem placeAction;
     private BlockPos blockedDropAt;
@@ -82,7 +81,7 @@ public final class KeepsakeLife implements MotorOwner {
     private boolean picking, placing, carryLogged, dropRefused, talkAddressed;
     private Beat pendingBeat;
     /** A grab in progress: the doll to take and the body it was kept by. */
-    private ItemEntity snatchItem;
+    private PlacedDollEntity snatchItem;
     private YukkuriEntity robbed;
     private int leaveWait;
     /** The other side of a grabbed keepsake: who took it, the face it was robbed with, and when it answers. */
@@ -244,15 +243,15 @@ public final class KeepsakeLife implements MotorOwner {
         double sightRange = Sight.range(personality.intelligence(), false);
         double maxCarry = 8.0 + personality.attachment() / 5.0 + entity.dailyLife().boredom() / 10.0;
 
-        ItemEntity best = level().getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(sightRange, 3, sightRange),
-                item -> item.isAlive() && !item.hasPickUpDelay()
-                        && Keepsakes.fond(entity, item.getItem())
-                        && !item.isInWater() && entity.life().dryStand(item.blockPosition())
-                        && Senses.sees(entity, item)
-                        && !Keepsakes.isWithSomeone(level(), item, entity)
-                        && item.position().distanceTo(bed.centre()) <= maxCarry
-                        && (ContactGeometry.inMouthReach(entity, item)
-                            || SurfaceApproach.canApproach(entity, ItemContact.approach(entity, item.position()))))
+        PlacedDollEntity best = level().getEntitiesOfClass(PlacedDollEntity.class,
+                entity.getBoundingBox().inflate(sightRange, 3, sightRange),
+                doll -> doll.isAlive() && Keepsakes.fond(entity, doll.doll())
+                        && !doll.isInWater() && entity.life().dryStand(doll.blockPosition())
+                        && Senses.sees(entity, doll)
+                        && !Keepsakes.isWithSomeone(level(), doll, entity)
+                        && doll.position().distanceTo(bed.centre()) <= maxCarry
+                        && (ContactGeometry.inMouthReach(entity, doll)
+                            || SurfaceApproach.canApproach(entity, ItemContact.approach(entity, doll.position()))))
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
         if (best == null) return false;
         if (entity.getRandom().nextDouble() >= chance) return false;
@@ -287,7 +286,7 @@ public final class KeepsakeLife implements MotorOwner {
                 || entity.life().nutrition() < 30 || entity.life().mealTicks() > 0) return false;
         if (!Keepsakes.wantsComfort(entity)) return false;
         if (Keepsakes.hasAwakePeerNear(level(), entity, PEER_GUARD_RANGE)) return false;
-        ItemEntity doll = Keepsakes.nearestVisibleDoll(level(), entity, TALK_RANGE, true);
+        PlacedDollEntity doll = Keepsakes.nearestVisibleDoll(level(), entity, TALK_RANGE, true);
         if (doll == null) return false;
         target = doll;
         phase = Phase.TALK;
@@ -303,13 +302,13 @@ public final class KeepsakeLife implements MotorOwner {
         // The pick is atomic: the item is debited in the same tick the mouth takes it, so the running pick keeps the goal alive
         // (as in CARRY_OFF) until the next tick sees the mouth full and finishes the grab.
         if (phase == Phase.GRAB) return elapsed < CARRY_LIMIT && baseEligible(true)
-                && (picking || snatchItem != null && snatchItem.isAlive() && Keepsakes.fond(entity, snatchItem.getItem()));
+                && (picking || snatchItem != null && snatchItem.isAlive() && Keepsakes.fond(entity, snatchItem.doll()));
         if (phase == Phase.TALK) {
             return talkTicks < TALK_TICKS && elapsed < TALK_TICKS + 40
                     && baseEligible(true) && !entity.life().hasUrgentNeed()
                     && entity.life().nutrition() >= 30 && entity.life().mealTicks() == 0
                     && target != null && target.isAlive() && !target.isRemoved() && !target.isInWater()
-                    && Keepsakes.kinDoll(entity, target.getItem())
+                    && Keepsakes.kinDoll(entity, target.doll())
                     && entity.distanceToSqr(target) <= (TALK_RANGE + 0.5) * (TALK_RANGE + 0.5)
                     && !Keepsakes.hasAwakePeerNear(level(), entity, PEER_GUARD_RANGE);
         }
@@ -319,7 +318,7 @@ public final class KeepsakeLife implements MotorOwner {
         if (!carried().isEmpty()) {
             return !entity.blockPosition().equals(blockedDropAt) && ownBed() != null;
         }
-        return target != null && target.isAlive() && !target.isInWater() && Keepsakes.fond(entity, target.getItem());
+        return target != null && target.isAlive() && !target.isInWater() && Keepsakes.fond(entity, target.doll());
     }
 
     public void tickGoal() {
@@ -355,7 +354,7 @@ public final class KeepsakeLife implements MotorOwner {
             talkAddressed = true;
             talkTicks = 0;
             entity.showReaction(YukkuriAction.SWAY, "happy", "", TALK_TICKS, FaceTier.Tier.ofTicks(TALK_TICKS));
-            emitBeat("address", "happy", "doll_talk", "ground", 0, "doll=" + target.getItem().getItem());
+            emitBeat("address", "happy", "doll_talk", "ground", 0, "doll=" + target.doll().getItem());
             return;
         }
         talkTicks++;
@@ -406,7 +405,7 @@ public final class KeepsakeLife implements MotorOwner {
             grabbed(victim, "mouth");
             return true;
         }
-        ItemEntity loose = Keepsakes.nearestBeside(level(), victim, Keepsakes.WITH_RADIUS);
+        PlacedDollEntity loose = Keepsakes.nearestBeside(level(), victim, Keepsakes.WITH_RADIUS);
         if (loose == null || !mouth().canHold(Purpose.KEEPSAKE)) return false;
         snatchItem = loose;
         robbed = victim;
@@ -427,11 +426,11 @@ public final class KeepsakeLife implements MotorOwner {
             stop();
             return;
         }
-        ItemEntity item = snatchItem;
+        PlacedDollEntity item = snatchItem;
         if (item == null || !item.isAlive()) { stop(); return; }
         entity.getLookControl().setLookAt(item, 30, 30);
         if (ContactGeometry.inMouthReach(entity, item)) {
-            if (!mouth().canHold(Purpose.KEEPSAKE) || item.hasPickUpDelay()) { stop(); return; }
+            if (!mouth().canHold(Purpose.KEEPSAKE)) { stop(); return; }
             SurfaceApproach.stopWalking(entity);
             float yaw = SurfaceApproach.yaw(entity.position(), item.position());
             if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) > Face.FACE_ARRIVED) {
@@ -440,7 +439,7 @@ public final class KeepsakeLife implements MotorOwner {
                 }
                 return;
             }
-            boolean started = entity.motor().run(this, new Pick(item, one -> {
+            boolean started = entity.motor().run(this, new Pick(dollSource(item), one -> {
                 if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
                 mouth().set(Purpose.KEEPSAKE, one);
                 return true;
@@ -515,18 +514,15 @@ public final class KeepsakeLife implements MotorOwner {
     }
 
     /**
-     * A player picks up a doll this body keeps. If it sees or hears the take it answers at once: its own owner gets only a
+     * A player takes a placed doll this body keeps. If it sees or hears the take it answers at once: its own owner gets only a
      * teary look, a stranger costs it regard; a body that perceived nothing finds out when it next looks for the doll.
      */
-    public static void pickingUp(ItemEntityPickupEvent.Post event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
-        var level = player.serverLevel();
-        var item = event.getItemEntity();
-        ItemStack original = event.getOriginalStack();
-        for (var body : level.getEntitiesOfClass(YukkuriEntity.class, item.getBoundingBox().inflate(Keepsakes.WITH_RADIUS),
-                b -> b.isAlive() && !b.inert() && Keepsakes.fond(b, original))) {
-            if (Senses.perceives(body, item.position(), null, Cue.PICKUP_ITEM) != null) body.keepsake().tookDoll(player);
-            else body.keepsake().missedPickup(item.blockPosition());
+    public static void dollTaken(Player player, PlacedDollEntity doll) {
+        var level = (ServerLevel) player.level();
+        for (var body : level.getEntitiesOfClass(YukkuriEntity.class, doll.getBoundingBox().inflate(Keepsakes.WITH_RADIUS),
+                b -> b.isAlive() && !b.inert() && Keepsakes.fond(b, doll.doll()))) {
+            if (Senses.perceives(body, doll.position(), null, Cue.PICKUP_ITEM) != null) body.keepsake().tookDoll(player);
+            else body.keepsake().missedPickup(doll.blockPosition());
         }
     }
 
@@ -574,7 +570,7 @@ public final class KeepsakeLife implements MotorOwner {
             return;
         }
         if (ContactGeometry.inMouthReach(entity, target)) {
-            if (!mouth().freeForExternalWork() || target.hasPickUpDelay()) { stop(); return; }
+            if (!mouth().freeForExternalWork()) { stop(); return; }
             SurfaceApproach.stopWalking(entity);
             float yaw = SurfaceApproach.yaw(entity.position(), target.position());
             if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) > Face.FACE_ARRIVED) {
@@ -583,7 +579,7 @@ public final class KeepsakeLife implements MotorOwner {
                 }
                 return;
             }
-            boolean started = entity.motor().run(this, new Pick(target, one -> {
+            boolean started = entity.motor().run(this, new Pick(dollSource(target), one -> {
                 if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
                 mouth().set(Purpose.KEEPSAKE, one);
                 return true;
@@ -633,7 +629,7 @@ public final class KeepsakeLife implements MotorOwner {
                 String face = entity.life().personality().attachment() >= 60 ? "satisfied" : "closed_smile";
                 String line = entity.family().stage() == FamilyLife.Stage.BABY ? "toy" : "thing_san";
                 // The evidence is the item that actually left her mouth: its own spot decides the rim distance and the hollow.
-                ItemEntity drop = placeAction.released();
+                Entity drop = placeAction.released();
                 double rimDist = Keepsakes.rimDistance(drop.position(), bed.getBlockPos(), NestDoorway.shape(bed).reach(), bed.centre());
                 boolean hollow = NestDoorway.at(entity, drop.position()) != null;
                 String detail = String.format(Locale.ROOT, "item=%s at=%s bed=%s bedDist=%.2f hollow=%s",
@@ -724,7 +720,7 @@ public final class KeepsakeLife implements MotorOwner {
             releaseForSleep();
         }
         if (sleepTicks >= 1 && sleepTicks < 20) {
-            ItemEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
+            PlacedDollEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
             if (doll != null) {
                 float yaw = SurfaceApproach.yaw(entity.position(), doll.position());
                 Motor.face(entity, yaw);
@@ -736,7 +732,7 @@ public final class KeepsakeLife implements MotorOwner {
             return;
         }
         if (sleepTicks == 20) {
-            ItemEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
+            PlacedDollEntity doll = Keepsakes.nearestBeside(level(), entity, Keepsakes.BED_RADIUS);
             if (doll != null) {
                 // The doll's own spot says whether it lies in the nest hollow or on open ground beside her.
                 String where = NestDoorway.at(entity, doll.position()) != null ? "bed" : "ground";
@@ -758,13 +754,50 @@ public final class KeepsakeLife implements MotorOwner {
     private void releaseOnSpot(boolean routeRefused) {
         if (carried().isEmpty() || !entity.isAlive() || entity.level().isClientSide) return;
         if (entity.blockPosition().equals(blockedDropAt)) return;
-        if (mouth().releaseItems(Purpose.KEEPSAKE, 20)) {
+        if (releaseKeepsake()) {
             blockedDropAt = null;
             if (routeRefused) cooldown = REFUSED_COOLDOWN;
             else scanWait = Math.max(scanWait, 40);
         } else {
             blockedDropAt = entity.blockPosition();
         }
+    }
+
+    /**
+     * Every doll in the mouth goes down as its placed form where the mouth lets go; a refusal keeps the rest in the mouth.
+     * This is the one exit of a keepsake from the mouth ({@link MouthOccupancy}), so a doll never becomes a loose item.
+     */
+    public boolean releaseKeepsake() {
+        while (!carried().isEmpty()) {
+            var stack = carried();
+            var doll = setDown(entity, stack);
+            if (doll == null) return false;
+            mouth().takeFirst(Purpose.KEEPSAKE);
+            GameplayLog.event(entity, "body", "mouth drop item={} count={} purpose={} drop={}", stack.getItem(),
+                    stack.getCount(), Purpose.KEEPSAKE, doll.getUUID());
+        }
+        return true;
+    }
+
+    /** One doll back into the world standing on the ground under the mouth; null when that ground refuses it. */
+    private static PlacedDollEntity setDown(YukkuriEntity body, ItemStack stack) {
+        Vec3 mouth = MouthPlacement.position(body);
+        Vec3 ground = ItemContact.releaseSurface(body, mouth);
+        return ground == null ? null : PlacedDollEntity.place((ServerLevel) body.level(), stack, ground,
+                SurfaceApproach.yaw(ground, body.position()));
+    }
+
+    /** The mouth takes the placed doll itself: what it is, how far past the mouth it stands, and its removal. */
+    private static Pick.Source dollSource(PlacedDollEntity doll) {
+        return new Pick.Source() {
+            @Override public ItemStack item() { return doll.isAlive() ? doll.doll() : ItemStack.EMPTY; }
+            @Override public double gap(YukkuriEntity body) {
+                return ContactGeometry.inMouthReach(body, doll) ? 0
+                        : Math.max(1E-3, ContactGeometry.mouthGap(body, doll) - ContactGeometry.GRAB_MARGIN);
+            }
+            @Override public void take() { doll.discard(); }
+            @Override public Vec3 at() { return doll.position(); }
+        };
     }
 
     public void stop() {
@@ -837,6 +870,8 @@ public final class KeepsakeLife implements MotorOwner {
             return NestDoorway.at(actor, mouth) == null ? Feasibility.pass()
                     : Feasibility.of(Reason.NO_ROOM, 0, "mouth_inside_hollow");
         }
+
+        @Override public Entity release(YukkuriEntity actor, ItemStack one) { return setDown(actor, one); }
 
         @Override public String detail() { return "bed=" + bed.getBlockPos(); }
     }

@@ -282,7 +282,7 @@ public final class MouthOccupancy {
         else if (purpose == Purpose.SWADDLE) owner.leafSwaddle().putDownLeaves();
         else if (purpose == Purpose.HOUSE) owner.house().dropCarrying();
         else if (purpose == Purpose.FIND) owner.treasure().stop();
-        else if (purpose == Purpose.KEEPSAKE) releaseItems(Purpose.KEEPSAKE, 20);
+        else if (purpose == Purpose.KEEPSAKE) owner.keepsake().releaseKeepsake();
         else if (purpose == Purpose.KINDNESS || purpose == Purpose.PAPER || purpose == Purpose.STALL_FOOD) releaseItems(purpose, 20);
     }
 
@@ -290,7 +290,8 @@ public final class MouthOccupancy {
         if (purpose() == Purpose.MEAL) owner.life().releaseMouthForDeath();
         else if (purpose() == Purpose.SWADDLE) owner.leafSwaddle().putDownLeaves();
         else if (purpose() == Purpose.PAPER) releaseItems(Purpose.PAPER, 0);
-        else if (purpose() == Purpose.STALL_FOOD || purpose() == Purpose.NEST || purpose() == Purpose.KEEPSAKE) releaseItems(purpose(), 0);
+        else if (purpose() == Purpose.KEEPSAKE) owner.keepsake().releaseKeepsake();
+        else if (purpose() == Purpose.STALL_FOOD || purpose() == Purpose.NEST) releaseItems(purpose(), 0);
     }
 
     public ListTag itemsForRemains() {

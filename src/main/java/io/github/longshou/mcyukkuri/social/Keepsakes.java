@@ -5,12 +5,12 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.entity.YukkuriVariant;
 import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.life.Facilities;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.motor.MouthOccupancy.Purpose;
 import io.github.longshou.mcyukkuri.perception.Senses;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -73,47 +73,47 @@ public final class Keepsakes {
                 other -> other != self && Senses.awake(other) && self.distanceToSqr(other) <= maxSq).isEmpty();
     }
 
-    /** Nearest loose, dry doll visible through the shared perception layer. */
-    public static ItemEntity nearestVisibleDoll(ServerLevel level, YukkuriEntity entity, double radius, boolean requireKin) {
+    /** Nearest placed, dry doll visible through the shared perception layer. */
+    public static PlacedDollEntity nearestVisibleDoll(ServerLevel level, YukkuriEntity entity, double radius, boolean requireKin) {
         double maxSq = radius * radius;
-        return level.getEntitiesOfClass(ItemEntity.class, entity.getBoundingBox().inflate(radius, 3, radius),
-                item -> item.isAlive() && !item.isRemoved() && !item.isInWater()
-                        && (requireKin ? kinDoll(entity, item.getItem()) : fond(entity, item.getItem()))
-                        && entity.life().dryStand(item.blockPosition())
-                        && Senses.sees(entity, item)
-                        && entity.distanceToSqr(item) <= maxSq)
+        return level.getEntitiesOfClass(PlacedDollEntity.class, entity.getBoundingBox().inflate(radius, 3, radius),
+                doll -> doll.isAlive() && !doll.isRemoved() && !doll.isInWater()
+                        && (requireKin ? kinDoll(entity, doll.doll()) : fond(entity, doll.doll()))
+                        && entity.life().dryStand(doll.blockPosition())
+                        && Senses.sees(entity, doll)
+                        && entity.distanceToSqr(doll) <= maxSq)
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
     public static boolean hasNearBed(ServerLevel level, YukkuriEntity entity, Vec3 bedCentre) {
         var box = new AABB(bedCentre, bedCentre).inflate(BED_RADIUS);
-        return !level.getEntitiesOfClass(ItemEntity.class, box,
-                item -> item.isAlive() && fond(entity, item.getItem())
-                        && item.position().distanceToSqr(bedCentre) <= BED_RADIUS * BED_RADIUS).isEmpty();
+        return !level.getEntitiesOfClass(PlacedDollEntity.class, box,
+                doll -> doll.isAlive() && fond(entity, doll.doll())
+                        && doll.position().distanceToSqr(bedCentre) <= BED_RADIUS * BED_RADIUS).isEmpty();
     }
 
-    public static boolean isWithSomeone(ServerLevel level, ItemEntity item, YukkuriEntity self) {
-        var box = item.getBoundingBox().inflate(WITH_RADIUS);
+    public static boolean isWithSomeone(ServerLevel level, PlacedDollEntity doll, YukkuriEntity self) {
+        var box = doll.getBoundingBox().inflate(WITH_RADIUS);
         return !level.getEntitiesOfClass(YukkuriEntity.class, box,
                 other -> other != self && Senses.awake(other)
-                        && other.distanceToSqr(item) <= WITH_RADIUS * WITH_RADIUS).isEmpty();
+                        && other.distanceToSqr(doll) <= WITH_RADIUS * WITH_RADIUS).isEmpty();
     }
 
-    public static ItemEntity nearestBeside(ServerLevel level, YukkuriEntity entity, double radius) {
+    public static PlacedDollEntity nearestBeside(ServerLevel level, YukkuriEntity entity, double radius) {
         var box = entity.getBoundingBox().inflate(radius);
         double maxSq = radius * radius;
-        return level.getEntitiesOfClass(ItemEntity.class, box,
-                item -> item.isAlive() && fond(entity, item.getItem())
-                        && entity.distanceToSqr(item) <= maxSq)
+        return level.getEntitiesOfClass(PlacedDollEntity.class, box,
+                doll -> doll.isAlive() && fond(entity, doll.doll())
+                        && entity.distanceToSqr(doll) <= maxSq)
                 .stream().min(Comparator.comparingDouble(entity::distanceToSqr)).orElse(null);
     }
 
-    /** Total count of loose + mouth-held dolls in the vicinity for conservation logging. */
+    /** Total count of placed + mouth-held dolls in the vicinity for conservation logging. */
     public static int countNearbyDolls(ServerLevel level, Vec3 center, double radius) {
         var box = new AABB(center, center).inflate(radius);
         int count = 0;
-        for (var item : level.getEntitiesOfClass(ItemEntity.class, box, i -> i.isAlive() && Facilities.doll(i.getItem()))) {
-            count += item.getItem().getCount();
+        for (var doll : level.getEntitiesOfClass(PlacedDollEntity.class, box, d -> d.isAlive() && Facilities.doll(d.doll()))) {
+            count += doll.doll().getCount();
         }
         for (var body : level.getEntitiesOfClass(YukkuriEntity.class, box, YukkuriEntity::isAlive)) {
             var stack = body.component(YukkuriComponents.MOUTH).stack(Purpose.KEEPSAKE);

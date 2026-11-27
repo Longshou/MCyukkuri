@@ -20,11 +20,12 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 /** The shop toys beside the yarn ball, and the floor a yukkuri stands on. */
 public final class Facilities {
     private static final DeferredRegister.Items ITEM_TYPES = DeferredRegister.createItems(MCYukkuri.MOD_ID);
-    private static final List<String> TOYS = List.of("glass_marble","reimu_doll","marisa_doll");
+    private static final List<String> TOYS = List.of("glass_marble");
     private static final List<String> DOLLS = List.of("reimu_doll","marisa_doll");
     public static final Map<String,DeferredItem<? extends Item>> ITEMS=new LinkedHashMap<>();
     static {
         for(String name:TOYS)ITEMS.put(name,ITEM_TYPES.registerSimpleItem(name,new Item.Properties().stacksTo(16)));
+        for(String name:DOLLS)ITEMS.put(name,ITEM_TYPES.registerItem(name,DollItem::new,new Item.Properties().stacksTo(16)));
     }
     public static void register(IEventBus bus) {
         ITEM_TYPES.register(bus);

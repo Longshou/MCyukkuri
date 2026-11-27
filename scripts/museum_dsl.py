@@ -194,6 +194,12 @@ def item(item_id, count, dx, dz, name='item', dy=.05):
             f'Item:{{id:"{item_id}",count:{count}}}}}')
 
 
+def doll(item_id, dx, dz, name='doll', *, dy=0, yaw=180):
+    """A doll standing in the world as a placeable prop; no walk-over takes it and a hand click gives it back."""
+    return (f'summon mcyukkuri:placed_doll ~{dx + .5} ~{dy} ~{dz + .5} '
+            f'{{Tags:["{SCN}","{tag(name)}"],Rotation:[{float(yaw)}f,0f],Item:{{id:"{item_id}",count:1}}}}')
+
+
 def block(dx, dy, dz, state):
     return f'setblock ~{dx} ~{dy} ~{dz} {state}'
 

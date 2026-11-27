@@ -68,6 +68,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -1606,12 +1607,15 @@ public final class FoundShelter implements MotorOwner {
                     : Feasibility.of(Reason.NO_CONTACT, 0, "mouth_outside_gap");
         }
 
-        @Override public void released(YukkuriEntity actor, ItemEntity drop) {
+        @Override public Entity release(YukkuriEntity actor, ItemStack one) {
+            var drop = ItemContact.releaseSupported(actor, one, 20);
+            if (drop == null) return null;
             drop.getPersistentData().putBoolean(BROUGHT_PAPER, true);
             // Keep the laid sheet in place and separate from nearby ordinary drops until someone uses or collects it.
             drop.setUnlimitedLifetime();
             GameplayLog.event(actor, "habitat", "paper bedding placed; drop item={} count=1 at={} drop={}",
                     drop.getItem().getItem(), targetGap, drop.getUUID());
+            return drop;
         }
 
         @Override public String detail() { return "gap=" + targetGap; }

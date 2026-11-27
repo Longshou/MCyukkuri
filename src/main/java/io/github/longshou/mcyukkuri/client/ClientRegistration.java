@@ -57,6 +57,7 @@ public final class ClientRegistration {
         container.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, "mcyukkuri-client.toml");
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, ClientEvents::registerRenderers);
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, PlacedHatRenderer::register);
+        modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, PlacedDollRenderer::register);
         modBus.addListener(EventPriority.NORMAL, false, EntityRenderersEvent.RegisterRenderers.class, HumanRenderer.Events::renderers);
 
         modBus.addListener(EventPriority.NORMAL, false, RegisterClientReloadListenersEvent.class, ClientEvents::registerReloadListeners);

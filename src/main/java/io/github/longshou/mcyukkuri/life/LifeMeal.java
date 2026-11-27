@@ -24,6 +24,7 @@ import io.github.longshou.mcyukkuri.family.FamilyLife;
 import io.github.longshou.mcyukkuri.interaction.ItemContact;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
 import io.github.longshou.mcyukkuri.human.PicnicFood;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.motor.Braid;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
@@ -88,7 +89,7 @@ final class LifeMeal {
     private Ability sweetFeedback;
     private int fleeCropAt;
     private int dollOfferTicks;
-    private ItemEntity dollOfferTarget;
+    private PlacedDollEntity dollOfferTarget;
     /** Nutrition above which it wants no more food: the bite that takes it past this leaves it full. */
     static final float FULL = 75;
     /** This meal left it full and it lets itself melt in contentment after the swallow (meal_content); transient, like the clock below. */
@@ -564,7 +565,7 @@ final class LifeMeal {
         if (donor.family().adult() || mouth().isEmpty() || Consumables.oral(mouth())) return;
         if (!donor.keepsake().comfortEligible(false) || !Keepsakes.attachedOrTimid(donor)) return;
         if (Keepsakes.hasAwakePeerNear(o.level(), donor, 6.0)) return;
-        ItemEntity doll = Keepsakes.nearestVisibleDoll(o.level(), donor, 3.0, true);
+        PlacedDollEntity doll = Keepsakes.nearestVisibleDoll(o.level(), donor, 3.0, true);
         if (doll == null) return;
         // End any remaining braid-handover tail so OFFER_BITE and its happy face are not overwritten by braid_eat.
         tuftMeal = null;

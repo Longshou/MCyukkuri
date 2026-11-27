@@ -18,7 +18,7 @@ from itertools import pairwise
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-from museum_dsl import (yk, yk_on_nest, human, item, block, large_nest, box, shed, furniture, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
+from museum_dsl import (yk, yk_on_nest, human, item, doll, block, large_nest, box, shed, furniture, home, sel, sel_all, tag, say, uid, uuid_nbt, family, remains, aquatic_spawn, _text)  # noqa: E402
 from museum_fields import FIELDS, BY_ID, FEET, den  # noqa: E402
 
 # Scene numbers: the field's code and a two-digit index (``PD-03``), so a visitor can name a scene out loud. The file is the

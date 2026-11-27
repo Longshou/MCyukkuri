@@ -17,14 +17,14 @@ import io.github.longshou.mcyukkuri.motor.Progress;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.Running;
 import io.github.longshou.mcyukkuri.motor.TravelMode;
-import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Set one held mouth item down at a {@link Site} with the mouth-item clip: she turns to the spot, holds still, and at the clip's
  * {@code release} marker the one item is put on the supported ground and leaves the mouth in the same tick. The site owns the
- * admission, what happens to the released item, and how the placement is reported; the item itself is {@link #released()}.
+ * admission, the item's world form there, and how the placement is reported; that form is {@link #released()}.
  */
 public final class PlaceMouthItem implements Action {
     public static final String ID = "place_mouth_item";
@@ -38,8 +38,9 @@ public final class PlaceMouthItem implements Action {
         default Feasibility admission(YukkuriEntity body) { return Feasibility.pass(); }
         /** Why the mouth may not let go at {@code mouth}; asked once, at the clip's release marker. */
         Feasibility mouthAt(YukkuriEntity body, Vec3 mouth);
-        /** The item has left the mouth here: mark it, keep it, log it. A site whose item needs nothing keeps this. */
-        default void released(YukkuriEntity body, ItemEntity drop) {}
+        /** The world form of one mouth item at the release point, or null when the spot refuses it; the item leaves the mouth only
+         *  when this succeeds. A site whose item lies as a loose stack keeps this. */
+        default Entity release(YukkuriEntity body, ItemStack one) { return ItemContact.releaseSupported(body, one, 20); }
         /** How the finished placement names its spot. */
         String detail();
     }
@@ -51,15 +52,15 @@ public final class PlaceMouthItem implements Action {
     private final int releaseTick = marks.ticks("release", Math.max(1, length / 2));
     private long startTick;
     private int ticks;
-    private ItemEntity released;
+    private Entity released;
 
     public PlaceMouthItem(MouthOccupancy.Purpose purpose, Site site) {
         this.purpose = purpose;
         this.site = site;
     }
 
-    /** The item this placement put down, once it has left the mouth. */
-    public ItemEntity released() { return released; }
+    /** The world form this placement put down, once the item has left the mouth. */
+    public Entity released() { return released; }
 
     @Override public String id() { return ID; }
 
@@ -104,10 +105,9 @@ public final class PlaceMouthItem implements Action {
             var mouthAt = site.mouthAt(body, mouthPos);
             if (!mouthAt.ok()) return Outcome.of(mouthAt.reason(), mouthAt.shortfall(), mouthAt.detail());
             ItemStack one = mouth.stack(purpose).copyWithCount(1);
-            ItemEntity drop = ItemContact.releaseSupported(body, one, 20);
+            Entity drop = site.release(body, one);
             if (drop == null) return Outcome.of(Reason.NO_ROOM, 0, "drop_refused");
             mouth.takeOne(purpose);
-            site.released(body, drop);
             released = drop;
         }
         if (++ticks >= length) return new Outcome.Done(site.detail());

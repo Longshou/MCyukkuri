@@ -42,7 +42,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.ItemEntity;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -159,7 +159,7 @@ public final class DailyLife {
                 entity.mind().perform("droop", 80);
         }
         // Keyed on the world clock, not on the session's own elapsed: a doll comfort is interrupted while the body is still rubbing.
-        if (active() && session.kind == Kind.NUZZLE && session.companion instanceof ItemEntity
+        if (active() && session.kind == Kind.NUZZLE && session.companion instanceof PlacedDollEntity
                 && level().getGameTime() % 20 == 0) {
             YukkuriEntity friend = eligiblePeer();
             if (friend != null) {
@@ -221,9 +221,9 @@ public final class DailyLife {
     }
     public boolean nuzzle(Entity companion) {
         if (companion == entity || companion.level() != entity.level() || !companion.isAlive()) return false;
-        if (companion instanceof ItemEntity doll) {
+        if (companion instanceof PlacedDollEntity doll) {
             if (entity.distanceToSqr(doll) > 100 || doll.isInWater()
-                    || !Keepsakes.fond(entity, doll.getItem())
+                    || !Keepsakes.fond(entity, doll.doll())
                     || !entity.life().dryStand(doll.blockPosition())
                     || !Senses.sees(entity, doll)
                     || !entity.keepsake().comfortEligible(false)) return false;
@@ -289,7 +289,7 @@ public final class DailyLife {
     private void start(Kind kind, Entity companion, boolean welcome) {
         entity.social().stop();
         session = new Session(entity, companion, kind, welcome); cooldown = 600;
-        if (companion != null && !(companion instanceof ItemEntity)) entity.life().personality().protectRelation(companion.getUUID());
+        if (companion != null && !(companion instanceof PlacedDollEntity)) entity.life().personality().protectRelation(companion.getUUID());
         if (companion instanceof YukkuriEntity peer) {
             peer.social().stop(); peer.life().personality().protectRelation(entity.getUUID()); peer.dailyLife().session = session;
             // The one welcomed home stays free to be welcomed by the rest of its family in turn.
@@ -297,7 +297,7 @@ public final class DailyLife {
         }
         entity.setPersistenceRequired();
         if (kind == Kind.NUZZLE && !welcome) entity.speak("want_nuzzle");
-        if (kind == Kind.NUZZLE && companion instanceof ItemEntity) {
+        if (kind == Kind.NUZZLE && companion instanceof PlacedDollEntity) {
             entity.showReaction("open_smile", "", FaceTier.Tier.SHORT);
             entity.keepsake().emitExternalBeat("ask", "open_smile", "want_nuzzle", "ground", false, "");
         }
@@ -374,7 +374,7 @@ public final class DailyLife {
         if (nuzzling) return true;
         // Only when no eligible peer was found does a lonely or timid body turn to a doll for comfort.
         if (peers.isEmpty() && dollComfort && entity.keepsake().comfortEligible(false)) {
-            ItemEntity doll = Keepsakes.nearestVisibleDoll(level(), entity, 10, false);
+            PlacedDollEntity doll = Keepsakes.nearestVisibleDoll(level(), entity, 10, false);
             if (doll != null && nuzzle(doll)) return true;
         }
         // Grief, fright or a fit of anger leave no heart for a song or a workout; seeking a nuzzle above still goes on.
@@ -424,7 +424,7 @@ public final class DailyLife {
     private YukkuriEntity inEarshot(YukkuriEntity companion) { return companion != null && entity.distanceToSqr(companion) <= 25 ? companion : null; }
 
     private static double nuzzleReach(YukkuriEntity actor, Entity companion) {
-        double gap = companion instanceof ItemEntity ? .20 : .10;
+        double gap = companion instanceof PlacedDollEntity ? .20 : .10;
         return (actor.getBbWidth() + companion.getBbWidth()) * .5 + gap;
     }
 
@@ -452,10 +452,10 @@ public final class DailyLife {
         var other = session.companion;
         if (other == null) return true;
         if (!other.isAlive() || other.isRemoved() || other.level() != entity.level()) return false;
-        if (other instanceof ItemEntity doll) {
+        if (other instanceof PlacedDollEntity doll) {
             return session.kind == Kind.NUZZLE
                     && !doll.isInWater()
-                    && Keepsakes.fond(session.leader, doll.getItem())
+                    && Keepsakes.fond(session.leader, doll.doll())
                     && session.leader.keepsake().comfortEligible(true)
                     && session.leader.distanceToSqr(doll) <= 100
                     && (session.leader.distanceToSqr(doll) <= 4 || Senses.sees(session.leader, doll));
@@ -640,7 +640,7 @@ public final class DailyLife {
         } else if (other != null) {
             entity.getLookControl().setLookAt(other, 30, 30);
         }
-        if (current.kind == Kind.NUZZLE && (other instanceof Player || other instanceof ItemEntity)) {
+        if (current.kind == Kind.NUZZLE && (other instanceof Player || other instanceof PlacedDollEntity)) {
             double reach = nuzzleReach(entity, other);
             double lift = Math.abs(entity.getY() - other.getY());
             if (lift > LEAN || entity.position().subtract(other.position()).horizontalDistance() > reach + (lift > PLAYER_LEAN_STEP ? LEAN : 0)) {
@@ -652,7 +652,7 @@ public final class DailyLife {
                 return;
             }
             SurfaceApproach.halt(entity);
-            if (other instanceof ItemEntity) {
+            if (other instanceof PlacedDollEntity) {
                 if (!turnToFace(other)) { current.elapsed++; return; }
             } else {
                 Motor.face(entity, SurfaceApproach.yaw(entity.position(), other.position()));
@@ -666,7 +666,7 @@ public final class DailyLife {
         if (!peerNuzzle) current.contact++;
         if (current.contactTicks() == 1) {
             leader.speak(current.kind == Kind.NUZZLE ? "nuzzle" : current.kind == Kind.SING ? "song" : "exercise");
-            if (current.kind == Kind.NUZZLE && current.companion instanceof ItemEntity) {
+            if (current.kind == Kind.NUZZLE && current.companion instanceof PlacedDollEntity) {
                 leader.showReaction("closed_smile", "", FaceTier.Tier.SHORT);
                 leader.keepsake().emitExternalBeat("rub", "closed_smile", "nuzzle", "ground", false, "");
             }
@@ -685,7 +685,7 @@ public final class DailyLife {
         }
         int duration = current.kind == Kind.NUZZLE ? 60 : current.kind == Kind.SING ? 160 : 280;
         if (peerNuzzle ? !current.pair.complete() : current.contact < duration) return;
-        boolean dollCompanion = current.kind == Kind.NUZZLE && current.companion instanceof ItemEntity;
+        boolean dollCompanion = current.kind == Kind.NUZZLE && current.companion instanceof PlacedDollEntity;
         int affectionBefore = current.leader.dailyLife().affection;
         complete(current.leader, current.kind, dollCompanion ? 15 : 35);
         if (dollCompanion) {
@@ -728,7 +728,7 @@ public final class DailyLife {
         if(log)GameplayLog.limited(current.leader,"daily","stopped."+current.kind,1200,
                 "session stopped kind={} companion={} elapsed={} contactTicks={}",
                 current.kind,current.companion==null?null:current.companion.getUUID(),current.elapsed,shown);
-        if (current.companion != null && !(current.companion instanceof ItemEntity)) current.leader.life().personality().releaseRelation(current.companion.getUUID());
+        if (current.companion != null && !(current.companion instanceof PlacedDollEntity)) current.leader.life().personality().releaseRelation(current.companion.getUUID());
         if (current.companion instanceof YukkuriEntity peer) peer.life().personality().releaseRelation(current.leader.getUUID());
         if (current.leader.motor().owner() == current.leader.dailyLife().body) current.leader.motor().cancel(current.leader.dailyLife().body, "daily_stop");
         boolean unanswered = current.kind == Kind.NUZZLE && current.contactTicks() == 0

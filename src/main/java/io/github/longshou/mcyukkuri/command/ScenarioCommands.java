@@ -26,6 +26,7 @@ import io.github.longshou.mcyukkuri.item.CarrierRelease;
 import io.github.longshou.mcyukkuri.interaction.CareAction;
 import io.github.longshou.mcyukkuri.interaction.CareMenu;
 import io.github.longshou.mcyukkuri.life.Consumables;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import io.github.longshou.mcyukkuri.life.YukkuriWorldData;
 import io.github.longshou.mcyukkuri.pet.BadgeGrade;
 import io.github.longshou.mcyukkuri.pet.PetLife;
@@ -615,8 +616,11 @@ public final class ScenarioCommands {
 
     private static int toolOperatorPickup(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
         var source = c.getSource();
-        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)
-                || !(EntityArgument.getEntity(c, "item") instanceof ItemEntity item) || player.distanceToSqr(item) > 1) return 0;
+        if (source.getEntity() != null || !(source.getLevel().getPlayerByUUID(TOOL_OPERATOR) instanceof FakePlayer player)) return 0;
+        var target = EntityArgument.getEntity(c, "item");
+        if (player.distanceToSqr(target) > 1) return 0;
+        if (target instanceof PlacedDollEntity doll) return doll.take(player) ? 1 : 0;
+        if (!(target instanceof ItemEntity item)) return 0;
         item.playerTouch(player);
         return item.isRemoved() ? 1 : 0;
     }

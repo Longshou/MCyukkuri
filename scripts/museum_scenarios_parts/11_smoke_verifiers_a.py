@@ -725,10 +725,9 @@ _smoke(_doll_take, 1200, [
 ], forbid=[rf'\[keepsake\][^\n]*uuid={_take_owner} [^\n]*line=treasure_stolen'])
 _take_commands = [(100, 'execute positioned ~2.6 ~ ~6.5 run yukkuri scenario tool_operator enter'),
                   *((101, f'execute as @p[name=MuseumOperator,distance=..48] run {line}') for line in own('take_owner'))]
-# The operator stands where the doll really lies: a doll left beside a body is nudged by that body, so a fixed spot can end up
-# more than one block away and the pick refuses. Each take is dropped again at once 34 blocks off the row, inside the field but
-# outside every sleeper's 32-block count: the dolls stay real items (the smoke ledger sees the same total) and the sleepers still
-# find nothing beside them when they wake.
+# The operator moves onto the doll it is about to click. Each take is dropped again at once 34 blocks off the row, inside the
+# field but outside every sleeper's 32-block count, so the taken doll never lies beside a sleeper and the sleepers still find
+# nothing beside them when they wake.
 for _i, _name in enumerate(('take_doll_a', 'take_doll_b', 'take_doll_c', 'take_doll_d')):
     _base = 140 + 10 * _i
     _take_commands += [(_base, f'execute at {sel(_name)} run yukkuri scenario tool_operator move'),

@@ -16,6 +16,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import io.github.longshou.mcyukkuri.entity.RemainsEntity;
 import io.github.longshou.mcyukkuri.rare.MyonLife;
 import io.github.longshou.mcyukkuri.headwear.PlacedHatEntity;
+import io.github.longshou.mcyukkuri.life.PlacedDollEntity;
 import java.util.EnumMap;
 import java.util.Map;
 import net.minecraft.tags.BlockTags;
@@ -28,6 +29,11 @@ public final class ModEntities {
             TYPES.register("placed_hat", () -> EntityType.Builder.<PlacedHatEntity>of(
                     PlacedHatEntity::new, MobCategory.MISC)
                     .sized(.6f, .1143f).clientTrackingRange(8).updateInterval(2).build(MCYukkuri.id("placed_hat").toString()));
+    /** The doll is a still prop: it never moves, so only its spawn state is synced. */
+    public static final DeferredHolder<EntityType<?>, EntityType<PlacedDollEntity>> PLACED_DOLL =
+            TYPES.register("placed_doll", () -> EntityType.Builder.<PlacedDollEntity>of(
+                    PlacedDollEntity::new, MobCategory.MISC)
+                    .sized(.55f, .55f).clientTrackingRange(8).updateInterval(20).build(MCYukkuri.id("placed_doll").toString()));
     // Body bounds at 16 model units per block; hats and ribbons are visual accessories.
     public static final DeferredHolder<EntityType<?>,EntityType<RemainsEntity>> REMAINS=TYPES.register("yukkuri_remains",
             ()->EntityType.Builder.<RemainsEntity>of(RemainsEntity::new,MobCategory.MISC)
