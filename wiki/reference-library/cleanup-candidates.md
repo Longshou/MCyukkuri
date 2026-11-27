@@ -1,23 +1,8 @@
 # 参考图低质与待清理候选清单
 
-本清单由 Flash 视觉批量复核生成，只作人工审阅参考，未删除任何原图。确认要删除的条目可写入 JSON 计划后运行 `python scripts/wiki_image_tags.py apply-deletions --plan <计划文件>`。
+已通过 `scripts/wiki_image_tags.py apply-deletions` 清理 8 张无油库里内容或贴图损坏的无效图片（`M10-001`、`M10-002`、`M10-010`、`M10-011`、`M10-012`、`M15-002`、`sprite-5253.png`、`sprite-5514.png`），当前无待清理的 `reference_value=none` 图片。
 
-本次复核共筛出 **明确待清理候选 8 张**（`reference_value=none`）与 **低价值保留参考 50 张**（`reference_value=low`）。
-
-## 一、待清理候选（`delete_candidate != none`）
-
-| ID | 类别 | 建议原因 | 说明 | 文件 |
-| --- | --- | --- | --- | --- |
-| `M10-001` | context | `no_game_value` | 画面仅为人类小学课堂自由研究发表与牵牛花涂鸦，未出现任何油库里角色、生态或相关道具，无游戏制作参考价值。 | [001-96060d68.png](../art-references/images/M10/001-96060d68.png) |
-| `M10-002` | context | `no_game_value` | 画面仅为儿童简笔画与人类在普通走廊内行走参观的分镜，未绘制任何油库里或相关设施，无游戏制作参考价值。 | [002-4fc7671f.png](../art-references/images/M10/002-4fc7671f.png) |
-| `M10-010` | active_reference | `no_game_value` | 画面仅包含人类课堂发言与包装点心纸箱，未出现任何油库里角色或相关生态道具，对油库里游戏美术制作无参考价值。 | [010-76bf9f17.png](../art-references/images/M10/010-76bf9f17.png) |
-| `M10-011` | context | `no_game_value` | 画面仅描绘两名人类少年在街道上拥抱并分食零食的对话分镜，未出现任何油库里角色、道具或栖息环境，对游戏模组制作无参考价值。 | [011-6562ef63.png](../art-references/images/M10/011-6562ef63.png) |
-| `M10-012` | context | `no_game_value` | 画面仅为两名人类少年近景交谈与咀嚼普通零食的分镜，没有任何油库里本体、交互道具或环境参考，与模组美术制作无关。 | [012-fb165eda.png](../art-references/images/M10/012-fb165eda.png) |
-| `M15-002` | provenance | `no_game_value` | 画面仅含大量日文旁白与老旧木屋、乡村道路及人类男子半身像，未出现任何油库里或相关道具，无游戏制作参考价值。 | [002-4abfd3c1.jpg](../art-references/images/M15/002-4abfd3c1.jpg) |
-| `game/hakkei-u-expression-audit/sprites/sprite-5253.png` | inventory | `unreadable` | 贴图发生严重错位与条纹撕裂损坏，五官轮廓支离破碎，无法作为有效表情参考。 | [sprite-5253.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-5253.png) |
-| `game/hakkei-u-expression-audit/sprites/sprite-5514.png` | inventory | `unreadable` | 画面仅为一条极窄的浅灰蓝底色残片，未包含可辨识的五官或表情结构，无实际美术参考价值。 | [sprite-5514.png](../art-references/game/hakkei-u-expression-audit/sprites/sprite-5514.png) |
-
-## 二、低价值图（`reference_value = low`，暂保留）
+下表保留 **50 张低价值参考图**（`reference_value=low`，仍有局部设定或表情参考意义，暂保留）。如后续需要继续精简，可按 `scripts/wiki_image_tags.py apply-deletions --plan <计划文件>` 流程执行。
 
 | ID | 类别 | 画面观察 | 文件 |
 | --- | --- | --- | --- |

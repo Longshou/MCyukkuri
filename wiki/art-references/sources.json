@@ -107,7 +107,14 @@
         "人类",
         "设施"
       ],
-      "limit": 12
+      "limit": 12,
+      "excluded_images": [
+        1,
+        2,
+        10,
+        11,
+        12
+      ]
     },
     {
       "id": "M11",
@@ -164,7 +171,10 @@
         "亲子"
       ],
       "limit": 12,
-      "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名"
+      "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名",
+      "excluded_images": [
+        2
+      ]
     }
   ]
 }

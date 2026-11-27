@@ -3532,24 +3532,6 @@
       "review_method": "2026-10-15 本地联系表定位画格，另打开原文件核对指定部位与清晰度"
     },
     {
-      "id": "M10-010",
-      "entities": [
-        "人类"
-      ],
-      "scenarios": [
-        "物品搬运"
-      ],
-      "emotions": [],
-      "targets": [
-        "道具",
-        "场景"
-      ],
-      "focus": "下排打开的纸盒及成排圆形点心",
-      "purpose": "给工厂成品和商店陈列补盒盖、格位与重复排列参考；此处是点心包装，不能用来证明活体售卖包装。",
-      "sha256": "54f29b16daf89ea3b2240d067811811674dca7a0a2e90113e82872d813433fd1",
-      "review_method": "2026-10-15 本地联系表定位画格；清晰度细审另见 quality-selection"
-    },
-    {
       "id": "M12-010",
       "entities": [
         "通用油库里",
@@ -11303,31 +11285,11 @@
       "state": "overview_not_selected"
     },
     {
-      "id": "M10-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M10-002",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M10-011",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M10-012",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "M12-005",
       "state": "overview_not_selected"
     },
     {
       "id": "M12-006",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M15-002",
       "state": "overview_not_selected"
     },
     {
