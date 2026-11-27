@@ -22,6 +22,11 @@ reports/
 /standards/yukkuri-library/species.html
 /standards/yukkuri-library/standard-expressions.html
 /standards/yukkuri-library/interactions/marisa-braids/index.html
+/standards/yukkuri-library/assembled/*/index.html
+/standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_wasa/index.html
+/standards/yukkuri-library/subspecies/reimu-dos/assembled/reimu_deibu/index.html
+/standards/yukkuri-library/subspecies/predator/assembled/predator_remilia/index.html
+/standards/yukkuri-library/ecology/house-yukkuri/index.html
 /art/audio/aquestalk/index.html
 
 # Build outputs, local worlds, IDE state and machine-specific settings.
