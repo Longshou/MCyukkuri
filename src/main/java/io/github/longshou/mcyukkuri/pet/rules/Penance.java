@@ -67,7 +67,7 @@ public final class Penance {
     private String pending = "";
     private long pendingSince;
     private YukkuriAction clip = YukkuriAction.IDLE;
-    private long beatAt;
+    private long beatAt, holdUntil;
     private int beatTicks;
 
     private Penance(YukkuriEntity pet, LivingEntity owner, Entrance entrance, String rule, Runnable onResolved) {
@@ -203,7 +203,11 @@ public final class Penance {
             case SETTLE -> { if (spent(now, age)) end(now); }
             default -> {}
         }
-        if (phase != Phase.DONE && phase != Phase.RESOLVE && !pet.hasReaction()) show(false);
+        if (phase == Phase.STARTLE && age == STARTLE_TICKS && clip == YukkuriAction.STARTLE) {
+            clip = YukkuriAction.BRACE;
+            show(false);
+        }
+        if (phase != Phase.DONE && phase != Phase.RESOLVE && (!pet.hasReaction() || now >= holdUntil - 4)) show(false);
     }
 
     /** Whom the head and body turn to: the owner, except while torn (child, owner, child ...) and while the child is being pardoned. */
@@ -412,7 +416,7 @@ public final class Penance {
         }
         if (age >= RESOLVE_TICKS && pending.isEmpty() && now >= pet.speechEnd()) {
             if (outcome.startsWith("punished_child")) end(now); else settle();
-        } else if (!pet.hasReaction()) show(false);
+        } else if (!pet.hasReaction() || now >= holdUntil - 4) show(false);
     }
 
     /**
@@ -459,10 +463,10 @@ public final class Penance {
 
     private void show(boolean speak) {
         long left = beatAt + beatTicks - now();
-        // Two ticks of overlap: the next beat takes over before this one runs out, so no idle face shows between two beats.
-        int ticks = speak ? beatTicks + 2 : (int) Math.max(left, 20) + 2;
-        // The flinch plays once; while the gasp is still being said the pet stays frozen stiff instead of flinching again.
-        pet.holdReaction(!speak && phase == Phase.STARTLE ? YukkuriAction.BRACE : clip, face, "", ticks);
+        // Hold comfortably past beatTicks and refresh before expiry (see tick) so no 1-tick idle gap flickers while waiting on speech.
+        int ticks = speak ? Math.max(beatTicks, 120) + 10 : (int) Math.max(left, 60) + 10;
+        holdUntil = now() + ticks;
+        pet.holdReaction(clip, face, "", ticks);
         if (!speak) return;
         // The pose comes first; its line is said as soon as the shared speech clock lets this pet speak (the beat before it may still be
         // talking), and the beat is not over until it has been said (spent).

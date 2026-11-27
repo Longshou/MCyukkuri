@@ -228,9 +228,10 @@ public final class SpeciesLife {
         }
         if (t % 400 == 211 && entity.mind().unease() >= BondLevels.UNEASE_SWEETENED) vomit(.2f, "strain", false);
         if (t % 60 != 13 && t % 120 != 37 && t % 600 != 91) return;
-        boolean chat = canChat() && !entity.family().active() && !entity.habitat().active()
+        boolean rulesDuty = entity.duty().holds(Duty.Kind.RULES);
+        boolean chat = canChat() && !rulesDuty && !entity.family().active() && !entity.habitat().active()
                 && (entity.forageTrip() == null || !entity.forageTrip().outing());
-        if (t % 60 == 13 && !entity.life().isSleeping() && !entity.isPassenger()) addressHuman(chat);
+        if (t % 60 == 13 && !rulesDuty && !entity.life().isSleeping() && !entity.isPassenger()) addressHuman(chat);
         if (!chat) return;
         if (t % 120 == 37) greetKin();
         if (t % 600 == 91) talkCounts();
