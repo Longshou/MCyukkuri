@@ -195,13 +195,16 @@ def kid_play_shelter(window):
 
 
 pond('kid_boat_play', '赤油在帽檐玩耍，打雷躲避', '赤油在帽檐玩耍，打雷躲避',
-     '静水亲帽停在离岸三格的水面，沉稳的亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳，胆小的在舱内、胆大的在头顶，都已吃饱。'
+     '静水亲帽停在离岸三格的水面，沉稳的亲油坐在船长位置面朝船首，帽里有一根木棍和四份苹果；两只赤油都已学会短跳，个头小些的胆小那只在舱内（舱内能转身的位置只容得下它这么大）、胆大的在头顶，都已吃饱。'
      '舱内那只先跳上帽檐，辫子朝外对着水面拍水（亲油划桨时改成学划水）；头顶那只安静静坐。'
      '第 8 秒起天暗下雨，第 13 秒远处池塘水面真实落雷（不伤人不引火）：两只听到雷声后按各自胆量做出受惊表情与台词，胆小那只跳回舱内缩身、胆大那只在头顶缩身；第 20 秒雨停转晴后，胆大的先舒气平静，胆小的稍晚平静后再跳回帽檐继续玩耍。空手右击赤油看问候',
      '约 40 秒；可按「附近落雷」再看受惊',
      [yk('marisa', bank_dx(0), 0, 'a', aquatic=True, yaw=-90, lead=True, friendliness=100, boldness=80,
          uuid=uid('kid_boat_play', 'a'), **pair_ready()),
-      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', boldness=20, childhood=CHILDHOOD_HOPPING, also=('crew',)),
+      # 0.16: the cabin in front of the seated captain has a place where a young can turn round (hair included) up to about this
+      # size; the default 0.18 newborn could only stand pressed to the bow wall there, so it is seated on the head instead.
+      _aquatic_young('kid_boat_play', 'c1', bank_dx(1), 1, 'baby', 'a', boldness=20, childhood=CHILDHOOD_HOPPING, also=('crew',),
+                     fam=_seat_family(.16, 22909, 36000)),
       _aquatic_young('kid_boat_play', 'c2', bank_dx(2), 2, 'baby', 'a', boldness=75, childhood=CHILDHOOD_HOPPING, also=('crew',)),
       afloat_now('a', water_at(0, 3), True, sel_all('crew'), food=4, stick=True)],
      vantage=(-2, 2, -105, 16),
