@@ -878,53 +878,6 @@
       }
     },
     {
-      "id": "EH02-007",
-      "source_id": "EH02",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH02/007.webp",
-      "sha256": "87a70b0c02ff9cb3fe55398b85d7434746ba299e3ba52ab3e25ca0f97d000c87",
-      "image_tags": {
-        "entities": [
-          "妖梦",
-          "蕾米莉亚",
-          "芙兰"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "出生发育"
-        ],
-        "emotions": [
-          "得意",
-          "喜悦",
-          "愤怒"
-        ],
-        "targets": [
-          "表情",
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "发型",
-          "其他饰品",
-          "帽饰",
-          "翅膀",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "上格中央画有一只短发、戴黑色蝴蝶结并长有小蝙蝠翅的幼体露出眯眼得意表情，周围被大量对话气泡覆盖；下格左侧为戴荷叶边帽露怒容的侧面角色，右侧为微笑的蕾米莉亚。",
-        "game_use": "可用于参考咪呦种短发头饰加小蝙蝠翅的混种外观与眯眼得意表情，以及蕾米莉亚的怒颜侧面轮廓",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "87a70b0c02ff9cb3fe55398b85d7434746ba299e3ba52ab3e25ca0f97d000c87"
-      }
-    },
-    {
       "id": "EH02-008",
       "source_id": "EH02",
       "kind": "reference",
@@ -2387,55 +2340,6 @@
       }
     },
     {
-      "id": "EH07-002",
-      "source_id": "EH07",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH07/002.webp",
-      "sha256": "e905de1149c393840a181b72b28a500c3a3d14d1c6afe836680855535501caec",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "灵梦",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "日常活动"
-        ],
-        "emotions": [
-          "悲伤",
-          "喜悦",
-          "得意"
-        ],
-        "targets": [
-          "表情",
-          "模型"
-        ],
-        "behaviors": [
-          "玩耍"
-        ],
-        "appearance": [
-          "巨大比例",
-          "成幼比例",
-          "伤口污渍",
-          "脸部",
-          "辫子"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "画面左侧为带翻译制作信息的标题页，一只体型巨大、沾有污渍并戴瓶盖帽的魔理沙型油库里含泪悲伤，身旁幼体同样哭泣，右侧成体灵梦与魔理沙张口大笑，右下角盖有圆形汉化组印章。",
-        "game_use": "可作巨型落魄个体哭泣表情与右侧灵梦、魔理沙大笑神态的次要参考，画面含大量制作信息文字遮挡",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "e905de1149c393840a181b72b28a500c3a3d14d1c6afe836680855535501caec"
-      }
-    },
-    {
       "id": "EH07-003",
       "source_id": "EH07",
       "kind": "reference",
@@ -2652,56 +2556,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:14:06.479064+00:00",
         "tagged_sha256": "6d7da3081de2f2eade8d27cda2065e1cda7aede369a327274ad051a2021f8ea2"
-      }
-    },
-    {
-      "id": "EH07-007",
-      "source_id": "EH07",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH07/007.webp",
-      "sha256": "96cb87aec43f7d2b5418666f0db72306284d8fa75e8a4ed58a8ce03c7a46df75",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "魔理沙",
-          "灵梦",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "人类接触",
-          "身体受损"
-        ],
-        "emotions": [
-          "痛苦",
-          "惊讶",
-          "恐惧"
-        ],
-        "targets": [
-          "事件",
-          "形变"
-        ],
-        "behaviors": [
-          "人类互动",
-          "受伤",
-          "遗体"
-        ],
-        "appearance": [
-          "伤口污渍",
-          "身体形变",
-          "成幼比例"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "漫画分三格描绘穿黑鞋的人类重重踢飞并踩扁油库里，上格魔理沙被踢飞并伴随液体与幼体飞溅，中格鞋底踩住灵梦头顶，下格灵梦与魔理沙被彻底踩碎成黑色馅料与残骸。",
-        "game_use": "可作人类鞋底踩踏碾压造成油库里爆裂成馅料的极端受创参考，画面拟声词与黑色泼溅较多",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "96cb87aec43f7d2b5418666f0db72306284d8fa75e8a4ed58a8ce03c7a46df75"
       }
     },
     {
@@ -3808,48 +3662,6 @@
       }
     },
     {
-      "id": "EH10-005",
-      "source_id": "EH10",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH10/005.jpg",
-      "sha256": "bd51a7d86492052f0808e5bbd9b0b4680c5dfe055c8edc5eb68a129a01e013ef",
-      "image_tags": {
-        "entities": [
-          "灵梦"
-        ],
-        "scenarios": [
-          "身体受损",
-          "离别悼念"
-        ],
-        "emotions": [
-          "悲伤",
-          "痛苦"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [
-          "受伤"
-        ],
-        "appearance": [
-          "脸部",
-          "身体形变"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "页面上方为大段竖排旁白文字，下方偏中画着一只斜倾闭眼流泪、脸颊凹陷的灵梦油库里，左下角附有小型灵梦头像。",
-        "game_use": "可作饥饿濒死闭眼流泪的消瘦表情参考，但画面以文字为主。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "bd51a7d86492052f0808e5bbd9b0b4680c5dfe055c8edc5eb68a129a01e013ef"
-      }
-    },
-    {
       "id": "EH10-006",
       "source_id": "EH10",
       "kind": "reference",
@@ -4012,37 +3824,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:16:13.274072+00:00",
         "tagged_sha256": "4625e4ad63a84d37eb9ddcc8c8c27930ab4d664853a81bf792c6b656981bc6a3"
-      }
-    },
-    {
-      "id": "EH11-001",
-      "source_id": "EH11",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH11/001.jpg",
-      "sha256": "6d2d2b46265b6f776e3768b05bdbbca19980806f2f5941ca68c65fd6de446bba",
-      "image_tags": {
-        "entities": [],
-        "scenarios": [
-          "住所布置"
-        ],
-        "emotions": [],
-        "targets": [
-          "道具"
-        ],
-        "behaviors": [],
-        "appearance": [],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "画面左上方写有油库里的箱庭字样，中央绘制了一只空置的等轴测透明正方体箱子线稿，右下角有水印。",
-        "game_use": "可作为人工饲养透明箱庭容器的基础透视轮廓参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "6d2d2b46265b6f776e3768b05bdbbca19980806f2f5941ca68c65fd6de446bba"
       }
     },
     {
@@ -5121,49 +4902,6 @@
       }
     },
     {
-      "id": "EH14-007",
-      "source_id": "EH14",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH14/007.jpg",
-      "sha256": "b63bcae86796dd4da6ef55e5e52c32d17f00852a5b90f313bd77002d1ae35ba1",
-      "image_tags": {
-        "entities": [
-          "帕秋莉"
-        ],
-        "scenarios": [
-          "日常活动",
-          "人类接触"
-        ],
-        "emotions": [
-          "期待",
-          "喜悦"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [
-          "人类互动",
-          "问候蹭脸"
-        ],
-        "appearance": [
-          "脸部",
-          "帽饰"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "帕秋莉油库里趴在摊开的书前，身体微微晃动并流汗，睁大闪亮双眼、张开猫嘴回应打招呼。",
-        "game_use": "可作帕秋莉开口应答时的张嘴猫嘴微表情参考，构图与EH14-002高度相似。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "b63bcae86796dd4da6ef55e5e52c32d17f00852a5b90f313bd77002d1ae35ba1"
-      }
-    },
-    {
       "id": "EH15-002",
       "source_id": "EH15",
       "kind": "reference",
@@ -5215,55 +4953,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:18:23.834802+00:00",
         "tagged_sha256": "5c9f85e8e89b73073be02746ad61baa7b8e494676c058fae093553a617d7dfbc"
-      }
-    },
-    {
-      "id": "EH15-003",
-      "source_id": "EH15",
-      "kind": "reference",
-      "topics": [
-        "feeding",
-        "human",
-        "motion"
-      ],
-      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH15/003.jpg",
-      "sha256": "8d43240e6aada8439d9546ccfe65c360194a67bf9b8e61f23e6625c9db1becb7",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "人类"
-        ],
-        "scenarios": [
-          "采集进食",
-          "人类接触"
-        ],
-        "emotions": [
-          "喜悦"
-        ],
-        "targets": [
-          "事件",
-          "动作",
-          "表情"
-        ],
-        "behaviors": [
-          "进食",
-          "人类互动"
-        ],
-        "appearance": [
-          "脸部",
-          "帽饰"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "漫画分镜中，一名人类坐在凳子上用夹子夹起冒着热气的食物，下方的灵梦油库里抬头咬住食物后张嘴喘气散热并大口咀嚼。",
-        "game_use": "可作为城市流浪油库里向人类乞食及进食烫食时的张嘴咀嚼特写参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "8d43240e6aada8439d9546ccfe65c360194a67bf9b8e61f23e6625c9db1becb7"
       }
     },
     {
@@ -5420,83 +5109,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "1a3a07dd966014dded80643d015ab2f5b09e01137e84d93049974112f67dc680"
-      }
-    },
-    {
-      "id": "EH15-007",
-      "source_id": "EH15",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH15/007.webp",
-      "sha256": "a5f581b8cab1aeff4f694aaeef418756652bb922622008eccfad6efe2d087414",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "认真"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白漫画上下两格分别绘制人类睁大与半眯的眼部及嘴部局部特写，画面大部分被对话气泡占据，未绘制任何油库里实体。",
-        "game_use": "画面仅含人类眼部特写与大量对白气泡，缺乏油库里外形、动作或道具细节，仅作剧情氛围参考，不建议用于模组制作。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "a5f581b8cab1aeff4f694aaeef418756652bb922622008eccfad6efe2d087414"
-      }
-    },
-    {
-      "id": "EH15-008",
-      "source_id": "EH15",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH15/008.jpg",
-      "sha256": "1bc2c4f7c36aaffa53f4d5380fa7fd29b91540595008e453072a6eaf7030c918",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "环境避险"
-        ],
-        "emotions": [],
-        "targets": [
-          "场景"
-        ],
-        "behaviors": [
-          "天气反应"
-        ],
-        "appearance": [
-          "整体轮廓",
-          "成幼比例"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白剪影风格的夜间城市小巷画面，背景为虚化的圆形灯光，地面角落有一只戴尖顶帽的魔理沙与一只小型油库里呈纯黑剪影，画面配有一格旁白与两枚对话气泡。",
-        "game_use": "仅展示夜间街巷氛围与两只油库里的全黑剪影轮廓，缺乏五官与材质细节，参考价值较低。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "1bc2c4f7c36aaffa53f4d5380fa7fd29b91540595008e453072a6eaf7030c918"
       }
     },
     {
@@ -5958,56 +5570,6 @@
       }
     },
     {
-      "id": "EH18-002",
-      "source_id": "EH18",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH18/002.webp",
-      "sha256": "096838ca014ee846cf7f7f49e07ea694e298b919222ef66f068f60556334a404",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "人类"
-        ],
-        "scenarios": [
-          "人类接触",
-          "医疗照护",
-          "照料幼体",
-          "休息睡眠",
-          "住所布置"
-        ],
-        "emotions": [
-          "安心",
-          "痛苦"
-        ],
-        "targets": [
-          "场景",
-          "道具",
-          "动作"
-        ],
-        "behaviors": [
-          "人类互动",
-          "休息睡眠",
-          "受伤"
-        ],
-        "appearance": [
-          "整体轮廓",
-          "伤口污渍"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "长条竖版图文页面以大段中文小说正文为主，内嵌三幅小插图，依次为雨中持伞人类经过邮筒旁油库里以及抬脚踢飞小油库里的黑白素描、泡在透明方形塑料盒橙汁中闭眼的幼体魔理沙，以及盖着纱布睡在透明亚克力盒毛巾上的幼体魔理沙。",
-        "game_use": "页面主体为文字小说，插图占比较小且清晰度有限，仅提供橙汁盒疗伤与毛巾亚克力盒育幼的辅助场景概念参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "096838ca014ee846cf7f7f49e07ea694e298b919222ef66f068f60556334a404"
-      }
-    },
-    {
       "id": "EH18-003",
       "source_id": "EH18",
       "kind": "context",
@@ -6061,58 +5623,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "1a78935323bbe1cc01ba074d3325de4417bcf26316c4670e20937c4a13a59648"
-      }
-    },
-    {
-      "id": "EH18-004",
-      "source_id": "EH18",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH18/004.webp",
-      "sha256": "42067e1d77a14f223a273d854657b425c8065d02399f474beda3b54bdd27e47f",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "家油魔理沙",
-          "家油灵梦",
-          "橙",
-          "徽章"
-        ],
-        "scenarios": [
-          "宠物照料",
-          "人类接触",
-          "饰物身份"
-        ],
-        "emotions": [
-          "悲伤",
-          "喜悦",
-          "安心"
-        ],
-        "targets": [
-          "表情",
-          "道具"
-        ],
-        "behaviors": [
-          "人类互动",
-          "休息睡眠"
-        ],
-        "appearance": [
-          "成幼比例",
-          "脸部",
-          "其他饰品",
-          "发型"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "以中文文本为主的页面中嵌有两处黑白线稿，中部为幼体魔理沙趴在软垫上大哭，底部为宠物店员微笑想象戴徽章的家油灵梦与橙。",
-        "game_use": "可辅助参考幼体大哭表情及宠物店徽章分级展示，但插图数量少且信息密度低。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "42067e1d77a14f223a273d854657b425c8065d02399f474beda3b54bdd27e47f"
       }
     },
     {
@@ -6323,48 +5833,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "0e1420bf6a87746cf01786a244201bc8847c65435aca30324e84907c0d7dc83a"
-      }
-    },
-    {
-      "id": "EH19-001",
-      "source_id": "EH19",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH19/001.jpg",
-      "sha256": "61ed0b9ba5af41a831b3fbfe34fc2fd22932bfbc3138610eadbbd1227979e4f7",
-      "image_tags": {
-        "entities": [
-          "人类"
-        ],
-        "scenarios": [
-          "人类接触",
-          "采集进食"
-        ],
-        "emotions": [
-          "喜悦"
-        ],
-        "targets": [
-          "道具",
-          "事件"
-        ],
-        "behaviors": [
-          "人类互动",
-          "照料喂食"
-        ],
-        "appearance": [
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "一名留黄色莫霍克发型、戴墨镜并穿带刺护肩的壮汉咧嘴笑着，右手捏起一包标注为砂糖棒的零食作递出状，画面无油库里本体。",
-        "game_use": "仅可作人类向油库里投喂砂糖棒零食道具及递物手势的极简辅助参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "61ed0b9ba5af41a831b3fbfe34fc2fd22932bfbc3138610eadbbd1227979e4f7"
       }
     },
     {
@@ -6632,49 +6100,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:20:45.984863+00:00",
         "tagged_sha256": "0421c2613ee069b5296bef6fd4c03a9f80d31f5d124fbfc34ac0df19de3a9fb9"
-      }
-    },
-    {
-      "id": "EH19-007",
-      "source_id": "EH19",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH19/007.jpg",
-      "sha256": "997f6423c39b4db08ecc7378660859e3305f6f3b1ddd0a78938ee3b8ed066500",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "灵梦"
-        ],
-        "scenarios": [
-          "人类接触",
-          "采集进食"
-        ],
-        "emotions": [
-          "悲伤"
-        ],
-        "targets": [
-          "表情",
-          "道具"
-        ],
-        "behaviors": [
-          "人类互动"
-        ],
-        "appearance": [
-          "脸部",
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "两格彩色漫画分镜中，上方人类低头看向闭眼流泪的灵梦，下方戴铆钉护腕的人类手部捏着一小包银黑色箔纸调料包。",
-        "game_use": "可作灵梦闭眼流泪表情及人类手部递送调料小包的局部参考，但画面留白与对白较多。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "997f6423c39b4db08ecc7378660859e3305f6f3b1ddd0a78938ee3b8ed066500"
       }
     },
     {
@@ -7922,52 +7347,6 @@
       }
     },
     {
-      "id": "EH23-001",
-      "source_id": "EH23",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH23/001.webp",
-      "sha256": "5e8c947e0efc5f9f411eda6ee69cc070229e46776816f041278299d86d56a7ad",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "魔理沙"
-        ],
-        "scenarios": [
-          "人类接触",
-          "离别悼念",
-          "环境避险"
-        ],
-        "emotions": [
-          "悲伤"
-        ],
-        "targets": [
-          "场景",
-          "表情"
-        ],
-        "behaviors": [
-          "人类互动",
-          "天气反应"
-        ],
-        "appearance": [
-          "帽饰",
-          "辫子",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "雪中一名戴帽穿外套的人类背身前行，右上角有禁止油库里标识，左下角戴巫师帽、带侧辫的魔理沙坐在地上闭眼流泪。",
-        "game_use": "可作雪天被人类留弃在外的魔理沙低头哭泣剪影参考，但整体为封面草图且人物背影占比大。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "5e8c947e0efc5f9f411eda6ee69cc070229e46776816f041278299d86d56a7ad"
-      }
-    },
-    {
       "id": "EH23-002",
       "source_id": "EH23",
       "kind": "reference",
@@ -8546,56 +7925,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:24:01.568392+00:00",
         "tagged_sha256": "d9757bd74202dfe75cfffaaf3627ad5a997874bf7902a7c26cf815a64fe86e73"
-      }
-    },
-    {
-      "id": "EH24-007",
-      "source_id": "EH24",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH24/007.webp",
-      "sha256": "8e9a174841347b93687d689c713cae071c5794fa06bc1b7b986a1981f4dfe6bd",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "魔理沙"
-        ],
-        "scenarios": [
-          "人类接触",
-          "受困逃离",
-          "身体受损"
-        ],
-        "emotions": [
-          "恐惧",
-          "痛苦",
-          "悲伤"
-        ],
-        "targets": [
-          "事件",
-          "形变",
-          "表情"
-        ],
-        "behaviors": [
-          "人类互动",
-          "受伤"
-        ],
-        "appearance": [
-          "巨大比例",
-          "身体形变",
-          "脸部",
-          "发型"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "一名穿着牛仔裤的人类下半身占据画面，一只未戴帽子的魔理沙油库里被夹在裤缝与臀部之间受压变形，闭眼流泪张口大喊。",
-        "game_use": "可用于参考人类与油库里的巨大体型对比、受挤压时的软体形变及哭喊表情。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "8e9a174841347b93687d689c713cae071c5794fa06bc1b7b986a1981f4dfe6bd"
       }
     },
     {
@@ -9509,46 +8838,6 @@
       }
     },
     {
-      "id": "EH26-008",
-      "source_id": "EH26",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH26/008.webp",
-      "sha256": "a2983bda9d8f9136e8c21d2a681dd402c0f29c122e82b7509ce7d174e8afd4a2",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "人类接触"
-        ],
-        "emotions": [],
-        "targets": [
-          "场景",
-          "道具"
-        ],
-        "behaviors": [
-          "遗体",
-          "人类互动"
-        ],
-        "appearance": [
-          "伤口污渍"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "三格黑白漫画中，两名穿工装戴手套的人类扛铲对话，中格地上堆放数只沾有深色污渍的白色塑料袋且前方半透明袋内可见油库里残骸，下格绘有油库里加工中心建筑外墙与招牌。",
-        "game_use": "仅作为加工厂背景与装袋残骸的叙事场景参考，对实体建模与动作参考价值较低。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "a2983bda9d8f9136e8c21d2a681dd402c0f29c122e82b7509ce7d174e8afd4a2"
-      }
-    },
-    {
       "id": "EH27-001",
       "source_id": "EH27",
       "kind": "reference",
@@ -10438,52 +9727,6 @@
       }
     },
     {
-      "id": "EH29-002",
-      "source_id": "EH29",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH29/002.jpg",
-      "sha256": "59436b7f43769be0b9acc007862de5300f0baea076c6b0fdda35fa16520bb232",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "魔理沙",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "人类接触",
-          "身体受损"
-        ],
-        "emotions": [
-          "悲伤",
-          "痛苦",
-          "担忧"
-        ],
-        "targets": [
-          "事件",
-          "场景"
-        ],
-        "behaviors": [
-          "人类互动",
-          "遗体"
-        ],
-        "appearance": [
-          "伤口污渍"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "三格黑白漫画中，上格人类婴儿躺地哭泣且边缘露出部分油库里，中格短发人类趴倒在魔理沙与一团渗出白色馅料的深色油库里残骸旁，下格人类坐起捂脸哭泣。",
-        "game_use": "画面主体为人类婴幼儿与儿童哭泣，油库里多被裁切在边缘，仅具少量人类接触与残骸叙事参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "59436b7f43769be0b9acc007862de5300f0baea076c6b0fdda35fa16520bb232"
-      }
-    },
-    {
       "id": "EH29-003",
       "source_id": "EH29",
       "kind": "reference",
@@ -10592,54 +9835,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "cd30425f0d100254cfdd7cc79dcc494843295a731826e029e6b49892dd6af366"
-      }
-    },
-    {
-      "id": "EH29-005",
-      "source_id": "EH29",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/ehentai/images/EH29/005.jpg",
-      "sha256": "c8d6ede11a6f3d2e770b923bafe671906e52b4577a2ab0eddb80ce9caabd9dd0",
-      "image_tags": {
-        "entities": [
-          "帕秋莉",
-          "人类"
-        ],
-        "scenarios": [
-          "人类接触",
-          "日常活动"
-        ],
-        "emotions": [
-          "喜悦",
-          "困惑",
-          "担忧",
-          "痛苦"
-        ],
-        "targets": [
-          "表情",
-          "道具",
-          "场景"
-        ],
-        "behaviors": [
-          "人类互动"
-        ],
-        "appearance": [
-          "帽饰",
-          "脸部",
-          "辫子"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "上格左侧为标价250日元的萝卜，右侧为刘海遮眼的微笑人类；下格中间戴新月睡帽的帕秋莉流汗拿着写有大特价字样与蔬果图案的传单，左侧另有一只流汗帕秋莉面部特写，右下角人类闭眼流泪侧卧。",
-        "game_use": "参考帕秋莉流汗持传单的困扰表情及人类情绪对照，画风偏搞笑拼贴，结构参考较弱。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "c8d6ede11a6f3d2e770b923bafe671906e52b4577a2ab0eddb80ce9caabd9dd0"
       }
     },
     {
@@ -13353,52 +12548,6 @@
       }
     },
     {
-      "id": "EH35-001",
-      "source_id": "EH35",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
-      "classified_on": "2026-10-17",
-      "path": "wiki/art-references/ehentai/images/EH35/001.webp",
-      "sha256": "e8ea23e87c7e88ebbe6b4d94aad370834e0f47acea147980d0568f3a535b6ecc",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "魔理沙"
-        ],
-        "scenarios": [
-          "日常活动",
-          "物品搬运"
-        ],
-        "emotions": [
-          "喜悦"
-        ],
-        "targets": [
-          "模型",
-          "动作",
-          "表情"
-        ],
-        "behaviors": [
-          "辫子持物"
-        ],
-        "appearance": [
-          "辫子",
-          "颜色材质",
-          "帽饰",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "浅绿底色的封面页中，大量标题与译者信息文字遮挡了左侧灵梦，右侧彩色幼体魔理沙露出笑脸并用辫子夹举着一根细长木枝。",
-        "game_use": "可轻微参考幼体魔理沙的彩色头饰配色及单侧辫子持握细木枝的动作。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "e8ea23e87c7e88ebbe6b4d94aad370834e0f47acea147980d0568f3a535b6ecc"
-      }
-    },
-    {
       "id": "EH35-003",
       "source_id": "EH35",
       "kind": "reference",
@@ -14131,110 +13280,6 @@
       }
     },
     {
-      "id": "EH36-005",
-      "source_id": "EH36",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
-      "classified_on": "2026-10-17",
-      "path": "wiki/art-references/ehentai/images/EH36/005.webp",
-      "sha256": "dcc0db1f9b45bcbffdb5f74b3b30377cb840c89e904d700337aa0d301dc2470b",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "通用油库里",
-          "人类"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "身体受损",
-          "道歉安慰",
-          "人类接触"
-        ],
-        "emotions": [
-          "愤怒",
-          "悲伤",
-          "痛苦"
-        ],
-        "targets": [
-          "事件",
-          "表情",
-          "形变"
-        ],
-        "behaviors": [
-          "噗咕威吓",
-          "受伤",
-          "如厕",
-          "人类互动"
-        ],
-        "appearance": [
-          "伤口污渍",
-          "脸部",
-          "帽饰"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "草图风格黑白漫画中，戴帽魔理沙仰头怒斥并向后排泄黑便，中格一只长毛通用油库里一只眼球脱出地面、另一只眼球被细杆刺穿并漏馅流泪道歉，右下格有人类从高处俯视地上的小油库里。",
-        "game_use": "线条较潦草且对白密集，可有限参考油库里眼部重伤流馅与威吓排泄时的冲突演出。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "dcc0db1f9b45bcbffdb5f74b3b30377cb840c89e904d700337aa0d301dc2470b"
-      }
-    },
-    {
-      "id": "EH36-006",
-      "source_id": "EH36",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "保留故事语境；游戏用途见同作品已选画格",
-      "classified_on": "2026-10-17",
-      "path": "wiki/art-references/ehentai/images/EH36/006.webp",
-      "sha256": "c9389d4fb35d154403a8689624d8871aaca146d4ca83fef78064020799b7d2f1",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "通用油库里",
-          "人类"
-        ],
-        "scenarios": [
-          "身体受损",
-          "人类接触",
-          "受困逃离"
-        ],
-        "emotions": [
-          "愤怒",
-          "喜悦",
-          "痛苦"
-        ],
-        "targets": [
-          "事件",
-          "动作",
-          "表情"
-        ],
-        "behaviors": [
-          "人类互动",
-          "受伤",
-          "移动跳跃"
-        ],
-        "appearance": [
-          "帽饰",
-          "伤口污渍",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白草图漫画中，戴帽魔理沙先后露出兴奋笑脸与被上方重物压迫鼓腮的表情，中格重伤油库里倒地且人类抬脚将一只油库里踢飞帽子，末格愤怒的人类面孔望向远处离开的小魔理沙。",
-        "game_use": "草图感强且剧情气泡多，可少量参考人类脚踢油库里使其帽子飞出的受击反馈。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "c9389d4fb35d154403a8689624d8871aaca146d4ca83fef78064020799b7d2f1"
-      }
-    },
-    {
       "id": "EH37-001",
       "source_id": "EH37",
       "kind": "reference",
@@ -14849,42 +13894,6 @@
       }
     },
     {
-      "id": "game/diary/tex-149-hada.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/diary/tex-149-hada.png",
-      "sha256": "348488cb00bbc1157511f1f7d68935098d47e50eb470a1cb0fa1f8d64b1140c8",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "颜色材质",
-          "三维网格贴图"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "居中的小块浅肉色纯色方块贴图，无五官或纹理细节。",
-        "game_use": "可用于直接提取游戏内油库里基础皮肤色的标准色值。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "348488cb00bbc1157511f1f7d68935098d47e50eb470a1cb0fa1f8d64b1140c8"
-      }
-    },
-    {
       "id": "game/diary/tex-152-yukkuri01.png",
       "source_id": "game",
       "kind": "inventory",
@@ -15048,44 +14057,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "32a4e4ea5904070b515622c66e395a6847c8537566a2ff1901f99576cd737e92"
-      }
-    },
-    {
-      "id": "game/face-tiles.jpg",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/face-tiles.jpg",
-      "sha256": "aba5c10b136960a260536e0602677c449f428b3f89d1c5b417cb428c25a63cf4",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型",
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "颜色材质",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑色背景的序列图块表，左侧排列若干浅肤色面部底图与白色锯齿特效，右侧散布极小块红色及紫红色五官碎片。",
-        "game_use": "可用于了解面部底图与局部五官部件拆分的精灵图集排布方式。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "aba5c10b136960a260536e0602677c449f428b3f89d1c5b417cb428c25a63cf4"
       }
     },
     {
@@ -18839,45 +17810,6 @@
       }
     },
     {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-5805.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-5805.png",
-      "sha256": "f49962ac3a33dff26b2ff4304078e2dde5cc8e3bb33466c30f5d758966eb48c8",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "愤怒",
-          "认真"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "仅截取了一对向下内斜的V形皱眉与上眼角线条的局部表情贴图，未显示瞳孔、腮红与嘴巴。",
-        "game_use": "可用于油库里差分表情层中的皱眉与上眼睑局部替换组件参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "f49962ac3a33dff26b2ff4304078e2dde5cc8e3bb33466c30f5d758966eb48c8"
-      }
-    },
-    {
       "id": "game/hakkei-u-expression-audit/sprites/sprite-5890.png",
       "source_id": "game",
       "kind": "inventory",
@@ -20655,43 +19587,6 @@
       }
     },
     {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-6549.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-6549.png",
-      "sha256": "6f06d6ac3b2ca8a8fff0b49586d80cee12865354bc270afc6bd7bce9e39d08c4",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [
-          "悲伤"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "油库里表情拆分层贴图，仅包含左右对称的两道浅青白色半透明泪水液滴。",
-        "game_use": "可作为油库里哭泣或含泪表情的泪水叠加图层使用。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "6f06d6ac3b2ca8a8fff0b49586d80cee12865354bc270afc6bd7bce9e39d08c4"
-      }
-    },
-    {
       "id": "game/hakkei-u-expression-audit/sprites/sprite-6567.png",
       "source_id": "game",
       "kind": "inventory",
@@ -22225,46 +21120,6 @@
       }
     },
     {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-7266.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-7266.png",
-      "sha256": "e8bb42bd95668f5813f679c49ddafb484ccfe1999327b50fabecf1df3e0775a1",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "身体受损"
-        ],
-        "emotions": [
-          "痛苦",
-          "悲伤"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [
-          "受伤"
-        ],
-        "appearance": [
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "带有明显斜向拉伸与条纹断裂畸变的油库里哭喊面部差分图，可辨识出斜蹙眉、紧闭V形眼、粉色腮红与红色大张嘴的轮廓。",
-        "game_use": "带有横向撕裂条纹畸变的哭喊表情贴图，仅作异常像素采样参考",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "e8bb42bd95668f5813f679c49ddafb484ccfe1999327b50fabecf1df3e0775a1"
-      }
-    },
-    {
       "id": "game/hakkei-u-expression-audit/sprites/sprite-7294.png",
       "source_id": "game",
       "kind": "inventory",
@@ -22666,42 +21521,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "e7f6b617fb5c6754d57553f1ae040cf164c54311773b8662b57574210b75ef77"
-      }
-    },
-    {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-7555.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-7555.png",
-      "sha256": "93de1fa7f33e3813e5bb1470062d416d4bfc6de6e7d74550a75aa64b36e833fd",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "浅灰底色上的白色高光叠加图层，包含上方左右两个双弧形白斑与下方两个小椭圆白斑，未包含眉眼轮廓与嘴部。",
-        "game_use": "表情组合中的眼部高光与泪光反光叠加图层。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "93de1fa7f33e3813e5bb1470062d416d4bfc6de6e7d74550a75aa64b36e833fd"
       }
     },
     {
@@ -24293,42 +23112,6 @@
       }
     },
     {
-      "id": "game/hakkei-u-expression-audit/sprites/sprite-8633.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/hakkei-u-expression-audit/sprites/sprite-8633.png",
-      "sha256": "fa7b50d2ac46820bcaff205acd8c9020a1f320b78c4ec5bec3dfb788d9e0e88d",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "倾斜角度的独立局部面部图层，仅包含两个粉色椭圆腮红与一个斜向张开的红色圆嘴，无眼睛与眉毛。",
-        "game_use": "可用于油库里歪头或倾斜姿态下的腮红与张嘴叠加图层参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "fa7b50d2ac46820bcaff205acd8c9020a1f320b78c4ec5bec3dfb788d9e0e88d"
-      }
-    },
-    {
       "id": "game/hakkei-u-expression-audit/sprites/sprite-8643.png",
       "source_id": "game",
       "kind": "inventory",
@@ -25064,43 +23847,6 @@
       }
     },
     {
-      "id": "game/more-faces.jpg",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/more-faces.jpg",
-      "sha256": "b4d15f5b82a58c1cd25b9397d91fca5c99add0b8819cd1ca44cc95a83483dc3d",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "表情",
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "左右分栏的像素五官组件对照图，左侧白底排列黑色像素眼嘴部件，右侧黑底对应位置分布红色与紫色小型像素表情斑点。",
-        "game_use": "用于参考像素表情组件（眼睛、嘴巴、腮红等五官部件）的切分与配色对比。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "b4d15f5b82a58c1cd25b9397d91fca5c99add0b8819cd1ca44cc95a83483dc3d"
-      }
-    },
-    {
       "id": "game/reimu-dos-variants/deibu-1.png",
       "source_id": "game",
       "kind": "inventory",
@@ -25193,46 +23939,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "d32227191074f319eb040d54e5677615d921dc8bf02fdf477a89ac74ce33bb47"
-      }
-    },
-    {
-      "id": "game/reimu-dos-variants/dos-01.jpg",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/reimu-dos-variants/dos-01.jpg",
-      "sha256": "d5ca76ca147139b56660eea2202fee8a40490777eb2c5798570d50537e82a4a3",
-      "image_tags": {
-        "entities": [
-          "帕秋莉",
-          "灵梦"
-        ],
-        "scenarios": [
-          "日常活动",
-          "环境避险"
-        ],
-        "emotions": [],
-        "targets": [
-          "场景",
-          "事件"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "整体轮廓",
-          "帽饰",
-          "颜色材质"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黄色边框杂志封面风格插画，背景为绿色森林树干，底部草丛中坐着紫发戴睡帽的帕秋莉油库里与红蝴蝶结灵梦油库里。",
-        "game_use": "用于参考森林背景下的野生油库里生态氛围与杂志封面式宣传图排版。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "d5ca76ca147139b56660eea2202fee8a40490777eb2c5798570d50537e82a4a3"
       }
     },
     {
@@ -26970,41 +25676,6 @@
       }
     },
     {
-      "id": "game/reimu-dos-variants/hakkei/sprite-6880.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/reimu-dos-variants/hakkei/sprite-6880.png",
-      "sha256": "216ed161868c72b19494e81f4c6d336d388caffd3bbcafc76e7d62c137a97e29",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "扁平横向裁剪条带，仅左右两端可见两个极小的淡黄色尖角状边缘碎片。",
-        "game_use": "仅作为分层拼装时的局部发梢或饰品边缘补丁图层，单独参考价值有限。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "216ed161868c72b19494e81f4c6d336d388caffd3bbcafc76e7d62c137a97e29"
-      }
-    },
-    {
       "id": "game/reimu-dos-variants/hakkei/sprite-6967.png",
       "source_id": "game",
       "kind": "inventory",
@@ -27222,41 +25893,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "7d5413db51868b327f0ba72e18a2b2d697ca223df7247795184aa7411f8ce887"
-      }
-    },
-    {
-      "id": "game/reimu-dos-variants/hakkei/sprite-7376.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/reimu-dos-variants/hakkei/sprite-7376.png",
-      "sha256": "53d81cefd32b584d7b2019ceb524735ea30e3c8960e49916bb999584bd757cf6",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "饰物身份"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "极小的淡黄色双圈椭圆环状碎片图层，黑线描边。",
-        "game_use": "用于角色局部发环或小型饰品细节拼装的微小补丁图层。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "53d81cefd32b584d7b2019ceb524735ea30e3c8960e49916bb999584bd757cf6"
       }
     },
     {
@@ -29150,42 +27786,6 @@
       }
     },
     {
-      "id": "game/standard-species/hakkei/sprite-6880.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/standard-species/hakkei/sprite-6880.png",
-      "sha256": "216ed161868c72b19494e81f4c6d336d388caffd3bbcafc76e7d62c137a97e29",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "饰物身份"
-        ],
-        "emotions": [],
-        "targets": [
-          "道具",
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "横向矩形画布左右边缘各有一个细小的淡黄色尖角装饰部件。",
-        "game_use": "用于油库里头部或帽饰边缘微小点缀的拆分叠加图层。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "216ed161868c72b19494e81f4c6d336d388caffd3bbcafc76e7d62c137a97e29"
-      }
-    },
-    {
       "id": "game/standard-species/hakkei/sprite-7017.png",
       "source_id": "game",
       "kind": "inventory",
@@ -29333,42 +27933,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "7d5413db51868b327f0ba72e18a2b2d697ca223df7247795184aa7411f8ce887"
-      }
-    },
-    {
-      "id": "game/standard-species/hakkei/sprite-7376.png",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/standard-species/hakkei/sprite-7376.png",
-      "sha256": "53d81cefd32b584d7b2019ceb524735ea30e3c8960e49916bb999584bd757cf6",
-      "image_tags": {
-        "entities": [
-          "橙"
-        ],
-        "scenarios": [
-          "饰物身份"
-        ],
-        "emotions": [],
-        "targets": [
-          "道具"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "其他饰品",
-          "颜色材质"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "单独拆分的小型金黄色椭圆耳环配件。",
-        "game_use": "用于油库里橙猫耳边缘佩戴的金耳环细节叠加图层。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "53d81cefd32b584d7b2019ceb524735ea30e3c8960e49916bb999584bd757cf6"
       }
     },
     {
@@ -29860,49 +28424,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "6bb2a642568eba79277302fe2a96b171af925206a09cc7c71b1bf1057f0834d0"
-      }
-    },
-    {
-      "id": "game/tiles.jpg",
-      "source_id": "game",
-      "kind": "inventory",
-      "topics": [],
-      "classification_basis": "逐图视觉标签；不自动成为精选参考或游戏采用依据",
-      "classified_on": "2026-11-07",
-      "path": "wiki/art-references/game/tiles.jpg",
-      "sha256": "3259b3d5695eea43d72810cc86147a66ac21bf568230516a0fc3196f95aac40c",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "魔理沙",
-          "橙",
-          "通用油库里"
-        ],
-        "scenarios": [
-          "日常活动",
-          "饰物身份"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型",
-          "道具"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "发型",
-          "帽饰",
-          "其他饰品",
-          "像素Sprite"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "白底网格排列的油库里部件缩略图集，包含金色与棕色头发、红色蝴蝶结、帽子及脸部等微小图标。",
-        "game_use": "展示油库里拼装部件在图集或槽位中的排列与分类方式参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "3259b3d5695eea43d72810cc86147a66ac21bf568230516a0fc3196f95aac40c"
       }
     },
     {
@@ -30723,64 +29244,6 @@
       }
     },
     {
-      "id": "M02-003",
-      "source_id": "M02",
-      "kind": "reference",
-      "topics": [
-        "society",
-        "cognition",
-        "motion"
-      ],
-      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M02/003-9a21620b.png",
-      "sha256": "a8b335fdf155467d5d13b9e74122b54a9471a22b6b6655eef767b54e9f83559d",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "橙",
-          "徽章"
-        ],
-        "scenarios": [
-          "徽章考核",
-          "饰物身份",
-          "认知教学",
-          "同伴交往"
-        ],
-        "emotions": [
-          "喜悦",
-          "得意",
-          "惊讶",
-          "悲伤",
-          "困惑"
-        ],
-        "targets": [
-          "表情",
-          "事件",
-          "道具"
-        ],
-        "behaviors": [
-          "教学学习"
-        ],
-        "appearance": [
-          "帽饰",
-          "辫子",
-          "尾巴",
-          "其他饰品",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "页面上方绘有三只帽子上分别别有银、铜、金徽章的魔理沙油库里对比徽章后的不同神情，右侧是一只带猫耳与尾巴的橙油库里因看不懂汉字“猶”而困惑晕眩的草图，下方为徽章考试制度日文说明与费用对照表。",
-        "game_use": "可用于参考不同等级徽章在魔理沙帽饰上的对比表现、考级受挫与得意表情，以及橙油库里的猫耳猫尾与识字困惑反应。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "a8b335fdf155467d5d13b9e74122b54a9471a22b6b6655eef767b54e9f83559d"
-      }
-    },
-    {
       "id": "M02-004",
       "source_id": "M02",
       "kind": "reference",
@@ -31442,59 +29905,6 @@
       }
     },
     {
-      "id": "M03-008",
-      "source_id": "M03",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M03/008-cf792131.png",
-      "sha256": "4af2c9bf7b6978d013be6de3623c7f856161a42e0e6aedb103413045066cf586",
-      "image_tags": {
-        "entities": [
-          "帕秋莉",
-          "橙",
-          "妖梦"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "采集进食",
-          "日常活动"
-        ],
-        "emotions": [
-          "喜悦",
-          "担忧",
-          "愤怒",
-          "认真"
-        ],
-        "targets": [
-          "表情",
-          "动作",
-          "事件"
-        ],
-        "behaviors": [
-          "进食",
-          "辫子持物"
-        ],
-        "appearance": [
-          "发型",
-          "帽饰",
-          "辫子",
-          "尾巴",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白漫画分镜，帕秋莉、橙与妖梦围绕食物交谈，中格可见辫子夹取食物与幼体围食，末格呈现三者不同神情。",
-        "game_use": "可作帕秋莉、橙、妖梦同框表情与围食动作的辅助参考，但页面文字气泡遮挡较多。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "4af2c9bf7b6978d013be6de3623c7f856161a42e0e6aedb103413045066cf586"
-      }
-    },
-    {
       "id": "M03-009",
       "source_id": "M03",
       "kind": "reference",
@@ -31553,57 +29963,6 @@
       }
     },
     {
-      "id": "M03-010",
-      "source_id": "M03",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M03/010-63c86864.png",
-      "sha256": "4fc047dabec1db6f2079b4f4e1d5c68b7c927534a9619185d352ba521aa97ce3",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "爱丽丝",
-          "橙",
-          "妖梦",
-          "纸箱"
-        ],
-        "scenarios": [
-          "同伴交往",
-          "采集进食"
-        ],
-        "emotions": [
-          "惊讶",
-          "困惑",
-          "认真",
-          "得意"
-        ],
-        "targets": [
-          "表情",
-          "道具",
-          "事件"
-        ],
-        "behaviors": [
-          "进食"
-        ],
-        "appearance": [
-          "发型",
-          "帽饰",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白漫画分镜中，灵梦、爱丽丝、橙与妖梦查看敞开纸箱内的红豆并品尝议论，展现惊讶、困惑与严肃等面部特写。",
-        "game_use": "可作箱装食物道具及多角色疑虑表情的辅助参考，但对白占比较大。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "4fc047dabec1db6f2079b4f4e1d5c68b7c927534a9619185d352ba521aa97ce3"
-      }
-    },
-    {
       "id": "M03-011",
       "source_id": "M03",
       "kind": "reference",
@@ -31656,46 +30015,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-07T20:57:05.313650+00:00",
         "tagged_sha256": "707180845b4ef66c0660d9264d8d5207db160f75bf8c9d9a3d2fc5bdda3f2603"
-      }
-    },
-    {
-      "id": "M03-012",
-      "source_id": "M03",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M03/012-4852e351.png",
-      "sha256": "d5d71aa8214224cf6fdd3772fdcbdd55de759cda0d31d979af4c70bdd728da46",
-      "image_tags": {
-        "entities": [
-          "通用油库里"
-        ],
-        "scenarios": [
-          "卫生如厕",
-          "环境避险"
-        ],
-        "emotions": [],
-        "targets": [
-          "道具",
-          "场景",
-          "事件"
-        ],
-        "behaviors": [
-          "如厕"
-        ],
-        "appearance": [
-          "颜色材质"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "说明类黑白漫画页，上方屏幕展示粪便散落的庭院与翻倒垃圾桶，中下格绘有驱油库里豆包装盒、木升、含霉菌胶囊的豆粒剖面与内部长霉的油库里轮廓。",
-        "game_use": "可作驱逐用豆类道具外观及油库里聚落卫生污染场景的辅助参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "d5d71aa8214224cf6fdd3772fdcbdd55de759cda0d31d979af4c70bdd728da46"
       }
     },
     {
@@ -32950,96 +31269,6 @@
       }
     },
     {
-      "id": "M06-005",
-      "source_id": "M06",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M06/005-aa3152e7.jpg",
-      "sha256": "b4dd9389828c4c6fb2530a2c2360aad8e1fec281b86cd4ffadffb9fcb2427888",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "爱丽丝"
-        ],
-        "scenarios": [
-          "人类接触",
-          "外出旅行"
-        ],
-        "emotions": [
-          "担忧"
-        ],
-        "targets": [
-          "动作",
-          "场景"
-        ],
-        "behaviors": [
-          "人类互动",
-          "移动跳跃"
-        ],
-        "appearance": [
-          "整体轮廓"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "长条文字漫画中部绘有一张侧面插图，人类女孩抱着人偶向左步行，矮小的幼体爱丽丝在右侧地面上弹跳追赶。",
-        "game_use": "可作人类步行与幼体油库里侧向跳跃追赶的距离比例辅助参考，但页面文字占比过高。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "b4dd9389828c4c6fb2530a2c2360aad8e1fec281b86cd4ffadffb9fcb2427888"
-      }
-    },
-    {
-      "id": "M06-006",
-      "source_id": "M06",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M06/006-a9bd64d3.jpg",
-      "sha256": "0d832cb8f7bf5a08d36522d1a090b0bad53568cc25e17a8e3394768731908f44",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "爱丽丝"
-        ],
-        "scenarios": [
-          "人类接触",
-          "医疗照护",
-          "道歉安慰"
-        ],
-        "emotions": [
-          "悲伤",
-          "担忧"
-        ],
-        "targets": [
-          "动作",
-          "场景",
-          "表情"
-        ],
-        "behaviors": [
-          "人类互动",
-          "问候蹭脸"
-        ],
-        "appearance": [
-          "伤口污渍",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "草图长条漫画绘有房屋玄关、行走的人类双脚、脸颊沾污的幼体爱丽丝、被扔倒在地的长发人偶，以及爱丽丝凑近舔舐安抚人偶的画面。",
-        "game_use": "可作油库里贴近舔舐安抚同伴动作及脸部污渍的辅助参考，但画风为较潦草铅笔草图且文本占比较多。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "0d832cb8f7bf5a08d36522d1a090b0bad53568cc25e17a8e3394768731908f44"
-      }
-    },
-    {
       "id": "M06-007",
       "source_id": "M06",
       "kind": "reference",
@@ -33089,53 +31318,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "57bfca8196fdb65b5df6c0c56add93597214acc6f854ce30ce94021cddbdca8f"
-      }
-    },
-    {
-      "id": "M06-008",
-      "source_id": "M06",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M06/008-f8504437.jpg",
-      "sha256": "5088e6b1b0db0d1f9a642ad320658a3085e99e033e8b514c81c0908ade45d73b",
-      "image_tags": {
-        "entities": [
-          "人类",
-          "爱丽丝"
-        ],
-        "scenarios": [
-          "人类接触",
-          "收养安置",
-          "道歉安慰"
-        ],
-        "emotions": [
-          "悲伤",
-          "安心"
-        ],
-        "targets": [
-          "场景",
-          "表情",
-          "事件"
-        ],
-        "behaviors": [
-          "人类互动",
-          "休息睡眠"
-        ],
-        "appearance": [
-          "脸部",
-          "其他饰品"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "黑白漫画草图中，上方画有低头抱膝坐地的短发女孩，中间为长发人偶靠在闭眼平静的爱丽丝油库里脸侧，下方附有大段对话文字。",
-        "game_use": "展示人类拾养爱丽丝油库里的剧情分镜参考，美术构图与前页重复度较高。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "5088e6b1b0db0d1f9a642ad320658a3085e99e033e8b514c81c0908ade45d73b"
       }
     },
     {
@@ -33564,134 +31746,6 @@
       }
     },
     {
-      "id": "M07-008",
-      "source_id": "M07",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M07/008-8ac085eb.jpg",
-      "sha256": "ec202884d9e2f9ccd08e95a67965e5e7a5e04dec5c99afb9a2ae4bddd03d0c00",
-      "image_tags": {
-        "entities": [
-          "帕秋莉"
-        ],
-        "scenarios": [
-          "身体受损"
-        ],
-        "emotions": [
-          "痛苦",
-          "愤怒"
-        ],
-        "targets": [
-          "表情",
-          "道具"
-        ],
-        "behaviors": [
-          "受伤"
-        ],
-        "appearance": [
-          "脸部",
-          "帽饰",
-          "发型"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "插画上半部为大段日文叙述，下半部特写帕秋莉戴着粉色月牙睡帽，头顶被旋入带螺杆的青色圆筒盖，双眼布满血丝仰视，两侧紫发卷束分别呈颤抖与怒筋状态。",
-        "game_use": "帕秋莉头顶被旋入螺杆圆筒盖及血丝仰视眼部的特写，篇幅偏窄且剧情偏极端加工。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "ec202884d9e2f9ccd08e95a67965e5e7a5e04dec5c99afb9a2ae4bddd03d0c00"
-      }
-    },
-    {
-      "id": "M07-009",
-      "source_id": "M07",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M07/009-91aaa41a.jpg",
-      "sha256": "da224a745947a277e7e936dc3ca3819c326ea2fd4461dcc817e8b39c389a4fd4",
-      "image_tags": {
-        "entities": [
-          "帕秋莉"
-        ],
-        "scenarios": [
-          "身体受损"
-        ],
-        "emotions": [
-          "痛苦",
-          "悲伤"
-        ],
-        "targets": [
-          "形变",
-          "道具",
-          "表情"
-        ],
-        "behaviors": [
-          "受伤"
-        ],
-        "appearance": [
-          "身体形变",
-          "伤口污渍",
-          "帽饰",
-          "脸部"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "插画上半部为大段日文说明，下半部绘有一只帕秋莉浑身肿胀趴伏并伴随颤抖线，双眼闭合处留有浅色疤痕印，头顶插有青色圆盖，口部嵌着金属水龙头，底部呈灰褐色灼伤状。",
-        "game_use": "帕秋莉受加工改造后的肿胀趴伏与闭眼疤痕外观参考，画面大半为长段文字。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "da224a745947a277e7e936dc3ca3819c326ea2fd4461dcc817e8b39c389a4fd4"
-      }
-    },
-    {
-      "id": "M07-010",
-      "source_id": "M07",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M07/010-145d51ee.jpg",
-      "sha256": "d621d82c78a53343231b60bf37191d67509c38a3c69b4dad2b2e36869dc8b893",
-      "image_tags": {
-        "entities": [
-          "帕秋莉"
-        ],
-        "scenarios": [
-          "外出旅行"
-        ],
-        "emotions": [
-          "喜悦"
-        ],
-        "targets": [
-          "表情",
-          "道具",
-          "事件"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "帽饰"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "插画上方为大段完结文字，左下角为帕秋莉眯眼微笑的半身头像，右下角绘有一辆写着「ゆっくり運送」的红色货运卡车冒烟驶离。",
-        "game_use": "仅包含与前图重复的帕秋莉微笑头像和货运卡车收尾画面，游戏美术参考价值有限。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "d621d82c78a53343231b60bf37191d67509c38a3c69b4dad2b2e36869dc8b893"
-      }
-    },
-    {
       "id": "M07-011",
       "source_id": "M07",
       "kind": "reference",
@@ -33796,54 +31850,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "ae08319fd28980bea9fbe865de13ba6bc5c6e7ca1cfff5ccfe5a4feaccaba21a"
-      }
-    },
-    {
-      "id": "M08-002",
-      "source_id": "M08",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M08/002-77e1f992.png",
-      "sha256": "71b662cf1cfedac8d9f7d3377314552a4bfee3b1f52bf9ac1fa2c0f0fed42e43",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "通用油库里",
-          "人类"
-        ],
-        "scenarios": [
-          "日常活动",
-          "休息睡眠",
-          "人类接触"
-        ],
-        "emotions": [
-          "喜悦",
-          "惊讶",
-          "悲伤"
-        ],
-        "targets": [
-          "场景",
-          "事件"
-        ],
-        "behaviors": [
-          "休息睡眠",
-          "人类互动"
-        ],
-        "appearance": [
-          "整体轮廓",
-          "成幼比例"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "四格黑白漫画，前两格人类在拉面店吃面并因得知店铺即将歇业而震惊，后两格人类沿公园护栏边沮丧步行并意外停步，护栏旁草地边卧着一只灵梦和三只微小幼体油库里。",
-        "game_use": "仅可作为路边护栏旁野生油库里群聚休憩的远景比例参考，画面主体为人类拉面店剧情。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "71b662cf1cfedac8d9f7d3377314552a4bfee3b1f52bf9ac1fa2c0f0fed42e43"
       }
     },
     {
@@ -35816,84 +33822,6 @@
       }
     },
     {
-      "id": "M12-005",
-      "source_id": "M12",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M12/005-9b732285.jpg",
-      "sha256": "f4c95f3423b3b627d119faf6d8360ac06166418ac8641b0dff6f42d3b66bce0b",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "灵梦"
-        ],
-        "scenarios": [
-          "日常活动",
-          "同伴交往"
-        ],
-        "emotions": [
-          "困惑",
-          "惊讶"
-        ],
-        "targets": [
-          "表情"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "脸部",
-          "帽饰"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "两格黑白简笔画中，上格戴帽魔理沙双眼呈旋涡状并带问号张嘴发问，下格无帽魔理沙与灵梦并排睁大双眼张嘴交谈。",
-        "game_use": "可作魔理沙旋涡眼困惑神情参考，但上格帽饰被台词遮挡且下格与同系列构图重复。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "f4c95f3423b3b627d119faf6d8360ac06166418ac8641b0dff6f42d3b66bce0b"
-      }
-    },
-    {
-      "id": "M12-006",
-      "source_id": "M12",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M12/006-465b2632.jpg",
-      "sha256": "e7a55f059e7b9bfa9d4e7ff7ba50d1ac92324e42707d7db0da7f3dc5c8b76ddd",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "灵梦"
-        ],
-        "scenarios": [
-          "日常活动"
-        ],
-        "emotions": [],
-        "targets": [
-          "模型"
-        ],
-        "behaviors": [],
-        "appearance": [
-          "帽饰",
-          "多角度外形"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "两格黑白简笔画中，上格为极近景裁剪的局部线条与翘起呆毛，下格为俯视视角下落在地面上的魔理沙巫师帽与一旁闭眼油库里的局部头顶。",
-        "game_use": "可辅助参考俯视视角下地面独立巫师帽轮廓，但上格严重裁切且整体为局部过渡格。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "e7a55f059e7b9bfa9d4e7ff7ba50d1ac92324e42707d7db0da7f3dc5c8b76ddd"
-      }
-    },
-    {
       "id": "M12-007",
       "source_id": "M12",
       "kind": "reference",
@@ -36036,57 +33964,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "2f8dc1751b8bd3f06faefff210354e92f16f09ae297aad9307598b9b617c5775"
-      }
-    },
-    {
-      "id": "M12-010",
-      "source_id": "M12",
-      "kind": "reference",
-      "topics": [
-        "habitat",
-        "human"
-      ],
-      "classification_basis": "game-annotations.json 的逐图实体、情景和制作目的；旧主题只作兼容入口",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M12/010-c099fb7f.jpg",
-      "sha256": "f87602230be4180d601d8dcaac026009886ce30d71a31911e007dc24f58be350",
-      "image_tags": {
-        "entities": [
-          "魔理沙",
-          "灵梦",
-          "人类",
-          "软窝"
-        ],
-        "scenarios": [
-          "宠物照料",
-          "人类接触",
-          "住所布置",
-          "休息睡眠"
-        ],
-        "emotions": [
-          "安心"
-        ],
-        "targets": [
-          "场景",
-          "道具",
-          "事件"
-        ],
-        "behaviors": [
-          "休息睡眠",
-          "人类互动"
-        ],
-        "appearance": [
-          "整体轮廓"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "双格黑白漫画中，上方俯视玻璃饲养箱内有食盆、垫料及蜷缩在圆形窝中的小型魔理沙与灵梦，下方一名光头人形角色反坐在椅子上趴着椅背注视桌上的饲养箱。",
-        "game_use": "可作为宠物油库里玻璃饲养箱布置、箱内食盆与圆形软窝摆放，以及饲养者旁观互动的场景构图参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "f87602230be4180d601d8dcaac026009886ce30d71a31911e007dc24f58be350"
       }
     },
     {
@@ -37126,53 +35003,6 @@
         "prompt_version": 1,
         "tagged_at": "2026-11-27T08:51:10.030919+00:00",
         "tagged_sha256": "7036bf777cb39e44cf58e9e2b8f7c27c240ae87b36fed2aaeb93efbfc9235816"
-      }
-    },
-    {
-      "id": "M15-005",
-      "source_id": "M15",
-      "kind": "context",
-      "topics": [],
-      "classification_basis": "未进入当前游戏参考；状态见 game-annotations.json，不沿用旧宽泛用途",
-      "classified_on": "2026-10-14",
-      "path": "wiki/art-references/images/M15/005-3a63aea3.jpg",
-      "sha256": "c1e60d63fcd235d31420107833dba1df240a0d4e157f617b3fd3f3d6523b2c50",
-      "image_tags": {
-        "entities": [
-          "灵梦",
-          "人类"
-        ],
-        "scenarios": [
-          "人类接触",
-          "饰物身份",
-          "日常活动"
-        ],
-        "emotions": [
-          "喜悦"
-        ],
-        "targets": [
-          "表情",
-          "场景",
-          "动作"
-        ],
-        "behaviors": [
-          "移动跳跃",
-          "人类互动"
-        ],
-        "appearance": [
-          "成幼比例",
-          "脸部",
-          "多角度外形"
-        ],
-        "reference_value": "low",
-        "delete_candidate": "none",
-        "observation": "漫画第4页，上排成体灵梦流着泪露出喜悦表情而幼体灵梦向右跳跃，中排为夜晚灯火透出的平房轮廓，下排为人类在走廊行走时灵梦亲子从画面左下角探头。",
-        "game_use": "可作为灵梦喜极而泣表情、幼体侧后方跳跃姿态及夜间民居背景氛围的辅助参考。",
-        "delete_reason": "",
-        "model": "gemini-flash",
-        "prompt_version": 1,
-        "tagged_at": "2026-11-27T08:51:10.030919+00:00",
-        "tagged_sha256": "c1e60d63fcd235d31420107833dba1df240a0d4e157f617b3fd3f3d6523b2c50"
       }
     },
     {

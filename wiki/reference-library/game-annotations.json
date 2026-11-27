@@ -594,27 +594,6 @@
       "review_method": "本地联系表定位画格；清晰度细审另见 quality-selection"
     },
     {
-      "id": "M02-003",
-      "entities": [
-        "魔理沙",
-        "橙"
-      ],
-      "scenarios": [
-        "徽章考核"
-      ],
-      "emotions": [
-        "困惑",
-        "得意"
-      ],
-      "targets": [
-        "表情"
-      ],
-      "focus": "上方戴帽个体的眼口变化",
-      "purpose": "给考核反馈准备困惑与得意两套表情；徽章显示与表情变化分别制作。",
-      "sha256": "a8b335fdf155467d5d13b9e74122b54a9471a22b6b6655eef767b54e9f83559d",
-      "review_method": "本地联系表定位画格；清晰度细审另见 quality-selection"
-    },
-    {
       "id": "M02-005",
       "entities": [
         "灵梦",
@@ -2065,29 +2044,6 @@
       "review_method": "本地联系表定位画格；清晰度细审另见 quality-selection"
     },
     {
-      "id": "EH15-003",
-      "entities": [
-        "灵梦",
-        "人类"
-      ],
-      "scenarios": [
-        "采集进食",
-        "人类接触"
-      ],
-      "emotions": [
-        "期待",
-        "喜悦"
-      ],
-      "targets": [
-        "动作",
-        "表情"
-      ],
-      "focus": "抬身接食与下部咀嚼近景",
-      "purpose": "制作接住高处递食后低头咀嚼的两段动作，嘴的朝向跟随食物。",
-      "sha256": "8d43240e6aada8439d9546ccfe65c360194a67bf9b8e61f23e6625c9db1becb7",
-      "review_method": "本地联系表定位画格；清晰度细审另见 quality-selection"
-    },
-    {
       "id": "EH16-003",
       "entities": [
         "茎果"
@@ -3530,25 +3486,6 @@
       "purpose": "补教学时的持物挂点：细棒夹在左侧发束末端，与脸部口型分开控制；摆动发束指向对象，嘴部负责解释。",
       "sha256": "dacd6d0f0f893647de3102823ba41279c703f991ed1c660fe11669ca28e3e047",
       "review_method": "2026-10-15 本地联系表定位画格，另打开原文件核对指定部位与清晰度"
-    },
-    {
-      "id": "M12-010",
-      "entities": [
-        "通用油库里",
-        "人类"
-      ],
-      "scenarios": [
-        "住所布置"
-      ],
-      "emotions": [],
-      "targets": [
-        "道具",
-        "场景"
-      ],
-      "focus": "上半透明容器内的独立巢室、通道开口和下半观察者",
-      "purpose": "拆分观察箱、巢室、通道和展示侧面；做可读的剖面布局，让玩家看得见窝内对象和入口。",
-      "sha256": "f87602230be4180d601d8dcaac026009886ce30d71a31911e007dc24f58be350",
-      "review_method": "2026-10-15 本地联系表定位画格；清晰度细审另见 quality-selection"
     },
     {
       "id": "M12-011",
@@ -11249,68 +11186,8 @@
   ],
   "image_queue": [
     {
-      "id": "M03-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M03-010",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M03-012",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M06-005",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M06-006",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M06-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M07-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M07-009",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M07-010",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M12-005",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M12-006",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M15-005",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "M08-002",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH04-001",
       "state": "out_of_scope"
-    },
-    {
-      "id": "EH11-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH02-007",
-      "state": "overview_not_selected"
     },
     {
       "id": "EH04-002",
@@ -11329,19 +11206,7 @@
       "state": "out_of_scope"
     },
     {
-      "id": "EH07-002",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH07-005",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH07-007",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH10-005",
       "state": "overview_not_selected"
     },
     {
@@ -11373,14 +11238,6 @@
       "state": "out_of_scope"
     },
     {
-      "id": "EH14-007",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH19-001",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH21-001",
       "state": "out_of_scope"
     },
@@ -11389,35 +11246,15 @@
       "state": "out_of_scope"
     },
     {
-      "id": "EH23-001",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH24-001",
       "state": "out_of_scope"
-    },
-    {
-      "id": "EH15-007",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH15-008",
-      "state": "overview_not_selected"
     },
     {
       "id": "EH16-008",
       "state": "overview_not_selected"
     },
     {
-      "id": "EH18-002",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH18-003",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH18-004",
       "state": "overview_not_selected"
     },
     {
@@ -11434,10 +11271,6 @@
     },
     {
       "id": "EH18-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH19-007",
       "state": "overview_not_selected"
     },
     {
@@ -11513,40 +11346,12 @@
       "state": "out_of_scope"
     },
     {
-      "id": "EH24-007",
-      "state": "out_of_scope"
-    },
-    {
       "id": "EH24-008",
       "state": "out_of_scope"
     },
     {
-      "id": "EH26-008",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH29-002",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH29-005",
-      "state": "overview_not_selected"
-    },
-    {
       "id": "EH20-008",
       "state": "out_of_scope"
-    },
-    {
-      "id": "EH35-001",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH36-005",
-      "state": "overview_not_selected"
-    },
-    {
-      "id": "EH36-006",
-      "state": "overview_not_selected"
     }
   ],
   "excluded_text_reasons": {

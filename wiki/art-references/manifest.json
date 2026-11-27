@@ -40,7 +40,10 @@
       "page_sha256": "12bca840bce8e0c24322a56c544c73a14b577c896fabb56a4cd6e399a5c0cccc",
       "available_images": 8,
       "selection": "正文前 8 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        3
+      ]
     },
     {
       "id": "M03",
@@ -60,7 +63,12 @@
       "page_sha256": "b9e39b761842d9bf29455b5d0efa44ef92ca52b24f1a02c236130abeaddfd89a",
       "available_images": 20,
       "selection": "正文前 12 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        8,
+        10,
+        12
+      ]
     },
     {
       "id": "M04",
@@ -119,7 +127,12 @@
       "page_sha256": "2453e7b71642f6f4badbadf2e7b15a6554c303f3590b1e9fcd98d16aa60d1d86",
       "available_images": 9,
       "selection": "正文前 9 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        5,
+        6,
+        8
+      ]
     },
     {
       "id": "M07",
@@ -139,7 +152,12 @@
       "page_sha256": "8ce6e3f84d2c8dc636e019d21c7a30b65f0cad5c969f272771699b8d0bb61b8f",
       "available_images": 11,
       "selection": "正文前 11 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        8,
+        9,
+        10
+      ]
     },
     {
       "id": "M08",
@@ -158,7 +176,10 @@
       "page_sha256": "6d9f4dde2bc578e587d85d4e3585f44c1efd7f42fcaae67fd54ac5d434606f53",
       "available_images": 6,
       "selection": "正文前 6 张不同原图链接",
-      "license": "未发现明确开放授权；不视为可直接复用的游戏资源"
+      "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
+      "excluded_images": [
+        2
+      ]
     },
     {
       "id": "M09",
@@ -246,7 +267,12 @@
       "available_images": 13,
       "selection": "正文前 12 张不同原图链接",
       "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
-      "attribution_override": "無声あき（转载页作者分类）"
+      "attribution_override": "無声あき（转载页作者分类）",
+      "excluded_images": [
+        5,
+        6,
+        10
+      ]
     },
     {
       "id": "M13",
@@ -309,7 +335,8 @@
       "license": "未发现明确开放授权；不视为可直接复用的游戏资源",
       "attribution_override": "漫画作者未确认；题名标注的 D.O 为原作 SS 署名",
       "excluded_images": [
-        2
+        2,
+        5
       ]
     }
   ],
@@ -679,32 +706,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M02-003",
-      "source_id": "M02",
-      "article_image_order": 3,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/59886268.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/a/9a21620b.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/a/9a21620b.png",
-      "retrieved_at": "2026-10-14T12:57:46.197905+00:00",
-      "path": "wiki/art-references/images/M02/003-9a21620b.png",
-      "bytes": 292598,
-      "sha256": "a8b335fdf155467d5d13b9e74122b54a9471a22b6b6655eef767b54e9f83559d",
-      "width": 1240,
-      "height": 1754,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "1781181837870",
-      "tags": [
-        "徽章",
-        "饰品",
-        "教育",
-        "表情"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "魔理沙帽子、徽章和不同反应；情绪不是等级固定属性。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M02-004",
       "source_id": "M02",
       "article_image_order": 4,
@@ -1017,32 +1018,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M03-008",
-      "source_id": "M03",
-      "article_image_order": 8,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/59677837.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/c/f/cf792131.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/c/f/cf792131.png",
-      "retrieved_at": "2026-10-14T12:58:17.908418+00:00",
-      "path": "wiki/art-references/images/M03/008-cf792131.png",
-      "bytes": 407555,
-      "sha256": "4af2c9bf7b6978d013be6de3623c7f856161a42e0e6aedb103413045066cf586",
-      "width": 1240,
-      "height": 1754,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "1770284758470",
-      "tags": [
-        "群落",
-        "家庭",
-        "季节",
-        "比例"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "惩罚与群体反应；不作为普通照料参考。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M03-009",
       "source_id": "M03",
       "article_image_order": 9,
@@ -1069,32 +1044,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M03-010",
-      "source_id": "M03",
-      "article_image_order": 10,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/59677837.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/6/3/63c86864.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/6/3/63c86864.png",
-      "retrieved_at": "2026-10-14T12:58:21.052964+00:00",
-      "path": "wiki/art-references/images/M03/010-63c86864.png",
-      "bytes": 435616,
-      "sha256": "4fc047dabec1db6f2079b4f4e1d5c68b7c927534a9619185d352ba521aa97ce3",
-      "width": 1240,
-      "height": 1754,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "1770284903920",
-      "tags": [
-        "群落",
-        "家庭",
-        "季节",
-        "比例"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "所谓红豆的近景；真实成分需连后页理解。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M03-011",
       "source_id": "M03",
       "article_image_order": 11,
@@ -1118,32 +1067,6 @@
       ],
       "review_status": "detail_reviewed",
       "review_note": "帕秋莉向橙分派群内传话、向妖梦分派外出收集消息；可辨短发妖梦头像。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M03-012",
-      "source_id": "M03",
-      "article_image_order": 12,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/59677837.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/8/4852e351.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/8/4852e351.png",
-      "retrieved_at": "2026-10-14T12:58:25.736399+00:00",
-      "path": "wiki/art-references/images/M03/012-4852e351.png",
-      "bytes": 454050,
-      "sha256": "d5d71aa8214224cf6fdd3772fdcbdd55de759cda0d31d979af4c70bdd728da46",
-      "width": 1240,
-      "height": 1754,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "1770285041100",
-      "tags": [
-        "群落",
-        "家庭",
-        "季节",
-        "比例"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "杀虫剂产品切面与故事解释；不是可食用豆类或治疗道具。",
       "reviewed_date": "2026-10-14"
     },
     {
@@ -1563,58 +1486,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M06-005",
-      "source_id": "M06",
-      "article_image_order": 5,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/a/a/aa3152e7.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/a/a/aa3152e7.jpg",
-      "retrieved_at": "2026-10-14T12:59:15.404851+00:00",
-      "path": "wiki/art-references/images/M06/005-aa3152e7.jpg",
-      "bytes": 101749,
-      "sha256": "b4dd9389828c4c6fb2530a2c2360aad8e1fec281b86cd4ffadffb9fcb2427888",
-      "width": 407,
-      "height": 868,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "005",
-      "tags": [
-        "爱丽丝",
-        "玩偶",
-        "睡眠",
-        "情感"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "人物互动与情绪变化；不补写动机。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M06-006",
-      "source_id": "M06",
-      "article_image_order": 6,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/a/9/a9bd64d3.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/a/9/a9bd64d3.jpg",
-      "retrieved_at": "2026-10-14T12:59:16.813313+00:00",
-      "path": "wiki/art-references/images/M06/006-a9bd64d3.jpg",
-      "bytes": 452919,
-      "sha256": "0d832cb8f7bf5a08d36522d1a090b0bad53568cc25e17a8e3394768731908f44",
-      "width": 407,
-      "height": 3040,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "006",
-      "tags": [
-        "爱丽丝",
-        "玩偶",
-        "睡眠",
-        "情感"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "追逐／移动画面；细字未逐句核读。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M06-007",
       "source_id": "M06",
       "article_image_order": 7,
@@ -1638,32 +1509,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "跌落与受伤语境；非正常移动姿态基准。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M06-008",
-      "source_id": "M06",
-      "article_image_order": 8,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/29925822.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/f/8/f8504437.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/f/8/f8504437.jpg",
-      "retrieved_at": "2026-10-14T12:59:20.213475+00:00",
-      "path": "wiki/art-references/images/M06/008-f8504437.jpg",
-      "bytes": 232376,
-      "sha256": "5088e6b1b0db0d1f9a642ad320658a3085e99e033e8b514c81c0908ade45d73b",
-      "width": 407,
-      "height": 1747,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "008",
-      "tags": [
-        "爱丽丝",
-        "玩偶",
-        "睡眠",
-        "情感"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "情绪与玩偶相关画面；未完成逐句核读。",
       "reviewed_date": "2026-10-14"
     },
     {
@@ -1872,84 +1717,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "伤害／加工情节；不作普通饲养建议。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M07-008",
-      "source_id": "M07",
-      "article_image_order": 8,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/8/a/8ac085eb.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/8/a/8ac085eb.jpg",
-      "retrieved_at": "2026-10-14T12:59:37.536643+00:00",
-      "path": "wiki/art-references/images/M07/008-8ac085eb.jpg",
-      "bytes": 151981,
-      "sha256": "ec202884d9e2f9ccd08e95a67965e5e7a5e04dec5c99afb9a2ae4bddd03d0c00",
-      "width": 640,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "bouken008",
-      "tags": [
-        "帕秋莉",
-        "书本",
-        "移动",
-        "进食"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "处理设施与人物；未据此推导通用加工线。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M07-009",
-      "source_id": "M07",
-      "article_image_order": 9,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/1/91aaa41a.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/1/91aaa41a.jpg",
-      "retrieved_at": "2026-10-14T12:59:40.735332+00:00",
-      "path": "wiki/art-references/images/M07/009-91aaa41a.jpg",
-      "bytes": 148581,
-      "sha256": "da224a745947a277e7e936dc3ca3819c326ea2fd4461dcc817e8b39c389a4fd4",
-      "width": 640,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "bouken009",
-      "tags": [
-        "帕秋莉",
-        "书本",
-        "移动",
-        "进食"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "故事后段伤害画面；仅总览。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M07-010",
-      "source_id": "M07",
-      "article_image_order": 10,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/32004604.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/1/4/145d51ee.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/1/4/145d51ee.jpg",
-      "retrieved_at": "2026-10-14T12:59:45.662957+00:00",
-      "path": "wiki/art-references/images/M07/010-145d51ee.jpg",
-      "bytes": 102582,
-      "sha256": "d621d82c78a53343231b60bf37191d67509c38a3c69b4dad2b2e36869dc8b893",
-      "width": 640,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "bouken010",
-      "tags": [
-        "帕秋莉",
-        "书本",
-        "移动",
-        "进食"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "货车运输的画面；可作人类物流场景候选。",
       "reviewed_date": "2026-10-14"
     },
     {
@@ -2773,58 +2540,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M12-005",
-      "source_id": "M12",
-      "article_image_order": 5,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/38763129.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/b/9b732285.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/9/b/9b732285.jpg",
-      "retrieved_at": "2026-10-14T13:00:53.108429+00:00",
-      "path": "wiki/art-references/images/M12/005-9b732285.jpg",
-      "bytes": 89271,
-      "sha256": "f4c95f3423b3b627d119faf6d8360ac06166418ac8641b0dff6f42d3b66bce0b",
-      "width": 480,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "1403320892396",
-      "tags": [
-        "观察屋",
-        "房间",
-        "剖面",
-        "生活设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "嘴部／进食相关画面；不提取生理定量。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M12-006",
-      "source_id": "M12",
-      "article_image_order": 6,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/38763129.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/6/465b2632.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/4/6/465b2632.jpg",
-      "retrieved_at": "2026-10-14T13:00:53.743961+00:00",
-      "path": "wiki/art-references/images/M12/006-465b2632.jpg",
-      "bytes": 69399,
-      "sha256": "e7a55f059e7b9bfa9d4e7ff7ba50d1ac92324e42707d7db0da7f3dc5c8b76ddd",
-      "width": 480,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "1403320972921",
-      "tags": [
-        "观察屋",
-        "房间",
-        "剖面",
-        "生活设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "家庭互动与表情变化；仅总览。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M12-007",
       "source_id": "M12",
       "article_image_order": 7,
@@ -2900,32 +2615,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "家庭生活画面与情绪；不补写动机。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M12-010",
-      "source_id": "M12",
-      "article_image_order": 10,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/38763129.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/c/0/c099fb7f.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/c/0/c099fb7f.jpg",
-      "retrieved_at": "2026-10-14T13:00:56.208259+00:00",
-      "path": "wiki/art-references/images/M12/010-c099fb7f.jpg",
-      "bytes": 92680,
-      "sha256": "f87602230be4180d601d8dcaac026009886ce30d71a31911e007dc24f58be350",
-      "width": 480,
-      "height": 640,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "1403321292711",
-      "tags": [
-        "观察屋",
-        "房间",
-        "剖面",
-        "生活设施"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "人工观察屋剖面与连接管；区别天然洞穴。",
       "reviewed_date": "2026-10-14"
     },
     {
@@ -3423,32 +3112,6 @@
       "reviewed_date": "2026-10-14"
     },
     {
-      "id": "M15-005",
-      "source_id": "M15",
-      "article_image_order": 5,
-      "source_url": "http://blog.livedoor.jp/yukkuri_anko/archives/36411281.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/3/a/3a63aea3.jpg",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuri_anko/imgs/3/a/3a63aea3.jpg",
-      "retrieved_at": "2026-10-14T13:01:13.151765+00:00",
-      "path": "wiki/art-references/images/M15/005-3a63aea3.jpg",
-      "bytes": 225956,
-      "sha256": "c1e60d63fcd235d31420107833dba1df240a0d4e157f617b3fd3f3d6523b2c50",
-      "width": 631,
-      "height": 961,
-      "format": "JPEG",
-      "frames": 1,
-      "original_alt": "004",
-      "tags": [
-        "宠物",
-        "庭院",
-        "人类共处",
-        "亲子"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "个体反应与人物对话；未逐字核读。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
       "id": "M15-006",
       "source_id": "M15",
       "article_image_order": 6,
@@ -3803,31 +3466,6 @@
       ],
       "review_status": "visual_overview",
       "review_note": "餐饮场所与人类、橙的线稿长条；未逐句核读。",
-      "reviewed_date": "2026-10-14"
-    },
-    {
-      "id": "M08-002",
-      "source_id": "M08",
-      "article_image_order": 2,
-      "source_url": "http://blog.livedoor.jp/yukkuriplace_anko/archives/43838612.html",
-      "image_url": "https://livedoor.blogimg.jp/yukkuriplace_anko/imgs/7/7/77e1f992.png",
-      "retrieved_url": "https://livedoor.blogimg.jp/yukkuriplace_anko/imgs/7/7/77e1f992.png",
-      "retrieved_at": "2026-10-14T13:02:14.781092+00:00",
-      "path": "wiki/art-references/images/M08/002-77e1f992.png",
-      "bytes": 171834,
-      "sha256": "71b662cf1cfedac8d9f7d3377314552a4bfee3b1f52bf9ac1fa2c0f0fed42e43",
-      "width": 800,
-      "height": 2000,
-      "format": "PNG",
-      "frames": 1,
-      "original_alt": "1dc3d974",
-      "tags": [
-        "橙",
-        "猫耳",
-        "表情"
-      ],
-      "review_status": "visual_overview",
-      "review_note": "人类与橙的对话长条；表情总览。",
       "reviewed_date": "2026-10-14"
     },
     {

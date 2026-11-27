@@ -140,16 +140,6 @@
       "review": "逐张查看本地原文件；评估画面，不代表全文核读"
     },
     {
-      "id": "EH15-003",
-      "sha256": "8d43240e6aada8439d9546ccfe65c360194a67bf9b8e61f23e6625c9db1becb7",
-      "status": "selected",
-      "primary_topic": "feeding",
-      "style": "干净线稿",
-      "reason": "仰头接食、张口和咀嚼使用大幅近景，动作接触点可辨。",
-      "viewing_note": "看口部与食物的接触；不把夸张吞咽画法当身体结构标准。",
-      "review": "逐张查看本地原文件；评估画面，不代表全文核读"
-    },
-    {
       "id": "EH17-002",
       "sha256": "6943015fb1d961df26b940276e54c6a97023773d4f974e92f211e5e02427e433",
       "status": "selected",
