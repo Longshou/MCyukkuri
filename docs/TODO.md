@@ -13,6 +13,7 @@
 | TN-69 牵引绳绕身 | `.worktrees/wp-art-leash` | leash renderer, leash model |
 | 11-27 待看反馈：翻桶与扑腾、辫子表现力 | `.worktrees/wp-braid-redo` | BRAID.md, recipe.json (braid/bin/flail entries), species hair rigs |
 | 11-27 待看反馈：表情返修 | `.worktrees/wp-face-fix-3` | face sources (frail/shy/pin_cry/tongue_cry/spit/reject/nuzzle), recipe.json own entries |
+| 家油不能拴绳、不能当宠物 | `.worktrees/wp-house-nopet` | YukkuriInteractions.java, leash/pet acquisition paths, FEATURES.md |
 
 ## 玩法待办
 
