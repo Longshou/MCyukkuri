@@ -143,6 +143,13 @@ public final class KeepsakeLife implements MotorOwner {
         pendingBeat = new Beat(name, declaredFace, line, where, detail);
     }
 
+    /** A beat whose face the player must see: it ends any running hold instead of being refused by the last one. */
+    private void emitForcedBeat(String name, String declaredFace, String line, String where, int holdTicks, String detail) {
+        if (holdTicks > 0) entity.forceReaction(declaredFace, "", FaceTier.Tier.ofTicks(holdTicks));
+        if (!"none".equals(line)) entity.speakCue(line);
+        pendingBeat = new Beat(name, declaredFace, line, where, detail);
+    }
+
     /** Shared beat logger for DailyLife doll nuzzle, LifeMeal held-out bite, and sleep-entry beats. */
     public void emitExternalBeat(String name, String declaredFace, String line, String where, boolean speak, String detail) {
         if (speak && !"none".equals(line)) entity.speakCue(line);
@@ -443,7 +450,7 @@ public final class KeepsakeLife implements MotorOwner {
                 if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
                 mouth().set(Purpose.KEEPSAKE, one);
                 return true;
-            }));
+            }, YukkuriAction.MOUTH_ITEM_PICK.id()));
             if (started) picking = true; else stop();
             return;
         }
@@ -488,12 +495,12 @@ public final class KeepsakeLife implements MotorOwner {
         if (decision.equals("flee")) {
             // The flight's own face over the still-running robbed reaction; danger reads through it either way.
             face = entity.panicFace();
-            entity.showReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
+            entity.forceReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
         } else if (decision.equals("puff_back")) {
             // The puff response's start shows the same cheek one tick later and speaks the line itself.
             face = "cheek_puff";
             line = "puff";
-            entity.showReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
+            entity.forceReaction(face, "", FaceTier.Tier.ofTicks(ANSWER_FACE_TICKS));
         }
         pendingBeat = new Beat("answer", face, line, "peer", "decision=" + decision);
     }
@@ -583,7 +590,7 @@ public final class KeepsakeLife implements MotorOwner {
                 if (!mouth().canHold(Purpose.KEEPSAKE)) return false;
                 mouth().set(Purpose.KEEPSAKE, one);
                 return true;
-            }));
+            }, YukkuriAction.MOUTH_ITEM_PICK.id()));
             if (started) {
                 picking = true;
             } else {
@@ -634,7 +641,7 @@ public final class KeepsakeLife implements MotorOwner {
                 boolean hollow = NestDoorway.at(entity, drop.position()) != null;
                 String detail = String.format(Locale.ROOT, "item=%s at=%s bed=%s bedDist=%.2f hollow=%s",
                         drop.getUUID(), GameplayLog.at(drop.position()), bed.getBlockPos().toShortString(), rimDist, hollow);
-                emitBeat("set_down", face, line, "bed", 60, detail);
+                emitForcedBeat("set_down", face, line, "bed", 60, detail);
                 cooldown = DONE_COOLDOWN;
                 finish();
                 return;

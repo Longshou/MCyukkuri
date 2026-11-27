@@ -48,7 +48,8 @@ public final class Pick implements Action {
 
     public Pick(Source source, Predicate<ItemStack> into) { this(source, into, CLIP); }
 
-    private Pick(Source source, Predicate<ItemStack> into, String clip) {
+    /** The same pick played with another clip: a keepsake in reach is taken with the mouth's own pick, like a loose item. */
+    public Pick(Source source, Predicate<ItemStack> into, String clip) {
         this.source = source;
         this.into = into;
         this.clip = clip;
