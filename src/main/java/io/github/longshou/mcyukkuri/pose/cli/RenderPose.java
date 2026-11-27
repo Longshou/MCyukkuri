@@ -181,11 +181,14 @@ final class RenderPose implements Overlays.Contact {
             if(wallYield!=null){if(yield)wallYield.solve((i,target)->target.set(skin(i)),world,wallFrame.scale(scale/16),faces,kind->false);else wallYield.clear();}
         }
         boolean wantPaper=request.has("paperCover")&&request.get("paperCover").isJsonArray();
+        boolean wantLeash=request.has("leashLoop")&&request.get("leashLoop").isJsonArray();
         List<String> accPrefixes=new ArrayList<>();
         if(wantPaper)for(var raw:request.getAsJsonArray("paperCover"))accPrefixes.add(raw.getAsString());
+        else if(wantLeash)for(var raw:request.getAsJsonArray("leashLoop"))accPrefixes.add(raw.getAsString());
         var replaced = new ArrayList<String>();
         if (worn != null) for (var item : worn.getAsJsonArray("accessories")) replaced.add(item.getAsString());
-        List<Float> pBody=wantPaper?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
+        List<Float> pBody=wantPaper||wantLeash?new ArrayList<>():null,pMesh=wantPaper?new ArrayList<>():null,pHat=wantPaper?new ArrayList<>():null;
+        List<Float> lHair=wantLeash?new ArrayList<>():null;
         Matrix4f localToWall=turn!=null?new Matrix4f(turn).scale(1/16f):new Matrix4f().scale(1/16f);
         Matrix4f wallToLocal=new Matrix4f(localToWall).invert();
         for(int pi=0;pi<data.getAsJsonArray("parts").size();pi++){
@@ -200,8 +203,10 @@ final class RenderPose implements Overlays.Contact {
             String origName=data.getAsJsonArray("parts").get(pi).getAsJsonObject().get("name").getAsString();
             boolean loose=yield&&WallYield.loose(origName);
             boolean isBody=OfflineModel.group(origName).equals("body")||origName.endsWith("_rump_mark");
-            boolean isAcc=wantPaper&&accPrefixes.stream().anyMatch(origName::startsWith);
+            boolean isAcc=(wantPaper||wantLeash)&&accPrefixes.stream().anyMatch(origName::startsWith);
             boolean skipTent=origName.startsWith("face_")||origName.contains("puff");
+            boolean isLeashHair=wantLeash&&!isBody&&!isAcc&&!skipTent&&organ.isEmpty()
+                    &&!origName.contains("rump")&&!origName.contains("rear_mark")&&!origName.contains("tail")&&!origName.contains("wing");
             if (worn != null && replaced.stream().anyMatch(origName::startsWith)) continue;
             for(int i=start;i<end;i++){var p=skin(i);if(yield&&wallYield!=null)wallYield.apply(i,p);
                 if(layered&&rear!=null)rear.transformPosition(p);
@@ -212,6 +217,9 @@ final class RenderPose implements Overlays.Contact {
                     if(isBody){pBody.add(tp.x);pBody.add(tp.y);pBody.add(tp.z);}
                     if(isAcc){pHat.add(tp.x);pHat.add(tp.y);pHat.add(tp.z);}
                     else{pMesh.add(tp.x);pMesh.add(tp.y);pMesh.add(tp.z);}
+                } else if (wantLeash) {
+                    if (isBody) { pBody.add(p.x); pBody.add(p.y); pBody.add(p.z); }
+                    else if (isLeashHair) { lHair.add(p.x); lHair.add(p.y); lHair.add(p.z); }
                 }
                 if(turn!=null)turn.transformPosition(p);
                 if(loose){float keep=WallYield.press(faces,p.x/16,p.y/16,p.z/16);p.x*=keep;p.z*=keep;}
@@ -277,6 +285,23 @@ final class RenderPose implements Overlays.Contact {
             if(grid!=null){
                 out.add("paper_top", vertexData(sheetTris(grid.top(),grid.rows(),grid.cols(),false,turn), packed));
                 out.add("paper_under", vertexData(sheetTris(grid.under(),grid.rows(),grid.cols(),true,turn), packed));
+            }
+        }
+        if (wantLeash) {
+            var mesh = LeashLoop.build(floatsOf(pBody), pBody.size(), floatsOf(lHair), lHair.size(), 0f);
+            if (mesh != null) {
+                float[] verts = mesh.vertices();
+                if (turn != null) {
+                    var tp = new Vector3f();
+                    var tn = new Vector3f();
+                    for (int i = 0; i < verts.length; i += 8) {
+                        turn.transformPosition(tp.set(verts[i], verts[i + 1], verts[i + 2]));
+                        turn.transformDirection(tn.set(verts[i + 5], verts[i + 6], verts[i + 7])).normalize();
+                        verts[i] = tp.x; verts[i + 1] = tp.y; verts[i + 2] = tp.z;
+                        verts[i + 5] = tn.x; verts[i + 6] = tn.y; verts[i + 7] = tn.z;
+                    }
+                }
+                out.add("leash_loop", vertexData(verts, packed));
             }
         }
         if (packed) return new Drawn(out,output,true);

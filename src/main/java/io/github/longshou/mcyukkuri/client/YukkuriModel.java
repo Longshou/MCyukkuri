@@ -530,6 +530,8 @@ public final class YukkuriModel {
             &&!name.contains("puff")&&!name.contains("rump")&&!name.contains("rear_mark");}
     private float[] wearBuffer = new float[0];
     private int wearBody;
+    private float[] leashHairBuffer = new float[0];
+    private int leashHair;
     private float[] tentBodyBuf = new float[0], tentMeshBuf = new float[0], tentHatBuf = new float[0];
     private int tentBodyLen, tentMeshLen, tentHatLen;
     private final PaperFitSamples<YukkuriView> paperFits = new PaperFitSamples<>();
@@ -747,6 +749,32 @@ public final class YukkuriModel {
         return wearBuffer;
     }
     int wearBodyLength() { return wearBody; }
+
+    /**
+     * Skins the close-hugging hair, sidelock and braid parts of the last render pose (x, y, z in blocks),
+     * excluding hats, wings, tails, face cards and anatomy, so {@link LeashLoopRenderer} wraps outside hair without clipping.
+     */
+    float[] posedLeashHair() {
+        int count = 0;
+        for (var part : parts) if (leashHairPart(part)) count += part.count;
+        if (leashHairBuffer.length < count * 3) leashHairBuffer = new float[count * 3];
+        var point = new Vector3f(); int k = 0;
+        for (var part : parts) if (leashHairPart(part))
+            for (int i = part.start; i < part.start + part.count; i++) {
+                skin(i, point);
+                leashHairBuffer[k++] = point.x / 16; leashHairBuffer[k++] = point.y / 16; leashHairBuffer[k++] = point.z / 16;
+            }
+        leashHair = k;
+        return leashHairBuffer;
+    }
+    int leashHairLength() { return leashHair; }
+    private boolean leashHairPart(Part part) {
+        String n = part.name;
+        if (bodySurface(n) || n.startsWith("face_") || !part.anatomy.isEmpty() || n.contains("puff")
+                || n.contains("rump") || n.contains("rear_mark") || n.contains("tail") || n.contains("wing")
+                || accessoryPart(part)) return false;
+        return true;
+    }
 
     private Matrix4f crownMatrix(int bone) {
         var m = new Matrix4f();

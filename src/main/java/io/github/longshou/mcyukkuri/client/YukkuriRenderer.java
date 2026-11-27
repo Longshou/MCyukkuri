@@ -317,6 +317,7 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             var stemRoot=FamilyRenderer.visible(entity)?model.rootPose():null;
             if(entity.hasVisibleAccessory()||contact.equals("HAT_REMOVE")) model.renderBadge(entity.visibleMedal(),pose,buffers,packedLight,overlay);
             if(wear!=0)CareWearRenderer.render(model,wear,pose,buffers,packedLight,overlay);
+            if(entity.isLeashed())LeashLoopRenderer.render(model,wear,pose,buffers,packedLight,overlay);
             var presentation=LivingPresentation.variants.get(entity.assetId());
             if(!entity.getMouthBodyFood().isEmpty()) {
                 pose.pushPose();

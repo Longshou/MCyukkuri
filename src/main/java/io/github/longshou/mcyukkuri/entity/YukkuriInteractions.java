@@ -98,7 +98,7 @@ final class YukkuriInteractions {
     }
     /** A pet of any owner or an unowned individual takes a lead; a house body never does. Who may attach it is decided in InteractionDispatch. */
     boolean canBeLeashed() { return owner.profile().petable() && (owner.pet().isPet() || owner.status().identity().free()); }
-    Vec3 getLeashOffset() { return new Vec3(0, owner.getBbHeight() * .13, -owner.getBbWidth() * .46); }
+    Vec3 getLeashOffset() { return new Vec3(0, owner.getBbHeight() * .24, -owner.getBbWidth() * .49); }
     boolean shouldStayCloseToLeashHolder() {
         return !owner.life().hasUrgentNeed() && !owner.pet().busy() && owner.life().mealTicks() == 0 && !owner.isCommandPlaying() && !owner.operations().active();
     }

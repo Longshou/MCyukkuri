@@ -1440,6 +1440,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Server: everything worn on the body, as YukkuriView.visibleWear bits (cloth swaddle, leaf swaddle, plain-gap paper cover). */
     public int wornBits() { return pet().care().wearBits() | leafSwaddle().wearBits() | life().paperCoverWearBits(); }
     public void syncWear() { sync().setWear(wornBits()); }
+    @Override public boolean isLeashed() { return super.isLeashed(); }
     /** Only a pet or an unowned individual can be led; InteractionDispatch checks who may attach the lead. */
     @Override public boolean canBeLeashed() { return interactions().canBeLeashed(); }
     @Override public boolean handleLeashAtDistance(Entity holder, float distance) {

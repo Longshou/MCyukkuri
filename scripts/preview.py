@@ -162,7 +162,7 @@ def before_checkout(value, stage):
 def render_strip(args, stage, times, before=False, unyielded=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
-    actors, textures, paper_slots = [], [], None
+    actors, textures, paper_slots, leash_slot = [], [], None, None
     specs = [(args.model, args.prop, [0, 0, 0], getattr(args, 'scale', None))]
     if args.partner:
         specs.append((args.partner, None, args.partner_offset, getattr(args, 'partner_scale', None)))
@@ -233,6 +233,11 @@ def render_strip(args, stage, times, before=False, unyielded=False):
                     (paper_assets/'newspaper_stack_fold.png', (216, 212, 202), [0, 0], [1, 1]),
                 ])
             a['paperSlots'] = paper_slots
+        if getattr(args, 'leash_loop', False) and not prop:
+            if leash_slot is None:
+                leash_slot = len(textures)
+                textures.append((source_root/'src/main/resources/assets/mcyukkuri/textures/misc/leash_rope.png', None, [0, 0], [1, 1]))
+            a['leashSlot'] = leash_slot
         actors.append(a)
     loaded = []
     for path, tint, low, extent in textures:
@@ -394,7 +399,9 @@ def video(args, stage):
             times = [i/args.fps for i in range(count)]
             opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=args.face,
                                       draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
-                                      size=args.size, view=[0, 10], node=args.node)
+                                      leash_loop=getattr(args, 'leash_loop', False),
+                                      scale=getattr(args, 'scale', None),
+                                      size=args.size, view=getattr(args, 'view', None) or [0, 10], node=args.node)
             frames = render_strip(opts, stage, times)
             if has_before:
                 old = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}), stage, times, before=True)
@@ -908,6 +915,7 @@ def parser():
             p.add_argument('--scale', type=float, help='growth/body scale of --model (e.g. 0.42 for a baby)')
             p.add_argument('--partner-scale', type=float, help='growth/body scale of --partner')
             p.add_argument('--paper-cover', action='store_true', help='drape the live-fitted newspaper tent over each model')
+            p.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
             p.add_argument('--wall', type=float, nargs=3, action='append', metavar=('X', 'Z', 'BLOCKS'),
                            help='wall face beside each model: horizontal direction from the body axis and distance in blocks; '
@@ -981,6 +989,9 @@ def parser():
     vd.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model')
     vd.add_argument('--fps', type=int, default=20)
     vd.add_argument('--size', type=int, nargs=2, default=[360, 360])
+    vd.add_argument('--scale', type=float, help='growth/body scale of --model (e.g. 0.45 for a child)')
+    vd.add_argument('--view', type=float, nargs=2, metavar=('AZ', 'EL'), help='camera azimuth/elevation (default 0 10)')
+    vd.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
     vd.add_argument('--node', default='node')
     return ap
 
