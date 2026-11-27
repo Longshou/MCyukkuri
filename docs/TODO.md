@@ -12,7 +12,6 @@
 | TN-08 牵绳跟随与挣扎 | `.worktrees/wp-lead-follow` | leash/lead follow goal, dialogue, lead_walk scene |
 | 表情适配基线违例：lore 片段 | `.worktrees/wp-face-fit-lore` | lore/recipe.json (face timelines), face_fit_allow.json |
 | 表情适配基线违例：如厕片段 | `.worktrees/wp-face-fit-toilet` | toilet-contact recipe, face_fit_allow.json |
-| PD-15 落水慌乱预览重做 | `.worktrees/wp-pd15-preview` | .local/previews only |
 | PD-09 打雷 | `.worktrees/wp-pd09-thunder` | kid_boat_play scene, aquatic thunder reaction |
 | NPC 从长椅边坐下 | `.worktrees/wp-bench-sit` | HumanNpc bench sit |
 | 水生魔理沙睡眠维持在水上（R6） | `.worktrees/wp-aquatic-sleep` | aquatic/*, aquatic-marisa.md |
