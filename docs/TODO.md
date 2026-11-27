@@ -15,6 +15,7 @@
 | 台词指代油库里用油不用人 | `.worktrees/wp-speech-you` | art/dialogue sources (zh lines only), generated lang |
 | 玩偶可放置（PK-20） | `.worktrees/wp-doll-place` | doll item/entity, placement |
 | PD-29 卡召唤、戴帽卡 boat call、帽檐形变 | `.worktrees/wp-pd29-stalls` | aquatic call/boat-call chain, hat brim render |
+| 下雨找躲雨处（PD-09 起，共用行为） | `.worktrees/wp-rain-shelter` | weather goal / shelter seeking, aquatic hat shelter |
 
 ## 玩法待办
 
