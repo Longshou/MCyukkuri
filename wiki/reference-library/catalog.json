@@ -7,7 +7,7 @@
     "image_bytes": 82773410,
     "image_unique_hashes": 375,
     "game_images": 333,
-    "game_texts": 112,
+    "game_texts": 127,
     "game_image_sources": 46,
     "quality_selected": 37,
     "quality_reviewed": 46,
@@ -18608,6 +18608,638 @@
       ],
       "focus": "亲代含水吹洒清洁幼体，以及同伴对洗浴的不同接受度",
       "description": "参考清洁动作和接受、拒绝的不同反应；不作为常见清洁方法、卫生阈值、耐水或油霉机制的依据，后续疾病及群落冲突不纳入。",
+      "kind": "reference"
+    },
+    {
+      "id": "N121",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "environment",
+        "feeding",
+        "body",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N121.md",
+      "source_id": "N121",
+      "source_url": "https://yugyakuss.seesaa.net/article/431082139.html",
+      "source_title": "やまない雨",
+      "source_note": "页面未见作者署名；核读全篇五日连雨受困记录（第 6–126 行）。",
+      "source_group": "seesaa:431082139",
+      "observation": "流浪子魔理沙栖身自动贩卖机底缝、以旧报纸为床，遇连续多日小雨受困，依次经历帽底吃剩草、外出遇车溅水并滚报纸擦干伤皮、被迫在窝角排便、试食隔夜变质粪便吐馅以及嚼吞旧报纸后腹痛身亡。",
+      "limits": "陆生魔理沙以帽底存草及「须认知为食物才能转成馅」导致误食旧报纸剧痛致死，均属单篇作者机制，不推广为普通陆生种储粮规则、消化法则或绝食死限。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "纸箱"
+      ],
+      "scenarios": [
+        "环境避险",
+        "住所布置",
+        "卫生如厕"
+      ],
+      "emotions": [
+        "担忧",
+        "恐惧",
+        "痛苦"
+      ],
+      "targets": [
+        "事件",
+        "场景",
+        "动作"
+      ],
+      "focus": "五日连雨受困自动贩卖机底缝、旧报纸滚身吸水与被迫窝角排泄",
+      "description": "参考都市流浪避雨、滚身吸水与连雨困窝时排泄退避的动作链；不采用非食物认知转化致死设定。",
+      "kind": "reference"
+    },
+    {
+      "id": "N122",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "motion",
+        "body",
+        "feeding",
+        "human",
+        "society",
+        "cognition"
+      ],
+      "path": "wiki/novel-reading/cards/N122.md",
+      "source_id": "N122",
+      "source_url": "https://yugyakuss.seesaa.net/article/431082032.html",
+      "source_title": "野良まりしゃの新しいおうち",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–137 行）。",
+      "source_group": "seesaa:431082032",
+      "observation": "流浪子魔理沙晨起做伸展与试跳热身，去垃圾点觅食扑空后误把贴有大件垃圾贴纸的三层收纳柜当成新家，拖来旧报纸完成住家宣言，随后遭清运工人摇出轻踢，追回被吹飞的帽子后新家已运走，回旧窝又被子灵梦鼓脸赶走。",
+      "limits": "睡眠令皮馅变硬、不做晨间伸展就会破皮的说法及垒球大小的子油尺度属于单篇私设，不作为项目受伤条件或体型标准。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "纸箱"
+      ],
+      "scenarios": [
+        "住所布置",
+        "日常活动",
+        "物品搬运",
+        "同伴交往"
+      ],
+      "emotions": [
+        "期待",
+        "愤怒"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "晨起伸展试跳、空箱拍打试稳、口叼垫料搬家与空窝被占后的鼓脸驱离",
+      "description": "丰富流浪油寻窝验收、叼料搬家、住家宣言与抢窝对峙的日常演出。",
+      "kind": "reference"
+    },
+    {
+      "id": "N123",
+      "media": "text",
+      "topics": [
+        "feeding",
+        "appearance",
+        "body",
+        "environment",
+        "cognition",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N123.md",
+      "source_id": "N123",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081929.html",
+      "source_title": "ハチと野良ゆと傍観者",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–84 行）。",
+      "source_group": "seesaa:431081929",
+      "observation": "流浪多毛子灵梦在贩卖机旁用额头顶倒废弃饮料罐寻甜，惊出罐内大黄蜂后不识警戒信号反鼓脸挥鬓攻击，因多毛短鬓落空且动作迟缓遭反复蜇刺并被啃走皮馅，旁观路人顾及糖水尿液引来蜂群而离去。",
+      "limits": "大黄蜂啃肉搓团捕食油库里以及尿液作糖水吸引蜂群均属环境昆虫与液体私设，不接入项目捕食者或排泄物机制；多毛灵梦鬓发较短仅作形态参考。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "多毛灵梦",
+        "人类"
+      ],
+      "scenarios": [
+        "受困逃离",
+        "环境避险",
+        "人类接触"
+      ],
+      "emotions": [
+        "恐惧",
+        "痛苦",
+        "惊讶"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "多毛灵梦鬓发护脸反射、蓬松短鬓够高受限与额头顶倒饮料罐寻甜",
+      "description": "补充多毛灵梦形态动作与受惊护脸表现；胡蜂捕食与尿液甜水设定不纳入。",
+      "kind": "reference"
+    },
+    {
+      "id": "N124",
+      "media": "text",
+      "topics": [
+        "society",
+        "cognition",
+        "feeding",
+        "motion",
+        "environment",
+        "body"
+      ],
+      "path": "wiki/novel-reading/cards/N124.md",
+      "source_id": "N124",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081906.html",
+      "source_title": "独り占めの罪と罰",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–106 行）。",
+      "source_group": "seesaa:431081906",
+      "observation": "公园野油一家外出纵队唱歌散步时，队尾赤魔理沙盘算家人超过二即「好多」分不到一口，私自脱队模仿潜行偷捕菜粉蝶，被风惊飞后全力扑跳坠入破损排水沟盖摔伤，最终被浅水浸溶而死。",
+      "limits": "主动捕食菜粉蝶体液及浅水缓慢溶化口部属于单篇食性与溶水描写，不覆盖项目植物采集觅食与按刻扣血的水伤规则。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "灵梦",
+        "纸箱"
+      ],
+      "scenarios": [
+        "照料幼体",
+        "采集进食",
+        "同伴交往",
+        "饰物身份"
+      ],
+      "emotions": [
+        "期待",
+        "担忧",
+        "恐惧"
+      ],
+      "targets": [
+        "动作",
+        "事件",
+        "表情"
+      ],
+      "focus": "纸箱窝口斜靠细枝、双亲分工带队散步、赤油计数与突风压帽护饰",
+      "description": "补充家庭分工、赤油计数上限（一、二、好多）与遇风压帽动作；不采用浅水溶口与捕虫食性。",
+      "kind": "reference"
+    },
+    {
+      "id": "N125",
+      "media": "text",
+      "topics": [
+        "human",
+        "feeding",
+        "cognition",
+        "body"
+      ],
+      "path": "wiki/novel-reading/cards/N125.md",
+      "source_id": "N125",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081875.html",
+      "source_title": "柿と餓鬼",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–61 行）。",
+      "source_group": "seesaa:431081875",
+      "observation": "流浪成体魔理沙在民宅后院准备吃掉落的涩柿，房主善意提醒有毒却被它当成抢食谎言并恶言咒骂，随后它用辫子把三颗落柿装进房主给的塑料袋数清带走，次晨被发现逐一试咬后吐馅死于电线杆下。",
+      "limits": "未脱涩生柿引发剧烈呕吐致死属于单篇味觉致死结果，不推广为全种水果致死阈值。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "采集进食",
+        "人类接触",
+        "日常活动"
+      ],
+      "emotions": [
+        "期待",
+        "愤怒",
+        "痛苦"
+      ],
+      "targets": [
+        "表情",
+        "事件"
+      ],
+      "focus": "成体魔理沙数到三、长期流浪对人类警告的不信任与误食苦涩果反应",
+      "description": "呼应成体计数上限与低信任流浪油对人类提醒的误解；不采用涩柿呕吐致死。",
+      "kind": "reference"
+    },
+    {
+      "id": "N126",
+      "media": "text",
+      "topics": [
+        "body",
+        "cognition",
+        "human",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N126.md",
+      "source_id": "N126",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081651.html",
+      "source_title": "あにゃるブレイク",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–60 行），施虐桥段不作玩法依据。",
+      "source_group": "seesaa:431081651",
+      "observation": "严冬中被他人架在 1.8 米尖头铁栏上的流浪子魔理沙原本勉强撑住，听到路人问要不要吃甜食后瞬间分神转头而下坠深刺体内，虽未大量失馅却很快言语崩解并因中枢馅受损身亡，次晨遗体遭乌鸦啄食。",
+      "limits": "人为将幼体架上尖头铁栏与诱骗致死属于虐杀情节，排泄孔夹持细节与乌鸦食腐均不并入项目玩法或生态。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "通用油库里"
+      ],
+      "scenarios": [
+        "身体受损",
+        "卫生如厕",
+        "采集进食"
+      ],
+      "emotions": [
+        "期待",
+        "痛苦",
+        "恐惧"
+      ],
+      "targets": [
+        "表情",
+        "形变",
+        "事件"
+      ],
+      "focus": "甜食词汇瞬间压倒警戒、中枢受损后言语崩解",
+      "description": "参考诱饵分心与中枢受损言语异常演出；不采用乌鸦食腐与便秘爆裂机制。",
+      "kind": "reference"
+    },
+    {
+      "id": "N127",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "feeding",
+        "motion",
+        "body",
+        "human"
+      ],
+      "path": "wiki/novel-reading/cards/N127.md",
+      "source_id": "N127",
+      "source_url": "https://yugyakuss.seesaa.net/article/431080765.html",
+      "source_title": "田んぼの水上まりさ",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–66 行），与 N128、N129 为同系列作品（与 N129 共享第 6–19 行）。",
+      "source_group": "seesaa:431080765",
+      "observation": "插秧后的水田中大批幼年水生魔理沙啃食稻苗并在帽船上小睡，一名少年拎起熟睡个体抛到晒热的农道上赚取爷爷的驱除赏金，脚部发育不足的水生魔理沙在陆上爬行不足二十厘米便倒地，随后被老农穿胶靴踩死。",
+      "limits": "水田啃食稻苗、帽船昼眠、陆上爬行不足二十厘米即倒地与农家百元赏金踩杀均属该系列农害驱除写法，不覆盖项目水草食谱、岸宿及人类交互边界，且与 N128、N129 不重复计为独立来源。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "水上魔理沙",
+        "帽船",
+        "人类"
+      ],
+      "scenarios": [
+        "水上移动",
+        "采集进食",
+        "人类接触"
+      ],
+      "emotions": [
+        "得意",
+        "恐惧"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "辫子持枝划桨、旋转帽船环顾、窄水口按帽宽自然分流与遇挫一哄而散",
+      "description": "丰富水生魔理沙操桨与群体反应细节；稻苗食性、水上昼眠与赏金踩杀不采用。",
+      "kind": "reference"
+    },
+    {
+      "id": "N128",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "society",
+        "motion",
+        "cognition",
+        "human",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N128.md",
+      "source_id": "N128",
+      "source_url": "https://yugyakuss.seesaa.net/article/431082392.html",
+      "source_title": "田んぼの水上まりさ（土用干し編）",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–67 行），与 N127、N129 为同系列作品。",
+      "source_group": "seesaa:431082392",
+      "observation": "经窄进水口漂入水田的一群水生魔理沙幼体对稻农集体鼓脸并误以为吓退对方，稻农拔板进行中干晒田并砸泥糊住一只的眼睛，姐姐上前舔泥呕吐后弃妹全速逃跑带动全群溃散，次日田干后滞留幼体哀嚎并遭鸟类啄食。",
+      "limits": "砸泥踩杀、鸟类啄食搁浅个体与排水后全无陆上转移能力属于该系列驱除剧情，不接入环境鸟类天敌或抹除水生魔理沙的短暂靠岸移动能力，且与 N127、N129 同系列不重复计证。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "水上魔理沙",
+        "帽船"
+      ],
+      "scenarios": [
+        "水上移动",
+        "环境避险",
+        "受困逃离"
+      ],
+      "emotions": [
+        "困惑",
+        "恐惧",
+        "悲伤"
+      ],
+      "targets": [
+        "动作",
+        "场景",
+        "事件"
+      ],
+      "focus": "水域干涸后的陆行迟缓、集体虚张声势瓦解与抱团发抖",
+      "description": "参考水生魔理沙离水后的陆行弱势与受困分化反应；鸟类啄食与二十厘米瘫倒不采用。",
+      "kind": "reference"
+    },
+    {
+      "id": "N129",
+      "media": "text",
+      "topics": [
+        "habitat",
+        "feeding",
+        "motion",
+        "cognition",
+        "body",
+        "human",
+        "environment"
+      ],
+      "path": "wiki/novel-reading/cards/N129.md",
+      "source_id": "N129",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081065.html",
+      "source_title": "田んぼの水上まりさ（農薬散布編）",
+      "source_note": "页面未见作者署名；核读全部正文（第 6–122 行），与 N127、N128 为同系列作品（与 N127 共享第 6–19 行）。",
+      "source_group": "seesaa:431081065",
+      "observation": "农夫用动力散布机与多孔软管向水田吹洒白色农药雾，惊醒的水生魔理沙用辫子握小枝划桨逃命，目睹同伴掉桨跳水溺亡、互推翻船或抱团发抖，它划到脱力停船休息却未固定小枝导致漂失，无桨速度不足一半终被白雾追上毒死。",
+      "limits": "稻田啃苗、帽上昼眠与动力散布机施放农药两分钟致死属于农业驱除设定，项目不引入农药系统与稻苗食谱；与 N127、N128 同属一系列，引证时不重复计作三份独立来源。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "水上魔理沙",
+        "帽船",
+        "人类"
+      ],
+      "scenarios": [
+        "水上移动",
+        "受困逃离",
+        "人类接触"
+      ],
+      "emotions": [
+        "恐惧",
+        "痛苦"
+      ],
+      "targets": [
+        "动作",
+        "事件"
+      ],
+      "focus": "长时间划水辫子脱力、掉桨漂失、无桨减速过半与危机互推翻船",
+      "description": "呼应项目无棍划水大幅降速与翻船分化反应；不采用农药喷洒驱除暴力。",
+      "kind": "reference"
+    },
+    {
+      "id": "N130",
+      "media": "text",
+      "topics": [
+        "human",
+        "habitat",
+        "cognition",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N130.md",
+      "source_id": "N130",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081837.html",
+      "source_title": "子まりさと掃除機",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431081837",
+      "observation": "宠物子魔理沙惧怕吸尘器噪音，闻声便叼球逃回开口纸箱钻进毛巾藏头露尾发抖；饲主倒扣纸箱清扫时它误以为家被拆毁而哭喊，清扫归位后理帽欢呼并立刻钻巾入睡说梦话。",
+      "limits": "仅记录单只室内宠物子魔理沙与饲主日常（与 N131–N134 共用同一室内饲养背景）；无盖纸箱与旧报纸厕所为个人配置，不替代项目宠物设施，关于秒睡健康与获得翅膀的台词不推广为普遍生理或飞行规律。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类",
+        "软窝"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "受困逃离",
+        "休息睡眠"
+      ],
+      "emotions": [
+        "恐惧",
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "表情",
+        "场景"
+      ],
+      "focus": "突发吸尘器噪音时叼球回窝钻巾躲藏、清扫恐慌与复原后理帽速睡",
+      "description": "丰富室内宠物应对突发声响、护物回窝与安抚复原的连续动作链。",
+      "kind": "reference"
+    },
+    {
+      "id": "N131",
+      "media": "text",
+      "topics": [
+        "human",
+        "cognition",
+        "environment",
+        "body"
+      ],
+      "path": "wiki/novel-reading/cards/N131.md",
+      "source_id": "N131",
+      "source_url": "https://yugyakuss.seesaa.net/article/431080788.html",
+      "source_title": "子まりさと湯たんぽ",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431080788",
+      "observation": "寒季里穿襁褓的子魔理沙仍冷醒，饲主因怕同床压扁它而用洗澡余温水与毛巾制成简易热水袋保暖；次日热水袋变凉后幼体按“死后会变冷”误以为热水袋死去并大哭，经饲主换入温水并谎称“复活”才破涕为笑。",
+      "limits": "单只宠物的寒季室内保暖与认知误判片段（与 N130、N132–N134 同背景）；打喷嚏、洗澡余温与暖气影响不构成摄氏耐温或感冒烫伤阈值，塑料瓶热水袋也不作为通用游戏设施。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类",
+        "襁褓"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "穿戴襁褓",
+        "离别悼念"
+      ],
+      "emotions": [
+        "悲伤",
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "表情",
+        "道具"
+      ],
+      "focus": "寒季毛巾揉暖与包巾温水瓶取暖、幼体把变冷误判为死亡并哀悼",
+      "description": "参考室内寒季照护细节与幼体对温度／死亡的稚拙认知演出。",
+      "kind": "reference"
+    },
+    {
+      "id": "N132",
+      "media": "text",
+      "topics": [
+        "human",
+        "feeding",
+        "environment",
+        "cognition",
+        "habitat"
+      ],
+      "path": "wiki/novel-reading/cards/N132.md",
+      "source_id": "N132",
+      "source_url": "https://yugyakuss.seesaa.net/article/431080696.html",
+      "source_title": "子まりさとこたつ",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431080696",
+      "observation": "子魔理沙午睡被吵醒，饲主赔礼时误喂高可可黑巧克力致其吐渣喊苦，急忙用牛奶巧克力混橙汁灌服缓和，随后它再尝甜食变得小心试探；初次体验通电被炉后它高喊居所宣言入睡，却每十余分钟便过热虚脱爬出狂饮，最终放弃常住。",
+      "limits": "高可可巧克力被吐出仅反映味觉苦涩，不构成可可毒理通则；橙汁混甜食用于压苦而不改动项目治伤规则；居所宣言与项目实勘认窝不同，十至十五分钟虚脱节奏与强灌恶作剧均属单篇写法。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "采集进食",
+        "休息睡眠"
+      ],
+      "emotions": [
+        "惊讶",
+        "期待",
+        "安心"
+      ],
+      "targets": [
+        "动作",
+        "表情",
+        "事件"
+      ],
+      "focus": "误食极苦黑巧吐出后小口试探确认，以及通电被炉内过热虚脱狂饮",
+      "description": "补充苦味试探记忆与热源过热后主动离热狂饮的演出细节。",
+      "kind": "reference"
+    },
+    {
+      "id": "N133",
+      "media": "text",
+      "topics": [
+        "human",
+        "feeding",
+        "growth",
+        "cognition",
+        "body",
+        "motion"
+      ],
+      "path": "wiki/novel-reading/cards/N133.md",
+      "source_id": "N133",
+      "source_url": "https://yugyakuss.seesaa.net/article/431080682.html",
+      "source_title": "子まりさと羽毛布団",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431080682",
+      "observation": "子魔理沙惧怕羽绒被防虫剂气味；午睡被午饭唤起后做伸展体操并展现较赤油期更稳的落地缓冲，吃普通油粮后在厕所外排便而被饲主罚用嘴逐颗搬入旧报纸厕所，随后接受湿纸巾擦拭并在羽绒被上蹦跳不听劝而遭折被轻压惊吓，次日见被仍发抖。",
+      "limits": "含防虫剂围困、断粮两天、自叼粪便、折被按压与次日故意罩被等偏戏弄管教桥段，不作照料推荐；魔理沙吃意面变胖属单篇说辞（项目仅灵梦有灵胖），用嘴搬粪也不代表普遍自愿行为。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类",
+        "软窝"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "卫生如厕",
+        "日常活动",
+        "休息睡眠"
+      ],
+      "emotions": [
+        "恐惧",
+        "担忧",
+        "喜悦"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "闻防虫剂流泪绕逃、睡醒伸展与子油蜷身稳落、受轻压后次日余悸",
+      "description": "参考成长期落地缓冲差异、异味避让与短期惊吓记忆；魔理沙饮食致胖与自叼粪不纳入。",
+      "kind": "reference"
+    },
+    {
+      "id": "N134",
+      "media": "text",
+      "topics": [
+        "human",
+        "motion",
+        "cognition",
+        "feeding"
+      ],
+      "path": "wiki/novel-reading/cards/N134.md",
+      "source_id": "N134",
+      "source_url": "https://yugyakuss.seesaa.net/article/431082115.html",
+      "source_title": "子まりさとイモムシ",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431082115",
+      "observation": "子魔理沙压低身体潜行扑捕饲主操控的逗猫棒式树脂毛毛虫玩具，假虫被抽走时急得四处翻找；再度扑获并获夸奖后它咬嚼假虫却嫌极难吃吐出，从此弃置毛毛虫改追塑料蝴蝶玩具。",
+      "limits": "仅反映室内幼体追逐逗猫棒式假饵玩具的玩耍与咬尝嫌弃，不据此将普通魔理沙划为捕食虫类的捕食种，也不将软树脂与薄塑料道具规则直接推广至游戏物品。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "魔理沙",
+        "人类"
+      ],
+      "scenarios": [
+        "宠物照料",
+        "日常活动",
+        "采集进食"
+      ],
+      "emotions": [
+        "认真",
+        "得意",
+        "困惑"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "追逐假饵的伏低潜行、随动停顿、近距跃扑炫耀与试咬难吃后弃玩",
+      "description": "补充幼体模拟狩猎玩耍动作链与负面尝味后的兴趣迁移表现。",
+      "kind": "reference"
+    },
+    {
+      "id": "N135",
+      "media": "text",
+      "topics": [
+        "human",
+        "motion",
+        "cognition",
+        "environment",
+        "growth"
+      ],
+      "path": "wiki/novel-reading/cards/N135.md",
+      "source_id": "N135",
+      "source_url": "https://yugyakuss.seesaa.net/article/431081521.html",
+      "source_title": "水上まりちゃ",
+      "source_note": "页面未见作者署名，2015 年 12 月 12 日发布，全文核读。",
+      "source_group": "seesaa:431081521",
+      "observation": "养在室内水槽里的水生魔理沙赤油乘自帽用侧辫划桨追玩乒乓球，因技巧生疏溅起水花，回推时用舌头顶球控向并含糊自述动作；被饲主拿晚饭意面逗得流口水而分神，见球漂远便惊呼为会瞬间移动的魔法球，反复玩耍后水声渐轻。",
+      "limits": "水生魔理沙赤油独自操帽持桨划水及室内水槽长期饲养、喂食意面，均与项目“赤油不独立操帽”“无缸体容器且黄昏上岸”的现行规则不同，仅保留为单篇异说与戏水细节参考。",
+      "review_status": "沿用指定段落核读，补写游戏用途",
+      "entities": [
+        "水上魔理沙",
+        "帽船",
+        "人类"
+      ],
+      "scenarios": [
+        "水上移动",
+        "宠物照料",
+        "日常活动"
+      ],
+      "emotions": [
+        "喜悦",
+        "得意",
+        "困惑"
+      ],
+      "targets": [
+        "动作",
+        "表情"
+      ],
+      "focus": "练习划桨水花声由大变小、吐舌抵球控向与分心误认球漂移为瞬移",
+      "description": "借鉴划桨熟练度音效与吐舌控球趣味动作；赤油独立操帽与室内水槽容器不纳入。",
       "kind": "reference"
     }
   ],
