@@ -11,7 +11,7 @@
   "models": {
     "reimu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
-      "base_sha256": "4e5f98cc46961789df689550f47dc763166ed569ef6af3bce9bb3ef6218c013e",
+      "base_sha256": "f68e81eb6a75d80cb7b8116cf6031b8b6e8188ce1923d8ac8270a975311c62a0",
       "parts": [
         "crown",
         "back_hair",
@@ -118,7 +118,7 @@
     },
     "reimu_face": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
-      "base_sha256": "4a8c8986d46e1fb4717ac667a0907682dd83446e06cefa073ae85cefa87e525f",
+      "base_sha256": "ce95bfb9690bf7a2fe24d2530e27f28ea33a255c7f6d15977c13cbfcda077b62",
       "parts": [
         "crown",
         "back_hair",
@@ -428,7 +428,7 @@
     },
     "reimu_deibu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
-      "base_sha256": "728fe1cd8ccb042560f368f11949c6ed86e6a10d220716e8d397ad14d205804a",
+      "base_sha256": "538bfb65d2c4e87e326475e45ed92da83a99fe82a17f8201a6b2903373185431",
       "parts": [
         "back_hair_taper_0",
         "back_hair_taper_1",
@@ -1364,7 +1364,7 @@
     },
     "patchouli": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-      "base_sha256": "7ed50581c69d8ad26bbf692e4b733c47ac2ce682ef77f386ffe5a5252c47dd81",
+      "base_sha256": "15edfac8cf78484260c2598318d74ed1ad2c8602bef55b4d16bed55f0ded1ea6",
       "unchanged": "Bonnet rim sits on the fringe top; lowering it hides the fringe and lets hair show through the frill."
     },
     "remilia": {
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "abebd326ed202e447770f08e9346e0cf7102a49cf8ae8730d56ba150a189a522"
+  "runtime_sha256": "0f74e613893678e6e786061f6b7ddbbb46190c701d8cc059f8866a5ca2ef7ee3"
 }

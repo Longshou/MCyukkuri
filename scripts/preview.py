@@ -435,7 +435,29 @@ def video(args, stage):
                                               partner=None, face=args.face, draft_clip=None, face_preset=None, texture=None,
                                               paper_cover=False, leash_loop=getattr(args, 'leash_loop', False),
                                               scale=getattr(args, 'scale', None), size=args.size, view=view, node=args.node)
-                    frames = [compose(frame, label) for frame, label in zip(render_strip(opts, stage, times), frame_labels)]
+                    raw_frames = render_strip(opts, stage, times)
+                    has_before = False
+                    if before_root:
+                        try:
+                            before_steps = {cid: resolved_clip(before_root, model, cid) for cid in clip_names}
+                            has_before = True
+                        except ValueError:
+                            has_before = False
+                    if has_before:
+                        old_times = [
+                            (t % before_steps[cid]['duration'] if before_steps[cid].get('loop') else min(t, before_steps[cid]['duration']))
+                            for t, cid in zip(times, clip_schedule)
+                        ]
+                        old_frames = render_strip(argparse.Namespace(**{**vars(opts), 'before': str(before_root)}),
+                                                  stage, old_times, before=True)
+                        frames = []
+                        for old_frame, new_frame, label in zip(old_frames, raw_frames, frame_labels):
+                            pair = Image.new('RGB', (args.size[0]*2, args.size[1]))
+                            pair.paste(compose(old_frame, f'旧 · {label}'), (0, 0))
+                            pair.paste(compose(new_frame, f'新 · {label}'), (args.size[0], 0))
+                            frames.append(pair)
+                    else:
+                        frames = [compose(frame, label) for frame, label in zip(raw_frames, frame_labels)]
                     angle = f'-{view[0]:g}' if len(views) > 1 else ''
                     suffix = f'-seq{seq_idx+1}' if len(parsed) > 1 else '-seq'
                     name = (f'{model}{suffix}' if multi else suffix.lstrip('-')) + angle + '.mp4'
@@ -1109,8 +1131,8 @@ def main():
                 raise ValueError('fps and size must be positive')
             if args.command == 'video' and args.draft_clip and args.before:
                 raise ValueError('--draft-clip needs no --before')
-            if args.command == 'video' and args.sequence and (args.before or args.draft_clip):
-                raise ValueError('--sequence cannot be combined with --before or --draft-clip')
+            if args.command == 'video' and args.sequence and args.draft_clip:
+                raise ValueError('--sequence cannot be combined with --draft-clip')
             with staging(args.topic) as stage:
                 body = globals()[args.command](args, stage)
                 title = args.title or args.topic

@@ -10,7 +10,7 @@
   "braid_chain": "standards/yukkuri-library/motions/variants/contact-safe/braid_chain.py",
   "braid_chain_sha256": "0db153f83220e1cbc23f22430e1a20b21dfa0890630224ad8fea35f30f00e8e2",
   "lore_recipe": "standards/yukkuri-library/motions/variants/lore/recipe.json",
-  "lore_recipe_sha256": "d3fbfbac9fd4f72553e1c1cb372956069a2aae09edd358d4ad8435eab3b8d0cb",
+  "lore_recipe_sha256": "a28ebee15e327311b7b34f126894d945d762de818f14b2ed06452a4b049d6702",
   "lore_author": "standards/yukkuri-library/motions/variants/lore/author.py",
   "lore_author_sha256": "eb009c616dc6148a857124fbc7086e00bbf89c789023726133d673868ba2ef57",
   "lore_hat": "standards/yukkuri-library/motions/variants/lore/hat.py",
@@ -26,13 +26,13 @@
   "braid_rescue_author": "standards/yukkuri-library/interactions/braid-water-rescue/author.py",
   "braid_rescue_author_sha256": "f076bc22f9d8e17051182f318b7eee96b58d2622b355caadc278ee2a384cc244",
   "braid_rescue_geometry": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/braid_rescue.json",
-  "braid_rescue_geometry_sha256": "a84ec4c3e542f841fd086b921a0f9fa6c1b4817690638d3bb83a3bcd5fcb7ea7",
+  "braid_rescue_geometry_sha256": "04d0d627792894c66ccebd235ebfe8a16742132f31833ac882c8bf7c2457e3bf",
   "exporter": "scripts/export_motion_corrections.py",
   "exporter_sha256": "7f1a4f89428bcab409919c12e9da0a235697e078175b2a97042e64b84a828dc6",
   "placement_fit": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/placement_fit.json",
-  "placement_fit_sha256": "abebd326ed202e447770f08e9346e0cf7102a49cf8ae8730d56ba150a189a522",
+  "placement_fit_sha256": "0f74e613893678e6e786061f6b7ddbbb46190c701d8cc059f8866a5ca2ef7ee3",
   "runtime": "src/main/resources/assets/mcyukkuri/yukkuri_presentation/motion_corrections.json",
-  "runtime_sha256": "38198e6038eb4269014a3148da54ef5f934c69c9c44242d5b9bd8af47e76728f",
+  "runtime_sha256": "ef2538506a37b655283b93c86f1c57f9f3d30d2c691f9ef2ee02c10b674da201",
   "models": {
     "alice": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/alice.json",
@@ -276,7 +276,7 @@
     },
     "patchouli": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/patchouli.json",
-      "sha256": "7ed50581c69d8ad26bbf692e4b733c47ac2ce682ef77f386ffe5a5252c47dd81",
+      "sha256": "15edfac8cf78484260c2598318d74ed1ad2c8602bef55b4d16bed55f0ded1ea6",
       "placement_fit": false,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/patchouli/angry.png",
@@ -292,7 +292,7 @@
     },
     "reimu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu.json",
-      "sha256": "4e5f98cc46961789df689550f47dc763166ed569ef6af3bce9bb3ef6218c013e",
+      "sha256": "f68e81eb6a75d80cb7b8116cf6031b8b6e8188ce1923d8ac8270a975311c62a0",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu/angry.png",
@@ -324,7 +324,7 @@
     },
     "reimu_deibu": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_deibu.json",
-      "sha256": "728fe1cd8ccb042560f368f11949c6ed86e6a10d220716e8d397ad14d205804a",
+      "sha256": "538bfb65d2c4e87e326475e45ed92da83a99fe82a17f8201a6b2903373185431",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_deibu/angry.png",
@@ -340,15 +340,15 @@
     },
     "reimu_face": {
       "model": "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json",
-      "sha256": "4a8c8986d46e1fb4717ac667a0907682dd83446e06cefa073ae85cefa87e525f",
+      "sha256": "ce95bfb9690bf7a2fe24d2530e27f28ea33a255c7f6d15977c13cbfcda077b62",
       "placement_fit": true,
       "expression_sources": {
         "eyes_brows_blush": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/angry.png",
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "ea511b75671dcb53fb7bac0ea7c9b9fee09a02e9b946127f8bdef6c725f8c6fd",
-        "puff": "27b340ccc148b5cba9b33f6afc17c2e52a0bf34c27a0ec649ea8579ae4068967"
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+        "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_face/cheek_puff.png",
@@ -363,8 +363,8 @@
         "mouth": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/puff.png"
       },
       "expression_source_sha256": {
-        "angry": "ea511b75671dcb53fb7bac0ea7c9b9fee09a02e9b946127f8bdef6c725f8c6fd",
-        "puff": "27b340ccc148b5cba9b33f6afc17c2e52a0bf34c27a0ec649ea8579ae4068967"
+        "angry": "87f5937ab4b05159a84ad2019244b59edd2c56e8cb95abac92f65661bcc60edc",
+        "puff": "8c57cc783de0361ca6002c6b6a1cdfb52a3384d72f606c2d2db6aa0b20183c7f"
       },
       "mouth_geometry": "standard_puff_patch",
       "texture": "src/main/resources/assets/mcyukkuri/textures/entity/reimu_sparse/cheek_puff.png",

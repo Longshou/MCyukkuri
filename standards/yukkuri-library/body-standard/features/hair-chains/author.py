@@ -8,24 +8,34 @@ import math
 
 CHAIN_SPECS = {
     'reimu': {
-        'joints': [('lock_1', 6.65), ('lock_2', 4.00), ('tip', 1.75)],
+        'joints': [('lock_1', 7.80), ('lock_2', 6.55), ('lock_3', 5.25), ('lock_4', 4.00), ('tip', 1.75)],
         'subdivide_prefixes': ('side_hair_', 'tied_lock_'),
-        'subdivide_step': 0.55,
+        'subdivide_step': 0.45,
+        'blend_radius': 0.62,
+        'cuff_blend': 0.75,
+        'cuff_bone': 'lock_4',
     },
     'reimu_face': {
-        'joints': [('lock_1', 6.65), ('lock_2', 4.00), ('tip', 1.75)],
+        'joints': [('lock_1', 7.80), ('lock_2', 6.55), ('lock_3', 5.25), ('lock_4', 4.00), ('tip', 1.75)],
         'subdivide_prefixes': ('side_hair_', 'tied_lock_'),
-        'subdivide_step': 0.55,
+        'subdivide_step': 0.45,
+        'blend_radius': 0.62,
+        'cuff_blend': 0.75,
+        'cuff_bone': 'lock_4',
     },
     'reimu_deibu': {
-        'joints': [('lock_1', 6.65), ('lock_2', 4.00), ('tip', 1.75)],
+        'joints': [('lock_1', 7.80), ('lock_2', 6.55), ('lock_3', 5.25), ('lock_4', 4.00), ('tip', 1.75)],
         'subdivide_prefixes': (),  # already tapered into 14 horizontal layers
-        'subdivide_step': 0.55,
+        'subdivide_step': 0.45,
+        'blend_radius': 0.62,
+        'cuff_blend': 0.75,
+        'cuff_bone': 'lock_4',
     },
     'patchouli': {
         'joints': [('lock_1', 7.45), ('lock_2', 5.50), ('lock_3', 3.55), ('lock_4', 1.90), ('tip', 0.80)],
         'subdivide_prefixes': (),  # already 36 fine horizontal layers
         'subdivide_step': 0.55,
+        'blend_radius': 0.78,
     },
 }
 
@@ -102,7 +112,9 @@ def segment(ident, elements, rig, mesh, vertices, atlas_size):
     sub_prefixes = spec['subdivide_prefixes']
     step = spec['subdivide_step']
     joint_ys = [y for _, y in joints]
-    rows = sorted(set(joint_ys + [round(i * step, 4) for i in range(1, 20)]))
+    grid = [round(i * step, 4) for i in range(1, int(10.5 / step) + 1)
+            if all(abs(round(i * step, 4) - jy) >= 0.10 for jy in joint_ys)]
+    rows = sorted(set(joint_ys + grid))
 
     out_elements = []
     side_pts = {'left': [], 'right': []}
@@ -142,48 +154,68 @@ def segment(ident, elements, rig, mesh, vertices, atlas_size):
     return out_elements
 
 
+def _smoothstep(q):
+    q = min(1.0, max(0.0, q))
+    return q * q * (3.0 - 2.0 * q)
+
+
+def _joint_intervals(joints, chain_ids, radius, cuff_y=None, cuff_blend=None):
+    """Non-overlapping Y blend intervals centered on each joint pivot (prevents root counter-swing and LBS pinch)."""
+    intervals = []
+    for j, (_, yj) in enumerate(joints):
+        if cuff_y is not None and abs(yj - cuff_y) < 1e-4:
+            # Keep hair inside/below the cuff top rigid on the cuff bone so hair never pokes through the cuff.
+            lo = cuff_y
+            hi = cuff_y + (cuff_blend if cuff_blend is not None else radius)
+        else:
+            lo = yj - radius
+            hi = yj + radius
+        if intervals and hi > intervals[-1][1]:
+            mid = 0.5 * (intervals[-1][1] + hi)
+            intervals[-1] = (intervals[-1][0], mid, intervals[-1][2], intervals[-1][3])
+            hi = mid
+        intervals.append((hi, lo, chain_ids[j], chain_ids[j + 1]))
+    return intervals
+
+
 def binding(ident, part_name, hand_bone, y, names):
-    """Continuous two-bone skinning along a segmented sideburn or cheek-lock chain."""
+    """Continuous two-bone skinning with joint-centered smoothstep falloff along a segmented hair chain."""
     spec = CHAIN_SPECS.get(ident)
     if spec is None or hand_bone not in ('hand_left', 'hand_right'):
         return None
     side = 'left' if hand_bone == 'hand_left' else 'right'
+    joints = spec['joints']
+    chain_ids = [names[hand_bone]] + [names[f'hand_{side}_{suf}'] for suf, _ in joints]
+    tip = names[f'hand_{side}_tip']
     if ident in ('reimu', 'reimu_face', 'reimu_deibu'):
-        h = names[hand_bone]
-        l1 = names[f'hand_{side}_lock_1']
-        l2 = names[f'hand_{side}_lock_2']
-        tip = names[f'hand_{side}_tip']
-        # Paper cuff stays completely rigid on lock_2; hair passing through the cuff matches lock_2.
+        cuff_bone = names[f'hand_{side}_{spec["cuff_bone"]}']
+        # Paper cuff stays completely rigid on the cuff bone; hair passing through the cuff matches it.
         if part_name.startswith('cuff_'):
-            return [l2, l2, 0.0]
+            return [cuff_bone, cuff_bone, 0.0]
         if part_name.startswith('lock_tip_'):
-            q = min(1.0, max(0.0, (1.75 - y) / 0.35))
-            return [l2, tip, round(q, 7)]
-        if y >= 9.328:
-            return [h, h, 0.0]
-        if y >= 6.65:
-            return [h, l1, round((9.328 - y) / (9.328 - 6.65), 7)]
-        if y >= 4.00:
-            return [l1, l2, round((6.65 - y) / (6.65 - 4.00), 7)]
-        if y >= 1.75:
-            return [l2, l2, 0.0]
-        return [l2, tip, round(min(1.0, (1.75 - y) / 0.45), 7)]
+            q = _smoothstep((1.75 - y) / 0.35)
+            return [cuff_bone, tip, round(q, 7)]
+        if y < 1.75:
+            q = _smoothstep((1.75 - y) / 0.45)
+            return [cuff_bone, tip, round(q, 7)]
+        intervals = _joint_intervals(joints[:-1], chain_ids[:-1], spec['blend_radius'],
+                                     cuff_y=4.00, cuff_blend=spec['cuff_blend'])
+        for hi, lo, bp, bc in intervals:
+            if y >= hi:
+                return [bp, bp, 0.0]
+            if y >= lo:
+                q = _smoothstep((hi - y) / max(1e-6, hi - lo))
+                return [bp, bc, round(q, 7)]
+        return [cuff_bone, cuff_bone, 0.0]
     if ident == 'patchouli':
-        tip = names[f'hand_{side}_tip']
         if part_name.startswith(('patchouli_terminal_', 'patchouli_resting_tuft')):
             return [tip, tip, 0.0]
-        knots = [
-            (9.328, names[hand_bone]),
-            (7.45, names[f'hand_{side}_lock_1']),
-            (5.50, names[f'hand_{side}_lock_2']),
-            (3.55, names[f'hand_{side}_lock_3']),
-            (1.90, names[f'hand_{side}_lock_4']),
-            (0.80, tip),
-        ]
-        if y >= knots[0][0]:
-            return [knots[0][1], knots[0][1], 0.0]
-        for (y0, b0), (y1, b1) in zip(knots, knots[1:]):
-            if y >= y1:
-                return [b0, b1, round((y0 - y) / (y0 - y1), 7)]
+        intervals = _joint_intervals(joints, chain_ids, spec['blend_radius'])
+        for hi, lo, bp, bc in intervals:
+            if y >= hi:
+                return [bp, bp, 0.0]
+            if y >= lo:
+                q = _smoothstep((hi - y) / max(1e-6, hi - lo))
+                return [bp, bc, round(q, 7)]
         return [tip, tip, 0.0]
     return None

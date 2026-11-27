@@ -16,7 +16,7 @@
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_sparse.json": "557207874b9164fce46a7172c216bf9fc6df4191a077afbb1ba7d22e3d864ce3",
     "src/main/resources/assets/mcyukkuri/yukkuri/marisa_face.json": "79beba8e355e3e5ace3c8b4f33e79c0eacdedebb364647c1ba4c11bfe24ce4c1",
     "src/main/resources/assets/mcyukkuri/yukkuri/reimu_sparse.json": "0cace7d5f3ea37e2df700d1bf7228e3a7806e2387c323e131736749bc9884a65",
-    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json": "4a8c8986d46e1fb4717ac667a0907682dd83446e06cefa073ae85cefa87e525f"
+    "src/main/resources/assets/mcyukkuri/yukkuri/reimu_face.json": "ce95bfb9690bf7a2fe24d2530e27f28ea33a255c7f6d15977c13cbfcda077b62"
   },
   "badge_mounts": {
     "variants": {
@@ -235,7 +235,7 @@
         "point": [
           6.453333351063829,
           10.605,
-          4.5888
+          4.588800000000001
         ],
         "normal": [
           0,
@@ -475,7 +475,7 @@
         "point": [
           6.453333351063829,
           10.605,
-          4.5888
+          4.588800000000001
         ],
         "normal": [
           0,

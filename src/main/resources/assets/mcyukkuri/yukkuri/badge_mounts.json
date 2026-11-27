@@ -2,9 +2,9 @@
   "format": 1,
   "variants": {
     "reimu": {
-      "model_sha256": "4e5f98cc46961789df689550f47dc763166ed569ef6af3bce9bb3ef6218c013e",
+      "model_sha256": "f68e81eb6a75d80cb7b8116cf6031b8b6e8188ce1923d8ac8270a975311c62a0",
       "part": "bow_outer_1",
-      "triangle": 20154,
+      "triangle": 20634,
       "weights": [
         0.531914893617021,
         0.2850404312668462,
@@ -86,7 +86,7 @@
       "diameter": 0.1
     },
     "patchouli": {
-      "model_sha256": "7ed50581c69d8ad26bbf692e4b733c47ac2ce682ef77f386ffe5a5252c47dd81",
+      "model_sha256": "15edfac8cf78484260c2598318d74ed1ad2c8602bef55b4d16bed55f0ded1ea6",
       "part": "patchouli_bonnet_body",
       "triangle": 89058,
       "weights": [
@@ -254,7 +254,7 @@
       "diameter": 0.06875
     },
     "reimu_deibu": {
-      "model_sha256": "728fe1cd8ccb042560f368f11949c6ed86e6a10d220716e8d397ad14d205804a",
+      "model_sha256": "538bfb65d2c4e87e326475e45ed92da83a99fe82a17f8201a6b2903373185431",
       "part": "bow_outer_1",
       "triangle": 20790,
       "weights": [
@@ -380,9 +380,9 @@
       "diameter": 0.11875
     },
     "reimu_face": {
-      "model_sha256": "4a8c8986d46e1fb4717ac667a0907682dd83446e06cefa073ae85cefa87e525f",
+      "model_sha256": "ce95bfb9690bf7a2fe24d2530e27f28ea33a255c7f6d15977c13cbfcda077b62",
       "part": "bow_outer_1",
-      "triangle": 20154,
+      "triangle": 20634,
       "weights": [
         0.531914893617021,
         0.2850404312668462,
@@ -970,7 +970,7 @@
       "diameter": 0.11875
     },
     "accessory_reimu_sparse": {
-      "model_sha256": "73f2de7e0c3a005d3421c0f298f3cf80ff14606b8378d0577e4ae7e20a08ace6",
+      "model_sha256": "b2f14d0f0bab9056631393abd8548d50c469fe0c32a4f99ef205dbd8baddc326",
       "part": "bow_outer_1",
       "triangle": 684,
       "weights": [
@@ -991,7 +991,7 @@
       "diameter": 0.11875
     },
     "accessory_reimu_face": {
-      "model_sha256": "01c0537815e0117ae3e7ae05eacbf701edc27606c4f734788b5cf2a741dcffb4",
+      "model_sha256": "ef8bc2527ce0e2d0c056a0fbefd5b1d0f38c13b4fd7b461d5c2ee97603c8a393",
       "part": "bow_outer_1",
       "triangle": 684,
       "weights": [

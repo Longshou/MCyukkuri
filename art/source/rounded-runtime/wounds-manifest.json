@@ -3,8 +3,8 @@
   "exporter_sha256": "4e1c6f9b6300be1e1ed720937e22e4b9a21e737fb824ab9478bd0c57b01319e5",
   "models": {
     "reimu": {
-      "runtime_sha256": "4e5f98cc46961789df689550f47dc763166ed569ef6af3bce9bb3ef6218c013e",
-      "surface_sha256": "b38a507a0e2449ca5c9548ac5e175901378de868f0ade784c07f5632f7f772f7",
+      "runtime_sha256": "f68e81eb6a75d80cb7b8116cf6031b8b6e8188ce1923d8ac8270a975311c62a0",
+      "surface_sha256": "76065d25b93a45478537473eae4598d29fe51bfcf1799dca4d8c6a163ec9e7f1",
       "skin_vertices": 50124,
       "total_vertices": 100716
     },
@@ -27,8 +27,8 @@
       "total_vertices": 100716
     },
     "patchouli": {
-      "runtime_sha256": "7ed50581c69d8ad26bbf692e4b733c47ac2ce682ef77f386ffe5a5252c47dd81",
-      "surface_sha256": "bd2644fcac125d7a5159762d213d5345ef87b872164744d537778003fb15af6b",
+      "runtime_sha256": "15edfac8cf78484260c2598318d74ed1ad2c8602bef55b4d16bed55f0ded1ea6",
+      "surface_sha256": "695eaf74fa93832b5b06dca647a56cd82907dcb7f6ca6cf3389223057eedafaf",
       "skin_vertices": 50124,
       "total_vertices": 100716
     },
@@ -45,8 +45,8 @@
       "total_vertices": 100716
     },
     "reimu_deibu": {
-      "runtime_sha256": "728fe1cd8ccb042560f368f11949c6ed86e6a10d220716e8d397ad14d205804a",
-      "surface_sha256": "d33129e441f3902f43083953023ca6c8c7b023365aefba71f89f218bf904513c",
+      "runtime_sha256": "538bfb65d2c4e87e326475e45ed92da83a99fe82a17f8201a6b2903373185431",
+      "surface_sha256": "5abcf5f29da88e1b3d999a1be710411c8f7d56811331169b059dd8b3fceef613",
       "skin_vertices": 50124,
       "total_vertices": 75744
     },

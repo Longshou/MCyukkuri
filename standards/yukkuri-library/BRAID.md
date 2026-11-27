@@ -10,7 +10,7 @@
 - 标准体辫长约 9.7 模型单位、粗约 2.5，辫根在帽檐下。辫长从辫根到静止辫梢量（`braid_rescue.json` 的 `braid_root`／`braid_tip`），服务端按 `growthScale × scale / 16` 换算成格；各节长度固定，任何解算都不拉长辫子。唯一例外是片段显式声明的拉长（无棍划水的 `lean_stretch`、取戴帽），发梢保持原大。
 - 辫根随身体动：身体侧倾、压扁会移动辫根，`reach_lean_root` 是低位俯身时的辫根；够取判定按片段实际所处的姿态取辫根。
 - 非魔理沙多骨发束链（`body-standard/features/hair-chains/author.py` 导出，保持静止外廓与旧骨索引不变）：
-  - 灵梦（`reimu`、`reimu_face`、`reimu_deibu`）：左右鬓发各 4 骨链 `hand_{side}` → `hand_{side}_lock_1`（`y=6.65`）→ `hand_{side}_lock_2`（`y=4.00`，刚性携带纸筒与筒内发束防穿筒）→ `hand_{side}_tip`（`y=1.75`）。
+  - 灵梦（`reimu`、`reimu_face`、`reimu_deibu`）：左右鬓发各 6 骨链 `hand_{side}` → `hand_{side}_lock_1`（`y=7.80`）→ `lock_2`（`6.55`）→ `lock_3`（`5.25`）→ `lock_4`（`4.00`，刚性携带纸筒与筒内发束防穿筒）→ `hand_{side}_tip`（`1.75`）；各关节采用以枢轴为中心的分段 smoothstep 蒙皮（`y ≥ 8.42` 刚性归根骨，`y ≤ 4.00` 刚性归纸筒骨），防止大角度弯曲时发根内拉变细。
   - 帕秋莉（`patchouli`）：左右长脸颊发束各 6 骨链 `hand_{side}` → `hand_{side}_lock_1..4`（`y=7.45/5.50/3.55/1.90`）→ `hand_{side}_tip`（`y=0.80`，携带发结与发尾簇）。
 
 | 形态 | 辫子 | 能做的辫子动作 |
@@ -108,7 +108,7 @@
 
 - 按用户 2026-11-27 验收口径，**翻垃圾桶与水中扑腾的发束／尾部适配严格按种族分工**：
   - **魔理沙**（`marisa`、`marisa_face`、`marisa_tsumuri`；`house_marisa` 仅水中扑腾）：7 骨单辫链（`braid_chain`），`bin_nose_in` 用 `braid_keys`（`root_weight` + `tip_curl`），`water_flail`／`water_struggle` 用 `hair_chain_keys`。被炉／稀发／豆形魔理沙留在嘴／纯身体路线。
-  - **灵梦**（`reimu`、`reimu_face`、`reimu_deibu`）：4 骨纸筒鬓发链（`sideburn`），`bin_nose_in` 与 `water_flail`／`water_struggle` 均用 `hair_chain_keys`（小根角、纸筒节刚性、下段弯出、发尾发力）。`house_reimu`、`reimu_bean`、`reimu_sparse`、`reimu_wasa*` 留在嘴／纯身体路线。
+  - **灵梦**（`reimu`、`reimu_face`、`reimu_deibu`）：6 骨纸筒鬓发链（`sideburn`），`bin_nose_in` 与 `water_flail`／`water_struggle` 均用 `hair_chain_keys`（小根角 `root_max ≤ 10°`、上段逐节缓弯、纸筒节刚性、发尾发力）。`house_reimu`、`reimu_bean`、`reimu_sparse`、`reimu_wasa*` 留在嘴／纯身体路线。
   - **帕秋莉**（`patchouli`）：6 骨长脸颊发束链（`cheek_lock`），`bin_nose_in` 与 `water_flail`／`water_struggle` 均用 `hair_chain_keys`（根部贴帽檐下方几乎不动 `root_max ≤ 10°`，中下段弯出、末端发力）。
   - **橙**（`chen`、`chen_longtail`、`chen_roundtail`）：默认翻桶用嘴（`bin_nose_in`）、扑腾用纯身体（`water_flail`／`water_struggle`）；**偶尔**按胆量随机（25%–40%）改播双尾专用片段 `bin_nose_in_tail`／`water_flail_tail`／`water_struggle_tail`（仅驱动 `chen_tail_left`／`chen_tail_right`，侧发 `loose_hair` 保持自然不乱动）。
   - **其余全部种族**（爱丽丝 `alice`、妖梦 `myon`／`myon_redeye`、蕾米莉亚 `remilia`、芙兰朵露 `flandre` 等）：翻垃圾桶只用嘴，水中扑腾只用纯身体，不做发束或翅膀扑腾／翻桶适配。
@@ -146,6 +146,7 @@
 - 辫根直抬成触角与单骨硬转：旧版 `water_flail`／`water_struggle` 的 `arrive.y < 0` 令辫梢上翘、根部斜抬 > 30°，灵梦与帕秋莉旧单骨更是从根部硬转 60–80°；改用多骨链 `hair_chain_keys`（根角 ≤ 20°、弯曲集中在中下段并带行波 `lag` 与重力 `sag`、末端 `tip_keys` 甩拍）和 `braid_keys` 的 `root_weight`（`1.2–1.45`）+ `tip_curl`，彻底消除触角感。
 - 贝塞尔根手柄下冲与反平行折返：`braid_keys.Chain.lay` 若 `root_weight` 过大（`1.8–2.0`），低位目标会让第一控制点钻到地面下形成折返，而把该控制点的 y 下限错误锁到 `min(r.y, tip.y)` 又会把高位托举（`braid_brim_lift`）顶进帽檐；下限只锁在地面 `y=0.2`，同时保持 `root` 与 `arrive` 朝同侧外展（`root.x > 0, arrive.x > 0`，绝不反平行）、出入 `rest` 加 `turn`，单步角即可稳定在 30° 以内。
 - 新加发束子骨必须追加到 `rig.bones` 末尾：在 `hair-chains/author.py` 切分灵梦／帕秋莉发束时，把新增骨全部追加在骨架末尾，不移动既有骨索引，避免破坏 `reimu_face` 等共享权重供体的索引映射。
+- 跨整段线性蒙皮叠加单关节大弯角导致发束根部内拉变细：旧版灵梦 4 骨鬓发在 `[6.65, 9.328]` 整段线性混入 `lock_1` 权重，且扑腾时 `hand` 转 `21°`、`lock_1` 单节转 `45–47°`，把 `lock_1` 枢轴上方顶点反向拉向头内，令根部截面缩至 `0.78–0.83x`、内侧拉伸 `+49%` 并在太阳穴露缝；改为灵梦 6 骨链（`lock_1..4` 分布在 `7.80/6.55/5.25/4.00`）配以关节枢轴为中心的分段 smoothstep 蒙皮（`hair-chains/author.py:_joint_intervals`，灵梦与帕秋莉共用，根骨顶部刚性不反向受拉、纸筒段 `y ≤ 4.00` 刚性防穿筒）并把扑腾根角压至 `≤ 10°`、单节弯角压至 `≤ 27°`，根部截面恢复 `0.94–1.00x` 且静止轮廓零变化。
 
 ## 7. 检查方法
 
