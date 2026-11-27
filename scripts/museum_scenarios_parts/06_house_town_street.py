@@ -1349,13 +1349,16 @@ def lead_walk_check(window):
     for shown in re.finditer(r'\[choreo\][^\n]* beat=((?:lead|stranger)_\w+) face=(\S+) line=\S+ declared=(\S+)', window):
         if shown[2] != shown[3]: return f'beat {shown[1]} showed {shown[2]} but declared {shown[3]}'
     pet = _uuid_of(uid('lead_walk', 'lead_pet'))
-    at = {}
+    seen = sorted((int(t), beat) for t, beat in re.findall(rf'\[lead\][^\n]*uuid={pet} t=(\d+)[^\n]* beat=(lead_hurry|lead_alarm|lead_relief) ', window))
+    order = [beat for _, beat in seen]
     for beat in ('lead_hurry', 'lead_alarm', 'lead_relief'):
-        found = re.search(rf'\[lead\][^\n]*uuid={pet} t=(\d+)[^\n]* beat={beat} [^\n]*', window)
-        if not found: return f'the owner\'s pet never showed {beat}'
-        at[beat] = int(found[1])
-        if beat == 'lead_hurry' and 'hop=true' not in found[0]: return 'the owner\'s pet hurried without hopping'
-    if not at['lead_hurry'] <= at['lead_alarm'] <= at['lead_relief']: return f'the owner\'s pet beats came out of order {at}'
+        if beat not in order: return f"the owner's pet never showed {beat}"
+    if any('hop=true' not in line for line in re.findall(rf'\[lead\][^\n]*uuid={pet} [^\n]* beat=lead_hurry [^\n]*', window)):
+        return "the owner's pet hurried without hopping"
+    # One episode must run hurry, then alarm, then relief in order (a yank may skip the hurry; the catch-up after the lead goes on is an episode of its own).
+    rest = iter(order)
+    if not all(any(beat == want for beat in rest) for want in ('lead_hurry', 'lead_alarm', 'lead_relief')):
+        return f"the owner's pet beats never ran hurry, alarm, relief in order {order}"
     # The faces are not enough: each beat's line must really be spoken (a refused line is only logged as declared).
     for event in ('lead_hurry', 'lead_alarm', 'lead_relief'):
         if not re.search(rf'\[speech\][^\n]*uuid={pet}[^\n]* line event={event} ', window): return f'the owner\'s pet never spoke {event}'
