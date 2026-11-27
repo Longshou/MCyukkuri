@@ -1,8 +1,10 @@
 # 城市边缘的食源、栖所与交互
 
-[全领域覆盖](life-settings-coverage.md) · [野外与交互](wild-life.md) · [宠物生活](pet-life.md) · [文字来源](novel-reading/README.md)
+[Wiki 入口](README.md) · [全领域覆盖](life-settings-coverage.md) · [野外与交互](wild-life.md) · [宠物生活](pet-life.md) · [文字来源](novel-reading/README.md)
 
-本页整理城市与乡村边缘的食源、栖所、公共空间和人类活动。**A** 为作品记录，**W** 为高优先级综述归纳，**P** 为世界构建提示。
+本页属于**城市边缘生态**，整理城市与乡村边缘的食源、栖所、公共空间和街沟生活（**A** 为作品记录，**W** 为高优先级综述归纳，**I** 为归纳推断，**P** 为世界构建提示，详见[来源与记录边界](README.md#来源与记录边界)）。商店、加工所与徽章的**原作资料整理**见[商店、加工所与人类 NPC](shops-factory-npcs.md)、[工厂生产题材来源](factory-production-review.md)与[徽章作品资料](badges.md)，村庄街道与居民立场的**八景世界设定**见[人类世界](hakkei-reference/world/human-world.md)。
+
+现行游戏规则见[身份实现](../docs/features/identity.md#油库里的身份)（流浪上街、纸箱与低缝避风、报纸盖身与翻垃圾）和[人类世界实现](../docs/features/human-world.md#人类世界)（集市偷食、售货口索食、村庄流浪油、收容所纸箱与田边取食）。
 
 ## 按环境变化找参考
 

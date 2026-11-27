@@ -1,6 +1,8 @@
 # 油库里群落：作品参考
 
-本页整理家庭生活、群落组织、劳动分工和资源协作。常见结构以 L36 综述为主，具体作品的范围和差异分开列示。
+本页负责家庭构成、群落组织、族长职位、劳动分工与公共储粮协作的作品参考整理，以 L36 综述为主线并分列各漫画、小说核读范围。
+野外事件与环境交互见[野外生存、事件与交互](wild-life.md)，住所与迁居见[住所、季节与迁徙](hakkei-reference/lore/habitat-seasonal-life.md)，食源与生活物件见[资源与生活生态](hakkei-reference/world/resources-ecology.md)，日常行为核对见[日常生态来源](ecology-daily-life.md)。
+现行游戏规则见[聚落、族规与迁徙](../docs/features/wild-ecology.md#聚落族规与迁徙)与[野外住所、家油、季节与聚落](../docs/features/wild-ecology.md)，返回总索引见[Wiki](README.md)。
 
 ## 名称与组织关系
 

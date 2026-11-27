@@ -1,8 +1,8 @@
 # 野外生存、事件与交互
 
-[Wiki](README.md) · [全领域覆盖](life-settings-coverage.md) · [树叶襁褓](leaf-swaddle.md) · [传统事件母题](hakkei-reference/events/traditional-motifs.md) · [群落](yukkuri-communities.md)
-
-野外生活由栖所、食物、天气、家庭照料和群体关系共同构成。家庭会寻找可用的住所与食源，协作采集、照看幼体，并根据季节和环境变化决定停留、迁移或向人类求助。
+本页负责野外生存环境变化、突发事件链与跨角色交互过程的原作漫画和小说核读（A／I／P 证据表）。
+家庭与群落分工见[油库里群落](yukkuri-communities.md)，住所维护与四季线索见[住所、季节与迁徙](hakkei-reference/lore/habitat-seasonal-life.md)，食物与物件体系见[资源与生活生态](hakkei-reference/world/resources-ecology.md)，城市与日常行为见[城市边缘生活](city-life.md)、[日常生态来源](ecology-daily-life.md)和[树叶襁褓](leaf-swaddle.md)。
+现行游戏实现见[野外住所、家油、季节与聚落](../docs/features/wild-ecology.md)（重点对应[野外住所](../docs/features/wild-ecology.md#野外住所)与[野外事件](../docs/features/wild-ecology.md#野外事件)），返回总索引见[Wiki](README.md)与[全领域覆盖](life-settings-coverage.md)。
 
 ## 常见野外生活主题
 
