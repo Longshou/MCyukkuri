@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 帽舱入座与转身几何一致（PD-09 雨后出舱） | `.worktrees/wp-cabin-turn` | aquatic/TakeSeat, motor/surface/Floor, PlacedHatEntity places |
 
 ## 玩法待办
 
