@@ -10,7 +10,6 @@
 | --- | --- | --- |
 | 11-27 待看反馈：翻桶与扑腾、辫子表现力 | `.worktrees/wp-braid-redo` | BRAID.md, recipe.json (braid/bin/flail entries), species hair rigs |
 | 11-27 待看反馈：表情返修 | `.worktrees/wp-face-fix-3` | face sources (frail/shy/pin_cry/tongue_cry/spit/reject/nuzzle), recipe.json own entries |
-| 表情与动作适配统一管理（含 SC-09 相扑） | `.worktrees/wp-face-fit` | scripts/check_face_fit (new), FACE-MOTION.md, art.md, sumo clips (merged from wp-art-sumo) |
 
 ## 玩法待办
 
