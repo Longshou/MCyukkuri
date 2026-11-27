@@ -11,6 +11,7 @@
 | 家规全套重做（TN-48/72/73/78/79/80/57） | `.worktrees/wp-rules-redo` | pet/rules/*, pet conscience/penance, rule dialogue, rule faces |
 | 断亲演出与台词（PD-31~34） | `.worktrees/wp-sever-voice` | family departure/sever beats, sever dialogue, sever faces |
 | 争抢分级（FG-19/FM-30/PK-24/SC-09） | `.worktrees/wp-contest-tiers` | event Contest/ContestOdds, GroupInteractionGoal contest+sumo beats, contest dialogue/faces |
+| 街道等待、牵绳与嘲讽（TN-71/74/08、HD-04） | `.worktrees/wp-street-scorn` | yield/WaitImpatience beats, pet/LeadFollow, headwear/ScornLadder, their dialogue/faces |
 
 ## 玩法待办
 
