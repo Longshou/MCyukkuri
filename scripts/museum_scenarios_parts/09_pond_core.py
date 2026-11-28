@@ -1033,7 +1033,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
 
 _severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
                  '翻船后含泪亲油赶走最大孩子：孩子先震惊再哀求，被转身拒绝后含泪走远断亲；依恋但不大胆的手足留在原地哭泣目送，墙后在窝边的远手足无反应且不被断亲',
-                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', first=80, far_sibling=True, child2_traits=_SIB_SORROW, step_in=False)
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True, child2_traits=_SIB_SORROW, step_in=False)
 _severance_scene('hat_sever_cold', '超载断亲：冷淡推开与手足拦阻',
                  '翻船后冷淡亲油赶走最大孩子：高依恋大胆的手足上前挡在中间求情，被冷淡亲油喝退轻推回后仍不改判；被逐孩子哀求被推开，怒骂走远断亲',
                  'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead', child2_traits=_SIB_PROTEST, step_in='NUDGE_BACK')
