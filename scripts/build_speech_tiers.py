@@ -1197,7 +1197,7 @@ RULE_BOAST = {
                 ('{p}こんなに いいこなの{e}、かいぬししゃん だって うれしい はず{e}！', '{p}小贝比酱这么乖这么可爱{e}，饲主先森肯定也觉得好能油库气吧{e}！', '{p}They are such good little ones, Mr. Owner must be happy too!')],
             'timid': [
                 ('{p}おちびちゃん こんなに ゆっくち してるから……かいぬししゃんも わかってくれるよね？', '{p}小贝比酱这么能油库气……饲主先森也会油库气地理解{n}对吧……？', '{p}The little ones are so easy... Mr. Owner will understand, right...?'),
-                ('{p}ね、かいぬししゃん……みんなで ゆっくち したら、もっと たのしいよ……？', '{p}呐、饲主先森……多惹小贝比酱一起油库气，不是更幸福嘛……？', '{p}Hey, Mr. Owner... taking it easy together is even happier, right...?')],
+                ('{p}ね、かいぬししゃん……みんなで ゆっくち したら、もっと たのしいよ……？', '{p}呐、饲主先森……大家一起油库气，不是更幸福嘛……？', '{p}Hey, Mr. Owner... taking it easy together is even happier, right...?')],
             'plain': [
                 ('{p}ほら かいぬししゃん、おちびちゃん ゆっくち{e}！ みんなで ゆっくち しようよ！', '{p}你看呀饲主先森，小贝比酱这么能油库气{e}！大家一起油库气地生活吧！', '{p}See Mr. Owner, the little ones are so easy! Let\'s all take it easy!'),
                 ('{p}だめって いってたけど、おちびちゃん かわいいから だいじょうぶだよね{e}？', '{p}虽然之前说过不行，可小贝比酱这么可爱，饲主先森肯定会理解的吧{e}？', '{p}You said no before, but they\'re so cute it\'s okay now, right?')]},

@@ -566,6 +566,9 @@ def _eat_struck_commands():
             # The observer stands in front of the pet when the blow lands (the pet may have walked to the bowl since the start).
             (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
             (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 run yukkuri scenario owner_at {_rule_pet} watch'),
+            # The timid companion must see the blow it is meant to flinch from: if its stroll has taken it out of arm's reach,
+            # bring it back beside the pet (still inside the yard) just before the first flick.
+            (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 at {_rule_pet} run tp @e[tag={tag("rule_bystander")},distance=2.5..,limit=1] ~1.2 ~ ~1.2 facing entity {_rule_pet} eyes'),
             (tick, f'execute if score #eat_armed museum matches 16.. if score #eat_blow museum matches 0 store result score #eat_blow museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick, f'execute if score #eat_blow museum matches 4.. if score #eat_blow2 museum matches 0 store result score #eat_blow2 museum run yukkuri scenario care_click {_rule_pet} flick'),
             (tick + 1, f'execute if score #eat_armed museum matches 0 if data entity {_rule_pet} YukkuriPet.Conscience{{Rule:"no_eating_unasked",Caught:1b}} run scoreboard players set #eat_armed museum 1'),
