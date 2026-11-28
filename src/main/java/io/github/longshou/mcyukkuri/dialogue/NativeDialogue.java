@@ -169,6 +169,8 @@ public final class NativeDialogue {
             // These lines answer an event as it happens.
             case "thing_san", "treasure_stolen", "narrate_steal", "narrate_flee", "narrate_hide", "doll_talk",
                  "contest_faceoff", "contest_tussle", "contest_won_food", "contest_won_bed", "contest_won_toy", "contest_lost",
+                 "contest_yield_polite", "contest_thanks", "contest_yield_complain", "contest_puff", "contest_threat",
+                 "contest_won_doll",
                  "sumo_start", "sumo_win", "sumo_lose",
                  "doll_snatch_claim", "doll_stolen", "doll_snatch_defy", "doll_snatch_flee",
                  "addr_human_hostile_wary", "addr_human_hostile_old", "addr_human_hostile_man",

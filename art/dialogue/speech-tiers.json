@@ -165003,6 +165003,4870 @@
    "origin": "project-original",
    "basis": "wp-rules-r2: rewritten secret-brood boast branch (naive self-centred pet showing off babies, expecting praise, never talking back rudely); project-original wording",
    "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_yield_polite",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどは ゆずってあげるにぇ！ あとで いっしょに あそぶにぇ！",
+   "chinese": "这次就让给你捏！待会儿一起油库里捏！",
+   "english": "Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_yield_polite",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……れいみゅは あとで いいにぇ……",
+   "chinese": "请先油库里……灵梦晚一点也没关系捏……",
+   "english": "Go ahead... Reimu can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_yield_polite",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいにぇ、ゆずるにぇ。なかよく しようにぇ！",
+   "chinese": "好吧，让给你捏。要好好油库里捏！",
+   "english": "Okay, Reimu gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_yield_polite",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどの ぶんは ゆずってあげるよ！ あとで いっしょに あそぶよ！",
+   "chinese": "这次就让给你哦！待会儿一起油库里哦！",
+   "english": "This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_yield_polite",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……れいむは また あとで いいよ……",
+   "chinese": "请先油库里……灵梦再等等也没关系哦……",
+   "english": "Go ahead... Reimu can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.c3_contest_yield_polite",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいよ、ゆずるよ。なかよく つかうよ！",
+   "chinese": "好吧，让给你哦。要好好一起用哦！",
+   "english": "Okay, Reimu gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_thanks",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうにぇ！ なかよく あそぶにぇ！",
+   "chinese": "谢谢你捏！一起好好玩捏！",
+   "english": "Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_thanks",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうにぇ……やさしいにぇ……",
+   "chinese": "油……谢谢捏……灵梦好温柔捏……",
+   "english": "Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_thanks",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうにぇ、うれしいにぇ！",
+   "chinese": "谢谢捏，好高兴捏！",
+   "english": "Thank you, Reimu is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_thanks",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよ！ いっしょに ゆっくり するよ！",
+   "chinese": "谢谢你哦！一起油库里哦！",
+   "english": "Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_thanks",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうよ……たすかるよ……",
+   "chinese": "油……谢谢哦……帮大忙了哦……",
+   "english": "Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.c3_contest_thanks",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよ、うれしいよ！",
+   "chinese": "谢谢哦，好高兴哦！",
+   "english": "Thank you, Reimu is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_yield_complain",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふんっ、れいみゅが さきに みつけたにぇ！ ずるいにぇ！",
+   "chinese": "哼，明明是灵梦先看到的捏！好狡猾捏！",
+   "english": "Hmph, Reimu found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_yield_complain",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……れいみゅだって ほしかったにぇ……",
+   "chinese": "油呜……灵梦也想要的捏……",
+   "english": "Yuu... Reimu wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_yield_complain",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないにぇ……ちょっと だけ かしてにぇ……",
+   "chinese": "没办法捏……等下要还灵梦捏……",
+   "english": "Can't help it... let Reimu have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_yield_complain",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふん、れいむが さきに みつけたよ！ おぼえて いるよ！",
+   "chinese": "哼，灵梦才是先看到的哦！灵梦记住了哦！",
+   "english": "Hmph, Reimu found it first! Reimu will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_yield_complain",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……れいむも つかいたかったよ……",
+   "chinese": "油呜……灵梦也想用的哦……",
+   "english": "Yuu... Reimu wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.c3_contest_yield_complain",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないよ……つぎは れいむの ばんよ……",
+   "chinese": "没办法哦……下次轮到灵梦哦……",
+   "english": "Can't help it... it is Reimu's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_puff",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ れいみゅの ぷくの ほうが おおきいにぇ！",
+   "chinese": "噗咕——！灵梦的噗咕才更大捏！",
+   "english": "Puff! Reimu's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_puff",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まきぇないにぇ！ これは れいみゅが さきに みつけたにぇ！",
+   "chinese": "才不输捏！这是灵梦先看到的捏！",
+   "english": "Won't lose! Reimu saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_puff",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……れいみゅだって ゆずらないにぇ……",
+   "chinese": "噗咕……灵梦才不会让捏……",
+   "english": "Puff... Reimu won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.c4_contest_puff",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてにぇ！",
+   "chinese": "噗咕——噗咕——！让开捏！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_puff",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ れいむの ぷくの ほうが おおきいよ！",
+   "chinese": "噗咕——！灵梦的噗咕才更大哦！",
+   "english": "Puff! Reimu's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_puff",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まけないよ！ これは れいむが さきに みつけたよ！",
+   "chinese": "才不输哦！这是灵梦先看到的哦！",
+   "english": "Won't lose! Reimu saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c3_contest_puff",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……れいむだって ゆずらないよ……",
+   "chinese": "噗咕……灵梦才不会让哦……",
+   "english": "Puff... Reimu won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.c4_contest_puff",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてよ！",
+   "chinese": "噗咕——噗咕——！让开哦！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_threat",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないにぇ！ とったら ぶつかって とばすにぇ！",
+   "chinese": "绝对不让捏！敢抢就撞飞你捏！",
+   "english": "Never giving it up! Take it and Reimu rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_threat",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるにぇ！ まきぇないにぇ！",
+   "chinese": "放马过来捏！灵梦才不会输捏！",
+   "english": "Come on then! Reimu won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_threat",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは れいみゅのにぇ！ うばったら ゆるさないにぇ！",
+   "chinese": "这是灵梦的捏！抢走就不饶你捏！",
+   "english": "This is Reimu's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_threat",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないよ！ とったら ぶつかって とばすよ！",
+   "chinese": "绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Never giving it up! Take it and Reimu rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_threat",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるよ！ まけないよ！",
+   "chinese": "放马过来哦！灵梦才不会输哦！",
+   "english": "Come on then! Reimu won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c3_contest_threat",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは れいむのよ！ うばったら ゆるさないよ！",
+   "chinese": "这是灵梦的哦！抢走就不饶你哦！",
+   "english": "This is Reimu's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.juvenile.c1_contest_won_doll",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみしゃんは れいみゅの ものにぇ！",
+   "chinese": "哼哼！布偶鲜笋是灵梦的捏！",
+   "english": "Heh-heh! Mr. Doll is Reimu's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.juvenile.c2_contest_won_doll",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみしゃん、だいじ に するにぇ……",
+   "chinese": "油……布偶鲜笋，灵梦会好好珍惜捏……",
+   "english": "Yu... Reimu will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.juvenile.c3_contest_won_doll",
+   "species": "reimu",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やっちゃにぇ！ ぬいぐるみしゃん、いっしょに かえるにぇ！",
+   "chinese": "太好惹捏！布偶鲜笋，一起回家捏！",
+   "english": "Yay! Mr. Doll is coming home with Reimu!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "reimu.adult.c1_contest_won_doll",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみさんは れいむが もらうよ！",
+   "chinese": "哼哼！布偶先生归灵梦了哦！",
+   "english": "Heh-heh! Reimu gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "reimu.adult.c2_contest_won_doll",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみさん、だいじ に するよ……",
+   "chinese": "油……布偶先生，灵梦会好好珍惜哦……",
+   "english": "Yu... Reimu will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "reimu.adult.c3_contest_won_doll",
+   "species": "reimu",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やったよ！ ぬいぐるみさん、うちに かえるよ！",
+   "chinese": "太好了哦！布偶先生，跟灵梦回家哦！",
+   "english": "Yay! Mr. Doll is coming home with Reimu!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_yield_polite",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどは ゆずってあげるのじぇ！ あとで いっしょに あそぶのじぇ！",
+   "chinese": "这次就让给你惹杰！待会儿一起油库里惹杰！",
+   "english": "Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_yield_polite",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……まりちゃは あとで いいのじぇ……",
+   "chinese": "请先油库里……魔理沙晚一点也没关系惹杰……",
+   "english": "Go ahead... Marisa can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_yield_polite",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいのじぇ、ゆずるのじぇ。なかよく しようのじぇ！",
+   "chinese": "好吧，让给你惹杰。要好好油库里惹杰！",
+   "english": "Okay, Marisa gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_yield_polite",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどの ぶんは ゆずってあげるのぜ！ あとで いっしょに あそぶのぜ！",
+   "chinese": "这次就让给你贼！待会儿一起油库里贼！",
+   "english": "This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_yield_polite",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……まりさは また あとで いいのぜ……",
+   "chinese": "请先油库里……魔理沙再等等也没关系贼……",
+   "english": "Go ahead... Marisa can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.c3_contest_yield_polite",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいのぜ、ゆずるのぜ。なかよく つかうのぜ！",
+   "chinese": "好吧，让给你贼。要好好一起用贼！",
+   "english": "Okay, Marisa gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_thanks",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうのじぇ！ なかよく あそぶのじぇ！",
+   "chinese": "谢谢你惹杰！一起好好玩惹杰！",
+   "english": "Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_thanks",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうのじぇ……やさしいのじぇ……",
+   "chinese": "油……谢谢惹杰……魔理沙好温柔惹杰……",
+   "english": "Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_thanks",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうのじぇ、うれしいのじぇ！",
+   "chinese": "谢谢惹杰，好高兴惹杰！",
+   "english": "Thank you, Marisa is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_thanks",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうのぜ！ いっしょに ゆっくり するのぜ！",
+   "chinese": "谢谢你贼！一起油库里贼！",
+   "english": "Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_thanks",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうのぜ……たすかるのぜ……",
+   "chinese": "油……谢谢贼……帮大忙了贼……",
+   "english": "Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.c3_contest_thanks",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうのぜ、うれしいのぜ！",
+   "chinese": "谢谢贼，好高兴贼！",
+   "english": "Thank you, Marisa is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_yield_complain",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふんっ、まりちゃが さきに みつけたのじぇ！ ずるいのじぇ！",
+   "chinese": "哼，明明是魔理沙先看到的惹杰！好狡猾惹杰！",
+   "english": "Hmph, Marisa found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_yield_complain",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……まりちゃだって ほしかったのじぇ……",
+   "chinese": "油呜……魔理沙也想要的惹杰……",
+   "english": "Yuu... Marisa wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_yield_complain",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないのじぇ……ちょっと だけ かしてのじぇ……",
+   "chinese": "没办法惹杰……等下要还魔理沙惹杰……",
+   "english": "Can't help it... let Marisa have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_yield_complain",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふん、まりさが さきに みつけたのぜ！ おぼえて いるのぜ！",
+   "chinese": "哼，魔理沙才是先看到的贼！魔理沙记住了贼！",
+   "english": "Hmph, Marisa found it first! Marisa will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_yield_complain",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……まりさも つかいたかったのぜ……",
+   "chinese": "油呜……魔理沙也想用的贼……",
+   "english": "Yuu... Marisa wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.c3_contest_yield_complain",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないのぜ……つぎは まりさの ばんのぜ……",
+   "chinese": "没办法贼……下次轮到魔理沙贼……",
+   "english": "Can't help it... it is Marisa's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_puff",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ まりちゃの ぷくの ほうが おおきいのじぇ！",
+   "chinese": "噗咕——！魔理沙的噗咕才更大惹杰！",
+   "english": "Puff! Marisa's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_puff",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まきぇないのじぇ！ これは まりちゃが さきに みつけたのじぇ！",
+   "chinese": "才不输惹杰！这是魔理沙先看到的惹杰！",
+   "english": "Won't lose! Marisa saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_puff",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……まりちゃだって ゆずらないのじぇ……",
+   "chinese": "噗咕……魔理沙才不会让惹杰……",
+   "english": "Puff... Marisa won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.c4_contest_puff",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてのじぇ！",
+   "chinese": "噗咕——噗咕——！让开惹杰！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_puff",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ まりさの ぷくの ほうが おおきいのぜ！",
+   "chinese": "噗咕——！魔理沙的噗咕才更大贼！",
+   "english": "Puff! Marisa's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_puff",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まけないのぜ！ これは まりさが さきに みつけたのぜ！",
+   "chinese": "才不输贼！这是魔理沙先看到的贼！",
+   "english": "Won't lose! Marisa saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c3_contest_puff",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……まりさだって ゆずらないのぜ……",
+   "chinese": "噗咕……魔理沙才不会让贼……",
+   "english": "Puff... Marisa won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.c4_contest_puff",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてのぜ！",
+   "chinese": "噗咕——噗咕——！让开贼！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_threat",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないのじぇ！ とったら ぶつかって とばすのじぇ！",
+   "chinese": "绝对不让惹杰！敢抢就撞飞你惹杰！",
+   "english": "Never giving it up! Take it and Marisa rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_threat",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるのじぇ！ まきぇないのじぇ！",
+   "chinese": "放马过来惹杰！魔理沙才不会输惹杰！",
+   "english": "Come on then! Marisa won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_threat",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは まりちゃののじぇ！ うばったら ゆるさないのじぇ！",
+   "chinese": "这是魔理沙的惹杰！抢走就不饶你惹杰！",
+   "english": "This is Marisa's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_threat",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないのぜ！ とったら ぶつかって とばすのぜ！",
+   "chinese": "绝对不让贼！敢抢就撞飞你贼！",
+   "english": "Never giving it up! Take it and Marisa rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_threat",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるのぜ！ まけないのぜ！",
+   "chinese": "放马过来贼！魔理沙才不会输贼！",
+   "english": "Come on then! Marisa won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c3_contest_threat",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは まりさののぜ！ うばったら ゆるさないのぜ！",
+   "chinese": "这是魔理沙的贼！抢走就不饶你贼！",
+   "english": "This is Marisa's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.juvenile.c1_contest_won_doll",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみしゃんは まりちゃの もののじぇ！",
+   "chinese": "哼哼！布偶鲜笋是魔理沙的惹杰！",
+   "english": "Heh-heh! Mr. Doll is Marisa's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.juvenile.c2_contest_won_doll",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみしゃん、だいじ に するのじぇ……",
+   "chinese": "油……布偶鲜笋，魔理沙会好好珍惜惹杰……",
+   "english": "Yu... Marisa will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.juvenile.c3_contest_won_doll",
+   "species": "marisa",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やっちゃのじぇ！ ぬいぐるみしゃん、いっしょに かえるのじぇ！",
+   "chinese": "太好惹惹杰！布偶鲜笋，一起回家惹杰！",
+   "english": "Yay! Mr. Doll is coming home with Marisa!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "marisa.adult.c1_contest_won_doll",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみさんは まりさが もらうのぜ！",
+   "chinese": "哼哼！布偶先生归魔理沙了贼！",
+   "english": "Heh-heh! Marisa gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "marisa.adult.c2_contest_won_doll",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみさん、だいじ に するのぜ……",
+   "chinese": "油……布偶先生，魔理沙会好好珍惜贼……",
+   "english": "Yu... Marisa will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "marisa.adult.c3_contest_won_doll",
+   "species": "marisa",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やったのぜ！ ぬいぐるみさん、うちに かえるのぜ！",
+   "chinese": "太好了贼！布偶先生，跟魔理沙回家贼！",
+   "english": "Yay! Mr. Doll is coming home with Marisa!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_yield_polite",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどは ゆずってあげるにょ！ あとで いっしょに あそぶにょ！",
+   "chinese": "这次就让给你哟！待会儿一起油库里哟！",
+   "english": "Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_yield_polite",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……ありちゅは あとで いいにょ……",
+   "chinese": "请先油库里……爱丽丝晚一点也没关系哟……",
+   "english": "Go ahead... Alice can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_yield_polite",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいにょ、ゆずるにょ。なかよく しようにょ！",
+   "chinese": "好吧，让给你哟。要好好油库里哟！",
+   "english": "Okay, Alice gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_yield_polite",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどの ぶんは ゆずってあげるわ！ あとで いっしょに あそぶわ！",
+   "chinese": "这次就让给你呢！待会儿一起油库里呢！",
+   "english": "This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_yield_polite",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……ありすは また あとで いいわ……",
+   "chinese": "请先油库里……爱丽丝再等等也没关系呢……",
+   "english": "Go ahead... Alice can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.c3_contest_yield_polite",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいわ、ゆずるわ。なかよく つかうわ！",
+   "chinese": "好吧，让给你呢。要好好一起用呢！",
+   "english": "Okay, Alice gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_thanks",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうにょ！ なかよく あそぶにょ！",
+   "chinese": "谢谢你哟！一起好好玩哟！",
+   "english": "Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_thanks",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうにょ……やさしいにょ……",
+   "chinese": "油……谢谢哟……爱丽丝好温柔哟……",
+   "english": "Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_thanks",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうにょ、うれしいにょ！",
+   "chinese": "谢谢哟，好高兴哟！",
+   "english": "Thank you, Alice is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_thanks",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうわ！ いっしょに ゆっくり するわ！",
+   "chinese": "谢谢你呢！一起油库里呢！",
+   "english": "Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_thanks",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうわ……たすかるわ……",
+   "chinese": "油……谢谢呢……帮大忙了呢……",
+   "english": "Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.c3_contest_thanks",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうわ、うれしいわ！",
+   "chinese": "谢谢呢，好高兴呢！",
+   "english": "Thank you, Alice is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_yield_complain",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふんっ、ありちゅが さきに みつけたにょ！ ずるいにょ！",
+   "chinese": "哼，明明是爱丽丝先看到的哟！好狡猾哟！",
+   "english": "Hmph, Alice found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_yield_complain",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……ありちゅだって ほしかったにょ……",
+   "chinese": "油呜……爱丽丝也想要的哟……",
+   "english": "Yuu... Alice wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_yield_complain",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないにょ……ちょっと だけ かしてにょ……",
+   "chinese": "没办法哟……等下要还爱丽丝哟……",
+   "english": "Can't help it... let Alice have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_yield_complain",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふん、ありすが さきに みつけたわ！ おぼえて いるわ！",
+   "chinese": "哼，爱丽丝才是先看到的呢！爱丽丝记住了呢！",
+   "english": "Hmph, Alice found it first! Alice will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_yield_complain",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……ありすも つかいたかったわ……",
+   "chinese": "油呜……爱丽丝也想用的呢……",
+   "english": "Yuu... Alice wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.c3_contest_yield_complain",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないわ……つぎは ありすの ばんわ……",
+   "chinese": "没办法呢……下次轮到爱丽丝呢……",
+   "english": "Can't help it... it is Alice's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_puff",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ ありちゅの ぷくの ほうが おおきいにょ！",
+   "chinese": "噗咕——！爱丽丝的噗咕才更大哟！",
+   "english": "Puff! Alice's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_puff",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まきぇないにょ！ これは ありちゅが さきに みつけたにょ！",
+   "chinese": "才不输哟！这是爱丽丝先看到的哟！",
+   "english": "Won't lose! Alice saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_puff",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……ありちゅだって ゆずらないにょ……",
+   "chinese": "噗咕……爱丽丝才不会让哟……",
+   "english": "Puff... Alice won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.c4_contest_puff",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてにょ！",
+   "chinese": "噗咕——噗咕——！让开哟！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_puff",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ ありすの ぷくの ほうが おおきいわ！",
+   "chinese": "噗咕——！爱丽丝的噗咕才更大呢！",
+   "english": "Puff! Alice's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_puff",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まけないわ！ これは ありすが さきに みつけたわ！",
+   "chinese": "才不输呢！这是爱丽丝先看到的呢！",
+   "english": "Won't lose! Alice saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c3_contest_puff",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……ありすだって ゆずらないわ……",
+   "chinese": "噗咕……爱丽丝才不会让呢……",
+   "english": "Puff... Alice won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.c4_contest_puff",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてわ！",
+   "chinese": "噗咕——噗咕——！让开呢！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_threat",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないにょ！ とったら ぶつかって とばすにょ！",
+   "chinese": "绝对不让哟！敢抢就撞飞你哟！",
+   "english": "Never giving it up! Take it and Alice rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_threat",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるにょ！ まきぇないにょ！",
+   "chinese": "放马过来哟！爱丽丝才不会输哟！",
+   "english": "Come on then! Alice won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_threat",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは ありちゅのにょ！ うばったら ゆるさないにょ！",
+   "chinese": "这是爱丽丝的哟！抢走就不饶你哟！",
+   "english": "This is Alice's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_threat",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないわ！ とったら ぶつかって とばすわ！",
+   "chinese": "绝对不让呢！敢抢就撞飞你呢！",
+   "english": "Never giving it up! Take it and Alice rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_threat",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるわ！ まけないわ！",
+   "chinese": "放马过来呢！爱丽丝才不会输呢！",
+   "english": "Come on then! Alice won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c3_contest_threat",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは ありすのわ！ うばったら ゆるさないわ！",
+   "chinese": "这是爱丽丝的呢！抢走就不饶你呢！",
+   "english": "This is Alice's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.juvenile.c1_contest_won_doll",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみしゃんは ありちゅの ものにょ！",
+   "chinese": "哼哼！布偶鲜笋是爱丽丝的哟！",
+   "english": "Heh-heh! Mr. Doll is Alice's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.juvenile.c2_contest_won_doll",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみしゃん、だいじ に するにょ……",
+   "chinese": "油……布偶鲜笋，爱丽丝会好好珍惜哟……",
+   "english": "Yu... Alice will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.juvenile.c3_contest_won_doll",
+   "species": "alice",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やっちゃにょ！ ぬいぐるみしゃん、いっしょに かえるにょ！",
+   "chinese": "太好惹哟！布偶鲜笋，一起回家哟！",
+   "english": "Yay! Mr. Doll is coming home with Alice!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "alice.adult.c1_contest_won_doll",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみさんは ありすが もらうわ！",
+   "chinese": "哼哼！布偶先生归爱丽丝了呢！",
+   "english": "Heh-heh! Alice gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "alice.adult.c2_contest_won_doll",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみさん、だいじ に するわ……",
+   "chinese": "油……布偶先生，爱丽丝会好好珍惜呢……",
+   "english": "Yu... Alice will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "alice.adult.c3_contest_won_doll",
+   "species": "alice",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やったわ！ ぬいぐるみさん、うちに かえるわ！",
+   "chinese": "太好了呢！布偶先生，跟爱丽丝回家呢！",
+   "english": "Yay! Mr. Doll is coming home with Alice!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_yield_polite",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどは ゆずってあげるよぅ！ あとで いっしょに あそぶよぅ！",
+   "chinese": "这次就让给你哟——！待会儿一起油库里哟——！",
+   "english": "Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_yield_polite",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……ちぇんは あとで いいよぅ……",
+   "chinese": "请先油库里……橙晚一点也没关系哟——……",
+   "english": "Go ahead... Chen can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_yield_polite",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいよぅ、ゆずるよぅ。なかよく しようよぅ！",
+   "chinese": "好吧，让给你哟——。要好好油库里哟——！",
+   "english": "Okay, Chen gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_yield_polite",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "こんどの ぶんは ゆずってあげるよー！ あとで いっしょに あそぶよー！",
+   "chinese": "这次就让给你哟——！待会儿一起油库里哟——！",
+   "english": "This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_yield_polite",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "どうぞ……ちぇんは また あとで いいよー……",
+   "chinese": "请先油库里……橙再等等也没关系哟——……",
+   "english": "Go ahead... Chen can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.c3_contest_yield_polite",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "いいよー、ゆずるよー。なかよく つかうよー！",
+   "chinese": "好吧，让给你哟——。要好好一起用哟——！",
+   "english": "Okay, Chen gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_thanks",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよぅ！ なかよく あそぶよぅ！",
+   "chinese": "谢谢你哟——！一起好好玩哟——！",
+   "english": "Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_thanks",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうよぅ……やさしいよぅ……",
+   "chinese": "油……谢谢哟——……橙好温柔哟——……",
+   "english": "Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_thanks",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよぅ、うれしいよぅ！",
+   "chinese": "谢谢哟——，好高兴哟——！",
+   "english": "Thank you, Chen is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_thanks",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよー！ いっしょに ゆっくり するよー！",
+   "chinese": "谢谢你哟——！一起油库里哟——！",
+   "english": "Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_thanks",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ゆっ……ありがとうよー……たすかるよー……",
+   "chinese": "油……谢谢哟——……帮大忙了哟——……",
+   "english": "Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.c3_contest_thanks",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ありがとうよー、うれしいよー！",
+   "chinese": "谢谢哟——，好高兴哟——！",
+   "english": "Thank you, Chen is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_yield_complain",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふんっ、ちぇんが さきに みつけたよぅ！ ずるいよぅ！",
+   "chinese": "哼，明明是橙先看到的哟——！好狡猾哟——！",
+   "english": "Hmph, Chen found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_yield_complain",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……ちぇんだって ほしかったよぅ……",
+   "chinese": "油呜……橙也想要的哟——……",
+   "english": "Yuu... Chen wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_yield_complain",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないよぅ……ちょっと だけ かしてよぅ……",
+   "chinese": "没办法哟——……等下要还橙哟——……",
+   "english": "Can't help it... let Chen have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_yield_complain",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ふん、ちぇんが さきに みつけたよー！ おぼえて いるよー！",
+   "chinese": "哼，橙才是先看到的哟——！橙记住了哟——！",
+   "english": "Hmph, Chen found it first! Chen will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_yield_complain",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ゆぅ……ちぇんも つかいたかったよー……",
+   "chinese": "油呜……橙也想用的哟——……",
+   "english": "Yuu... Chen wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.c3_contest_yield_complain",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "しかたないよー……つぎは ちぇんの ばんよー……",
+   "chinese": "没办法哟——……下次轮到橙哟——……",
+   "english": "Can't help it... it is Chen's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_puff",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ ちぇんの ぷくの ほうが おおきいよぅ！",
+   "chinese": "噗咕——！橙的噗咕才更大哟——！",
+   "english": "Puff! Chen's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_puff",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まきぇないよぅ！ これは ちぇんが さきに みつけたよぅ！",
+   "chinese": "才不输哟——！这是橙先看到的哟——！",
+   "english": "Won't lose! Chen saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_puff",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……ちぇんだって ゆずらないよぅ……",
+   "chinese": "噗咕……橙才不会让哟——……",
+   "english": "Puff... Chen won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.c4_contest_puff",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてよぅ！",
+   "chinese": "噗咕——噗咕——！让开哟——！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_puff",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー！ ちぇんの ぷくの ほうが おおきいよー！",
+   "chinese": "噗咕——！橙的噗咕才更大哟——！",
+   "english": "Puff! Chen's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_puff",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "まけないよー！ これは ちぇんが さきに みつけたよー！",
+   "chinese": "才不输哟——！这是橙先看到的哟——！",
+   "english": "Won't lose! Chen saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c3_contest_puff",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷく……ちぇんだって ゆずらないよー……",
+   "chinese": "噗咕……橙才不会让哟——……",
+   "english": "Puff... Chen won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.c4_contest_puff",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ぷくー、ぷくー！ どいてよー！",
+   "chinese": "噗咕——噗咕——！让开哟——！",
+   "english": "Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_threat",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないよぅ！ とったら ぶつかって とばすよぅ！",
+   "chinese": "绝对不让哟——！敢抢就撞飞你哟——！",
+   "english": "Never giving it up! Take it and Chen rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_threat",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるよぅ！ まきぇないよぅ！",
+   "chinese": "放马过来哟——！橙才不会输哟——！",
+   "english": "Come on then! Chen won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_threat",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは ちぇんのよぅ！ うばったら ゆるさないよぅ！",
+   "chinese": "这是橙的哟——！抢走就不饶你哟——！",
+   "english": "This is Chen's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_threat",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ぜったいに ゆずらないよー！ とったら ぶつかって とばすよー！",
+   "chinese": "绝对不让哟——！敢抢就撞飞你哟——！",
+   "english": "Never giving it up! Take it and Chen rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_threat",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "かかって くるよー！ まけないよー！",
+   "chinese": "放马过来哟——！橙才不会输哟——！",
+   "english": "Come on then! Chen won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c3_contest_threat",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "これは ちぇんのよー！ うばったら ゆるさないよー！",
+   "chinese": "这是橙的哟——！抢走就不饶你哟——！",
+   "english": "This is Chen's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.juvenile.c1_contest_won_doll",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみしゃんは ちぇんの ものよぅ！",
+   "chinese": "哼哼！布偶鲜笋是橙的哟——！",
+   "english": "Heh-heh! Mr. Doll is Chen's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.juvenile.c2_contest_won_doll",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみしゃん、だいじ に するよぅ……",
+   "chinese": "油……布偶鲜笋，橙会好好珍惜哟——……",
+   "english": "Yu... Chen will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.juvenile.c3_contest_won_doll",
+   "species": "chen",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やっちゃよぅ！ ぬいぐるみしゃん、いっしょに かえるよぅ！",
+   "chinese": "太好惹哟——！布偶鲜笋，一起回家哟——！",
+   "english": "Yay! Mr. Doll is coming home with Chen!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "chen.adult.c1_contest_won_doll",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ふふん！ ぬいぐるみさんは ちぇんが もらうよー！",
+   "chinese": "哼哼！布偶先生归橙了哟——！",
+   "english": "Heh-heh! Chen gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "chen.adult.c2_contest_won_doll",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ゆっ……ぬいぐるみさん、だいじ に するよー……",
+   "chinese": "油……布偶先生，橙会好好珍惜哟——……",
+   "english": "Yu... Chen will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "chen.adult.c3_contest_won_doll",
+   "species": "chen",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "やったよー！ ぬいぐるみさん、うちに かえるよー！",
+   "chinese": "太好了哟——！布偶先生，跟橙回家哟——！",
+   "english": "Yay! Mr. Doll is coming home with Chen!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_yield_polite",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。こんどは ゆずってあげるわ！ あとで いっしょに あそぶわ！",
+   "chinese": "姆啾。这次就让给你惹哇！待会儿一起油库里惹哇！",
+   "english": "Mukyu. Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_yield_polite",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。どうぞ……ぱちゅは あとで いいわ……",
+   "chinese": "姆啾。请先油库里……帕秋莉晚一点也没关系惹哇……",
+   "english": "Mukyu. Go ahead... Patchouli can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_yield_polite",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。いいわ、ゆずるわ。なかよく しようわ！",
+   "chinese": "姆啾。好吧，让给你惹哇。要好好油库里惹哇！",
+   "english": "Mukyu. Okay, Patchouli gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_yield_polite",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。こんどの ぶんは ゆずってあげるわ！ あとで いっしょに あそぶわ！",
+   "chinese": "姆啾。这次就让给你哇！待会儿一起油库里哇！",
+   "english": "Mukyu. This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_yield_polite",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。どうぞ……ぱちゅりーは また あとで いいわ……",
+   "chinese": "姆啾。请先油库里……帕秋莉再等等也没关系哇……",
+   "english": "Mukyu. Go ahead... Patchouli can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_yield_polite",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "むきゅ。いいわ、ゆずるわ。なかよく つかうわ！",
+   "chinese": "姆啾。好吧，让给你哇。要好好一起用哇！",
+   "english": "Mukyu. Okay, Patchouli gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_thanks",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ありがとうわ！ なかよく あそぶわ！",
+   "chinese": "姆啾。谢谢你惹哇！一起好好玩惹哇！",
+   "english": "Mukyu. Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_thanks",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ゆっ……ありがとうわ……やさしいわ……",
+   "chinese": "姆啾。油……谢谢惹哇……帕秋莉好温柔惹哇……",
+   "english": "Mukyu. Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_thanks",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ありがとうわ、うれしいわ！",
+   "chinese": "姆啾。谢谢惹哇，好高兴惹哇！",
+   "english": "Mukyu. Thank you, Patchouli is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_thanks",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ありがとうわ！ いっしょに ゆっくり するわ！",
+   "chinese": "姆啾。谢谢你哇！一起油库里哇！",
+   "english": "Mukyu. Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_thanks",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ゆっ……ありがとうわ……たすかるわ……",
+   "chinese": "姆啾。油……谢谢哇……帮大忙了哇……",
+   "english": "Mukyu. Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_thanks",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "むきゅ。ありがとうわ、うれしいわ！",
+   "chinese": "姆啾。谢谢哇，好高兴哇！",
+   "english": "Mukyu. Thank you, Patchouli is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_yield_complain",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。ふんっ、ぱちゅが さきに みつけたわ！ ずるいわ！",
+   "chinese": "姆啾。哼，明明是帕秋莉先看到的惹哇！好狡猾惹哇！",
+   "english": "Mukyu. Hmph, Patchouli found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_yield_complain",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。ゆぅ……ぱちゅだって ほしかったわ……",
+   "chinese": "姆啾。油呜……帕秋莉也想要的惹哇……",
+   "english": "Mukyu. Yuu... Patchouli wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_yield_complain",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。しかたないわ……ちょっと だけ かしてわ……",
+   "chinese": "姆啾。没办法惹哇……等下要还帕秋莉惹哇……",
+   "english": "Mukyu. Can't help it... let Patchouli have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_yield_complain",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。ふん、ぱちゅりーが さきに みつけたわ！ おぼえて いるわ！",
+   "chinese": "姆啾。哼，帕秋莉才是先看到的哇！帕秋莉记住了哇！",
+   "english": "Mukyu. Hmph, Patchouli found it first! Patchouli will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_yield_complain",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。ゆぅ……ぱちゅりーも つかいたかったわ……",
+   "chinese": "姆啾。油呜……帕秋莉也想用的哇……",
+   "english": "Mukyu. Yuu... Patchouli wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_yield_complain",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "むきゅ。しかたないわ……つぎは ぱちゅりーの ばんわ……",
+   "chinese": "姆啾。没办法哇……下次轮到帕秋莉哇……",
+   "english": "Mukyu. Can't help it... it is Patchouli's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_puff",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷくー！ ぱちゅの ぷくの ほうが おおきいわ！",
+   "chinese": "姆啾。噗咕——！帕秋莉的噗咕才更大惹哇！",
+   "english": "Mukyu. Puff! Patchouli's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_puff",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。まきぇないわ！ これは ぱちゅが さきに みつけたわ！",
+   "chinese": "姆啾。才不输惹哇！这是帕秋莉先看到的惹哇！",
+   "english": "Mukyu. Won't lose! Patchouli saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_puff",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷく……ぱちゅだって ゆずらないわ……",
+   "chinese": "姆啾。噗咕……帕秋莉才不会让惹哇……",
+   "english": "Mukyu. Puff... Patchouli won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.c4_contest_puff",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷくー、ぷくー！ どいてわ！",
+   "chinese": "姆啾。噗咕——噗咕——！让开惹哇！",
+   "english": "Mukyu. Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_puff",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷくー！ ぱちゅりーの ぷくの ほうが おおきいわ！",
+   "chinese": "姆啾。噗咕——！帕秋莉的噗咕才更大哇！",
+   "english": "Mukyu. Puff! Patchouli's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_puff",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。まけないわ！ これは ぱちゅりーが さきに みつけたわ！",
+   "chinese": "姆啾。才不输哇！这是帕秋莉先看到的哇！",
+   "english": "Mukyu. Won't lose! Patchouli saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_puff",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷく……ぱちゅりーだって ゆずらないわ……",
+   "chinese": "姆啾。噗咕……帕秋莉才不会让哇……",
+   "english": "Mukyu. Puff... Patchouli won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.c4_contest_puff",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "むきゅ。ぷくー、ぷくー！ どいてわ！",
+   "chinese": "姆啾。噗咕——噗咕——！让开哇！",
+   "english": "Mukyu. Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_threat",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。ぜったいに ゆずらないわ！ とったら ぶつかって とばすわ！",
+   "chinese": "姆啾。绝对不让惹哇！敢抢就撞飞你惹哇！",
+   "english": "Mukyu. Never giving it up! Take it and Patchouli rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_threat",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。かかって くるわ！ まきぇないわ！",
+   "chinese": "姆啾。放马过来惹哇！帕秋莉才不会输惹哇！",
+   "english": "Mukyu. Come on then! Patchouli won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_threat",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。これは ぱちゅのわ！ うばったら ゆるさないわ！",
+   "chinese": "姆啾。这是帕秋莉的惹哇！抢走就不饶你惹哇！",
+   "english": "Mukyu. This is Patchouli's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_threat",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。ぜったいに ゆずらないわ！ とったら ぶつかって とばすわ！",
+   "chinese": "姆啾。绝对不让哇！敢抢就撞飞你哇！",
+   "english": "Mukyu. Never giving it up! Take it and Patchouli rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_threat",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。かかって くるわ！ まけないわ！",
+   "chinese": "姆啾。放马过来哇！帕秋莉才不会输哇！",
+   "english": "Mukyu. Come on then! Patchouli won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_threat",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "むきゅ。これは ぱちゅりーのわ！ うばったら ゆるさないわ！",
+   "chinese": "姆啾。这是帕秋莉的哇！抢走就不饶你哇！",
+   "english": "Mukyu. This is Patchouli's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.juvenile.c1_contest_won_doll",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。ふふん！ ぬいぐるみしゃんは ぱちゅの ものわ！",
+   "chinese": "姆啾。哼哼！布偶鲜笋是帕秋莉的惹哇！",
+   "english": "Mukyu. Heh-heh! Mr. Doll is Patchouli's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.juvenile.c2_contest_won_doll",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。ゆっ……ぬいぐるみしゃん、だいじ に するわ……",
+   "chinese": "姆啾。油……布偶鲜笋，帕秋莉会好好珍惜惹哇……",
+   "english": "Mukyu. Yu... Patchouli will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.juvenile.c3_contest_won_doll",
+   "species": "patchouli",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。やっちゃわ！ ぬいぐるみしゃん、いっしょに かえるわ！",
+   "chinese": "姆啾。太好惹惹哇！布偶鲜笋，一起回家惹哇！",
+   "english": "Mukyu. Yay! Mr. Doll is coming home with Patchouli!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "patchouli.adult.c1_contest_won_doll",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。ふふん！ ぬいぐるみさんは ぱちゅりーが もらうわ！",
+   "chinese": "姆啾。哼哼！布偶先生归帕秋莉了哇！",
+   "english": "Mukyu. Heh-heh! Patchouli gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "patchouli.adult.c2_contest_won_doll",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。ゆっ……ぬいぐるみさん、だいじ に するわ……",
+   "chinese": "姆啾。油……布偶先生，帕秋莉会好好珍惜哇……",
+   "english": "Mukyu. Yu... Patchouli will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "patchouli.adult.c3_contest_won_doll",
+   "species": "patchouli",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "むきゅ。やったわ！ ぬいぐるみさん、うちに かえるわ！",
+   "chinese": "姆啾。太好了哇！布偶先生，跟帕秋莉回家哇！",
+   "english": "Mukyu. Yay! Mr. Doll is coming home with Patchouli!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_yield_polite",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、こんどは ゆずってあげるなのだ！ あとで いっしょに あそぶなのだ！",
+   "chinese": "呜——这次就让给你呀！待会儿一起油库里呀！",
+   "english": "Uu... Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_yield_polite",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、どうぞ……れみりゃは あとで いいなのだ……",
+   "chinese": "呜——请先油库里……蕾米莉亚晚一点也没关系呀……",
+   "english": "Uu... Go ahead... Remilia can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_yield_polite",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、いいなのだ、ゆずるなのだ。なかよく しようなのだ！",
+   "chinese": "呜——好吧，让给你呀。要好好油库里呀！",
+   "english": "Uu... Okay, Remilia gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_yield_polite",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、こんどの ぶんは ゆずってあげるのだ！ あとで いっしょに あそぶのだ！",
+   "chinese": "呜——这次就让给你呀！待会儿一起油库里呀！",
+   "english": "Uu... This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_yield_polite",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、どうぞ……れみりあは また あとで いいのだ……",
+   "chinese": "呜——请先油库里……蕾米莉亚再等等也没关系呀……",
+   "english": "Uu... Go ahead... Remilia can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.c3_contest_yield_polite",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、いいのだ、ゆずるのだ。なかよく つかうのだ！",
+   "chinese": "呜——好吧，让给你呀。要好好一起用呀！",
+   "english": "Uu... Okay, Remilia gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_thanks",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうなのだ！ なかよく あそぶなのだ！",
+   "chinese": "呜——谢谢你呀！一起好好玩呀！",
+   "english": "Uu... Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_thanks",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ゆっ……ありがとうなのだ……やさしいなのだ……",
+   "chinese": "呜——油……谢谢呀……蕾米莉亚好温柔呀……",
+   "english": "Uu... Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_thanks",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうなのだ、うれしいなのだ！",
+   "chinese": "呜——谢谢呀，好高兴呀！",
+   "english": "Uu... Thank you, Remilia is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_thanks",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうのだ！ いっしょに ゆっくり するのだ！",
+   "chinese": "呜——谢谢你呀！一起油库里呀！",
+   "english": "Uu... Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_thanks",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ゆっ……ありがとうのだ……たすかるのだ……",
+   "chinese": "呜——油……谢谢呀……帮大忙了呀……",
+   "english": "Uu... Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.c3_contest_thanks",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうのだ、うれしいのだ！",
+   "chinese": "呜——谢谢呀，好高兴呀！",
+   "english": "Uu... Thank you, Remilia is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_yield_complain",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ふんっ、れみりゃが さきに みつけたなのだ！ ずるいなのだ！",
+   "chinese": "呜——哼，明明是蕾米莉亚先看到的呀！好狡猾呀！",
+   "english": "Uu... Hmph, Remilia found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_yield_complain",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ゆぅ……れみりゃだって ほしかったなのだ……",
+   "chinese": "呜——油呜……蕾米莉亚也想要的呀……",
+   "english": "Uu... Yuu... Remilia wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_yield_complain",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、しかたないなのだ……ちょっと だけ かしてなのだ……",
+   "chinese": "呜——没办法呀……等下要还蕾米莉亚呀……",
+   "english": "Uu... Can't help it... let Remilia have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_yield_complain",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ふん、れみりあが さきに みつけたのだ！ おぼえて いるのだ！",
+   "chinese": "呜——哼，蕾米莉亚才是先看到的呀！蕾米莉亚记住了呀！",
+   "english": "Uu... Hmph, Remilia found it first! Remilia will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_yield_complain",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ゆぅ……れみりあも つかいたかったのだ……",
+   "chinese": "呜——油呜……蕾米莉亚也想用的呀……",
+   "english": "Uu... Yuu... Remilia wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.c3_contest_yield_complain",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、しかたないのだ……つぎは れみりあの ばんのだ……",
+   "chinese": "呜——没办法呀……下次轮到蕾米莉亚呀……",
+   "english": "Uu... Can't help it... it is Remilia's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_puff",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー！ れみりゃの ぷくの ほうが おおきいなのだ！",
+   "chinese": "呜——噗咕——！蕾米莉亚的噗咕才更大呀！",
+   "english": "Uu... Puff! Remilia's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_puff",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、まきぇないなのだ！ これは れみりゃが さきに みつけたなのだ！",
+   "chinese": "呜——才不输呀！这是蕾米莉亚先看到的呀！",
+   "english": "Uu... Won't lose! Remilia saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_puff",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷく……れみりゃだって ゆずらないなのだ……",
+   "chinese": "呜——噗咕……蕾米莉亚才不会让呀……",
+   "english": "Uu... Puff... Remilia won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.c4_contest_puff",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー、ぷくー！ どいてなのだ！",
+   "chinese": "呜——噗咕——噗咕——！让开呀！",
+   "english": "Uu... Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_puff",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー！ れみりあの ぷくの ほうが おおきいのだ！",
+   "chinese": "呜——噗咕——！蕾米莉亚的噗咕才更大呀！",
+   "english": "Uu... Puff! Remilia's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_puff",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、まけないのだ！ これは れみりあが さきに みつけたのだ！",
+   "chinese": "呜——才不输呀！这是蕾米莉亚先看到的呀！",
+   "english": "Uu... Won't lose! Remilia saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c3_contest_puff",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷく……れみりあだって ゆずらないのだ……",
+   "chinese": "呜——噗咕……蕾米莉亚才不会让呀……",
+   "english": "Uu... Puff... Remilia won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.c4_contest_puff",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー、ぷくー！ どいてのだ！",
+   "chinese": "呜——噗咕——噗咕——！让开呀！",
+   "english": "Uu... Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_threat",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、ぜったいに ゆずらないなのだ！ とったら ぶつかって とばすなのだ！",
+   "chinese": "呜——绝对不让呀！敢抢就撞飞你呀！",
+   "english": "Uu... Never giving it up! Take it and Remilia rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_threat",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、かかって くるなのだ！ まきぇないなのだ！",
+   "chinese": "呜——放马过来呀！蕾米莉亚才不会输呀！",
+   "english": "Uu... Come on then! Remilia won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_threat",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、これは れみりゃのなのだ！ うばったら ゆるさないなのだ！",
+   "chinese": "呜——这是蕾米莉亚的呀！抢走就不饶你呀！",
+   "english": "Uu... This is Remilia's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_threat",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、ぜったいに ゆずらないのだ！ とったら ぶつかって とばすのだ！",
+   "chinese": "呜——绝对不让呀！敢抢就撞飞你呀！",
+   "english": "Uu... Never giving it up! Take it and Remilia rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_threat",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、かかって くるのだ！ まけないのだ！",
+   "chinese": "呜——放马过来呀！蕾米莉亚才不会输呀！",
+   "english": "Uu... Come on then! Remilia won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c3_contest_threat",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、これは れみりあののだ！ うばったら ゆるさないのだ！",
+   "chinese": "呜——这是蕾米莉亚的呀！抢走就不饶你呀！",
+   "english": "Uu... This is Remilia's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.juvenile.c1_contest_won_doll",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ふふん！ ぬいぐるみしゃんは れみりゃの ものなのだ！",
+   "chinese": "呜——哼哼！布偶鲜笋是蕾米莉亚的呀！",
+   "english": "Uu... Heh-heh! Mr. Doll is Remilia's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.juvenile.c2_contest_won_doll",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ゆっ……ぬいぐるみしゃん、だいじ に するなのだ……",
+   "chinese": "呜——油……布偶鲜笋，蕾米莉亚会好好珍惜呀……",
+   "english": "Uu... Yu... Remilia will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.juvenile.c3_contest_won_doll",
+   "species": "remilia",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、やっちゃなのだ！ ぬいぐるみしゃん、いっしょに かえるなのだ！",
+   "chinese": "呜——太好惹呀！布偶鲜笋，一起回家呀！",
+   "english": "Uu... Yay! Mr. Doll is coming home with Remilia!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "remilia.adult.c1_contest_won_doll",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ふふん！ ぬいぐるみさんは れみりあが もらうのだ！",
+   "chinese": "呜——哼哼！布偶先生归蕾米莉亚了呀！",
+   "english": "Uu... Heh-heh! Remilia gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "remilia.adult.c2_contest_won_doll",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ゆっ……ぬいぐるみさん、だいじ に するのだ……",
+   "chinese": "呜——油……布偶先生，蕾米莉亚会好好珍惜呀……",
+   "english": "Uu... Yu... Remilia will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "remilia.adult.c3_contest_won_doll",
+   "species": "remilia",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、やったのだ！ ぬいぐるみさん、うちに かえるのだ！",
+   "chinese": "呜——太好了呀！布偶先生，跟蕾米莉亚回家呀！",
+   "english": "Uu... Yay! Mr. Doll is coming home with Remilia!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_yield_polite",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、こんどは ゆずってあげるよぅ！ あとで いっしょに あそぶよぅ！",
+   "chinese": "呜——这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Uu... Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_yield_polite",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、どうぞ……ふりゃんは あとで いいよぅ……",
+   "chinese": "呜——请先油库里……芙兰晚一点也没关系哦……",
+   "english": "Uu... Go ahead... Flandre can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_yield_polite",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、いいよぅ、ゆずるよぅ。なかよく しようよぅ！",
+   "chinese": "呜——好吧，让给你哦。要好好油库里哦！",
+   "english": "Uu... Okay, Flandre gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_yield_polite",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、こんどの ぶんは ゆずってあげるよ！ あとで いっしょに あそぶよ！",
+   "chinese": "呜——这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Uu... This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_yield_polite",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、どうぞ……ふらんは また あとで いいよ……",
+   "chinese": "呜——请先油库里……芙兰再等等也没关系哦……",
+   "english": "Uu... Go ahead... Flandre can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.c3_contest_yield_polite",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "うー、いいよ、ゆずるよ。なかよく つかうよ！",
+   "chinese": "呜——好吧，让给你哦。要好好一起用哦！",
+   "english": "Uu... Okay, Flandre gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_thanks",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうよぅ！ なかよく あそぶよぅ！",
+   "chinese": "呜——谢谢你哦！一起好好玩哦！",
+   "english": "Uu... Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_thanks",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ゆっ……ありがとうよぅ……やさしいよぅ……",
+   "chinese": "呜——油……谢谢哦……芙兰好温柔哦……",
+   "english": "Uu... Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_thanks",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうよぅ、うれしいよぅ！",
+   "chinese": "呜——谢谢哦，好高兴哦！",
+   "english": "Uu... Thank you, Flandre is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_thanks",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうよ！ いっしょに ゆっくり するよ！",
+   "chinese": "呜——谢谢你哦！一起油库里哦！",
+   "english": "Uu... Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_thanks",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ゆっ……ありがとうよ……たすかるよ……",
+   "chinese": "呜——油……谢谢哦……帮大忙了哦……",
+   "english": "Uu... Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.c3_contest_thanks",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "うー、ありがとうよ、うれしいよ！",
+   "chinese": "呜——谢谢哦，好高兴哦！",
+   "english": "Uu... Thank you, Flandre is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_yield_complain",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ふんっ、ふりゃんが さきに みつけたよぅ！ ずるいよぅ！",
+   "chinese": "呜——哼，明明是芙兰先看到的哦！好狡猾哦！",
+   "english": "Uu... Hmph, Flandre found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_yield_complain",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ゆぅ……ふりゃんだって ほしかったよぅ……",
+   "chinese": "呜——油呜……芙兰也想要的哦……",
+   "english": "Uu... Yuu... Flandre wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_yield_complain",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、しかたないよぅ……ちょっと だけ かしてよぅ……",
+   "chinese": "呜——没办法哦……等下要还芙兰哦……",
+   "english": "Uu... Can't help it... let Flandre have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_yield_complain",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ふん、ふらんが さきに みつけたよ！ おぼえて いるよ！",
+   "chinese": "呜——哼，芙兰才是先看到的哦！芙兰记住了哦！",
+   "english": "Uu... Hmph, Flandre found it first! Flandre will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_yield_complain",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、ゆぅ……ふらんも つかいたかったよ……",
+   "chinese": "呜——油呜……芙兰也想用的哦……",
+   "english": "Uu... Yuu... Flandre wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.c3_contest_yield_complain",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "うー、しかたないよ……つぎは ふらんの ばんよ……",
+   "chinese": "呜——没办法哦……下次轮到芙兰哦……",
+   "english": "Uu... Can't help it... it is Flandre's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_puff",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー！ ふりゃんの ぷくの ほうが おおきいよぅ！",
+   "chinese": "呜——噗咕——！芙兰的噗咕才更大哦！",
+   "english": "Uu... Puff! Flandre's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_puff",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、まきぇないよぅ！ これは ふりゃんが さきに みつけたよぅ！",
+   "chinese": "呜——才不输哦！这是芙兰先看到的哦！",
+   "english": "Uu... Won't lose! Flandre saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_puff",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷく……ふりゃんだって ゆずらないよぅ……",
+   "chinese": "呜——噗咕……芙兰才不会让哦……",
+   "english": "Uu... Puff... Flandre won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.c4_contest_puff",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー、ぷくー！ どいてよぅ！",
+   "chinese": "呜——噗咕——噗咕——！让开哦！",
+   "english": "Uu... Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_puff",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー！ ふらんの ぷくの ほうが おおきいよ！",
+   "chinese": "呜——噗咕——！芙兰的噗咕才更大哦！",
+   "english": "Uu... Puff! Flandre's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_puff",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、まけないよ！ これは ふらんが さきに みつけたよ！",
+   "chinese": "呜——才不输哦！这是芙兰先看到的哦！",
+   "english": "Uu... Won't lose! Flandre saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c3_contest_puff",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷく……ふらんだって ゆずらないよ……",
+   "chinese": "呜——噗咕……芙兰才不会让哦……",
+   "english": "Uu... Puff... Flandre won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.c4_contest_puff",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "うー、ぷくー、ぷくー！ どいてよ！",
+   "chinese": "呜——噗咕——噗咕——！让开哦！",
+   "english": "Uu... Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_threat",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、ぜったいに ゆずらないよぅ！ とったら ぶつかって とばすよぅ！",
+   "chinese": "呜——绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Uu... Never giving it up! Take it and Flandre rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_threat",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、かかって くるよぅ！ まきぇないよぅ！",
+   "chinese": "呜——放马过来哦！芙兰才不会输哦！",
+   "english": "Uu... Come on then! Flandre won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_threat",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、これは ふりゃんのよぅ！ うばったら ゆるさないよぅ！",
+   "chinese": "呜——这是芙兰的哦！抢走就不饶你哦！",
+   "english": "Uu... This is Flandre's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_threat",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、ぜったいに ゆずらないよ！ とったら ぶつかって とばすよ！",
+   "chinese": "呜——绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Uu... Never giving it up! Take it and Flandre rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_threat",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、かかって くるよ！ まけないよ！",
+   "chinese": "呜——放马过来哦！芙兰才不会输哦！",
+   "english": "Uu... Come on then! Flandre won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c3_contest_threat",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "うー、これは ふらんのよ！ うばったら ゆるさないよ！",
+   "chinese": "呜——这是芙兰的哦！抢走就不饶你哦！",
+   "english": "Uu... This is Flandre's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.juvenile.c1_contest_won_doll",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ふふん！ ぬいぐるみしゃんは ふりゃんの ものよぅ！",
+   "chinese": "呜——哼哼！布偶鲜笋是芙兰的哦！",
+   "english": "Uu... Heh-heh! Mr. Doll is Flandre's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.juvenile.c2_contest_won_doll",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ゆっ……ぬいぐるみしゃん、だいじ に するよぅ……",
+   "chinese": "呜——油……布偶鲜笋，芙兰会好好珍惜哦……",
+   "english": "Uu... Yu... Flandre will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.juvenile.c3_contest_won_doll",
+   "species": "flandre",
+   "age": "juvenile",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、やっちゃよぅ！ ぬいぐるみしゃん、いっしょに かえるよぅ！",
+   "chinese": "呜——太好惹哦！布偶鲜笋，一起回家哦！",
+   "english": "Uu... Yay! Mr. Doll is coming home with Flandre!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "flandre.adult.c1_contest_won_doll",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ふふん！ ぬいぐるみさんは ふらんが もらうよ！",
+   "chinese": "呜——哼哼！布偶先生归芙兰了哦！",
+   "english": "Uu... Heh-heh! Flandre gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "flandre.adult.c2_contest_won_doll",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、ゆっ……ぬいぐるみさん、だいじ に するよ……",
+   "chinese": "呜——油……布偶先生，芙兰会好好珍惜哦……",
+   "english": "Uu... Yu... Flandre will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "flandre.adult.c3_contest_won_doll",
+   "species": "flandre",
+   "age": "adult",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "うー、やったよ！ ぬいぐるみさん、うちに かえるよ！",
+   "chinese": "呜——太好了哦！布偶先生，跟芙兰回家哦！",
+   "english": "Uu... Yay! Mr. Doll is coming home with Flandre!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！こんどは ゆずってあげるみょ！ あとで いっしょに あそぶみょ！",
+   "chinese": "咪呦！这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Myon! Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！どうぞ……みょんは あとで いいみょ……",
+   "chinese": "咪呦！请先油库里……妖梦晚一点也没关系哦……",
+   "english": "Myon! Go ahead... Myon can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！いいみょ、ゆずるみょ。なかよく しようみょ！",
+   "chinese": "咪呦！好吧，让给你哦。要好好油库里哦！",
+   "english": "Myon! Okay, Myon gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！こんどの ぶんは ゆずってあげるよ！ あとで いっしょに あそぶよ！",
+   "chinese": "咪呦！这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Myon! This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！どうぞ……みょんは また あとで いいよ……",
+   "chinese": "咪呦！请先油库里……妖梦再等等也没关系哦……",
+   "english": "Myon! Go ahead... Myon can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "みょん！いいよ、ゆずるよ。なかよく つかうよ！",
+   "chinese": "咪呦！好吧，让给你哦。要好好一起用哦！",
+   "english": "Myon! Okay, Myon gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ありがとうみょ！ なかよく あそぶみょ！",
+   "chinese": "咪呦！谢谢你哦！一起好好玩哦！",
+   "english": "Myon! Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ゆっ……ありがとうみょ……やさしいみょ……",
+   "chinese": "咪呦！油……谢谢哦……妖梦好温柔哦……",
+   "english": "Myon! Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ありがとうみょ、うれしいみょ！",
+   "chinese": "咪呦！谢谢哦，好高兴哦！",
+   "english": "Myon! Thank you, Myon is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ありがとうよ！ いっしょに ゆっくり するよ！",
+   "chinese": "咪呦！谢谢你哦！一起油库里哦！",
+   "english": "Myon! Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ゆっ……ありがとうよ……たすかるよ……",
+   "chinese": "咪呦！油……谢谢哦……帮大忙了哦……",
+   "english": "Myon! Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "みょん！ありがとうよ、うれしいよ！",
+   "chinese": "咪呦！谢谢哦，好高兴哦！",
+   "english": "Myon! Thank you, Myon is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！ふんっ、みょんが さきに みつけたみょ！ ずるいみょ！",
+   "chinese": "咪呦！哼，明明是妖梦先看到的哦！好狡猾哦！",
+   "english": "Myon! Hmph, Myon found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！ゆぅ……みょんだって ほしかったみょ……",
+   "chinese": "咪呦！油呜……妖梦也想要的哦……",
+   "english": "Myon! Yuu... Myon wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！しかたないみょ……ちょっと だけ かしてみょ……",
+   "chinese": "咪呦！没办法哦……等下要还妖梦哦……",
+   "english": "Myon! Can't help it... let Myon have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！ふん、みょんが さきに みつけたよ！ おぼえて いるよ！",
+   "chinese": "咪呦！哼，妖梦才是先看到的哦！妖梦记住了哦！",
+   "english": "Myon! Hmph, Myon found it first! Myon will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！ゆぅ……みょんも つかいたかったよ……",
+   "chinese": "咪呦！油呜……妖梦也想用的哦……",
+   "english": "Myon! Yuu... Myon wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "みょん！しかたないよ……つぎは みょんの ばんよ……",
+   "chinese": "咪呦！没办法哦……下次轮到妖梦哦……",
+   "english": "Myon! Can't help it... it is Myon's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷくー！ みょんの ぷくの ほうが おおきいみょ！",
+   "chinese": "咪呦！噗咕——！妖梦的噗咕才更大哦！",
+   "english": "Myon! Puff! Myon's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！まきぇないみょ！ これは みょんが さきに みつけたみょ！",
+   "chinese": "咪呦！才不输哦！这是妖梦先看到的哦！",
+   "english": "Myon! Won't lose! Myon saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷく……みょんだって ゆずらないみょ……",
+   "chinese": "咪呦！噗咕……妖梦才不会让哦……",
+   "english": "Myon! Puff... Myon won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.c4_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷくー、ぷくー！ どいてみょ！",
+   "chinese": "咪呦！噗咕——噗咕——！让开哦！",
+   "english": "Myon! Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷくー！ みょんの ぷくの ほうが おおきいよ！",
+   "chinese": "咪呦！噗咕——！妖梦的噗咕才更大哦！",
+   "english": "Myon! Puff! Myon's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！まけないよ！ これは みょんが さきに みつけたよ！",
+   "chinese": "咪呦！才不输哦！这是妖梦先看到的哦！",
+   "english": "Myon! Won't lose! Myon saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷく……みょんだって ゆずらないよ……",
+   "chinese": "咪呦！噗咕……妖梦才不会让哦……",
+   "english": "Myon! Puff... Myon won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.c4_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "みょん！ぷくー、ぷくー！ どいてよ！",
+   "chinese": "咪呦！噗咕——噗咕——！让开哦！",
+   "english": "Myon! Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！ぜったいに ゆずらないみょ！ とったら ぶつかって とばすみょ！",
+   "chinese": "咪呦！绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Myon! Never giving it up! Take it and Myon rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！かかって くるみょ！ まきぇないみょ！",
+   "chinese": "咪呦！放马过来哦！妖梦才不会输哦！",
+   "english": "Myon! Come on then! Myon won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！これは みょんのみょ！ うばったら ゆるさないみょ！",
+   "chinese": "咪呦！这是妖梦的哦！抢走就不饶你哦！",
+   "english": "Myon! This is Myon's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！ぜったいに ゆずらないよ！ とったら ぶつかって とばすよ！",
+   "chinese": "咪呦！绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Myon! Never giving it up! Take it and Myon rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！かかって くるよ！ まけないよ！",
+   "chinese": "咪呦！放马过来哦！妖梦才不会输哦！",
+   "english": "Myon! Come on then! Myon won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "みょん！これは みょんのよ！ うばったら ゆるさないよ！",
+   "chinese": "咪呦！这是妖梦的哦！抢走就不饶你哦！",
+   "english": "Myon! This is Myon's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.juvenile.c1_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！ふふん！ ぬいぐるみしゃんは みょんの ものみょ！",
+   "chinese": "咪呦！哼哼！布偶鲜笋是妖梦的哦！",
+   "english": "Myon! Heh-heh! Mr. Doll is Myon's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.juvenile.c2_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！ゆっ……ぬいぐるみしゃん、だいじ に するみょ……",
+   "chinese": "咪呦！油……布偶鲜笋，妖梦会好好珍惜哦……",
+   "english": "Myon! Yu... Myon will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.juvenile.c3_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！やっちゃみょ！ ぬいぐるみしゃん、いっしょに かえるみょ！",
+   "chinese": "咪呦！太好惹哦！布偶鲜笋，一起回家哦！",
+   "english": "Myon! Yay! Mr. Doll is coming home with Myon!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.miyo.adult.c1_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！ふふん！ ぬいぐるみさんは みょんが もらうよ！",
+   "chinese": "咪呦！哼哼！布偶先生归妖梦了哦！",
+   "english": "Myon! Heh-heh! Myon gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.miyo.adult.c2_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！ゆっ……ぬいぐるみさん、だいじ に するよ……",
+   "chinese": "咪呦！油……布偶先生，妖梦会好好珍惜哦……",
+   "english": "Myon! Yu... Myon will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.miyo.adult.c3_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "miyo",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "みょん！やったよ！ ぬいぐるみさん、うちに かえるよ！",
+   "chinese": "咪呦！太好了哦！布偶先生，跟妖梦回家哦！",
+   "english": "Myon! Yay! Mr. Doll is coming home with Myon!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！こんどは ゆずってあげるよぅ！ あとで いっしょに あそぶよぅ！",
+   "chinese": "金寶！这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Chinpo! Next one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！どうぞ……ようむは あとで いいよぅ……",
+   "chinese": "金寶！请先油库里……妖梦晚一点也没关系哦……",
+   "english": "Chinpo! Go ahead... Youmu can wait...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_yield_polite",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！いいよぅ、ゆずるよぅ。なかよく しようよぅ！",
+   "chinese": "金寶！好吧，让给你哦。要好好油库里哦！",
+   "english": "Chinpo! Okay, Youmu gives way. Let's be friends!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！こんどの ぶんは ゆずってあげるよ！ あとで いっしょに あそぶよ！",
+   "chinese": "金寶！这次就让给你哦！待会儿一起油库里哦！",
+   "english": "Chinpo! This one is yours! Let's play together later!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！どうぞ……ようむは また あとで いいよ……",
+   "chinese": "金寶！请先油库里……妖梦再等等也没关系哦……",
+   "english": "Chinpo! Go ahead... Youmu can wait a while...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_yield_polite",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_polite"
+   ],
+   "japanese": "ちーんぽ！いいよ、ゆずるよ。なかよく つかうよ！",
+   "chinese": "金寶！好吧，让给你哦。要好好一起用哦！",
+   "english": "Chinpo! Okay, Youmu gives way. Share it nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがとうよぅ！ なかよく あそぶよぅ！",
+   "chinese": "金寶！谢谢你哦！一起好好玩哦！",
+   "english": "Chinpo! Thank you! Let's play nicely!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ゆっ……ありがとうよぅ……やさしいよぅ……",
+   "chinese": "金寶！油……谢谢哦……妖梦好温柔哦……",
+   "english": "Chinpo! Yu... thank you... so kind...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_thanks",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがとうよぅ、うれしいよぅ！",
+   "chinese": "金寶！谢谢哦，好高兴哦！",
+   "english": "Chinpo! Thank you, Youmu is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがとうよ！ いっしょに ゆっくり するよ！",
+   "chinese": "金寶！谢谢你哦！一起油库里哦！",
+   "english": "Chinpo! Thank you! Let's enjoy it together!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ゆっ……ありがとうよ……たすかるよ……",
+   "chinese": "金寶！油……谢谢哦……帮大忙了哦……",
+   "english": "Chinpo! Yu... thank you... that helps...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_thanks",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_thanks"
+   ],
+   "japanese": "ちーんぽ！ありがとうよ、うれしいよ！",
+   "chinese": "金寶！谢谢哦，好高兴哦！",
+   "english": "Chinpo! Thank you, Youmu is so happy!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！ふんっ、ようむが さきに みつけたよぅ！ ずるいよぅ！",
+   "chinese": "金寶！哼，明明是妖梦先看到的哦！好狡猾哦！",
+   "english": "Chinpo! Hmph, Youmu found it first! So sneaky!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！ゆぅ……ようむだって ほしかったよぅ……",
+   "chinese": "金寶！油呜……妖梦也想要的哦……",
+   "english": "Chinpo! Yuu... Youmu wanted it too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_yield_complain",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！しかたないよぅ……ちょっと だけ かしてよぅ……",
+   "chinese": "金寶！没办法哦……等下要还妖梦哦……",
+   "english": "Chinpo! Can't help it... let Youmu have a turn after...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！ふん、ようむが さきに みつけたよ！ おぼえて いるよ！",
+   "chinese": "金寶！哼，妖梦才是先看到的哦！妖梦记住了哦！",
+   "english": "Chinpo! Hmph, Youmu found it first! Youmu will remember this!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！ゆぅ……ようむも つかいたかったよ……",
+   "chinese": "金寶！油呜……妖梦也想用的哦……",
+   "english": "Chinpo! Yuu... Youmu wanted a turn too...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_yield_complain",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_yield_complain"
+   ],
+   "japanese": "ちーんぽ！しかたないよ……つぎは ようむの ばんよ……",
+   "chinese": "金寶！没办法哦……下次轮到妖梦哦……",
+   "english": "Chinpo! Can't help it... it is Youmu's turn next...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷくー！ ようむの ぷくの ほうが おおきいよぅ！",
+   "chinese": "金寶！噗咕——！妖梦的噗咕才更大哦！",
+   "english": "Chinpo! Puff! Youmu's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！まきぇないよぅ！ これは ようむが さきに みつけたよぅ！",
+   "chinese": "金寶！才不输哦！这是妖梦先看到的哦！",
+   "english": "Chinpo! Won't lose! Youmu saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷく……ようむだって ゆずらないよぅ……",
+   "chinese": "金寶！噗咕……妖梦才不会让哦……",
+   "english": "Chinpo! Puff... Youmu won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c4_contest_puff",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷくー、ぷくー！ どいてよぅ！",
+   "chinese": "金寶！噗咕——噗咕——！让开哦！",
+   "english": "Chinpo! Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷくー！ ようむの ぷくの ほうが おおきいよ！",
+   "chinese": "金寶！噗咕——！妖梦的噗咕才更大哦！",
+   "english": "Chinpo! Puff! Youmu's puff is bigger!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！まけないよ！ これは ようむが さきに みつけたよ！",
+   "chinese": "金寶！才不输哦！这是妖梦先看到的哦！",
+   "english": "Chinpo! Won't lose! Youmu saw it first!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷく……ようむだって ゆずらないよ……",
+   "chinese": "金寶！噗咕……妖梦才不会让哦……",
+   "english": "Chinpo! Puff... Youmu won't give it up either...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.c4_contest_puff",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_puff"
+   ],
+   "japanese": "ちーんぽ！ぷくー、ぷくー！ どいてよ！",
+   "chinese": "金寶！噗咕——噗咕——！让开哦！",
+   "english": "Chinpo! Puff, puff! Move aside!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！ぜったいに ゆずらないよぅ！ とったら ぶつかって とばすよぅ！",
+   "chinese": "金寶！绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Chinpo! Never giving it up! Take it and Youmu rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！かかって くるよぅ！ まきぇないよぅ！",
+   "chinese": "金寶！放马过来哦！妖梦才不会输哦！",
+   "english": "Chinpo! Come on then! Youmu won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_threat",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！これは ようむのよぅ！ うばったら ゆるさないよぅ！",
+   "chinese": "金寶！这是妖梦的哦！抢走就不饶你哦！",
+   "english": "Chinpo! This is Youmu's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！ぜったいに ゆずらないよ！ とったら ぶつかって とばすよ！",
+   "chinese": "金寶！绝对不让哦！敢抢就撞飞你哦！",
+   "english": "Chinpo! Never giving it up! Take it and Youmu rams you away!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！かかって くるよ！ まけないよ！",
+   "chinese": "金寶！放马过来哦！妖梦才不会输哦！",
+   "english": "Chinpo! Come on then! Youmu won't lose!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_threat",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_threat"
+   ],
+   "japanese": "ちーんぽ！これは ようむのよ！ うばったら ゆるさないよ！",
+   "chinese": "金寶！这是妖梦的哦！抢走就不饶你哦！",
+   "english": "Chinpo! This is Youmu's! Steal it and you will regret it!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c1_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！ふふん！ ぬいぐるみしゃんは ようむの ものよぅ！",
+   "chinese": "金寶！哼哼！布偶鲜笋是妖梦的哦！",
+   "english": "Chinpo! Heh-heh! Mr. Doll is Youmu's now!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c2_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！ゆっ……ぬいぐるみしゃん、だいじ に するよぅ……",
+   "chinese": "金寶！油……布偶鲜笋，妖梦会好好珍惜哦……",
+   "english": "Chinpo! Yu... Youmu will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.juvenile.c3_contest_won_doll",
+   "species": "myon",
+   "age": "juvenile",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！やっちゃよぅ！ ぬいぐるみしゃん、いっしょに かえるよぅ！",
+   "chinese": "金寶！太好惹哦！布偶鲜笋，一起回家哦！",
+   "english": "Chinpo! Yay! Mr. Doll is coming home with Youmu!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
+  },
+  {
+   "id": "myon.kinbao.adult.c1_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！ふふん！ ぬいぐるみさんは ようむが もらうよ！",
+   "chinese": "金寶！哼哼！布偶先生归妖梦了哦！",
+   "english": "Chinpo! Heh-heh! Youmu gets Mr. Doll!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "proud"
+  },
+  {
+   "id": "myon.kinbao.adult.c2_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！ゆっ……ぬいぐるみさん、だいじ に するよ……",
+   "chinese": "金寶！油……布偶先生，妖梦会好好珍惜哦……",
+   "english": "Chinpo! Yu... Youmu will take good care of Mr. Doll...",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "timid"
+  },
+  {
+   "id": "myon.kinbao.adult.c3_contest_won_doll",
+   "species": "myon",
+   "age": "adult",
+   "quirk": "kinbao",
+   "events": [
+    "contest_won_doll"
+   ],
+   "japanese": "ちーんぽ！やったよ！ ぬいぐるみさん、うちに かえるよ！",
+   "chinese": "金寶！太好了哦！布偶先生，跟妖梦回家哦！",
+   "english": "Chinpo! Yay! Mr. Doll is coming home with Youmu!",
+   "origin": "project-original",
+   "basis": "wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced",
+   "variant": "plain"
   }
  ]
 }

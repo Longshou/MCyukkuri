@@ -4,10 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.longshou.mcyukkuri.social.ContestOdds.Process;
+import io.github.longshou.mcyukkuri.social.ContestOdds.Level;
 import io.github.longshou.mcyukkuri.social.ContestOdds.Side;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class ContestOddsTest {
@@ -21,18 +22,17 @@ class ContestOddsTest {
     }
 
     @Test
-    void identicalBodiesAreAnEvenTussle() {
+    void identicalBodiesAreAnEvenDraw() {
         double gap = ContestOdds.gap(side(1, 85), side(1, 85));
         assertEquals(0, gap, 1e-9);
-        assertEquals(Process.TUSSLE, ContestOdds.process(gap, true));
         assertEquals(.5, ContestOdds.winChance(gap), 1e-9);
-        assertEquals(ContestOdds.MAX_PUSHES, ContestOdds.pushes(gap));
+        assertTrue(ContestOdds.firstWins(gap, .49));
+        assertFalse(ContestOdds.firstWins(gap, .51));
     }
 
     @Test
     void aBoldBodyAgainstAShyOneIsLopsidedAndCertain() {
         double gap = ContestOdds.gap(side(1, 95), side(1, 12));
-        assertEquals(Process.LOPSIDED, ContestOdds.process(gap, true));
         assertTrue(ContestOdds.firstWins(gap, .999));
         assertFalse(ContestOdds.firstWins(-gap, 0));
     }
@@ -61,17 +61,6 @@ class ContestOddsTest {
         assertTrue(ContestOdds.will(new Side(1, 50, 50, 0, 80)) > ContestOdds.will(calm));
         assertTrue(ContestOdds.will(new Side(1, 50, 50, 60, 0)) < ContestOdds.will(calm));
         assertTrue(ContestOdds.will(new Side(1, 50, 90, 0, 0)) < ContestOdds.will(calm));
-    }
-
-    @Test
-    void ownedPairsNeverTussle() {
-        assertEquals(Process.LOPSIDED, ContestOdds.process(0, false));
-    }
-
-    @Test
-    void pushesFollowCloseness() {
-        assertTrue(ContestOdds.pushes(0) > ContestOdds.pushes(40));
-        assertEquals(ContestOdds.MIN_PUSHES, ContestOdds.pushes(ContestOdds.LOPSIDED_GAP));
     }
 
     @Test
@@ -110,6 +99,90 @@ class ContestOddsTest {
         }
         assertTrue(boldAngry > timidAngry);
         assertTrue(timidAshamed > boldAshamed);
+    }
+
+    @Test
+    void temperRunsFromMildToFierce() {
+        assertEquals(0, ContestOdds.temper(0, 100, 100), 1e-9);
+        assertEquals(100, ContestOdds.temper(100, 0, 0), 1e-9);
+        assertTrue(ContestOdds.temper(80, 20, 30) > ContestOdds.temper(40, 60, 60));
+    }
+
+    @Test
+    void bondBrakeCoolsByAffinityOwnerAndKin() {
+        assertEquals(0, ContestOdds.bondBrake(0, 0, false, false), 1e-9);
+        assertEquals(25, ContestOdds.bondBrake(100, 100, false, false), 1e-9);
+        assertEquals(-15, ContestOdds.bondBrake(-100, -100, false, false), 1e-9);
+        assertTrue(ContestOdds.bondBrake(40, 40, true, false) > ContestOdds.bondBrake(40, 40, false, false));
+        assertTrue(ContestOdds.bondBrake(40, 40, false, true) > ContestOdds.bondBrake(40, 40, false, false));
+    }
+
+    @Test
+    void pairImportanceWeighsTheNeedierSideMore() {
+        assertEquals(60, ContestOdds.pairImportance(100, 0));
+        assertEquals(50, ContestOdds.pairImportance(50, 50));
+        assertEquals(ContestOdds.pairImportance(20, 90), ContestOdds.pairImportance(90, 20));
+    }
+
+    @Test
+    void heatStaysInRangeAndRisesWithTemperAndPrize() {
+        assertEquals(0, ContestOdds.heat(0, 0, 25, -5), 1e-9);
+        assertEquals(95, ContestOdds.heat(100, 100, 0, 5), 1e-9);
+        assertTrue(ContestOdds.heat(90, 70, 0, 0) > ContestOdds.heat(20, 70, 0, 0));
+        assertTrue(ContestOdds.heat(90, 70, 25, 0) < ContestOdds.heat(90, 70, 0, 0));
+        assertEquals(ContestOdds.yieldGap(10), 47.5, 1e-9);
+    }
+
+    @Test
+    void jitterIsStablePerPairAndSmall() {
+        UUID a = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID b = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        int jitter = ContestOdds.jitter(a, b);
+        assertEquals(jitter, ContestOdds.jitter(a, b));
+        assertEquals(jitter, ContestOdds.jitter(b, a));
+        for (int i = 0; i < 200; i++) {
+            UUID other = new UUID(0, i);
+            int value = ContestOdds.jitter(a, other);
+            assertTrue(value >= -5 && value <= 5, "jitter out of range " + value);
+        }
+    }
+
+    @Test
+    void evenPairsNeedWarmthAndACloseGap() {
+        assertTrue(ContestOdds.even(10, 40));
+        assertFalse(ContestOdds.even(10, 10));
+        assertFalse(ContestOdds.even(80, 40));
+        assertFalse(ContestOdds.even(80, 100));
+        assertTrue(ContestOdds.even(-10, 60));
+    }
+
+    @Test
+    void levelFollowsGapHeatRuleAndFitness() {
+        assertEquals(Level.POLITE_YIELD, ContestOdds.level(80, 40, true, true, true));
+        assertEquals(Level.COMPLAIN_YIELD, ContestOdds.level(80, 40, true, true, false));
+        assertEquals(Level.POLITE_YIELD, ContestOdds.level(10, 10, true, true, true));
+        assertEquals(Level.SUMO_DECIDE, ContestOdds.level(10, 40, true, true, false));
+        assertEquals(Level.PUFF_DECIDE, ContestOdds.level(10, 70, true, true, false));
+        assertEquals(Level.PUFF_DECIDE, ContestOdds.level(10, 90, true, false, false));
+        assertEquals(Level.ATTACK_DECIDE, ContestOdds.level(10, 90, true, true, false));
+        assertEquals(Level.PUFF_DECIDE, ContestOdds.level(10, 70, false, true, false));
+        assertEquals(Level.COMPLAIN_YIELD, ContestOdds.level(10, 40, false, true, false));
+    }
+
+    @Test
+    void puffsGrowWithCloseness() {
+        assertEquals(4, ContestOdds.puffRounds(0, 40));
+        assertEquals(2, ContestOdds.puffRounds(100, 40));
+        assertTrue(ContestOdds.puffRounds(10, 40) >= ContestOdds.puffRounds(40, 40));
+    }
+
+    @Test
+    void onlySoundBodiesFight() {
+        assertTrue(ContestOdds.fitToFight(20, 20, 100));
+        assertTrue(ContestOdds.fitToFight(10, 20, 20));
+        assertFalse(ContestOdds.fitToFight(9, 20, 100));
+        assertFalse(ContestOdds.fitToFight(20, 20, 19));
+        assertFalse(ContestOdds.fitToFight(3, 20, 100));
     }
 
     @Test

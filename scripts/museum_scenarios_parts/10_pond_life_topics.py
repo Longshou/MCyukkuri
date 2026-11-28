@@ -996,52 +996,122 @@ add('oversized_nest', 'family', '灵胖进大草窝过夜', '灵胖进大草窝�
 
 _bold_bed = _uuid_text('single_bed_contest', 'bold')
 _shy_bed = _uuid_text('single_bed_contest', 'shy')
-_CONTEST_BEATS = r'\[choreo\][^\n]*uuid=([\w-]+) [^\n]*beat=(contest_\w+) face=(\w+) line=(\w+) declared=(\w+)'
+_CONTEST_BEATS = r'\[choreo\][^\n]*uuid=([\w-]+) [^\n]*beat=((?:contest|sumo)_\w+) face=(\w+) line=(\w+) declared=(\w+)'
 
 
-def _contest_core(log, prize, process, winner=None, tussles=0):
-    """One staged contest per prize (the shared ``Contest`` log lines): its odds, every beat showing the face it declared, a verdict
-    after the begin. Returns ``(error, None)`` or ``(None, (begin tick, verdict tick, winner, loser, where))``."""
-    begins = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest begin prize={prize} at=(.+?) process=(\w+) ', log)
-    verdicts = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest verdict prize={prize} at=(.+?) process=(\w+) winner=([\w-]+) loser=([\w-]+)', log)
+def _contest_core(log, prize, level, winner=None, pair=None):
+    """One staged contest over ``prize`` (the shared ``Contest`` log lines): the way the odds chose to settle it, a verdict after the
+    begin, every beat showing the face it declared and the level's own exchange with its lines. ``pair`` picks the contest of two
+    known bodies when one scene stages more than one. Returns ``(error, None)`` or
+    ``(None, (begin tick, verdict tick, winner, loser))``."""
+    begins = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest begin prize={prize} [^\n]* level=(\w+) [^\n]* winner=([\w-]+) loser=([\w-]+)', log)
+    verdicts = re.findall(rf'\[social\][^\n]* t=(\d+) [^\n]*contest verdict prize={prize} [^\n]* level=(\w+) winner=([\w-]+) loser=([\w-]+)', log)
+    if pair is not None:
+        begins = [m for m in begins if {m[2], m[3]} == pair]
+        verdicts = [m for m in verdicts if {m[2], m[3]} == pair]
     if len(begins) != 1 or len(verdicts) != 1:
         return f'expected one contest begin and one verdict, saw {len(begins)} and {len(verdicts)}', None
-    if begins[0][2] != process or verdicts[0][2] != process:
-        return f'contest process {begins[0][2]}/{verdicts[0][2]}, expected {process}', None
+    if begins[0][1] != level or verdicts[0][1] != level:
+        return f'contest level {begins[0][1]}/{verdicts[0][1]}, expected {level}', None
     if int(verdicts[0][0]) <= int(begins[0][0]):
         return 'the verdict did not come after the contest began', None
-    began, where, _, won, lost = verdicts[0]
+    won, lost = verdicts[0][2], verdicts[0][3]
     if winner and won != winner:
         return f'{won} won the {prize}, expected {winner}', None
-    beats = re.findall(_CONTEST_BEATS, log)
+    beats = [b for b in re.findall(_CONTEST_BEATS, log) if pair is None or b[0] in pair]
     for who, beat, shown, line, declared in beats:
         if shown != declared:
             return f'{who} beat={beat} showed {shown}, declared {declared}', None
-        if beat == 'contest_lost' and (shown == 'cheek_puff' or declared == 'cheek_puff' or line == 'puff'):
+        if beat == 'contest_lost' and (shown == 'cheek_puff' or declared == 'cheek_puff' or line in ('puff', 'contest_puff')):
             return f'{who} beat=contest_lost regressed to cheek_puff/puff ({shown}/{line})', None
     for who in (won, lost):
-        names = [beat for u, beat, *_ in beats if u == who]
-        for needed in ('contest_faceoff', 'contest_won' if who == won else 'contest_lost'):
-            if needed not in names:
-                return f'{who} never played {needed}', None
-    if len([1 for _, beat, *_ in beats if beat == 'contest_tussle']) < tussles:
-        return f'fewer than {tussles} tussle beats', None
+        if 'contest_faceoff' not in [beat for u, beat, *_ in beats if u == who]:
+            return f'{who} never played the face-off', None
     if re.search(r'contest beat=\w+ [^\n]*accepted=false', log):
         return 'a contest beat was refused by the face layer', None
+
+    def has(who, beat):
+        return any(u == who and b == beat for u, b, *_ in beats)
+
+    def line_of(who, beat):
+        return next((line for u, b, _, line, _ in beats if u == who and b == beat), None)
+
+    def spoke(who, event):
+        role = 'winner' if who == won else 'loser'
+        return re.search(rf'\[social\][^\n]*uuid={who} [^\n]*contest speech prize={prize} role={role} event={event} spoken=true\b', log)
+
     win_event = f'contest_won_{prize}'
-    if not re.search(rf'\[social\][^\n]*uuid={won} [^\n]*contest speech prize={prize} role=winner event={win_event} spoken=true\b', log):
-        return f'winner {won} never spoke {win_event}', None
-    if not re.search(rf'\[social\][^\n]*uuid={lost} [^\n]*contest speech prize={prize} role=loser event=contest_lost spoken=true\b', log):
-        return f'loser {lost} never spoke contest_lost', None
-    return None, (int(begins[0][0]), int(verdicts[0][0]), won, lost, where)
+    if level == 'POLITE_YIELD':
+        if not has(lost, 'contest_lost') or line_of(lost, 'contest_lost') != 'contest_yield_polite':
+            return f'the loser never bowed with {line_of(lost, "contest_lost")}', None
+        if not has(won, 'contest_thanks'):
+            return 'the winner never thanked the one who bowed', None
+        if has(won, 'contest_won'):
+            return 'a polite yield still claimed the prize aloud', None
+        for who, event in ((lost, 'contest_yield_polite'), (won, 'contest_thanks')):
+            if not spoke(who, event):
+                return f'{who} never spoke {event}', None
+    elif level == 'COMPLAIN_YIELD':
+        if not has(lost, 'contest_lost') or line_of(lost, 'contest_lost') != 'contest_yield_complain':
+            return f'the loser never complained with {line_of(lost, "contest_lost")}', None
+        if not has(won, 'contest_won') or line_of(won, 'contest_won') != win_event:
+            return f'the winner never claimed with {win_event}', None
+        for who, event in ((lost, 'contest_yield_complain'), (won, win_event)):
+            if not spoke(who, event):
+                return f'{who} never spoke {event}', None
+    elif level == 'SUMO_DECIDE':
+        for who in (won, lost):
+            if not has(who, 'sumo_start'):
+                return f'{who} never took the sumo start', None
+        if not has(won, 'sumo_win') or not has(lost, 'sumo_push_out'):
+            return 'the sumo never showed its win and push-out', None
+        if not any(b == 'sumo_pushed_back' for _, b, *_ in beats):
+            return 'the sumo never pushed anyone back', None
+        pushed = re.findall(rf'\[social\][^\n]*uuid={lost} [^\n]*sumo pushed_back face=\w+ round=(\d+) pusher=([\w-]+)', log)
+        if not pushed or any(pusher != won for _, pusher in pushed):
+            return 'the sumo push did not come from the verdict winner', None
+        if not re.search(rf'\[social\][^\n]*sumo completed prize={prize} winner={won} loser={lost}\b', log):
+            return 'the sumo never completed its verdict', None
+        for who, event in ((won, 'sumo_win'), (lost, 'sumo_lose')):
+            if not spoke(who, event):
+                return f'{who} never spoke {event}', None
+    elif level == 'PUFF_DECIDE':
+        puffed = {u for u, b, *_ in beats if b == 'contest_puff'}
+        if len(puffed) < 2:
+            return 'both bodies never puffed at each other', None
+        if not has(lost, 'contest_lost') or line_of(lost, 'contest_lost') != 'contest_yield_complain':
+            return f'the loser never complained with {line_of(lost, "contest_lost")}', None
+        if not has(won, 'contest_won') or line_of(won, 'contest_won') != win_event:
+            return f'the winner never claimed with {win_event}', None
+        for who, event in ((lost, 'contest_yield_complain'), (won, 'contest_puff'), (won, win_event)):
+            if not spoke(who, event):
+                return f'{who} never spoke {event}', None
+    elif level == 'ATTACK_DECIDE':
+        if not has(won, 'contest_threat'):
+            return 'the attacker never gave its warning', None
+        if not has(won, 'contest_attack') or not has(lost, 'contest_attack'):
+            return 'the pair never traded a charge', None
+        if not has(lost, 'contest_lost') or line_of(lost, 'contest_lost') != 'contest_lost':
+            return f'the beaten loser never fled with {line_of(lost, "contest_lost")}', None
+        if not has(won, 'contest_won') or line_of(won, 'contest_won') != win_event:
+            return f'the winner never claimed with {win_event}', None
+        rounds = re.findall(rf'\[social\][^\n]*uuid={won} [^\n]*contest attack round=(\d+) hit=(\w+) loserHealth=([\d.]+)/', log)
+        if not rounds:
+            return 'the fight never landed a round', None
+        if min(float(health) for _, _, health in rounds) <= 3.0:
+            return 'the fight hit the loser to the give-up floor', None
+        for who, event in ((lost, 'contest_lost'), (won, win_event)):
+            if not spoke(who, event):
+                return f'{who} never spoke {event}', None
+    return None, (int(begins[0][0]), int(verdicts[0][0]), won, lost)
 
 
-def _verify_bed_contest(log, process, winner=None, tussles=0):
-    """A bed contest, then the loser at another free bed."""
-    error, facts = _contest_core(log, 'bed', process, winner, tussles)
+def _verify_bed_contest(log, level, winner=None):
+    """A bed contest settled the expected way, then the loser at another free bed."""
+    error, facts = _contest_core(log, 'bed', level, winner)
     if error:
         return error
-    _, _, won, lost, bed = facts
+    _, _, won, lost = facts
     failed = {}
     for who, tick, event, nest, side in re.findall(r'uuid=([\w-]+) t=(\d+) [^\n]*?(refused bed approach|approaching unclaimed bed) nest=(BlockPos\{[^}]+\}) side=(\w+)', log):
         opening = (who, nest, side)
@@ -1059,7 +1129,7 @@ def _verify_bed_contest(log, process, winner=None, tussles=0):
 
 
 add('single_bed_contest', 'family', '两个成油争一个软垫窝', '两个成油争一个软垫窝',
-    '棚内只有一个空窝。看两个互不相识的成油走到窝前，胆大的和胆小的在窝前对峙，数值悬殊，胆小的很快认输让开，胆大的认窝。一分钟后棚里添一个空窝，落选者可以改去那里。',
+    '棚内只有一个空窝。看两个互不相识的成油走到窝前，胆大的和胆小的在窝前对峙，数值悬殊；胆小的性情温和，朝胆大的鞠一躬让开，胆大的道谢后认窝。一分钟后棚里添一个空窝，落选者可以改去那里。',
     '约 1 分半钟', [*shed(0, 0, half=4),
         *[line for name, x, bold in [('bold', -.65, 95), ('shy', .65, 12)] for line in
           (yk('reimu', x, -2.3, name, uuid=uid('single_bed_contest', name), boldness=bold,
@@ -1068,12 +1138,13 @@ add('single_bed_contest', 'family', '两个成油争一个软垫窝', '两个成
     env=DAY, spot='pet_birth', vantage=(0, -5, 0),
     smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_bold_bed, _shy_bed)],
                forbid=[rf'uuid={_bold_bed} [^\n]*yielded contested bed'],
-               verify=lambda log: _verify_bed_contest(log, 'LOPSIDED', winner=_bold_bed)))
+               verify=lambda log: _verify_bed_contest(log, 'POLITE_YIELD', winner=_bold_bed)))
 
 _even_a = _uuid_text('bed_contest_even', 'a')
 _even_b = _uuid_text('bed_contest_even', 'b')
 add('bed_contest_even', 'family', '两个同样胆大的成油争一个窝', '两个同样胆大的成油争一个窝',
-    '棚内只有一个空窝。两个同样胆大的成油（分属两位饲主）同时走到窝前，数值相当，先对峙再互相顶撞，数轮后分出胜负，赢的认窝，输的按性格表态。一分钟后棚里添一个空窝，落选者改去那里。',
+    '棚内只有一个空窝。两个同样胆大的成油（分属两位饲主）同时走到窝前，数值相当，先面对面对峙，再贴身相扑三轮：互相推挤，最后一推把输的推出窝边。'
+    '赢的得意认窝，输的按性格表态。一分钟后棚里添一个空窝，落选者改去那里。',
     '约 1 分半钟', [*shed(0, 0, half=4),
         *[line for name, x in [('a', -.65), ('b', .65)] for line in
           (yk('reimu', x, -2.3, name, uuid=uid('bed_contest_even', name), boldness=85, label='甲' if name == 'a' else '乙', lead=name == 'b'),)],
@@ -1083,15 +1154,15 @@ add('bed_contest_even', 'family', '两个同样胆大的成油争一个窝', '�
     env=DAY, spot='pet_birth', vantage=(0, -5, 0),
     smoke=dict(ticks=2000, expect=[rf'uuid={who} [^\n]*approaching unclaimed bed' for who in (_even_a, _even_b)],
                forbid=[r'contest beat=\w+ [^\n]*accepted=false'],
-               verify=lambda log: _verify_bed_contest(log, 'TUSSLE', tussles=3)))
+               verify=lambda log: _verify_bed_contest(log, 'SUMO_DECIDE')))
 
 
 def _verify_food_contest(log):
     """One contest over the one apple; the winner takes and eats it, the loser never touches that portion and walks off alive."""
-    error, facts = _contest_core(log, 'food', 'TUSSLE', tussles=3)
+    error, facts = _contest_core(log, 'food', 'SUMO_DECIDE')
     if error:
         return error
-    _, verdict_at, won, lost, _ = facts
+    _, verdict_at, won, lost = facts
     taken = re.findall(rf'\[meal\][^\n]* uuid={won} t=(\d+) [^\n]*pickup item=minecraft:apple count=1 source=([\w-]+)', log)
     taken = [(int(t), source) for t, source in taken if int(t) > verdict_at]
     if not taken:
@@ -1105,8 +1176,8 @@ def _verify_food_contest(log):
 
 
 add('food_contest', 'forage', '两个同样饿的成油争一个苹果', '两个同样饿的成油争一个苹果',
-    '街中间地上只有一个苹果，两个同样饿的流浪成油（营养 38 与 44）从两侧走来。看它们先看一眼苹果，再在苹果旁面对面对峙，数值相当就互相顶撞几轮，'
-    '赢的得意认下苹果吃掉，输的按性格垂眼赌气、哼声或垂泪让开、不碰这个苹果，转身走远。',
+    '街中间地上只有一个苹果，两个同样饿的流浪成油（营养 38 与 44）从两侧走来。看它们先看一眼苹果，再在苹果旁面对面对峙，数值相当便贴身相扑三轮：'
+    '互相推挤，最后一推推出胜负；赢的得意认下苹果吃掉，输的被推出、按性格垂眼赌气、哼声或垂泪让开，不碰这个苹果，转身走远。',
     '约 40 秒', [
         item('minecraft:apple', 1, 0, 0, name='contest_apple'),
         street_stray('food_contest', 'reimu', -3, 0, 'a', nutrition=38, boldness=85, yaw=-90, label='甲', lead=True),
@@ -1117,43 +1188,115 @@ add('food_contest', 'forage', '两个同样饿的成油争一个苹果', '两个
 
 _toy_a = _uuid_text('toy_contest', 'a')
 _toy_b = _uuid_text('toy_contest', 'b')
+_toy_c = _uuid_text('toy_contest', 'c')
+_toy_d = _uuid_text('toy_contest', 'd')
 
 
 def _verify_toy_contest(log):
-    """One contest over the free station; the winner plays it first, the loser gives it way and takes its own turn after."""
-    error, facts = _contest_core(log, 'toy', 'TUSSLE', tussles=3)
+    """The trampoline pair sumo over it: the winner plays first, the loser gives it way and takes its own turn after. The pair by the
+    slide settles by a complaining yield instead: the bolder body plays, the one that complained lets the station be."""
+    error, facts = _contest_core(log, 'toy', 'SUMO_DECIDE', pair={_toy_a, _toy_b})
     if error:
         return error
-    _, verdict_at, won, lost, _ = facts
+    _, verdict_at, won, lost = facts
     started = {who: [int(t) for t in re.findall(rf'\[play\][^\n]* uuid={who} t=(\d+) [^\n]*facility session started', log)] for who in (won, lost)}
-    ended = [int(t) for t in re.findall(rf'\[play\][^\n]* uuid={won} t=(\d+) [^\n]*facility session ended', log)]
     first = [t for t in started[won] if t > verdict_at]
     if not first:
-        return 'the winner did not start playing after the verdict'
+        return 'the trampoline winner did not start playing after the verdict'
     if [t for t in started[lost] if t <= verdict_at]:
-        return 'the loser started a session before the verdict'
+        return 'the trampoline loser started a session before the verdict'
     later = [t for t in started[lost] if t > verdict_at]
     if not later or min(later) <= min(first):
-        return 'the loser did not take its own turn after the winner'
+        return 'the trampoline loser did not take its own turn after the winner'
     if not re.search(rf'\[play\][^\n]* uuid={lost} [^\n]*contested station yielded [^\n]*rival={won}\b', log):
-        return 'the loser did not give the station way'
+        return 'the trampoline loser did not give the station way'
+    error, facts = _contest_core(log, 'toy', 'COMPLAIN_YIELD', pair={_toy_c, _toy_d})
+    if error:
+        return error
+    _, slide_at, slide_won, slide_lost = facts
+    if not [t for t in re.findall(rf'\[play\][^\n]* uuid={slide_won} t=(\d+) [^\n]*facility session started kind=slide', log) if int(t) > slide_at]:
+        return 'the slide contest winner did not start playing after the verdict'
+    if not re.search(rf'\[play\][^\n]* uuid={slide_lost} [^\n]*contested station yielded [^\n]*rival={slide_won}\b', log):
+        return 'the slide contest loser did not give the slide way'
 
 
 add('toy_contest', 'park', '两个无聊的成油争一个游具', '两个无聊的成油争一个游具',
-    '蹦床前的空地上两个同样无聊的流浪成油并肩站着，都想玩蹦床。看它们互相对峙，数值相当就顶撞几轮，赢的先上床玩，'
-    '输的按性格垂眼赌气、哼声或垂泪让开，歇一会儿再去玩自己的那一轮。',
+    '蹦床前的空地上两个同样无聊的流浪成油并肩站着，都想玩蹦床：数值相当，先对峙再贴身相扑三轮，赢的先上床玩，'
+    '输的让开、歇一会儿再玩自己的那一轮。南边滑梯前另有两个无聊的成油，一个胆大好胜、一个胆小：胆大的先占下滑梯，'
+    '胆小的抱怨着让开。',
     '约 1 分半钟', [
         block(-6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
         block(6, 0, -7, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(5, 0, -13, 'mcyukkuri:yukkuri_nest[facing=south]'),
+        block(11, 0, -13, 'mcyukkuri:yukkuri_nest[facing=south]'),
         street_trial('toy_contest', 'marisa', -.7, -3, 'a', boldness=85, intelligence=70, adult_scale=.9, nutrition=95, energy=100, yaw=0,
                      label='甲', lead=True, extra='YukkuriDailyLife:{Boredom:98,Affection:20}'),
         street_trial('toy_contest', 'marisa', .7, -3, 'b', boldness=85, intelligence=70, adult_scale=.9, nutrition=95, energy=96, yaw=0,
                      label='乙', extra='YukkuriDailyLife:{Boredom:95,Affection:20}'),
-        home('a', -6, -7), home('b', 6, -7),
+        # South of the slide, out of the trampoline's and the tube's reach: only the slide is a candidate for these two.
+        street_trial('toy_contest', 'marisa', 7, -9, 'c', boldness=95, friendliness=30, intelligence=70, adult_scale=.9,
+                     nutrition=90, energy=90, yaw=0, label='丙',
+                     extra='YukkuriDailyLife:{Boredom:70}'),
+        street_trial('toy_contest', 'marisa', 9, -9, 'd', boldness=10, friendliness=30, intelligence=70, adult_scale=.9,
+                     nutrition=90, energy=90, yaw=0, label='丁',
+                     extra='YukkuriDailyLife:{Boredom:70}'),
+        home('a', -6, -7), home('b', 6, -7), home('c', 5, -13), home('d', 11, -13),
     ], env=DAY, spot='trampoline', vantage=(6, 6, 180, 18),
-    reads=[('读甲', f'yukkuri status {sel("a")} raw'), ('读乙', f'yukkuri status {sel("b")} raw')],
-    smoke=dict(ticks=2400, expect=[rf'uuid={who} [^\n]*facility session started' for who in (_toy_a, _toy_b)],
+    reads=[('读甲', f'yukkuri status {sel("a")} raw'), ('读乙', f'yukkuri status {sel("b")} raw'),
+           ('读丙', f'yukkuri status {sel("c")} raw'), ('读丁', f'yukkuri status {sel("d")} raw')],
+    smoke=dict(ticks=2400, expect=[rf'uuid={who} [^\n]*facility session started' for who in (_toy_a, _toy_b, _toy_c)],
                forbid=[r'contest beat=\w+ [^\n]*accepted=false'], verify=_verify_toy_contest))
+
+_doll_puff_a = _uuid_text('doll_contest', 'calm_a')
+_doll_puff_b = _uuid_text('doll_contest', 'calm_b')
+_doll_hot_a = _uuid_text('doll_contest', 'fierce_a')
+_doll_hot_b = _uuid_text('doll_contest', 'fierce_b')
+
+
+def _verify_doll_contest(log):
+    """Two pairs of adults come for two ownerless dolls on one lawn. A warm, evenly matched pair settles it by puffing; a hot, fierce
+    pair charges. Each doll changes hands exactly once, and both verdicts land in the keepsake that carried each pair there."""
+    for level, pair, label in (('PUFF_DECIDE', {_doll_puff_a, _doll_puff_b}, 'puff'),
+                               ('ATTACK_DECIDE', {_doll_hot_a, _doll_hot_b}, 'fight')):
+        error, facts = _contest_core(log, 'doll', level, pair=pair)
+        if error:
+            return f'the {label} doll contest: {error}'
+        _, _, won, lost = facts
+        for who, victory in ((won, 'true'), (lost, 'false')):
+            if not re.search(rf'\[keepsake\][^\n]*uuid={who} [^\n]*contested doll=[\w-]+ won={victory} rival=', log):
+                return f'{who} did not settle the {label} doll contest as won={victory}'
+
+
+add('doll_contest', 'park', '两对成油争两只无主布偶', '两对成油争两只无主布偶',
+    '凉亭北面草坪上放着两只无主的魔理沙布偶，各有两个成油想要。西边一对同样依恋布偶、脾气都冲但不至于动真格：看它们面对面鼓起脸颊互相噗咕，'
+    '较近的一只先泄气抱怨着让开，另一只叼走布偶。东边一对依恋更深、更凶：先低声警告，再短促冲撞三轮，输的掉血后逃走，赢的叼走布偶。',
+    '约 20 秒', [
+        doll('mcyukkuri:marisa_doll', 5, 9, 'puff_doll'),
+        doll('mcyukkuri:marisa_doll', 15, 9, 'hot_doll'),
+        yk('marisa', 3, 8, 'calm_a', uuid=uid('doll_contest', 'calm_a'), boldness=90, friendliness=20, self_control=20,
+           attachment=70, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙', lead=True,
+           extra='YukkuriDailyLife:{Boredom:70}'),
+        yk('marisa', 3, 10, 'calm_b', uuid=uid('doll_contest', 'calm_b'), boldness=90, friendliness=20, self_control=20,
+           attachment=70, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:70}'),
+        yk('marisa', 13, 8, 'fierce_a', uuid=uid('doll_contest', 'fierce_a'), boldness=100, friendliness=0, self_control=0,
+           attachment=100, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:70}'),
+        yk('marisa', 13, 10, 'fierce_b', uuid=uid('doll_contest', 'fierce_b'), boldness=100, friendliness=0, self_control=0,
+           attachment=100, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:70}'),
+        block(1, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
+        block(5, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
+        block(11, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
+        block(15, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
+    ], at_spawn=[home('calm_a', 1, 12), home('calm_b', 5, 12), home('fierce_a', 11, 12), home('fierce_b', 15, 12)],
+    env=DAY, spot='pavilion', vantage=(6, 17, 180, 13),
+    reads=[('读西边一对', f'yukkuri status {sel("calm_a")} raw'), ('读东边一对', f'yukkuri status {sel("fierce_a")} raw')],
+    smoke=dict(ticks=900,
+               expect=[r'contest begin prize=doll [^\n]* level=PUFF_DECIDE ', r'contest begin prize=doll [^\n]* level=ATTACK_DECIDE ',
+                       r'contest verdict prize=doll [^\n]* level=PUFF_DECIDE ', r'contest verdict prize=doll [^\n]* level=ATTACK_DECIDE '],
+               forbid=[r'contest beat=\w+ [^\n]*accepted=false', r'\[body\][^\n]* death settled\b'],
+               verify=_verify_doll_contest))
 
 _number_scenes()
 
@@ -1187,7 +1330,7 @@ TOPICS = {
     'street_give_way': 'M4', 'street_corridor': 'M4', 'street_dead_end': 'M4', 'yield_lock_lane': 'M4', 'oni_street_scrap': 'M1', 'street_crops': 'M4', 'street_furniture': 'M5', 'street_tidy': 'M5',
     'stall_theft': 'M5', 'counter_buy': 'M5', 'counter_shoo': 'M5', 'pocket_park_rest': 'M5',
     'shelter_cartons': 'M5', 'shelter_cartons_blocked': 'M5',
-    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5', 'bully_strike': 'M5', 'treasure_bully': 'M5',
+    'yard_owner_return': 'M5', 'yard_stray_scold': 'M5', 'park_walk': 'M5', 'park_play': 'M5', 'park_stray_play': 'M5', 'park_wait_switch': 'M5', 'park_recall_play': 'M5', 'park_slide': 'M5', 'park_tube': 'M5', 'park_rolling_toys': 'M5', 'park_trampoline_contrast': 'M5', 'park_picnic': 'M5', 'park_aid': 'M5', 'juice_bath': 'M5', 'doll_carry': 'M5', 'doll_carry_interrupt': 'M5', 'doll_comfort_sleep': 'M5', 'doll_comfort_friend': 'M5', 'doll_talk': 'M5', 'doll_talk_giveup': 'M5', 'doll_snatch': 'M5', 'doll_take': 'M5', 'doll_contest': 'M5', 'bully_strike': 'M5', 'treasure_bully': 'M5',
     'sleep': 'D1', 'night_sleep': 'D1', 'nest_grades': 'D1', 'night_hungry_child': 'D1', 'meal_content': 'D1', 'fatigue': 'R1', 'fatigue_predator': 'R2', 'nutrition_age': 'D1', 'frail_gait': 'D1', 'meet': 'D1', 'greet_close': 'D1', 'nuzzle_shapes': 'D1', 'company_visit': 'D1', 'quarrel_makeup': 'D1', 'toilet': 'F5', 'pred_toilet': 'F5', 'hurt': 'F3',
     'birth_land_caught': 'F1', 'birth_land_missed': 'F1', 'feed': 'F2', 'first_toilet': 'F2', 'growth': 'F4',
     'leaf_swaddle': 'F2', 'leaf_swaddle_neglect': 'F2', 'leaf_swaddle_neglect_stages': 'F2', 'family_distance': 'F8', 'family_search': 'F8', 'family_search_pane': 'F8', 'birth_nest_safe': 'F1', 'birth_nest_stem': 'F1', 'birth_stem_caught': 'F1', 'family_nests': 'F4', 'carry_home': 'F4', 'infant_starvation': 'F2',

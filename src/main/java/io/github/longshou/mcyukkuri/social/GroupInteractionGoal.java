@@ -56,9 +56,9 @@ public final class GroupInteractionGoal extends Goal {
     public boolean active() { return bout!=null&&!bout.ended; }
     /** Verified contact already accumulated by the running bout; observation only. */
     public int contactProgress() { return active() ? bout.contactTicks : 0; }
-    /** The other body of a contest whose push has begun, or null; standing face to face is not yet a fight. */
+    /** The other body of a contest that has reached real contact, or null; standing face to face is not yet a fight. */
     public UUID contestRival() {
-        if (!active() || bout.kind != Kind.CONTEST || bout.contest == null || !bout.contest.tussling()) return null;
+        if (!active() || bout.kind != Kind.CONTEST || bout.contest == null || !bout.contest.fighting()) return null;
         return (entity == bout.first ? bout.second : bout.first).getUUID();
     }
     public String activity() {
@@ -66,7 +66,9 @@ public final class GroupInteractionGoal extends Goal {
         if (defending) return Behaviors.PROTECT_PEER;
         return switch (bout.kind) {
             case BULLY -> Behaviors.BULLY_PEER;
-            case CONTEST -> bout.contest != null && bout.contest.tussling() ? Behaviors.CONTEST_PUSH : Behaviors.CONTEST_FACEOFF;
+            case CONTEST -> bout.contest == null ? Behaviors.CONTEST_FACEOFF
+                    : bout.contest.shoving() ? Behaviors.SUMO_PUSH
+                    : bout.contest.sumo() ? Behaviors.SUMO_PREPARE : Behaviors.CONTEST_FACEOFF;
             case SUMO -> bout.contactTicks < 20 ? Behaviors.SUMO_PREPARE : Behaviors.SUMO_PUSH;
             case PROTECT -> Behaviors.IDLE;
         };
@@ -126,7 +128,7 @@ public final class GroupInteractionGoal extends Goal {
     public boolean contest(YukkuriEntity rival, Contest.Prize prize) {
         if(rival.level()!=entity.level()||cooldown>0||rival.groupInteraction().cooldown>0||active()||rival.groupInteraction().active()
                 ||!contestant(entity)||!contestant(rival))return false;
-        boolean mayPush=!(rival.pet().isPet()&&rival.pet().ownedBy(entity.pet().owner()));
+        boolean mayPush=Contest.mayPush(entity,rival);
         if(!reserve(rival,Kind.CONTEST))return false;
         bout.contest=Contest.begin(entity,rival,prize,mayPush);
         return true;
@@ -218,9 +220,9 @@ public final class GroupInteractionGoal extends Goal {
         var current=bout;var peer=entity==current.first?current.second:current.first;
         entity.getLookControl().setLookAt(peer,30,30);
         if(current.kind==Kind.CONTEST) {
-            // Stand face-to-face for the stare; at tussle onset the winner steps into contact once (wide enough that body separation does not restart walking).
+            // Stand face-to-face for a stare or a puff; a sumo winner and both fighters step into contact (wide enough that body separation does not restart walking).
             double contestContact = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .30;
-            if (current.contest.tussling() && current.contest.closesGap(entity) && entity.distanceToSqr(peer) > contestContact * contestContact) {
+            if (current.contest.approaching(entity) && entity.distanceToSqr(peer) > contestContact * contestContact) {
                 var stand = SurfaceApproach.beside(entity, peer, contestContact - .10, .25, contestContact);
                 if (stand == null || SurfaceApproach.walkResult(entity, stand, peer, .8) == SurfaceApproach.Result.BLOCKED) {
                     SurfaceApproach.stopWalking(entity);

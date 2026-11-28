@@ -36,6 +36,7 @@ import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.Identity;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -386,6 +387,54 @@ public final class KeepsakeLife implements MotorOwner {
     /** Whether this body could take a doll for itself: an empty mouth and a nest to carry it to. */
     public boolean canSnatch() { return ownBed() != null && mouth().freeForExternalWork(); }
 
+    /** Whether this body is on its way to that same ownerless doll, the other side of a doll contest. */
+    public boolean goingFor(PlacedDollEntity doll) {
+        return phase == Phase.CARRY_OFF && target == doll;
+    }
+
+    /** The other adult that came for the same ownerless doll and can still stage a contest with this body. */
+    private YukkuriEntity dollRival(PlacedDollEntity doll) {
+        return level().getEntitiesOfClass(YukkuriEntity.class, doll.getBoundingBox().inflate(5),
+                other -> other != entity && other.isAlive() && !other.inert()
+                        && other.family().adult() && other.keepsake().goingFor(doll)
+                        && other.groupInteraction().cooldown() == 0 && !other.groupInteraction().active()
+                        && entity.distanceToSqr(other) <= 25 && entity.hasLineOfSight(other))
+                .stream().findFirst().orElse(null);
+    }
+
+    /**
+     * The doll contest's verdict: the winner picks the doll up and carries it home as if it had come alone, once its smug
+     * beat has run; the loser lets this doll be for a while instead of trailing the winner to it.
+     */
+    public void contested(PlacedDollEntity doll, boolean won, UUID rival) {
+        if (!won) {
+            // The loser gives up this walk so it cannot trail the winner and take the same doll after the bout.
+            cooldown = DONE_COOLDOWN;
+            stop();
+        } else {
+            cooldown = Contest.GLOAT_TICKS;
+            if (doll.isAlive() && phase == Phase.IDLE && carried().isEmpty()) beginCarry(doll);
+        }
+        GameplayLog.event(entity, "keepsake", "contested doll={} won={} rival={} attachment={}",
+                doll.getUUID(), won, rival, entity.life().personality().attachment());
+    }
+
+    /** Sets out for a doll already chosen by a contest, the walk and pick being the ordinary fetch. */
+    private void beginCarry(PlacedDollEntity doll) {
+        target = doll;
+        dropSpot = null;
+        phase = Phase.CARRY_OFF;
+        elapsed = 0;
+        noticeTicks = 0;
+        picking = false;
+        placing = false;
+        carryLogged = false;
+        dropRefused = false;
+        scanWait = 0;
+        SurfaceApproach.halt(entity);
+        entity.getLookControl().setLookAt(doll, 30, 30);
+    }
+
     /** The claim that opens a bout fought over a peer's doll: the taker claims it aloud, and the victim only flinches so its speech clock stays open for the theft cry. */
     public void claim(YukkuriEntity victim) {
         if (phase != Phase.IDLE || !carried().isEmpty()) return;
@@ -585,6 +634,12 @@ public final class KeepsakeLife implements MotorOwner {
         }
         if (ContactGeometry.inMouthReach(entity, target)) {
             if (!mouth().freeForExternalWork()) { stop(); return; }
+            // Two adults that both came for one ownerless doll settle it by a contest before either takes it.
+            var rival = dollRival(target);
+            if (rival != null && entity.groupInteraction().contest(rival, new DollPrize(target))) {
+                stop();
+                return;
+            }
             SurfaceApproach.stopWalking(entity);
             float yaw = SurfaceApproach.yaw(entity.position(), target.position());
             if (Math.abs(Mth.wrapDegrees(yaw - entity.yBodyRot)) > Face.FACE_ARRIVED) {
