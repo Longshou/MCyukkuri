@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 辫子拨水引帽（帽子近岸够不到） | `.worktrees/wp-braid-beckon` | aquatic hat retrieval, motor/action/Beckon callers |
 | 坑奴场景饿死（BM-10） | `.worktrees/wp-pit-starve` | settlement feeding, pit slave food |
 
 ## 玩法待办
