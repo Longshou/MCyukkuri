@@ -494,7 +494,7 @@ for _sid, _title, _hint, _control in (
         ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌惊住，随后小声辩嘟、绷着脸认错发抖，等你发落。旁观的大胆魔理沙看见同伴被抓挨训也会咽口水老实下来，小幅提升服从度与恐惧。', 20)):
     _extra_actors = ([yk('marisa', -2, 1, 'rule_bystander', label='旁观的大胆同伴', boldness=80, self_control=35,
                          nutrition=85, extra='YukkuriDailyLife:{Boredom:0,Cooldown:2400}'),
-                      *own('rule_bystander'), home('rule_bystander', 0, -4)] if _sid == 'rule_song_sneak' else [])
+                      *own('rule_bystander'), home('rule_bystander', -2, 1)] if _sid == 'rule_song_sneak' else [])
     add(_sid, 'town', _title, _title, _hint, '约 1～3 分钟', [
         *_rule_court, yk('reimu', 0, 1, 'rule_pet', lead=True, intelligence=80, self_control=_control, boldness=85,
                           extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:40}'),
@@ -603,7 +603,7 @@ add('rule_eat_struck', 'town', '禁止擅自吃：被抓后挨打', '禁止擅�
         yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=30, self_control=20, boldness=10, attachment=80, intelligence=30),
         *own('rule_pet'), home('rule_pet', 0, -4),
         yk('marisa', -2, 1, 'rule_bystander', label='旁观的胆小同伴', nutrition=85, self_control=75, boldness=15, attachment=70),
-        *own('rule_bystander'), home('rule_bystander', 0, -4)],
+        *own('rule_bystander'), home('rule_bystander', -2, 1)],
     env=DAY, vantage=(0, 4), give=['minecraft:apple'],
     smoke=dict(ticks=2400, commands=_eat_struck_commands(), verify=_eat_struck, verify_trace=True,
                forbid=[r'penance abandoned', r'\[threat\][^\n]*struck stance=(?!TAKEN)'],
@@ -1253,11 +1253,11 @@ def arc_boast_check(log, trace, mother):
 
 
 def _answer_boast():
-    """Owner lets the boasting mother deliver boast_show + boast_expect (~220 ticks beside owner), then scolds her."""
+    """Owner lets the boasting mother deliver boast_show + boast_expect (~360 ticks including speech gap), then scolds her."""
     steps = [(1, 'scoreboard players set #ab_near museum 0'), (1, 'scoreboard players set #ab_done museum 0')]
-    for tick in range(20, 880, 4):
+    for tick in range(20, 1100, 4):
         steps.append((tick, f'execute as {sel("pet")} at @s if entity @a[name=MuseumOperator,distance=..2.2] run scoreboard players add #ab_near museum 1'))
-        steps.append((tick + 1, f'execute if score #ab_near museum matches 60.. if score #ab_done museum matches 0 store result score #ab_done museum '
+        steps.append((tick + 1, f'execute if score #ab_near museum matches 100.. if score #ab_done museum matches 0 store result score #ab_done museum '
                                 f'run yukkuri scenario care_click {sel("pet")} cold'))
     return steps
 
@@ -1278,7 +1278,7 @@ for sid, title, description, traits, child_pos in (
     confess = sid.startswith('arc_confess')
     boast = sid == 'arc_boast'
     props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide else [box(2, 0, -1, 8, 2, -1, 'minecraft:oak_planks')] if confess else []
-    ticks = 600 if hide else 900 if boast else 800 if confess else 320
+    ticks = 600 if hide else 1150 if boast else 800 if confess else 320
     owner_pos = '~1.5 ~ ~-2.5' if sid in ('arc_naive', 'arc_boast') else '~0.5 ~ ~-4.5'
     smoke = dict(ticks=ticks,
                  commands=[(1, f'execute positioned {owner_pos} run yukkuri scenario tool_operator enter'),

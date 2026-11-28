@@ -1492,7 +1492,8 @@ def _rule_sync_readout(readout):
 
 
 _sync_cmds = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter'),
-              (2, 'yukkuri scenario house_reset')]
+              (2, 'yukkuri scenario house_reset'),
+              (3, f'data modify entity {sel("sync_sleep")} YukkuriLife.DrugSleep set value 800')]
 _sync_cmds += [(8 + i, f'data modify entity {sel(name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID')
                for i, (name, *_) in enumerate(_SYNC_CAST)]
 _sync_cmds += [(40, f'yukkuri scenario house_rules {sel("sync_src")} 3'),
