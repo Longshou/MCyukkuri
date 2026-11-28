@@ -1250,7 +1250,7 @@ def arc_boast_check(log, trace, mother):
     afraid_beat = beats[-3]
     if afraid_beat[4] != 'sukkiri_boast_shock' or afraid_beat[5] != 'true':
         return f'Expected voiced sukkiri_boast_shock on afraid beat, got {afraid_beat}'
-    if re.search(r'sukkiri_defiant|cheek_puff', log):
+    if re.search(r'sukkiri_defiant', log) or any(beat[2] == 'cheek_puff' for beat in beats):
         return 'Boast branch must never use legacy defiant talk-back or cheek_puff'
     return _pleased_between(trace, _answer_tick(log) + 2, beats[-1][0], mother)
 
