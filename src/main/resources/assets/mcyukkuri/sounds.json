@@ -122975,6 +122975,3084 @@
       }
     ]
   },
+  "voice.original.reimu.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.reimu.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.reimu.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/reimu.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.marisa.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.marisa.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/marisa.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.alice.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.alice.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/alice.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.chen.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.chen.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/chen.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.patchouli.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.patchouli.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/patchouli.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.remilia.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.remilia.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/remilia.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.flandre.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.flandre.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/flandre.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.miyo.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.miyo.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.miyo.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_yield_polite": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_yield_polite",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_yield_polite",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_thanks": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_thanks",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_thanks",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_yield_complain": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_yield_complain",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_yield_complain",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c4_contest_puff": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c4_contest_puff",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c4_contest_puff",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_threat": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_threat",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_threat",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.juvenile.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.juvenile.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.juvenile.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c1_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c1_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c1_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c2_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c2_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c2_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "voice.original.myon.kinbao.adult.c3_contest_won_doll": {
+    "subtitle": "dialogue.mcyukkuri.original.myon.kinbao.adult.c3_contest_won_doll",
+    "sounds": [
+      {
+        "name": "mcyukkuri:voice/original/myon.kinbao.adult.c3_contest_won_doll",
+        "attenuation_distance": 16
+      }
+    ]
+  },
   "voice.original.cold.seek_warmth.alice.baby": {
     "subtitle": "dialogue.mcyukkuri.original.cold.seek_warmth",
     "sounds": [

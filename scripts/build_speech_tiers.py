@@ -1883,7 +1883,7 @@ CONTEST_SUMO_DOLL = {
     'contest_thanks': {
         'juvenile': [
             ('proud', ('{p}ありがとう{e}！ なかよく あそぶ{e}！', '{p}谢谢你{e}！一起好好玩{e}！', '{p}Thank you! Let\'s play nicely!')),
-            ('timid', ('{p}ゆっ……ありがとう{e}……やさしい{e}……', '{p}油……谢谢{e}……{n}好温柔{e}……', '{p}Yu... thank you... so kind...')),
+            ('timid', ('{p}ゆっ……ありがとう{e}……やさしい{e}……', '{p}油……谢谢你{e}……你好温柔{e}……', '{p}Yu... thank you... so kind...')),
             ('plain', ('{p}ありがとう{e}、うれしい{e}！', '{p}谢谢{e}，好高兴{e}！', '{p}Thank you, {N} is so happy!')),
         ],
         'adult': [

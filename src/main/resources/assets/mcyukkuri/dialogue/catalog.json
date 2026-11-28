@@ -175450,8 +175450,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.reimu.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -175463,8 +175463,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 65,
+    "sound": "voice.original.reimu.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -175476,8 +175476,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.reimu.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -175489,8 +175489,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 87,
+    "sound": "voice.original.reimu.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -175502,8 +175502,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.reimu.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -175515,8 +175515,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.reimu.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -175528,8 +175528,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.reimu.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -175541,8 +175541,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.reimu.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -175554,8 +175554,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 52,
+    "sound": "voice.original.reimu.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -175567,8 +175567,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 65,
+    "sound": "voice.original.reimu.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -175580,8 +175580,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 77,
+    "sound": "voice.original.reimu.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -175593,8 +175593,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 67,
-    "sound": "",
+    "ticks": 53,
+    "sound": "voice.original.reimu.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -175606,8 +175606,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.reimu.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -175619,8 +175619,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.reimu.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -175632,8 +175632,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.reimu.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -175645,8 +175645,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.reimu.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -175658,8 +175658,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.reimu.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -175671,8 +175671,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.reimu.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -175684,8 +175684,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.reimu.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -175697,8 +175697,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.reimu.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -175710,8 +175710,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.reimu.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -175723,8 +175723,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 55,
+    "sound": "voice.original.reimu.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -175736,8 +175736,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 67,
+    "sound": "voice.original.reimu.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -175749,8 +175749,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.reimu.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -175762,8 +175762,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 77,
+    "sound": "voice.original.reimu.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -175775,8 +175775,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 71,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.reimu.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -175788,8 +175788,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.reimu.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -175801,8 +175801,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 58,
+    "sound": "voice.original.reimu.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -175814,8 +175814,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.reimu.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -175827,8 +175827,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.reimu.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -175840,8 +175840,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 79,
-    "sound": "",
+    "ticks": 60,
+    "sound": "voice.original.reimu.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -175853,8 +175853,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.reimu.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -175866,8 +175866,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 65,
+    "sound": "voice.original.reimu.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -175879,8 +175879,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.reimu.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -175892,8 +175892,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 81,
+    "sound": "voice.original.reimu.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -175905,8 +175905,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 70,
+    "sound": "voice.original.reimu.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -175918,8 +175918,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.reimu.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -175931,8 +175931,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.reimu.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -175944,8 +175944,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.marisa.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -175957,8 +175957,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.marisa.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -175970,8 +175970,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.marisa.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -175983,8 +175983,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 159,
-    "sound": "",
+    "ticks": 93,
+    "sound": "voice.original.marisa.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -175996,8 +175996,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.marisa.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -176009,8 +176009,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -176022,8 +176022,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 61,
+    "sound": "voice.original.marisa.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -176035,8 +176035,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 81,
+    "sound": "voice.original.marisa.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -176048,8 +176048,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 83,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.marisa.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -176061,8 +176061,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.marisa.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -176074,8 +176074,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.marisa.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -176087,8 +176087,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 61,
+    "sound": "voice.original.marisa.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -176100,8 +176100,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.marisa.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -176113,8 +176113,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.marisa.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -176126,8 +176126,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.marisa.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -176139,8 +176139,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 90,
+    "sound": "voice.original.marisa.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -176152,8 +176152,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -176165,8 +176165,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.marisa.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -176178,8 +176178,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.marisa.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -176191,8 +176191,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.marisa.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -176204,8 +176204,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 77,
+    "sound": "voice.original.marisa.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -176217,8 +176217,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 79,
-    "sound": "",
+    "ticks": 58,
+    "sound": "voice.original.marisa.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -176230,8 +176230,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.marisa.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -176243,8 +176243,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.marisa.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -176256,8 +176256,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.marisa.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -176269,8 +176269,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 61,
+    "sound": "voice.original.marisa.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -176282,8 +176282,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.marisa.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -176295,8 +176295,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.marisa.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -176308,8 +176308,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.marisa.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -176321,8 +176321,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 91,
+    "sound": "voice.original.marisa.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -176334,8 +176334,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 67,
+    "sound": "voice.original.marisa.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -176347,8 +176347,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.marisa.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -176360,8 +176360,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.marisa.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -176373,8 +176373,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 87,
+    "sound": "voice.original.marisa.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -176386,8 +176386,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.marisa.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -176399,8 +176399,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.marisa.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -176412,8 +176412,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 94,
+    "sound": "voice.original.marisa.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -176425,8 +176425,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 90,
+    "sound": "voice.original.marisa.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -176438,8 +176438,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.alice.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -176451,8 +176451,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.alice.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -176464,8 +176464,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.alice.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -176477,8 +176477,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.alice.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -176490,8 +176490,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.alice.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -176503,8 +176503,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.alice.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -176516,8 +176516,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 56,
+    "sound": "voice.original.alice.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -176529,8 +176529,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.alice.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -176542,8 +176542,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 52,
+    "sound": "voice.original.alice.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -176555,8 +176555,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 67,
+    "sound": "voice.original.alice.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -176568,8 +176568,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.alice.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -176581,8 +176581,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 67,
-    "sound": "",
+    "ticks": 55,
+    "sound": "voice.original.alice.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -176594,8 +176594,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.alice.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -176607,8 +176607,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.alice.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -176620,8 +176620,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.alice.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -176633,8 +176633,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.alice.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -176646,8 +176646,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.alice.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -176659,8 +176659,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 70,
+    "sound": "voice.original.alice.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -176672,8 +176672,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.alice.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -176685,8 +176685,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 70,
+    "sound": "voice.original.alice.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -176698,8 +176698,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.alice.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -176711,8 +176711,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 56,
+    "sound": "voice.original.alice.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -176724,8 +176724,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.alice.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -176737,8 +176737,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.alice.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -176750,8 +176750,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 81,
+    "sound": "voice.original.alice.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -176763,8 +176763,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 71,
-    "sound": "",
+    "ticks": 59,
+    "sound": "voice.original.alice.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -176776,8 +176776,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 81,
+    "sound": "voice.original.alice.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -176789,8 +176789,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.alice.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -176802,8 +176802,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.alice.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -176815,8 +176815,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.alice.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -176828,8 +176828,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 79,
-    "sound": "",
+    "ticks": 59,
+    "sound": "voice.original.alice.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -176841,8 +176841,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.alice.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -176854,8 +176854,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.alice.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -176867,8 +176867,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.alice.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -176880,8 +176880,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.alice.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -176893,8 +176893,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.alice.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -176906,8 +176906,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.alice.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -176919,8 +176919,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.alice.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -176932,8 +176932,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 65,
+    "sound": "voice.original.chen.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -176945,8 +176945,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 54,
+    "sound": "voice.original.chen.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -176958,8 +176958,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.chen.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -176971,8 +176971,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 159,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.chen.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -176984,8 +176984,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.chen.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -176997,8 +176997,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 67,
+    "sound": "voice.original.chen.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -177010,8 +177010,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 50,
+    "sound": "voice.original.chen.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -177023,8 +177023,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.chen.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -177036,8 +177036,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 46,
+    "sound": "voice.original.chen.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -177049,8 +177049,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 58,
+    "sound": "voice.original.chen.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -177062,8 +177062,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 67,
+    "sound": "voice.original.chen.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -177075,8 +177075,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 49,
+    "sound": "voice.original.chen.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -177088,8 +177088,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.chen.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -177101,8 +177101,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 60,
+    "sound": "voice.original.chen.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -177114,8 +177114,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 58,
+    "sound": "voice.original.chen.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -177127,8 +177127,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.chen.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -177140,8 +177140,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.chen.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -177153,8 +177153,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 60,
+    "sound": "voice.original.chen.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -177166,8 +177166,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 54,
+    "sound": "voice.original.chen.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -177179,8 +177179,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 62,
+    "sound": "voice.original.chen.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -177192,8 +177192,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 59,
+    "sound": "voice.original.chen.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -177205,8 +177205,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 50,
+    "sound": "voice.original.chen.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -177218,8 +177218,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.chen.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -177231,8 +177231,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.chen.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -177244,8 +177244,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.chen.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -177257,8 +177257,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 75,
-    "sound": "",
+    "ticks": 52,
+    "sound": "voice.original.chen.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -177270,8 +177270,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.chen.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -177283,8 +177283,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 51,
+    "sound": "voice.original.chen.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -177296,8 +177296,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 61,
+    "sound": "voice.original.chen.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -177309,8 +177309,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.chen.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -177322,8 +177322,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 54,
+    "sound": "voice.original.chen.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -177335,8 +177335,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.chen.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -177348,8 +177348,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 56,
+    "sound": "voice.original.chen.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -177361,8 +177361,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.chen.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -177374,8 +177374,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 70,
+    "sound": "voice.original.chen.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -177387,8 +177387,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 60,
+    "sound": "voice.original.chen.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -177400,8 +177400,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.chen.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -177413,8 +177413,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.chen.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -177426,8 +177426,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -177439,8 +177439,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -177452,8 +177452,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -177465,8 +177465,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 167,
-    "sound": "",
+    "ticks": 100,
+    "sound": "voice.original.patchouli.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -177478,8 +177478,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 101,
+    "sound": "voice.original.patchouli.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -177491,8 +177491,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 88,
+    "sound": "voice.original.patchouli.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -177504,8 +177504,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 66,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -177517,8 +177517,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 88,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -177530,8 +177530,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 83,
-    "sound": "",
+    "ticks": 64,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -177543,8 +177543,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.patchouli.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -177556,8 +177556,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 92,
+    "sound": "voice.original.patchouli.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -177569,8 +177569,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 83,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.patchouli.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -177582,8 +177582,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -177595,8 +177595,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 87,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -177608,8 +177608,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -177621,8 +177621,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.patchouli.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -177634,8 +177634,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 100,
+    "sound": "voice.original.patchouli.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -177647,8 +177647,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.patchouli.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -177660,8 +177660,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -177673,8 +177673,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -177686,8 +177686,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -177699,8 +177699,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.patchouli.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -177712,8 +177712,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.patchouli.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -177725,8 +177725,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.patchouli.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -177738,8 +177738,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 99,
+    "sound": "voice.original.patchouli.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -177751,8 +177751,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.patchouli.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -177764,8 +177764,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 90,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -177777,8 +177777,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -177790,8 +177790,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -177803,8 +177803,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.patchouli.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -177816,8 +177816,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.patchouli.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -177829,8 +177829,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 93,
+    "sound": "voice.original.patchouli.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -177842,8 +177842,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.patchouli.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -177855,8 +177855,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 99,
+    "sound": "voice.original.patchouli.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -177868,8 +177868,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 94,
+    "sound": "voice.original.patchouli.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -177881,8 +177881,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 87,
+    "sound": "voice.original.patchouli.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -177894,8 +177894,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 105,
+    "sound": "voice.original.patchouli.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -177907,8 +177907,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.patchouli.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -177920,8 +177920,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 163,
-    "sound": "",
+    "ticks": 113,
+    "sound": "voice.original.remilia.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -177933,8 +177933,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.remilia.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -177946,8 +177946,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 110,
+    "sound": "voice.original.remilia.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -177959,8 +177959,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 171,
-    "sound": "",
+    "ticks": 127,
+    "sound": "voice.original.remilia.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -177972,8 +177972,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 125,
+    "sound": "voice.original.remilia.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -177985,8 +177985,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 108,
+    "sound": "voice.original.remilia.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -177998,8 +177998,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.remilia.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -178011,8 +178011,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 121,
+    "sound": "voice.original.remilia.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -178024,8 +178024,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.remilia.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -178037,8 +178037,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 99,
+    "sound": "voice.original.remilia.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -178050,8 +178050,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 122,
+    "sound": "voice.original.remilia.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -178063,8 +178063,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.remilia.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -178076,8 +178076,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.remilia.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -178089,8 +178089,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 114,
+    "sound": "voice.original.remilia.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -178102,8 +178102,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 105,
+    "sound": "voice.original.remilia.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -178115,8 +178115,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 116,
+    "sound": "voice.original.remilia.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -178128,8 +178128,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 124,
+    "sound": "voice.original.remilia.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -178141,8 +178141,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 110,
+    "sound": "voice.original.remilia.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -178154,8 +178154,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 92,
+    "sound": "voice.original.remilia.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -178167,8 +178167,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 155,
-    "sound": "",
+    "ticks": 110,
+    "sound": "voice.original.remilia.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -178180,8 +178180,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 112,
+    "sound": "voice.original.remilia.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -178193,8 +178193,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.remilia.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -178206,8 +178206,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 99,
+    "sound": "voice.original.remilia.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -178219,8 +178219,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 116,
+    "sound": "voice.original.remilia.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -178232,8 +178232,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 122,
+    "sound": "voice.original.remilia.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -178245,8 +178245,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.remilia.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -178258,8 +178258,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 163,
-    "sound": "",
+    "ticks": 119,
+    "sound": "voice.original.remilia.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -178271,8 +178271,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 94,
+    "sound": "voice.original.remilia.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -178284,8 +178284,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 113,
+    "sound": "voice.original.remilia.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -178297,8 +178297,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 155,
-    "sound": "",
+    "ticks": 125,
+    "sound": "voice.original.remilia.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -178310,8 +178310,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 95,
+    "sound": "voice.original.remilia.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -178323,8 +178323,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 119,
+    "sound": "voice.original.remilia.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -178336,8 +178336,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 95,
+    "sound": "voice.original.remilia.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -178349,8 +178349,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 126,
+    "sound": "voice.original.remilia.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -178362,8 +178362,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 123,
+    "sound": "voice.original.remilia.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -178375,8 +178375,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 104,
+    "sound": "voice.original.remilia.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -178388,8 +178388,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 133,
+    "sound": "voice.original.remilia.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -178401,8 +178401,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 123,
+    "sound": "voice.original.remilia.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -178414,8 +178414,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 155,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.flandre.juvenile.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -178427,8 +178427,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.flandre.juvenile.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -178440,8 +178440,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.flandre.juvenile.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -178453,8 +178453,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 163,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.flandre.adult.c1_contest_yield_polite",
     "variant": "proud"
   },
   {
@@ -178466,8 +178466,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.flandre.adult.c2_contest_yield_polite",
     "variant": "timid"
   },
   {
@@ -178479,8 +178479,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.flandre.adult.c3_contest_yield_polite",
     "variant": "plain"
   },
   {
@@ -178492,8 +178492,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 62,
+    "sound": "voice.original.flandre.juvenile.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -178505,8 +178505,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.flandre.juvenile.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -178518,8 +178518,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 54,
+    "sound": "voice.original.flandre.juvenile.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -178531,8 +178531,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.flandre.adult.c1_contest_thanks",
     "variant": "proud"
   },
   {
@@ -178544,8 +178544,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.flandre.adult.c2_contest_thanks",
     "variant": "timid"
   },
   {
@@ -178557,8 +178557,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 79,
-    "sound": "",
+    "ticks": 53,
+    "sound": "voice.original.flandre.adult.c3_contest_thanks",
     "variant": "plain"
   },
   {
@@ -178570,8 +178570,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.flandre.juvenile.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -178583,8 +178583,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.flandre.juvenile.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -178596,8 +178596,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.flandre.juvenile.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -178609,8 +178609,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 76,
+    "sound": "voice.original.flandre.adult.c1_contest_yield_complain",
     "variant": "proud"
   },
   {
@@ -178622,8 +178622,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 81,
+    "sound": "voice.original.flandre.adult.c2_contest_yield_complain",
     "variant": "timid"
   },
   {
@@ -178635,8 +178635,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 71,
+    "sound": "voice.original.flandre.adult.c3_contest_yield_complain",
     "variant": "plain"
   },
   {
@@ -178648,8 +178648,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.flandre.juvenile.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -178661,8 +178661,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.flandre.juvenile.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -178674,8 +178674,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 75,
+    "sound": "voice.original.flandre.juvenile.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -178687,8 +178687,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 56,
+    "sound": "voice.original.flandre.juvenile.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -178700,8 +178700,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 70,
+    "sound": "voice.original.flandre.adult.c1_contest_puff",
     "variant": "proud"
   },
   {
@@ -178713,8 +178713,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.flandre.adult.c2_contest_puff",
     "variant": "proud"
   },
   {
@@ -178726,8 +178726,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.flandre.adult.c3_contest_puff",
     "variant": "timid"
   },
   {
@@ -178739,8 +178739,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 83,
-    "sound": "",
+    "ticks": 57,
+    "sound": "voice.original.flandre.adult.c4_contest_puff",
     "variant": "plain"
   },
   {
@@ -178752,8 +178752,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 155,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.flandre.juvenile.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -178765,8 +178765,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 103,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.flandre.juvenile.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -178778,8 +178778,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 77,
+    "sound": "voice.original.flandre.juvenile.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -178791,8 +178791,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.flandre.adult.c1_contest_threat",
     "variant": "proud"
   },
   {
@@ -178804,8 +178804,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 63,
+    "sound": "voice.original.flandre.adult.c2_contest_threat",
     "variant": "plain"
   },
   {
@@ -178817,8 +178817,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 77,
+    "sound": "voice.original.flandre.adult.c3_contest_threat",
     "variant": "plain"
   },
   {
@@ -178830,8 +178830,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 68,
+    "sound": "voice.original.flandre.juvenile.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -178843,8 +178843,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.flandre.juvenile.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -178856,8 +178856,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 86,
+    "sound": "voice.original.flandre.juvenile.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -178869,8 +178869,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.flandre.adult.c1_contest_won_doll",
     "variant": "proud"
   },
   {
@@ -178882,8 +178882,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.flandre.adult.c2_contest_won_doll",
     "variant": "timid"
   },
   {
@@ -178895,8 +178895,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.flandre.adult.c3_contest_won_doll",
     "variant": "plain"
   },
   {
@@ -178908,8 +178908,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 159,
-    "sound": "",
+    "ticks": 94,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_yield_polite",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -178922,8 +178922,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 92,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_yield_polite",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -178936,8 +178936,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 90,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_yield_polite",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -178950,8 +178950,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 167,
-    "sound": "",
+    "ticks": 110,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_yield_polite",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -178964,8 +178964,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 107,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_yield_polite",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -178978,8 +178978,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 96,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_yield_polite",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -178992,8 +178992,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 72,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_thanks",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179006,8 +179006,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 98,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_thanks",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179020,8 +179020,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 69,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_thanks",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179034,8 +179034,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_thanks",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179048,8 +179048,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 103,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_thanks",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179062,8 +179062,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 83,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_thanks",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179076,8 +179076,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_yield_complain",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179090,8 +179090,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_yield_complain",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179104,8 +179104,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 82,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_yield_complain",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179118,8 +179118,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 101,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_yield_complain",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179132,8 +179132,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_yield_complain",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179146,8 +179146,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 88,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_yield_complain",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179160,8 +179160,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_puff",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179174,8 +179174,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_puff",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179188,8 +179188,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 96,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_puff",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179202,8 +179202,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 73,
+    "sound": "voice.original.myon.miyo.juvenile.c4_contest_puff",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179216,8 +179216,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 85,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_puff",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179230,8 +179230,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 91,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_puff",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179244,8 +179244,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 104,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_puff",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179258,8 +179258,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 78,
+    "sound": "voice.original.myon.miyo.adult.c4_contest_puff",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179272,8 +179272,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 159,
-    "sound": "",
+    "ticks": 98,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_threat",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179286,8 +179286,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 107,
-    "sound": "",
+    "ticks": 74,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_threat",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179300,8 +179300,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 90,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_threat",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179314,8 +179314,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_threat",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179328,8 +179328,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_threat",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179342,8 +179342,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_threat",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179356,8 +179356,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.myon.miyo.juvenile.c1_contest_won_doll",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179370,8 +179370,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 109,
+    "sound": "voice.original.myon.miyo.juvenile.c2_contest_won_doll",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179384,8 +179384,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 103,
+    "sound": "voice.original.myon.miyo.juvenile.c3_contest_won_doll",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179398,8 +179398,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.myon.miyo.adult.c1_contest_won_doll",
     "quirk": "miyo",
     "variant": "proud"
   },
@@ -179412,8 +179412,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 118,
+    "sound": "voice.original.myon.miyo.adult.c2_contest_won_doll",
     "quirk": "miyo",
     "variant": "timid"
   },
@@ -179426,8 +179426,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.myon.miyo.adult.c3_contest_won_doll",
     "quirk": "miyo",
     "variant": "plain"
   },
@@ -179440,8 +179440,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 163,
-    "sound": "",
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179454,8 +179454,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 97,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179468,8 +179468,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179482,8 +179482,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 171,
-    "sound": "",
+    "ticks": 114,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179496,8 +179496,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 113,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179510,8 +179510,8 @@
     "events": [
       "contest_yield_polite"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 101,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_yield_polite",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179524,8 +179524,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_thanks",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179538,8 +179538,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 119,
-    "sound": "",
+    "ticks": 103,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_thanks",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179552,8 +179552,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_thanks",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179566,8 +179566,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 89,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_thanks",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179580,8 +179580,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_thanks",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179594,8 +179594,8 @@
     "events": [
       "contest_thanks"
     ],
-    "ticks": 87,
-    "sound": "",
+    "ticks": 79,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_thanks",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179608,8 +179608,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 143,
-    "sound": "",
+    "ticks": 96,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179622,8 +179622,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179636,8 +179636,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 91,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179650,8 +179650,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 147,
-    "sound": "",
+    "ticks": 108,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179664,8 +179664,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 112,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179678,8 +179678,8 @@
     "events": [
       "contest_yield_complain"
     ],
-    "ticks": 123,
-    "sound": "",
+    "ticks": 96,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_yield_complain",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179692,8 +179692,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 87,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_puff",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179706,8 +179706,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 95,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_puff",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179720,8 +179720,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 115,
-    "sound": "",
+    "ticks": 101,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_puff",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179734,8 +179734,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 95,
-    "sound": "",
+    "ticks": 80,
+    "sound": "voice.original.myon.kinbao.juvenile.c4_contest_puff",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179748,8 +179748,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 92,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_puff",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179762,8 +179762,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 98,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_puff",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179776,8 +179776,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 110,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_puff",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179790,8 +179790,8 @@
     "events": [
       "contest_puff"
     ],
-    "ticks": 91,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.myon.kinbao.adult.c4_contest_puff",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179804,8 +179804,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 163,
-    "sound": "",
+    "ticks": 106,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_threat",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179818,8 +179818,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 111,
-    "sound": "",
+    "ticks": 83,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_threat",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179832,8 +179832,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 139,
-    "sound": "",
+    "ticks": 102,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_threat",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179846,8 +179846,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 155,
-    "sound": "",
+    "ticks": 111,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_threat",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179860,8 +179860,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 99,
-    "sound": "",
+    "ticks": 84,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_threat",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179874,8 +179874,8 @@
     "events": [
       "contest_threat"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 105,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_threat",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179888,8 +179888,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 88,
+    "sound": "voice.original.myon.kinbao.juvenile.c1_contest_won_doll",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179902,8 +179902,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 135,
-    "sound": "",
+    "ticks": 111,
+    "sound": "voice.original.myon.kinbao.juvenile.c2_contest_won_doll",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179916,8 +179916,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 151,
-    "sound": "",
+    "ticks": 112,
+    "sound": "voice.original.myon.kinbao.juvenile.c3_contest_won_doll",
     "quirk": "kinbao",
     "variant": "plain"
   },
@@ -179930,8 +179930,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 131,
-    "sound": "",
+    "ticks": 96,
+    "sound": "voice.original.myon.kinbao.adult.c1_contest_won_doll",
     "quirk": "kinbao",
     "variant": "proud"
   },
@@ -179944,8 +179944,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 120,
+    "sound": "voice.original.myon.kinbao.adult.c2_contest_won_doll",
     "quirk": "kinbao",
     "variant": "timid"
   },
@@ -179958,8 +179958,8 @@
     "events": [
       "contest_won_doll"
     ],
-    "ticks": 127,
-    "sound": "",
+    "ticks": 111,
+    "sound": "voice.original.myon.kinbao.adult.c3_contest_won_doll",
     "quirk": "kinbao",
     "variant": "plain"
   },
