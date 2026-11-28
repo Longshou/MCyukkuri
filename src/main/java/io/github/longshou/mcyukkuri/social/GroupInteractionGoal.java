@@ -73,6 +73,10 @@ public final class GroupInteractionGoal extends Goal {
             case PROTECT -> Behaviors.IDLE;
         };
     }
+    /** The clip the running contest declared for this body (a puff, a ram, a bow, a sulk); null in every other bout. */
+    public YukkuriAction contestPose() {
+        return active() && bout.kind == Kind.CONTEST && bout.contest != null ? entity.reactionAction() : null;
+    }
     public int cooldown() { return cooldown; }
     public String detail() {
         return (!active()?"idle":"kind="+bout.kind
@@ -227,7 +231,7 @@ public final class GroupInteractionGoal extends Goal {
         entity.getLookControl().setLookAt(peer,30,30);
         if(current.kind==Kind.CONTEST) {
             // Stand face-to-face for a stare or a puff; a sumo winner and both fighters step into contact (wide enough that body separation does not restart walking).
-            double contestContact = (entity.getBbWidth() + peer.getBbWidth()) * .5 + .30;
+            double contestContact = Contest.reach(entity, peer);
             if (current.contest.approaching(entity) && entity.distanceToSqr(peer) > contestContact * contestContact) {
                 var stand = SurfaceApproach.beside(entity, peer, contestContact - .10, .25, contestContact);
                 if (stand == null || SurfaceApproach.walkResult(entity, stand, peer, .8) == SurfaceApproach.Result.BLOCKED) {

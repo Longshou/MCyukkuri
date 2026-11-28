@@ -465,7 +465,11 @@ public final class PresentationArbiter {
         if (state.requestedAction() == null && e.isPassenger() && e.social().greeting()
                 && (e.motor().current() == null || e.motor().current().interruptible()))
             pose = new ActionPose(YukkuriAction.GREET, e.social().greetStart());
-        YukkuriAction stationary = actions == Actions.GROUP ? EcologyPresentation.group(behavior) : stationaryAction(state, behavior, actions);
+        // A contest's own beats (the puff, the ram, the bow, the sulk) are the clip the bout declared; the group rows cover every
+        // other group interaction and the bouts with no declared action.
+        YukkuriAction contested = actions == Actions.GROUP ? e.groupInteraction().contestPose() : null;
+        YukkuriAction stationary = contested != null ? contested
+                : actions == Actions.GROUP ? EcologyPresentation.group(behavior) : stationaryAction(state, behavior, actions);
         // Decide walk/idle by actual travel: any translation on the ground shows the walk clip even when pressed against a wall/body;
         // while still travelling (a route or steer in hand), hold the clip through STILL_HOLD ticks of zero travel against one-tick flicker;
         // a body that has stopped shows its standing clip at once. A facility movement is not the body's walk: the facility's declared
@@ -487,6 +491,7 @@ public final class PresentationArbiter {
                 : e.reactionAction() == YukkuriAction.SNEEZE_C && !showWalk && !e.life().isSleeping() && e.life().mealTicks() == 0
                         && e.life().braidMealClip().isEmpty() && !e.playLife().inFacilityMovement() && !e.predator().active()
                 ? YukkuriAction.SNEEZE_C
+                : contested != null ? contested
                 : showWalk ? walking(e, behavior)
                 : stationary;
         String flightAnimation = state.requestedAction() == null && pose == null ? predatorAnimation(e, actions) : null;

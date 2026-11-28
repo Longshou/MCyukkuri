@@ -32,6 +32,8 @@ public final class Contest {
     private static final int PUFF_FIRST = 40, PUFF_EVERY = 40, PUFF_ACTION = 56;
     /** The warning, then two or three short charges; a wounded or winded loser breaks off at once. */
     private static final int ATTACK_THREAT = 10, ATTACK_FIRST = 40, ATTACK_EVERY = 30, ATTACK_ROUNDS = 3;
+    /** One exchange of blows costs both bodies this much wind, the fight's own drain toward the break-off. */
+    private static final int ATTACK_ENERGY = 4;
 
     /** What two bodies contest: the prize owns its own take-over and give-way, the contest owns the performance. */
     public interface Prize {
@@ -56,7 +58,7 @@ public final class Contest {
     private final Level level;
     private final double gap, heat;
     private final int puffRounds;
-    private int elapsed, rounds, endAt;
+    private int elapsed, rounds, endAt, nextStrike;
     private String lastPushedFace = "";
 
     private Contest(YukkuriEntity first, YukkuriEntity second, YukkuriEntity winner, Prize prize, Level level, double gap,
@@ -85,6 +87,11 @@ public final class Contest {
     boolean approaching(YukkuriEntity body) {
         if (level == Level.SUMO_DECIDE) return body == winner && rounds < SUMO_SHOVES;
         return level == Level.ATTACK_DECIDE && elapsed < endAt;
+    }
+
+    /** The distance at which the two bodies really touch: the bout steps in to it and a blow needs it. */
+    static double reach(YukkuriEntity a, YukkuriEntity b) {
+        return (a.getBbWidth() + b.getBbWidth()) * .5 + .30;
     }
 
     /** The one body strength: a contest, a sumo bout and a self-defence all read it. */
@@ -222,7 +229,8 @@ public final class Contest {
     private void sumo(int t) {
         if (t == SUMO_START) {
             beat(winner, null, "sumo_start", "smug", "sumo_start", FaceTier.Tier.SHORT);
-            beat(loser, null, "sumo_start", "smug", "sumo_start", FaceTier.Tier.SHORT);
+            // The challenged body answers the declaration with its own straining cry.
+            beat(loser, null, "sumo_start", "smug", "contest_tussle", FaceTier.Tier.SHORT);
         }
         if (rounds < SUMO_SHOVES && t == SUMO_FIRST_SHOVE + SUMO_SHOVE_EVERY * rounds) shove(t);
     }
@@ -266,15 +274,25 @@ public final class Contest {
         if (t == ATTACK_THREAT) {
             beat(winner, null, "contest_threat", "angry_stare", "contest_threat", FaceTier.Tier.MEDIUM);
         }
-        if (rounds >= ATTACK_ROUNDS || t < ATTACK_FIRST || (t - ATTACK_FIRST) % ATTACK_EVERY != 0) return;
+        if (rounds >= ATTACK_ROUNDS || t < ATTACK_FIRST || t < nextStrike) return;
+        // A blow needs the bodies really touching; the pair keeps stepping in, and the deadline ends a fight they cannot close.
+        double reach = reach(first, second);
+        if (first.distanceToSqr(second) > reach * reach) return;
+        nextStrike = t + ATTACK_EVERY;
+        if (!first.life().spendEnergy(ATTACK_ENERGY) || !second.life().spendEnergy(ATTACK_ENERGY)) {
+            endAt = Math.min(endAt, t + VERDICT_LAG);
+            GameplayLog.event(winner, "social", "contest exhausted prize={} rounds={}/{}", prize.kind(), rounds, ATTACK_ROUNDS);
+            return;
+        }
         rounds++;
         // The lunge is the next beat of the threat's own performance: the same tier, so its face is not dropped by the warning still held.
         beat(winner, YukkuriAction.LUNGE_RAM, "contest_attack", "angry_stare", "", FaceTier.Tier.MEDIUM);
         beat(loser, YukkuriAction.LUNGE_RAM, "contest_attack", "surprise", "", FaceTier.Tier.MEDIUM);
         GroupInteractionGoal.shove(loser, winner, .22);
         boolean hit = loser.hurtInBout(((ServerLevel) first.level()).damageSources().mobAttack(winner), 1);
-        GameplayLog.event(winner, "social", "contest attack round={} hit={} loserHealth={}/{} loserEnergy={}",
-                rounds, hit, loser.getHealth(), loser.getMaxHealth(), loser.life().energy());
+        GameplayLog.event(winner, "social", "contest attack round={} hit={} loserHealth={}/{} loserEnergy={} distance={} winnerEnergy={}",
+                rounds, hit, loser.getHealth(), loser.getMaxHealth(), loser.life().energy(),
+                Math.sqrt(first.distanceToSqr(second)), winner.life().energy());
         boolean broken = loser.getHealth() <= Math.max(3, loser.getMaxHealth() * ContestOdds.FIGHT_HEALTH)
                 || loser.life().energy() < ContestOdds.FIGHT_ENERGY;
         if (broken || rounds == ATTACK_ROUNDS) endAt = Math.min(endAt, t + VERDICT_LAG);
