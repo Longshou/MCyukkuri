@@ -1448,8 +1448,9 @@ public final class FamilyLife {
             }
             var home=earlyHomeStand();
             if(home!=null) {
+                if(startWatchLeave())return true;
                 if(needsBedReturn(home)) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
-                return startWatchLeave();
+                return false;
             }
             // A travelling child that can locate its escort follows the live body before answering an old call.
             if(familyTravelling()){
@@ -1953,6 +1954,8 @@ public final class FamilyLife {
                         :entity.life().navigate(target.blockPosition(),1.15,false)))stop();
             }
             case STAY_HOME -> {
+                var leaving=taskTicks%10==1?tether.leavingParent():null;
+                if(leaving!=null){SurfaceApproach.halt(entity);tether.beginWatchLeave(leaving);task=Task.WATCH_LEAVE;target=leaving;taskTicks=0;return;}
                 var home=earlyHomeStand();
                 if(home==null){stop();return;}
                 var at=FamilyNest.restPosition(entity,home);
