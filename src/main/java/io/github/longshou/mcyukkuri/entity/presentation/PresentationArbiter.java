@@ -157,7 +157,8 @@ public final class PresentationArbiter {
         };
         String clip=e.getAnimationId();
         long start=e.getAnimationStartTick();
-        if (e.species().catchingBreath() && !e.isInWaterOrBubble()
+        // A body out of breath mid-fight pants through its fighting face; only a body at rest from the fight gasps teary (HD-04).
+        if (e.species().catchingBreath() && !e.isInWaterOrBubble() && !e.fighting()
                 && (YukkuriAction.WATER_GASP.id().equals(clip) || e.predatorFlying() && e.species().sprintRequested()
                     || e.onGround() && (YukkuriAction.WADDLE.id().equals(clip) || YukkuriAction.RUN.id().equals(clip))))
             return "teary_pant"; // The face library plays both authored tear frames.
@@ -186,7 +187,8 @@ public final class PresentationArbiter {
         if(e.body().dying())return "blank_cry";
         String leakFace=e.mind().leakFace();
         if(!leakFace.isEmpty())return leakFace;
-        if(e.body().condition().needsPainExpression())return "cry";
+        // Pain outranks the chase, but a body fighting on through one light wound keeps its fighting face (HD-04).
+        if(e.body().condition().needsPainExpression()&&!e.fightsOn())return "cry";
         if(e.life().spicyTicks()>0)return "teary_tongue";
         String linger=state.lingerFace();
         if(!linger.isEmpty())return linger;

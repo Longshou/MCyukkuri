@@ -394,6 +394,38 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (face.isEmpty()) face = keepsake().activityFace();
         return face.isEmpty() ? life.urgeFace() : face;
     }
+    /**
+     * The one this body is trading blows with right now, or null: the accused it is sanctioning, the peer it answers or puffs
+     * back at, or a contest rival it is pushing over a prize. A contest still standing face to face is not yet a fight, a body
+     * in a panic is running from something whatever its sanction still names, and a dangerous species is never in this rule.
+     */
+    public UUID fightingOpponent() {
+        if (isPanicking() || profile().dangerToYukkuri()) return null;
+        if (sanction().active()) return sanction().target().getUUID();
+        UUID defended = groupInteraction().defense().opponent();
+        if (defended != null) return defended;
+        return groupInteraction().contestRival();
+    }
+    public boolean fighting() { return fightingOpponent() != null; }
+    /** The share of its health even the boldest, harshest fighter spends before a hurt breaks its fighting face. */
+    private static final double FIGHT_ON_BUDGET = .65;
+    /**
+     * Whether it is fighting on through the hurt (HD-04): it must be attacking or answering one now, with no burn and no more
+     * than one level-one wound, and the damage within what its nerve can take. Boldness and harshness give that health budget;
+     * the fear it has of this particular opponent takes it away, so a frightened or timid body is in tears again at the first
+     * scratch while a fierce one keeps its angry face down to about .35 health, where its own fight-or-flee gives out. The pain
+     * face and the emotion of the wound both read this one rule.
+     */
+    public boolean fightsOn() {
+        UUID opponent = fightingOpponent();
+        var condition = body().condition();
+        if (opponent == null || condition.burns() > 0 || condition.wound() > 1) return false;
+        var personality = life().personality();
+        var t = personality.temperament();
+        double nerve = .6 * t.boldness() / 100. + .4 * t.selfish();
+        double budget = FIGHT_ON_BUDGET * nerve * (1 - personality.fear(opponent) / 100.);
+        return body().healthRatio() > 1 - budget;
+    }
     public KeepsakeLife keepsake() { return component(YukkuriComponents.KEEPSAKE); }
     public boolean predatorFlying() { return sync().predatorFlying(); }
     public void setPredatorFlying(boolean flying) {

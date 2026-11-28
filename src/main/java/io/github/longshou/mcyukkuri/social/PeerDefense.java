@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.life.EcologyMovement;
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.EnumSet;
+import java.util.UUID;
 import net.minecraft.world.entity.ai.goal.Goal;
 
 /** Transient self-defence owned by the group component; it never reserves the attacker's movement. */
@@ -28,6 +29,8 @@ public final class PeerDefense extends Goal {
     }
 
     public boolean active() { return attacker != null; }
+    /** The peer it answers, or null; a puff-back display faces the same opponent. */
+    public UUID opponent() { return attacker == null ? null : attacker.getUUID(); }
     /** Face while actively fighting or puffing back: fierce for harsh/bold fighters, angry for ordinary defenders. */
     public String activityFace() { return !active() ? "" : puffBack ? "cheek_puff" : fierceAttacker() ? "fierce" : "angry"; }
     private boolean fierceAttacker() {
@@ -111,6 +114,8 @@ public final class PeerDefense extends Goal {
             entity.playLife().stop();
             entity.life().interrupt();
             entity.life().personality().decided("defend_self");
+            // It chose to hit back: the fright this blow raised becomes anger about this attacker instead (HD-04).
+            entity.mind().feeling().fightBack(aggressor.getUUID());
             String face = fierceAttacker() ? "fierce" : "angry";
             if (entity.showReaction(face, "", FaceTier.Tier.MEDIUM)) entity.beat("defense_counter", face, "");
         } else stop();

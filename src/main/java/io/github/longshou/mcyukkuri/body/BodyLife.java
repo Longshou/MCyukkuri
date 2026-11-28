@@ -418,7 +418,8 @@ public final class BodyLife {
                     actual.id(),hit.source().getMsgId(),hit.source().getEntity()==null?"none":hit.source().getEntity().getUUID());
             hitParticles(strike,hit.source());
             if(BodySigns.open(placed)&&!hit.source().is(DamageTypeTags.IS_FIRE))emitWound("hit",loss,placed);
-            if(entity.isAlive())entity.mind().felt(EmotionEvent.WOUND_DISTRESS);
+            // A body fighting on answers a light wound with anger, not fright (YukkuriEntity#fightsOn, HD-04).
+            if(entity.isAlive())entity.mind().wounded(entity.fightsOn());
             // Human staff never break a bystander by their own violence; the player still can.
             witnessInjury(hit.source().getEntity() instanceof HumanNpc ? Naming.NAMING_CEILING : 100,hit.source().getEntity());
         }

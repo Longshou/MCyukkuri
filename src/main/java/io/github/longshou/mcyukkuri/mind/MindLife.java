@@ -176,7 +176,13 @@ public final class MindLife {
     public void feltBelow(EmotionEvent event, float ceiling) { felt(event, false, null, ceiling); }
     /** The same real event and cooldown, but as pressure intrinsic to the slave's pit conditions. */
     public void feltSlavePressure(EmotionEvent event) { felt(event, true, null, 100); }
+    /** A real wound on the body. One still fighting on answers it with anger instead of taking fright (YukkuriEntity#fightsOn). */
+    public void wounded(boolean fightingOn) { felt(EmotionEvent.WOUND_DISTRESS, false, null, 100, fightingOn); }
     private void felt(EmotionEvent event, boolean slavePressure, ExcitedLeak.Stimulus spike, float ceiling) {
+        felt(event, slavePressure, spike, ceiling, false);
+    }
+    /** {@code fightBack}: the wound landed on a body fighting on, so its anger at the attacker answers it instead of a fright. */
+    private void felt(EmotionEvent event, boolean slavePressure, ExcitedLeak.Stimulus spike, float ceiling, boolean fightBack) {
         if (entity.level().isClientSide) return;
         long now = entity.level().getGameTime();
         Long until = eventCooldown.get(event.bucket);
@@ -185,7 +191,10 @@ public final class MindLife {
             leak.spike(spike, now);
         // The unease cooldown limits relief; a fresh event can still renew the feeling.
         var eventCourse = event.course;
-        if (eventCourse != null && !entity.life().isSleeping()) feeling.begin(eventCourse.kind(), eventCourse.power(), null, null);
+        if (eventCourse != null && !entity.life().isSleeping()) {
+            if (fightBack && eventCourse.kind() == EmotionCourse.Kind.TERROR) feeling.fightBack(entity.fightingOpponent());
+            else feeling.begin(eventCourse.kind(), eventCourse.power(), null, null);
+        }
         if (until != null && until > now) return;
         if (event.cooldown > 0) eventCooldown.put(event.bucket, now + event.cooldown);
         float delta = event.delta > 0 ? Math.min(event.delta, Math.max(0, ceiling - unease)) : event.delta;

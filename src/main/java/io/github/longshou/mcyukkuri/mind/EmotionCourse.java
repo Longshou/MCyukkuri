@@ -262,6 +262,19 @@ public final class EmotionCourse {
     /** The face a course of {@code kind} opens with (its onset and peak). */
     public static String onsetFace(Kind kind) { return Stage.ONSET.face(kind); }
 
+    /**
+     * Anger answering a blow the body fights on through (HD-04): the anger starts or renews, and a fright still in its onset,
+     * the one this same blow just raised, gives way to it. A heavier hurt, low health or a real fear of this opponent is not
+     * fought on ({@link YukkuriEntity#fightsOn}), so its fright stays.
+     */
+    public boolean fightBack(UUID by) {
+        if (kind == Kind.TERROR && stage() == Stage.ONSET) {
+            GameplayLog.event(entity, "emotion", "course ended kind=terror overtaken=fight about={}", about);
+            clear();
+        }
+        return begin(Kind.RAGE, EmotionEvent.WOUND_DISTRESS.course.power(), by, entity.blockPosition());
+    }
+
     /** A real danger starts the course immediately; panic owns the presentation of the flight. */
     public void frightened(float power) {
         LivingEntity threat = entity.getLastHurtByMob();
@@ -447,9 +460,13 @@ public final class EmotionCourse {
         };
         String face = kind == Kind.GRIEF ? "teary_smile" : "satisfied";
         GameplayLog.event(entity, "emotion", "course ended kind={} length={} about={}", kind.name().toLowerCase(Locale.ROOT), length, about);
+        clear();
+        if (closing != null && calm()) entity.showReaction(face, closing, FaceTier.Tier.MEDIUM);
+    }
+
+    private void clear() {
         kind = null; strength = 0; length = elapsed = 0; about = null; where = null;
         griefFocus = null;
-        if (closing != null && calm()) entity.showReaction(face, closing, FaceTier.Tier.MEDIUM);
     }
 
     // ---- save --------------------------------------------------------------------------------------------------------------------

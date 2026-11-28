@@ -21,6 +21,7 @@ import io.github.longshou.mcyukkuri.settlement.SettlementSociety;
 import io.github.longshou.mcyukkuri.social.YukkuriPersonality.Trait;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -55,6 +56,11 @@ public final class GroupInteractionGoal extends Goal {
     public boolean active() { return bout!=null&&!bout.ended; }
     /** Verified contact already accumulated by the running bout; observation only. */
     public int contactProgress() { return active() ? bout.contactTicks : 0; }
+    /** The other body of a contest whose push has begun, or null; standing face to face is not yet a fight. */
+    public UUID contestRival() {
+        if (!active() || bout.kind != Kind.CONTEST || bout.contest == null || !bout.contest.tussling()) return null;
+        return (entity == bout.first ? bout.second : bout.first).getUUID();
+    }
     public String activity() {
         if (!active()) return Behaviors.IDLE;
         if (defending) return Behaviors.PROTECT_PEER;
