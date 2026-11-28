@@ -188,8 +188,8 @@ public final class DrivenOut extends Goal implements MotorOwner {
 
     private void stopStepInMotor(String why) {
         if (stepInAction != null) {
-            if (entity.motor().owner() == this) entity.motor().cancel(this, why);
             stepInAction = null;
+            if (entity.motor().owner() == this) entity.motor().cancel(this, why);
         }
     }
 
@@ -683,8 +683,9 @@ public final class DrivenOut extends Goal implements MotorOwner {
     }
 
     @Override public void stop() {
-        stopStepInMotor("driven_out_stop");
-        if (phase == Phase.NONE && stepIn != StepIn.NONE && stepIn != StepIn.DONE) {
+        boolean breathPause = phase == Phase.NONE && stepIn == StepIn.WALKING && entity.species().catchingBreath();
+        stopStepInMotor(breathPause ? "catching_breath" : "driven_out_stop");
+        if (!breathPause && phase == Phase.NONE && stepIn != StepIn.NONE && stepIn != StepIn.DONE) {
             GameplayLog.event(entity, "family", "driven out sibling stepin fallback child={} reason=interrupted phase={}", watchChild, stepIn);
             stepIn = StepIn.DONE;
         }

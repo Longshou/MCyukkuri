@@ -986,7 +986,7 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
 _SEVER_SEATS = ((2, 'HEAD'), (3, 'BRIM'))
 
 
-def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=8.0, first=80, far_sibling=False, child2_traits=None, step_in=None):
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=5.0, first=80, far_sibling=False, child2_traits=None, step_in=None):
     # The driven-out young is the one that has already learnt to crawl: it walks out at its own gait and can live as a stray at
     # once (a newborn that never practised crawling stays where it is put, and the severance shows nothing).
     actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits,
@@ -995,13 +995,14 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
     if far_sibling:
         far_actor = 'normal_far'
         # Third young 15 blocks west of the straight west bank (inside parent's 24-block search, beyond 12-block sight and
-        # behind a 3-high stone wall) at its own assigned nest with water and apples so it stays safely at home (no lost_parent
-        # or search_abandoned severance) and misses the departure.
+        # behind a 3-high stone wall) at its own covered assigned nest with water and apples so it stays safely at home
+        # (no lost_parent or search_abandoned severance) and misses the departure.
         actors += [
             box(bank_dx(0) - 14, 0, -2, bank_dx(0) - 14, 2, 2, 'minecraft:stone'),
             box(bank_dx(0) - 17, 0, -1, bank_dx(0) - 17, 1, 1, 'minecraft:oak_fence'),
             box(bank_dx(0) - 17, 0, -2, bank_dx(0) - 15, 1, -2, 'minecraft:oak_fence'),
             box(bank_dx(0) - 17, 0, 2, bank_dx(0) - 15, 1, 2, 'minecraft:oak_fence'),
+            box(bank_dx(0) - 17, 2, -2, bank_dx(0) - 15, 2, 2, 'minecraft:oak_planks'),
             block(bank_dx(0) - 16, 0, 0, 'mcyukkuri:yukkuri_nest'),
             block(bank_dx(0) - 16, 0, -1, 'mcyukkuri:waterer{Water:8}'),
             item('minecraft:apple', 2, bank_dx(0) - 16, 1, 'far_food'),
@@ -1032,7 +1033,7 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
 
 _severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
                  '翻船后含泪亲油赶走最大孩子：孩子先震惊再哀求，被转身拒绝后含泪走远断亲；依恋但不大胆的手足留在原地哭泣目送，墙后在窝边的远手足无反应且不被断亲',
-                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True, child2_traits=_SIB_SORROW, step_in=False)
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', first=80, far_sibling=True, child2_traits=_SIB_SORROW, step_in=False)
 _severance_scene('hat_sever_cold', '超载断亲：冷淡推开与手足拦阻',
                  '翻船后冷淡亲油赶走最大孩子：高依恋大胆的手足上前挡在中间求情，被冷淡亲油喝退轻推回后仍不改判；被逐孩子哀求被推开，怒骂走远断亲',
                  'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead', child2_traits=_SIB_PROTEST, step_in='NUDGE_BACK')
