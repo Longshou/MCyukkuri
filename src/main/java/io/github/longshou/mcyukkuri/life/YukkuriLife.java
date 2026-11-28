@@ -2375,12 +2375,10 @@ public final class YukkuriLife {
     /**
      * The verdict of a food contest played at the portion: the winner plans its meal again after its smug beat and takes the portion
      * the way an uncontested arrival does; the loser lets this portion be for a while (the search goes on to other food) and eats later.
-     * As the real quarrel of a claim, both bodies are left a record of each other (the makeup of {@link YukkuriSocial}).
      */
     public void foodVerdict(ItemEntity food, boolean won, UUID rival) {
         planWait = Contest.GLOAT_TICKS;
         if (won) return;
-        if (level().getEntity(rival) instanceof YukkuriEntity winner) YukkuriSocial.quarrelled(entity, winner);
         rejectedFood.reject(food.getUUID(), level().getGameTime(), entity.getX(), entity.getZ());
         GameplayLog.event(entity, "meal", "yielded contested food item={} at={} rival={} nutrition={}", food.getItem().getItem(), food.blockPosition(), rival, nutrition);
     }

@@ -57,6 +57,7 @@ public final class Contest {
     private final double gap, heat;
     private final int puffRounds;
     private int elapsed, rounds, endAt;
+    private String lastPushedFace = "";
 
     private Contest(YukkuriEntity first, YukkuriEntity second, YukkuriEntity winner, Prize prize, Level level, double gap,
             double heat, int puffRounds) {
@@ -233,14 +234,13 @@ public final class Contest {
             return;
         }
         rounds++;
-        var pusher = might(first) >= might(second) ? first : second;
-        var pushed = pusher == first ? second : first;
-        GroupInteractionGoal.shove(pushed, pusher, rounds == SUMO_SHOVES ? .13 : .07);
-        var pp = pushed.life().personality();
-        String face = ContestOdds.sumoPushedFace(pp.boldness(), pp.selfControl(), "", pushed.getRandom().nextDouble());
-        pushed.forceReaction(face, "", FaceTier.Tier.SHORT);
-        pushed.beat("sumo_pushed_back", face, "");
-        GameplayLog.event(pushed, "social", "sumo pushed_back face={} round={} pusher={}", face, rounds, pusher.getUUID());
+        GroupInteractionGoal.shove(loser, winner, rounds == SUMO_SHOVES ? .13 : .07);
+        var pp = loser.life().personality();
+        String face = ContestOdds.sumoPushedFace(pp.boldness(), pp.selfControl(), lastPushedFace, loser.getRandom().nextDouble());
+        lastPushedFace = face;
+        loser.forceReaction(face, "", FaceTier.Tier.SHORT);
+        loser.beat("sumo_pushed_back", face, "");
+        GameplayLog.event(loser, "social", "sumo pushed_back face={} round={} pusher={}", face, rounds, winner.getUUID());
         // The decisive last shove ends the bout at once; its win and push-out beats are the ending's.
         if (rounds == SUMO_SHOVES) endAt = Math.min(endAt, t + VERDICT_LAG);
     }
@@ -338,7 +338,8 @@ public final class Contest {
     /** The sumo's own end, the same win and push-out beats the friendly bout plays. */
     private void sumoEnd() {
         var lp = loser.life().personality();
-        String endFace = ContestOdds.sumoPushedFace(lp.boldness(), lp.selfControl(), "", loser.getRandom().nextDouble());
+        String endFace = ContestOdds.sumoPushedFace(lp.boldness(), lp.selfControl(), lastPushedFace, loser.getRandom().nextDouble());
+        lastPushedFace = endFace;
         deferredBeat(winner, YukkuriAction.SUMO_WIN, "sumo_win", "smug", "sumo_win", FaceTier.Tier.MEDIUM);
         deferredBeat(loser, YukkuriAction.SUMO_PUSH_OUT, "sumo_push_out", endFace, "sumo_lose", FaceTier.Tier.MEDIUM);
         GameplayLog.event(winner, "social", "sumo completed prize={} winner={} loser={} winnerHealth={} loserHealth={} loserFace={}",

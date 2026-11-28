@@ -413,19 +413,19 @@ public final class KeepsakeLife implements MotorOwner {
             stop();
         } else {
             cooldown = Contest.GLOAT_TICKS;
-            if (doll.isAlive() && phase == Phase.IDLE && carried().isEmpty()) beginCarry(doll);
+            if (doll.isAlive() && phase == Phase.IDLE && carried().isEmpty()) beginCarry(doll, Contest.GLOAT_TICKS);
         }
         GameplayLog.event(entity, "keepsake", "contested doll={} won={} rival={} attachment={}",
                 doll.getUUID(), won, rival, entity.life().personality().attachment());
     }
 
-    /** Sets out for a doll already chosen by a contest, the walk and pick being the ordinary fetch. */
-    private void beginCarry(PlacedDollEntity doll) {
+    /** Sets out for a doll already chosen by a contest, the walk and pick being the ordinary fetch after the gloat beat. */
+    private void beginCarry(PlacedDollEntity doll, int waitTicks) {
         target = doll;
         dropSpot = null;
         phase = Phase.CARRY_OFF;
         elapsed = 0;
-        noticeTicks = 0;
+        noticeTicks = waitTicks;
         picking = false;
         placing = false;
         carryLogged = false;

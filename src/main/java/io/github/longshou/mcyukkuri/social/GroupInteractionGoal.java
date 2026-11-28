@@ -204,9 +204,11 @@ public final class GroupInteractionGoal extends Goal {
         return false;
     }
     private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&(bout.kind==Kind.CONTEST?stillContesting(e):available(e)); }
-    /** A running contest outlasts the wounds it deals: only death, panic, sleep or fire and water end it early. */
+    /** A running contest outlasts the wounds it deals: only death, dying, panic, sleep, commands, operations, events, defense or fire and water end it early. */
     private static boolean stillContesting(YukkuriEntity e) {
-        return e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.life().isSleeping()&&!e.isOnFire()&&!e.isInWaterOrBubble();
+        return e.isAlive()&&!e.isRemoved()&&!e.body().dying()&&!e.isPanicking()&&!e.life().isSleeping()
+                &&!e.isOnFire()&&!e.isInWaterOrBubble()&&!e.isCommandPlaying()&&!e.operations().active()
+                &&!WildEvents.reserved(e)&&!e.groupInteraction().defense().active();
     }
     private boolean valid() {
         if(active()&&level().getGameTime()-bout.created>=STALE)return false;
