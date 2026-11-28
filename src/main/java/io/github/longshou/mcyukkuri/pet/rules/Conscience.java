@@ -175,7 +175,7 @@ public final class Conscience {
     }
 
     /** Movement/look hold while this pet is playing its rule-change or witness answer, so roaming does not waddle away mid-bow. */
-    boolean answeringRule() {
+    public boolean answeringRule() {
         if (answerHoldUntil <= 0) return false;
         long now = pet.level().getGameTime();
         if (now >= answerHoldUntil || !pet.isAlive() || !pet.pet().calm() || catchPending() || penance != null

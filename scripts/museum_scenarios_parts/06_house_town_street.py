@@ -1253,11 +1253,11 @@ def arc_boast_check(log, trace, mother):
 
 
 def _answer_boast():
-    """Owner lets the boasting mother deliver boast_show + boast_expect (~180 ticks beside owner), then scolds her."""
+    """Owner lets the boasting mother deliver boast_show + boast_expect (~220 ticks beside owner), then scolds her."""
     steps = [(1, 'scoreboard players set #ab_near museum 0'), (1, 'scoreboard players set #ab_done museum 0')]
     for tick in range(20, 880, 4):
         steps.append((tick, f'execute as {sel("pet")} at @s if entity @a[name=MuseumOperator,distance=..2.2] run scoreboard players add #ab_near museum 1'))
-        steps.append((tick + 1, f'execute if score #ab_near museum matches 45.. if score #ab_done museum matches 0 store result score #ab_done museum '
+        steps.append((tick + 1, f'execute if score #ab_near museum matches 60.. if score #ab_done museum matches 0 store result score #ab_done museum '
                                 f'run yukkuri scenario care_click {sel("pet")} cold'))
     return steps
 

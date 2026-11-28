@@ -6,6 +6,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.mind.EmotionEvent;
+import io.github.longshou.mcyukkuri.life.Duty;
 import io.github.longshou.mcyukkuri.life.Sweets;
 import io.github.longshou.mcyukkuri.life.YukkuriLife;
 import io.github.longshou.mcyukkuri.life.NeedWarnings;
@@ -134,7 +135,8 @@ public final class PetRequests {
         var pet = animal.pet();
         if (!pet.isPet()) { expiredNeeds = 0; return; }
         observeRelief();
-        if (pet.busy() || !pet.calm() || pet.lessons().awaitingFeedback() || pet.care().habitWindow()) return;
+        if (pet.busy() || !pet.calm() || pet.lessons().awaitingFeedback() || pet.care().habitWindow()
+                || pet.conscience().answeringRule() || animal.duty().holds(Duty.Kind.RULES)) return;
         long now = animal.level().getGameTime();
         int cooldown = COOLDOWN * (sulked ? 3 : 1);
         if (now - lastAt < cooldown || today >= PER_DAY) return;
