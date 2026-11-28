@@ -345,12 +345,16 @@ public final class DrivenOut extends Goal implements MotorOwner {
             var via = Senses.perceives(sibling, parent.getEyePosition(), null, Cue.DEPARTURE_CRY);
             if (via == null) continue;
             var t = sibling.life().personality().temperament();
-            if (sibling.isInWaterOrBubble() || sibling.isPassenger()) {
+            if (sibling.isInWaterOrBubble()) {
                 if (SeveranceReaction.siblingStepsIn(t)) {
-                    GameplayLog.event(sibling, "family", "driven out sibling stepin skipped child={} reason={}",
-                            child.getUUID(), sibling.isInWaterOrBubble() ? "in_water" : "aboard");
+                    GameplayLog.event(sibling, "family", "driven out sibling stepin skipped child={} reason=in_water",
+                            child.getUUID());
                 }
                 continue;
+            }
+            if (sibling.isPassenger() && SeveranceReaction.siblingStepsIn(t)) {
+                GameplayLog.event(sibling, "family", "driven out sibling stepin skipped child={} reason=aboard",
+                        child.getUUID());
             }
             var stance = SeveranceReaction.siblingStance(t);
             sibling.getLookControl().setLookAt(parent, 30, 30);
@@ -359,8 +363,8 @@ public final class DrivenOut extends Goal implements MotorOwner {
             watch(sibling, parent, child, stance.verdictFace(), now + verdictTicks + 20);
             GameplayLog.event(sibling, "family", "driven out sibling witnessed verdict child={} stance={} via={}",
                     child.getUUID(), stance, via);
-            if (SeveranceReaction.siblingStepsIn(t) && !sibling.isPanicking() && !sibling.operations().active()
-                    && !sibling.life().hasUrgentNeed()) {
+            if (SeveranceReaction.siblingStepsIn(t) && !sibling.isPassenger() && !sibling.isPanicking()
+                    && !sibling.operations().active() && !sibling.life().hasUrgentNeed()) {
                 double d = sibling.distanceToSqr(parent);
                 if (d < bestDist) { bestDist = d; intercessor = sibling; }
             }

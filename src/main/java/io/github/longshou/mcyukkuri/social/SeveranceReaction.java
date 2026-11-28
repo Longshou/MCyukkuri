@@ -91,7 +91,7 @@ public final class SeveranceReaction {
     public enum ParentStepInAnswer {
         /** Tearful, warm or attached parent: gently soothes the sibling through tears, yet still cannot undo the severance. */
         SOOTHE("stepin_soothe", "teary", YukkuriAction.MOOD_DROOP, "parent_stepin_soothe"),
-        /** Harsh and impulsive or bold parent: glares and physically nudges the sibling back via shared Push (or flicks if no dry step). */
+        /** Impulsive or bold parent: glares and physically nudges the sibling back via shared Push (or flicks if no dry step). */
         NUDGE_BACK("stepin_nudge", "angry", null, "parent_stepin_nudge"),
         /** Cold and self-controlled/calm parent: flicks away and brushes the plea off without touching the sibling. */
         IGNORE("stepin_ignore", "hmph", YukkuriAction.MOOD_FLICK, "parent_stepin_ignore");
