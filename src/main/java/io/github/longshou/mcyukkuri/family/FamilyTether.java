@@ -256,7 +256,7 @@ final class FamilyTether {
                 || traits.is(Temperament.Gate.TIMID) || traits.is(Temperament.Gate.ATTACHED) ? "teary" : "open_smile";
         double distance = round(Math.sqrt(e.distanceToSqr(parent)));
         boolean shown = e.showWithDeferredLine(YukkuriAction.GREET, YukkuriAction.GREET.durationTicks(),
-                face, "wait_family", FaceTier.Tier.SHORT, 0,
+                face, "wait_family", FaceTier.Tier.MEDIUM, 2,
                 result -> GameplayLog.event(e, "family",
                         "tether young watches a caregiver leave parent={} distance={} face={} spoken={}",
                         id, distance, face, result.spoken()));
@@ -280,12 +280,18 @@ final class FamilyTether {
                 || e.groupInteraction().active() || o.carryingOrLifting()) return null;
         long now = o.level().getGameTime();
         if (now < nextWatch) return null;
-        nextWatch = now + WATCH + e.getRandom().nextInt(WATCH);
         // An unloving parent does not look: cold (low caring) or harsh (selfish) leaves its young to its own wander.
         var traits = e.life().personality().temperament();
-        if (!traits.is(Temperament.Gate.KINDLY) || traits.is(Temperament.Gate.HARSH)) return null;
+        if (!traits.is(Temperament.Gate.KINDLY) || traits.is(Temperament.Gate.HARSH)) {
+            nextWatch = now + WATCH;
+            return null;
+        }
         var child = driftingChild();
-        if (child == null) return null;
+        if (child == null) {
+            nextWatch = now + 60;
+            return null;
+        }
+        nextWatch = now + WATCH + e.getRandom().nextInt(WATCH);
         double watchful = .6 * traits.caring() + .4 * traits.patient();
         if (e.getRandom().nextDouble() >= watchful) return null;
         var band = band(child);
