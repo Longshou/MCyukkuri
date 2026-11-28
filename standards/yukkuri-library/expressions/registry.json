@@ -441,6 +441,9 @@
     "fierce": {
       "kind": "standard"
     },
+    "frozen": {
+      "kind": "standard"
+    },
     "afraid": {
       "kind": "derived",
       "builder": "standards/yukkuri-library/expressions/derived/faces.py",

@@ -21,8 +21,8 @@ import net.minecraft.nbt.CompoundTag;
 /** Server presentation: fixed physical takeovers, persistent states, then actual running Goal order. */
 public final class PresentationArbiter {
     private static final String EMOTION_GOAL = "goal." + PresentationGoals.EMOTION.id();
-    /** The placeholder face of a body frozen stiff: the closed-eyes face of sleep. */
-    private static final String STIFF_FACE = "sleep";
+    /** The frozen face of a body stiffened by the cold (frost-rimmed closed eyes, chilled blue lips). */
+    private static final String STIFF_FACE = "frozen";
     private final PresentationAccess state;
     // Observation only, never loaded or used by gameplay. Serialization shares the D4 view gate.
     private String lastSource;
@@ -141,7 +141,7 @@ public final class PresentationArbiter {
     /** Walks {@link FacePrecedence} top to bottom: the first source with a face wins. */
     private String face(String source){
         var e=state.owner();
-        // A stiff body keeps its eyes shut whatever else paints a face (the frost face is art, wp-cold-stiff-p2).
+        // A stiff body keeps its frost-rimmed closed eyes whatever else paints a face.
         if(e.coldStiff())return STIFF_FACE;
         if(e.operations().active())return switch(e.operations().pose()){
             case HAT_REMOVE->"teary";
@@ -171,6 +171,8 @@ public final class PresentationArbiter {
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"teary");
         if(YukkuriAction.SNEEZE_C.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"neutral");
+        if((YukkuriAction.COLD_THAW.id().equals(clip)||YukkuriAction.COLD_CURL.id().equals(clip))&&!e.body().dying())
+            return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"cold");
         if(YukkuriAction.STAMP.id().equals(clip))
             return ExpressionClips.sample(e.subspecies().assetId(),clip,Math.max(0,e.level().getGameTime()-start)/20f,"angry");
         if(YukkuriAction.REJECT_OR_SPIT.id().equals(clip)||YukkuriAction.SPIT_ALONE.id().equals(clip))
@@ -255,9 +257,14 @@ public final class PresentationArbiter {
     private void presentOrdinary(Motion motion) {
         var e = state.owner();
         var running = state.runningGoals(); // Exactly one snapshot; never ask canUse/continue/plan here.
-        // Frozen stiff by the cold: nothing else of the body is running. The placeholder pose is the shiver clip (the frozen pose is art, wp-cold-stiff-p2).
+        // Frozen stiff by the cold: nothing else of the body is running; hold the rigid curled pose inside the ice shell.
         if (e.coldStiff()) {
-            publishOrdinary("state.cold_stiff", motion, Behaviors.COLD_SHIVER, Actions.ORDINARY);
+            publishOrdinary("state.cold_stiff", motion, Behaviors.COLD_STIFF, Actions.ORDINARY);
+            return;
+        }
+        // Post-thaw recovery performance (still yields to walk/panic/water/fire/dying).
+        if (e.life().temperature().thawingPose() && !e.isInWaterOrBubble() && !e.isOnFire() && !e.body().dying()) {
+            publishOrdinary("state.cold_thaw", motion, Behaviors.COLD_THAW, Actions.ORDINARY);
             return;
         }
         if (!running.contains(PresentationGoals.MIND) && e.mind().active()) {
@@ -474,7 +481,7 @@ public final class PresentationArbiter {
         // while still travelling (a route or steer in hand), hold the clip through STILL_HOLD ticks of zero travel against one-tick flicker;
         // a body that has stopped shows its standing clip at once. A facility movement is not the body's walk: the facility's declared
         // behaviour keeps its own clip for the whole movement.
-        boolean showWalk = !e.life().isSleeping() && !e.playLife().inFacilityMovement() && (
+        boolean showWalk = !e.coldStiff() && !e.life().isSleeping() && !e.playLife().inFacilityMovement() && (
                 m.distanceSquared() > 0.000001 && e.onGround()
                 || holdWalk && stationary == YukkuriAction.IDLE);
         YukkuriAction action = state.requestedAction() != null ? state.requestedAction()
@@ -611,9 +618,11 @@ public final class PresentationArbiter {
         }
         if (reaction == YukkuriAction.COUGH_MUKYU && e.life().mealTicks() > 0) return reaction;
         if(behavior.equals(Behaviors.IDLE)||behavior.equals(Behaviors.TEND_BROOD)){
+            if(e.life().temperature().curlingCold())return YukkuriAction.COLD_CURL;
             if(e.family().stemDepletionWarning())return YukkuriAction.TREMBLE;
             if(e.aftermathDrain()==3)return YukkuriAction.DROOP;
         }
+        if(behavior.equals(Behaviors.COLD_SHIVER)&&e.life().temperature().curlingCold())return YukkuriAction.COLD_CURL;
         // A real successful conception gets a brief response before ordinary brooding resumes.
         // Food, sleep, danger, movement and other active duties retain their own presentation.
         if(state.reactionTicks()>60&&state.reactionEvent().equals("expecting")

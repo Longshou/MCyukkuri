@@ -497,9 +497,122 @@ def leash_rope():
     return image
 
 
+def cold_stiff_ice():
+    """64x64 translucent bevelled ice-shell atlas (2x2 tiles of 32x32): clean ice (0,0) and chisel crack stages 1..3."""
+    sheet = Image.new('RGBA', (64, 64))
+    # Base frosted translucent ice tile (32x32): clearer oval center so the frozen face reads cleanly, frosted rim + diagonal ice glints.
+    base = Image.new('RGBA', (32, 32))
+    for y in range(32):
+        for x in range(32):
+            edge = min(x, y, 31 - x, 31 - y)
+            # Subtle deterministic crystalline variation (no external RNG)
+            h = ((x * 73 ^ y * 151 ^ (x + y) * 37) & 15) - 7
+            # Distance from center face window
+            dx = (x - 15.5) / 11.0
+            dy = (y - 16.0) / 10.5
+            r2 = dx * dx + dy * dy
+            if edge == 0:
+                r, g, b, a = 242, 251, 255, 212
+            elif edge == 1:
+                r, g, b, a = 218, 241, 253, 182
+            elif edge == 2:
+                r, g, b, a = 198, 232, 249, 146
+            else:
+                # Clearer face window in the center, subtly frostier toward the outer frame
+                a = 84 if r2 < 0.72 else (98 if r2 < 1.15 else 118)
+                r = 186 + h // 2
+                g = 228 + h // 2
+                b = 248 + (h // 3)
+                # Crisp Minecraft-style diagonal ice specular streaks (avoiding the center face oval)
+                d1 = x + y
+                if (d1 in (12, 13) and 4 <= x <= 10) or (d1 in (16,) and 5 <= x <= 11):
+                    r, g, b, a = 242, 252, 255, 178
+                elif (d1 in (46, 47) and 21 <= x <= 27) or (d1 in (42,) and 20 <= x <= 26):
+                    r, g, b, a = 236, 250, 255, 162
+                elif (x - y) in (17, 18) and 21 <= x <= 27 and 3 <= y <= 9:
+                    r, g, b, a = 232, 248, 255, 152
+            base.putpixel((x, y), (max(0, min(255, r)), max(0, min(255, g)), max(0, min(255, b)), a))
+
+    # Jagged chisel fracture polylines in 32x32 tile space for stages 1, 2, 3 (cumulative, high-contrast fissure + bright frost stress edge).
+    cracks_1 = [
+        [(28, 4), (24, 7), (21, 9), (18, 12), (16, 13)],
+        [(24, 7), (23, 11), (25, 14)],
+        [(4, 26), (8, 23), (11, 22), (13, 19)],
+    ]
+    cracks_2 = cracks_1 + [
+        [(16, 13), (12, 15), (9, 14), (5, 16), (3, 18)],
+        [(18, 12), (19, 17), (22, 20), (26, 24), (28, 27)],
+        [(13, 19), (16, 21), (15, 25), (17, 29)],
+        [(12, 4), (13, 8), (15, 11), (16, 13)],
+    ]
+    cracks_3 = cracks_2 + [
+        [(3, 6), (7, 9), (10, 11), (12, 15)],
+        [(29, 16), (25, 17), (22, 20)],
+        [(21, 9), (26, 11), (29, 10)],
+        [(9, 14), (8, 19), (8, 23)],
+        [(19, 17), (16, 21), (21, 24), (20, 29)],
+        [(11, 22), (14, 26), (10, 29)],
+    ]
+
+    def bresenham(p0, p1):
+        x0, y0 = p0
+        x1, y1 = p1
+        dx, dy = abs(x1 - x0), -abs(y1 - y0)
+        sx, sy = (1 if x0 < x1 else -1), (1 if y0 < y1 else -1)
+        err = dx + dy
+        pts = []
+        while True:
+            pts.append((x0, y0))
+            if x0 == x1 and y0 == y1:
+                break
+            e2 = 2 * err
+            if e2 >= dy:
+                err += dy; x0 += sx
+            if e2 <= dx:
+                err += dx; y0 += sy
+        return pts
+
+    def apply_cracks(tile_im, lines, stage):
+        out = tile_im.copy()
+        core = set()
+        for poly in lines:
+            for a, b in zip(poly, poly[1:]):
+                core.update(bresenham(a, b))
+        # Subtle cloudy frost stress halo around fractures at stages 2..3
+        if stage >= 2:
+            for cx, cy in core:
+                for ox in (-2, -1, 0, 1, 2):
+                    for oy in (-2, -1, 0, 1, 2):
+                        if ox * ox + oy * oy > 2:
+                            continue
+                        nx, ny = cx + ox, cy + oy
+                        if 1 <= nx < 31 and 1 <= ny < 31 and (nx, ny) not in core:
+                            pr, pg, pb, pa = out.getpixel((nx, ny))
+                            boost = 22 if stage == 2 else 42
+                            out.putpixel((nx, ny), (min(255, pr + 22), min(255, pg + 14), min(255, pb + 6), min(220, pa + boost)))
+        # Bright frost-white splinter highlight offset by (+1, +1)
+        glint = (248, 254, 255, 225 if stage == 1 else (238 if stage == 2 else 248))
+        for cx, cy in core:
+            nx, ny = cx + 1, cy + 1
+            if 1 <= nx < 31 and 1 <= ny < 31 and (nx, ny) not in core:
+                out.putpixel((nx, ny), glint)
+        # Deep crisp glacial fissure core
+        fissure = (54, 96, 136, 228) if stage == 1 else ((42, 80, 118, 240) if stage == 2 else (32, 66, 104, 250))
+        for cx, cy in core:
+            if 0 <= cx < 32 and 0 <= cy < 32:
+                out.putpixel((cx, cy), fissure)
+        return out
+
+    sheet.paste(base, (0, 0))
+    sheet.paste(apply_cracks(base, cracks_1, 1), (32, 0))
+    sheet.paste(apply_cracks(base, cracks_2, 2), (0, 32))
+    sheet.paste(apply_cracks(base, cracks_3, 3), (32, 32))
+    return sheet
+
+
 def outputs():
     out = {SNAPSHOT / 'swaddle_leaf_wear.png': png(leaf_sheet()), SNAPSHOT / 'swaddle_trim.png': png(trim_sheet()),
-           SNAPSHOT / 'leash_rope.png': png(leash_rope())}
+           SNAPSHOT / 'leash_rope.png': png(leash_rope()), SNAPSHOT / 'cold_stiff_ice.png': png(cold_stiff_ice())}
     for name, draw in FABRICS.items():
         out[SNAPSHOT / 'swaddle' / f'{name}.png'] = png(tile(draw))
     return out

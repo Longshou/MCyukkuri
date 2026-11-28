@@ -1310,5 +1310,45 @@
       12
     ],
     "sha256": "7e231d7efeeb7c0753f6a17ad8660e0993ce41ec8f78fc7f5f8140ab262fcbcb"
+  },
+  "a5e75e828d08ff66673b": {
+    "path": "expressions/parts/a5e75e828d08ff66673b.png",
+    "size": [
+      15,
+      12
+    ],
+    "sha256": "d8b6d327c3ff816146c67e4198e3056734abaf5a52ccac1b7e226d4f9ade8bd9"
+  },
+  "3a105bd05f1a40964f09": {
+    "path": "expressions/parts/3a105bd05f1a40964f09.png",
+    "size": [
+      17,
+      6
+    ],
+    "sha256": "7df5bb132f93535b639b3a7318232ca35e935c64e06cb29856f2be96bc3dc20d"
+  },
+  "5f73ebe4f0142c4a8c3f": {
+    "path": "expressions/parts/5f73ebe4f0142c4a8c3f.png",
+    "size": [
+      17,
+      6
+    ],
+    "sha256": "6220126d24528dafb2bfbf2f5509593dfabe492bc7497e7462010cac7957c04e"
+  },
+  "1ca67f343250b57abebe": {
+    "path": "expressions/parts/1ca67f343250b57abebe.png",
+    "size": [
+      14,
+      12
+    ],
+    "sha256": "e6532cfe3ffc52fd0aafbfc4111d51eec28522b75af19806e5fd9c20cb16f984"
+  },
+  "78c92b694f1fe03f9d24": {
+    "path": "expressions/parts/78c92b694f1fe03f9d24.png",
+    "size": [
+      10,
+      6
+    ],
+    "sha256": "3d1611a4ff05270616aadeb742103d84af3fc9a738ddfe0e21584256bb8fdbfe"
   }
 }

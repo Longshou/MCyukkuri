@@ -12,13 +12,13 @@ class RuntimePose{
  }
  expressionFor(action,t,fallback='neutral'){
   const clip=this.clips[action];t=clip.loop?t%clip.duration:Math.max(0,Math.min(t,clip.duration));
-  return (clip.expression_spans||[]).find(s=>t>=s[0]&&t<s[1])?.[2]||fallback;
+  return (clip.expression_spans||[]).find(s=>t>=s[0]&&(t<s[1]||(!clip.loop&&t>=clip.duration&&s[1]>=clip.duration)))?.[2]||fallback;
  }
  expression(name){this.selectedExpression=name;}
  dispose(){request({op:'release',id:this.id});}
  frame(action,t,adjustment=null,intensity=null,care=null){
-  const result=request({op:'render',id:this.id,action,time:t,adjustment,intensity,expression:this.selectedExpression,scale:this.scale,...(care?{care}: {}),...(this.retention?{retention:this.retention}:{}),...(this.wall?{wall:this.wall}:{}),...(this.paperCover?{paperCover:this.paperCover}:{}),...(this.leashLoop?{leashLoop:this.leashLoop}:{})});
-  this.output=Float64Array.from(result.vertices);this.world=result.world;this.rootPose=result.root_pose;this.paperTop=result.paper_top||null;this.paperUnder=result.paper_under||null;this.leashMesh=result.leash_loop||null;return this.output;
+  const result=request({op:'render',id:this.id,action,time:t,adjustment,intensity,expression:this.selectedExpression,scale:this.scale,...(care?{care}: {}),...(this.retention?{retention:this.retention}:{}),...(this.wall?{wall:this.wall}:{}),...(this.paperCover?{paperCover:this.paperCover}:{}),...(this.leashLoop?{leashLoop:this.leashLoop}:{}),...(this.iceShell?{iceShell:this.iceShell}:{})});
+  this.output=Float64Array.from(result.vertices);this.world=result.world;this.rootPose=result.root_pose;this.paperTop=result.paper_top||null;this.paperUnder=result.paper_under||null;this.leashMesh=result.leash_loop||null;this.iceShellMesh=result.ice_shell||null;return this.output;
  }
  careFrame(action,t,anchor,target,blend=1){return this.frame(action,t,null,null,{anchor,target,blend});}
  rootPoint(point){const m=this.world[this.rootBone];return [0,1,2].map(r=>m[r*4]*point[0]+m[r*4+1]*point[1]+m[r*4+2]*point[2]+m[r*4+3]);}

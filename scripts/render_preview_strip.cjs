@@ -46,6 +46,7 @@ const frames=job.times.map((t,frame)=>{
   if(a.pose&&job.wall)a.pose.wall={yaw:job.wall.yaws[frame],faces:job.wall.faces,yield:job.wall.yield};
   if(a.pose)a.pose.paperCover=a.paperSlots?(living[a.id]?.accessory_prefixes||[]):null;
   if(a.pose)a.pose.leashLoop=a.leashSlot!=null?true:null;
+  if(a.pose)a.pose.iceShell=a.iceSlot!=null?(Array.isArray(a.iceSchedule)?a.iceSchedule[frame]:(a.iceSpec||{growth:1,crack:0})):null;
   let phase=0;
   let selectedFace;
   const clip=a.clipSchedule?a.clipSchedule[frame]:a.clip;
@@ -92,6 +93,17 @@ const frames=job.times.map((t,frame)=>{
     v[3]=(slot.x+u*slot.size)/job.textureSize;
     v[4]=(slot.y+vv*slot.size)/job.textureSize;
     vertices.push(...v);
+   }
+  }
+  if(a.pose&&a.iceSlot!=null&&a.pose.iceShellMesh){
+   const slot=job.slots[a.iceSlot],mesh=a.pose.iceShellMesh;
+   for(let k=0;k<mesh.length;k+=8){
+    const v=mesh.slice(k,k+8);
+    for(let c=0;c<3;c++)v[c]+=a.offset[c];
+    const u=((v[3]%1)+1)%1,vv=((v[4]%1)+1)%1;
+    v[3]=(slot.x+u*slot.size)/job.textureSize;
+    v[4]=(slot.y+vv*slot.size)/job.textureSize;
+    translucent.push(...v);
    }
   }
  }

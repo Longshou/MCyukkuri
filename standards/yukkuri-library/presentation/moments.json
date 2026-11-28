@@ -5032,6 +5032,68 @@
           "emote": "shiver"
         }
       ]
+    },
+    "behavior_cold_curl": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "cold_curl",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "cold"
+            ],
+            [
+              1.4,
+              "frozen"
+            ]
+          ],
+          "emote": "shiver"
+        }
+      ]
+    },
+    "behavior_cold_stiff": {
+      "loop": true,
+      "steps": [
+        {
+          "clip": "cold_stiff",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "frozen"
+            ]
+          ]
+        }
+      ]
+    },
+    "behavior_cold_thaw": {
+      "loop": false,
+      "steps": [
+        {
+          "clip": "cold_thaw",
+          "intensity": 1,
+          "tempo": 1,
+          "faces": [
+            [
+              0,
+              "frozen"
+            ],
+            [
+              1.4,
+              "confused_small"
+            ],
+            [
+              2.5,
+              "cold"
+            ]
+          ],
+          "emote": "shiver"
+        }
+      ]
     }
   },
   "behaviors": {
@@ -5208,6 +5270,9 @@
     "paper_cover": "behavior_paper_cover",
     "paper_cover_child": "behavior_paper_cover_child",
     "cold_shiver": "behavior_cold_shiver",
+    "cold_curl": "behavior_cold_curl",
+    "cold_stiff": "behavior_cold_stiff",
+    "cold_thaw": "behavior_cold_thaw",
     "keepsake_carry": "behavior_keepsake_carry",
     "keepsake_set": "behavior_keepsake_set"
   },

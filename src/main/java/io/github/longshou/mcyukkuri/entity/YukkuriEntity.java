@@ -804,6 +804,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public void syncBody() { sync().syncBody(); }
     private <T> void setChanged(EntityDataAccessor<T> key, T value) { sync().setChanged(key, value); }
     public int visibleSigns(){ return sync().visibleSigns(); }
+    public int visibleColdStiff(){ return sync().visibleColdStiff(); }
+    public long coldStiffStartTick(){ return sync().coldStiffStartTick(); }
     public boolean visibleSyndromePrevention() { return sync().visibleSyndromePrevention(); }
     /** Vanilla would reject this hit as a repeat inside the hurt cooldown (LivingEntity.hurt); the body must not analyse it. */
     public boolean repeatHitIgnored(DamageSource source,float amount){ return damage().repeatHitIgnored(source, amount); }
@@ -929,7 +931,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     @Override
     public void tick() {
         super.tick();
-        if (!level().isClientSide) sync().syncBodyYaw(yBodyRot);
+        if (!level().isClientSide) {
+            sync().syncBodyYaw(yBodyRot);
+            sync().syncColdStiff();
+        }
         HumanCommerce.tickAnimal(this);
     }
 

@@ -198,6 +198,44 @@ def state(action, t, c, height):
         s = [w, h, w]
         r = [-5.5-1.5*env, 1.4*trem, 1.6*math.sin(2*math.pi*9.5*t+.7)*(.18+.82*env)]
         shift = [.008*height*trem, -.020*height*(1+.25*env)]
+    elif action == 'cold_curl':
+        # Curling into the freeze (R5): shivers hard while tucking low (0..1.0), tremors weaken as stiffness locks in (1.0..1.75),
+        # then freezes rigid (1.75..2.4) at the exact cold_stiff hold pose. Composed tilt <= 9.0 deg.
+        tuck = keyed(t, [(0, 0), (.45, .45), (1.10, .82), (1.75, 1.0), (d, 1.0)])
+        trem_env = keyed(t, [(0, .15), (.25, 1.0), (.95, .85), (1.45, .30), (1.75, 0.0), (d, 0.0)])
+        freq = 9.0 - 3.0*tuck
+        trem = trem_env*math.sin(2*math.pi*freq*t)
+        h = 1.0 - .12*tuck
+        w = 1 + (1-h)*.45
+        s = [w, h, w]
+        r = [-7.0*tuck - 1.2*trem_env, 1.8*trem, 1.6*trem_env*math.sin(2*math.pi*freq*t+.7)]
+        shift = [.008*height*trem, -.024*height*tuck]
+    elif action == 'cold_stiff':
+        # Frozen single-frame hold (R5): completely motionless at the exact end pose of cold_curl; zero breathing or wag.
+        h = .88
+        w = 1 + (1-h)*.45
+        s = [w, h, w]
+        r = [-7.0, 0.0, 0.0]
+        shift = [0.0, -.024*height]
+    elif action == 'cold_thaw':
+        # Thawing out (R5): cracking tremor from the stiff pose (0..0.75), crisp lateral yaw shake-off (0.75..1.55),
+        # bewildered dazed look (1.55..2.55), then a small relieved stretch with a lingering shiver back to neutral (2.55..3.6).
+        crack_env = bump((t-.08)/.68) if .08 <= t <= .76 else 0.
+        shake_env = bump((t-.72)/.82) if .72 <= t <= 1.54 else 0.
+        shiver_env = bump((t-2.65)/.80) if 2.65 <= t <= 3.45 else 0.
+        crack_trem = crack_env*math.sin(2*math.pi*8.5*t)
+        shake_yaw = 18.0*shake_env*math.sin(2*math.pi*3.5*(t-.72))
+        shake_roll = 3.2*shake_env*math.sin(2*math.pi*3.5*(t-.72)+.4)
+        shiver_trem = shiver_env*math.sin(2*math.pi*7.5*t)
+        h = keyed(t, [(0, .88), (.55, .91), (.85, .96), (1.15, 1.03), (1.55, .97), (2.25, .97), (2.85, 1.02), (3.25, .99), (d, 1.0)])
+        w = 1 + (1-h)*.45
+        s = [w, h, w]
+        pitch = keyed(t, [(0, -7.0), (.55, -5.2), (.95, -1.5), (1.25, 2.0), (1.65, -1.2), (2.25, .8), (2.85, 1.6), (3.30, -.8), (d, 0.0)])
+        daze_yaw = keyed(t, [(0, 0), (1.55, 0), (1.85, 9.5), (2.25, -8.5), (2.60, 0), (d, 0)])
+        r = [pitch, daze_yaw + shake_yaw + 1.4*crack_trem + 1.2*shiver_trem,
+             shake_roll + 1.4*crack_env*math.sin(2*math.pi*8.5*t+.6) + 1.1*shiver_env*math.sin(2*math.pi*7.5*t+.6)]
+        shift = [.010*height*(crack_trem + .8*shiver_trem) + .018*height*shake_env*math.sin(2*math.pi*3.5*(t-.72)),
+                 height*keyed(t, [(0, -.024), (.75, -.016), (1.15, .005), (1.65, -.006), (2.55, -.004), (d, 0.0)])]
     elif action == 'sumo_ready':
         # Ritual sumo ready stance: low wide squat leaning forward in a locked stare with two shiko-style stomp-sways per 1.6 s loop.
         w = 2*math.pi*t/d

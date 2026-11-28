@@ -73,7 +73,10 @@
     ["paper_pull", "抽出一张报纸"],
     ["paper_cover_under", "掀角钻入报纸下"],
     ["paper_cover_child", "亲油叼纸披在赤油身上"],
-    ["cold_shiver", "寒夜缩身发抖"]
+    ["cold_shiver", "寒夜缩身发抖"],
+    ["cold_curl", "受寒蜷缩将僵"],
+    ["cold_stiff", "低温冻僵定格"],
+    ["cold_thaw", "回暖解冻苏醒"]
    ]
   },
   {

@@ -47,6 +47,7 @@ final class RenderPose implements Overlays.Contact {
     private boolean wallYieldBuilt;
     private SnugglePose snuggle;
     private LeashRing leashRing;
+    private final IceShell iceShell = new IceShell();
     private float looseTop;
     private ReviewMarks.Wet wet;
     private ReviewMarks.Scratch scratchMark;
@@ -294,6 +295,13 @@ final class RenderPose implements Overlays.Contact {
             leashRing.build((vertex, point) -> point.set(output[vertex * 8], output[vertex * 8 + 1], output[vertex * 8 + 2]), scale, false);
             out.add("leash_loop", vertexData(Arrays.copyOf(leashRing.vertices(), leashRing.length()), packed));
         }
+        if (request.has("iceShell") && !request.get("iceShell").isJsonNull()) {
+            var spec = request.getAsJsonObject("iceShell");
+            float growth = spec.has("growth") ? spec.get("growth").getAsFloat() : 1f;
+            int crack = spec.has("crack") ? spec.get("crack").getAsInt() : 0;
+            if (buildIceShell(output, scale, growth, crack))
+                out.add("ice_shell", vertexData(Arrays.copyOf(iceShell.vertices(), iceShell.length()), packed));
+        }
         if (packed) return new Drawn(out,output,true);
         var matrices=new JsonArray();for(var m:world){var flat=new JsonArray();for(var row:Authoring.rows(m))for(var x:row.getAsJsonArray())flat.add(x);matrices.add(flat);}out.add("world",matrices);
         out.add("root_pose",OfflineModel.array(pose[root]));return new Drawn(out,output,false);
@@ -303,6 +311,34 @@ final class RenderPose implements Overlays.Contact {
         var bytes = ByteBuffer.allocate(vertices.length * Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
         bytes.asFloatBuffer().put(vertices);
         return new JsonPrimitive(Base64.getEncoder().encodeToString(bytes.array()));
+    }
+
+    private boolean buildIceShell(float[] output, float scale, float growth, int crack) {
+        var pts = new ArrayList<Float>();
+        float bodyMinY = Float.MAX_VALUE, bodyMaxY = -Float.MAX_VALUE;
+        for (var raw : data.getAsJsonArray("parts")) {
+            var p = raw.getAsJsonObject();
+            String name = p.get("name").getAsString();
+            String anatomy = p.has("anatomy") ? p.get("anatomy").getAsString() : "";
+            if (!anatomy.isEmpty() || name.startsWith("face_") || name.contains("puff")) continue;
+            boolean isBody = LeashRing.bodySurface(name);
+            int s = start(p), c = count(p);
+            for (int v = s; v < s + c; v++) {
+                float x = output[v * 8], y = output[v * 8 + 1], z = output[v * 8 + 2];
+                pts.add(x); pts.add(y); pts.add(z);
+                if (isBody) {
+                    if (y < bodyMinY) bodyMinY = y;
+                    if (y > bodyMaxY) bodyMaxY = y;
+                }
+            }
+        }
+        float[] arr = new float[pts.size()];
+        for (int i = 0; i < arr.length; i++) arr[i] = pts.get(i);
+        float bodyH = bodyMaxY > bodyMinY ? bodyMaxY - bodyMinY : 9.6f * scale;
+        var fit = IceShell.fit(arr, arr.length, bodyH, scale);
+        if (fit == null) return false;
+        iceShell.build(fit, growth, crack);
+        return true;
     }
 
     private static void addMark(JsonObject out, float[] vertices, String texture, int opacity, boolean packed) {

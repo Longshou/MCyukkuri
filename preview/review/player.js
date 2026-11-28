@@ -206,7 +206,14 @@ async function playEntry(data, entry) {
     const staged = entry.steps?.some(step => step.stance);
     $('paper-control').hidden = Boolean(staged);
     cover.checked = !staged && params.get('paper') === '1';
-    let paper;
+    let paper, ice;
+    async function loadIce(scene) {
+        const map = await loadTexture('../../src/main/resources/assets/mcyukkuri/textures/misc/cold_stiff_ice.png');
+        const mat = new THREE.MeshLambertMaterial({map, transparent: true, side: THREE.FrontSide, depthWrite: false});
+        const m = actorMesh(scene, mat);
+        m.renderOrder = 2;
+        return m;
+    }
     const emoteHeight = proportions.emoteHeight * actor.scale * 16;
     const emoteSize = proportions.emoteSize * actor.scale * 16;
     const emote = await loadEmote(scene, emoteHeight, emoteSize);
@@ -236,6 +243,12 @@ async function playEntry(data, entry) {
             payload.paperCover = proportions.paperAccessories;
             paper ??= loadPaper(scene);
         }
+        const iceActive = sample.clip === 'cold_stiff' || params.get('ice') === '1';
+        const iceCrack = Math.max(0, Math.min(3, Number(params.get('iceCrack') || 0)));
+        if (iceActive) {
+            payload.iceShell = {growth: 1, crack: iceCrack};
+            ice ??= loadIce(scene);
+        }
         if (streamVisible) payload.leakStream = true;
         if (leak) payload.leakAge = tick - leak.beat.puddleAt;
         if (sample.scratch) payload.scratch = sample.scratch;
@@ -245,9 +258,9 @@ async function playEntry(data, entry) {
         const peer = partner && partner.sample(seconds);
         if (peer) payload.partner = peer.payload;
         if (sample.pairStage) payload.pairStage = sample.pairStage;
-        const rich = streamVisible || covered;
+        const rich = streamVisible || covered || iceActive;
         if (rich) payload.vertexFormat = 'float32le';
-        const [frame, map, sheets, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, peer?.map]);
+        const [frame, map, sheets, iceMesh, peerMap] = await Promise.all([pose(payload, !rich), texture(face), paper, ice, peer?.map]);
         const mark = frame.surfaceMark;
         const markMap = mark && await marks.texture(mark.texture);
         if (version !== revision) return;
@@ -266,6 +279,10 @@ async function playEntry(data, entry) {
                 sheet.visible = covered && Boolean(frame[field]);
                 if (sheet.visible) updateMesh(sheet, floatVertices(frame[field]));
             }
+        }
+        if (iceMesh) {
+            iceMesh.visible = iceActive && Boolean(frame.ice_shell);
+            if (iceMesh.visible) updateMesh(iceMesh, floatVertices(frame.ice_shell));
         }
         if (stream) {
             stream.visible = streamVisible;

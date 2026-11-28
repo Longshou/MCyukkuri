@@ -389,6 +389,8 @@ public final class YukkuriRenderer extends EntityRenderer<YukkuriEntity> {
             if(contact.equals("HOOK")||contact.equals("WRAPPED"))OperationAttachments.render(entity,toolContact,start,pose,buffers,packedLight,partialTick);
             if(delivery!=null)delivery.render(pose,buffers,packedLight,start,partialTick);
             if(fixed&&!preview)RestraintStraps.render(entity,partialTick,origin,pose.last().pose(),buffers,packedLight);
+            // Translucent bevelled ice shell (R5 cold-stiff): drawn last in body space over opaque body, hair, headwear and wear.
+            if(entity.visibleStiff())IceShellRenderer.render(model.takeIceShell(),pose,buffers,packedLight,OverlayTexture.NO_OVERLAY);
             model.setDelivery(null);model.setPregnancy(0,0);
             pose.popPose();
             pose.popPose();

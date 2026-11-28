@@ -159,6 +159,13 @@ public interface YukkuriView {
     int visibleWound();
     int visibleFilling();
     int visibleSigns();
+    /** Packed cold-stiff display bits (bit 0 stiff, bits 1-2 chisel crack 0..3, bit 3 rewarming). */
+    int visibleColdStiff();
+    /** Game tick when the current stiffening began (0 after reload, so the ice shell is already full height). */
+    long coldStiffStartTick();
+    default boolean visibleStiff() { return (visibleColdStiff() & 1) != 0; }
+    default int visibleStiffCrack() { return (visibleColdStiff() >> 1) & 3; }
+    default boolean visibleStiffRewarming() { return (visibleColdStiff() & 8) != 0; }
     boolean visibleSyndromePrevention();
     List<BodyWound> visibleWounds();
     List<BodyWound> visibleMarks();

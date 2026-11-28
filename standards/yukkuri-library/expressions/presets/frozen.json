@@ -1,0 +1,32 @@
+{
+  "id": "frozen",
+  "label": "冻僵",
+  "group": "睡眠 / 生理",
+  "recipe": {
+    "source": "tools/author_feeling_faces.py",
+    "base": "neutral",
+    "note": "frozen stiff face (R5): tightly shut eyes with frost-rimmed lashes, rime-dusted pinched brows, chilled blue lips, pale frost-blue cheeks"
+  },
+  "parts": {
+    "face_eye_left": "expressions/parts/a5e75e828d08ff66673b.png",
+    "face_eye_right": "expressions/parts/a5e75e828d08ff66673b.png",
+    "face_brow_left": "expressions/parts/3a105bd05f1a40964f09.png",
+    "face_brow_right": "expressions/parts/5f73ebe4f0142c4a8c3f.png",
+    "face_mouth": "expressions/parts/1ca67f343250b57abebe.png",
+    "face_blush_left": "expressions/parts/78c92b694f1fe03f9d24.png",
+    "face_blush_right": "expressions/parts/78c92b694f1fe03f9d24.png",
+    "face_tear_left": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_tear_right": "expressions/parts/d114c9609a58da8454a5.png",
+    "face_effect_mouth": "expressions/parts/fd1165af5d145a9ad4b4.png"
+  },
+  "sources": [],
+  "status": "accepted",
+  "art": "Project design; drawn on the standard part grid",
+  "aliases": [],
+  "origin": "project design",
+  "review_pair": null,
+  "review_decision": {
+    "status": "accepted",
+    "date": "2026-11-16"
+  }
+}

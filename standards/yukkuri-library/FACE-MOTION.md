@@ -40,6 +40,7 @@
 - 缺素材的脸会按片段的 `face_fallback` 退到别的脸（如 `puff`→`chewing_closed`/`cry`/`angry`）：检查器按预设本身算，新增回退链时核对退到的脸眼位是否相近。
 - 如厕片段换入 `impact_teary` 后眼部出现线段式闪烁，不是时间线问题：它的泪卡纵向拉长盖住眯眼，各槽位烘焙在同一深度，眼与泪墨迹互相 z-fighting（`teary` 等含泪脸同样存在，只是重叠小）。现由渲染按 `Skin.java` 的 `FACE_LAYERS` 给每个槽位分层，`scripts/check_face_layers.py` 把关；选脸时片段帧里看到细线闪动，先跑它。
 - 制裁宣告（`behavior_sanction_declare`）此前写成 `angry → puff → cheek_puff` 无闭眼过渡且 0.28 秒短切，制裁接近（`behavior_sanction_approach`）误借 `look_around` 的 `neutral`/`confused`；改为整段保持新标准凶悍脸 `fierce`，既贴合凶悍个体状态，又消除眼位跳变与短闪并收紧了基线。
+- 低温冻僵解冻（`cold_thaw`）初稿计划用 `frozen → waking → blank_confused → cold`，但 `waking` 一只眼已睁开不算闭眼（切到 `blank_confused` 眼高差 2.12），且 `blank_confused → cold` 眼高差 1.06 超出 0.9；改为抖霜段保持闭眼 `frozen`，睁眼愣神改 `confused_small` 再回 `cold`（眼位差 0.02、眼高差 0.795），三拍零跳变。
 
 ## 补充规则
 

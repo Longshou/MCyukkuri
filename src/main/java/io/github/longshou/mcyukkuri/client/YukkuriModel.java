@@ -9,6 +9,7 @@ import io.github.longshou.mcyukkuri.pose.Clips.Clip;
 import io.github.longshou.mcyukkuri.pose.Clips.Track;
 import io.github.longshou.mcyukkuri.pose.Compose;
 import io.github.longshou.mcyukkuri.pose.DishFit;
+import io.github.longshou.mcyukkuri.pose.IceShell;
 import io.github.longshou.mcyukkuri.pose.LeashRing;
 import io.github.longshou.mcyukkuri.motor.ClipMarkers;
 import io.github.longshou.mcyukkuri.pose.Intensity;
@@ -64,6 +65,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
@@ -535,8 +537,15 @@ public final class YukkuriModel {
     private final PaperFitSamples<YukkuriView> paperFits = new PaperFitSamples<>();
     private final Matrix4f tentToWall = new Matrix4f();
     private PaperTent.Grid paperTentGrid;
+    /** Cached cold-stiff ice-shell fit per entity (recomputed only when pose/accessory/hair/wear key changes) and reused 40-tri mesh. */
+    private record IceFitCache(long key, IceShell.Fit fit) {}
+    private final Map<YukkuriView, IceFitCache> iceFits = new WeakHashMap<>();
+    private final IceShell iceShell = new IceShell();
+    private IceShell activeIceShell;
+    private float[] icePtsBuf = new float[0];
+    private int icePtsLen;
     static void clearPaperFits() {
-        for(var model:loadedModels){model.paperFits.clear();model.paperTentGrid=null;}
+        for(var model:loadedModels){model.paperFits.clear();model.paperTentGrid=null;model.iceFits.clear();model.activeIceShell=null;}
     }
     static void expirePaperFits(long frame) {
         for(var model:loadedModels)model.paperFits.expireBefore(frame-1);
@@ -545,6 +554,11 @@ public final class YukkuriModel {
         var grid = paperTentGrid;
         paperTentGrid = null;
         return grid;
+    }
+    IceShell takeIceShell() {
+        var shell = activeIceShell;
+        activeIceShell = null;
+        return shell;
     }
     /** Wear bits (YukkuriView.visibleWear) of the body being drawn, set by the renderer until renderLiving ends. */
     private int wear;
@@ -794,6 +808,75 @@ public final class YukkuriModel {
     private void appendTentHat(Vector3f p) {
         if (tentHatLen + 3 > tentHatBuf.length) tentHatBuf = Arrays.copyOf(tentHatBuf, Math.max(512, tentHatBuf.length * 2));
         tentHatBuf[tentHatLen++] = p.x; tentHatBuf[tentHatLen++] = p.y; tentHatBuf[tentHatLen++] = p.z;
+    }
+
+    private void appendIcePt(Vector3f p) {
+        if (icePtsLen + 3 > icePtsBuf.length) icePtsBuf = Arrays.copyOf(icePtsBuf, Math.max(1024, icePtsBuf.length * 2));
+        icePtsBuf[icePtsLen++] = p.x; icePtsBuf[icePtsLen++] = p.y; icePtsBuf[icePtsLen++] = p.z;
+    }
+
+    /**
+     * Fits (cached per entity while its frozen pose/headwear key is unchanged) and builds the 40-triangle bevelled ice shell
+     * inside the active SkinningCache window so hair and headwear are read from cached skinned vertices with zero reskinning.
+     */
+    private IceShell prepareIceShell(YukkuriView entity, boolean showHat, int hairLoss, JunkHeadwear junk, float partial) {
+        long key = 31L * sampledClip.hashCode() + (showHat ? 1 : 0);
+        key = 31 * key + hairLoss;
+        key = 31 * key + entity.visibleHeadwear();
+        key = 31 * key + entity.subspeciesFlags();
+        key = 31 * key + wear;
+        key = 31 * key + Math.round(pregnancyBelly * 64);
+        var cached = iceFits.get(entity);
+        IceShell.Fit fit;
+        if (cached != null && cached.key == key) {
+            fit = cached.fit;
+        } else {
+            icePtsLen = 0;
+            float bodyMinY = Float.MAX_VALUE, bodyMaxY = -Float.MAX_VALUE;
+            var pt = new Vector3f();
+            for (int partIndex = 0; partIndex < parts.size(); partIndex++) {
+                Part part = parts.get(partIndex);
+                if (!part.anatomy.isEmpty() || part.face || part.name.contains("puff") || hairHidden(part, hairLoss)) continue;
+                boolean isAcc = accessoryPart(part);
+                if (isAcc && (!showHat || hatProp != null)) continue;
+                boolean isBody = wornBody(part.name);
+                boolean shrinkHat = isAcc && hatDamageDraw.fit() < .999f;
+                for (int v = part.start; v < part.start + part.count; v++) {
+                    skin(v, pt);
+                    if (shrinkHat) pt.sub(hatDamageDraw.seat()).mul(hatDamageDraw.fit()).add(hatDamageDraw.seat());
+                    pt.mul(1 / 16f);
+                    if (isBody) {
+                        if (pt.y < bodyMinY) bodyMinY = pt.y;
+                        if (pt.y > bodyMaxY) bodyMaxY = pt.y;
+                    }
+                    appendIcePt(pt);
+                }
+            }
+            if (showHat && hatProp != null && hatFollowBone() >= 0) {
+                var m = crownMatrix(hatFollowBone());
+                var seat = HatGeometry.anchor().div(16);
+                float hatFit = hatDamageDraw.fit();
+                m.translate(seat.x, seat.y, seat.z).scale(hatFit).translate(-seat.x, -seat.y, -seat.z);
+                PropModels.collectTriangles(hatProp, 8, m, this::appendIcePt);
+            }
+            if (junk != null) {
+                String prop = "junk_" + junk.id();
+                var seat = PropModels.anchor(prop, id);
+                if (seat != null) {
+                    var m = crownMatrix(featuresBone()).mul(seat.matrix());
+                    PropModels.collectTriangles(prop, 0, m, this::appendIcePt);
+                }
+            }
+            float bodyH = bodyMaxY > bodyMinY ? bodyMaxY - bodyMinY : 0.6f;
+            fit = IceShell.fit(icePtsBuf, icePtsLen, bodyH, 1 / 16f);
+            if (fit == null) return null;
+            iceFits.put(entity, new IceFitCache(key, fit));
+        }
+        long startTick = entity.coldStiffStartTick();
+        float elapsedTicks = startTick <= 0 ? IceShell.GROW_TICKS
+                : Math.max(0f, (float) (entity.level().getGameTime() - startTick) + partial);
+        iceShell.build(fit, IceShell.growth(elapsedTicks), entity.visibleStiffCrack());
+        return iceShell;
     }
 
     private PaperTent.Grid paperTent(YukkuriView entity, PoseStack stack, boolean showHat, int hairLoss, JunkHeadwear junk) {
@@ -1357,6 +1440,8 @@ public final class YukkuriModel {
             renderPosed(action,stack,buffer,light,overlay,accessory,hairLoss,observe);
             if(entity!=null&&(wear&CareWearRenderer.PAPER_COVER)!=0)
                 paperTentGrid=paperTent(entity,stack,accessory,hairLoss,Headwear.visualJunk(entity.visibleHeadwear()));
+            activeIceShell=entity!=null&&entity.visibleStiff()
+                    ? prepareIceShell(entity,accessory,hairLoss,Headwear.visualJunk(entity.visibleHeadwear()),partial) : null;
             if (observe != null) observe.place(PoseNeighbors.basis);
             if (measure) bridge.boundsFrame = PoseNeighbors.frame;
         } finally {
@@ -1631,6 +1716,7 @@ public final class YukkuriModel {
             var junk=Headwear.visualJunk(headwear);
             renderJunkHat(junk,stack,buffers,light,overlay);
             if ((wear & CareWearRenderer.PAPER_COVER) == 0) { paperFits.remove(entity); paperTentGrid = null; }
+            if (!entity.visibleStiff()) { iceFits.remove(entity); activeIceShell = null; }
             PoseTap.model(entity, this, accessory, hairLoss, bridgeWeight, bridgeFrom);
             return contact;
         }finally{if(clearance!=null)clearance.finishDraw();wallClearance=null;wallTurns=null;drawEvidence=null;wear=0;retention=0;wearClear=false;woundDisplay=null;drain=0;adultStatePose=false;drawingWoundedBody=false;drawingSurfaceMarks=false;mouthHolding=false;carryLoad=carryLean=carryCurlLeft=carryCurlRight=carryMouth=carryCheeks=hatInBraid=0;hatMotion="";hatScale=1;hatProp=null;hatDamageDraw.reset();setCareContact(0,

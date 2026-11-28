@@ -1379,7 +1379,7 @@
     },
     "myon": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon.json",
-      "base_sha256": "681ef8898f25926bdf29bfdc2c218ca6dd97302bf16983a3d1c69f502e90e095",
+      "base_sha256": "ee8cfeb33ca7802cfd2d5b299ac9ebaba584a4495764064e79ed935e9bc0b786",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1462,7 +1462,7 @@
     },
     "myon_redeye": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/myon_redeye.json",
-      "base_sha256": "a7e2c56060c8b1c09b8ce995f6df6585829072a5ef50c9e99cb7f1beb2ebf707",
+      "base_sha256": "af18305468daa56458510f0e7bee7287f9c1bdef2b568feb12b748aba4c426eb",
       "derived_from": "alice",
       "parts": [
         "alice_hair_cap_left",
@@ -1545,7 +1545,7 @@
     },
     "chen_longtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_longtail.json",
-      "base_sha256": "9c21486b322ba310c766fc276a731edc9acbb063ffef3fcd196418c7bef0c9e9",
+      "base_sha256": "d145e05a0aa75235c61278d94899ec407c4335211ec9be255dee2c8e73b9290d",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1677,7 +1677,7 @@
     },
     "chen_roundtail": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/chen_roundtail.json",
-      "base_sha256": "8ffecff20efc63ebbedc094a9e1a443292f77b0a7737e469b9a534e9d5b92b7d",
+      "base_sha256": "8661aa30b97f5119dd91ce746637bce3dd7edfde943d9542c334978c8a66ee71",
       "derived_from": "chen",
       "parts": [
         "chen_cap",
@@ -1809,7 +1809,7 @@
     },
     "marisa_kotatsu": {
       "base": "src/main/resources/assets/mcyukkuri/yukkuri/marisa_kotatsu.json",
-      "base_sha256": "1e11587f7dbd89a186f42b33ade9643bd30f6a8bae36c39b4410922b259596b7",
+      "base_sha256": "f17dabca2a55c86af5862aa5ae20fb111963110f016d4cf4c0fb3a03f5251003",
       "derived_from": "marisa",
       "parts": [
         "crown",
@@ -1877,5 +1877,5 @@
       ]
     }
   },
-  "runtime_sha256": "0f74e613893678e6e786061f6b7ddbbb46190c701d8cc059f8866a5ca2ef7ee3"
+  "runtime_sha256": "f47f124b5c700fd025b05d97ebdf4c0a0ce3ef7bdadf509cfa60b4ce8cda8cda"
 }

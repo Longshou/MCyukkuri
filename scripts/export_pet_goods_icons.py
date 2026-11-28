@@ -19,8 +19,8 @@ ITEMS = ROOT / 'src/main/resources/assets/mcyukkuri/textures/item'
 MISC = ROOT / 'src/main/resources/assets/mcyukkuri/textures/misc'
 SWADDLE_STYLES = ('frill', 'letter', 'tiger', 'outing', 'fleece', 'gingham', 'floral')   # the knit is the plain swaddle_cloth icon
 NAMES = ('sweet_candy', 'custard_pudding', 'swaddle_cloth') + tuple(f'swaddle_cloth_{s}' for s in SWADDLE_STYLES)
-# on-body textures drawn by drafts/care-props/wear.py: the leaf sheet, the trim sheet, the fabric tiles and the lead's rope tile
-WEAR = ('swaddle_leaf_wear', 'swaddle_trim') + tuple(f'swaddle/{f}' for f in ('knit', 'cotton', 'fleece', 'tiger', 'gingham', 'floral')) + ('leash_rope',)
+# on-body textures drawn by drafts/care-props/wear.py: the leaf sheet, the trim sheet, the fabric tiles, the lead's rope tile and the cold-stiff ice shell atlas
+WEAR = ('swaddle_leaf_wear', 'swaddle_trim') + tuple(f'swaddle/{f}' for f in ('knit', 'cotton', 'fleece', 'tiger', 'gingham', 'floral')) + ('leash_rope', 'cold_stiff_ice')
 STATUS = 'pending_user_confirmation'
 
 

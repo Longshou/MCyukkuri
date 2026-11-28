@@ -7,6 +7,7 @@ import io.github.longshou.mcyukkuri.status.SneezeRules;
 
 import io.github.longshou.mcyukkuri.entity.Behaviors;
 import io.github.longshou.mcyukkuri.entity.SceneHold;
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.component.Interrupt;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Motor;
@@ -74,6 +75,9 @@ public final class TemperatureLife {
     /** Chisel progress on the shell and the tick of the last swing; not saved: the cracks mend by themselves ({@link ColdStiffness#CHISEL_IDLE}). */
     private double chisel;
     private long chiselAt;
+    /** Presentation-only clocks for the R5 ice shell growth (40 ticks) and post-thaw recovery clip; never alter cold-stiff logic. */
+    private long stiffStartTick;
+    private int thawTicks;
     private BlockPos target, targetFire, temporarySleepSite;
     private boolean seekingWarmth, basking;
 
@@ -101,6 +105,14 @@ public final class TemperatureLife {
     public int crack() { return ColdStiffness.crackLevel(chisel); }
     /** A stiff body is rewarming when it stands in a place that is no longer cold. */
     public boolean rewarming() { return stiff && !tooCold(current.felt()); }
+    /** Game tick when the current stiffening began (0 after reload so the shell is already full height). */
+    public long stiffStartTick() { return stiffStartTick; }
+    /** Packed client display bits: bit 0 stiff, bits 1-2 crack level 0..3, bit 3 rewarming. */
+    public int packedStiffDisplay() { return stiff ? (1 | ((crack() & 3) << 1) | (rewarming() ? 8 : 0)) : 0; }
+    /** Pre-stiffening curl stage (design section 1, f >= 0.75 while freezing) for presentation only. */
+    public boolean curlingCold() { return !stiff && freezing(current.felt()) && coldExposure >= .75 * YukkuriConfig.COLD_EXPOSURE_TICKS.get(); }
+    /** Playing the post-thaw recovery clip while stationary after the ice shell lets go. */
+    public boolean thawingPose() { return !stiff && thawTicks > 0; }
     public boolean cold() { return tooCold(current.felt()); }
     public double coldDeficit() { return Math.max(0, coldLimit() - current.felt()); }
     public boolean needsKinWarmth() {
@@ -114,13 +126,17 @@ public final class TemperatureLife {
         if (restTicks == 0) return seekingWarmth ? Behaviors.SEEK_WARMTH : Behaviors.SEEK_SHADE;
         if (!seekingWarmth) return Behaviors.SHADE_REST;
         if (basking) return Behaviors.SUNBATHE;
-        return cold() ? Behaviors.COLD_SHIVER : Behaviors.WARM_UP;
+        return cold() ? (curlingCold() ? Behaviors.COLD_CURL : Behaviors.COLD_SHIVER) : Behaviors.WARM_UP;
     }
 
     /** The one layer that runs in a stiff body: {@code inert()} also holds a stiff body, so it is asked of the scene hold and NoAI alone. */
     public void tick() {
         if (entity.level().isClientSide || !entity.isAlive() || SceneHold.inert(entity)) return;
         if (stiff) { tickStiff(); return; }
+        if (thawTicks > 0) {
+            if (entity.isPanicking() || entity.isOnFire() || entity.isInWaterOrBubble() || entity.body().dying()) thawTicks = 0;
+            else thawTicks--;
+        }
         if (cooldown > 0) cooldown--;
         if (baskCooldown > 0) baskCooldown--;
         if (initialSample) {
@@ -196,13 +212,18 @@ public final class TemperatureLife {
         }
         stop();
         stiff = true;
+        stiffStartTick = level().getGameTime();
+        thawTicks = 0;
         coldComplaint = false;
         entity.getNavigation().stop();
         // It freezes where it stands: the walk's last step is not left for the body to glide on after it can no longer correct it.
         entity.setDeltaMovement(Vec3.ZERO);
+        var at = entity.position().add(0, entity.getBbHeight() / 2, 0);
+        level().sendParticles(ParticleTypes.SNOWFLAKE, at.x, at.y, at.z, 10, entity.getBbWidth() / 2, entity.getBbHeight() / 2, entity.getBbWidth() / 2, .02);
+        level().playSound(null, entity.blockPosition(), SoundType.GLASS.getPlaceSound(), SoundSource.NEUTRAL, .65f, 1.25f);
         GameplayLog.event(entity, "temperature", "stiff begin felt={} deficit={} exposure={} window={} share={} ageRate={} nutrition={} health={}",
                 current.felt(), deficit, coldExposure(), stiffLeft, share, ageRate(), entity.life().nutrition(), entity.getHealth());
-        entity.beat("stiff_enter", "sleep", "");
+        entity.beat("stiff_enter", "frozen", "");
     }
 
     /** The window drains in the cold, refills in the warm; fire thaws at once. Nothing else of the body advances. */
@@ -220,6 +241,10 @@ public final class TemperatureLife {
         current = sample(entity.blockPosition());
         double before = stiffLeft;
         stiffLeft = ColdStiffness.advance(stiffLeft, stiffMax, ColdStiffness.change(current.felt(), coldLimit(), freezeLimit(), YukkuriConfig.THAW_RATE.get()));
+        if (rewarming()) {
+            var at = entity.position().add(0, entity.getBbHeight() * .65, 0);
+            level().sendParticles(ParticleTypes.FALLING_WATER, at.x, at.y, at.z, 3, entity.getBbWidth() * .4, entity.getBbHeight() * .25, entity.getBbWidth() * .4, 0);
+        }
         GameplayLog.limited(entity, "temperature", "stiff.sample", 200, "stiff window felt={} left={} -> {} of {} rewarming={}",
                 current.felt(), before, stiffLeft, stiffMax, rewarming());
         if (ColdStiffness.spent(stiffLeft)) freezeToDeath("window_spent");
@@ -231,13 +256,21 @@ public final class TemperatureLife {
         stiff = false;
         double window = stiffLeft;
         stiffLeft = stiffMax = chisel = 0;
+        stiffStartTick = 0;
+        thawTicks = "fire".equals(reason) ? 0 : YukkuriAction.COLD_THAW.durationTicks();
         coldExposure = ColdStiffness.THAWED_EXPOSURE * YukkuriConfig.COLD_EXPOSURE_TICKS.get();
         cooldown = 0; coldComplaint = false;
+        var at = entity.position().add(0, entity.getBbHeight() / 2, 0);
+        float w = entity.getBbWidth() / 2, h = entity.getBbHeight() / 2;
+        level().sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.ICE.defaultBlockState()), at.x, at.y, at.z, 16, w, h, w, .06);
+        level().sendParticles(ParticleTypes.SPLASH, at.x, at.y, at.z, 10, w, h, w, .04);
+        level().playSound(null, entity.blockPosition(), SoundType.GLASS.getBreakSound(), SoundSource.NEUTRAL, .6f, 1.35f);
         var life = entity.life();
         life.spendNutrition(Math.min(ColdStiffness.THAW_NUTRITION, life.nutrition()));
         life.applyEnvironment(0, 0, Math.round(ColdStiffness.THAW_ENERGY));
         GameplayLog.event(entity, "temperature", "stiff end reason={} felt={} window={} exposure={} nutrition={} energy={}",
                 reason, current.felt(), window, coldExposure(), life.nutrition(), life.energy());
+        if (thawTicks > 0) entity.beat("stiff_thaw", "frozen", "");
     }
 
     /** The window ran out (or a body that could not stiffen chilled through): the cold kills it and it leaves frozen remains. */
@@ -280,7 +313,7 @@ public final class TemperatureLife {
         }
         level().sendParticles(ice, at.x, at.y, at.z, 6 + 6 * crack(), width, height, width, .05);
         level().playSound(null, entity.blockPosition(), SoundType.GLASS.getHitSound(), SoundSource.NEUTRAL, 1, .8f + .1f * crack());
-        if (crack() > before) entity.beat("chisel_crack_" + crack(), "sleep", "");
+        if (crack() > before) entity.beat("chisel_crack_" + crack(), "frozen", "");
     }
 
     /** The shell goes to pieces: no corpse (the carried items fall where it stood), the ordinary death for everything else. */
@@ -323,6 +356,7 @@ public final class TemperatureLife {
         stiff = tag.getBoolean("Stiff");
         stiffMax = stiff ? Math.clamp(tag.getDouble("StiffMax"), 1, ColdStiffness.MAX_LEFT) : 0;
         stiffLeft = stiff ? Math.clamp(tag.getDouble("StiffLeft"), 1, stiffMax) : 0;
+        stiffStartTick = 0; thawTicks = 0;
         initialSample = true; coldComplaint = false; sampleTicks = temperatureSampleTicks = 0; cooldown = 0; stop();
     }
 

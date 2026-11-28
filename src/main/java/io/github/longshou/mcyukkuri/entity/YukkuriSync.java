@@ -108,6 +108,9 @@ final class YukkuriSync {
     private static final EntityDataAccessor<Long> LEAK_TRACE_AT=YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private static final EntityDataAccessor<String> SPEECH_VOICE_TIER = YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> TABLE_TOOL=YukkuriEntity.defineSyncedValue(EntityDataSerializers.STRING);
+    /** Packed cold-stiff display state (bit 0 stiff, bits 1-2 crack 0..3, bit 3 rewarming) and freeze start tick. */
+    private static final EntityDataAccessor<Integer> COLD_STIFF = YukkuriEntity.defineSyncedValue(EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Long> COLD_STIFF_START = YukkuriEntity.defineSyncedValue(EntityDataSerializers.LONG);
     private Held heldSnapshot = Held.NONE;
     private final LastSent<Held> sentHeld = new LastSent<>();
     private YukkuriSyncState.Agitation agitationSnapshot;
@@ -275,6 +278,15 @@ final class YukkuriSync {
         if (!Objects.equals(owner.getEntityData().get(key), value)) owner.getEntityData().set(key, value);
     }
     int visibleSigns(){return owner.getEntityData().get(BODY_SIGNS);}
+    int visibleColdStiff(){return owner.getEntityData().get(COLD_STIFF);}
+    long coldStiffStartTick(){return owner.getEntityData().get(COLD_STIFF_START);}
+    void syncColdStiff(){
+        if(owner.life()==null||owner.level().isClientSide)return;
+        var temp=owner.life().temperature();
+        int packed=owner.isAlive()?temp.packedStiffDisplay():0;
+        setChanged(COLD_STIFF,packed);
+        setChanged(COLD_STIFF_START,packed!=0?temp.stiffStartTick():0L);
+    }
     boolean visibleSyndromePrevention() { return owner.getEntityData().get(SYNDROME_PREVENTED); }
     float growthScale() { return owner.getEntityData().get(GROWTH_SCALE)*((subspeciesFlags()&SubspeciesLife.DEIBU_FLAG)!=0?1.5f:1); }
     int lifeStage() { return owner.getEntityData().get(LIFE_STAGE); }
@@ -511,6 +523,8 @@ final class YukkuriSync {
         builder.define(LEAK_TRACE_AT,-1L);
         builder.define(SPEECH_VOICE_TIER, "");
         builder.define(TABLE_TOOL,"NONE");
+        builder.define(COLD_STIFF,0);
+        builder.define(COLD_STIFF_START,0L);
     }
     void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if(BROOD_PROGRESS.equals(key)&&owner.level().isClientSide){

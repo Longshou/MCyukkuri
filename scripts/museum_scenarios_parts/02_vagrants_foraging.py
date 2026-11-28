@@ -737,11 +737,11 @@ add('cold_stiff_stray', 'forage', '流浪：雪夜冻僵，无人管冻死，点
                forbid=[rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* freeze death', rf'\[body\][^\n]* uuid={_cs_warmed} [^\n]* death settled',
                        rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* stiff end', r'\[body\][^\n]* invariant\b'],
                expect=[rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* stiff begin ',
-                       rf'\[choreo\][^\n]* uuid={_cs_alone} [^\n]* beat=stiff_enter face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cs_alone} [^\n]* beat=stiff_enter face=frozen line=none declared=frozen',
                        rf'\[temperature\][^\n]* uuid={_cs_alone} [^\n]* freeze death reason=window_spent stiff=true ',
                        rf'\[body\][^\n]* uuid={_cs_alone} [^\n]* death settled into remains; cause=freeze [^\n]*category=frozen',
                        rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff begin ',
-                       rf'\[choreo\][^\n]* uuid={_cs_warmed} [^\n]* beat=stiff_enter face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cs_warmed} [^\n]* beat=stiff_enter face=frozen line=none declared=frozen',
                        rf'\[temperature\][^\n]* uuid={_cs_warmed} [^\n]* stiff end reason=warmed ',
                        r'MCYSTIFF_LIT'],
                verify=_cs_stray_verify))
@@ -887,10 +887,10 @@ add('cold_stiff_mined', 'forage', '流浪：冻僵的被镐、拳、剑凿，镐
                forbid=[r'\[body\][^\n]* invariant\b', rf'\[temperature\][^\n]* uuid={_cm_sword} [^\n]* freeze death',
                        r'\[scenario\][^\n]* action=chisel [^\n]*stiff=false'],
                expect=[*(rf'\[temperature\][^\n]* uuid={uuid} [^\n]* stiff begin ' for uuid in (_cm_pick, _cm_hand, _cm_sword, _cm_junk)),
-                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_1 face=sleep line=none declared=sleep',
-                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_2 face=sleep line=none declared=sleep',
-                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_3 face=sleep line=none declared=sleep',
-                       rf'\[choreo\][^\n]* uuid={_cm_pick} [^\n]* beat=chisel_shatter face=sleep line=none declared=sleep',
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_1 face=frozen line=none declared=frozen',
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_2 face=frozen line=none declared=frozen',
+                       rf'\[choreo\][^\n]* uuid={_cm_hand} [^\n]* beat=chisel_crack_3 face=frozen line=none declared=frozen',
+                       rf'\[choreo\][^\n]* uuid={_cm_pick} [^\n]* beat=chisel_shatter face=frozen line=none declared=frozen',
                        rf'\[headwear\][^\n]* uuid={_cm_junk} [^\n]* junk death transfer item=\S*junk_headwear destination=world'],
                verify=_cs_mined_verify))
 
@@ -999,5 +999,5 @@ add('cold_stiff_rewarm_fire', 'forage', '流浪：篮子端起冻僵的放到篝
                        rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* freeze death'],
                expect=[rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff begin ', rf'\[temperature\][^\n]* uuid={_cf_left} [^\n]* stiff begin ',
                        rf'\[temperature\][^\n]* uuid={_cf_lift} [^\n]* stiff end reason=warmed ',
-                       rf'\[choreo\][^\n]* uuid={_cf_lift} [^\n]* beat=stiff_lift face=sleep line=none declared=sleep'],
+                       rf'\[choreo\][^\n]* uuid={_cf_lift} [^\n]* beat=stiff_lift face=frozen line=none declared=frozen'],
                verify=_cs_rewarm_verify))

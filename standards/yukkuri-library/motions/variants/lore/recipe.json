@@ -18,6 +18,7 @@
     "dig": {"clips": ["shelter_dig"], "braid_follow": true},
     "braid-eat": {"clips": ["braid_eat", "braid_eat_bin"]},
     "paper": {"clips": ["paper_pull", "paper_cover_under", "paper_cover_child", "cold_shiver"], "braid_follow": true},
+    "cold-stiff": {"clips": ["cold_curl", "cold_stiff", "cold_thaw"], "braid_follow": true},
     "sumo": {"clips": ["sumo_ready", "sumo_shove", "sumo_push_out", "sumo_win"], "braid_follow": true},
     "aquatic": {"clip_source": "aquatic_tools.py", "clip_field": "EXPORT_CLIPS"}
   },
@@ -8114,6 +8115,62 @@
       "lore": "Project design (N79): drawn in flatter and tucked forward against the cold, shivering in small fast 9.5 Hz tremors with two crisp shudder bursts per 2.4 s cycle; face stays on cold (animated cold/cold_b) rather than fear or crying. Composed tilt stays within 9 degrees.",
       "triggers": ["FoundShelter cold plain-gap rest"]
     },
+    "cold_curl": {
+      "label": "受寒蜷缩将僵",
+      "duration": 2.4,
+      "loop": false,
+      "applies": "all",
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 0], [1.75, 2.5], [2.4, 2.5]],
+          "out_keys": [[0, 0], [1.75, -2.5], [2.4, -2.5]],
+          "wags": [[0.15, 1.45, 1.6, 8.5]]
+        }
+      },
+      "faces": [
+        [0, 1.4, "cold"],
+        [1.4, 2.4, "frozen"]
+      ],
+      "lore": "Project design (R5 cold stiffening): curling inward and hunkering low against lethal cold while shivering weakly and uttering the last cold plea, then stiffening rigid into the exact cold_stiff hold pose with the frost-rimmed frozen face. Composed tilt stays within 9 degrees.",
+      "triggers": ["TemperatureLife pre-stiffening curl"]
+    },
+    "cold_stiff": {
+      "label": "低温冻僵定格",
+      "duration": 1.0,
+      "loop": true,
+      "applies": "all",
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 2.5], [1.0, 2.5]],
+          "out_keys": [[0, -2.5], [1.0, -2.5]]
+        }
+      },
+      "faces": [
+        [0, 1.0, "frozen"]
+      ],
+      "lore": "Project design (R5 cold stiffening): single-frame motionless hold matching the curled end pose of cold_curl inside the bevelled ice shell, eyes tightly shut with frost rime and chilled blue lips, zero breathing or sway. Composed tilt is 7 degrees.",
+      "triggers": ["TemperatureLife stiff hold"]
+    },
+    "cold_thaw": {
+      "label": "回暖解冻苏醒",
+      "duration": 3.6,
+      "loop": false,
+      "applies": "all",
+      "display": {
+        "sideburn": {
+          "forward_keys": [[0, 2.5], [0.75, 2.0], [1.55, 0], [3.6, 0]],
+          "out_keys": [[0, -2.5], [0.75, -1.5], [1.15, 3.0], [1.55, 0], [3.6, 0]],
+          "wags": [[0.72, 1.54, 4.0, 3.5], [2.65, 3.45, 1.4, 7.5]]
+        }
+      },
+      "faces": [
+        [0, 1.4, "frozen"],
+        [1.4, 2.5, "confused_small"],
+        [2.5, 3.6, "cold"]
+      ],
+      "lore": "Project design (R5 cold stiffening): breaking free from the ice shell with cracking tremors, shaking frost off with a crisp yaw shudder (eyes still shut), blinking open into a dazed bewildered pause (confused_small), and settling back with a light recovery shiver (cold). Composed tilt stays within 8 degrees.",
+      "triggers": ["TemperatureLife thaw recovery"]
+    },
     "sumo_ready": {
       "label": "相扑起势",
       "duration": 1.6,
@@ -8272,6 +8329,9 @@
     "paper_cover_under",
     "paper_cover_child",
     "cold_shiver",
+    "cold_curl",
+    "cold_stiff",
+    "cold_thaw",
     "sumo_ready",
     "sumo_shove",
     "sumo_push_out",

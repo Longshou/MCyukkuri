@@ -164,12 +164,13 @@ def before_checkout(value, stage):
 def render_strip(args, stage, times, before=False, unyielded=False):
     source_root = Path(args.before).resolve() if before else ROOT
     # A before reference is another checkout's actual model, fit and motion inputs.
-    actors, textures, paper_slots, leash_slot = [], [], None, None
+    actors, textures, paper_slots, leash_slot, ice_slot = [], [], None, None, None
     specs = [(args.model, args.prop, [0, 0, 0], getattr(args, 'scale', None))]
     if args.partner:
         specs.append((args.partner, None, args.partner_offset, getattr(args, 'partner_scale', None)))
     for index, (model, prop, offset, custom_scale) in enumerate(specs):
-        a, images = actor(model, prop, index and getattr(args, 'partner_clip', None) or args.clip, offset, source_root)
+        clip_id = (getattr(args, 'before_clip', None) or args.clip) if (before and index == 0) else (index and getattr(args, 'partner_clip', None) or args.clip)
+        a, images = actor(model, prop, clip_id, offset, source_root)
         if custom_scale is not None:
             a['scale'] = custom_scale
         if getattr(args, 'draft_clip', None) and index == 0:
@@ -197,9 +198,9 @@ def render_strip(args, stage, times, before=False, unyielded=False):
             draft_textures.mkdir(exist_ok=True)
             images = [(draft_textures/f'{model}.png',None,[0,0],[1,1])]
             atlas.save(images[0][0])
-        elif getattr(args, 'face', None) and not prop:
+        elif (getattr(args, 'before_face', None) if before else getattr(args, 'face', None)) and not prop:
             library = read(source_root/'src/main/resources/assets/mcyukkuri/yukkuri_presentation/face_library.json')
-            face = args.face
+            face = args.before_face if (before and getattr(args, 'before_face', None)) else args.face
             a['face'] = face
             images = [(source_root/'src/main/resources/assets/mcyukkuri/textures/entity'/model/(face+'.png'),None,[0,0],[1,1])]
             animation = library['animations'].get(face)
@@ -244,6 +245,14 @@ def render_strip(args, stage, times, before=False, unyielded=False):
                 leash_slot = len(textures)
                 textures.append((source_root/'src/main/resources/assets/mcyukkuri/textures/misc/leash_rope.png', None, [0, 0], [1, 1]))
             a['leashSlot'] = leash_slot
+        if getattr(args, 'ice_shell', False) and not prop and not before:
+            if ice_slot is None:
+                ice_slot = len(textures)
+                textures.append((source_root/'src/main/resources/assets/mcyukkuri/textures/misc/cold_stiff_ice.png', None, [0, 0], [1, 1]))
+            a['iceSlot'] = ice_slot
+            a['iceSpec'] = dict(growth=getattr(args, 'ice_growth', 1.0), crack=getattr(args, 'ice_crack', 0))
+            if getattr(args, 'ice_schedule', None):
+                a['iceSchedule'] = args.ice_schedule
         actors.append(a)
     loaded = []
     for path, tint, low, extent in textures:
@@ -431,9 +440,25 @@ def video(args, stage):
                             span_text = f'{offset:.2f}–{offset+seconds:.2f}s neutral'
                         timeline_rows.append(f'<li><strong>{E(cid)}</strong> ({offset:.2f}–{offset+seconds:.2f}s, {seconds:g}s)：{E(span_text)}</li>')
                         offset += seconds
+                    ice_schedule = None
+                    if getattr(args, 'ice_shell', False):
+                        stiff_seen, stiff_total = 0, sum(1 for c in clip_schedule if c == 'cold_stiff')
+                        ramp_frames = max(1, min(round(2.0 * args.fps), stiff_total))
+                        ice_schedule = []
+                        for c in clip_schedule:
+                            if c == 'cold_stiff':
+                                stiff_seen += 1
+                                g = min(1.0, stiff_seen / ramp_frames)
+                                ice_schedule.append(dict(growth=g, crack=getattr(args, 'ice_crack', 0)))
+                            else:
+                                ice_schedule.append(None)
                     opts = argparse.Namespace(model=model, prop=None, clip=clip_names[0], clip_schedule=clip_schedule,
                                               partner=None, face=args.face, draft_clip=None, face_preset=None, texture=None,
                                               paper_cover=False, leash_loop=getattr(args, 'leash_loop', False),
+                                              ice_shell=getattr(args, 'ice_shell', False),
+                                              ice_crack=getattr(args, 'ice_crack', 0),
+                                              ice_growth=getattr(args, 'ice_growth', 1.0),
+                                              ice_schedule=ice_schedule,
                                               scale=getattr(args, 'scale', None), size=args.size, view=view, node=args.node)
                     raw_frames = render_strip(opts, stage, times)
                     has_before = False
@@ -474,16 +499,18 @@ def video(args, stage):
     for model, spec, view in ((m, c, v) for m in models for c in args.clip for v in views):
         clip, face_override = spec.split('@', 1) if '@' in spec else (spec, args.face)
         try:
-            seconds = read(Path(args.draft_clip))['duration'] if args.draft_clip else clip_seconds(ROOT, model, clip)
+            cur_clip = read(Path(args.draft_clip)) if args.draft_clip else resolved_clip(ROOT, model, clip)
         except ValueError:
             if multi:
                 continue
             raise
+        seconds = cur_clip['duration']
         has_before = False
+        before_clip_id = getattr(args, 'before_clip', None) or clip
         if before_root:
             try:
-                before_clip = resolved_clip(before_root, model, clip)
-                if multi and not args.draft_clip and not face_override and before_clip == resolved_clip(ROOT, model, clip):
+                before_clip = resolved_clip(before_root, model, before_clip_id)
+                if multi and not args.draft_clip and not face_override and not getattr(args, 'before_clip', None) and before_clip == cur_clip:
                     continue
                 seconds = max(seconds, before_clip['duration'])
                 has_before = True
@@ -493,12 +520,18 @@ def video(args, stage):
         if count < 1:
             raise ValueError(f'Clip too short for {args.fps} fps: {model}/{clip}')
         times = [i/args.fps for i in range(count)]
+        nd = cur_clip['duration']
+        new_times = [t % nd if cur_clip.get('loop') else min(t, nd) for t in times]
         opts = argparse.Namespace(model=model, prop=None, clip=clip, partner=None, face=face_override,
+                                  before_clip=before_clip_id, before_face=getattr(args, 'before_face', None),
                                   draft_clip=args.draft_clip, face_preset=None, texture=None, paper_cover=False,
                                   leash_loop=getattr(args, 'leash_loop', False),
+                                  ice_shell=getattr(args, 'ice_shell', False),
+                                  ice_crack=getattr(args, 'ice_crack', 0),
+                                  ice_growth=getattr(args, 'ice_growth', 1.0),
                                   scale=getattr(args, 'scale', None),
                                   size=args.size, view=view, node=args.node)
-        frames = render_strip(opts, stage, times)
+        frames = render_strip(opts, stage, new_times)
         if has_before:
             bd = before_clip['duration']
             old_times = [t % bd if before_clip.get('loop') else min(t, bd) for t in times]
@@ -1018,7 +1051,12 @@ def parser():
             p.add_argument('--partner-scale', type=float, help='growth/body scale of --partner')
             p.add_argument('--paper-cover', action='store_true', help='drape the live-fitted newspaper tent over each model')
             p.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
+            p.add_argument('--ice-shell', action='store_true', help='wrap the live-fitted bevelled cold-stiff ice shell around each model')
+            p.add_argument('--ice-crack', type=int, default=0, choices=(0, 1, 2, 3), help='chisel crack stage 0..3 on --ice-shell')
+            p.add_argument('--ice-growth', type=float, default=1.0, help='ice shell growth fraction 0..1 on --ice-shell')
             p.add_argument('--before', help='before checkout path or Git ref, using the same camera and times')
+            p.add_argument('--before-clip', help='clip id to play on --before when replacing a placeholder clip')
+            p.add_argument('--before-face', help='face id to show on --before when replacing a placeholder face')
             p.add_argument('--wall', type=float, nargs=3, action='append', metavar=('X', 'Z', 'BLOCKS'),
                            help='wall face beside each model: horizontal direction from the body axis and distance in blocks; '
                                 'repeat for more faces. Loose parts give way as in the game and an unyielded comparison is added')
@@ -1089,6 +1127,8 @@ def parser():
     vd.add_argument('--sequence', action='append', metavar='CLIP,CLIP,...',
                     help='comma-separated clip chain rendered as one continuous video per model, with phase and face timeline under each video; repeat for variants')
     vd.add_argument('--before', help='before checkout path or Git ref, played beside the current clip')
+    vd.add_argument('--before-clip', help='clip id to play on --before when replacing a placeholder clip')
+    vd.add_argument('--before-face', help='face id to show on --before when replacing a placeholder face')
     vd.add_argument('--face', help='runtime expression id')
     vd.add_argument('--draft-clip', help='draft clip JSON (runtime units, bones by name) played by --model')
     vd.add_argument('--fps', type=int, default=20)
@@ -1097,6 +1137,9 @@ def parser():
     vd.add_argument('--view', type=float, nargs=2, action='append', metavar=('AZ', 'EL'),
                     help='camera azimuth/elevation (default 0 10); repeat for several camera angles of each clip')
     vd.add_argument('--leash-loop', action='store_true', help='wrap the live-fitted vanilla lead rope loop around each model')
+    vd.add_argument('--ice-shell', action='store_true', help='wrap the live-fitted bevelled cold-stiff ice shell around each model')
+    vd.add_argument('--ice-crack', type=int, default=0, choices=(0, 1, 2, 3), help='chisel crack stage 0..3 on --ice-shell')
+    vd.add_argument('--ice-growth', type=float, default=1.0, help='ice shell growth fraction 0..1 on --ice-shell')
     vd.add_argument('--node', default='node')
     return ap
 

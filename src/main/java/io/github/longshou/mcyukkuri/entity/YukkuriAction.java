@@ -210,6 +210,10 @@ public enum YukkuriAction {
     PAPER_COVER_UNDER("paper_cover_under", 1.4, false),
     PAPER_COVER_CHILD("paper_cover_child", 1.48, false),
     COLD_SHIVER("cold_shiver", 2.4, true),
+    // R5 cold stiffening (lore recipe cold-stiff family): curling into the freeze, motionless frozen hold, and thawing recovery.
+    COLD_CURL("cold_curl", 2.4, false),
+    COLD_STIFF("cold_stiff", 1.0, true),
+    COLD_THAW("cold_thaw", 3.6, false),
     // Friendly sumo bout phases (lore recipe sumo family): ritual ready stance, 20-tick charge/shove, loser push-out, winner pose.
     SUMO_READY("sumo_ready", 1.6, true),
     SUMO_SHOVE("sumo_shove", 1.0, true),

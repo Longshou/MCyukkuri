@@ -18,7 +18,26 @@ tools. Registration in the standard set (index.json, provenance) is done once by
 from pathlib import Path
 import argparse, hashlib, json
 from PIL import Image
-from author_sukkiri_faces import LIB, draw, encode, read, std
+from author_sukkiri_faces import LIB, PALETTE as BASE_PALETTE, encode, read, std
+
+PALETTE = {
+    **BASE_PALETTE,
+    # Frost / cold-stiff palette (R5 frozen face): frost rime white, glacial ice blue, chilled blue-slate lips, pale cheek chill.
+    'W': (238, 249, 255, 255),
+    'I': (176, 220, 242, 255),
+    'P': (78, 106, 152, 255),
+    'Q': (148, 184, 218, 255),
+    'R': (188, 222, 242, 145),
+}
+
+
+def draw(rows):
+    im = Image.new('RGBA', (len(rows[0]), len(rows)))
+    for y, row in enumerate(rows):
+        for x, key in enumerate(row):
+            if key != '.':
+                im.putpixel((x, y), PALETTE[key])
+    return im
 
 ART = {
     # Side glance: a flat half-lowered lid, the white on one side and the iris pushed to the other. Not mirrored: both
@@ -99,6 +118,46 @@ ART = {
                      '..............',
                      '..............',
                      '..............'],
+    # Frozen (冻僵) gracefully shut cold eye dusted with delicate frost-rimmed eyelashes (4 rows tall -> closed-eye in check_face_fit).
+    'eye_frozen_l': ['...............',
+                     '...............',
+                     '...............',
+                     '...............',
+                     '...............',
+                     '...............',
+                     '..WA.......AW..',
+                     '...AAI...IAA...',
+                     '....WAAAAAW....',
+                     '.....I...I.....',
+                     '...............',
+                     '...............'],
+    # Frozen (冻僵) pinched worried cold brow dusted with crisp frost rime along the upper ridge.
+    'brow_frozen_l': ['............IW...',
+                      '..........WIAWA..',
+                      '......WIIAAA.....',
+                      '...IAAAAAA.......',
+                      '..AA.............',
+                      '.................'],
+    # Frozen (冻僵) tight wavy chilled pale-blue lips (嘴角青), matching the house cold-shiver mouth weight.
+    'mouth_frozen': ['..............',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '...QPPP..PPQ..',
+                     '..PPQ..PPPQQ..',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '..............',
+                     '..............'],
+    # Frozen (冻僵) pale frost-blue chill tint on cheeks (replaces warm pink blush).
+    'blush_frozen': ['..........',
+                     '...RRRRR..',
+                     '..RRRRRRR.',
+                     '...RRRRR..',
+                     '..........',
+                     '..........'],
 }
 # Approved parts reused by hash prefix.
 STD = dict(smug_eye_l='4e7eae754f', smug_eye_r='8ea6755ac7', smug_brow_l='4a98859cf9', smug_brow_r='87649084e1',
@@ -157,6 +216,13 @@ FACES = {
                 'face_brow_left': 'brow_fierce_l', 'face_brow_right': 'brow_fierce_r',
                 'face_mouth': 'mouth_fierce', 'face_effect_mouth': 'blank'},
                'fierce/menacing glare: steep heavy V-brows, sharply slanted narrowed glaring eyes, clenched gritted snarl'),
+    'frozen': ('neutral', '冻僵', '睡眠 / 生理',
+               {'face_eye_left': 'eye_frozen_l', 'face_eye_right': 'eye_frozen_r',
+                'face_brow_left': 'brow_frozen_l', 'face_brow_right': 'brow_frozen_r',
+                'face_blush_left': 'blush_frozen', 'face_blush_right': 'blush_frozen',
+                'face_tear_left': 'plain_tear', 'face_tear_right': 'plain_tear',
+                'face_mouth': 'mouth_frozen', 'face_effect_mouth': 'blank'},
+               'frozen stiff face (R5): tightly shut eyes with frost-rimmed lashes, rime-dusted pinched brows, chilled blue lips, pale frost-blue cheeks'),
 }
 
 

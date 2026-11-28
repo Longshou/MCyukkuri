@@ -25,7 +25,9 @@ public final class ExpressionClips {
         var clip=MODELS.computeIfAbsent(asset,ExpressionClips::load).get(action);
         if(clip==null||clip.duration<=0||clip.yields.contains(fallback))return fallback;
         float time=clip.loop?elapsed%clip.duration:Math.min(elapsed,clip.duration);
-        for(var span:clip.spans)if(time>=span.start&&time<span.end)return span.face;
+        for(var span:clip.spans)
+            if(time>=span.start&&(time<span.end||(!clip.loop&&time>=clip.duration&&span.end>=clip.duration)))
+                return span.face;
         return fallback;
     }
     /** A clip's own face at one second of its clock; the menu preview's face when none is pinned. */

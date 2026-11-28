@@ -106,7 +106,8 @@
     "distaste_grimace": "expressions/presets/distaste_grimace.json",
     "distaste_bleh": "expressions/presets/distaste_bleh.json",
     "distaste": "expressions/presets/distaste.json",
-    "fierce": "expressions/presets/fierce.json"
+    "fierce": "expressions/presets/fierce.json",
+    "frozen": "expressions/presets/frozen.json"
   },
   "parts": "expressions/parts/index.json",
   "source_coverage": "provenance/expression-coverage.json",
