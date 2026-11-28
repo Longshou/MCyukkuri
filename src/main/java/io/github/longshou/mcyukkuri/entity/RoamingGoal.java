@@ -130,7 +130,10 @@ public final class RoamingGoal extends Goal {
         }
         // A dependent young strolls around its family anchor in its comfort band; a street draw never takes it away from kin.
         leash = expedition || animal.settlement().underway() ? null : animal.family().roamingLeash();
-        if (leash != null) radius = leash.far();
+        if (leash != null) {
+            radius = leash.far();
+            animal.family().tetherEdge(leash);
+        }
         // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).
         homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
         if (leash == null) drawToStreet(now); else draw = null;
@@ -248,7 +251,7 @@ public final class RoamingGoal extends Goal {
         // Already outside the home range: head back toward the home instead of choosing another point out there.
         boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
-        BlockPos companion = companionSpot();
+        BlockPos companion = leash != null || outside ? null : companionSpot();
         var allowed = animal.life().quietSites(origin, radius);
         refusals = new int[5];
         if (!baby && !expedition && !outside && !animal.settlement().underway()

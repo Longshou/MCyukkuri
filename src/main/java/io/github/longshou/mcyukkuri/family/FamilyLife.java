@@ -89,7 +89,7 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5;
     public static final double FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, WATCH_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, WATCH_CHILD, WATCH_LEAVE, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
     /** The family anchor a dependent young's wandering is held to, and its comfort band from that anchor (blocks). */
     public record Leash(BlockPos anchor, int near, int far) {}
 
@@ -200,6 +200,8 @@ public final class FamilyLife {
     FamilyTether tether() { return tether; }
     /** Where a dependent young should keep its idle wandering, or null when it may roam as it likes (read by the idle goal). */
     public Leash roamingLeash() { return tether.leash(); }
+    /** Runs the young's tether edge glance/hop/call inside a goal decision tick. */
+    public void tetherEdge(Leash leash) { tether.edgeCue(leash); }
 
     public YukkuriEntity coldCryParent() { return call.coldParent(); }
 
@@ -518,7 +520,7 @@ public final class FamilyLife {
      */
     public boolean yieldsToComfort() {
         return !laboring()&&!inBirthBeat()&&!launchInFlight()&&!carry.lifting()&&!glass.finishing()&&comfortTicks==0
-                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.WATCH_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME
+                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.WATCH_CHILD||task==Task.WATCH_LEAVE||task==Task.FOLLOW||task==Task.STAY_HOME
                     ||task==Task.SEARCH||task==Task.ABSENCE||task==Task.WATCH_HOME);
     }
     public String activity() {
@@ -1447,7 +1449,7 @@ public final class FamilyLife {
             var home=earlyHomeStand();
             if(home!=null) {
                 if(needsBedReturn(home)) { task=Task.STAY_HOME;target=null;taskTicks=0;return true; }
-                return false;
+                return startWatchLeave();
             }
             // A travelling child that can locate its escort follows the live body before answering an old call.
             if(familyTravelling()){
@@ -1461,8 +1463,8 @@ public final class FamilyLife {
             var heard=call.heard();
             if(heard!=null){answerParentCall(heard);return true;}
             target=closestParent();
-            if(target!=null&&!withinFollowDistance(target)) { task=Task.FOLLOW;taskTicks=0;return true; }
-            return false;
+            if(target!=null&&!withinFollowDistance(target)) { tether.edgeCue(tether.leash()); task=Task.FOLLOW;taskTicks=0;return true; }
+            return startWatchLeave();
         }
         if((choreHat=hatChore())!=null){task=Task.FETCH_HAT;taskTicks=0;return true;}
         // Finish collecting and depositing the real load before routine care can send the parent home again.
@@ -1526,6 +1528,13 @@ public final class FamilyLife {
         if(child==null)return false;
         call.beginBeckon(child);
         task=Task.WATCH_CHILD;target=child;taskTicks=0;
+        return true;
+    }
+    private boolean startWatchLeave() {
+        var parent=tether.leavingParent();
+        if(parent==null)return false;
+        tether.beginWatchLeave(parent);
+        task=Task.WATCH_LEAVE;target=parent;taskTicks=0;
         return true;
     }
 
@@ -1841,6 +1850,7 @@ public final class FamilyLife {
         if(task==Task.ABSENCE)return absence().active();
         if(task==Task.WATCH_HOME)return watch.active()&&!hasExecutableChildCare();
         if(task==Task.WATCH_CHILD)return tether.watchContinues(target);
+        if(task==Task.WATCH_LEAVE)return tether.watchLeaveContinues(target,taskTicks);
         if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!courtship.canReceive())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
@@ -1876,6 +1886,7 @@ public final class FamilyLife {
             case COURT, RECEIVE_COURT -> courtship.roundTimeCap();
             case FOLLOW -> familyTravelling() ? 1200 : 240;
             case WATCH_CHILD -> FamilyTether.watchRound();
+            case WATCH_LEAVE -> FamilyTether.watchLeaveTicks();
             default -> 240;
         };
         return taskTicks<timeCap
@@ -1958,8 +1969,11 @@ public final class FamilyLife {
             }
             case WATCH_CHILD -> {
                 // One call round from where the parent stands; the young answers and comes back on its own.
-                entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
+                entity.getNavigation().stop();face(SurfaceApproach.yaw(entity.position(),target.position()));entity.getLookControl().setLookAt(target,20,20);
                 if(!call.tickBeckon(target)&&call.beckonRounds()>0){stop();return;}
+            }
+            case WATCH_LEAVE -> {
+                entity.getNavigation().stop();face(SurfaceApproach.yaw(entity.position(),target.position()));entity.getLookControl().setLookAt(target,20,20);
             }
             case FETCH_HAT -> tickHatChore();
             case COMFORT -> tickComfort();
@@ -2031,6 +2045,7 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
+        tether.cancelHop();
         if(task==Task.WATCH_CHILD)call.endBeckon();
         if(task==Task.SEARCH&&target!=null&&!carry.lifting()){
             if(target.getVehicle()==entity||safeInSharedHome(target))entity.duty().release(Kind.SEARCH,End.DONE,"child_safe");

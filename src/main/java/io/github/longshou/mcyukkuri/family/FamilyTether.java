@@ -1,16 +1,22 @@
 package io.github.longshou.mcyukkuri.family;
 
+import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.entity.presentation.FaceTier;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Leash;
 import io.github.longshou.mcyukkuri.motor.Action;
+import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.MotorOwner;
 import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.action.Gesture;
 import io.github.longshou.mcyukkuri.perception.Senses;
+import io.github.longshou.mcyukkuri.settlement.ForageTrip;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -20,20 +26,20 @@ import net.minecraft.world.phys.Vec3;
  * family anchor (the caring parent while it is out and awake, else the nest or the caregiver at home) instead of around itself,
  * in a comfort band widened by age and shifted by curiosity, timidity and attachment: at the edge it looks back, beyond the band
  * it hops back and now and then calls. A caring parent glances at its young and calls one that drifts to the band edge, so a warm
- * family stays gathered while a cold or selfish parent's young loosen. A young left at home looks after a caregiver that leaves
- * alone; its own greeting on the caregiver's return is {@link io.github.longshou.mcyukkuri.social.DailyLife#welcomeHome}.
+ * family stays gathered while a cold or selfish parent's young loosen. A young left at home watches a caregiver leave alone with
+ * a short beat; its greeting on the caregiver's return is {@link io.github.longshou.mcyukkuri.social.DailyLife#welcomeHome}.
  *
  * <p>The band stops short of the lost gate ({@link FamilySeparation#near}): a child held here is never a search target. The
  * young's own wander is the existing {@link io.github.longshou.mcyukkuri.entity.RoamingGoal} aimed at this anchor; a parent's call
- * is the existing {@link ChildCall} beckon and the child's existing answer. Transient: a reload starts with no anchor rememberd.
+ * is the existing {@link ChildCall} beckon and the child's existing answer. Transient: a reload starts with no anchor remembered.
  */
 final class FamilyTether {
     /** A caregiver within this reach anchors the young; one beyond the keep range is away and the home holds the young (blocks). */
     private static final double TAKE = 12, KEEP = 24;
     /** The young looks back at the edge, hops back beyond the band and says a line now and then, each on its own pace (ticks). */
     private static final int GLANCE = 60, HOP = 200, LINE = 1200;
-    /** A young at home that sees a caregiver leave alone looks after it once per outing (ticks; blocks). */
-    private static final int DEPARTURE = 1200;
+    /** A young at home that sees a caregiver leave alone watches it go once per outing (ticks; blocks). */
+    private static final int DEPARTURE = 1200, WATCH_LEAVE = 40;
     private static final double DEPARTURE_RANGE = 16;
     /** A caring parent looks over its young about every half minute; a cold or selfish one never does (ticks). */
     private static final int WATCH = 400, WATCH_ROUND = 120;
@@ -48,6 +54,8 @@ final class FamilyTether {
     private UUID leashParent;
     /** The body resolved as the current anchor during {@link #anchor()}, null for the nest. */
     private YukkuriEntity anchorActor;
+    /** Caregivers this young already watched leave on their current outing (transient, cleared once they are back). */
+    private final Set<UUID> seenLeaving = new HashSet<>(2);
     private long nextGlance, nextHop, nextLine, nextDeparture, nextWatch;
     private boolean hopping;
     private final MotorOwner body = new MotorOwner() {
@@ -74,9 +82,14 @@ final class FamilyTether {
         var e = entity();
         var family = e.family();
         return !family.adult() && family.stage() != FamilyLife.Stage.BABY && e.childhood().shouldStayWithParents()
-                && !family.keptHome() && !e.isPassenger() && !e.isInWaterOrBubble()
+                && hasCaregiver() && !family.keptHome() && !e.isPassenger() && !e.isInWaterOrBubble()
                 && !family.familyTravelling() && !family.emergencyForaging() && !e.settlement().underway()
                 && !(e.roaming() != null && e.roaming().exploring());
+    }
+
+    private boolean hasCaregiver() {
+        for (var id : entity().family().caregiverIds()) if (id != null) return true;
+        return false;
     }
 
     /** Wider with age; curiosity and boldness widen it, timidity and attachment narrow it. Never past the lost gate. */
@@ -110,18 +123,23 @@ final class FamilyTether {
         var e = entity();
         if (leashParent != null) {
             if (e.family().expectsCare(leashParent) && o.level().getEntity(leashParent) instanceof YukkuriEntity kept
-                    && e.life().canRecognize(kept) && present(kept) && e.distanceToSqr(kept) <= KEEP * KEEP) return kept;
+                    && kept.isAlive() && e.life().canRecognize(kept) && !exiledCaregiver(e, kept)
+                    && present(kept) && e.distanceToSqr(kept) <= KEEP * KEEP) return kept;
             leashParent = null;
         }
         YukkuriEntity best = null;
         double nearest = TAKE * TAKE;
         for (var id : e.family().caregiverIds()) {
-            if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent)) continue;
-            if (!e.life().canRecognize(parent) || !present(parent)) continue;
+            if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
+            if (!e.life().canRecognize(parent) || exiledCaregiver(e, parent) || !present(parent)) continue;
             double at = e.distanceToSqr(parent);
             if (at < nearest) { best = parent; nearest = at; }
         }
         return best;
+    }
+
+    private static boolean exiledCaregiver(YukkuriEntity young, YukkuriEntity parent) {
+        return parent.moldExile().leavesCareToResident(young) || young.moldExile().exiledFrom(parent);
     }
 
     /** Out and awake beside the young: not asleep, carried, swimming, or away alone on an errand. */
@@ -131,13 +149,23 @@ final class FamilyTether {
 
     private static boolean awayAlone(YukkuriEntity parent) {
         return parent.forageTrip() != null && parent.forageTrip().outing()
+                || parent.family().feeding().fetchingOutside()
+                || parent.habitat().movingHome() || parent.outing().onOuting();
+    }
+
+    /** Heading out alone from home (excludes a returning forager so the watch does not fire on homecoming). */
+    private static boolean leavingAlone(YukkuriEntity parent) {
+        return parent.forageTrip() != null && parent.forageTrip().outing()
+                && parent.forageTrip().phase() != ForageTrip.Phase.BACK
                 || parent.habitat().movingHome() || parent.outing().onOuting();
     }
 
     /** The last anchor for a family without a nest: a caregiver at home, even asleep. */
     private YukkuriEntity homeCaregiver() {
-        for (var id : entity().family().caregiverIds())
+        var e = entity();
+        for (var id : e.family().caregiverIds())
             if (id != null && o.level().getEntity(id) instanceof YukkuriEntity parent && parent.isAlive()
+                    && e.life().canRecognize(parent) && !exiledCaregiver(e, parent)
                     && parent.family().atHome()) return parent;
         return null;
     }
@@ -145,25 +173,30 @@ final class FamilyTether {
     /** Whether this parent is the young's current anchor (read by the parent-side watch). */
     boolean anchoredOn(YukkuriEntity parent) { return leash() != null && anchorActor == parent; }
 
+    /** Passive clock: read-only anchor telemetry and clearing ended outings. Never runs motor actions or writes look/speech. */
     void tick() {
         var e = entity();
         if (e.family().adult()) return;
-        if (e.tickCount % 20 != 0 || e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return;
+        if (e.tickCount % 20 != 0) return;
+        seenLeaving.removeIf(id -> !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive() || !awayAlone(parent));
+        if (e.isPassenger() || e.life().isSleeping() || e.isPanicking()) return;
         var leash = leash();
-        if (leash != null) hold(leash);
-        else departure();
+        if (leash == null) return;
+        var center = Vec3.atBottomCenterOf(leash.anchor());
+        double away = Math.sqrt(e.distanceToSqr(center));
+        GameplayLog.limited(e, "family", "tether.young", 200,
+                "tether young anchor={} parent={} near={} far={} distance={}",
+                leash.anchor(), anchorActor == null ? "nest" : anchorActor.getUUID(), leash.near(), leash.far(), round(away));
     }
 
-    /** The young's own side of the hold: sample it, look back at the edge, hop back beyond it and call now and then. */
-    private void hold(Leash leash) {
+    /** Goal-phase edge reaction: looks back at the anchor near the edge, hops back and may call beyond the band. */
+    void edgeCue(Leash leash) {
+        if (leash == null) return;
         var e = entity();
         long now = o.level().getGameTime();
         var center = Vec3.atBottomCenterOf(leash.anchor());
         double away = Math.sqrt(e.distanceToSqr(center));
         var band = band(e);
-        GameplayLog.limited(e, "family", "tether.young", 200,
-                "tether young anchor={} parent={} near={} far={} distance={}",
-                leash.anchor(), anchorActor == null ? "nest" : anchorActor.getUUID(), leash.near(), leash.far(), round(away));
         if (away < edge(band)) return;
         if (now >= nextGlance) {
             nextGlance = now + GLANCE;
@@ -172,7 +205,7 @@ final class FamilyTether {
                     leash.anchor(), anchorActor == null ? "nest" : anchorActor.getUUID(), round(away), leash.near(), leash.far());
         }
         if (away <= leash.far()) return;
-        if (now >= nextHop && e.onGround() && e.motor().current() == null) {
+        if (now >= nextHop && e.onGround() && e.motor().current() == null && BodyAbility.of(e).canJump()) {
             nextHop = now + HOP + e.getRandom().nextInt(HOP);
             hopping = true;
             if (!e.motor().run(body, new Gesture(Gesture.Kind.HOP_SMALL))) hopping = false;
@@ -184,29 +217,67 @@ final class FamilyTether {
         }
     }
 
-    /** A young at home watches a caregiver go out alone; its return greeting is the ordinary welcome home. */
-    private void departure() {
+    void cancelHop() {
+        if (!hopping) return;
+        o.entity().motor().cancel(body, "tether_ended");
+        hopping = false;
+    }
+
+    /** A caregiver this young at home sees heading out alone (once per outing), or null. */
+    YukkuriEntity leavingParent() {
         var e = entity();
         long now = o.level().getGameTime();
-        if (now < nextDeparture || !e.family().atHome()) return;
+        if (now < nextDeparture || e.family().adult() || !e.childhood().shouldStayWithParents()
+                || !e.family().atHome() || e.isPassenger() || e.life().isSleeping() || e.isPanicking()
+                || e.life().hasUrgentNeed() || e.life().mealTicks() > 0 || e.dailyLife().active()
+                || e.playLife().active() || e.groupInteraction().active()
+                || e.body().condition().needsPainExpression()) return null;
+        YukkuriEntity best = null;
+        double nearest = DEPARTURE_RANGE * DEPARTURE_RANGE;
         for (var id : e.family().caregiverIds()) {
-            if (id == null || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
-            if (!awayAlone(parent) || e.distanceToSqr(parent) > DEPARTURE_RANGE * DEPARTURE_RANGE || !Senses.sees(e, parent)) continue;
-            nextDeparture = now + DEPARTURE;
-            e.getLookControl().setLookAt(parent, 20, 20);
-            boolean said = e.quiet() && e.speak("wait_family");
-            GameplayLog.limited(e, "family", "tether.departure", 600,
-                    "tether young watches a caregiver leave parent={} distance={} spoken={}",
-                    id, round(Math.sqrt(e.distanceToSqr(parent))), said);
-            return;
+            if (id == null || seenLeaving.contains(id)
+                    || !(o.level().getEntity(id) instanceof YukkuriEntity parent) || !parent.isAlive()) continue;
+            if (!e.life().canRecognize(parent) || exiledCaregiver(e, parent) || !leavingAlone(parent)) continue;
+            double at = e.distanceToSqr(parent);
+            if (at <= nearest && Senses.sees(e, parent)) { best = parent; nearest = at; }
         }
+        return best;
     }
+
+    /** Plays the short see-off beat (existing greet clip, trait-driven face and deferred wait_family line). */
+    void beginWatchLeave(YukkuriEntity parent) {
+        var e = entity();
+        long now = o.level().getGameTime();
+        nextDeparture = now + DEPARTURE;
+        UUID id = parent.getUUID();
+        seenLeaving.add(id);
+        var traits = e.life().personality().temperament();
+        String face = e.family().stage() == FamilyLife.Stage.BABY
+                || traits.is(Temperament.Gate.TIMID) || traits.is(Temperament.Gate.ATTACHED) ? "teary" : "open_smile";
+        double distance = round(Math.sqrt(e.distanceToSqr(parent)));
+        boolean shown = e.showWithDeferredLine(YukkuriAction.GREET, YukkuriAction.GREET.durationTicks(),
+                face, "wait_family", FaceTier.Tier.SHORT, 0,
+                result -> GameplayLog.event(e, "family",
+                        "tether young watches a caregiver leave parent={} distance={} face={} spoken={}",
+                        id, distance, face, result.spoken()));
+        if (shown) e.beat("tether_see_off", face, "wait_family");
+        else GameplayLog.event(e, "family",
+                "tether young watches a caregiver leave parent={} distance={} face=none spoken=false",
+                id, distance);
+    }
+
+    boolean watchLeaveContinues(YukkuriEntity parent, int ticks) {
+        return parent != null && parent.isAlive() && parent.level() == o.level() && ticks < WATCH_LEAVE;
+    }
+
+    static int watchLeaveTicks() { return WATCH_LEAVE; }
 
     /** The child this parent calls before it is lost, or null: a caring parent's glance at its young beyond its band edge. */
     YukkuriEntity watchTarget() {
         var e = entity();
         if (!e.family().adult() || e.isPassenger() || e.life().isSleeping() || e.isPanicking()
-                || e.life().hasUrgentNeed() || o.carryingOrLifting()) return null;
+                || e.life().hasUrgentNeed() || e.life().mealTicks() > 0 || e.playLife().active()
+                || e.groupInteraction().active() || o.carryingOrLifting()) return null;
         long now = o.level().getGameTime();
         if (now < nextWatch) return null;
         nextWatch = now + WATCH + e.getRandom().nextInt(WATCH);
@@ -232,7 +303,9 @@ final class FamilyTether {
                         child -> child != e && family.caresFor(child) && !child.family().adult()
                                 && child.family().stage() != FamilyLife.Stage.BABY
                                 && child.childhood().shouldStayWithParents() && !child.life().isSleeping()
-                                && !child.isPanicking() && e.hasLineOfSight(child)
+                                && !child.isPanicking() && child.life().mealTicks() == 0
+                                && !child.playLife().active() && !child.groupInteraction().active()
+                                && !child.dailyLife().active() && e.hasLineOfSight(child)
                                 && child.family().tether().anchoredOn(e)
                                 && e.distanceToSqr(child) > square(edge(band(child))))
                 .stream().min(Comparator.comparingDouble(e::distanceToSqr)).orElse(null);
@@ -241,7 +314,7 @@ final class FamilyTether {
     /** The watch still has its child: alive, cared for and still orbiting this parent. */
     boolean watchContinues(YukkuriEntity child) {
         var e = entity();
-        return child.isAlive() && child.level() == e.level() && e.family().caresFor(child)
+        return child != null && child.isAlive() && child.level() == e.level() && e.family().caresFor(child)
                 && !child.isPanicking() && child.family().tether().anchoredOn(e);
     }
 
