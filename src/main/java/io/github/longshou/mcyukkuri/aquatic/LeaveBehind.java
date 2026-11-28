@@ -54,7 +54,7 @@ final class LeaveBehind implements Intent {
     /** How long she watches a child go (ticks: the plea, in which a pleader may take up to a minute to reach her, and the early walk); how far she shoves a pleader off (blocks). */
     private static final int WATCH = 2400, SHOVE = 3, PLEA_WAIT = 1500;
     /** Holds (ticks) when answering an interceding sibling: soothing beat, cold ignore/blocked-nudge flick, and speech-turn wait. */
-    private static final int SOOTHE_HOLD = 50, IGNORE_HOLD = 36, ANSWER_QUIET_WAIT = 120;
+    private static final int SOOTHE_HOLD = 50, IGNORE_HOLD = 36, ANSWER_QUIET_WAIT = 180;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
     private static final class Memo {
@@ -312,11 +312,18 @@ final class LeaveBehind implements Intent {
             answeredSibling = true;
             var answer = SeveranceReaction.parentStepInAnswer(parent.life().personality().temperament(),
                     memo.verdict == Verdict.DRIVE_TEARFUL);
-            long[] holdEnd = {0};
+            long[] quietEnd = {0}, holdEnd = {0};
             return List.of(
                     () -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), sib.position()))),
-                    () -> new Step.Wait(() -> !sib.isAlive()
-                            || parent.quiet() && sib.speechEnd() <= parent.level().getGameTime(), ANSWER_QUIET_WAIT, null),
+                    () -> {
+                        quietEnd[0] = parent.level().getGameTime() + ANSWER_QUIET_WAIT;
+                        return new Step.Wait(() -> {
+                            long now = parent.level().getGameTime();
+                            if (sib.isAlive()) parent.getLookControl().setLookAt(sib, 30, 30);
+                            return !sib.isAlive() || now >= quietEnd[0]
+                                    || parent.quiet() && sib.speechEnd() <= now;
+                        }, ANSWER_QUIET_WAIT + 10, null);
+                    },
                     () -> {
                         if (!sib.isAlive()) return null;
                         var t = parent.life().personality().temperament();

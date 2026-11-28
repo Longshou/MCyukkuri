@@ -56,7 +56,7 @@ public final class DrivenOut extends Goal implements MotorOwner {
     private static final int TURN_CAP = 120, TURN_RANGE = 6;
     /** Finite budgets (ticks) for a sibling stepping in: walking to the stand, waiting to speak, holding its plea for the parent to hear,
      *  waiting for the parent's answer, and reacting/stepping aside afterwards. Every step falls back cleanly when its budget runs out. */
-    private static final int STEPIN_WALK_CAP = 200, PLEA_TURN_CAP = 80, PLEA_HEAR_TICKS = 35, STEPIN_PLEA_CAP = 260, STEPIN_ASIDE_CAP = 80;
+    private static final int STEPIN_WALK_CAP = 200, PLEA_TURN_CAP = 80, PLEA_HEAR_TICKS = 35, STEPIN_PLEA_CAP = 300, STEPIN_ASIDE_CAP = 80;
     /** Front-shield angles (degrees) tried around the parent->child line when the exact midpoint is blocked. */
     private static final double[] SHIELD_ANGLES = {25, -25, 50, -50};
 
@@ -530,6 +530,12 @@ public final class DrivenOut extends Goal implements MotorOwner {
                 stepInArrived = false;
                 if (ContactGeometry.inMouthReach(parent, entity)) enterPleading(parent, now);
                 else endStepIn("short_of_parent");
+                return;
+            }
+            if (stepInAction != null && ContactGeometry.inMouthReach(parent, entity)
+                    && (onChildSide(entity.position(), parent.position(), child.position()) || entity.getNavigation().isDone())) {
+                stopStepInMotor("in_reach");
+                enterPleading(parent, now);
                 return;
             }
             if (stepInAction == null) {
