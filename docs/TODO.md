@@ -9,7 +9,6 @@
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
 | 争抢五级（用户 11-28 同意） | `.worktrees/wp-contest-levels` | social/Contest, ContestOdds, GroupInteractionGoal contest, contest scenes |
-| 断亲时手足上前拦着求情 | `.worktrees/wp-sever-stepin` | family DrivenOut/Departure/SeveranceReaction, sever scenes |
 | 家庭牵引：孩子围着亲油活动（共用层） | `.worktrees/wp-family-tether` | family/FamilyLife, entity/RoamingGoal, young idle anchor, parent watch call |
 | 辫子拨水引帽（帽子近岸够不到） | `.worktrees/wp-braid-beckon` | aquatic hat retrieval, motor/action/Beckon callers |
 | 坑奴场景饿死（BM-10） | `.worktrees/wp-pit-starve` | settlement feeding, pit slave food |
