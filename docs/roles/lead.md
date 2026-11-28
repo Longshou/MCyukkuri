@@ -53,6 +53,7 @@
 
 ## 合入与运行包
 
+- 只动台词或语音的改动（含变基时台词与语音冲突的合并、重录）不冒烟，跑导出、可达与语料检查即可；代码、场景或动作有改动才冒烟。
 - 合入顺序：大段文档改写先合；共用动作源的包按顺序 rebase，冲突时合并制作源再重建输出。合入流程见 [reviewer.md](reviewer.md#合入)。
 - 合入后后台运行 `<py> scripts/pkg.py runtime [--commit <sha>]`（在实际游玩的机器执行）：等覆盖该提交的 Build 完成（Build 跑在推送末端，只改文档的提交没有新 Build，沿用最近一次与检出构建路径一致的那次）、试玩客户端关闭，再把主检出快进到该提交并调用 `update_museum_runtime.py --run <run-id>`；不带 `--commit` 时等待期间 `origin/main` 前进就改等新提交的 Build；失败打印 `--log-failed` 尾部并停止。前提：`git`、已登录的 `gh` 和 `.local/experimental-map/museum-runtime.json`，运行包位于 `.local/setup/runtime-*`。脚本核对 CI 提交与当前检出在全部构建路径（`build.yml` 的 `on.push.paths`）一致后恢复资源、校验哈希、切换配置并删除旧运行包，不编译、不启动游戏；切换前失败不删除原运行包。运行中的冒烟与截图沿用它们启动时的旧运行包，更新只保留仍在使用的目录，下次更新再清理。启动器在生成世界前对照运行包提交与当前代码、资源、场景和构建配置，不一致即停止并提示更新。清理 `.local/setup/runtime-*`、`ci-*` 前核对配置与进程。
 
