@@ -1,6 +1,6 @@
 # 台词与场景核对
 
-通用规则见 [AGENTS.md](../../AGENTS.md)。本角色由 DeepSeek 担任，负责台词分配的统一梳理：每句台词由谁、在什么事件、对谁说，与演出、身份、性格和数值一致。
+通用规则见 [AGENTS.md](../../AGENTS.md)。本角色由 Gemini neon 担任（台词规范见 [DIALOGUE_STYLE.md](../DIALOGUE_STYLE.md)），负责台词分配的统一梳理：每句台词由谁、在什么事件、对谁说，与演出、身份、性格和数值一致。
 
 ## 做法
 
