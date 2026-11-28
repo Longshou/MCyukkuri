@@ -15,9 +15,11 @@ import io.github.longshou.mcyukkuri.MCYukkuri;
 import io.github.longshou.mcyukkuri.body.BodyFood;
 import io.github.longshou.mcyukkuri.body.BodyLife;
 import io.github.longshou.mcyukkuri.body.BodyWound;
+import io.github.longshou.mcyukkuri.dialogue.DialogueStyle;
 import io.github.longshou.mcyukkuri.dialogue.NativeDialogue;
 import io.github.longshou.mcyukkuri.dialogue.SpeechCount;
 import io.github.longshou.mcyukkuri.dialogue.SpeechTiming;
+import io.github.longshou.mcyukkuri.dialogue.SpeechTurn;
 import io.github.longshou.mcyukkuri.life.TravelRange;
 import io.github.longshou.mcyukkuri.entity.component.ComponentKey;
 import io.github.longshou.mcyukkuri.entity.component.ComponentSpec;
@@ -261,6 +263,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
     private DelayedCue pendingSpeech;
     private int pendingSpeechTicks, pendingSpeechFloor;
+    private record TurnSpeech(String event, String tier, String style, long dueTick, long expiresAt, long plannedEnd) {}
+    private TurnSpeech turnSpeech;
     // The bridge reads nothing during construction; component instances keep their original timing.
     private final PresentationArbiter presentation = new PresentationArbiter(new PresentationState());
 
@@ -593,6 +597,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public String getDialogueKey() { return sync().getDialogueKey(); }
     public long speechStart() { return sync().speechStart(); }
     public long speechEnd() { return sync().speechEnd(); }
+    public long speechBusyUntil() { return Math.max(speechEnd(), turnSpeech == null ? 0L : turnSpeech.plannedEnd()); }
     public int speechSequence() { return sync().speechSequence(); }
     public String speechVoiceTier() { return sync().speechVoiceTier(); }
     public ItemStack getMouthItem() { return sync().getMouthItem(); }
@@ -984,6 +989,23 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 if (cue.result() != null) cue.result().accept(said);
             } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
         }
+        if (turnSpeech != null && level().getGameTime() >= turnSpeech.dueTick()) {
+            var queued = turnSpeech;
+            turnSpeech = null;
+            if (!isPanicking() && !life().isSleeping() && !body().dying() && !coldStiff()) {
+                long now = level().getGameTime();
+                var decision = SpeechTurn.evaluate(now, nearbyTurnBusyUntil(now), queued.expiresAt());
+                if (decision.speakNow()) {
+                    speakInternal(queued.event(), queued.tier(), queued.style(), 0, false);
+                } else if (decision.defer()) {
+                    var choices = NativeDialogue.choices(variant.dialogueSpecies(), queued.tier(), myon.quirk(), queued.event());
+                    int dur = choices.isEmpty() ? 60 : choices.getFirst().ticksFor(variant.dialogueSpecies(), queued.tier());
+                    turnSpeech = new TurnSpeech(queued.event(), queued.tier(), queued.style(),
+                            decision.dueTick(), queued.expiresAt(), decision.dueTick() + dur);
+                    extendHoldForTurn(now, decision.dueTick());
+                }
+            }
+        }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
         if (!isAlive()) return;
@@ -1137,6 +1159,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public void cancelReaction() {
+        turnSpeech = null;
         reactionTicks = 0;
         endFaceHold();
         reactionAction = reactionAfter = null;
@@ -1230,6 +1253,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** Stop the speech already projected to clients, including a recording longer than its subtitle. */
     public void interruptSpeech() {
+        turnSpeech = null;
         pendingSpeech = null;
         pendingSpeechTicks = 0;
         speechTiming.interrupt();
@@ -1254,6 +1278,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** The one place a reaction and its face hold begin: the reaction rank shows {@code ticks}, the hold (at least as long) goes on in LINGER, then calms. */
     private void startReaction(String expression, String dialogue, int ticks, FaceTier.Tier tier, int hold) {
+        turnSpeech = null;
         reactionAction = reactionAfter = null;
         reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         reactionDecorative = false;
@@ -1330,12 +1355,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     /** Which wording fits this individual right now: a bold, pleased one; a wary, low one; or the plain line. */
     public String speechStyle() {
         var feeling = mind.feeling();
-        if (feeling.subdued()) return "timid";
-        if (feeling.kind() == EmotionCourse.Kind.JOY) return "proud";
-        var temperament = life.personality().temperament();
-        if (mind.unease() >= 55 || temperament.is(Gate.TIMID)) return "timid";
-        if (temperament.is(Gate.BOLD) && mind.unease() < 40) return "proud";
-        return "plain";
+        return DialogueStyle.legacy(feeling.subdued(), feeling.kind() == EmotionCourse.Kind.JOY,
+                life.personality().temperament(), mind.unease());
+    }
+
+    /** Ordered dialogue style and identity preferences for line selection. */
+    public List<String> speechStyleOrder() {
+        var feeling = mind.feeling();
+        return DialogueStyle.preferences(life.personality().temperament(), status.identity(),
+                feeling.subdued(), feeling.kind() == EmotionCourse.Kind.JOY,
+                feeling.kind() == EmotionCourse.Kind.RAGE, mind.unease(), variant.dialogueSpecies());
     }
     /** A line can still sound like an echo once the nearby quiet gap ends. */
     private Set<String> nearbySpeech(long now) {
@@ -1380,7 +1409,29 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     public boolean quiet() { return speechTiming.idle(level().getGameTime()); }
 
     /** The tick this body may next say a line of the given priority: a beat that must be heard defers to it instead of losing the line. */
-    public long nextSpeech(int priority) { return speechTiming.nextStart(level().getGameTime(), priority); }
+    public long nextSpeech(int priority) {
+        long now = level().getGameTime();
+        long own = speechTiming.nextStart(now, priority);
+        return priority == 2 ? Math.max(own, SpeechTurn.nextSlot(now, nearbyTurnBusyUntil(now))) : own;
+    }
+
+    private long nearbyTurnBusyUntil(long now) {
+        long busy = 0;
+        for (YukkuriEntity other : level().getEntitiesOfClass(YukkuriEntity.class,
+                getBoundingBox().inflate(SpeechTurn.TURN_RADIUS), other -> other != this && other.isAlive()
+                        && distanceToSqr(other) <= SpeechTurn.TURN_RADIUS * SpeechTurn.TURN_RADIUS)) {
+            long until = other.speechBusyUntil();
+            if (until > 0 && now < until + SpeechTurn.TURN_BREATH && until > busy) busy = until;
+        }
+        return busy;
+    }
+
+    private void extendHoldForTurn(long now, long dueTick) {
+        if (!reactionDecorative && !holdFace.isEmpty() && holdEnd > now && holdEnd < dueTick + 10) {
+            holdEnd = dueTick + 10;
+            fadeEnd = holdEnd + fadeLen;
+        }
+    }
 
     /** Ordinary speech takes turns locally; only urgent lines (wounds, fright, loss) bypass the gap after the last line. A retry is
      *  staggered without consuming the ecology/behaviour random stream. */
@@ -1389,7 +1440,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (priority < 2 && !level().getEntitiesOfClass(YukkuriEntity.class,
                 getBoundingBox().inflate(NEARBY_RADIUS), other -> other != this && other.isAlive()
                         && distanceToSqr(other) <= NEARBY_RADIUS * NEARBY_RADIUS
-                        && other.speechEnd() != 0 && now < other.speechEnd() + NEARBY_QUIET_TICKS).isEmpty()) {
+                        && other.speechBusyUntil() != 0 && now < other.speechBusyUntil() + NEARBY_QUIET_TICKS).isEmpty()) {
             speechTiming.defer(now + 40 + Math.floorMod(getUUID().hashCode(), 41));
             return false;
         }
@@ -1397,6 +1448,10 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     private boolean speak(String event, String tier, String style, int priorityFloor) {
+        return speakInternal(event, tier, style, priorityFloor, true);
+    }
+
+    private boolean speakInternal(String event, String tier, String style, int priorityFloor, boolean allowTurnDefer) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         // A body frozen stiff says nothing, whatever layer asks (its last words come before the freeze).
@@ -1405,22 +1460,39 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
             if (!admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return false;
+            turnSpeech = null;
             speechTiming.begin(now, 40, priority);
             showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
             return true;
         }
         event = mind.voice(event); // a broken mind can only scream
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
-        int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-        if (choices.isEmpty() || !admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return false;
-        var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(choices, style == null ? speechStyle() : style, recentSpeech,
-                nearbySpeech(now), RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
-        speechTiming.begin(now, line.ticks(), priority);
+        int basePriority = NativeDialogue.priority(event);
+        int priority = Math.max(priorityFloor, basePriority);
+        boolean urgent = basePriority >= 3;
+        if (choices.isEmpty() || !admitSpeech(now, priority, urgent)) return false;
+        var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(
+                choices, style == null ? speechStyleOrder() : List.of(style, "plain"),
+                recentSpeech, nearbySpeech(now),
+                RandomSource.create(getUUID().getLeastSignificantBits() ^ now ^ event.hashCode()));
+        int duration = line.ticksFor(variant.dialogueSpecies(), tier);
+        if (allowTurnDefer && priority == 2 && !urgent && priorityFloor < 2) {
+            var decision = SpeechTurn.evaluate(now, nearbyTurnBusyUntil(now), now + SpeechTurn.MAX_WAIT);
+            if (decision.defer()) {
+                turnSpeech = new TurnSpeech(event, tier, style, decision.dueTick(), now + SpeechTurn.MAX_WAIT, decision.dueTick() + duration);
+                extendHoldForTurn(now, decision.dueTick());
+                return false;
+            }
+            if (decision.drop()) return false;
+        }
+        turnSpeech = null;
+        speechTiming.begin(now, duration, priority);
         showSpeech(event, line.key(), tier, now);
         return true;
     }
 
     private void showSpeech(String event, String key, String tier, long now) {
+        turnSpeech = null;
         // A beat's face holds at least until the line spoken over it has finished and its tail (LINGER rank); a line spoken while it
         // calms keeps the calmer face to the same end instead of bringing the hot one back.
         if (!reactionDecorative && !holdFace.isEmpty()) {
@@ -1468,6 +1540,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void onRemovedFromLevel() {
+        turnSpeech = null;
         recentSpeech.clear();
         super.onRemovedFromLevel();
     }

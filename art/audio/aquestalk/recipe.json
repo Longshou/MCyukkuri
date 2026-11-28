@@ -84,24 +84,24 @@
       "pitch": 165
     },
     "patchouli.adult": {
-      "voice": "f1",
-      "speed": 85,
-      "pitch": 90
-    },
-    "patchouli.young": {
-      "voice": "f1",
-      "speed": 85,
+      "voice": "f3",
+      "speed": 96,
       "pitch": 112
     },
+    "patchouli.young": {
+      "voice": "f3",
+      "speed": 96,
+      "pitch": 137
+    },
     "patchouli.juvenile": {
-      "voice": "f1",
-      "speed": 85,
-      "pitch": 102
+      "voice": "f3",
+      "speed": 96,
+      "pitch": 124
     },
     "patchouli.baby": {
-      "voice": "f1",
-      "speed": 85,
-      "pitch": 140
+      "voice": "f3",
+      "speed": 96,
+      "pitch": 160
     },
     "myon.adult": {
       "voice": "f3",
@@ -164,8 +164,19 @@
       "pitch": 165
     }
   },
-  "flat_accent": true,
+  "flat_accent": false,
+  "prosody_mode": "sharp-emotion-v1",
+  "emotions": {
+    "neutral": { "speed_delta": -10, "pitch_delta": 0, "peak_dbfs": -2.8, "gap_ms": 200 },
+    "cheerful": { "speed_delta": -4, "pitch_delta": 2, "peak_dbfs": -2.2, "gap_ms": 150 },
+    "proud": { "speed_delta": -2, "pitch_delta": 1, "peak_dbfs": -2.2, "gap_ms": 165 },
+    "curious": { "speed_delta": -8, "pitch_delta": 1, "peak_dbfs": -2.6, "gap_ms": 165 },
+    "angry": { "speed_delta": 10, "pitch_delta": -2, "peak_dbfs": -1.2, "gap_ms": 110 },
+    "sad": { "speed_delta": -22, "pitch_delta": -3, "peak_dbfs": -6.2, "gap_ms": 265, "tail_fade_ms": 260 },
+    "sleepy": { "speed_delta": -30, "pitch_delta": -3, "peak_dbfs": -7.2, "gap_ms": 310, "tail_fade_ms": 400 },
+    "urgent": { "speed_delta": 12, "pitch_delta": 5, "peak_dbfs": -1.0, "gap_ms": 105 }
+  },
   "output_sample_rate": 32000,
   "peak_limit_dbfs": -3,
-  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系。幼语音程 125 来自八景 U 原表；最早 559 条录音的参数与赤油 150／156 均保持不变。全量配音新增爱丽丝 f3、橙 f1、帕秋莉 f1、妖梦 f3、蕾米莉亚 f2、芙兰朵露 f3，并按成体、幼语、子油、赤油四档给出基准／+25／+12／+50 的音程阶梯（最高 165）。这些参数只用于本项目候选录音，不声称复原八景 U 或《油库里日记》的原配音。"
+  "notes": "采用程序内置灵梦 f1／魔理沙 f2 对应关系，帕秋莉采用轻柔书卷声线 f3（96／112）。全量配音基于原生 #> 音标按情绪分档导演重音走势、句尾扬落与换气停顿，不再使用僵硬机械重音。这些参数只用于本项目候选录音，不声称复原八景 U 或《油库里日记》的原配音。"
 }

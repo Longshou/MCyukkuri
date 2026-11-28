@@ -15,6 +15,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from myon_speech_lines import KOTATSU, KOTATSU_BASIS, LINES as MYON_LINES, MYON_BASIS, NEW as MYON_NEW, TICS as MYON_TICS  # noqa: E402
+from daily_diverse_lines import DAILY_BASIS, DAILY_LINES  # noqa: E402
+from social_diverse_lines import SOCIAL_BASIS, SOCIAL_LINES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'art/dialogue/speech-tiers.json'
@@ -54,7 +56,7 @@ SPECIES = {
                       end=dict(juvenile=('わ', '惹哇'), adult=('わ', '哇'))),
     'remilia': dict(en='Remilia', name=dict(baby=('れみりゃ', '蕾米莉亚'), juvenile=('れみりゃ', '蕾米莉亚'), adult=('れみりあ', '蕾米莉亚')),
                     cry=('うー、うー', '呜——、呜——', 'Uu, uu'), pre=('うー、', '呜——', 'Uu... '),
-                    end=dict(juvenile=('なのだ', '呀'), adult=('のだ', '呀'))),
+                    end=dict(juvenile=('なのだ', '咚'), adult=('のだ', '咚'))),
     'flandre': dict(en='Flandre', name=dict(baby=('ふりゃん', '芙兰'), juvenile=('ふりゃん', '芙兰'), adult=('ふらん', '芙兰')),
                     cry=('うー、うー', '呜——、呜——', 'Uu, uu'), pre=('うー、', '呜——', 'Uu... '),
                     end=dict(juvenile=('よぅ', '哦'), adult=('よ', '哦'))),
@@ -1730,7 +1732,12 @@ def counted(base, bucket, tier, species):
 
 
 def buckets(tier, species):
-    cap = BABY_CAP if tier == 'baby' else PATCHOULI_CAP if species == 'patchouli' else ORDINARY_CAP
+    if tier == 'baby':
+        cap = BABY_CAP
+    elif species == 'myon':
+        cap = ORDINARY_CAP  # myon_speech_lines.py supplies 4..9 separately for adult/young
+    else:
+        cap = PATCHOULI_CAP
     return [str(i) for i in range(1, cap + 1)] + ['many']
 
 
@@ -1879,12 +1886,56 @@ def main():
                 ctx = context(sp, tier)
                 for i, (variant, frame) in enumerate(entries, 1):
                     make(sp, tier, event, frame, ctx, lines, CONTEST_SUMO_DOLL_BASIS, prefix=f'c{i}_', variant=variant)
+    for bucket_src, basis, prefix_tag in (
+        (DAILY_LINES, DAILY_BASIS, 'd'),
+        (SOCIAL_LINES, SOCIAL_BASIS, 'soc'),
+    ):
+        idx_map = {}
+        for sp_key, tier, event, variant, jp, zh, en in bucket_src:
+            species, _, quirk = sp_key.partition('.')
+            key_bucket = (sp_key, tier, event, variant or 'plain')
+            n = idx_map.get(key_bucket, 0) + 1
+            idx_map[key_bucket] = n
+            tag = f'{variant}_{n}' if variant else f'plain_{n}'
+            ident = f'{sp_key}.{tier}.{prefix_tag}_{event}_{tag}'
+            line = {
+                'id': ident,
+                'species': species,
+                'age': tier,
+                **({'quirk': quirk} if quirk else {}),
+                'events': [event],
+                'japanese': jp,
+                'chinese': zh,
+                'english': en,
+                'origin': 'project-original',
+                'basis': basis,
+            }
+            if variant:
+                line['variant'] = variant
+            lines.append(line)
+    for l in lines:
+        ident, age, evs = l['id'], l['age'], l['events']
+        if ident.endswith('.s_afraid') or ident.endswith(('.v2_afraid', '.v3_afraid')):
+            evs.append('hurt_freeze')
+        elif ident.endswith(('.v1_afraid', '.v1_wounded')):
+            evs.append('hurt_defy')
+        elif ident.endswith('.s_wounded'):
+            if age in ('baby', 'juvenile'): evs.append('hurt_endure')
+            elif age == 'adult': evs.append('hurt_defy')
+            elif age == 'young': evs.extend(['hurt_endure', 'hurt_flee'])
+        elif ident.endswith('.v2_wounded'):
+            evs.append('hurt_endure')
+        elif ident.endswith('.v3_wounded'):
+            evs.append('hurt_tame_plea')
+        elif (ident.endswith('.s_narrate_flee') and age in ('juvenile', 'adult')) or ident.endswith(('.v2_narrate_flee', '.retest_protect_child_flee')):
+            evs.append('hurt_flee')
     ids = [l['id'] for l in lines]
     assert len(ids) == len(set(ids))
     doc = {'origin': 'project-original', 'status': 'Unvoiced project-original subtitles; wording awaits listening review.',
            'tiers': {'baby': 'Stage.BABY', 'juvenile': 'Stage.JUVENILE', 'adult': 'Stage.ADULT',
                      'young': 'legacy childish tier (kept; fallback for baby/juvenile and for childish-voiced adults)'},
-           'counting': {'ordinary_cap': ORDINARY_CAP, 'baby_cap': BABY_CAP, 'patchouli_cap': PATCHOULI_CAP, 'bases': list(COUNT_BASES)},
+           'counting': {'ordinary_cap': ORDINARY_CAP, 'baby_cap': BABY_CAP, 'patchouli_cap': PATCHOULI_CAP,
+                        'trained_max_cap': PATCHOULI_CAP, 'bases': list(COUNT_BASES)},
            'lines': lines}
     OUT.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + '\n', encoding='utf-8', newline='\n')
     print(len(lines), 'lines')

@@ -149,17 +149,20 @@ def outputs():
         assert ident not in seen and line['status'] == 'ready', ident
         seen.add(ident)
         key = 'dialogue.mcyukkuri.original.' + ident
-        ticks = max(50, min(180, len(line['ja']) * 4 + 15))
         variants = sorted(shared_voices.get(ident, []),
                           key=lambda item: (item[1].get('species', ''), TIER_ORDER.get(item[1].get('age'), 9)))
         voice_map = {}
+        voice_ticks = {}
         for cid, clip in variants:
-            voice_map[clip['species'] + '.' + clip['age']] = install_voice(clip, cid, line['ja'], 'original', key)
-            ticks = max(ticks, max(45, int(clip['duration_seconds'] * 20 + .999) + 15))
+            profile_key = clip['species'] + '.' + clip['age']
+            voice_map[profile_key] = install_voice(clip, cid, line['ja'], 'original', key)
+            voice_ticks[profile_key] = max(45, int(clip['duration_seconds'] * 20 + .999) + 15)
+        ticks = max(voice_ticks.values()) if voice_ticks else max(50, min(180, len(line['ja']) * 4 + 15))
         entry = dict(id=ident, key=key, origin='project-original', species='*', age='*',
                      events=[line['event']], ticks=ticks, sound='')
         if voice_map:
             entry['voices'] = voice_map
+            entry['voiceTicks'] = voice_ticks
         catalog.append(entry)
         if line.get('variant'):
             catalog[-1]['variant'] = line['variant']
@@ -172,14 +175,19 @@ def outputs():
     seen.add(special_ident)
     special_key = 'dialogue.mcyukkuri.deficient.babble'
     special_japanese = 'ゆぴー'
-    ticks = max(50, len(special_japanese) * 4 + 15)
     voice_map = {}
+    voice_ticks = {}
     for cid, clip in sorted(shared_voices.get(special_ident, []),
                             key=lambda item: (item[1].get('species', ''), TIER_ORDER.get(item[1].get('age'), 9))):
-        voice_map[clip['species'] + '.' + clip['age']] = install_voice(clip, cid, special_japanese, 'original', special_key)
-        ticks = max(ticks, max(45, int(clip['duration_seconds'] * 20 + .999) + 15))
-    catalog.append(dict(id=special_ident, key=special_key, origin='project-original', species='*', age='*',
-                        events=[], ticks=ticks, sound='', voices=voice_map))
+        profile_key = clip['species'] + '.' + clip['age']
+        voice_map[profile_key] = install_voice(clip, cid, special_japanese, 'original', special_key)
+        voice_ticks[profile_key] = max(45, int(clip['duration_seconds'] * 20 + .999) + 15)
+    ticks = max(voice_ticks.values()) if voice_ticks else max(50, len(special_japanese) * 4 + 15)
+    special_entry = dict(id=special_ident, key=special_key, origin='project-original', species='*', age='*',
+                         events=[], ticks=ticks, sound='', voices=voice_map)
+    if voice_ticks:
+        special_entry['voiceTicks'] = voice_ticks
+    catalog.append(special_entry)
     for locale, values in locales.items():
         values = place_dialogue(values, anchors[locale])
         files[ASSETS / f'lang/{locale}.json'] = (json.dumps(values, ensure_ascii=False, indent=2) + '\n').encode()

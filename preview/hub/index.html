@@ -3,20 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>油库里演出放映室</title>
+  <title>油库里工作台 · 待你查看与完整演出演示</title>
+  <link rel="stylesheet" href="/preview/review/verdicts.css">
   <link rel="stylesheet" href="/preview/hub/style.css">
   <script type="module" src="/preview/hub/app.js"></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="./index.html">油库里</a>
-    <a href="inbox/index.html">待你查看</a>
+    <div class="brand-wrap">
+      <a class="brand" href="./index.html">油库里工作台</a>
+      <span class="pending-pill">待审 <b id="pending-total">0</b> 项</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="视图切换">
+      <button type="button" class="tab-btn" data-tab="inbox" role="tab" aria-selected="true">待你查看</button>
+      <button type="button" class="tab-btn" data-tab="demos" role="tab" aria-selected="false">完整演出演示</button>
+    </nav>
+    <div class="top-actions">
+      <label class="filter-toggle"><input type="checkbox" id="only-pending"> 只看待审</label>
+    </div>
   </header>
+
   <main>
-    <h1>演出放映室</h1>
-    <nav id="filters" class="chips" aria-label="目录分类"></nav>
-    <div id="catalog"></div>
-    <p id="status" role="status">正在读取目录…</p>
+    <section id="panel-inbox" class="tab-panel" role="tabpanel">
+      <div id="inbox-root">
+        <p class="status-msg">正在加载待查看事项…</p>
+      </div>
+    </section>
+
+    <section id="panel-demos" class="tab-panel" role="tabpanel" hidden>
+      <div id="demos-root">
+        <p class="status-msg">正在整理完整演出…</p>
+      </div>
+    </section>
+
+    <div id="raw-root" hidden></div>
   </main>
+
+  <footer class="foot">
+    <span class="muted">日常只看完整演出与待审决定</span>
+    <a href="?raw=1" id="raw-link" class="muted">开发者底层素材库</a>
+  </footer>
 </body>
 </html>

@@ -4,12 +4,13 @@ import com.google.gson.Gson;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.IntUnaryOperator;
 import net.minecraft.util.RandomSource;
 
 /** Packaged, curated native dialogue. No client types or Mod dialogue fallback. */
 public final class NativeDialogue {
     public record Line(String id, String key, String species, String age, List<String> events, int ticks, String sound, String quirk,
-                       String variant, Map<String, String> voices) {
+                       String variant, Map<String, String> voices, Map<String, Integer> voiceTicks) {
         /**
          * A shared line has one recording per speaker species and stage. Species-specific lines
          * carry a fixed recording, so this returns their ordinary sound unchanged.
@@ -25,6 +26,22 @@ public final class NativeDialogue {
             if (chosen == null) chosen = voices.get(speakerSpecies + ".adult");
             if (chosen == null) chosen = sound;
             return chosen == null ? "" : chosen;
+        }
+
+        /**
+         * Duration in ticks matching the speaker's own voice recording when per-voice timings exist,
+         * falling back across young/juvenile/adult and finally to {@link #ticks}.
+         */
+        public int ticksFor(String speakerSpecies, String speakerTier) {
+            if (voiceTicks == null || voiceTicks.isEmpty()) return ticks;
+            Integer chosen = voiceTicks.get(speakerSpecies + "." + speakerTier);
+            if (chosen == null) chosen = switch (speakerTier) {
+                case "baby", "juvenile" -> voiceTicks.get(speakerSpecies + ".young");
+                case "young" -> voiceTicks.get(speakerSpecies + ".juvenile");
+                default -> null;
+            };
+            if (chosen == null) chosen = voiceTicks.get(speakerSpecies + ".adult");
+            return chosen != null && chosen >= 1 ? chosen : ticks;
         }
     }
     private static final Map<String, Line> LINES;
@@ -69,15 +86,28 @@ public final class NativeDialogue {
     }
     /** Prefer a line neighbours haven't just said, then a fresh line in this voice, then the least recently spoken. */
     public static Line select(List<Line> choices, String style, List<String> recent, Set<String> nearby, RandomSource random) {
+        return select(choices, style == null ? List.of("plain") : List.of(style, "plain"), recent, nearby, random);
+    }
+
+    /** Prefer a line neighbours haven't just said, then a fresh line matching the ordered style chain, then the least recently spoken. */
+    public static Line select(List<Line> choices, List<String> styleOrder, List<String> recent, Set<String> nearby, RandomSource random) {
+        return selectLine(choices, styleOrder, recent, nearby, random::nextInt);
+    }
+
+    static Line selectLine(List<Line> choices, List<String> styleOrder, List<String> recent, Set<String> nearby, IntUnaryOperator nextInt) {
         var candidates = choices.stream().filter(line -> !nearby.contains(line.key())).toList();
         if (candidates.isEmpty()) candidates = choices;
         var fresh = candidates.stream().filter(line -> !recent.contains(line.key())).toList();
         if (fresh.isEmpty()) return Collections.min(candidates, Comparator.comparingInt(line -> recent.indexOf(line.key())));
-        var styled = fresh.stream().filter(line -> style.equals(line.variant())
-                || (style.equals("plain") && line.variant() == null)).toList();
-        var neutral = fresh.stream().filter(line -> line.variant() == null).toList();
-        var pool = !styled.isEmpty() ? styled : !neutral.isEmpty() ? neutral : fresh;
-        return pool.get(pool.size() == 1 ? 0 : random.nextInt(pool.size()));
+        List<Line> pool = List.of();
+        for (String style : styleOrder) {
+            pool = fresh.stream().filter(line -> style.equals(line.variant())
+                    || ("plain".equals(style) && line.variant() == null)).toList();
+            if (!pool.isEmpty()) break;
+        }
+        if (pool.isEmpty()) pool = fresh.stream().filter(line -> line.variant() == null).toList();
+        if (pool.isEmpty()) pool = fresh;
+        return pool.get(pool.size() == 1 ? 0 : nextInt.applyAsInt(pool.size()));
     }
     /** Whether this exact tier (no fallback) has a line for the event. */
     public static boolean has(String species, String tier, String quirk, String event) { return EVENTS.containsKey(indexKey(species, tier, quirk, event)); }

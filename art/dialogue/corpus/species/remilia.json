@@ -4,12 +4,12 @@
   "entries": [
     {
       "id": "voice_slots",
-      "zh": "蕾米莉亚槽位：幼称れみりゃ，句首与短鸣呜——。",
+      "zh": "蕾米莉亚槽位：幼称れみりゃ，句首与短鸣呜——，中文语尾统一用咚。",
       "ja": "レミリアの槽：幼称れみりゃ、句頭と短鳴にうーを使う。",
       "en": "Remilia slots: remirya self-name and uu prefix/cry.",
       "basis": ["P"],
       "status": "rule",
-      "data": {"self_name": {"baby": "れみりゃ", "juvenile": "れみりゃ", "adult": "れみりあ"}, "cry": {"ja": "うー、うー", "zh": "呜——、呜——", "en": "Uu, uu"}, "prefix": {"ja": "うー、", "zh": "呜——", "en": "Uu... "}, "ending": {"juvenile": {"ja": "なのだ", "zh": "呀"}, "adult": {"ja": "のだ", "zh": "呀"}}}
+      "data": {"self_name": {"baby": "れみりゃ", "juvenile": "れみりゃ", "adult": "れみりあ"}, "cry": {"ja": "うー、うー", "zh": "呜——、呜——", "en": "Uu, uu"}, "prefix": {"ja": "うー、", "zh": "呜——", "en": "Uu... "}, "ending": {"juvenile": {"ja": "なのだ", "zh": "咚"}, "adult": {"ja": "のだ", "zh": "咚"}}}
     },
     {
       "id": "uu_candidate",
@@ -79,7 +79,7 @@
     },
     {
       "id": "hatless_example",
-      "zh": "呜——没有头饰的怪物呀……！别过来！",
+      "zh": "呜——没有头饰的怪物咚……！别过来！",
       "ja": "うー、かざりのないかいぶつなのだ……！こっちにこないで！",
       "en": "Uu—a monster with no hair thing! Stay away!",
       "basis": ["F22", "P"],

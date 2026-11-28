@@ -1647,7 +1647,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあも一緒にゆっくりするのだ。",
-      "chinese": "呜——蕾米莉亚也要一起油库里呀！",
+      "chinese": "呜——蕾米莉亚也要一起油库里咚！",
       "events": [
         "hello",
         "introduced",
@@ -1663,7 +1663,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ここでひと休みするのだ。",
-      "chinese": "呜——就在这里歇一歇呀。",
+      "chinese": "呜——就在这里歇一歇咚。",
       "events": [
         "idle"
       ],
@@ -1676,7 +1676,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おなか すいたのだ……ごはんさん……",
-      "chinese": "呜——彭彭饿了呀……饭先生……",
+      "chinese": "呜——彭彭饿了咚……饭先生……",
       "events": [
         "hungry"
       ],
@@ -1689,7 +1689,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ごはんがあるのだ。確かめてみよう。",
-      "chinese": "呜——这里有饭饭呀。过去看看吧。",
+      "chinese": "呜——这里有饭饭咚。过去看看吧。",
       "events": [
         "food_found"
       ],
@@ -1716,7 +1716,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おいしいのだ！ しあわせ！",
-      "chinese": "呜——好吃呀！好幸福！",
+      "chinese": "呜——好吃咚！好幸福！",
       "events": [
         "fed"
       ],
@@ -1729,7 +1729,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、はい！ わけて たべようのだ！",
-      "chinese": "呜——给！分着嚼嚼呀！",
+      "chinese": "呜——给！分着嚼嚼咚！",
       "events": [
         "share"
       ],
@@ -1742,7 +1742,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあのばん、まだ……？",
-      "chinese": "呜——还没轮到蕾米莉亚呀……？",
+      "chinese": "呜——还没轮到蕾米莉亚咚……？",
       "events": [
         "wait_turn"
       ],
@@ -1755,7 +1755,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあの ぶん なのだ！",
-      "chinese": "呜——这份是蕾米莉亚的呀！",
+      "chinese": "呜——这份是蕾米莉亚的咚！",
       "events": [
         "mine"
       ],
@@ -1768,7 +1768,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おといれを探すのだ。",
-      "chinese": "呜——要去找厕所呀。",
+      "chinese": "呜——要去找厕所咚。",
       "events": [
         "need_toilet"
       ],
@@ -1781,7 +1781,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "すっきりしたのだ。気持ちいいね。",
-      "chinese": "清清爽爽了呀。真舒服呢。",
+      "chinese": "清清爽爽了咚。真舒服呢。",
       "events": [
         "toilet_done",
         "washed"
@@ -1795,7 +1795,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、もう眠いのだ。おやすみ。",
-      "chinese": "呜——已经困困了呀。晚安。",
+      "chinese": "呜——已经困困了咚。晚安。",
       "events": [
         "sleep"
       ],
@@ -1808,7 +1808,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、よく寝たのだ。今日もゆっくりしよう。",
-      "chinese": "呜——睡饱啦！今天也油库里呀。",
+      "chinese": "呜——睡饱啦！今天也油库里咚。",
       "events": [
         "awake"
       ],
@@ -1821,7 +1821,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、もうちょっと そばに いてのだ……くっついて いたい……",
-      "chinese": "呜——再陪蕾米莉亚一会儿呀……蕾米莉亚想挨着你……",
+      "chinese": "呜——再陪蕾米莉亚一会儿咚……蕾米莉亚想挨着你……",
       "events": [
         "gentle"
       ],
@@ -1834,7 +1834,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……ちょっと ちぢむのだ……",
-      "chinese": "呜——油呜……蕾米莉亚想缩一下呀……",
+      "chinese": "呜——油呜……蕾米莉亚想缩一下咚……",
       "events": [
         "cold",
         "shy"
@@ -1848,7 +1848,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、こわいのだ……！",
-      "chinese": "呜——好可怕呀……！",
+      "chinese": "呜——好可怕咚……！",
       "events": [
         "afraid"
       ],
@@ -1861,7 +1861,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、いたい……いたいのだ！",
-      "chinese": "呜——痛……好痛呀！",
+      "chinese": "呜——痛……好痛咚！",
       "events": [
         "wounded"
       ],
@@ -1874,7 +1874,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ありがと……なおしてくれたのだ……",
-      "chinese": "呜——谢谢……治好了呀……",
+      "chinese": "呜——谢谢……治好了咚……",
       "events": [
         "treated"
       ],
@@ -1887,7 +1887,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "お飾りがないのだ。どこに落としたかな。",
-      "chinese": "饰品不见了呀。掉在哪里了呢。",
+      "chinese": "饰品不见了咚。掉在哪里了呢。",
       "events": [
         "lost_accessory"
       ],
@@ -1900,7 +1900,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあのお飾り！ 大事にするのだ。",
-      "chinese": "呜——蕾米莉亚的饰品！要好好珍惜呀。",
+      "chinese": "呜——蕾米莉亚的饰品！要好好珍惜咚。",
       "events": [
         "returned_accessory"
       ],
@@ -1913,7 +1913,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ？ だれ……？",
-      "chinese": "呜——油？你是谁呀……？",
+      "chinese": "呜——油？你是谁咚……？",
       "events": [
         "unrecognized"
       ],
@@ -1926,7 +1926,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、少し動いて遊ぶのだ。一緒にどう？",
-      "chinese": "呜——活动一下玩一玩呀。要一起来吗？",
+      "chinese": "呜——活动一下玩一玩咚。要一起来吗？",
       "events": [
         "toy",
         "exercise"
@@ -1940,7 +1940,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ、いまは いやのだ！",
-      "chinese": "呜——油，现在不要呀！",
+      "chinese": "呜——油，现在不要咚！",
       "events": [
         "lesson_refused"
       ],
@@ -1953,7 +1953,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れんしゅう！ やってみるのだ！",
-      "chinese": "呜——练习呀！蕾米莉亚试试呀！",
+      "chinese": "呜——练习咚！蕾米莉亚试试咚！",
       "events": [
         "lesson_start"
       ],
@@ -1966,7 +1966,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、わかったのだ！",
-      "chinese": "呜——懂了呀！",
+      "chinese": "呜——懂了咚！",
       "events": [
         "lesson_learned",
         "wait_learned"
@@ -1980,7 +1980,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、いま いそがしいのだ。あとでね。",
-      "chinese": "呜——正忙呀。等一下呀。",
+      "chinese": "呜——正忙咚。等一下咚。",
       "events": [
         "busy"
       ],
@@ -1993,7 +1993,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、聞こえたのだ。",
-      "chinese": "呜——已经听见了呀。",
+      "chinese": "呜——已经听见了咚。",
       "events": [
         "heard"
       ],
@@ -2006,7 +2006,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おちびちゃん。れみりあは ここに いるのだ！",
-      "chinese": "呜——小贝比酱，蕾米莉亚在这儿呀！",
+      "chinese": "呜——小贝比酱，蕾米莉亚在这儿咚！",
       "events": [
         "newborn"
       ],
@@ -2019,7 +2019,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、少し大きくなったのだ！",
-      "chinese": "呜——又长大一点了呀！",
+      "chinese": "呜——又长大一点了咚！",
       "events": [
         "grown"
       ],
@@ -2032,7 +2032,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、いっしょに ゆっくり したいのだ……",
-      "chinese": "呜——想和你一起油库里呀……",
+      "chinese": "呜——想和你一起油库里咚……",
       "events": [
         "courtship"
       ],
@@ -2045,7 +2045,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おちびちゃん……もうすぐのだ……",
-      "chinese": "呜——小贝比酱……就快了呀……",
+      "chinese": "呜——小贝比酱……就快了咚……",
       "events": [
         "expecting",
         "birth"
@@ -2059,7 +2059,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、うちの みんな、まだ かえらないのだ……もうすこし まってる……",
-      "chinese": "呜——家里的油怎么还没回来呀……蕾米莉亚再等等……",
+      "chinese": "呜——家里的油怎么还没回来咚……蕾米莉亚再等等……",
       "events": [
         "wait_family"
       ],
@@ -2085,7 +2085,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ねぇ……おきて……もういちど、すーりすーり……",
-      "chinese": "呜——油……醒醒呀……还想擦擦脸……",
+      "chinese": "呜——油……醒醒咚……还想擦擦脸……",
       "events": [
         "family_died"
       ],
@@ -2098,7 +2098,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、そばで少しすりすりするのだ。",
-      "chinese": "呜——在旁边轻轻蹭蹭呀。",
+      "chinese": "呜——在旁边轻轻蹭蹭咚。",
       "events": [
         "nuzzle",
         "want_nuzzle"
@@ -2112,7 +2112,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ふぅ……ゆっくり できるのだ……",
-      "chinese": "呜——呼……能油库里了呀……",
+      "chinese": "呜——呼……能油库里了咚……",
       "events": [
         "nuzzle_done",
         "leisure_done"
@@ -2126,7 +2126,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ れみりあも ぷくーって できるのだ！",
-      "chinese": "呜——！蕾米莉亚也会噗咕呀！",
+      "chinese": "呜——！蕾米莉亚也会噗咕咚！",
       "events": [
         "puff"
       ],
@@ -2155,7 +2155,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ここでやしゅむのだ。",
-      "chinese": "呜——在介里歇歇呀。",
+      "chinese": "呜——在介里歇歇咚。",
       "events": [
         "idle"
       ],
@@ -2168,7 +2168,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ぽんぽんしゃん、ぺこぺこ……",
-      "chinese": "呜——彭彭先森饿了呀……",
+      "chinese": "呜——彭彭先森饿了咚……",
       "events": [
         "hungry"
       ],
@@ -2208,7 +2208,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、まんま、おいちいのだ！",
-      "chinese": "呜——饭饭真好粗呀！",
+      "chinese": "呜——饭饭真好粗咚！",
       "events": [
         "fed"
       ],
@@ -2234,7 +2234,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、わたちのばん、まだ……？",
-      "chinese": "呜——还没轮到窝呀……？",
+      "chinese": "呜——还没轮到窝咚……？",
       "events": [
         "wait_turn"
       ],
@@ -2273,7 +2273,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "きれいきれい。きもちいいのだ。",
-      "chinese": "干净干净。舒服呀。",
+      "chinese": "干净干净。舒服咚。",
       "events": [
         "toilet_done",
         "washed"
@@ -2313,7 +2313,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、もうちょっと そばに いちぇのだ……くっちゅいて いたい……",
-      "chinese": "呜——陪窝一会儿呀……窝想挨着你……",
+      "chinese": "呜——陪窝一会儿咚……窝想挨着你……",
       "events": [
         "gentle",
         "caregiver"
@@ -2327,7 +2327,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆぅ……ちぢむのだ……",
-      "chinese": "呜——油呜……窝想缩缩呀……",
+      "chinese": "呜——油呜……窝想缩缩咚……",
       "events": [
         "cold",
         "shy"
@@ -2354,7 +2354,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、いちゃい、いちゃいのだ！",
-      "chinese": "呜——痛痛、痛痛呀！",
+      "chinese": "呜——痛痛、痛痛咚！",
       "events": [
         "wounded"
       ],
@@ -2367,7 +2367,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ありがちょ……なおしてくれたのだ……",
-      "chinese": "呜——蟹蟹……治好惹呀……",
+      "chinese": "呜——蟹蟹……治好惹咚……",
       "events": [
         "treated"
       ],
@@ -2406,7 +2406,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ？ だりぇ……？",
-      "chinese": "呜——油？素谁呀……？",
+      "chinese": "呜——油？素谁咚……？",
       "events": [
         "unrecognized"
       ],
@@ -2433,7 +2433,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ、いまは いやのだ！",
-      "chinese": "呜——油，现债不要呀！",
+      "chinese": "呜——油，现债不要咚！",
       "events": [
         "lesson_refused"
       ],
@@ -2446,7 +2446,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、れんしゅう！ やっちぇみるのだ！",
-      "chinese": "呜——练习呀！窝试试呀！",
+      "chinese": "呜——练习咚！窝试试咚！",
       "events": [
         "lesson_start"
       ],
@@ -2459,7 +2459,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、わかっちゃのだ！",
-      "chinese": "呜——明白惹呀！",
+      "chinese": "呜——明白惹咚！",
       "events": [
         "lesson_learned",
         "wait_learned"
@@ -2473,7 +2473,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、いま いしょがちいのだ……",
-      "chinese": "呜——窝忙着呀……",
+      "chinese": "呜——窝忙着咚……",
       "events": [
         "busy"
       ],
@@ -2525,7 +2525,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、いっちょに ゆっくち ちたいのだ……",
-      "chinese": "呜——窝想跟你一挤油库气呀……",
+      "chinese": "呜——窝想跟你一挤油库气咚……",
       "events": [
         "courtship"
       ],
@@ -2538,7 +2538,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おちびちゃん……もうしゅぐのだ……",
-      "chinese": "呜——小贝比酱……就怪惹呀……",
+      "chinese": "呜——小贝比酱……就怪惹咚……",
       "events": [
         "expecting",
         "birth"
@@ -2552,7 +2552,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おうちの みんな、まだ かえらないのだ……もうちょっと まっちぇる……",
-      "chinese": "呜——家里的油怎么还没肥来呀……窝再等一会儿……",
+      "chinese": "呜——家里的油怎么还没肥来咚……窝再等一会儿……",
       "events": [
         "wait_family"
       ],
@@ -2578,7 +2578,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おきちぇ……おきちぇのだ……",
-      "chinese": "呜——醒醒……醒醒呀……",
+      "chinese": "呜——醒醒……醒醒咚……",
       "events": [
         "family_died"
       ],
@@ -2605,7 +2605,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ふぅ……ゆっくち できりゅのだ……",
-      "chinese": "呜——呼……能油库气惹呀……",
+      "chinese": "呜——呼……能油库气惹咚……",
       "events": [
         "nuzzle_done",
         "leisure_done"
@@ -2619,7 +2619,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー！ れみりゃも ぷきゅーって できるのだ！",
-      "chinese": "呜——！蕾米呀也会噗啾呀！",
+      "chinese": "呜——！蕾米呀也会噗啾咚！",
       "events": [
         "puff"
       ],
@@ -6361,7 +6361,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ、ゆっ……バッジ、もらえるのだ……？",
-      "chinese": "呜——油、油……能拿到徽章呀……？",
+      "chinese": "呜——油、油……能拿到徽章咚……？",
       "events": [
         "exam_nervous"
       ],
@@ -6374,7 +6374,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……バッジを もらうのだ……！",
-      "chinese": "呜——油呜……蕾米莉亚要考到徽章呀！",
+      "chinese": "呜——油呜……蕾米莉亚要考到徽章咚！",
       "events": [
         "exam_nervous"
       ],
@@ -6387,7 +6387,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、はいっ！ わかったのだ！",
-      "chinese": "呜——好！蕾米莉亚知道呀！",
+      "chinese": "呜——好！蕾米莉亚知道咚！",
       "events": [
         "exam_answer"
       ],
@@ -6400,7 +6400,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ……このもんだい、どうやるの……？",
-      "chinese": "呜——油……这道题要怎么做呀……？",
+      "chinese": "呜——油……这道题要怎么做咚……？",
       "events": [
         "exam_unsure"
       ],
@@ -6413,7 +6413,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ れみりあはいないのだ！ だれもいないのだ！",
-      "chinese": "呜——！蕾米莉亚不在呀！谁也没有呀！",
+      "chinese": "呜——！蕾米莉亚不在咚！谁也没有咚！",
       "events": [
         "exam_hide_fail"
       ],
@@ -6426,7 +6426,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……ごめんなさいなのだ。れみりあ、まちがえたのだ。",
-      "chinese": "呜——……对不起呀。蕾米莉亚弄错了呀。",
+      "chinese": "呜——……对不起咚。蕾米莉亚弄错了咚。",
       "events": [
         "exam_sorry"
       ],
@@ -6439,7 +6439,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、やったのだ！ バッジ、バッジ！",
-      "chinese": "呜——好耶呀！徽章！徽章呀！",
+      "chinese": "呜——好耶咚！徽章！徽章咚！",
       "events": [
         "exam_pass"
       ],
@@ -6452,7 +6452,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "にんげんさん、ありがとうなのだ！ うれしいのだぁ！",
-      "chinese": "谢谢人类先生呀！好开心呀！",
+      "chinese": "谢谢人类先生咚！好开心咚！",
       "events": [
         "exam_pass"
       ],
@@ -6465,7 +6465,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……どぼじてなのだぁ……！",
-      "chinese": "呜——……为什么会这样呀……！",
+      "chinese": "呜——……为什么会这样咚……！",
       "events": [
         "exam_fail"
       ],
@@ -6478,7 +6478,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、だめ……？ バッジ、もらえないのだ……？",
-      "chinese": "呜——没过……？拿不到徽章呀……？",
+      "chinese": "呜——没过……？拿不到徽章咚……？",
       "events": [
         "exam_fail"
       ],
@@ -6491,7 +6491,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあの バッジ！ みて、みて！",
-      "chinese": "呜——蕾米莉亚的徽章！看、快看呀！",
+      "chinese": "呜——蕾米莉亚的徽章！看、快看咚！",
       "events": [
         "badge_proud"
       ],
@@ -6504,7 +6504,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、にんげんさん！ れみりあと ゆっくり してね！",
-      "chinese": "呜——人类先生！带蕾米莉亚回去油库里呀！",
+      "chinese": "呜——人类先生！带蕾米莉亚回去油库里咚！",
       "events": [
         "shop_appeal"
       ],
@@ -6517,7 +6517,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあ、ここに いるのだ！ いいこ、いいこ！",
-      "chinese": "呜——蕾米莉亚在这里呀！蕾米莉亚很乖呀！",
+      "chinese": "呜——蕾米莉亚在这里咚！蕾米莉亚很乖咚！",
       "events": [
         "shop_appeal"
       ],
@@ -6530,7 +6530,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆゆっ！ にんげんさんと おうちに かえるのだ！",
-      "chinese": "呜——油油！要跟人类先生回家呀！",
+      "chinese": "呜——油油！要跟人类先生回家咚！",
       "events": [
         "shop_bought"
       ],
@@ -6543,7 +6543,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……れみりあを わすれないでね……",
-      "chinese": "呜——油呜……别忘了蕾米莉亚呀……",
+      "chinese": "呜——油呜……别忘了蕾米莉亚咚……",
       "events": [
         "shop_sold_sad"
       ],
@@ -6556,7 +6556,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあ、もっと ゆっくり してくるのだ！",
-      "chinese": "呜——蕾米莉亚要去更能油库里的地方了呀！",
+      "chinese": "呜——蕾米莉亚要去更能油库里的地方了咚！",
       "events": [
         "shop_sold_proud"
       ],
@@ -6569,7 +6569,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、えへへっ！ れみりあ、できたのだ！",
-      "chinese": "呜——嘿嘿！蕾米莉亚做到了呀！",
+      "chinese": "呜——嘿嘿！蕾米莉亚做到了咚！",
       "events": [
         "lesson_praised"
       ],
@@ -6582,7 +6582,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ありがとのだ！ もっと やるのだ！",
-      "chinese": "呜——谢谢呀！还要再来呀！",
+      "chinese": "呜——谢谢咚！还要再来咚！",
       "events": [
         "lesson_praised"
       ],
@@ -6595,7 +6595,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、いいなぁ……れみりあも バッジ ほしいのだ……",
-      "chinese": "呜——好好呀……蕾米莉亚也想要徽章呀……",
+      "chinese": "呜——好好咚……蕾米莉亚也想要徽章咚……",
       "events": [
         "badge_envy"
       ],
@@ -6608,7 +6608,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、すごいのだ！ れみりあにも、おしえてほしいのだ！",
-      "chinese": "呜——，好厉害呀！也教教蕾米莉亚呀！",
+      "chinese": "呜——，好厉害咚！也教教蕾米莉亚咚！",
       "events": [
         "badge_admire"
       ],
@@ -6621,7 +6621,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ、ゆっ……ばっじ、もらえりゅのだ……？",
-      "chinese": "呜——油、油……徽章会给窝呀……？",
+      "chinese": "呜——油、油……徽章会给窝咚……？",
       "events": [
         "exam_nervous"
       ],
@@ -6634,7 +6634,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆぅ……ばっじを もらうのだ……！",
-      "chinese": "呜——油呜……窝要考到徽章呀！",
+      "chinese": "呜——油呜……窝要考到徽章咚！",
       "events": [
         "exam_nervous"
       ],
@@ -6647,7 +6647,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、はいっ！ わかっちゃのだ！",
-      "chinese": "呜——好！窝知道惹呀！",
+      "chinese": "呜——好！窝知道惹咚！",
       "events": [
         "exam_answer"
       ],
@@ -6660,7 +6660,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ……このもんだい、どうやりゅの……？",
-      "chinese": "呜——油……这道题要肿么做呀……？",
+      "chinese": "呜——油……这道题要肿么做咚……？",
       "events": [
         "exam_unsure"
       ],
@@ -6673,7 +6673,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー！ れみぃはいにゃいのだ！ だぁれもいにゃいのだ！",
-      "chinese": "呜——！蕾米不在呀！谁也没有呀！",
+      "chinese": "呜——！蕾米不在咚！谁也没有咚！",
       "events": [
         "exam_hide_fail"
       ],
@@ -6686,7 +6686,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……ごめんにゃしゃいなのだ。れみぃ、まちがえちゃったのだ。",
-      "chinese": "呜——……对不起呀。蕾米弄错了呀。",
+      "chinese": "呜——……对不起咚。蕾米弄错了咚。",
       "events": [
         "exam_sorry"
       ],
@@ -6699,7 +6699,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、やっちゃのだ！ ばっじ、ばっじ！",
-      "chinese": "呜——成惹呀！徽章、徽章！",
+      "chinese": "呜——成惹咚！徽章、徽章！",
       "events": [
         "exam_pass"
       ],
@@ -6712,7 +6712,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "にんげんしゃん、ありがちょうなのだ！ うれちいのだぁ！",
-      "chinese": "谢谢人类先生呀！窝好开心呀！",
+      "chinese": "谢谢人类先生咚！窝好开心咚！",
       "events": [
         "exam_pass"
       ],
@@ -6725,7 +6725,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……どぼちてなのだぁ……！",
-      "chinese": "呜——……为什么呀……！",
+      "chinese": "呜——……为什么咚……！",
       "events": [
         "exam_fail"
       ],
@@ -6738,7 +6738,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、らめ……？ ばっじ、にゃいのだ……？",
-      "chinese": "呜——噗行……？没徽章惹呀……？",
+      "chinese": "呜——噗行……？没徽章惹咚……？",
       "events": [
         "exam_fail"
       ],
@@ -6751,7 +6751,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、わたちの ばっじ！ みちぇ、みちぇ！",
-      "chinese": "呜——窝的徽章！看、快看呀！",
+      "chinese": "呜——窝的徽章！看、快看咚！",
       "events": [
         "badge_proud"
       ],
@@ -6764,7 +6764,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、にんげんしゃん！ わたちと ゆっくち ちてね！",
-      "chinese": "呜——人类鲜笋！带窝回去油库气呀！",
+      "chinese": "呜——人类鲜笋！带窝回去油库气咚！",
       "events": [
         "shop_appeal"
       ],
@@ -6777,7 +6777,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、きょきょ、きょきょ！ いいこ、いいこ！",
-      "chinese": "呜——窝在介里呀！窝乖乖呀！",
+      "chinese": "呜——窝在介里咚！窝乖乖咚！",
       "events": [
         "shop_appeal"
       ],
@@ -6790,7 +6790,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆゆっ！ にんげんしゃんと おうちに かえりゅのだ！",
-      "chinese": "呜——油油！窝要跟人类鲜笋回家惹呀！",
+      "chinese": "呜——油油！窝要跟人类鲜笋回家惹咚！",
       "events": [
         "shop_bought"
       ],
@@ -6803,7 +6803,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆぅ……わしゅれないでね……",
-      "chinese": "呜——油呜……别忘了窝呀……",
+      "chinese": "呜——油呜……别忘了窝咚……",
       "events": [
         "shop_sold_sad"
       ],
@@ -6816,7 +6816,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、もっと ゆっくち してくりゅのだ！",
-      "chinese": "呜——窝要去更能油库气的地方惹呀！",
+      "chinese": "呜——窝要去更能油库气的地方惹咚！",
       "events": [
         "shop_sold_proud"
       ],
@@ -6829,7 +6829,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、えへへっ！ できちゃのだ！",
-      "chinese": "呜——嘿嘿！窝会惹呀！",
+      "chinese": "呜——嘿嘿！窝会惹咚！",
       "events": [
         "lesson_praised"
       ],
@@ -6842,7 +6842,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ありがちょのだ！ もういっかい！",
-      "chinese": "呜——蟹蟹呀！再来一次！",
+      "chinese": "呜——蟹蟹咚！再来一次！",
       "events": [
         "lesson_praised"
       ],
@@ -6855,7 +6855,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、いいなぁ……ばっじ ほちいのだ……",
-      "chinese": "呜——油呜……窝也想要徽章呀……",
+      "chinese": "呜——油呜……窝也想要徽章咚……",
       "events": [
         "badge_envy"
       ],
@@ -6868,7 +6868,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、しゅごいのだ！ れみぃにも おしえちぇなのだ！",
-      "chinese": "呜——，好厉害呀！也教教蕾米呀！",
+      "chinese": "呜——，好厉害咚！也教教蕾米咚！",
       "events": [
         "badge_admire"
       ],
@@ -9254,7 +9254,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、あのこ……また あいたいのだ……",
-      "chinese": "呜——那只油……还想见见呀……",
+      "chinese": "呜——那只油……还想见见咚……",
       "english": "Uu... That yukkuri... I want to see them again...",
       "events": [
         "date_fond"
@@ -9267,7 +9267,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おちびちゃん、いいのだ？ やったのだ！",
-      "chinese": "呜——可以有小贝比酱呀？好耶呀！",
+      "chinese": "呜——可以有小贝比酱咚？好耶咚！",
       "english": "Uu... We can have little ones? Hooray!",
       "events": [
         "permit_glad"
@@ -9280,7 +9280,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、すーりすーり……まだ、がまん、がまん……",
-      "chinese": "呜——想擦擦脸……忍住、忍住呀……",
+      "chinese": "呜——想擦擦脸……忍住、忍住咚……",
       "english": "Uu... I want to nuzzle... must wait...",
       "events": [
         "courtship_held"
@@ -9293,7 +9293,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆゆっ、バッジ！ ぴかぴか！",
-      "chinese": "呜——油油，徽章！亮晶晶呀！",
+      "chinese": "呜——油油，徽章！亮晶晶咚！",
       "english": "Uu... Yu-yu, a badge! Shiny!",
       "events": [
         "badge_pinned"
@@ -9306,7 +9306,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジが……ないのだ……ゆぅ……",
-      "chinese": "呜——徽章……没了呀……油呜……",
+      "chinese": "呜——徽章……没了咚……油呜……",
       "english": "Uu... My badge... gone... yuu...",
       "events": [
         "badge_taken"
@@ -9319,7 +9319,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、あまい におい……ねむねむのだ……",
-      "chinese": "呜——甜甜的味道……困了呀……",
+      "chinese": "呜——甜甜的味道……困了咚……",
       "english": "Uu... It smells sweet... sleepy...",
       "events": [
         "spray_drowsy"
@@ -9332,7 +9332,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ふわぁ……ちから、はいらないのだ……",
-      "chinese": "呜——呼啊……没力气了呀……",
+      "chinese": "呜——呼啊……没力气了咚……",
       "english": "Uu... Yawn... I've no strength left...",
       "events": [
         "spray_drowsy"
@@ -9345,7 +9345,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、かごさん！ はいるの、いや！",
-      "chinese": "呜——篮子先生！不进去呀！",
+      "chinese": "呜——篮子先生！不进去咚！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
         "basket_refuse",
@@ -9360,7 +9360,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、こわいのだ！ はいらないのだ！",
-      "chinese": "呜——，好怕呀！不进去呀！",
+      "chinese": "呜——，好怕咚！不进去咚！",
       "english": "I'm scared! I don't want to go in!",
       "events": [
         "basket_refuse_guarded"
@@ -9373,7 +9373,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、かごさん……はいるのだ！",
-      "chinese": "呜——篮子先生……进来了呀！",
+      "chinese": "呜——篮子先生……进来了咚！",
       "english": "Uu... Mr. Basket... here I come!",
       "events": [
         "basket_enter"
@@ -9386,7 +9386,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ？ ここ、どこ……？",
-      "chinese": "呜——油？这是哪儿呀……？",
+      "chinese": "呜——油？这是哪儿咚……？",
       "english": "Uu... Yu? Where am I...?",
       "events": [
         "basket_exit"
@@ -9399,7 +9399,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、かいゆっくりに してほしいのだ！",
-      "chinese": "呜——，想当宠物呀！",
+      "chinese": "呜——，想当宠物咚！",
       "english": "Please keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -9412,7 +9412,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、にんげんさん！ のらの いうこと、きかなかったのだ！",
-      "chinese": "呜——人类先生！蕾米莉亚没理野良呀！",
+      "chinese": "呜——人类先生！蕾米莉亚没理野良咚！",
       "english": "Uu... Mr. Human! Remilia ignored the stray!",
       "events": [
         "pet_report_owner"
@@ -9425,7 +9425,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、あのこ……かいゆだ……がまん、がまん……",
-      "chinese": "呜——那只……是宠物油呀……忍住、忍住……",
+      "chinese": "呜——那只……是宠物油咚……忍住、忍住……",
       "english": "Uu... That one... is a pet... hold back, hold back...",
       "events": [
         "predator_restrain"
@@ -9438,7 +9438,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、わかったのだ！ いうとおりにするのだ！",
-      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "chinese": "呜——，知道了咚！照你说的做咚！",
       "english": "Okay! I'll do as you say!",
       "events": [
         "predator_obey"
@@ -9451,7 +9451,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー！ いやなのだ！ いうことは きかないのだ！",
-      "chinese": "呜——！不要呀！才不听话呀！",
+      "chinese": "呜——！不要咚！才不听话咚！",
       "english": "No! I won't obey!",
       "events": [
         "predator_defy"
@@ -9477,7 +9477,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、あのこ……また あいちゃいのだ……",
-      "chinese": "呜——还想再见那只油呀……",
+      "chinese": "呜——还想再见那只油咚……",
       "english": "Uu... I want to see that yukkuri again...",
       "events": [
         "date_fond"
@@ -9490,7 +9490,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おちびちゃん、いいのだ？ やっちゃ！",
-      "chinese": "呜——可以有小贝比酱呀？成惹！",
+      "chinese": "呜——可以有小贝比酱咚？成惹！",
       "english": "Uu... We can have little ones? Hooray!",
       "events": [
         "permit_glad"
@@ -9503,7 +9503,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、しゅーりしゅーり……まだ がまん、がまん……",
-      "chinese": "呜——想渣渣脸……忍住呀……",
+      "chinese": "呜——想渣渣脸……忍住咚……",
       "english": "Uu... I want to nuzzle... must wait...",
       "events": [
         "courtship_held"
@@ -9516,7 +9516,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆゆっ、ばっじ！ ぴかぴか！",
-      "chinese": "呜——油油，徽章！亮闪闪呀！",
+      "chinese": "呜——油油，徽章！亮闪闪咚！",
       "english": "Uu... Yu-yu, a badge! Shiny!",
       "events": [
         "badge_pinned"
@@ -9529,7 +9529,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじ……にゃいのだ……ゆぅ……",
-      "chinese": "呜——徽章……没惹呀……油呜……",
+      "chinese": "呜——徽章……没惹咚……油呜……",
       "english": "Uu... My badge... gone... yuu...",
       "events": [
         "badge_taken"
@@ -9542,7 +9542,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、あみゃい におい……ねむねむのだ……",
-      "chinese": "呜——搞甜的味道……困困呀……",
+      "chinese": "呜——搞甜的味道……困困咚……",
       "english": "Uu... Smells sweet... sleepy...",
       "events": [
         "spray_drowsy"
@@ -9555,7 +9555,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ふわぁ……ちから、はいらにゃいのだ……",
-      "chinese": "呜——呼啊……窝没力气惹呀……",
+      "chinese": "呜——呼啊……窝没力气惹咚……",
       "english": "Uu... Yawn... no strength left...",
       "events": [
         "spray_drowsy"
@@ -9568,7 +9568,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、かごしゃん！ はいりゅの、やー！",
-      "chinese": "呜——篮子鲜笋！窝噗进去呀！",
+      "chinese": "呜——篮子鲜笋！窝噗进去咚！",
       "english": "Uu... Mr. Basket! I don't want to go in!",
       "events": [
         "basket_refuse",
@@ -9583,7 +9583,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、こわいのだ！ はいりたくにゃいのだ！",
-      "chinese": "呜——，好怕呀！不想进去呀！",
+      "chinese": "呜——，好怕咚！不想进去咚！",
       "english": "Scary! Don't wanna go in!",
       "events": [
         "basket_refuse_guarded"
@@ -9596,7 +9596,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、かごしゃん……はいりゅのだ！",
-      "chinese": "呜——篮子鲜笋……窝进去惹呀！",
+      "chinese": "呜——篮子鲜笋……窝进去惹咚！",
       "english": "Uu... Mr. Basket... here I come!",
       "events": [
         "basket_enter"
@@ -9609,7 +9609,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ？ きょきょ、どこ……？",
-      "chinese": "呜——油？介里是哪儿呀……？",
+      "chinese": "呜——油？介里是哪儿咚……？",
       "english": "Uu... Yu? Where am I...?",
       "events": [
         "basket_exit"
@@ -9622,7 +9622,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、かいゆっくりに ちてほちいのだ！",
-      "chinese": "呜——，想当宠物呀！",
+      "chinese": "呜——，想当宠物咚！",
       "english": "Keep me as a pet! I'll be good!",
       "events": [
         "wild_plea_keep"
@@ -9635,7 +9635,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、にんげんしゃん！ のらの いうこと、きかなかったのだ！",
-      "chinese": "呜——人类鲜笋！窝没理野良呀！",
+      "chinese": "呜——人类鲜笋！窝没理野良咚！",
       "english": "Uu... Mr. Human! I ignored the stray!",
       "events": [
         "pet_report_owner"
@@ -9648,7 +9648,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、あのこ……かいゆだ……がまん……",
-      "chinese": "呜——那只……是宠物油呀……忍住……",
+      "chinese": "呜——那只……是宠物油咚……忍住……",
       "english": "Uu... That one... is a pet... hold back...",
       "events": [
         "predator_restrain"
@@ -9661,7 +9661,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、わかったのだ！ いうとおりにしゅるのだ！",
-      "chinese": "呜——，知道了呀！照你说的做呀！",
+      "chinese": "呜——，知道了咚！照你说的做咚！",
       "english": "Okay! Doing it!",
       "events": [
         "predator_obey"
@@ -9674,7 +9674,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー！ いやなのだ！ きかにゃいのだ！",
-      "chinese": "呜——！不要呀！才不听呀！",
+      "chinese": "呜——！不要咚！才不听咚！",
       "english": "No! Won't listen!",
       "events": [
         "predator_defy"
@@ -10637,7 +10637,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……ゆぶっ！ たすけて！",
-      "chinese": "咕呜！救命呀！",
+      "chinese": "咕呜！救命咚！",
       "english": "Help! I am in the water!",
       "events": [
         "water_help"
@@ -10661,7 +10661,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……ゆぶっ！ たしゅけて！",
-      "chinese": "咕呜！救命呀！",
+      "chinese": "咕呜！救命咚！",
       "english": "Help! I am in the water!",
       "events": [
         "water_help"
@@ -10863,7 +10863,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ぴかぴかなのだ……あれは なんなのだ？",
-      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "chinese": "呜——，亮晶晶咚……那是什么咚？",
       "events": [
         "badge_glance"
       ],
@@ -10876,7 +10876,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ぴかぴかなのだ……あれ なあにゃのだ？",
-      "chinese": "呜——，亮晶晶呀……那是什么呀？",
+      "chinese": "呜——，亮晶晶咚……那是什么咚？",
       "events": [
         "badge_glance"
       ],
@@ -11045,7 +11045,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジ、ぴかぴかのだ！ さわっても いい？",
-      "chinese": "呜——徽章好亮呀！能碰碰吗？",
+      "chinese": "呜——徽章好亮咚！能碰碰吗？",
       "events": [
         "badge_ask"
       ],
@@ -11058,7 +11058,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじ、ぴかぴかのだ！ しゃわっても いい？",
-      "chinese": "呜——徽章好亮呀！窝能碰碰吗？",
+      "chinese": "呜——徽章好亮咚！窝能碰碰吗？",
       "events": [
         "badge_ask"
       ],
@@ -11227,7 +11227,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジ、みていいのだ。ぴかぴか！",
-      "chinese": "呜——徽章给你看看呀。亮晶晶的！",
+      "chinese": "呜——徽章给你看看咚。亮晶晶的！",
       "events": [
         "badge_show_kind"
       ],
@@ -11240,7 +11240,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじ、みちぇいいのだ！ ぴかぴか！",
-      "chinese": "呜——给你看徽章呀！亮晶晶的！",
+      "chinese": "呜——给你看徽章咚！亮晶晶的！",
       "events": [
         "badge_show_kind"
       ],
@@ -11409,7 +11409,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジを つけた ゆっくりに ちかづかないで！",
-      "chinese": "呜——离戴徽章的油远一点呀！",
+      "chinese": "呜——离戴徽章的油远一点咚！",
       "events": [
         "badge_pull_back"
       ],
@@ -11422,7 +11422,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじを つけた ゆっくりに ちかづいちゃ らめ！",
-      "chinese": "呜——噗要靠近戴徽章的油呀！",
+      "chinese": "呜——噗要靠近戴徽章的油咚！",
       "events": [
         "badge_pull_back"
       ],
@@ -11591,7 +11591,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジなんか いらないのだ！",
-      "chinese": "呜——徽章有什么好的呀！",
+      "chinese": "呜——徽章有什么好的咚！",
       "events": [
         "badge_envy_snark"
       ],
@@ -11604,7 +11604,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじなんか いらにゃいのだ！",
-      "chinese": "呜——窝才不要徽章呀！",
+      "chinese": "呜——窝才不要徽章咚！",
       "events": [
         "badge_envy_snark"
       ],
@@ -11773,7 +11773,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、れみりあも まだ れんしゅう するのだ……",
-      "chinese": "呜——蕾米莉亚还要练练呀……",
+      "chinese": "呜——蕾米莉亚还要练练咚……",
       "events": [
         "badge_humble"
       ],
@@ -11786,7 +11786,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、まだ れんしゅう しゅるのだ……",
-      "chinese": "呜——窝还要练练呀……",
+      "chinese": "呜——窝还要练练咚……",
       "events": [
         "badge_humble"
       ],
@@ -11955,7 +11955,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ありがとのだ……ゆっくり できるのだ……",
-      "chinese": "呜——谢谢呀……能油库里了呀……",
+      "chinese": "呜——谢谢咚……能油库里了咚……",
       "events": [
         "badge_thanks"
       ],
@@ -11968,7 +11968,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ありがちょ……ゆっくち できりゅのだ……",
-      "chinese": "呜——蟹蟹……能油库气惹呀……",
+      "chinese": "呜——蟹蟹……能油库气惹咚……",
       "events": [
         "badge_thanks"
       ],
@@ -12137,7 +12137,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、かいゆの くせに なまいきなのだ！",
-      "chinese": "呜——，一个宠物还敢神气呀！",
+      "chinese": "呜——，一个宠物还敢神气咚！",
       "events": [
         "badge_mock"
       ],
@@ -12150,7 +12150,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、かいゆの くちぇに なまいきなのだ！",
-      "chinese": "呜——，一个宠物还敢神气呀！",
+      "chinese": "呜——，一个宠物还敢神气咚！",
       "events": [
         "badge_mock"
       ],
@@ -12319,7 +12319,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、のらは むこうに いくのだ！",
-      "chinese": "呜——，野良到那边去呀！",
+      "chinese": "呜——，野良到那边去咚！",
       "events": [
         "badge_retort"
       ],
@@ -12332,7 +12332,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、のらは むこうに いくのだ！",
-      "chinese": "呜——，野良到那边去呀！",
+      "chinese": "呜——，野良到那边去咚！",
       "events": [
         "badge_retort"
       ],
@@ -12501,7 +12501,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、にんげんさん……のらに いじめられたのだ……",
-      "chinese": "呜——人类先生……野良欺负蕾米莉亚呀……",
+      "chinese": "呜——人类先生……野良欺负蕾米莉亚咚……",
       "events": [
         "pet_report_hurt"
       ],
@@ -12514,7 +12514,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、にんげんしゃん……のらが いじめるのだ……",
-      "chinese": "呜——人类鲜笋……野良欺负窝呀……",
+      "chinese": "呜——人类鲜笋……野良欺负窝咚……",
       "events": [
         "pet_report_hurt"
       ],
@@ -12553,7 +12553,7 @@
       "species": "reimu",
       "age": "adult",
       "japanese": "ゆぅ……かって もらえないよ……",
-      "chinese": "油呜……还是没人养哟……",
+      "chinese": "油呜……还是没有人类先生养哟……",
       "events": [
         "plea_sad"
       ],
@@ -12566,7 +12566,7 @@
       "species": "reimu",
       "age": "young",
       "japanese": "ゆぅ……かって くれにゃいよぉ……",
-      "chinese": "油呜……还是没人养窝哟……",
+      "chinese": "油呜……还是没有人类先生养窝哟……",
       "events": [
         "plea_sad"
       ],
@@ -12579,7 +12579,7 @@
       "species": "marisa",
       "age": "adult",
       "japanese": "ゆぅ……かって もらえないのぜ……",
-      "chinese": "油呜……还是没人养贼……",
+      "chinese": "油呜……还是没有人类先生养贼……",
       "events": [
         "plea_sad"
       ],
@@ -12592,7 +12592,7 @@
       "species": "marisa",
       "age": "young",
       "japanese": "ゆぅ……かって くれにゃいのじぇ……",
-      "chinese": "油呜……还是没人养窝惹杰……",
+      "chinese": "油呜……还是没有人类先生养窝惹杰……",
       "events": [
         "plea_sad"
       ],
@@ -12605,7 +12605,7 @@
       "species": "alice",
       "age": "adult",
       "japanese": "ゆぅ……かって もらえないわ……",
-      "chinese": "油呜……还是没人养哇……",
+      "chinese": "油呜……还是没有人类先生养哇……",
       "events": [
         "plea_sad"
       ],
@@ -12618,7 +12618,7 @@
       "species": "alice",
       "age": "young",
       "japanese": "ゆぅ……かって くれにゃいわ……",
-      "chinese": "油呜……还是没人养窝哇……",
+      "chinese": "油呜……还是没有人类先生养窝哇……",
       "events": [
         "plea_sad"
       ],
@@ -12631,7 +12631,7 @@
       "species": "chen",
       "age": "adult",
       "japanese": "ゆぅ……かって もらえないよー……",
-      "chinese": "油呜……还是没人养哟——……",
+      "chinese": "油呜……还是没有人类先生养哟——……",
       "events": [
         "plea_sad"
       ],
@@ -12644,7 +12644,7 @@
       "species": "chen",
       "age": "young",
       "japanese": "ゆぅ……かって くれにゃいよぅ……",
-      "chinese": "油呜……还是没人养窝哟——……",
+      "chinese": "油呜……还是没有人类先生养窝哟——……",
       "events": [
         "plea_sad"
       ],
@@ -12657,7 +12657,7 @@
       "species": "patchouli",
       "age": "adult",
       "japanese": "むきゅ。ゆぅ……かって もらえないわ……",
-      "chinese": "姆啾。油呜……还是没人养哇……",
+      "chinese": "姆啾。油呜……还是没有人类先生养哇……",
       "events": [
         "plea_sad"
       ],
@@ -12670,7 +12670,7 @@
       "species": "patchouli",
       "age": "young",
       "japanese": "むきゅ。ゆぅ……かって くれにゃいわ……",
-      "chinese": "姆啾。油呜……还是没人养窝哇……",
+      "chinese": "姆啾。油呜……还是没有人类先生养窝哇……",
       "events": [
         "plea_sad"
       ],
@@ -12683,7 +12683,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……かって もらえないのだ……",
-      "chinese": "呜——油呜……还是没人养呀……",
+      "chinese": "呜——油呜……还是没有人类先生养咚……",
       "events": [
         "plea_sad"
       ],
@@ -12696,7 +12696,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆぅ……かって くれにゃいのだ……",
-      "chinese": "呜——油呜……还是没人养窝呀……",
+      "chinese": "呜——油呜……还是没有人类先生养窝咚……",
       "events": [
         "plea_sad"
       ],
@@ -12709,7 +12709,7 @@
       "species": "flandre",
       "age": "adult",
       "japanese": "うー、ゆぅ……かって もらえないよ……",
-      "chinese": "呜——油呜……还是没人养哦……",
+      "chinese": "呜——油呜……还是没有人类先生养哦……",
       "events": [
         "plea_sad"
       ],
@@ -12722,7 +12722,7 @@
       "species": "flandre",
       "age": "young",
       "japanese": "うー、ゆぅ……かって くれにゃいよぅ……",
-      "chinese": "呜——油呜……还是没人养窝哟……",
+      "chinese": "呜——油呜……还是没有人类先生养窝哟……",
       "events": [
         "plea_sad"
       ],
@@ -12865,7 +12865,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、バッジが なくなったのだ……だいじょうぶなのだ？",
-      "chinese": "呜——，徽章没了呀……没事吗？",
+      "chinese": "呜——，徽章没了咚……没事吗？",
       "events": [
         "badge_pity"
       ],
@@ -12878,7 +12878,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ばっじが にゃくなったのだ……だいじょうぶなのだ？",
-      "chinese": "呜——，徽章没了呀……没事吗？",
+      "chinese": "呜——，徽章没了咚……没事吗？",
       "events": [
         "badge_pity"
       ],
@@ -13047,7 +13047,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、にんげんさんには ちかづかないで……",
-      "chinese": "呜——离人类先生远一点呀……",
+      "chinese": "呜——离人类先生远一点咚……",
       "events": [
         "elder_warn"
       ],
@@ -13060,7 +13060,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、にんげんしゃんに ちかづいちゃ らめ……",
-      "chinese": "呜——噗要靠近人类鲜笋呀……",
+      "chinese": "呜——噗要靠近人类鲜笋咚……",
       "events": [
         "elder_warn"
       ],
@@ -13229,7 +13229,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ごはんを くれる にんげんも いるのだ。",
-      "chinese": "呜——，也有会给饭的人类呀。",
+      "chinese": "呜——，也有会给饭的人类咚。",
       "events": [
         "elder_kind"
       ],
@@ -13242,7 +13242,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ごはんを くれりゅ にんげんしゃんも いるのだ。",
-      "chinese": "呜——，也有给饭的人类先生呀。",
+      "chinese": "呜——，也有给饭的人类先生咚。",
       "events": [
         "elder_kind"
       ],
@@ -15231,7 +15231,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、あまあま！ むーしゃ、むーしゃ……しあわせのだ！",
-      "chinese": "呜——好甜好甜！嚼嚼……好幸福呀！",
+      "chinese": "呜——好甜好甜！嚼嚼……好幸福咚！",
       "english": "Uu... Sweet, sweet! Munch, munch... so happy!",
       "events": [
         "snack_eat"
@@ -15244,7 +15244,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、もっと たべたいのだ！ あまあま もっとなのだ！",
-      "chinese": "呜——，还想吃呀！甜甜再来点呀！",
+      "chinese": "呜——，还想吃咚！甜甜再来点咚！",
       "english": "Uu... More, more! Give me another treat!",
       "events": [
         "snack_greedy"
@@ -15257,7 +15257,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おなか、いっぱいのだ……もう いらないのだ……",
-      "chinese": "呜——饱了呀……吃不下呀……",
+      "chinese": "呜——饱了咚……吃不下咚……",
       "english": "Uu... I'm full... no more...",
       "events": [
         "snack_refuse"
@@ -15270,7 +15270,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おなか すいたのだ！ ごはん、ちょうだい！",
-      "chinese": "呜——彭彭饿了呀！给一点饭！",
+      "chinese": "呜——彭彭饿了咚！给一点饭！",
       "english": "Uu... I am hungry! Some food, please!",
       "events": [
         "ask_food"
@@ -15283,7 +15283,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、あまあまが ほしいのだ！",
-      "chinese": "呜——，想要甜甜呀！",
+      "chinese": "呜——，想要甜甜咚！",
       "english": "Uu... I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -15296,7 +15296,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ひまなのだ。いっしょに あそぶのだ！",
-      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "chinese": "呜——，好无聊咚。一起玩咚！",
       "english": "Uu... I'm bored! Let's play together!",
       "events": [
         "ask_play"
@@ -15309,7 +15309,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おさんぽ！ おそと いきたいのだ！",
-      "chinese": "呜——散步！想出去呀！",
+      "chinese": "呜——散步！想出去咚！",
       "english": "Uu... A walk! I want to go outside!",
       "events": [
         "ask_walk"
@@ -15322,7 +15322,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ありがとのだ！ ゆっくり できるのだ！",
-      "chinese": "呜——谢谢呀！能油库里了呀！",
+      "chinese": "呜——谢谢咚！能油库里了咚！",
       "english": "Uu... Thank you! I can take it easy!",
       "events": [
         "request_thanks"
@@ -15335,7 +15335,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ふんっ！ ぷくーっ！",
-      "chinese": "呜——哼！噗咕——呀！",
+      "chinese": "呜——哼！噗咕——咚！",
       "english": "Uu... Hmph! Puff!",
       "events": [
         "request_sulk"
@@ -15348,7 +15348,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆっ、ゆっ♪ きょうは ゆっくり できるのだ！",
-      "chinese": "呜——油、油♪ 今天好能油库里呀！",
+      "chinese": "呜——油、油♪ 今天好能油库里咚！",
       "english": "Uu... Yu, yu! I can really take it easy today!",
       "events": [
         "mood_good"
@@ -15361,7 +15361,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ゆぅ……ゆっくり してるのだ。",
-      "chinese": "呜——油呜……油库里呀。",
+      "chinese": "呜——油呜……油库里咚。",
       "english": "Uu... Yuu... I'm taking it easy.",
       "events": [
         "mood_ok"
@@ -15374,7 +15374,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー……あまり ゆっくり できていないのだ。",
-      "chinese": "呜——……不太能油库里呀。",
+      "chinese": "呜——……不太能油库里咚。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -15387,7 +15387,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、まって、まって……まだ いかないのだ……",
-      "chinese": "呜——等等、等等呀……还不想走呀……",
+      "chinese": "呜——等等、等等咚……还不想走咚……",
       "english": "Uu... Wait, wait... I don't want to go yet...",
       "events": [
         "harness_tug"
@@ -15400,7 +15400,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、おそと、ゆっくり できるのだ！",
-      "chinese": "呜——外面好能油库里呀！",
+      "chinese": "呜——外面好能油库里咚！",
       "english": "Uu... I can take it easy out here!",
       "events": [
         "walk_enjoy"
@@ -15413,7 +15413,7 @@
       "species": "remilia",
       "age": "adult",
       "japanese": "うー、ほかほか……ゆっくり できる……",
-      "chinese": "呜——暖乎乎呀……能油库里……",
+      "chinese": "呜——暖乎乎咚……能油库里……",
       "english": "Uu... So warm... I can take it easy...",
       "events": [
         "swaddle_on"
@@ -15439,7 +15439,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、もっちょ たべちゃいのだ！ あみゃあみゃ もっちょなのだ！",
-      "chinese": "呜——，还要吃呀！甜甜还要呀！",
+      "chinese": "呜——，还要吃咚！甜甜还要咚！",
       "english": "Uu... More, more! Give me another treat!",
       "events": [
         "snack_greedy"
@@ -15452,7 +15452,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ぽんぽんしゃん、いっぱい……もう いらにゃい……",
-      "chinese": "呜——彭彭先森饱了呀……噗吃惹……",
+      "chinese": "呜——彭彭先森饱了咚……噗吃惹……",
       "english": "Uu... Mr. Tummy is full... no more...",
       "events": [
         "snack_refuse"
@@ -15465,7 +15465,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ぽんぽんしゃん、ぺこぺこ！ ごはん、ちょうらい！",
-      "chinese": "呜——彭彭先森饿了呀！给一点饭嘛！",
+      "chinese": "呜——彭彭先森饿了咚！给一点饭嘛！",
       "english": "Uu... Mr. Tummy is hungry! Some food, please!",
       "events": [
         "ask_food"
@@ -15478,7 +15478,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、あみゃあみゃ ほちいのだ！",
-      "chinese": "呜——，想要甜甜呀！",
+      "chinese": "呜——，想要甜甜咚！",
       "english": "Uu... I want something sweet! Please!",
       "events": [
         "ask_snack"
@@ -15491,7 +15491,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ひまなのだ。いっちょに あしょぶのだ！",
-      "chinese": "呜——，好无聊呀。一起玩呀！",
+      "chinese": "呜——，好无聊咚。一起玩咚！",
       "english": "Uu... I'm bored! Let's play together!",
       "events": [
         "ask_play"
@@ -15504,7 +15504,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おしゃんぽ！ おしょと いくのだ！",
-      "chinese": "呜——散步散步！要粗去呀！",
+      "chinese": "呜——散步散步！要粗去咚！",
       "english": "Uu... Walkies! Outside!",
       "events": [
         "ask_walk"
@@ -15517,7 +15517,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ありがちょのだ！ ゆっくち できりゅ！",
-      "chinese": "呜——蟹蟹呀！能油库气惹！",
+      "chinese": "呜——蟹蟹咚！能油库气惹！",
       "english": "Uu... Fank you! I can take it easy!",
       "events": [
         "request_thanks"
@@ -15530,7 +15530,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ふんっ！ ぷきゅーっ！",
-      "chinese": "呜——哼！噗咕——呀！",
+      "chinese": "呜——哼！噗咕——咚！",
       "english": "Uu... Hmph! Puff!",
       "events": [
         "request_sulk"
@@ -15543,7 +15543,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆっ、ゆっ♪ ゆっくち できりゅのだ！",
-      "chinese": "呜——油、油♪ 好能油库气呀！",
+      "chinese": "呜——油、油♪ 好能油库气咚！",
       "english": "Uu... Yu, yu! I can take it easy!",
       "events": [
         "mood_good"
@@ -15556,7 +15556,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ゆぅ……ゆっくち してるのだ……",
-      "chinese": "呜——油呜……油库气呀……",
+      "chinese": "呜——油呜……油库气咚……",
       "english": "Uu... Yuu... taking it easy...",
       "events": [
         "mood_ok"
@@ -15569,7 +15569,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー……あまり ゆっくち できてないのだ。",
-      "chinese": "呜——……不太能油库里呀。",
+      "chinese": "呜——……不太能油库里咚。",
       "english": "Uu... I can't relax very well...",
       "events": [
         "mood_bad"
@@ -15582,7 +15582,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、まっちぇ、まっちぇのだ！",
-      "chinese": "呜——等等窝、等等窝呀！",
+      "chinese": "呜——等等窝、等等窝咚！",
       "english": "Uu... Wait for me, wait for me!",
       "events": [
         "harness_tug"
@@ -15595,7 +15595,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、おしょと、ゆっくち できりゅのだ！",
-      "chinese": "呜——外面好能油库气呀！",
+      "chinese": "呜——外面好能油库气咚！",
       "english": "Uu... I can take it easy out here!",
       "events": [
         "walk_enjoy"
@@ -15608,7 +15608,7 @@
       "species": "remilia",
       "age": "young",
       "japanese": "うー、ほかほか……ゆっくち……",
-      "chinese": "呜——暖乎乎呀……油库气……",
+      "chinese": "呜——暖乎乎咚……油库气……",
       "english": "Uu... So warm... I can take it easy...",
       "events": [
         "swaddle_on"

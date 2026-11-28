@@ -561,10 +561,10 @@
     },
     {
       "id": "counting_lots",
-      "zh": "普通个体数到三，更多叫“很多”。",
-      "ja": "通常は三まで数え、それ以上を「たくさん」と言う。",
-      "en": "Ordinary speakers count to three, then say lots.",
-      "basis": ["F21", "L36"],
+      "zh": "计数上限随个体智力与练习数值变化（初始随智力为 1–3，练习可升至 3+智力/15，幼声最多 2，帕秋莉初始 9），超过后说“好多好多”。",
+      "ja": "数えられる上限は知能と練習値で変わり（初期は知能に応じ1〜3、練習で3+知能/15まで伸び、幼声は2まで、パチュリーは初期9）、超えると「たくさん」と言う。",
+      "en": "Counting cap scales with intelligence and practice (1–3 initially, up to 3+int/15; young voice 2; Patchouli 9), then says lots.",
+      "basis": ["F21", "L36", "P"],
       "status": "rule",
       "kind": "counting_rule"
     },

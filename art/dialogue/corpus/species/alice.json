@@ -23,26 +23,26 @@
     },
     {
       "id": "city_sect_candidate",
-      "zh": "都凯哈",
+      "zh": "都会派",
       "ja": "とかいは",
       "en": "city sect",
       "basis": ["E04", "P"],
-      "status": "candidate",
-      "kind": "transliteration_candidate",
-      "notes": "Chinese transliteration is project-original, not verified Hakkei wording."
+      "status": "ready",
+      "kind": "fixed_phrase",
+      "notes": "Project-settled Chinese term: 都会派."
     },
     {
       "id": "phonetic_overrides",
-      "zh": "爱丽丝成人可用哇；都凯哈仅作都会派候选，不与灵梦幼语ぢゃよ混用。",
-      "ja": "成体はわを使い、とかいはは都会派の候補として霊夢のぢゃよと混ぜない。",
-      "en": "Adult Alice may use wa; tokaiha is a city-sect candidate, distinct from Reimu's baby jayo.",
+      "zh": "爱丽丝成人可用哇；とかいは统一写作都会派，不与灵梦幼语ぢゃよ混用。",
+      "ja": "成体はわを使い、とかいはは都会派として霊夢のぢゃよと混ぜない。",
+      "en": "Adult Alice may use wa; tokaiha is translated as 都会派, distinct from Reimu's baby jayo.",
       "basis": ["D01", "E04", "P"],
-      "status": "candidate",
-      "data": {"adult": {"zh": {"语尾": "哇", "都会派": "都凯哈"}}, "scope": "review_each_line"}
+      "status": "ready",
+      "data": {"adult": {"zh": {"语尾": "哇", "都会派": "都会派"}}, "scope": "review_each_line"}
     },
     {
       "id": "address_forms",
-      "zh": "称呼按真实关系选择，城市派审美不改变亲属识别规则。",
+      "zh": "称呼按真实关系选择，都会派审美不改变亲属识别规则。",
       "ja": "呼称は実関係で選び、都会派の趣味も親族識別を変えない。",
       "en": "Address follows actual relationships; city-sect style does not change recognition.",
       "basis": ["L36", "P"],
@@ -60,7 +60,7 @@
     },
     {
       "id": "adult_example",
-      "zh": "放在这边更整齐哇，都凯哈！",
+      "zh": "放在这边更整齐哇，真都会派！",
       "ja": "こちらに置くほうが整っているわ、とかいは！",
       "en": "It is tidier over here, wa. Very city sect!",
       "basis": ["D01", "E04", "P"],

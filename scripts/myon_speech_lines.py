@@ -296,8 +296,8 @@ LINES = {
         'adult': ('{t}！ にんげんさん、のらは、むしした！ えらい？', '{t}！人类先生，野良，妖梦没理会！厉害吧？', '{t}! Human, Myon ignored the stray! Good, right?'),
         'young': ('{t}！ にんげんしゃん、のらは むちちた！', '{t}！人类先生，窝没理野良！', '{t}! Human, I ignowed the stway!')},
     'plea_sad': {
-        'adult': ("ゆぅ……かって もらえない……{t}……", "油呜……还是没人养妖梦……{t}……", "Yuu... nobody wants to keep me... {t}..."),
-        'young': ("ゆぅ……かって くれにゃい……{t}……", "油呜……还是没人养窝……{t}……", "Yuu... nobody wants to keep me... {t}...")},
+        'adult': ("ゆぅ……かって もらえない……{t}……", "油呜……还是没有人类先生养妖梦……{t}……", "Yuu... nobody wants to keep me... {t}..."),
+        'young': ("ゆぅ……かって くれにゃい……{t}……", "油呜……还是没有人类先生养窝……{t}……", "Yuu... nobody wants to keep me... {t}...")},
     'puff': {
         'adult': ('ぷくーっ！ {t}！ かかってこい！', '噗咕——！{t}！放马过来！', 'Puff! {t}! Bring it on!'),
         'young': ('ぷきゅーっ！ {t}！', '噗啾——！{t}！', 'Puff! {t}!')},
