@@ -263,7 +263,8 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     private record DelayedCue(String event, YukkuriAction action, java.util.function.Consumer<Boolean> result) {}
     private DelayedCue pendingSpeech;
     private int pendingSpeechTicks, pendingSpeechFloor;
-    private record TurnSpeech(String event, String tier, String style, long dueTick, long expiresAt, long plannedEnd) {}
+    private record TurnSpeech(String event, String tier, String style, long dueTick, long expiresAt, long plannedEnd,
+                              java.util.function.Consumer<Boolean> result) {}
     private TurnSpeech turnSpeech;
     // The bridge reads nothing during construction; component instances keep their original timing.
     private final PresentationArbiter presentation = new PresentationArbiter(new PresentationState());
@@ -992,7 +993,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 boolean said = speak(words, first && words.equals("hello") ? "young" : speechTier(), null, floor);
                 if (said && first) BirthStaging.greeting(this);
                 if (cue.result() != null) cue.result().accept(said);
-            } else if (reactionAction() == cue.action()) cue.result().accept(speakCue(cue.event()));
+            } else if (reactionAction() == cue.action()) speakCueResolved(cue.event(), cue.result());
         }
         if (turnSpeech != null && level().getGameTime() >= turnSpeech.dueTick()) {
             var queued = turnSpeech;
@@ -1001,15 +1002,16 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
                 long now = level().getGameTime();
                 var decision = SpeechTurn.evaluate(now, nearbyTurnBusyUntil(now), queued.expiresAt());
                 if (decision.speakNow()) {
-                    speakInternal(queued.event(), queued.tier(), queued.style(), 0, false);
+                    boolean said = speakInternal(queued.event(), queued.tier(), queued.style(), 0, false, null);
+                    if (queued.result() != null) queued.result().accept(said);
                 } else if (decision.defer()) {
                     var choices = NativeDialogue.choices(variant.dialogueSpecies(), queued.tier(), myon.quirk(), queued.event());
                     int dur = choices.isEmpty() ? 60 : choices.getFirst().ticksFor(variant.dialogueSpecies(), queued.tier());
                     turnSpeech = new TurnSpeech(queued.event(), queued.tier(), queued.style(),
-                            decision.dueTick(), queued.expiresAt(), decision.dueTick() + dur);
+                            decision.dueTick(), queued.expiresAt(), decision.dueTick() + dur, queued.result());
                     extendHoldForTurn(now, decision.dueTick());
-                }
-            }
+                } else if (queued.result() != null) queued.result().accept(false); // the wait outlived the line
+            } else if (queued.result() != null) queued.result().accept(false);
         }
         if (level().getGameTime() >= speechEnd()) sync().dialogue("");
         components.tick(ComponentSpec.TickPhase.BEFORE_ALIVE_CHECK);
@@ -1453,29 +1455,50 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     private boolean speak(String event, String tier, String style, int priorityFloor) {
-        return speakInternal(event, tier, style, priorityFloor, true);
+        return speakInternal(event, tier, style, priorityFloor, true, null);
     }
 
-    private boolean speakInternal(String event, String tier, String style, int priorityFloor, boolean allowTurnDefer) {
+    /** Say a cue line, tracing it and reporting its real outcome once: said now, said after the turn it waited for, or not said. */
+    private void speakCueResolved(String event, java.util.function.Consumer<Boolean> result) {
+        speakInternal(event, speechTier(), null, 0, true, spoken -> {
+            if (StatusEvents.trace()) GameplayLog.event(this, "speech", "cue event={} spoken={}", event, spoken);
+            if (result != null) result.accept(spoken);
+        });
+    }
+
+    /** Report a line's outcome to the beat waiting for it ({@link #speakCueResolved(String, java.util.function.Consumer)}). */
+    private static boolean said(java.util.function.Consumer<Boolean> outcome, boolean spoken) {
+        if (outcome != null) outcome.accept(spoken);
+        return spoken;
+    }
+
+    /** A queued line whose mouth another line takes is not said. */
+    private void dropTurnSpeech() {
+        if (turnSpeech != null && turnSpeech.result() != null) turnSpeech.result().accept(false);
+        turnSpeech = null;
+    }
+
+    private boolean speakInternal(String event, String tier, String style, int priorityFloor, boolean allowTurnDefer,
+                                  java.util.function.Consumer<Boolean> outcome) {
         // An empty event is "no line": a reaction that shows only its face says nothing at all, in every voice
         // (a deficient yukkuri's babble is a line for a real event, not for a missing one).
         // A body frozen stiff says nothing, whatever layer asks (its last words come before the freeze).
-        if (level().isClientSide || !isAlive() || event.isEmpty() || coldStiff()) return false;
+        if (level().isClientSide || !isAlive() || event.isEmpty() || coldStiff()) return said(outcome, false);
         long now = level().getGameTime();
         if (subspecies.congenital() != SubspeciesLife.Congenital.NORMAL) {
             int priority = Math.max(priorityFloor, NativeDialogue.priority(event));
-            if (!admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return false;
-            turnSpeech = null;
+            if (!admitSpeech(now, priority, NativeDialogue.priority(event) >= 3)) return said(outcome, false);
+            dropTurnSpeech();
             speechTiming.begin(now, 40, priority);
             showSpeech(event, "dialogue.mcyukkuri.deficient.babble", tier, now);
-            return true;
+            return said(outcome, true);
         }
         event = mind.voice(event); // a broken mind can only scream
         var choices = NativeDialogue.choices(variant.dialogueSpecies(), tier, myon.quirk(), event);
         int basePriority = NativeDialogue.priority(event);
         int priority = Math.max(priorityFloor, basePriority);
         boolean urgent = basePriority >= 3;
-        if (choices.isEmpty() || !admitSpeech(now, priority, urgent)) return false;
+        if (choices.isEmpty() || !admitSpeech(now, priority, urgent)) return said(outcome, false);
         var line = choices.size() == 1 ? choices.getFirst() : NativeDialogue.select(
                 choices, style == null ? speechStyleOrder() : List.of(style, "plain"),
                 recentSpeech, nearbySpeech(now),
@@ -1484,16 +1507,17 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
         if (allowTurnDefer && priority == 2 && !urgent && priorityFloor < 2) {
             var decision = SpeechTurn.evaluate(now, nearbyTurnBusyUntil(now), now + SpeechTurn.MAX_WAIT);
             if (decision.defer()) {
-                turnSpeech = new TurnSpeech(event, tier, style, decision.dueTick(), now + SpeechTurn.MAX_WAIT, decision.dueTick() + duration);
+                turnSpeech = new TurnSpeech(event, tier, style, decision.dueTick(), now + SpeechTurn.MAX_WAIT,
+                        decision.dueTick() + duration, outcome);
                 extendHoldForTurn(now, decision.dueTick());
-                return false;
+                return false; // the outcome comes with the turn
             }
-            if (decision.drop()) return false;
+            if (decision.drop()) return said(outcome, false);
         }
-        turnSpeech = null;
+        dropTurnSpeech();
         speechTiming.begin(now, duration, priority);
         showSpeech(event, line.key(), tier, now);
-        return true;
+        return said(outcome, true);
     }
 
     private void showSpeech(String event, String key, String tier, long now) {
