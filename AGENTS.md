@@ -27,7 +27,7 @@
 - [待办](docs/TODO.md)：未完成事项、实测问题、运行版本与完成标准；“进行中”表登记并行工作。
 - [Wiki](wiki/README.md)：设定来源；术语见[术语表](wiki/glossary.md)。
 - 专题：[素材目录](art/CATALOG.md)、[脚本说明](scripts/README.md)。
-- 目录：`src/main/{java,resources,templates}`、`standards/yukkuri-library/`（制作源）、`art/`（选用快照与道具／建筑／音频源）、`scripts/`（导出、检查、试玩场生成）、`preview/`（预览页）、`docs/roles/`（角色文件）、`.local/` 与 `.worktrees/`（不提交）。代码、美术源、预览源和文档都放本仓库；临时文件放 `.local/`，工作树放 `.worktrees/`；不提交外部游戏资源、凭据、Minecraft 本体或运行世界。
+- 目录：`src/main/{java,resources,templates}`、`standards/yukkuri-library/`（制作源）、`art/`（选用快照与道具／建筑／音频源）、`scripts/`（导出、检查、试玩场生成）、`preview/`（预览页）、`docs/roles/`（角色文件）、`.local/` 与 `.worktrees/`（不提交）。代码、美术源、预览源和文档都放本仓库；任何改动（含用户另开的代理任务）都在自己的工作树里做，不在主检出 `F:/yukkuri` 直接改，主检出只由合入脚本快进；临时文件放 `.local/`，工作树放 `.worktrees/`；不提交外部游戏资源、凭据、Minecraft 本体或运行世界。
 - 本机编排文件（不入库）：`.local/HANDOFF.md`（当前状态交接）、`.local/refactor/briefs/`（任务说明）、`.local/refactor/reports/`（工人与审查报告）、`.local/refactor/model-notes/`（各模型的倾向）、`.local/tools/`（编排与生图工具）。
 
 ## 2. 协作
