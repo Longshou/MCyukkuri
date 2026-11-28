@@ -11,7 +11,6 @@
 | 辫子拨水引帽（帽子近岸够不到） | `.worktrees/wp-braid-beckon` | aquatic hat retrieval, motor/action/Beckon callers |
 | 坑奴场景饿死（BM-10） | `.worktrees/wp-pit-starve` | settlement feeding, pit slave food |
 | 搬窝与岸边家庭冒烟失败（den_move、shore_family） | `.worktrees/wp-den-shore` | den move / shore family chains |
-| 合入时生成文件冲突自动重导 | `.worktrees/wp-land-autogen` | scripts/pkg.py, export scripts |
 
 ## 玩法待办
 
