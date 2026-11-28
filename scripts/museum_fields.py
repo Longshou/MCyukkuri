@@ -183,8 +183,8 @@ class Dens(Field):
         x, dz = self.spots['indep']
         cmds, self.doorways['indep'] = den(x, dz)
         self.cave_cmds += cmds
-        x, dz = self.spots['small']          # five cells in a row, walled with stone: nothing diggable around the corridor
-        cmds, self.doorways['small'] = den(x, dz, half=0, length=5, wall='minecraft:stone', top='minecraft:stone', wall_half=1)
+        x, dz = self.spots['small']          # three wide so an adult can turn beside every bed; stone: nothing diggable around it
+        cmds, self.doorways['small'] = den(x, dz, half=1, length=5, wall='minecraft:stone', top='minecraft:stone', wall_half=2)
         self.cave_cmds += cmds
         x, dz = self.spots['big']            # 25 empty cells
         cmds, self.doorways['big'] = den(x, dz)

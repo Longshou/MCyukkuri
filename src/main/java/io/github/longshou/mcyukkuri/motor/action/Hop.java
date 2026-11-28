@@ -686,8 +686,13 @@ public final class Hop implements Action {
         }
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
-        if (aboard) Motor.spot(seatHost, body, seatHost.frame().toLocal(body.position()), seatHost.riders().yaw(body.getUUID()), "hop_start");
-        else carriedFlight(body, air);
+        if (aboard) {
+            // The flight stays in the host's live frame: the rider is carried along the planned stand, not pushed off it by the
+            // bank block beside it (see TakeoffLip); a deeper obstruction still ends the hop.
+            Motor.spot(seatHost, body, seatHost.frame().toLocal(aim), seatHost.riders().yaw(body.getUUID()), "hop_start");
+            if (TakeoffLip.lift(lift -> body.level().noCollision(body, body.getBoundingBox().move(0, lift, 0))) < 0)
+                return Outcome.of(Reason.NO_SUPPORT, 0, "arc_blocked at=" + GameplayLog.at(body.position()));
+        } else carriedFlight(body, air);
         peak = Math.max(peak, aboard ? p.y() : body.getY() - from.y);
         double blocked = body.position().distanceTo(aim);
         if (blocked > TOUCH) return Outcome.of(Reason.NO_SUPPORT, blocked, "arc_blocked at=" + GameplayLog.at(body.position()));

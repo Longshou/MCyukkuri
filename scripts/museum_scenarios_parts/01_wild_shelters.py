@@ -242,7 +242,7 @@ add('den_move', 'den', '石洞进水，一家自行搬家', '石洞进水，一�
     '一家三口先住在小石洞。洞底进水，但洞口仍干燥；看亲油带子油沿地面去东边空土洞，到了新家鼓脸说出住家宣言。'
     '读三只的住所，确认一家都住到新洞；走进洞口可看领地反应。',
     '约 1 分钟', [
-        # Six floor cells leave four beds after the doorway and store are reserved.
+        # The store alcove behind the doorway; the three-wide cavity still leaves fourteen beds deeper in.
         box(0, 0, -6, 0, 1, -6, 'minecraft:air'),
         yk('reimu', -1, 1, 'mother', uuid=_sm, yaw=180, lead=True, kin=f'Partner:{uuid_nbt(_sf)}', boldness=15, **pair_ready()),
         yk('marisa', 1, 1, 'father', uuid=_sf, yaw=180, kin=f'Partner:{uuid_nbt(_sm)}', boldness=15, **pair_ready()),
