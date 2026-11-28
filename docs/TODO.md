@@ -8,7 +8,6 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
-| 家庭牵引：孩子围着亲油活动（共用层） | `.worktrees/wp-family-tether` | family/FamilyLife, entity/RoamingGoal, young idle anchor, parent watch call |
 | 辫子拨水引帽（帽子近岸够不到） | `.worktrees/wp-braid-beckon` | aquatic hat retrieval, motor/action/Beckon callers |
 | 坑奴场景饿死（BM-10） | `.worktrees/wp-pit-starve` | settlement feeding, pit slave food |
 | 冻僵美术 P2（冰壳、裂纹、冻脸、片段） | `.worktrees/wp-cold-stiff-art` | cold-stiff textures/faces/clips, ColdStiffness render |
