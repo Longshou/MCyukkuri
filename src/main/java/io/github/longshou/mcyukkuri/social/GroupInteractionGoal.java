@@ -203,7 +203,11 @@ public final class GroupInteractionGoal extends Goal {
         }
         return false;
     }
-    private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&(bout.kind==Kind.CONTEST?contestant(e):available(e)); }
+    private boolean live(YukkuriEntity e) { return e.level()==entity.level()&&level().getEntity(e.getUUID())==e&&(bout.kind==Kind.CONTEST?stillContesting(e):available(e)); }
+    /** A running contest outlasts the wounds it deals: only death, panic, sleep or fire and water end it early. */
+    private static boolean stillContesting(YukkuriEntity e) {
+        return e.isAlive()&&!e.isRemoved()&&!e.isPanicking()&&!e.life().isSleeping()&&!e.isOnFire()&&!e.isInWaterOrBubble();
+    }
     private boolean valid() {
         if(active()&&level().getGameTime()-bout.created>=STALE)return false;
         if(!active()||bout.first.isPassenger()||bout.second.isPassenger()||!live(bout.first)||!live(bout.second)||bout.first.distanceToSqr(bout.second)>36||bout.ticks>=240)return false;

@@ -268,8 +268,9 @@ public final class Contest {
         }
         if (rounds >= ATTACK_ROUNDS || t < ATTACK_FIRST || (t - ATTACK_FIRST) % ATTACK_EVERY != 0) return;
         rounds++;
-        beat(winner, YukkuriAction.LUNGE_RAM, "contest_attack", "angry_stare", "", FaceTier.Tier.SHORT);
-        beat(loser, YukkuriAction.LUNGE_RAM, "contest_attack", "surprise", "", FaceTier.Tier.SHORT);
+        // The lunge is the next beat of the threat's own performance: the same tier, so its face is not dropped by the warning still held.
+        beat(winner, YukkuriAction.LUNGE_RAM, "contest_attack", "angry_stare", "", FaceTier.Tier.MEDIUM);
+        beat(loser, YukkuriAction.LUNGE_RAM, "contest_attack", "surprise", "", FaceTier.Tier.MEDIUM);
         GroupInteractionGoal.shove(loser, winner, .22);
         boolean hit = loser.hurtInBout(((ServerLevel) first.level()).damageSources().mobAttack(winner), 1);
         GameplayLog.event(winner, "social", "contest attack round={} hit={} loserHealth={}/{} loserEnergy={}",
@@ -328,9 +329,10 @@ public final class Contest {
         if (level == Level.ATTACK_DECIDE) GroupInteractionGoal.witnessedAttack(loser, winner);
     }
 
-    /** The winner's claim over its smug face, for a prize taken at once rather than through the sumo's own win line. */
+    /** The winner's claim over its smug face, for a prize taken at once rather than through the sumo's own win line. The state is
+     *  LONG like the loser's verdict beat, so a fight's warning still speaking at the verdict does not swallow the claim line. */
     private void claim(String face) {
-        deferredBeat(winner, YukkuriAction.PROUD, "contest_won", face, prize.winLine(), FaceTier.Tier.MEDIUM);
+        deferredBeat(winner, YukkuriAction.PROUD, "contest_won", face, prize.winLine(), FaceTier.Tier.LONG);
     }
 
     /** The sumo's own end, the same win and push-out beats the friendly bout plays. */

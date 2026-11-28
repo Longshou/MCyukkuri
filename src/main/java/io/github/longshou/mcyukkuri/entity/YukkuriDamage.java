@@ -73,8 +73,11 @@ final class YukkuriDamage {
             if(accepted && source.is(DamageTypes.HOT_FLOOR))owner.life().hotFloor().burned();
             boolean physicalHit=accepted&&transaction.hit.physical()&&!YukkuriLife.isWaterDamage(source);
             boolean notify=physicalHit&&owner.isAlive();
+            // A bout blow belongs to the bout: it still hurts and shows, but it must not tear down the fighters' running goals,
+            // which is the contest that delivers it (the contest itself decides when the loser has had enough).
+            boolean breaks=notify&&kind!=BodyHit.Kind.BOUT;
             var interruption=InterruptContext.hurt(source);
-            if(notify) {
+            if(breaks) {
                 owner.life().wakeForDanger("damage");
                 owner.interrupt(interruption,InterruptPhase.BEFORE_INJURY);
             }
@@ -93,14 +96,14 @@ final class YukkuriDamage {
                             source.is(DamageTypes.STARVE)&&owner.body().stemDepleting()?" stem_depletion=true":""});
             if(notify&&owner.isAlive()) {
                 if(result.loss()>0)owner.headwear().struck(source,result.loss(),result.part());
-                owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
+                if(breaks) owner.interrupt(interruption,InterruptPhase.AFTER_STATUS_HURT);
                 // One draw per accepted hit on a carrying parent: it may shake one young loose (ParentCarry#struck).
                 owner.family().carry().struck(result.loss());
                 if(kind!=BodyHit.Kind.BOUT&&source.getEntity() instanceof YukkuriEntity attacker)
                     GroupInteractionGoal.witnessedAttack(owner,attacker);
                 owner.operations().damaged(source);
                 owner.settlement().attackedBy(source,false);
-                owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
+                if(breaks) owner.interrupt(interruption,InterruptPhase.AFTER_ATTACK_NOTIFICATIONS);
             }
             if(physicalHit && kind!=BodyHit.Kind.BOUT && kind!=BodyHit.Kind.ATTACHMENT)
                 owner.status().reactions().threat().struck(source, result.loss(), kind, "hurt");
