@@ -684,14 +684,15 @@ public final class Hop implements Action {
             GameplayLog.event(body, "move", "hop flight host={} localDelta={}", seatHost.entity().getUUID(),
                     new Vec3(p.x() - prior.x(), p.y() - prior.y(), p.z() - prior.z()));
         }
+        var before = body.position();
+        var base = body.getBoundingBox();
         if (delta.y < 0) Motor.move(body, new Vec3(delta.x, 0, delta.z), "hop_flight");
         Motor.move(body, delta.y < 0 ? new Vec3(0, delta.y, 0) : delta, "hop_flight");
         if (aboard) {
-            // The flight stays in the host's live frame: the rider is carried along the planned stand, not pushed off it by the
-            // bank block beside it (see TakeoffLip); a deeper obstruction still ends the hop.
-            Motor.spot(seatHost, body, seatHost.frame().toLocal(aim), seatHost.riders().yaw(body.getUUID()), "hop_start");
-            if (TakeoffLip.lift(lift -> body.level().noCollision(body, body.getBoundingBox().move(0, lift, 0))) < 0)
-                return Outcome.of(Reason.NO_SUPPORT, 0, "arc_blocked at=" + GameplayLog.at(body.position()));
+            // The flight stays in the host's live frame when clear or only grazing a bank lip (see TakeoffLip);
+            // a deeper obstruction or barrier along the step leaves the rider at the collision-stopped position.
+            var spot = body.position().distanceTo(aim) <= TOUCH || aboardLipClear(body, base, before, aim) ? aim : body.position();
+            Motor.spot(seatHost, body, seatHost.frame().toLocal(spot), seatHost.riders().yaw(body.getUUID()), "hop_start");
         } else carriedFlight(body, air);
         peak = Math.max(peak, aboard ? p.y() : body.getY() - from.y);
         double blocked = body.position().distanceTo(aim);
@@ -789,6 +790,16 @@ public final class Hop implements Action {
 
     private boolean clear(YukkuriEntity body, Vec3 from, SurfaceHost anchor, List<SurfaceHost> hosts, List<Vec> points, int delay, float yaw) {
         return clear(body, from, anchor, hosts, points, delay, yaw, yaw, null);
+    }
+
+    /** Whether an aboard flight step blocked by collision only grazed a lip within {@link TakeoffLip#MAX} along its sweep. */
+    private static boolean aboardLipClear(YukkuriEntity body, AABB base, Vec3 before, Vec3 aim) {
+        var corner = aim.y < before.y ? new Vec3(aim.x, before.y, aim.z) : new Vec3(before.x, aim.y, before.z);
+        var bend = base.move(corner.subtract(before));
+        var first = base.minmax(bend);
+        var second = bend.minmax(base.move(aim.subtract(before)));
+        return TakeoffLip.lift(lift -> body.level().noCollision(body, first.move(0, lift, 0))
+                && body.level().noCollision(body, second.move(0, lift, 0))) >= 0;
     }
 
     /** How far the box of a stand at {@code at} (take-off or landing) sits sunk in a block it rises out of (see {@link TakeoffLip}), 0 if it does not. */

@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.motor.Motor;
 import io.github.longshou.mcyukkuri.motor.geom.TakeoffLip;
 import io.github.longshou.mcyukkuri.family.ParentCarry;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.Mth;
 
@@ -30,8 +31,15 @@ public record SeatTarget(SurfaceHost host, Vec3 local, Kind kind) {
         }
         // A stand beside a bank may sit a hair into the block it rises out of, and the body's first rise leaves it at once (the
         // hop's lip); only a deeper intrusion is an obstruction.
-        var box = body.getDimensions(body.getPose()).makeBoundingBox(world());
-        return TakeoffLip.lift(lift -> body.level().noCollision(body, box.move(0, lift, 0))) < 0 ? "world" : null;
+        var at = world();
+        var box = body.getDimensions(body.getPose()).makeBoundingBox(at);
+        double lift = TakeoffLip.lift(l -> body.level().noCollision(body, box.move(0, l, 0)));
+        if (lift < 0) return "world";
+        // A tiny young whose eye sits below the lifted lip must still keep vanilla's isInWall eye box clear of blocks.
+        if (lift >= body.getEyeHeight() && !body.level().noCollision(body,
+                AABB.ofSize(at.add(0, body.getEyeHeight(), 0), body.getBbWidth() * .8F, 1.0E-6, body.getBbWidth() * .8F)))
+            return "world";
+        return null;
     }
     /** Attach only after movement has visibly reached the live destination. */
     public boolean land(YukkuriEntity body, String cause) {
