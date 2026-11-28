@@ -6,6 +6,7 @@ Every step fails loudly with a message; nothing is retried silently.
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -14,6 +15,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+import export  # noqa: E402  (generated-output map and re-run, next to the exporter table)
 import headless_server as server  # noqa: E402  (git common root, user-client detection)
 import smoke_prune  # noqa: E402
 import update_museum_runtime as installer  # noqa: E402  (Build run matching shared with the installer)
@@ -237,16 +239,90 @@ def archive_notes(name):
     return moved
 
 
+GIT_ENV = {**os.environ, 'GIT_EDITOR': 'true'}
+
+
+def unmerged(tree):
+    return git(tree, 'diff', '--name-only', '--diff-filter=U').splitlines()
+
+
+def resolve_generated(tree, conflict, main_side):
+    """Resolve a conflict whose files are all exporter-written: keep main's version, re-run the exporters that write
+    them and stage the fresh output. A file the re-run does not rewrite, or one no exporter declares, stops instead."""
+    try:
+        owners = export.output_owners(conflict)
+    except ValueError as error:
+        raise Fail(f'{error}; a person resolves these files, then rerun land')
+    print(f'generated conflict: {len(conflict)} file(s); keeping main\'s version and re-running '
+          f'{", ".join(sorted(owners))}', flush=True)
+    for path in conflict:
+        git(tree, 'checkout', main_side, '--', path)
+    main_bytes = {path: (tree/path).read_bytes() for path in conflict}
+    # A family run always rebuilds the registry aggregates, so their paths are staged too.
+    idents = list(dict.fromkeys([*owners, 'registries']))
+    code = export.rerun(tree, idents)
+    if code:
+        raise Fail(f'export.py exited {code} while re-exporting {", ".join(sorted(owners))}')
+    kept = [path for path in conflict if (tree/path).read_bytes() == main_bytes[path]]
+    if kept:
+        raise Fail('the re-export left main\'s version of ' + ', '.join(kept) + '; resolve by hand')
+    # Unstaged and untracked files are what the re-run wrote plus the conflicted files; stage them all, but stop on a
+    # path the selected exporters do not declare (a hand-edited conflict or a missing OUTPUTS entry). The raw call
+    # keeps the status columns of the first line, which git()'s strip would eat.
+    status = subprocess.run(['git', 'status', '--porcelain=v1', '-z'], cwd=tree, text=True, encoding='utf-8',
+                            capture_output=True, check=True).stdout.split('\0')
+    written = [line[3:] for line in status if line and (line[0] == '?' or line[1] != ' ')]
+    undeclared = [path for path in written if not export.declared(path, idents)]
+    if undeclared:
+        raise Fail('the re-export wrote files OUTPUTS does not declare: ' + ', '.join(undeclared) + '; resolve by hand')
+    git(tree, 'add', '-A', '--', *conflict, *written)
+
+
+def sync_rebase(tree):
+    """Rebase onto origin/main, resolving exporter-written conflicts commit by commit; `--ours` is main's side. A
+    conflict that needs a person aborts the rebase, so the branch is left as it was and a rerun starts clean."""
+    done = subprocess.run(['git', 'rebase', '--empty=drop', 'origin/main'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+    while done.returncode:
+        conflict = unmerged(tree)
+        if not conflict:
+            subprocess.run(['git', 'rebase', '--abort'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+            raise Fail(f'git rebase origin/main failed: {(done.stderr or done.stdout).strip()}')
+        try:
+            resolve_generated(tree, conflict, '--ours')
+        except Fail:
+            subprocess.run(['git', 'rebase', '--abort'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+            raise
+        done = subprocess.run(['git', 'rebase', '--continue'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+
+
+def sync_merge(tree):
+    """Merge origin/main into a branch built from merges, resolving exporter-written conflicts; `--theirs` is main's side.
+    A conflict that needs a person aborts the merge, so a rerun starts clean."""
+    done = subprocess.run(['git', 'merge', '--no-edit', 'origin/main'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+    while done.returncode:
+        conflict = unmerged(tree)
+        if not conflict:
+            subprocess.run(['git', 'merge', '--abort'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+            raise Fail(f'git merge origin/main failed: {(done.stderr or done.stdout).strip()}')
+        try:
+            resolve_generated(tree, conflict, '--theirs')
+        except Fail:
+            subprocess.run(['git', 'merge', '--abort'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+            raise
+        done = subprocess.run(['git', 'merge', '--continue'], cwd=tree, env=GIT_ENV, text=True, encoding='utf-8', capture_output=True)
+
+
 def sync_main(tree):
     """Bring the landing onto origin/main. A branch that already contains it is left alone; a branch built from merges (art
     branches merged into a wiring branch) merges origin/main instead of rebasing, because a rebase would replay each art commit
-    and conflict on generated exports; any other branch rebases as before."""
+    and conflict on generated exports; any other branch rebases as before. A conflict on exporter-written files is resolved
+    from main's side plus a re-run of their exporters; a hand-edited conflict stops with the files named."""
     if not subprocess.run(['git', 'merge-base', '--is-ancestor', 'origin/main', 'HEAD'], cwd=tree).returncode:
         return
     if git(tree, 'rev-list', '--merges', 'origin/main..HEAD'):
-        git(tree, 'merge', '--no-edit', 'origin/main')
+        sync_merge(tree)
     else:
-        git(tree, 'rebase', 'origin/main')
+        sync_rebase(tree)
 
 
 def push_landing(tree, name):

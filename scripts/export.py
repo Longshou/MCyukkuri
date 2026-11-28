@@ -163,6 +163,78 @@ TABLE.append(exporter('source:'+ITEM_ICONS, ITEM_ICONS, [
     'standards/yukkuri-library/drafts/item-icons/', 'standards/yukkuri-library/drafts/operation-tools/icons.py',
     'standards/yukkuri-library/drafts/care-props/supplies.py'], note='Inventory icons of the 3D-prop items (snapshots only).'))
 
+ASSET_ROOT = 'src/main/resources/assets/mcyukkuri/'
+DATA_ROOT = 'src/main/resources/data/mcyukkuri/'
+PRESENTATION_ROOT = ASSET_ROOT+'yukkuri_presentation/'
+LANG_FILES = (ASSET_ROOT+'lang/zh_cn.json', ASSET_ROOT+'lang/ja_jp.json', ASSET_ROOT+'lang/en_us.json')
+DEFICIENT_OWNED = ('art/source/subspecies-runtime/', ASSET_ROOT+'yukkuri/', ASSET_ROOT+'yukkuri_props/', ASSET_ROOT+'yukkuri_wounds/',
+                   PRESENTATION_ROOT+'subspecies.json', PRESENTATION_ROOT+'body_geometry.json', 'art/source/rounded-runtime/',
+                   'standards/yukkuri-library/subspecies/deficient/')
+LORE_EXPORTED = (PRESENTATION_ROOT+'motion_corrections.json', PRESENTATION_ROOT+'live_birth_pose.json',
+                 PRESENTATION_ROOT+'side_profile.json', PRESENTATION_ROOT+'braid_rescue.json',
+                 'art/source/motion-corrections/manifest.json')
+# Generated files each exporter writes, relative to the repository root; a trailing '/' covers a directory.
+# `export.py` owns this map so `pkg.py land` can tell an exporter-written conflict (take main's side, re-run these
+# and stage the fresh output) from a hand-edited one (stop). Art authoring commands and read-only linters write
+# nothing they own here; their conflicts, and every source file, still stop the landing for a person.
+OUTPUTS = {
+    'registries': ('art/runtime-sources.json', 'art/catalog.json'),
+    'rounded': ('art/source/rounded-runtime/', ASSET_ROOT+'yukkuri/', ASSET_ROOT+'textures/entity/',
+                PRESENTATION_ROOT+'body_geometry.json', PRESENTATION_ROOT+'living.json', PRESENTATION_ROOT+'subspecies.json'),
+    'placement-fit': ('art/source/placement-fit/manifest.json', PRESENTATION_ROOT+'placement_fit.json'),
+    'motion-corrections': ('art/source/motion-corrections/manifest.json', PRESENTATION_ROOT+'motion_corrections.json',
+                           ASSET_ROOT+'textures/entity/'),
+    'braid-water-rescue': (PRESENTATION_ROOT+'braid_rescue.json',),
+    'hat-interactions': ('art/source/hat-interactions/', PRESENTATION_ROOT+'hat_interactions.json'),
+    'rounded-attachments': ('art/source/rounded-runtime/', ASSET_ROOT+'yukkuri_props/'),
+    'wound-surfaces': (ASSET_ROOT+'yukkuri_wounds/', ASSET_ROOT+'textures/props/body_wounds.png', 'art/props/body-wounds/provenance.json'),
+    'rounded-wounds': (ASSET_ROOT+'yukkuri_wounds/', 'art/source/rounded-runtime/'),
+    'subspecies-wounds': (ASSET_ROOT+'yukkuri_wounds/', 'art/source/subspecies-runtime/'),
+    'subspecies': ('art/source/subspecies-runtime/', ASSET_ROOT+'yukkuri/', ASSET_ROOT+'yukkuri_props/',
+                   ASSET_ROOT+'models/item/marisa_shell.json', PRESENTATION_ROOT+'subspecies.json'),
+    'rare-forms': ('art/source/rare-forms-runtime/', ASSET_ROOT+'yukkuri/', ASSET_ROOT+'yukkuri_props/', PRESENTATION_ROOT+'hat_seat.json'),
+    'predator-assets': ('art/source/standard-runtime/remilia/', 'art/source/standard-runtime/flandre/', 'art/source/predator-runtime/',
+                        ASSET_ROOT+'yukkuri/', ASSET_ROOT+'textures/entity/'),
+    'predator-language': (*LANG_FILES, ASSET_ROOT+'models/item/remilia_spawn_egg.json', ASSET_ROOT+'models/item/flandre_spawn_egg.json',
+                          DATA_ROOT+'tags/worldgen/biome/predator_habitat.json', DATA_ROOT+'neoforge/biome_modifier/predator_spawns.json'),
+    'reimu-deficient': DEFICIENT_OWNED,
+    'marisa-deficient': DEFICIENT_OWNED,
+    'bean-assets': ('art/source/standard-runtime/', 'standards/yukkuri-library/subspecies/deficient/hair-fit-manifest.json'),
+    'living-assets': (ASSET_ROOT+'models/block/', ASSET_ROOT+'models/item/', ASSET_ROOT+'blockstates/', ASSET_ROOT+'textures/block/',
+                      DATA_ROOT+'recipe/', DATA_ROOT+'advancement/recipes/misc/', 'art/props/care-facilities/provenance.json'),
+    'family-assets': (PRESENTATION_ROOT+'family.json', 'art/props/family-life/provenance.json'),
+    'house-assets': (ASSET_ROOT+'models/block/', ASSET_ROOT+'models/item/', ASSET_ROOT+'blockstates/', DATA_ROOT+'recipe/',
+                     DATA_ROOT+'advancement/recipes/misc/', 'art/props/house-care/provenance.json'),
+    'peripheral-assets': (ASSET_ROOT+'yukkuri_props/', ASSET_ROOT+'models/', ASSET_ROOT+'blockstates/', ASSET_ROOT+'textures/',
+                          DATA_ROOT+'recipe/', DATA_ROOT+'loot_table/', 'art/props/runtime-peripheral/provenance.json'),
+    'pet-goods-icons': (ASSET_ROOT+'textures/item/', ASSET_ROOT+'textures/misc/', 'art/props/pet-goods/provenance.json'),
+    'supply-icons': (ASSET_ROOT+'textures/item/', ASSET_ROOT+'models/item/', 'art/props/supply-icons/provenance.json'),
+    'item-icons': (ASSET_ROOT+'textures/item/', ASSET_ROOT+'models/item/icon/', 'art/props/item-icons/provenance.json'),
+    'badges': (ASSET_ROOT+'yukkuri/badge_mounts.json', ASSET_ROOT+'textures/item/badge_handbook.png',
+               ASSET_ROOT+'models/item/badge_handbook.json', DATA_ROOT+'recipe/badge_handbook.json',
+               ASSET_ROOT+'lang/zh_cn.json', ASSET_ROOT+'lang/en_us.json', 'art/props/badges/badge_handbook.png'),
+    'human-world': (ASSET_ROOT+'lang/', ASSET_ROOT+'models/item/', ASSET_ROOT+'models/block/', ASSET_ROOT+'blockstates/',
+                    ASSET_ROOT+'textures/entity/human/', ASSET_ROOT+'textures/block/', ASSET_ROOT+'textures/item/',
+                    DATA_ROOT+'structure/', DATA_ROOT+'worldgen/', DATA_ROOT+'loot_table/', DATA_ROOT+'recipe/', DATA_ROOT+'tags/',
+                    DATA_ROOT+'neoforge/', 'standards/yukkuri-library/textures/human/', 'standards/yukkuri-library/assembled/humans/',
+                    'art/source/human-runtime/', 'art/structures/human-world/products/'),
+    'dialogue': (ASSET_ROOT+'lang/', ASSET_ROOT+'dialogue/', ASSET_ROOT+'sounds.json', ASSET_ROOT+'sounds/voice/'),
+    'ecology-expressions': (ASSET_ROOT+'textures/entity/', PRESENTATION_ROOT+'face_library.json'),
+    'adult-states': ('art/source/adult-states/', ASSET_ROOT+'textures/effects/', ASSET_ROOT+'textures/entity/'),
+    'alice-appearance': (ASSET_ROOT+'textures/entity/', 'art/source/adult-states/', 'art/source/rounded-runtime/',
+                         'standards/yukkuri-library/assembled/alice/'),
+    'hat-damage': (PRESENTATION_ROOT+'hat_damage.json', ASSET_ROOT+'yukkuri_props/', ASSET_ROOT+'models/item/accessory_shard.json',
+                   ASSET_ROOT+'textures/props/'),
+    'house-face-motion': ('art/source/standard-runtime/', ASSET_ROOT+'yukkuri/'),
+    'house-carry-motion': ('art/source/standard-runtime/', ASSET_ROOT+'yukkuri/'),
+    'moments': (PRESENTATION_ROOT+'moments.json',),
+    'ecology-audio': ('art/audio/ecology/', ASSET_ROOT+'sounds/ecology/', ASSET_ROOT+'sounds.json'),
+    'house-ecology': (PRESENTATION_ROOT+'house_ecology.json',),
+    'runtime-models': ('art/source/standard-runtime/',),
+}
+# Every recipe export family writes the lore clips back into the shared motion resource and its manifest.
+OUTPUTS.update({family: LORE_EXPORTED for family in read(ROOT/LORE/'recipe.json')['export_families']})
+
 # Authoring prerequisites order only the selected builders; selecting a runtime
 # owner alone must not silently rebuild its previously accepted source geometry.
 SOURCE_ORDER = {
@@ -241,6 +313,9 @@ def table():
     cfg = read(ROOT/LORE/'recipe.json')
     for name in cfg['export_families']:
         rows.append(exporter(name, LORE+'/author.py', [LORE+'/'], ['placement-fit'], args=('--family', name)))
+    unknown = set(OUTPUTS)-{row['id'] for row in rows}-{'registries'}  # 'registries' is export.py's own rebuild step
+    if unknown:
+        raise ValueError('OUTPUTS names exporters that do not exist: '+', '.join(sorted(unknown)))
     return {row['id']: row for row in rows}
 
 
@@ -284,6 +359,36 @@ def affected(rows, files):
         if more <= selected:
             return selected
         selected |= more
+
+
+def output_owners(paths):
+    """Exporter ids for these generated paths, each with the paths it answers for. A path no exporter writes is
+    hand-edited: it raises so the caller stops instead of overwriting a person's file."""
+    owners, unknown = {}, []
+    for path in paths:
+        found = [ident for ident, patterns in OUTPUTS.items()
+                 if any(path == pattern or (pattern.endswith('/') and path.startswith(pattern)) for pattern in patterns)]
+        if not found:
+            unknown.append(path)
+        for ident in found:
+            owners.setdefault(ident, []).append(path)
+    if unknown:
+        raise ValueError('hand-edited (no exporter writes): ' + ', '.join(unknown))
+    return owners
+
+
+def declared(path, idents):
+    """True when one of these exporters writes this repository path."""
+    return any(path == pattern or (pattern.endswith('/') and path.startswith(pattern))
+               for ident in idents for pattern in OUTPUTS[ident])
+
+
+def rerun(root, idents):
+    """Re-run the exporters behind these outputs in one call: dependency order and the registry rebuild included."""
+    families = sorted(ident for ident in idents if ident != 'registries')
+    args = ['--family='+name for name in families] if families else ['--registries']
+    return subprocess.run([sys.executable, str(root/'scripts/export.py'), *args], cwd=root,
+                          env={**os.environ, 'PYTHONUTF8': '1'}).returncode
 
 
 def town_authors(directory):
