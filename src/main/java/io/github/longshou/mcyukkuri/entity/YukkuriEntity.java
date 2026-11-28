@@ -1166,7 +1166,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     public void cancelReaction() {
-        turnSpeech = null;
+        dropTurnSpeech();
         reactionTicks = 0;
         endFaceHold();
         reactionAction = reactionAfter = null;
@@ -1260,7 +1260,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** Stop the speech already projected to clients, including a recording longer than its subtitle. */
     public void interruptSpeech() {
-        turnSpeech = null;
+        dropTurnSpeech();
         pendingSpeech = null;
         pendingSpeechTicks = 0;
         speechTiming.interrupt();
@@ -1285,7 +1285,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     /** The one place a reaction and its face hold begin: the reaction rank shows {@code ticks}, the hold (at least as long) goes on in LINGER, then calms. */
     private void startReaction(String expression, String dialogue, int ticks, FaceTier.Tier tier, int hold) {
-        turnSpeech = null;
+        dropTurnSpeech();
         reactionAction = reactionAfter = null;
         reactionTicks = ticks; reactionExpression = expression; reactionEvent = dialogue == null ? "" : dialogue;
         reactionDecorative = false;
@@ -1521,7 +1521,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
     }
 
     private void showSpeech(String event, String key, String tier, long now) {
-        turnSpeech = null;
+        dropTurnSpeech();
         // A beat's face holds at least until the line spoken over it has finished and its tail (LINGER rank); a line spoken while it
         // calms keeps the calmer face to the same end instead of bringing the hot one back.
         if (!reactionDecorative && !holdFace.isEmpty()) {
@@ -1569,7 +1569,7 @@ public final class YukkuriEntity extends PathfinderMob implements YukkuriView {
 
     @Override
     public void onRemovedFromLevel() {
-        turnSpeech = null;
+        dropTurnSpeech();
         recentSpeech.clear();
         super.onRemovedFromLevel();
     }

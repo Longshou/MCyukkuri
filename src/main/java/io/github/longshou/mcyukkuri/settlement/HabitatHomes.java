@@ -47,11 +47,13 @@ import net.neoforged.neoforge.event.EventHooks;
 final class HabitatHomes {
     private final HabitatLife o;
     private static final int SHORTAGE_BASE = 1800, SHORTAGE_PATIENCE = 24;
-    /** A last walk home held up by a body is attempted again this often (ticks), and only this many failed tries mean the way is lost. */
+    /** A walk home that ends short of the bed is attempted again (after this many ticks when no route plans); only this many walks in a row
+     *  that bring the body no closer mean the way is lost. */
     private static final int WALK_RETRY = 20, WALK_RETRIES = 15;
     /** Transient work; the world retains the dug cells. */
     private Burrowing.Plan dig;
     private int digIndex,digWork,extendWait,roamWait,searchWait,moveWait,walkTries,walkRetryAt;
+    private double walkBest;
     private boolean noExtension;
     private int shortFoodTicks;
     private boolean denFound;
@@ -688,7 +690,7 @@ final class HabitatHomes {
         var body=o.entity();
         var target=o.shelter();
         var carry=body.family().carry();
-        if(o.ticks()==1){walkTries=0;walkRetryAt=0;carry.startFlight("relocation",null);}
+        if(o.ticks()==1){walkTries=0;walkRetryAt=0;walkBest=Double.MAX_VALUE;carry.startFlight("relocation",null);}
         if(carry.tickFlight(null))return;
         if(body.distanceToSqr(Vec3.atBottomCenterOf(o.targetBlock()))<=1 && target.contains(body.blockPosition())) {
             GameplayLog.event(body,"habitat","relocate arrived home={} bed={}",target.getBlockPos(),o.targetBlock());
@@ -700,9 +702,12 @@ final class HabitatHomes {
         } else if(body.getNavigation().isDone() && ((YukkuriGroundNavigation)body.getNavigation()).canPlanApproach()
                 && o.ticks()>=walkRetryAt) {
             // A body standing in the last steps home only holds the walk: the way there is still there, so try it again rather than
-            // call the destination lost. Only a walk that keeps failing over the patience window means the bed cannot be reached.
-            if(moveToBed(body)){walkTries=0;walkRetryAt=0;return;}
-            if(++walkTries<WALK_RETRIES){walkRetryAt=o.ticks()+WALK_RETRY;return;}
+            // call the destination lost. A walk that got closer starts the count afresh; only walks that keep ending no closer (a stall
+            // re-planned into the same blocker counts too, so plan-stall-plan cannot loop) mean the bed cannot be reached.
+            double left=Math.sqrt(body.distanceToSqr(Vec3.atBottomCenterOf(o.targetBlock())));
+            boolean closer=left<walkBest-1;
+            if(closer){walkBest=left;walkTries=0;}
+            if(walkTries++<WALK_RETRIES){walkRetryAt=o.ticks()+(moveToBed(body)&&closer?0:WALK_RETRY);return;}
             if(relocationSearch!=null)abandonRelocation(relocationSearch,"destination_route_lost");
             o.stop();
         }
