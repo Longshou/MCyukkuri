@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.entity;
 
 import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.body.RemainsRot;
+import io.github.longshou.mcyukkuri.family.FamilyLife.Leash;
 import io.github.longshou.mcyukkuri.family.FamilyLife.Stage;
 import io.github.longshou.mcyukkuri.human.Custody;
 import io.github.longshou.mcyukkuri.human.HumanNpc;
@@ -55,6 +56,8 @@ public final class RoamingGoal extends Goal {
     private int[] refusals = new int[5];
     /** Where this stroll is drawn to instead of the home (the village heart in a spell, or a food holder), and how far it strolls there. */
     private BlockPos draw;
+    /** The family anchor and comfort band of a dependent young this stroll orbits, else null. */
+    private Leash leash;
     private int radius, homeRadius, elapsed, failures, roll = -1, drawRadius;
     private long nextWalk, nextExpedition, nextPlaza, nextPlayground, nextPlazaNotice;
     private TownMarkers.BadgePlaza plaza;
@@ -84,7 +87,7 @@ public final class RoamingGoal extends Goal {
     public String activity() { return active ? exploring() ? Behaviors.MARISA_EXPLORE : Behaviors.ROAM : null; }
     public String describe() {
         return "active=" + active + " expedition=" + exploring() + " returning=" + returning
-                + " normalRadius=" + TravelRange.stroll(animal) + " radius=" + radius + " roll=" + roll
+                + " normalRadius=" + TravelRange.stroll(animal) + " radius=" + radius + " roll=" + roll + " leash=" + leash
                 + " result=" + result + " origin=" + origin + " destination=" + destination + " detour=" + detour + " stuckTicks=" + stuckTicks;
     }
     private boolean available() {
@@ -125,9 +128,12 @@ public final class RoamingGoal extends Goal {
                     String.format(Locale.ROOT, "%.2f", t.curious()));
             if (expedition) radius *= 2;
         }
+        // A dependent young strolls around its family anchor in its comfort band; a street draw never takes it away from kin.
+        leash = expedition || animal.settlement().underway() ? null : animal.family().roamingLeash();
+        if (leash != null) radius = leash.far();
         // Parents of unweaned young stay near them; other adults with a home stroll around it (expeditions and migration excepted).
         homeRadius = animal.family().tendsUnweaned() ? TravelRange.NURSE_RADIUS : radius;
-        drawToStreet(now);
+        if (leash == null) drawToStreet(now); else draw = null;
         if (draw != null) homeRadius = drawRadius;
         destination = choose();
         if (destination == null && draw != null) {
@@ -237,7 +243,8 @@ public final class RoamingGoal extends Goal {
         var home = baby ? animal.life().homeStand() : null;
         var shelter = baby ? animal.habitat().shelter() : null;
         boolean preferInside = baby && home != null && animal.getRandom().nextInt(5) != 0;
-        BlockPos anchor = baby || expedition || animal.settlement().underway() ? null : draw != null ? draw : animal.life().homeStand();
+        BlockPos anchor = baby || expedition || animal.settlement().underway() ? null
+                : leash != null ? leash.anchor() : draw != null ? draw : animal.life().homeStand();
         // Already outside the home range: head back toward the home instead of choosing another point out there.
         boolean outside = anchor != null && origin.distSqr(anchor) > homeRadius * homeRadius;
         int paths = 0;
@@ -546,7 +553,7 @@ public final class RoamingGoal extends Goal {
         }
         if (expedition) GameplayLog.event(animal,"explore","ended result={} returning={} elapsed={} destination={} distance={}",
                 result,returning,elapsed,destination,destination==null?0:animal.distanceToSqr(Vec3.atBottomCenterOf(destination)));
-        active = false; playground = null; animal.getNavigation().stop();
+        active = false; playground = null; leash = null; animal.getNavigation().stop();
     }
 
     private void finishPlaza(boolean reached) {

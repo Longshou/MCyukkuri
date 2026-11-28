@@ -405,3 +405,28 @@ add('infant_starvation', 'family', '饿极赤油：胆大的自己爬去吃草',
          childhood=CHILDHOOD_CRAWLING_READY,lead=i==0) for i in range(3)],
     *[block(-8+i*8,0,8,'minecraft:short_grass') for i in range(3)]],spot='feed',
     reads=[('读取食决定',f'yukkuri status @e[tag=scn,distance=..48] raw')])
+
+# A warm parent against a cold one, both with a child five blocks out: only the warm parent looks over its young and calls it back.
+_ft = {k: uid('family_tether', k) for k in ('warm_parent', 'warm_child', 'cold_parent', 'cold_child')}
+add('family_tether', 'family', '暖亲油回头叫孩子，冷亲油不叫', '暖亲油回头叫孩子，冷亲油不叫',
+    '两对亲子都从五格外开始。左边亲油友善、耐心：子油越过自己的舒适边缘时，亲油回头看它并开口呼唤（日志 tether watch、beckon call），子油听见（child heard parent call beckon=true）后应声走近；'
+    '右边亲油冷淡：不回头看也不叫，它的子油只能按自己的步调松散地跟。两边子油在亲油身边走动时都以亲油为锚（日志 tether young anchor=），外缘不超过 8 格；亲油一路走远时子油仍会落后，这时由现有的跟随和走失搜索找回',
+    '约 10–30 秒', [
+        yk('reimu', -7, -2, 'warm_parent', uuid=_ft['warm_parent'], label='回暖亲油', friendliness=95, attachment=90,
+           self_control=90, lead=True, **pair_ready()),
+        yk('reimu', -2, -2, 'warm_child', uuid=_ft['warm_child'], stage='child', label='回暖子油', boldness=20,
+           attachment=80, kin=f'Mother:{uuid_nbt(_ft["warm_parent"])}', **pair_ready()),
+        yk('marisa', 2, -2, 'cold_parent', uuid=_ft['cold_parent'], label='冷淡亲油', friendliness=10, attachment=5,
+           self_control=15, **pair_ready()),
+        yk('marisa', 7, -2, 'cold_child', uuid=_ft['cold_child'], stage='child', label='冷淡子油', boldness=20,
+           attachment=80, kin=f'Mother:{uuid_nbt(_ft["cold_parent"])}', **pair_ready())],
+    env=DAY, spot='hurt_kin', vantage=(0, 14),
+    reads=[('读暖亲油与子油', f'yukkuri status {sel("warm_parent")} raw'),
+           ('读冷亲油与子油', f'yukkuri status {sel("cold_parent")} raw')],
+    smoke=dict(ticks=2400,
+               expect=[r'\[family\][^\n]*tether watch child=\S+',
+                       r'\[family\][^\n]*beckon call child=\S+ round=1/',
+                       r'\[family\][^\n]*child heard parent call [^\n]*beckon=true',
+                       r'\[family\][^\n]*tether young anchor=BlockPos\{[^}]*\} parent=\S+ near=\d+ far=\d+ distance=[\d.]+'],
+               forbid=[rf'uuid={_uuid_text("family_tether", "cold_parent")}[^\n]*tether watch',
+                       r'death settled', r'\[body\][^\n]* invariant\b']))

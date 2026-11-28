@@ -89,7 +89,9 @@ public final class FamilyLife {
     private static final double FAMILY_FOLLOW_DISTANCE_SQR = 2.25, FAMILY_FOLLOW_DISTANCE = 1.5;
     public static final double FAMILY_SEARCH_RANGE = 48;
     public enum Stage { BABY, JUVENILE, ADULT }
-    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
+    enum Task { NONE, COURT, RECEIVE_COURT, BROOD, FOLLOW, WAIT_CHILD, WATCH_CHILD, SEARCH, FEED_CHILD, STAY_HOME, FETCH_HAT, CARRY, COMFORT, ABSENCE, WATCH_HOME }
+    /** The family anchor a dependent young's wandering is held to, and its comfort band from that anchor (blocks). */
+    public record Leash(BlockPos anchor, int near, int far) {}
 
     public boolean watchingHome() { return task == Task.WATCH_HOME; }
     private final YukkuriEntity entity;
@@ -133,6 +135,8 @@ public final class FamilyLife {
     private final Courtship courtship;
     /** The search's own calls: a parent calling for a lost child, the child answering (transient). */
     private final ChildCall call;
+    /** The family anchor and comfort band of a dependent young, and the caring parent's glance at its young. */
+    private final FamilyTether tether;
     private final GlassVigil glass;
     /** The near-term birth this mother conducts (saved as {@code Birth}). */
     private final Conductor birth;
@@ -157,6 +161,7 @@ public final class FamilyLife {
         separation=new FamilySeparation(this);
         courtship=new Courtship(this);
         call=new ChildCall(this);
+        tether=new FamilyTether(this);
         glass=new GlassVigil(this);
         birth=new Conductor(entity,"Birth");
     }
@@ -192,6 +197,9 @@ public final class FamilyLife {
     YukkuriEntity entity() { return entity; }
     Courtship courtship() { return courtship; }
     ChildCall call() { return call; }
+    FamilyTether tether() { return tether; }
+    /** Where a dependent young should keep its idle wandering, or null when it may roam as it likes (read by the idle goal). */
+    public Leash roamingLeash() { return tether.leash(); }
 
     public YukkuriEntity coldCryParent() { return call.coldParent(); }
 
@@ -510,8 +518,8 @@ public final class FamilyLife {
      */
     public boolean yieldsToComfort() {
         return !laboring()&&!inBirthBeat()&&!launchInFlight()&&!carry.lifting()&&!glass.finishing()&&comfortTicks==0
-                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME||task==Task.SEARCH
-                    ||task==Task.ABSENCE||task==Task.WATCH_HOME);
+                &&(task==Task.NONE||task==Task.WAIT_CHILD||task==Task.WATCH_CHILD||task==Task.FOLLOW||task==Task.STAY_HOME
+                    ||task==Task.SEARCH||task==Task.ABSENCE||task==Task.WATCH_HOME);
     }
     public String activity() {
         var action=entity.motor().current();
@@ -532,6 +540,7 @@ public final class FamilyLife {
             case COURT, RECEIVE_COURT -> courtActivity(); case BROOD -> Behaviors.TEND_BROOD;
             case FOLLOW -> call.answeringBeckon() ? call.activity() : Behaviors.FOLLOW_PARENT;
             case WAIT_CHILD, WATCH_HOME -> Behaviors.WAIT_CHILD;
+            case WATCH_CHILD -> call.activity()!=null?call.activity():Behaviors.WAIT_CHILD;
             case SEARCH -> carry.lifting()?Behaviors.CARRY_LIFT:call.activity()!=null?call.activity():glass.active()?glass.activity():Behaviors.SEARCH_FAMILY;
             case ABSENCE -> absence().activity();
             case FEED_CHILD -> feeding.activity();
@@ -734,6 +743,7 @@ public final class FamilyLife {
         if(awaitingLanding)return;
         if(birthId!=null)FamilyData.get(level()).landed(entity);
         greet();
+        tether.tick();
         feeding.settleCareFood();
         if(entity.tickCount%40==0)retryMotherBurrow();
         if(entity.isPanicking()||entity.isCommandPlaying()||(task!=Task.FEED_CHILD&&urgentNeed()&&!courtship.finishingContact()))stop();
@@ -1460,6 +1470,8 @@ public final class FamilyLife {
         if(feeding.startCare())return true;
         if(ordinaryLandFree(entity)) {
             if(startLandChildSearch())return true;
+            // A caring parent glances at its young: one that drifts to the band edge is called back before it is lost.
+            if(startWatchChild())return true;
             if(startAbsence()||startHomeWatch())return true;
         } else if(!entity.profile().landSettler() && !entity.predator().rearing()) {
             var child=level().getEntitiesOfClass(YukkuriEntity.class,entity.getBoundingBox().inflate(10),other->!other.family().adult()
@@ -1509,6 +1521,14 @@ public final class FamilyLife {
         if(child==null)return false;
         return startLandChildSearch(child);
     }
+    private boolean startWatchChild() {
+        var child=tether.watchTarget();
+        if(child==null)return false;
+        call.beginBeckon(child);
+        task=Task.WATCH_CHILD;target=child;taskTicks=0;
+        return true;
+    }
+
     private boolean startLandChildSearch(YukkuriEntity child) {
         if(!entity.duty().mayTake(Kind.SEARCH))return false;
         boolean coldCry = call.hearsColdCry(child);
@@ -1774,6 +1794,8 @@ public final class FamilyLife {
             if(level().getEntity(id) instanceof YukkuriEntity child&&child.isAlive()&&child.family().stage()==Stage.BABY&&home.equals(child.life().homeStand()))return true;
         return false;
     }
+    /** A dependent young this home or nest already holds: its idle walking is inside it, so a family anchor adds nothing. */
+    public boolean keptHome() { return earlyHomeStand() != null; }
     /** Idle roaming must not immediately undo the child's decision to wait in the family shelter. */
     public boolean allowsIdleWalk(Vec3 destination) {
         return adult()?carry.allowsIdleWalk(destination):allowsYoungWalk(destination);
@@ -1818,6 +1840,7 @@ public final class FamilyLife {
         if(urgentNeed()&&!courtship.finishingContact())return false;
         if(task==Task.ABSENCE)return absence().active();
         if(task==Task.WATCH_HOME)return watch.active()&&!hasExecutableChildCare();
+        if(task==Task.WATCH_CHILD)return tether.watchContinues(target);
         if(task==Task.COURT&&(courtship.receiverInterrupted()||!courtship.stillWanted()))return false;
         if(task==Task.RECEIVE_COURT&&!courtship.canReceive())return false;
         if(task==Task.FETCH_HAT)return (chore!=null||!choreHat.isRemoved()&&choreHat.catches())&&taskTicks<2400&&Conductor.roleOf(entity)==null;
@@ -1852,6 +1875,7 @@ public final class FamilyLife {
         int timeCap = switch (task) {
             case COURT, RECEIVE_COURT -> courtship.roundTimeCap();
             case FOLLOW -> familyTravelling() ? 1200 : 240;
+            case WATCH_CHILD -> FamilyTether.watchRound();
             default -> 240;
         };
         return taskTicks<timeCap
@@ -1932,6 +1956,11 @@ public final class FamilyLife {
                 entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
                 if(entity.distanceToSqr(target)<4||!entity.life().canRecognize(target)||entity.predator().rearing())stop();
             }
+            case WATCH_CHILD -> {
+                // One call round from where the parent stands; the young answers and comes back on its own.
+                entity.getNavigation().stop();entity.getLookControl().setLookAt(target,20,20);
+                if(!call.tickBeckon(target)&&call.beckonRounds()>0){stop();return;}
+            }
             case FETCH_HAT -> tickHatChore();
             case COMFORT -> tickComfort();
             case CARRY -> { if(!carry.tickHome(taskTicks))stop(); }
@@ -2002,6 +2031,7 @@ public final class FamilyLife {
     public void stop() {
         glass.stop();
         call.stop();
+        if(task==Task.WATCH_CHILD)call.endBeckon();
         if(task==Task.SEARCH&&target!=null&&!carry.lifting()){
             if(target.getVehicle()==entity||safeInSharedHome(target))entity.duty().release(Kind.SEARCH,End.DONE,"child_safe");
             else if(!target.isAlive()||!caresFor(target)||!separation.searchingAllowed(target))

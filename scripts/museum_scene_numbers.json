@@ -381,6 +381,7 @@
     "cold_stiff_negative": "FG-22",
     "cold_stiff_mined": "FG-23",
     "cold_stiff_witness": "FG-24",
-    "cold_stiff_rewarm_fire": "FG-25"
+    "cold_stiff_rewarm_fire": "FG-25",
+    "family_tether": "FM-31"
   }
 }
