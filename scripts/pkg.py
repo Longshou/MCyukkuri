@@ -246,6 +246,21 @@ def unmerged(tree):
     return git(tree, 'diff', '--name-only', '--diff-filter=U').splitlines()
 
 
+def json_keys(tree, stage, path):
+    """Top-level keys of a JSON object: an index stage of a conflicted file ('1' base, '2' ours, '3' theirs), or the
+    working-tree file when stage is None. A missing side or a non-object file has none."""
+    if stage is None:
+        raw = (tree/path).read_bytes() if (tree/path).exists() else b''
+    else:
+        shown = subprocess.run(['git', 'show', f':{stage}:{path}'], cwd=tree, capture_output=True)
+        raw = shown.stdout if shown.returncode == 0 else b''
+    try:
+        data = json.loads(raw.decode('utf-8-sig'))
+    except ValueError:
+        return set()
+    return set(data) if isinstance(data, dict) else set()
+
+
 def resolve_generated(tree, conflict, main_side):
     """Resolve a conflict whose files are all exporter-written: keep main's version, re-run the exporters that write
     them and stage the fresh output. A file the re-run does not rewrite, or one no exporter declares, stops instead."""
@@ -255,6 +270,11 @@ def resolve_generated(tree, conflict, main_side):
         raise Fail(f'{error}; a person resolves these files, then rerun land')
     print(f'generated conflict: {len(conflict)} file(s); keeping main\'s version and re-running '
           f'{", ".join(sorted(owners))}', flush=True)
+    # Shared JSON maps (lang files, sounds.json) are partly hand-edited and exporters merge into them, so a key the branch
+    # added by hand would vanish silently: remember the keys the branch added over the merge base and check them after.
+    branch_stage = '3' if main_side == '--ours' else '2'
+    added = {path: keys for path in conflict if path.endswith('.json')
+             if (keys := json_keys(tree, branch_stage, path) - json_keys(tree, '1', path))}
     for path in conflict:
         git(tree, 'checkout', main_side, '--', path)
     main_bytes = {path: (tree/path).read_bytes() for path in conflict}
@@ -266,6 +286,11 @@ def resolve_generated(tree, conflict, main_side):
     kept = [path for path in conflict if (tree/path).read_bytes() == main_bytes[path]]
     if kept:
         raise Fail('the re-export left main\'s version of ' + ', '.join(kept) + '; resolve by hand')
+    lost = {path: sorted(keys - json_keys(tree, None, path)) for path, keys in added.items()}
+    lost = {path: keys for path, keys in lost.items() if keys}
+    if lost:
+        raise Fail('the re-export dropped keys the branch added by hand: ' +
+                   '; '.join(f'{path}: {", ".join(keys[:5])}' for path, keys in lost.items()) + '; resolve by hand')
     # Unstaged and untracked files are what the re-run wrote plus the conflicted files; stage them all, but stop on a
     # path the selected exporters do not declare (a hand-edited conflict or a missing OUTPUTS entry). The raw call
     # keeps the status columns of the first line, which git()'s strip would eat.
