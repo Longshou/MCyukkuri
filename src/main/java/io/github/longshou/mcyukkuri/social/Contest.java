@@ -184,9 +184,18 @@ public final class Contest {
             case PUFF_DECIDE -> { winnerFace = "angry"; loserFace = "angry"; }
             default -> { winnerFace = "angry_stare"; loserFace = "surprise"; }
         }
-        // The face-off is silent: its face holds while the level's own line is still ahead.
-        beat(winner, null, "contest_faceoff", winnerFace, "", FaceTier.Tier.SHORT);
-        beat(loser, null, "contest_faceoff", loserFace, "", FaceTier.Tier.SHORT);
+        // The face-off is silent and forced: a greeting or a yield of the approach must not hide the first look of the bout.
+        opening(winner, winnerFace);
+        opening(loser, loserFace);
+    }
+
+    /** The first face of the bout, shown even over a reaction the approach left running. */
+    private void opening(YukkuriEntity body, String face) {
+        body.getLookControl().setLookAt(body == first ? second : first, 30, 30);
+        body.beat("contest_faceoff", face, "");
+        body.forceReaction(face, "", FaceTier.Tier.SHORT);
+        GameplayLog.event(body, "social", "contest beat={} prize={} role={} face={} line=none accepted=true",
+                "contest_faceoff", prize.kind(), body == winner ? "winner" : "loser", face);
     }
 
     private void polite(int t) {

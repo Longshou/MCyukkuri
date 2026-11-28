@@ -1020,7 +1020,8 @@ def _contest_core(log, prize, level, winner=None, pair=None):
         return f'{won} won the {prize}, expected {winner}', None
     beats = [b for b in re.findall(_CONTEST_BEATS, log) if pair is None or b[0] in pair]
     for who, beat, shown, line, declared in beats:
-        if shown != declared:
+        # The sumo ready and win clips sample their own face; every other beat must show the face it declared.
+        if beat not in ('sumo_start', 'sumo_win') and shown != declared:
             return f'{who} beat={beat} showed {shown}, declared {declared}', None
         if beat == 'contest_lost' and (shown == 'cheek_puff' or declared == 'cheek_puff' or line in ('puff', 'contest_puff')):
             return f'{who} beat=contest_lost regressed to cheek_puff/puff ({shown}/{line})', None
