@@ -8,6 +8,7 @@
 
 | 条目 | 工作树 | 主要改动文件 |
 | --- | --- | --- |
+| 争抢五级（用户 11-28 同意） | `.worktrees/wp-contest-levels` | social/Contest, ContestOdds, GroupInteractionGoal contest, contest scenes |
 
 ## 玩法待办
 
