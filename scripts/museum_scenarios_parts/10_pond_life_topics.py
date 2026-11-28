@@ -1215,7 +1215,7 @@ def _verify_toy_contest(log):
     if error:
         return error
     _, slide_at, slide_won, slide_lost = facts
-    if not [t for t in re.findall(rf'\[play\][^\n]* uuid={slide_won} t=(\d+) [^\n]*facility session started kind=slide', log) if int(t) > slide_at]:
+    if not [t for t in re.findall(rf'\[play\][^\n]* uuid={slide_won} t=(\d+) [^\n]*facility session started kind=SLIDE', log) if int(t) > slide_at]:
         return 'the slide contest winner did not start playing after the verdict'
     if not re.search(rf'\[play\][^\n]* uuid={slide_lost} [^\n]*contested station yielded [^\n]*rival={slide_won}\b', log):
         return 'the slide contest loser did not give the slide way'
@@ -1269,31 +1269,32 @@ def _verify_doll_contest(log):
 
 
 add('doll_contest', 'park', '两对成油争两只无主布偶', '两对成油争两只无主布偶',
-    '凉亭北面草坪上放着两只无主的魔理沙布偶，各有两个成油想要。西边一对同样依恋布偶、脾气都冲但不至于动真格：看它们面对面鼓起脸颊互相噗咕，'
-    '较近的一只先泄气抱怨着让开，另一只叼走布偶。东边一对依恋更深、更凶：先低声警告，再短促冲撞三轮，输的掉血后逃走，赢的叼走布偶。',
-    '约 20 秒', [
+    '凉亭南面草坪上放着两只无主的魔理沙布偶。西边一对同样依恋布偶、脾气都冲但不至于动真格：都想要同一只，同时动身去叼，'
+    '面对面鼓起脸颊互相噗咕，较近的一只先泄气抱怨着让开，另一只叼走布偶。东边一对脾气更凶：同样争同一只，先低声警告，再短促冲撞三轮，'
+    '输的掉血后逃走，赢的叼走布偶。两只布偶各归一只。',
+    '约 1 分钟', [
         doll('mcyukkuri:marisa_doll', 5, 9, 'puff_doll'),
         doll('mcyukkuri:marisa_doll', 15, 9, 'hot_doll'),
         yk('marisa', 3, 8, 'calm_a', uuid=uid('doll_contest', 'calm_a'), boldness=90, friendliness=20, self_control=20,
-           attachment=70, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙', lead=True,
-           extra='YukkuriDailyLife:{Boredom:70}'),
+           attachment=85, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙', lead=True,
+           extra='YukkuriDailyLife:{Boredom:44}'),
         yk('marisa', 3, 10, 'calm_b', uuid=uid('doll_contest', 'calm_b'), boldness=90, friendliness=20, self_control=20,
-           attachment=70, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙',
-           extra='YukkuriDailyLife:{Boredom:70}'),
+           attachment=85, nutrition=90, energy=95, yaw=-90, label='气鼓鼓的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:44}'),
         yk('marisa', 13, 8, 'fierce_a', uuid=uid('doll_contest', 'fierce_a'), boldness=100, friendliness=0, self_control=0,
-           attachment=100, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
-           extra='YukkuriDailyLife:{Boredom:70}'),
+           attachment=85, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:44}'),
         yk('marisa', 13, 10, 'fierce_b', uuid=uid('doll_contest', 'fierce_b'), boldness=100, friendliness=0, self_control=0,
-           attachment=100, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
-           extra='YukkuriDailyLife:{Boredom:70}'),
-        block(1, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
-        block(5, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
-        block(11, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
-        block(15, 0, 12, 'mcyukkuri:yukkuri_nest[facing=north]'),
+           attachment=85, nutrition=90, energy=95, yaw=-90, label='凶悍的魔理沙',
+           extra='YukkuriDailyLife:{Boredom:44}'),
+        *shed(1, 12, half=1),
+        *shed(5, 12, half=1),
+        *shed(11, 12, half=1),
+        *shed(15, 12, half=1),
     ], at_spawn=[home('calm_a', 1, 12), home('calm_b', 5, 12), home('fierce_a', 11, 12), home('fierce_b', 15, 12)],
     env=DAY, spot='pavilion', vantage=(6, 17, 180, 13),
     reads=[('读西边一对', f'yukkuri status {sel("calm_a")} raw'), ('读东边一对', f'yukkuri status {sel("fierce_a")} raw')],
-    smoke=dict(ticks=900,
+    smoke=dict(ticks=1600,
                expect=[r'contest begin prize=doll [^\n]* level=PUFF_DECIDE ', r'contest begin prize=doll [^\n]* level=ATTACK_DECIDE ',
                        r'contest verdict prize=doll [^\n]* level=PUFF_DECIDE ', r'contest verdict prize=doll [^\n]* level=ATTACK_DECIDE '],
                forbid=[r'contest beat=\w+ [^\n]*accepted=false', r'\[body\][^\n]* death settled\b'],
