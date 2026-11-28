@@ -29,12 +29,18 @@ import net.minecraft.world.phys.Vec3;
 
 /** Draw a floating host to reachable water at the bank, or to her own braid while she swims, with continuous braid effort: 35% of
  *  stick pace, twice its energy. Only the stroke's authored contact window pushes the host; the water's own flow and drag carry it in
- *  between. */
+ *  between. One action is one paddling session: its cycles go on while the host keeps coming nearer and end once it stops coming or
+ *  drifts out, so a near hat is drawn the whole way in instead of being tried once. */
 public final class Beckon implements Action {
     public static final String ID = "beckon";
-    /** Reach in blocks; a bounded attempt lasting twelve authored cycles. */
-    public static final double REACH = 3;
+    /** The stream's reach in blocks for a full-sized body: a smaller body stirs less water and draws a host in from nearer
+     *  ({@link #reach}). */
+    private static final double REACH = 4;
+    /** The stroke's cycles for the least patient body: twelve, and up to as many more again from how patient it is. */
     private static final int CYCLES = 12;
+    /** The least the gap must shrink over one cycle for another cycle to be worth it: a host lying against something, or drifting
+     *  out, ends the session and leaves the hat to the other ways. */
+    private static final double PROGRESS = .03;
     /** The braid's share of stick pace; twice the stick's energy per tick of the stroke. */
     private static final double BRAID = .35;
     private static final float COST = 1f / 40;
@@ -46,7 +52,11 @@ public final class Beckon implements Action {
     /** The water the braid strokes: in front of her stand ashore, at her braid tip when she swims. */
     private Vec3 water;
     private double pace;
-    private int t, length, maxTicks, contact, strokeEnd;
+    /** This body's stream reach, read at the start for the log. */
+    private double stream;
+    /** The nearest the host has come so far: another cycle only follows if it comes nearer still. */
+    private double best;
+    private int t, length, maxTicks, cycles, contact, strokeEnd;
     private long startTick;
     private float paid;
     /** Stroking her own hat afloat while swimming, not standing at the bank: the stroke draws it to her braid. */
@@ -54,6 +64,10 @@ public final class Beckon implements Action {
     private String clip = YukkuriAction.BANK_BECKON.id();
 
     public Beckon(SurfaceHost host) { this.host = host; }
+
+    /** How far (blocks) this body's stroke carries: the stream it stirs scales with the body's size, so a young or shrunk body
+     *  draws a host in from nearer than a full-grown one. */
+    public static double reach(YukkuriEntity body) { return REACH * BodyAbility.of(body).scale(); }
 
     @Override public String id() { return ID; }
 
@@ -69,7 +83,7 @@ public final class Beckon implements Action {
     public Feasibility checkFrom(YukkuriEntity body, Vec3 stand, float yaw) {
         if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
-        double far = host.entity().position().subtract(stand).horizontalDistance() - REACH;
+        double far = host.entity().position().subtract(stand).horizontalDistance() - reach(body);
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
         if (!host.drivable()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_drivable");
         wet = false;
@@ -86,7 +100,7 @@ public final class Beckon implements Action {
         var hull = host.entity();
         if (!hull.isInWaterOrBubble()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_afloat");
         if (!host.drivable()) return Feasibility.of(Reason.NO_SUPPORT, 0, "host_not_drivable");
-        double far = hull.position().subtract(body.position()).horizontalDistance() - REACH;
+        double far = hull.position().subtract(body.position()).horizontalDistance() - reach(body);
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
         wet = true;
         water = surface(body, ContactGeometry.braidTip(body));
@@ -127,12 +141,17 @@ public final class Beckon implements Action {
     @Override public void start(YukkuriEntity body) {
         startTick = body.level().getGameTime();
         pace = BodyAbility.of(body).swimSpeed() * BRAID;
+        stream = reach(body);
         clip = wet ? YukkuriAction.WATER_BECKON.id() : YukkuriAction.BANK_BECKON.id();
         var markers = ClipMarkers.of(clip);
         length = markers.length();
-        maxTicks = CYCLES * length;
+        // How long she keeps at it is how patient she is: a patient body goes on after the first dozen cycles, an impatient one
+        // gives the hat up to the other ways once the water has stopped bringing it.
+        cycles = CYCLES + (int) Math.round(CYCLES * body.life().personality().temperament().patient());
+        maxTicks = cycles * length;
         contact = markers.ticks("contact", 0);
         strokeEnd = markers.ticks("stroke", length);
+        best = gap(body);
     }
 
     @Override public Progress tick(YukkuriEntity body) {
@@ -145,11 +164,18 @@ public final class Beckon implements Action {
         if (wet && distance > 1E-4)
             Motor.face(body, body.getYRot() + (float) Effort.turn(body.getYRot(),
                     Mth.atan2(to.z, to.x) * Mth.RAD_TO_DEG - 90, BodyAbility.of(body).turnRate()));
+        else if (!wet) body.getLookControl().setLookAt(hull, 30, 30);
         // Swimming, the stroke ends once the hull lies in her grip; ashore, once its brim lies at the water she strokes (the same test admission uses).
         if (wet ? ContactGeometry.reachesHull(body, hull, true, true) : gap() <= AT)
             return new Outcome.Done(wet ? "at_braid at=" + GameplayLog.at(hull.position()) : "at_bank at=" + GameplayLog.at(hull.position()));
         double gap = wet ? distance : gap();
         if (t >= maxTicks) return Outcome.of(Reason.TOO_FAR, gap, "ticks=" + t);
+        // One cycle later: only a host that came nearer is worth another cycle; one lying against something or drifting out is
+        // left to the other ways (a swim after it, a wait for it to drift in).
+        if (t > 0 && t % length == 0) {
+            if (gap > best - PROGRESS) return Outcome.of(Reason.NO_PROGRESS, gap, String.format(Locale.ROOT, "stalled best=%.2f", best));
+            best = gap;
+        }
         int phase = t % length;
         if (phase >= contact && phase < strokeEnd) {
             if (body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
@@ -173,6 +199,11 @@ public final class Beckon implements Action {
             level.sendParticles(ParticleTypes.SPLASH, at.x, at.y, at.z, 4, .1, .02, .1, .01);
     }
 
+    /** The gap the stroke works against: the brim to the water she strokes ashore, the host to her braid while she swims. */
+    private double gap(YukkuriEntity body) {
+        return wet ? body.position().subtract(host.entity().position()).multiply(1, 0, 1).length() : gap();
+    }
+
     /** How far (blocks) the host's brim lies from the water she strokes: the stroke's own progress, 0 once its surface is over it. */
     private double gap() {
         if (host.support(host.frame().toLocal(water), 0).isPresent()) return 0;
@@ -185,9 +216,9 @@ public final class Beckon implements Action {
     @Override public int motionSource() { return host.entity().getId(); }
 
     @Override public String startDetail() {
-        return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s wet=%b stroke=%d..%d/%d pace=%.3f ticks<=%d",
-                host.entity().getUUID(), host.entity().position().distanceTo(water), GameplayLog.at(water), wet,
-                contact, strokeEnd, length, pace, maxTicks);
+        return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s wet=%b reach=%.2f cycles=%d stroke=%d..%d/%d pace=%.3f ticks<=%d",
+                host.entity().getUUID(), host.entity().position().distanceTo(water), GameplayLog.at(water), wet, stream,
+                cycles, contact, strokeEnd, length, pace, maxTicks);
     }
 
     @Override public String endDetail(Outcome outcome) { return String.format(Locale.ROOT, "ticks=%d paid=%.2f", t, paid); }

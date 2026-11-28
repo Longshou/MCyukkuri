@@ -207,7 +207,7 @@ final class SetOut implements Intent, FamilyRendezvous {
     static final class Launch implements Intent {
         private final YukkuriEntity owner;
         private final long deadline;
-        /** Her hat afloat out of hop reach of every stand is drawn in with one braid stroke, as a landing family does. */
+        /** Her hat afloat out of hop reach of every stand is drawn in with a braid paddling session, as a landing family does. */
         private final Ferry.Beckoning beckoning = new Ferry.Beckoning();
 
         Launch(YukkuriEntity owner, long deadline) {

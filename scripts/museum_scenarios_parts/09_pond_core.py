@@ -880,13 +880,13 @@ def reclaim_facing_once(window):
 
 
 pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子拨回漂远的帽子',
-     '船主的帽子倒扣漂在离岸不到三格的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面的阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；三格内不下水',
+     '船主的帽子倒扣漂在离岸不到三格的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面的阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；拨水够得到就不下水',
      '约 20–40 秒',
      [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 2.5), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
      note='倒扣是帽子真实的漂浮姿态（帽冠朝上），不是被测环节。日志：[action] start id=beckon … wet=false stroke=2..22/32（每周期只在这 20 tick 推动帽子）→ 帽檐被拨到够得着的地方 → '
           '[action] end id=beckon outcome=DONE detail=at_bank → [action] start id=right … push= → [hat] righted cause=reclaim → '
-          '[headwear] reclaim done how=worn；三格内不下水，不出现 step_in／swim（三格外的远帽见“远处的帽子游过去扶正”）；水伤不打断，死亡、帽子离开或玩家干预会终止。',
+          '[headwear] reclaim done how=worn；拨水够得到就不下水，不出现 step_in／swim（更远的帽子见“远处的帽子游过去扶正”与“岸上拨水把近岸够不到的帽子引过来”）；水伤不打断，死亡、帽子离开或玩家干预会终止。',
      reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
      smoke=dict(ticks=2400,
                 expect=[r'\[action\][^\n]* start id=beckon[^\n]*wet=false',
@@ -899,8 +899,28 @@ pond('shore_capsized', '岸边用辫子拨回漂远的帽子', '岸边用辫子�
                         r'\[body\][^\n]* death settled into remains', r'\[body\][^\n]* cause=drown'],
                 verify=reclaim_facing_once, readout=_HULL_READOUT + [f'data get entity {_HAT} Pos']))
 
+pond('shore_hat_beckon', '岸上拨水把近岸够不到的帽子引过来', '岸上拨水把近岸够不到的帽子引过来',
+     '船主的帽子倒扣漂在离岸约三格、岸边嘴和辫子够不到的静水里：她站在岸边面向帽子，侧身探出岸沿用辫梢一下一下拨水（片段的水下拨动段才推动帽子，其余时间帽子顺水面阻力和真实水流滑行），把帽子拨到辫梢／嘴够得着的地方后咬住帽檐推正，再收回戴上；够到之前不走进水里，帽子不再靠近或漂远就改游过去或等它漂近',
+     '约 20–40 秒',
+     [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 3.2), False)],
+     late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],
+     note='倒扣是帽子真实的漂浮姿态，不是被测环节。这个距离超出原来固定三格的招帽范围、在满体型约四格的拨水范围内（范围随体型缩小）。日志：'
+          '[action] start id=beckon … wet=false reach=… cycles=… stroke=2..22/32（每周期只在这 20 tick 推动帽子，每个来回先看帽子是否更近）→ '
+          '[action] end id=beckon outcome=DONE detail=at_bank → [action] start id=right … cause=reclaim → [headwear] reclaim done how=worn；不出现 step_in／swim，'
+          '帽子不再靠近时以 NO_PROGRESS 结束并改游过去或等它漂近。水伤不打断，死亡、帽子离开或玩家干预会终止。',
+     reads=[('读船主', f'yukkuri status {sel("a")} raw'), ('读帽子', f'data get entity {_HAT}')],
+     smoke=dict(ticks=2400,
+                expect=[r'\[action\][^\n]* start id=beckon[^\n]*wet=false[^\n]*reach=',
+                        r'\[action\][^\n]* end id=beckon outcome=DONE\b[^\n]*detail=at_bank',
+                        r'\[headwear\][^\n]* reclaim done how=worn',
+                        r'\[intent\][^\n]* end id=resolve_own_hat result=DONE\b'],
+                forbid=[r'\[action\][^\n]* start id=step_in\b', r'\[action\][^\n]* start id=swim\b',
+                        r'\[headwear\][^\n]* reclaim waiting',
+                        r'\[body\][^\n]* death settled into remains', r'\[body\][^\n]* cause=drown'],
+                verify=reclaim_facing_once, readout=_HULL_READOUT + [f'data get entity {_HAT} Pos']))
+
 pond('shore_capsized_far', '远处的帽子游过去扶正', '远处的帽子游过去扶正',
-     '离岸 8 格的水面上，船主的帽子倒扣漂着，岸边拨水够不着（三格外）：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
+     '离岸 8 格的水面上，船主的帽子倒扣漂着，岸边拨水够不着（拨水范围随体型，满体型约四格）：她从岸上走进水里（普通走路跨过岸沿落水，不跳跃），游到帽檐外侧，咬住帽檐按一段片段的推帽标记把帽子推正，帽子正过来后再爬进去；扶正时播咬檐推帽的动作，泡水伤不打断',
      '约 30–60 秒',
      [captain(dx=bank_dx(0)), afloat_now('a', water_at(0, 8), False)],
      late=[f'data merge entity {_HAT} {{Roll:180f,Inverted:1b,Motion:{{Phase:"INVERTED"}}}}'],

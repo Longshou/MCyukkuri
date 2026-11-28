@@ -294,6 +294,10 @@ _scene_end('shore_capsized', [('a', _DRY)],
            dict(steps=[('a', 'seen:action:end id=beckon outcome=DONE detail=at_bank'),
                        ('a', 'seen:action:end id=right outcome=DONE'), ('a', 'seen:headwear:reclaim done how=worn')],
                 post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
+_scene_end('shore_hat_beckon', [('a', _DRY)],
+           dict(steps=[('a', 'seen:action:end id=beckon outcome=DONE detail=at_bank'),
+                       ('a', 'seen:action:end id=right outcome=DONE'), ('a', 'seen:headwear:reclaim done how=worn')],
+                post=[('a', _ASHORE + ' and hold.hat.state=worn')]))
 # Overloaded families retain real risk; no prescribed survival for a deliberate capsize. Surviving young
 # must still be safe (ORPHAN remains independent); the load response itself is the observable path.
 _scene_end('hat_sever_tearful', [('normal', 'alive=true and distress=false'), ('normal2', 'alive=true'), ('normal3', 'alive=true'), ('normal_far', 'alive=true')],

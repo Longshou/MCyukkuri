@@ -250,8 +250,8 @@ final class Ashore implements Intent {
             closing.addAll(List.of(after));
             return closing;
         }
-        // At the bank facing it: one stroke if the braid really reaches water from here (the action's own check, the same one that
-        // admits it); without a stroke a reclaim has no bank way and goes into the water after the hat from this same stand, and a
+        // At the bank facing it: a paddling session if the braid really reaches water from here (the action's own check, the same one
+        // that admits it); without one a reclaim has no bank way and goes into the water after the hat from this same stand, and a
         // coming-ashore owner calls for it to drift in.
         Step stroke = beckoning.step(owner, hat);
         if (stroke != null) return List.of(() -> stroke);

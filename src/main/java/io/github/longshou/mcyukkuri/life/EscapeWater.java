@@ -142,7 +142,7 @@ public final class EscapeWater implements Intent {
         boolean assisted = rescueApproach() != null;
         Edge bank = assisted ? null : climbable();
         boolean refuge = assisted || nearest() != null;
-        // Its own hat afloat within a braid's beckoning reach: one stroke draws it in before the last stretch is swum.
+        // Its own hat afloat within a braid's beckoning reach: one paddling session draws it in before the last stretch is swum.
         int stroke = hat != null && new Beckon(hat).check(body).ok() ? 1 : 0;
         return List.of(
                 new Way("own_hat", hat(hat, false), AT_HAT, i -> switch (i - stroke) {

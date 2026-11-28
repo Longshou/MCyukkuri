@@ -181,7 +181,8 @@ final class Ferry {
     }
 
     /** A refused landing a hull nearer the bank can change: out of hop reach, or no room because its young cannot leave it from here
-     *  either (their own exit is out of reach too). The braid stroke draws the hull in, once per run; another refusal is not helped. */
+     *  either (their own exit is out of reach too). One paddling session per run draws the hull in while it comes; another refusal is
+     *  not helped. */
     private static boolean drawnToBank(Feasibility ready) {
         return ready.reason() == Reason.TOO_FAR || ready.reason() == Reason.NO_ROOM;
     }
@@ -289,9 +290,10 @@ final class Ferry {
         return new Step.Wait(() -> !hop.blockedByBody(body), ticks * 3, Behaviors.BOAT_CALL);
     }
 
-    /** One intent run's beckoning: its own hat afloat within a braid stroke of the bank where it stands is stroked in (Beckon), and
-     *  once one such try failed (too far still, out of energy, nothing to draw) the run does not beckon again but waits for drift
-     *  or takes another way: no strokes paid over and over. */
+    /** One intent run's beckoning: its own hat afloat within this body's stroke reach of the bank where it stands is stroked in
+     *  (Beckon, itself one session that keeps paddling while the hat keeps coming nearer and stops once it does not), and once such
+     *  a session failed (too far still, out of energy, nothing to draw) the run does not beckon again but waits for drift or takes
+     *  another way: no strokes paid over and over. */
     static final class Beckoning {
         private Beckon tried;
 
@@ -307,7 +309,8 @@ final class Ferry {
                     && new Beckon(hat).checkFrom(body, stand, yaw).ok();
         }
 
-        /** The beckon step, or null when no stroke applies; one try per run, so a drawn-in or failed stroke is never paid over again. */
+        /** The beckon step, or null when no stroke applies; one session per run, so a drawn-in or failed one is never paid over
+         *  again. */
         Step step(YukkuriEntity body, PlacedHatEntity hat) { return near(body, hat) ? act(tried = new Beckon(hat)) : null; }
     }
 

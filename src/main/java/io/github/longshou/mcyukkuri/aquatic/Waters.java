@@ -330,7 +330,9 @@ final class Waters {
      *  the steps that run from the stand. */
     static Edge bankEdge(YukkuriEntity body, PlacedHatEntity hat) {
         int asked = 0;
-        for (var e : edges(body, hat.position(), 4, false)) {
+        // As far out as this body's stroke reaches: a bigger body stirs a stream that carries from farther than the old fixed four.
+        int range = Math.max(4, (int) Math.ceil(Beckon.reach(body)));
+        for (var e : edges(body, hat.position(), range, false)) {
             var stand = e.stand(body.getBbWidth());
             if (!bankReach(body, stand, hat)) continue;
             if (asked++ >= ASKED) break;
