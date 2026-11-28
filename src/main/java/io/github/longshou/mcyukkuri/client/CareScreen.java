@@ -119,6 +119,13 @@ public final class CareScreen extends AbstractContainerScreen<CareMenu> {
                     .bounds(leftPos + MARGIN, footerY, Math.min(112, (imageWidth - 82) / 2 - MARGIN - GAP), FOOT_HEIGHT)
                     .build(GuiKit.ActionButton::new));
         }
+        if (page == Page.RULES) {
+            addRenderableWidget(Button.builder(Component.translatable("rules.mcyukkuri.sync_nearby"),
+                            button -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, CareMenu.RULE_SYNC_BUTTON))
+                    .bounds(leftPos + MARGIN, footerY, Math.min(130, (imageWidth - 82) / 2 - MARGIN - GAP), FOOT_HEIGHT)
+                    .tooltip(Tooltip.create(Component.translatable("rules.mcyukkuri.sync_nearby.help")))
+                    .build(GuiKit.ActionButton::new));
+        }
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
                 .bounds(leftPos + (imageWidth - 82) / 2, footerY, 82, FOOT_HEIGHT).build(GuiKit.ActionButton::new));
     }

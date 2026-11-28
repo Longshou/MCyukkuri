@@ -845,7 +845,7 @@ RULE_STYLED = {
             'plain': ('{c}、うん。かいぬちしゃん、いいこに ちゅる。', '{c}，嗯。饲主先森，{nb}会乖乖的。', '{c}, yup. Mr. Owner, {nb} will be good.')},
         'juvenile': {
             'proud': ('{p}むぅ、わかっちゃ{e}。かいぬししゃんが だめなら がまん{e}。', '{p}姆，知道惹啦{e}。饲主先森说不可以，{n}就忍住{e}。', '{p}Muu, got it. If Mr. Owner says no, {n} holds back.'),
-            'timid': ('{p}ゆぅ、{n} おぼえちゃ……いいこで がまんする{e}……', '{p}油呜，{n}记住惹……会乖乖听饲主先森的话，不惹您生气……', '{p}Yuu, {n} remembers... I\'ll be good and hold back...'),
+            'timid': ('{p}ゆぅ、{n} おぼえちゃ……いいこで がまんする{e}……', '{p}油呜，{n}记住惹……会乖乖听饲主先森的话，不惹饲主先森生气……', '{p}Yuu, {n} remembers... I\'ll be good and hold back...'),
             'plain': ('{p}うん、おぼえちゃ{e}！ かいぬししゃんの いいこに にゃる{e}！', '{p}嗯，{n}记住惹{e}！要当能让饲主先森油库里的好孩子{e}！', '{p}Yup, got it! {n} will be a good pet for Mr. Owner!')},
         'adult': {
             'proud': ('{p}むぅ、わかった{e}。かいぬしさんが だめなら がまんする{e}。', '{p}姆，知道了啦{e}。既然是饲主先生定下的，{n}就乖乖忍住{e}。', '{p}Muu, understood. If Mr. Owner forbids it, {n} holds back.'),
@@ -991,6 +991,48 @@ RULE_STYLED = {
             'proud': ('{p}むぅ！ なんで あのこだけ いいの{e}！ {n}も やりたい！', '{p}呜——！为什么只有那边那只可以呀{e}！{n}也好想被允许嘛！', '{p}Muu! Why is only that one allowed?! {n} wants to too!'),
             'timid': ('{p}ゆぅ、あのこだけ いいんだ……{n}は まだ がまんかな……', '{p}油呜，只有那边那只可以呀……{n}还要继续乖乖忍着吗……', '{p}Yuu, only that one is allowed... {n} still has to hold back...'),
             'plain': ('{p}えっ、あのこは いいの{e}？ うらやましいなぁ……', '{p}诶，那只可以了吗{e}？好羡慕呀……{n}什么时候也能被允许呢……', '{p}Eh, that one is allowed now? So enviable...')}},
+    # Bystander pet witnessing a housemate caught or punished: fearful flinch & glance at owner.
+    'rule_bystander_fear': {
+        'baby': {
+            'proud': ('{c}！ こ、こあい……{nb} やぶってにゃいよ！', '{c}！好、好口怕……{nb}没有不听话哟！', '{c}! S-scawy... {nb} didn\'t break it!'),
+            'timid': ('{c}、ひぃっ……かいぬちしゃん こあい、{nb} いいこちゅる……', '{c}，呀呜……饲主先森好凶，{nb}要乖乖的……', '{c}, eek... Mr. Owner is mad, {nb} will be good...'),
+            'plain': ('{c}、びっくりちた……{nb}も きをつけなきゃ……', '{c}，吓一跳……{nb}也要乖乖听话……', '{c}, that was scawy... {nb} must be good too...')},
+        'juvenile': {
+            'proud': ('{p}ひっ……あんなに おこられちゃ……{n}は やぶらにゃい{e}！', '{p}呀……被骂得好惨呀……{n}才不敢偷偷犯规惹{e}！', '{p}Eek... got scolded so hard... {n} won\'t break it!'),
+            'timid': ('{p}ひゃぅ……かいぬししゃん こわいよぉ……{n} いいこに ちてるから……', '{p}呀呜呜……饲主先森生气好可怕呀……{n}一定会乖乖守规矩的……', '{p}Eeeek... Mr. Owner is so scary... {n} will stay good...'),
+            'plain': ('{p}ゆぅ、おこられちゃっちゃ……{n}も ぜったい がまんする{e}……', '{p}油呜，同伴被凶惹……{n}也一定要乖乖忍住才行{e}……', '{p}Yuu, they got punished... {n} will hold back for sure...')},
+        'adult': {
+            'proud': ('{p}ひっ……あんなに おこられるのか……{n}は やぶらない{e}！', '{p}呀……原来会挨这么狠的训呀……{n}可绝对不敢犯规了{e}！', '{p}Eek... punished that harshly... {n} definitely won\'t break it!'),
+            'timid': ('{p}ひゃぅ……かいぬしさん こわいよぉ……{n} いいこで いるからね……', '{p}呀呜呜……饲主先生生气好可怕……{n}一定会乖乖守家规的……', '{p}Eeeek... Mr. Owner is terrifying when mad... {n} will stay good...'),
+            'plain': ('{p}ゆぅ、あんなに しかられて……{n}も ぜったい まもる{e}……', '{p}油呜，挨训看起来好可怕……{n}也绝对会乖乖守规矩的{e}……', '{p}Yuu, getting scolded like that... {n} will obey too...')}},
+    # Bystander pet witnessing a housemate caught or punished: bold pet gulps and thinks better of sneaking.
+    'rule_bystander_gulp': {
+        'baby': {
+            'proud': ('{c}！ ば、ばれちゃ……{nb} おとなちく ちよ。', '{c}！露、露馅惹……{nb}还是老实一点好。', '{c}! G-got caught... {nb} better stay quiet.'),
+            'timid': ('{c}、びくっ……かいぬちしゃん みてる、がまんちよ……', '{c}，吓一跳……饲主先森在看，还是忍住吧……', '{c}, flinch... Mr. Owner is looking, hold back...'),
+            'plain': ('{c}、みつかっちゃんだ……{nb}も やめとこ。', '{c}，被抓到惹呀……{nb}也先别调皮惹。', '{c}, got caught... {nb} won\'t try it either.')},
+        'juvenile': {
+            'proud': ('{p}うっ……みつかっちゃうんだ……{n}も おとなしく する{e}。', '{p}唔……真的会被抓到呀……{n}还是老实守规矩好惹{e}。', '{p}Ugh... really got caught... {n} had better behave too.'),
+            'timid': ('{p}びくっ……かいぬししゃん みてるんだ……きをつけなきゃ。', '{p}吓一跳……饲主先森原来一直看着呢……{n}可得小心惹。', '{p}Flinch... Mr. Owner sees everything... gotta be careful.'),
+            'plain': ('{p}ゆっ……ばれちゃうんだ{e}……{n}も がまん しとこ。', '{p}油……偷偷做真的会露馅呀{e}……{n}还是乖乖忍着吧。', '{p}Yu... sneaking really gets caught... {n} will hold back too.')},
+        'adult': {
+            'proud': ('{p}うっ……ほんとに ばれるんだ……{n}も むり しない{e}。', '{p}唔……真的会被抓现行呀……{n}还是老实守着家规吧{e}。', '{p}Ugh... really caught in the act... {n} won\'t push it either.'),
+            'timid': ('{p}びくっ……かいぬしさん ちゃんと みてるんだ……きをつけよう。', '{p}吓一跳……饲主先生原来一直看着呢……{n}可得小心了。', '{p}Flinch... Mr. Owner really watches... better be careful.'),
+            'plain': ('{p}ゆっ……やっぱり ばれるんだ{e}……{n}も がまん しておこう。', '{p}油……偷偷来果然会露馅呀{e}……{n}还是乖乖忍着吧。', '{p}Yu... it really does get found out... {n} will hold back too.')}},
+    # Bystander pet witnessing a housemate caught or punished: attached/obedient pet vows to stay good.
+    'rule_bystander_good': {
+        'baby': {
+            'proud': ('{c}、{nb}は いいこだよ！ ちゃんと まもる！', '{c}，{nb}是乖孩子哟！会乖乖听饲主先森的话！', '{c}, {nb} is good! {nb} listens!'),
+            'timid': ('{c}、かわいしょう……{nb}は やぶらにゃいよ……', '{c}，同伴好可怜……{nb}绝对乖乖听话……', '{c}, poor thing... {nb} won\'t break it...'),
+            'plain': ('{c}、かいぬちしゃん、{nb}は まもるからね。', '{c}，饲主先森，{nb}会乖乖守约定的。', '{c}, Mr. Owner, {nb} will obey.')},
+        'juvenile': {
+            'proud': ('{p}ゆぅ、{n}は ちゃんとした いいこ{e}！ やくそく まもる{e}！', '{p}油呜，{n}才不会那样惹{e}！{n}会乖乖听饲主先森的话{e}！', '{p}Yuu, {n} is a good pet! {n} keeps the promise!'),
+            'timid': ('{p}ゆぅ、おこられちゃ……{n}は ぜったい いうこと きくよ……', '{p}油呜，被训惹……{n}绝对不敢犯规，会一直乖乖听饲主先森的话……', '{p}Yuu, got scolded... {n} will always listen to Mr. Owner...'),
+            'plain': ('{p}かいぬししゃん、{n}は ちゃんと おやくそく まもる{e}……', '{p}饲主先森，{n}会好好记住家规的，不会惹饲主先森生气{e}……', '{p}Mr. Owner, {n} will keep the rules properly...')},
+        'adult': {
+            'proud': ('{p}ゆぅ、{n}は ちゃんとした いいこ{e}！ いいつけ まもる{e}！', '{p}油呜，{n}才不会犯傻呢{e}！{n}会乖乖听饲主先生的话{e}！', '{p}Yuu, {n} knows better! {n} obeys Mr. Owner!'),
+            'timid': ('{p}ゆぅ、こわいよぉ……{n}は ぜったい いいつけ まもるよ……', '{p}油呜，好可怕……{n}绝对不敢犯规，会一直乖乖听饲主先生的话……', '{p}Yuu, so scary... {n} will always obey Mr. Owner...'),
+            'plain': ('{p}かいぬしさん、{n}は ちゃんと いいつけ まもるからね{e}……', '{p}饲主先生，{n}会好好记住家规的，不会惹饲主先生生气{e}……', '{p}Mr. Owner, {n} will keep the house rules carefully...')}},
 }
 
 RULE_AWE = {
@@ -1095,14 +1137,123 @@ RULE_AWE = {
         'baby': ('{c}♪ みてみて！ おちびちゃん、いっしょに ゆっくり！', '{c}♪ 快看呀！可爱的小贝比酱，一起油库里！', '{c}! Look! Cute little ones, take it easy!'),
         'juvenile': ('{p}かいぬししゃん みて！ かわいい おちびちゃん{e}、いっしょに ゆっくりしようね！', '{p}饲主先森快看呀{e}！{n}的可爱小贝比酱，大家一起油库里吧{e}！', '{p}Mr. Owner look! Cute little ones, let\'s all take it easy together!'),
         'adult': ('{p}かいぬしさん みて！ とっても ゆっくりした おちびちゃん{e}、いっしょに ゆっくりしようね！', '{p}饲主先生快看呀{e}！{n}的可爱小贝比酱，大家一起油库里吧{e}！', '{p}Mr. Owner look! Super easy-going little ones, let\'s all take it easy together!')},
-    'sukkiri_defiant': {
-        'baby': ('{c}！ かわいい おちびちゃんなのに！ わるくにゃい！', '{c}！小贝比酱这么可爱！才没有错嘛！', '{c}! Cute little ones! Nothing wrong!'),
-        'juvenile': ('{p}ぐぅ、おちびちゃん うんで なにが わるいの{e}！', '{p}咕呜，生可爱的小贝比酱有什么错嘛{e}！{n}才不想被说坏话呢！', '{p}Grrr, what\'s wrong with having cute little ones?!'),
-        'adult': ('{p}ぐぅ、おちびちゃん うんで なにが わるいの{e}！ わるく ない{e}！', '{p}咕呜，生可爱的小贝比酱有什么错嘛{e}！{n}才不是坏油库里呢{e}！', '{p}Grrr, what is wrong with having cute little ones?! {n} is not bad!')},
     'partner_blame': {
         'baby': ('{c}！ あっちが さきに さそっちゃん！ {nb}じゃ にゃい！', '{c}！是那边那只先缠着{nb}的！不是{nb}的错！', '{c}! That one asked first! Not {nb}\'s fault!'),
         'juvenile': ('{p}{n}の せいじゃ にゃい{e}！ あっちが さきに さそっちゃん{e}！', '{p}不、不是{n}的错{e}！是那边那只先缠着{n}要素鸡立的{e}！', '{p}Not {n}\'s fault! That one begged {n} to do sukkiri first!'),
         'adult': ('{p}{n}の せいじゃ ない{e}！ あっちが さきに さそった{e}！', '{p}不、不是{n}的错{e}！是那边那只先缠着{n}要素鸡立的{e}！', '{p}It is not {n}\'s fault! That one asked {n} to do sukkiri first!')},
+}
+
+RULE_BOAST_BASIS = 'wp-rules-r2: rewritten secret-brood boast branch (naive self-centred pet showing off babies, expecting praise, never talking back rudely); project-original wording'
+# Replaces legacy sukkiri_defiant: ordinary pets never talk back to their owner. Instead, a bold self-centred pet fails to see
+# its fault or assumes the owner should be "yukkuri" and praise its babies, then becomes puzzled by silence, delighted by praise,
+# or shocked when scolded/hit. Two varied lines per (tier, variant) for the two show-off beats.
+RULE_BOAST = {
+    'sukkiri_boast': {
+        'baby': {
+            'proud': [
+                ('{c}♪ かいぬちしゃん みて！ おちびちゃん ゆっくちだよ！', '{c}♪ 饲主先森快看！小贝比酱好能油库气哟！', '{c}! Mr. Owner look! Little ones are so easy!'),
+                ('{c}！ かわいい おちびちゃんだよ！ ほめて ほめて！', '{c}！这么可爱的小贝比酱！快夸夸{nb}呀！', '{c}! Super cute little ones! Praise {nb}!')],
+            'timid': [
+                ('{c}、かいぬちしゃん……おちびちゃん ゆっくちだよ……？', '{c}，饲主先森……小贝比酱好能油库气哟……？', '{c}, Mr. Owner... little ones are easy, wight...?'),
+                ('{c}、みてみて……かわいい おちびちゃん うまれちゃよ……', '{c}，快看看……生了可爱的小贝比酱哟……', '{c}, look... cute little ones were born...')],
+            'plain': [
+                ('{c}♪ かいぬちしゃん！ おちびちゃん ゆっくち してるよ！', '{c}♪ 饲主先森！小贝比酱很能油库气哟！', '{c}! Mr. Owner! Little ones take it easy!'),
+                ('{c}♪ いっしょに ゆっくち ちよ！ かわいいでしょ？', '{c}♪ 一起油库气吧！小贝比酱很可爱吧？', '{c}! Take it easy togevew! Cute, wight?')]},
+        'juvenile': {
+            'proud': [
+                ('{p}かいぬししゃん！ おちびちゃん とっても ゆっくち{e}！ ほめて ほしい{e}！', '{p}饲主先森！{n}的小贝比酱超能油库气哟{e}！快好好夸夸{n}嘛{e}！', '{p}Mr. Owner! {n}\'s little ones are so easy! Praise {n}!'),
+                ('{p}みてみて かいぬししゃん！ こんなに かわいい おちびちゃん{e}、すごいでしょう？', '{p}快看快看饲主先森！这么可爱的小贝比酱{e}，{n}很厉害吧？', '{p}Look Mr. Owner! Such cute little ones, {n} did great, right?')],
+            'timid': [
+                ('{p}あの、かいぬししゃん……おちびちゃん ゆっくち してるよ……かわいいでしょ？', '{p}那个、饲主先森……小贝比酱好能油库气哟……很可爱对吧……？', '{p}Um, Mr. Owner... the little ones are so easy... cute, right...?'),
+                ('{p}かいぬししゃん みて……{n}の おちびちゃん、いいこに してるよ……', '{p}饲主先森你看……{n}的小贝比酱好乖好能油库气哟……', '{p}Mr. Owner look... {n}\'s little ones are being so good...')],
+            'plain': [
+                ('{p}かいぬししゃん！ おちびちゃん ゆっくち してるよ{e}、かいぬししゃんも ゆっくちでしょ？', '{p}饲主先森！小贝比酱很能油库气哟{e}，饲主先森也很油库里吧？', '{p}Mr. Owner! The little ones take it easy, and you do too, right?'),
+                ('{p}みて かいぬししゃん！ {n}の おちびちゃん こんなに げんき{e}！', '{p}快看饲主先森！{n}的小贝比酱这么精神这么能油库里{e}！', '{p}Look Mr. Owner! {n}\'s little ones are so lively and easy!')]},
+        'adult': {
+            'proud': [
+                ('{p}かいぬしさん！ {n}の おちびちゃん とっても ゆっくり{e}！ ほめて ほしい{e}！', '{p}饲主先生！快看{n}的可爱小贝比酱呀{e}！这么能油库里，快好好夸夸{n}吧{e}！', '{p}Mr. Owner! {n}\'s little ones are super easy! Come praise {n}!'),
+                ('{p}みて かいぬしさん！ じまんの おちびちゃん{e}、とっても ゆっくりしてるでしょう？', '{p}快看饲主先生！{n}值得夸耀的小贝比酱{e}，是不是特别能油库里呀？', '{p}Look Mr. Owner! {n}\'s proud little ones—aren\'t they super easy?')],
+            'timid': [
+                ('{p}あの、かいぬしさん……おちびちゃん とっても ゆっくりしてるの……ほめてくれる？', '{p}那个、饲主先生……小贝比酱特别能油库里哟……会夸夸{n}对吧……？', '{p}Um, Mr. Owner... the little ones are so easy... you\'ll praise us, right...?'),
+                ('{p}かいぬしさん みて……かわいい おちびちゃん、いっしょに ゆっくり したいの……', '{p}饲主先生你看……可爱的小贝比酱，想跟饲主先生一起油库里呢……', '{p}Mr. Owner look... these cute little ones want to take it easy with you...')],
+            'plain': [
+                ('{p}かいぬしさん！ おちびちゃん とっても ゆっくり してるよ{e}、かいぬしさんも ゆっくりでしょ？', '{p}饲主先生！小贝比酱很能油库里哟{e}，饲主先生也很油库里吧？', '{p}Mr. Owner! The little ones are super easy—you take it easy too, right?'),
+                ('{p}かいぬしさん みて{e}！ おちびちゃん こんなに かわいく うまれたよ！', '{p}饲主先生快看呀{e}！小贝比酱生得这么可爱这么能油库里，一定很开心吧！', '{p}Mr. Owner look! The little ones came out so cute and easy!')]},
+    },
+    'sukkiri_boast_ask': {
+        'baby': {
+            'proud': [
+                ('{c}、なんで？ おちびちゃん ゆっくちだよ！ わかって！', '{c}，为什么捏？小贝比酱很能油库气哟！要理解呀！', '{c}, why? Little ones are easy! Understand!'),
+                ('{c}♪ かいぬちしゃんも ゆっくち ちて ほめてね！', '{c}♪ 饲主先森也要油库气地夸夸呀！', '{c}! Mr. Owner be easy and praise us!')],
+            'timid': [
+                ('{c}、かいぬちしゃんも ゆっくち わかってね……？', '{c}，饲主先森也会油库气地理解对吧……？', '{c}, Mr. Owner will understand easily, wight...?'),
+                ('{c}、かわいい おちびちゃんだよ……いっしょに いて いいよね？', '{c}，小贝比酱这么可爱……一起住可以的吧？', '{c}, cute little ones... can stay togevew, wight?')],
+            'plain': [
+                ('{c}♪ みんなで ゆっくち ちよ！ いいでしょ？', '{c}♪ 大家一起油库气吧！这样最好惹吧？', '{c}! Everyone take it easy! Nice, wight?'),
+                ('{c}、おちびちゃん ゆっくちだよ！ かいぬちしゃんも わかってね！', '{c}，小贝比酱很能油库气捏！饲主先森要理解哟！', '{c}, little ones are easy! Understand, Mr. Owner!')]},
+        'juvenile': {
+            'proud': [
+                ('{p}なんで にぇ、おちびちゃん ゆっくち{e}！ かいぬししゃんも ゆっくち わかってよ！', '{p}为什么捏，小贝比酱很能油库里捏{e}！饲主先森也要油库气地理解哟！', '{p}Why, the little ones are so easy! Mr. Owner should understand easily!'),
+                ('{p}こんなに いいこなの{e}、かいぬししゃん だって うれしい はず{e}！', '{p}小贝比酱这么乖这么可爱{e}，饲主先森肯定也觉得好能油库气吧{e}！', '{p}They are such good little ones, Mr. Owner must be happy too!')],
+            'timid': [
+                ('{p}おちびちゃん こんなに ゆっくち してるから……かいぬししゃんも わかってくれるよね？', '{p}小贝比酱这么能油库气……饲主先森也会油库气地理解{n}对吧……？', '{p}The little ones are so easy... Mr. Owner will understand, right...?'),
+                ('{p}ね、かいぬししゃん……みんなで ゆっくち したら、もっと たのしいよ……？', '{p}呐、饲主先森……多惹小贝比酱一起油库气，不是更幸福嘛……？', '{p}Hey, Mr. Owner... taking it easy together is even happier, right...?')],
+            'plain': [
+                ('{p}ほら かいぬししゃん、おちびちゃん ゆっくち{e}！ みんなで ゆっくち しようよ！', '{p}你看呀饲主先森，小贝比酱这么能油库气{e}！大家一起油库气地生活吧！', '{p}See Mr. Owner, the little ones are so easy! Let\'s all take it easy!'),
+                ('{p}だめって いってたけど、おちびちゃん かわいいから だいじょうぶだよね{e}？', '{p}虽然之前说过不行，可小贝比酱这么可爱，饲主先森肯定会理解的吧{e}？', '{p}You said no before, but they\'re so cute it\'s okay now, right?')]},
+        'adult': {
+            'proud': [
+                ('{p}なぜ にぇ、おちびちゃん こんなに ゆっくり{e}！ かいぬしさんも ゆっくり わかってよ！', '{p}为什么捏，小贝比酱很能油库里捏{e}！饲主先生也要油库气地理解哟！', '{p}Why, the little ones are so easy! Mr. Owner should understand easily too!'),
+                ('{p}こんなに りっぱな おちびちゃん{e}、かいぬしさんだって うれしい はず{e}！', '{p}这么能油库里的好小贝比酱{e}，饲主先生看见了肯定也该高兴才对吧{e}！', '{p}With little ones this splendid, Mr. Owner ought to be delighted too!')],
+            'timid': [
+                ('{p}おちびちゃん こんなに ゆっくり してるから……かいぬしさんも わかってくれるよね？', '{p}小贝比酱这么能油库里……饲主先生也会油库气地理解{n}对吧……？', '{p}Since the little ones are so easy... Mr. Owner will understand, right...?'),
+                ('{p}ね、かいぬしさん……みんなで いっしょに ゆっくり できたら、しあわせ だよ……？', '{p}呐、饲主先生……大家一起热热闹闹地油库里，不是更幸福吗……？', '{p}Hey, Mr. Owner... wouldn\'t taking it easy all together be so happy...?')],
+            'plain': [
+                ('{p}ほら かいぬしさん、おちびちゃん とっても ゆっくり{e}！ みんなで ゆっくり しようよ！', '{p}你看呀饲主先生，小贝比酱这么能油库里{e}！饲主先生也一起油库里吧！', '{p}Look Mr. Owner, the little ones are so easy! Let\'s all take it easy!'),
+                ('{p}まえは だめって いってたけど、こんなに かわいいから いいよね{e}？', '{p}虽然之前说不准生，可小贝比酱这么可爱这么乖，饲主先生会理解的吧{e}？', '{p}You forbade it before, but they\'re so cute it must be fine now, right?')]},
+    },
+    'sukkiri_boast_wait': {
+        'baby': {
+            'proud': [('{c}？ なんで ほめて くれにゃいの？', '{c}？为什么还不夸夸小贝比酱捏？', '{c}? Why no pwaise yet?')],
+            'timid': [('{c}……かいぬちしゃん、おこっちぇにゃいよね……？', '{c}……饲主先森，怎么不说话捏……？', '{c}... Mr. Owner, not mad, wight...?')],
+            'plain': [('{c}？ かいぬちしゃん、ゆっくち ちてにゃいの？', '{c}？饲主先森，怎么不笑捏？', '{c}? Mr. Owner, why not smiling?')]},
+        'juvenile': {
+            'proud': [('{p}あれ？ なんで ほめて くれにゃいの{e}？ もっと ゆっくち してよ！', '{p}咦……？饲主先森怎么不夸夸小贝比酱呀{e}？不是要一起油库气吗？', '{p}Huh? Why aren\'t you praising the little ones? Take it easy!')],
+            'timid': [('{p}あれ……かいぬししゃん わらって くれにゃい……だめだったのかにゃ……？', '{p}那个……饲主先森怎么不笑呀……小贝比酱哪里不够油库气吗……？', '{p}Um... Mr. Owner isn\'t smiling... was it not okay...?')],
+            'plain': [('{p}えっ、かいぬししゃん どうちたの{e}？ おちびちゃん ゆっくち してるのに……', '{p}诶……饲主先森怎么不说话捏{e}？小贝比酱明明很能油库气呀……', '{p}Eh, what\'s wrong Mr. Owner? The little ones are taking it easy...')]},
+        'adult': {
+            'proud': [('{p}あれ？ なんで ほめて くれないの{e}？ いっしょに ゆっくり しようよ！', '{p}咦……？饲主先生怎么不夸夸小贝比酱呀{e}？不是要一起油库里吗？', '{p}Huh? Why aren\'t you praising them? Let\'s take it easy together!')],
+            'timid': [('{p}あの……かいぬしさん わらって くれない……やっぱり だめだったの……？', '{p}那个……饲主先生怎么不笑呀……小贝比酱哪里不够油库里吗……？', '{p}Um... Mr. Owner isn\'t smiling... wasn\'t it okay after all...?')],
+            'plain': [('{p}えっ、かいぬしさん どうしたの{e}？ おちびちゃん こんなに ゆっくり してるのに……', '{p}诶……饲主先生怎么不说话捏{e}？小贝比酱明明很能油库里呀……', '{p}Eh, what is it Mr. Owner? The little ones are taking it so easy...')]},
+    },
+    'sukkiri_boast_praised': {
+        'baby': {
+            'proud': [('{c}♪ やっちゃー！ ほめられちゃ！ かいぬちしゃん ゆっくち！', '{c}♪ 太好惹！被夸夸惹！饲主先森最能油库气！', '{c}! Yay! Got pwaised! Mr. Owner is so easy!')],
+            'timid': [('{c}♪ よかったぁ……おちびちゃん ほめられちゃ……', '{c}♪ 太好惹……饲主先森喜欢小贝比酱……', '{c}! Yay... Mr. Owner likes the little ones...')],
+            'plain': [('{c}♪ かいぬちしゃん わかって くれちゃ！ いっしょに ゆっくち！', '{c}♪ 饲主先森理解惹！大家一起油库气！', '{c}! Mr. Owner understood! Take it easy togevew!')]},
+        'juvenile': {
+            'proud': [('{p}やっぱり{e}！ かいぬししゃん いちばん ゆっくち{e}！ おちびちゃんも うれちいって！', '{p}我就知道{e}！饲主先森果然最能油库气惹，小贝比酱也被夸夸惹{e}！', '{p}I knew it! Mr. Owner is the easiest! The little ones are happy too!')],
+            'timid': [('{p}ゆぅ……よかったぁ！ かいぬししゃん おちびちゃん ほめて くれちゃ……しあわせ……', '{p}油呜……太好惹，饲主先森真的夸夸小贝比酱惹……好幸胡……', '{p}Yuu... thank goodness! Mr. Owner really praised the little ones... so happy...')],
+            'plain': [('{p}わぁい{e}！ かいぬししゃんも わかって くれちゃ！ みんなで ゆっくち しようね！', '{p}太好惹{e}！饲主先森也觉得小贝比酱很能油库气捏，大家一起油库气吧！', '{p}Yay! Mr. Owner understands too! Let\'s all take it easy together!')]},
+        'adult': {
+            'proud': [('{p}やっぱり{e}！ かいぬしさん いちばん ゆっくり{e}！ おちびちゃんも よろこんでる{e}！', '{p}我就知道{e}！饲主先生果然最能油库里啦，小贝比酱也被夸夸了{e}！', '{p}I knew it! Mr. Owner is the easiest! The little ones are thrilled too!')],
+            'timid': [('{p}ゆぅ……よかったぁ！ かいぬしさん おちびちゃん ほめて くれた……しあわせ……', '{p}油呜……太好了，饲主先生真的夸夸小贝比酱了……好幸福……', '{p}Yuu... thank goodness! Mr. Owner really praised the little ones... so happy...')],
+            'plain': [('{p}わぁい{e}！ かいぬしさんも わかって くれた！ みんなで ゆっくり しようね！', '{p}太好啦{e}！饲主先生也觉得小贝比酱很能油库里捏，一起油库里吧！', '{p}Yay! Mr. Owner understands too! Let\'s all take it easy together!')]},
+    },
+    'sukkiri_boast_shock': {
+        'baby': {
+            'proud': [('{c}？！ な、なんで おこるの……おちびちゃん かわいいのに……ぐすっ！', '{c}？！为、为什么生气呀……小贝比酱明明这么可爱……呜！', '{c}?! W-why mad... little ones are so cute... sniff!')],
+            'timid': [('{c}！ ひゃぅ……おこらないで、{nb} わかんなかったよぉ……！', '{c}！呀呜……不要骂{nb}，{nb}不知道错了呀……！', '{c}! Eek... don\'t be mad, {nb} didn\'t know...!')],
+            'plain': [('{c}？！ かいぬちしゃん おこっちぇる……ごめんにゃさい……！', '{c}？！饲主先森真的生气惹……对不起……！', '{c}?! Mr. Owner is mad... sowwy...!')]},
+        'juvenile': {
+            'proud': [('{p}ゆっ？！ な、なんで おこるの{e}……よろこんで くれるって おもっちゃんのに……！', '{p}油？！为、为什么生气惹呀{e}……小贝比酱这么可爱，{n}以为饲主先森会开心的……呜！', '{p}Yu?! W-why are you mad?! {n} thought Mr. Owner would be happy...!')],
+            'timid': [('{p}ひゃぅっ！ ごめんにゃさい、おちびちゃん かわいいから いいって おもっちゃ……！', '{p}呀呜呜！为、为什么骂{n}呀……小贝比酱好乖的……对不起，不要生气嘛……', '{p}Eeeek! Sorry, {n} thought it was okay because they\'re so cute...!')],
+            'plain': [('{p}ゆぅっ？！ ほんとに だめだったの……ごめんにゃさい、かいぬししゃん……！', '{p}油呜？！对、对不起……{n}以为小贝比酱这么能油库气，饲主先森就会原谅的……', '{p}Yuu?! It really wasn\'t okay... I\'m sorry, Mr. Owner...!')]},
+        'adult': {
+            'proud': [('{p}ゆっ？！ な、なんで おこるの{e}……よろこんで くれるって おもったのに……！', '{p}油？！为、为什么生气了呀{e}……小贝比酱明明这么可爱，{n}以为饲主先生会开心的……呜！', '{p}Yu?! W-why are you angry?! {n} thought Mr. Owner would be happy...!')],
+            'timid': [('{p}ひゃぅっ！ ごめんなさい、おちびちゃん かわいいから いいって おもったの……！', '{p}呀呜呜！为、为什么骂{n}呀……小贝比酱很乖的……对不起，不要生气嘛……', '{p}Eeeek! I\'m sorry, {n} thought it was fine since the little ones are so cute...!')],
+            'plain': [('{p}ゆぅっ？！ ほんとに だめだったの……ごめんなさい、かいぬしさん……！', '{p}油呜？！对、对不起……{n}以为小贝比酱这么能油库里，饲主先生就会原谅的……', '{p}Yuu?! It really was forbidden... I\'m sorry, Mr. Owner...!')]},
+    },
 }
 
 SEVERANCE_BASIS = 'wp-sever-voice: stat-driven severance reactions for driven-out children and witnessing siblings; project-original wording, unvoiced'
@@ -1860,6 +2011,12 @@ def main():
         for event, tiers in RULE_AWE.items():
             for tier, frame in tiers.items():
                 make(sp, tier, event, frame, context(sp, tier), lines, RULE_AWE_BASIS, prefix='w1_')
+        for event, tiers in RULE_BOAST.items():
+            for tier, variants in tiers.items():
+                ctx = context(sp, tier)
+                for vi, (variant, frames) in enumerate(variants.items(), 1):
+                    for fi, frame in enumerate(frames, 1):
+                        make(sp, tier, event, frame, ctx, lines, RULE_BOAST_BASIS, prefix=f'b{vi}_{fi}_', variant=variant)
         for tier, frame in PROTECTION_TAUNT_TIERS.items():
             if tier == 'adult' and sp in ('reimu', 'marisa', 'alice', 'chen', 'patchouli'):
                 continue  # their adult taunt is the older line above; the tic-bearing Myon keys and the two predators had none

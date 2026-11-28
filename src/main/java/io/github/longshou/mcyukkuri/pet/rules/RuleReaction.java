@@ -137,4 +137,25 @@ public final class RuleReaction {
         }
         return new Beat("hold_shy", YukkuriAction.DROOP, "shy_peek", event, HOLD_TICKS, false);
     }
+
+    /**
+     * Stat-driven bystander performance when a same-owner pet sees or hears a housemate caught or punished in front of the owner.
+     * {@code toward} is always true: the bystander first flinches facing the victim, then glances nervously toward the owner.
+     */
+    public static Beat bystander(boolean punished, boolean blow, int obedience, int fear, Temperament temper) {
+        if (fear >= WARY_FEAR || temper.timid() >= .65 || (blow && 1 - temper.timid() < BOLD)) {
+            YukkuriAction action = blow || fear >= 35 ? YukkuriAction.THUNDER_COWER : YukkuriAction.TREMBLE;
+            String face = blow && fear >= WARY_FEAR ? "horrified" : "afraid";
+            return new Beat("bystander_cower", action, face, "rule_bystander_fear", 60, true);
+        }
+        if (1 - temper.timid() >= BOLD && obedience < OBEDIENT) {
+            return new Beat("bystander_gulp", YukkuriAction.NERVOUS, punished ? "confused_small" : "surprise",
+                    "rule_bystander_gulp", SHORT, true);
+        }
+        if (obedience >= OBEDIENT || temper.attached() >= .55) {
+            return new Beat("bystander_vow", punished ? YukkuriAction.DROOP : YukkuriAction.SHY,
+                    punished ? "side_teary" : "confused_small", "rule_bystander_good", 60, true);
+        }
+        return new Beat("bystander_wary", YukkuriAction.SHY, "confused_small", "rule_bystander_good", SHORT, true);
+    }
 }

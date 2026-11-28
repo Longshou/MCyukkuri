@@ -68,12 +68,14 @@ public final class Discovery {
         for (var npc : nearbyStaff(parent)) if (HumanSight.sees(npc, parent)) heard.add(npc.getId());
     }
 
-    /** A confession stays open through its whole penance (bow, lying low, the owner's answer); the other answers last ten seconds. */
-    private static int window(ArcStyle response) { return response == ArcStyle.CONFESS ? CONFESSION_WINDOW : RESPONSE_WINDOW; }
+    /** A confession or boast stays open through its whole performance (show, wait, owner's answer); other answers last ten seconds. */
+    private static int window(ArcStyle response) {
+        return response == ArcStyle.CONFESS || response == ArcStyle.BOAST ? CONFESSION_WINDOW : RESPONSE_WINDOW;
+    }
 
-    /** The goal ended: an exchange that never reached its words, or a confession whose penance did not get to its answer, is dropped. */
+    /** The goal ended: an exchange that never reached its words, or a confession/boast whose performance did not get to its answer, is dropped. */
     void endApproach(YukkuriEntity parent) {
-        if (exchange != null && (spokeAt < 0 || style == ArcStyle.CONFESS)) abandon(parent);
+        if (exchange != null && (spokeAt < 0 || style == ArcStyle.CONFESS || style == ArcStyle.BOAST)) abandon(parent);
     }
 
     /**
@@ -87,6 +89,21 @@ public final class Discovery {
         exchange = null;
         var proof = new BadgeConduct.Evidence(new BadgeConduct.Verdict("confession", level.getDayTime() / 24000 + 1, owner.getUUID()),
                 parent.getUUID(), parent.getUUID(), "confession");
+        publish(parent, entry, entry.spoken(proof, level.getGameTime()), null);
+    }
+
+    /**
+     * The owner answered the boasting parent (praised, scolded, hit, or ignored): the brood is now discovered via the parent's own
+     * proud introduction of its young.
+     */
+    void boasted(YukkuriEntity parent, LivingEntity owner, YukkuriEntity young) {
+        var entry = exchange;
+        if (entry == null || spokeAt < 0 || style != ArcStyle.BOAST || entry.verdict() != null) return;
+        var level = (ServerLevel) parent.level();
+        exchange = null;
+        UUID subject = young != null ? young.getUUID() : introduced != null ? introduced : parent.getUUID();
+        var proof = new BadgeConduct.Evidence(new BadgeConduct.Verdict("boast_introduction", level.getDayTime() / 24000 + 1, owner.getUUID()),
+                parent.getUUID(), subject, "boast_introduction");
         publish(parent, entry, entry.spoken(proof, level.getGameTime()), null);
     }
 
@@ -240,13 +257,14 @@ public final class Discovery {
             var parent = entry.parents.get(i);
             if (!(level.getEntity(parent.id()) instanceof YukkuriEntity pet) || !pet.pet().isPet()
                     || !HumanSight.sees(judge, pet) || pet.isPanicking() || pet.hurtTime > 0) continue;
-            if (parent.style() == ArcStyle.DEFIANT && PetScenes.ready(pet, "brood_defiance", 1200)
-                    && PetScenes.say(pet, YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", judge)) continue;
+            if (parent.style() == ArcStyle.BOAST && !pet.pet().conscience().payingTo(judge)
+                    && PetScenes.ready(pet, "brood_boast", 1200)
+                    && PetScenes.say(pet, YukkuriAction.PROUD, "smug", "sukkiri_boast", judge)) continue;
             if (level.getEntity(entry.parents.get(1-i).id()) instanceof YukkuriEntity partner && partner.isAlive()
                     && partner.pet().isPet() && partner.pet().ownedBy(pet.pet().owner()) && pet.distanceToSqr(partner) <= 64
                     && pet.hasLineOfSight(partner) && pet.pet().obedience() < partner.pet().obedience()
                     && pet.life().personality().temperament().is(Gate.HARSH)
-                    && PetScenes.say(pet, YukkuriAction.TURN, "pursed", "partner_blame", partner)) {
+                    && PetScenes.say(pet, YukkuriAction.TURN, "down_angry", "partner_blame", partner)) {
                 partner.showReaction("surprise", "", FaceTier.Tier.SHORT);
                 GameplayLog.event(pet, "rules", "arc spoke=partner_blame brood={} partner={}", entry.brood, partner.getUUID());
             }

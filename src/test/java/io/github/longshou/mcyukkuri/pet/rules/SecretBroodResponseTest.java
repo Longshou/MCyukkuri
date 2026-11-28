@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 class SecretBroodResponseTest {
     @Test void overlappingTraitsResolveInOrderAtTheirBoundaries() {
         assertEquals(ArcStyle.NAIVE, choose(43, 10, 90, 80, 39));
-        assertEquals(ArcStyle.DEFIANT, choose(44, 10, 90, 80, 39));
+        assertEquals(ArcStyle.BOAST, choose(44, 10, 90, 80, 39));
         assertEquals(ArcStyle.CONFESS, choose(56, 10, 90, 56, 20));
         assertEquals(ArcStyle.CONFESS, choose(70, 10, 55, 30, 60));
-        assertEquals(ArcStyle.DEFIANT, choose(70, 10, 90, 30, 39));
+        assertEquals(ArcStyle.BOAST, choose(70, 10, 90, 30, 39));
         assertEquals(ArcStyle.LIE, choose(70, 10, 90, 30, 40));
         assertEquals(ArcStyle.HIDE, choose(55, 75, 55, 60, 80));
     }

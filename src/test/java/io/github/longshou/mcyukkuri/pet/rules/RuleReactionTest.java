@@ -1,5 +1,6 @@
 package io.github.longshou.mcyukkuri.pet.rules;
 
+import static io.github.longshou.mcyukkuri.pet.rules.RuleReaction.bystander;
 import static io.github.longshou.mcyukkuri.pet.rules.RuleReaction.choose;
 import static io.github.longshou.mcyukkuri.pet.rules.RuleReaction.hold;
 import static io.github.longshou.mcyukkuri.pet.rules.RuleReaction.witness;
@@ -137,6 +138,44 @@ class RuleReactionTest {
                             assertFalse(beat.event().isEmpty(), beat.name());
                             assertFalse(BANNED_FACES.contains(beat.face()), beat.name() + ":" + beat.face());
                             assertTrue(beat.ticks() >= 45, beat.name());
+                        }
+    }
+
+    @Test void bystanderBeatsSplitByStatsAndNeverUseBannedFaces() {
+        var boldCaught = bystander(false, false, 30, 0, BOLD);
+        assertEquals("bystander_gulp", boldCaught.name());
+        assertEquals(YukkuriAction.NERVOUS, boldCaught.action());
+        assertEquals("surprise", boldCaught.face());
+        assertEquals("rule_bystander_gulp", boldCaught.event());
+        assertTrue(boldCaught.toward());
+
+        var timidBlow = bystander(true, true, 70, 30, TIMID);
+        assertEquals("bystander_cower", timidBlow.name());
+        assertEquals(YukkuriAction.THUNDER_COWER, timidBlow.action());
+        assertEquals("horrified", timidBlow.face());
+        assertEquals("rule_bystander_fear", timidBlow.event());
+
+        var steadyAttached = new Temperament(60, 70, 55, 80, 60);
+        var attachedPunished = bystander(true, false, 75, 0, steadyAttached);
+        assertEquals("bystander_vow", attachedPunished.name());
+        assertEquals("side_teary", attachedPunished.face());
+        assertEquals("rule_bystander_good", attachedPunished.event());
+
+        var wary = bystander(false, false, 40, 0, new Temperament(50, 50, 45, 40, 50));
+        assertEquals("bystander_wary", wary.name());
+        assertEquals("confused_small", wary.face());
+        assertEquals("rule_bystander_good", wary.event());
+
+        for (boolean punished : new boolean[] {false, true})
+            for (boolean blow : new boolean[] {false, true})
+                for (int obedience : new int[] {15, 45, 75})
+                    for (int fear : new int[] {0, 25, 40})
+                        for (var temper : new Temperament[] {BOLD, TIMID, SHARP_CLINGING}) {
+                            var beat = bystander(punished, blow, obedience, fear, temper);
+                            assertFalse(beat.event().isEmpty(), beat.name());
+                            assertFalse(BANNED_FACES.contains(beat.face()), beat.name() + ":" + beat.face());
+                            assertTrue(beat.ticks() >= 55, beat.name());
+                            assertTrue(beat.toward(), beat.name());
                         }
     }
 

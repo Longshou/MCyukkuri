@@ -148,9 +148,8 @@ public final class ConscienceGoal extends Goal {
         if (!born) return mother && pet.pet().discovery().leavesNest(pet, family);
         return switch (style) {
             case CONFESS -> true;
-            case DEFIANT -> pet.distanceToSqr(owner) <= 16;
+            case BOAST, NAIVE -> child != null && pet.distanceToSqr(owner) <= 144;
             case LIE -> child != null && pet.distanceToSqr(child) <= 16;
-            case NAIVE -> child != null && pet.distanceToSqr(owner) <= 144;
             case HIDE -> child != null;
         };
     }
@@ -170,16 +169,16 @@ public final class ConscienceGoal extends Goal {
             return;
         }
         conscience.clearAnswerHold();
-        boolean long_ = caughtStart || brood == null || style == ArcStyle.CONFESS;
+        boolean long_ = caughtStart || brood == null || style == ArcStyle.CONFESS || style == ArcStyle.BOAST;
         pet.duty().take(Duty.Kind.RULES, long_ ? PENANCE_TICKS : APPROACH_TICKS, 600, caughtStart ? "caught" : brood == null ? "confess" : style.name());
         if (caughtStart) {
             // Stop what it was doing (the song ends at once) and freeze: the penance owns the face, the clip and the line from here.
             pet.dailyLife().stop();
-            begin(Penance.caught(pet, owner, conscience.guiltRule()));
+            begin(Penance.caught(pet, owner, conscience.guiltRule(), conscience.guiltRuleEnum()));
             return;
         }
         if (brood == null) return;
-        if (style == ArcStyle.LIE || style == ArcStyle.CONFESS || style == ArcStyle.NAIVE)
+        if (style == ArcStyle.LIE || style == ArcStyle.CONFESS || style == ArcStyle.BOAST || style == ArcStyle.NAIVE)
             pet.pet().discovery().beginExchange(pet, brood, APPROACH_TICKS);
         switch (style) {
             case HIDE -> {
@@ -198,10 +197,6 @@ public final class ConscienceGoal extends Goal {
                     stand = Reactions.escapeStand(pet, child, 3, Set.of());
                 }
                 if (stand == null) finish(Duty.End.DONE, "denial_ended");
-            }
-            case DEFIANT -> {
-                if (PetScenes.ready(pet, "brood_defiance", 1200)) say(YukkuriAction.PUFF, "cheek_puff", "sukkiri_defiant", owner);
-                finish(Duty.End.DONE, "confronted");
             }
             default -> {}
         }
@@ -291,21 +286,26 @@ public final class ConscienceGoal extends Goal {
             var conscience = pet.pet().conscience();
             if (brood == null) {
                 conscience.caught("confession");
-                begin(Penance.confession(pet, owner, conscience.guiltRule(), "rule_confess", () -> {}));
+                begin(Penance.confession(pet, owner, conscience.guiltRule(), conscience.guiltRuleEnum(), "rule_confess", () -> {}));
                 return;
             }
-            if (style == ArcStyle.CONFESS) {
+            if (style == ArcStyle.CONFESS || style == ArcStyle.BOAST) {
                 SurfaceApproach.halt(pet);
                 // The opening line must be sayable now: a mother that spoke a moment ago (greeting the owner on the way) stands
-                // facing them until the speech gap is over, instead of giving the confession up. The goal's own lapse rules still end it.
+                // facing them until the speech gap is over, instead of giving the exchange up. The goal's own lapse rules still end it.
                 long free = pet.nextSpeech(2);
                 if (free > pet.level().getGameTime()) {
                     pet.getLookControl().setLookAt(owner, 30, 30);
                     GameplayLog.limited(pet, "rules", "arc_wait.speech_gap", 100, "arc waiting reason=speech_gap until={} owner={}", free, owner.getUUID());
                     return;
                 }
-                String event = bearer ? "confess" : "confess_mate";
-                var opening = Penance.confession(pet, owner, "secret_brood", event, () -> pet.pet().discovery().admitted(pet, owner));
+                String event = style == ArcStyle.BOAST ? "sukkiri_boast" : bearer ? "confess" : "confess_mate";
+                var shownChild = child;
+                var opening = style == ArcStyle.BOAST
+                        ? Penance.boast(pet, owner, shownChild, "secret_brood", HouseRule.NO_SUKKIRI,
+                                () -> pet.pet().discovery().boasted(pet, owner, shownChild))
+                        : Penance.confession(pet, owner, "secret_brood", HouseRule.NO_SUKKIRI, event,
+                                () -> pet.pet().discovery().admitted(pet, owner));
                 if (opening.voiced()) {
                     spoke(event);
                     begin(opening);
@@ -329,8 +329,8 @@ public final class ConscienceGoal extends Goal {
 
     private void spoke(String event) {
         GameplayLog.event(pet, "rules", "arc spoke={} brood={} owner={}", event, brood.brood, owner.getUUID());
-        if (style != ArcStyle.DEFIANT)
-            pet.pet().discovery().spoke(pet, brood, style, owner, style == ArcStyle.NAIVE ? child.getUUID() : null);
+        pet.pet().discovery().spoke(pet, brood, style, owner,
+                (style == ArcStyle.NAIVE || style == ArcStyle.BOAST) && child != null ? child.getUUID() : null);
     }
 
     private void finish(Duty.End end, String reason) {

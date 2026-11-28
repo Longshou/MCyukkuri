@@ -151,10 +151,13 @@ public final class NativeDialogue {
                  // The pet's awe of its owner: rule-change answers, witness reactions, holding back, penance beats and secret-brood responses.
                  "rule_tighten", "rule_tighten_sad", "rule_cower", "rule_sulk", "rule_yield", "rule_loosen", "rule_grateful",
                  "rule_witness_envy", "rule_witness_wary",
+                 "rule_bystander_fear", "rule_bystander_gulp", "rule_bystander_good",
                  "rule_hold", "rule_hold_song", "rule_hold_eat", "rule_hold_yard", "rule_hold_bully",
                  "rule_gasp", "rule_mutter", "rule_beg", "rule_vow", "rule_excuse", "rule_wait",
                  "rule_thanks", "rule_accept", "rule_withdraw", "rule_confess", "rule_guilty_shy",
-                 "confess", "confess_mate", "sukkiri_hide", "sukkiri_lie", "sukkiri_naive", "sukkiri_defiant", "partner_blame",
+                 "confess", "confess_mate", "sukkiri_hide", "sukkiri_lie", "sukkiri_naive",
+                 "sukkiri_boast", "sukkiri_boast_ask", "sukkiri_boast_wait", "sukkiri_boast_praised", "sukkiri_boast_shock",
+                 "partner_blame",
                  // Treats, requests to the owner, mood, walks on the lead and the swaddle answer something the owner just did or ask for something now.
                  "snack_eat", "snack_greedy", "snack_refuse", "ask_food", "ask_water", "ask_snack", "ask_play", "ask_walk", "request_thanks", "request_sulk", "mood_good",
                  "human_food_ask", "human_food_demand", "food_complain", "food_delight", "food_grudge",

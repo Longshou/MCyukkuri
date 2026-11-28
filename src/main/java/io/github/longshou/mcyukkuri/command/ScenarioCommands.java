@@ -261,6 +261,8 @@ public final class ScenarioCommands {
                 .then(Commands.literal("house_rules").then(Commands.argument("target", EntityArgument.entity())
                         .then(Commands.argument("mask", IntegerArgumentType.integer(0, (1 << HouseRule.values().length) - 1))
                                 .executes(ScenarioCommands::houseRules))))
+                .then(Commands.literal("house_sync").then(Commands.argument("target", EntityArgument.entity())
+                        .executes(ScenarioCommands::houseSync)))
                 .then(Commands.literal("tool_operator").requires(source->source.hasPermission(2))
                         .then(Commands.literal("enter").executes(context->toolOperator(context.getSource(),true)))
                         .then(Commands.literal("move").executes(context->moveToolOperator(context.getSource())))
@@ -606,6 +608,13 @@ public final class ScenarioCommands {
         }
         conscience.tell(owner);
         return conscience.told() ? 1 : 0;
+    }
+
+    private static int houseSync(CommandContext<CommandSourceStack> c) throws CommandSyntaxException {
+        var pet = yukkuri(c, "target");
+        if (pet == null || !(pet.pet().presentOwner() instanceof FakePlayer owner) || !owner.getUUID().equals(TOOL_OPERATOR)) return 0;
+        owner.lookAt(EntityAnchorArgument.Anchor.EYES, pet.getEyePosition());
+        return pet.pet().conscience().syncNearby(owner);
     }
 
     private static int selectToolOperatorSlot(CommandContext<CommandSourceStack> c) {

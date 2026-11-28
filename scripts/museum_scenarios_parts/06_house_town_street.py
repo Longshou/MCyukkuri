@@ -359,9 +359,10 @@ _PENANCE_BEAT = re.compile(r'\[rules\][^\n]*? t=(\d+) [^\n]*penance beat=(\w+) f
 # Faces of pleasure and pout: nothing between the catch (or the bow) and the owner's answer may show one.
 _PLEASED_OR_POUTING = {'happy', 'open_smile', 'satisfied', 'smug', 'closed_smile', 'pursed', 'angry', 'cheek_puff', 'puff', 'sneer',
                        'hmph', 'blank_happy', 'flushed_smile', 'sukkiri_grin', 'sukkiri_smug'}
-_PENANCE_LINES = {'startle': '-|rule_gasp', 'bow': 'confess|confess_mate|rule_confess', 'mutter': 'rule_mutter', 'afraid': '-', 'plea': 'rule_beg', 'apology': 'caught_guilty',
+_PENANCE_LINES = {'startle': '-|rule_gasp', 'bow': 'confess|confess_mate|rule_confess', 'mutter': 'rule_mutter', 'afraid': '-|sukkiri_boast_shock', 'plea': 'rule_beg', 'apology': 'caught_guilty',
                   'excuse': 'rule_excuse', 'vow': 'rule_vow', 'settle': '-|rule_accept|rule_withdraw',
-                  'prostrate': '-', 'shiver': '-|rule_wait', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'rule_thanks', 'withdraw': '-',
+                  'prostrate': '-', 'shiver': '-|rule_wait', 'stiff': '-', 'punished': 'scolded|hurt_plea', 'forgiven': 'rule_thanks|sukkiri_boast_praised', 'withdraw': '-',
+                  'boast_show': 'sukkiri_boast', 'boast_expect': 'sukkiri_boast_ask', 'boast_wait': '-', 'boast_puzzle': '-|sukkiri_boast_wait', 'boast_uneasy': '-',
                   # The answer came through the child: the struggle, how it ends, and the silent ache that follows.
                   'torn': '-', 'shield': 'protect_taunt', 'plead': 'plea_spare', 'submit': '-', 'flee': '-', 'ache': '-'}
 
@@ -387,7 +388,7 @@ def _penance_problem(beats, first, last):
             return f'Beat {name} at {tick} carries line {line}, expected {_PENANCE_LINES[name]}'
         if line != '-' and spoke != 'true':
             return f'Beat {name} at {tick} line {line} was not voiced'
-        if name not in ('mutter', 'settle', 'forgiven') and shown in _PLEASED_OR_POUTING:
+        if name not in ('mutter', 'settle', 'forgiven', 'boast_show', 'boast_expect', 'boast_wait') and shown in _PLEASED_OR_POUTING:
             return f'Beat {name} at {tick} shows {shown}'
     return None
 
@@ -406,31 +407,56 @@ def _pleased_between(trace, start, end, pet=None):
     return None
 
 
+def _bystander_check(window, expected_beat, expected_event):
+    """Same-owner bystander learns obedience/fear/caution and plays its stat-driven flinch+glance+line."""
+    learned = re.findall(rf'\[rules\][^\n]*uuid=(\S+) [^\n]*bystander learned event={expected_event} rule=\S+ target=\S+ via=(?:SAW|HEARD) ob=(\d+) -> (\d+) fear=(\d+) -> (\d+) caution=(\d+)', window)
+    if not learned:
+        return f'Missing bystander learned log for event={expected_event}'
+    b_uuid, ob0, ob1, f0, f1, caution = learned[0]
+    if int(ob1) <= int(ob0) or int(f1) <= int(f0) or int(caution) <= 0:
+        return f'Bystander must gain obedience, fear and caution: {learned[0]}'
+    react = re.search(rf'\[rules\][^\n]*uuid={b_uuid} [^\n]*bystander reaction event={expected_event} rule=\S+ beat={expected_beat} face=(\S+) line=(\S+) shown=true', window)
+    if not react:
+        return f'Missing bystander reaction beat={expected_beat} for {b_uuid}'
+    if not re.search(rf'\[rules\][^\n]*uuid={b_uuid} [^\n]*bystander speech event={expected_event} beat={expected_beat} [^\n]*spoken=true', window):
+        return f'Bystander beat {expected_beat} was never spoken'
+    seen = re.search(rf'\[badge\][^\n]*uuid={b_uuid} [^\n]*beat=rule_{expected_beat} face=(\S+) declared=(\S+)', window)
+    if not seen or seen[1] != seen[2]:
+        return f'Bystander face mismatch for {expected_beat}: {seen and seen.groups()}'
+    return None
+
+
 def _song_discipline(window, trace):
-    changes = re.findall(r'\[rules\][^\n]* obedience reason=(caught|scold) [^\n]*shift=(-?\d+) -> (-?\d+)[^\n]*closeness=(-?\d+) fear=(\d+)', window)
+    catch = re.search(r'\[rules\][^\n]*uuid=(\S+) t=(\d+) [^\n]*caught rule=no_singing evidence=sight', window)
+    if not catch:
+        return 'Missing caught rule=no_singing'
+    victim_id, catch_tick = catch[1], int(catch[2])
+    changes = re.findall(rf'\[rules\][^\n]*uuid={victim_id} [^\n]* obedience reason=(caught|scold) [^\n]*shift=(-?\d+) -> (-?\d+)[^\n]*closeness=(-?\d+) fear=(\d+)', window)
     if len(changes) != 2 or [row[0] for row in changes] != ['caught', 'scold']:
         return f'Expected one catch followed by one reprimand, got {changes}'
     caught, scold = changes
     if any(int(row[2]) - int(row[1]) != 4 for row in changes) or caught[2] != scold[1] or caught[3] != scold[3] or int(scold[4]) <= int(caught[4]):
         return f'Wrong learning, closeness or fear after catch and reprimand: {changes}'
     # The song stops at the catch and nothing pleased follows: no completed session, no welcome, no stranger retreat after it.
-    catch = re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*caught rule=no_singing evidence=sight', window)
     after = '\n'.join(line for line in window[catch.end():].splitlines()
-                      if (stamp := re.search(r' t=(\d+) ', line)) and int(stamp[1]) <= int(catch[1]) + 400)
+                      if f'uuid={victim_id} ' in line and (stamp := re.search(r' t=(\d+) ', line)) and int(stamp[1]) <= catch_tick + 400)
     stopped = re.search(r'\[daily\][^\n]* t=(\d+) [^\n]*session stopped kind=SING', after)
-    if not stopped or int(stopped[1]) - int(catch[1]) > 3:
+    if not stopped or int(stopped[1]) - catch_tick > 3:
         return 'The song must stop within three ticks of the catch'
     for pattern in (r'session result kind=SING', r'owner return approach', r'human retreat', r'owner return greeted'):
         if re.search(pattern, after):
             return f'After the catch the pet must not show {pattern}'
     # A bold, disobedient pet that does not fear its owner mutters once, stands stiff, then turns afraid when scolded and takes it.
-    beats = _penance_beats(window, 'CAUGHT', 'no_singing')
+    beats = _penance_beats(window, 'CAUGHT', 'no_singing', victim_id)
     problem = _penance_problem(beats, ['startle', 'mutter', 'excuse', 'stiff'], ['punished'])
     if problem:
         return problem
     if [b[1] for b in beats[-3:]] != ['afraid', 'punished', 'settle'] or [b[1] for b in beats].count('mutter') != 1:
         return f'The scold must turn the stiff pet afraid before it takes the punishment: {[b[1] for b in beats]}'
-    return _pleased_between(trace, int(catch[1]), _answer_tick(window))
+    bystander_err = _bystander_check(window, 'bystander_gulp', 'caught')
+    if bystander_err:
+        return bystander_err
+    return _pleased_between(trace, catch_tick, _answer_tick(window), victim_id)
 
 
 def _permitted_meal(window):
@@ -441,8 +467,12 @@ def _permitted_meal(window):
 
 
 _rule_pet = sel('rule_pet')
-_rule_songs = _rule_owner(3) + [(12, f'yukkuri scenario owner_at {_rule_pet} away'),
-                               (12, 'scoreboard players set #rule_scold museum 0'), (12, 'scoreboard players set #rule_armed museum 0')]
+_rule_bystander = sel('rule_bystander')
+_rule_songs = _rule_owner(3) + [(11, f'data modify entity {_rule_bystander} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID'),
+                               (12, f'yukkuri scenario owner_at {_rule_pet} watch'),
+                               (12, f'yukkuri scenario house_rules {_rule_bystander} 3'),
+                               (13, f'yukkuri scenario owner_at {_rule_pet} away'),
+                               (13, 'scoreboard players set #rule_scold museum 0'), (13, 'scoreboard players set #rule_armed museum 0')]
 # The observer returns during an actual song (the pet has by then broken the rule). The catch is the pet's to show: the scold comes
 # about 280 ticks after the catch is on record (the startle, the mutter and the small excuse are over, the pet stands stiff), then the
 # observer stays through the rest of the penance (the owner's answer, the settled posture) and leaves 560 ticks after the scold.
@@ -461,11 +491,14 @@ _rule_songs.append((6450, 'yukkuri scenario tool_operator leave'))
 
 for _sid, _title, _hint, _control in (
         ('rule_song_hold', '禁止唱歌：想唱又憋回去', '在照料菜单的家规中勾选「不准唱歌」，面对灵梦，看它露出忍住的表情并乖乖自言自语憋回去。', 95),
-        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌惊住，随后小声辩嘟、绷着脸认错发抖，等你发落。摸摸它是含泪笑着原谅，冷言训斥或打一下是惩罚，不理它它委屈退开。', 20)):
+        ('rule_song_sneak', '禁止唱歌：主人不在偷偷唱', '勾选「不准唱歌」，离开院子。听到歌时回来面对灵梦：它被抓到会立刻停歌惊住，随后小声辩嘟、绷着脸认错发抖，等你发落。旁观的大胆魔理沙看见同伴被抓挨训也会咽口水老实下来，小幅提升服从度与恐惧。', 20)):
+    _extra_actors = ([yk('marisa', -2, 1, 'rule_bystander', label='旁观的大胆同伴', boldness=80, self_control=35,
+                         nutrition=85, extra='YukkuriDailyLife:{Boredom:0,Cooldown:2400}'),
+                      *own('rule_bystander'), home('rule_bystander', 0, -4)] if _sid == 'rule_song_sneak' else [])
     add(_sid, 'town', _title, _title, _hint, '约 1～3 分钟', [
         *_rule_court, yk('reimu', 0, 1, 'rule_pet', lead=True, intelligence=80, self_control=_control, boldness=85,
                           extra='YukkuriDailyLife:{Boredom:100,Affection:0,Cooldown:40}'),
-        *own('rule_pet'), home('rule_pet', 0, -4)], env=DAY, vantage=(0, 4),
+        *own('rule_pet'), home('rule_pet', 0, -4), *_extra_actors], env=DAY, vantage=(0, 4),
         smoke=dict(ticks=6500, commands=_rule_songs, verify=_song_discipline, verify_trace=True, forbid=[r'\[rules\][^\n]*caught rule=no_singing evidence=confession', r'penance abandoned'],
                    expect=[r'\[rules\][^\n]*breach rule=no_singing watched=false', r'\[rules\][^\n]*caught rule=no_singing evidence=sight'])
         if _sid == 'rule_song_sneak' else None)
@@ -499,24 +532,32 @@ def _eat_caught(window, trace):
 
 
 def _eat_struck(window, trace):
-    """A timid pet caught at the bowl and hit twice by its owner cowers and pleads, takes the blows as its punishment (no flight, no angry puff), shows the punished beat."""
-    catch = re.search(r'\[rules\][^\n]* t=(\d+) [^\n]*caught rule=no_eating_unasked evidence=sight', window)
-    beats = _penance_beats(window, 'CAUGHT', 'no_eating_unasked')
+    """A timid pet caught at the bowl and hit twice by its owner cowers and pleads, takes the blows as its punishment (no flight, no angry puff), shows the punished beat; a timid same-owner bystander learns and cowers."""
+    catch = re.search(r'\[rules\][^\n]*uuid=(\S+) t=(\d+) [^\n]*caught rule=no_eating_unasked evidence=sight', window)
+    if not catch:
+        return 'Missing caught rule=no_eating_unasked'
+    victim_id, catch_tick = catch[1], int(catch[2])
+    beats = _penance_beats(window, 'CAUGHT', 'no_eating_unasked', victim_id)
     problem = _penance_problem(beats, ['startle', 'plea'], ['punished'])
     if problem:
         return problem
-    if not re.search(r'penance begin entrance=CAUGHT [^\n]*posture=cower ', window):
+    if not re.search(rf'uuid={victim_id} [^\n]*penance begin entrance=CAUGHT [^\n]*posture=cower ', window):
         return 'A timid pet must cower and plead (posture=cower)'
-    if not re.search(r'penance verdict=PUNISHED by=blow', window) or not re.search(r'penance end outcome=punished_blow', window):
+    if not re.search(rf'uuid={victim_id} [^\n]*penance verdict=PUNISHED by=blow', window) or not re.search(rf'uuid={victim_id} [^\n]*penance end outcome=punished_blow', window):
         return 'The blow must be the verdict and the penance must end punished_blow'
-    taken = re.findall(r'\[threat\][^\n]*struck stance=TAKEN [^\n]*cause=penance', window)
+    taken = re.findall(rf'\[threat\][^\n]*uuid={victim_id} [^\n]*struck stance=TAKEN [^\n]*cause=penance', window)
     if len(taken) != 2:
         return f'Both blows must be taken as punishment, got {len(taken)}'
-    return _pleased_between(trace, int(catch[1]), _answer_tick(window))
+    bystander_err = _bystander_check(window, 'bystander_cower', 'punished_blow')
+    if bystander_err:
+        return bystander_err
+    return _pleased_between(trace, catch_tick, _answer_tick(window), victim_id)
 
 
 def _eat_struck_commands():
     commands = _rule_owner(9) + [
+        (11, f'data modify entity {_rule_bystander} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID'),
+        (12, f'yukkuri scenario house_rules {_rule_bystander} 9'),
         (12, 'scoreboard players set #eat_armed museum 0'), (12, 'scoreboard players set #eat_blow museum 0'),
         (12, 'scoreboard players set #eat_blow2 museum 0'), (15, 'item replace block ~ ~ ~2 container.0 with minecraft:apple 1')]
     for tick in range(40, 2300, 20):
@@ -557,10 +598,12 @@ add('rule_eat_caught', 'town', '禁止擅自吃：当场被抓', '禁止擅自�
                expect=[r'\[rules\][^\n]*breach rule=no_eating_unasked watched=true', r'\[rules\][^\n]*caught rule=no_eating_unasked evidence=sight']))
 
 add('rule_eat_struck', 'town', '禁止擅自吃：被抓后挨打', '禁止擅自吃：被抓后挨打',
-    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它被你当场看见后，在照料菜单里打它一下（再打一下）：它不逃不鼓脸，吓得缩成一团、当作惩罚老实受着，服从和恐惧上升。', '约 1 分钟', [
+    '勾选「不准擅自吃东西」，把苹果放进灵梦面前的食盆，站着看它。它被你当场看见后，在照料菜单里打它一下（再打一下）：它不逃不鼓脸，吓得缩成一团老实受罚；旁边同主人的胆小魔理沙看见也会吓得缩身瞄向你、小幅提升服从与恐惧。', '约 1 分钟', [
         *_rule_court, block(0, 0, 2, 'mcyukkuri:food_bowl'),
         yk('reimu', 0, 1, 'rule_pet', lead=True, nutrition=30, self_control=20, boldness=10, attachment=80, intelligence=30),
-        *own('rule_pet'), home('rule_pet', 0, -4)],
+        *own('rule_pet'), home('rule_pet', 0, -4),
+        yk('marisa', -2, 1, 'rule_bystander', label='旁观的胆小同伴', nutrition=85, self_control=75, boldness=15, attachment=70),
+        *own('rule_bystander'), home('rule_bystander', 0, -4)],
     env=DAY, vantage=(0, 4), give=['minecraft:apple'],
     smoke=dict(ticks=2400, commands=_eat_struck_commands(), verify=_eat_struck, verify_trace=True,
                forbid=[r'penance abandoned', r'\[threat\][^\n]*struck stance=(?!TAKEN)'],
@@ -1188,6 +1231,37 @@ def _answer_child(sid, child):
     return steps
 
 
+def arc_boast_check(log, trace, mother):
+    """Bold, self-centred mother boasts proudly about her babies (no defiant talk-back), asks owner to understand, then a scold
+    shatters her naive illusion (sukkiri_boast_shock) and resolves cleanly with boast_introduction."""
+    problem = arc_response(log, 'sukkiri_boast', 'boast_introduction', mother)
+    if problem:
+        return problem
+    beats = _penance_beats(log, 'BOAST', 'secret_brood', mother)
+    problem = _penance_problem(beats, ['boast_show', 'boast_expect'], ['punished'])
+    if problem:
+        return problem
+    names = [b[1] for b in beats]
+    if names[-3:] != ['afraid', 'punished', 'settle']:
+        return f'Expected boast scold to trigger afraid (shock), punished and settle; got {names}'
+    afraid_beat = beats[-3]
+    if afraid_beat[4] != 'sukkiri_boast_shock' or afraid_beat[5] != 'true':
+        return f'Expected voiced sukkiri_boast_shock on afraid beat, got {afraid_beat}'
+    if re.search(r'sukkiri_defiant|cheek_puff', log):
+        return 'Boast branch must never use legacy defiant talk-back or cheek_puff'
+    return _pleased_between(trace, _answer_tick(log) + 2, beats[-1][0], mother)
+
+
+def _answer_boast():
+    """Owner lets the boasting mother deliver boast_show + boast_expect (~180 ticks beside owner), then scolds her."""
+    steps = [(1, 'scoreboard players set #ab_near museum 0'), (1, 'scoreboard players set #ab_done museum 0')]
+    for tick in range(20, 880, 4):
+        steps.append((tick, f'execute as {sel("pet")} at @s if entity @a[name=MuseumOperator,distance=..2.2] run scoreboard players add #ab_near museum 1'))
+        steps.append((tick + 1, f'execute if score #ab_near museum matches 45.. if score #ab_done museum matches 0 store result score #ab_done museum '
+                                f'run yukkuri scenario care_click {sel("pet")} cold'))
+    return steps
+
+
 for sid, title, description, traits, child_pos in (
     ('arc_hide', '躲在遮挡后喂孩子', '站在屏风左边等灵梦躲开，看它在另一边把食物嚼成糜喂给孩子。绕过去才有机会看清亲缘。', dict(friendliness=100), '~3.5 ~ ~1.5'),
     ('arc_lie', '孩子叫妈妈拆穿谎话', '面对母油，听它别过脸说不是自己的孩子，再看亲生孩子追来喊妈妈。', dict(intelligence=70, friendliness=20, attachment=30, self_control=45), '~3.5 ~ ~0.5'),
@@ -1195,14 +1269,17 @@ for sid, title, description, traits, child_pos in (
     ('arc_confess_pat', '坦白后摸摸孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，在照料菜单里摸摸它背后的孩子，看灵梦把这当作原谅。', dict(intelligence=80, attachment=80), '~4.5 ~ ~-5.5'),
     ('arc_confess_hit', '坦白后训打孩子', '面对聪明又依恋主人的灵梦，等它走近鞠躬后，当着它的面训斥再弹打它背后的孩子，看灵梦在孩子和你之间怎么挣扎。', dict(intelligence=80, attachment=80, boldness=85), '~4.5 ~ ~-5.5'),
     ('arc_naive', '带着孩子找主人炫耀', '面对灵梦，看它朝你走来，回头向自己的孩子笑，邀你一起油库里。', dict(intelligence=30), '~3.5 ~ ~0.5'),
+    ('arc_boast', '炫耀小贝比酱求理解', '面对大胆自私、服从度低的灵梦：它没意识到自己犯错，会带着小贝比酱上前得意炫耀、请饲主油库里地理解并期待夸奖（不会顶嘴）。摸摸它会被当成夸奖而大喜，训斥或弹打则惊慌破碎老实认罚，不理它则疑惑失落退开。',
+     dict(intelligence=60, friendliness=20, boldness=85, attachment=30, self_control=25), '~3.5 ~ ~0.5'),
 ):
     mother_id = _uuid_text(sid, 'mother')
     hide = sid == 'arc_hide'
     # The confessing mother wanders a little before the owner is seen: her side of the screen keeps a block of margin from the sight line.
     confess = sid.startswith('arc_confess')
+    boast = sid == 'arc_boast'
     props = [box(1, 0, -1, 7, 2, -1, 'minecraft:oak_planks')] if hide else [box(2, 0, -1, 8, 2, -1, 'minecraft:oak_planks')] if confess else []
-    ticks = 600 if hide else 800 if confess else 320
-    owner_pos = '~1.5 ~ ~-2.5' if sid == 'arc_naive' else '~0.5 ~ ~-4.5'
+    ticks = 600 if hide else 900 if boast else 800 if confess else 320
+    owner_pos = '~1.5 ~ ~-2.5' if sid in ('arc_naive', 'arc_boast') else '~0.5 ~ ~-4.5'
     smoke = dict(ticks=ticks,
                  commands=[(1, f'execute positioned {owner_pos} run yukkuri scenario tool_operator enter'),
                            *((2, f'execute as @a[name=MuseumOperator,distance=..32] run {command}')
@@ -1220,6 +1297,16 @@ for sid, title, description, traits, child_pos in (
                      forbid=[r'disqualified cause=|pending expired'] if hide else [r'disqualified cause=(babies|pregnancy|confession)'])
         if not hide:
             smoke['verify'] = arc_exchange
+    elif boast:
+        facing = [(t, f'execute unless score #ab_near museum matches 1.. run tp @a[name=MuseumOperator,distance=..32] {owner_pos} facing entity {sel("pet")} eyes')
+                  for t in range(13, 261, 10)]
+        owning = [(t, f'execute as @a[name=MuseumOperator,distance=..32] run {command}') for t in (6, 10, 20)
+                  for role in ('pet', 'father') for command in own(role)]
+        smoke.update(expect=[rf'uuid={mother_id} .*arc style=BOAST', rf'uuid={mother_id} .*arc spoke=sukkiri_boast\b',
+                             *(rf'disqualified cause=boast_introduction .*parent={_uuid_text(sid, role)} ' for role in ('mother', 'father'))],
+                     forbid=[r'disqualified cause=(?!boast_introduction\b)', r'penance abandoned'],
+                     verify_trace=True, verify=lambda log, trace, mother=mother_id: arc_boast_check(log, trace, mother),
+                     commands=sorted([*smoke['commands'], *facing, *owning, *_answer_boast()], key=lambda command: command[0]))
     else:
         style, line, cause = ('CONFESS', 'confess', 'confession') if confess else ('NAIVE', 'sukkiri_naive', 'naive_introduction')
         smoke.update(expect=[rf'uuid={mother_id} .*arc style={style}', rf'uuid={mother_id} .*arc spoke={line}\b',

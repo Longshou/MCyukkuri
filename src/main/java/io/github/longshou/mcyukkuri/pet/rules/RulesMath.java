@@ -73,8 +73,19 @@ public final class RulesMath {
         return Math.min(80, (int) Math.round(waitingTicks * .25 * (1 + .5 * waitGrade)));
     }
 
+    /** One Minecraft day: how long heightened rule-specific caution decays after witnessing a housemate punished. */
+    public static final int CAUTION_WINDOW = 24000;
+
+    public static double cautionBonus(long remainingTicks) {
+        return remainingTicks <= 0 ? 0 : .18 * Math.clamp(remainingTicks / (double) CAUTION_WINDOW, 0, 1);
+    }
+
     public static double hold(double patient, int obedience, double pressure) {
-        return Math.clamp(.80 + .30 * (patient - .5) + .30 * (obedience / 100.0 - .5) - .40 * (pressure - .5), .05, .99);
+        return hold(patient, obedience, pressure, 0);
+    }
+
+    public static double hold(double patient, int obedience, double pressure, double caution) {
+        return Math.clamp(.80 + .30 * (patient - .5) + .30 * (obedience / 100.0 - .5) - .40 * (pressure - .5) + caution, .05, .99);
     }
 
     public static Choice choose(double roll, double hold, double clever, boolean watched, double restraint) {
@@ -90,6 +101,21 @@ public final class RulesMath {
         // A punishment within one minute of the deed makes twice the impression.
         boolean fresh = breachAge.isPresent() && breachAge.getAsLong() <= 1200;
         return new Discipline(0, fresh ? 2 * gain : gain);
+    }
+
+    public record BystanderLearning(int obedience, int fear, int cautionTicks) {}
+
+    /**
+     * A same-owner pet that sees or hears a housemate caught or punished learns a fraction of the lesson: small rise in
+     * obedience and fear of the owner (no closeness loss) plus heightened caution for that rule.
+     */
+    public static BystanderLearning bystanderLearning(boolean punished, boolean blow, double timid) {
+        if (!punished) {
+            return new BystanderLearning(1, timid >= .5 ? 3 : 2, CAUTION_WINDOW / 2);
+        }
+        int obedience = blow ? 2 : 1;
+        int fear = blow ? (int) Math.round(5 + 3 * timid) : (int) Math.round(3 + 2 * timid);
+        return new BystanderLearning(obedience, fear, CAUTION_WINDOW);
     }
 
     public enum Feedback {

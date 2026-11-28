@@ -15,6 +15,7 @@ import io.github.longshou.mcyukkuri.social.Temperament.Gate;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
 import io.github.longshou.mcyukkuri.status.PunishmentReaction;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 public final class Conscience {
     private final YukkuriEntity pet;
     private final HouseRule.Policy policy = new HouseRule.Policy();
+    private final Map<HouseRule, Long> cautionUntil = new EnumMap<>(HouseRule.class);
     private HouseRule guilt;
     private UUID guiltOwner;
     private long at;
@@ -39,6 +41,8 @@ public final class Conscience {
     private static final int CATCH_PATIENCE = 200;
     /** How far from its young a parent that is paying penance can see the owner treat them. */
     private static final int PARENT_RANGE = 16;
+    /** How far from the owner the "sync to nearby own pets" button reaches. */
+    public static final int SYNC_RANGE = 16;
     /** Brief debounce before answering a rule toggle: lets rapid double-clicks settle on the final rule state without a bogus bow. */
     private static final int ANSWER_DEBOUNCE = 16;
     private long catchAt = -1;
@@ -70,7 +74,60 @@ public final class Conscience {
     /** Reset this pet's rules back to default without any reaction (scenario setup only). */
     public void resetRules() {
         policy.reset();
+        cautionUntil.clear();
         clearAnswerHold();
+    }
+
+    /**
+     * Copy this pet's current rules onto every other loaded pet owned by {@code owner} within {@link #SYNC_RANGE}. Rules stay
+     * independent per pet afterwards. Synced pets that see or hear the owner (shared perception layer) notice immediately and
+     * react as with any rule change; sleeping or out-of-earshot pets keep the synced rules as untold until they meet the owner.
+     */
+    public int syncNearby(Player owner) {
+        if (!pet.pet().isPet() || !pet.pet().owned(owner) || !(owner.level() instanceof ServerLevel level)) return 0;
+        int mask = policy.mask(), synced = 0, delay = ANSWER_DEBOUNCE;
+        for (var peer : level.getEntitiesOfClass(YukkuriEntity.class, owner.getBoundingBox().inflate(SYNC_RANGE),
+                y -> y != pet && y.isAlive() && !y.body().dying() && y.pet().isPet() && y.pet().owned(owner))) {
+            var via = Senses.perceives(peer, owner.getEyePosition(), null, Cue.RULE_CHANGE);
+            boolean perceived = via != null && !peer.isPassenger();
+            int result = peer.pet().conscience().applySync(owner, mask, perceived, via, delay);
+            if (result > 0) {
+                synced++;
+                if (result == 2) delay += 12;
+            }
+        }
+        GameplayLog.event(pet, "rules", "sync owner={} mask={} synced={}", owner.getUUID(), mask, synced);
+        return synced;
+    }
+
+    /** Returns 0 when nothing changed, 1 when synced silently (untold or no affected rule), 2 when synced with a reaction. */
+    private int applySync(Player owner, int mask, boolean perceived, Senses.Via via, int delay) {
+        boolean wasTold = told();
+        int diff = policy.sync(owner.getUUID(), mask, perceived);
+        if (diff == 0 && wasTold) return 0;
+        int version = policy.version();
+        GameplayLog.event(pet, "rules", "synced owner={} mask={} diff={} perceived={} via={} version={}",
+                owner.getUUID(), mask, diff, perceived, via == null ? "NONE" : via, version);
+        if (!perceived || diff == 0) return 1;
+        HouseRule picked = null;
+        double bestUrge = -1;
+        for (var rule : HouseRule.values()) {
+            if ((diff & rule.bit()) == 0 || !affectedBy(rule)) continue;
+            double u = urge(rule);
+            if (picked == null || u > bestUrge || (u == bestUrge && policy.enabled(rule) && !policy.enabled(picked))) {
+                picked = rule;
+                bestUrge = u;
+            }
+        }
+        if (picked == null) return 1;
+        var chosen = picked;
+        boolean loosened = !policy.enabled(chosen);
+        GameplayLog.event(pet, "rules", "change noticed rule={} via={} version={} source=sync", chosen.key(), via, version);
+        holdRuleAnswer(owner, delay + 40);
+        PetScenes.later(pet, delay, () -> {
+            if (policy.version() == version) ruleChanged(owner, chosen, loosened, version);
+        });
+        return 2;
     }
 
     /**
@@ -335,6 +392,107 @@ public final class Conscience {
                 rule.key(), beat.name(), beat.face(), beat.event(), shown);
     }
 
+    /** Temporary extra restraint for a specific rule after witnessing a housemate caught or punished for breaking it. */
+    public double cautionBonus(HouseRule rule) {
+        if (rule == null) return 0;
+        Long until = cautionUntil.get(rule);
+        if (until == null) return 0;
+        long left = until - pet.level().getGameTime();
+        if (left <= 0) {
+            cautionUntil.remove(rule);
+            return 0;
+        }
+        return RulesMath.cautionBonus(left);
+    }
+
+    private void addCaution(HouseRule rule, int ticks) {
+        if (rule == null || ticks <= 0) return;
+        long target = pet.level().getGameTime() + ticks;
+        cautionUntil.merge(rule, target, Math::max);
+    }
+
+    /**
+     * Same-owner pets who see or hear this pet caught or punished (shared perception layer) learn a little: small rise in
+     * obedience and fear of the owner, temporary extra caution for that rule, and a stat-driven flinch/glance/line.
+     */
+    void witnessDiscipline(LivingEntity owner, HouseRule rule, boolean punished, boolean blow) {
+        if (owner == null || !owner.isAlive() || !(pet.level() instanceof ServerLevel level)) return;
+        int delay = 12;
+        String eventName = punished ? (blow ? "punished_blow" : "punished_scold") : "caught";
+        String cooldownKey = punished ? "rule_deter_punish" : "rule_deter_caught";
+        for (var witness : Senses.witnesses(level, pet.getEyePosition(), null, Cue.RULE_CHANGE)) {
+            var peer = witness.body();
+            if (peer == pet || !peer.isAlive() || peer.body().dying() || !peer.pet().isPet() || !peer.pet().ownedBy(owner.getUUID())) continue;
+            if (peer.pet().conscience().taking(owner)) continue;
+            if (punished && ProtectivePuff.parentOf(pet, peer)) continue;
+            if (!PetScenes.ready(peer, cooldownKey, 200)) continue;
+            int obBefore = peer.pet().obedience();
+            int fearBefore = peer.life().personality().fear(owner.getUUID());
+            var gain = peer.pet().witnessedDiscipline(owner.getUUID(), punished, blow);
+            peer.pet().conscience().addCaution(rule, gain.cautionTicks());
+            GameplayLog.event(peer, "rules", "bystander learned event={} rule={} target={} via={} ob={} -> {} fear={} -> {} caution={}",
+                    eventName, rule == null ? "-" : rule.key(), pet.getUUID(), witness.via(),
+                    obBefore, peer.pet().obedience(), fearBefore, peer.life().personality().fear(owner.getUUID()), gain.cautionTicks());
+            if (!peer.isPassenger()) {
+                int wait = delay;
+                delay += 10;
+                PetScenes.later(peer, wait, () -> {
+                    if (peer.isAlive() && owner.isAlive()) peer.pet().conscience().bystanderReact(owner, pet, rule, eventName, punished, blow);
+                });
+            }
+        }
+    }
+
+    private void bystanderReact(LivingEntity owner, YukkuriEntity target, HouseRule rule, String eventName, boolean punished, boolean blow) {
+        if (!pet.isAlive() || !pet.pet().calm() || !pet.pet().ownedBy(owner.getUUID()) || taking(owner)) return;
+        var beat = RuleReaction.bystander(punished, blow, pet.pet().obedience(),
+                pet.life().personality().fear(owner.getUUID()), pet.life().personality().temperament());
+        showBystanderBeat(owner, target, rule, eventName, beat, 0);
+    }
+
+    private void showBystanderBeat(LivingEntity owner, YukkuriEntity target, HouseRule rule, String eventName,
+                                   RuleReaction.Beat beat, int waited) {
+        if (!pet.isAlive() || !pet.pet().calm() || !pet.pet().ownedBy(owner.getUUID()) || taking(owner)) {
+            clearAnswerHold();
+            return;
+        }
+        LivingEntity firstFocus = target.isAlive() ? target : owner;
+        if (!pet.quiet() && waited < NEXT_PATIENCE) {
+            holdRuleAnswer(firstFocus, RETRY_TICKS + 10);
+            PetScenes.later(pet, RETRY_TICKS, () -> showBystanderBeat(owner, target, rule, eventName, beat, waited + RETRY_TICKS));
+            return;
+        }
+        String line = BadgeSocial.reactionLine(pet, beat.event(), owner);
+        holdRuleAnswer(firstFocus, beat.ticks() + 15);
+        pet.getLookControl().setLookAt(firstFocus, 30, 30);
+        boolean shown = pet.showWithDeferredLine(beat.action(), beat.ticks(), beat.face(), line,
+                FaceTier.Tier.ofTicks(beat.ticks()), 2, said -> GameplayLog.event(pet, "rules",
+                        "bystander speech event={} beat={} line={} tick={} holdEnd={} spoken={} target={}",
+                        eventName, beat.name(), line, said.tick() < 0 ? "none" : said.tick(), said.holdEnd(), said.spoken(), target.getUUID()));
+        if (!shown) {
+            if (waited < NEXT_PATIENCE) {
+                holdRuleAnswer(firstFocus, RETRY_TICKS + 10);
+                PetScenes.later(pet, RETRY_TICKS, () -> showBystanderBeat(owner, target, rule, eventName, beat, waited + RETRY_TICKS));
+            } else {
+                clearAnswerHold();
+                GameplayLog.event(pet, "rules", "bystander reaction event={} rule={} beat={} face={} line={} shown=false target={}",
+                        eventName, rule == null ? "-" : rule.key(), beat.name(), beat.face(), beat.event(), target.getUUID());
+            }
+            return;
+        }
+        pet.pet().expectBeat("rule_" + beat.name(), beat.face(), beat.event(), beat.name());
+        GameplayLog.event(pet, "rules", "bystander reaction event={} rule={} beat={} face={} line={} shown=true target={}",
+                eventName, rule == null ? "-" : rule.key(), beat.name(), beat.face(), beat.event(), target.getUUID());
+        if (beat.toward() && firstFocus != owner) {
+            PetScenes.later(pet, beat.ticks() / 2, () -> {
+                if (pet.isAlive() && owner.isAlive()) {
+                    answerFocus = owner;
+                    pet.getLookControl().setLookAt(owner, 30, 30);
+                }
+            });
+        }
+    }
+
     public Choice tempted(HouseRule rule, double pressure, double restraint) {
         return tempted(rule, pressure, restraint, false);
     }
@@ -342,7 +500,7 @@ public final class Conscience {
     public Choice tempted(HouseRule rule, double pressure, double restraint, boolean permitted) {
         if (!binds(rule, permitted)) return Choice.ALLOW;
         var temper = pet.life().personality().temperament();
-        double hold = RulesMath.hold(temper.patient(), pet.pet().obedience(), pressure);
+        double hold = RulesMath.hold(temper.patient(), pet.pet().obedience(), pressure, cautionBonus(rule));
         boolean watched = HumanSight.watching(pet);
         var choice = RulesMath.choose(pet.getRandom().nextDouble(), hold, temper.clever(), watched, restraint);
         GameplayLog.limited(pet, "rules", rule.key(), 100, "tempted rule={} pressure={} hold={} choice={} watched={}",
@@ -443,6 +601,7 @@ public final class Conscience {
             early = null;
             // The face is the pet's from this very tick (the song's or the chewing's face is cut); the goal takes over once the pet is free.
             pet.holdReaction("horrified", "", CATCH_PATIENCE);
+            witnessDiscipline(guiltyOwner(), guilt, false, false);
         }
         GameplayLog.event(pet, "rules", "caught rule={} evidence={} owner={}", guilt.key(), evidence, guiltOwner);
     }
@@ -469,6 +628,8 @@ public final class Conscience {
     LivingEntity guiltyOwner() { return pet.pet().presentOwner(); }
 
     String guiltRule() { return guilt.key(); }
+
+    HouseRule guiltRuleEnum() { return guilt; }
 
     void startedPenance(Penance running) {
         clearAnswerHold();
@@ -549,6 +710,7 @@ public final class Conscience {
     public void forgetOwner() {
         departure.forgetOwner();
         policy.reset();
+        cautionUntil.clear();
         clearAnswerHold();
         guilt = null;
         guiltOwner = null;
@@ -568,6 +730,14 @@ public final class Conscience {
             tag.putUUID("ToldOwner", instruction.owner());
             tag.putInt("Version", instruction.version());
         }
+        if (!cautionUntil.isEmpty()) {
+            long now = pet.level().getGameTime();
+            var caution = new CompoundTag();
+            for (var entry : cautionUntil.entrySet()) {
+                if (entry.getValue() > now) caution.putLong(entry.getKey().key(), entry.getValue());
+            }
+            if (!caution.isEmpty()) tag.put("RuleCaution", caution);
+        }
         if (guilt != null) {
             tag.putString("Rule", guilt.key());
             tag.putUUID("Owner", guiltOwner);
@@ -586,6 +756,12 @@ public final class Conscience {
                 : new HouseRule.Instruction(null, 0);
         policy.restore(tag.hasUUID("RulesOwner") ? tag.getUUID("RulesOwner") : null,
                 tag.getInt("RuleVersion"), tag.getInt("RulesMask"), tag.getBoolean("HasRules"), instruction);
+        if (tag.contains("RuleCaution")) {
+            var caution = tag.getCompound("RuleCaution");
+            for (var rule : HouseRule.values()) {
+                if (caution.contains(rule.key())) cautionUntil.put(rule, caution.getLong(rule.key()));
+            }
+        }
         if (tag.hasUUID("Owner")) {
             for (var rule : HouseRule.values()) if (rule.key().equals(tag.getString("Rule"))) guilt = rule;
             guiltOwner = tag.getUUID("Owner");

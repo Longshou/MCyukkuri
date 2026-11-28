@@ -67,6 +67,22 @@ public enum HouseRule {
             return enabled;
         }
 
+        /**
+         * Copy {@code mask} onto this pet for {@code currentOwner}. Returns the bitmask of rules that changed (0 when already
+         * identical and already told to this owner). When {@code perceived} is true the pet knows the new revision immediately;
+         * otherwise it stays untold until it meets the owner.
+         */
+        public int sync(UUID currentOwner, int mask, boolean perceived) {
+            int diff = mask() ^ mask;
+            if (diff == 0 && told(currentOwner)) return 0;
+            rules.clear();
+            for (var rule : HouseRule.values()) if ((mask & rule.bit()) != 0) rules.add(rule);
+            owner = currentOwner;
+            version++;
+            if (perceived) instruction = new Instruction(currentOwner, version);
+            return diff;
+        }
+
         /** Mark this pet as having heard its current revision; true when that changed its state. */
         public boolean markTold(UUID currentOwner) {
             if (currentOwner == null || told(currentOwner)) return false;

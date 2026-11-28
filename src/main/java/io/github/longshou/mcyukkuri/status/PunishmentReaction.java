@@ -162,6 +162,9 @@ public final class PunishmentReaction {
             // The visible choice is any awake seer's; the remembered fear keeps the witness-learning population.
             // The penance owns that parent's answer (struggle, then the ending): no witness reaction or learned flight over it.
             if (observer.pet().conscience().payingTo(punisher) && ProtectivePuff.parentOf(target, observer)) continue;
+            // Same-owner housemates watching a rule-penance punishment learn and react via Conscience.witnessDiscipline instead of a silent shrink.
+            if (target.pet().conscience().taking(punisher) && observer.pet().isPet() && observer.pet().ownedBy(punisher.getUUID())
+                    && !ProtectivePuff.parentOf(target, observer)) continue;
             if (LearnedFear.eligible(observer) && !observer.operations().active())
                 LearnedFear.remember(observer, target, punisher, incident);
             boolean glass = !observer.hasLineOfSight(target) || !observer.hasLineOfSight(punisher);

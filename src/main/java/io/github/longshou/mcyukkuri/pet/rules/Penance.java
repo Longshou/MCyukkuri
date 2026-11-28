@@ -23,11 +23,11 @@ import net.minecraft.world.phys.Vec3;
  * {@link ConscienceGoal}; it owns the pet's face, clip and line from start to end and hands the body back to self-drive.
  */
 public final class Penance {
-    public enum Entrance { CAUGHT, CONFESSION }
+    public enum Entrance { CAUGHT, CONFESSION, BOAST }
     public enum Verdict { FORGIVEN, PUNISHED }
-    private enum Phase { STARTLE, MUTTER, PLEA, EXCUSE, VOW, BOW, WAIT, AFRAID, TORN, ACT, RESOLVE, SETTLE, DONE }
+    private enum Phase { STARTLE, MUTTER, PLEA, EXCUSE, VOW, BOW, BOAST_SHOW, BOAST_EXPECT, WAIT, AFRAID, TORN, ACT, RESOLVE, SETTLE, DONE }
 
-    private static final int STARTLE_TICKS = 24, MUTTER_TICKS = 50, AFRAID_TICKS = 24, RESOLVE_TICKS = 80, CONTACT_PATIENCE = 60;
+    private static final int STARTLE_TICKS = 24, MUTTER_TICKS = 50, AFRAID_TICKS = 24, BOAST_SHOCK_TICKS = 50, RESOLVE_TICKS = 80, CONTACT_PATIENCE = 60;
     /** The posture a pet settles into once the owner has answered: held long enough for its last line to be heard. */
     private static final int SETTLE_TICKS = 80;
     /** A line waits for the shared speech clock (the beat before it may still be speaking) for at most this long, then is dropped and logged. */
@@ -47,6 +47,8 @@ public final class Penance {
     private final LivingEntity owner;
     private final Entrance entrance;
     private final String rule;
+    private final HouseRule houseRule;
+    private final YukkuriEntity boastChild;
     private final Runnable onResolved;
     private final long startedAt;
     private Phase phase;
@@ -70,19 +72,22 @@ public final class Penance {
     private long beatAt, holdUntil;
     private int beatTicks;
 
-    private Penance(YukkuriEntity pet, LivingEntity owner, Entrance entrance, String rule, Runnable onResolved) {
+    private Penance(YukkuriEntity pet, LivingEntity owner, Entrance entrance, String rule, HouseRule houseRule,
+                    YukkuriEntity boastChild, Runnable onResolved) {
         this.pet = pet;
         this.owner = owner;
         this.entrance = entrance;
         this.rule = rule;
+        this.houseRule = houseRule;
+        this.boastChild = boastChild;
         this.onResolved = onResolved;
         startedAt = now();
         stance();
     }
 
     /** Caught in the act: startled first, then the posture its stats choose. */
-    static Penance caught(YukkuriEntity pet, LivingEntity owner, String rule) {
-        var penance = new Penance(pet, owner, Entrance.CAUGHT, rule, () -> {});
+    static Penance caught(YukkuriEntity pet, LivingEntity owner, String rule, HouseRule houseRule) {
+        var penance = new Penance(pet, owner, Entrance.CAUGHT, rule, houseRule, null, () -> {});
         pet.interruptSpeech();
         // The pet registers the owner at once: it freezes, flinches and turns to face them (see tick), gasping in its own voice.
         penance.enter(Phase.STARTLE, "startle", YukkuriAction.STARTLE, penance.mutters ? "surprise" : "horrified", "rule_gasp", STARTLE_TICKS);
@@ -90,9 +95,21 @@ public final class Penance {
     }
 
     /** Walked up to the owner by itself: bows with {@code openingLine} (see {@link #voiced()}), then lies low and waits. */
-    static Penance confession(YukkuriEntity pet, LivingEntity owner, String rule, String openingLine, Runnable onResolved) {
-        var penance = new Penance(pet, owner, Entrance.CONFESSION, rule, onResolved);
+    static Penance confession(YukkuriEntity pet, LivingEntity owner, String rule, HouseRule houseRule, String openingLine, Runnable onResolved) {
+        var penance = new Penance(pet, owner, Entrance.CONFESSION, rule, houseRule, null, onResolved);
         penance.enter(Phase.BOW, "bow", YukkuriAction.BOW, "side_teary", openingLine, YukkuriAction.BOW.durationTicks());
+        return penance;
+    }
+
+    /**
+     * Self-centred, naive parent that does not realize its secret brood broke a rule (replaces defiant talk-back): shows off its
+     * babies proudly, asks the owner to be "yukkuri" and understand, expects praise, then resolves on pat / scold / hit / ignore.
+     */
+    static Penance boast(YukkuriEntity pet, LivingEntity owner, YukkuriEntity broodChild, String rule, HouseRule houseRule, Runnable onResolved) {
+        var penance = new Penance(pet, owner, Entrance.BOAST, rule, houseRule, broodChild, onResolved);
+        boolean bold = pet.life().personality().boldness() >= 70;
+        penance.enter(Phase.BOAST_SHOW, "boast_show", bold ? YukkuriAction.PROUD : YukkuriAction.GREET,
+                bold ? "smug" : "open_smile", "sukkiri_boast", 55);
         return penance;
     }
 
@@ -106,10 +123,10 @@ public final class Penance {
         // Only a bold, disobedient pet that does not fear its owner answers a catch with a mutter.
         double defiance = (1 - temper.timid()) * (1 - Temperament.ramp(obedience, 10, 45)) * (1 - Temperament.ramp(fear, 10, 40));
         mutters = entrance == Entrance.CAUGHT && defiance >= .5;
-        window = MIN_WAIT + (int) Math.round(WAIT_SPREAD * guilt);
+        window = MIN_WAIT + (int) Math.round(WAIT_SPREAD * (entrance == Entrance.BOAST ? Math.max(.35, guilt) : guilt));
+        String posture = entrance == Entrance.BOAST ? "boast" : mutters ? "mutter" : fearful ? "cower" : guilty ? "guilty" : "wary";
         GameplayLog.event(pet, "rules", "penance begin entrance={} rule={} owner={} posture={} window={} obedience={} fear={} attachment={} boldness={}",
-                entrance, rule, owner.getUUID(), mutters ? "mutter" : fearful ? "cower" : guilty ? "guilty" : "wary", window, obedience, fear,
-                personality.attachment(), personality.boldness());
+                entrance, rule, owner.getUUID(), posture, window, obedience, fear, personality.attachment(), personality.boldness());
     }
 
     // ---- the owner's answer -------------------------------------------------------------------------
@@ -124,6 +141,9 @@ public final class Penance {
             GameplayLog.event(pet, "rules", "penance verdict={} by={} phase={} after={} via={} child={}", answer,
                     answer == Verdict.FORGIVEN ? "stroke" : hit ? "blow" : "scold", phase, now() - startedAt,
                     child == null ? "owner" : "child", child == null ? "-" : child.getUUID());
+            if (answer == Verdict.PUNISHED && child == null) {
+                pet.pet().conscience().witnessDiscipline(owner, houseRule, true, hit);
+            }
         }
         return true;
     }
@@ -195,8 +215,10 @@ public final class Penance {
             case MUTTER -> { if (spent(now, age)) excuse(); }
             case PLEA -> { if (spent(now, age)) { if (beat.equals("apology")) apologyFollows(); else lieLow(); } }
             case EXCUSE, VOW, BOW -> { if (spent(now, age)) lieLow(); }
+            case BOAST_SHOW -> { if (spent(now, age)) boastExpect(); }
+            case BOAST_EXPECT -> { if (spent(now, age)) lieLow(); }
             case WAIT -> { if (now >= waitUntil) resolve(); else if (spent(now, age)) lieLow(); }
-            case AFRAID -> { if (age >= AFRAID_TICKS) resolve(); }
+            case AFRAID -> { if (age >= beatTicks && (line.isEmpty() || spent(now, age))) resolve(); }
             case TORN -> { if (age >= beatTicks) act(); }
             case ACT -> acting(now, age);
             case RESOLVE -> resolving(now, age);
@@ -210,11 +232,18 @@ public final class Penance {
         if (phase != Phase.DONE && phase != Phase.RESOLVE && (!pet.hasReaction() || now >= holdUntil - 4)) show(false);
     }
 
-    /** Whom the head and body turn to: the owner, except while torn (child, owner, child ...) and while the child is being pardoned. */
+    /** Whom the head and body turn to: the owner, except while torn (child, owner, child ...), glancing at the boasted baby, and while the child is being pardoned. */
     private LivingEntity focus(long age) {
+        if (phase == Phase.BOAST_EXPECT && boastChild != null && boastChild.isAlive() && age < beatTicks / 2) return boastChild;
         if (child == null) return owner;
         if (phase == Phase.TORN) return age / GLANCE_TICKS % 2 == 0 ? child : owner;
         return phase == Phase.RESOLVE && verdict == Verdict.FORGIVEN ? child : owner;
+    }
+
+    /** Second beat of a boasting parent: glances proudly toward its baby, then back to the owner asking them to understand. */
+    private void boastExpect() {
+        boolean bold = pet.life().personality().boldness() >= 70;
+        enter(Phase.BOAST_EXPECT, "boast_expect", YukkuriAction.SWAY, bold ? "open_smile" : "flushed_smile", "sukkiri_boast_ask", 60);
     }
 
     /** The child died or went away under the answer: no struggle for it (grief is the body's own), the parent takes what is left of the ending. */
@@ -253,10 +282,14 @@ public final class Penance {
         return age >= beatTicks && pending.isEmpty() && now >= pet.speechEnd();
     }
 
-    /** The owner answered while the pet still stood stiff: a scold makes it afraid first, then it takes the punishment. */
+    /** The owner answered: a scold or blow shatters a boasting pet's naive illusion or a mutterer's bravado before resolving. */
     private void answer() {
         if (verdict == Verdict.PUNISHED && child != null) torn();
-        else if (verdict == Verdict.PUNISHED && mutters && !fearful) {
+        else if (verdict == Verdict.PUNISHED && entrance == Entrance.BOAST) {
+            pet.interruptSpeech();
+            fearful = true;
+            enter(Phase.AFRAID, "afraid", YukkuriAction.TREMBLE, blow ? "horrified" : "surprise", "sukkiri_boast_shock", BOAST_SHOCK_TICKS);
+        } else if (verdict == Verdict.PUNISHED && mutters && !fearful) {
             pet.interruptSpeech();
             fearful = true;
             enter(Phase.AFRAID, "afraid", YukkuriAction.TREMBLE, "horrified", "", AFRAID_TICKS);
@@ -347,10 +380,25 @@ public final class Penance {
         }
     }
 
-    /** The whole waiting window, in segments of low posture and shivering (fear is where shaking belongs). */
+    /** The whole waiting window: a boasting parent waits expectantly then gets puzzled; a guilty one lies low and shivers. */
     private void lieLow() {
         if (waitUntil < 0) waitUntil = now() + window;
         long left = waitUntil - now();
+        if (entrance == Entrance.BOAST) {
+            int seg = segment++;
+            if (seg == 0) {
+                enter(Phase.WAIT, "boast_wait", YukkuriAction.SWAY, "open_smile", "", (int) Math.min(50, left));
+            } else if (seg == 1) {
+                asked = true;
+                enter(Phase.WAIT, "boast_puzzle", YukkuriAction.THINK, "confused_small", "sukkiri_boast_wait", (int) Math.min(55, left));
+            } else if (seg % 2 == 0) {
+                String face = pet.life().personality().temperament().attached() >= .5 ? "side_teary" : "confused_small";
+                enter(Phase.WAIT, "boast_uneasy", YukkuriAction.SHY, face, "", (int) Math.min(50, left));
+            } else {
+                enter(Phase.WAIT, "boast_puzzle", YukkuriAction.THINK, "confused_small", "", (int) Math.min(50, left));
+            }
+            return;
+        }
         if (mutters && !fearful) {
             enter(Phase.WAIT, "stiff", YukkuriAction.BRACE, "down_angry", "", (int) Math.min(60, left));
             return;
@@ -393,12 +441,16 @@ public final class Penance {
                     blow && scared ? "hurt_plea" : "scolded");
         } else if (verdict == Verdict.FORGIVEN) {
             outcome = "forgiven";
-            declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.BOW, "teary_smile", "rule_thanks");
+            if (entrance == Entrance.BOAST) {
+                declare("forgiven", !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.BOW, "happy", "sukkiri_boast_praised");
+            } else {
+                declare("forgiven", fear < .5 && !pet.body().weak() ? YukkuriAction.JOY_JUMP : YukkuriAction.BOW, "teary_smile", "rule_thanks");
+            }
             pet.pet().addStress(-6);
         } else {
             outcome = "withdrew";
             GameplayLog.event(pet, "rules", "penance verdict=IGNORED by=none phase=WAIT after={}", now() - startedAt);
-            declare("withdraw", YukkuriAction.LOOK_AROUND, "side_teary", "");
+            declare("withdraw", YukkuriAction.LOOK_AROUND, entrance == Entrance.BOAST ? "confused_small" : "side_teary", "");
             pet.pet().addStress(6);
         }
         beatTicks = RESOLVE_TICKS;
@@ -427,7 +479,9 @@ public final class Penance {
         double fear = Temperament.ramp(pet.life().personality().fear(owner.getUUID()), 15, 50);
         boolean sulky = mutters && !fearful && fear < .5;
         switch (outcome) {
-            case "forgiven" -> enter(Phase.SETTLE, "settle", YukkuriAction.BOW, sulky || fearful ? "shy_peek" : "closed_smile", "", SETTLE_TICKS);
+            case "forgiven" -> enter(Phase.SETTLE, "settle", YukkuriAction.BOW,
+                    entrance == Entrance.BOAST ? (pet.body().weak() ? "closed_smile" : "open_smile")
+                            : (sulky || fearful ? "shy_peek" : "closed_smile"), "", SETTLE_TICKS);
             case "withdrew" -> enter(Phase.SETTLE, "settle", YukkuriAction.DROOP, "sad", "rule_withdraw", SETTLE_TICKS);
             default -> enter(Phase.SETTLE, "settle", sulky ? YukkuriAction.DROOP : fearful ? YukkuriAction.TREMBLE : YukkuriAction.BOW,
                     sulky ? "down_angry" : fearful ? "teary" : "ashamed", "rule_accept", SETTLE_TICKS);

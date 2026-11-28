@@ -4,6 +4,7 @@ import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
 import io.github.longshou.mcyukkuri.registry.ModMenus;
 import io.github.longshou.mcyukkuri.pet.rules.HouseRule;
 import io.github.longshou.mcyukkuri.shop.ShopTrade;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +21,7 @@ public final class CareMenu extends AbstractContainerMenu {
     private final CareLineage lineage;
     private final SimpleContainerData available=new SimpleContainerData(4);
     public static final int RULE_BUTTON = 120;
+    public static final int RULE_SYNC_BUTTON = RULE_BUTTON + HouseRule.values().length;
     private final SimpleContainerData household = new SimpleContainerData(3);
 
     public CareMenu(int id,Inventory inventory,int entityId,boolean cutter,boolean shop,CareLineage lineage){
@@ -80,6 +82,15 @@ public final class CareMenu extends AbstractContainerMenu {
         if (id >= RULE_BUTTON && id < RULE_BUTTON + HouseRule.values().length) {
             if (cutter || shop || !stillValid(player) || !target.pet().owned(player) || !target.pet().isPet()) return false;
             target.pet().conscience().toggle(player, HouseRule.values()[id - RULE_BUTTON]);
+            broadcastChanges();
+            return true;
+        }
+        if (id == RULE_SYNC_BUTTON) {
+            if (cutter || shop || !stillValid(player) || !target.pet().owned(player) || !target.pet().isPet()) return false;
+            int synced = target.pet().conscience().syncNearby(player);
+            player.displayClientMessage(synced > 0
+                    ? Component.translatable("rules.mcyukkuri.synced", synced)
+                    : Component.translatable("rules.mcyukkuri.synced_none"), true);
             broadcastChanges();
             return true;
         }

@@ -1449,6 +1449,73 @@ for _sid, _title, _watch, _toggles, _beats, _witnesses, _rule, _change in (
                    forbid=[f'rule reaction rule=no_sukkiri change={"tightened" if _change == "loosened" else "loosened"}'] if _beats else [r'rule reaction rule=no_sukkiri']))
 
 
+_SYNC_CAST = (
+    ('sync_src', 'reimu', 0, '源头灵梦', 0, 80, dict(boldness=50, self_control=60, intelligence=60, attachment=60)),
+    ('sync_sight', 'marisa', -2, '醒着看见的胆大同伴', 0, 85, dict(boldness=85, self_control=35, intelligence=50, attachment=40)),
+    ('sync_hear', 'reimu', 2, '背对听见的胆小同伴', 180, 75, dict(boldness=20, self_control=80, intelligence=50, attachment=70)),
+    ('sync_sleep', 'marisa', 4, '睡着的同伴', 0, 70, dict(boldness=15, self_control=60, intelligence=50, attachment=50)),
+)
+
+
+def _rule_sync_verify(log):
+    """Sync copies source mask=3 to all 3 nearby owned pets: the two awake ones see/hear and react with voiced beats and matching faces,
+    while the sleeping pet gets the mask as untold and does not react."""
+    if not re.search(r'\[rules\][^\n]* sync owner=\S+ mask=3 synced=3\b', log):
+        return 'Expected sync of mask=3 to all 3 nearby owned pets'
+    sight_id = _uuid_text('rule_sync_nearby', 'sync_sight')
+    hear_id = _uuid_text('rule_sync_nearby', 'sync_hear')
+    sleep_id = _uuid_text('rule_sync_nearby', 'sync_sleep')
+    for label, pid in (('sync_sight', sight_id), ('sync_hear', hear_id)):
+        if not re.search(rf'\[rules\][^\n]*uuid={pid} [^\n]*synced owner=\S+ mask=3 diff=2 perceived=true via=(?:SAW|HEARD)', log):
+            return f'{label} must perceive the sync via SAW or HEARD'
+        if not re.search(rf'\[rules\][^\n]*uuid={pid} [^\n]*change noticed rule=no_singing via=(?:SAW|HEARD) version=\d+ source=sync', log):
+            return f'{label} missing change noticed source=sync'
+        if not re.search(rf'\[rules\][^\n]*uuid={pid} [^\n]*rule reaction rule=no_singing change=tightened beat=\w+ face=\S+ line=\S+ shown=true', log):
+            return f'{label} did not play tightened rule reaction after sync'
+        if not re.search(rf'\[rules\][^\n]*uuid={pid} [^\n]*rule reaction speech beat=\w+ [^\n]*spoken=true', log):
+            return f'{label} sync reaction was not spoken'
+    if not re.search(rf'\[rules\][^\n]*uuid={sleep_id} [^\n]*synced owner=\S+ mask=3 diff=2 perceived=false via=NONE', log):
+        return 'Sleeping peer must receive synced rules as perceived=false via=NONE'
+    if re.search(rf'\[rules\][^\n]*uuid={sleep_id} [^\n]*rule reaction ', log):
+        return 'Sleeping peer must not play a rule reaction while asleep'
+    seen = re.findall(r'\[badge\][^\n]* beat=rule_(\w+) face=(\S+) declared=(\S+)', log)
+    if any(face != declared for _, face, declared in seen):
+        return f'Sync reaction face mismatch: {seen}'
+    return None
+
+
+def _rule_sync_readout(readout):
+    masks = re.findall(r'RulesMask:\s*(\d+)', readout)
+    if masks != ['3', '3', '3', '3']:
+        return f'Expected all four pets to end with RulesMask=3, got {masks}'
+    return None
+
+
+_sync_cmds = [(1, 'execute positioned ~0.5 ~ ~2.5 run yukkuri scenario tool_operator enter'),
+              (2, 'yukkuri scenario house_reset')]
+_sync_cmds += [(8 + i, f'data modify entity {sel(name)} {OWNED}.Owner set from entity @p[name=MuseumOperator,distance=..16] UUID')
+               for i, (name, *_) in enumerate(_SYNC_CAST)]
+_sync_cmds += [(40, f'yukkuri scenario house_rules {sel("sync_src")} 3'),
+               (200, f'yukkuri scenario house_sync {sel("sync_src")}'),
+               (639, 'yukkuri scenario tool_operator leave')]
+add('rule_sync_nearby', 'town', '家规同步：一键同步到附近自家宠物', '家规同步：一键同步到附近自家宠物',
+    '先在「源头灵梦」的照料菜单家规页勾选「不准唱歌」，再点底部「同步到附近自家宠物」：附近醒着看见或听见的同伴会同步并各自按性格回应，睡着的同伴暂记「未告知」不打扰，之后各宠家规仍保持独立。',
+    '约 40 秒', [
+        box(-6, -1, -4, 6, -1, 4, 'minecraft:grass_block'), box(-6, 0, -4, 6, 3, 4, 'minecraft:air'),
+        *(box(-6, 0, z, 6, 1, z, 'minecraft:glass') for z in (-4, 4)),
+        *(box(x, 0, -3, x, 1, 3, 'minecraft:glass') for x in (-6, 6)),
+        *(line for name, kind, dx, label, yaw, boredom, axes in _SYNC_CAST for line in (
+            yk(kind, dx, -2, name, uuid=uid('rule_sync_nearby', name), label=label, lead=name == 'sync_src', yaw=yaw,
+               **axes, **(pair_ready() | ({'energy': 0} if name == 'sync_sleep' else {})),
+               extra=f'YukkuriDailyLife:{{Boredom:{boredom},Cooldown:2400}}'), *own(name)))],
+    env=DAY, vantage=(0, 2, 180, 15), give=['mcyukkuri:field_notebook'],
+    reads=[(f'读{label}的家规', f'data get entity {sel(name)} YukkuriPet.Conscience') for name, _, _, label, *_ in _SYNC_CAST],
+    smoke=dict(ticks=640, commands=_sync_cmds, verify=_rule_sync_verify, verify_readout=_rule_sync_readout,
+               readout=[f'data get entity {sel(name)} YukkuriPet.Conscience' for name, *_ in _SYNC_CAST],
+               expect=[r'\[rules\][^\n]* sync owner=\S+ mask=3 synced=3', r'source=sync'],
+               forbid=[rf'\[rules\][^\n]*uuid={_uuid_text("rule_sync_nearby", "sync_sleep")} [^\n]*rule reaction ']))
+
+
 add('alice_hunt', 'meadow', '发情爱丽丝追袭素鸡立', '发情爱丽丝追袭素鸡立',
     '爱丽丝带着癫狂笑蹦跳追击，目标发现她会喊出警报台词并逃跑。观察扑中后的接触循环、四拍台词与表情。释放时有尘粒和爱心，峰值持续 3 秒，期间受方仍被压住。峰值结束后受方脱身，爱丽丝接完成表情。喷雾或攻击可打断动作', '约半分钟，可重复观察', [
         *(box(-2, 0, z, 5, 1, z, 'minecraft:glass') for z in (-2, 2)),

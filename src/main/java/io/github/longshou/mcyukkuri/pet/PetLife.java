@@ -266,6 +266,13 @@ public final class PetLife {
         if (ownedBy(actor) && isPet()) learn(actor, feedback.gain, feedback.name().toLowerCase(Locale.ROOT));
     }
     public void caught(UUID owner) { learn(owner, 4, "caught"); }
+    /** A same-owner pet that saw or heard a housemate caught or punished learns a fraction of obedience and fear (no closeness loss). */
+    public RulesMath.BystanderLearning witnessedDiscipline(UUID actor, boolean punished, boolean blow) {
+        var gain = RulesMath.bystanderLearning(punished, blow, animal.life().personality().temperament().timid());
+        animal.life().personality().relationshipChanged(actor, 0, gain.fear());
+        if (gain.obedience() != 0) learn(actor, gain.obedience(), punished ? (blow ? "witness_blow" : "witness_scold") : "witness_caught");
+        return gain;
+    }
     private void learn(UUID actor, int gain, String reason) {
         int base = meekness(), before = obedienceShift;
         obedienceShift = RulesMath.capShift(before + gain);

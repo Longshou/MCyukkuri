@@ -65,4 +65,53 @@ class HouseRulesTest {
         assertTrue(policy.told(nextOwner));
         assertTrue(policy.binds(nextOwner, HouseRule.NO_SUKKIRI, false));
     }
+
+    @Test void syncCopiesRulesIndependentlyAndRespectsPerception() {
+        UUID owner = UUID.randomUUID();
+        var source = new HouseRule.Policy();
+        source.toggle(owner, HouseRule.NO_SINGING, true);
+        source.toggle(owner, HouseRule.NO_EATING_UNASKED, true);
+
+        var awakePeer = new HouseRule.Policy();
+        var sleepingPeer = new HouseRule.Policy();
+
+        int expectedDiff = HouseRule.NO_SINGING.bit() | HouseRule.NO_EATING_UNASKED.bit();
+        assertEquals(expectedDiff, awakePeer.sync(owner, source.mask(), true));
+        assertEquals(source.mask(), awakePeer.mask());
+        assertTrue(awakePeer.told(owner));
+        assertTrue(awakePeer.binds(owner, HouseRule.NO_SINGING, false));
+
+        // Repeating sync when already identical and told is a no-op.
+        assertEquals(0, awakePeer.sync(owner, source.mask(), true));
+
+        // Sleeping peer gets the synced mask but stays untold until it meets the owner.
+        assertEquals(expectedDiff, sleepingPeer.sync(owner, source.mask(), false));
+        assertEquals(source.mask(), sleepingPeer.mask());
+        assertFalse(sleepingPeer.told(owner));
+        assertFalse(sleepingPeer.binds(owner, HouseRule.NO_SINGING, false));
+
+        // Afterwards each pet remains independent.
+        assertFalse(awakePeer.toggle(owner, HouseRule.NO_SINGING, true));
+        assertTrue(source.enabled(HouseRule.NO_SINGING));
+        assertTrue(sleepingPeer.enabled(HouseRule.NO_SINGING));
+    }
+
+    @Test void bystanderLearningAndCautionBoostHoldProbability() {
+        var caughtBold = RulesMath.bystanderLearning(false, false, .1);
+        var caughtTimid = RulesMath.bystanderLearning(false, false, .8);
+        assertEquals(1, caughtBold.obedience());
+        assertTrue(caughtTimid.fear() > caughtBold.fear());
+        assertEquals(RulesMath.CAUTION_WINDOW / 2, caughtBold.cautionTicks());
+
+        var scold = RulesMath.bystanderLearning(true, false, .5);
+        var blow = RulesMath.bystanderLearning(true, true, .5);
+        assertTrue(blow.obedience() > scold.obedience());
+        assertTrue(blow.fear() > scold.fear());
+        assertEquals(RulesMath.CAUTION_WINDOW, blow.cautionTicks());
+
+        double base = RulesMath.hold(.5, 40, .8);
+        double cautious = RulesMath.hold(.5, 40, .8, RulesMath.cautionBonus(RulesMath.CAUTION_WINDOW));
+        assertTrue(cautious > base + .15);
+        assertEquals(base, RulesMath.hold(.5, 40, .8, RulesMath.cautionBonus(0)), 1e-9);
+    }
 }
