@@ -11,6 +11,7 @@
 | 争抢五级（用户 11-28 同意） | `.worktrees/wp-contest-levels` | social/Contest, ContestOdds, GroupInteractionGoal contest, contest scenes |
 | 家规二轮：同步按钮、旁观学乖、顶嘴分支改写 | `.worktrees/wp-rules-r2` | pet/rules, Conscience, care screen rules page, rule dialogue |
 | 断亲时手足上前拦着求情 | `.worktrees/wp-sever-stepin` | family DrivenOut/Departure/SeveranceReaction, sever scenes |
+| 家庭牵引：孩子围着亲油活动（共用层） | `.worktrees/wp-family-tether` | family/FamilyLife, entity/RoamingGoal, young idle anchor, parent watch call |
 
 ## 玩法待办
 
