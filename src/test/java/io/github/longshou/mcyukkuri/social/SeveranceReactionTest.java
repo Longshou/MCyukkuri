@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.mind.Ousting.Answer;
+import io.github.longshou.mcyukkuri.social.SeveranceReaction.ParentStepInAnswer;
 import io.github.longshou.mcyukkuri.social.SeveranceReaction.SiblingStance;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -92,5 +93,56 @@ class SeveranceReactionTest {
         assertFalse(TEARS.contains(SiblingStance.COLD.verdictFace()));
         assertFalse(TEARS.contains(SiblingStance.COLD.turnFace()));
         assertFalse(TEARS.contains(SiblingStance.COLD.detachedAfterFace()));
+    }
+
+    @Test void onlyBoldAttachedNonHarshSiblingStepsIn() {
+        var boldAttached = new Temperament(55, 75, 70, 70, 70);
+        var mildBoldAttached = new Temperament(55, 70, 58, 60, 70);
+        var sorrowNotBold = new Temperament(55, 75, 45, 70, 70);
+        var timidAttached = new Temperament(55, 65, 25, 70, 70);
+        var boldUnattached = new Temperament(55, 75, 70, 40, 70);
+        var coldSibling = new Temperament(55, 25, 70, 20, 70);
+        var harshAttached = new Temperament(55, 20, 70, 70, 30);
+
+        assertTrue(SeveranceReaction.siblingStepsIn(boldAttached));
+        assertTrue(SeveranceReaction.siblingStepsIn(mildBoldAttached));
+        assertFalse(SeveranceReaction.siblingStepsIn(sorrowNotBold));
+        assertFalse(SeveranceReaction.siblingStepsIn(timidAttached));
+        assertFalse(SeveranceReaction.siblingStepsIn(boldUnattached));
+        assertFalse(SeveranceReaction.siblingStepsIn(coldSibling));
+        assertFalse(SeveranceReaction.siblingStepsIn(harshAttached));
+
+        var firmPlea = SeveranceReaction.siblingStepInPlea(boldAttached);
+        assertEquals("sibling_stepin_plea", firmPlea.beat());
+        assertEquals("teary_frown", firmPlea.face());
+        assertEquals(YukkuriAction.STAND_GROUND, firmPlea.clip());
+        assertEquals("sibling_stepin_plea", firmPlea.line());
+
+        var softPlea = SeveranceReaction.siblingStepInPlea(mildBoldAttached);
+        assertEquals("sibling_stepin_plea", softPlea.beat());
+        assertEquals("teary", softPlea.face());
+        assertEquals(YukkuriAction.BEG, softPlea.clip());
+        assertEquals("sibling_stepin_plea", softPlea.line());
+    }
+
+    @Test void parentAnswersStepInByTemperamentAndVerdictWithoutSmiles() {
+        var tearfulParent = new Temperament(55, 20, 55, 65, 45);
+        var coldImpulsive = new Temperament(55, 20, 55, 15, 40);
+        var coldBold = new Temperament(55, 20, 70, 15, 70);
+        var coldStoic = new Temperament(55, 20, 45, 15, 70);
+
+        assertEquals(ParentStepInAnswer.SOOTHE, SeveranceReaction.parentStepInAnswer(tearfulParent, true));
+        assertEquals(ParentStepInAnswer.NUDGE_BACK, SeveranceReaction.parentStepInAnswer(coldImpulsive, false));
+        assertEquals(ParentStepInAnswer.NUDGE_BACK, SeveranceReaction.parentStepInAnswer(coldBold, false));
+        assertEquals(ParentStepInAnswer.IGNORE, SeveranceReaction.parentStepInAnswer(coldStoic, false));
+
+        for (ParentStepInAnswer ans : ParentStepInAnswer.values()) {
+            assertFalse(SMILES.contains(ans.face()), ans + " parent face");
+            var after = SeveranceReaction.siblingAfterStepIn(ans);
+            assertFalse(SMILES.contains(after.face()), ans + " sibling after face");
+        }
+        assertEquals("sibling_stepin_soothed", SeveranceReaction.siblingAfterStepIn(ParentStepInAnswer.SOOTHE).line());
+        assertEquals("sibling_stepin_rebuffed", SeveranceReaction.siblingAfterStepIn(ParentStepInAnswer.NUDGE_BACK).line());
+        assertEquals("sibling_stepin_rebuffed", SeveranceReaction.siblingAfterStepIn(ParentStepInAnswer.IGNORE).line());
     }
 }

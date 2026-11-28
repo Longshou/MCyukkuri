@@ -87,6 +87,31 @@ public final class SeveranceReaction {
         return "plain";
     }
 
+    /** How the parent answers a bold attached sibling who stepped between her and the child being driven out (a plea, never a veto). */
+    public enum ParentStepInAnswer {
+        /** Tearful, warm or attached parent: gently soothes the sibling through tears, yet still cannot undo the severance. */
+        SOOTHE("stepin_soothe", "teary", YukkuriAction.MOOD_DROOP, "parent_stepin_soothe"),
+        /** Harsh and impulsive or bold parent: glares and physically nudges the sibling back via shared Push (or flicks if no dry step). */
+        NUDGE_BACK("stepin_nudge", "angry", null, "parent_stepin_nudge"),
+        /** Cold and self-controlled/calm parent: flicks away and brushes the plea off without touching the sibling. */
+        IGNORE("stepin_ignore", "hmph", YukkuriAction.MOOD_FLICK, "parent_stepin_ignore");
+
+        private final String beat, face, line;
+        private final YukkuriAction clip;
+
+        ParentStepInAnswer(String beat, String face, YukkuriAction clip, String line) {
+            this.beat = beat;
+            this.face = face;
+            this.clip = clip;
+            this.line = line;
+        }
+
+        public String beat() { return beat; }
+        public String face() { return face; }
+        public YukkuriAction clip() { return clip; }
+        public String line() { return line; }
+    }
+
     /** Classifies a witnessing sibling's reaction from its own temperament. */
     public static SiblingStance siblingStance(Temperament t) {
         if (t.is(Gate.HARSH) && !t.is(Gate.ATTACHED)) return SiblingStance.COLD;
@@ -94,5 +119,32 @@ public final class SeveranceReaction {
         if (t.is(Gate.BOLDISH) && (t.is(Gate.WARM) || t.is(Gate.ATTACHED))) return SiblingStance.PROTEST;
         if (t.is(Gate.WARM) || t.is(Gate.ATTACHED)) return SiblingStance.SORROW;
         return SiblingStance.UNEASY;
+    }
+
+    /** Whether a perceiving ashore sibling is bold and attached enough to step forward between the parent and the driven child. */
+    public static boolean siblingStepsIn(Temperament t) {
+        return !t.is(Gate.HARSH) && t.is(Gate.BOLDISH) && t.is(Gate.ATTACHED);
+    }
+
+    /** The beat a stepping-in sibling plays once it stands between the parent and the driven child. */
+    public static ChildBeat siblingStepInPlea(Temperament t) {
+        if (t.is(Gate.BOLD)) return new ChildBeat("sibling_stepin_plea", "teary_frown", YukkuriAction.STAND_GROUND, "sibling_stepin_plea");
+        return new ChildBeat("sibling_stepin_plea", "teary", YukkuriAction.BEG, "sibling_stepin_plea");
+    }
+
+    /** How the parent answers an interceding sibling from her own temperament and verdict tone. */
+    public static ParentStepInAnswer parentStepInAnswer(Temperament parent, boolean tearfulVerdict) {
+        if (tearfulVerdict || parent.is(Gate.WARM) || parent.is(Gate.ATTACHED)) return ParentStepInAnswer.SOOTHE;
+        if (parent.is(Gate.IMPULSIVE) || parent.is(Gate.BOLDISH)) return ParentStepInAnswer.NUDGE_BACK;
+        return ParentStepInAnswer.IGNORE;
+    }
+
+    /** The beat the interceding sibling plays once the parent answers its plea (before yielding the line). */
+    public static ChildBeat siblingAfterStepIn(ParentStepInAnswer answer) {
+        return switch (answer) {
+            case SOOTHE -> new ChildBeat("sibling_stepin_after", "teary", YukkuriAction.MOOD_DROOP, "sibling_stepin_soothed");
+            case NUDGE_BACK -> new ChildBeat("sibling_stepin_after", "teary_frown", null, "sibling_stepin_rebuffed");
+            case IGNORE -> new ChildBeat("sibling_stepin_after", "teary_frown", YukkuriAction.MOOD_DROOP, "sibling_stepin_rebuffed");
+        };
     }
 }

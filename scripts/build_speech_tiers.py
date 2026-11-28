@@ -1666,6 +1666,126 @@ SEVERANCE = {
             'proud': [
                 ('……ふーん、でていくんだ。べつに とめないけど{e}。', '……哦，要走了啊。{n}倒也不会拦着就是了{e}。', '...Oh, leaving then. Not that {N} will stop you.')]},
     },
+    'sibling_stepin_plea': {
+        'baby': {
+            'timid': [('{c}！ だめ！ おいださないで……！', '{c}！不要哒！不要赶走……！', '{c}! No! Do not send away...!')],
+            'plain': [('{c}！ まって！ いっしょに いるの！', '{c}！等等！要在一起哒！', '{c}! Wait! Stay togevew!')],
+            'proud': [('{c}！ ぷくー！ {nb}が まもるもん！', '{c}！噗咕！{nb}要护着！', '{c}! Puff! {nb} pwotect!')]},
+        'juvenile': {
+            'timid': [
+                ('{p}まって おやしゃ……！ おいださないで……{n}、いいこに するから{e}……！', '{p}等等亲亲油……！不要赶走啊……{n}会乖乖听话的{e}……！', '{p}Wait, parent...! Do not drive them out... {N} will be good...!'),
+                ('{p}おねがい おやしゃ……！ {n}、ちいさく まるくなるから いっしょに いようよ{e}……！', '{p}求求你亲亲油……！{n}会缩得小小的，大家一起待着嘛{e}……！', '{p}Please, parent...! {N} will curl up tiny, let us all stay together...!')],
+            'plain': [
+                ('{p}まってよ おやしゃ！ おいださないで、{n}も ぎゅって つめるから{e}！', '{p}等等呀亲亲油！别赶走嘛，{n}也会挤一挤让地方的{e}！', '{p}Wait, parent! Do not send them away, {N} will squeeze in too!'),
+                ('{p}やめて おやしゃ！ かぞく なんだよ、みんなで いっしょに ゆっくり しようよ{e}！', '{p}不要这样亲亲油！都是家油呀，大家一起油库里嘛{e}！', '{p}Stop, parent! We are family, let us all take it easy together!')],
+            'proud': [
+                ('{p}だめだよ おやしゃ！ {n}が まもるんだから、おいださせない{e}！', '{p}不行呀亲亲油！有{n}挡在这里，才不让赶走家油{e}！', '{p}No way, parent! {N} is right here, not letting you drive family away!'),
+                ('{p}ちょっと まって おやしゃ！ {n}が つめるから、おいださないでよ{e}！', '{p}等一下亲亲油！{n}多让点地方出来，别赶走它呀{e}！', '{p}Hold on, parent! {N} will make extra room, do not drive them out!')]},
+        'adult': {
+            'timid': [('{p}まって……おいださないで、もういちど かんがえてよ{e}……！', '{p}等等……不要赶走啊，再想想嘛{e}……！', '{p}Wait... do not send them away, think again...!')],
+            'plain': [('{p}まって！ かぞくを おいだすなんて、やめてよ{e}！', '{p}等等！别把家油赶走呀{e}！', '{p}Wait! Please do not drive family away!')],
+            'proud': [('{p}だめだ！ {n}が とめるから、おいだすのは やめてよ{e}！', '{p}不行！{n}要拦着，别赶走家油{e}！', '{p}No! {N} is stopping this, do not cast family out!')]},
+    },
+    'parent_stepin_soothe': {
+        'baby': {
+            'timid': [('{c}……ごめんね……いいこに してて……', '{c}……对不起……乖乖的……', '{c}... sowwy... be good...')],
+            'plain': [('{c}……だめなの……さがってて……', '{c}……没办法哒……退后……', '{c}... cannot... step back...')],
+            'proud': [('{c}……ごめんね……{nb}も つらいの……', '{c}……对不起……{nb}也难过……', '{c}... sowwy... {nb} sad too...')]},
+        'juvenile': {
+            'timid': [('{p}ごめんね……でも しかたないの……さがっててね{e}……', '{p}对不起呀……可是真的没办法……先退后好吗{e}……', '{p}Sorry... there is no other way... step back, okay...?')],
+            'plain': [('{p}いいこだね……でも ぼうししゃんが のせきれないの……さがってて{e}……', '{p}真是乖孩子……可是帽子先生真的装不下了……退后吧{e}……', '{p}Good little one... Mr. Hat really cannot hold everyone... step back...')],
+            'proud': [('{p}ごめんね……{n}だって かなしいんだよ……でも きめたことなの{e}……', '{p}对不起……{n}心里也很难受啊……可是只能这样了{e}……', '{p}Sorry... it hurts {N} too... but it has to be this way...')]},
+        'adult': {
+            'timid': [
+                ('{p}ごめんね……{n}だって したくないよ……でも ぼうしさんが しずんじゃうの{e}……', '{p}对不起呀……{n}也不想这样……可是帽子先生真的会沉掉的{e}……', '{p}I am sorry... {N} does not want this either... but Mr. Hat will sink...'),
+                ('{p}いいこだから さがってて……みんなを まもるため なの{e}……', '{p}乖孩子，先退后好吗……是为了保护大家呀{e}……', '{p}Be good and step back... this is to keep everyone safe...')],
+            'plain': [
+                ('{p}やさしい こね……ごめんね、でも もう ぼうしさんが のせきれないの{e}……', '{p}真是护着家油的好孩子……对不起，可是帽子先生装不下了{e}……', '{p}Such a kind little one... sorry, Mr. Hat just cannot carry us all...'),
+                ('{p}ごめんね……{n}も つらいんだよ……おとなしく さがっててね{e}……', '{p}对不起……{n}也很让油难受啊……先乖乖退后吧{e}……', '{p}I am sorry... it hurts {N} too... please step back quietly...')],
+            'proud': [
+                ('{p}いいこね……でも みんなが おぼれちゃうの。さがってて、おねがい{e}……', '{p}真是好孩子……可再这样大家都会沉水里。听话，退后吧{e}……', '{p}Good little one... everyone will sink if we do not. Step back, please...'),
+                ('{p}ごめんね……これしか みちが ないの。{n}を こまらせないで{e}……', '{p}对不起……实在没有别的办法了。别让{n}更难过啦{e}……', '{p}Sorry... there is no other way. Do not make this harder for {N}...')]},
+    },
+    'parent_stepin_nudge': {
+        'baby': {
+            'timid': [('{c}！ じゃま！ どいて！', '{c}！挡路！让开！', '{c}! In the way! Move!')],
+            'plain': [('{c}！ あっち いって！', '{c}！去一边！', '{c}! Go over thewe!')],
+            'proud': [('{c}！ ぷくー！ どきなしゃい！', '{c}！噗咕！让开哒！', '{c}! Puff! Get back!')]},
+        'juvenile': {
+            'timid': [('{p}じゃま しないで……あっちに さがってて{e}！', '{p}别挡路……退到一边去{e}！', '{p}Do not get in the way... step aside!')],
+            'plain': [('{p}じゃまだよ！ さがって なさい{e}！', '{p}太挡路了！快给{n}退后{e}！', '{p}You are in the way! Step back!')],
+            'proud': [('{p}ぷくーっ！ くちだし するな！ どいてろ{e}！', '{p}噗咕——！少多嘴！让开一边去{e}！', '{p}Puff! Butt out! Get out of the way!')]},
+        'adult': {
+            'timid': [
+                ('{p}じゃま しないで！ はやく さがって{e}！', '{p}别在这里挡路！快点退后{e}！', '{p}Do not block the way! Step back now!'),
+                ('{p}いいから どいて！ {n}の じゃまを しないで{e}！', '{p}行了快让开！别挡着{n}{e}！', '{p}Just move! Do not get in {N}\'s way!')],
+            'plain': [
+                ('{p}じゃまだよ！ おまえまで おいだされたいのか、さがってろ{e}！', '{p}挡路了！难道连你也想被赶走吗，退一边去{e}！', '{p}Out of the way! Want to be sent off too? Step back!'),
+                ('{p}くちだし するな！ そこを どけ{e}！', '{p}轮不到你插嘴！给{n}让开{e}！', '{p}Do not meddle! Move aside!')],
+            'proud': [
+                ('{p}ぷくーっ！ じゃま するな！ あっちへ さがってろ{e}！', '{p}噗咕——！别来碍事！快滚到一边去{e}！', '{p}Puff! Stop getting in the way! Get back over there!'),
+                ('{p}なまいきな！ {n}の きめたことに さからうな、どけ{e}！', '{p}少在这儿顶嘴！别违抗{n}的决定，让开{e}！', '{p}How cheeky! Do not defy {N}, move aside!')]},
+    },
+    'parent_stepin_ignore': {
+        'baby': {
+            'timid': [('{c}……しらない……', '{c}……不理你……', '{c}... whatevew...')],
+            'plain': [('{c}……ふん、だまって……', '{c}……哼，别吵……', '{c}... hmph, quiet...')],
+            'proud': [('{c}……ふん、うるさい……', '{c}……哼，好吵……', '{c}... hmph, noisy...')]},
+        'juvenile': {
+            'timid': [('{p}……もう きめたこと だから……だまってて{e}。', '{p}……已经决定了……别说话了{e}。', '{p}... It is already decided... keep quiet.')],
+            'plain': [('{p}……ふん、なにを いっても むだだよ{e}。', '{p}……哼，说什么都没用的{e}。', '{p}... Hmph, saying anything is pointless.')],
+            'proud': [('{p}……ふん、うるさいね。きいてないよ{e}。', '{p}……哼，真吵。{n}才不听呢{e}。', '{p}... Hmph, noisy. {N} is not listening.')]},
+        'adult': {
+            'timid': [
+                ('{p}……もう きまったこと だから。だまって みてなさい{e}。', '{p}……事情已经定下了。安静待着别出声{e}。', '{p}... It is already settled. Just stay quiet.'),
+                ('{p}……なにを いっても かえられないよ{e}。', '{p}……你说什么都改变不了的{e}。', '{p}... Nothing you say will change this.')],
+            'plain': [
+                ('{p}……ふん、くちを はさまないで。もう きめたこと だよ{e}。', '{p}……哼，别多嘴。这事已经决定了{e}。', '{p}... Hmph, stay out of it. It is already decided.'),
+                ('{p}……うるさいね。ぼうしが かるく なるのが いちばん だよ{e}。', '{p}……真吵。帽子先生轻快点才最重要{e}。', '{p}... How noisy. Keeping Mr. Hat light comes first.')],
+            'proud': [
+                ('{p}……ふん、むだな こと いわないで。さっさと いかせるよ{e}。', '{p}……哼，少说废话。赶紧让它走就是了{e}。', '{p}... Hmph, save your breath. It is leaving anyway.'),
+                ('{p}……きく みみは ないよ。だまって さがってな{e}。', '{p}……{n}才懒得听。自己乖乖退一边去{e}。', '{p}... {N} is not listening. Quietly step aside.')]},
+    },
+    'sibling_stepin_soothed': {
+        'baby': {
+            'timid': [('{c}……うぅ……わかっちゃ……かなちい……', '{c}……呜呜……知道惹……好伤心……', '{c}... sniff... okay... so sad...')],
+            'plain': [('{c}……ぐすっ……いやだけど……', '{c}……呜……虽然不想……', '{c}... sniff... do not want to...')],
+            'proud': [('{c}……うぅ……しかたないの……？', '{c}……呜呜……真的没办法吗……？', '{c}... uu... no othew way...?')]},
+        'juvenile': {
+            'timid': [
+                ('ゆぐっ……わかったよ おやしゃ……でも {n}、かなしいよ{e}……', '呜呜……{n}知道了亲亲油……可是真的好让油伤心{e}……', 'Sniff... okay, parent... but {N} is so sad...'),
+                ('おやしゃも ないてるんだね……{n}、さがるよ……ぐすっ……', '亲亲油也在哭呀……{n}退后就是了……呜呜……', 'Parent is crying too... {N} will step back... sniff...')],
+            'plain': [
+                ('うぅ……ほんとうに しかたないんだね……{n}、もう とめられないの{e}……', '呜呜……真的没有别的办法了呀……{n}也拦不住了{e}……', 'Uu... there really is no other way... {N} cannot stop it...'),
+                ('ぐすっ……わかったよ……でも ぜったい わすれないからね{e}……', '呜……知道了……可是{n}绝对不会忘记它的{e}……', 'Sniff... okay... but {N} will never forget them...')],
+            'proud': [
+                ('うぅ……おやしゃが そんなに つらそうなら……{n}、さがるしかないよ{e}……', '呜呜……连亲亲油都这么难过……{n}也只好退开了{e}……', 'Uu... if it hurts parent this much too... {N} has to step back...'),
+                ('くやしいよ……{n}が もっと ちいさかったら よかったのに{e}……', '好不甘心……要是{n}能再小一点就好了{e}……', 'So frustrating... if only {N} were smaller...')]},
+        'adult': {
+            'timid': [('ゆぐっ……わかったよ……でも かなしすぎるよ{e}……', '呜呜……知道了……可还是太让油伤心了{e}……', 'Sniff... okay... it is just too sad...')],
+            'plain': [('うぅ……しかたないんだね……さがるよ{e}……', '呜呜……确实没办法呀……{n}退开吧{e}……', 'Uu... it cannot be helped... {N} will step back...')],
+            'proud': [('くやしいけど……わかったよ、じゃまは しない{e}……', '虽然好不甘心……知道了，{n}不拦了{e}……', 'Hate this... okay, {N} will step aside...')]},
+    },
+    'sibling_stepin_rebuffed': {
+        'baby': {
+            'timid': [('{c}……いたいよぅ……ひどい……', '{c}……好痛……太过分惹……', '{c}... owie... meanie...')],
+            'plain': [('{c}！ おさないで……ひどいよ……！', '{c}！别推呀……太过分惹……！', '{c}! Do not push... so mean...!')],
+            'proud': [('{c}！ ぷくー！ おやしゃ ひどい！', '{c}！噗咕！亲亲油大坏蛋！', '{c}! Puff! Mean pawent!')]},
+        'juvenile': {
+            'timid': [
+                ('ひっ……おやしゃ つめたいよ……かなしいよ{e}……', '呜……亲亲油好冷淡……好让油伤心{e}……', 'Eek... parent is so cold... it makes {N} sad...'),
+                ('うぅ……きいてくれないんだね……ひどいよ{e}……', '呜呜……根本不肯听{n}说……太过分了{e}……', 'Uu... will not even listen to {N}... so mean...')],
+            'plain': [
+                ('いたっ……どうして おすの……！ おやしゃ ひどすぎるよ{e}……！', '好痛……干嘛推{n}啊……！亲亲油太过分了{e}……！', 'Ow... why push {N}...! Parent is way too mean...!'),
+                ('そんな……ぜんぜん きいてくれないなんて……ひどいよ{e}……！', '怎么这样……完全不理{n}的话……太过分了{e}……！', 'No way... not even listening to {N}... that is so cruel...!')],
+            'proud': [
+                ('くっ……おすなんて ひどいよ おやしゃ！ でも {n}、まだ なっとく しないからね{e}！', '唔……竟然推{n}，亲亲油太过分了！可是{n}才不服气呢{e}！', 'Ngh... pushing {N} is so mean, parent! {N} still does not accept this!'),
+                ('ぷくーっ！ きいてくれないなんて さいあくだよ おやしゃ{e}！', '噗咕——！连听都不肯听，亲亲油太差劲了{e}！', 'Puff! Not even listening, parent is the worst!')]},
+        'adult': {
+            'timid': [('うぅ……つめたいよ……きいてくれないんだね{e}……', '呜呜……好冷淡……根本不肯听啊{e}……', 'Uu... so cold... will not even listen...')],
+            'plain': [('ひどいよ……こんな つめたく するなんて{e}……！', '太过分了……怎么能这么冷淡呢{e}……！', 'Too cruel... how can you be this cold...!')],
+            'proud': [('くっ……ひどすぎるよ！ こんなの なっとく できない{e}！', '唔……太过分了！这种事{n}才不服气{e}！', 'Ngh... way too cruel! {N} cannot accept this!')]},
+    },
 }
 
 CONTEST_SUMO_DOLL_BASIS = 'wp-contest-tiers: authentic yukkuri lines for resource contests, friendly sumo, and doll snatching; project-original wording, unvoiced'

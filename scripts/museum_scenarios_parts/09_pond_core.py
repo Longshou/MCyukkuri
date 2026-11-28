@@ -193,10 +193,10 @@ def _overload_tradeoff(window, scene='hat_crowd', families=None):
     and cut children never settle back inside the 16-block banned range."""
     if families is None:
         families = (
-            ('normal', 'DRIVE_TEARFUL', 'plead', None, None),
-            ('cold', 'DRIVE_COLD', 'plead', None, None),
+            ('normal', 'DRIVE_TEARFUL', 'plead', None, None, None),
+            ('cold', 'DRIVE_COLD', 'plead', None, None, None),
         )
-    for parent, verdict, branch, far_actor, places in families:
+    for parent, verdict, branch, far_actor, places, step_in in families:
         failure, owner, boats, overloaded_growth = _overload_hull(window, scene, parent, False, places)
         if failure:
             return failure
@@ -216,13 +216,13 @@ def _overload_tradeoff(window, scene='hat_crowd', families=None):
         if beat is None:
             return f'{parent}: the verdict was never played out (no beat start)'
         centre = (int(beat[2]), int(beat[3]))
-        failure = _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=far_actor)
+        failure = _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=far_actor, step_in=step_in)
         if failure:
             return failure
     return None
 
 
-def _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=None):
+def _driven_out_order(window, after, scene, parent, verdict, branch, owner, child, centre, far_actor=None, step_in=None):
     """The order of the cut child's departure (FEATURES 超载断亲): her verdict beat -> the order -> the child's stat branch
     (plead / stare / sulk) -> it turns and walks -> it is gone (distance and sight) -> only then the cut and the parting feeling
     of the parent and perceiving siblings. Every beat logged with its declared and its shown face must show the declared one, the
@@ -327,12 +327,41 @@ def _driven_out_order(window, after, scene, parent, verdict, branch, owner, chil
         if not re.search(r'\[choreo\][^\n]*uuid=' + sib2 + r'[^\n]* beat=sibling_cry face=' + expected_sib[0]
                          + r' line=' + expected_sib[1] + r' declared=' + expected_sib[0], later):
             return f'{parent}: sibling ({sib_cry_ev[1]}) did not play beat=sibling_cry face={expected_sib[0]} line={expected_sib[1]}'
-    # the staged far sibling (beyond sight and hearing, out of her family range) misses the departure and stays silent about it
+    # bold attached sibling step-in plea and parent response (plea, never veto); timid/cold/unbold siblings never step in
+    if step_in is False:
+        if re.search(r'\[family\][^\n]*uuid=' + sib2 + r'[^\n]* driven out sibling (?:stepin start|stepped in)\b', after):
+            return f'{parent}: non-bold or cold sibling stepped in when it should keep its landed in-place reaction'
+    elif isinstance(step_in, str) and not (sib2_dead and int(sib2_dead[1]) <= ordered):
+        if not re.search(r'\[family\][^\n]*uuid=' + sib2 + r'[^\n]* driven out sibling stepin start child=' + child, after):
+            return f'{parent}: bold attached sibling never started stepping in'
+        stepped = re.search(r'\[family\][^\n]*uuid=' + sib2 + r' t=(\d+)[^\n]* driven out sibling stepped in child=' + child + r' parent=' + owner, after)
+        if stepped is None:
+            fb = re.search(r'\[family\][^\n]*uuid=' + sib2 + r'[^\n]* driven out sibling stepin (?:fallback|skipped)[^\n]*', after)
+            return f'{parent}: bold attached sibling never arrived to plead ({fb[0][-80:] if fb else "no stepped-in line"})'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + sib2 + r'[^\n]* beat=sibling_stepin_plea face=(?:teary_frown|teary) line=sibling_stepin_plea declared=(?:teary_frown|teary)', after):
+            return f'{parent}: stepping-in sibling did not play beat=sibling_stepin_plea'
+        ans_meta = {
+            'SOOTHE': ('stepin_soothe', 'teary', 'parent_stepin_soothe', 'teary', 'sibling_stepin_soothed'),
+            'NUDGE_BACK': ('stepin_nudge', 'angry', 'parent_stepin_nudge', 'teary_frown', 'sibling_stepin_rebuffed'),
+            'IGNORE': ('stepin_ignore', 'hmph', 'parent_stepin_ignore', 'teary_frown', 'sibling_stepin_rebuffed'),
+        }[step_in]
+        answered = re.search(r'\[family\][^\n]*uuid=' + owner + r' t=(\d+)[^\n]* overload answers interceding sibling=' + sib2 + r' answer=' + step_in, after[stepped.end():])
+        if answered is None:
+            return f'{parent}: parent never answered interceding sibling with {step_in}'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + owner + r'[^\n]* beat=' + ans_meta[0] + r' face=' + ans_meta[1]
+                         + r' line=' + ans_meta[2] + r' declared=' + ans_meta[1], after[stepped.end():]):
+            return f'{parent}: parent did not play beat={ans_meta[0]} face={ans_meta[1]} line={ans_meta[2]}'
+        if not re.search(r'\[choreo\][^\n]*uuid=' + sib2 + r'[^\n]* beat=sibling_stepin_after face=' + ans_meta[3]
+                         + r' line=' + ans_meta[4] + r' declared=' + ans_meta[3], after[stepped.end():]):
+            return f'{parent}: stepping-in sibling did not play beat=sibling_stepin_after face={ans_meta[3]} line={ans_meta[4]}'
+    # the staged far sibling (at its nest behind the stone wall, beyond sight and hearing) misses the departure and is never severed
     if far_actor:
         far = _uuid_text(scene, far_actor)
+        if re.search(r'\[family\][^\n]*uuid=' + owner + r'[^\n]* parent dismissed child=' + far + r'\b', window):
+            return f'{parent}: the far sibling behind the wall was severed (e.g. search_abandoned)'
         if not re.search(r'\[family\][^\n]*uuid=' + far + r' t=\d+[^\n]* driven out sibling missed departure child=' + child + r' reason=out_of_range', later):
             return f'{parent}: the far sibling did not log missing the departure (out_of_range)'
-        if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts|witnessed|detached)|beat=sibling_(?:verdict|rebuff|cry|part_detached)|beat=parting_begins|course begun kind=parting)', later):
+        if re.search(r'uuid=' + far + r'[^\n]*(?:driven out sibling (?:cries|parts|witnessed|detached|stepin|stepped)|beat=sibling_(?:verdict|rebuff|cry|part_detached|stepin)|beat=parting_begins|course begun kind=parting)', later):
             return f'{parent}: the far sibling reacted to a departure it never perceived'
     # witness rule: a sibling that missed the departure must never get PARTING about this child
     for missed in re.finditer(r'\[family\][^\n]*uuid=(\S+) t=\d+[^\n]* driven out sibling missed departure child=' + child, later):
@@ -957,7 +986,7 @@ _SEVER_EXPECT = [r'\[hat\][^\n]* scenario afloat prepared [^\n]*young=2\b[^\n]*f
 _SEVER_SEATS = ((2, 'HEAD'), (3, 'BRIM'))
 
 
-def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=8.0, first=80, far_sibling=False, child2_traits=None):
+def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_traits, verdict, branch, *, out=8.0, first=80, far_sibling=False, child2_traits=None, step_in=None):
     # The driven-out young is the one that has already learnt to crawl: it walks out at its own gait and can live as a stray at
     # once (a newborn that never practised crawling stays where it is put, and the severance shows nothing).
     actors = [*_overload_family(sid, parent, 0, False, label, out=out, stick=True, child3_traits=child3_traits,
@@ -965,26 +994,29 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
     far_actor = None
     if far_sibling:
         far_actor = 'normal_far'
-        # Third young 16 blocks west of the straight west bank (inside parent's 24-block search, beyond 12-block sight and
-        # behind a 3-high stone wall) with water and apples so it stays put and misses the departure.
+        # Third young 15 blocks west of the straight west bank (inside parent's 24-block search, beyond 12-block sight and
+        # behind a 3-high stone wall) at its own assigned nest with water and apples so it stays safely at home (no lost_parent
+        # or search_abandoned severance) and misses the departure.
         actors += [
-            yk('marisa', bank_dx(0) - 16, 0, far_actor, aquatic=True, fam=_seat_family(.20, _YOUNG2_NOURISHMENT, 76000),
-               childhood=CHILDHOOD_CRAWLING_READY, uuid=uid(sid, far_actor), kin=f'Mother:{uuid_nbt(uid(sid, parent))}',
-               label='远处的孩子', **pair_ready()),
             box(bank_dx(0) - 14, 0, -2, bank_dx(0) - 14, 2, 2, 'minecraft:stone'),
             box(bank_dx(0) - 17, 0, -1, bank_dx(0) - 17, 1, 1, 'minecraft:oak_fence'),
             box(bank_dx(0) - 17, 0, -2, bank_dx(0) - 15, 1, -2, 'minecraft:oak_fence'),
             box(bank_dx(0) - 17, 0, 2, bank_dx(0) - 15, 1, 2, 'minecraft:oak_fence'),
+            block(bank_dx(0) - 16, 0, 0, 'mcyukkuri:yukkuri_nest'),
             block(bank_dx(0) - 16, 0, -1, 'mcyukkuri:waterer{Water:8}'),
             item('minecraft:apple', 2, bank_dx(0) - 16, 1, 'far_food'),
+            yk('marisa', bank_dx(0) - 15, 0, far_actor, aquatic=True, fam=_seat_family(.20, _YOUNG2_NOURISHMENT, 76000),
+               childhood=CHILDHOOD_CRAWLING_READY, uuid=uid(sid, far_actor), kin=f'Mother:{uuid_nbt(uid(sid, parent))}',
+               label='远处的孩子', **pair_ready()),
+            home(far_actor, bank_dx(0) - 16, 0),
         ]
-    families = ((parent, verdict, branch, far_actor, _SEVER_SEATS),)
+    families = ((parent, verdict, branch, far_actor, _SEVER_SEATS, step_in),)
     pond(sid, title, title, watch, '约 2 分钟，建议倍速', actors,
          late=[f'execute as {sel(parent)} on vehicle run tag @s add seat_reload',
                *_overload_growth(parent, _CROWD_OVERLOAD_STEPS, first=first)],
          vantage=(-7, 7, -135, 16),
          capture=dict(shots=(1, 300, 1800, 4600), sequences=((200, 4600, 200), (800, 2000, 4))),
-         note='单户超载断亲：西岸直岸居中，右侧水面翻船，左侧干地走远。日志依次 overload verdict -> overload beat start -> driven out ordered -> driven out begins -> 分支 beat -> turn_away -> departed -> parent dismissed -> parting_begins（含泪亲油）。',
+         note='单户超载断亲：西岸直岸居中，右侧水面翻船，左侧干地走远。日志依次 overload verdict -> overload beat start -> driven out ordered -> driven out begins -> （高依恋大胆手足时）stepin start / stepped in / overload answers interceding -> 分支 beat -> turn_away -> departed -> parent dismissed -> parting_begins（含泪亲油）。',
          reads=[(f'读亲油（{label}）', f'yukkuri status {sel(parent)} raw'),
                 ('读最大孩子', f'yukkuri status {sel(parent + "3")} raw'),
                 ('读载重帽', 'data get entity @e[tag=seat_reload,limit=1]')],
@@ -999,17 +1031,17 @@ def _severance_scene(sid, title, watch, parent, label, parent_traits, child3_tra
 
 
 _severance_scene('hat_sever_tearful', '超载断亲：含泪转身与远手足',
-                 '翻船后含泪亲油赶走最大孩子：孩子先震惊再哀求，被转身拒绝后含泪走远断亲；依恋手足全程震惊哭泣目送，墙后远手足无反应',
-                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True, child2_traits=_SIB_SORROW)
-_severance_scene('hat_sever_cold', '超载断亲：冷淡推开',
-                 '翻船后冷淡亲油赶走最大孩子：孩子先震惊再哀求，被推开后怒骂走远断亲；胆小手足全程害怕缩抖，绝不露笑脸',
-                 'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead', child2_traits=_SIB_SCARED)
-_severance_scene('hat_sever_freeze', '超载断亲：僵住凝望',
-                 '翻船后含泪亲油赶走最大孩子：孩子先震惊再委屈质问「什么都没做错」，随后含泪走远断亲；大胆手足出声抗议',
-                 'freeze', '含泪·僵望', _TEARFUL, _FREEZE_KID, 'DRIVE_TEARFUL', 'stare', child2_traits=_SIB_PROTEST)
+                 '翻船后含泪亲油赶走最大孩子：孩子先震惊再哀求，被转身拒绝后含泪走远断亲；依恋但不大胆的手足留在原地哭泣目送，墙后在窝边的远手足无反应且不被断亲',
+                 'normal', '含泪·央求', _TEARFUL, _PLEAD_KID, 'DRIVE_TEARFUL', 'plead', out=8.0, first=80, far_sibling=True, child2_traits=_SIB_SORROW, step_in=False)
+_severance_scene('hat_sever_cold', '超载断亲：冷淡推开与手足拦阻',
+                 '翻船后冷淡亲油赶走最大孩子：高依恋大胆的手足上前挡在中间求情，被冷淡亲油喝退轻推回后仍不改判；被逐孩子哀求被推开，怒骂走远断亲',
+                 'cold', '冷淡·央求', _COLD, _PLEAD_KID, 'DRIVE_COLD', 'plead', child2_traits=_SIB_PROTEST, step_in='NUDGE_BACK')
+_severance_scene('hat_sever_freeze', '超载断亲：僵住凝望与手足求情',
+                 '翻船后含泪亲油赶走最大孩子：高依恋大胆的手足上前挡在中间求情，含泪亲油垂发安抚却仍不能留人，手足含泪退让；被逐孩子震惊委屈质问后含泪走远断亲',
+                 'freeze', '含泪·僵望', _TEARFUL, _FREEZE_KID, 'DRIVE_TEARFUL', 'stare', child2_traits=_SIB_PROTEST, step_in='SOOTHE')
 _severance_scene('hat_sever_sulk', '超载断亲：赌气哼走',
-                 '翻船后冷淡亲油赶走最大孩子：感情淡薄的孩子冷嘲、哼气长留、走远途中补哼，全程不流泪；冷淡手足冷眼相待、不露笑脸',
-                 'sulk', '冷淡·哼走', _COLD, _SULK_KID, 'DRIVE_COLD', 'sulk', child2_traits=_SIB_COLD)
+                 '翻船后冷淡亲油赶走最大孩子：感情淡薄的孩子冷嘲、哼气长留、走远途中补哼，全程不流泪；冷淡手足冷眼留在原地，不上前也不露笑脸',
+                 'sulk', '冷淡·哼走', _COLD, _SULK_KID, 'DRIVE_COLD', 'sulk', child2_traits=_SIB_COLD, step_in=False)
 
 pond('hat_load_warning', '载重警戒，亲油靠岸卸人', '载重警戒，亲油靠岸卸人',
      '两位亲油各带孩子：北侧普通亲油看到帽船吃水下沉、多晃（载重警戒）就划回岸边卸下全家，再出航只带载得下的孩子；南侧低智力高友善的亲油不理会警戒，载着全家直到翻船，之后仍认全部孩子',

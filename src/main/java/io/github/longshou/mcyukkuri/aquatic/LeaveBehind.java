@@ -19,6 +19,7 @@ import io.github.longshou.mcyukkuri.motor.action.Push;
 import io.github.longshou.mcyukkuri.social.Bonds;
 import io.github.longshou.mcyukkuri.social.Departure;
 import io.github.longshou.mcyukkuri.social.SeveranceReaction;
+import io.github.longshou.mcyukkuri.social.SeveranceReaction.ParentStepInAnswer;
 import io.github.longshou.mcyukkuri.social.SeveranceVerdict.Verdict;
 import io.github.longshou.mcyukkuri.social.Temperament;
 import io.github.longshou.mcyukkuri.status.GameplayLog;
@@ -52,6 +53,8 @@ final class LeaveBehind implements Intent {
     private static final int MEMO = 3600, TRIES = 2, SIGHT = 16;
     /** How long she watches a child go (ticks: the plea, in which a pleader may take up to a minute to reach her, and the early walk); how far she shoves a pleader off (blocks). */
     private static final int WATCH = 2400, SHOVE = 3, PLEA_WAIT = 1500;
+    /** Holds (ticks) when answering an interceding sibling: soothing beat, cold ignore/blocked-nudge flick, and speech-turn wait. */
+    private static final int SOOTHE_HOLD = 50, IGNORE_HOLD = 36, ANSWER_QUIET_WAIT = 120;
 
     /** A verdict already drawn at a capsize, waiting for the parent to stand where she can play it out (never saved). */
     private static final class Memo {
@@ -253,7 +256,7 @@ final class LeaveBehind implements Intent {
         private final YukkuriEntity parent, child;
         private final Memo memo;
         private final long started;
-        private boolean turnedBack;
+        private boolean turnedBack, answeredSibling, rebuffedChild;
 
         Watch(YukkuriEntity parent, YukkuriEntity child, Memo memo) {
             this.parent = parent;
@@ -264,23 +267,93 @@ final class LeaveBehind implements Intent {
 
         @Override public String id() { return "watch_leave"; }
         @Override public long deadline() { return started + WATCH; }
-        @Override public Commitment commitment() { return child.drivenOut().holding() ? Commitment.HARD : Commitment.SOFT; }
+        @Override public Commitment commitment() {
+            return child.drivenOut().phase() == DrivenOut.Phase.WAITING || child.drivenOut().holding()
+                    || DrivenOut.intercessionActive(parent, child) ? Commitment.HARD : Commitment.SOFT;
+        }
         @Override public boolean satisfied() {
             return !child.isAlive() || !parent.getUUID().equals(child.drivenOut().driver())
                     || child.drivenOut().phase() == DrivenOut.Phase.NONE
-                    || !child.drivenOut().holding() && (parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child));
+                    || !child.drivenOut().holding() && child.drivenOut().phase() != DrivenOut.Phase.WAITING
+                            && (parent.distanceTo(child) > SIGHT || !parent.hasLineOfSight(child));
         }
         @Override public List<Method> methods() { return List.of(Plan.of("watch_leave", this::derive)); }
 
+        private boolean readyToRebuffChild() {
+            return !rebuffedChild && child.drivenOut().pleaderAtParent()
+                    && DrivenOut.intercedingSibling(parent, child) == null;
+        }
+
         private List<Supplier<Step>> derive() {
-            return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
-                    () -> new Step.Wait(() -> child.drivenOut().pleaderAtParent()
-                            || child.drivenOut().phase() == DrivenOut.Phase.GOING && !child.drivenOut().holding(), PLEA_WAIT, null),
-                    this::rebuff,
-                    () -> new Step.Wait(() -> {
-                        if (!turnedBack) parent.getLookControl().setLookAt(child, 30, 30);
-                        return satisfied();
-                    }, WATCH, null));
+            if (!answeredSibling) {
+                var sib = DrivenOut.pleadingSibling(parent, child);
+                if (sib != null) return answerSibling(sib);
+            }
+            if (readyToRebuffChild()) {
+                rebuffedChild = true;
+                return List.of(this::rebuff);
+            }
+            if (child.drivenOut().phase() == DrivenOut.Phase.WAITING || child.drivenOut().holding()) {
+                return List.of(() -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), child.position()))),
+                        () -> new Step.Wait(() -> !answeredSibling && DrivenOut.pleadingSibling(parent, child) != null
+                                || readyToRebuffChild()
+                                || child.drivenOut().phase() == DrivenOut.Phase.GOING && !child.drivenOut().holding()
+                                || satisfied(), PLEA_WAIT, null));
+            }
+            return List.of(() -> new Step.Wait(() -> {
+                if (!turnedBack) parent.getLookControl().setLookAt(child, 30, 30);
+                return satisfied();
+            }, WATCH, null));
+        }
+
+        /** Answers a bold attached sibling who stepped between her and the driven child: soothes, nudges back (shared Push with
+         *  dry-step fallback), or ignores by her own temperament, then returns to the severance (a plea, never a veto). */
+        private List<Supplier<Step>> answerSibling(YukkuriEntity sib) {
+            answeredSibling = true;
+            var answer = SeveranceReaction.parentStepInAnswer(parent.life().personality().temperament(),
+                    memo.verdict == Verdict.DRIVE_TEARFUL);
+            long[] holdEnd = {0};
+            return List.of(
+                    () -> new Step.Do(new Face(SurfaceApproach.yaw(parent.position(), sib.position()))),
+                    () -> new Step.Wait(() -> !sib.isAlive()
+                            || parent.quiet() && sib.speechEnd() <= parent.level().getGameTime(), ANSWER_QUIET_WAIT, null),
+                    () -> {
+                        if (!sib.isAlive()) return null;
+                        var t = parent.life().personality().temperament();
+                        YukkuriAction clip = answer.clip();
+                        if (answer == ParentStepInAnswer.NUDGE_BACK) {
+                            var push = new Push(sib);
+                            var feasible = push.check(parent);
+                            if (feasible.ok()) {
+                                parent.forceReaction(answer.face(), "", FaceTier.Tier.LONG);
+                                boolean spoken = parent.speakCue(answer.line(), SeveranceReaction.speechStyle(t), SAY_PRIORITY);
+                                parent.beat(answer.beat(), answer.face(), spoken ? answer.line() : "");
+                                GameplayLog.event(parent, "family", "overload answers interceding sibling={} answer={} pushed=true",
+                                        sib.getUUID(), answer);
+                                return new Step.Do(push);
+                            }
+                            clip = YukkuriAction.MOOD_FLICK;
+                            GameplayLog.event(parent, "family", "overload answers interceding sibling={} answer={} pushed=false reason={}",
+                                    sib.getUUID(), answer, feasible.detail());
+                        } else {
+                            GameplayLog.event(parent, "family", "overload answers interceding sibling={} answer={}",
+                                    sib.getUUID(), answer);
+                        }
+                        if (clip != null) parent.forceReaction(clip, answer.face(), "", FaceTier.Tier.LONG);
+                        else parent.forceReaction(answer.face(), "", FaceTier.Tier.LONG);
+                        boolean spoken = parent.speakCue(answer.line(), SeveranceReaction.speechStyle(t), SAY_PRIORITY);
+                        parent.beat(answer.beat(), answer.face(), spoken ? answer.line() : "");
+                        int hold = answer == ParentStepInAnswer.SOOTHE ? SOOTHE_HOLD : IGNORE_HOLD;
+                        holdEnd[0] = parent.level().getGameTime() + hold;
+                        return new Step.Wait(() -> {
+                            if (sib.isAlive()) parent.getLookControl().setLookAt(sib, 30, 30);
+                            return !sib.isAlive() || parent.level().getGameTime() >= holdEnd[0];
+                        }, hold + 10, null);
+                    },
+                    () -> {
+                        if (sib.isAlive()) sib.drivenOut().stepInAnswered(answer);
+                        return null;
+                    });
         }
 
         /** A pleader at her feet is turned away (the child's plea then ends); a child that did not plead needs nothing. */

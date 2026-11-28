@@ -42,10 +42,18 @@ public final class Departure {
      * is what a protester says (none for a driven child); {@code onTurn} is told the answer when it turns to go.
      */
     public record Terms(String category, String label, Vec3 centre, int radius, YukkuriEntity driver, UUID about, float power,
-                        boolean repeat, boolean byGuardian, boolean severance, boolean approach, String resistLine, Consumer<Answer> onTurn) {}
+                        boolean repeat, boolean byGuardian, boolean severance, boolean approach, String resistLine,
+                        Consumer<Answer> onTurn, BooleanSupplier interceding) {
+        public Terms(String category, String label, Vec3 centre, int radius, YukkuriEntity driver, UUID about, float power,
+                     boolean repeat, boolean byGuardian, boolean severance, boolean approach, String resistLine, Consumer<Answer> onTurn) {
+            this(category, label, centre, radius, driver, about, power, repeat, byGuardian, severance, approach, resistLine, onTurn, () -> false);
+        }
+    }
 
     /** Ticks it keeps walking beyond the range once a caller extends it; ticks a turned-away pleader still stands after a rebuff. */
     private static final int EXIT_CLEARANCE = 1, REBUFF_HOLD = 30, APPROACH_AFTER = 10, REBUFF_WAIT = 40;
+    /** Hard cap on ticks a driven child delays turning while a bold sibling steps in, pleads, and yields (a plea, never a veto). */
+    private static final int INTERCEDE_HOLD_CAP = 360;
     /** A pleader keeps closing in on its driver while it gains {@link #PROGRESS} blocks (nearer to her, or further along its route to her, which
      *  leads away from her first round a body or a corner) within {@link #APPROACH_STALL} ticks (a young one
      *  crawls about 0.4 blocks a second) and for {@link #APPROACH_CAP} ticks in all (60 s: the 16 blocks she watches it from); then it gives up and turns to go. */
@@ -69,7 +77,7 @@ public final class Departure {
     private final BooleanSupplier myTurn;
     private Terms terms;
     private Vec3 destination, outward, turnPos, approachAt;
-    private int ticks, nextExit, extra, shockTicks, answerTicks, lookBacks, lookBackTicks, atDriver, approachStall, stall, turnedAt = -TURN_SHOW;
+    private int ticks, nextExit, extra, shockTicks, answerTicks, lookBacks, lookBackTicks, atDriver, approachStall, stall, intercedeWait, turnedAt = -TURN_SHOW;
     private double best, approachBest = Double.MAX_VALUE;
     private boolean resists, pleads, turned, rebuffed, listened, muttered;
     private Answer answer;
@@ -109,7 +117,7 @@ public final class Departure {
     public void begin(Terms terms) {
         this.terms = terms;
         var t = entity.life().personality().temperament();
-        ticks = nextExit = extra = lookBackTicks = atDriver = approachStall = stall = 0;
+        ticks = nextExit = extra = lookBackTicks = atDriver = approachStall = stall = intercedeWait = 0;
         best = 0;
         approachBest = Double.MAX_VALUE;
         approachAt = null;
@@ -142,7 +150,7 @@ public final class Departure {
         ticks = turned ? answerTicks : 0;
         turnedAt = -TURN_SHOW;
         listened = false;
-        nextExit = lookBackTicks = atDriver = approachStall = stall = 0;
+        nextExit = lookBackTicks = atDriver = approachStall = stall = intercedeWait = 0;
         best = 0;
         approachBest = Double.MAX_VALUE;
         approachAt = null;
@@ -303,6 +311,12 @@ public final class Departure {
             if (entity.showReaction(face, line, FaceTier.Tier.MEDIUM)) entity.beat(resists ? "resist" : pleads ? "plead" : "stare", face, line);
         }
         if (pleads && terms.approach() && driver != null && !rebuffed && ticks >= shockTicks + APPROACH_AFTER) stepUp(driver);
+        // While a bold sibling is actively stepping in and pleading, hold before turning so the parent can answer it (bounded: never a veto).
+        if (terms.severance() && !terms.repeat() && !rebuffed && ticks >= answerTicks
+                && intercedeWait < INTERCEDE_HOLD_CAP && terms.interceding().getAsBoolean()) {
+            intercedeWait++;
+            answerTicks = ticks + 1;
+        }
     }
 
     private void playBeat(String beat, YukkuriAction clip, String face, String line, FaceTier.Tier tier, String style) {
@@ -318,6 +332,12 @@ public final class Departure {
             SurfaceApproach.stopWalking(entity);
             if (++atDriver == 1) GameplayLog.event(entity, terms.category(), "{} pleader at parent driver={} distance={}", terms.label(),
                     driver.getUUID(), Math.round(entity.distanceTo(driver) * 100) / 100.0);
+            if (terms.severance() && !terms.repeat() && intercedeWait < INTERCEDE_HOLD_CAP && terms.interceding().getAsBoolean()) {
+                intercedeWait++;
+                atDriver = Math.min(atDriver, 1);
+                if (ticks >= answerTicks) answerTicks = ticks + 1;
+                return;
+            }
             if (atDriver <= REBUFF_WAIT && ticks >= answerTicks) answerTicks = ticks + 1;
             return;
         }
