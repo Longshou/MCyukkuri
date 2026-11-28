@@ -16,6 +16,7 @@ import io.github.longshou.mcyukkuri.motor.AbilityModifier;
 import io.github.longshou.mcyukkuri.motor.BodyAbility;
 import io.github.longshou.mcyukkuri.motor.ContactGeometry;
 import io.github.longshou.mcyukkuri.motor.Feasibility;
+import io.github.longshou.mcyukkuri.motor.Outcome;
 import io.github.longshou.mcyukkuri.motor.Reason;
 import io.github.longshou.mcyukkuri.motor.action.Await;
 import io.github.longshou.mcyukkuri.motor.action.Beckon;
@@ -62,10 +63,12 @@ public final class EscapeWater implements Intent {
     private static final int DEADLINE = 1200, HAT_SWIM = 600, PRESS = 100, AVOID_TICKS = 400, OUT = 6, FAR_OUT = 20, FAR_STANDS = 8, DOWN = 1, UP = 3;
     /** How far (blocks) its own hat is swum to; clearance (blocks) of the landing box. */
     private static final double WEAK_ENERGY = 30, HAT_RANGE = 16, CLEAR = .05;
-    private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS), AT_BANK = Set.of(
-            Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM, Reason.NO_SUPPORT), PRESSING = Set.of(Reason.TOO_HIGH);
+    private static final Set<Reason> AT_HAT = Set.of(Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS),
+            SWIM_HAT = Set.of(Reason.NO_PROGRESS, Reason.TOO_FAR, Reason.EXHAUSTED, Reason.NO_CONTACT, Reason.SLIPPED),
+            AT_BANK = Set.of(Reason.TOO_FAR, Reason.SLIPPED, Reason.NO_CONTACT, Reason.NO_PROGRESS, Reason.NO_ROOM, Reason.NO_SUPPORT),
+            PRESSING = Set.of(Reason.TOO_HIGH);
     /** The ways that approach a hat already on the water. */
-    private static final Set<String> AFLOAT_HAT = Set.of("own_hat", "right_own_hat");
+    private static final Set<String> AFLOAT_HAT = Set.of("own_hat", "swim_own_hat", "right_own_hat", "swim_right_own_hat");
 
     /** A bank edge: its stand, the middle of the stand's face toward open water, the water point in front of it, the landing. */
     private record Edge(BlockPos stand, Vec3 edge, Vec3 front, Vec3 land) {}
@@ -73,6 +76,7 @@ public final class EscapeWater implements Intent {
     private final YukkuriEntity body;
     private final long started;
     private final String incident;
+    private final boolean allowBeckon;
     /** Edges whose climb ended SLIPPED or NO_ROOM, until when (game tick); kept by the escape goal across runs. */
     private final Map<BlockPos, Long> avoid;
     /** Water routes already asked of the pathfinder in this run, and the stands scanned this tick. */
@@ -81,13 +85,20 @@ public final class EscapeWater implements Intent {
     private long scanned = Long.MIN_VALUE, farScanned = Long.MIN_VALUE / 2;
     private List<Vec3> farStands = List.of();
     private Edge climbing;
+    /** A wet beckon stroke started in this escape ended blocked (stalled, too far, exhausted): swim straight to the hat instead. */
+    private boolean beckoning, beckonFailed;
     /** Hat ways, bank edges and final dry steps already tried during this escape. */
     private final Set<Object> tried = new HashSet<>();
 
     public EscapeWater(YukkuriEntity body, Map<BlockPos, Long> avoid) {
+        this(body, avoid, true);
+    }
+
+    public EscapeWater(YukkuriEntity body, Map<BlockPos, Long> avoid, boolean allowBeckon) {
         this.body = body;
         this.started = body.level().getGameTime();
         this.incident = body.childhood().canSail() ? null : AskLedger.server().openOf(body.getUUID(), "water");
+        this.allowBeckon = allowBeckon;
         this.avoid = avoid;
         GameplayLog.event(body, "water", "escape start at={} support={}", GameplayLog.at(body.position()), support());
         var hat = PlacedHatEntity.find(body);
@@ -143,16 +154,31 @@ public final class EscapeWater implements Intent {
         Edge bank = assisted ? null : climbable();
         boolean refuge = assisted || nearest() != null;
         // Its own hat afloat within a braid's beckoning reach: one paddling session draws it in before the last stretch is swum.
-        int stroke = hat != null && new Beckon(hat).check(body).ok() ? 1 : 0;
+        // If that session stalls or ends without bringing the hat in, swim straight to it instead of giving up on the hat.
+        int stroke = allowBeckon && !beckonFailed && hat != null && new Beckon(hat).check(body).ok() ? 1 : 0;
+        Feasibility swimUpright = beckonFailed ? hat(hat, false) : Feasibility.of(Reason.NO_CONTACT, 0, "beckon_first");
+        Feasibility swimCapsized = beckonFailed ? hat(hat, true) : Feasibility.of(Reason.NO_CONTACT, 0, "beckon_first");
         return List.of(
                 new Way("own_hat", hat(hat, false), AT_HAT, i -> switch (i - stroke) {
-                    case -1 -> new Step.Do(new Beckon(hat));
+                    case -1 -> { beckoning = true; yield new Step.Do(new Beckon(hat)); }
+                    case 0 -> { beckoning = false; yield closeOn(hat); }
+                    case 1 -> new Step.Do(Climb.onto(hat));
+                    default -> null;
+                }),
+                new Way("swim_own_hat", swimUpright, SWIM_HAT, i -> switch (i) {
                     case 0 -> closeOn(hat);
                     case 1 -> new Step.Do(Climb.onto(hat));
                     default -> null;
                 }),
                 new Way("right_own_hat", hat(hat, true), AT_HAT, i -> switch (i - stroke) {
-                    case -1 -> new Step.Do(new Beckon(hat));
+                    case -1 -> { beckoning = true; yield new Step.Do(new Beckon(hat)); }
+                    case 0 -> { beckoning = false; yield closeOn(hat); }
+                    case 1 -> new Step.Do(new Right(hat, "self_rescue"));
+                    case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
+                    case 3 -> new Step.Do(Climb.onto(hat));
+                    default -> null;
+                }),
+                new Way("swim_right_own_hat", swimCapsized, SWIM_HAT, i -> switch (i) {
                     case 0 -> closeOn(hat);
                     case 1 -> new Step.Do(new Right(hat, "self_rescue"));
                     case 2 -> new Step.Wait(hat::steady, 60, "hat_settles");
@@ -243,6 +269,9 @@ public final class EscapeWater implements Intent {
         long now = body.level().getGameTime();
         avoid.values().removeIf(until -> until <= now);
         var last = body.motor().last();
+        if (beckoning && body.motor().current() == null && last != null && !(last instanceof Outcome.Done))
+            beckonFailed = true;
+        beckoning = false;
         if (climbing != null && body.motor().current() == null && last != null
                 && (last.reason() == Reason.SLIPPED || last.reason() == Reason.NO_ROOM || last.reason() == Reason.NO_SUPPORT)
                 && avoid.size() < 16)

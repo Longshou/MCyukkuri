@@ -2,6 +2,7 @@ package io.github.longshou.mcyukkuri.motor.action;
 
 import io.github.longshou.mcyukkuri.entity.YukkuriAction;
 import io.github.longshou.mcyukkuri.entity.YukkuriEntity;
+import io.github.longshou.mcyukkuri.family.ParentCarry;
 import io.github.longshou.mcyukkuri.motor.Action;
 import io.github.longshou.mcyukkuri.motor.Attach;
 import io.github.longshou.mcyukkuri.motor.AttachState;
@@ -73,6 +74,7 @@ public final class Beckon implements Action {
 
     @Override public Feasibility check(YukkuriEntity body) {
         if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
+        if (ParentCarry.braidBusy(body)) return Feasibility.of(Reason.NO_TOOL, 0, "braid_busy");
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
         if (!(Attach.of(body) instanceof AttachState.Free free)) return Feasibility.of(Reason.NO_SUPPORT, 0, "not_ashore");
         if (free.inWater()) return checkWet(body);
@@ -82,6 +84,7 @@ public final class Beckon implements Action {
     /** Admission at a reachable dry stand, facing the host; execution uses this same reach and water test. */
     public Feasibility checkFrom(YukkuriEntity body, Vec3 stand, float yaw) {
         if (!ContactGeometry.braided(body)) return Feasibility.of(Reason.NO_TOOL, 0, "no_braid");
+        if (ParentCarry.braidBusy(body)) return Feasibility.of(Reason.NO_TOOL, 0, "braid_busy");
         if (host.entity().isRemoved()) return Feasibility.of(Reason.TARGET_GONE, 0, "host_gone");
         double far = host.entity().position().subtract(stand).horizontalDistance() - reach(body);
         if (far > 0) return Feasibility.of(Reason.TOO_FAR, far, "host_far");
@@ -180,7 +183,8 @@ public final class Beckon implements Action {
         if (phase >= contact && phase < strokeEnd) {
             if (body.life().energy() < COST) return Outcome.of(Reason.EXHAUSTED, 0, "energy=" + body.life().energy());
             pace = BodyAbility.of(body).swimSpeed() * BRAID;
-            if (!host.thrust(body, to.scale(Math.min(pace, distance) / distance), 0)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
+            Vec3 push = distance > 1E-4 ? to.scale(Math.min(pace, distance) / distance) : Vec3.ZERO;
+            if (!host.thrust(body, push, 0)) return Outcome.of(Reason.NO_SUPPORT, 0, "not_afloat");
             body.life().spendEnergy(COST);
             paid += COST;
             // The stroke meets the water once per cycle, where it really pulls.
@@ -214,6 +218,8 @@ public final class Beckon implements Action {
 
     @Override public MotionPose pose() { return new MotionPose(clip, startTick, true); }
     @Override public int motionSource() { return host.entity().getId(); }
+    @Override public int progressWindow() { return Math.max(40, length + 8); }
+    @Override public double progressEpsilon() { return PROGRESS; }
 
     @Override public String startDetail() {
         return String.format(Locale.ROOT, "host=%s distance=%.2f water=%s wet=%b reach=%.2f cycles=%d stroke=%d..%d/%d pace=%.3f ticks<=%d",

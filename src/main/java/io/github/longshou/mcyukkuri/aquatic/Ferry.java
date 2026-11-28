@@ -203,7 +203,8 @@ final class Ferry {
 
     /** Walk to an admitted takeoff when possible. A corner too narrow to walk onto can still support a hop landing. */
     private static Action boardingApproach(YukkuriEntity body, PlacedHatEntity hat, Beckoning beckoning, Hop.Search search) {
-        var edges = Waters.edges(body, hat.position(), 4, false);
+        int range = Math.max(4, (int) Math.ceil(Beckon.reach(body)));
+        var edges = Waters.edges(body, hat.position(), range, false);
         var board = new Hop(hat);
         Vec3 strokeStand = null;
         var walkStands = new ArrayList<Vec3>();
@@ -308,6 +309,9 @@ final class Ferry {
             return tried == null && PlacedHatEntity.find(body) == hat && AquaticLife.onWater(hat) && AquaticLife.ashore(body)
                     && new Beckon(hat).checkFrom(body, stand, yaw).ok();
         }
+
+        /** Whether this intent run has already tried a beckoning session. */
+        boolean tried() { return tried != null; }
 
         /** The beckon step, or null when no stroke applies; one session per run, so a drawn-in or failed one is never paid over
          *  again. */

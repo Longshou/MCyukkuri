@@ -324,7 +324,7 @@ final class Ashore implements Intent {
                     return held == null ? null : new Step.Do(new Release(held));
                 },
                 () -> new Step.Do(new StepIn(Waters.surface(owner.level(), e.water()))),
-                () -> new Step.Sub(new EscapeWater(owner, new HashMap<>())));
+                () -> new Step.Sub(new EscapeWater(owner, new HashMap<>(), !beckoning.tried())));
     }
 
     private void noticeOutOfReach() {
@@ -358,6 +358,7 @@ final class Ashore implements Intent {
                     owner.life().custody().state());
             return;
         }
+        if (result == IntentRunner.Result.EXHAUSTED && hat != null && !hat.isRemoved()) noticeOutOfReach();
         String reason = hat == null || hat.isRemoved() ? "lost" : result == IntentRunner.Result.INTERRUPTED ? "interrupted"
                 : owner.level().getGameTime() > deadline() ? "unreachable" : "no_way";
         GameplayLog.event(owner, "headwear", "reclaim expired reason={} result={} hat={} form={} distance={}",
